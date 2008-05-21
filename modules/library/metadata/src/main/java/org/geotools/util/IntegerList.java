@@ -41,6 +41,29 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
     private static final long serialVersionUID = 1241962316404811189L;
 
     /**
+     * The size of the primitive type used for the {@link #values} array.
+     */
+    private static final int VALUE_SIZE = 64;
+
+    /**
+     * The shift to apply on {@code index} in order to produce a result equivalent to
+     * {@code index} / {@value #VALUE_SIZE}.
+     */
+    private static final int BASE_SHIFT = 6;
+
+    /**
+     * The mask to apply on {@code index} in order to produce a result equivalent to
+     * {@code index} % {@value #VALUE_SIZE}.
+     */
+    private static final int OFFSET_MASK = 63;
+
+    /**
+     * The packed values. We use the {@code long} type instead of {@code int}
+     * on the basis that 64 bits machines are becoming more and more common.
+     */
+    private long[] values;
+
+    /**
      * The bit count for values.
      */
     private final int bitCount;
@@ -49,12 +72,6 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
      * The mask computed as {@code (1 << bitCount) - 1}.
      */
     private final int mask;
-
-    /**
-     * The packed values. We use the {@code long} type instead of {@code int}
-     * on the basis that 64 bits machines are becoming more and more common.
-     */
-    private long[] values;
 
     /**
      * The list size. Initially 0.
@@ -109,8 +126,13 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
      * @param size The list size.
      * @return The array length for holding a list of the given size.
      */
-    private int length(final int size) {
-        return (size * bitCount + (Long.SIZE - 1)) / Long.SIZE;
+    private int length(int size) {
+        size *= bitCount;
+        int length = size >>> BASE_SHIFT;
+        if ((size & OFFSET_MASK) != 0) {
+            length++;
+        }
+        return length;
     }
 
     /**
@@ -145,8 +167,8 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
         }
         if (size > this.size) {
             int base = this.size * bitCount;
-            final int offset = base % Long.SIZE;
-            base /= Long.SIZE;
+            final int offset = base & OFFSET_MASK;
+            base >>>= BASE_SHIFT;
             if (offset != 0 && base < values.length) {
                 values[base] &= (1L << offset) - 1;
                 base++;
@@ -223,10 +245,10 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
             throw new IndexOutOfBoundsException(Errors.format(ErrorKeys.INDEX_OUT_OF_BOUNDS_$1, index));
         }
         index *= bitCount;
-        int base   = index / Long.SIZE;
-        int offset = index % Long.SIZE;
+        int base   = index >>> BASE_SHIFT;
+        int offset = index & OFFSET_MASK;
         int value  = (int) (values[base] >>> offset);
-        offset = Long.SIZE - offset;
+        offset = VALUE_SIZE - offset;
         if (offset < bitCount) {
             final int high = (int) values[++base];
             value |= (high << offset);
@@ -269,11 +291,11 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
                     value, 0, mask));
         }
         index *= bitCount;
-        int base   = index / Long.SIZE;
-        int offset = index % Long.SIZE;
+        int base   = index >>> BASE_SHIFT;
+        int offset = index & OFFSET_MASK;
         values[base] &= ~(((long) mask) << offset);
         values[base] |= ((long) value) << offset;
-        offset = Long.SIZE - offset;
+        offset = VALUE_SIZE - offset;
         if (offset < bitCount) {
             value >>>= offset;
             values[++base] &= ~(((long) mask) >>> offset);
@@ -302,7 +324,7 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
      * Trims the capacity of this list to be its current size.
      */
     public void trimToSize() {
-        values = XArray.resize(values, size * bitCount / Long.SIZE);
+        values = XArray.resize(values, length(size));
     }
 
     /**

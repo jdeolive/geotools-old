@@ -134,7 +134,7 @@ public class TileManagerTest extends TestBase {
         assertEquals(18, tiles.size());
         total += tiles.size();
         searchSameTiles(15,20,  15,  15,15);
-        searchSameTiles(30,70,  15,  15,45);
+        searchSameTiles(30,70,  15,  30,60);
         searchSameTiles(18,27,  15,  15,15);
 
         subsampling.setSize(9, 9);
@@ -189,7 +189,7 @@ public class TileManagerTest extends TestBase {
         regionOfInterest.height =  3190;
         subsampling.width       =     6;
         subsampling.height      =     6;
-        searchTiles(new Dimension(3,3));
+        searchTiles(new Dimension(5,5));
         assertEquals(4, tiles.size());
     }
 }

@@ -39,7 +39,7 @@ final class FilenameFormatter implements Serializable {
     /**
      * For cross-version interoperability.
      */
-    private static final long serialVersionUID = -3419303061626601549L;
+    private static final long serialVersionUID = 67144666748146079L;
 
     /**
      * Default value for {@link #prefix}. Current implementation uses "L" as in "Level".
@@ -47,9 +47,9 @@ final class FilenameFormatter implements Serializable {
     private static final String DEFAULT_PREFIX = "L";
 
     /**
-     * The expected size of row and column filed in generated names.
+     * The expected size of level, row and column fields in generated names.
      */
-    private int overviewFieldSize, rowFieldSize, columnFieldSize;
+    private int levelFieldSize, rowFieldSize, columnFieldSize;
 
     /**
      * The prefix to put before tile filenames. If {@code null}, will be inferred
@@ -60,7 +60,7 @@ final class FilenameFormatter implements Serializable {
     /**
      * The separator between level number and the (row,column) coordinates.
      */
-    private String overviewSeparator;
+    private String levelSeparator;
 
     /**
      * The separator between column and row.
@@ -76,7 +76,7 @@ final class FilenameFormatter implements Serializable {
      * Creates a default filename formatter.
      */
     public FilenameFormatter() {
-        overviewSeparator = "_";
+        levelSeparator    = "_";
         locationSeparator = "";
     }
 
@@ -104,19 +104,19 @@ final class FilenameFormatter implements Serializable {
                 suffix = "." + suffix;
             }
         }
-        overviewFieldSize = 0;
-        rowFieldSize      = 0;
-        columnFieldSize   = 0;
+        levelFieldSize  = 0;
+        rowFieldSize    = 0;
+        columnFieldSize = 0;
     }
 
     /**
-     * Computes the value for {@link #overviewFieldSize}.
+     * Computes the value for {@link #levelFieldSize}.
      * It will be used by {@link #generateFilename}.
      *
      * @param n The expected number of overviews.
      */
-    public void computeOverviewFieldSize(final int n) {
-        overviewFieldSize = ((int) Math.log10(n)) + 1;
+    public void computeLevelFieldSize(final int n) {
+        levelFieldSize = ((int) Math.log10(n)) + 1;
     }
 
     /**
@@ -198,16 +198,16 @@ final class FilenameFormatter implements Serializable {
      * For example, a tile in the first overview level, which is localized on the 5th column and
      * 2nd row may have a name like "{@code L1_E2.png}".
      *
-     * @param  overview  The level of overview. First overview is 0.
+     * @param  level     The level of overview. First level is 0.
      * @param  column    The index of columns. First column is 0.
      * @param  row       The index of rows. First row is 0.
      * @return A filename based on the position of the tile in the whole raster.
      */
-    public String generateFilename(final int overview, final int column, final int row) {
+    public String generateFilename(final int level, final int column, final int row) {
         final StringBuilder buffer = new StringBuilder(prefix);
-        format10(buffer, overview, overviewFieldSize); buffer.append(overviewSeparator);
-        format26(buffer, column,   columnFieldSize);   buffer.append(locationSeparator);
-        format10(buffer, row,      rowFieldSize);
+        format10(buffer, level,  levelFieldSize);  buffer.append(levelSeparator);
+        format26(buffer, column, columnFieldSize); buffer.append(locationSeparator);
+        format10(buffer, row,    rowFieldSize);
         if (suffix != null) {
             buffer.append(suffix);
         }
@@ -218,17 +218,17 @@ final class FilenameFormatter implements Serializable {
      * Returns a pattern for the given filename. For example if the overview level is 2,
      * the column is 3 and the row is 4 (numbered from 0), and if the given filename is
      * {@code "L3_AD05.png"}, then the returned pattern is
-     * {@code "L{overview:1}_{column:2}{row:2}.png"}
+     * {@code "L{level:1}_{column:2}{row:2}.png"}
      * <p>
      * The state of this formatter is modified by this method.
      *
-     * @param  overview  The level of overview. First overview is 0.
+     * @param  level     The level of overview. First level is 0.
      * @param  column    The index of columns. First column is 0.
      * @param  row       The index of rows. First row is 0.
      * @param  filename  The filename.
      * @return A pattern for the given filename, or {@code null} if the pattern can not be found.
      */
-    public String guessPattern(final int overview, final int column, final int row, final String filename) {
+    public String guessPattern(final int level, final int column, final int row, final String filename) {
         /*
          * Extracts immediately the file extension, if any. Then we will scan the filename
          * in reverse order, because we want to search for numbers aligned to the right.
@@ -239,9 +239,9 @@ loop:   for (int fieldNumber=0; ;fieldNumber++) {
             final int fieldValue;
             final boolean useLetters;
             switch (fieldNumber) {
-                case 0:  fieldValue = row;      useLetters = false; break;
-                case 1:  fieldValue = column;   useLetters = true;  break;
-                case 2:  fieldValue = overview; useLetters = false; break;
+                case 0:  fieldValue = row;    useLetters = false; break;
+                case 1:  fieldValue = column; useLetters = true;  break;
+                case 2:  fieldValue = level;  useLetters = false; break;
                 default: break loop;
             }
             buffer.setLength(0);
@@ -251,7 +251,7 @@ loop:   for (int fieldNumber=0; ;fieldNumber++) {
                 format10(buffer, fieldValue, 0);
             }
             /*
-             * For a given field (row, column or overview), searchs the last occurence of this
+             * For a given field (row, column or level), searchs the last occurence of this
              * field in the filename, starting just before the field processed in the previous loop
              * iteration (if any). If the field is not found, or if it not bounded by a different
              * character than the ones used for formatting the field value (digits or letters),
@@ -286,14 +286,14 @@ loop:   for (int fieldNumber=0; ;fieldNumber++) {
             final String separator = filename.substring(end, last);
             length = end - start;
             switch (fieldNumber) {
-                case 0: suffix            = separator; rowFieldSize      = length; break;
-                case 1: locationSeparator = separator; columnFieldSize   = length; break;
-                case 2: overviewSeparator = separator; overviewFieldSize = length; break;
+                case 0: suffix            = separator; rowFieldSize    = length; break;
+                case 1: locationSeparator = separator; columnFieldSize = length; break;
+                case 2: levelSeparator    = separator; levelFieldSize  = length; break;
             }
             last = start;
         }
         prefix = filename.substring(0, last);
-        assert filename.equals(generateFilename(overview, column, row)) : filename;
+        assert filename.equals(generateFilename(level, column, row)) : filename;
         return toString();
     }
 
@@ -309,9 +309,9 @@ loop:   for (int fieldNumber=0; ;fieldNumber++) {
         for (int fieldNumber=0; ;fieldNumber++) {
             final String field;
             switch (fieldNumber) {
-                case 0:  field = "{overview:"; break;
-                case 1:  field = "{column:";   break;
-                case 2:  field = "{row:";      break;
+                case 0: field = "{level:";  break;
+                case 1: field = "{column:"; break;
+                case 2: field = "{row:";    break;
                 default: {
                     suffix = pattern.substring(last);
                     return; // Everything done, no exception.
@@ -336,9 +336,9 @@ loop:   for (int fieldNumber=0; ;fieldNumber++) {
             }
             last++;
             switch (fieldNumber) {
-                case 0:  prefix            = separator; overviewFieldSize = n; break;
-                case 1:  overviewSeparator = separator; columnFieldSize   = n; break;
-                case 2:  locationSeparator = separator; rowFieldSize      = n; break;
+                case 0: prefix            = separator; levelFieldSize  = n; break;
+                case 1: levelSeparator    = separator; columnFieldSize = n; break;
+                case 2: locationSeparator = separator; rowFieldSize    = n; break;
             }
         }
         throw new IllegalArgumentException(Errors.format(
@@ -351,8 +351,8 @@ loop:   for (int fieldNumber=0; ;fieldNumber++) {
     @Override
     public String toString() {
         return (prefix != null ? prefix : DEFAULT_PREFIX) +
-                "{overview:" + overviewFieldSize + '}' + overviewSeparator +
-                "{column:"   + columnFieldSize   + '}' + locationSeparator +
-                "{row:"      + rowFieldSize      + '}' + suffix;
+                "{level:"  + levelFieldSize  + '}' + levelSeparator +
+                "{column:" + columnFieldSize + '}' + locationSeparator +
+                "{row:"    + rowFieldSize    + '}' + suffix;
     }
 }

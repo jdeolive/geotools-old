@@ -54,14 +54,14 @@ public final class IntegerListTest {
         final List<Integer> copy = new ArrayList<Integer>();
         for (int i=0; i<length; i++) {
             assertEquals(i, list.size());
-            final Integer value = random.nextInt(maximalValue + 1);
+            final Integer value = nextInt(maximalValue);
             assertTrue(copy.add(value));
             assertTrue(list.add(value));
         }
         assertEquals(copy, list);
         assertEquals(copy.hashCode(), list.hashCode());
         for (int i=0; i<length; i+=10) {
-            final Integer value = random.nextInt(maximalValue + 1);
+            final Integer value = nextInt(maximalValue);
             final Integer old = copy.set(i, value);
             assertNotNull(old);
             assertEquals(old, list.set(i, value));
@@ -71,6 +71,17 @@ public final class IntegerListTest {
         }
         assertEquals(copy, list);
         assertEquals(copy.hashCode(), list.hashCode());
+    }
+
+    /**
+     * Returns the next number from the random number generator.
+     */
+    private int nextInt(final int maximalValue) {
+        if (maximalValue == Integer.MAX_VALUE) {
+            return Math.abs(random.nextInt());
+        } else {
+            return random.nextInt(maximalValue + 1);
+        }
     }
 
     /**
@@ -133,5 +144,13 @@ public final class IntegerListTest {
     @Test
     public void test100000() {
         testReadWrite(100000);
+    }
+
+    /**
+     * Tests with a maximal value of {@value Integer#MAX_VALUE}.
+     */
+    @Test
+    public void testMax() {
+        testReadWrite(Integer.MAX_VALUE);
     }
 }

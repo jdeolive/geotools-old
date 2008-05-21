@@ -124,7 +124,7 @@ public class MosaicBuilder {
     /**
      * The logging level for tiling information during reads and writes.
      */
-    private Level level = Level.FINE;
+    private Level logLevel = Level.FINE;
 
     /**
      * Generates tiles using the default factory.
@@ -151,7 +151,7 @@ public class MosaicBuilder {
      * @return The current logging level.
      */
     public Level getLogLevel() {
-        return level;
+        return logLevel;
     }
 
     /**
@@ -164,7 +164,7 @@ public class MosaicBuilder {
         if (level == null) {
             level = Level.FINE;
         }
-        this.level = level;
+        logLevel = level;
     }
 
     /**
@@ -681,9 +681,9 @@ public class MosaicBuilder {
                 subsamplings[i-1] = new Dimension(i,i);
             }
         }
-        formatter.computeOverviewFieldSize(subsamplings.length);
-        for (int overview=0; overview<subsamplings.length; overview++) {
-            final Dimension subsampling = subsamplings[overview];
+        formatter.computeLevelFieldSize(subsamplings.length);
+        for (int level=0; level<subsamplings.length; level++) {
+            final Dimension subsampling = subsamplings[level];
             imageBounds.setRect(untiledBounds);
             divide(imageBounds, subsampling);
             if (constantArea) {
@@ -700,7 +700,7 @@ public class MosaicBuilder {
                 x = 0;
                 for (tileBounds.x = xmin; tileBounds.x < xmax; tileBounds.x += tileBounds.width) {
                     final Rectangle clippedBounds = tileBounds.intersection(imageBounds);
-                    final File file = new File(directory, generateFilename(overview, x, y));
+                    final File file = new File(directory, generateFilename(level, x, y));
                     final Tile tile = new Tile(tileReaderSpi, file, 0, clippedBounds, subsampling);
                     tiles.add(tile);
                     x++;
@@ -883,13 +883,13 @@ public class MosaicBuilder {
      * <p>
      * Subclasses may override this method if they want more control on generated tile filenames.
      *
-     * @param  overview  The level of overview. First overview is 0.
+     * @param  level     The level of overview. First level is 0.
      * @param  column    The index of columns. First column is 0.
      * @param  row       The index of rows. First row is 0.
      * @return A filename based on the position of the tile in the whole raster.
      */
-    protected String generateFilename(final int overview, final int column, final int row) {
-        return formatter.generateFilename(overview, column, row);
+    protected String generateFilename(final int level, final int column, final int row) {
+        return formatter.generateFilename(level, column, row);
     }
 
     /**

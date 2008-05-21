@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.util.Collections;
 import org.geotools.util.FrequencySortedSet;
 
 
@@ -45,7 +44,7 @@ public class GridTileManager extends TileManager {
     /**
      * The levels of overview sorted by finest levels first.
      */
-    private final GridLevel[] levels;
+    private final OverviewLevel[] levels;
 
     /**
      * The region enclosing all tiles in absolute coordinates. This is the coordinates
@@ -71,23 +70,23 @@ public class GridTileManager extends TileManager {
             throws IOException, IllegalArgumentException
     {
         Tile.ensureNonNull("tiles", tiles);
-        final Map<Dimension,GridLevel> levelsBySubsampling = new HashMap<Dimension,GridLevel>();
+        final Map<Dimension,OverviewLevel> levelsBySubsampling = new HashMap<Dimension,OverviewLevel>();
         for (final Tile tile : tiles) {
             final Dimension subsampling = tile.getSubsampling();
-            GridLevel level = levelsBySubsampling.get(subsampling);
+            OverviewLevel level = levelsBySubsampling.get(subsampling);
             if (level == null) {
-                level = new GridLevel(tile, subsampling);
+                level = new OverviewLevel(tile, subsampling);
                 levelsBySubsampling.put(subsampling, level);
             } else {
                 level.add(tile, subsampling);
             }
         }
-        levels = levelsBySubsampling.values().toArray(new GridLevel[levelsBySubsampling.size()]);
+        levels = levelsBySubsampling.values().toArray(new OverviewLevel[levelsBySubsampling.size()]);
         Arrays.sort(levels);
         region = new Rectangle(-1, -1);
         int count = 0;
         for (int i=0; i<levels.length; i++) {
-            final GridLevel level = levels[i];
+            final OverviewLevel level = levels[i];
             level.process(i);
             region.add(level.getAbsoluteRegion());
             count += level.getNumTiles();
@@ -143,7 +142,7 @@ public class GridTileManager extends TileManager {
     @Override
     final Collection<Tile> getInternalTiles() {
         final FrequencySortedSet<Tile> tiles = new FrequencySortedSet<Tile>();
-        for (final GridLevel level : levels) {
+        for (final OverviewLevel level : levels) {
             level.addInternalTiles(tiles);
         }
         return tiles;
@@ -156,9 +155,9 @@ public class GridTileManager extends TileManager {
      * @throws IOException If an I/O operation was required and failed.
      */
     public Collection<Tile> getTiles() throws IOException {
-        final Collection<Tile> tiles = new ArrayList<Tile>(count);
-        for (final GridLevel level : levels) {
-            level.addTiles(tiles, null);
+        final ArrayList<Tile> tiles = new ArrayList<Tile>(count);
+        for (final OverviewLevel level : levels) {
+            level.addTiles(tiles);
         }
         return tiles;
     }
@@ -172,12 +171,17 @@ public class GridTileManager extends TileManager {
     public Collection<Tile> getTiles(final Rectangle region, final Dimension subsampling,
                                      final boolean subsamplingChangeAllowed) throws IOException
     {
-        long bestCost = Long.MAX_VALUE;
+        int[] tileCosts = null;
+        long lowestCost = Long.MAX_VALUE;
+        OverviewLevel bestLevel = null;
         Dimension bestSubsampling = null;
-        Collection<Tile> tiles = Collections.emptySet();
+        ArrayList<Tile> tiles = null;
+        final Rectangle tmpRegion = new Rectangle();
+        final Dimension tmpSubsampling = new Dimension();
         for (int ordinal=levels.length; --ordinal>=0;) {
-            final GridLevel level = levels[ordinal];
-            final Dimension doable = level.getSample().getSubsamplingFloor(subsampling);
+            final OverviewLevel level = levels[ordinal];
+            final Tile sample = level.getSample();
+            final Dimension doable = sample.getSubsamplingFloor(subsampling);
             if (doable == null) {
                 // The current level can not handle the given subsampling or any finer one.
                 continue;
@@ -189,17 +193,51 @@ public class GridTileManager extends TileManager {
                     continue;
                 }
             }
+            /**
+             * Gets the tiles at current level and checks if the cost of reading them is lower
+             * than the cost of reading the tiles at the previous (coarser) level. They could
+             * be lower if the region to read is small enough so that reading smaller tiles
+             * compensate the cost of applying a higher subsampling.
+             */
+            final ArrayList<Tile> finers = level.getTiles(region, subsampling, levels, ordinal);
+            if (ordinal == 0 && tiles == null) {
+                subsampling.setSize(doable);
+                return finers; // Optimization when we known there is nothing more to analyze.
+            }
             long cost = 0;
-            final Collection<Tile> candidates = level.addTiles(null, region);
-            for (final Tile tile : candidates) {
-                cost += tile.countUnwantedPixelsFromAbsolute(region, subsampling);
+            final int[] costs = new int[finers.size()];
+            for (int i=0; i<costs.length; i++) {
+                final Tile tile = finers.get(i);
+                tmpRegion.setRect(region);
+                tmpSubsampling.setSize(doable);
+                cost += (costs[i] = tile.countUnwantedPixelsFromAbsolute(tmpRegion, tmpSubsampling));
             }
-            if (cost < bestCost) {
-                bestCost = cost;
+            if (cost <= lowestCost) {
+                lowestCost = cost;
+                tileCosts = costs;
+                bestLevel = level;
                 bestSubsampling = doable;
-                tiles = candidates;
-                break;
+                tiles = finers;
+                continue;
             }
+            /*
+             * We have a set of tiles which is assumed to be the least costly one, since we
+             * iterated over the overview levels starting with coarser level first. Now for
+             * each tiles, checks if the tiles at the next (finer) level would be less costly.
+             * This is usually not the case, except on the region border where reading smaller
+             * tiles may be less costly even if they require higher subsampling.
+             */
+            if (!level.isDivisorOf(bestLevel)) {
+                continue;
+            }
+            for (int i=0; i<tileCosts.length; i++) {
+                final Tile tile = tiles.get(i);
+                
+            }
+            break;
+        }
+        if (bestSubsampling != null) {
+            subsampling.setSize(bestSubsampling);
         }
         return tiles;
     }
