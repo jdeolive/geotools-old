@@ -27,11 +27,11 @@ options {
    // Comment the output directory if you need to compile with maven
    //OUTPUT_DIRECTORY="../../../../../../../../target/generated-sources/jjtree-javacc/org/geotools/filter/text/generated/parsers";
 
-   SANITY_CHECK=true;
+   SANITY_CHECK=false;
    VISITOR=false;
 
    	// debug
-   DEBUG_TOKEN_MANAGER=false;
+   DEBUG_TOKEN_MANAGER=true;
    DEBUG_PARSER=false;
 }
 
@@ -98,11 +98,11 @@ PARSER_END(TXTParser)
 
 SKIP : /* WHITE SPACE */
 {
-  " "
-| "\t"
-| "\n"
-| "\r"
-| "\f"
+  		" "
+	| 	"\t"
+	| 	"\n"
+	| 	"\r"
+	| 	"\f"
 }
 
 
@@ -134,8 +134,11 @@ TOKEN [IGNORE_CASE]:  /* keywords */
    < UNKNOWN: "unknown"> |
    < LIKE: "like" > |
    < BETWEEN: "between"> |
+   < ID: "id" > |
+   < IN: "in" > |
    < IS: "is" > |
    < NULL: "null" > 
+
 }
 
 TOKEN [IGNORE_CASE]: /* include all and exclude all filters */
@@ -224,6 +227,7 @@ TOKEN:
 // then DURATION has preference over IDENTIFIER
 TOKEN [IGNORE_CASE]: /* Literals */
 {
+
   	< INTEGER_LITERAL: ("-")? (<DIGIT>)+ > |
   	< FLOATING_LITERAL:
     	("-")?
@@ -252,11 +256,6 @@ TOKEN [IGNORE_CASE]: /* Literals */
   	< LETTER: [ "a"-"z", "A"-"Z" , "_"] > |
   	< DIGIT: [ "0"-"9"] > |
   	< #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ > 
-}
-
-TOKEN:
-{
-	<FEATURE_ID: "#" (~[","] )*  >: DEFAULT 
 }
 
 
@@ -364,6 +363,7 @@ void BooleanPrimary() #void:
 void Predicate() #void:
 {}
 {
+	LOOKAHEAD(2) IdPredicate() |
 	Attribute() 
 	(
 			LOOKAHEAD(3)TextPredicate()
@@ -373,32 +373,35 @@ void Predicate() #void:
 		|   LOOKAHEAD(3)BetweenPredicate()		
 		|	ComparissonPredicate() 
 	)
-	| IdPredicate()
 }
 
+/* ---------------------------------------- *
+ *   	<id predicate>
+ * ---------------------------------------- *
 /*
- * <id predicate> ::= <id> {"," <id> };
- * <id> ::= <hash> { <character> }
- * <hash> ::= "#"
+ * <id predicate> ::= "ID" "IN" <id list> 
+ * <id list> ::= <id value>, {"," id value}
  */
-void IdPredicate() #ID_PREDICATE_NODE:
+void IdPredicate() #void:
 {}
 {
-	FeatureID()
-	( 	 
-		<COMMA>  
-	   	FeatureID() 
-	)*
-	
+/*	
+  	 	LOOKAHEAD(3)  <ID> <NOT> <IN> IdList() 	#Not_Id_Predicate_Node
+  	|	              <ID> <IN> IdList() 		#Id_Predicate_Node
+ */ 	
+ 	<ID> <IN> IdList() 
 }
- 
-void FeatureID() #FEATURE_ID_NODE:
+void IdList() #ID_LIST_NODE:
 {}
 {
-	<FEATURE_ID>
+	IdValue()( <COMMA>  IdValue() )*
 	
+} 
+void IdValue() #FEATURE_ID_NODE:
+{}
+{
+	<STRING_LITERAL>	
 }
- 
 
 /* ---------------------------------------- *
  *   	<routine invocation>
@@ -467,8 +470,6 @@ void BBoxArgumentList() #void:
 			 SignedNumericLiteral() 
 			 ( <RP> 						#RoutineInvocation_GeoOp_BBOX_Node
 			  | <COMMA> StringLiteral()<RP> #RoutineInvocation_GeoOp_BBOX_SRS_Node)
-			
-		
 }
 
 /*

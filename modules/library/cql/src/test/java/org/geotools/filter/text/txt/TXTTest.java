@@ -27,7 +27,6 @@ import org.opengis.filter.Id;
  * TXT Test Case
  *
  * @author Jody Garnett
- * @author Maria Comanescu
  * @author Mauricio Pazos (Axios Engineering)
  *
  * @version Revision: 1.9
@@ -35,66 +34,70 @@ import org.opengis.filter.Id;
  */
 public final class TXTTest extends TestCase{
     
-
+    /**
+     * Facade simple test
+     * 
+     * @throws Exception
+     */
     public void testFacade() throws Exception {
         TXT.toFilter("A = 1");
         TXT.toExpression("A + 1");
         TXT.toFilterList("A=1; B<4");
     }
-
+    
     /**
-     * <id predicate> ::= <id> {"," <id> };
-     * <id> ::= <hash> { <character> }
-     * <hash> ::= "#"
+     * <pre>
+     * &lt id predicate &gt ::= ID IN &lt id &gt {,&lt id &gt };
      * 
-     * Test: #15521.3566 
+     * &lt id &gt ::= 'string'
      * 
+     * Samples:
+     * <ul>
+     * <li>ID IN '15521.3566' </li>
+     * <li>ID IN 'fid-_df58120_11814e5d8b3__7ffb'</li>
+     * <li>ID IN 'states.1'</li>
+     * </ul> 
+     * </pre>
      * @throws Exception
      */
     public void testFilterId() throws Exception {
+        assertFilterId("15521.3566");
+        assertFilterId("fid-_df58120_11814e5d8b3__7ffb");
+        assertFilterId("states.1");
+    }
 
-        String strId;
-        Filter filter; 
-        Id filterId; 
-        Set<?> idSet;
-        
-        //sample: #15521.3566 
-        strId = "15521.3566";
-        filter = TXT.toFilter("#" + strId);
+    /**
+     * Test the id Predicate 
+     * @throws CQLException
+     */
+    private void assertFilterId(final String idValue) throws CQLException {
+
+        String strId = "'"+ idValue + "'";
+        Filter filter = TXT.toFilter("ID IN " + strId);
         assertNotNull(filter);
         assertTrue(filter instanceof Id);
 
-        filterId = (Id) filter;
-        idSet = filterId.getIDs();
+        Id filterId = (Id) filter;
+        Set<?>  idSet = filterId.getIDs();
         assertTrue("one id in filter Id was expected", idSet.size() == 1);
-        assertTrue(strId + "was expected", idSet.contains(strId));
-
-        //sample: #fid-_df58120_11814e5d8b3__7ffb 
-        strId = "fid-_df58120_11814e5d8b3__7ffb";
-        filter = TXT.toFilter("#" + strId);
-        assertNotNull(filter);
-        assertTrue(filter instanceof Id);
-
-        filterId = (Id) filter;
-        idSet = filterId.getIDs();
-        assertTrue("one id in filter Id was expected", idSet.size() == 1);
-        assertTrue(strId + "was expected", idSet.contains(strId) );
+        assertTrue(idValue + "was expected", idSet.contains(idValue));
     }
     
     /**
-     * <id predicate> ::= <id> {"," <id> }; <id> ::= <hash> { <character> }
-     * <hash> ::= "#"
+     * <pre>
+     * &lt id predicate &gt ::= ID IN &lt id &gt {,&lt id &gt };
      * 
-     * Test: #15521.3566, #15521.3567, #15521.3568
-     * 
+     * Sample: ID IN states.1, states.2, states.3
+     * </pre>
      * @throws Exception
      */
     public void testFilterIdList() throws Exception {
-        final String strId1 = "15521.3566";
-        final String strId2 = "15521.3567";
-        final String strId3 = "15521.3568";
-        Filter filter = TXT.toFilter("#" + strId1 + ", #" + strId2 + ", #"
-                + strId3);
+
+        final String strId1 = "states.1";
+        final String strId2 = "states.2";
+        final String strId3 = "states.3";
+        Filter filter = TXT.toFilter("ID IN '" + strId1 + "','" + strId2
+                + "', '" + strId3 + "'");
         assertNotNull(filter);
         assertTrue(filter instanceof Id);
 
@@ -109,22 +112,26 @@ public final class TXTTest extends TestCase{
 
         assertTrue(strId3 + " was expected", resultIdentifiers.contains(strId3));
     }
+    
 
-    public void testFilterIdError(){
-        String strId;
-        Filter filter; 
-        Id filterId; 
-        Set<?> idSet;
-        
-        //sample: 15521,3566 (without #)
+    /**
+     * bad syntax in id predicate
+     */
+    public void testFilterIdError() {
+
+        //sample: 15521,3566 (IN keyword is required )
         try {
-            strId = "15521.3566";
+            String strId = "ID 15521.3566";
             TXT.toFilter(strId);
-            fail("Exception is expected");
-        } catch (CQLException e) {
             
-            assertTrue("Expects syntax error", e.getSyntaxError().length()>0 );
+            fail("Exception is expected");
+            
+        } catch (CQLException e) {
+
+            assertTrue("Expects syntax error", e.getSyntaxError().length() > 0);
         }
     }
+    
+  
     
 }

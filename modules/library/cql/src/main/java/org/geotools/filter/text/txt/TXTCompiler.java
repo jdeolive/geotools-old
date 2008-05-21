@@ -406,10 +406,10 @@ public class TXTCompiler extends TXTParser implements ICompiler{
             //  id predicate
             // ----------------------------------------
         case JJTFEATURE_ID_NODE:
+            //return this.builder.buildLiteralString(getTokenInPosition(0).toString());
             return this.builder.buildFeatureID(getTokenInPosition(0));
-
             
-        case JJTID_PREDICATE_NODE:
+        case JJTID_LIST_NODE:
             return this.builder.buildFilterId(JJTFEATURE_ID_NODE);
         }
 

@@ -38,7 +38,6 @@ import org.opengis.filter.expression.Expression;
  * 
  * 
  * @author Jody Garnett
- * @author Maria Comanescu
  * @author Mauricio Pazos (Axios Engineering)
  * 
  * @since 2.5

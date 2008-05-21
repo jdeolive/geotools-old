@@ -357,8 +357,8 @@ public class CQLFilterBuilder {
      * @return string without initial and final quote, and "''" replaced 
      * by "'".
      */
-    private String removeQuotes(final String source){
-
+    protected String removeQuotes(final String source){
+        
         // checks if it has initial an final quote
         final String quote = "'";
         if( !( source.startsWith(quote) && source.endsWith(quote)) ){

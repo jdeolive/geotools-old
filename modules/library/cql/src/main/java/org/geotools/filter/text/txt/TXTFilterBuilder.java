@@ -43,19 +43,23 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
     }
 
     /**
-     * build the filter id
+     * builds the filter id
      * 
-     * @param token  #<character>
-     * @return String without the #
+     * @param token  <character>
+     * @return String without the quotes
      */
     public FeatureId buildFeatureID(IToken token) {
        
-        // remove the #
-        String txtId = token.toString();
-        txtId = txtId.trim();
-        txtId = txtId.substring(1);
+//      TODO delete it
+//        // remove the #
+//        String txtId = token.toString();
+//        txtId = txtId.trim();
+//        txtId = txtId.substring(1);
         
-        FeatureId id = getFilterFactory().featureId( txtId);
+        String strId = removeQuotes(token.toString());
+
+        FeatureId id = getFilterFactory().featureId( strId);
+        
         return id;
     }
 
