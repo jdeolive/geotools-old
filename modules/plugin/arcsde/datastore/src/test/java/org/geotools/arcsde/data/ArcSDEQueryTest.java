@@ -144,7 +144,7 @@ public class ArcSDEQueryTest extends TestCase {
             oneTimeSetUp();
         }
         dstore = testData.getDataStore();
-        typeName = testData.getTemp_table();
+        typeName = testData.getTempTableName();
         this.ftype = dstore.getSchema(typeName);
 
         // grab some fids

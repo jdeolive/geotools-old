@@ -177,7 +177,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
         final int initialAvailableCount = pool.getAvailableCount();
         final int initialPoolSize = pool.getPoolSize();
 
-        String typeName = testData.getTemp_table();
+        String typeName = testData.getTempTableName();
 
         FeatureSource<SimpleFeatureType, SimpleFeature> source;
         source = ds.getFeatureSource(typeName);
@@ -246,7 +246,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     public void testGetFeatureReader() throws IOException, IllegalAttributeException, SeException {
         final int NUM_READERS = Integer.parseInt(testData.getConProps().getProperty(
                 "pool.maxConnections"));
-        String[] typeNames = { testData.getTemp_table() };
+        String[] typeNames = { testData.getTempTableName() };
 
         FeatureReader<SimpleFeatureType, SimpleFeature>[] readers = new FeatureReader[NUM_READERS];
         int[] counts = new int[NUM_READERS];
@@ -305,7 +305,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
      */
     public void testRestrictsAttributes() throws IOException, IllegalAttributeException,
             SeException {
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final DataStore ds = testData.getDataStore();
         final SimpleFeatureType schema = ds.getSchema(typeName);
         final int queriedAttributeCount = schema.getAttributeCount() - 3;
@@ -349,7 +349,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
      */
     public void testRespectsAttributeOrder() throws IOException, IllegalAttributeException,
             SeException {
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final DataStore ds = testData.getDataStore();
         final SimpleFeatureType schema = ds.getSchema(typeName);
         final int queriedAttributeCount = schema.getAttributeCount();
@@ -444,7 +444,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     public void testMixedQueries() throws Exception {
         final int EXPECTED_RESULT_COUNT = 1;
         FeatureSource<SimpleFeatureType, SimpleFeature> fs = store.getFeatureSource(testData
-                .getTemp_table());
+                .getTempTableName());
         Filter bboxFilter = getBBoxfilter(fs);
         Filter sqlFilter = CQL.toFilter("INT32_COL < 5");
         LOGGER.fine("Geometry filter: " + bboxFilter);
@@ -452,7 +452,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
 
         And mixedFilter = ff.and(sqlFilter, bboxFilter);
 
-        Not not = ff.not(ff.id(Collections.singleton(ff.featureId(testData.getTemp_table()
+        Not not = ff.not(ff.id(Collections.singleton(ff.featureId(testData.getTempTableName()
                 + ".90000"))));
 
         mixedFilter = ff.and(mixedFilter, not);
@@ -501,7 +501,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     public void testAttributeOnlyQuery() throws Exception {
         DataStore ds = testData.getDataStore();
         FeatureSource<SimpleFeatureType, SimpleFeature> fSource = ds.getFeatureSource(testData
-                .getTemp_table());
+                .getTempTableName());
         SimpleFeatureType type = fSource.getSchema();
         DefaultQuery attOnlyQuery = new DefaultQuery(type.getTypeName());
         List propNames = new ArrayList(type.getAttributeCount() - 1);
@@ -552,7 +552,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
      */
     public void testFidFilters() throws Exception {
         final DataStore ds = testData.getDataStore();
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
 
         // grab some fids
         FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(
@@ -589,7 +589,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
 
     public void testMoreThan1000FidFilters() throws Exception {
         final DataStore ds = testData.getDataStore();
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
 
         // grab some fids
         FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(
@@ -633,7 +633,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
      * @throws SeException
      */
     public void testGetFeatureSourcePoint() throws IOException, SeException {
-        testGetFeatureSource(store.getFeatureSource(testData.getTemp_table()));
+        testGetFeatureSource(store.getFeatureSource(testData.getTempTableName()));
     }
 
     /**
@@ -644,7 +644,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
      * @throws IOException DOCUMENT ME!
      */
     public void testGetFeatures() throws Exception {
-        final String table = testData.getTemp_table();
+        final String table = testData.getTempTableName();
         LOGGER.fine("getting all features from " + table);
 
         FeatureSource<SimpleFeatureType, SimpleFeature> source = store.getFeatureSource(table);
@@ -669,7 +669,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
         int expected = 4;
         Filter filter = CQL.toFilter("INT32_COL < 5");
         FeatureSource<SimpleFeatureType, SimpleFeature> fsource = store.getFeatureSource(testData
-                .getTemp_table());
+                .getTempTableName());
         testFilter(filter, fsource, expected);
     }
 
@@ -680,7 +680,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
      */
     public void testBBoxFilter() throws Exception {
         int expected = 7;
-        testBBox(testData.getTemp_table(), expected);
+        testBBox(testData.getTempTableName(), expected);
     }
 
     // ///////////////// HELPER FUNCTIONS ////////////////////////

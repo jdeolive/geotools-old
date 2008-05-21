@@ -232,17 +232,17 @@ public class ArcSDEAdapter {
         return sdeType;
     }
 
-//    public static FeatureTypeInfo fetchSchema(final String typeName,
-//            final String namespace,
-//            final ArcSDEConnectionPool pool) throws IOException {
-//        return pool.issueReadOnly(new Command<FeatureTypeInfo>() {
-//            @Override
-//            public FeatureTypeInfo execute(Session session, SeConnection connection)
-//                    throws SeException, IOException {
-//                return fetchSchema(typeName, namespace, session);
-//            }
-//        });
-//    }
+    // public static FeatureTypeInfo fetchSchema(final String typeName,
+    // final String namespace,
+    // final ArcSDEConnectionPool pool) throws IOException {
+    // return pool.issueReadOnly(new Command<FeatureTypeInfo>() {
+    // @Override
+    // public FeatureTypeInfo execute(Session session, SeConnection connection)
+    // throws SeException, IOException {
+    // return fetchSchema(typeName, namespace, session);
+    // }
+    // });
+    // }
 
     /**
      * Fetches the schema of a given ArcSDE featureclass and creates its corresponding Geotools
@@ -258,8 +258,10 @@ public class ArcSDEAdapter {
         final SeLayer layer = session.getLayer(typeName);
         final SeTable table = session.getTable(typeName);
 
-        final List<AttributeDescriptor> properties = createAttributeDescriptors(layer, table,
-                namespace);
+        final SeColumnDefinition[] seColumns = session.describe(typeName);
+
+        final List<AttributeDescriptor> properties = createAttributeDescriptors(layer, namespace,
+                seColumns);
 
         final SimpleFeatureType featureType = createSchema(typeName, namespace, properties);
 
@@ -382,29 +384,6 @@ public class ArcSDEAdapter {
         typeInfo = new FeatureTypeInfo(type, fidStrategy, qualifiedSelect, queryInfo);
 
         return typeInfo;
-    }
-
-    /**
-     * Creates the FeatureType content for a given ArcSDE layer in the form of a list of
-     * AttributeDescriptors
-     * 
-     * @param sdeLayer sde layer
-     * @param table sde business table associated to <code>layer</code>
-     * @return List&lt;AttributeDescriptor&gt;
-     * @throws DataSourceException if any problem is found wroking with arcsde to fetch layer
-     *             metadata
-     */
-    private static List<AttributeDescriptor> createAttributeDescriptors(SeLayer sdeLayer,
-            SeTable table,
-            String namespace) throws DataSourceException {
-        SeColumnDefinition[] seColumns = null;
-        try {
-            seColumns = table.describe();
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-
-        return createAttributeDescriptors(sdeLayer, namespace, seColumns);
     }
 
     private static List<AttributeDescriptor> createAttributeDescriptors(SeLayer sdeLayer,

@@ -166,8 +166,8 @@ public class GeometryBuilderTest extends TestCase {
 
     public void testInsertGeometries(Geometry[] original, TestData testData) throws Exception {
         testData.truncateTempTable();
-        SeLayer layer = testData.getTempLayer();
         Session session = testData.getConnectionPool().getSession();
+        SeLayer layer = testData.getTempLayer(session);
 
         Geometry[] fetched = new Geometry[original.length];
         try {

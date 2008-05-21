@@ -96,6 +96,8 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     /** DOCUMENT ME! */
     private static TestData testData;
 
+    private static boolean forceOneTimeTearDown;
+
     /**
      * Builds a test suite for all this class' tests with per suite initialization directed to
      * {@link #oneTimeSetUp()} and per suite clean up directed to {@link #oneTimeTearDown()}
@@ -109,6 +111,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         TestSetup wrapper = new TestSetup(suite) {
             @Override
             protected void setUp() throws Exception {
+                forceOneTimeTearDown = false;
                 oneTimeSetUp();
             }
 
@@ -150,6 +153,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         // facilitates running a single test at a time (eclipse lets you do this
         // and it's very useful)
         if (testData == null) {
+            forceOneTimeTearDown = true;
             oneTimeSetUp();
         }
         testData.truncateTempTable();
@@ -158,13 +162,16 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        if (forceOneTimeTearDown) {
+            oneTimeTearDown();
+        }
     }
 
     public void testDeleteByFIDAutoCommit() throws Exception {
         testData.insertTestData();
 
         final DataStore ds = testData.getDataStore();
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
 
         final String fid;
         final Filter fidFilter;
@@ -248,7 +255,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         testData.insertTestData();
 
         final DataStore ds = testData.getDataStore();
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
 
         // get 2 features and build an OR'ed PropertyIsEqualTo filter
         Filter or = CQL.toFilter("INT32_COL = 1 OR INT32_COL = 2");
@@ -353,7 +360,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     public void testInsertTransaction() throws Exception {
         // start with an empty table
         testData.truncateTempTable();
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final int featureCount = 2;
         final FeatureCollection<SimpleFeatureType, SimpleFeature> testFeatures;
         testFeatures = testData.createTestFeatures(LineString.class, featureCount);
@@ -414,7 +421,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     @SuppressWarnings("unchecked")
     public void testInsertTransactionAndQueryByFid() throws Exception {
         // start with an empty table
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final int featureCount = 2;
         final FeatureCollection<SimpleFeatureType, SimpleFeature> testFeatures;
         testFeatures = testData.createTestFeatures(LineString.class, featureCount);
@@ -449,7 +456,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     public void testUpdateAutoCommit() throws Exception {
         testData.insertTestData();
 
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final DataStore ds = testData.getDataStore();
         final Filter filter = CQL.toFilter("INT32_COL = 3");
 
@@ -489,7 +496,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     public void testUpdateTransaction() throws Exception {
         testData.insertTestData();
 
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final DataStore ds = testData.getDataStore();
         final Filter oldValueFilter = CQL.toFilter("INT32_COL = 3");
         final Query oldValueQuery = new DefaultQuery(typeName, oldValueFilter);
@@ -560,7 +567,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     public void testModifyFeaturesTransaction() throws Exception {
         testData.insertTestData();
 
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final DataStore ds = testData.getDataStore();
         final FeatureStore<SimpleFeatureType, SimpleFeature> store;
         store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource(typeName);
@@ -636,7 +643,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final Polygon modif2 = (Polygon) reader
                 .read("POLYGON ((-5 -10, 5 10, 10 10, 10 -10, -5 -10))");
 
-        final String typeName = testData.getTemp_table(); // "SDE.CJ_TST_1";
+        final String typeName = testData.getTempTableName(); // "SDE.CJ_TST_1";
         final ArcSDEDataStore dataStore = testData.getDataStore();
         // String[] typeNames = dataStore.getTypeNames();
         // System.err.println(typeNames);
@@ -732,7 +739,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
      * @throws IllegalArgumentException DOCUMENT ME!
      */
     private void testInsertAutoCommit(Class<? extends Geometry> geometryClass) throws Exception {
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final int insertCount = 2;
         final FeatureCollection<SimpleFeatureType, SimpleFeature> testFeatures;
         testFeatures = testData.createTestFeatures(geometryClass, insertCount);
@@ -807,7 +814,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     }
 
     public void testWriteAndUpdateNullShapes() throws Exception {
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         testData.truncateTempTable();
 
         DataStore ds = testData.getDataStore();
@@ -871,7 +878,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         }
         LOGGER.info("Null-geom feature updated with a sample geometry.");
 
-        DefaultQuery query = new DefaultQuery(testData.getTemp_table(), idFilter);
+        DefaultQuery query = new DefaultQuery(testData.getTempTableName(), idFilter);
         reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
         try {
             assertTrue(reader.hasNext());
@@ -898,7 +905,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         // any kind of geometries.
         testData.insertTestData();
 
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
 
         final DataStore ds = testData.getDataStore();
         final FeatureSource<SimpleFeatureType, SimpleFeature> fsource = ds
@@ -966,7 +973,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         // any kind of geometries.
         testData.insertTestData();
 
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final FeatureCollection<SimpleFeatureType, SimpleFeature> testFeatures = testData
                 .createTestFeatures(LineString.class, 2);
 
@@ -1007,7 +1014,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         // testData.insertTestData();
 
         final DataStore ds = testData.getDataStore();
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final FeatureStore<SimpleFeatureType, SimpleFeature> transFs = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds
                 .getFeatureSource(typeName);
         final SimpleFeatureType schema = transFs.getSchema();
@@ -1127,7 +1134,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final FeatureCollection<SimpleFeatureType, SimpleFeature> featuresToSet = testData
                 .createTestFeatures(Point.class, 5);
         final DataStore ds = testData.getDataStore();
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
 
         final FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds
                 .getFeatureSource(typeName);
@@ -1147,7 +1154,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final FeatureCollection<SimpleFeatureType, SimpleFeature> featuresToSet = testData
                 .createTestFeatures(Point.class, 5);
         final DataStore ds = testData.getDataStore();
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
 
         final Transaction transaction = new DefaultTransaction("testSetFeaturesTransaction handle");
         final FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds
@@ -1191,7 +1198,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     public void testTransactionMultithreadAccess() throws Exception {
         testData.insertTestData();
         // start with an empty table
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final int featureCount = 2;
         final FeatureCollection<SimpleFeatureType, SimpleFeature> testFeatures = testData
                 .createTestFeatures(LineString.class, featureCount);

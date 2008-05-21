@@ -84,9 +84,9 @@ public class TestData {
 
     private SeColumnDefinition[] tempTableColumns;
 
-    private SeLayer tempTableLayer;
+    // private SeLayer tempTableLayer;
 
-    private SeTable tempTable;
+    // private SeTable tempTable;
 
     /**
      * the set of test parameters loaded from {@code test-data/testparams.properties}
@@ -156,18 +156,14 @@ public class TestData {
         }
     }
 
-    public SeTable getTempTable() {
-        if (tempTable == null) {
-            throw new IllegalStateException("createTempTable() not called first");
-        }
-        return tempTable;
+    public SeTable getTempTable(Session session) throws IOException {
+        final String tempTableName = getTempTableName();
+        return session.getTable(tempTableName);
     }
 
-    public SeLayer getTempLayer() {
-        if (tempTableLayer == null) {
-            throw new IllegalStateException("createTempTable() not called first");
-        }
-        return tempTableLayer;
+    public SeLayer getTempLayer(Session session) throws IOException {
+        final String tempTableName = getTempTableName();
+        return session.getLayer(tempTableName);
     }
 
     /**
@@ -202,11 +198,11 @@ public class TestData {
         return this.conProps;
     }
 
-    public String getTemp_table() throws IOException, UnavailableArcSDEConnectionException {
+    public String getTempTableName() throws IOException {
         Session session = getConnectionPool().getSession();
         String tempTableName;
         try {
-            tempTableName = getTemp_table(session);
+            tempTableName = getTempTableName(session);
         } finally {
             session.close();
         }
@@ -217,7 +213,7 @@ public class TestData {
      * @return Returns the temp_table.
      * @throws SeException
      */
-    public String getTemp_table(Session session) throws IOException {
+    public String getTempTableName(Session session) throws IOException {
         String dbName = session.getDatabaseName();
         String user = session.getUser();
         StringBuffer sb = new StringBuffer();
@@ -259,11 +255,11 @@ public class TestData {
     /**
      * Gracefully deletes the temp table hiding any exception (no problem if it does not exist)
      * 
-     * @param connPool to get the connection to use in deleting {@link #getTemp_table()}
+     * @param connPool to get the connection to use in deleting {@link #getTempTableName()}
      */
     public void deleteTempTable(ArcSDEConnectionPool connPool) {
         try {
-            deleteTable(connPool, getTemp_table());
+            deleteTable(connPool, getTempTableName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -322,16 +318,16 @@ public class TestData {
              * Create a qualified table name with current user's name and the name of the table to
              * be created, "EXAMPLE".
              */
-            final String tableName = getTemp_table(session);
+            final String tableName = getTempTableName(session);
 
-            session.issue(new Command<Void>() {
+            final SeTable tempTable = session.createSeTable(tableName);
+            final SeLayer tempTableLayer = session.issue(new Command<SeLayer>() {
                 @Override
-                public Void execute(Session session, SeConnection connection) throws SeException,
-                        IOException {
-                    tempTableLayer = new SeLayer(connection);
-                    tempTable = new SeTable(connection, tableName);
+                public SeLayer execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeLayer tempTableLayer = new SeLayer(connection);
                     tempTableLayer.setTableName(tableName);
-                    return null;
+                    return tempTableLayer;
                 }
             });
 
@@ -360,6 +356,7 @@ public class TestData {
         ArcSDEConnectionPool connPool = getConnectionPool();
         Session session = connPool.getSession();
         try {
+            SeLayer tempTableLayer = getTempLayer(session);
             insertData(tempTableLayer, session, tempTableColumns);
         } finally {
             session.close();
@@ -367,21 +364,28 @@ public class TestData {
     }
 
     public void truncateTempTable() throws IOException {
-        if (tempTable != null) {
-            ArcSDEConnectionPool connPool = getConnectionPool();
-            Session session = connPool.getSession();
-            try {
-                session.issue(new Command<Void>() {
-                    @Override
-                    public Void execute(Session session, SeConnection connection)
-                            throws SeException, IOException {
-                        tempTable.truncate();
+        final ArcSDEConnectionPool connPool = getConnectionPool();
+        final Session session = connPool.getSession();
+        final String tempTableName = getTempTableName(session);
+
+        try {
+            session.issue(new Command<Void>() {
+                @Override
+                public Void execute(Session session, SeConnection connection) throws SeException,
+                        IOException {
+                    SeTable table;
+                    try {
+                        table = session.getTable(tempTableName);
+                    } catch (IOException e) {
+                        // table does not exist, its ok.
                         return null;
                     }
-                });
-            } finally {
-                session.close();
-            }
+                    table.truncate();
+                    return null;
+                }
+            });
+        } finally {
+            session.close();
         }
     }
 
@@ -429,6 +433,11 @@ public class TestData {
                 colDefs[7] = new SeColumnDefinition("SE_ANNO_CAD_DATA",
                         SeColumnDefinition.TYPE_BLOB, 1000, 0, isNullable);
 
+                try{
+                    table.delete();
+                }catch(Exception e){
+                    //ignore
+                }
                 /*
                  * Create the table using the DBMS default configuration keyword. Valid keywords are
                  * defined in the dbtune table.
@@ -636,7 +645,7 @@ public class TestData {
             int numFeatures) throws IOException, IllegalAttributeException, SeException {
         FeatureCollection<SimpleFeatureType, SimpleFeature> col = FeatureCollections
                 .newCollection();
-        SimpleFeatureType type = getDataStore().getSchema(getTemp_table());
+        SimpleFeatureType type = getDataStore().getSchema(getTempTableName());
         Object[] values = new Object[type.getAttributeCount()];
 
         for (int i = 0; i < numFeatures; i++) {

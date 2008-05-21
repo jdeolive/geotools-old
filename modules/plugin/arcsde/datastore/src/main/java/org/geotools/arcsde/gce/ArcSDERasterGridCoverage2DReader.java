@@ -666,7 +666,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
             SeTable sTable = session.getTable(rasterTable);
             SeQuery q = null;
             try {
-                SeColumnDefinition[] cols = sTable.describe();
+                SeColumnDefinition[] cols = session.describe(sTable);
                 ArrayList fetchColumns = new ArrayList();
                 for (int i = 0; i < cols.length; i++) {
                     if (cols[i].getType() == SeColumnDefinition.TYPE_RASTER)

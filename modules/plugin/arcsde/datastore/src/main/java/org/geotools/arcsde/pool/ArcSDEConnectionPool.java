@@ -377,8 +377,6 @@ public class ArcSDEConnectionPool {
                     LOGGER.warning("Strange failed ArcSDE connection error.  Trying again (try "
                             + (i + 1) + " of 3)");
                     cause = nase;
-                } catch (SeException e) {
-                    throw new ArcSdeException(e);
                 }
             }
             throw new DataSourceException(

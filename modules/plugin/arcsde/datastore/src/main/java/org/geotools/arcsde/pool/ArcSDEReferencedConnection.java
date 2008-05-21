@@ -1,8 +1,8 @@
 package org.geotools.arcsde.pool;
 
-import org.apache.commons.pool.ObjectPool;
+import java.io.IOException;
 
-import com.esri.sde.sdk.client.SeException;
+import org.apache.commons.pool.ObjectPool;
 
 /**
  * There can be only one! It ends up being modal based on a transaction being around. If supplied
@@ -12,7 +12,7 @@ import com.esri.sde.sdk.client.SeException;
  */
 public class ArcSDEReferencedConnection extends Session {
 
-    public ArcSDEReferencedConnection(ObjectPool pool, ArcSDEConnectionConfig config) throws SeException {
+    public ArcSDEReferencedConnection(ObjectPool pool, ArcSDEConnectionConfig config) throws IOException {
         super(pool, config);
     }
 

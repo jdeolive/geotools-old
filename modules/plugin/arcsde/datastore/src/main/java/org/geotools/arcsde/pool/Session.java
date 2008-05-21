@@ -26,12 +26,9 @@ import java.util.Vector;
 import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +54,6 @@ import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
-import com.esri.sde.sdk.client.SeVersion;
 
 /**
  * Provides thread safe access to an SeConnection.
@@ -118,26 +114,34 @@ public class Session {
      * @param config Used to set up a SeConnection
      * @throws SeException If we cannot connect
      */
-    Session(final ObjectPool pool, final ArcSDEConnectionConfig config) throws SeException {
-        {
-            String serverName = config.getServerName();
-            int intValue = config.getPortNumber().intValue();
-            String databaseName = config.getDatabaseName();
-            String userName = config.getUserName();
-            String userPassword = config.getUserPassword();
-
-            this.connection = new SeConnection(serverName, intValue, databaseName, userName,
-                    userPassword);
-        }
+    Session(final ObjectPool pool, final ArcSDEConnectionConfig config) throws IOException {
         this.config = config;
         this.pool = pool;
-        // This ensures the connection runs always on the same thread. Will fail if its
-        // accessed by different threads
-        this.connection.setConcurrency(SeConnection.SE_TRYLOCK_POLICY);
         this.taskExecutor = Executors.newSingleThreadExecutor();
 
         // grab command thread
         updateCommandThread();
+
+        // This ensures the connection runs always on the same thread. Will fail if its
+        // accessed by different threads
+        this.connection = issue(new Command<SeConnection>() {
+            @Override
+            public SeConnection execute(final Session session, final SeConnection connection)
+                    throws SeException, IOException {
+                String serverName = config.getServerName();
+                int intValue = config.getPortNumber().intValue();
+                String databaseName = config.getDatabaseName();
+                String userName = config.getUserName();
+                String userPassword = config.getUserPassword();
+
+                SeConnection conn = new SeConnection(serverName, intValue, databaseName, userName,
+                        userPassword);
+
+                conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
+                return conn;
+            }
+        });
+
         synchronized (Session.class) {
             connectionCounter++;
             connectionId = connectionCounter;
@@ -172,49 +176,78 @@ public class Session {
 
             final FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
                 public T call() throws Exception {
+                    final Thread currentThread = Thread.currentThread();
+
+                    if (commandThread != currentThread) {
+                        LOGGER.info("updating command thread from " + commandThread + " to "
+                                + currentThread);
+                        commandThread = currentThread;
+
+                    }
+
                     System.err.println(" -executing command for Session "
-                            + Session.this.connectionId + " in thread "
-                            + Thread.currentThread().getId());
+                            + Session.this.connectionId + " in thread " + currentThread.getId());
+
+                    if (currentThread != commandThread) {
+                        throw new IllegalStateException("currentThread != commandThread");
+                    }
                     try {
                         return command.execute(Session.this, connection);
                     } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Command execution failed for Session "
-                                + Session.this.connectionId + " in thread "
-                                + Thread.currentThread().getId(), e);
+                        LOGGER.log(Level.SEVERE,
+                                "Command execution failed for Session " + Session.this.connectionId
+                                        + " in thread " + currentThread.getId(), e);
                         throw e;
                     }
                 }
             });
 
-            taskExecutor.execute(task);
             T result;
-            try {
-                result = task.get();
-            } catch (InterruptedException e) {
-                updateCommandThread();
-                throw new RuntimeException("Command execution abruptly interrupted", e);
-            } catch (ExecutionException e) {
-                updateCommandThread();
-                Throwable cause = e.getCause();
-                if (cause instanceof IOException) {
-                    throw (IOException) cause;
-                } else if (cause instanceof SeException) {
-                    throw new ArcSdeException((SeException) cause);
+            synchronized (config) {
+                taskExecutor.execute(task);
+                try {
+                    result = task.get();
+                } catch (InterruptedException e) {
+                    updateCommandThread();
+                    throw new RuntimeException("Command execution abruptly interrupted", e);
+                } catch (ExecutionException e) {
+                    updateCommandThread();
+                    Throwable cause = e.getCause();
+                    if (cause instanceof IOException) {
+                        throw (IOException) cause;
+                    } else if (cause instanceof SeException) {
+                        throw new ArcSdeException((SeException) cause);
+                    }
+                    throw new DataSourceException(cause);
                 }
-                throw new DataSourceException(cause);
+
             }
             return result;
         }
     }
 
     private void updateCommandThread() {
-        // used to detect when thread has been
-        // restarted after error
-        taskExecutor.execute(new Runnable() {
-            public void run() {
-                commandThread = Thread.currentThread();
+        final FutureTask<?> task = new FutureTask<Object>(new Callable<Object>() {
+            public Object call() throws Exception {
+                final Thread currentThread = Thread.currentThread();
+                if (currentThread != commandThread) {
+                    LOGGER.info("updating command thread from " + commandThread + " to "
+                            + currentThread);
+                    commandThread = currentThread;
+                }
+                return null;
             }
         });
+        // used to detect when thread has been
+        // restarted after error
+        taskExecutor.execute(task);
+        // block until task is executed
+        try {
+            task.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     public final boolean isClosed() {
@@ -484,12 +517,19 @@ public class Session {
     }
 
     /**
-     * Actually closes the connection
+     * Actually closes the connection, called when the session is discarded from the pool
      */
     void destroy() {
         try {
-            this.connection.close();
-        } catch (SeException e) {
+            issue(new Command<Void>() {
+                @Override
+                public Void execute(Session session, SeConnection connection) throws SeException,
+                        IOException {
+                    connection.close();
+                    return null;
+                }
+            });
+        } catch (Exception e) {
             LOGGER.info("closing connection: " + e.getMessage());
         }
     }
@@ -649,6 +689,10 @@ public class Session {
 
     public SeColumnDefinition[] describe(final String tableName) throws IOException {
         final SeTable table = getTable(tableName);
+        return describe(table);
+    }
+
+    public SeColumnDefinition[] describe(final SeTable table) throws IOException {
         return issue(new Command<SeColumnDefinition[]>() {
             @Override
             public SeColumnDefinition[] execute(Session session, SeConnection connection)

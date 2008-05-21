@@ -96,30 +96,30 @@ public class RasterTestData {
      * Names for the raster data test tables
      */
     public String get1bitRasterTableName() throws UnavailableArcSDEConnectionException, IOException {
-        return testData.getTemp_table() + "_ONEBITRASTER";
+        return testData.getTempTableName() + "_ONEBITRASTER";
     }
 
     public String getRGBRasterTableName() throws UnavailableArcSDEConnectionException, IOException {
-        return testData.getTemp_table() + "_RGBRASTER";
+        return testData.getTempTableName() + "_RGBRASTER";
     }
 
     public String getRGBARasterTableName() throws UnavailableArcSDEConnectionException, IOException {
-        return testData.getTemp_table() + "_RGBARASTER";
+        return testData.getTempTableName() + "_RGBARASTER";
     }
 
     public String getRGBColorMappedRasterTableName() throws UnavailableArcSDEConnectionException,
             IOException {
-        return testData.getTemp_table() + "_RGBRASTER_CM";
+        return testData.getTempTableName() + "_RGBRASTER_CM";
     }
 
     public String getGrayScaleOneByteRasterTableName() throws UnavailableArcSDEConnectionException,
             IOException {
-        return testData.getTemp_table() + "_GRAYSCALERASTER";
+        return testData.getTempTableName() + "_GRAYSCALERASTER";
     }
 
     public String getFloatRasterTableName() throws UnavailableArcSDEConnectionException,
             IOException {
-        return testData.getTemp_table() + "_FLOATRASTER";
+        return testData.getTempTableName() + "_FLOATRASTER";
     }
 
     public String getRasterTestDataProperty(String propName) {

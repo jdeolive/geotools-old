@@ -134,7 +134,7 @@ public abstract class FIDReader {
             final int rowIdColumnType = reg.getRowIdColumnType();
             final String rowIdColumnName = reg.getRowIdColumnName();
             int rowIdColumnIndex = -1;
-            SeColumnDefinition[] schema = table.describe();
+            SeColumnDefinition[] schema = session.describe(table);
             for (int index = 0; index < schema.length; index++) {
                 if (schema[index].getName().equals(rowIdColumnName)) {
                     rowIdColumnIndex = index;

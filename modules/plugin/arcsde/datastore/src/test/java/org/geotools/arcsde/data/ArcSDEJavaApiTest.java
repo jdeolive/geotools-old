@@ -178,7 +178,7 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     public void testEmptySQLConstruct() throws Exception {
-        String typeName = testData.getTemp_table();
+        String typeName = testData.getTempTableName();
         String[] columns = { TestData.TEST_TABLE_COLS[0] };
         SeSqlConstruct sql = new SeSqlConstruct(typeName);
 
@@ -187,7 +187,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             rowQuery = session.createAndExecuteQuery(columns, sql);
         } finally {
             if (rowQuery != null) {
-                rowQuery.close();
+                session.close(rowQuery);
             }
         }
     }
@@ -198,7 +198,7 @@ public class ArcSDEJavaApiTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testGetBoundsWhileFetchingRows() throws Exception {
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final String[] columns = { TestData.TEST_TABLE_COLS[0] };
         final SeSqlConstruct sql = new SeSqlConstruct(typeName);
 
@@ -311,7 +311,7 @@ public class ArcSDEJavaApiTest extends TestCase {
      */
     public void testCalculateCount() throws Exception {
         try {
-            String typeName = testData.getTemp_table();
+            String typeName = testData.getTempTableName();
             String where = "INT32_COL < 5";
             int expCount = 4;
             int actualCount;
@@ -343,7 +343,7 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     public void testCalculateBoundsSqlFilter() throws Exception {
-        String typeName = testData.getTemp_table();
+        String typeName = testData.getTempTableName();
         String where = "INT32_COL = 1";
         String[] cols = { "SHAPE" };
 
@@ -376,7 +376,7 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     public void testCalculateBoundsSpatialFilter() throws Exception {
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
 
         // String where = null;
         String[] cols = { "SHAPE" };
@@ -423,7 +423,7 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     public void testCalculateBoundsMixedFilter() throws Exception {
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         try {
             String where = "INT32_COL < 5";
             String[] cols = { "SHAPE" };
@@ -994,7 +994,7 @@ public class ArcSDEJavaApiTest extends TestCase {
     public void testDeleteById() throws IOException, UnavailableArcSDEConnectionException,
             SeException {
 
-        final String typeName = testData.getTemp_table();
+        final String typeName = testData.getTempTableName();
         final SeQuery query = session.createAndExecuteQuery(new String[] { "ROW_ID", "INT32_COL" },
                 new SeSqlConstruct(typeName));
 
@@ -1036,9 +1036,6 @@ public class ArcSDEJavaApiTest extends TestCase {
         // connection with a transaction in progress
         final Session transSession;
 
-        final SeTable tempTable = testData.getTempTable();
-        // final SeLayer tempLayer = testData.getTempLayer();
-
         testData.truncateTempTable();
 
         {
@@ -1053,7 +1050,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         try {
             final String[] columns = { "INT32_COL", "STRING_COL" };
-            final String tableName = tempTable.getName();
+            final String tableName = testData.getTempTableName(transSession);
 
             transSession.issue(new Command<Void>() {
                 @Override

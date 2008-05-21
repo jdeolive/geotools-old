@@ -285,7 +285,7 @@ public class FilterTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testDisjointFilter() throws Exception {
-        FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
+        FeatureType ft = this.dataStore.getSchema(testData.getTempTableName());
 
         // Build the filter
         double minx = -179;
@@ -306,7 +306,7 @@ public class FilterTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testContainsFilter() throws Exception {
-        FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
+        FeatureType ft = this.dataStore.getSchema(testData.getTempTableName());
 
         // Build the filter
         double minx = 106.6666;
@@ -326,7 +326,7 @@ public class FilterTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testBBoxFilter() throws Exception {
-        FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
+        FeatureType ft = this.dataStore.getSchema(testData.getTempTableName());
 
         // Build the filter
         double minx = 106.6337;
@@ -344,7 +344,7 @@ public class FilterTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testIntersectsFilter() throws Exception {
-        FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
+        FeatureType ft = this.dataStore.getSchema(testData.getTempTableName());
 
         // Build the filter
         double minx = 106.6337;
@@ -363,7 +363,7 @@ public class FilterTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testOverlapsFilter() throws Exception {
-        FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
+        FeatureType ft = this.dataStore.getSchema(testData.getTempTableName());
 
         // Build the filter
         double minx = 106.6337;
@@ -382,7 +382,7 @@ public class FilterTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testWithinFilter() throws Exception {
-        FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
+        FeatureType ft = this.dataStore.getSchema(testData.getTempTableName());
 
         // Build the filter
         double minx = 106.6337;
@@ -401,7 +401,7 @@ public class FilterTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testCrossesFilter() throws Exception {
-        FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
+        FeatureType ft = this.dataStore.getSchema(testData.getTempTableName());
 
         // Build the filter
         double minx = 106.6337;
@@ -420,11 +420,11 @@ public class FilterTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testEqualFilter() throws Exception {
-        FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
+        FeatureType ft = this.dataStore.getSchema(testData.getTempTableName());
 
         // Get a geometry for equality comparison
         HashSet fidSet = new HashSet();
-        DefaultQuery defaultQuery = new DefaultQuery(testData.getTemp_table());
+        DefaultQuery defaultQuery = new DefaultQuery(testData.getTempTableName());
         defaultQuery.setPropertyNames(safePropertyNames(ft));
         defaultQuery.setMaxFeatures(1);
         FeatureReader<SimpleFeatureType, SimpleFeature> fr = this.dataStore.getFeatureReader(
@@ -456,7 +456,7 @@ public class FilterTest extends TestCase {
 
         // First, read using the slow, built-in mechanisms
         String[] propertyNames = safePropertyNames(ft);
-        DefaultQuery allQuery = new DefaultQuery(testData.getTemp_table(), Filter.INCLUDE,
+        DefaultQuery allQuery = new DefaultQuery(testData.getTempTableName(), Filter.INCLUDE,
                 propertyNames);
         System.err.println("Performing slow read...");
 
@@ -476,7 +476,7 @@ public class FilterTest extends TestCase {
         System.err.println("Performing fast read...");
         startTime = System.currentTimeMillis();
 
-        DefaultQuery filteringQuery = new DefaultQuery(testData.getTemp_table(), filter,
+        DefaultQuery filteringQuery = new DefaultQuery(testData.getTempTableName(), filter,
                 safePropertyNames(ft));
         fr = this.dataStore.getFeatureReader(filteringQuery, Transaction.AUTO_COMMIT);
 

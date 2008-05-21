@@ -229,7 +229,7 @@ public class ArcSDEDataStoreTest extends TestCase {
             for (int i = 0; i < featureTypes.length; i++)
                 System.out.println(featureTypes[i]);
         }
-        testTypeExists(featureTypes, testData.getTemp_table());
+        testTypeExists(featureTypes, testData.getTempTableName());
     }
 
     /**
@@ -241,7 +241,7 @@ public class ArcSDEDataStoreTest extends TestCase {
     public void testGetSchema() throws IOException, SeException {
         SimpleFeatureType schema;
 
-        schema = store.getSchema(testData.getTemp_table());
+        schema = store.getSchema(testData.getTempTableName());
         assertNotNull(schema);
         // ROW_ID is not included in TEST_TABLE_COLS
         assertEquals(TestData.TEST_TABLE_COLS.length, schema.getAttributeCount());
