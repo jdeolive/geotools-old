@@ -20,7 +20,6 @@
 package org.geotools.display.canvas;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -33,6 +32,7 @@ import javax.swing.Action;
 
 import org.opengis.display.primitive.Graphic;
 import org.opengis.display.canvas.CanvasState;
+import org.opengis.display.renderer.RendererEvent;
 import org.opengis.util.InternationalString;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.cs.CoordinateSystem;
@@ -70,7 +70,6 @@ import org.geotools.referencing.operation.LinearTransform;
 import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.display.event.ReferencedEvent;
-import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.display.primitive.ReferencedGraphic;
 import org.geotools.display.renderer.AbstractRenderer;
 
@@ -110,7 +109,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * @see #getEnvelope
      * @see #computeGraphicsEnvelope
      */
-    private final GeneralEnvelope envelope;
+    private final GeneralEnvelope graphicsEnvelope;
 
     /**
      * A set of {@link MathTransform}s from various source CRS. The target CRS must be the
@@ -152,7 +151,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
 
     /**
      * A temporary position used for coordinate transformations from an arbitrary CRS to the
-     * objective CRS. This position CRS should always be identical to the {@linkplain #envelope}
+     * objective CRS. This position CRS should always be identical to the {@linkplain #graphicsEnvelope}
      * CRS. This object will be created when first needed.
      */
     private transient TransformedDirectPosition objectivePosition;
@@ -182,6 +181,13 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     private transient CoordinateOperationFactory opFactory;
 
     /**
+     * {@code true} if this canvas use a {@link #getDefaultCRS default CRS} instead of
+     * an user-supplied one. In such case, a more appropriate CRS will be inferred from
+     * the first graphic {@linkplain #add added}.
+     */
+    private boolean useDefaultCRS;
+    
+    /**
      * {@code true} if this canvas or graphic has {@value #SCALE_PROPERTY} properties listeners.
      * Used in order to reduce the amount of {@link PropertyChangeEvent} objects created in the
      * common case where no listener have interest in this property. This optimisation may be
@@ -202,6 +208,16 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * @see #listenersChanged
      */
     private boolean hasDisplayListeners;
+    
+    /**
+     * {@code true} if this canvas has
+     * {@value org.geotools.display.canvas.DisplayObject#ENVELOPE_PROPERTY} properties listeners.
+     * Note that it is not worth to check for this flag in the all cases; only in the most frequent
+     * ones (e.g. {@link #add}, {@link #remove}...).
+     *
+     * @see #listenersChanged
+     */
+    private boolean hasEnvelopeListeners;
 
     
     /**
@@ -229,8 +245,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                                final Hints hints)
     {
         super(renderer, hints);
-        this.envelope = new GeneralEnvelope(objectiveCRS);
-        this.envelope.setToNull();
+        this.graphicsEnvelope = new GeneralEnvelope(objectiveCRS);
+        this.graphicsEnvelope.setToNull();
     }
 
     /**
@@ -251,16 +267,16 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * @see org.geotools.display.canvas.map.DefaultMapState#getEnvelope
      * @see ReferencedCanvas2D#getEnvelope2D
      */
-    public synchronized Envelope getEnvelope() {
-        return new GeneralEnvelope(envelope);
+    protected synchronized Envelope getGraphicsEnvelope() {
+        return new GeneralEnvelope(graphicsEnvelope);
     }
 
     /**
      * Same as {@link #getEnvelope}, but returns the bounds as an {@link Rectangle2D}.
      * This method will be made public by {@link ReferencedCanvas2D}.
      */
-    synchronized Rectangle2D getEnvelope2D() {
-        return envelope.toRectangle2D();
+    protected synchronized Rectangle2D getGraphicsEnvelope2D() {
+        return graphicsEnvelope.toRectangle2D();
     }
 
     /**
@@ -273,7 +289,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         //TODO : correct this method to return an immutable object
         InternationalString title = getTitle();
         DirectPosition center = new GeneralDirectPosition(displayPosition);
-        CoordinateReferenceSystem objCRS = envelope.getCoordinateReferenceSystem();
+        CoordinateReferenceSystem objCRS = graphicsEnvelope.getCoordinateReferenceSystem();
         MathTransform objToDisp = getObjectiveToDisplayTransform();
         MathTransform dispToObj = getDisplayToObjectiveTransform();
                 
@@ -317,7 +333,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
              * know what the visible area is.
              */
             for (int i=objectivePosition.getDimension(); --i>=0;) {
-                objectivePosition.setOrdinate(i, envelope.getCenter(i));
+                objectivePosition.setOrdinate(i, graphicsEnvelope.getCenter(i));
             }
         }                
         /*
@@ -396,7 +412,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      */
     public synchronized boolean isVisible(final DirectPosition coordinate) {
         try {
-            return envelope.contains(toObjectivePosition(coordinate));
+            return graphicsEnvelope.contains(toObjectivePosition(coordinate));
         } catch (TransformException e) {
             /*
              * A typical reason for transformation failure is a coordinate point outside the area
@@ -500,6 +516,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         super.listenersChanged();
         hasScaleListeners    = propertyListeners.hasListeners(SCALE_PROPERTY);
         hasDisplayListeners  = propertyListeners.hasListeners(DISPLAY_CRS_PROPERTY);
+        hasEnvelopeListeners = propertyListeners.hasListeners(ENVELOPE_PROPERTY);
     }
 
     /**
@@ -515,7 +532,139 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         objectivePosition = null;
         displayPosition   = null;
     }
+
+    
+    
+    //---------------------- Convinient methods --------------------------------
+    /**
+     * Returns the top-most {@code Graphic} that occupies given direct position. The top-most
+     * {@code Graphic} will have the highest <var>z</var>-order.
+     *
+     * @todo Not yet implemented.
+     */
+    public Graphic getTopGraphicAt(final DirectPosition directPosition) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns the {@code Graphic}s that occupy the given direct position.
+     *
+     * @todo Not yet implemented.
+     */
+    public Graphic[] getGraphicsAt(final DirectPosition directPosition) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns the {@code Graphic}s that occupy the given envelope.
+     *
+     * @todo Not yet implemented.
+     */
+    public Graphic[] getGraphicsIn(final Envelope bounds) {
+        throw new UnsupportedOperationException();
+    }
+    
+
+    //---------------------- Renderer events -----------------------------------
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void graphicsAdded(RendererEvent event) {
+        super.graphicsAdded(event);
+                
+        Envelope oldEnvelope = null;
+             
+        Collection<Graphic> graphics = event.getGraphics();
         
+        for(Graphic graphic : graphics){
+
+            if (graphic instanceof ReferencedGraphic) {
+                final ReferencedGraphic   referenced   = (ReferencedGraphic) graphic;
+                CoordinateReferenceSystem graphicCRS   = referenced.getObjectiveCRS();
+                CoordinateReferenceSystem objectiveCRS = getObjectiveCRS();
+
+                //canvas will have a CRS selected by the user or we should set this value  when importing datas
+                //not automaticly switching to the graphic CRS
+                if (useDefaultCRS) {
+                    try {
+                        setObjectiveCRS(graphicCRS);
+                        objectiveCRS = graphicCRS;
+                        useDefaultCRS = false;
+                    } catch (TransformException unexpected) {
+                        /*
+                         * Should not happen, since this canvas do not yet have any graphic.
+                         * Log the warning and continue with the Canvas CRS unchanged.
+                         */
+                        handleException("add", unexpected);
+                    }
+                }
+                                
+                // prepare notify envelope change : optimisation
+                if (hasEnvelopeListeners) {
+                    oldEnvelope = new GeneralEnvelope(getGraphicsEnvelope());
+                }
+                graphicCRS = referenced.getObjectiveCRS(); // May have changed.
+                final Envelope graphicEnvelope = referenced.getEnvelope();
+                graphicEnvelopeChanged(null, graphicEnvelope, graphicCRS,ReferencedCanvas.class, "add");
+            }
+        
+        }
+        
+        // notify envelope change : optimisation
+        if (oldEnvelope != null) {
+            propertyListeners.firePropertyChange(ENVELOPE_PROPERTY, oldEnvelope, graphicsEnvelope);
+        }
+        
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void graphicsRemoved(RendererEvent event) {
+        
+        Envelope oldEnvelope = null;
+        
+        Collection<Graphic> graphics = event.getGraphics();
+                
+        for(Graphic graphic : graphics){
+        
+            if (graphic instanceof ReferencedGraphic) {
+                final ReferencedGraphic referenced = (ReferencedGraphic) graphic;
+                if (referenced.getCanvas() == this) {
+
+                     // prepare notify envelope change : optimisation
+                    if (hasEnvelopeListeners) {
+                        oldEnvelope = new GeneralEnvelope(graphicsEnvelope);
+                    }
+                    final CoordinateReferenceSystem graphicCRS = referenced.getObjectiveCRS();
+                    final Envelope graphicEnvelope = referenced.getEnvelope();
+                    graphicEnvelopeChanged(graphicEnvelope, null, graphicCRS,
+                                           ReferencedCanvas.class, "remove");
+                }
+            }
+        }
+        
+        super.graphicsRemoved(event);        
+        
+        // notify envelope change : optimisation
+        if (oldEnvelope != null) {
+            propertyListeners.firePropertyChange(ENVELOPE_PROPERTY, oldEnvelope, graphicsEnvelope);
+        }
+        
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void graphicsChanged(RendererEvent event) {
+        super.graphicsChanged(event);
+    }
+    
+    
+    
     //----------------------CRS & MathTransform methods-------------------------
     /**
      * Returns a default CRS for the specified number of dimensions.
@@ -538,7 +687,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * {@inheritDoc}
      */
     public final CoordinateReferenceSystem getObjectiveCRS() {
-        return envelope.getCoordinateReferenceSystem();
+        return graphicsEnvelope.getCoordinateReferenceSystem();
     }
 
     /**
@@ -563,14 +712,14 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         if (CRS.equalsIgnoreMetadata(crs, oldCRS)) {
             return;
         }
-        final GeneralEnvelope oldEnvelope = new GeneralEnvelope(envelope);
+        final GeneralEnvelope oldEnvelope = new GeneralEnvelope(graphicsEnvelope);
         /*
          * Try to setup the CRS in the envelope.  This operation may fail if the specified
          * CRS has an incompatible number of dimensions, so it is important to invoke this
          * method before to make any more change. This is in order to keep the renderer in
          * a consistent state in case of failure.
          */
-        envelope.setCoordinateReferenceSystem(crs);
+        graphicsEnvelope.setCoordinateReferenceSystem(crs);
         /*
          * Compute the display CRS from the new objective CRS (keeping the same zoom factor
          * than the previous display CRS), but do not store the result yet.  We compute the
@@ -630,6 +779,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
          * Now updates internal states.
          */
         clearCache();
+        useDefaultCRS = false;
         updateNormalizationFactor(crs);
         computeEnvelope(ReferencedCanvas.class, "setObjectiveCRS");
         /*
@@ -641,7 +791,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         }
         assert getObjectiveCRS() == crs;
         propertyListeners.firePropertyChange(OBJECTIVE_CRS_PROPERTY, oldCRS, crs);
-        propertyListeners.firePropertyChange(ENVELOPE_PROPERTY, oldEnvelope, envelope);
+        propertyListeners.firePropertyChange(ENVELOPE_PROPERTY, oldEnvelope, graphicsEnvelope);
     }
 
     /**
@@ -655,7 +805,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     }
 
     /**
-     * Recomputes inconditionnaly the {@linkplain #envelope}. The envelope will be computed
+     * Recomputes inconditionnaly the {@linkplain #graphicsEnvelope}. The envelope will be computed
      * from the value provided by {@link ReferencedGraphic#envelope} for all graphics.
      * <p>
      * <strong>NOTE:</strong> Callers are responsible for firing an event after the envelope change.
@@ -668,7 +818,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      */
     private void computeEnvelope(final Class<?> sourceClassName, final String sourceMethodName) {
         assert Thread.holdsLock(this);
-        envelope.setToNull();
+        graphicsEnvelope.setToNull();
         CoordinateReferenceSystem lastCRS = null;
         MathTransform           transform = null;
         final Collection<Graphic>  graphics = renderer.getGraphics();
@@ -678,7 +828,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                 continue;
             }
             final ReferencedGraphic graphic = (ReferencedGraphic) candidate;
-            final Envelope graphicEnvelope = graphic.getEnvelope();
+            final Envelope candidateEnvelope = graphic.getEnvelope();
             /*
              * In theory, the Graphic should use the same CRS than this Canvas.
              * However, as a safety, we will check for coordinate transformations anyway.
@@ -690,11 +840,11 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                                                  sourceClassName, sourceMethodName);
                     lastCRS = crs;
                 }
-                final GeneralEnvelope bounds = CRS.transform(transform, graphicEnvelope);
-                if (envelope.isNull()) {
-                    envelope.setEnvelope(bounds);
+                final GeneralEnvelope bounds = CRS.transform(transform, candidateEnvelope);
+                if (graphicsEnvelope.isNull()) {
+                    graphicsEnvelope.setEnvelope(bounds);
                 } else {
-                    envelope.add(bounds);
+                    graphicsEnvelope.add(bounds);
                 }
             } catch (FactoryException exception) {
                 handleException(sourceClassName, sourceMethodName, exception);
@@ -741,7 +891,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
             computeEnvelope(sourceClassName, sourceMethodName);
             return;
         }
-        if (!replace(envelope, oldProjected, newProjected)) {
+        if (!replace(graphicsEnvelope, oldProjected, newProjected)) {
             computeEnvelope(sourceClassName, sourceMethodName);
         }
     }

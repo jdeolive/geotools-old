@@ -26,7 +26,7 @@ import org.opengis.referencing.operation.TransformException;
  *
  * @author johann sorel
  */
-public abstract class AWTDirectRenderer2D extends ReferencedRenderer{
+public abstract class AWTDirectRenderer2D extends AbstractRenderer2D{
 
     protected AWTCanvas2D canvas;
     
@@ -76,6 +76,4 @@ public abstract class AWTDirectRenderer2D extends ReferencedRenderer{
         return true;
     }
 
-    
-    
 }

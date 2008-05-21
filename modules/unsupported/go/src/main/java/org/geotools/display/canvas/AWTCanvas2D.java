@@ -9,7 +9,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ComponentAdapter;
@@ -23,14 +22,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import javax.security.auth.RefreshFailedException;
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.util.logging.Logging;
 import org.geotools.coverage.grid.GridRange2D;
-import org.geotools.display.canvas.CanvasHandler;
 import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.display.renderer.AWTDirectRenderer2D;
 import org.geotools.display.renderer.AbstractRenderer;
-import org.geotools.display.renderer.ReferencedRenderer;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -47,14 +43,11 @@ import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 
-import org.geotools.util.logging.Logging;
 import org.opengis.display.canvas.CanvasController;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.util.InternationalString;
 
 /**
  *
@@ -584,9 +577,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     protected final void reset(final Rectangle zoomableBounds,
                                final boolean yAxisUpward) {
         if (!zoomableBounds.isEmpty()) {
-            ReferencedEnvelope env = ((ReferencedRenderer)renderer).getGraphicsEnvelope();
-            final Rectangle2D preferredArea = new Rectangle();
-            preferredArea.setRect(env.getMinX(), env.getMinY(), env.getWidth(), env.getHeight());
+            final Rectangle2D preferredArea = getGraphicsEnvelope2D();
             
             if (isValid(preferredArea)) {
                 final AffineTransform change;

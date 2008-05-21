@@ -188,8 +188,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see org.geotools.display.canvas.map.DefaultMapState#getEnvelope
      */
     @Override
-    public Rectangle2D getEnvelope2D() {
-        return super.getEnvelope2D();
+    public Rectangle2D getGraphicsEnvelope2D() {
+        return super.getGraphicsEnvelope2D();
     }
 
     /**

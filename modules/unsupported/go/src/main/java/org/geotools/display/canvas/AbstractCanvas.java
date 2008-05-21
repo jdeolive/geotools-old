@@ -23,6 +23,7 @@ import java.awt.RenderingHints;
 import java.beans.PropertyChangeEvent;
 import javax.swing.event.EventListenerList;
 
+import org.opengis.display.renderer.RendererEvent;
 import org.opengis.util.InternationalString;
 import org.opengis.referencing.crs.DerivedCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -37,6 +38,7 @@ import org.geotools.display.renderer.AbstractRenderer;
 import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.factory.Hints;
 import org.geotools.resources.Classes;
+import org.opengis.display.renderer.RendererListener;
 
 
 /**
@@ -104,12 +106,29 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * {@linkplain AbstractCanvas#getTitle canvas title} changed.
      */
     public static final String TITLE_PROPERTY = "title";
+    
+    private final AbstractCanvas This = this;
 
     /**
      * Canvas listeners list.
      */
     private final EventListenerList canvasListeners;
+    
+    private final RendererListener rendererListener = new RendererListener() {
 
+        public void graphicsAdded(RendererEvent event) {
+            This.graphicsAdded(event);
+        }
+
+        public void graphicsRemoved(RendererEvent event) {
+            This.graphicsRemoved(event);
+        }
+
+        public void graphicsChanged(RendererEvent event) {
+            This.graphicsChanged(event);
+        }
+    };
+    
     /**
      * A set of rendering hints.
      *
@@ -140,6 +159,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
         this.hints = new Hints(hints);
         this.renderer = renderer;
         this.renderer.setCanvas(this);
+        this.renderer.addRendererListener(rendererListener);
     }
 
     /**
@@ -336,6 +356,28 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     public abstract void setObjectiveToDisplayTransform(final MathTransform transform)
             throws TransformException;
 
+    //------------------------Renderer events-----------------------------------    
+    /**
+     * This method is automaticly called when a event is generate by the canvas
+     * renderer when a graphic object is added.
+     */
+    protected void graphicsAdded(RendererEvent event) {
+    }
+
+    /**
+     * This method is automaticly called when a event is generate by the canvas
+     * renderer when a graphic object is added.
+     */
+    protected void graphicsRemoved(RendererEvent event) {
+    }
+
+    /**
+     * This method is automaticly called when a event is generate by the canvas
+     * renderer when a graphic object is added.
+     */
+    protected void graphicsChanged(RendererEvent event) {
+    }
+    
     //--------------------------Hints ------------------------------------------
     /**
      * Returns a rendering hint.
