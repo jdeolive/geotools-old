@@ -86,8 +86,7 @@ public final class ErdasImgFormat extends BaseGDALGridFormat implements Format {
     }
 
     /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object,
-     *      Hints)
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object, Hints)
      */
     public GridCoverageReader getReader(Object source, Hints hints) {
         try {

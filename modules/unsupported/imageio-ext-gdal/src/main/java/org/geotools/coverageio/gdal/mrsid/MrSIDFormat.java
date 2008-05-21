@@ -33,18 +33,17 @@ import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.parameter.GeneralParameterDescriptor;
 
-
 /**
- * An implementation a {@link Format} for the MrSID format.
- *
+ * An implementation of {@link Format} for the MrSID format.
+ * 
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
  */
 @SuppressWarnings("deprecation")
 public final class MrSIDFormat extends BaseGDALGridFormat implements Format {
-    private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
-            "org.geotools.coverageio.gdal.mrsid");
+    private final static Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger("org.geotools.coverageio.gdal.mrsid");
 
     /** Caching the {@link MrSIDImageReaderSpi} factory. */
     private final MrSIDImageReaderSpi spi = new MrSIDImageReaderSpi();
@@ -78,14 +77,15 @@ public final class MrSIDFormat extends BaseGDALGridFormat implements Format {
         writeParameters = null;
 
         // reading parameters
-        readParameters = new ParameterGroup(new DefaultParameterDescriptorGroup(mInfo,
-                    new GeneralParameterDescriptor[] { READ_GRIDGEOMETRY2D, USE_JAI_IMAGEREAD,
-        		USE_MULTITHREADING, SUGGESTED_TILE_SIZE }));
+        readParameters = new ParameterGroup(
+                new DefaultParameterDescriptorGroup(mInfo,
+                        new GeneralParameterDescriptor[] { READ_GRIDGEOMETRY2D,
+                                USE_JAI_IMAGEREAD, USE_MULTITHREADING,
+                                SUGGESTED_TILE_SIZE }));
     }
 
     /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object,
-     *      Hints)
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object, Hints)
      */
     public GridCoverageReader getReader(Object source, Hints hints) {
         try {

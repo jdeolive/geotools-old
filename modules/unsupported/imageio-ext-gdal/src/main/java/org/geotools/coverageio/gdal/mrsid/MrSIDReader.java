@@ -88,12 +88,12 @@ public final class MrSIDReader extends BaseGDALGridCoverage2DReader implements
     }
 
     /**
-     * This method is responsible for building up an envelope according to the
-     * definition of the crs. It assumes that X coordinate on the grid itself
-     * maps to longitude and y coordinate maps to latitude.
+     * Setting Envelope, GridRange and CRS from the given {@code ImageReader}
      * 
-     * @param gridMetadata
-     *                The {@link MrSIDIIOImageMetadata} to parse.
+     * @param reader
+     *                the {@code ImageReader} from which to retrieve metadata
+     *                (if available) for setting properties
+     * @throws IOException
      */
     @Override
     protected void setCoverageProperties(ImageReader reader) throws IOException {

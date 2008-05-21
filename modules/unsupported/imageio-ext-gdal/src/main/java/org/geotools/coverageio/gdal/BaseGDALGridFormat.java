@@ -31,124 +31,131 @@ import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterValue;
 
+/**
+ * A Base abstract class implementing {@link Format}, to be extended by Formats
+ * leveraging on GDAL.
+ * 
+ * @author Daniele Romagnoli, GeoSolutions
+ * @author Simone Giannecchini, GeoSolutions
+ * 
+ */
 @SuppressWarnings("deprecation")
 public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
-		Format {
-	private final static Logger LOGGER = org.geotools.util.logging.Logging
-			.getLogger("org.geotools.coverageio.gdal");
+        Format {
+    private final static Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger("org.geotools.coverageio.gdal");
 
-	/** The inner {@code ImageReaderSpi} */
-	private final ImageReaderSpi spi;
+    /** The inner {@code ImageReaderSpi} */
+    private final ImageReaderSpi spi;
 
-	/**
-	 * Constructor for the {@code BaseGDALGridFormat}. It is invoked by the
-	 * underlying implementations.
-	 * 
-	 * @param spi
-	 *            the format specific {@code ImageReaderSpi} instance
-	 */
-	protected BaseGDALGridFormat(ImageReaderSpi spi) {
-		this.spi = spi;
-		setInfo();
-	}
+    /**
+     * Constructor for the {@code BaseGDALGridFormat}. It is invoked by the
+     * underlying implementations.
+     * 
+     * @param spi
+     *                the format specific {@code ImageReaderSpi} instance
+     */
+    protected BaseGDALGridFormat(ImageReaderSpi spi) {
+        this.spi = spi;
+        setInfo();
+    }
 
-	/**
-	 * The {@code String} representing the parameter to customize multithreading
-	 * use
-	 */
-	private static final String USE_MT = "USE_MULTITHREADING";
+    /**
+     * The {@code String} representing the parameter to customize multithreading
+     * use
+     */
+    private static final String USE_MT = "USE_MULTITHREADING";
 
-	/**
-	 * This {@link GeneralParameterValue} can be provided to the
-	 * {@link GridCoverageReader}s through the
-	 * {@link GridCoverageReader#read(GeneralParameterValue[])} method in order
-	 * to specify to use multithreading when leveraging on a JAI ImageRead
-	 * operation. This will be achieved with the use of the ImageReadMT
-	 * operation of the ImageIO-Ext.
-	 */
-	public static final DefaultParameterDescriptor<Boolean> USE_MULTITHREADING = new DefaultParameterDescriptor<Boolean>(
-			USE_MT, Boolean.class,
-			new Boolean[] { Boolean.TRUE, Boolean.FALSE }, 
-			Boolean.FALSE);
+    /**
+     * This {@link GeneralParameterValue} can be provided to the
+     * {@link GridCoverageReader}s through the
+     * {@link GridCoverageReader#read(GeneralParameterValue[])} method in order
+     * to specify to use multithreading when leveraging on a JAI ImageRead
+     * operation. This will be achieved with the use of the ImageReadMT
+     * operation of the ImageIO-Ext.
+     */
+    public static final DefaultParameterDescriptor<Boolean> USE_MULTITHREADING = new DefaultParameterDescriptor<Boolean>(
+            USE_MT, Boolean.class,
+            new Boolean[] { Boolean.TRUE, Boolean.FALSE }, Boolean.FALSE);
 
-	/** The {@code String} representing the parameter to customize tile sizes */
-	private static final String SUGGESTED_TILESIZE = "SUGGESTED_TILE_SIZE";
+    /** The {@code String} representing the parameter to customize tile sizes */
+    private static final String SUGGESTED_TILESIZE = "SUGGESTED_TILE_SIZE";
 
-	/**
-	 * This {@link GeneralParameterValue} can be provided to the
-	 * {@link GridCoverageReader}s through the
-	 * {@link GridCoverageReader#read(GeneralParameterValue[])} method in order
-	 * to specify the suggested size of tiles to avoid long time reading
-	 * occurring with JAI ImageRead on striped images. (Images with tiles Nx1)
-	 * Value should be a String in the form of "W,H" (without quotes) where W is
-	 * a number representing the suggested tileWidth and H is a number
-	 * representing the suggested tileHeight.
-	 */
-	public static final DefaultParameterDescriptor<String> SUGGESTED_TILE_SIZE = new DefaultParameterDescriptor<String>(SUGGESTED_TILESIZE, String.class, null, "");
+    /**
+     * This {@link GeneralParameterValue} can be provided to the
+     * {@link GridCoverageReader}s through the
+     * {@link GridCoverageReader#read(GeneralParameterValue[])} method in order
+     * to specify the suggested size of tiles to avoid long time reading
+     * occurring with JAI ImageRead on striped images. (Images with tiles Nx1)
+     * Value should be a String in the form of "W,H" (without quotes) where W is
+     * a number representing the suggested tileWidth and H is a number
+     * representing the suggested tileHeight.
+     */
+    public static final DefaultParameterDescriptor<String> SUGGESTED_TILE_SIZE = new DefaultParameterDescriptor<String>(
+            SUGGESTED_TILESIZE, String.class, null, "");
 
-	public static final String TILE_SIZE_SEPARATOR = ",";
+    public static final String TILE_SIZE_SEPARATOR = ",";
 
-	/**
-	 * Each plugin needs to implement this method defining format specific
-	 * properties
-	 */
-	protected abstract void setInfo();
+    /**
+     * Each plugin needs to implement this method defining format specific
+     * properties
+     */
+    protected abstract void setInfo();
 
-	/**
-	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
-	 *      source)
-	 */
-	public GridCoverageReader getReader(Object source) {
-		return getReader(source, null);
-	}
+    /**
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
+     *      source)
+     */
+    public GridCoverageReader getReader(Object source) {
+        return getReader(source, null);
+    }
 
-	/**
-	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#createWriter(java.lang.Object
-	 *      destination)
-	 * 
-	 * Actually, the plugin does not support write capabilities. The method
-	 * throws an {@code UnsupportedOperationException}.
-	 */
-	public GridCoverageWriter getWriter(Object destination) {
-		throw new UnsupportedOperationException(
-				"This plugin does not support writing at this time.");
-	}
+    /**
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#createWriter(java.lang.Object
+     *      destination)
+     * 
+     * Actually, the plugin does not support write capabilities. The method
+     * throws an {@code UnsupportedOperationException}.
+     */
+    public GridCoverageWriter getWriter(Object destination) {
+        throw new UnsupportedOperationException(
+                "This plugin does not support writing at this time.");
+    }
 
-	/**
-	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#getDefaultImageIOWriteParameters
-	 * 
-	 * Actually, the plugin does not support write capabilities. The method
-	 * throws an {@code UnsupportedOperationException}.
-	 */
-	public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
-		throw new UnsupportedOperationException(
-				"This plugin does not support writing parameters");
-	}
+    /**
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getDefaultImageIOWriteParameters
+     * 
+     * Actually, the plugin does not support write capabilities. The method
+     * throws an {@code UnsupportedOperationException}.
+     */
+    public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
+        throw new UnsupportedOperationException(
+                "This plugin does not support writing parameters");
+    }
 
-	/**
-	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#createWriter(java.lang.Object
-	 *      destination,Hints hints)
-	 *      
-	 * Actually, the plugin does not support write capabilities. The method
-	 * throws an {@code UnsupportedOperationException}.
-	 */
-	public GridCoverageWriter getWriter(Object destination, Hints hints) {
-		throw new UnsupportedOperationException(
-				"This plugin does not support writing at this time.");
-	}
+    /**
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#createWriter(java.lang.Object
+     *      destination,Hints hints)
+     * 
+     * Actually, the plugin does not support write capabilities. The method
+     * throws an {@code UnsupportedOperationException}.
+     */
+    public GridCoverageWriter getWriter(Object destination, Hints hints) {
+        throw new UnsupportedOperationException(
+                "This plugin does not support writing at this time.");
+    }
 
-	/**
-	 * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object
-	 *      input)
-	 */
-	public boolean accepts(Object input) {
-		try {
-			return spi.canDecodeInput(input);
-		} catch (IOException e) {
-			if (LOGGER.isLoggable(Level.FINE)) {
-				LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-			}
-			return false;
-		}
-	}
+    /**
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(java.lang.Object input)
+     */
+    public boolean accepts(Object input) {
+        try {
+            return spi.canDecodeInput(input);
+        } catch (IOException e) {
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
+            }
+            return false;
+        }
+    }
 }

@@ -68,9 +68,6 @@ public abstract class BaseGDALGridCoverage2DReader extends
      *                {@link BaseGDALGridCoverage2DReader}.
      * @param hints
      *                Hints to be used by this reader throughout his life.
-     * @param isSupportingAdditionalMetadata
-     *                specifies if the underlying format support additional
-     *                metadata
      * @param worldFileExtension
      *                the specific world file extension of the underlying format
      * @param formatSpecificSpi
