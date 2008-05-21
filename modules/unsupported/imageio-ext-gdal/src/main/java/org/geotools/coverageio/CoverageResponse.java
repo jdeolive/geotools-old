@@ -47,8 +47,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 /**
- * A CoverageResponse. An instance of this class is produced everytime a requestCoverage is called to a reader.
- * @author  Daniele Romagnoli, GeoSolutions
+ * A CoverageResponse. An instance of this class is produced everytime a
+ * requestCoverage is called to a reader.
+ * 
+ * @author Daniele Romagnoli, GeoSolutions
  */
 class CoverageResponse {
 
@@ -90,6 +92,21 @@ class CoverageResponse {
     /** The name of the input coverage */
     private String coverageName;
 
+    /**
+     * Construct a {@code CoverageResponse} given a specific
+     * {@link CoverageRequest}, a {@code GridCoverageFactory} to produce
+     * {@code GridCoverage}s and an {@code ImageReaderSpi} to be used for
+     * instantiating an Image Reader for a read operation,
+     * 
+     * @param request
+     *                a {@link CoverageRequest} originating this response.
+     * @param coverageFactory
+     *                a {@code GridCoverageFactory} to produce a
+     *                {@code GridCoverage} when calling the {@link #compute()}
+     *                method.
+     * @param readerSpi
+     *                the Image Reader Service provider interface.
+     */
     public CoverageResponse(CoverageRequest request,
             GridCoverageFactory coverageFactory, ImageReaderSpi readerSpi) {
         originatingCoverageRequest = request;
@@ -103,24 +120,32 @@ class CoverageResponse {
     }
 
     /**
-	 * @return
-	 * @uml.property  name="gridCoverage"
-	 */
+     * @return the {@link GridCoverage} produced as computation of this response
+     *         using the {@link #compute()} method.
+     * @uml.property name="gridCoverage"
+     */
     public GridCoverage getGridCoverage() {
         return gridCoverage;
     }
 
     /**
-	 * @return
-	 * @uml.property  name="originatingCoverageRequest"
-	 */
+     * @return the {@link CoverageRequest} originating this response.
+     * 
+     * @uml.property name="originatingCoverageRequest"
+     */
     public CoverageRequest getOriginatingCoverageRequest() {
         return originatingCoverageRequest;
     }
 
+    /**
+     * Compute the coverage request and produce a grid coverage which will be
+     * returned by {@link #getGridCoverage()}. The produced grid coverage may
+     * be {@code null} in case of empty request.
+     * 
+     * @throws IOException
+     */
     public void compute() throws IOException {
-       originatingCoverageRequest.prepare();
-        // TODO: refactor
+        originatingCoverageRequest.prepare();
         boolean isEmptyRequest = originatingCoverageRequest.isEmptyRequest();
 
         if (isEmptyRequest)
@@ -319,9 +344,9 @@ class CoverageResponse {
      * Returns a {@code PlanarImage} given a set of parameter specifying the
      * type of read operation to be performed.
      * 
-     * @param new FileImageInputStreamExtImplinput
-     *                the input {@code ImageInputStream} to be used for reading
-     *                the image.
+     * @param new
+     *                FileImageInputStreamExtImplinput the input
+     *                {@code ImageInputStream} to be used for reading the image.
      * @param useJAI
      *                {@code true} if we need to use a JAI ImageRead operation,
      *                {@code false} if we need a simple direct
@@ -335,9 +360,9 @@ class CoverageResponse {
      * @return the read {@code PlanarImage}
      * @throws IOException
      */
-    protected PlanarImage readRaster(final File input,
-            final boolean useJAI, final ImageReadParam imageReadParam,
-            final boolean useMultithreading) throws IOException {
+    protected PlanarImage readRaster(final File input, final boolean useJAI,
+            final ImageReadParam imageReadParam, final boolean useMultithreading)
+            throws IOException {
         PlanarImage raster;
         if (useJAI) {
             final ParameterBlock pbjImageRead = new ParameterBlock();
@@ -365,5 +390,4 @@ class CoverageResponse {
         }
         return raster;
     }
-
 }
