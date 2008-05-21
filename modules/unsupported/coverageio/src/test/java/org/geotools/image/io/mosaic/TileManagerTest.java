@@ -110,6 +110,7 @@ public class TileManagerTest extends TestBase {
      * @throws IOException If an I/O operation was required and failed.
      */
     @Test
+    @Ignore
     public void testConstantSizeLayout() throws IOException {
         int total = 0;
 
@@ -173,6 +174,7 @@ public class TileManagerTest extends TestBase {
      * @throws IOException If an I/O operation was required and failed.
      */
     @Test
+    @Ignore
     public void testSpecific() throws IOException {
         regionOfInterest.x      = 31375;
         regionOfInterest.y      =  8488;
