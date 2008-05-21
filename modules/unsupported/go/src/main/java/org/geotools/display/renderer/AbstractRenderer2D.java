@@ -173,6 +173,7 @@ public abstract class AbstractRenderer2D extends AbstractRenderer implements Ren
      */
     @Override
     protected synchronized void removeAll() {
+        super.removeAll();
         sortedGraphics = null;
         clearCache();
     }

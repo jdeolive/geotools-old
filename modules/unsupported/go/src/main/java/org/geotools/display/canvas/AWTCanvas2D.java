@@ -314,7 +314,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
 //            Logger.getLogger(AWTCanvas2D.class.getName()).log(Level.SEVERE, null, ex);
 //        }
         
-        reset();
+//        reset();
         
         
         System.out.println("objectiveToDisplay => \n"+ objectiveToDisplay);
@@ -324,6 +324,9 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         AffineTransform2D objToDisp = null;
         
         setDisplayBounds(owner.getBounds());
+        
+        //retrieve an affineTransform that will not be modify
+        // while rendering
         try{
             objToDisp = setObjectiveToDisplayTransform(clipBounds);
         }catch(TransformException exception){
@@ -444,8 +447,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
             logger.log(record);
         }
     }
-
-
+    
 
     //--------------------Canvas Controller methods ----------------------------
     
@@ -500,7 +502,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     
     
     
-    public CanvasController getController() {
+    public AWTCanvas2D getController() {
         return this;
     }
 

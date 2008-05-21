@@ -17,6 +17,8 @@ import org.geotools.display.renderer.RenderingContext;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.LiteShape;
 import org.geotools.referencing.CRS;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -32,10 +34,21 @@ public abstract class MultiLineGraphic extends FeatureGraphic{
     private LiteShape j2dShape;
     
     
-    public MultiLineGraphic(CoordinateReferenceSystem crs, MultiLineString line, double z){
+    public MultiLineGraphic(CoordinateReferenceSystem crs, SimpleFeature feature, double z){
         super(crs);
         setZOrderHint(z);
-        this.line = line;
+        
+        BoundingBox box = feature.getBounds();
+                
+        this.line = (MultiLineString)feature.getDefaultGeometry();
+               
+        
+        try {
+            setEnvelope(box);
+        } catch (TransformException ex) {
+            ex.printStackTrace();
+//            Logger.getLogger(MultiLineGraphic.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
 

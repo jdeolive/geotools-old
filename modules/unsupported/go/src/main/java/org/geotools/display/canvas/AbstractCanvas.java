@@ -366,14 +366,14 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
 
     /**
      * This method is automaticly called when a event is generate by the canvas
-     * renderer when a graphic object is added.
+     * renderer when a graphic object is removed.
      */
     protected void graphicsRemoved(RendererEvent event) {
     }
 
     /**
      * This method is automaticly called when a event is generate by the canvas
-     * renderer when a graphic object is added.
+     * renderer when a graphic object changes.
      */
     protected void graphicsChanged(RendererEvent event) {
     }

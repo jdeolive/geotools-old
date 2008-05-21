@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import java.util.Set;
 import javax.swing.event.EventListenerList;
 import org.geotools.display.canvas.AbstractCanvas;
 import org.geotools.display.canvas.DisplayObject;
@@ -232,10 +233,11 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
             graphics.put(graphic, graphic);
         }
         
-        //will be handle differently : TODO : use rendererListener methods
-//        if (hasGraphicsListeners) {   ----------------------------------------------------------------------------OPTIMISATION
-//        propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
-//        }
+        // TODO will have to separate this call, to avoid having multiple event for a
+        // collection of graphics
+        RendererEvent event = new DefaultRendererEvent(this, graphic);
+        fireGraphicAdded(event);
+        
         return graphic;
     }
 
@@ -283,10 +285,11 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
             throw new AssertionError(graphic); // Should never happen.
         }
         
-        //will be handle differently : TODO : use rendererListener methods
-//        if (hasGraphicsListeners) {   --------------------------------------------------------------------------------OPTIMISATION
-//            propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
-//        }
+        // TODO will have to separate this call, to avoid having multiple event for a
+        // collection of graphics
+        RendererEvent event = new DefaultRendererEvent(this, graphic);
+        fireGraphicRemoved(event);
+        
     }
 
     /**
@@ -301,7 +304,9 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      */
     protected synchronized void removeAll() {
         
-        for (final Graphic graphic : graphics.keySet()) {
+        Set<Graphic> vals = graphics.keySet();
+        
+        for (final Graphic graphic : vals) {
             if (graphic instanceof AbstractGraphic) {
                 final AbstractGraphic candidate = (AbstractGraphic) graphic;
                 assert Thread.holdsLock(candidate.getTreeLock());
@@ -313,10 +318,11 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
                 
         clearCache();
         
-        //will be handle differently : TODO : use rendererListener methods
-//        if (hasGraphicsListeners) {   -----------------------------------------------------------------------------------------OPTIMISATION
-//            propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
-//        }
+        // TODO will have to separate this call, to avoid having multiple event for a
+        // collection of graphics
+        RendererEvent event = new DefaultRendererEvent(this, vals);
+        fireGraphicRemoved(event);
+        
     }
 
     
