@@ -35,7 +35,6 @@ import org.geotools.arcsde.data.view.QueryInfoParser;
 import org.geotools.arcsde.data.view.SelectQualifier;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Session;
-import org.geotools.arcsde.pool.Command;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
@@ -47,7 +46,6 @@ import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
-import org.geotools.data.FeatureWriter;
 import org.geotools.data.FilteringFeatureReader;
 import org.geotools.data.LockingManager;
 import org.geotools.data.MaxFeatureReader;
@@ -370,46 +368,6 @@ public class ArcSDEDataStore implements DataStore {
             }
         }
         return versionHandler;
-    }
-
-    /**
-     * Execute code that requires an ArcSDEConnection for a read-only activity.
-     * <p>
-     * This method should be used when performing a read-only task such as fetching metadata about a
-     * table. Because this is a read-only activity it does not matter what Transaction is used for
-     * this work.
-     * <p>
-     * 
-     * @param runnable Code to be executed with an ArcSDEConnection
-     */
-    void getConnection(Command runnable) throws IOException {
-        // for now we will just make use of Transaction.AUTO_COMMIT
-        getConnection(runnable, Transaction.AUTO_COMMIT);
-    }
-
-    /**
-     * Execute code that requires an ArcSDEConnection for a read/write activity.
-     * 
-     * @param runnable
-     * @param transaction
-     */
-    void getConnection(Command command, Transaction transaction) throws IOException {
-        final Session session;
-        final ArcTransactionState state;
-
-        if (Transaction.AUTO_COMMIT.equals(transaction)) {
-            session = connectionPool.getSession();
-            try {
-                session.issue(command);
-            } finally {
-                session.close(); // return to pool
-            }
-            state = null;
-        } else {
-            state = ArcTransactionState.getState(this, transaction, listenerManager, false);
-            session = state.getConnection();
-            session.issue(command);
-        }
     }
 
     /**
