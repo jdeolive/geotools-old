@@ -16,7 +16,7 @@
 package org.geotools.gui.swing.map.map2d.control;
 
 
-import org.geotools.gui.swing.map.map2d.Map2D;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D;
 import org.geotools.gui.swing.map.map2d.strategy.MergeBufferedImageStrategy;
 import org.geotools.gui.swing.map.map2d.strategy.RenderingStrategy;
 import org.geotools.gui.swing.map.map2d.strategy.SingleBufferedImageStrategy;
@@ -28,7 +28,7 @@ import org.geotools.gui.swing.map.map2d.strategy.SingleVolatileImageStrategy;
  */
 public class JMap2DConfigPanel extends javax.swing.JPanel {
 
-    private Map2D map = null;
+    private StreamingMap2D map = null;
 
     /** 
      * Creates new form JOptimizeMap2DPanel 
@@ -48,7 +48,7 @@ public class JMap2DConfigPanel extends javax.swing.JPanel {
      * set the related Map2D
      * @param map2d : related Map2D
      */
-    public void setMap(Map2D map2d) {
+    public void setMap(StreamingMap2D map2d) {
         this.map = map2d;
 
         if (map2d != null ) {

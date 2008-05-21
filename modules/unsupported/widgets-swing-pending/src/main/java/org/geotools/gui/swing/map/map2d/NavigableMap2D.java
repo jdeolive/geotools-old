@@ -23,7 +23,7 @@ import org.geotools.gui.swing.map.map2d.listener.Map2DNavigationListener;
  * interface for map2d widget how handle Navigation
  * @author Johann Sorel
  */
-public interface NavigableMap2D extends Map2D{
+public interface NavigableMap2D extends StreamingMap2D{
         
     /**
      * get to the previous maparea is there was one

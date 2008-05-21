@@ -30,29 +30,7 @@ import org.geotools.gui.swing.map.map2d.decoration.InformationDecoration;
  * @author Johann Sorel
  */
 public interface Map2D {
-       
-    /**
-     * Possible actions states available for a map
-     */
-    public static enum ACTION_STATE{
-        NAVIGATE,
-        SELECT,
-        EDIT,
-        NONE
-    };
-    
-    
-    /**
-     * set the rendering strategy
-     * @param strategy : throw nullpointexception if strategy is null
-     */
-    public void setRenderingStrategy(RenderingStrategy strategy);    
-    /**
-     * get the map2d rendering strategy
-     * @return RenderingStrategy : should never return null;
-     */
-    public RenderingStrategy getRenderingStrategy();
-    
+        
     /**
      * must be called when the map2d is not used anymore.
      * to avoid memoryleack if it uses thread or other resources
@@ -65,34 +43,6 @@ public interface Map2D {
      */
     public Component getComponent();
     
-    /**
-     * add a Map2DListener
-     * @param listener : Map2Dlistener to add
-     */
-    public void addMap2DListener(Map2DListener listener);        
-    /**
-     * remove a Map2DListener
-     * @param listener : Map2DListener to remove
-     */
-    public void removeMap2DListener(Map2DListener listener);    
-    /**
-     * 
-     * @return array of Map2DListener
-     */
-    public Map2DListener[] getMap2DListeners();
-    
-    //------------------Action State--------------------------------------------    
-    /**
-     * set the action state. Pan, ZoomIn, ZoomOut ...
-     * @param state : MapConstants.ACTION_STATE
-     */
-    public void setActionState(ACTION_STATE state);    
-    /**
-     * get the actual action state
-     * @return MapConstants.ACTION_STATE
-     */
-    public ACTION_STATE getActionState();
-            
     //----------------------map decorations-------------------------------------
     /**
      * set the top InformationDecoration of the map2d widget

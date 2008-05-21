@@ -27,7 +27,7 @@ import javax.swing.JToolBar;
 
 import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.gui.swing.map.map2d.JDefaultMap2D;
-import org.geotools.gui.swing.map.map2d.Map2D;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D;
 
 /**
  *
@@ -37,7 +37,7 @@ public class JMap2DInfoBar extends JToolBar {
 
     private final ResourceBundle bundle = ResourceBundle.getBundle("org/geotools/gui/swing/map/map2d/control/Bundle");
     private static final ImageIcon ICON_CONFIG = IconBundle.getResource().getIcon("16_map2d_optimize");
-    private Map2D map = null;
+    private StreamingMap2D map = null;
     private JMap2DMouseCoordPanel m_coord = new JMap2DMouseCoordPanel();
     private JCheckBox gui_chk_refresh = new JCheckBox();
     private JCheckBox gui_chk_message = new JCheckBox();
@@ -97,10 +97,10 @@ public class JMap2DInfoBar extends JToolBar {
      * set the related Map2D
      * @param map : related Map2D
      */
-    public void setMap(Map2D map) {
+    public void setMap(StreamingMap2D map) {
 
-        if (map instanceof Map2D) {
-            this.map = (Map2D) map;
+        if (map instanceof StreamingMap2D) {
+            this.map = map;
             m_coord.setMap(map);
             gui_chk_refresh.setSelected(map.getRenderingStrategy().isAutoRefresh());
             gui_chk_message.setSelected(map.getInformationDecoration().isDisplayingLowLevelMessages());

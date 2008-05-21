@@ -22,6 +22,7 @@ import javax.swing.JComboBox;
 
 import org.geotools.gui.swing.map.map2d.EditableMap2D;
 import org.geotools.gui.swing.map.map2d.Map2D;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D;
 import org.geotools.gui.swing.map.map2d.event.RenderingStrategyEvent;
 import org.geotools.gui.swing.map.map2d.event.Map2DEditionEvent;
 import org.geotools.gui.swing.map.map2d.event.Map2DEvent;
@@ -40,7 +41,7 @@ import org.geotools.map.event.MapLayerListListener;
  */
 public class EditedLayerChooser extends JComboBox {
 
-    private Map2D map = null;
+    private StreamingMap2D map = null;
     private MapContext editionContext = null;
     private MapLayer editionLayer = null;
     private ItemListener listListener = new ItemListener() {
@@ -169,7 +170,7 @@ public class EditedLayerChooser extends JComboBox {
         return map;
     }
 
-    public void setMap(Map2D map2d) {
+    public void setMap(StreamingMap2D map2d) {
 
         if (map != null) {
             map.getRenderingStrategy().removeStrategyListener(strategyListener);

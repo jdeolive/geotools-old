@@ -25,6 +25,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.gui.swing.map.map2d.Map2D;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D;
 
 /**
  * JMap2DEditBar is a JPanel to handle edition state for an EditableMap2D
@@ -38,7 +39,7 @@ public class JMap2DEditBar extends JToolBar {
     
     private final EditAction ACTION_EDIT = new EditAction();
     
-    private Map2D map = null;
+    private StreamingMap2D map = null;
     private final JButton gui_edit = buildButton(ICON_EDIT, ACTION_EDIT);
     private final EditedLayerChooser gui_chooser = new EditedLayerChooser();
     private final EditHandlerChooser gui_handler = new EditHandlerChooser();
@@ -57,7 +58,7 @@ public class JMap2DEditBar extends JToolBar {
      * Creates a new instance of JMap2DEditBar
      * @param pane : related Map2D or null
      */
-    public JMap2DEditBar(Map2D pane) {
+    public JMap2DEditBar(StreamingMap2D pane) {
         setMap(pane);
         init();
     }
@@ -85,7 +86,7 @@ public class JMap2DEditBar extends JToolBar {
      * set the related Map2D
      * @param map2d : related Map2D
      */
-    public void setMap(Map2D map2d) {
+    public void setMap(StreamingMap2D map2d) {
 
         map = map2d;
         ACTION_EDIT.setMap(map);

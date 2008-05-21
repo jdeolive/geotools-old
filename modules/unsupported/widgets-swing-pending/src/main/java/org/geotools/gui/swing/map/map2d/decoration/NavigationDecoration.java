@@ -33,6 +33,7 @@ import org.geotools.gui.swing.map.map2d.Map2D;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D;
 
 /**
  *
@@ -111,13 +112,18 @@ public class NavigationDecoration extends JPanel implements MapDecoration{
         gui_east.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                if(map != null && map.getRenderingStrategy().getMapArea() != null){
-                    Envelope oldEnv = map.getRenderingStrategy().getMapArea();
-                    double deplacement = oldEnv.getWidth()/ratio;                    
-                    Coordinate coord1 = new Coordinate(oldEnv.getMinX() + deplacement, oldEnv.getMinY());
-                    Coordinate coord2 = new Coordinate(oldEnv.getMaxX() + deplacement, oldEnv.getMaxY());                    
-                    Envelope newEnv = new Envelope( coord1,coord2);
-                    map.getRenderingStrategy().setMapArea(newEnv);                    
+                
+                if(map instanceof StreamingMap2D){                    
+                    StreamingMap2D streamMap = (StreamingMap2D)map;
+
+                    if(streamMap != null && streamMap.getRenderingStrategy().getMapArea() != null){
+                        Envelope oldEnv = streamMap.getRenderingStrategy().getMapArea();
+                        double deplacement = oldEnv.getWidth()/ratio;                    
+                        Coordinate coord1 = new Coordinate(oldEnv.getMinX() + deplacement, oldEnv.getMinY());
+                        Coordinate coord2 = new Coordinate(oldEnv.getMaxX() + deplacement, oldEnv.getMaxY());                    
+                        Envelope newEnv = new Envelope( coord1,coord2);
+                        streamMap.getRenderingStrategy().setMapArea(newEnv);                    
+                    }
                 }
             }
         });
@@ -125,13 +131,17 @@ public class NavigationDecoration extends JPanel implements MapDecoration{
         gui_north.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                if(map != null && map.getRenderingStrategy().getMapArea() != null){
-                    Envelope oldEnv = map.getRenderingStrategy().getMapArea();
-                    double deplacement = oldEnv.getWidth()/ratio;                    
-                    Coordinate coord1 = new Coordinate(oldEnv.getMinX() , oldEnv.getMinY() + deplacement);
-                    Coordinate coord2 = new Coordinate(oldEnv.getMaxX() , oldEnv.getMaxY() + deplacement);                    
-                    Envelope newEnv = new Envelope( coord1,coord2);
-                    map.getRenderingStrategy().setMapArea(newEnv);                    
+                
+                if(map instanceof StreamingMap2D){                    
+                    StreamingMap2D streamMap = (StreamingMap2D)map;
+                    if(streamMap != null && streamMap.getRenderingStrategy().getMapArea() != null){
+                        Envelope oldEnv = streamMap.getRenderingStrategy().getMapArea();
+                        double deplacement = oldEnv.getWidth()/ratio;                    
+                        Coordinate coord1 = new Coordinate(oldEnv.getMinX() , oldEnv.getMinY() + deplacement);
+                        Coordinate coord2 = new Coordinate(oldEnv.getMaxX() , oldEnv.getMaxY() + deplacement);                    
+                        Envelope newEnv = new Envelope( coord1,coord2);
+                        streamMap.getRenderingStrategy().setMapArea(newEnv);                    
+                    }
                 }
             }
         });
@@ -139,13 +149,17 @@ public class NavigationDecoration extends JPanel implements MapDecoration{
         gui_south.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                if(map != null && map.getRenderingStrategy().getMapArea() != null){
-                    Envelope oldEnv = map.getRenderingStrategy().getMapArea();
-                    double deplacement = oldEnv.getWidth()/ratio;                    
-                    Coordinate coord1 = new Coordinate(oldEnv.getMinX(), oldEnv.getMinY() - deplacement);
-                    Coordinate coord2 = new Coordinate(oldEnv.getMaxX(), oldEnv.getMaxY() - deplacement);                    
-                    Envelope newEnv = new Envelope( coord1,coord2);
-                    map.getRenderingStrategy().setMapArea(newEnv);                    
+                
+                if(map instanceof StreamingMap2D){                    
+                    StreamingMap2D streamMap = (StreamingMap2D)map;
+                    if(streamMap != null && streamMap.getRenderingStrategy().getMapArea() != null){
+                        Envelope oldEnv = streamMap.getRenderingStrategy().getMapArea();
+                        double deplacement = oldEnv.getWidth()/ratio;                    
+                        Coordinate coord1 = new Coordinate(oldEnv.getMinX(), oldEnv.getMinY() - deplacement);
+                        Coordinate coord2 = new Coordinate(oldEnv.getMaxX(), oldEnv.getMaxY() - deplacement);                    
+                        Envelope newEnv = new Envelope( coord1,coord2);
+                        streamMap.getRenderingStrategy().setMapArea(newEnv);                    
+                    }
                 }
             }
         });
@@ -153,13 +167,17 @@ public class NavigationDecoration extends JPanel implements MapDecoration{
         gui_west.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                if(map != null && map.getRenderingStrategy().getMapArea() != null){
-                    Envelope oldEnv = map.getRenderingStrategy().getMapArea();
-                    double deplacement = oldEnv.getWidth()/ratio;                    
-                    Coordinate coord1 = new Coordinate(oldEnv.getMinX() - deplacement, oldEnv.getMinY());
-                    Coordinate coord2 = new Coordinate(oldEnv.getMaxX() - deplacement, oldEnv.getMaxY());                    
-                    Envelope newEnv = new Envelope( coord1,coord2);
-                    map.getRenderingStrategy().setMapArea(newEnv);                    
+                
+                if(map instanceof StreamingMap2D){                    
+                    StreamingMap2D streamMap = (StreamingMap2D)map;
+                    if(streamMap != null && streamMap.getRenderingStrategy().getMapArea() != null){
+                        Envelope oldEnv = streamMap.getRenderingStrategy().getMapArea();
+                        double deplacement = oldEnv.getWidth()/ratio;                    
+                        Coordinate coord1 = new Coordinate(oldEnv.getMinX() - deplacement, oldEnv.getMinY());
+                        Coordinate coord2 = new Coordinate(oldEnv.getMaxX() - deplacement, oldEnv.getMaxY());                    
+                        Envelope newEnv = new Envelope( coord1,coord2);
+                        streamMap.getRenderingStrategy().setMapArea(newEnv);                    
+                    }
                 }
             }
         });

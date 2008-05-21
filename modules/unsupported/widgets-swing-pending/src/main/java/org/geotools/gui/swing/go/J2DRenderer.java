@@ -5,6 +5,7 @@
 package org.geotools.gui.swing.go;
 
 import com.vividsolutions.jts.geom.MultiLineString;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -93,24 +94,17 @@ public class J2DRenderer extends AWTDirectRenderer2D {
 //        for(int i=0;i<2;i++){
         while (ite.hasNext()) {
             SimpleFeature feature = (SimpleFeature) ite.next();
-            Object geom = feature.getDefaultGeometry();
-
-            if (geom instanceof MultiLineString) {
-                MultiLineGraphic gra = new MultiLineGraphic(crs, (MultiLineString) geom, z);
-                add(gra);
-            }
+            
+            MultiLineGraphic gra = new MultiLineGraphic(crs, feature, z) {};
+            add(gra);
+            
 
         }
 
     }
 
-    @Override
-    public ReferencedEnvelope getGraphicsEnvelope() {
-        try {
-            return context.getLayerBounds();
-        } catch (IOException ex) {
-            return null;
-        }
+    public RenderedImage getSnapShot() {
+        return null;
     }
 
 }

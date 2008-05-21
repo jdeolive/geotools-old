@@ -33,6 +33,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D;
 
 /**
  *
@@ -41,7 +42,7 @@ import com.vividsolutions.jts.geom.Point;
 public class JMap2DMouseCoordPanel extends javax.swing.JPanel {
     
     private final myListener listener = new myListener();
-    private Map2D map = null;
+    private StreamingMap2D map = null;
     private CoordinateReferenceSystem defaultCRS = null;
     private String error = ResourceBundle.getBundle("org/geotools/gui/swing/map/map2d/control/Bundle").getString("coord_error");
     
@@ -51,11 +52,11 @@ public class JMap2DMouseCoordPanel extends javax.swing.JPanel {
                 
     }
     
-    public Map2D getMap() {
+    public StreamingMap2D getMap() {
         return map;
     }
 
-    public void setMap(Map2D map) {
+    public void setMap(StreamingMap2D map) {
         
         if(this.map != null){
             this.map.getComponent().removeMouseMotionListener(listener);

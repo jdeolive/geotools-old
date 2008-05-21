@@ -19,9 +19,9 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import org.geotools.gui.swing.map.map2d.Map2D;
-import org.geotools.gui.swing.map.map2d.Map2D.ACTION_STATE;
 import org.geotools.gui.swing.map.map2d.NavigableMap2D;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D.ACTION_STATE;
 import org.geotools.gui.swing.map.map2d.handler.DefaultZoomInHandler;
 
 /**
@@ -30,7 +30,7 @@ import org.geotools.gui.swing.map.map2d.handler.DefaultZoomInHandler;
  */
 public class ZoomInAction extends AbstractAction {
 
-    private Map2D map = null;
+    private StreamingMap2D map = null;
 
     public void actionPerformed(ActionEvent arg0) {
         if (map != null && map instanceof NavigableMap2D) {
@@ -40,11 +40,11 @@ public class ZoomInAction extends AbstractAction {
         }
     }
 
-    public Map2D getMap() {
+    public StreamingMap2D getMap() {
         return map;
     }
 
-    public void setMap(Map2D map) {
+    public void setMap(StreamingMap2D map) {
         this.map = map;
         setEnabled(map != null && map instanceof NavigableMap2D);
     }

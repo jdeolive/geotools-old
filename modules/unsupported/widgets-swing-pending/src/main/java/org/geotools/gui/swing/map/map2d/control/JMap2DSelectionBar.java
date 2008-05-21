@@ -24,7 +24,7 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 
 import org.geotools.gui.swing.icon.IconBundle;
-import org.geotools.gui.swing.map.map2d.Map2D;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D;
 
 /**
  * JMap2DControlBar is a JPanel to handle Navigation state for a NavigableMap2D
@@ -40,7 +40,7 @@ public class JMap2DSelectionBar extends JToolBar {
     private final SelectAction ACTION_SELECT = new SelectAction();
     
     
-    private Map2D map = null;
+    private StreamingMap2D map = null;
     private final JButton gui_select = buildButton(ICON_SELECT, ACTION_SELECT);
     private final SelectFilterChooser gui_filter = new SelectFilterChooser();
     private final SelectHandlerChooser gui_handler = new SelectHandlerChooser();
@@ -57,7 +57,7 @@ public class JMap2DSelectionBar extends JToolBar {
      * Creates a new instance of JMap2DControlBar
      * @param pane : related Map2D or null
      */
-    public JMap2DSelectionBar(Map2D pane) {
+    public JMap2DSelectionBar(StreamingMap2D pane) {
         setMap(pane);
         init();
     }
@@ -85,7 +85,7 @@ public class JMap2DSelectionBar extends JToolBar {
      * set the related Map2D
      * @param map2d : related Map2D
      */
-    public void setMap(Map2D map2d) {
+    public void setMap(StreamingMap2D map2d) {
         map = map2d;        
         ACTION_SELECT.setMap(map);
         gui_filter.setMap(map);

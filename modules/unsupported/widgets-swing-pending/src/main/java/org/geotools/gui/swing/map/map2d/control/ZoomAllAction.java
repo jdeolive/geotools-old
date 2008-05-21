@@ -21,7 +21,7 @@ import java.io.IOException;
 import javax.swing.AbstractAction;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.gui.swing.map.map2d.Map2D;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D;
 import org.geotools.map.MapContext;
 
 /**
@@ -30,7 +30,7 @@ import org.geotools.map.MapContext;
  */
 public class ZoomAllAction extends AbstractAction {
 
-    private Map2D map = null;
+    private StreamingMap2D map = null;
 
     public void actionPerformed(ActionEvent arg0) {
         if (map != null) {
@@ -50,11 +50,11 @@ public class ZoomAllAction extends AbstractAction {
         }
     }
 
-    public Map2D getMap() {
+    public StreamingMap2D getMap() {
         return map;
     }
 
-    public void setMap(Map2D map) {
+    public void setMap(StreamingMap2D map) {
         this.map = map;
         setEnabled(map != null);
     }

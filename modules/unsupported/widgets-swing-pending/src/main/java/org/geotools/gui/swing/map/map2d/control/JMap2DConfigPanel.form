@@ -60,14 +60,14 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="103" max="32767" attributes="0"/>
+                              <EmptySpace pref="75" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jrb_rendering_merge_buffer" alignment="0" pref="198" max="32767" attributes="2"/>
+                                  <Component id="jrb_rendering_merge_buffer" alignment="0" pref="189" max="32767" attributes="2"/>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jrb_rendering_single_buffer" pref="170" max="32767" attributes="2"/>
+                                      <Component id="jrb_rendering_single_buffer" max="32767" attributes="2"/>
                                       <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -104,7 +104,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jrb_rendering_merge_buffer" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="jSeparator1" alignment="1" pref="279" max="32767" attributes="0"/>
+                          <Component id="jSeparator1" alignment="1" pref="264" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>

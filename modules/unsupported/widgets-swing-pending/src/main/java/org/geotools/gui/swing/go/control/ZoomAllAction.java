@@ -13,38 +13,34 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.gui.swing.map.map2d.control;
+package org.geotools.gui.swing.go.control;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import org.geotools.gui.swing.go.GoMap2D;
 
-import org.geotools.gui.swing.map.map2d.NavigableMap2D;
-import org.geotools.gui.swing.map.map2d.StreamingMap2D;
-import org.geotools.gui.swing.map.map2d.StreamingMap2D.ACTION_STATE;
-import org.geotools.gui.swing.map.map2d.handler.DefaultPanHandler;
 
 /**
  *
  * @author johann sorel
  */
-public class PanAction extends AbstractAction {
+public class ZoomAllAction extends AbstractAction {
 
-    private StreamingMap2D map = null;
+    private GoMap2D map = null;
 
     public void actionPerformed(ActionEvent arg0) {
-        if (map != null && map instanceof NavigableMap2D) {
-            ((NavigableMap2D) map).setNavigationHandler(new DefaultPanHandler());
-            map.setActionState(ACTION_STATE.NAVIGATE);
+        if (map != null) {
+            map.getCanvas().getController().reset();
         }
     }
 
-    public StreamingMap2D getMap() {
+    public GoMap2D getMap() {
         return map;
     }
 
-    public void setMap(StreamingMap2D map) {
+    public void setMap(GoMap2D map) {
         this.map = map;
-        setEnabled(map != null && map instanceof NavigableMap2D);
+        setEnabled(map != null);
     }
 }

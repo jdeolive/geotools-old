@@ -19,7 +19,7 @@ package org.geotools.gui.swing.map.map2d.event;
 import java.util.EventObject;
 
 import org.geotools.gui.swing.map.map2d.Map2D;
-import org.geotools.gui.swing.map.map2d.Map2D.ACTION_STATE;
+import org.geotools.gui.swing.map.map2d.StreamingMap2D.ACTION_STATE;
 import org.geotools.gui.swing.map.map2d.strategy.RenderingStrategy;
 
 /**
