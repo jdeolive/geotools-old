@@ -2,8 +2,9 @@ package com.esri.sde.sdk.client;
 
 public class SeConnection {
 
-	public static int SE_TRYLOCK_POLICY = 0;
+    public static int SE_TRYLOCK_POLICY = 0;
     public static /* GEOT-947 final*/ int SE_UNPROTECTED_POLICY = 0;
+    public static int SE_ONE_THREAD_POLICY = 1;
 	
 	public SeConnection(String a, int i, String b, String c, String d) {}
 	
