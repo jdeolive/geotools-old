@@ -68,7 +68,7 @@ import org.geotools.util.SimpleInternationalString;
  * @source $URL$
  * @version $Id$
  * @author Touraïvane
- * @author Olivier Kartotaroeno
+ * @author Olivier Kartotaroeno (Institut de Recherche pour le Développement)
  * @author Martin Desruisseaux
  */
 public class MetadataSource {

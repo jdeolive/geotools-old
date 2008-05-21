@@ -24,7 +24,7 @@ import java.util.logging.Level;
  * @since 2.4
  * @source $URL$
  * @version $Id$
- * @author desruisseaux
+ * @author Martin Desruisseaux
  */
 final class DummyLogger extends LoggerAdapter {
     /**

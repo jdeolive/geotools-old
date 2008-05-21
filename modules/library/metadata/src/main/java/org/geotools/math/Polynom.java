@@ -36,8 +36,8 @@ import org.geotools.resources.Classes;
  * @since 2.0
  * @source $URL$
  * @version $Id$
- * @author Ken Turkiwski
  * @author Martin Desruisseaux
+ * @author Ken Turkiwski, for algorithmic inspiration
  */
 public class Polynom implements Serializable {
     /**

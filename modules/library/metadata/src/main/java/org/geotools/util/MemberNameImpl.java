@@ -38,7 +38,7 @@ import org.opengis.util.TypeName;
  * @since 2.4
  * @source $URL$
  * @version $Id$
- * @author Jody Garnet
+ * @author Jody Garnett
  * @author Martin Desruisseaux
  */
 public class MemberNameImpl extends LocalName implements MemberName {

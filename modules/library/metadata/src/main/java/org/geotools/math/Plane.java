@@ -41,7 +41,7 @@ import org.opengis.util.Cloneable;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux
- * @author Howard Freeland
+ * @author Howard Freeland, for algorithmic inspiration
  */
 public class Plane implements Cloneable, Serializable {
     /**

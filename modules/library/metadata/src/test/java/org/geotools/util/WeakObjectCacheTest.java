@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the WeakObjectCache with simple tests.
  *
- * @author Cory Horner
+ * @author Cory Horner (Refractions Research)
  */
 public final class WeakObjectCacheTest {
     private Integer  key1 = 1;
