@@ -16,7 +16,13 @@ import java.lang.annotation.Inherited;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
 
-
+/**
+ * All classes in the Geotools jaxb modules are place holders for the JAXB API 
+ * used only for testing on Java 5 JVM platforms. These classes will be removed 
+ * once Geotools targets the Java 6 platform since that includes the JAXB API 
+ * by default.
+ *
+ */
 @Inherited @Retention(SOURCE) @Target({PACKAGE, TYPE})
 public @interface XmlAccessorOrder {
 	XmlAccessOrder value() default XmlAccessOrder.UNDEFINED;

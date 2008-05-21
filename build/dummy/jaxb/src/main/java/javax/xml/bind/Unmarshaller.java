@@ -11,7 +11,13 @@ package javax.xml.bind;
 
 import java.io.Reader;
 
-
+/**
+ * All classes in the Geotools jaxb modules are place holders for the JAXB API 
+ * used only for testing on Java 5 JVM platforms. These classes will be removed 
+ * once Geotools targets the Java 6 platform since that includes the JAXB API 
+ * by default.
+ *
+ */
 public interface Unmarshaller {
     public Object unmarshal( java.io.File f ) throws JAXBException;
     public Object unmarshal( java.io.InputStream is ) throws JAXBException;

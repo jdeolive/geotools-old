@@ -9,7 +9,13 @@
  */
 package javax.xml.bind;
 
-
+/**
+ * All classes in the Geotools jaxb modules are place holders for the JAXB API 
+ * used only for testing on Java 5 JVM platforms. These classes will be removed 
+ * once Geotools targets the Java 6 platform since that includes the JAXB API 
+ * by default.
+ *
+ */
 public class JAXBException extends Exception {
     public JAXBException(String message) { super(message); }
 }

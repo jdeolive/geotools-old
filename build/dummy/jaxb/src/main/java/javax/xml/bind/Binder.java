@@ -10,7 +10,13 @@
 package javax.xml.bind;
 
 import org.w3c.dom.Node;
-
+/**
+ * All classes in the Geotools jaxb modules are place holders for the JAXB API 
+ * used only for testing on Java 5 JVM platforms. These classes will be removed 
+ * once Geotools targets the Java 6 platform since that includes the JAXB API 
+ * by default.
+ *
+ */
 public abstract class Binder<XmlNode> {
     public abstract Object unmarshal( XmlNode xmlNode ) throws JAXBException;
     public abstract <T> JAXBElement<T>

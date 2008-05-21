@@ -14,7 +14,13 @@ import static java.lang.annotation.ElementType.PACKAGE;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-
+/**
+ * All classes in the Geotools jaxb modules are place holders for the JAXB API 
+ * used only for testing on Java 5 JVM platforms. These classes will be removed 
+ * once Geotools targets the Java 6 platform since that includes the JAXB API 
+ * by default.
+ *
+ */
 @Retention(SOURCE) @Target({PACKAGE})
 public @interface XmlSchemaTypes {
     XmlSchemaType[] value();
