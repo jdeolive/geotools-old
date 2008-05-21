@@ -73,6 +73,7 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -365,10 +366,13 @@ public class SLDStyleFactory {
         float opacity = evalOpacity(sldGraphic.getOpacity(), feature);
         int size;
 
+        // by spec size is optional, and the default value is context dependend,
+        // the natural size of the image for an external graphic is the size of the raster,
+        // whilst if the size cannot be evaluated, it shall be 16
         try {
-            size = (int) evalToDouble(sldGraphic.getSize(),feature,10);
+            size = (int) evalToDouble(sldGraphic.getSize(),feature,0);
         } catch (NumberFormatException nfe) {
-            size = 10;
+            size = 0;
         }
 
         float rotation = (float)((evalToFloat(sldGraphic.getRotation(),feature, 0) * Math.PI) / 180);
@@ -446,6 +450,9 @@ public class SLDStyleFactory {
                 ms2d.setStroke(getStroke(mark.getStroke(), feature));
                 ms2d.setContour(getStrokePaint(mark.getStroke(), feature));
                 ms2d.setContourComposite(getStrokeComposite(mark.getStroke(), feature));
+                // in case of Mark we don't have a natural size, so we default to 16
+                if(size <= 0)
+                    size = 16;
                 ms2d.setSize(size);
                 ms2d.setRotation(rotation);
                 retval = ms2d;
@@ -928,14 +935,27 @@ public class SLDStyleFactory {
      * @return the image, or null if the external graphics could not be interpreted
      */
     private BufferedImage getImage(ExternalGraphic eg, Object feature, int size) {
-        Expression location;
+        // extract the url
+        String strLocation;
         try {
-            location = CommonFactoryFinder.getFilterFactory(null).literal(eg.getLocation());
+            strLocation = eg.getLocation().toExternalForm();
         } catch(MalformedURLException e) {
             LOGGER.log(Level.INFO, "Malformed URL processing external graphic", e);
             return null;
         }
+        // parse the eventual ${cqlExpression} embedded in the URL
+        Expression location;
+        try {
+            location = ExpressionExtractor.extractCqlExpressions(strLocation);
+        } catch(IllegalArgumentException e) {
+            // in the unlikely event that a URL is using one of the chars reserved for ${cqlExpression}
+            // let's try and use the location as a literal
+            if(LOGGER.isLoggable(Level.FINE))
+                LOGGER.log(Level.FINE, "Could not parse cql expressions out of " + strLocation, e);
+            location = ff.literal(strLocation);
+        }
         
+        // scan the external graphic factories and see which one can be used
         Iterator<ExternalGraphicFactory> it  = DynamicSymbolFactoryFinder.getExternalGraphicFactories();
         while(it.hasNext()) {
             try {
@@ -1003,6 +1023,12 @@ public class SLDStyleFactory {
      */
     private Shape getShape(Mark mark, Object feature) {
         Expression name = mark.getWellKnownName();
+        // expand eventual cql expressions embedded in the name
+        if(name instanceof Literal) {
+            String expression = name.evaluate(null, String.class);
+            if(expression != null)
+                name = ExpressionExtractor.extractCqlExpressions(expression);
+        }
         
         Iterator<MarkFactory> it = DynamicSymbolFactoryFinder.getMarkFactories();
         while(it.hasNext()) {
