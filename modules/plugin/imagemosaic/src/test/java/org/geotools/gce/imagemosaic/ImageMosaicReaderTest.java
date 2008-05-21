@@ -63,10 +63,10 @@ public class ImageMosaicReaderTest extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
 
-//		suite.addTest(new ImageMosaicReaderTest("testDefaultParameterValue"));
-//		suite.addTest(new ImageMosaicReaderTest("testInputAlpha"));
-//		suite.addTest(new ImageMosaicReaderTest("testInputImageROI"));
-//		suite.addTest(new ImageMosaicReaderTest("testCrop"));
+		suite.addTest(new ImageMosaicReaderTest("testDefaultParameterValue"));
+		suite.addTest(new ImageMosaicReaderTest("testInputAlpha"));
+		suite.addTest(new ImageMosaicReaderTest("testInputImageROI"));
+		suite.addTest(new ImageMosaicReaderTest("testCrop"));
 		suite.addTest(new ImageMosaicReaderTest("testErrors"));
 		
 

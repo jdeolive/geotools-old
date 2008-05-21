@@ -20,6 +20,8 @@ import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.ViewType;
+import org.geotools.metadata.iso.spatial.PixelTranslation;
+import org.geotools.referencing.operation.LinearTransform;
 import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.coverage.CoverageUtilities;
@@ -168,16 +170,12 @@ public class BaseScaleOperationJAI extends OperationJAI {
 		// ImageLayout hints, like tileWidth and tileHeight, however are
 		// honored.
 		// /////////////////////////////////////////////////////////////////////
-		RenderingHints targetHints = ImageUtilities
-				.getRenderingHints(sourceImage);
-		if (targetHints == null) {
+		RenderingHints targetHints = ImageUtilities.getRenderingHints(sourceImage);
+		if (targetHints == null) 
 			targetHints = new RenderingHints(null);
+		if (parameters.hints != null) 
 			targetHints.add(parameters.hints);
-		} else if (parameters.hints != null) {
-			targetHints.add(parameters.hints);
-		}
-		ImageLayout layout = (ImageLayout) targetHints
-				.get(JAI.KEY_IMAGE_LAYOUT);
+		ImageLayout layout = (ImageLayout) targetHints.get(JAI.KEY_IMAGE_LAYOUT);
 		if (layout != null) {
 			layout = (ImageLayout) layout.clone();
 		} else {
@@ -242,19 +240,15 @@ public class BaseScaleOperationJAI extends OperationJAI {
 		//
 		// /////////////////////////////////////////////////////////////////////
 		//concatenate and remap to pixel centre
-		final Point2D translation = GridGeometry2D.getPixelTranslation(PixelOrientation.LOWER_RIGHT);
-		final MathTransform finalTransform= ConcatenatedTransform.create(
-						ProjectiveTransform.create(AffineTransform
-						.getTranslateInstance(translation.getX(), translation
-								.getY())),
-							ConcatenatedTransform.create(
-								ProjectiveTransform.create(AffineTransform
-								.getScaleInstance(sourceImage.getWidth()
-										/ (1.0 * image.getWidth()),
-										sourceImage.getHeight()
-												/ (1.0 * image
-														.getHeight()))),
-								sourceG2W));
+		final PixelTranslation translationValue = PixelTranslation.getPixelTranslation(PixelOrientation.LOWER_RIGHT);
+		final LinearTransform translation = ProjectiveTransform.create(AffineTransform.getTranslateInstance(translationValue.dx, translationValue.dy));
+		final LinearTransform scale = ProjectiveTransform.create(
+				AffineTransform.getScaleInstance(
+						sourceImage.getWidth()/ (1.0 * image.getWidth()),
+						sourceImage.getHeight()/ (1.0 * image.getHeight())
+				)
+		);
+		final MathTransform finalTransform= ConcatenatedTransform.create(translation,ConcatenatedTransform.create(scale,sourceG2W));
 		
 	
 		// /////////////////////////////////////////////////////////////////////
