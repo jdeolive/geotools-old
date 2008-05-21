@@ -113,8 +113,8 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             // Set up a pyramid and readerprops for the four-band 2005 imagery
             session = pool.getSession();
             tableName = conProps.getProperty("fourbandtable");
-            q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
-                    new SeSqlConstruct(tableName));
+            q = session.createAndExecuteQuery(new String[] { "RASTER" }, new SeSqlConstruct(
+                    tableName));
             final SeQuery query = q;
             rasterAttr = session.issue(new Command<SeRasterAttr>() {
                 @Override
@@ -135,7 +135,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             throw se;
         } finally {
             if (q != null) {
-                Session.issueClose(session, q);
+                session.close(q);
             }
             if (session != null) {
                 session.close();
@@ -146,8 +146,8 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             // Set up a pyramid and readerprops for the three-band 2001 imagery
             session = pool.getSession();
             conProps.getProperty("threebandtable");
-            q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
-                    new SeSqlConstruct(tableName));
+            q = session.createAndExecuteQuery(new String[] { "RASTER" }, new SeSqlConstruct(
+                    tableName));
             final SeQuery query = q;
             rasterAttr = session.issue(new Command<SeRasterAttr>() {
                 @Override
@@ -168,7 +168,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             throw se;
         } finally {
             if (q != null) {
-                Session.issueClose(session, q);
+                session.close(q);
             }
             if (session != null) {
                 session.close();
@@ -374,7 +374,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             assertTrue("Image from SDE isn't what we expected.", RasterTestData.imageEquals(image,
                     imgPrefix + "1.png"));
         } finally {
-            if (session != null && !session.isClosed()){
+            if (session != null && !session.isClosed()) {
                 session.close();
             }
         }

@@ -21,10 +21,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Represents a set of ArcSDE database connection parameters. Instances of this
- * class are used to validate ArcSDE connection params as in
- * <code>DataSourceFactory.canProcess(java.util.Map)</code> and serves as keys
- * for maintaining single <code>SdeConnectionPool</code>'s by each set of
+ * Represents a set of ArcSDE database connection parameters. Instances of this class are used to
+ * validate ArcSDE connection params as in <code>DataSourceFactory.canProcess(java.util.Map)</code>
+ * and serves as keys for maintaining single <code>SdeConnectionPool</code>'s by each set of
  * connection properties
  * 
  * @author Gabriel Roldan
@@ -85,8 +84,8 @@ public class ArcSDEConnectionConfig {
      * parameter name who's value represents the feature class for wich an
      * <code>SdeDataSource</code> will be created
      * 
-     * @task TODO: should this constant be moved to the SdeDataSource class?
-     *       since SdeConnectionConfig thoes not validates the table param
+     * @task TODO: should this constant be moved to the SdeDataSource class? since
+     *       SdeConnectionConfig thoes not validates the table param
      */
     protected static final String TABLE_NAME_PARAM = "table";
 
@@ -118,16 +117,12 @@ public class ArcSDEConnectionConfig {
     Integer connTimeOut = null;
 
     /**
-     * Configure arcsde connection information from supplied
-     * connection parameters.
+     * Configure arcsde connection information from supplied connection parameters.
      * 
      * @param params Connection parameters
-     * 
-     * @throws NullPointerException
-     *             if at least one mandatory parameter is null
-     * @throws IllegalArgumentException
-     *             if at least one mandatory parameter is present but does not have a
-     *             "valid" value.
+     * @throws NullPointerException if at least one mandatory parameter is null
+     * @throws IllegalArgumentException if at least one mandatory parameter is present but does not
+     *             have a "valid" value.
      */
     public ArcSDEConnectionConfig(Map params) throws NullPointerException, IllegalArgumentException {
         init(params);
@@ -142,13 +137,16 @@ public class ArcSDEConnectionConfig {
      * @param databaseName database to connect to
      * @param userName user name for arcsde
      * @param userPassword user password for arcsde
-     * 
      * @throws NullPointerException If any of the parameters are null
      * @throws IllegalArgumentException If any of the paramters is not valid
      */
-    public ArcSDEConnectionConfig(String dbType, String serverName, String portNumber,
-            String databaseName, String userName, String userPassword) throws NullPointerException,
-            IllegalArgumentException {
+    public ArcSDEConnectionConfig(String dbType,
+                                  String serverName,
+                                  String portNumber,
+                                  String databaseName,
+                                  String userName,
+                                  String userPassword) throws NullPointerException,
+                                                      IllegalArgumentException {
         Map params = new HashMap();
         params.put(DBTYPE_PARAM, dbType);
         params.put(SERVER_NAME_PARAM, serverName);
@@ -163,7 +161,6 @@ public class ArcSDEConnectionConfig {
      * Extra connection parameters from the provided map.
      * 
      * @param params Connection parameters
-     * 
      * @throws NumberFormatException If port could not be parsed into a number
      * @throws IllegalArgumentException If any of the parameters are invalid
      */
@@ -187,7 +184,6 @@ public class ArcSDEConnectionConfig {
      * Handle optional parameters; most are focused on connection pool use.
      * 
      * @param params Connection parameters
-     * 
      * @throws IllegalArgumentException If any of the optional prameters are invlaid.
      */
     private void setUpOptionalParams(Map params) throws IllegalArgumentException {
@@ -216,7 +212,8 @@ public class ArcSDEConnectionConfig {
         }
 
         if (this.minConnections.intValue() > this.maxConnections.intValue()) {
-            exceptionMsg += MIN_CONNECTIONS_PARAM + " must be lower than " + MAX_CONNECTIONS_PARAM+".";            
+            exceptionMsg += MIN_CONNECTIONS_PARAM + " must be lower than " + MAX_CONNECTIONS_PARAM
+                    + ".";
         }
 
         if (exceptionMsg.length() != 0) {
@@ -229,7 +226,6 @@ public class ArcSDEConnectionConfig {
      * 
      * @param value Object to convert to int
      * @param defaultValue Default value if conversion fails
-     * 
      * @return value as an interger, or default value if that is not possible
      */
     private static final Integer getInt(Object value, int defaultValue) {
@@ -249,29 +245,22 @@ public class ArcSDEConnectionConfig {
     /**
      * DOCUMENT ME!
      * 
-     * @param dbType
-     *            DOCUMENT ME!
-     * @param serverName
-     *            DOCUMENT ME!
-     * @param portNumber
-     *            DOCUMENT ME!
-     * @param databaseName
-     *            DOCUMENT ME!
-     * @param userName
-     *            DOCUMENT ME!
-     * @param userPassword
-     *            DOCUMENT ME!
-     * 
+     * @param dbType DOCUMENT ME!
+     * @param serverName DOCUMENT ME!
+     * @param portNumber DOCUMENT ME!
+     * @param databaseName DOCUMENT ME!
+     * @param userName DOCUMENT ME!
+     * @param userPassword DOCUMENT ME!
      * @return DOCUMENT ME!
-     * 
-     * @throws IllegalArgumentException
-     *             DOCUMENT ME!
-     * @throws NullPointerException
-     *             DOCUMENT ME!
+     * @throws IllegalArgumentException DOCUMENT ME!
+     * @throws NullPointerException DOCUMENT ME!
      */
-    private static Integer checkParams(String dbType, String serverName, String portNumber,
-            String databaseName, String userName, String userPassword)
-            throws IllegalArgumentException, NullPointerException {
+    private static Integer checkParams(String dbType,
+            String serverName,
+            String portNumber,
+            String databaseName,
+            String userName,
+            String userPassword) throws IllegalArgumentException, NullPointerException {
         // check if dbtype is 'arcsde'
         if (!(DBTYPE_PARAM_VALUE.equals(dbType))) {
             throw new IllegalArgumentException("parameter dbtype must be " + DBTYPE_PARAM_VALUE);
@@ -313,15 +302,12 @@ public class ArcSDEConnectionConfig {
     /**
      * DOCUMENT ME!
      * 
-     * @param paramName
-     *            DOCUMENT ME!
-     * @param paramValue
-     *            DOCUMENT ME!
-     * 
-     * @throws IllegalArgumentException
-     *             DOCUMENT ME!
+     * @param paramName DOCUMENT ME!
+     * @param paramValue DOCUMENT ME!
+     * @throws IllegalArgumentException DOCUMENT ME!
      */
-    private static void throwIllegal(String paramName, String paramValue) throws IllegalArgumentException {
+    private static void throwIllegal(String paramName, String paramValue)
+            throws IllegalArgumentException {
         throw new IllegalArgumentException("'" + paramValue + "'" + ILLEGAL_ARGUMENT_MSG
                 + paramName);
     }
@@ -367,8 +353,8 @@ public class ArcSDEConnectionConfig {
     }
 
     /**
-     * accessor method for retrieving the user password of the ArcSDE connection
-     * properties holded here
+     * accessor method for retrieving the user password of the ArcSDE connection properties holded
+     * here
      * 
      * @return the ArcSDE user password
      */
@@ -391,12 +377,10 @@ public class ArcSDEConnectionConfig {
     }
 
     /**
-     * Checks for equality over another <code>ArcSDEConnectionConfig</code>,
-     * taking into account the values of database name, user name, and port number.
+     * Checks for equality over another <code>ArcSDEConnectionConfig</code>, taking into account
+     * the values of database name, user name, and port number.
      * 
-     * @param o
-     *            DOCUMENT ME!
-     * 
+     * @param o DOCUMENT ME!
      * @return DOCUMENT ME!
      */
     @Override
@@ -444,8 +428,8 @@ public class ArcSDEConnectionConfig {
     }
 
     /**
-     * @return a human friendly description of this parameter holder contents
-     *         (password is masked), mostly usefull for stack traces
+     * @return a human friendly description of this parameter holder contents (password is masked),
+     *         mostly usefull for stack traces
      */
     @Override
     public String toString() {

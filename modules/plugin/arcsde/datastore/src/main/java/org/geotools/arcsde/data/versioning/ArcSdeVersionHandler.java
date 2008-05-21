@@ -26,7 +26,8 @@ import com.esri.sde.sdk.client.SeStreamOp;
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
  * @since 2.5.x
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/versioning/ArcSdeVersionHandler.java $
  */
 public interface ArcSdeVersionHandler {
 
@@ -90,8 +91,7 @@ public interface ArcSdeVersionHandler {
             // do nothing, not a versioned table
         }
 
-        public void setUpStream(Session session, SeStreamOp streamOperation)
-                throws IOException {
+        public void setUpStream(Session session, SeStreamOp streamOperation) throws IOException {
             // do nothing, not a versioned table
         }
     };

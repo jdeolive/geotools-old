@@ -99,7 +99,8 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
                 // starts
                 // a transaction on it
                 final boolean versioned = this.typeInfo.isVersioned();
-                ArcTransactionState state = ArcTransactionState.getState( this.dataStore, transaction, dataStore.listenerManager, versioned);
+                ArcTransactionState state = ArcTransactionState.getState(this.dataStore,
+                        transaction, dataStore.listenerManager, versioned);
                 versionHandler = state.getVersionHandler();
                 LOGGER.finer("ArcSDE transaction initialized: " + state);
             } catch (IOException e) {
@@ -120,8 +121,8 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         final String typeName = typeInfo.getFeatureTypeName();
         final Session session = getSession();
         try {
-            final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore
-                    .getFeatureWriterAppend(typeName, transaction);
+            final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
+            writer = dataStore.getFeatureWriterAppend(typeName, transaction);
             final FeatureIterator<SimpleFeature> iterator = collection.features();
             Set<String> featureIds = new HashSet<String>();
             try {

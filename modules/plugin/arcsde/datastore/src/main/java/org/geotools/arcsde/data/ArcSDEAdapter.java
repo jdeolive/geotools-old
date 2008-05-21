@@ -235,14 +235,15 @@ public class ArcSDEAdapter {
     public static FeatureTypeInfo fetchSchema(final String typeName,
             final String namespace,
             final ArcSDEConnectionPool pool) throws IOException {
-    	return pool.issueReadOnly( new Command<FeatureTypeInfo>(){
-    		@Override
-    		public FeatureTypeInfo execute(Session session,
-    				SeConnection connection) throws SeException, IOException {
-    			return fetchSchema( typeName, namespace, session );
-    		}
-    	});
+        return pool.issueReadOnly(new Command<FeatureTypeInfo>() {
+            @Override
+            public FeatureTypeInfo execute(Session session, SeConnection connection)
+                    throws SeException, IOException {
+                return fetchSchema(typeName, namespace, session);
+            }
+        });
     }
+
     /**
      * Fetches the schema of a given ArcSDE featureclass and creates its corresponding Geotools
      * FeatureType
@@ -254,8 +255,8 @@ public class ArcSDEAdapter {
     public static FeatureTypeInfo fetchSchema(final String typeName,
             final String namespace,
             final Session session) throws IOException {
-        final SeLayer layer = Session.issueGetLayer(session, typeName);
-        final SeTable table = Session.issueGetTable(session, typeName);
+        final SeLayer layer = session.getLayer(typeName);
+        final SeTable table = session.getTable(typeName);
 
         final List<AttributeDescriptor> properties = createAttributeDescriptors(layer, table,
                 namespace);
@@ -281,7 +282,7 @@ public class ArcSDEAdapter {
         FeatureTypeInfo typeInfo = new FeatureTypeInfo(featureType, fidStrategy, canDoTransactions,
                 isMultiVersioned, isView);
         return typeInfo;
-	
+
     }
 
     /**
@@ -336,7 +337,7 @@ public class ArcSDEAdapter {
 
         SeLayer layer = null;
         try {
-            layer = Session.issueGetLayer(session, mainTable);
+            layer = session.getLayer(mainTable);
         } catch (NoSuchElementException e) {
             LOGGER.info(mainTable + " is not an SeLayer, so no CRS info will be parsed");
         }

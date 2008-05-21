@@ -41,8 +41,7 @@ import com.esri.sde.sdk.client.SeException;
  * @author Gabriel Roldan, Axios Engineering
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/test/java/org/geotools/arcsde/ArcSDEDataStoreFactoryTest.java $
- * @version $Id: ArcSDEDataStoreFactoryTest.java 28042 2007-11-25 22:46:19Z
- *          groldan $
+ * @version $Id$
  * @since 2.4.x
  */
 public class ArcSDEDataStoreFactoryTest extends TestCase {
@@ -58,14 +57,14 @@ public class ArcSDEDataStoreFactoryTest extends TestCase {
     private Map workingParams;
 
     /**
-     * Aset of datastore parameters that though valid (contains all the required
-     * parameters) point to a non available server
+     * Aset of datastore parameters that though valid (contains all the required parameters) point
+     * to a non available server
      */
     private Map nonWorkingParams;
 
     /**
-     * A set of datastore parameters that does not conform to the parameters
-     * required by the ArcSDE plugin
+     * A set of datastore parameters that does not conform to the parameters required by the ArcSDE
+     * plugin
      */
     private Map illegalParams;
 
@@ -139,8 +138,7 @@ public class ArcSDEDataStoreFactoryTest extends TestCase {
     }
 
     /**
-     * Test method for
-     * {@link org.geotools.arcsde.ArcSDEDataStoreFactory#canProcess(java.util.Map)}.
+     * Test method for {@link org.geotools.arcsde.ArcSDEDataStoreFactory#canProcess(java.util.Map)}.
      */
     public void testCanProcess() {
         assertFalse(dsFactory.canProcess(illegalParams));

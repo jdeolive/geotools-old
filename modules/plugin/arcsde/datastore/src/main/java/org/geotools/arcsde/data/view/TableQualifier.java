@@ -30,25 +30,19 @@ import com.esri.sde.sdk.client.SeException;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
- * 
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/view/TableQualifier.java $
  * @since 2.3.x
  */
 class TableQualifier {
     /**
-     * Returns a Table with the same name as the argument one but fully
-     * qualified in the ArcSDE sense.
+     * Returns a Table with the same name as the argument one but fully qualified in the ArcSDE
+     * sense.
      * 
-     * @param session
-     *            connection to obtain database and user name from
-     * @param table
-     *            table whose schema name is to be qualified
-     * 
+     * @param session connection to obtain database and user name from
+     * @param table table whose schema name is to be qualified
      * @return a qualified Table.
-     * 
-     * @throws IllegalStateException
-     *             if an SDE error is catched up while asking <code>conn</code>
+     * @throws IllegalStateException if an SDE error is catched up while asking <code>conn</code>
      *             for the database and user name.
      */
     public static Table qualify(Session session, Table table) throws IllegalStateException {
@@ -63,12 +57,12 @@ class TableQualifier {
         qualifiedTable.setName(table.getName());
         qualifiedTable.setAlias(table.getAlias());
 
-        //String schema = table.getSchemaName(); // user name in sde land
+        // String schema = table.getSchemaName(); // user name in sde land
 
         // if (schema != null) {
         try {
-            databaseName = Session.issueGetDatabaseName(session);
-            userName = Session.issueGetUser(session);
+            databaseName = session.getDatabaseName();
+            userName = session.getUser();
         } catch (IOException e) {
             throw new IllegalStateException("getting database name: " + e.getMessage());
         }

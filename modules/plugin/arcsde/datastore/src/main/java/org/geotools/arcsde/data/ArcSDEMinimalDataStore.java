@@ -24,14 +24,13 @@ import org.geotools.arcsde.pool.Session;
 import org.geotools.data.Transaction;
 
 /**
- * Subclass of ArcSDEDataStore with enough hacks for it to limp along
- * with a SINGLE connection.
+ * Subclass of ArcSDEDataStore with enough hacks for it to limp along with a SINGLE connection.
  * 
  * @author Jody Garnett
  */
 public class ArcSDEMinimalDataStore extends ArcSDEDataStore {
-    
-    public ArcSDEMinimalDataStore( ArcSDEConnectionReference connPool ) {
+
+    public ArcSDEMinimalDataStore(ArcSDEConnectionReference connPool) {
         super(connPool);
     }
 
@@ -39,12 +38,14 @@ public class ArcSDEMinimalDataStore extends ArcSDEDataStore {
     ArcSDEConnectionReference getConnectionPool() {
         return (ArcSDEConnectionReference) super.getConnectionPool();
     };
-    
-    protected synchronized FeatureTypeInfo getFeatureTypeInfo( String typeName, ArcSDEConnectionPool pool ) throws IOException {
+
+    protected synchronized FeatureTypeInfo getFeatureTypeInfo(String typeName,
+            ArcSDEConnectionPool pool) throws IOException {
         final ArcSDEConnectionReference reference = (ArcSDEConnectionReference) pool;
-        final Session session = reference.getSession( Transaction.AUTO_COMMIT ); // we are doing the read only thing
+        final Session session = reference.getSession(Transaction.AUTO_COMMIT); // we are doing the
+                                                                                // read only thing
         try {
-            return getFeatureTypeInfo(typeName, session );
+            return getFeatureTypeInfo(typeName, session);
         } finally {
             session.close();
         }

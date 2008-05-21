@@ -167,11 +167,11 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         SeStreamOp streamOp;
 
         if (SeInsert.class == streamType) {
-            streamOp = Session.issueCreateSeInsert(session);
+            streamOp = session.createSeInsert();
         } else if (SeUpdate.class == streamType) {
-            streamOp = Session.issueCreateSeUpdate(session);
+            streamOp = session.createSeUpdate();
         } else if (SeDelete.class == streamType) {
-            streamOp = Session.issueCreateSeDelete(session);
+            streamOp = session.createSeDelete();
         } else {
             throw new IllegalArgumentException("Unrecognized stream type: " + streamType);
         }
@@ -249,7 +249,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         // method if something happens bellow.
         final boolean handleTransaction = !session.isTransactionActive();
         if (handleTransaction) {
-            Session.issueStartTransaction(session);
+            session.startTransaction();
         }
 
         final String id = feature.getID();
@@ -681,14 +681,17 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
             // We are going to inspect the column defintions in order to
             // determine which attributes are actually mutable...
             final String typeName = this.featureType.getTypeName();
-            final SeColumnDefinition[] columnDefinitions = Session.issueDescribe(session, typeName);
+            final SeColumnDefinition[] columnDefinitions = session.describe(typeName);
             final String shapeAttributeName;
             final SeLayer layer = getLayer();
-            try {
-                shapeAttributeName = layer.getShapeAttributeName(SeLayer.SE_SHAPE_ATTRIBUTE_FID);
-            } catch (SeException e) {
-                throw new ArcSdeException(e);
-            }
+
+            shapeAttributeName = session.issue(new Command<String>() {
+                @Override
+                public String execute(Session session, SeConnection connection) throws SeException,
+                        IOException {
+                    return layer.getShapeAttributeName(SeLayer.SE_SHAPE_ATTRIBUTE_FID);
+                }
+            });
 
             // use LinkedHashMap to respect column order
             LinkedHashMap<Integer, String> columnList = new LinkedHashMap<Integer, String>();
@@ -738,7 +741,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
             // We are going to inspect the column defintions in order to
             // determine which attributes are actually mutable...
             String typeName = this.featureType.getTypeName();
-            final SeColumnDefinition[] columnDefinitions = Session.issueDescribe(session, typeName);
+            final SeColumnDefinition[] columnDefinitions = session.describe(typeName);
 
             // use LinkedHashMap to respect column order
             LinkedHashMap<Integer, String> columnList = new LinkedHashMap<Integer, String>();
@@ -775,8 +778,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         if (this.cachedTable == null) {
             // final ArcSDEPooledConnection connection = getConnection();
             final String typeName = this.featureType.getTypeName();
-            final SeTable table = Session.issueGetTable(session, typeName);
-            this.cachedTable = table;
+            this.cachedTable = session.getTable(typeName);
         }
         return this.cachedTable;
     }
@@ -785,7 +787,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         if (this.cachedLayer == null) {
             // final ArcSDEPooledConnection connection = getConnection();
             final String typeName = this.featureType.getTypeName();
-            final SeLayer layer = Session.issueGetLayer(session, typeName);
+            final SeLayer layer = session.getLayer(typeName);
             this.cachedLayer = layer;
         }
         return this.cachedLayer;

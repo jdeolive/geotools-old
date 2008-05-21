@@ -218,7 +218,17 @@ public class TestData {
      * @throws SeException
      */
     public String getTemp_table(Session session) throws IOException {
-        return Session.issueGetUser(session) + "." + this.temp_table;
+        String dbName = session.getDatabaseName();
+        String user = session.getUser();
+        StringBuffer sb = new StringBuffer();
+        if (dbName != null && dbName.length() > 0) {
+            sb.append(dbName).append(".");
+        }
+        if (user != null && user.length() > 0) {
+            sb.append(user).append(".");
+        }
+        sb.append(this.temp_table);
+        return sb.toString().toUpperCase();
     }
 
     public String getConfigKeyword() {
@@ -1003,8 +1013,8 @@ public class TestData {
                 SeTable table;
 
                 /*
-                 * Create a qualified table name with current user's name and the name of the table to be
-                 * created, "EXAMPLE".
+                 * Create a qualified table name with current user's name and the name of the table
+                 * to be created, "EXAMPLE".
                  */
                 String tableName = (connection.getUser() + ".VERSIONED_EXAMPLE");
                 table = new SeTable(connection, tableName);
@@ -1019,7 +1029,8 @@ public class TestData {
                 SeColumnDefinition[] colDefs = new SeColumnDefinition[2];
                 boolean isNullable = true;
                 // first column to be SDE managed feature id
-                colDefs[0] = new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INT32, 10, 0, false);
+                colDefs[0] = new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INT32, 10, 0,
+                        false);
                 colDefs[1] = new SeColumnDefinition("NAME", SeColumnDefinition.TYPE_STRING, 25, 0,
                         isNullable);
 

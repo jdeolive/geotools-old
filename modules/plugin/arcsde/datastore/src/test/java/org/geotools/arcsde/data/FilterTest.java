@@ -55,8 +55,8 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
- * This test case does not still use the ArcSDEDataStore testing data supplied
- * with in {@code test-data/import}, so it is excluded in project.xml.
+ * This test case does not still use the ArcSDEDataStore testing data supplied with in
+ * {@code test-data/import}, so it is excluded in project.xml.
  * 
  * @author cdillard
  * @author Gabriel Roldan
@@ -83,9 +83,8 @@ public class FilterTest extends TestCase {
     private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
 
     /**
-     * Builds a test suite for all this class' tests with per suite
-     * initialization directed to {@link #oneTimeSetUp()} and per suite clean up
-     * directed to {@link #oneTimeTearDown()}
+     * Builds a test suite for all this class' tests with per suite initialization directed to
+     * {@link #oneTimeSetUp()} and per suite clean up directed to {@link #oneTimeTearDown()}
      * 
      * @return
      */
@@ -143,17 +142,11 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param fr
-     *            DOCUMENT ME!
-     * @param c
-     *            DOCUMENT ME!
-     * 
-     * @throws NoSuchElementException
-     *             DOCUMENT ME!
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws IllegalAttributeException
-     *             DOCUMENT ME!
+     * @param fr DOCUMENT ME!
+     * @param c DOCUMENT ME!
+     * @throws NoSuchElementException DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
+     * @throws IllegalAttributeException DOCUMENT ME!
      */
     private static void collectResults(FeatureReader<SimpleFeatureType, SimpleFeature> fr,
             Collection c) throws NoSuchElementException, IOException, IllegalAttributeException {
@@ -169,47 +162,49 @@ public class FilterTest extends TestCase {
      * @param c2 Collection second
      * @return true if they have the same content
      */
-    private void assertFeatureListsSimilar(Collection<SimpleFeature> c1, Collection<SimpleFeature> c2) {
-        assertEquals( "Actual feature collection was not the expected size", c1.size(), c2.size());
-        
+    private void assertFeatureListsSimilar(Collection<SimpleFeature> c1,
+            Collection<SimpleFeature> c2) {
+        assertEquals("Actual feature collection was not the expected size", c1.size(), c2.size());
+
         ArrayList<SimpleFeature> al1 = new ArrayList<SimpleFeature>(c1);
         ArrayList<SimpleFeature> al2 = new ArrayList<SimpleFeature>(c2);
         Collections.sort(al1, FEATURE_COMPARATOR);
         Collections.sort(al2, FEATURE_COMPARATOR);
-        
+
         int n = c1.size();
 
         for (int i = 0; i < n; i++) {
             Feature f1 = (Feature) al1.get(i);
             Feature f2 = (Feature) al2.get(i);
-            if( i== 0 ){
-                assertEquals( "Feature Type", f1.getType(), f2.getType() );
+            if (i == 0) {
+                assertEquals("Feature Type", f1.getType(), f2.getType());
             }
-            assertEquals( "Feature["+i+"] identifiers Equal", f1.getID(), f2.getID() );
-            if( !f1.equals( f2 )){
+            assertEquals("Feature[" + i + "] identifiers Equal", f1.getID(), f2.getID());
+            if (!f1.equals(f2)) {
                 // go through properties and figure out differneces...
-                for( PropertyDescriptor property : f1.getType().getProperties() ){
+                for (PropertyDescriptor property : f1.getType().getProperties()) {
                     String name = property.getName().getLocalPart();
-                    Object value1 = f1.getProperty( name ).getValue();
-                    Object value2 = f2.getProperty( name ).getValue();
-                    if( value1 instanceof Calendar ) {
+                    Object value1 = f1.getProperty(name).getValue();
+                    Object value2 = f2.getProperty(name).getValue();
+                    if (value1 instanceof Calendar) {
                         continue;
                     }
-                    if( value1 instanceof Date) {
+                    if (value1 instanceof Date) {
                         continue;
                     }
-                    
-                    if( value1 instanceof Geometry ){
+
+                    if (value1 instanceof Geometry) {
                         // jts geometry is not my friend
-                        assertTrue( "Feature["+i+"]."+name+" geometry", ((Geometry)value1).equals( (Geometry) value2 ) );    
-                    }
-                    else {
-                        assertEquals( "Feature["+i+"]."+name, value1, value2 );
+                        assertTrue("Feature[" + i + "]." + name + " geometry", ((Geometry) value1)
+                                .equals((Geometry) value2));
+                    } else {
+                        assertEquals("Feature[" + i + "]." + name, value1, value2);
                     }
                 }
-            }            
+            }
         }
     }
+
     /**
      * Are the two collections similar?
      * 
@@ -249,18 +244,14 @@ public class FilterTest extends TestCase {
 
         return true;
     }
+
     /**
      * DOCUMENT ME!
      * 
-     * @param x1
-     *            DOCUMENT ME!
-     * @param y1
-     *            DOCUMENT ME!
-     * @param x2
-     *            DOCUMENT ME!
-     * @param y2
-     *            DOCUMENT ME!
-     * 
+     * @param x1 DOCUMENT ME!
+     * @param y1 DOCUMENT ME!
+     * @param x2 DOCUMENT ME!
+     * @param y2 DOCUMENT ME!
      * @return DOCUMENT ME!
      */
     private static LineString buildSegment(double x1, double y1, double x2, double y2) {
@@ -273,15 +264,10 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param minx
-     *            DOCUMENT ME!
-     * @param miny
-     *            DOCUMENT ME!
-     * @param maxx
-     *            DOCUMENT ME!
-     * @param maxy
-     *            DOCUMENT ME!
-     * 
+     * @param minx DOCUMENT ME!
+     * @param miny DOCUMENT ME!
+     * @param maxx DOCUMENT ME!
+     * @param maxy DOCUMENT ME!
      * @return DOCUMENT ME!
      */
     private static Polygon buildPolygon(double minx, double miny, double maxx, double maxy) {
@@ -296,8 +282,7 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testDisjointFilter() throws Exception {
         FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
@@ -318,8 +303,7 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testContainsFilter() throws Exception {
         FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
@@ -339,8 +323,7 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testBBoxFilter() throws Exception {
         FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
@@ -358,8 +341,7 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testIntersectsFilter() throws Exception {
         FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
@@ -378,8 +360,7 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testOverlapsFilter() throws Exception {
         FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
@@ -398,8 +379,7 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testWithinFilter() throws Exception {
         FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
@@ -418,8 +398,7 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testCrossesFilter() throws Exception {
         FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
@@ -438,16 +417,15 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testEqualFilter() throws Exception {
         FeatureType ft = this.dataStore.getSchema(testData.getTemp_table());
-        
+
         // Get a geometry for equality comparison
-        HashSet fidSet = new HashSet();        
+        HashSet fidSet = new HashSet();
         DefaultQuery defaultQuery = new DefaultQuery(testData.getTemp_table());
-        defaultQuery.setPropertyNames( safePropertyNames(ft));
+        defaultQuery.setPropertyNames(safePropertyNames(ft));
         defaultQuery.setMaxFeatures(1);
         FeatureReader<SimpleFeatureType, SimpleFeature> fr = this.dataStore.getFeatureReader(
                 defaultQuery, Transaction.AUTO_COMMIT);
@@ -465,13 +443,9 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param ft
-     *            DOCUMENT ME!
-     * @param filter
-     *            DOCUMENT ME!
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @param ft DOCUMENT ME!
+     * @param filter DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     private void runTestWithFilter(FeatureType ft, Filter filter) throws Exception {
         System.err.println("****************");
@@ -482,7 +456,8 @@ public class FilterTest extends TestCase {
 
         // First, read using the slow, built-in mechanisms
         String[] propertyNames = safePropertyNames(ft);
-        DefaultQuery allQuery = new DefaultQuery(testData.getTemp_table(), Filter.INCLUDE, propertyNames );
+        DefaultQuery allQuery = new DefaultQuery(testData.getTemp_table(), Filter.INCLUDE,
+                propertyNames);
         System.err.println("Performing slow read...");
 
         long startTime = System.currentTimeMillis();
@@ -501,7 +476,8 @@ public class FilterTest extends TestCase {
         System.err.println("Performing fast read...");
         startTime = System.currentTimeMillis();
 
-        DefaultQuery filteringQuery = new DefaultQuery(testData.getTemp_table(), filter, safePropertyNames(ft) );
+        DefaultQuery filteringQuery = new DefaultQuery(testData.getTemp_table(), filter,
+                safePropertyNames(ft));
         fr = this.dataStore.getFeatureReader(filteringQuery, Transaction.AUTO_COMMIT);
 
         ArrayList fastResults = new ArrayList();
@@ -513,17 +489,17 @@ public class FilterTest extends TestCase {
         assertFeatureListsSimilar(slowResults, fastResults);
     }
 
-    private String[] safePropertyNames( FeatureType ft ) {
+    private String[] safePropertyNames(FeatureType ft) {
         ArrayList<String> names = new ArrayList<String>();
-        for( PropertyDescriptor descriptor : ft.getProperties() ){
+        for (PropertyDescriptor descriptor : ft.getProperties()) {
             Class<?> binding = descriptor.getType().getBinding();
-            if( Calendar.class.equals( binding )){
+            if (Calendar.class.equals(binding)) {
                 continue;
             }
-            if( Date.class.equals( binding )){
+            if (Date.class.equals(binding)) {
                 continue;
             }
-            names.add( descriptor.getName().getLocalPart() );            
+            names.add(descriptor.getName().getLocalPart());
         }
         String[] propertyNames = names.toArray(new String[names.size()]);
         return propertyNames;
@@ -532,11 +508,8 @@ public class FilterTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param args
-     *            DOCUMENT ME!
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @param args DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public static void main(String[] args) throws Exception {
         FilterTest ft = new FilterTest();

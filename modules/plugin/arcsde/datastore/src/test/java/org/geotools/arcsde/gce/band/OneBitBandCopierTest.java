@@ -55,7 +55,7 @@ public class OneBitBandCopierTest {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
             session = pool.getSession();
-            SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+            SeQuery q = session.createAndExecuteQuery(new String[] { "RASTER" },
                     new SeSqlConstruct(tableName));
             SeRow r = q.fetch();
             SeRasterAttr rAttr = r.getRaster(0);
@@ -106,7 +106,7 @@ public class OneBitBandCopierTest {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
             session = pool.getSession();
-            SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+            SeQuery q = session.createAndExecuteQuery(new String[] { "RASTER" },
                     new SeSqlConstruct(tableName));
             SeRow r = q.fetch();
             SeRasterAttr rAttr = r.getRaster(0);

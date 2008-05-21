@@ -63,7 +63,7 @@ public class RGBGridCoverageReaderTest {
         GeneralParameterValue[] requestParams = new Parameter[1];
 
         CoordinateReferenceSystem crs = CRS.decode("EPSG:2805");
-        
+
         GridGeometry2D gg2d = new GridGeometry2D(new GeneralGridRange(new Rectangle(256, 128)),
                 new ReferencedEnvelope(231000, 231000 + 128, 898000, 898000 + 64, crs));
 

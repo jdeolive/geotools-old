@@ -57,19 +57,19 @@ public class ArcSDERasterProducerTest {
 
         rtd.tearDown();
     }
-    
+
     @Test
     public void testCreateFloatRaster() throws Exception {
         RasterTestData rtd = new RasterTestData();
         rtd.setUp();
         rtd.loadFloatRaster();
-        
-        SeRasterAttr attr = rtd.getRasterAttributes(rtd.getFloatRasterTableName(),
-                new Rectangle(0, 0, 0, 0), 0, new int[] { 1 });
+
+        SeRasterAttr attr = rtd.getRasterAttributes(rtd.getFloatRasterTableName(), new Rectangle(0,
+                0, 0, 0), 0, new int[] { 1 });
         Assert.assertTrue(attr.getPixelType() == SeRaster.SE_PIXEL_TYPE_32BIT_REAL);
         Assert.assertTrue(attr.getNumBands() == 1);
         Assert.assertTrue(attr.getBandInfo(1).hasColorMap() == false);
-        
+
         rtd.tearDown();
     }
 }

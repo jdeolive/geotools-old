@@ -30,8 +30,7 @@ import com.esri.sde.sdk.client.SeConnection;
  * Qualifies a column reference in an order by clause
  * 
  * @author Gabriel Roldan, Axios Engineering
- * @version $Id: OrderByElementQualifier.java 27572 2007-10-22 09:20:45Z
- *          desruisseaux $
+ * @version $Id$
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/view/OrderByElementQualifier.java $
  * @since 2.3.x
@@ -48,8 +47,7 @@ public class OrderByElementQualifier implements OrderByVisitor {
     /**
      * Creates a new OrderByElementQualifier object.
      * 
-     * @param session
-     *            DOCUMENT ME!
+     * @param session DOCUMENT ME!
      */
     private OrderByElementQualifier(Session session, Map tableAliases) {
         this.session = session;
@@ -59,11 +57,8 @@ public class OrderByElementQualifier implements OrderByVisitor {
     /**
      * DOCUMENT ME!
      * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param orderBy
-     *            DOCUMENT ME!
-     * 
+     * @param session DOCUMENT ME!
+     * @param orderBy DOCUMENT ME!
      * @return DOCUMENT ME!
      */
     public static OrderByElement qualify(Session session, Map tableAliases, OrderByElement orderBy) {
@@ -80,8 +75,7 @@ public class OrderByElementQualifier implements OrderByVisitor {
     /**
      * DOCUMENT ME!
      * 
-     * @param orderBy
-     *            DOCUMENT ME!
+     * @param orderBy DOCUMENT ME!
      */
     public void visit(OrderByElement orderBy) {
         OrderByElement qualifiedOrderBy = new OrderByElement();

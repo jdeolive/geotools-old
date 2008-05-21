@@ -158,7 +158,7 @@ class ArcSDEQuery {
         LOGGER.fine("Creating new ArcSDEQuery");
 
         final String typeName = fullSchema.getTypeName();
-        final SeLayer sdeLayer = Session.issueGetLayer(session, typeName);
+        final SeLayer sdeLayer = session.getLayer(typeName);
         final SimpleFeatureType querySchema = getQuerySchema(query, fullSchema);
         // create the set of filters to work over
         final ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(sdeLayer, filter,
@@ -204,7 +204,7 @@ class ArcSDEQuery {
         if (layerName.indexOf(" AS") > 0) {
             layerName = layerName.substring(0, layerName.indexOf(" AS"));
         }
-        sdeLayer = Session.issueGetLayer(session, layerName);
+        sdeLayer = session.getLayer(layerName);
 
         final SimpleFeatureType querySchema = getQuerySchema(query, fullSchema);
         // create the set of filters to work over
@@ -352,7 +352,7 @@ class ArcSDEQuery {
                     + "'");
         }
 
-        final SeQuery seQuery = Session.issueCreateSeQuery(session);
+        final SeQuery seQuery = session.createSeQuery();
         setQueryVersionState(seQuery);
 
         final SeQueryInfo qInfo = filters.getQueryInfo(propertyNames);
@@ -772,7 +772,7 @@ class ArcSDEQuery {
         final SeQuery seQuery = getSeQuery();
         SdeRow currentRow;
         try {
-            currentRow = Session.issueFetch(session, seQuery);
+            currentRow = session.fetch(seQuery);
         } catch (IOException e) {
             close();
             String msg = "Error fetching row for " + this.schema.getTypeName() + "[";

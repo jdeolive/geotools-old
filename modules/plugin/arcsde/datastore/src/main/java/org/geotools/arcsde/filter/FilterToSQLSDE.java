@@ -50,18 +50,15 @@ import org.opengis.filter.identity.Identifier;
 
 /**
  * Encodes an attribute filter into a SQL WHERE statement for arcsde.
- * 
  * <p>
- * Although not all filters support is coded yet, the strategy to filtering
- * queries for ArcSDE datasources is separated in two parts, the SQL where
- * clause construction, provided here and the spatial filters (or spatial
- * constraints, in SDE vocabulary) provided by <code>GeometryEncoderSDE</code>;
- * mirroring the java SDE api approach for easy programing
+ * Although not all filters support is coded yet, the strategy to filtering queries for ArcSDE
+ * datasources is separated in two parts, the SQL where clause construction, provided here and the
+ * spatial filters (or spatial constraints, in SDE vocabulary) provided by
+ * <code>GeometryEncoderSDE</code>; mirroring the java SDE api approach for easy programing
  * </p>
  * 
  * @author Saul Farber
  * @author Gabriel Roldan
- * 
  * @see org.geotools.data.sde.GeometryEncoderSDE
  * @source $URL:
  *         http://gtsvn.refractions.net/geotools/branches/2.4.x/modules/unsupported/arcsde/datastore/src/main/java/org/geotools/arcsde/filter/FilterToSQLSDE.java $
@@ -79,22 +76,20 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     private final PlainSelect definitionQuery;
 
     /**
-     * If definitionQuery != null, holds alias/unaliased attribute names from
-     * the sql query
+     * If definitionQuery != null, holds alias/unaliased attribute names from the sql query
      */
     private Map attributeNames = Collections.EMPTY_MAP;
 
     /**
-     * 
-     * @param layerQName
-     *            full qualified name of the ArcSDE layer
-     * @param layerFidColName
-     *            name of the column that holds fids
+     * @param layerQName full qualified name of the ArcSDE layer
+     * @param layerFidColName name of the column that holds fids
      * @param ft
      * @param definitionQuery
      */
-    public FilterToSQLSDE(String layerQName, String layerFidColName, SimpleFeatureType ft,
-            PlainSelect definitionQuery) {
+    public FilterToSQLSDE(String layerQName,
+                          String layerFidColName,
+                          SimpleFeatureType ft,
+                          PlainSelect definitionQuery) {
         this.layerQualifiedName = layerQName;
         this.layerFidFieldName = layerFidColName;
         this.featureType = ft;
@@ -136,8 +131,8 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     }
 
     /**
-     * Returns the full qualifed name of sql expression that is registered as
-     * the source of the attribute named <code>alias</code>.
+     * Returns the full qualifed name of sql expression that is registered as the source of the
+     * attribute named <code>alias</code>.
      * 
      * @param alias
      * @return
@@ -164,8 +159,8 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     }
 
     /**
-     * Overrides the superclass implementation to indicate that we support
-     * pushing FeatureId filters down into the data store.
+     * Overrides the superclass implementation to indicate that we support pushing FeatureId filters
+     * down into the data store.
      * 
      * @return DOCUMENT ME!
      */
@@ -188,13 +183,9 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     /**
      * overriden just to avoid the "WHERE" keyword
      * 
-     * @param out
-     *            DOCUMENT ME!
-     * @param filter
-     *            DOCUMENT ME!
-     * 
-     * @throws GeoAPIFilterToSQLEncoderException
-     *             DOCUMENT ME!
+     * @param out DOCUMENT ME!
+     * @param filter DOCUMENT ME!
+     * @throws GeoAPIFilterToSQLEncoderException DOCUMENT ME!
      */
     @Override
     public void encode(Filter filter) throws FilterToSQLException {
@@ -206,14 +197,11 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     }
 
     /**
-     * This only exists the fulfill the interface - unless There is a way of
-     * determining the FID column in the database...
+     * This only exists the fulfill the interface - unless There is a way of determining the FID
+     * column in the database...
      * 
-     * @param filter
-     *            the Fid Filter.
-     * 
-     * @throws RuntimeException
-     *             DOCUMENT ME!
+     * @param filter the Fid Filter.
+     * @throws RuntimeException DOCUMENT ME!
      */
     @Override
     public Object visit(final Id filter, final Object unused) {
@@ -265,17 +253,12 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     }
 
     /**
-     * Writes the SQL for the attribute Expression.
+     * Writes the SQL for the attribute Expression. NOTE: If the feature type is the product of an
+     * in process sql query, the attribute name encoded will be the actual one, not the alias (if
+     * any) used in the sql query.
      * 
-     * NOTE: If the feature type is the product of an in process sql query, the
-     * attribute name encoded will be the actual one, not the alias (if any)
-     * used in the sql query.
-     * 
-     * @param expression
-     *            the attribute to turn to SQL.
-     * 
-     * @throws RuntimeException
-     *             for io exception with writer
+     * @param expression the attribute to turn to SQL.
+     * @throws RuntimeException for io exception with writer
      */
     @Override
     public Object visit(PropertyName expression, Object extraData) throws RuntimeException {
@@ -294,8 +277,7 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     }
 
     /**
-     * Overrides to avoid encoding an empty operator if <code>filter</code>
-     * has no children.
+     * Overrides to avoid encoding an empty operator if <code>filter</code> has no children.
      */
     @Override
     protected Object visit(BinaryLogicOperator filter, Object extraData) {
@@ -307,12 +289,9 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     }
 
     /**
-     * @see {@link FilterVisitor#visit(ExcludeFilter, Object)}
-     * 
-     * Writes the SQL for the IncludeFilter by writing "FALSE".
-     * 
-     * @param the
-     *            filter to be visited
+     * @see {@link FilterVisitor#visit(ExcludeFilter, Object)} Writes the SQL for the IncludeFilter
+     *      by writing "FALSE".
+     * @param the filter to be visited
      */
     @Override
     public Object visit(ExcludeFilter filter, Object extraData) {
@@ -325,13 +304,9 @@ public class FilterToSQLSDE extends FilterToSQL implements FilterVisitor {
     }
 
     /**
-     * @see {@link FilterVisitor#visit(IncludeFilter, Object)}
-     * 
-     * Writes the SQL for the IncludeFilter by writing "TRUE".
-     * 
-     * @param the
-     *            filter to be visited
-     * 
+     * @see {@link FilterVisitor#visit(IncludeFilter, Object)} Writes the SQL for the IncludeFilter
+     *      by writing "TRUE".
+     * @param the filter to be visited
      */
     @Override
     public Object visit(IncludeFilter filter, Object extraData) {

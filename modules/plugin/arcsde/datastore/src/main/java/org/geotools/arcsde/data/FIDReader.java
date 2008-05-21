@@ -34,16 +34,14 @@ import com.esri.sde.sdk.client.SeShape;
 import com.esri.sde.sdk.client.SeTable;
 
 /**
- * Strategy object used to manage the different ways an ArcSDE server handles
- * row identity.
+ * Strategy object used to manage the different ways an ArcSDE server handles row identity.
  * <p>
  * The supported strategies are:
  * <ul>
- * <li>SDE managed mode: a column is assigned by the sde engine to be the
- * feature id (it uses to be called OBJECTID)
+ * <li>SDE managed mode: a column is assigned by the sde engine to be the feature id (it uses to be
+ * called OBJECTID)
  * <li>User managed: a user specified row is used as the fid column.
- * <li>Shape fid: if none of the above, the fid happens to be the identifier of
- * the geometry column
+ * <li>Shape fid: if none of the above, the fid happens to be the identifier of the geometry column
  * </ul>
  * </p>
  * 
@@ -64,8 +62,7 @@ public abstract class FIDReader {
     /**
      * Creates a new FIDStrategy object.
      * 
-     * @param fidColumns
-     *            DOCUMENT ME!
+     * @param fidColumns DOCUMENT ME!
      */
     private FIDReader(String layerName, String fidColumn) {
         this.layerName = layerName;
@@ -93,10 +90,8 @@ public abstract class FIDReader {
      * Returns the attribute names of the FeatureType passed to the constructor.
      * 
      * @return DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             if the SeLayer can't be obtained (only if the geomety
-     *             attribute was not included in the request).
+     * @throws IOException if the SeLayer can't be obtained (only if the geomety attribute was not
+     *             included in the request).
      */
     public String[] getPropertiesToFetch(SimpleFeatureType schema) throws IOException {
 
@@ -122,19 +117,15 @@ public abstract class FIDReader {
     /**
      * Returns a FID strategy appropriate for the given SeLayer
      * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param tableName
-     *            DOCUMENT ME!
-     * 
+     * @param session DOCUMENT ME!
+     * @param tableName DOCUMENT ME!
      * @return DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws DataSourceException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
+     * @throws DataSourceException DOCUMENT ME!
      */
-    public static FIDReader getFidReader(Session session, SeTable table, SeLayer layer,
+    public static FIDReader getFidReader(Session session,
+            SeTable table,
+            SeLayer layer,
             SeRegistration reg) throws IOException {
         FIDReader fidReader = null;
         final String tableName = reg.getTableName();
@@ -177,20 +168,19 @@ public abstract class FIDReader {
 
     public static class ShapeFidReader extends FIDReader {
         /**
-         * Name of the Shape, populated as a side effect of
-         * getPropertiesToFetch()
+         * Name of the Shape, populated as a side effect of getPropertiesToFetch()
          */
 
         private final String shapeColName;
 
         /**
-         * Index of the Shape, populated as a side effect of
-         * getPropertiesToFetch()
+         * Index of the Shape, populated as a side effect of getPropertiesToFetch()
          */
         private int shapeIndex;
 
-        public ShapeFidReader(final String layerName, final String shapeColName,
-                final String shapeIdColName) {
+        public ShapeFidReader(final String layerName,
+                              final String shapeColName,
+                              final String shapeIdColName) {
             super(layerName, shapeIdColName);
             this.shapeColName = shapeColName;
             this.shapeIndex = -1;

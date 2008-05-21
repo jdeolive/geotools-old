@@ -89,17 +89,15 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * Creates a new ArcSDEDataStoreTest object.
      * 
-     * @param name
-     *            a name for the junit test
+     * @param name a name for the junit test
      */
     public ArcSDEFeatureSourceTest(String name) {
         super(name);
     }
 
     /**
-     * Builds a test suite for all this class' tests with per suite
-     * initialization directed to {@link #oneTimeSetUp()} and per suite clean up
-     * directed to {@link #oneTimeTearDown()}
+     * Builds a test suite for all this class' tests with per suite initialization directed to
+     * {@link #oneTimeSetUp()} and per suite clean up directed to {@link #oneTimeTearDown()}
      * 
      * @return
      */
@@ -139,12 +137,10 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     }
 
     /**
-     * loads {@code testData/testparams.properties} into a Properties object,
-     * wich is used to obtain test tables names and is used as parameter to find
-     * the DataStore
+     * loads {@code testData/testparams.properties} into a Properties object, wich is used to obtain
+     * test tables names and is used as parameter to find the DataStore
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     @Override
     protected void setUp() throws Exception {
@@ -160,8 +156,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     @Override
     protected void tearDown() throws Exception {
@@ -172,8 +167,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void _testStress() throws Exception {
 
@@ -235,23 +229,18 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     }
 
     /**
-     * This method tests the feature reader by opening various simultaneous
-     * FeatureReaders using the 3 test tables.
-     * 
+     * This method tests the feature reader by opening various simultaneous FeatureReaders using the
+     * 3 test tables.
      * <p>
-     * I found experimentally that until 24 simultaneous streams can be opened
-     * by a single connection. Each featurereader has an ArcSDE stream opened
-     * until its <code>close()</code> method is called or hasNext() returns
-     * flase, wich automatically closes the stream. If more than 24 simultaneous
-     * streams are tryied to be opened upon a single SeConnection, an exception
-     * is thrown by de Java ArcSDE API saying that a "NETWORK I/O OPERATION
-     * FAILED"
+     * I found experimentally that until 24 simultaneous streams can be opened by a single
+     * connection. Each featurereader has an ArcSDE stream opened until its <code>close()</code>
+     * method is called or hasNext() returns flase, wich automatically closes the stream. If more
+     * than 24 simultaneous streams are tryied to be opened upon a single SeConnection, an exception
+     * is thrown by de Java ArcSDE API saying that a "NETWORK I/O OPERATION FAILED"
      * </p>
      * 
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws IllegalAttributeException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
+     * @throws IllegalAttributeException DOCUMENT ME!
      * @throws SeException
      */
     public void testGetFeatureReader() throws IOException, IllegalAttributeException, SeException {
@@ -351,13 +340,11 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     }
 
     /**
-     * Checks that arcsde datastore returns featuretypes whose attributes are
-     * exactly in the requested order.
+     * Checks that arcsde datastore returns featuretypes whose attributes are exactly in the
+     * requested order.
      * 
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws IllegalAttributeException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
+     * @throws IllegalAttributeException DOCUMENT ME!
      * @throws SeException
      */
     public void testRespectsAttributeOrder() throws IOException, IllegalAttributeException,
@@ -395,15 +382,10 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param r
-     *            DOCUMENT ME!
-     * 
+     * @param r DOCUMENT ME!
      * @return DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws IllegalAttributeException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
+     * @throws IllegalAttributeException DOCUMENT ME!
      */
     private boolean testNext(FeatureReader<SimpleFeatureType, SimpleFeature> r) throws IOException,
             IllegalAttributeException {
@@ -428,13 +410,9 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param typeName
-     *            DOCUMENT ME!
-     * 
+     * @param typeName DOCUMENT ME!
      * @return DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
      */
     private FeatureReader<SimpleFeatureType, SimpleFeature> getReader(String typeName)
             throws IOException {
@@ -450,13 +428,10 @@ public class ArcSDEFeatureSourceTest extends TestCase {
 
     /**
      * tests the datastore behavior when fetching data based on mixed queries.
-     * 
      * <p>
-     * "Mixed queries" refers to mixing alphanumeric and geometry based filters,
-     * since that is the natural separation of things in the Esri Java API for
-     * ArcSDE. This is necessary since mixed queries sometimes are problematic.
-     * So this test ensures that:
-     * 
+     * "Mixed queries" refers to mixing alphanumeric and geometry based filters, since that is the
+     * natural separation of things in the Esri Java API for ArcSDE. This is necessary since mixed
+     * queries sometimes are problematic. So this test ensures that:
      * <ul>
      * <li> A mixed query respects all filters </li>
      * <li> A mixed query does not fails when getBounds() is performed </li>
@@ -464,8 +439,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
      * </ul>
      * </p>
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testMixedQueries() throws Exception {
         final int EXPECTED_RESULT_COUNT = 1;
@@ -502,8 +476,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
         reader = results.features();
         try {
             /*
-             * verify that when features are already being fetched, getBounds
-             * and size still work
+             * verify that when features are already being fetched, getBounds and size still work
              */
             reader.next();
             bounds = results.getBounds();
@@ -520,12 +493,10 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     }
 
     /**
-     * to expose GEOT-408, tests that queries in which only non spatial
-     * attributes are requested does not fails due to the datastore trying to
-     * parse the geometry attribute.
+     * to expose GEOT-408, tests that queries in which only non spatial attributes are requested
+     * does not fails due to the datastore trying to parse the geometry attribute.
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testAttributeOnlyQuery() throws Exception {
         DataStore ds = testData.getDataStore();
@@ -577,8 +548,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * Test that FID filters are correctly handled
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testFidFilters() throws Exception {
         final DataStore ds = testData.getDataStore();
@@ -659,8 +629,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * test that getFeatureSource over an sde layer works
      * 
-     * @throws IOException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
      * @throws SeException
      */
     public void testGetFeatureSourcePoint() throws IOException, SeException {
@@ -670,13 +639,9 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param wich
-     *            DOCUMENT ME!
-     * @param table
-     *            DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
+     * @param wich DOCUMENT ME!
+     * @param table DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
      */
     public void testGetFeatures() throws Exception {
         final String table = testData.getTemp_table();
@@ -698,8 +663,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testSQLFilter() throws Exception {
         int expected = 4;
@@ -712,8 +676,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     public void testBBoxFilter() throws Exception {
         int expected = 7;
@@ -724,7 +687,6 @@ public class ArcSDEFeatureSourceTest extends TestCase {
 
     /**
      * for a given FeatureSource, makes the following assertions:
-     * 
      * <ul>
      * <li> it's not null </li>
      * <li> .getDataStore() != null </li>
@@ -737,12 +699,8 @@ public class ArcSDEFeatureSourceTest extends TestCase {
      * <li> .getFeatures().reader().next() != null </li>
      * </ul>
      * 
-     * 
-     * @param fsource
-     *            DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
+     * @param fsource DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
      */
     private void testGetFeatureSource(FeatureSource<SimpleFeatureType, SimpleFeature> fsource)
             throws IOException {
@@ -784,17 +742,13 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param filter
-     *            DOCUMENT ME!
-     * @param fsource
-     *            DOCUMENT ME!
-     * @param expected
-     *            DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
+     * @param filter DOCUMENT ME!
+     * @param fsource DOCUMENT ME!
+     * @param expected DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
      */
-    private void testFilter(Filter filter, FeatureSource<SimpleFeatureType, SimpleFeature> fsource,
+    private void testFilter(Filter filter,
+            FeatureSource<SimpleFeatureType, SimpleFeature> fsource,
             int expected) throws IOException {
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fsource.getFeatures(filter);
         int fCount = fc.size();
@@ -815,13 +769,9 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param table
-     *            DOCUMENT ME!
-     * @param expected
-     *            DOCUMENT ME!
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @param table DOCUMENT ME!
+     * @param expected DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     private void testBBox(String table, int expected) throws Exception {
         FeatureSource<SimpleFeatureType, SimpleFeature> fs = store.getFeatureSource(table);
@@ -832,13 +782,9 @@ public class ArcSDEFeatureSourceTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @param fs
-     *            DOCUMENT ME!
-     * 
+     * @param fs DOCUMENT ME!
      * @return DOCUMENT ME!
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     private Filter getBBoxfilter(FeatureSource<SimpleFeatureType, SimpleFeature> fs)
             throws Exception {

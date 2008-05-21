@@ -1,6 +1,5 @@
 package org.geotools.arcsde.gce.band;
 
-
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,8 +27,9 @@ import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 
 public class UnsignedByteGrayscaleBandCopierTest {
-    
+
     static RasterTestData rasterTestData;
+
     static Logger LOGGER;
 
     @BeforeClass
@@ -46,7 +46,7 @@ public class UnsignedByteGrayscaleBandCopierTest {
     public static void tearDownAfterClass() throws Exception {
         rasterTestData.tearDown();
     }
-    
+
     @Test
     public void testLiveGrayScaleRasterTile() throws Exception {
         final String tableName = rasterTestData.getGrayScaleOneByteRasterTableName();
@@ -56,7 +56,8 @@ public class UnsignedByteGrayscaleBandCopierTest {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
             session = pool.getSession();
-            SeQuery q = Session.issueCreateAndExecuteQuery(session,  new String[] { "RASTER" }, new SeSqlConstruct(tableName));
+            SeQuery q = session.createAndExecuteQuery(new String[] { "RASTER" },
+                    new SeSqlConstruct(tableName));
             SeRow r = q.fetch();
             SeRasterAttr rAttr = r.getRaster(0);
 

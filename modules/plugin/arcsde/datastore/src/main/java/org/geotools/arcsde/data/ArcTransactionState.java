@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.data.versioning.TransactionDefaultVersionHandler;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
@@ -55,8 +54,8 @@ final class ArcTransactionState implements Transaction.State {
     /**
      * ConnectionPool we can use to look up a Session for our Transaction.
      * <p>
-     * The ConnectionPool will hold this connection open for us until
-     * commit(), rollback() or close() is called.
+     * The ConnectionPool will hold this connection open for us until commit(), rollback() or
+     * close() is called.
      */
     private ArcSDEConnectionPool pool;
 
@@ -84,7 +83,8 @@ final class ArcTransactionState implements Transaction.State {
      * @param pool connection pool where to grab a connection and hold it while there's a
      *            transaction open (signaled by any use of {@link #getConnection()}
      */
-    private ArcTransactionState(ArcSDEConnectionPool pool, final FeatureListenerManager listenerManager) {
+    private ArcTransactionState(ArcSDEConnectionPool pool,
+                                final FeatureListenerManager listenerManager) {
         this.pool = pool;
         this.listenerManager = listenerManager;
     }
@@ -93,7 +93,7 @@ final class ArcTransactionState implements Transaction.State {
         // create a versioned handler only if not already settled up, as this method
         // may be called for each layer inside a transaction
         if (versionHandler == ArcSdeVersionHandler.NONVERSIONED_HANDLER) {
-        	Session session = getConnection();
+            Session session = getConnection();
             versionHandler = new TransactionDefaultVersionHandler(session);
         }
     }
@@ -267,7 +267,7 @@ final class ArcTransactionState implements Transaction.State {
         if (pool == null) {
             return;
         }
-        pool = null;        
+        pool = null;
     }
 
     /**
@@ -282,7 +282,7 @@ final class ArcTransactionState implements Transaction.State {
     Session getConnection() throws DataSourceException, UnavailableArcSDEConnectionException {
         failIfClosed();
         // the pool is keeping track of connection according to transaction for us
-        return pool.getSession( transaction );        
+        return pool.getSession(transaction);
     }
 
     public Transaction getTransaction() {
@@ -303,22 +303,22 @@ final class ArcTransactionState implements Transaction.State {
      *         as key.
      */
     public static ArcTransactionState getState(ArcSDEDataStore dataStore,
-    		final Transaction transaction,
+            final Transaction transaction,
             final FeatureListenerManager listenerManager,
             final boolean versioned) throws IOException {
         ArcTransactionState state;
 
         synchronized (ArcTransactionState.class) {
             state = (ArcTransactionState) transaction.getState(dataStore);
-
             if (state == null) {
-                // start a transaction            	
-                state = new ArcTransactionState(dataStore.getConnectionPool(), listenerManager);
+                // start a transaction
+                ArcSDEConnectionPool connectionPool = dataStore.getConnectionPool();
+                state = new ArcTransactionState(connectionPool, listenerManager);
                 transaction.putState(dataStore, state);
             }
         }
 
-        // if only one of the tables being handled by this transaction state is
+        // if at least one of the tables being handled by this transaction state is
         // versioned setHandleVersioned has to be set
         if (versioned) {
             state.setupVersioningHandling();

@@ -170,7 +170,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         SeSqlConstruct sql = null;
 
         try {
-            Session.issueCreateAndExecuteQuery(session, columns, sql);
+            session.createAndExecuteQuery(columns, sql);
             fail("A null SeSqlConstruct should have thrown an exception!");
         } catch (IOException e) {
             assertTrue(true);
@@ -184,7 +184,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         SeQuery rowQuery = null;
         try {
-            rowQuery = Session.issueCreateAndExecuteQuery(session, columns, sql);
+            rowQuery = session.createAndExecuteQuery(columns, sql);
         } finally {
             if (rowQuery != null) {
                 rowQuery.close();
@@ -209,7 +209,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         // constraints affects the COUNT statistics
         SeExtent extent = new SeExtent(-180, -90, -170, -80);
 
-        SeLayer layer = Session.issueGetLayer(session, typeName);
+        SeLayer layer = session.getLayer(typeName);
         SeShape filterShape = new SeShape(layer.getCoordRef());
         filterShape.generateRectangle(extent);
 
@@ -323,7 +323,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             // constraints affects the COUNT statistics
             SeExtent extent = new SeExtent(-180, -90, -170, -80);
 
-            SeLayer layer = Session.issueGetLayer(session, typeName);
+            SeLayer layer = session.getLayer(typeName);
             SeShape filterShape = new SeShape(layer.getCoordRef());
             filterShape.generateRectangle(extent);
 
@@ -383,7 +383,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         final SeFilter[] spatFilters;
         try {
             SeExtent extent = new SeExtent(179, -1, 180, 0);
-            SeLayer layer = Session.issueGetLayer(session, typeName);
+            SeLayer layer = session.getLayer(typeName);
             SeShape filterShape = new SeShape(layer.getCoordRef());
             filterShape.generateRectangle(extent);
 
@@ -430,7 +430,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             final SeFilter[] spatFilters;
             try {
                 SeExtent extent = new SeExtent(179, -1, 180, 0);
-                SeLayer layer = Session.issueGetLayer(session, typeName);
+                SeLayer layer = session.getLayer(typeName);
                 SeShape filterShape = new SeShape(layer.getCoordRef());
                 filterShape.generateRectangle(extent);
 
@@ -995,15 +995,15 @@ public class ArcSDEJavaApiTest extends TestCase {
             SeException {
 
         final String typeName = testData.getTemp_table();
-        final SeQuery query = Session.issueCreateAndExecuteQuery(session, new String[] { "ROW_ID",
-                "INT32_COL" }, new SeSqlConstruct(typeName));
+        final SeQuery query = session.createAndExecuteQuery(new String[] { "ROW_ID", "INT32_COL" },
+                new SeSqlConstruct(typeName));
 
         final int rowId;
         try {
-            SdeRow row = Session.issueFetch(session, query);
+            SdeRow row = session.fetch(query);
             rowId = row.getInteger(0).intValue();
         } finally {
-            Session.issueClose(session, query);
+            session.close(query);
         }
 
         session.issue(new Command<Void>() {
@@ -1019,10 +1019,10 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         final String whereClause = "ROW_ID=" + rowId;
         final SeSqlConstruct sqlConstruct = new SeSqlConstruct(typeName, whereClause);
-        final SeQuery deletedQuery = Session.issueCreateAndExecuteQuery(session,
-                new String[] { "ROW_ID" }, sqlConstruct);
+        final SeQuery deletedQuery = session.createAndExecuteQuery(new String[] { "ROW_ID" },
+                sqlConstruct);
 
-        SdeRow row = Session.issueFetch(session, deletedQuery);
+        SdeRow row = session.fetch(deletedQuery);
         assertNull(whereClause + " should have returned no records as it was deleted", row);
     }
 
@@ -1045,7 +1045,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             final ArcSDEConnectionPool connPool = testData.getConnectionPool();
             transSession = connPool.getSession();
             // start a transaction on transConn
-            Session.issueStartTransaction(transSession);
+            transSession.startTransaction();
         }
 
         // flag to rollback or not at finally{}
@@ -1097,7 +1097,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             assertNotNull(transRow);
 
             // commit transaction
-            Session.issueCommitTransaction(transSession);
+            transSession.commitTransaction();
             commited = true;
 
             final SeRow noTransRow = session.issue(new Command<SeRow>() {
@@ -1119,7 +1119,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             e.printStackTrace();
         } finally {
             if (!commited) {
-                Session.issueRollbackTransaction(transSession);
+                transSession.rollbackTransaction();
             }
             transSession.close();
             // conn.close(); closed at tearDown
@@ -1198,14 +1198,14 @@ public class ArcSDEJavaApiTest extends TestCase {
             }
         });
 
-        Session.issueStartTransaction(session);
+        session.startTransaction();
         testData.insertIntoVersionedTable(session, newState1, versionedTable.getName(),
                 "name 1 state 1");
         testData.insertIntoVersionedTable(session, newState1, versionedTable.getName(),
                 "name 2 state 1");
 
         final SeObjectId parentStateId = newState1.getId();
-        Session.issueClose(session, newState1);
+        session.close(newState1);
 
         final SeState newState2 = session.issue(new Command<SeState>() {
             @Override
@@ -1233,18 +1233,18 @@ public class ArcSDEJavaApiTest extends TestCase {
                 return null;
             }
         });
-        Session.issueCommitTransaction(session);
+        session.commitTransaction();
 
         // we edited the default version, lets query the default version and the
         // new version and assert they have the correct feature count
         final SeObjectId defaultVersionStateId = defaultVersion.getStateId();
-        SeState defVersionState = Session.issueCreateState(session, defaultVersionStateId);
+        SeState defVersionState = session.createState(defaultVersionStateId);
 
         int defVersionCount = getTempTableCount(session, versionedTable.getName(), null, null,
                 defVersionState);
         assertEquals(3, defVersionCount);
 
-        SeState newVersionState = Session.issueCreateState(session, newVersion.getStateId());
+        SeState newVersionState = session.createState(newVersion.getStateId());
         int newVersionCount = getTempTableCount(session, versionedTable.getName(), null, null,
                 newVersionState);
         assertEquals(0, newVersionCount);

@@ -17,14 +17,13 @@
 package org.geotools.arcsde.filter;
 
 /**
- * Indicates a client class has attempted to encode a filter not supported by
- * the GeometryEncoderSDE being used.
+ * Indicates a client class has attempted to encode a filter not supported by the GeometryEncoderSDE
+ * being used.
  * 
  * @author Gabriel Roldan
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/filter/GeometryEncoderException.java $
- * @version $Id: GeometryEncoderException.java 27633 2007-10-26 10:33:20Z
- *          desruisseaux $
+ * @version $Id$
  */
 public class GeometryEncoderException extends Exception {
     /**
@@ -35,8 +34,7 @@ public class GeometryEncoderException extends Exception {
     /**
      * Creates a new GeometryEncoderException object.
      * 
-     * @param msg
-     *            DOCUMENT ME!
+     * @param msg DOCUMENT ME!
      */
     public GeometryEncoderException(String msg) {
         this(msg, null);
@@ -45,10 +43,8 @@ public class GeometryEncoderException extends Exception {
     /**
      * Creates a new GeometryEncoderException object.
      * 
-     * @param msg
-     *            DOCUMENT ME!
-     * @param cause
-     *            DOCUMENT ME!
+     * @param msg DOCUMENT ME!
+     * @param cause DOCUMENT ME!
      */
     public GeometryEncoderException(String msg, Throwable cause) {
         super(msg, cause);

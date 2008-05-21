@@ -29,10 +29,8 @@ import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.pe.PeCoordinateSystem;
 
 /**
- * Implementation of the GridCoverageFormat service provider interface for
- * ArcSDE Databases. Based on the Arc Grid implementation.
- * 
- * 
+ * Implementation of the GridCoverageFormat service provider interface for ArcSDE Databases. Based
+ * on the Arc Grid implementation.
  * 
  * @author Saul Farber (saul.farber)
  * @author aaime
@@ -47,8 +45,8 @@ public class ArcSDERasterFormatFactory implements GridFormatFactorySpi {
             .getLogger(ArcSDERasterFormatFactory.class.getPackage().getName());
 
     /** friendly factory description */
-    //private static final String FACTORY_DESCRIPTION = "ESRI(tm) ArcSDE 9.x Raster Support via GridCoverageExchange Interface";
-
+    // private static final String FACTORY_DESCRIPTION = "ESRI(tm) ArcSDE 9.x Raster Support via
+    // GridCoverageExchange Interface";
     /**
      * DOCUMENT ME!
      * 
@@ -74,8 +72,7 @@ public class ArcSDERasterFormatFactory implements GridFormatFactorySpi {
     }
 
     /**
-     * Returns the implementation hints. The default implementation returns en
-     * empty map.
+     * Returns the implementation hints. The default implementation returns en empty map.
      * 
      * @return DOCUMENT ME!
      */

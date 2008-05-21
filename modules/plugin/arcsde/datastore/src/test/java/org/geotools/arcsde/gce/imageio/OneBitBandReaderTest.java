@@ -54,8 +54,8 @@ public class OneBitBandReaderTest {
             // Set up a pyramid and readerprops for the sample three-band imagery
             session = rasterTestData.getTestData().getConnectionPool().getSession();
             tableName = rasterTestData.get1bitRasterTableName();
-            q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
-                    new SeSqlConstruct(tableName));
+            q = session.createAndExecuteQuery(new String[] { "RASTER" }, new SeSqlConstruct(
+                    tableName));
             r = q.fetch();
             rasterAttr = r.getRaster(0);
             q.close();

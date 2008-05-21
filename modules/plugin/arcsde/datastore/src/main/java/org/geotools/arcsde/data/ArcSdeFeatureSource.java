@@ -53,7 +53,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
     private ArcSdeResourceInfo resourceInfo;
 
     protected ArcSdeVersionHandler versionHandler;
-    
+
     private QueryCapabilities queryCapabilities;
 
     public ArcSdeFeatureSource(final FeatureTypeInfo typeInfo,
@@ -62,19 +62,19 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
         this.typeInfo = typeInfo;
         this.dataStore = dataStore;
         this.versionHandler = versionHandler;
-        this.queryCapabilities = new QueryCapabilities(){
+        this.queryCapabilities = new QueryCapabilities() {
             @Override
-            public boolean supportsSorting(SortBy[] sortAttributes){
+            public boolean supportsSorting(SortBy[] sortAttributes) {
                 final SimpleFeatureType featureType = typeInfo.getFeatureType();
-                for(int i = 0; i < sortAttributes.length; i++){
+                for (int i = 0; i < sortAttributes.length; i++) {
                     SortBy sortBy = sortAttributes[i];
-                    if(SortBy.NATURAL_ORDER == sortBy){
-                        //TODO: we should be able to support natural order
+                    if (SortBy.NATURAL_ORDER == sortBy) {
+                        // TODO: we should be able to support natural order
                         return false;
                     }
                     String attName = sortBy.getPropertyName().getPropertyName();
-                    if(featureType.getAttribute(attName) == null){
-                       return false; 
+                    if (featureType.getAttribute(attName) == null) {
+                        return false;
                     }
                 }
                 return false;
@@ -103,7 +103,6 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
         }
         return this.resourceInfo;
     }
-
 
     public QueryCapabilities getQueryCapabilities() {
         return this.queryCapabilities;
@@ -157,8 +156,8 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      * @throws DataSourceException
      * @throws IOException
      */
-    protected ReferencedEnvelope getBounds(final Query namedQuery,
-            final Session session) throws DataSourceException, IOException {
+    protected ReferencedEnvelope getBounds(final Query namedQuery, final Session session)
+            throws DataSourceException, IOException {
         Envelope ev;
         ev = ArcSDEQuery.calculateQueryExtent(session, typeInfo, namedQuery, versionHandler);
 
@@ -201,8 +200,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
     /**
      * @see FeatureSource#getCount(Query)
      */
-    protected int getCount(final Query namedQuery, final Session session)
-            throws IOException {
+    protected int getCount(final Query namedQuery, final Session session) throws IOException {
         final int count;
         count = ArcSDEQuery.calculateResultCount(session, typeInfo, namedQuery, versionHandler);
         return count;

@@ -29,14 +29,12 @@ import junit.framework.TestCase;
 import org.geotools.data.DataSourceException;
 
 /**
- * Tests de functionality of a pool of ArcSDE connection objects over a live
- * ArcSDE database
+ * Tests de functionality of a pool of ArcSDE connection objects over a live ArcSDE database
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/test/java/org/geotools/arcsde/pool/ArcSDEConnectionPoolTest.java $
- * @version $Id: ArcSDEConnectionPoolTest.java 28049 2007-11-26 12:57:04Z
- *          groldan $
+ * @version $Id$
  */
 public class ArcSDEConnectionPoolTest extends TestCase {
     /** DOCUMENT ME! */
@@ -55,22 +53,18 @@ public class ArcSDEConnectionPoolTest extends TestCase {
     /**
      * Creates a new ArcSDEConnectionPoolTest object.
      * 
-     * @param name
-     *            DOCUMENT ME!
+     * @param name DOCUMENT ME!
      */
     public ArcSDEConnectionPoolTest(String name) {
         super(name);
     }
 
     /**
-     * loads {@code test-data/testparams.properties} to get connection
-     * parameters and sets up a ArcSDEConnectionConfig with them for tests to
-     * set up ArcSDEConnectionPool's as requiered
+     * loads {@code test-data/testparams.properties} to get connection parameters and sets up a
+     * ArcSDEConnectionConfig with them for tests to set up ArcSDEConnectionPool's as requiered
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
-     * @throws IllegalStateException
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
+     * @throws IllegalStateException DOCUMENT ME!
      */
     @Override
     protected void setUp() throws Exception {
@@ -105,8 +99,7 @@ public class ArcSDEConnectionPoolTest extends TestCase {
     /**
      * closes the connection pool if it's still open
      * 
-     * @throws Exception
-     *             DOCUMENT ME!
+     * @throws Exception DOCUMENT ME!
      */
     @Override
     protected void tearDown() throws Exception {
@@ -121,23 +114,15 @@ public class ArcSDEConnectionPoolTest extends TestCase {
     }
 
     /**
-     * Sets up a new ArcSDEConnectionPool with the connection parameters stored
-     * in <code>connParams</code> and throws an exception if something goes
-     * wrong
+     * Sets up a new ArcSDEConnectionPool with the connection parameters stored in
+     * <code>connParams</code> and throws an exception if something goes wrong
      * 
-     * @param connParams
-     *            a set of connection parameters from where the new
-     *            ArcSDEConnectionPool will connect to the SDE database and
-     *            create connections
-     * 
+     * @param connParams a set of connection parameters from where the new ArcSDEConnectionPool will
+     *            connect to the SDE database and create connections
      * @return DOCUMENT ME!
-     * 
-     * @throws IllegalArgumentException
-     *             if the set of connection parameters are not propperly set
-     * @throws NullPointerException
-     *             if <code>connParams</code> is null
-     * @throws DataSourceException
-     *             if the pool can't create the connections with the passed
+     * @throws IllegalArgumentException if the set of connection parameters are not propperly set
+     * @throws NullPointerException if <code>connParams</code> is null
+     * @throws DataSourceException if the pool can't create the connections with the passed
      *             arguments (i.e. can't connect to SDE database)
      */
     private ArcSDEConnectionPool createPool(Map connParams) throws IllegalArgumentException,
@@ -157,12 +142,10 @@ public class ArcSDEConnectionPoolTest extends TestCase {
     }
 
     /**
-     * tests that a connection to a live ArcSDE database can be established with
-     * the parameters defined int testparams.properties, and a
-     * ArcSDEConnectionPool can be properly setted up
+     * tests that a connection to a live ArcSDE database can be established with the parameters
+     * defined int testparams.properties, and a ArcSDEConnectionPool can be properly setted up
      * 
-     * @throws IOException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
      */
     public void testConnect() throws IOException {
         LOGGER.fine("testing connection to the sde database");
@@ -183,13 +166,10 @@ public class ArcSDEConnectionPoolTest extends TestCase {
     }
 
     /**
-     * Checks that after creation the pool has the specified initial number of
-     * connections.
+     * Checks that after creation the pool has the specified initial number of connections.
      * 
-     * @throws DataSourceException
-     *             DOCUMENT ME!
-     * @throws UnavailableArcSDEConnectionException
-     *             DOCUMENT ME!
+     * @throws DataSourceException DOCUMENT ME!
+     * @throws UnavailableArcSDEConnectionException DOCUMENT ME!
      */
     public void testInitialCount() throws DataSourceException, UnavailableArcSDEConnectionException {
         int MIN_CONNECTIONS = 2;
@@ -212,8 +192,8 @@ public class ArcSDEConnectionPoolTest extends TestCase {
     }
 
     /**
-     * Tests that the pool creation fails if a wrong set of parameters is passed
-     * (i.e. maxConnections is lower than minConnections)
+     * Tests that the pool creation fails if a wrong set of parameters is passed (i.e.
+     * maxConnections is lower than minConnections)
      * 
      * @throws DataSourceException
      * @throws UnavailableArcSDEConnectionException
@@ -240,13 +220,11 @@ public class ArcSDEConnectionPoolTest extends TestCase {
     }
 
     /**
-     * tests that no more than pool.maxConnections connections can be created,
-     * and once one connection is freed, it is ready to be used again.
+     * tests that no more than pool.maxConnections connections can be created, and once one
+     * connection is freed, it is ready to be used again.
      * 
-     * @throws DataSourceException
-     *             DOCUMENT ME!
-     * @throws UnavailableArcSDEConnectionException
-     *             DOCUMENT ME!
+     * @throws DataSourceException DOCUMENT ME!
+     * @throws UnavailableArcSDEConnectionException DOCUMENT ME!
      */
     public void testMaxConnections() throws DataSourceException,
             UnavailableArcSDEConnectionException {

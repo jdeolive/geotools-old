@@ -31,6 +31,7 @@ import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Transaction;
 
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeRelease;
@@ -207,54 +208,55 @@ public class ArcSDEConnectionPool {
     }
 
     /**
-     * This method is used to "borrow" a Session (that may already be in use)
-     * to perform a quick read-only task (such as checking the SeColumn definitions).
+     * This method is used to "borrow" a Session (that may already be in use) to perform a quick
+     * read-only task (such as checking the SeColumn definitions).
      * 
      * @param transaction
      * @return Connection
      */
     public <T> T issueReadOnly(final Command<T> command) throws IOException {
-    	Session session = getSession();
-    	try {
-	    	return session.issue( command );
-		} finally {
-			session.close();
-		}    	
+        Session session = getSession();
+        try {
+            return session.issue(command);
+        } finally {
+            session.close();
+        }
     }
-    
+
     /**
      * Retrieve the connection for the provided transaction.
      * <p>
-     * The connection is held open until while the transaction is
-     * underway. A a Transaction.State is registered for this
-     * ArcSDEConnectionPool in order to hold the session.
-     * </p> 
+     * The connection is held open until while the transaction is underway. A a Transaction.State is
+     * registered for this ArcSDEConnectionPool in order to hold the session.
+     * </p>
+     * 
      * @param transaction
      * @return Connection
      */
-    public Session getSession( Transaction transaction ) throws DataSourceException, UnavailableArcSDEConnectionException {
-		try {
-	    	SessionTransactionState state;			
-			state = SessionTransactionState.getState( transaction, this );
-			return state.getConnection();			
-		} catch (IOException e) {
-			throw new DataSourceException(e);
-		}    	
+    public Session getSession(Transaction transaction) throws DataSourceException,
+            UnavailableArcSDEConnectionException {
+        try {
+            SessionTransactionState state;
+            state = SessionTransactionState.getState(transaction, this);
+            return state.getConnection();
+        } catch (IOException e) {
+            throw new DataSourceException(e);
+        }
     }
-    
+
     /**
-     * Grab a session from the pool, this session is the responsibility of
-     * the calling code and must be closed after use.
+     * Grab a session from the pool, this session is the responsibility of the calling code and must
+     * be closed after use.
      * 
      * @return A Session, when close() is called it will be recycled into the pool
      * @throws DataSourceException If we could not get a connection
      * @throws UnavailableArcSDEConnectionException If we are out of connections
      * @throws IllegalStateException If pool has been closed.
      */
-    public Session getSession() throws DataSourceException, UnavailableArcSDEConnectionException {    	
+    public Session getSession() throws DataSourceException, UnavailableArcSDEConnectionException {
         if (pool == null) {
             throw new IllegalStateException("The ConnectionPool has been closed.");
-        }        
+        }
         try {
             // String caller = null;
             // if (LOGGER.isLoggable(Level.FINER)) {
@@ -296,24 +298,34 @@ public class ArcSDEConnectionPool {
      */
     @SuppressWarnings("unchecked")
     public List<String> getAvailableLayerNames() throws IOException {
-        Session session = null;
+        final Session session;
 
-        List<String> layerNames = new LinkedList<String>();
+        final List<String> layerNames;
         try {
             session = getSession();
-            for (Iterator<SeLayer> it = session.getLayers().iterator(); it.hasNext();) {
-                try {
-                    layerNames.add(it.next().getQualifiedName());
-                } catch (SeException e) {
-                    throw new ArcSdeException("Error querying the layers list", e);
-                }
-            }
         } catch (UnavailableArcSDEConnectionException ex) {
             throw new DataSourceException("No free connection found to query the layers list", ex);
-        } finally {
-            if (session != null)
-                session.close();
         }
+
+        try {
+            layerNames = session.issue(new Command<List<String>>() {
+                @Override
+                public List<String> execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    final List<String> layerNames = new LinkedList<String>();
+                    final List<SeLayer> layers = session.getLayers();
+                    SeLayer layer;
+                    for (Iterator<SeLayer> it = layers.iterator(); it.hasNext();) {
+                        layer = it.next();
+                        layerNames.add(layer.getQualifiedName());
+                    }
+                    return layerNames;
+                }
+            });
+        } finally {
+            session.close();
+        }
+        
         return layerNames;
     }
 
@@ -408,7 +420,7 @@ public class ArcSDEConnectionPool {
             if (valid) {
                 try {
                     LOGGER.finest("Validating SDE Connection");
-                    String user = Session.issueGetUser(session);
+                    String user = session.getUser();
                     LOGGER.finer("Connection validated, returned user " + user);
                 } catch (IOException e) {
                     LOGGER.info("Can't validate SeConnection, discarding it: " + session);

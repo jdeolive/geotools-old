@@ -44,8 +44,7 @@ import com.esri.sde.sdk.pe.PeFactory;
  * @author Gabriel Roldan, Axios Engineering
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/ArcSDEDataStoreFactory.java $
- * @version $Id: ArcSDEDataStoreFactory.java 29405 2008-02-20 17:38:46Z
- *          saul.farber $
+ * @version $Id$
  */
 public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     /** package's logger */
@@ -159,8 +158,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     }
 
     /**
-     * @throws UnsupportedOperationException
-     *             always as the operation is not supported
+     * @throws UnsupportedOperationException always as the operation is not supported
      * @see DataStoreFactorySpi#createNewDataStore(Map)
      */
     public DataStore createNewDataStore(java.util.Map map) {
@@ -170,32 +168,23 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     }
 
     /**
-     * crates an SdeDataSource based on connection parameters held in
-     * <code>params</code>.
-     * 
+     * crates an SdeDataSource based on connection parameters held in <code>params</code>.
      * <p>
      * Expected parameters are:
-     * 
      * <ul>
      * <li><b>dbtype </b>: MUST be <code>"arcsde"</code></li>
      * <li><b>server </b>: machine name where ArcSDE is running</li>
-     * <li><b>port </b>: port number where ArcSDE listens for connections on
-     * server</li>
+     * <li><b>port </b>: port number where ArcSDE listens for connections on server</li>
      * <li><b>instance </b>: database instance name to connect to</li>
-     * <li><b>user </b>: database user name with at least reading privileges
-     * over SDE instance</li>
+     * <li><b>user </b>: database user name with at least reading privileges over SDE instance</li>
      * <li><b>password </b>: database user password</li>
      * </ul>
      * </p>
      * 
-     * @param params
-     *            connection parameters
-     * 
-     * @return a new <code>SdeDataStore</code> pointing to the database
-     *         defined by <code>params</code>
-     * 
-     * @throws java.io.IOException
-     *             if something goes wrong creating the datastore.
+     * @param params connection parameters
+     * @return a new <code>SdeDataStore</code> pointing to the database defined by
+     *         <code>params</code>
+     * @throws java.io.IOException if something goes wrong creating the datastore.
      */
     public DataStore createDataStore(Map params) throws java.io.IOException {
         if (JSDE_CLIENT_VERSION == JSDE_VERSION_DUMMY) {
@@ -240,14 +229,13 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         }
 
         String namespaceUri = config.getNamespaceUri();
-        if( connPool instanceof ArcSDEConnectionReference){
+        if (connPool instanceof ArcSDEConnectionReference) {
             // notice we check the pool rather than the config? that is because
             // another user may of been in ahead of us and create connection pool
             //
-            sdeDStore = new ArcSDEDataStore(connPool, namespaceUri );
-        }
-        else {
-            sdeDStore = new ArcSDEDataStore(connPool, namespaceUri );
+            sdeDStore = new ArcSDEDataStore(connPool, namespaceUri);
+        } else {
+            sdeDStore = new ArcSDEDataStore(connPool, namespaceUri);
         }
 
         ViewRegisteringFactoryHelper.registerSqlViews(sdeDStore, params);
@@ -298,7 +286,6 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
      * DOCUMENT ME!
      * 
      * @param params
-     * 
      */
     public boolean canProcess(Map params) {
         if (JSDE_CLIENT_VERSION == JSDE_VERSION_DUMMY) {
@@ -318,11 +305,10 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     }
 
     /**
-     * Test to see if this datastore is available, if it has all the appropriate
-     * libraries to construct a datastore.
+     * Test to see if this datastore is available, if it has all the appropriate libraries to
+     * construct a datastore.
      * 
-     * @return <tt>true</tt> if and only if this factory is available to
-     *         create DataStores.
+     * @return <tt>true</tt> if and only if this factory is available to create DataStores.
      */
     public boolean isAvailable() {
         if (JSDE_CLIENT_VERSION == JSDE_VERSION_DUMMY) {
@@ -350,8 +336,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     }
 
     /**
-     * Returns the implementation hints. The default implementation returns en
-     * empty map.
+     * Returns the implementation hints. The default implementation returns en empty map.
      */
     public Map getImplementationHints() {
         return Collections.EMPTY_MAP;

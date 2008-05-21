@@ -553,7 +553,8 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
         Session session = null;
         try {
             session = connectionPool.getSession();
-            SeRasterColumn rCol = session.createSeRasterColumn(rasterAttributes.getRasterColumnId());
+            SeRasterColumn rCol = session
+                    .createSeRasterColumn(rasterAttributes.getRasterColumnId());
 
             PeProjectedCS pcs = new PeProjectedCS(rCol.getCoordRef().getProjectionDescription());
             epsgCode = -1;
@@ -676,9 +677,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
                             "Couldn't find any TYPE_RASTER columns in ArcSDE table " + rasterTable);
 
                 rasterColumns = (String[]) fetchColumns.toArray(new String[fetchColumns.size()]);
-                q = Session.issueCreateSeQuery(session, rasterColumns, new SeSqlConstruct(rasterTable));
-                q.prepareQuery();
-                q.execute();
+                q = session.createAndExecuteQuery(rasterColumns, new SeSqlConstruct(rasterTable));
 
                 SeRow r = q.fetch();
                 rasterAttributes = r.getRaster(0);

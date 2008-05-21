@@ -32,12 +32,10 @@ import com.esri.sde.sdk.client.SeExtent;
 import com.esri.sde.sdk.client.SeRasterAttr;
 
 /**
- * This class represents an ArcSDE Raster Pyramid. Basically, it wraps the
- * SeRasterAttr object and implements some convenience methods for doing
- * calculations with it.
+ * This class represents an ArcSDE Raster Pyramid. Basically, it wraps the SeRasterAttr object and
+ * implements some convenience methods for doing calculations with it.
  * 
  * @author Saul Farber
- * 
  */
 public class ArcSDEPyramid {
 
@@ -46,17 +44,15 @@ public class ArcSDEPyramid {
     int tileWidth, tileHeight;
 
     /**
-     * Creates an in-memory representation of an ArcSDE Raster Pyramid.
-     * Basically it wraps the supplide SeRasterAttr object and implements some
-     * convenience logic for extracting information/ doing calculations with it.
+     * Creates an in-memory representation of an ArcSDE Raster Pyramid. Basically it wraps the
+     * supplide SeRasterAttr object and implements some convenience logic for extracting
+     * information/ doing calculations with it.
      * 
-     * @param rasterAttributes
-     *            the SeRasterAttr object for the raster of interest.
+     * @param rasterAttributes the SeRasterAttr object for the raster of interest.
      * @param crs
      * @throws DataSourceException
      */
-    public ArcSDEPyramid(SeRasterAttr rasterAttributes, CoordinateReferenceSystem crs)
-            throws DataSourceException {
+    public ArcSDEPyramid(SeRasterAttr rasterAttributes, CoordinateReferenceSystem crs) throws DataSourceException {
         try {
             final int numLevels = rasterAttributes.getMaxLevel() + 1;
             pyramidList = new ArrayList<ArcSDEPyramidLevel>(numLevels);
@@ -103,15 +99,12 @@ public class ArcSDEPyramid {
     }
 
     /**
-     * Given this raster's pyramid info this method picks the optimal pyramid
-     * level for rendering this request.
+     * Given this raster's pyramid info this method picks the optimal pyramid level for rendering
+     * this request.
      * 
-     * @param requestEnvelope
-     *            The requested geographical extent
-     * @param pixelDimensions
-     *            The request pixel size of the image
-     * @return the integer number of the raster level most appropriate for this
-     *         request.
+     * @param requestEnvelope The requested geographical extent
+     * @param pixelDimensions The request pixel size of the image
+     * @return the integer number of the raster level most appropriate for this request.
      */
     public int pickOptimalRasterLevel(ReferencedEnvelope requestEnvelope, Rectangle pixelDimensions)
             throws DataSourceException {
@@ -119,8 +112,8 @@ public class ArcSDEPyramid {
         double reqXRes = requestEnvelope.getWidth() / pixelDimensions.width;
         double reqYRes = requestEnvelope.getHeight() / pixelDimensions.height;
 
-        ArcSDEPyramidLevel[] pyramidInfo = pyramidList
-                .toArray(new ArcSDEPyramidLevel[pyramidList.size()]);
+        ArcSDEPyramidLevel[] pyramidInfo = pyramidList.toArray(new ArcSDEPyramidLevel[pyramidList
+                .size()]);
 
         int targetLevel = 0;
         for (int i = 0; i < pyramidInfo.length; i++) {
@@ -135,15 +128,11 @@ public class ArcSDEPyramid {
     }
 
     /**
-     * Given a requested envelope and a chosen raster level, figure out and
-     * return the actual SDE raster tiles, image size and the exact envelope of
-     * that image.
+     * Given a requested envelope and a chosen raster level, figure out and return the actual SDE
+     * raster tiles, image size and the exact envelope of that image.
      * 
-     * @param reqEnv
-     *            The original requested envelope.
-     * @param rasterLvl
-     *            The chosen pyramid level at which to best-fit the requsted
-     *            envelope.
+     * @param reqEnv The original requested envelope.
+     * @param rasterLvl The chosen pyramid level at which to best-fit the requsted envelope.
      * @return
      */
     public RasterQueryInfo fitExtentToRasterPixelGrid(ReferencedEnvelope reqEnv, int rasterLvl) {
@@ -184,23 +173,21 @@ public class ArcSDEPyramid {
     /**
      * Don't use this method. It's only public for unit testing purposes.
      * 
-     * @param level
-     *            DON'T USE
-     * @param extent
-     *            DON'T USE
-     * @param crs
-     *            DON'T USE
-     * @param offset
-     *            DON'T USE
-     * @param xTiles
-     *            DON'T USE
-     * @param yTiles
-     *            DON'T USE
-     * @param imageSize
-     *            DON'T USE
+     * @param level DON'T USE
+     * @param extent DON'T USE
+     * @param crs DON'T USE
+     * @param offset DON'T USE
+     * @param xTiles DON'T USE
+     * @param yTiles DON'T USE
+     * @param imageSize DON'T USE
      */
-    public void addPyramidLevel(int level, SeExtent extent, CoordinateReferenceSystem crs,
-            SDEPoint offset, int xTiles, int yTiles, Dimension imageSize) {
+    public void addPyramidLevel(int level,
+            SeExtent extent,
+            CoordinateReferenceSystem crs,
+            SDEPoint offset,
+            int xTiles,
+            int yTiles,
+            Dimension imageSize) {
 
         pyramidList.add(level, new ArcSDEPyramidLevel(level, extent, crs, offset, xTiles, yTiles,
                 imageSize));
@@ -219,12 +206,9 @@ public class ArcSDEPyramid {
     /**
      * Don't use this constructor. It only exists for unit testing purposes.
      * 
-     * @param tileWidth
-     *            DON'T USE
-     * @param tileHeight
-     *            DON'T USE
-     * @param numLayers
-     *            DON'T USE
+     * @param tileWidth DON'T USE
+     * @param tileHeight DON'T USE
+     * @param numLayers DON'T USE
      */
     public ArcSDEPyramid(int tileWidth, int tileHeight, int numLayers) {
         this.tileWidth = tileWidth;

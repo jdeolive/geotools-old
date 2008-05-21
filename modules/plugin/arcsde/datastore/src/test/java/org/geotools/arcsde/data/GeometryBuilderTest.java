@@ -174,14 +174,13 @@ public class GeometryBuilderTest extends TestCase {
             testData.insertData(original, layer, session);
             final SeSqlConstruct sqlCons = new SeSqlConstruct(layer.getName());
 
-            SeQuery query = Session.issueCreateAndExecuteQuery(session, new String[] { "SHAPE" },
-                    sqlCons);
+            SeQuery query = session.createAndExecuteQuery(new String[] { "SHAPE" }, sqlCons);
 
             SdeRow row;
             SeShape shape;
 
             int i = 0;
-            row = Session.issueFetch(session, query);
+            row = session.fetch(query);
             while (i < fetched.length && row != null) {
                 shape = row.getShape(0);
                 assertNotNull(shape);
@@ -189,9 +188,9 @@ public class GeometryBuilderTest extends TestCase {
                 ArcSDEGeometryBuilder builder = ArcSDEGeometryBuilder.builderFor(clazz);
                 fetched[i] = builder.construct(shape);
                 i++;
-                row = Session.issueFetch(session, query);
+                row = session.fetch(query);
             }
-            Session.issueClose(session, query);
+            session.close(query);
         } finally {
             session.close();
         }

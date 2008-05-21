@@ -529,7 +529,7 @@ public class SDEJavaApiJoinTest extends TestCase {
          }});
 
         try {
-            SdeRow row = Session.issueFetch(session, query);
+            SdeRow row = session.fetch( query);
             
             int count = 0;
             final int childIdIndex = 2;
@@ -551,7 +551,7 @@ public class SDEJavaApiJoinTest extends TestCase {
                 }
 
                 count++;
-                row = Session.issueFetch(session, query);
+                row = session.fetch( query);
             }
             assertEquals(expectedCount, count);
         } catch (Exception e) {
@@ -600,7 +600,7 @@ public class SDEJavaApiJoinTest extends TestCase {
             }});
         
         try {
-            SdeRow row = Session.issueFetch(session, query);
+            SdeRow row = session.fetch( query);
             int count = 0;
             while (row != null) {
                 // we would expect SeShape being returned from shapeIndex, but
@@ -612,7 +612,7 @@ public class SDEJavaApiJoinTest extends TestCase {
                     assertFalse(shape.getClass().getName(), shape instanceof SeShape);
                 }
                 count++;
-                row = Session.issueFetch(session, query);
+                row = session.fetch( query);
             }
             assertEquals(expectedCount, count);
         } catch (IOException e) {
@@ -683,7 +683,7 @@ public class SDEJavaApiJoinTest extends TestCase {
                 return query;
             }});
         try {
-            SdeRow row = Session.issueFetch(session, query);
+            SdeRow row = session.fetch( query);
             int count = 0;
             while (row != null) {
                 // duplicate shapes are not returned by arcsde.
@@ -695,7 +695,7 @@ public class SDEJavaApiJoinTest extends TestCase {
                 // expectedShapeIndicators[count], indicator);
 
                 count++;
-                row = Session.issueFetch(session, query);
+                row = session.fetch( query);
             }
             assertEquals(expectedCount, count);
         } catch (Exception e) {
@@ -738,14 +738,14 @@ public class SDEJavaApiJoinTest extends TestCase {
             }});
         
         try {
-            SdeRow row = Session.issueFetch(session, query);
+            SdeRow row = session.fetch( query);
             int count = 0;
             while (row != null) {
                 Object shape = row.getObject(shapeIndex);
                 assertTrue(shape instanceof Integer); // returns int instead
                 // of shape
                 count++;
-                row = Session.issueFetch(session, query);
+                row = session.fetch( query);
             }
             assertEquals(expectedCount, count);
         } catch (Exception e) {

@@ -72,8 +72,7 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
     }
 
     /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object
-     *      source)
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object source)
      */
     @Override
     public GridCoverageReader getReader(Object source) {
@@ -103,8 +102,7 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
     }
 
     /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object
-     *      input)
+     * @see org.geotools.data.coverage.grid.AbstractGridFormat#accepts(Object input)
      */
     @Override
     public boolean accepts(Object input) {

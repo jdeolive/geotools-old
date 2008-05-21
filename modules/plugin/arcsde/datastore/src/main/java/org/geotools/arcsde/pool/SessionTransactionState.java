@@ -17,33 +17,21 @@
 package org.geotools.arcsde.pool;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.data.versioning.TransactionDefaultVersionHandler;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
-import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.Transaction;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
-import com.esri.sde.sdk.client.SeObjectId;
-import com.esri.sde.sdk.client.SeState;
-import com.esri.sde.sdk.client.SeVersion;
 
 /**
  * Store the transaction state needed for a <code>Session</code> instances.
  * <p>
  * This transaction state is used to hold the SeConnection needed for a Session.
  * </p>
+ * 
  * @author Jake Fear
  * @author Gabriel Roldan
  * @source $URL:
@@ -55,15 +43,16 @@ final class SessionTransactionState implements Transaction.State {
             .getLogger(SessionTransactionState.class.getPackage().getName());
 
     /**
-     * The session being managed, it will be held open until commit(), rollback() or close() is called.
+     * The session being managed, it will be held open until commit(), rollback() or close() is
+     * called.
      */
     private Session session;
-    
+
     /**
      * The transaction that is holding on to this Transaction.State
      */
     private Transaction transaction;
-    
+
     /**
      * Creates a new ArcTransactionState object.
      * 
@@ -71,7 +60,7 @@ final class SessionTransactionState implements Transaction.State {
      * @param pool connection pool where to grab a connection and hold it while there's a
      *            transaction open (signaled by any use of {@link #getConnection()}
      */
-    private SessionTransactionState(Session session ) {
+    private SessionTransactionState(Session session) {
         this.session = session;
     }
 
@@ -148,9 +137,10 @@ final class SessionTransactionState implements Transaction.State {
     /**
      * Transaction start/end.
      * <p>
-     * If the provided transaction is non null we are being added to the Transaction.
-     * If the provided transaction is null we are being shutdown.
+     * If the provided transaction is non null we are being added to the Transaction. If the
+     * provided transaction is null we are being shutdown.
      * </p>
+     * 
      * @see Transaction.State#setTransaction(Transaction)
      * @param transaction transaction information, <code>null</code> signals this state lifecycle
      *            end.
@@ -254,25 +244,27 @@ final class SessionTransactionState implements Transaction.State {
      */
     public static SessionTransactionState getState(final Transaction transaction,
             final ArcSDEConnectionPool connectionPool) throws IOException {
-    	SessionTransactionState state;
-    	if( transaction == Transaction.AUTO_COMMIT ){
-    		LOGGER.log(Level.SEVERE, "Should not request ArcTransactionState when using AUTO_COMMITback connection");
-    		return null;
-    	}
+        SessionTransactionState state;
+        if (transaction == Transaction.AUTO_COMMIT) {
+            LOGGER.log(Level.SEVERE,
+                    "Should not request ArcTransactionState when using AUTO_COMMITback connection");
+            return null;
+        }
         synchronized (SessionTransactionState.class) {
             state = (SessionTransactionState) transaction.getState(connectionPool);
             if (state == null) {
                 // start a transaction
                 final Session session = connectionPool.getSession();
                 try {
-                    Session.issueStartTransaction(session);
+                    session.startTransaction();
                 } catch (IOException e) {
                     try {
-                        Session.issueRollbackTransaction(session);
+                        session.rollbackTransaction();
                     } finally {
                         session.close();
                     }
-                    throw new DataSourceException("Exception initiating transaction on " + session,e);
+                    throw new DataSourceException("Exception initiating transaction on " + session,
+                            e);
                 }
                 state = new SessionTransactionState(session);
                 transaction.putState(connectionPool, state);

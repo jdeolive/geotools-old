@@ -82,10 +82,10 @@ public abstract class ArcSDEGeometryBuilder {
             .getLogger(ArcSDEGeometryBuilder.class.getName());
 
     /** lookup specialized geometry builders classes by it's geometry type */
-    private static final Map<Class<?>,ArcSDEGeometryBuilder> builders = new HashMap<Class<?>,ArcSDEGeometryBuilder>();
+    private static final Map<Class<?>, ArcSDEGeometryBuilder> builders = new HashMap<Class<?>, ArcSDEGeometryBuilder>();
 
     /** Look up "empty" geometry instances based on geometry class */
-    private static final Map<Class<?>,Geometry> nullGeometries = new HashMap<Class<?>,Geometry>();
+    private static final Map<Class<?>, Geometry> nullGeometries = new HashMap<Class<?>, Geometry>();
 
     static {
         builders.put(Geometry.class, GenericGeometryBuilder.getInstance());
@@ -449,7 +449,8 @@ public abstract class ArcSDEGeometryBuilder {
             if (shape == null || shape.isNil()) {
                 return getEmpty();
             }
-            Class<? extends Geometry> realGeomClass = ArcSDEAdapter.getGeometryTypeFromSeShape(shape);
+            Class<? extends Geometry> realGeomClass = ArcSDEAdapter
+                    .getGeometryTypeFromSeShape(shape);
             if (realGeomClass == null) {
                 return null;
             }
@@ -762,16 +763,11 @@ public abstract class ArcSDEGeometryBuilder {
         protected Geometry newGeometry(double[][][] coords) throws DataSourceException {
             // /////
             /*
-            for (int i = 0; i < coords.length; i++) {
-                for (int j = 0; j < coords[i].length; j++) {
-                    double[] ds = coords[i][j];
-                    //System.out.println("coords[" + i + "][" + j + "]=" + Arrays.toString(ds));
-                }
-            }
-            //System.out.println("-----");
-            */
+             * for (int i = 0; i < coords.length; i++) { for (int j = 0; j < coords[i].length; j++) {
+             * double[] ds = coords[i][j]; //System.out.println("coords[" + i + "][" + j + "]=" +
+             * Arrays.toString(ds)); } } //System.out.println("-----");
+             */
             // ///////
-
             double[] shell = coords[0][0];
             int nParts = coords[0].length;
             int nHoles = nParts - 1;

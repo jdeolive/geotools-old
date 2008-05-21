@@ -21,8 +21,8 @@ import com.esri.sde.sdk.client.SeError;
 import com.esri.sde.sdk.client.SeException;
 
 /**
- * An IOException that wraps an {@link SeException} in order to report the
- * {@link SeError} messages that otherwise get hidden in a normal stack trace.
+ * An IOException that wraps an {@link SeException} in order to report the {@link SeError} messages
+ * that otherwise get hidden in a normal stack trace.
  * 
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
@@ -85,9 +85,8 @@ public class ArcSdeException extends DataSourceException {
     }
 
     /**
-     * SeException is pretty sad (Caused by:
-     * com.esri.sde.sdk.client.SeException: ) leaving you to hunt and peck at
-     * the SeError for a good description of what went bad.
+     * SeException is pretty sad (Caused by: com.esri.sde.sdk.client.SeException: ) leaving you to
+     * hunt and peck at the SeError for a good description of what went bad.
      * <p>
      * This class tries to grab as much information as possible form SeError.
      * 
