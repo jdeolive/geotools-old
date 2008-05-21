@@ -17,12 +17,6 @@
  */
 package org.geotools.utils.imagepyramid;
 
-import org.geotools.utils.CoverageToolsConstants;
-import org.geotools.utils.progress.BaseArgumentsManager;
-import org.geotools.utils.progress.ExceptionEvent;
-import org.geotools.utils.progress.ProcessingEvent;
-import org.geotools.utils.progress.ProcessingEventListener;
-
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
@@ -35,7 +29,6 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageWriteParam;
 import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationBilinear;
 import javax.media.jai.InterpolationNearest;
 
 import org.apache.commons.cli2.Option;
@@ -45,6 +38,7 @@ import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.coverage.processing.DefaultProcessor;
 import org.geotools.factory.Hints;
@@ -52,6 +46,11 @@ import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.gce.imagemosaic.ImageMosaicFormat;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.utils.CoverageToolsConstants;
+import org.geotools.utils.progress.BaseArgumentsManager;
+import org.geotools.utils.progress.ExceptionEvent;
+import org.geotools.utils.progress.ProcessingEvent;
+import org.geotools.utils.progress.ProcessingEventListener;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
@@ -184,7 +183,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 										.get(0));
 								if (!source.isFile() || !source.exists())
 									throw new InvalidArgumentException(
-											new StringBuffer(
+											new StringBuilder(
 													"The provided source is invalid! ")
 
 											.toString());
@@ -227,7 +226,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 												.parseInt((String) args.get(0));
 										if (factor <= 0)
 											throw new InvalidArgumentException(
-													new StringBuffer(
+													new StringBuilder(
 															"The provided scale factor is negative! ")
 
 													.toString());
@@ -258,7 +257,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 										if (!scalingAlgorithms.contains(args
 												.get(0)))
 											throw new InvalidArgumentException(
-													new StringBuffer(
+													new StringBuilder(
 															"The output format ")
 															.append(args.get(0))
 															.append(
@@ -290,7 +289,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 										if (!outputFormats
 												.contains(args.get(0)))
 											throw new InvalidArgumentException(
-													new StringBuffer(
+													new StringBuilder(
 															"The output format ")
 															.append(args.get(0))
 															.append(
@@ -464,8 +463,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 		// 
 		// 
 		// /////////////////////////////////////////////////////////////////////
-		StringBuffer message = new StringBuffer("Requested scale factor is ")
-				.append(scaleFactor);
+		StringBuilder message = new StringBuilder("Requested scale factor is ").append(scaleFactor);
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
 		fireEvent(message.toString(), 0);
@@ -478,7 +476,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 		// 
 		// /////////////////////////////////////////////////////////////////////
 		// mosaic reader
-		message = new StringBuffer("Acquiring a mosaic reader to mosaic ")
+		message = new StringBuilder("Acquiring a mosaic reader to mosaic ")
 				.append(inputLocation);
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
@@ -486,8 +484,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 
 		ImageMosaicReader inReader = null;
 		try {
-			inReader = new ImageMosaicReader(inputLocation, new Hints(
-					Hints.OVERVIEW_POLICY, Hints.VALUE_OVERVIEW_POLICY_IGNORE));
+			inReader = new ImageMosaicReader(inputLocation, new Hints(Hints.OVERVIEW_POLICY, OverviewPolicy.IGNORE));
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			fireException(e);
@@ -507,20 +504,19 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 
 		// getting envelope and other information about dimension
 		final GeneralEnvelope envelope = inReader.getOriginalEnvelope();
-		message = new StringBuffer("Original envelope is ").append(envelope
-				.toString());
+		message = new StringBuilder("Original envelope is ").append(envelope.toString());
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
 		fireEvent(message.toString(), 0);
 
 		final GeneralGridRange range = inReader.getOriginalGridRange();
-		message = new StringBuffer("Original range is ").append(range
+		message = new StringBuilder("Original range is ").append(range
 				.toString());
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
 		fireEvent(message.toString(), 0);
 
-		// new number fo rows and columns
+		// new number of rows and columns
 		final double newWidth = (range.getLength(0) * 1.0) / scaleFactor;
 		final double newHeight = (range.getLength(1) * 1.0) / scaleFactor;
 		if (tileW > newWidth)
@@ -528,8 +524,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 		if (tileH > newHeight)
 			tileH = newHeight;
 
-		message = new StringBuffer("New dimension is (W,H)==(")
-				.append(newWidth).append(",").append(newHeight).append(")");
+		message = new StringBuilder("New dimension is (W,H)==(").append(newWidth).append(",").append(newHeight).append(")");
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
 		fireEvent(message.toString(), 0);
@@ -538,8 +533,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 		int newRows = (int) (newHeight / tileH);
 		final boolean hasRemainingColum = (newWidth % tileW) != 0;
 		final boolean hasRemainingRow = (newHeight % tileH) != 0;
-		message = new StringBuffer("New matrix dimension is (cols,rows)==(")
-				.append(newCols).append(",").append(newRows).append(")");
+		message = new StringBuilder("New matrix dimension is (cols,rows)==(").append(newCols).append(",").append(newRows).append(")");
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
 		fireEvent(message.toString(), 0);
@@ -554,52 +548,9 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 		double _minx = 0.0;
 		double _miny = 0.0;
 
-		// prescale algortihm
-		int preScaleSteps = 0;
-		int tempScale = scaleFactor;
-		while ((tempScale /= 2) > 0) {
-			preScaleSteps++;
-		}
-		boolean doPrescaleSteps = false;
-		// we need to be carefufl to NOT exhaust the scale steps with the
-		// prescaling
-
-		if (Math.pow(2, preScaleSteps) == scaleFactor) {
-			preScaleSteps--;
-		}
-		double finalScale = scaleFactor / Math.pow(2, preScaleSteps);
-
-		// preparing parameters for the subsampling operation
-		final DefaultProcessor processor = new DefaultProcessor(null);
-		Interpolation interpolation = null;
-		ParameterValueGroup subsamplingParams = null;
-		if (scaleAlgorithm.equalsIgnoreCase("nn")) {
-			subsamplingParams = processor.getOperation("Scale").getParameters();
-			interpolation = new InterpolationNearest();
-			doPrescaleSteps = true;
-		} else if (scaleAlgorithm.equalsIgnoreCase("filt")) {
-			subsamplingParams = processor.getOperation("FilteredSubsample")
-					.getParameters();
-			interpolation = new InterpolationNearest();
-			doPrescaleSteps = scaleFactor % 2 == 0;
-			if (!doPrescaleSteps)
-				finalScale = scaleFactor;
-		} else if (scaleAlgorithm.equalsIgnoreCase("bil")) {
-			subsamplingParams = processor.getOperation("Scale").getParameters();
-			interpolation = new InterpolationBilinear();
-			doPrescaleSteps = true;
-		} else if (scaleAlgorithm.equalsIgnoreCase("avg")) {
-			subsamplingParams = processor.getOperation("SubsampleAverage")
-					.getParameters();
-			interpolation = new InterpolationNearest();
-			doPrescaleSteps = scaleFactor % 2 == 0;
-			if (!doPrescaleSteps)
-				finalScale = scaleFactor;
-		} else {
-			throw new IllegalArgumentException(
-					"The provided scale algorithm is not availaible");
-
-		}
+		
+			
+		
 
 		// ///////////////////////////////////////////////////////////////////
 		//
@@ -616,9 +567,8 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 		final double tileGeoHeight = envelope.getLength(1) / newRows;
 
 		final int uppers[] = range.getUpper().getCoordinateValues();
-		final double newRange[] = new double[] { uppers[0] / newCols,
-				uppers[1] / newRows };
-
+		final double newRange[] = new double[] { uppers[0] / newCols,uppers[1] / newRows };
+		final DefaultProcessor processor = new DefaultProcessor(null);
 		for (int i = 0; i < newRows; i++)
 			for (int j = 0; j < newCols; j++) {
 
@@ -636,42 +586,49 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 				if (_maxy > maxy)
 					_maxy = maxy;
 
-				final File fileOut = new File(outputLocation, new StringBuffer(
+				// //
+				//
+				// creating the output file
+				//
+				// //
+				final File fileOut = new File(outputLocation, new StringBuilder(
 						"mosaic").append("_").append(
 						Integer.toString(i * newCols + j)).append(".").append(
 						"tiff").toString());
 				if (fileOut.exists())
 					fileOut.delete();
 
-				message = new StringBuffer("Preparing tile (col,row)==(")
-						.append(j).append(",").append(i).append(") to file ")
+				message = new StringBuilder("Preparing tile (col,row)==(")
+						.append(j)
+						.append(",")
+						.append(i)
+						.append(") to file ")
 						.append(fileOut);
 				if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.fine(message.toString());
-				fireEvent(message.toString(), (j + i * newCols)
-						/ totalNumberOfFile);
+				fireEvent(message.toString(), (j + i * newCols)/ totalNumberOfFile);
 
 				// //
 				//
 				// building gridgeometry for the read operation
 				//
 				// //
-				final ParameterValue gg = (ParameterValue) ImageMosaicFormat.READ_GRIDGEOMETRY2D
-						.createValue();
-				final GeneralEnvelope cropEnvelope = new GeneralEnvelope(
-						new double[] { _minx, _miny }, new double[] { _maxx,
-								_maxy });
+				final ParameterValue<GridGeometry2D> gg =  ImageMosaicFormat.READ_GRIDGEOMETRY2D.createValue();
+				final GeneralEnvelope cropEnvelope = new GeneralEnvelope(new double[] { _minx, _miny }, new double[] { _maxx,_maxy });
 				cropEnvelope.setCoordinateReferenceSystem(inReader.getCrs());
-				gg.setValue(new GridGeometry2D(new GeneralGridRange(
-						new Rectangle(0, 0, 800, 800)), cropEnvelope));
-
-				message = new StringBuffer("Reading with grid envelope ")
-						.append(cropEnvelope.toString());
+				//we need to supply the requeste grid range but we use a fake one since we are using the ignore overviews switch 
+				gg.setValue(new GridGeometry2D(new GeneralGridRange(new Rectangle(0, 0, 800, 800)), cropEnvelope));
+				message = new StringBuilder("Reading with grid envelope ").append(cropEnvelope.toString());
 				if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.fine(message.toString());
 				fireEvent(message.toString(), (j + i * newCols)
 						/ totalNumberOfFile);
 
+				// //
+				//
+				// read the needed part and then crop to be sure that we have what we need
+				//
+				// //
 				GridCoverage2D gc;
 				try {
 					gc = (GridCoverage2D) inReader
@@ -684,65 +641,29 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 					return;
 				}
 
-				ParameterValueGroup param = processor.getOperation(
-						"CoverageCrop").getParameters();
+				ParameterValueGroup param = processor.getOperation("CoverageCrop").getParameters();
 				param.parameter("Source").setValue(gc);
 				param.parameter("Envelope").setValue(cropEnvelope);
-
-				final GridCoverage2D cropped = (GridCoverage2D) processor
-						.doOperation(param);
+				param.parameter("ConserveEnvelope").setValue(Boolean.TRUE);
+				final GridCoverage2D cropped = (GridCoverage2D) processor.doOperation(param);
 
 				// //
-				// Adjusting the resolution
+				//
+				// Adjusting the resolution in order to be the same as for all the others coverage
+				//
 				// //
-				final GeneralGridRange newGridrange = new GeneralGridRange(
-						new Rectangle2D.Double(0.0, 0.0, newRange[0],
-								newRange[1]).getBounds());
+				final GeneralGridRange newGridrange = new GeneralGridRange(new Rectangle2D.Double(0.0, 0.0, newRange[0],newRange[1]).getBounds());
 				final GridGeometry2D scaledGridGeometry = new GridGeometry2D(
 						newGridrange, cropEnvelope);
 				param = processor.getOperation("Resample").getParameters();
 				param.parameter("Source").setValue(cropped);
-				param.parameter("CoordinateReferenceSystem").setValue(
-						inReader.getCrs());
+				param.parameter("CoordinateReferenceSystem").setValue(inReader.getCrs());
 				param.parameter("GridGeometry").setValue(scaledGridGeometry);
-				param
-						.parameter("InterpolationType")
-						.setValue(
-								Interpolation
-										.getInstance(Interpolation.INTERP_NEAREST));
-
+				param.parameter("InterpolationType").setValue(Interpolation.getInstance(Interpolation.INTERP_NEAREST));
 				gc = (GridCoverage2D) processor.doOperation(param);
 
-				// //
-				//
-				// rescaling to the needed res
-				//
-				// //
-				// pre scaling
-				if (doPrescaleSteps && LOGGER.isLoggable(Level.FINE)) {
-					message = new StringBuffer("Pre scaling...");
-					if (LOGGER.isLoggable(Level.FINE))
-						LOGGER.fine(message.toString());
-					fireEvent(message.toString(), (j + i * newCols)
-							/ totalNumberOfFile);
-				}
 
-				for (int k = 0; k < preScaleSteps && doPrescaleSteps; k++) {
-
-					param = CoverageToolsConstants.FILTERED_SUBSAMPLE_FACTORY
-							.getParameters();
-					param.parameter("source").setValue(gc);
-					param.parameter("scaleX").setValue(new Integer(2));
-					param.parameter("scaleY").setValue(new Integer(2));
-					param.parameter("qsFilterArray")
-							.setValue(new float[] { 1 });
-					param.parameter("Interpolation").setValue(
-							new InterpolationBilinear());
-					gc = (GridCoverage2D) CoverageToolsConstants.FILTERED_SUBSAMPLE_FACTORY
-							.doOperation(param, null);
-				}
-
-				message = new StringBuffer("Scaling...");
+				message = new StringBuilder("Scaling...");
 				if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.fine(message.toString());
 				fireEvent(message.toString(), 0);
@@ -750,74 +671,50 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 				if (scaleAlgorithm.equalsIgnoreCase("nn")) {
 					param = processor.getOperation("Scale").getParameters();
 					param.parameter("Source").setValue(gc);
-					param.parameter("xScale").setValue(
-							new Float(1 / finalScale));
-					param.parameter("yScale").setValue(
-							new Float(1 / finalScale));
+					param.parameter("xScale").setValue(new Float(1.0 / scaleFactor));
+					param.parameter("yScale").setValue(new Float(1.0 / scaleFactor));
 					param.parameter("xTrans").setValue(new Float(0));
 					param.parameter("yTrans").setValue(new Float(0));
-					param
-							.parameter("Interpolation")
-							.setValue(
-									Interpolation
-											.getInstance(Interpolation.INTERP_BILINEAR));
-					gc = (GridCoverage2D) CoverageToolsConstants.SCALE_FACTORY
-							.doOperation(param, null);
+					param.parameter("Interpolation").setValue(Interpolation.getInstance(Interpolation.INTERP_BILINEAR));
+					gc = (GridCoverage2D) CoverageToolsConstants.SCALE_FACTORY.doOperation(param, null);
 				} else if (scaleAlgorithm.equalsIgnoreCase("filt")) {
 					// scaling
-					param = (ParameterValueGroup) subsamplingParams.clone();
+					param =  CoverageToolsConstants.FILTERED_SUBSAMPLE_FACTORY.getParameters();
 					param.parameter("source").setValue(gc);
-					param.parameter("scaleX").setValue(
-							new Integer((int) finalScale));
-					param.parameter("scaleY").setValue(
-							new Integer((int) finalScale));
-					param.parameter("qsFilterArray").setValue(
-							new float[] { 0.5F, 1.0F / 3.0F, 0.0F,
-									-1.0F / 12.0F });
-					param.parameter("Interpolation").setValue(
-							new InterpolationNearest());
-
-					gc = (GridCoverage2D) CoverageToolsConstants.FILTERED_SUBSAMPLE_FACTORY
-							.doOperation(param, null);
+					param.parameter("scaleX").setValue(new Integer((int) scaleFactor));
+					param.parameter("scaleY").setValue(new Integer((int) scaleFactor));
+					param.parameter("qsFilterArray").setValue(new float[] { 0.5F, 1.0F / 3.0F, 0.0F,-1.0F / 12.0F });
+					param.parameter("Interpolation").setValue(new InterpolationNearest());
+					gc = (GridCoverage2D) CoverageToolsConstants.FILTERED_SUBSAMPLE_FACTORY.doOperation(param, null);
 				} else if (scaleAlgorithm.equalsIgnoreCase("bil")) {
 					param = processor.getOperation("Scale").getParameters();
 					param.parameter("Source").setValue(gc);
 					param.parameter("xScale").setValue(
-							new Float(1 / finalScale));
+							new Float(1.0 / scaleFactor));
 					param.parameter("yScale").setValue(
-							new Float(1 / finalScale));
+							new Float(1.0 / scaleFactor));
 					param.parameter("xTrans").setValue(new Float(0));
 					param.parameter("yTrans").setValue(new Float(0));
-					param
-							.parameter("Interpolation")
-							.setValue(
-									Interpolation
-											.getInstance(Interpolation.INTERP_BILINEAR));
-					gc = (GridCoverage2D) CoverageToolsConstants.SCALE_FACTORY
-							.doOperation(param, null);
+					param.parameter("Interpolation").setValue(Interpolation.getInstance(Interpolation.INTERP_BILINEAR));
+					gc = (GridCoverage2D) CoverageToolsConstants.SCALE_FACTORY.doOperation(param, null);
 				} else if (scaleAlgorithm.equalsIgnoreCase("avg")) {
-					param = processor.getOperation("SubsampleAverage")
-							.getParameters();
+					param = processor.getOperation("SubsampleAverage").getParameters();
 					param.parameter("Source").setValue(gc);
-					param.parameter("scaleX").setValue(
-							new Double(1 / finalScale));
-					param.parameter("scaleY").setValue(
-							new Double(1 / finalScale));
-					param.parameter("Interpolation").setValue(interpolation);
-					gc = (GridCoverage2D) CoverageToolsConstants.SUBSAMPLE_AVERAGE_FACTORY
-							.doOperation(param, null);
-				} else {
+					param.parameter("scaleX").setValue(new Double(1.0 / scaleFactor));
+					param.parameter("scaleY").setValue(new Double(1.0 / scaleFactor));
+					param.parameter("Interpolation").setValue(scaleFactor);
+					gc = (GridCoverage2D) CoverageToolsConstants.SUBSAMPLE_AVERAGE_FACTORY.doOperation(param, null);
+				} else 
 					throw new IllegalArgumentException(
 							"The provided scale algorithm is not availaible");
 
-				}
 
 				// //
 				//
 				// Writing out this coverage
 				//
 				// //
-				message = new StringBuffer("Writing out...");
+				message = new StringBuilder("Writing out...");
 				if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.fine(message.toString());
 				fireEvent(message.toString(), (j + i * newCols)
@@ -846,7 +743,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 
 			}
 
-		message = new StringBuffer("Done...");
+		message = new StringBuilder("Done...");
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
 		fireEvent(message.toString(), 100);
@@ -854,7 +751,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 	}
 
 	public void getNotification(ProcessingEvent event) {
-		LOGGER.info(new StringBuffer("Progress is at ").append(
+		LOGGER.info(new StringBuilder("Progress is at ").append(
 				event.getPercentage()).append("\n").append(
 				"attached message is: ").append(event.getMessage()).toString());
 	}

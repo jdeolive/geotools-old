@@ -17,12 +17,6 @@
  */
 package org.geotools.utils.coveragetiler;
 
-import org.geotools.utils.CoverageToolsConstants;
-import org.geotools.utils.progress.BaseArgumentsManager;
-import org.geotools.utils.progress.ExceptionEvent;
-import org.geotools.utils.progress.ProcessingEvent;
-import org.geotools.utils.progress.ProcessingEventListener;
-
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +35,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.factory.Hints;
@@ -48,6 +43,11 @@ import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.gce.geotiff.GeoTiffWriteParams;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.utils.CoverageToolsConstants;
+import org.geotools.utils.progress.BaseArgumentsManager;
+import org.geotools.utils.progress.ExceptionEvent;
+import org.geotools.utils.progress.ProcessingEvent;
+import org.geotools.utils.progress.ProcessingEventListener;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 
@@ -257,7 +257,7 @@ public class CoverageTiler extends BaseArgumentsManager implements
 	 *            precetnage of the progress as well as on what is happening.
 	 */
 	public void getNotification(ProcessingEvent event) {
-		LOGGER.info(new StringBuffer("Progress is at ").append(
+		LOGGER.info(new StringBuilder("Progress is at ").append(
 				event.getPercentage()).append("\n").append(
 				"attached message is: ").append(event.getMessage()).toString());
 
@@ -273,6 +273,7 @@ public class CoverageTiler extends BaseArgumentsManager implements
 	 * 
 	 * @see it.geosolutions.utils.progress.ProgressManager#run()
 	 */
+	@SuppressWarnings("deprecation")
 	public void run() {
 
 		// /////////////////////////////////////////////////////////////////////
@@ -282,14 +283,13 @@ public class CoverageTiler extends BaseArgumentsManager implements
 		// 
 		// 
 		// /////////////////////////////////////////////////////////////////////
-		StringBuffer message = new StringBuffer("Acquiring a reader to  ")
+		StringBuilder message = new StringBuilder("Acquiring a reader to  ")
 				.append(inputLocation);
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
 		fireEvent(message.toString(), 0);
 		// get the format of this file, if it is recognized!
-		final AbstractGridFormat format = (AbstractGridFormat) GridFormatFinder
-				.findFormat(inputLocation);
+		final AbstractGridFormat format = (AbstractGridFormat) GridFormatFinder.findFormat(inputLocation);
 		if (format == null || format instanceof UnknownFormat) {
 			fireException(
 					"Unable to decide format for this coverage",
@@ -298,11 +298,10 @@ public class CoverageTiler extends BaseArgumentsManager implements
 			return;
 		}
 		// get a reader for this file
-		final AbstractGridCoverage2DReader inReader = (AbstractGridCoverage2DReader) format
-				.getReader(inputLocation, new Hints(
-						Hints.IGNORE_COVERAGE_OVERVIEW, Boolean.TRUE));
+		final AbstractGridCoverage2DReader inReader = 
+			(AbstractGridCoverage2DReader) format.getReader(inputLocation, new Hints(Hints.OVERVIEW_POLICY, OverviewPolicy.IGNORE));
 		if (inReader == null) {
-			message = new StringBuffer(
+			message = new StringBuilder(
 					"Unable to instantiate a reader for this coverage");
 			if (LOGGER.isLoggable(Level.WARNING))
 				LOGGER.fine(message.toString());
@@ -326,7 +325,7 @@ public class CoverageTiler extends BaseArgumentsManager implements
 		//
 		// //
 		final GeneralEnvelope envelope = inReader.getOriginalEnvelope();
-		message = new StringBuffer("Original envelope is ").append(envelope
+		message = new StringBuilder("Original envelope is ").append(envelope
 				.toString());
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
@@ -343,12 +342,11 @@ public class CoverageTiler extends BaseArgumentsManager implements
 		final int h = range.getLength(1);
 		tileWidth = tileWidth > w ? w : tileWidth;
 		tileHeight = tileHeight > h ? h : tileHeight;
-		message = new StringBuffer("Original range is ").append(range
-				.toString());
+		message = new StringBuilder("Original range is ").append(range.toString());
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
 		fireEvent(message.toString(), 0);
-		message = new StringBuffer("New matrix dimension is (cols,rows)==(")
+		message = new StringBuilder("New matrix dimension is (cols,rows)==(")
 				.append(tileWidth).append(",").append(tileHeight).append(")");
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
@@ -356,7 +354,7 @@ public class CoverageTiler extends BaseArgumentsManager implements
 
 		// //
 		//
-		// read a coverage
+		// read the coverage
 		//
 		// //
 		GridCoverage2D gc;
@@ -385,10 +383,8 @@ public class CoverageTiler extends BaseArgumentsManager implements
 				// computing the bbox for this tile
 				//
 				// //
-				final Rectangle sourceRegion = new Rectangle(i * tileWidth, j
-						* tileHeight, tileWidth, tileHeight);
-				message = new StringBuffer("Writing region  ")
-						.append(sourceRegion);
+				final Rectangle sourceRegion = new Rectangle(i * tileWidth, j* tileHeight, tileWidth, tileHeight);
+				message = new StringBuilder("Writing region  ").append(sourceRegion);
 				if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.fine(message.toString());
 				fireEvent(message.toString(), (i + j)
@@ -400,7 +396,7 @@ public class CoverageTiler extends BaseArgumentsManager implements
 				// envelope
 				//
 				// //
-				final File fileOut = new File(outputLocation, new StringBuffer(
+				final File fileOut = new File(outputLocation, new StringBuilder(
 						"mosaic").append("_").append(
 						Integer.toString(i * tileWidth + j)).append(".")
 						.append("tiff").toString());
@@ -408,7 +404,7 @@ public class CoverageTiler extends BaseArgumentsManager implements
 				if (fileOut.exists())
 					fileOut.delete();
 
-				message = new StringBuffer(
+				message = new StringBuilder(
 						"Preparing to write tile (col,row)==(").append(j)
 						.append(",").append(i).append(") to file ").append(
 								fileOut);
@@ -429,21 +425,16 @@ public class CoverageTiler extends BaseArgumentsManager implements
 					wp.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
 					wp.setTiling(internalTileWidth, internalTileHeight);
 					wp.setSourceRegion(sourceRegion);
-					if (this.compressionScheme != null
-							&& !Double.isNaN(compressionRatio)) {
+					if (this.compressionScheme != null&& !Double.isNaN(compressionRatio)) {
 						wp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 						wp.setCompressionType(compressionScheme);
 						wp.setCompressionQuality((float) this.compressionRatio);
 					}
-					final ParameterValueGroup params = outFormat
-							.getWriteParameters();
-					params.parameter(
-							AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
-									.toString()).setValue(wp);
+					final ParameterValueGroup params = outFormat.getWriteParameters();
+					params.parameter(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString()).setValue(wp);
 
 					final GeoTiffWriter writerWI = new GeoTiffWriter(fileOut);
-					writerWI.write(gc, (GeneralParameterValue[]) params
-							.values().toArray(new GeneralParameterValue[1]));
+					writerWI.write(gc, (GeneralParameterValue[]) params.values().toArray(new GeneralParameterValue[1]));
 					writerWI.dispose();
 				} catch (IOException e) {
 					fireException(e);
@@ -452,7 +443,7 @@ public class CoverageTiler extends BaseArgumentsManager implements
 
 			}
 
-		message = new StringBuffer("Done...");
+		message = new StringBuilder("Done...");
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(message.toString());
 		fireEvent(message.toString(), 100);
