@@ -313,7 +313,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
                 RasterQueryInfo rasterGridInfo = pyramidInfo.fitExtentToRasterPixelGrid(reqEnv,
                         level);
 
-                session = connectionPool.getConnection();
+                session = connectionPool.getSession();
 
                 ArcSDERasterImageReadParam rParam = new ArcSDERasterImageReadParam();
                 rParam.setConnection(session);
@@ -552,7 +552,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
 
         Session session = null;
         try {
-            session = connectionPool.getConnection();
+            session = connectionPool.getSession();
             SeRasterColumn rCol = session.createSeRasterColumn(rasterAttributes.getRasterColumnId());
 
             PeProjectedCS pcs = new PeProjectedCS(rCol.getCoordRef().getProjectionDescription());
@@ -660,7 +660,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
         connectionPool = ArcSDEConnectionPoolFactory.getInstance().createPool(sdeConfig);
 
         try {
-            Session session = connectionPool.getConnection();
+            Session session = connectionPool.getSession();
 
             SeTable sTable = session.getTable(rasterTable);
             SeQuery q = null;

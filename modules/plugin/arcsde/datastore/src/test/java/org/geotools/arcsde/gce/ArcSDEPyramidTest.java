@@ -103,7 +103,7 @@ public class ArcSDEPyramidTest extends TestCase {
      */
     public void donttestArcSDEPyramidThreeBand() throws Exception {
 
-        Session session = pool.getConnection();
+        Session session = pool.getSession();
         SeRasterAttr rAttr;
         try {
             SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
@@ -149,7 +149,7 @@ public class ArcSDEPyramidTest extends TestCase {
      */
     public void testArcSDEPyramidFourBand() throws Exception {
 
-        Session session = pool.getConnection();
+        Session session = pool.getSession();
         SeRasterAttr rAttr;
         try {
             SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },

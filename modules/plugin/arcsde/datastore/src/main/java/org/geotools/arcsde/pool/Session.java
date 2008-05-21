@@ -107,6 +107,11 @@ public class Session {
     private final ExecutorService taskExecutor;
 
     /**
+     * Thread used by the taskExecutor; so we can detect recursion. 
+     */
+    Thread commandThread = null;
+    
+    /**
      * Provides safe access to an SeConnection.
      * 
      * @param pool ObjectPool used to manage SeConnection
@@ -121,7 +126,11 @@ public class Session {
         this.pool = pool;
         this.connection.setConcurrency(SeConnection.SE_TRYLOCK_POLICY);
         this.taskExecutor = Executors.newSingleThreadExecutor();
-
+        taskExecutor.execute(new Runnable(){
+			public void run() {
+				commandThread = Thread.currentThread();
+			}        	
+        });
         synchronized (Session.class) {
             connectionCounter++;
             connectionId = connectionCounter;
@@ -136,32 +145,46 @@ public class Session {
      *             command
      */
     public <T> T issue(final Command<T> command) throws IOException {
-
-        StackTraceElement ste = Thread.currentThread().getStackTrace()[3];
-
-        System.out.println("executing command " + ste.getClassName() + "." + ste.getMethodName()
-                + ":" + ste.getLineNumber() + " (" + Thread.currentThread().getName() + ")");
-
-        FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
-            public T call() throws Exception {
-                return command.execute(Session.this, connection);
-            }
-        });
-
-        taskExecutor.execute(task);
-        T result;
-        try {
-            result = task.get();
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Command execution abruptly interrupted");
-        } catch (ExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof IOException) {
-                throw (IOException) cause;
-            }
-            throw new DataSourceException(cause);
+        Thread currentThread = Thread.currentThread();
+        if( currentThread == commandThread ){
+        	try {
+				return command.execute( this, connection );
+			} catch (SeException e) {
+			    Throwable cause = e.getCause();
+	            if (cause instanceof IOException) {
+	                throw (IOException) cause;
+	            }
+	            throw new DataSourceException(cause);
+			}
         }
-        return result;
+        else {
+			StackTraceElement ste = currentThread.getStackTrace()[3];
+	
+	        System.out.println("executing command " + ste.getClassName() + "." + ste.getMethodName()
+	                + ":" + ste.getLineNumber() + " (" + currentThread.getName() + ")");       
+	        FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
+	            public T call() throws Exception {
+	            	commandThread = Thread.currentThread(); // used to detect when thread has been restarted after error
+	                return command.execute(Session.this, connection);
+	            }
+	        });
+	
+	        
+	        taskExecutor.execute(task);
+	        T result;
+	        try {
+	            result = task.get();
+	        } catch (InterruptedException e) {
+	            throw new RuntimeException("Command execution abruptly interrupted");
+	        } catch (ExecutionException e) {
+	            Throwable cause = e.getCause();
+	            if (cause instanceof IOException) {
+	                throw (IOException) cause;
+	            }
+	            throw new DataSourceException(cause);
+	        }
+	        return result;
+        }
     }
 
     public final boolean isClosed() {

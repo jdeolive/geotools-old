@@ -55,7 +55,7 @@ public class UnsignedByteGrayscaleBandCopierTest {
         try {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
-            session = pool.getConnection();
+            session = pool.getSession();
             SeQuery q = Session.issueCreateAndExecuteQuery(session,  new String[] { "RASTER" }, new SeSqlConstruct(tableName));
             SeRow r = q.fetch();
             SeRasterAttr rAttr = r.getRaster(0);

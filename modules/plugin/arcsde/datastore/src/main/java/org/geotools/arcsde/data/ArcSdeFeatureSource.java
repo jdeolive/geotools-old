@@ -221,7 +221,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      */
     protected Session getSession() throws IOException {
         final ArcSDEConnectionPool connectionPool = dataStore.getConnectionPool();
-        final Session session = connectionPool.getConnection();
+        final Session session = connectionPool.getSession();
         return session;
     }
 

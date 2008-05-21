@@ -14,7 +14,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.data;
+package org.geotools.arcsde.pool;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -40,43 +40,30 @@ import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeVersion;
 
 /**
- * Store the transaction state for <code>ArcSDEFeatureWriter</code> instances.
- * 
+ * Store the transaction state needed for a <code>Session</code> instances.
+ * <p>
+ * This transaction state is used to hold the SeConnection needed for a Session.
+ * </p>
  * @author Jake Fear
  * @author Gabriel Roldan
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/ArcTransactionState.java $
  * @version $Id$
  */
-final class ArcTransactionState implements Transaction.State {
+final class SessionTransactionState implements Transaction.State {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger(ArcTransactionState.class.getPackage().getName());
+            .getLogger(SessionTransactionState.class.getPackage().getName());
 
     /**
-     * ConnectionPool we can use to look up a Session for our Transaction.
-     * <p>
-     * The ConnectionPool will hold this connection open for us until
-     * commit(), rollback() or close() is called.
+     * The session being managed, it will be held open until commit(), rollback() or close() is called.
      */
-    private ArcSDEConnectionPool pool;
-
+    private Session session;
+    
+    /**
+     * The transaction that is holding on to this Transaction.State
+     */
     private Transaction transaction;
-
-    private final FeatureListenerManager listenerManager;
-
-    /**
-     * Set of typename changed to fire changed events for at commit and rollback.
-     */
-    private final Set<String> typesChanged = new HashSet<String>();
-
-    public SeState currentVersionState;
-
-    public SeObjectId initialStateId;
-
-    public SeVersion defaultVersion;
-
-    private ArcSdeVersionHandler versionHandler = ArcSdeVersionHandler.NONVERSIONED_HANDLER;
-
+    
     /**
      * Creates a new ArcTransactionState object.
      * 
@@ -84,38 +71,8 @@ final class ArcTransactionState implements Transaction.State {
      * @param pool connection pool where to grab a connection and hold it while there's a
      *            transaction open (signaled by any use of {@link #getConnection()}
      */
-    private ArcTransactionState(ArcSDEConnectionPool pool, final FeatureListenerManager listenerManager) {
-        this.pool = pool;
-        this.listenerManager = listenerManager;
-    }
-
-    private void setupVersioningHandling() throws IOException {
-        // create a versioned handler only if not already settled up, as this method
-        // may be called for each layer inside a transaction
-        if (versionHandler == ArcSdeVersionHandler.NONVERSIONED_HANDLER) {
-        	Session session = getConnection();
-            versionHandler = new TransactionDefaultVersionHandler(session);
-        }
-    }
-
-    /**
-     * @return
-     */
-    public ArcSdeVersionHandler getVersionHandler() {
-        return versionHandler;
-    }
-
-    /**
-     * Registers a feature change event over a feature type.
-     * <p>
-     * To be called by {@link TransactionFeatureWriter#write()} so this state can fire a changed
-     * event at {@link #commit()} and {@link #rollback()}.
-     * </p>
-     * 
-     * @param typeName the type name of the feature changed (inserted/removed/modified).
-     */
-    public void addChange(final String typeName) {
-        typesChanged.add(typeName);
+    private SessionTransactionState(Session session ) {
+        this.session = session;
     }
 
     /**
@@ -132,7 +89,7 @@ final class ArcTransactionState implements Transaction.State {
      */
     public void commit() throws IOException {
         failIfClosed();
-        final Session session = this.getConnection();
+        final Session session = this.session;
 
         final Command<Void> commitCommand = new Command<Void>() {
             @Override
@@ -140,29 +97,10 @@ final class ArcTransactionState implements Transaction.State {
                     IOException {
 
                 try {
-                    if (currentVersionState != null) {
-                        SeObjectId parentStateId = initialStateId;
-                        // Change the version's state pointer to the last edit state.
-                        defaultVersion.changeState(currentVersionState.getId());
-                        // Trim the state tree.
-                        currentVersionState.trimTree(parentStateId, currentVersionState.getId());
-                    }
-
                     session.commitTransaction();
-                    // and keep editing
                     session.startTransaction();
-
-                    fireChanges(true);
-                } catch (SeException se) {
+                } catch (IOException se) {
                     LOGGER.log(Level.WARNING, se.getMessage(), se);
-                    try {
-                        session.rollbackTransaction();
-                    } catch (IOException e) {
-                        LOGGER.log(Level.WARNING, e.getMessage(), e);
-                    } finally {
-                        // release resources
-                        close();
-                    }
                     throw se;
                 }
                 return null;
@@ -171,9 +109,7 @@ final class ArcTransactionState implements Transaction.State {
 
         try {
             session.issue(commitCommand);
-            versionHandler.commitEditState();
         } catch (IOException e) {
-            versionHandler.rollbackEditState();
             throw e;
         }
     }
@@ -183,9 +119,8 @@ final class ArcTransactionState implements Transaction.State {
      */
     public void rollback() throws IOException {
         failIfClosed();
-        final Session session = this.getConnection();
+        final Session session = this.session;
         try {
-            versionHandler.rollbackEditState();
             session.issue(new Command<Void>() {
                 @Override
                 public Void execute(Session session, SeConnection connection) throws SeException,
@@ -196,10 +131,7 @@ final class ArcTransactionState implements Transaction.State {
                     return null;
                 }
             });
-            // fire changes in the calling thread
-            fireChanges(false);
         } catch (IOException se) {
-            // release resources
             close();
             LOGGER.log(Level.WARNING, se.getMessage(), se);
             throw se;
@@ -207,24 +139,18 @@ final class ArcTransactionState implements Transaction.State {
     }
 
     /**
-     * Fires the per typename changes registered through {@link #addChange(String)} and clears the
-     * changes cache.
-     */
-    private void fireChanges(final boolean commit) {
-        for (String typeName : typesChanged) {
-            listenerManager.fireChanged(typeName, transaction, commit);
-        }
-        typesChanged.clear();
-    }
-
-    /**
      * 
      */
     public void addAuthorization(String authId) {
-        // intentionally blank
+        // intentionally blank we are not making use of ArcSDE locking
     }
 
     /**
+     * Transaction start/end.
+     * <p>
+     * If the provided transaction is non null we are being added to the Transaction.
+     * If the provided transaction is null we are being shutdown.
+     * </p>
      * @see Transaction.State#setTransaction(Transaction)
      * @param transaction transaction information, <code>null</code> signals this state lifecycle
      *            end.
@@ -235,8 +161,7 @@ final class ArcTransactionState implements Transaction.State {
             throw new IllegalArgumentException("Cannot use Transaction.AUTO_COMMIT here");
         }
         if (transaction == null) {
-            // this is a call to free resources (ugly, but that's what the API
-            // says)
+            // this is a call to free resources (ugly, but that's what the API says)
             close();
         } else if (this.transaction != null) {
             // assert this assumption
@@ -245,7 +170,6 @@ final class ArcTransactionState implements Transaction.State {
                             + "illegal to call Transaction.State.setTransaction with anything other than null: "
                             + transaction);
         }
-
         this.transaction = transaction;
     }
 
@@ -255,7 +179,7 @@ final class ArcTransactionState implements Transaction.State {
      * @throws IllegalStateException if the transaction state has been closed.
      */
     private void failIfClosed() throws IllegalStateException {
-        if (pool == null) {
+        if (session == null) {
             throw new IllegalStateException("This transaction state has already been closed");
         }
     }
@@ -264,10 +188,37 @@ final class ArcTransactionState implements Transaction.State {
      * Releases resources and invalidates this state (signaled by setting the connection to null)
      */
     private void close() {
-        if (pool == null) {
+        if (session == null) {
             return;
         }
-        pool = null;        
+        // can't even try to use this state in any way from now on
+        // may throw ISE if transaction is still in progress
+        try {
+            // release current transaction before returning the
+            // connection to the pool
+            try {
+                session.rollbackTransaction();
+                // connection.setConcurrency(SeConnection.SE_UNPROTECTED_POLICY);
+            } catch (IOException e) {
+                // TODO: this shouldn't happen, but if it does
+                // we should somehow invalidate the connection?
+                LOGGER.log(Level.SEVERE, "Unexpected exception at close(): " + e.getMessage(), e);
+            }
+            // now its safe to return it to the pool
+            session.close();
+        } catch (IllegalStateException workflowError) {
+            // fail fast but put the connection in a healthy state first
+            try {
+                session.rollbackTransaction();
+            } catch (IOException e) {
+                // well, it's totally messed up, just log though
+                LOGGER.log(Level.SEVERE, "rolling back connection " + session, e);
+                session.close();
+            }
+            throw workflowError;
+        } finally {
+            session = null;
+        }
     }
 
     /**
@@ -281,8 +232,7 @@ final class ArcTransactionState implements Transaction.State {
      */
     Session getConnection() throws DataSourceException, UnavailableArcSDEConnectionException {
         failIfClosed();
-        // the pool is keeping track of connection according to transaction for us
-        return pool.getSession( transaction );        
+        return session;
     }
 
     public Transaction getTransaction() {
@@ -302,26 +252,31 @@ final class ArcTransactionState implements Transaction.State {
      * @return the ArcTransactionState stored in the transaction with <code>connectionPool</code>
      *         as key.
      */
-    public static ArcTransactionState getState(ArcSDEDataStore dataStore,
-    		final Transaction transaction,
-            final FeatureListenerManager listenerManager,
-            final boolean versioned) throws IOException {
-        ArcTransactionState state;
-
-        synchronized (ArcTransactionState.class) {
-            state = (ArcTransactionState) transaction.getState(dataStore);
-
+    public static SessionTransactionState getState(final Transaction transaction,
+            final ArcSDEConnectionPool connectionPool) throws IOException {
+    	SessionTransactionState state;
+    	if( transaction == Transaction.AUTO_COMMIT ){
+    		LOGGER.log(Level.SEVERE, "Should not request ArcTransactionState when using AUTO_COMMITback connection");
+    		return null;
+    	}
+        synchronized (SessionTransactionState.class) {
+            state = (SessionTransactionState) transaction.getState(connectionPool);
             if (state == null) {
-                // start a transaction            	
-                state = new ArcTransactionState(dataStore.getConnectionPool(), listenerManager);
-                transaction.putState(dataStore, state);
+                // start a transaction
+                final Session session = connectionPool.getSession();
+                try {
+                    Session.issueStartTransaction(session);
+                } catch (IOException e) {
+                    try {
+                        Session.issueRollbackTransaction(session);
+                    } finally {
+                        session.close();
+                    }
+                    throw new DataSourceException("Exception initiating transaction on " + session,e);
+                }
+                state = new SessionTransactionState(session);
+                transaction.putState(connectionPool, state);
             }
-        }
-
-        // if only one of the tables being handled by this transaction state is
-        // versioned setHandleVersioned has to be set
-        if (versioned) {
-            state.setupVersioningHandling();
         }
         return state;
     }

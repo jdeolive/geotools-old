@@ -43,7 +43,7 @@ public class OneByteBandNoColormapReaderTest {
         try {
 
             // Set up a pyramid and readerprops for the sample three-band imagery
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
             tableName = rasterTestData.getGrayScaleOneByteRasterTableName();
             q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
                     new SeSqlConstruct(tableName));

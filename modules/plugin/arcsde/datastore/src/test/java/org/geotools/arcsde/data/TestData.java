@@ -203,7 +203,7 @@ public class TestData {
     }
 
     public String getTemp_table() throws IOException, UnavailableArcSDEConnectionException {
-        Session session = getConnectionPool().getConnection();
+        Session session = getConnectionPool().getSession();
         String tempTableName;
         try {
             tempTableName = getTemp_table(session);
@@ -262,7 +262,7 @@ public class TestData {
     private static void deleteTable(final ArcSDEConnectionPool connPool, final String tableName)
             throws IOException, UnavailableArcSDEConnectionException {
 
-        final Session session = connPool.getConnection();
+        final Session session = connPool.getSession();
 
         // final SeTable layer = session.createSeTable(tableName);
 
@@ -305,7 +305,7 @@ public class TestData {
 
         deleteTempTable(connPool);
 
-        Session session = connPool.getConnection();
+        Session session = connPool.getSession();
 
         try {
             /*
@@ -347,7 +347,7 @@ public class TestData {
      */
     public void insertTestData() throws Exception {
         ArcSDEConnectionPool connPool = getConnectionPool();
-        Session session = connPool.getConnection();
+        Session session = connPool.getSession();
         try {
             tempTable.truncate();
             insertData(tempTableLayer, session, tempTableColumns);
@@ -826,7 +826,7 @@ public class TestData {
 
     private void createSimpleTestTables() throws IOException, SeException {
         final ArcSDEConnectionPool connectionPool = getConnectionPool();
-        final Session session = connectionPool.getConnection();
+        final Session session = connectionPool.getSession();
 
         String tableName;
         String rowIdColName;

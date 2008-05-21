@@ -263,13 +263,13 @@ public class ArcSDEConnectionPoolTest extends TestCase {
         // try to get the maximun number of connections specified, and do not
         // release anyone
         for (int i = 0; i < MAX_CONNECTIONS; i++) {
-            sessions[i] = pool.getConnection();
+            sessions[i] = pool.getSession();
         }
 
         // now that the max number of connections is reached, the pool
         // should throw an UnavailableArcSDEConnectionException
         try {
-            this.pool.getConnection();
+            this.pool.getSession();
             fail("since the max number of connections was reached, the pool should have throwed an UnavailableArcSDEConnectionException");
         } catch (UnavailableArcSDEConnectionException ex) {
             LOGGER
@@ -281,7 +281,7 @@ public class ArcSDEConnectionPoolTest extends TestCase {
         Session expected = sessions[0];
         expected.close();
 
-        Session session = this.pool.getConnection();
+        Session session = this.pool.getSession();
         assertEquals(expected, session);
     }
 

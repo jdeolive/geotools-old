@@ -52,7 +52,7 @@ public class OneBitBandReaderTest {
         try {
 
             // Set up a pyramid and readerprops for the sample three-band imagery
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
             tableName = rasterTestData.get1bitRasterTableName();
             q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
                     new SeSqlConstruct(tableName));
@@ -93,7 +93,7 @@ public class OneBitBandReaderTest {
 
         Session session = null;
         try {
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
 
             SeRasterBand[] bands = rasterAttr.getBands();
             HashMap<Integer, Integer> bandMapper = new HashMap<Integer, Integer>();
@@ -149,7 +149,7 @@ public class OneBitBandReaderTest {
 
         Session session = null;
         try {
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
 
             SeRasterBand[] bands = rasterAttr.getBands();
             HashMap<Integer, Integer> bandMapper = new HashMap<Integer, Integer>();
@@ -205,7 +205,7 @@ public class OneBitBandReaderTest {
 
         Session session = null;
         try {
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
 
             SeRasterBand[] bands = rasterAttr.getBands();
             HashMap<Integer, Integer> bandMapper = new HashMap<Integer, Integer>();
@@ -261,7 +261,7 @@ public class OneBitBandReaderTest {
 
         Session session = null;
         try {
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
 
             SeRasterBand[] bands = rasterAttr.getBands();
             HashMap<Integer, Integer> bandMapper = new HashMap<Integer, Integer>();
@@ -319,7 +319,7 @@ public class OneBitBandReaderTest {
 
         Session session = null;
         try {
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
 
             SeRasterBand[] bands = rasterAttr.getBands();
             HashMap<Integer, Integer> bandMapper = new HashMap<Integer, Integer>();
@@ -377,7 +377,7 @@ public class OneBitBandReaderTest {
 
         Session session = null;
         try {
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
 
             SeRasterBand[] bands = rasterAttr.getBands();
             HashMap<Integer, Integer> bandMapper = new HashMap<Integer, Integer>();

@@ -134,7 +134,7 @@ public class RasterTestData {
      */
     public void load1bitRaster() throws Exception {
         // we're definitely piggybacking on the testData class here
-        Session session = testData.getConnectionPool().getConnection();
+        Session session = testData.getConnectionPool().getSession();
         final String tableName = get1bitRasterTableName();
 
         // clean out the table if it's currently in-place
@@ -160,7 +160,7 @@ public class RasterTestData {
      */
     public void loadRGBRaster() throws Exception {
         // we're definitely piggybacking on the testData class here
-        Session session = testData.getConnectionPool().getConnection();
+        Session session = testData.getConnectionPool().getSession();
         final String tableName = getRGBRasterTableName();
 
         // clean out the table if it's currently in-place
@@ -180,7 +180,7 @@ public class RasterTestData {
 
     public void loadRGBColorMappedRaster() throws Exception {
         // Note that this DOESN'T LOAD THE COLORMAP RIGHT NOW.
-        Session session = testData.getConnectionPool().getConnection();
+        Session session = testData.getConnectionPool().getSession();
         final String tableName = getRGBColorMappedRasterTableName();
 
         // clean out the table if it's currently in-place
@@ -200,7 +200,7 @@ public class RasterTestData {
 
     public void loadOneByteGrayScaleRaster() throws Exception {
         // Note that this DOESN'T LOAD THE COLORMAP RIGHT NOW.
-        Session session = testData.getConnectionPool().getConnection();
+        Session session = testData.getConnectionPool().getSession();
         final String tableName = getGrayScaleOneByteRasterTableName();
 
         // clean out the table if it's currently in-place
@@ -220,7 +220,7 @@ public class RasterTestData {
 
     public void loadFloatRaster() throws Exception {
         // Note that this DOESN'T LOAD THE COLORMAP RIGHT NOW.
-        Session session = testData.getConnectionPool().getConnection();
+        Session session = testData.getConnectionPool().getSession();
         final String tableName = getFloatRasterTableName();
 
         // clean out the table if it's currently in-place
@@ -287,7 +287,7 @@ public class RasterTestData {
             final ArcSDERasterProducer prod,
             final IndexColorModel colorModel) throws Exception {
 
-        final Session session = testData.getConnectionPool().getConnection();
+        final Session session = testData.getConnectionPool().getSession();
         final Command<Void> command = new Command<Void>() {
 
             @Override
@@ -448,7 +448,7 @@ public class RasterTestData {
             int level,
             int[] bands) throws IOException, UnavailableArcSDEConnectionException {
 
-        Session session = testData.getConnectionPool().getConnection();
+        Session session = testData.getConnectionPool().getSession();
 
         try {
             SeQuery query = Session.issueCreateAndExecuteQuery(session, new String[] { session

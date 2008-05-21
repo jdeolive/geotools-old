@@ -209,7 +209,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         // check to see if our sdk is compatible with this arcsde instance
         Session session = null;
         try {
-            session = connPool.getConnection();
+            session = connPool.getSession();
             SeRelease releaseInfo = session.getRelease();
             int majVer = releaseInfo.getMajor();
             int minVer = releaseInfo.getMinor();

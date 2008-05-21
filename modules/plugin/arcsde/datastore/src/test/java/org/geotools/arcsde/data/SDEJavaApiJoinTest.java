@@ -184,7 +184,7 @@ public class SDEJavaApiJoinTest extends TestCase {
         testData = new TestData();
         testData.setUp();
 
-        Session session = testData.getConnectionPool().getConnection();
+        Session session = testData.getConnectionPool().getSession();
         try {
             InProcessViewSupportTestData.setUp(session, testData);
         } finally {
@@ -481,7 +481,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * @throws Exception
      */
     public void testApiOrderBy() throws Exception {
-        Session session = store.getConnectionPool().getConnection();
+        Session session = store.getConnectionPool().getSession();
 
         SeSqlConstruct sqlConstruct = new SeSqlConstruct();
         String[] tables = { InProcessViewSupportTestData.MASTER, InProcessViewSupportTestData.CHILD };
@@ -570,7 +570,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * TODO: revisit, this test hangs with SDE 9.2/Oracle9i at query.prepareQueryInfo(queryInfo);
      */
     public void _testApiAlias() throws Exception {
-        Session session = store.getConnectionPool().getConnection();
+        Session session = store.getConnectionPool().getSession();
 
         SeSqlConstruct sqlConstruct = new SeSqlConstruct();
         String[] tables = { InProcessViewSupportTestData.MASTER + " MASTER",
@@ -631,7 +631,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * @throws Exception
      */
     public void testApiGroupBy() throws Exception {
-        Session session = store.getConnectionPool().getConnection();
+        Session session = store.getConnectionPool().getSession();
 
         SeSqlConstruct sqlConstruct = new SeSqlConstruct();
         String[] tables = { InProcessViewSupportTestData.MASTER, InProcessViewSupportTestData.CHILD };
@@ -715,7 +715,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * @throws Exception
      */
     public void testApiPlainSql() throws Exception {
-        Session session = store.getConnectionPool().getConnection();
+        Session session = store.getConnectionPool().getSession();
 
         final String plainQuery = "SELECT " + InProcessViewSupportTestData.MASTER + ".ID, "
                 + InProcessViewSupportTestData.MASTER + ".SHAPE, "

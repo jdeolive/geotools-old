@@ -111,7 +111,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
         try {
 
             // Set up a pyramid and readerprops for the four-band 2005 imagery
-            session = pool.getConnection();
+            session = pool.getSession();
             tableName = conProps.getProperty("fourbandtable");
             q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
                     new SeSqlConstruct(tableName));
@@ -144,7 +144,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
 
         try {
             // Set up a pyramid and readerprops for the three-band 2001 imagery
-            session = pool.getConnection();
+            session = pool.getSession();
             conProps.getProperty("threebandtable");
             q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
                     new SeSqlConstruct(tableName));
@@ -199,7 +199,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
 
         Session session = null;
         try {
-            session = pool.getConnection();
+            session = pool.getSession();
 
             SeRasterBand[] bands = rasterAttr.getBands();
             HashMap bandMapper = new HashMap();
@@ -263,7 +263,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
 
         Session session = null;
         try {
-            session = pool.getConnection();
+            session = pool.getSession();
 
             SeRasterBand[] bands = rasterAttr.getBands();
             HashMap bandMapper = new HashMap();
@@ -346,7 +346,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
 
         Session session = null;
         try {
-            session = pool.getConnection();
+            session = pool.getSession();
             SeRasterBand[] bands = rasterAttr.getBands();
             HashMap bandMapper = new HashMap();
             bandMapper.put(Integer.valueOf((int) bands[0].getId().longValue()), Integer.valueOf(0));

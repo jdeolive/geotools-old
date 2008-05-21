@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.data.DataSourceException;
@@ -231,6 +232,17 @@ public class ArcSDEAdapter {
         return sdeType;
     }
 
+    public static FeatureTypeInfo fetchSchema(final String typeName,
+            final String namespace,
+            final ArcSDEConnectionPool pool) throws IOException {
+    	return pool.issueReadOnly( new Command<FeatureTypeInfo>(){
+    		@Override
+    		public FeatureTypeInfo execute(Session session,
+    				SeConnection connection) throws SeException, IOException {
+    			return fetchSchema( typeName, namespace, session );
+    		}
+    	});
+    }
     /**
      * Fetches the schema of a given ArcSDE featureclass and creates its corresponding Geotools
      * FeatureType
@@ -242,7 +254,6 @@ public class ArcSDEAdapter {
     public static FeatureTypeInfo fetchSchema(final String typeName,
             final String namespace,
             final Session session) throws IOException {
-
         final SeLayer layer = Session.issueGetLayer(session, typeName);
         final SeTable table = Session.issueGetTable(session, typeName);
 
@@ -270,6 +281,7 @@ public class ArcSDEAdapter {
         FeatureTypeInfo typeInfo = new FeatureTypeInfo(featureType, fidStrategy, canDoTransactions,
                 isMultiVersioned, isView);
         return typeInfo;
+	
     }
 
     /**

@@ -99,8 +99,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
                 // starts
                 // a transaction on it
                 final boolean versioned = this.typeInfo.isVersioned();
-                ArcTransactionState state = ArcTransactionState.getState(transaction,
-                        connectionPool, dataStore.listenerManager, versioned);
+                ArcTransactionState state = ArcTransactionState.getState( this.dataStore, transaction, dataStore.listenerManager, versioned);
                 versionHandler = state.getVersionHandler();
                 LOGGER.finer("ArcSDE transaction initialized: " + state);
             } catch (IOException e) {
@@ -302,7 +301,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         final ArcSDEConnectionPool connectionPool = dataStore.getConnectionPool();
         Session session;
         if (Transaction.AUTO_COMMIT.equals(currTransaction)) {
-            session = connectionPool.getConnection();
+            session = connectionPool.getSession();
         } else {
             final ArcTransactionState state;
             state = (ArcTransactionState) currTransaction.getState(connectionPool);

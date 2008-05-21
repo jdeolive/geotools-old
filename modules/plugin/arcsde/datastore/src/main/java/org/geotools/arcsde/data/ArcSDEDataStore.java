@@ -210,10 +210,10 @@ public class ArcSDEDataStore implements DataStore {
             final boolean versioned = featureTypeInfo.isVersioned();
 
             if (Transaction.AUTO_COMMIT.equals(transaction)) {
-                session = connectionPool.getConnection();
+                session = connectionPool.getSession();
             } else {
-                ArcTransactionState state = ArcTransactionState.getState(transaction,
-                        connectionPool, listenerManager, versioned);
+                ArcTransactionState state = ArcTransactionState.getState(this,transaction,
+                        listenerManager, versioned);
                 versionHandler = state.getVersionHandler();
                 session = state.getConnection();
             }
@@ -253,7 +253,7 @@ public class ArcSDEDataStore implements DataStore {
         final String typeName = query.getTypeName();
         final String propertyNames[] = query.getPropertyNames();
 
-        final FeatureTypeInfo typeInfo = getFeatureTypeInfo(typeName, session);
+        final FeatureTypeInfo typeInfo = getFeatureTypeInfo(typeName, session );
         final SimpleFeatureType completeSchema = typeInfo.getFeatureType();
         final ArcSDEQuery sdeQuery;
 
@@ -365,7 +365,7 @@ public class ArcSDEDataStore implements DataStore {
                 }
             } else {
                 ArcTransactionState state;
-                state = ArcTransactionState.getState(transaction, connectionPool, listenerManager,
+                state = ArcTransactionState.getState(this,transaction, listenerManager,
                         versioned);
                 versionHandler = state.getVersionHandler();
             }
@@ -399,7 +399,7 @@ public class ArcSDEDataStore implements DataStore {
         final ArcTransactionState state;
 
         if (Transaction.AUTO_COMMIT.equals(transaction)) {
-            session = connectionPool.getConnection();
+            session = connectionPool.getSession();
             try {
                 session.issue(command);
             } finally {
@@ -407,7 +407,7 @@ public class ArcSDEDataStore implements DataStore {
             }
             state = null;
         } else {
-            state = ArcTransactionState.getState(transaction, connectionPool, listenerManager,
+            state = ArcTransactionState.getState(this,transaction, listenerManager,
                     false);
             session = state.getConnection();
             session.issue(command);
@@ -431,10 +431,10 @@ public class ArcSDEDataStore implements DataStore {
             versioned = featureTypeInfo.isVersioned();
 
             if (Transaction.AUTO_COMMIT.equals(transaction)) {
-                session = connectionPool.getConnection();
+                session = connectionPool.getSession();
                 state = null;
             } else {
-                state = ArcTransactionState.getState(transaction, connectionPool, listenerManager,
+                state = ArcTransactionState.getState(this,transaction, listenerManager,
                         versioned);
                 session = state.getConnection();
             }
@@ -669,33 +669,47 @@ public class ArcSDEDataStore implements DataStore {
      * @param pool
      * @return Generated FeatureTypeInfo for typeName
      */
-    protected synchronized FeatureTypeInfo getFeatureTypeInfo(String typeName,
-            ArcSDEConnectionPool pool) throws IOException {
-        final Session session = getConnectionPool().getConnection();
-        try {
-            return getFeatureTypeInfo(typeName, session);
-        } finally {
-            session.close();
-        }
-    }
-
-    synchronized FeatureTypeInfo getFeatureTypeInfo(final String typeName, final Session session)
+    protected synchronized FeatureTypeInfo getFeatureTypeInfo(final String typeName, ArcSDEConnectionPool pool)
             throws IOException {
 
         FeatureTypeInfo ftInfo = inProcessFeatureTypeInfos.get(typeName);
-
         if (ftInfo == null) {
             synchronized (featureTypeInfos) {
                 ftInfo = featureTypeInfos.get(typeName);
                 if (ftInfo == null) {
-                    ftInfo = ArcSDEAdapter.fetchSchema(typeName, this.namespace, session);
+                    ftInfo = ArcSDEAdapter.fetchSchema(typeName, this.namespace, pool);
                     featureTypeInfos.put(typeName, ftInfo);
                 }
             }
         }
         return ftInfo;
     }
+    /**
+     * Used by feature reader and writer to get the schema information.
+     * <p>
+     * They are making use of this function because they already have their own Session
+     * to request the ftInfo if needed.
+     * </p>
+     * @param typeName
+     * @param session
+     * @return
+     * @throws IOException
+     */
+    synchronized FeatureTypeInfo getFeatureTypeInfo(final String typeName, Session session)
+    throws IOException {
 
+FeatureTypeInfo ftInfo = inProcessFeatureTypeInfos.get(typeName);
+if (ftInfo == null) {
+    synchronized (featureTypeInfos) {
+        ftInfo = featureTypeInfos.get(typeName);
+        if (ftInfo == null) {
+            ftInfo = ArcSDEAdapter.fetchSchema(typeName, this.namespace, session );
+            featureTypeInfos.put(typeName, ftInfo);
+        }
+    }
+}
+return ftInfo;
+}
     /**
      * Creates a given FeatureType on the ArcSDE instance this DataStore is running over.
      * <p>
@@ -722,7 +736,7 @@ public class ArcSDEDataStore implements DataStore {
      */
     public void createSchema(final SimpleFeatureType featureType, final Map<String, String> hints)
             throws IOException, IllegalArgumentException {
-        final Session session = connectionPool.getConnection();
+        final Session session = connectionPool.getSession();
         try {
             ArcSDEAdapter.createSchema(featureType, hints, session);
         } finally {
@@ -754,7 +768,7 @@ public class ArcSDEDataStore implements DataStore {
 
         verifyQueryIsSupported(select);
 
-        final Session session = connectionPool.getConnection();
+        final Session session = connectionPool.getSession();
 
         try {
             final PlainSelect qualifiedSelect = SelectQualifier.qualify(session, select);

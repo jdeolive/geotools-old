@@ -201,7 +201,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         }
 
         ArcSDEConnectionPool connectionPool = testData.getConnectionPool();
-        Session session = connectionPool.getConnection();
+        Session session = connectionPool.getSession();
         SeQuery seQuery;
         try {
             int objectId = (int) ArcSDEAdapter.getNumericFid(fid);
@@ -300,7 +300,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final String typeName;
         {
             ArcSDEConnectionPool connectionPool = testData.getConnectionPool();
-            Session session = connectionPool.getConnection();
+            Session session = connectionPool.getSession();
             final String user;
             user = Session.issueGetUser(session);
             session.close();
@@ -1309,7 +1309,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         try {
             final String tableName;
             {
-                Session session = testData.getConnectionPool().getConnection();
+                Session session = testData.getConnectionPool().getSession();
                 try {
                     SeTable versionedTable = testData.createVersionedTable(session);
                     tableName = versionedTable.getQualifiedName();
@@ -1408,7 +1408,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         try {
             final String tableName;
             {
-                Session session = testData.getConnectionPool().getConnection();
+                Session session = testData.getConnectionPool().getSession();
                 try {
                     SeTable versionedTable = testData.createVersionedTable(session);
                     tableName = versionedTable.getQualifiedName();

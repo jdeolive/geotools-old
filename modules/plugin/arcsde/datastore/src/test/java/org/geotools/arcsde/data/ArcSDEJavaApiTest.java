@@ -53,7 +53,6 @@ import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeVersion;
-import com.sun.java_cup.internal.version;
 
 /**
  * Exercises the ArcSDE Java API to ensure our assumptions are correct.
@@ -144,7 +143,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             oneTimeSetUp();
         }
         this.pool = testData.getDataStore().getConnectionPool();
-        this.session = this.pool.getConnection();
+        this.session = this.pool.getSession();
     }
 
     /**
@@ -1044,7 +1043,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         {
             final ArcSDEConnectionPool connPool = testData.getConnectionPool();
-            transSession = connPool.getConnection();
+            transSession = connPool.getSession();
             // start a transaction on transConn
             Session.issueStartTransaction(transSession);
         }

@@ -48,7 +48,7 @@ public class ThreeByteBandRGBReaderTest {
             SeRasterAttr rattr = rasterTestData.getRasterAttributes(tableName, new Rectangle(0, 0,
                     0, 0), 0, new int[] { 1, 2, 3 });
 
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
             SeRasterColumn rcol = session.createSeRasterColumn(rattr.getRasterColumnId());
 
             CoordinateReferenceSystem crs = CRS.decode("EPSG:2805");
@@ -86,7 +86,7 @@ public class ThreeByteBandRGBReaderTest {
 
         Session session = null;
         try {
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
 
             SeRasterAttr rattr = rasterTestData.getRasterAttributes(rasterTestData
                     .getRGBRasterTableName(), new Rectangle(0, 0, 0, 0), 0, new int[] { 1, 2, 3 });
@@ -154,7 +154,7 @@ public class ThreeByteBandRGBReaderTest {
 
         Session session = null;
         try {
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
 
             SeRasterAttr rattr = rasterTestData.getRasterAttributes(rasterTestData
                     .getRGBRasterTableName(), new Rectangle(0, 0, 0, 0), 0, new int[] { 1, 2, 3 });
@@ -216,7 +216,7 @@ public class ThreeByteBandRGBReaderTest {
 
         Session session = null;
         try {
-            session = rasterTestData.getTestData().getConnectionPool().getConnection();
+            session = rasterTestData.getTestData().getConnectionPool().getSession();
             SeRasterAttr rattr = rasterTestData.getRasterAttributes(rasterTestData
                     .getRGBRasterTableName(), new Rectangle(0, 0, 0, 0), 0, new int[] { 1, 2, 3 });
             ArcSDEPyramid p = new ArcSDEPyramid(rattr, CRS.decode("EPSG:4326"));
