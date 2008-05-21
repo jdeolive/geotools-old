@@ -232,17 +232,17 @@ public class ArcSDEAdapter {
         return sdeType;
     }
 
-    public static FeatureTypeInfo fetchSchema(final String typeName,
-            final String namespace,
-            final ArcSDEConnectionPool pool) throws IOException {
-        return pool.issueReadOnly(new Command<FeatureTypeInfo>() {
-            @Override
-            public FeatureTypeInfo execute(Session session, SeConnection connection)
-                    throws SeException, IOException {
-                return fetchSchema(typeName, namespace, session);
-            }
-        });
-    }
+//    public static FeatureTypeInfo fetchSchema(final String typeName,
+//            final String namespace,
+//            final ArcSDEConnectionPool pool) throws IOException {
+//        return pool.issueReadOnly(new Command<FeatureTypeInfo>() {
+//            @Override
+//            public FeatureTypeInfo execute(Session session, SeConnection connection)
+//                    throws SeException, IOException {
+//                return fetchSchema(typeName, namespace, session);
+//            }
+//        });
+//    }
 
     /**
      * Fetches the schema of a given ArcSDE featureclass and creates its corresponding Geotools
@@ -271,7 +271,14 @@ public class ArcSDEAdapter {
         fidStrategy = FIDReader.getFidReader(session, table, layer, registration);
         final boolean canDoTransactions;
         {
-            final boolean hasWritePermissions = userHasWritePermissions(table);
+            final Integer permMask = session.issue(new Command<Integer>() {
+                @Override
+                public Integer execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    return new Integer(table.getPermissions());
+                }
+            });
+            final boolean hasWritePermissions = userHasWritePermissions(permMask.intValue());
             canDoTransactions = hasWritePermissions
                     && (fidStrategy instanceof FIDReader.SdeManagedFidReader || fidStrategy instanceof FIDReader.UserManagedFidReader);
             if (hasWritePermissions && !canDoTransactions) {
@@ -291,18 +298,14 @@ public class ArcSDEAdapter {
      * Depends on the proviledges of the user the connection the table was created with.
      * </p>
      * 
-     * @param table the sde table to check for write permissions
+     * @param permissions the sde table permissions mask (as per SeTable.getPermissions())to check
+     *            for write permissions
      * @return {@code true} if the table's connection user has both insert, update and delete
      *         priviledges.
      * @throws ArcSdeException if an SeException is thrown asking the table for the permissions
      */
-    private static boolean userHasWritePermissions(final SeTable table) throws ArcSdeException {
-        final int permissions;
-        try {
-            permissions = table.getPermissions();
-        } catch (SeException e) {
-            throw new ArcSdeException("Can't get the permissions for " + table.getName(), e);
-        }
+    private static boolean userHasWritePermissions(final int permissions) throws ArcSdeException {
+
         final int insertMask = SeDefs.SE_INSERT_PRIVILEGE;
         final int updateMask = SeDefs.SE_UPDATE_PRIVILEGE;
         final int deleteMask = SeDefs.SE_DELETE_PRIVILEGE;

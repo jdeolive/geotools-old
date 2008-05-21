@@ -231,17 +231,18 @@ public class ArcSDEConnectionPool {
      * </p>
      * 
      * @param transaction
-     * @return Connection
+     * @return the session associated with the transaction
      */
-    public Session getSession(Transaction transaction) throws DataSourceException,
-            UnavailableArcSDEConnectionException {
-        try {
+    public Session getSession(Transaction transaction) throws IOException {
+        final Session session;
+        if (Transaction.AUTO_COMMIT.equals(transaction)) {
+            session = getSession();
+        } else {
             SessionTransactionState state;
             state = SessionTransactionState.getState(transaction, this);
-            return state.getConnection();
-        } catch (IOException e) {
-            throw new DataSourceException(e);
+            session = state.getConnection();
         }
+        return session;
     }
 
     /**
@@ -325,7 +326,7 @@ public class ArcSDEConnectionPool {
         } finally {
             session.close();
         }
-        
+
         return layerNames;
     }
 

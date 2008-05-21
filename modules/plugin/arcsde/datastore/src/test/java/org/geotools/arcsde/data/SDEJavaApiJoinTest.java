@@ -36,6 +36,7 @@ import org.geotools.arcsde.pool.Session;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.Transaction;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.text.cql2.CQL;
 import org.opengis.feature.simple.SimpleFeature;
@@ -481,7 +482,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * @throws Exception
      */
     public void testApiOrderBy() throws Exception {
-        Session session = store.getConnectionPool().getSession();
+        Session session = store.getSession(Transaction.AUTO_COMMIT);
 
         SeSqlConstruct sqlConstruct = new SeSqlConstruct();
         String[] tables = { InProcessViewSupportTestData.MASTER, InProcessViewSupportTestData.CHILD };
@@ -570,7 +571,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * TODO: revisit, this test hangs with SDE 9.2/Oracle9i at query.prepareQueryInfo(queryInfo);
      */
     public void _testApiAlias() throws Exception {
-        Session session = store.getConnectionPool().getSession();
+        Session session = store.getSession(Transaction.AUTO_COMMIT);
 
         SeSqlConstruct sqlConstruct = new SeSqlConstruct();
         String[] tables = { InProcessViewSupportTestData.MASTER + " MASTER",
@@ -631,7 +632,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * @throws Exception
      */
     public void testApiGroupBy() throws Exception {
-        Session session = store.getConnectionPool().getSession();
+        Session session = store.getSession(Transaction.AUTO_COMMIT);
 
         SeSqlConstruct sqlConstruct = new SeSqlConstruct();
         String[] tables = { InProcessViewSupportTestData.MASTER, InProcessViewSupportTestData.CHILD };
@@ -715,7 +716,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * @throws Exception
      */
     public void testApiPlainSql() throws Exception {
-        Session session = store.getConnectionPool().getSession();
+        Session session = store.getSession(Transaction.AUTO_COMMIT);
 
         final String plainQuery = "SELECT " + InProcessViewSupportTestData.MASTER + ".ID, "
                 + InProcessViewSupportTestData.MASTER + ".SHAPE, "

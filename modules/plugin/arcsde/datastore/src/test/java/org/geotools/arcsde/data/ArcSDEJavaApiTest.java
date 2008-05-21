@@ -142,7 +142,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         if (testData == null) {
             oneTimeSetUp();
         }
-        this.pool = testData.getDataStore().getConnectionPool();
+        this.pool = testData.getConnectionPool();
         this.session = this.pool.getSession();
     }
 

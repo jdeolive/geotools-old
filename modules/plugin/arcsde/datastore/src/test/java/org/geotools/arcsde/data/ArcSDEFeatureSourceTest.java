@@ -173,7 +173,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
 
         ArcSDEDataStore ds = testData.getDataStore();
 
-        ArcSDEConnectionPool pool = ds.getConnectionPool();
+        ArcSDEConnectionPool pool = testData.getConnectionPool();
         final int initialAvailableCount = pool.getAvailableCount();
         final int initialPoolSize = pool.getPoolSize();
 

@@ -49,12 +49,8 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.data");
 
-    private Transaction transaction = Transaction.AUTO_COMMIT;
-
-    public ArcSdeFeatureStore(final FeatureTypeInfo typeInfo,
-                              final ArcSDEDataStore arcSDEDataStore,
-                              final ArcSdeVersionHandler versionHandler) {
-        super(typeInfo, arcSDEDataStore, versionHandler);
+    public ArcSdeFeatureStore(final FeatureTypeInfo typeInfo, final ArcSDEDataStore arcSDEDataStore) {
+        super(typeInfo, arcSDEDataStore);
     }
 
     /**
@@ -91,23 +87,6 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
                 isAutoCommit = true;
             }
         }
-
-        if (!isAutoCommit) {
-            final ArcSDEConnectionPool connectionPool = dataStore.getConnectionPool();
-            try {
-                // set the transaction state so it grabs a connection and
-                // starts
-                // a transaction on it
-                final boolean versioned = this.typeInfo.isVersioned();
-                ArcTransactionState state = ArcTransactionState.getState(this.dataStore,
-                        transaction, dataStore.listenerManager, versioned);
-                versionHandler = state.getVersionHandler();
-                LOGGER.finer("ArcSDE transaction initialized: " + state);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Can't initiate transaction: " + e.getMessage(), e);
-            }
-        }
-
         this.transaction = transaction;
     }
 
@@ -157,8 +136,8 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         try {
             final String typeName = typeInfo.getFeatureTypeName();
             final Transaction currTransaction = getTransaction();
-            final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore
-                    .getFeatureWriter(typeName, filter, currTransaction);
+            final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
+            writer = dataStore.getFeatureWriter(typeName, filter, currTransaction);
 
             try {
                 SimpleFeature feature;
@@ -289,25 +268,5 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
                 throw new ArcSdeException("Cannot truncate table " + typeInfo, e);
             }
         }
-    }
-
-    /**
-     * If current transaction is not auto commit, grabs the connection from the
-     * {@link ArcTransactionState#getConnection() transaction state} using the datastore's
-     * connection pool as key. Otherwise asks the pool for a new connection.
-     */
-    @Override
-    protected Session getSession() throws IOException, UnavailableArcSDEConnectionException {
-        final Transaction currTransaction = getTransaction();
-        final ArcSDEConnectionPool connectionPool = dataStore.getConnectionPool();
-        Session session;
-        if (Transaction.AUTO_COMMIT.equals(currTransaction)) {
-            session = connectionPool.getSession();
-        } else {
-            final ArcTransactionState state;
-            state = (ArcTransactionState) currTransaction.getState(connectionPool);
-            session = state.getConnection();
-        }
-        return session;
     }
 }

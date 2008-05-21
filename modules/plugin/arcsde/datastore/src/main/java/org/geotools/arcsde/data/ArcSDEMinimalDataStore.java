@@ -34,10 +34,10 @@ public class ArcSDEMinimalDataStore extends ArcSDEDataStore {
         super(connPool);
     }
 
-    @Override
-    ArcSDEConnectionReference getConnectionPool() {
-        return (ArcSDEConnectionReference) super.getConnectionPool();
-    };
+//    @Override
+//    ArcSDEConnectionReference getConnectionPool() {
+//        return (ArcSDEConnectionReference) super.getConnectionPool();
+//    };
 
     protected synchronized FeatureTypeInfo getFeatureTypeInfo(String typeName,
             ArcSDEConnectionPool pool) throws IOException {

@@ -18,6 +18,7 @@ package org.geotools.arcsde.data;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;
@@ -58,11 +59,12 @@ class TransactionFeatureWriter extends ArcSdeFeatureWriter {
                                     final SimpleFeatureType featureType,
                                     final FeatureReader<SimpleFeatureType, SimpleFeature> filteredContent,
                                     final ArcTransactionState state,
+                                    final ArcSdeVersionHandler versionHandler,
                                     final FeatureListenerManager listenerManager) throws NoSuchElementException,
                                                                                  IOException {
 
         super(fidReader, featureType, filteredContent, state.getConnection(), listenerManager,
-                state.getVersionHandler());
+                versionHandler);
         this.state = state;
         assert state.getConnection().isTransactionActive();
 

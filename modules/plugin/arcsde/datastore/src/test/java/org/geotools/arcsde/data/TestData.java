@@ -356,22 +356,31 @@ public class TestData {
      * @throws Exception
      */
     public void insertTestData() throws Exception {
+        truncateTempTable();
         ArcSDEConnectionPool connPool = getConnectionPool();
         Session session = connPool.getSession();
         try {
-            tempTable.truncate();
             insertData(tempTableLayer, session, tempTableColumns);
         } finally {
             session.close();
         }
     }
 
-    public void truncateTempTable() {
+    public void truncateTempTable() throws IOException {
         if (tempTable != null) {
+            ArcSDEConnectionPool connPool = getConnectionPool();
+            Session session = connPool.getSession();
             try {
-                tempTable.truncate();
-            } catch (SeException e) {
-                e.printStackTrace();
+                session.issue(new Command<Void>() {
+                    @Override
+                    public Void execute(Session session, SeConnection connection)
+                            throws SeException, IOException {
+                        tempTable.truncate();
+                        return null;
+                    }
+                });
+            } finally {
+                session.close();
             }
         }
     }

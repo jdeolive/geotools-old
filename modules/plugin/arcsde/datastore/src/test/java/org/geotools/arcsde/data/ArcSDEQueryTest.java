@@ -178,14 +178,14 @@ public class ArcSDEQueryTest extends TestCase {
     }
 
     private ArcSDEQuery getQueryAll() throws IOException {
-        Session session = dstore.getConnectionPool().getSession();
+        Session session = dstore.getSession(Transaction.AUTO_COMMIT);
         this._queryAll = ArcSDEQuery.createQuery(session, ftype, Query.ALL, FIDReader.NULL_READER,
                 ArcSdeVersionHandler.NONVERSIONED_HANDLER);
         return this._queryAll;
     }
 
     private ArcSDEQuery getQueryFiltered() throws IOException {
-        Session session = dstore.getConnectionPool().getSession();
+        Session session = dstore.getSession(Transaction.AUTO_COMMIT);
         FeatureTypeInfo fti = ArcSDEAdapter.fetchSchema(typeName, null, session);
         this.queryFiltered = ArcSDEQuery.createQuery(session, ftype, filteringQuery, fti
                 .getFidStrategy(), new AutoCommitDefaultVersionHandler());

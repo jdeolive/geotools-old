@@ -708,15 +708,7 @@ class ArcSDEQuery {
         if (query == null) {
             return;
         }
-
-        session.issue(new Command<Void>() {
-            @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
-                query.close();
-                return null;
-            }
-        });
+        session.close(query);
     }
 
     // //////////////////////////////////////////////////////////////////////

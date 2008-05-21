@@ -30,6 +30,7 @@ import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
+import org.geotools.data.Transaction;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.logging.Logging;
@@ -46,22 +47,19 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.data");
 
+    protected Transaction transaction = Transaction.AUTO_COMMIT;
+
     protected FeatureTypeInfo typeInfo;
 
     protected ArcSDEDataStore dataStore;
 
     private ArcSdeResourceInfo resourceInfo;
 
-    protected ArcSdeVersionHandler versionHandler;
-
     private QueryCapabilities queryCapabilities;
 
-    public ArcSdeFeatureSource(final FeatureTypeInfo typeInfo,
-                               final ArcSDEDataStore dataStore,
-                               final ArcSdeVersionHandler versionHandler) {
+    public ArcSdeFeatureSource(final FeatureTypeInfo typeInfo, final ArcSDEDataStore dataStore) {
         this.typeInfo = typeInfo;
         this.dataStore = dataStore;
-        this.versionHandler = versionHandler;
         this.queryCapabilities = new QueryCapabilities() {
             @Override
             public boolean supportsSorting(SortBy[] sortAttributes) {
@@ -158,8 +156,13 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      */
     protected ReferencedEnvelope getBounds(final Query namedQuery, final Session session)
             throws DataSourceException, IOException {
-        Envelope ev;
-        ev = ArcSDEQuery.calculateQueryExtent(session, typeInfo, namedQuery, versionHandler);
+
+        final String typeName = typeInfo.getFeatureTypeName();
+        final ArcSdeVersionHandler versionHandler = dataStore.getVersionHandler(typeName,
+                transaction);
+
+        Envelope ev = ArcSDEQuery.calculateQueryExtent(session, typeInfo, namedQuery,
+                versionHandler);
 
         if (ev != null) {
             if (LOGGER.isLoggable(Level.FINER)) {
@@ -202,12 +205,15 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      */
     protected int getCount(final Query namedQuery, final Session session) throws IOException {
         final int count;
+        final String typeName = typeInfo.getFeatureTypeName();
+        final ArcSdeVersionHandler versionHandler = dataStore.getVersionHandler(typeName,
+                transaction);
         count = ArcSDEQuery.calculateResultCount(session, typeInfo, namedQuery, versionHandler);
         return count;
     }
 
     /**
-     * Returns a session from the datastore's connection pool.
+     * Returns a session appropriate for the current transaction
      * <p>
      * This is convenient way to get a connection for {@link #getBounds()} and
      * {@link #getCount(Query)}. {@link ArcSdeFeatureStore} overrides to get the connection from
@@ -217,10 +223,8 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      * @return
      * @throws IOException
      */
-    protected Session getSession() throws IOException {
-        final ArcSDEConnectionPool connectionPool = dataStore.getConnectionPool();
-        final Session session = connectionPool.getSession();
-        return session;
+    protected final Session getSession() throws IOException {
+        return dataStore.getSession(transaction);
     }
 
     private Query namedQuery(final Query query) {
@@ -285,7 +289,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
         return Collections.EMPTY_SET;
     }
 
-    public ArcSdeVersionHandler getVersionHandler() {
-        return versionHandler;
+    public ArcSdeVersionHandler getVersionHandler() throws IOException {
+        return dataStore.getVersionHandler(typeInfo.getFeatureTypeName(), transaction);
     }
 }

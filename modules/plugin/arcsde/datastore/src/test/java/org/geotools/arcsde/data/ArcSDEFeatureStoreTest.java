@@ -218,7 +218,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
                 }
             });
 
-            SdeRow row = session.fetch( seQuery);
+            SdeRow row = session.fetch(seQuery);
             assertNull(row);
         } finally {
             session.close();
@@ -510,8 +510,9 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             writer.close();
         }
 
-        FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(oldValueQuery,
-                Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+
+        reader = ds.getFeatureReader(oldValueQuery, Transaction.AUTO_COMMIT);
         try {
             assertTrue(reader.hasNext());
         } finally {

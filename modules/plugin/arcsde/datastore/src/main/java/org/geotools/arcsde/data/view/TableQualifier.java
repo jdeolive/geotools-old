@@ -76,7 +76,7 @@ class TableQualifier {
             qualifiedSchema += ("." + userName);
         }
 
-        qualifiedTable.setSchemaName(qualifiedSchema);
+        qualifiedTable.setSchemaName(qualifiedSchema.toUpperCase());
         // }
 
         return qualifiedTable;

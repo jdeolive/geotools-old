@@ -83,8 +83,7 @@ final class ArcTransactionState implements Transaction.State {
      * @param pool connection pool where to grab a connection and hold it while there's a
      *            transaction open (signaled by any use of {@link #getConnection()}
      */
-    private ArcTransactionState(ArcSDEConnectionPool pool,
-                                final FeatureListenerManager listenerManager) {
+    ArcTransactionState(ArcSDEConnectionPool pool, final FeatureListenerManager listenerManager) {
         this.pool = pool;
         this.listenerManager = listenerManager;
     }
@@ -100,8 +99,12 @@ final class ArcTransactionState implements Transaction.State {
 
     /**
      * @return
+     * @throws IOException
      */
-    public ArcSdeVersionHandler getVersionHandler() {
+    public ArcSdeVersionHandler getVersionHandler(final boolean ftIsVersioned) throws IOException {
+        if (ftIsVersioned) {
+            setupVersioningHandling();
+        }
         return versionHandler;
     }
 
@@ -147,22 +150,9 @@ final class ArcTransactionState implements Transaction.State {
                         // Trim the state tree.
                         currentVersionState.trimTree(parentStateId, currentVersionState.getId());
                     }
-
-                    session.commitTransaction();
-                    // and keep editing
-                    session.startTransaction();
-
-                    fireChanges(true);
                 } catch (SeException se) {
                     LOGGER.log(Level.WARNING, se.getMessage(), se);
-                    try {
-                        session.rollbackTransaction();
-                    } catch (IOException e) {
-                        LOGGER.log(Level.WARNING, e.getMessage(), e);
-                    } finally {
-                        // release resources
-                        close();
-                    }
+                    close();
                     throw se;
                 }
                 return null;
@@ -171,6 +161,7 @@ final class ArcTransactionState implements Transaction.State {
 
         try {
             session.issue(commitCommand);
+            fireChanges(true);
             versionHandler.commitEditState();
         } catch (IOException e) {
             versionHandler.rollbackEditState();
@@ -183,19 +174,8 @@ final class ArcTransactionState implements Transaction.State {
      */
     public void rollback() throws IOException {
         failIfClosed();
-        final Session session = this.getConnection();
         try {
             versionHandler.rollbackEditState();
-            session.issue(new Command<Void>() {
-                @Override
-                public Void execute(Session session, SeConnection connection) throws SeException,
-                        IOException {
-                    session.rollbackTransaction();
-                    // and keep editing
-                    session.startTransaction();
-                    return null;
-                }
-            });
             // fire changes in the calling thread
             fireChanges(false);
         } catch (IOException se) {
@@ -275,11 +255,9 @@ final class ArcTransactionState implements Transaction.State {
      * transaction is being conducted.
      * 
      * @return connection
-     * @throws UnavailableArcSDEConnectionException
-     * @throws DataSourceException
-     * @throws SeException
+     * @throws IOException
      */
-    Session getConnection() throws DataSourceException, UnavailableArcSDEConnectionException {
+    Session getConnection() throws IOException {
         failIfClosed();
         // the pool is keeping track of connection according to transaction for us
         return pool.getSession(transaction);
@@ -287,42 +265,5 @@ final class ArcTransactionState implements Transaction.State {
 
     public Transaction getTransaction() {
         return transaction;
-    }
-
-    /**
-     * Grab the ArcTransactionState (when not using AUTO_COMMIT).
-     * <p>
-     * As of GeoTools 2.5 we store the TransactionState using the connection pool as a key.
-     * </p>
-     * 
-     * @param transaction non autocommit transaction
-     * @param listenerManager
-     * @param versioned True will update database wide version once per operation, false once per
-     *            commit
-     * @return the ArcTransactionState stored in the transaction with <code>connectionPool</code>
-     *         as key.
-     */
-    public static ArcTransactionState getState(ArcSDEDataStore dataStore,
-            final Transaction transaction,
-            final FeatureListenerManager listenerManager,
-            final boolean versioned) throws IOException {
-        ArcTransactionState state;
-
-        synchronized (ArcTransactionState.class) {
-            state = (ArcTransactionState) transaction.getState(dataStore);
-            if (state == null) {
-                // start a transaction
-                ArcSDEConnectionPool connectionPool = dataStore.getConnectionPool();
-                state = new ArcTransactionState(connectionPool, listenerManager);
-                transaction.putState(dataStore, state);
-            }
-        }
-
-        // if at least one of the tables being handled by this transaction state is
-        // versioned setHandleVersioned has to be set
-        if (versioned) {
-            state.setupVersioningHandling();
-        }
-        return state;
     }
 }

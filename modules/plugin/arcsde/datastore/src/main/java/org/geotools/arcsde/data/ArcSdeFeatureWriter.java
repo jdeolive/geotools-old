@@ -396,7 +396,14 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         final SeUpdate updateStream = (SeUpdate) createStream(SeUpdate.class);
         // updateStream.setWriteMode(true);
 
-        final SeCoordinateReference seCoordRef = layer.getCoordRef();
+        final SeCoordinateReference seCoordRef = session
+                .issue(new Command<SeCoordinateReference>() {
+                    @Override
+                    public SeCoordinateReference execute(Session session, SeConnection connection)
+                            throws SeException, IOException {
+                        return layer.getCoordRef();
+                    }
+                });
 
         final LinkedHashMap<Integer, String> mutableColumns = getUpdatableColumnNames();
         final String[] rowColumnNames = new ArrayList<String>(mutableColumns.values())
@@ -683,12 +690,12 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
             final String typeName = this.featureType.getTypeName();
             final SeColumnDefinition[] columnDefinitions = session.describe(typeName);
             final String shapeAttributeName;
-            final SeLayer layer = getLayer();
 
             shapeAttributeName = session.issue(new Command<String>() {
                 @Override
                 public String execute(Session session, SeConnection connection) throws SeException,
                         IOException {
+                    SeLayer layer = session.getLayer(typeName);
                     return layer.getShapeAttributeName(SeLayer.SE_SHAPE_ATTRIBUTE_FID);
                 }
             });

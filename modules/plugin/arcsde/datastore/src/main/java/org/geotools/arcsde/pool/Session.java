@@ -131,15 +131,13 @@ public class Session {
         }
         this.config = config;
         this.pool = pool;
+        // This ensures the connection runs always on the same thread. Will fail if its
+        // accessed by different threads
         this.connection.setConcurrency(SeConnection.SE_TRYLOCK_POLICY);
         this.taskExecutor = Executors.newSingleThreadExecutor();
 
         // grab command thread
-        taskExecutor.execute(new Runnable() {
-            public void run() {
-                commandThread = Thread.currentThread();
-            }
-        });
+        updateCommandThread();
         synchronized (Session.class) {
             connectionCounter++;
             connectionId = connectionCounter;
@@ -167,17 +165,24 @@ public class Session {
                 throw new ArcSdeException(e);
             }
         } else {
-            // StackTraceElement ste = callingThread.getStackTrace()[3];
-            // System.out.println("executing command " + ste.getClassName() + "."
-            // + ste.getMethodName() + ":" + ste.getLineNumber() + " ("
-            // + callingThread.getName() + ")");
+            StackTraceElement ste = callingThread.getStackTrace()[3];
+            System.err.println("executing command " + ste.getClassName() + "."
+                    + ste.getMethodName() + ":" + ste.getLineNumber() + " ("
+                    + callingThread.getName() + ")");
 
-            FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
+            final FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
                 public T call() throws Exception {
-                    // used to detect when thread has been
-                    // restarted after error
-                    commandThread = Thread.currentThread();
-                    return command.execute(Session.this, connection);
+                    System.err.println(" -executing command for Session "
+                            + Session.this.connectionId + " in thread "
+                            + Thread.currentThread().getId());
+                    try {
+                        return command.execute(Session.this, connection);
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Command execution failed for Session "
+                                + Session.this.connectionId + " in thread "
+                                + Thread.currentThread().getId(), e);
+                        throw e;
+                    }
                 }
             });
 
@@ -186,16 +191,30 @@ public class Session {
             try {
                 result = task.get();
             } catch (InterruptedException e) {
+                updateCommandThread();
                 throw new RuntimeException("Command execution abruptly interrupted", e);
             } catch (ExecutionException e) {
+                updateCommandThread();
                 Throwable cause = e.getCause();
                 if (cause instanceof IOException) {
                     throw (IOException) cause;
+                } else if (cause instanceof SeException) {
+                    throw new ArcSdeException((SeException) cause);
                 }
                 throw new DataSourceException(cause);
             }
             return result;
         }
+    }
+
+    private void updateCommandThread() {
+        // used to detect when thread has been
+        // restarted after error
+        taskExecutor.execute(new Runnable() {
+            public void run() {
+                commandThread = Thread.currentThread();
+            }
+        });
     }
 
     public final boolean isClosed() {
@@ -535,7 +554,7 @@ public class Session {
             }
         });
     }
-    
+
     //
     // Factory methods that make use of internal connection
     // Q: How "long" are these objects good for? until the connection closes - or longer...
@@ -629,11 +648,11 @@ public class Session {
     }
 
     public SeColumnDefinition[] describe(final String tableName) throws IOException {
+        final SeTable table = getTable(tableName);
         return issue(new Command<SeColumnDefinition[]>() {
             @Override
             public SeColumnDefinition[] execute(Session session, SeConnection connection)
                     throws SeException, IOException {
-                SeTable table = session.getTable(tableName);
                 return table.describe();
             }
         });
