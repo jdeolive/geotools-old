@@ -2294,7 +2294,7 @@ public final class StreamingRenderer implements GTRenderer {
                         // the reprojected and decimated geometry we risk of transforming it twice
                         // when computing the centroid
                         getTransformedShape(g, sa.getXform());
-                        return getTransformedShape(RendererUtilities.getCentroid(g), sa.getXform());
+                        return getTransformedShape(RendererUtilities.getCentroid(g), null);
                     } else {
                         return getTransformedShape(RendererUtilities.getCentroid(g), sa.getXform());
                     }
