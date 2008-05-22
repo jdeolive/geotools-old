@@ -135,7 +135,7 @@ public class MouseHandler implements CanvasHandler{
                 scale = 1 / scale;
             }
                         
-            canvas.transform(AWTCanvas2D.UNIFORM_SCALE , scale, point);
+            canvas.scale(scale, point);
             
             event.consume();
         }

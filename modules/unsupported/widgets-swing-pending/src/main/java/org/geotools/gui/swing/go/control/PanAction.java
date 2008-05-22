@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import org.geotools.gui.swing.go.GoMap2D;
+import org.geotools.gui.swing.go.handler.DefaultPanHandler;
 
 /**
  *
@@ -30,10 +31,9 @@ public class PanAction extends AbstractAction {
     private GoMap2D map = null;
 
     public void actionPerformed(ActionEvent arg0) {
-//        if (map != null && map instanceof NavigableMap2D) {
-//            ((NavigableMap2D) map).setNavigationHandler(new DefaultPanHandler());
-//            map.setActionState(ACTION_STATE.NAVIGATE);
-//        }
+        if (map != null ) {
+            map.getCanvas().setHandler(new DefaultPanHandler(map));
+        }
     }
 
     public GoMap2D getMap() {

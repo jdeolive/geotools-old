@@ -28,7 +28,8 @@ public class J2DMap extends AbstractMap2D implements GoMap2D{
     }
 
     @Override
-    protected void paintComponent(Graphics g) {               
+    protected void paintComponent(Graphics g) {        
+        super.paintComponent(g);
         Graphics2D output = (Graphics2D) g;        
         canvas.paint(output);        
     }

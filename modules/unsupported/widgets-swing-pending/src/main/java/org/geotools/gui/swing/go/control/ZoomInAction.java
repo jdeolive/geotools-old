@@ -19,6 +19,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import org.geotools.gui.swing.go.GoMap2D;
+import org.geotools.gui.swing.go.handler.DefaultZoomInHandler;
 
 
 /**
@@ -31,7 +32,8 @@ public class ZoomInAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent arg0) {
         if (map != null ) {
-            map.getCanvas().getController().scale(2);
+            map.getCanvas().setHandler(new DefaultZoomInHandler(map));
+//            map.getCanvas().getController().scale(2);
         }
     }
 
