@@ -54,7 +54,7 @@ public class DateAdapter extends XmlAdapter<DateAdapter, Date> {
      * Returns the date matching with the metadata value. This method is systematically
      * called at marshalling-time by JAXB.
      */
-    @XmlElement(name = "DateTime", namespace = "http://www.isotc211.org/2005/gco")
+    @XmlElement(name = "Date", namespace = "http://www.isotc211.org/2005/gco")
     public Date getDate() {
         return date;
     }
