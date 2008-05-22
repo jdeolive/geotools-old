@@ -1,8 +1,7 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2005, Institut de Recherche pour le Développement
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -14,7 +13,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
 package org.geotools.display.renderer;
 
 import java.util.List;
@@ -66,7 +64,7 @@ import org.geotools.util.RangeSet;
  * @since 2.3
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 public abstract class BufferedRenderer2D extends AbstractRenderer2D {
     

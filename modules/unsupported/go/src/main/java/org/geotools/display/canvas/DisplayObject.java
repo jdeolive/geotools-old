@@ -1,8 +1,7 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2005, Institut de Recherche pour le Développement
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -13,9 +12,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- *    This package contains documentation from OpenGIS specifications.
- *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.display.canvas;
 
@@ -29,6 +25,9 @@ import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import org.geotools.util.logging.Logging;
 
+import org.opengis.display.primitive.Graphic;   //for javadoc
+import org.opengis.display.canvas.Canvas;       //for javadoc
+import org.opengis.display.renderer.Renderer;   //for javadoc
 
 /**
  * The base class for {@linkplain AbstractCanvas canvas} and
@@ -40,7 +39,8 @@ import org.geotools.util.logging.Logging;
  * @since 2.3
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
+ * @author Johann Sorel (Geomatys)
  */
 public class DisplayObject {
     /**
@@ -276,7 +276,7 @@ public class DisplayObject {
      * Method that can be called when an object is no longer needed. Implementations may use
      * this method to release resources, if needed. Implementations may also implement this
      * method to return an object to an object pool. It is an error to reference a
-     * {@link org.opengis.display.primitive.Graphic} or {@link Canvas} in any way after its
+     * {@link Graphic}, {@link Canvas} or {@link Renderer} in any way after its
      * dispose method has been called.
      */
     public void dispose() {

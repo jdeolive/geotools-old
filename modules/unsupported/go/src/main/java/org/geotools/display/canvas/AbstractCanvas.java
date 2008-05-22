@@ -1,8 +1,7 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2005, Institut de Recherche pour le Développement
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -13,9 +12,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- *    This package contains documentation from OpenGIS specifications.
- *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.display.canvas;
 
@@ -33,13 +29,12 @@ import org.opengis.display.canvas.Canvas;
 import org.opengis.display.canvas.CanvasEvent;
 import org.opengis.display.canvas.CanvasListener;
 import org.opengis.display.primitive.Graphic;
+import org.opengis.display.renderer.RendererListener;
 
 import org.geotools.display.renderer.AbstractRenderer;
 import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.factory.Hints;
 import org.geotools.resources.Classes;
-import org.opengis.display.renderer.RendererListener;
-
 
 /**
  * Manages the display and user manipulation of {@link Graphic} instances. A newly constructed
@@ -66,8 +61,8 @@ import org.opengis.display.renderer.RendererListener;
  * @since 2.3
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
- * @author Johann Sorel
+ * @author Martin Desruisseaux (IRD)
+ * @author Johann Sorel (Geomatys)
  */
 public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     /**

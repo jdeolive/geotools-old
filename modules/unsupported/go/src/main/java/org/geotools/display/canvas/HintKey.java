@@ -1,8 +1,7 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2005, Institut de Recherche pour le Développement
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -17,7 +16,6 @@
 
 package org.geotools.display.canvas;
 
-// J2SE and JAI dependencies
 import java.awt.RenderingHints;
 
 
@@ -26,7 +24,7 @@ import java.awt.RenderingHints;
  *
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 public final class HintKey extends RenderingHints.Key {
     /**

@@ -1,4 +1,18 @@
-
+/*
+ *    GeoTools - An Open Source Java GIS Tookit
+ *    http://geotools.org
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.display.renderer;
 
 import java.awt.RenderingHints;
@@ -9,9 +23,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import java.util.Set;
 import javax.swing.event.EventListenerList;
+
 import org.geotools.display.canvas.AbstractCanvas;
 import org.geotools.display.canvas.DisplayObject;
 import org.geotools.display.primitive.AbstractGraphic;
@@ -26,21 +40,20 @@ import org.opengis.display.renderer.RendererEvent;
 import org.opengis.display.renderer.RendererListener;
 
 /**
- *
- * @author johann sorel
+ * Abstract renderer implements Renderer.
+ * Provide convinient methods to handle properties, hints add methods
+ * related to graphics.
+ * 
+ * @since 2.5
+ * @author Martin Desruisseaux (IRD)
+ * @author Johann Sorel (Geomatys)
  */
-public abstract class AbstractRenderer extends DisplayObject implements Renderer{        
+public abstract class AbstractRenderer extends DisplayObject implements Renderer{
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AbstractCanvas#getGraphics set of graphics} in this canvas changed.
+     * renderer {@linkplain Renderer#getCanvas() } changed.
      */
-    public static final String GRAPHICS_PROPERTY = "graphics";
-    
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * canvas {@linkplain ReferencedCanvas2D#getDisplayBounds display bounds} changed.
-     */
-    public static final String DISPLAY_BOUNDS_PROPERTY = "displayBounds";
+    public static final String CANVAS_PROPERTY = "canvas";
     
     /**
      * A listener to be notified when a graphic property changed.
@@ -58,7 +71,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * <p>
      * This map must preserve the order in which the user added graphics. This order must be
      * preserved no matter how {@link #sortedGraphics} reorder graphics. This is because we
-     * want to preserve to {@link #add} contract even when z-value hints change.
+     * want to preserve to {@link #add} contract for 2D graphics whit a z-value.
      */
     protected final Map<Graphic,Graphic> graphics = new LinkedHashMap<Graphic,Graphic>();
 
@@ -94,16 +107,25 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     
     
     
-    public AbstractRenderer(){
+    /**
+     * Create a Default Abstract renderer with no particular hints.
+     */
+    protected AbstractRenderer(){
         this(null);
     }
 
-    public AbstractRenderer(Hints hints){
+    /**
+     * Create a Default Abstract renderer with particular hints.
+     * 
+     * @param hints Hints object or null, if null the renderer will create
+     * an empty Hints object.
+     */
+    protected AbstractRenderer(Hints hints){
         this.hints = (hints != null) ? hints : new Hints() ;
     }
                 
     /**
-     * Invoked automatically when a graphic registered in this canvas changed. Subclasses can
+     * Invoked automatically when a graphic registered in this renderer changed. Subclasses can
      * override this method if they need to react to some graphic change events, but should
      * always invoke {@code super.graphicPropertyChanged(graphic, event)}.
      *
@@ -114,13 +136,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     }
         
     /**
-     * Clears all cached data. Invoking this method may help to release some resources for other
-     * applications. It should be invoked when we know that the map is not going to be rendered
-     * for a while. For example it may be invoked from {@link java.applet.Applet#stop}. Note
-     * that this method doesn't changes the renderer setting; it will just slow down the first
-     * rendering after this method call.
-     *
-     * @see #dispose
+     * {@inheritDoc}
      */
     @Override
     public void clearCache() {
@@ -134,6 +150,9 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
         super.clearCache();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void dispose() {
         final Collection<Graphic> graphics = getGraphics();
@@ -147,23 +166,15 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     
     
     //------------ graphic methods ---------------------------------------------/**
-    /** 
-     * Returns all graphics in this canvas. The returned list is sorted in increasing
-     * {@linkplain Graphic#getZOrderHint z-order}: element at index 0 contains the first
-     * graphic to be drawn.
-     * <p>
-     * This method returns an unmodifiable snapshot of current canvas state.
-     * {@linkplain #add Adding} or {@linkplain #remove removing} graphics will
-     * not affect the content of previous list returned by previous call to this method.
+    /**
+     * {@inheritDoc}
      */
     public synchronized Collection<Graphic> getGraphics() {
         return userGraphics;
     }
     
     /**
-     * Adds the given {@code Graphic} to this {@code Canvas}. This implementation respect the
-     * <var>z</var>-order retrieved by calling {@link Graphic#getZOrderHint()}. When two added
-     * {@code Graphic}s have the same <var>z</var>-order, the most recently added will be on top.
+     * Adds the given {@code Graphic} to this {@code Renderer}. 
      * <p>
      * Most {@code Canvas} do not draw anything as long as at least one graphic hasn't be added.
      * In Geotools implementation, an {@link AbstractGraphic} can be added to only one
@@ -171,15 +182,14 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * an other canvas, then this method {@linkplain AbstractGraphic#clone creates a clone}
      * before to add the graphic.
      * <p>
-     * This method fires a {@value org.geotools.display.canvas.DisplayObject#GRAPHICS_PROPERTY}
-     * property change event.
+     * This method fires graphicsAdded method on renderer listeners.
      *
-     * @param  graphic Graphic to add to this canvas. This method call will be ignored if
+     * @param  graphic Graphic to add to this renderer. This method call will be ignored if
      *         {@code graphic} has already been added to this canvas.
      * @return The graphic added. This is usually the supplied graphic, but may also be a
      *         new one if this method cloned the graphic.
      * @throws IllegalArgumentException If {@code graphic} has already been added to an other
-     *         {@code Canvas} and the graphic is not cloneable.
+     *         {@code Renderer} and the graphic is not cloneable.
      *
      * @see #remove
      * @see #removeAll
@@ -242,12 +252,11 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     }
 
     /**
-     * Removes the given {@code Graphic} from this {@code Canvas}. Note that if the graphic is
-     * going to be added back to the same canvas later, then it is more efficient to invoke
+     * Removes the given {@code Graphic} from this {@code Renderer}. Note that if the graphic is
+     * going to be added back to the same renderer later, then it is more efficient to invoke
      * {@link Graphic#setVisible} instead.
      * <p>
-     * This method fires a {@value org.geotools.display.canvas.DisplayObject#GRAPHICS_PROPERTY}
-     * property change event.
+     * This method fires graphicsRemoved method on renderer listeners.
      *
      * @param  graphic The graphic to remove. This method call will be ignored if {@code graphic}
      *         has already been removed from this canvas.
@@ -289,14 +298,12 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
         // collection of graphics
         RendererEvent event = new DefaultRendererEvent(this, graphic);
         fireGraphicRemoved(event);
-        
     }
 
     /**
-     * Remove all graphics from this canvas.
+     * Remove all graphics from this renderer.
      * <p>
-     * This method fires a {@value org.geotools.display.canvas.DisplayObject#GRAPHICS_PROPERTY}
-     * property change event.
+     * This method fires graphicsRemoved method on renderer listeners.
      *
      * @see #add
      * @see #remove
@@ -322,20 +329,30 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
         // collection of graphics
         RendererEvent event = new DefaultRendererEvent(this, vals);
         fireGraphicRemoved(event);
-        
     }
 
     
     
     //--------------------renderer listeners------------------------------------
+    /**
+     * {@inheritDoc}
+     */
     public void addRendererListener(RendererListener listener) {
         rendererListeners.add(RendererListener.class, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void removeRendererListener(RendererListener listener) {
         rendererListeners.remove(RendererListener.class, listener);
     }
     
+    /**
+     * Convinient method to propagate added graphics on renderer listeners.
+     * 
+     * @param event : RendererEvent event to propagate.
+     */
     protected final void fireGraphicAdded(RendererEvent event){
         
         RendererListener[] listeners = rendererListeners.getListeners(RendererListener.class);
@@ -345,6 +362,11 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
         }
     }
     
+    /**
+     * Convinient method to propagate removed graphics on renderer listeners.
+     * 
+     * @param event : RendererEvent event to propagate.
+     */
     protected final void fireGraphicRemoved(RendererEvent event){
         
         RendererListener[] listeners = rendererListeners.getListeners(RendererListener.class);
@@ -354,6 +376,11 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
         }
     }
         
+    /**
+     * Convinient method to propagate graphics changes on renderer listeners.
+     * 
+     * @param event : RendererEvent event to propagate.
+     */
     protected final void fireGraphicChanged(RendererEvent event){
         
         RendererListener[] listeners = rendererListeners.getListeners(RendererListener.class);

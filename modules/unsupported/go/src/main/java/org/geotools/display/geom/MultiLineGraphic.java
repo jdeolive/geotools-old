@@ -1,8 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    GeoTools - An Open Source Java GIS Tookit
+ *    http://geotools.org
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
  */
-
 package org.geotools.display.geom;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -26,13 +36,13 @@ import org.opengis.referencing.operation.TransformException;
 
 /**
  *
- * @author sorel
+ * @author Johann Sorel (Geomatys)
  */
 public abstract class MultiLineGraphic extends FeatureGraphic{
 
     private final MultiLineString line;
-    private LiteShape j2dShape;
     
+    private LiteShape j2dShape;
     
     public MultiLineGraphic(CoordinateReferenceSystem crs, SimpleFeature feature, double z){
         super(crs);
@@ -87,9 +97,5 @@ public abstract class MultiLineGraphic extends FeatureGraphic{
         
         
     }
-    
-    
-    
-    
     
 }

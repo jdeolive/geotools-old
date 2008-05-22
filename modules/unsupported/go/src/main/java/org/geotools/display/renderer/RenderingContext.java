@@ -1,10 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2001, Institut de Recherche pour le Développement
- *    (C) 1998, Pêches et Océans Canada
- *
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+ * 
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -17,15 +15,12 @@
  */
 package org.geotools.display.renderer;
 
-// J2SE dependencies
-import org.geotools.display.canvas.*;
 import java.awt.Shape;
 import java.awt.Rectangle;
 import java.awt.Graphics2D;
 import java.awt.geom.Area;
 import java.awt.geom.AffineTransform;
 
-// OpenGIS dependencies
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -33,8 +28,8 @@ import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.referencing.operation.CoordinateOperationFactory; // For javadoc
 
-// Geotools dependencies
 import org.geotools.factory.Hints;  // For javadoc
+import org.geotools.display.canvas.ReferencedCanvas;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.i18n.Errors;
@@ -43,7 +38,7 @@ import org.geotools.resources.i18n.ErrorKeys;
 
 /**
  * Informations relative to a rendering in progress. A {@code RenderingContext} instance is
- * created by {@link BufferedCanvas2D#paint} at rendering time, which iterates over all graphic
+ * created by {@link AWTDirectRenderer2D#paint} at rendering time, which iterates over all graphic
  * objects and invokes {@link GraphicPrimitive2D#paint} for each of them. The rendering context
  * is disposed once the rendering is completed. {@code RenderingContext} instances contain the
  * following informations:
@@ -70,7 +65,7 @@ import org.geotools.resources.i18n.ErrorKeys;
  * @since 2.3
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  *
  * @see BufferedCanvas2D#paint
  * @see GraphicPrimitive2D#paint

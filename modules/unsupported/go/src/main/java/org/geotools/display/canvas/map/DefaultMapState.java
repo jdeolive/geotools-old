@@ -1,8 +1,7 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2005, Institut de Recherche pour le Développement
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -13,30 +12,22 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- *    This package contains documentation from OpenGIS specifications.
- *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.display.canvas.map;
 
-// J2SE dependencies
 import java.awt.Rectangle;
 import javax.units.Unit;
 
-// OpenGIS dependencies
+import org.opengis.util.InternationalString;
 import org.opengis.go.display.canvas.Canvas;  // For javadoc
-import org.opengis.go.display.canvas.CanvasState;
-import org.opengis.go.display.canvas.map2d.Map2DState;
+import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
-// Geotools dependencies
 import org.geotools.resources.Utilities;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.display.canvas.DefaultCanvasState;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.util.InternationalString;
 
 
 /**
@@ -45,7 +36,7 @@ import org.opengis.util.InternationalString;
  * @since 2.3
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 public class DefaultMapState extends DefaultCanvasState {
     /**

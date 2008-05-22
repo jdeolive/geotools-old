@@ -1,8 +1,7 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2005, Institut de Recherche pour le Développement
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -13,9 +12,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- *    This package contains documentation from OpenGIS specifications.
- *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.display.canvas;
 
@@ -54,7 +50,6 @@ import org.geotools.display.renderer.AbstractRenderer;
 import org.geotools.resources.GraphicsUtilities;
 import org.opengis.display.primitive.Graphic;
 
-
 /**
  * A canvas implementation with default support for two-dimensional CRS management. This
  * default implementation uses <cite>Java2D</cite> geometry objects like {@link Shape} and
@@ -65,7 +60,8 @@ import org.opengis.display.primitive.Graphic;
  * @since 2.3
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
+ * @author Johann Sorel (Geomatys)
  */
 public abstract class ReferencedCanvas2D extends ReferencedCanvas {
     /**
@@ -329,8 +325,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
              */
             return false;
         }
-        return getDisplayBounds().contains(position.ordinates[0],
-                                           position.ordinates[1]);
+        return getDisplayBounds().contains(position.ordinates[0], position.ordinates[1]);
     }
 
     /**
@@ -479,7 +474,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
          * disabling repaint events while we are painting help to reduces duplicated rendering.
          */
         final Rectangle displayBounds = getDisplayBounds().getBounds();
-        Rectangle2D         dirtyArea = XRectangle2D.INFINITY;
+        Rectangle2D dirtyArea = XRectangle2D.INFINITY;
         if (clipBounds == null) {
             clipBounds = displayBounds;
         } else if (displayBounds.contains(clipBounds)) {

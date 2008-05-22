@@ -1,8 +1,7 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2005, Institut de Recherche pour le Développement
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -13,9 +12,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- *    This package contains documentation from OpenGIS specifications.
- *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.display.canvas;
 
@@ -31,7 +27,6 @@ import org.opengis.geometry.DirectPosition;
 import org.geotools.resources.Classes;
 import org.geotools.resources.Utilities;
 
-
 /**
  * Describes the current state of a {@link Canvas}. The information contained by instances
  * of this interface should only describe the viewing area or volume of the canvas and should
@@ -44,7 +39,8 @@ import org.geotools.resources.Utilities;
  * @since 2.3
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
+ * @author Johann Sorel (Geomatys)
  */
 public class DefaultCanvasState implements CanvasState, Cloneable, Serializable {
     /**

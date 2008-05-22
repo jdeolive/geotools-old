@@ -1,8 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    GeoTools - An Open Source Java GIS Tookit
+ *    http://geotools.org
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
  */
-
 package org.geotools.display.canvas;
 
 import java.awt.Component;
@@ -23,14 +33,12 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.geotools.util.logging.Logging;
-import org.geotools.coverage.grid.GridRange2D;
 import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.display.renderer.AWTDirectRenderer2D;
 import org.geotools.display.renderer.AbstractRenderer;
+import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.resources.GraphicsUtilities;
@@ -46,12 +54,13 @@ import org.geotools.resources.i18n.VocabularyKeys;
 import org.opengis.display.canvas.CanvasController;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.Envelope;
 import org.opengis.referencing.operation.TransformException;
 
 /**
- *
- * @author sorel
+ * Default implementation of AWT canvas 2D.
+ * 
+ * @author Martin Desruisseaux (IRD)
+ * @author Johann Sorel (Geomatys)
  */
 public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     /**
@@ -63,7 +72,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     /**
      * Small number for floating point comparaisons.
      */
-    private static final double EPS = 1E-6;
+    private static final double EPS = 1E-12;
 
     /**
      * The component owner, or {@code null} if none. This is used for managing
@@ -78,9 +87,11 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     private final ComponentListener listener = new ComponentListener();
 
     private CanvasHandler handler;
+    
+    private final DirectPosition objectiveCenter = new DirectPosition2D();
 
     /**
-     * Rectangle in which to place the coordinates returned by {@link #getZoomableBounds}. This
+     * Rectangle in which to place the coordinates returned by {@link #getDisplayBounds}. This
      * object is defined in order to avoid allocating objects too often {@link Rectangle}.
      */
     private transient Rectangle cachedBounds;
@@ -92,7 +103,11 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         /** Invoked when the component's size changes. */
         @Override public void componentResized(final ComponentEvent event) {
             synchronized (AWTCanvas2D.this) {
+                //cache bounds
+                cachedBounds = event.getComponent().getBounds(cachedBounds);
+                setDisplayBounds(cachedBounds);
                 checkDisplayBounds();
+                
                 zoomChanged(null);
             }
         }
@@ -100,7 +115,11 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         /** Invoked when the component's position changes. */
         @Override public void componentMoved(final ComponentEvent event) {
             synchronized (AWTCanvas2D.this) {
+                //cache bounds
+                cachedBounds = event.getComponent().getBounds(cachedBounds);
+                setDisplayBounds(cachedBounds);
                 checkDisplayBounds();
+                
                 zoomChanged(null); // Translation term has changed.
             }
         }
@@ -108,6 +127,12 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         /** Invoked when the component has been made invisible. */
         @Override public void componentHidden(final ComponentEvent event) {
             synchronized (AWTCanvas2D.this) {
+                cachedBounds.x = 0;
+                cachedBounds.y = 0;
+                cachedBounds.width = 0;
+                cachedBounds.height = 0;
+                setDisplayBounds(cachedBounds);
+                
                 clearCache();
             }
             // As a symetrical approach,  it would be nice to invoke 'prefetch(...)' inside
@@ -115,8 +140,6 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
             // and the zoom will be. We are better to wait until 'paint(...)' is invoked.
         }
     }
-
-
 
 
     public AWTCanvas2D(final AbstractRenderer renderer, final Component owner){
@@ -176,23 +199,6 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     }
 
     /**
-     * Returns a bounding box that contains the logical coordinates of all data that may be
-     * displayed in this {@code ZoomPane}. For example, if this {@code ZoomPane} is to display
-     * a geographic map, then this method should return the map's bounds in degrees of latitude
-     * and longitude. This bounding box is completely independent of any current zoom setting and
-     * will change only if the content changes.
-     *
-     * @return A bounding box for the logical coordinates of all contents that are going to be
-     *         drawn in this {@code ZoomPane}. If this bounding box is unknown, then this method
-     *         can return {@code null} (but this is not recommended).
-     */
-    public Rectangle2D getArea(){
-        //TODO : make method in renderer to grab this information
-//        renderer.getArea();
-        return null;
-    }
-
-    /**
      * Returns the display bounds in terms of {@linkplain #getDisplayCRS display CRS}.
      * If no bounds were {@linkplain #setDisplayBounds explicitly set}, then this method
      * returns the {@linkplain Component#getBounds() widget bounds}.
@@ -207,61 +213,13 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     }
 
     /**
-     * Returns the bounding box (in pixel coordinates) of the zoomable area.
-     * <strong>For performance reasons, this method reuses an internal cache.
-     * Never modify the returned rectangle!</strong>. This internal method
-     * is invoked by every method looking for this {@code ZoomPane}
-     * dimension.
-     *
-     * @return The bounding box of the zoomable area, in pixel coordinates
-     *         relative to this {@code ZoomPane} widget. <strong>Do not
-     *         change the returned rectangle!</strong>
-     */
-    private final Rectangle getZoomableBounds() {
-        return cachedBounds = getZoomableBounds(cachedBounds);
-    }
-
-    /**
-     * Returns the bounding box (in pixel coordinates) of the zoomable area. This method is similar
-     * to {@link #getBounds(Rectangle)}, except that the zoomable area may be smaller than the whole
-     * widget area. For example, a chart needs to keep some space for axes around the zoomable area.
-     * Another difference is that pixel coordinates are relative to the widget, i.e. the (0,0)
-     * coordinate lies on the {@code ZoomPane} upper left corner, no matter what its location on
-     * screen.
-     * <p>
-     * {@code ZoomPane} invokes {@code getZoomableBounds} when it needs to set up an initial
-     * {@link #zoom} value. Subclasses should also set the clip area to this bounding box in their
-     * {@link #paintComponent(Graphics2D)} method <em>before</em> setting the graphics transform.
-     * For example:
-     *
-     * <blockquote><pre>
-     * graphics.clip(getZoomableBounds(null));
-     * graphics.transform({@link #zoom});
-     * </pre></blockquote>
-     *
-     * @param  bounds An optional pre-allocated rectangle, or {@code null} to create a new one. This
-     *         argument is useful if the caller wants to avoid allocating a new object on the heap.
-     * @return The bounding box of the zoomable area, in pixel coordinates
-     *         relative to this {@code ZoomPane} widget.
-     */
-    protected Rectangle getZoomableBounds(Rectangle bounds) {
-        bounds = owner.getBounds(bounds);
-        if (bounds.isEmpty()) {
-            final Dimension size = owner.getPreferredSize();
-            bounds.width  = size.width;
-            bounds.height = size.height;
-        }
-        return bounds;
-    }
-
-    /**
      * Returns the preferred pixel size for a close zoom. For image rendering, the preferred pixel
      * size is the image's pixel size in logical units. For other kinds of rendering, this "pixel"
      * size should be some reasonable resolution. The default implementation computes a default
-     * value from {@link #getArea}.
+     * value from {@link #getGraphicsEnvelope2D}.
      */
     protected Dimension2D getPreferredPixelSize() {
-        final Rectangle2D area = getArea();
+        final Rectangle2D area = getGraphicsEnvelope2D();
         if (isValid(area)) {
             return new XDimension2D.Double(area.getWidth () / (10 * owner.getWidth ()),
                                            area.getHeight() / (10 * owner.getHeight()));
@@ -287,43 +245,14 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
 
     //----------------------AWT Paint methods ----------------------------------
     public void paint(Graphics2D output){
-
-        //correct the affineTransform
-
+        //correct the displayToDevice transform
         final AffineTransform normalize = output.getDeviceConfiguration().getNormalizingTransform();
         displayToDevice = new AffineTransform2D(normalize);
 
-
-
+        
         Rectangle clipBounds = output.getClipBounds();
 
-//        ReferencedEnvelope env = renderer.getGraphicsEnvelope();
-//        Dimension dim = owner.getSize();
-//        Rectangle rect = new Rectangle(dim);
-//        rect.x = 0;
-//        rect.y = 0;
-//
-//        GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
-//        mapper.setEnvelope(env);
-//        mapper.setGridRange(new GridRange2D( new Rectangle((int)rect.getWidth(),(int)rect.getHeight())));
-//
-//        try {
-//            objectiveToDisplay = new AffineTransform2D(mapper.createAffineTransform().createInverse());
-//        } catch (NoninvertibleTransformException ex) {
-//            ex.printStackTrace();
-//            Logger.getLogger(AWTCanvas2D.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-
-//        reset();
-
-
-        System.out.println("objectiveToDisplay => \n"+ objectiveToDisplay);
-
-
-
         AffineTransform2D objToDisp = null;
-
-        setDisplayBounds(owner.getBounds());
 
         //retrieve an affineTransform that will not be modify
         // while rendering
@@ -451,7 +380,6 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
 
     //--------------------Canvas Controller methods ----------------------------
 
-
     public AWTCanvas2D getController() {
         return this;
     }
@@ -467,7 +395,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      * This exception is necessary to avoid falling into an infinite loop.
      */
     public void reset() {
-        reset(getZoomableBounds(), true);
+        reset(getGraphicsEnvelope2D(), getDisplayBounds().getBounds(), true);
     }
 
     /**
@@ -482,11 +410,10 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      * @param yAxisUpward {@code true} if the <var>y</var> axis should point upwards rather than
      *        downwards.
      */
-    protected final void reset(final Rectangle zoomableBounds, final boolean yAxisUpward) {
+    protected final void reset(final Rectangle2D preferredArea, final Rectangle zoomableBounds, final boolean yAxisUpward) {
         if (!zoomableBounds.isEmpty()) {
             zoomableBounds.x = 0;
             zoomableBounds.y = 0;
-            final Rectangle2D preferredArea = getGraphicsEnvelope2D();
 
             if (isValid(preferredArea)) {
                 final AffineTransform change;
@@ -554,7 +481,6 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         DirectPosition oldCenter = getCenter();
         double diffX = center.getOrdinate(0) - oldCenter.getOrdinate(0);
         double diffY = center.getOrdinate(1) - oldCenter.getOrdinate(1);
-//        System.out.println("diff  => "+diffX +"  "+diffY );
         objectiveTranslate(diffX, diffY);
     }
 
@@ -582,7 +508,12 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     }
 
     public void objectiveTranslate(double x, double y){
-
+        Point2D dispCenter = getDisplayCenter();
+        DirectPosition center = getCenter();
+        Point2D objCenter = new Point2D.Double(center.getOrdinate(0) + x, center.getOrdinate(1) + y);
+        objCenter = objectiveToDisplay.transform(objCenter,objCenter);
+        
+        displayTranslate(dispCenter.getX() - objCenter.getX(), dispCenter.getY() - objCenter.getY());
     }
 
 
@@ -609,11 +540,14 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      * been constructed with the {@link #UNIFORM_SCALE} type.
      */
     public double getScale() {
-        final double m00 = objectiveToDisplay.getScaleX();
-        final double m11 = objectiveToDisplay.getScaleY();
-        final double m01 = objectiveToDisplay.getShearX();
-        final double m10 = objectiveToDisplay.getShearY();
-        return Math.sqrt(m00 * m00 + m11 * m11 + m01 * m01 + m10 * m10);
+        return XAffineTransform.getScale(objectiveToDisplay);
+        
+        //TODO : which one to keep
+//        final double m00 = objectiveToDisplay.getScaleX();
+//        final double m11 = objectiveToDisplay.getScaleY();
+//        final double m01 = objectiveToDisplay.getShearX();
+//        final double m10 = objectiveToDisplay.getShearY();
+//        return Math.sqrt(m00 * m00 + m11 * m11 + m01 * m01 + m10 * m10);
     }
 
     /**
@@ -649,11 +583,12 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     }
 
     public void setRotation(double r){
-
+        double rotation = getRotation();
+        rotate(rotation-r);
     }
 
     public double getRotation(){
-        return 0d;
+        return XAffineTransform.getRotation(objectiveToDisplay);
     }
 
     public void rotate(double r){
@@ -694,7 +629,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      * <pre>
      * {@link #zoom}.{@link AffineTransform#concatenate(AffineTransform) concatenate}(change);
      * {@link #fireZoomChanged(AffineTransform) fireZoomChanged}(change);
-     * {@link #repaint() repaint}({@link #getZoomableBounds getZoomableBounds}(null));
+     * {@link #repaint() repaint}({@link #getDisplayBounds getZoomableBounds}(null));
      * </pre>
      *
      * @param  change The zoom change, as an affine transform in logical coordinates. If
@@ -718,7 +653,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      * <pre>
      * {@link #zoom}.{@link AffineTransform#preConcatenate(AffineTransform) preConcatenate}(change);
      * {@link #fireZoomChanged(AffineTransform) fireZoomChanged}(<cite>change translated in logical units</cite>);
-     * {@link #repaint() repaint}({@link #getZoomableBounds getZoomableBounds}(null));
+     * {@link #repaint() repaint}({@link #getDisplayBounds getZoomableBounds}(null));
      * </pre>
      *
      * @param  change The zoom change, as an affine transform in pixel coordinates. If
@@ -742,25 +677,10 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         }
     }
 
-
-    public void setMapArea(ReferencedEnvelope env){
-        //TODO implemente this method 
-        
-        throw new UnsupportedOperationException("setMapAre not supported yet");
-//        Rectangle2D rect2d = owner.getBounds();
-//        Envelope componentEnv = new GeneralEnvelope(rect2d);
-//
-//        GridRange2D range = new GridRange2D( (int)env.getMinX(), (int)env.getMaxX(), (int)env.getWidth(), (int)env.getHeight());
-//
-//        GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
-//        mapper.setEnvelope(componentEnv);
-//        mapper.setGridRange(range);
-//
-//        objectiveToDisplay = new AffineTransform2D(mapper.createAffineTransform());
-//        System.out.println("NEW AFFINE \n" + objectiveToDisplay);
-//        owner.repaint();
+    public void setVisibleArea(ReferencedEnvelope env){        
+        Rectangle2D rect2D = new Rectangle2D.Double(env.getMinX(), env.getMinY(), env.getWidth(), env.getHeight());
+        reset(rect2D, getDisplayBounds().getBounds(), true);
     }
-
 
     /**
      * Defines the limits of the visible part, in logical coordinates.  This method will modify the
@@ -772,7 +692,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      */
     public void setVisibleArea(final Rectangle2D logicalBounds) throws IllegalArgumentException {
 //        log("setVisibleArea", logicalBounds);
-        transform(setVisibleArea(logicalBounds, getZoomableBounds()));
+        transform(setVisibleArea(logicalBounds, getDisplayBounds().getBounds()));
     }
 
     /**
@@ -782,7 +702,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      *
      * @param  source Logical coordinates of the region to be displayed.
      * @param  dest Pixel coordinates of the region of the window in which to
-     *         draw (normally {@link #getZoomableBounds()}).
+     *         draw (normally {@link #getDisplayBounds()}).
      * @param  mask A mask to {@code OR} with the {@link #type} for determining which
      *         kind of transformation are allowed. The {@link #type} is not modified.
      * @return Change to apply to the affine transform {@link #zoom}.

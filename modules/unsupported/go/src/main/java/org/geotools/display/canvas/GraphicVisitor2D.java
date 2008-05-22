@@ -1,8 +1,7 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2005, Institut de Recherche pour le Développement
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,13 +15,11 @@
  */
 package org.geotools.display.canvas;
 
-// J2SE dependencies
+
 import java.awt.geom.Point2D;
 
-// OpenGIS dependencies
 import org.opengis.display.primitive.Graphic;
 
-// Geotools dependencies
 import org.geotools.display.event.ReferencedEvent;
 import org.geotools.display.primitive.ReferencedGraphic;
 import org.geotools.display.primitive.ReferencedGraphic2D;
@@ -40,7 +37,7 @@ import org.geotools.display.primitive.ReferencedGraphic2D;
  * @since 2.3
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  *
  * @todo Use generic type when we will be allowed to compile for J2SE 1.5.
  */
