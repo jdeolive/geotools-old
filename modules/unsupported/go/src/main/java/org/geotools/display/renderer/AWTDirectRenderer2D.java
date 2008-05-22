@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +30,8 @@ import org.opengis.referencing.operation.TransformException;
 public abstract class AWTDirectRenderer2D extends AbstractRenderer2D{
 
     protected AWTCanvas2D canvas;
-    
+
+    private BufferedImage img;
     
     public AWTDirectRenderer2D(){
         super();
