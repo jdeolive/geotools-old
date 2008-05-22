@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
+import org.opengis.filter.Not;
 
 /**
  * TXT Test Case
@@ -85,7 +86,7 @@ public final class TXTTest extends TestCase{
     
     /**
      * <pre>
-     * &lt id predicate &gt ::= ID IN &lt id &gt {,&lt id &gt };
+     * &lt id predicate &gt ::= ID IN &lt id &gt [ NOT ]{,&lt id &gt };
      * 
      * Sample: ID IN states.1, states.2, states.3
      * </pre>
@@ -113,6 +114,41 @@ public final class TXTTest extends TestCase{
         assertTrue(strId3 + " was expected", resultIdentifiers.contains(strId3));
     }
     
+    /**
+     * <pre>
+     * &lt id predicate &gt ::= ID IN &lt id &gt [ NOT ]{,&lt id &gt };
+     * 
+     * Sample: ID NOT IN states.1, states.2, states.3
+     * </pre>
+     * @throws Exception
+     */
+    public void testNotFilterId() throws Exception {
+
+        Filter filter;
+        
+        final String strId1 = "states.1";
+        final String strId2 = "states.2";
+        final String strId3 = "states.3";
+        filter = TXT.toFilter("NOT ID IN '" + strId1 + "','" + strId2
+                + "', '" + strId3 + "'");
+        
+        assertNotNull(filter);
+        assertTrue("Not filter was expected",  filter instanceof Not);
+        
+        Not notFilter = (Not) filter;
+        filter = notFilter.getFilter();
+
+        Id filterId = (Id) filter;
+        Set<?> resultIdentifiers = filterId.getIDs();
+        assertTrue("one id in filter Id was expected",
+                resultIdentifiers.size() == 3);
+
+        assertTrue(strId1 + " was expected", resultIdentifiers.contains(strId1));
+
+        assertTrue(strId2 + " was expected", resultIdentifiers.contains(strId2));
+
+        assertTrue(strId3 + " was expected", resultIdentifiers.contains(strId3));
+    }
 
     /**
      * bad syntax in id predicate
@@ -132,6 +168,5 @@ public final class TXTTest extends TestCase{
         }
     }
     
-  
     
 }

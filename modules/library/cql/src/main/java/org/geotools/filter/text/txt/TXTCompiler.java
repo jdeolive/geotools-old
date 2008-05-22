@@ -31,6 +31,7 @@ import org.geotools.filter.text.generated.parsers.TokenMgrError;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.Id;
 import org.opengis.filter.Not;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.spatial.BinarySpatialOperator;
@@ -409,8 +410,15 @@ public class TXTCompiler extends TXTParser implements ICompiler{
             //return this.builder.buildLiteralString(getTokenInPosition(0).toString());
             return this.builder.buildFeatureID(getTokenInPosition(0));
             
-        case JJTID_LIST_NODE:
+        case JJTID_PREDICATE_NODE:
             return this.builder.buildFilterId(JJTFEATURE_ID_NODE);
+        
+        case JJTNOT_ID_PREDICATE_NODE:
+            
+            Id idFilter = this.builder.buildFilterId(JJTFEATURE_ID_NODE);
+            Not notIdFilter = this.builder.buildNotFilter(idFilter);
+
+            return notIdFilter;
         }
 
         return null;
