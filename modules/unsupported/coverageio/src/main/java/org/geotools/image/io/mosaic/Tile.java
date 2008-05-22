@@ -943,6 +943,7 @@ public class Tile implements Comparable<Tile>, Serializable {
      * Note that invoking this method usually invalidate {@link #gridToCRS}. Calls to this method
      * should be closely followed by calls to {@link #translate} for fixing the "gridToCRS" value.
      *
+     * @param region The region to assign to this tile.
      * @throws ArithmeticException if {@link #setSubsampling} has not be invoked.
      */
     final void setAbsoluteRegion(final Rectangle region) throws ArithmeticException {
@@ -952,6 +953,32 @@ public class Tile implements Comparable<Tile>, Serializable {
         y      = region.y      / ySubsampling;
         width  = region.width  / xSubsampling;
         height = region.height / ySubsampling;
+    }
+
+    /**
+     * Converts to given rectangle from absolute to relative coordinates.
+     * Coordinates are rounded to the smallest box enclosing fully the given region.
+     *
+     * @param region The rectangle to converts. Values are replaced in-place.
+     * @throws ArithmeticException if {@link #setSubsampling} has not be invoked.
+     */
+    final void absoluteToRelative(final Rectangle region) throws ArithmeticException {
+        int xmin = region.x;
+        int xmax = region.width  + xmin;
+        int ymin = region.y;
+        int ymax = region.height + ymin;
+        if (xmin < 0) xmin -= (xSubsampling - 1);
+        if (xmax > 0) xmax += (xSubsampling - 1);
+        if (ymin < 0) ymin -= (ySubsampling - 1);
+        if (ymax > 0) ymax += (ySubsampling - 1);
+        xmin /= xSubsampling;
+        xmax /= xSubsampling;
+        ymin /= ySubsampling;
+        ymax /= ySubsampling;
+        region.x = xmin;
+        region.y = ymin;
+        region.width  = xmax - xmin;
+        region.height = ymax - ymin;
     }
 
     /**
@@ -991,12 +1018,9 @@ public class Tile implements Comparable<Tile>, Serializable {
         assert Utilities.equals(getSubsamplingFloor(subsampling), subsampling) : subsampling;
         assert (subsampling.width  % xSubsampling) == 0 &&
                (subsampling.height % ySubsampling) == 0 : subsampling;
-        toRead.x           /= xSubsampling;
-        toRead.y           /= ySubsampling;
-        toRead.width       /= xSubsampling;
-        toRead.height      /= ySubsampling;
         subsampling.width  /= xSubsampling;
         subsampling.height /= ySubsampling;
+        absoluteToRelative(toRead);
         return countUnwantedPixels(toRead, subsampling);
     }
 

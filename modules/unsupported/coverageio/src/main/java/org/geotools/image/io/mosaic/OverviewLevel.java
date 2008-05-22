@@ -35,7 +35,8 @@ import org.geotools.resources.UnmodifiableArrayList;
 
 
 /**
- * A level of overview in a {@linkplain GridTileManager gridded tile manager}.
+ * A level of overview in a {@linkplain GridTileManager gridded tile manager}. Instances of this
+ * class can not be created or modified by public methods.
  * <p>
  * <b>Note:</b> This class as a {@link #compareTo} method which is inconsistent with
  * {@link #equals}.
@@ -63,15 +64,20 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     }
 
     /**
+     * A level with finer (smaller) subsampling value than this level, or {@code null} if none.
+     * Will be set by {@link #createLinkedList}.
+     */
+    private OverviewLevel finer;
+
+    /**
      * The overview level of this {@code OverviewLevel}. 0 is finest subsampling. Must match the
-     * element index in the sorted {@code GridTileManager.levels} array. Will be set by
-     * {@link #process}.
+     * element index in the sorted {@code GridTileManager.levels} array.
      */
     private int ordinal;
 
     /**
      * The number of tiles along <var>x</var> and <var>y</var> axis.
-     * Will be computed by {@link #process}.
+     * Will be computed by {@link #createLinkedList}.
      */
     private int nx, ny;
 
@@ -107,8 +113,9 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
 
     /**
      * On construction, the list of tiles {@linkplain #add added} in this level in no particular
-     * order. After {@linkplain #process processing}, the tiles that need to be retained because
-     * they can not be created on the fly from the {@linkplain #patterns}, or {@code null} if none.
+     * order. After {@linkplain #createLinkedList processing}, the tiles that need to be retained
+     * because they can not be created on the fly from the {@linkplain #patterns}, or {@code null}
+     * if none.
      */
     private List<Tile> tiles;
 
@@ -195,34 +202,15 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     }
 
     /**
-     * Returns the region in absolute coordinates. This is the region that the level would have
-     * if its subsampling was 1.
-     *
-     * @return The region in absolute coordinates.
-     */
-    final Rectangle getAbsoluteRegion() {
-        return new Rectangle(region.x * sx, region.y * sy, region.width * sx, region.height * sy);
-    }
-
-    /**
-     * If there is more than one tile, returns the tile size. Otherwise returns {@code null}.
-     *
-     * @return The tile size, or {@code null} if there is only one tile.
-     */
-    final Dimension getTileSize() {
-        if (region.width > width || region.height > height) {
-            return new Dimension(width, height);
-        }
-        return null;
-    }
-
-    /**
      * Once every tiles have been {@linkplain #add added} to this grid level, search for a pattern.
      *
      * @param ordinal The overview level of this {@code OverviewLevel}. 0 is finest subsampling.
+     * @param finer A level with finer (smaller) subsampling value than this level, or {@code null}.
      */
-    final void process(final int ordinal) {
+    final void createLinkedList(final int ordinal, final OverviewLevel finer) {
         this.ordinal = ordinal;
+        this.finer   = finer;
+        assert getFinerLevel() == finer; // For running the assertions inside getFinerLevel().
         assert (region.width % width == 0) && (region.height % height == 0) : region;
         nx = region.width  / width;
         ny = region.height / height;
@@ -286,7 +274,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
             patterns[index++] = entry.getKey();
             for (final Tile tile : entry.getValue()) {
                 final Point pt = getIndex2D(tile);
-                final int i = getIndex(pt);
+                final int i = getIndex(pt.x, pt.y);
                 final int p = patternUsed.getInteger(i);
                 if ((p != 0 && p != index) || (tiles != null && tiles.get(i) != null)) {
                     throw duplicatedTile(pt);
@@ -356,16 +344,16 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     /**
      * Returns the flat index for the given 2D index.
      *
-     * @param pt The 2D index obtained by {@link #getIndex2D}.
+     * @param  x,y The tile location, with (0,0) as the upper-left tile.
      * @return The corresponding index in a flat array.
      * @throws IndexOutOfBoundsException if the given index is out of bounds.
      */
-    private int getIndex(final Point pt) throws IndexOutOfBoundsException {
-        if (pt.x < 0 || pt.x >= nx || pt.y < 0 || pt.y >= ny) {
+    private int getIndex(final int x, final int y) throws IndexOutOfBoundsException {
+        if (x < 0 || x >= nx || y < 0 || y >= ny) {
             throw new IndexOutOfBoundsException(Errors.format(
-                    ErrorKeys.INDEX_OUT_OF_BOUNDS_$1, "(" + pt.x + ',' + pt.y + ')'));
+                    ErrorKeys.INDEX_OUT_OF_BOUNDS_$1, "(" + x + ',' + y + ')'));
         }
-        return pt.y * nx + pt.x;
+        return y * nx + x;
     }
 
     /**
@@ -387,7 +375,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
         final Tile[] array = new Tile[nx * ny];
         for (final Tile tile : tiles) {
             final Point pt = getIndex2D(tile);
-            final int index = getIndex(pt);
+            final int index = getIndex(pt.x, pt.y);
             if (array[index] != null && !tile.equals(array[index])) {
                 throw duplicatedTile(pt);
             }
@@ -396,32 +384,25 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
         return array;
     }
 
+
+    /////////////////////////////////////////////////////////////////////////////////
+    ////                                                                         ////
+    ////    End of construction methods. The remainding is for querying only.    ////
+    ////    None of the methods below should modify the OverviewLevel state.     ////
+    ////                                                                         ////
+    /////////////////////////////////////////////////////////////////////////////////
+
+
     /**
-     * Returns {@code true} if each tile in the given level contains an integer number of tiles at
-     * this level. More specifically, returns {@code true} if:
-     * <p>
-     * <ul>
-     *   <li>the size of tiles at this level is a divisor of the size of tiles at the given
-     *       level (this implies that the former is equals or smaller than the later);</li>
-     *   <li>The {@linkplain Tile#getLocation location} of every tiles at the given level
-     *       match the location of a (possibly missing) tile at this level.</li>
-     * </ul>
+     * Returns a level finer than this level, or {@code null} if this level is already the finest
+     * one.
      *
-     * @param level The level to test, or {@code null}.
-     * @return {@code true} if the given level is non-null and can be divised by this level.
+     * @return The next level toward finer ones, or {@code null} if none.
      */
-    public boolean isDivisorOf(final OverviewLevel level) {
-        if (level != null) {
-            final int w = width * sx; // The width in "absolute" units.
-            if ((level.width * level.sx) % w == 0) {
-                final int h = height * sy; // The height in "absolute" units.
-                if ((level.height * level.sy) % h == 0) {
-                    return (level.x * level.sx - x * sx) % w == 0 &&
-                           (level.y * level.sy - y * sy) % h == 0;
-                }
-            }
-        }
-        return false;
+    public OverviewLevel getFinerLevel() {
+        assert ((finer != null) ? (ordinal > 0) : (ordinal == 0)) : ordinal;
+        assert (finer == null) || (compareTo(finer) >= 0 && finer.ordinal == ordinal-1) : finer;
+        return finer;
     }
 
     /**
@@ -447,18 +428,63 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     }
 
     /**
-     * Returns a sample tile.
+     * If there is more than one tile, returns the tile size. Otherwise returns {@code null}.
+     * This special condition on the number of tile exists for {@link GridTileManager}
+     * implementation convenience.
+     *
+     * @return The tile size, or {@code null} if there is only one tile.
      */
-    final Tile getSample() {
+    public Dimension getTileSize() {
+        if (region.width > width || region.height > height) {
+            return new Dimension(width, height);
+        }
+        return null;
+    }
+
+    /**
+     * Returns the tiles bounding box in <cite>absolute</cite> coordinates. This is
+     * the bounding box that this level would have if its subsampling was 1.
+     *
+     * @return The region in absolute coordinates.
+     */
+    public Rectangle getAbsoluteRegion() {
+        return new Rectangle(region.x * sx, region.y * sy, region.width * sx, region.height * sy);
+    }
+
+    /**
+     * Returns {@code true} if the given bounds (in absolute coordinates) matches exactly the
+     * region of a tile or a group of tiles at this level. This method do not checks if the
+     * tiles actually exist.
+     *
+     * @param bounds The bounds to test.
+     * @return {@code true} if the given bounds matches tiles bounds.
+     */
+    private boolean isAbsoluteTilesRegion(final Rectangle bounds) {
+        final int w = width * sx; // The width in "absolute" units.
+        if (bounds.width % w == 0) {
+            final int h = height * sy; // The height in "absolute" units.
+            if (bounds.height % h == 0) {
+                return (bounds.x - x*sx) % w == 0 && (bounds.y - y*sy) % h == 0;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns a sample tile. The tile may be {@linkplain Tile#getLocation located} anywhere,
+     * and the {@linkplain Tile#getInput tile input} may not be usuable (it may be only a
+     * pattern for creating input on the fly).
+     */
+    public Tile getSampleTile() {
         if (sample == null) {
             if (patterns != null) {
                 // Should never be empty. If we get an IndexOutOfBoundsException,
-                // this is a bug in the process(int) method.
+                // then it would be a bug in the createLinkedList(...) method.
                 sample = patterns[0];
             } else {
                 // Should never be null when patterns == null and never empty. If we get
-                // a NullPointerException or an IndexOutOfBoundsException, this is a bug
-                // in the process(int) method.
+                // a NullPointerException or an IndexOutOfBoundsException, then it would
+                // be a bug in the createLinkedList(...) method.
                 sample = tiles.get(0);
             }
         }
@@ -468,16 +494,16 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     /**
      * Returns the tile at the given index.
      *
-     * @param  The tile location, with (0,0) as the upper-left tile.
+     * @param  x,y The tile location, with (0,0) as the upper-left tile.
      * @return The tile at the given location, or {@code null} if none.
      * @throws IndexOutOfBoundsException if the given index is out of bounds.
      * @throws MalformedURLException if an error occured while creating the URL for the tile.
      */
-    public Tile getTile(final Point location)
+    private Tile getTile(final int x, final int y)
             throws IndexOutOfBoundsException, MalformedURLException
     {
         Tile tile;
-        final int index = getIndex(location);
+        final int index = getIndex(x, y);
         /*
          * Checks for fully-created instance. Those instances are expected to exist if
          * some tile do not comply to a general pattern that this class can recognize.
@@ -513,7 +539,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
             formatter.applyPattern(pattern.substring(pattern.indexOf(':') + 1));
             lastPattern = p;
         }
-        final String filename = formatter.generateFilename(ordinal, location.x, location.y);
+        final String filename = formatter.generateFilename(ordinal, x, y);
         /*
          * We now have the filename to be given to the tile. Creates the appropriate object
          * (File, URL, URI or String) from it.
@@ -537,9 +563,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
          * Now creates the definitive tile.
          */
         return new Tile(tile, input, new Rectangle(
-                region.x + location.x * width,
-                region.y + location.y * height,
-                width, height));
+                region.x + x * width, region.y + y * height, width, height));
     }
 
     /**
@@ -576,10 +600,9 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
         final int n = nx * ny;
         int count = addTo.size();
         addTo.ensureCapacity(count + n);
-        final Point location = new Point();
-        for (location.y=0; location.y<ny; location.y++) {
-            for (location.x=0; location.x<nx; location.x++) {
-                final Tile tile = getTile(location);
+        for (int y=0; y<ny; y++) {
+            for (int x=0; x<nx; x++) {
+                final Tile tile = getTile(x, y);
                 if (tile != null) {
                     addTo.add(tile);
                 }
@@ -589,52 +612,111 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     }
 
     /**
-     * Returns the list of every tiles that intersect the given region. This is
+     * Adds to the given list every tiles that intersect the given region. This is
      * caller responsability to ensure that this level uses the subsampling of interest.
      *
+     * @param  addTo The list where to add the tiles.
      * @param  search The region of interest in absolute coordinates.
-     * @return The list of tiles in the given region.
+     * @param  subsampling The subsampling to apply on the tiles to be read.
+     *         Used for cost calculation.
+     * @param  costLimit If reading the returned tiles would have a cost equals or higher
+     *         than the given number, stop the search and returns {@code null}.
+     * @return The cost of reading the tiles, or {@code -1} if the cost limit has been reached
+     *         (in which case no tiles has been added to the list).
      * @throws IOException if an error occured while creating the URL for the tiles.
      */
-    final ArrayList<Tile> getTiles(final Rectangle search, final Dimension subsampling,
-                                   final OverviewLevel[] levels, final int index)
-            throws IOException
+    final long addTiles(final ArrayList<Tile> addTo, final Rectangle search,
+            final Dimension subsampling, final long costLimit) throws IOException
     {
-        assert levels[index] == this : index;
+        /*
+         * Converts the search rectangle from "absolute space" to "tile index space".
+         * Index can not be negative neither greater than (nx,ny). The (xmin,ymin)
+         * index are inclusive while the (xmax,ymax) index are exclusive.
+         */
         int xmin = search.x - sx * region.x;
         int ymin = search.y - sy * region.y;
         int xmax = xmin + search.width;
         int ymax = ymin + search.height;
-        final int w = width  * sx;
-        final int h = height * sy;
-        if (xmin >= 0) xmin /= w; else xmin = 0;
-        if (ymin >= 0) ymin /= h; else ymin = 0;
-        xmax = (xmax + (w - 1)) / w; // Round toward higher integer.
-        ymax = (ymax + (h - 1)) / h;
-        final int n = (xmax - xmin) * (ymax - ymin);
-        final ArrayList<Tile> addTo = new ArrayList<Tile>(n);
+        {
+            // Conversion occurs here.
+            final int w = width  * sx;
+            final int h = height * sy;
+            if (xmin >= 0) xmin /= w; else xmin = 0;
+            if (ymin >= 0) ymin /= h; else ymin = 0;
+            xmax = Math.min(nx, (xmax + (w - 1)) / w); // Round toward higher integer.
+            ymax = Math.min(ny, (ymax + (h - 1)) / h);
+        }
+        final int size = addTo.size();
+        if (size == 0) {
+            final int n = (xmax - xmin) * (ymax - ymin);
+            addTo.ensureCapacity(n);
+        }
+        /*
+         * Creates the destination array with a capacity equals to the maximal number of tiles
+         * expected at this level. The array may not be filled completly if the iteration gets
+         * some null tiles. The array way also expand belong the expected "maximal" size if we
+         * put tiles from finer levels into the mix (as the loop below may do).
+         */
+        long totalCost = 0;
         final Rectangle tileRegion = new Rectangle();
-        final Point location = new Point();
-        for (location.y=ymin; location.y<ymax; location.y++) {
-            for (location.x=xmin; location.x<xmax; location.x++) {
-                final Tile tile = getTile(location);
+        assert subsampling.width % sx == 0 && subsampling.height % sy == 0 : subsampling;
+        final Dimension sub = new Dimension(subsampling.width / sx, subsampling.height / sy);
+        for (int y=ymin; y<ymax; y++) {
+nextTile:   for (int x=xmin; x<xmax; x++) {
+                final Tile tile = getTile(x, y);
                 if (tile == null) {
                     continue;
                 }
-                tileRegion.x = location.x * w;
-                tileRegion.y = location.y * h;
-                tileRegion.width  = w;
-                tileRegion.height = h;
-                assert !tile.getClass().equals(Tile.class) ||
-                        tileRegion.equals(tile.getAbsoluteRegion()) : tileRegion;
-                for (int i=index; --i>=0;) {
-                    final OverviewLevel previous = levels[i];
-                    // TODO
+                /*
+                 * We have found a tile to add to the list. Before doing so, computes the cost
+                 * of reading this tile and checks if reading a tile at a finer level would be
+                 * cheaper.
+                 */
+                tileRegion.x = x * width;
+                tileRegion.y = y * height;
+                tileRegion.width  = width;
+                tileRegion.height = height;
+                final long cost = tile.countUnwantedPixels(tileRegion, sub); // Uses relative coord.
+                if (cost != 0) {
+                    totalCost += cost;
+                    if (totalCost >= costLimit) {
+                        /*
+                         * The new tile increases the cost above the limit. Forget the tiles found
+                         * so far and cancel the search. Note that it is theorically possible that
+                         * the search in finer levels (code below) finds cheaper tiles which would
+                         * have allowed us to stay below the cost limit. We could have enabled this
+                         * case by performing this check at the end of the loop rather than now.
+                         * However doing so implies that every levels are tested recursively down
+                         * to the finest level. We have more to gain by stopping this method early
+                         * instead.
+                         */
+                        addTo.subList(size, addTo.size()).clear();
+                        return -1;
+                    }
+                    tileRegion.x *= sx; tileRegion.width  *= sx; // Convert to absolute coordinates.
+                    tileRegion.y *= sy; tileRegion.height *= sy;
+                    assert tileRegion.equals(tile.getAbsoluteRegion()) ||
+                            !tile.getClass().equals(Tile.class) : tileRegion;
+                    OverviewLevel previous = this;
+                    while ((previous = previous.getFinerLevel()) != null) {
+                        if (!previous.isAbsoluteTilesRegion(tileRegion)) {
+                            continue;
+                        }
+                        final Rectangle clipped = tileRegion.intersection(search);
+                        final long c = previous.addTiles(addTo, clipped, subsampling, cost);
+                        if (c >= 0) {
+                            // Tiles at the finer level are cheaper than the current tiles. So keep
+                            // them (they have been added to the 'addTo' array) and discart 'tile'.
+                            totalCost += (c - cost);
+                            continue nextTile;
+                        }
+                        break;
+                    }
                 }
                 addTo.add(tile);
             }
         }
-        return addTo;
+        return totalCost;
     }
 
     /**
