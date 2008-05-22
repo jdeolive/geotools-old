@@ -1,16 +1,10 @@
 package org.geotools.arcsde.pool;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Transaction;
-
-import com.esri.sde.sdk.client.SeException;
 
 /**
  * This ArcSDEConnectionPool makes a maximum of *one* Connection available to the calling
@@ -37,7 +31,7 @@ public class ArcSDEConnectionReference extends ArcSDEConnectionPool {
     /**
      * Our "cached" session used to issue read only commands.
      */
-    Session cached;
+    ISession cached;
 
     /**
      * Current Transaction used to track what our single connection is up to.
@@ -54,7 +48,7 @@ public class ArcSDEConnectionReference extends ArcSDEConnectionPool {
 
     @Override
     public <T> T issueReadOnly(Command<T> command) throws IOException {
-        if (cached != null && !cached.isPassivated() && !cached.isClosed()) {
+        if (cached != null && !cached.isDisposed() && !cached.isClosed()) {
             return cached.issue(command);
         } else {
             return super.issueReadOnly(command);
@@ -62,7 +56,7 @@ public class ArcSDEConnectionReference extends ArcSDEConnectionPool {
     }
 
     @Override
-    public Session getSession() throws DataSourceException, UnavailableArcSDEConnectionException {
+    public ISession getSession() throws DataSourceException, UnavailableArcSDEConnectionException {
         this.cached = super.getSession(); // this will block if session is already in use
         return cached;
     }

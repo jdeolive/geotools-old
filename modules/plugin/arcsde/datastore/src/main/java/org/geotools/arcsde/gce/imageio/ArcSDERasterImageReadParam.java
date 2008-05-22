@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 import javax.imageio.ImageReadParam;
 
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeRasterBand;
@@ -66,7 +66,7 @@ import com.esri.sde.sdk.client.SeRasterBand;
  */
 public class ArcSDERasterImageReadParam extends ImageReadParam {
 
-    protected Session session;
+    protected ISession session;
 
     protected HashMap<Integer, Integer> bandMapper;
 
@@ -78,11 +78,11 @@ public class ArcSDERasterImageReadParam extends ImageReadParam {
         this.bandMapper = bandMapper;
     }
 
-    public Session getConnection() {
+    public ISession getConnection() {
         return session;
     }
 
-    public void setConnection(Session session) {
+    public void setConnection(ISession session) {
         this.session = session;
     }
 }

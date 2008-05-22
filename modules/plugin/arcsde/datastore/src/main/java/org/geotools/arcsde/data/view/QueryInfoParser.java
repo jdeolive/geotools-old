@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
@@ -57,7 +57,7 @@ public class QueryInfoParser {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(QueryInfoParser.class.getPackage().getName());
 
-    public static SeQueryInfo parse(Session session, PlainSelect select) throws SeException,
+    public static SeQueryInfo parse(ISession session, PlainSelect select) throws SeException,
             IOException {
         String[] columns = null;
         String[] tables = null;
@@ -131,7 +131,7 @@ public class QueryInfoParser {
      * @return <code>null</code> if <code>selectItems</code> is null or contains only an
      *         {@link net.sf.jsqlparser.statement.select.AllColumns}
      */
-    private static String[] getColumns(Session session, List selectItems) throws IOException {
+    private static String[] getColumns(ISession session, List selectItems) throws IOException {
         if (selectItems == null || selectItems.size() == 0) {
             return null;
         }
@@ -159,7 +159,7 @@ public class QueryInfoParser {
         return columns;
     }
 
-    private static List getTableColumns(Session session, Table table) throws IOException {
+    private static List getTableColumns(ISession session, Table table) throws IOException {
         List colNames = new ArrayList();
         String tableName = table.getSchemaName() + "." + table.getName();
         SeColumnDefinition[] cols = session.describe(tableName);

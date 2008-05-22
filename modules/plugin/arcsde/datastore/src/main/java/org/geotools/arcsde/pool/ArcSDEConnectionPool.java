@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Transaction;
 
@@ -117,11 +116,11 @@ public class ArcSDEConnectionPool {
                 maxWait, true, true);
         LOGGER.info("Created ArcSDE connection pool for " + config);
 
-        Session[] preload = new Session[minConnections];
+        ISession[] preload = new ISession[minConnections];
 
         try {
             for (int i = 0; i < minConnections; i++) {
-                preload[i] = (Session) this.pool.borrowObject();
+                preload[i] = (ISession) this.pool.borrowObject();
                 if (i == 0) {
                     SeRelease seRelease = preload[i].getRelease();
                     String sdeDesc = seRelease.getDesc();
@@ -143,7 +142,7 @@ public class ArcSDEConnectionPool {
     }
 
     /**
-     * SeConnectionFactory used to create ArcSDEPooledConnection instances for the pool.
+     * SeConnectionFactory used to create {@link ISession} instances for the pool.
      * <p>
      * Subclass may overide to customize this behaviour.
      * </p>
@@ -215,11 +214,11 @@ public class ArcSDEConnectionPool {
      * @return Connection
      */
     public <T> T issueReadOnly(final Command<T> command) throws IOException {
-        Session session = getSession();
+        ISession session = getSession();
         try {
             return session.issue(command);
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
@@ -233,8 +232,8 @@ public class ArcSDEConnectionPool {
      * @param transaction
      * @return the session associated with the transaction
      */
-    public Session getSession(Transaction transaction) throws IOException {
-        final Session session;
+    public ISession getSession(Transaction transaction) throws IOException {
+        final ISession session;
         if (Transaction.AUTO_COMMIT.equals(transaction)) {
             session = getSession();
         } else {
@@ -254,7 +253,7 @@ public class ArcSDEConnectionPool {
      * @throws UnavailableArcSDEConnectionException If we are out of connections
      * @throws IllegalStateException If pool has been closed.
      */
-    public Session getSession() throws DataSourceException, UnavailableArcSDEConnectionException {
+    public ISession getSession() throws DataSourceException, UnavailableArcSDEConnectionException {
         if (pool == null) {
             throw new IllegalStateException("The ConnectionPool has been closed.");
         }
@@ -270,7 +269,8 @@ public class ArcSDEConnectionPool {
 
             if (LOGGER.isLoggable(Level.FINER)) {
                 // System.err.println("-> " + caller + " got " + connection);
-                LOGGER.finer(connection + " out of connection pool");
+                LOGGER.finer("-->" + connection + " out of connection pool. Active: "
+                        + pool.getNumActive() + ", idle: " + pool.getNumIdle());
             }
 
             connection.markActive();
@@ -299,7 +299,7 @@ public class ArcSDEConnectionPool {
      */
     @SuppressWarnings("unchecked")
     public List<String> getAvailableLayerNames() throws IOException {
-        final Session session;
+        final ISession session;
 
         final List<String> layerNames;
         try {
@@ -311,7 +311,7 @@ public class ArcSDEConnectionPool {
         try {
             layerNames = session.issue(new Command<List<String>>() {
                 @Override
-                public List<String> execute(Session session, SeConnection connection)
+                public List<String> execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     final List<String> layerNames = new LinkedList<String>();
                     final List<SeLayer> layers = session.getLayers();
@@ -324,7 +324,7 @@ public class ArcSDEConnectionPool {
                 }
             });
         } finally {
-            session.close();
+            session.dispose();
         }
 
         return layerNames;
@@ -371,7 +371,7 @@ public class ArcSDEConnectionPool {
             NegativeArraySizeException cause = null;
             for (int i = 0; i < 3; i++) {
                 try {
-                    Session seConn = new Session(ArcSDEConnectionPool.this.pool, config);
+                    ISession seConn = new Session(ArcSDEConnectionPool.this.pool, config);
                     return seConn;
                 } catch (NegativeArraySizeException nase) {
                     LOGGER.warning("Strange failed ArcSDE connection error.  Trying again (try "
@@ -380,7 +380,7 @@ public class ArcSDEConnectionPool {
                 }
             }
             throw new DataSourceException(
-                    "Couldn't create ArcSDEPooledConnection because of strange SDE internal exception.  Tried 3 times, giving up.",
+                    "Couldn't create ArcSDE Session because of strange SDE internal exception.  Tried 3 times, giving up.",
                     cause);
         }
 
@@ -393,12 +393,12 @@ public class ArcSDEConnectionPool {
         public void activateObject(Object obj) {
             final Session conn = (Session) obj;
             conn.markActive();
-            LOGGER.finest("activating connection " + obj);
+            LOGGER.finest("    activating connection " + obj);
         }
 
         @Override
         public void passivateObject(Object obj) {
-            LOGGER.finest("passivating connection " + obj);
+            LOGGER.finest("    passivating connection " + obj);
             final Session conn = (Session) obj;
             conn.markInactive();
         }
@@ -413,14 +413,18 @@ public class ArcSDEConnectionPool {
          */
         @Override
         public boolean validateObject(Object obj) {
-            Session session = (Session) obj;
+            ISession session = (ISession) obj;
             boolean valid = !session.isClosed();
             // MAKE PROPER VALIDITY CHECK HERE as for GEOT-1273
             if (valid) {
                 try {
-                    LOGGER.finest("Validating SDE Connection");
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("    Validating SDE Connection " + session);
+                    }
                     String user = session.getUser();
-                    LOGGER.finer("Connection validated, returned user " + user);
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("    Connection validated, user: " + user);
+                    }
                 } catch (IOException e) {
                     LOGGER.info("Can't validate SeConnection, discarding it: " + session);
                     valid = false;

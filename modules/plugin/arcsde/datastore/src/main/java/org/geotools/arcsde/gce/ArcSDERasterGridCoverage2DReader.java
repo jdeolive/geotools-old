@@ -41,7 +41,7 @@ import org.geotools.arcsde.gce.imageio.ArcSDERasterReaderSpi;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
@@ -259,7 +259,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
             Rectangle requestedDim,
             Integer forcedLevel) throws IOException {
 
-        Session session = null;
+        ISession session = null;
         try {
 
             if (LOGGER.isLoggable(Level.INFO))
@@ -459,7 +459,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
             throw new DataSourceException(uce);
         } finally {
             if (session != null)
-                session.close();
+                session.dispose();
         }
     }
 
@@ -550,7 +550,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
             throw new DataSourceException("Raster Attributes are null, can't calculated CRS info.");
         }
 
-        Session session = null;
+        ISession session = null;
         try {
             session = connectionPool.getSession();
             SeRasterColumn rCol = session
@@ -600,7 +600,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
             throw new DataSourceException(e);
         } finally {
             if (session != null && !session.isClosed())
-                session.close();
+                session.dispose();
         }
     }
 
@@ -661,7 +661,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
         connectionPool = ArcSDEConnectionPoolFactory.getInstance().createPool(sdeConfig);
 
         try {
-            Session session = connectionPool.getSession();
+            ISession session = connectionPool.getSession();
 
             SeTable sTable = session.getTable(rasterTable);
             SeQuery q = null;
@@ -688,7 +688,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
                         + rasterTable + ": " + se.getSeError().getErrDesc(), se);
             } finally {
                 if (!session.isClosed())
-                    session.close();
+                    session.dispose();
             }
 
         } catch (UnavailableArcSDEConnectionException uce) {

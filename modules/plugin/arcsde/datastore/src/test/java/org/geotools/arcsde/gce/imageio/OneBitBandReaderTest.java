@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 
 import org.geotools.arcsde.gce.ArcSDEPyramid;
 import org.geotools.arcsde.gce.RasterTestData;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.referencing.CRS;
 import org.geotools.util.logging.Logging;
 import org.junit.AfterClass;
@@ -44,7 +44,7 @@ public class OneBitBandReaderTest {
         rasterTestData.setUp();
         rasterTestData.load1bitRaster();
 
-        Session session = null;
+        ISession session = null;
         SeQuery q = null;
         ArcSDEPyramid pyramid;
         SeRow r;
@@ -76,7 +76,7 @@ public class OneBitBandReaderTest {
             if (q != null)
                 q.close();
             if (session != null) {
-                session.close();
+                session.dispose();
             }
         }
     }
@@ -91,7 +91,7 @@ public class OneBitBandReaderTest {
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(readerProps);
 
-        Session session = null;
+        ISession session = null;
         try {
             session = rasterTestData.getTestData().getConnectionPool().getSession();
 
@@ -138,7 +138,7 @@ public class OneBitBandReaderTest {
             throw e;
         } finally {
             if (session != null && !session.isClosed())
-                session.close();
+                session.dispose();
         }
     }
 
@@ -147,7 +147,7 @@ public class OneBitBandReaderTest {
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(readerProps);
 
-        Session session = null;
+        ISession session = null;
         try {
             session = rasterTestData.getTestData().getConnectionPool().getSession();
 
@@ -194,7 +194,7 @@ public class OneBitBandReaderTest {
             throw e;
         } finally {
             if (session != null && !session.isClosed())
-                session.close();
+                session.dispose();
         }
     }
 
@@ -203,7 +203,7 @@ public class OneBitBandReaderTest {
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(readerProps);
 
-        Session session = null;
+        ISession session = null;
         try {
             session = rasterTestData.getTestData().getConnectionPool().getSession();
 
@@ -250,7 +250,7 @@ public class OneBitBandReaderTest {
             throw e;
         } finally {
             if (session != null && !session.isClosed())
-                session.close();
+                session.dispose();
         }
     }
 
@@ -259,7 +259,7 @@ public class OneBitBandReaderTest {
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(readerProps);
 
-        Session session = null;
+        ISession session = null;
         try {
             session = rasterTestData.getTestData().getConnectionPool().getSession();
 
@@ -308,7 +308,7 @@ public class OneBitBandReaderTest {
             throw e;
         } finally {
             if (session != null && !session.isClosed())
-                session.close();
+                session.dispose();
         }
     }
 
@@ -317,7 +317,7 @@ public class OneBitBandReaderTest {
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(readerProps);
 
-        Session session = null;
+        ISession session = null;
         try {
             session = rasterTestData.getTestData().getConnectionPool().getSession();
 
@@ -366,7 +366,7 @@ public class OneBitBandReaderTest {
             throw e;
         } finally {
             if (session != null && !session.isClosed())
-                session.close();
+                session.dispose();
         }
     }
 
@@ -375,7 +375,7 @@ public class OneBitBandReaderTest {
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(readerProps);
 
-        Session session = null;
+        ISession session = null;
         try {
             session = rasterTestData.getTestData().getConnectionPool().getSession();
 
@@ -424,7 +424,7 @@ public class OneBitBandReaderTest {
             throw e;
         } finally {
             if (session != null && !session.isClosed())
-                session.close();
+                session.dispose();
         }
     }
 

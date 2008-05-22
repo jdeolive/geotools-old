@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.opengis.geometry.BoundingBox;
@@ -103,7 +103,7 @@ public class ArcSDEPyramidTest extends TestCase {
      */
     public void donttestArcSDEPyramidThreeBand() throws Exception {
 
-        Session session = pool.getSession();
+        ISession session = pool.getSession();
         SeRasterAttr rAttr;
         try {
             SeQuery q = session.createAndExecuteQuery(new String[] { "RASTER" },
@@ -111,13 +111,13 @@ public class ArcSDEPyramidTest extends TestCase {
             SeRow r = q.fetch();
             rAttr = r.getRaster(0);
         } catch (SeException se) {
-            session.close();
+            session.dispose();
             throw new RuntimeException(se.getSeError().getErrDesc(), se);
         }
 
         CoordinateReferenceSystem crs = CRS.decode(conProps.getProperty("tableCRS"));
         ArcSDEPyramid pyramid = new ArcSDEPyramid(rAttr, crs);
-        session.close();
+        session.dispose();
 
         assertTrue(pyramid.getPyramidLevel(0).getYOffset() != 0);
 
@@ -149,7 +149,7 @@ public class ArcSDEPyramidTest extends TestCase {
      */
     public void testArcSDEPyramidFourBand() throws Exception {
 
-        Session session = pool.getSession();
+        ISession session = pool.getSession();
         SeRasterAttr rAttr;
         try {
             SeQuery q = session.createAndExecuteQuery(new String[] { "RASTER" },
@@ -157,13 +157,13 @@ public class ArcSDEPyramidTest extends TestCase {
             SeRow r = q.fetch();
             rAttr = r.getRaster(0);
         } catch (SeException se) {
-            session.close();
+            session.dispose();
             throw new RuntimeException(se.getSeError().getErrDesc(), se);
         }
 
         CoordinateReferenceSystem crs = CRS.decode(conProps.getProperty("tableCRS"));
         ArcSDEPyramid pyramid = new ArcSDEPyramid(rAttr, crs);
-        session.close();
+        session.dispose();
 
         assertTrue(pyramid.getPyramidLevel(0).getYOffset() != 0);
 

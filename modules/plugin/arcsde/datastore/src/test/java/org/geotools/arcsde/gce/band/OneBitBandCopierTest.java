@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 
 import org.geotools.arcsde.gce.RasterTestData;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.util.logging.Logging;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -50,7 +50,7 @@ public class OneBitBandCopierTest {
     public void testLiveOneBitAlignedRasterTile() throws Exception {
         final String tableName = rasterTestData.get1bitRasterTableName();
 
-        Session session = null;
+        ISession session = null;
         try {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
@@ -93,7 +93,7 @@ public class OneBitBandCopierTest {
             LOGGER.log(Level.SEVERE, se.getSeError().getErrDesc(), se);
         } finally {
             if (session != null)
-                session.close();
+                session.dispose();
         }
     }
 
@@ -101,7 +101,7 @@ public class OneBitBandCopierTest {
     public void testLiveOneBitUnalignedRasterTile() throws Exception {
         final String tableName = rasterTestData.get1bitRasterTableName();
 
-        Session session = null;
+        ISession session = null;
         try {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
@@ -148,7 +148,7 @@ public class OneBitBandCopierTest {
             LOGGER.log(Level.SEVERE, se.getSeError().getErrDesc(), se);
         } finally {
             if (session != null)
-                session.close();
+                session.dispose();
         }
     }
 

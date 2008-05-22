@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;
@@ -83,7 +83,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
     /**
      * Connection to hold while this feature writer is alive.
      */
-    protected Session session;
+    protected ISession session;
 
     /**
      * Reader for streamed access to filtered content this writer acts upon.
@@ -134,7 +134,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
     public ArcSdeFeatureWriter(final FIDReader fidReader,
                                final SimpleFeatureType featureType,
                                final FeatureReader<SimpleFeatureType, SimpleFeature> filteredContent,
-                               final Session session,
+                               final ISession session,
                                final FeatureListenerManager listenerManager,
                                final ArcSdeVersionHandler versionHandler) throws IOException {
 
@@ -192,10 +192,10 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         }
 
         // let repeatedly calling close() be inoffensive
-        if (session != null) {
-            session.close();
-            session = null;
+        if (session != null && !session.isDisposed()) {
+            session.dispose();
         }
+        session = null;
     }
 
     /**
@@ -261,7 +261,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
         final Command<Void> deleteCmd = new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 try {
                     // A call to SeDelete.byId immediately deletes the row from the
@@ -351,7 +351,6 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
      * @see FeatureWriter#write()
      */
     public void write() throws IOException {
-        // final ArcSDEPooledConnection connection = getConnection();
         final SeLayer layer = getLayer();
         if (isNewlyCreated(feature)) {
             Number newId;
@@ -399,7 +398,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         final SeCoordinateReference seCoordRef = session
                 .issue(new Command<SeCoordinateReference>() {
                     @Override
-                    public SeCoordinateReference execute(Session session, SeConnection connection)
+                    public SeCoordinateReference execute(ISession session, SeConnection connection)
                             throws SeException, IOException {
                         return layer.getCoordRef();
                     }
@@ -415,7 +414,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
         final Command<Void> updateCmd = new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 try {
                     final SeRow row = updateStream.singleRow(seObjectId, typeName, rowColumnNames);
@@ -463,7 +462,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         final Command<Number> insertCmd = new Command<Number>() {
 
             @Override
-            public Number execute(Session session, SeConnection connection) throws SeException,
+            public Number execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 final SeRow row;
                 Number newId;
@@ -693,8 +692,8 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
             shapeAttributeName = session.issue(new Command<String>() {
                 @Override
-                public String execute(Session session, SeConnection connection) throws SeException,
-                        IOException {
+                public String execute(ISession session, SeConnection connection)
+                        throws SeException, IOException {
                     SeLayer layer = session.getLayer(typeName);
                     return layer.getShapeAttributeName(SeLayer.SE_SHAPE_ATTRIBUTE_FID);
                 }
@@ -783,7 +782,6 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
     private SeTable getTable() throws IOException {
         if (this.cachedTable == null) {
-            // final ArcSDEPooledConnection connection = getConnection();
             final String typeName = this.featureType.getTypeName();
             this.cachedTable = session.getTable(typeName);
         }
@@ -792,7 +790,6 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
     private SeLayer getLayer() throws IOException {
         if (this.cachedLayer == null) {
-            // final ArcSDEPooledConnection connection = getConnection();
             final String typeName = this.featureType.getTypeName();
             final SeLayer layer = session.getLayer(typeName);
             this.cachedLayer = layer;
@@ -824,7 +821,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         return id.startsWith(NEW_FID_PREFIX);
     }
 
-    public Session getSession() {
+    public ISession getSession() {
         return session;
     }
 }

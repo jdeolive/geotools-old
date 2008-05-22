@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.CaseExpression;
@@ -77,7 +77,7 @@ class ExpressionQualifier implements ExpressionVisitor {
     private Expression _qualifiedExpression;
 
     /** DOCUMENT ME! */
-    private Session session;
+    private ISession session;
 
     private Map tableAliases;
 
@@ -86,7 +86,7 @@ class ExpressionQualifier implements ExpressionVisitor {
      * 
      * @param session DOCUMENT ME!
      */
-    private ExpressionQualifier(Session session, Map tableAliases) {
+    private ExpressionQualifier(ISession session, Map tableAliases) {
         this.session = session;
         this.tableAliases = tableAliases;
     }
@@ -98,7 +98,7 @@ class ExpressionQualifier implements ExpressionVisitor {
      * @param exp DOCUMENT ME!
      * @return DOCUMENT ME!
      */
-    public static Expression qualify(Session session, Map tableAliases, Expression exp) {
+    public static Expression qualify(ISession session, Map tableAliases, Expression exp) {
         if (exp == null) {
             return null;
         }

@@ -18,7 +18,7 @@ package org.geotools.arcsde.data.view;
 
 import java.io.IOException;
 
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 
 import net.sf.jsqlparser.schema.Table;
 
@@ -45,7 +45,7 @@ class TableQualifier {
      * @throws IllegalStateException if an SDE error is catched up while asking <code>conn</code>
      *             for the database and user name.
      */
-    public static Table qualify(Session session, Table table) throws IllegalStateException {
+    public static Table qualify(ISession session, Table table) throws IllegalStateException {
         if (table == null) {
             return null;
         }

@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -45,7 +45,7 @@ class ItemsListQualifier implements ItemsListVisitor {
     ItemsList _qualifiedList;
 
     /** DOCUMENT ME! */
-    private Session session;
+    private ISession session;
 
     private Map tableAliases;
 
@@ -54,7 +54,7 @@ class ItemsListQualifier implements ItemsListVisitor {
      * 
      * @param session DOCUMENT ME!
      */
-    public ItemsListQualifier(Session session, Map tableAliases) {
+    public ItemsListQualifier(ISession session, Map tableAliases) {
         this.session = session;
         this.tableAliases = tableAliases;
     }
@@ -66,7 +66,7 @@ class ItemsListQualifier implements ItemsListVisitor {
      * @param items DOCUMENT ME!
      * @return DOCUMENT ME!
      */
-    public static ItemsList qualify(Session session, Map tableAliases, ItemsList items) {
+    public static ItemsList qualify(ISession session, Map tableAliases, ItemsList items) {
         if (items == null) {
             return null;
         }

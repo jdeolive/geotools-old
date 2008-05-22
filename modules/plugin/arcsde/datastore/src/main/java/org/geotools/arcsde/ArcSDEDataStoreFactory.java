@@ -28,7 +28,7 @@ import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.pool.ArcSDEConnectionReference;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
@@ -196,7 +196,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         ArcSDEConnectionPool connPool = poolFactory.createPool(config);
 
         // check to see if our sdk is compatible with this arcsde instance
-        Session session = null;
+        ISession session = null;
         try {
             session = connPool.getSession();
             SeRelease releaseInfo = session.getRelease();
@@ -225,7 +225,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
             }
         } finally {
             if (session != null)
-                session.close();
+                session.dispose();
         }
 
         String namespaceUri = config.getNamespaceUri();

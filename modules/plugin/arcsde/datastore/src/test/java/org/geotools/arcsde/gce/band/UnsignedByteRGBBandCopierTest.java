@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 
 import org.geotools.arcsde.gce.RasterTestData;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.util.logging.Logging;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -50,7 +50,7 @@ public class UnsignedByteRGBBandCopierTest {
     public void testLiveRGBRasterTile() throws Exception {
         final String tableName = rasterTestData.getRGBRasterTableName();
 
-        Session session = null;
+        ISession session = null;
         try {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
@@ -91,7 +91,7 @@ public class UnsignedByteRGBBandCopierTest {
             LOGGER.log(Level.SEVERE, se.getSeError().getErrDesc(), se);
         } finally {
             if (session != null)
-                session.close();
+                session.dispose();
         }
     }
 

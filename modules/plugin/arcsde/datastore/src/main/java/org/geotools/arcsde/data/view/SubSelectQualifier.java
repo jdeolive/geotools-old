@@ -16,7 +16,7 @@
  */
 package org.geotools.arcsde.data.view;
 
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectBody;
@@ -41,7 +41,7 @@ class SubSelectQualifier {
      * @param subSelect DOCUMENT ME!
      * @return DOCUMENT ME!
      */
-    public static SubSelect qualify(Session session, SubSelect subSelect) {
+    public static SubSelect qualify(ISession session, SubSelect subSelect) {
         String alias = subSelect.getAlias();
         SelectBody select = subSelect.getSelectBody();
 

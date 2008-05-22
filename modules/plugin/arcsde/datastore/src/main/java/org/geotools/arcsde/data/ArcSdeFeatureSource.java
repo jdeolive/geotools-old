@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureListener;
@@ -134,13 +134,13 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      */
     public final ReferencedEnvelope getBounds(final Query query) throws IOException {
         final Query namedQuery = namedQuery(query);
-        final Session session = getSession();
+        final ISession session = getSession();
         ReferencedEnvelope ev;
         try {
             ev = getBounds(namedQuery, session);
         } finally {
             if (!session.isTransactionActive()) {
-                session.close();
+                session.dispose();
             }
         }
         return ev;
@@ -154,7 +154,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      * @throws DataSourceException
      * @throws IOException
      */
-    protected ReferencedEnvelope getBounds(final Query namedQuery, final Session session)
+    protected ReferencedEnvelope getBounds(final Query namedQuery, final ISession session)
             throws DataSourceException, IOException {
 
         final String typeName = typeInfo.getFeatureTypeName();
@@ -188,13 +188,13 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      */
     public final int getCount(final Query query) throws IOException {
         final Query namedQuery = namedQuery(query);
-        final Session session = getSession();
+        final ISession session = getSession();
         final int count;
         try {
             count = getCount(namedQuery, session);
         } finally {
             if (!session.isTransactionActive()) {
-                session.close();
+                session.dispose();
             }
         }
         return count;
@@ -203,7 +203,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
     /**
      * @see FeatureSource#getCount(Query)
      */
-    protected int getCount(final Query namedQuery, final Session session) throws IOException {
+    protected int getCount(final Query namedQuery, final ISession session) throws IOException {
         final int count;
         final String typeName = typeInfo.getFeatureTypeName();
         final ArcSdeVersionHandler versionHandler = dataStore.getVersionHandler(typeName,
@@ -223,7 +223,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      * @return
      * @throws IOException
      */
-    protected final Session getSession() throws IOException {
+    protected final ISession getSession() throws IOException {
         return dataStore.getSession(transaction);
     }
 
@@ -252,8 +252,8 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
     public final FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(final Query query)
             throws IOException {
         final Query namedQuery = namedQuery(query);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = new ArcSdeFeatureCollection(
-                this, namedQuery);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+        collection = new ArcSdeFeatureCollection(this, namedQuery);
         return collection;
     }
 

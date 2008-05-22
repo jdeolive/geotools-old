@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
@@ -46,12 +46,12 @@ public class AutoCommitDefaultVersionHandler implements ArcSdeVersionHandler {
         //
     }
 
-    public void setUpStream(final Session session, final SeStreamOp streamOperation)
+    public void setUpStream(final ISession session, final SeStreamOp streamOperation)
             throws IOException {
 
         session.issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 if (defaultVersion == null) {
                     defaultVersion = new SeVersion(connection,

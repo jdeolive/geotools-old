@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.gce.ArcSDEPyramid;
 import org.geotools.arcsde.gce.RasterTestData;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.referencing.CRS;
 import org.geotools.util.logging.Logging;
 import org.junit.AfterClass;
@@ -35,7 +35,7 @@ public class OneByteBandNoColormapReaderTest {
         rasterTestData.setUp();
         rasterTestData.loadOneByteGrayScaleRaster();
 
-        Session session = null;
+        ISession session = null;
         SeQuery q = null;
         ArcSDEPyramid pyramid;
         SeRow r;
@@ -68,7 +68,7 @@ public class OneByteBandNoColormapReaderTest {
             if (q != null)
                 q.close();
             if (session != null) {
-                session.close();
+                session.dispose();
             }
         }
     }

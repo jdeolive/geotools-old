@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
@@ -39,7 +39,7 @@ import com.esri.sde.sdk.client.SeVersion;
  */
 public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
 
-    private final Session session;
+    private final ISession session;
 
     private final SeVersion defaultVersion;
 
@@ -49,11 +49,11 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
 
     private SeState transactionState;
 
-    public TransactionDefaultVersionHandler(final Session session) throws IOException {
+    public TransactionDefaultVersionHandler(final ISession session) throws IOException {
         this.session = session;
         defaultVersion = session.issue(new Command<SeVersion>() {
             @Override
-            public SeVersion execute(Session session, SeConnection connection) throws SeException,
+            public SeVersion execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeVersion defaultVersion = new SeVersion(connection,
                         SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
@@ -68,12 +68,12 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
      * 
      * @see ArcSdeVersionHandler#
      */
-    public void setUpStream(final Session session, final SeStreamOp streamOperation)
+    public void setUpStream(final ISession session, final SeStreamOp streamOperation)
             throws IOException {
 
         session.issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
 
                 if (transactionState == null) {
@@ -127,7 +127,7 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
         }
         session.issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeObjectId transactionStateId = transactionState.getId();
                 defaultVersion.getInfo();
@@ -151,7 +151,7 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
         session.issue(new Command<Void>() {
 
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 transactionState.delete();
                 transactionState = null;

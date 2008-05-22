@@ -34,7 +34,7 @@ import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
@@ -193,8 +193,8 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         }
 
         {
-            FeatureWriter<SimpleFeatureType, SimpleFeature> writer = ds.getFeatureWriter(typeName,
-                    fidFilter, Transaction.AUTO_COMMIT);
+            FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
+            writer = ds.getFeatureWriter(typeName, fidFilter, Transaction.AUTO_COMMIT);
 
             try {
                 assertTrue(writer.hasNext());
@@ -208,14 +208,14 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         }
 
         ArcSDEConnectionPool connectionPool = testData.getConnectionPool();
-        Session session = connectionPool.getSession();
+        ISession session = connectionPool.getSession();
         SeQuery seQuery;
         try {
             int objectId = (int) ArcSDEAdapter.getNumericFid(fid);
             final String whereClause = "ROW_ID=" + objectId;
             seQuery = session.issue(new Command<SeQuery>() {
                 @Override
-                public SeQuery execute(Session session, SeConnection connection)
+                public SeQuery execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     SeQuery seQuery = new SeQuery(connection, new String[] { "ROW_ID", "INT32_COL",
                             "STRING_COL" }, new SeSqlConstruct(typeName, whereClause));
@@ -228,7 +228,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             SdeRow row = session.fetch(seQuery);
             assertNull(row);
         } finally {
-            session.close();
+            session.dispose();
         }
 
         // was it really removed?
@@ -307,10 +307,10 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final String typeName;
         {
             ArcSDEConnectionPool connectionPool = testData.getConnectionPool();
-            Session session = connectionPool.getSession();
+            ISession session = connectionPool.getSession();
             final String user;
             user = session.getUser();
-            session.close();
+            session.dispose();
             typeName = user + ".GT_TEST_CREATE";
         }
 
@@ -374,47 +374,56 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
         writer = ds.getFeatureWriter(typeName, transaction);
 
-        try {
-            while (iterator.hasNext()) {
-                SimpleFeature addFeature = iterator.next();
-                SimpleFeature newFeature = writer.next();
-                for (int i = 0; i < ftype.getAttributeCount(); i++) {
-                    String localName = ftype.getAttribute(i).getLocalName();
-                    newFeature.setAttribute(localName, addFeature.getAttribute(localName));
-                }
-                writer.write();
-            }
-        } finally {
-            writer.close();
-        }
-
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
-        Query query = new DefaultQuery(typeName);
-        reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
         try {
-            assertFalse("Features added, transaction not commited", reader.hasNext());
-        } finally {
-            reader.close();
-        }
+            try {
+                while (iterator.hasNext()) {
+                    SimpleFeature addFeature = iterator.next();
+                    SimpleFeature newFeature = writer.next();
+                    for (int i = 0; i < ftype.getAttributeCount(); i++) {
+                        String localName = ftype.getAttribute(i).getLocalName();
+                        newFeature.setAttribute(localName, addFeature.getAttribute(localName));
+                    }
+                    writer.write();
+                }
+            } catch (Exception e) {
+                transaction.rollback();
+                transaction.close();
+            } finally {
+                writer.close();
+            }
 
-        try {
-            transaction.commit();
-        } catch (Exception e) {
-            transaction.rollback();
-            throw e;
+            Query query = new DefaultQuery(typeName);
+            reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
+            boolean hasNext;
+            try {
+                hasNext = reader.hasNext();
+            } finally {
+                reader.close();
+            }
+            assertFalse("Features added, transaction not commited", hasNext);
+
+            try {
+                transaction.commit();
+            } catch (Exception e) {
+                transaction.rollback();
+                throw e;
+            } finally {
+                transaction.close();
+            }
+
+            try {
+                reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
+                for (int i = 0; i < featureCount; i++) {
+                    assertTrue(hasNext);
+                    reader.next();
+                }
+                assertFalse(hasNext);
+            } finally {
+                reader.close();
+            }
         } finally {
             transaction.close();
-        }
-
-        try {
-            reader = ds.getFeatureReader(query, Transaction.AUTO_COMMIT);
-            for (int i = 0; i < featureCount; i++) {
-                assertTrue(reader.hasNext());
-                reader.next();
-            }
-            assertFalse(reader.hasNext());
-        } finally {
-            reader.close();
         }
     }
 
@@ -508,59 +517,63 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         writer = ds.getFeatureWriter(typeName, oldValueFilter, transaction);
 
         try {
-            assertTrue(writer.hasNext());
-            SimpleFeature feature = writer.next();
-            feature.setAttribute("INT32_COL", Integer.valueOf(-1000));
-            writer.write();
-            assertFalse(writer.hasNext());
-        } finally {
-            writer.close();
-        }
+            try {
+                assertTrue(writer.hasNext());
+                SimpleFeature feature = writer.next();
+                feature.setAttribute("INT32_COL", Integer.valueOf(-1000));
+                writer.write();
+                assertFalse(writer.hasNext());
+            } finally {
+                writer.close();
+            }
 
-        FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+            FeatureReader<SimpleFeatureType, SimpleFeature> reader;
 
-        reader = ds.getFeatureReader(oldValueQuery, Transaction.AUTO_COMMIT);
-        try {
-            assertTrue(reader.hasNext());
-        } finally {
-            reader.close();
-        }
+            reader = ds.getFeatureReader(oldValueQuery, Transaction.AUTO_COMMIT);
+            try {
+                assertTrue(reader.hasNext());
+            } finally {
+                reader.close();
+            }
 
-        reader = ds.getFeatureReader(newValueQuery, Transaction.AUTO_COMMIT);
-        try {
-            assertFalse(reader.hasNext());
-        } finally {
-            reader.close();
-        }
+            reader = ds.getFeatureReader(newValueQuery, Transaction.AUTO_COMMIT);
+            try {
+                assertFalse(reader.hasNext());
+            } finally {
+                reader.close();
+            }
 
-        reader = ds.getFeatureReader(oldValueQuery, transaction);
-        try {
-            assertFalse(reader.hasNext());
-        } finally {
-            reader.close();
-        }
+            reader = ds.getFeatureReader(oldValueQuery, transaction);
+            try {
+                assertFalse(reader.hasNext());
+            } finally {
+                reader.close();
+            }
 
-        reader = ds.getFeatureReader(newValueQuery, transaction);
-        try {
-            assertTrue(reader.hasNext());
-        } finally {
-            reader.close();
-        }
+            reader = ds.getFeatureReader(newValueQuery, transaction);
+            try {
+                assertTrue(reader.hasNext());
+            } finally {
+                reader.close();
+            }
 
-        try {
-            transaction.commit();
-        } catch (IOException e) {
-            transaction.rollback();
-            throw e;
+            try {
+                transaction.commit();
+            } catch (IOException e) {
+                transaction.rollback();
+                throw e;
+            } finally {
+                transaction.close();
+            }
+
+            reader = ds.getFeatureReader(newValueQuery, Transaction.AUTO_COMMIT);
+            try {
+                assertTrue(reader.hasNext());
+            } finally {
+                reader.close();
+            }
         } finally {
             transaction.close();
-        }
-
-        reader = ds.getFeatureReader(newValueQuery, Transaction.AUTO_COMMIT);
-        try {
-            assertTrue(reader.hasNext());
-        } finally {
-            reader.close();
         }
     }
 
@@ -1028,103 +1041,108 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final Transaction transaction = new DefaultTransaction("test_handle");
         transFs.setTransaction(transaction);
 
-        // create a feature to add
-        SimpleFeatureBuilder builder = new SimpleFeatureBuilder(schema);
-        builder.set("INT32_COL", Integer.valueOf(1000));
-        builder.set("STRING_COL", "inside transaction");
-        SimpleFeature feature = builder.buildFeature(null);
-
-        // add the feature
-        transFs.addFeatures(DataUtilities.collection(feature));
-
-        // now confirm for that transaction the feature is fetched, and outside
-        // it it's not.
-        final Filter filterNewFeature = CQL.toFilter("INT32_COL = 1000");
-        final DefaultQuery newFeatureQuery = new DefaultQuery(typeName, filterNewFeature);
-
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = transFs
-                .getFeatures(filterNewFeature);
-        int size = features.size();
-        assertEquals(1, size);
-
-        // ok transaction respected, assert the feature does not exist outside
-        // it
-        {
-            FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader = ds.getFeatureReader(
-                    newFeatureQuery, Transaction.AUTO_COMMIT);
-            try {
-                assertFalse(autoCommitReader.hasNext());
-            } finally {
-                autoCommitReader.close();
-            }
-        }
-
-        // ok, but what if we ask for a feature reader with the same transaction
-        {
-            FeatureReader<SimpleFeatureType, SimpleFeature> transactionReader = ds
-                    .getFeatureReader(newFeatureQuery, transaction);
-            try {
-                assertTrue(transactionReader.hasNext());
-                transactionReader.next();
-                assertFalse(transactionReader.hasNext());
-            } finally {
-                transactionReader.close();
-            }
-        }
-
-        // now commit, and Transaction.AUTO_COMMIT should carry it over
-        // do not close the transaction, we'll keep using it
         try {
-            transaction.commit();
-        } catch (IOException e) {
-            transaction.rollback();
-            throw e;
-        }
+            // create a feature to add
+            SimpleFeatureBuilder builder = new SimpleFeatureBuilder(schema);
+            builder.set("INT32_COL", Integer.valueOf(1000));
+            builder.set("STRING_COL", "inside transaction");
+            SimpleFeature feature = builder.buildFeature(null);
 
-        {
-            FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader;
-            autoCommitReader = ds.getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
-            try {
-                assertTrue(autoCommitReader.hasNext());
-            } finally {
-                autoCommitReader.close();
+            // add the feature
+            transFs.addFeatures(DataUtilities.collection(feature));
+
+            // now confirm for that transaction the feature is fetched, and outside
+            // it it's not.
+            final Filter filterNewFeature = CQL.toFilter("INT32_COL = 1000");
+            final DefaultQuery newFeatureQuery = new DefaultQuery(typeName, filterNewFeature);
+
+            FeatureCollection<SimpleFeatureType, SimpleFeature> features = transFs
+                    .getFeatures(filterNewFeature);
+            int size = features.size();
+            assertEquals(1, size);
+
+            // ok transaction respected, assert the feature does not exist outside
+            // it
+            {
+                FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader = ds
+                        .getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
+                try {
+                    assertFalse(autoCommitReader.hasNext());
+                } finally {
+                    autoCommitReader.close();
+                }
             }
-        }
 
-        // now keep using the transaction, it should still work
-        transFs.removeFeatures(filterNewFeature);
-
-        // no features removed yet outside the transaction
-        {
-            FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader;
-            autoCommitReader = ds.getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
-            try {
-                assertTrue(autoCommitReader.hasNext());
-            } finally {
-                autoCommitReader.close();
+            // ok, but what if we ask for a feature reader with the same transaction
+            {
+                FeatureReader<SimpleFeatureType, SimpleFeature> transactionReader = ds
+                        .getFeatureReader(newFeatureQuery, transaction);
+                try {
+                    assertTrue(transactionReader.hasNext());
+                    transactionReader.next();
+                    assertFalse(transactionReader.hasNext());
+                } finally {
+                    transactionReader.close();
+                }
             }
-        }
 
-        // but yes inside it
-        {
-            FeatureReader<SimpleFeatureType, SimpleFeature> transactionReader;
-            transactionReader = ds.getFeatureReader(newFeatureQuery, transaction);
-            try {
-                assertFalse(transactionReader.hasNext());
-            } finally {
-                transactionReader.close();
-            }
-        }
-
-        {
-            FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader;
+            // now commit, and Transaction.AUTO_COMMIT should carry it over
+            // do not close the transaction, we'll keep using it
             try {
                 transaction.commit();
-                autoCommitReader = ds.getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
-                assertFalse(autoCommitReader.hasNext());
-            } finally {
-                transaction.close();
+            } catch (IOException e) {
+                transaction.rollback();
+                throw e;
             }
+
+            {
+                FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader;
+                autoCommitReader = ds.getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
+                try {
+                    assertTrue(autoCommitReader.hasNext());
+                } finally {
+                    autoCommitReader.close();
+                }
+            }
+
+            // now keep using the transaction, it should still work
+            transFs.removeFeatures(filterNewFeature);
+
+            // no features removed yet outside the transaction
+            {
+                FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader;
+                autoCommitReader = ds.getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
+                try {
+                    assertTrue(autoCommitReader.hasNext());
+                } finally {
+                    autoCommitReader.close();
+                }
+            }
+
+            // but yes inside it
+            {
+                FeatureReader<SimpleFeatureType, SimpleFeature> transactionReader;
+                transactionReader = ds.getFeatureReader(newFeatureQuery, transaction);
+                try {
+                    assertFalse(transactionReader.hasNext());
+                } finally {
+                    transactionReader.close();
+                }
+            }
+
+            {
+                FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader;
+                try {
+                    transaction.commit();
+                    autoCommitReader = ds
+                            .getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
+                    assertFalse(autoCommitReader.hasNext());
+                } finally {
+                    transaction.close();
+                }
+            }
+        } finally {
+            transaction.close();
         }
 
     }
@@ -1318,12 +1336,12 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         try {
             final String tableName;
             {
-                Session session = testData.getConnectionPool().getSession();
+                ISession session = testData.getConnectionPool().getSession();
                 try {
                     SeTable versionedTable = testData.createVersionedTable(session);
                     tableName = versionedTable.getQualifiedName();
                 } finally {
-                    session.close();
+                    session.dispose();
                 }
             }
 
@@ -1417,12 +1435,12 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         try {
             final String tableName;
             {
-                Session session = testData.getConnectionPool().getSession();
+                ISession session = testData.getConnectionPool().getSession();
                 try {
                     SeTable versionedTable = testData.createVersionedTable(session);
                     tableName = versionedTable.getQualifiedName();
                 } finally {
-                    session.close();
+                    session.dispose();
                 }
             }
 

@@ -26,7 +26,7 @@ import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.data.versioning.TransactionDefaultVersionHandler;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureListenerManager;
@@ -92,7 +92,7 @@ final class ArcTransactionState implements Transaction.State {
         // create a versioned handler only if not already settled up, as this method
         // may be called for each layer inside a transaction
         if (versionHandler == ArcSdeVersionHandler.NONVERSIONED_HANDLER) {
-            Session session = getConnection();
+            ISession session = getConnection();
             versionHandler = new TransactionDefaultVersionHandler(session);
         }
     }
@@ -135,11 +135,11 @@ final class ArcTransactionState implements Transaction.State {
      */
     public void commit() throws IOException {
         failIfClosed();
-        final Session session = this.getConnection();
+        final ISession session = this.getConnection();
 
         final Command<Void> commitCommand = new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
 
                 try {
@@ -257,7 +257,7 @@ final class ArcTransactionState implements Transaction.State {
      * @return connection
      * @throws IOException
      */
-    Session getConnection() throws IOException {
+    ISession getConnection() throws IOException {
         failIfClosed();
         // the pool is keeping track of connection according to transaction for us
         return pool.getSession(transaction);

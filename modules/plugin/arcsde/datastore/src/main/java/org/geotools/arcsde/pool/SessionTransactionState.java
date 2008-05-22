@@ -46,7 +46,7 @@ final class SessionTransactionState implements Transaction.State {
      * The session being managed, it will be held open until commit(), rollback() or close() is
      * called.
      */
-    private Session session;
+    private TransactionSession session;
 
     /**
      * The transaction that is holding on to this Transaction.State
@@ -60,8 +60,8 @@ final class SessionTransactionState implements Transaction.State {
      * @param pool connection pool where to grab a connection and hold it while there's a
      *            transaction open (signaled by any use of {@link #getConnection()}
      */
-    private SessionTransactionState(Session session) {
-        this.session = session;
+    private SessionTransactionState(final ISession session) {
+        this.session = new TransactionSession(session);
     }
 
     /**
@@ -78,11 +78,11 @@ final class SessionTransactionState implements Transaction.State {
      */
     public void commit() throws IOException {
         failIfClosed();
-        final Session session = this.session;
+        final ISession session = this.session;
 
         final Command<Void> commitCommand = new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
 
                 try {
@@ -108,11 +108,11 @@ final class SessionTransactionState implements Transaction.State {
      */
     public void rollback() throws IOException {
         failIfClosed();
-        final Session session = this.session;
+        final ISession session = this.session;
         try {
             session.issue(new Command<Void>() {
                 @Override
-                public Void execute(Session session, SeConnection connection) throws SeException,
+                public Void execute(ISession session, SeConnection connection) throws SeException,
                         IOException {
                     session.rollbackTransaction();
                     // and keep editing
@@ -195,7 +195,7 @@ final class SessionTransactionState implements Transaction.State {
                 LOGGER.log(Level.SEVERE, "Unexpected exception at close(): " + e.getMessage(), e);
             }
             // now its safe to return it to the pool
-            session.close();
+            session.dispose();
         } catch (IllegalStateException workflowError) {
             // fail fast but put the connection in a healthy state first
             try {
@@ -203,7 +203,7 @@ final class SessionTransactionState implements Transaction.State {
             } catch (IOException e) {
                 // well, it's totally messed up, just log though
                 LOGGER.log(Level.SEVERE, "rolling back connection " + session, e);
-                session.close();
+                session.dispose();
             }
             throw workflowError;
         } finally {
@@ -220,7 +220,7 @@ final class SessionTransactionState implements Transaction.State {
      * @throws DataSourceException
      * @throws SeException
      */
-    Session getConnection() throws DataSourceException, UnavailableArcSDEConnectionException {
+    ISession getConnection() throws DataSourceException, UnavailableArcSDEConnectionException {
         failIfClosed();
         return session;
     }
@@ -254,14 +254,14 @@ final class SessionTransactionState implements Transaction.State {
             state = (SessionTransactionState) transaction.getState(connectionPool);
             if (state == null) {
                 // start a transaction
-                final Session session = connectionPool.getSession();
+                final ISession session = connectionPool.getSession();
                 try {
                     session.startTransaction();
                 } catch (IOException e) {
                     try {
                         session.rollbackTransaction();
                     } finally {
-                        session.close();
+                        session.dispose();
                     }
                     throw new DataSourceException("Exception initiating transaction on " + session,
                             e);
@@ -272,4 +272,28 @@ final class SessionTransactionState implements Transaction.State {
         }
         return state;
     }
+
+    /**
+     * A session wrapper that does not disposes if a transaction is active.
+     * 
+     * @author Gabriel Roldan (TOPP)
+     * @version $Id$
+     * @since 2.5.x
+     * @source $URL$
+     */
+    private static final class TransactionSession extends SessionWrapper {
+
+        public TransactionSession(final ISession session) {
+            super(session);
+        }
+
+        public void dispose() throws IllegalStateException {
+            if (isTransactionActive()) {
+                LOGGER.finer("Ignoring Session.close, transaction is active...");
+            } else {
+                wrapped.dispose();
+            }
+        }
+    }
+
 }

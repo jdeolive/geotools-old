@@ -19,7 +19,7 @@ import javax.imageio.ImageIO;
 
 import org.geotools.arcsde.gce.RasterTestData;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.util.logging.Logging;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -60,7 +60,7 @@ public class FloatBandCopierTest {
     public void testReadAlignedFloatTile() throws Exception {
         final String tableName = rasterTestData.getFloatRasterTableName();
 
-        Session session = null;
+        ISession session = null;
         try {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
@@ -118,7 +118,7 @@ public class FloatBandCopierTest {
             LOGGER.log(Level.SEVERE, se.getSeError().getErrDesc(), se);
         } finally {
             if (session != null)
-                session.close();
+                session.dispose();
         }
     }
 }

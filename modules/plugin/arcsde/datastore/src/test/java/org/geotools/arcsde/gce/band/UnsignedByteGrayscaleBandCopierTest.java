@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 
 import org.geotools.arcsde.gce.RasterTestData;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.util.logging.Logging;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -51,7 +51,7 @@ public class UnsignedByteGrayscaleBandCopierTest {
     public void testLiveGrayScaleRasterTile() throws Exception {
         final String tableName = rasterTestData.getGrayScaleOneByteRasterTableName();
 
-        Session session = null;
+        ISession session = null;
         try {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
@@ -96,7 +96,7 @@ public class UnsignedByteGrayscaleBandCopierTest {
             LOGGER.log(Level.SEVERE, se.getSeError().getErrDesc(), se);
         } finally {
             if (session != null)
-                session.close();
+                session.dispose();
         }
     }
 

@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -73,7 +73,7 @@ public class InProcessViewSupportTestData {
 
     public static final String typeName = "MasterChildTest";
 
-    public static void setUp(Session session, TestData td) throws IOException,
+    public static void setUp(ISession session, TestData td) throws IOException,
             UnavailableArcSDEConnectionException {
 
         testCrs = DefaultGeographicCRS.WGS84;
@@ -98,7 +98,7 @@ public class InProcessViewSupportTestData {
         registerViewParams.put("sqlView.1.sqlQuery", masterChildSql);
     }
 
-    private static void createMasterTable(final Session session, final TestData td)
+    private static void createMasterTable(final ISession session, final TestData td)
             throws IOException, UnavailableArcSDEConnectionException {
 
         final SeTable table = session.createSeTable(MASTER);
@@ -106,7 +106,7 @@ public class InProcessViewSupportTestData {
         final Command<SeLayer> createLayerCmd = new Command<SeLayer>() {
 
             @Override
-            public SeLayer execute(Session session, SeConnection connection) throws SeException,
+            public SeLayer execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeLayer layer;
                 try {
@@ -145,13 +145,13 @@ public class InProcessViewSupportTestData {
         LOGGER.info("successfully created master table " + MASTER);
     }
 
-    private static void createChildTable(final Session session, final TestData td)
+    private static void createChildTable(final ISession session, final TestData td)
             throws IOException, UnavailableArcSDEConnectionException {
         final SeTable table = session.createSeTable(CHILD);
         Command<Void> createCmd = new Command<Void>() {
 
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 try {
                     table.delete();
@@ -208,12 +208,12 @@ public class InProcessViewSupportTestData {
      * @throws SeException
      * @throws Exception
      */
-    private static void insertMasterData(final Session session, final SeLayer layer)
+    private static void insertMasterData(final ISession session, final SeLayer layer)
             throws IOException {
         Command<Void> insertCmd = new Command<Void>() {
 
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeInsert insert = null;
                 SeCoordinateReference coordref = layer.getCoordRef();
@@ -274,13 +274,13 @@ public class InProcessViewSupportTestData {
      * @param table
      * @throws IOException
      */
-    private static void insertChildData(final Session session, final SeTable table)
+    private static void insertChildData(final ISession session, final SeTable table)
             throws IOException {
 
         Command<Void> insertCmd = new Command<Void>() {
 
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 final String[] columns = { "ID", "MASTER_ID", "NAME", "DESCRIPTION" };
                 int childId = 0;

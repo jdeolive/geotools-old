@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionReference;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.Transaction;
 
 /**
@@ -42,12 +42,12 @@ public class ArcSDEMinimalDataStore extends ArcSDEDataStore {
     protected synchronized FeatureTypeInfo getFeatureTypeInfo(String typeName,
             ArcSDEConnectionPool pool) throws IOException {
         final ArcSDEConnectionReference reference = (ArcSDEConnectionReference) pool;
-        final Session session = reference.getSession(Transaction.AUTO_COMMIT); // we are doing the
+        final ISession session = reference.getSession(Transaction.AUTO_COMMIT); // we are doing the
                                                                                 // read only thing
         try {
             return getFeatureTypeInfo(typeName, session);
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 }

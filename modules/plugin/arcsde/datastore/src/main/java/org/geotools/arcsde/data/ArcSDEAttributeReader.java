@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.DataSourceException;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -97,20 +97,7 @@ final class ArcSDEAttributeReader implements AttributeReader {
      */
     private final Class<? extends Geometry> schemaGeometryClass;
 
-    private Session session;
-
-    /**
-     * Flag indicating whether to close or not the connection.
-     * <p>
-     * If <code>true</code> the connection is automatically closed when the reader is exhausted or
-     * then {@link #close()} is called. Otherwise it is untouched. Rationale being an
-     * {@link ArcSDEFeatureReader} using this attribute reader may be acting as the streamed content
-     * for a FeatureWriter and sharing the connection, so closing the connection becomes the
-     * responsibility of the feature writer, or it might be returned to the pool while the writer is
-     * still using it.
-     * </p>
-     */
-    private boolean handleConnectionClosing;
+    private ISession session;
 
     /**
      * The query that defines this readers interaction with an ArcSDE instance.
@@ -119,17 +106,11 @@ final class ArcSDEAttributeReader implements AttributeReader {
      *            {@link ArcSDEQuery#execute() executed}.
      * @param session the session the <code>query</code> is being ran over. This attribute reader
      *            will close it only if it does not have a transaction in progress.
-     * @param handleConnectionClosing whether to close or not the connection when done. Useful to
-     *            allow a feature reader working over this attribute reader to stream out the
-     *            filtered content of an {@link AutoCommitFeatureWriter}.
      * @throws IOException
      */
-    public ArcSDEAttributeReader(final ArcSDEQuery query,
-                                 final Session session,
-                                 final boolean handleConnectionClosing) throws IOException {
+    public ArcSDEAttributeReader(final ArcSDEQuery query, final ISession session) throws IOException {
         this.query = query;
         this.session = session;
-        this.handleConnectionClosing = handleConnectionClosing;
         this.fidReader = query.getFidReader();
         this.schema = query.getSchema();
 
@@ -169,19 +150,17 @@ final class ArcSDEAttributeReader implements AttributeReader {
      */
     public void close() throws IOException {
         if (query != null) {
-            query.close();
+            try {
+                query.close();
+            } finally {
+                session.dispose();
 
-            if (handleConnectionClosing) {
-                if (!session.isTransactionActive()) {
-                    session.close();
-                }
+                query = null;
+                session = null;
+                schema = null;
+                fidReader = null;
+                currentRow = null;
             }
-
-            query = null;
-            session = null;
-            schema = null;
-            fidReader = null;
-            currentRow = null;
         }
     }
 

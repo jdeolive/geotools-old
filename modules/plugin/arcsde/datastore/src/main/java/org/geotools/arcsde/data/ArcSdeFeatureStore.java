@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
@@ -98,7 +98,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         // System.err.println(">>addFeatures called at " +
         // Thread.currentThread().getName());
         final String typeName = typeInfo.getFeatureTypeName();
-        final Session session = getSession();
+        final ISession session = getSession();
         try {
             final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
             writer = dataStore.getFeatureWriterAppend(typeName, transaction);
@@ -121,7 +121,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
             return featureIds;
         } finally {
             if (!session.isTransactionActive()) {
-                session.close();
+                session.dispose();
             }
         }
     }
@@ -132,7 +132,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
     public void modifyFeatures(final AttributeDescriptor[] attributes,
             final Object[] values,
             final Filter filter) throws IOException {
-        final Session session = getSession();
+        final ISession session = getSession();
         try {
             final String typeName = typeInfo.getFeatureTypeName();
             final Transaction currTransaction = getTransaction();
@@ -153,7 +153,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
             }
         } finally {
             if (!session.isTransactionActive()) {
-                session.close();
+                session.dispose();
             }
         }
     }
@@ -171,7 +171,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
      * @see FeatureStore#removeFeatures(Filter)
      */
     public void removeFeatures(final Filter filter) throws IOException {
-        final Session session;
+        final ISession session;
         final Transaction currTransaction = getTransaction();
         if (Transaction.AUTO_COMMIT == currTransaction) {
             session = null;
@@ -198,7 +198,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         } finally {
             if (session != null) {
                 if (!session.isTransactionActive()) {
-                    session.close();
+                    session.dispose();
                 }
             }
         }
@@ -215,7 +215,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         }
 
         final String typeName = typeInfo.getFeatureTypeName();
-        final Session session = getSession();
+        final ISession session = getSession();
         try {
             // truncate using this connection to apply or not depending on
             // whether a transaction is in progress
@@ -231,7 +231,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
             writer.close();
         } finally {
             if (!session.isTransactionActive()) {
-                session.close();
+                session.dispose();
             }
         }
     }
@@ -246,7 +246,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
      * @param session
      * @throws DataSourceException
      */
-    private void truncate(final String typeName, final Session session) throws IOException {
+    private void truncate(final String typeName, final ISession session) throws IOException {
         final boolean transactionInProgress = session.isTransactionActive();
         final SeTable table = session.getTable(typeName);
         if (transactionInProgress) {

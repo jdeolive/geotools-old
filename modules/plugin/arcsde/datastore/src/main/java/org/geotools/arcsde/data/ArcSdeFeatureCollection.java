@@ -24,8 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.pool.Session;
-import org.geotools.data.DefaultQuery;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.store.DataFeatureCollection;
@@ -36,7 +35,6 @@ import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
@@ -63,13 +61,14 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
 
     private final Set<ArcSdeFeatureReaderIterator> openIterators;
 
-    private Session session;
+    private final SimpleFeatureType childrenSchema;
 
-    private SimpleFeatureType childrenSchema;
+    // private Session session;
 
-    public ArcSdeFeatureCollection(final ArcSdeFeatureSource featureSource, final Query namedQuery) {
+    public ArcSdeFeatureCollection(final ArcSdeFeatureSource featureSource, final Query namedQuery) throws IOException {
         this.featureSource = featureSource;
         this.query = namedQuery;
+        this.childrenSchema = ArcSDEQuery.getQuerySchema(namedQuery, featureSource.getSchema());
 
         final Set<ArcSdeFeatureReaderIterator> iterators;
         iterators = new HashSet<ArcSdeFeatureReaderIterator>();
@@ -81,28 +80,6 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
      */
     @Override
     public final synchronized SimpleFeatureType getSchema() {
-        if (childrenSchema == null) {
-            final Session session = getSession();
-            try {
-                final ArcSDEDataStore dataStore = featureSource.getDataStore();
-                DefaultQuery excludeFilterQuery = new DefaultQuery(this.query);
-                excludeFilterQuery.setFilter(Filter.EXCLUDE);
-
-                final FeatureReader<SimpleFeatureType, SimpleFeature> reader;
-                reader = dataStore.getFeatureReader(excludeFilterQuery, session, false,
-                        ArcSdeVersionHandler.NONVERSIONED_HANDLER);
-
-                try {
-                    this.childrenSchema = reader.getFeatureType();
-                } finally {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Can't fetch schema for query " + query, e);
-            } finally {
-                closeConnectionIfNeedBe();
-            }
-        }
         return childrenSchema;
     }
 
@@ -112,11 +89,10 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
     @Override
     public final ReferencedEnvelope getBounds() {
         ReferencedEnvelope bounds;
-        final Session session = getSession();
 
         LOGGER.info("Getting collection bounds");
         try {
-            bounds = featureSource.getBounds(query, session);
+            bounds = featureSource.getBounds(query);
             if (bounds == null) {
                 LOGGER.info("FeatureSource returned null bounds, going to return an empty one");
                 bounds = new ReferencedEnvelope(getCRS());
@@ -124,8 +100,6 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
         } catch (IOException e) {
             LOGGER.log(Level.INFO, "Error getting collection bounts", e);
             bounds = new ReferencedEnvelope(getCRS());
-        } finally {
-            closeConnectionIfNeedBe();
         }
         return bounds;
     }
@@ -137,12 +111,7 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
 
     @Override
     public final int getCount() throws IOException {
-        final Session session = getSession();
-        try {
-            return featureSource.getCount(query, session);
-        } finally {
-            closeConnectionIfNeedBe();
-        }
+        return featureSource.getCount(query);
     }
 
     /**
@@ -180,9 +149,8 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
             try {
                 // close the underlying feature reader
                 super.close();
-                parent.releaseIterator(this);
             } finally {
-                parent.closeConnectionIfNeedBe();
+                parent.releaseIterator(this);
             }
         }
     }
@@ -192,20 +160,13 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
      */
     @Override
     protected synchronized final Iterator<SimpleFeature> openIterator() throws IOException {
-        final Session session = getSession();
+        final ISession session = getSession();
 
         final FeatureReader<SimpleFeatureType, SimpleFeature> reader;
 
         final ArcSDEDataStore dataStore = featureSource.getDataStore();
         final ArcSdeVersionHandler versionHandler = featureSource.getVersionHandler();
-        final boolean readerClosesConnection = false;
-        reader = dataStore.getFeatureReader(query, session, readerClosesConnection, versionHandler);
-
-        // slight optimization here: store the child features schema if not yet
-        // done by getSchema()
-        if (this.childrenSchema == null) {
-            this.childrenSchema = reader.getFeatureType();
-        }
+        reader = dataStore.getFeatureReader(query, session, versionHandler);
 
         final ArcSdeFeatureReaderIterator iterator;
         iterator = new ArcSdeFeatureReaderIterator(reader, this);
@@ -219,17 +180,19 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
      * transaction or not.
      * 
      * @return
+     * @throws IOException
      * @throws RuntimeException if the connection can't be acquired
      */
-    private synchronized Session getSession() {
-        if (this.session == null) {
-            try {
-                session = featureSource.getSession();
-            } catch (IOException e) {
-                throw new RuntimeException("Can't acquire connection", e);
-            }
-        }
-        return this.session;
+    private synchronized ISession getSession() throws IOException {
+        return featureSource.getSession();
+        // if (this.session == null) {
+        // try {
+        // session = featureSource.getSession();
+        // } catch (IOException e) {
+        // throw new RuntimeException("Can't acquire connection", e);
+        // }
+        // }
+        // return this.session;
     }
 
     /**
@@ -238,16 +201,16 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
      * intended to be called both by {@link #getBounds()}, {@link #getCount()} and
      * {@link ArcSdeFeatureReaderIterator#close()}
      */
-    private synchronized void closeConnectionIfNeedBe() {
-        if (openIterators.size() == 0) {
-            // only close if its not already returned to the pool (ie, already closed)
-            if (!session.isPassivated()) {
-                // and there's no a transaction being run over that connection
-                if (!session.isTransactionActive()) {
-                    session.close();
-                    session = null;
-                }
-            }
-        }
-    }
+    // private synchronized void closeConnectionIfNeedBe() {
+    // if (openIterators.size() == 0) {
+    // // only close if its not already returned to the pool (ie, already closed)
+    // if (!session.isPassivated()) {
+    // // and there's no a transaction being run over that connection
+    // if (!session.isTransactionActive()) {
+    // session.close();
+    // session = null;
+    // }
+    // }
+    // }
+    // }
 }

@@ -66,7 +66,7 @@ import com.esri.sde.sdk.client.SeUpdate;
  * @version $Id$
  * @since 2.3.x
  */
-public class Session {
+class Session implements ISession {
 
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.arcsde.pool");
@@ -81,9 +81,9 @@ public class Session {
 
     private ArcSDEConnectionConfig config;
 
-    private static int connectionCounter;
+    private static int sessionCounter;
 
-    private int connectionId;
+    private int sessionId;
 
     private boolean transactionInProgress;
 
@@ -126,7 +126,7 @@ public class Session {
         // accessed by different threads
         this.connection = issue(new Command<SeConnection>() {
             @Override
-            public SeConnection execute(final Session session, final SeConnection connection)
+            public SeConnection execute(final ISession session, final SeConnection connection)
                     throws SeException, IOException {
                 String serverName = config.getServerName();
                 int intValue = config.getPortNumber().intValue();
@@ -143,17 +143,13 @@ public class Session {
         });
 
         synchronized (Session.class) {
-            connectionCounter++;
-            connectionId = connectionCounter;
+            sessionCounter++;
+            sessionId = sessionCounter;
         }
     }
 
     /**
-     * Executes the given command and returns its result.
-     * 
-     * @param command the command to execute
-     * @throws IOException if an exception occurs handling any ArcSDE resource while executing the
-     *             command
+     * @see ISession#issue(org.geotools.arcsde.pool.Command)
      */
     public <T> T issue(final Command<T> command) throws IOException {
         final Thread callingThread = Thread.currentThread();
@@ -170,9 +166,9 @@ public class Session {
             }
         } else {
             StackTraceElement ste = callingThread.getStackTrace()[3];
-            System.err.println("executing command " + ste.getClassName() + "."
-                    + ste.getMethodName() + ":" + ste.getLineNumber() + " ("
-                    + callingThread.getName() + ")");
+            // System.err.println("executing command " + ste.getClassName() + "."
+            // + ste.getMethodName() + ":" + ste.getLineNumber() + " ("
+            // + callingThread.getName() + ")");
 
             final FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
                 public T call() throws Exception {
@@ -185,8 +181,8 @@ public class Session {
 
                     }
 
-                    System.err.println(" -executing command for Session "
-                            + Session.this.connectionId + " in thread " + currentThread.getId());
+                    // System.err.println(" -executing command for Session "
+                    // + Session.this.connectionId + " in thread " + currentThread.getId());
 
                     if (currentThread != commandThread) {
                         throw new IllegalStateException("currentThread != commandThread");
@@ -194,9 +190,10 @@ public class Session {
                     try {
                         return command.execute(Session.this, connection);
                     } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE,
-                                "Command execution failed for Session " + Session.this.connectionId
-                                        + " in thread " + currentThread.getId(), e);
+                        LOGGER
+                                .log(Level.SEVERE, "Command execution failed for Session "
+                                        + Session.this.sessionId + " in thread "
+                                        + currentThread.getId(), e);
                         throw e;
                     }
                 }
@@ -250,6 +247,9 @@ public class Session {
         }
     }
 
+    /**
+     * @see ISession#isClosed()
+     */
     public final boolean isClosed() {
         return this.connection.isClosed();
     }
@@ -283,34 +283,34 @@ public class Session {
     }
 
     /**
-     * Returns whether this connection is on the connection pool domain or not.
-     * 
-     * @return <code>true</code> if this connection has beed returned to the pool and thus cannot
-     *         be used, <code>false</code> if its safe to keep using it.
+     * @see ISession#isPassivated()
      */
-    public boolean isPassivated() {
+    public boolean isDisposed() {
         return isPassivated;
     }
 
     /**
      * Sanity check method called before every public operation delegates to the superclass.
      * 
-     * @throws IllegalStateException if {@link #isPassivated() isPassivated() == true} as this is a
+     * @throws IllegalStateException if {@link #isDisposed() isPassivated() == true} as this is a
      *             serious workflow breackage.
      */
     private void checkActive() {
-        if (isPassivated()) {
+        if (isDisposed()) {
             throw new IllegalStateException("Unrecoverable error: " + toString()
                     + " is passivated, shall not be used!");
         }
     }
 
+    /**
+     * @see ISession#getLayer(java.lang.String)
+     */
     public SeLayer getLayer(final String layerName) throws IOException {
         checkActive();
         return issue(new Command<SeLayer>() {
             @Override
-            public SeLayer execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeLayer execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 if (!cachedLayers.containsKey(layerName)) {
                     synchronized (Session.this) {
                         if (!cachedLayers.containsKey(layerName)) {
@@ -327,6 +327,9 @@ public class Session {
         });
     }
 
+    /**
+     * @see ISession#getRasterColumn(java.lang.String)
+     */
     public synchronized SeRasterColumn getRasterColumn(final String rasterName) throws IOException {
         checkActive();
         if (!cachedRasters.containsKey(rasterName)) {
@@ -343,12 +346,15 @@ public class Session {
         return raster;
     }
 
+    /**
+     * @see ISession#getTable(java.lang.String)
+     */
     public SeTable getTable(final String tableName) throws IOException {
         checkActive();
         return issue(new Command<SeTable>() {
             @Override
-            public SeTable execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeTable execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 if (!cachedTables.containsKey(tableName)) {
                     synchronized (Session.this) {
                         if (!cachedTables.containsKey(tableName)) {
@@ -401,20 +407,14 @@ public class Session {
     }
 
     /**
-     * Starts a transaction over the connection held by this Session
-     * <p>
-     * If this method succeeds, {@link #isTransactionActive()} will return true afterwards
-     * </p>
-     * 
-     * @throws IOException
-     * @see {@link #issueStartTransaction(Session)}
+     * @see ISession#startTransaction()
      */
     public void startTransaction() throws IOException {
         checkActive();
         issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public Void execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 connection.setTransactionAutoCommit(0);
                 connection.startTransaction();
                 transactionInProgress = true;
@@ -424,19 +424,14 @@ public class Session {
     }
 
     /**
-     * Commits the current transaction.
-     * <p>
-     * This method shall only be called from inside a command
-     * </p>
-     * 
-     * @throws IOException
+     * @see ISession#commitTransaction()
      */
     public void commitTransaction() throws IOException {
         checkActive();
         issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public Void execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 connection.commitTransaction();
                 return null;
             }
@@ -445,12 +440,7 @@ public class Session {
     }
 
     /**
-     * Returns whether a transaction is in progress over this connection
-     * <p>
-     * As for any other public method, this one can't be called if {@link #isPassivated()} is true.
-     * </p>
-     * 
-     * @return
+     * @see ISession#isTransactionActive()
      */
     public boolean isTransactionActive() {
         checkActive();
@@ -458,21 +448,15 @@ public class Session {
     }
 
     /**
-     * Rolls back the current transaction
-     * <p>
-     * When this method returns it is guaranteed that {@link #isTransactionActive()} will return
-     * false, regardless of the success of the rollback operation.
-     * </p>
-     * 
-     * @throws IOException
+     * @see ISession#rollbackTransaction()
      */
     public void rollbackTransaction() throws IOException {
         checkActive();
         try {
             issue(new Command<Void>() {
                 @Override
-                public Void execute(Session session, SeConnection connection) throws SeException,
-                        IOException {
+                public Void execute(final ISession session, final SeConnection connection)
+                        throws SeException, IOException {
                     connection.rollbackTransaction();
                     return null;
                 }
@@ -483,12 +467,9 @@ public class Session {
     }
 
     /**
-     * Return to the pool (may not close the internal connection, depends on pool settings).
-     * 
-     * @throws IllegalStateException if close() is called while a transaction is in progress
-     * @see #destroy()
+     * @see ISession#close()
      */
-    public void close() throws IllegalStateException {
+    public void dispose() throws IllegalStateException {
         checkActive();
         if (transactionInProgress) {
             throw new IllegalStateException(
@@ -496,6 +477,7 @@ public class Session {
         }
 
         try {
+            this.pool.returnObject(this);
             if (LOGGER.isLoggable(Level.FINER)) {
                 // StackTraceElement[] stackTrace =
                 // Thread.currentThread().getStackTrace();
@@ -503,9 +485,9 @@ public class Session {
                 // stackTrace[3].getMethodName();
                 // System.err.println("<- " + caller + " returning " +
                 // toString() + " to pool");
-                LOGGER.finer("<- returning " + toString() + " to pool");
+                LOGGER.finer("<-- " + toString() + " retured to pool. Active: "
+                        + pool.getNumActive() + ", idle: " + pool.getNumIdle());
             }
-            this.pool.returnObject(this);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -513,83 +495,95 @@ public class Session {
 
     @Override
     public String toString() {
-        return "ArcSDEPooledConnection[" + connectionId + "]";
+        return "Session[" + sessionId + "]";
     }
 
     /**
      * Actually closes the connection, called when the session is discarded from the pool
      */
     void destroy() {
+        LOGGER.fine("Destroying connection " + toString());
         try {
             issue(new Command<Void>() {
                 @Override
-                public Void execute(Session session, SeConnection connection) throws SeException,
-                        IOException {
+                public Void execute(final ISession session, final SeConnection connection)
+                        throws SeException, IOException {
                     connection.close();
                     return null;
                 }
             });
+            LOGGER.fine(toString() + " successfully closed");
         } catch (Exception e) {
-            LOGGER.info("closing connection: " + e.getMessage());
+            LOGGER
+                    .log(Level.WARNING, "closing connection " + toString() + ": " + e.getMessage(),
+                            e);
         }
     }
 
     /**
-     * Compares for reference equality
+     * @see ISession#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object other) {
         return other == this;
     }
 
+    /**
+     * @see ISession#hashCode()
+     */
     @Override
     public int hashCode() {
         return 17 ^ this.config.hashCode();
     }
 
     /**
-     * Returns the live list of layers, not the cached ones, so it may pick up the differences in
-     * the database.
-     * 
-     * @return
-     * @throws IOException
+     * @see ISession#getLayers()
      */
     @SuppressWarnings("unchecked")
     public List<SeLayer> getLayers() throws IOException {
         return issue(new Command<List<SeLayer>>() {
             @Override
-            public List<SeLayer> execute(Session session, SeConnection connection)
+            public List<SeLayer> execute(final ISession session, final SeConnection connection)
                     throws SeException, IOException {
                 return connection.getLayers();
             }
         });
     }
 
+    /**
+     * @see ISession#getUser()
+     */
     public String getUser() throws IOException {
         return issue(new Command<String>() {
             @Override
-            public String execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public String execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return connection.getUser();
             }
         });
     }
 
+    /**
+     * @see ISession#getRelease()
+     */
     public SeRelease getRelease() throws IOException {
         return issue(new Command<SeRelease>() {
             @Override
-            public SeRelease execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeRelease execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return connection.getRelease();
             }
         });
     }
 
+    /**
+     * @see ISession#getDatabaseName()
+     */
     public String getDatabaseName() throws IOException {
         return issue(new Command<String>() {
             @Override
-            public String execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public String execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return connection.getDatabaseName();
             }
         });
@@ -599,20 +593,26 @@ public class Session {
     // Factory methods that make use of internal connection
     // Q: How "long" are these objects good for? until the connection closes - or longer...
     //
+    /**
+     * @see ISession#createSeLayer()
+     */
     public SeLayer createSeLayer() throws IOException {
         return issue(new Command<SeLayer>() {
             @Override
-            public SeLayer execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeLayer execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return new SeLayer(connection);
             }
         });
     }
 
+    /**
+     * @see ISession#createSeRegistration(java.lang.String)
+     */
     public SeRegistration createSeRegistration(final String typeName) throws IOException {
         return issue(new Command<SeRegistration>() {
             @Override
-            public SeRegistration execute(Session session, SeConnection connection)
+            public SeRegistration execute(final ISession session, final SeConnection connection)
                     throws SeException, IOException {
                 return new SeRegistration(connection, typeName);
             }
@@ -620,107 +620,112 @@ public class Session {
     }
 
     /**
-     * Creates an SeTable named
-     * <code>qualifiedName<code>; the layer does not need to exist on the server.
-     * 
-     * @param qualifiedName
-     * @return
-     * @throws IOException
+     * @see ISession#createSeTable(java.lang.String)
      */
     public SeTable createSeTable(final String qualifiedName) throws IOException {
         return issue(new Command<SeTable>() {
             @Override
-            public SeTable execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeTable execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return new SeTable(connection, qualifiedName);
             }
         });
     }
 
+    /**
+     * @see ISession#createSeInsert()
+     */
     public SeInsert createSeInsert() throws IOException {
         return issue(new Command<SeInsert>() {
             @Override
-            public SeInsert execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeInsert execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return new SeInsert(connection);
             }
         });
     }
 
+    /**
+     * @see ISession#createSeUpdate()
+     */
     public SeUpdate createSeUpdate() throws IOException {
         return issue(new Command<SeUpdate>() {
             @Override
-            public SeUpdate execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeUpdate execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return new SeUpdate(connection);
             }
         });
     }
 
+    /**
+     * @see ISession#createSeDelete()
+     */
     public SeDelete createSeDelete() throws IOException {
         return issue(new Command<SeDelete>() {
             @Override
-            public SeDelete execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeDelete execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return new SeDelete(connection);
             }
         });
     }
 
+    /**
+     * @see ISession#createSeRasterColumn()
+     */
     public SeRasterColumn createSeRasterColumn() throws IOException {
         return issue(new Command<SeRasterColumn>() {
             @Override
-            public SeRasterColumn execute(Session session, SeConnection connection)
+            public SeRasterColumn execute(final ISession session, final SeConnection connection)
                     throws SeException, IOException {
                 return new SeRasterColumn(connection);
             }
         });
     }
 
+    /**
+     * @see ISession#createSeRasterColumn(com.esri.sde.sdk.client.SeObjectId)
+     */
     public SeRasterColumn createSeRasterColumn(final SeObjectId rasterColumnId) throws IOException {
         return issue(new Command<SeRasterColumn>() {
             @Override
-            public SeRasterColumn execute(Session session, SeConnection connection)
+            public SeRasterColumn execute(final ISession session, final SeConnection connection)
                     throws SeException, IOException {
                 return new SeRasterColumn(connection, rasterColumnId);
             }
         });
     }
 
+    /**
+     * @see ISession#describe(java.lang.String)
+     */
     public SeColumnDefinition[] describe(final String tableName) throws IOException {
         final SeTable table = getTable(tableName);
         return describe(table);
     }
 
+    /**
+     * @see ISession#describe(com.esri.sde.sdk.client.SeTable)
+     */
     public SeColumnDefinition[] describe(final SeTable table) throws IOException {
         return issue(new Command<SeColumnDefinition[]>() {
             @Override
-            public SeColumnDefinition[] execute(Session session, SeConnection connection)
-                    throws SeException, IOException {
+            public SeColumnDefinition[] execute(final ISession session,
+                    final SeConnection connection) throws SeException, IOException {
                 return table.describe();
             }
         });
     }
 
     /**
-     * Issues a command that fetches a row from an already executed SeQuery and returns the
-     * {@link SdeRow} object with its contents.
-     * <p>
-     * The point in returning an {@link SdeRow} instead of a plain {@link SeRow} is that the former
-     * prefetches the row values and this can be freely used outside a {@link Command}. Otherwise
-     * the SeRow should only be used inside a command as accessing its values implies using the
-     * connection.
-     * </p>
-     * 
-     * @param query
-     * @return
-     * @throws IOException
+     * @see ISession#fetch(com.esri.sde.sdk.client.SeQuery)
      */
     public SdeRow fetch(final SeQuery query) throws IOException {
         return issue(new Command<SdeRow>() {
             @Override
-            public SdeRow execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SdeRow execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 SeRow row = query.fetch();
                 SdeRow populatedRow = null;
                 if (row != null) {
@@ -731,78 +736,85 @@ public class Session {
         });
     }
 
+    /**
+     * @see ISession#close(com.esri.sde.sdk.client.SeState)
+     */
     public void close(final SeState state) throws IOException {
         issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public Void execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 state.close();
                 return null;
             }
         });
     }
 
+    /**
+     * @see ISession#close(com.esri.sde.sdk.client.SeStreamOp)
+     */
     public void close(final SeStreamOp stream) throws IOException {
         issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public Void execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 stream.close();
                 return null;
             }
         });
     }
 
+    /**
+     * @see ISession#createState(com.esri.sde.sdk.client.SeObjectId)
+     */
     public SeState createState(final SeObjectId stateId) throws IOException {
         return issue(new Command<SeState>() {
             @Override
-            public SeState execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeState execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return new SeState(connection, stateId);
             }
         });
     }
 
+    /**
+     * @see ISession#createSeQuery()
+     */
     public SeQuery createSeQuery() throws IOException {
         return issue(new Command<SeQuery>() {
             @Override
-            public SeQuery execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeQuery execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return new SeQuery(connection);
             }
         });
     }
 
     /**
-     * Creates an SeQuery to fetch the given propertyNames with the provided attribute based
-     * restrictions
-     * <p>
-     * This method shall only be called from inside a {@link Command}
-     * </p>
-     * 
-     * @param propertyNames
-     * @param sql
-     * @return
-     * @throws IOException
+     * @see ISession#createSeQuery(java.lang.String[], com.esri.sde.sdk.client.SeSqlConstruct)
      */
     public SeQuery createSeQuery(final String[] propertyNames, final SeSqlConstruct sql)
             throws IOException {
 
         return issue(new Command<SeQuery>() {
             @Override
-            public SeQuery execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeQuery execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 return new SeQuery(connection, propertyNames, sql);
             }
         });
     }
 
+    /**
+     * @see ISession#createAndExecuteQuery(java.lang.String[],
+     *      com.esri.sde.sdk.client.SeSqlConstruct)
+     */
     public SeQuery createAndExecuteQuery(final String[] propertyNames, final SeSqlConstruct sql)
             throws IOException {
         return issue(new Command<SeQuery>() {
             @Override
-            public SeQuery execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
+            public SeQuery execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
                 SeQuery query = new SeQuery(connection, propertyNames, sql);
                 query.prepareQuery();
                 query.execute();

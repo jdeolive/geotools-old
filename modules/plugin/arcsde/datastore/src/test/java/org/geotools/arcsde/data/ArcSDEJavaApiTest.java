@@ -29,7 +29,7 @@ import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 
@@ -76,7 +76,7 @@ public class ArcSDEJavaApiTest extends TestCase {
     /** utility to load test parameters and build a datastore with them */
     private static TestData testData;
 
-    private Session session;
+    private ISession session;
 
     private ArcSDEConnectionPool pool;
 
@@ -156,7 +156,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         super.tearDown();
         if (session != null) {
             try {
-                session.close();
+                session.dispose();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -219,7 +219,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         final Command<Integer> countCmd = new Command<Integer>() {
             @Override
-            public Integer execute(Session session, SeConnection connection) throws SeException,
+            public Integer execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 final SeQuery rowQuery = new SeQuery(connection, columns, sql);
                 rowQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, spatFilters);
@@ -262,7 +262,7 @@ public class ArcSDEJavaApiTest extends TestCase {
      * @throws IOException
      * @throws Exception
      */
-    private static int getTempTableCount(final Session session,
+    private static int getTempTableCount(final ISession session,
             final String tableName,
             final String whereClause,
             final SeFilter[] spatFilters,
@@ -270,7 +270,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         final Command<Integer> countCmd = new Command<Integer>() {
             @Override
-            public Integer execute(Session session, SeConnection connection) throws SeException,
+            public Integer execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 String[] columns = { "*" };
 
@@ -356,7 +356,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         SeExtent extent = session.issue(new Command<SeExtent>() {
             @Override
-            public SeExtent execute(Session session, SeConnection connection) throws SeException,
+            public SeExtent execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeQuery spatialQuery = new SeQuery(connection);
                 // spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, filters);
@@ -403,7 +403,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         SeExtent extent = session.issue(new Command<SeExtent>() {
 
             @Override
-            public SeExtent execute(Session session, SeConnection connection) throws SeException,
+            public SeExtent execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeQuery spatialQuery = new SeQuery(connection);
                 spatialQuery.setSpatialConstraints(SeQuery.SE_SPATIAL_FIRST, false, spatFilters);
@@ -449,7 +449,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
             SeExtent extent = session.issue(new Command<SeExtent>() {
                 @Override
-                public SeExtent execute(Session session, SeConnection connection)
+                public SeExtent execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     SeQuery spatialQuery = new SeQuery(connection);
                     spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, spatFilters);
@@ -773,7 +773,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         final Command<Void> createBaseTableCmd = new Command<Void>() {
 
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
 
                 SeLayer layer = new SeLayer(connection);
@@ -865,7 +865,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         Command<Void> createCommand = new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 final SeLayer layer = new SeLayer(connection);
                 /*
@@ -1008,7 +1008,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         session.issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeDelete delete = new SeDelete(connection);
                 delete.byId(typeName, new SeObjectId(rowId));
@@ -1034,7 +1034,7 @@ public class ArcSDEJavaApiTest extends TestCase {
      */
     public void testTransactionStateRead() throws Exception {
         // connection with a transaction in progress
-        final Session transSession;
+        final ISession transSession;
 
         testData.truncateTempTable();
 
@@ -1054,7 +1054,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
             transSession.issue(new Command<Void>() {
                 @Override
-                public Void execute(Session session, SeConnection connection) throws SeException,
+                public Void execute(ISession session, SeConnection connection) throws SeException,
                         IOException {
                     SeInsert insert = new SeInsert(connection);
                     insert.intoTable(tableName, columns);
@@ -1074,7 +1074,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
             final SeRow transRow = transSession.issue(new Command<SeRow>() {
                 @Override
-                public SeRow execute(Session session, SeConnection connection) throws SeException,
+                public SeRow execute(ISession session, SeConnection connection) throws SeException,
                         IOException {
                     // the query over the transaction connection
                     SeQuery transQuery = new SeQuery(connection, columns, sqlConstruct);
@@ -1099,7 +1099,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
             final SeRow noTransRow = session.issue(new Command<SeRow>() {
                 @Override
-                public SeRow execute(Session session, SeConnection connection) throws SeException,
+                public SeRow execute(ISession session, SeConnection connection) throws SeException,
                         IOException {
                     SeQuery query = new SeQuery(connection, columns, sqlConstruct);
                     query.prepareQuery();
@@ -1118,7 +1118,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             if (!commited) {
                 transSession.rollbackTransaction();
             }
-            transSession.close();
+            transSession.dispose();
             // conn.close(); closed at tearDown
         }
     }
@@ -1138,7 +1138,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         {
             defaultVersion = session.issue(new Command<SeVersion>() {
                 @Override
-                public SeVersion execute(Session session, SeConnection connection)
+                public SeVersion execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     SeVersion defaultVersion = new SeVersion(connection,
                             SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
@@ -1150,7 +1150,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             newVersion = session.issue(new Command<SeVersion>() {
 
                 @Override
-                public SeVersion execute(Session session, SeConnection connection)
+                public SeVersion execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     SeVersion newVersion = new SeVersion(connection,
                             SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
@@ -1180,7 +1180,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         // edit default version
         SeState newState1 = session.issue(new Command<SeState>() {
             @Override
-            public SeState execute(Session session, SeConnection connection) throws SeException,
+            public SeState execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeObjectId defVersionStateId = defaultVersion.getStateId();
                 SeState defVersionState = new SeState(connection, defVersionStateId);
@@ -1206,7 +1206,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         final SeState newState2 = session.issue(new Command<SeState>() {
             @Override
-            public SeState execute(Session session, SeConnection connection) throws SeException,
+            public SeState execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeState newState = new SeState(connection);
                 newState.create(parentStateId);
@@ -1219,7 +1219,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
         session.issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 // Change the version's state pointer to the last edit state.
                 defaultVersion.changeState(newState2.getId());

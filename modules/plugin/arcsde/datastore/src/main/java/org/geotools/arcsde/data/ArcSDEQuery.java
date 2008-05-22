@@ -33,7 +33,7 @@ import org.geotools.arcsde.filter.FilterToSQLSDE;
 import org.geotools.arcsde.filter.GeometryEncoderException;
 import org.geotools.arcsde.filter.GeometryEncoderSDE;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
@@ -53,7 +53,6 @@ import com.esri.sde.sdk.client.SeFilter;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeQueryInfo;
-import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
 import com.vividsolutions.jts.geom.Envelope;
@@ -80,7 +79,7 @@ class ArcSDEQuery {
      * NOTE: this member is package visible only for unit test pourposes
      * </p>
      */
-    final Session session;
+    final ISession session;
 
     /**
      * The exact feature type this query is about to request from the arcsde server. It could have
@@ -122,7 +121,7 @@ class ArcSDEQuery {
      * @throws DataSourceException DOCUMENT ME!
      * @see prepareQuery
      */
-    private ArcSDEQuery(final Session session,
+    private ArcSDEQuery(final ISession session,
                         final SimpleFeatureType schema,
                         final FilterSet filterSet,
                         final FIDReader fidReader,
@@ -147,7 +146,7 @@ class ArcSDEQuery {
      * @return
      * @throws IOException
      */
-    public static ArcSDEQuery createQuery(final Session session,
+    public static ArcSDEQuery createQuery(final ISession session,
             final SimpleFeatureType fullSchema,
             final Query query,
             final FIDReader fidReader,
@@ -177,7 +176,7 @@ class ArcSDEQuery {
      * @throws IOException see <i>throws DataSourceException</i> bellow.
      * @see ArcSDEDataStore#registerView(String, PlainSelect)
      */
-    public static ArcSDEQuery createInprocessViewQuery(final Session session,
+    public static ArcSDEQuery createInprocessViewQuery(final ISession session,
             final SimpleFeatureType fullSchema,
             final Query query,
             final SeQueryInfo definitionQuery,
@@ -230,7 +229,7 @@ class ArcSDEQuery {
      *         filter.
      * @throws DataSourceException
      */
-    private static SimpleFeatureType getQuerySchema(final Query query,
+    public static SimpleFeatureType getQuerySchema(final Query query,
             final SimpleFeatureType fullSchema) throws DataSourceException {
         // guess which properties need to actually be retrieved.
         final List<String> queryColumns = getQueryColumns(query, fullSchema);
@@ -364,7 +363,7 @@ class ArcSDEQuery {
         // try {
         session.issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 seQuery.prepareQueryInfo(qInfo);
 
@@ -458,7 +457,7 @@ class ArcSDEQuery {
 
         SeQuery query = session.issue(new Command<SeQuery>() {
             @Override
-            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+            public SeQuery execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeQuery seQuery = new SeQuery(connection);
                 SeFilter[] spatialConstraints = ArcSDEQuery.this.filters.getSpatialFilters();
@@ -508,7 +507,7 @@ class ArcSDEQuery {
     /**
      * Convenient method to just calculate the result count of a given query.
      */
-    public static int calculateResultCount(final Session session,
+    public static int calculateResultCount(final ISession session,
             final FeatureTypeInfo typeInfo,
             final Query query,
             final ArcSdeVersionHandler versioningHandler) throws IOException {
@@ -538,7 +537,7 @@ class ArcSDEQuery {
     /**
      * Convenient method to just calculate the resulting bound box of a given query.
      */
-    public static Envelope calculateQueryExtent(final Session session,
+    public static Envelope calculateQueryExtent(final ISession session,
             final FeatureTypeInfo typeInfo,
             final Query query,
             final ArcSdeVersionHandler versioningHandler) throws IOException {
@@ -607,7 +606,7 @@ class ArcSDEQuery {
                 try {
                     Integer resultCount = session.issue(new Command<Integer>() {
                         @Override
-                        public Integer execute(Session session, SeConnection connection)
+                        public Integer execute(ISession session, SeConnection connection)
                                 throws SeException, IOException {
 
                             SeTable.SeTableStats tableStats = countQuery.calculateTableStatistics(
@@ -662,7 +661,7 @@ class ArcSDEQuery {
             final SeQueryInfo sdeQueryInfo = filters.getQueryInfo(spatialCol);
             envelope = session.issue(new Command<Envelope>() {
                 @Override
-                public Envelope execute(Session session, SeConnection connection)
+                public Envelope execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     SeExtent extent;
 
@@ -704,7 +703,7 @@ class ArcSDEQuery {
      * @param query
      * @throws IOException
      */
-    private static void close(final SeQuery query, final Session session) throws IOException {
+    private static void close(final SeQuery query, final ISession session) throws IOException {
         if (query == null) {
             return;
         }
@@ -740,7 +739,7 @@ class ArcSDEQuery {
         final SeQuery seQuery = getSeQuery();
         session.issue(new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 seQuery.execute();
                 return null;

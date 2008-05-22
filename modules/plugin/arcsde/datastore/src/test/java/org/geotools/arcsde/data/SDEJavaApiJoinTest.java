@@ -32,7 +32,7 @@ import net.sf.jsqlparser.statement.select.SelectBody;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
@@ -185,11 +185,11 @@ public class SDEJavaApiJoinTest extends TestCase {
         testData = new TestData();
         testData.setUp();
 
-        Session session = testData.getConnectionPool().getSession();
+        ISession session = testData.getConnectionPool().getSession();
         try {
             InProcessViewSupportTestData.setUp(session, testData);
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
@@ -482,7 +482,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * @throws Exception
      */
     public void testApiOrderBy() throws Exception {
-        Session session = store.getSession(Transaction.AUTO_COMMIT);
+        ISession session = store.getSession(Transaction.AUTO_COMMIT);
 
         SeSqlConstruct sqlConstruct = new SeSqlConstruct();
         String[] tables = { InProcessViewSupportTestData.MASTER, InProcessViewSupportTestData.CHILD };
@@ -521,7 +521,7 @@ public class SDEJavaApiJoinTest extends TestCase {
         final SeQuery query = session.issue(new Command<SeQuery>(){
 
             @Override
-            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+            public SeQuery execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeQuery query = new SeQuery(connection);
                 query.prepareQueryInfo(queryInfo);
@@ -559,7 +559,7 @@ public class SDEJavaApiJoinTest extends TestCase {
             e.printStackTrace();
             throw e;
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
@@ -571,7 +571,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * TODO: revisit, this test hangs with SDE 9.2/Oracle9i at query.prepareQueryInfo(queryInfo);
      */
     public void _testApiAlias() throws Exception {
-        Session session = store.getSession(Transaction.AUTO_COMMIT);
+        ISession session = store.getSession(Transaction.AUTO_COMMIT);
 
         SeSqlConstruct sqlConstruct = new SeSqlConstruct();
         String[] tables = { InProcessViewSupportTestData.MASTER + " MASTER",
@@ -592,7 +592,7 @@ public class SDEJavaApiJoinTest extends TestCase {
 
         final SeQuery query = session.issue(new Command<SeQuery>(){
             @Override
-            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+            public SeQuery execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeQuery query = new SeQuery(connection);
                 query.prepareQueryInfo(queryInfo);
@@ -620,7 +620,7 @@ public class SDEJavaApiJoinTest extends TestCase {
             e.printStackTrace();
             throw e;
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
@@ -632,7 +632,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * @throws Exception
      */
     public void testApiGroupBy() throws Exception {
-        Session session = store.getSession(Transaction.AUTO_COMMIT);
+        ISession session = store.getSession(Transaction.AUTO_COMMIT);
 
         SeSqlConstruct sqlConstruct = new SeSqlConstruct();
         String[] tables = { InProcessViewSupportTestData.MASTER, InProcessViewSupportTestData.CHILD };
@@ -676,7 +676,7 @@ public class SDEJavaApiJoinTest extends TestCase {
 
         SeQuery query = session.issue(new Command<SeQuery>(){
             @Override
-            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+            public SeQuery execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeQuery query = new SeQuery(connection);
                 query.prepareQueryInfo(queryInfo);
@@ -703,7 +703,7 @@ public class SDEJavaApiJoinTest extends TestCase {
             e.printStackTrace();
             throw e;
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
@@ -716,7 +716,7 @@ public class SDEJavaApiJoinTest extends TestCase {
      * @throws Exception
      */
     public void testApiPlainSql() throws Exception {
-        Session session = store.getSession(Transaction.AUTO_COMMIT);
+        ISession session = store.getSession(Transaction.AUTO_COMMIT);
 
         final String plainQuery = "SELECT " + InProcessViewSupportTestData.MASTER + ".ID, "
                 + InProcessViewSupportTestData.MASTER + ".SHAPE, "
@@ -730,7 +730,7 @@ public class SDEJavaApiJoinTest extends TestCase {
         final SeQuery query = session.issue(new Command<SeQuery>(){
 
             @Override
-            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+            public SeQuery execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeQuery query = new SeQuery(connection);
                 query.prepareSql(plainQuery);
@@ -753,7 +753,7 @@ public class SDEJavaApiJoinTest extends TestCase {
             e.printStackTrace();
             throw e;
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 

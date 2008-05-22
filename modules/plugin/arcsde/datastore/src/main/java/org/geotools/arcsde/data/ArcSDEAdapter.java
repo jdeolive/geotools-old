@@ -33,7 +33,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -254,7 +254,7 @@ public class ArcSDEAdapter {
      */
     public static FeatureTypeInfo fetchSchema(final String typeName,
             final String namespace,
-            final Session session) throws IOException {
+            final ISession session) throws IOException {
         final SeLayer layer = session.getLayer(typeName);
         final SeTable table = session.getTable(typeName);
 
@@ -275,7 +275,7 @@ public class ArcSDEAdapter {
         {
             final Integer permMask = session.issue(new Command<Integer>() {
                 @Override
-                public Integer execute(Session session, SeConnection connection)
+                public Integer execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     return new Integer(table.getPermissions());
                 }
@@ -323,7 +323,7 @@ public class ArcSDEAdapter {
     /**
      * Creates a schema for the "SQL SELECT" like view definition
      */
-    public static FeatureTypeInfo createInprocessViewSchema(final Session session,
+    public static FeatureTypeInfo createInprocessViewSchema(final ISession session,
             final String typeName,
             final String namespace,
             final PlainSelect qualifiedSelect,
@@ -350,7 +350,7 @@ public class ArcSDEAdapter {
 
         final Command<SeColumnDefinition[]> testQueryCmd = new Command<SeColumnDefinition[]>() {
             @Override
-            public SeColumnDefinition[] execute(Session session, SeConnection connection)
+            public SeColumnDefinition[] execute(ISession session, SeConnection connection)
                     throws SeException, IOException {
                 final SeQuery testQuery = new SeQuery(connection);
 
@@ -869,7 +869,7 @@ public class ArcSDEAdapter {
      */
     public static void createSchema(final SimpleFeatureType featureType,
             final Map hints,
-            final Session session) throws IOException, IllegalArgumentException {
+            final ISession session) throws IOException, IllegalArgumentException {
 
         if (featureType == null) {
             throw new NullPointerException("You have to provide a FeatureType instance");
@@ -882,7 +882,7 @@ public class ArcSDEAdapter {
 
         final Command<Void> createSchemaCmd = new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
 
                 final String[] typeNameParts = featureType.getTypeName().split("\\.");

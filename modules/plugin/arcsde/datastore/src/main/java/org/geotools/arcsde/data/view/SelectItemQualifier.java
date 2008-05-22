@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
@@ -55,7 +55,7 @@ class SelectItemQualifier implements net.sf.jsqlparser.statement.select.SelectIt
     private List /* <SelectExpressionItem> */qualifiedItems = Collections.EMPTY_LIST;
 
     /** DOCUMENT ME! */
-    private Session session;
+    private ISession session;
 
     private Map tableAliases;
 
@@ -64,7 +64,7 @@ class SelectItemQualifier implements net.sf.jsqlparser.statement.select.SelectIt
      * 
      * @param session DOCUMENT ME!
      */
-    private SelectItemQualifier(Session session, Map tableAliases) {
+    private SelectItemQualifier(ISession session, Map tableAliases) {
         this.session = session;
         this.tableAliases = tableAliases;
     }
@@ -76,7 +76,7 @@ class SelectItemQualifier implements net.sf.jsqlparser.statement.select.SelectIt
      * @param item DOCUMENT ME!
      * @return DOCUMENT ME!
      */
-    public static List qualify(Session session, Map tableAliases, SelectItem item) {
+    public static List qualify(ISession session, Map tableAliases, SelectItem item) {
         if (item == null) {
             return null;
         }

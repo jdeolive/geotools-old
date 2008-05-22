@@ -10,7 +10,6 @@ import javax.imageio.ImageIO;
 import org.geotools.arcsde.ArcSDERasterFormatFactory;
 import org.geotools.arcsde.gce.RasterTestData;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.Session;
 import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -28,8 +27,6 @@ import org.junit.Test;
 import org.opengis.coverage.grid.Format;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.esri.sde.sdk.client.SeRasterColumn;
 
 public class RGBGridCoverageReaderTest {
 

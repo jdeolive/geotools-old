@@ -34,8 +34,8 @@ import org.geotools.arcsde.data.versioning.AutoCommitDefaultVersionHandler;
 import org.geotools.arcsde.data.view.QueryInfoParser;
 import org.geotools.arcsde.data.view.SelectQualifier;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.Session;
-import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.SessionWrapper;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
@@ -129,12 +129,12 @@ public class ArcSDEDataStore implements DataStore {
         this.inProcessFeatureTypeInfos = new HashMap<String, FeatureTypeInfo>();
     }
 
-    public Session getSession(final Transaction transaction) throws IOException {
+    public ISession getSession(final Transaction transaction) throws IOException {
         if (transaction == null) {
             throw new NullPointerException(
                     "transaction can't be null. Did you mean Transaction.AUTO_COMMIT?");
         }
-        final Session session = connectionPool.getSession(transaction);
+        final ISession session = connectionPool.getSession(transaction);
 
         return session;
     }
@@ -225,13 +225,12 @@ public class ArcSDEDataStore implements DataStore {
         assert transaction != null;
 
         ArcSdeVersionHandler versionHandler = getVersionHandler(typeName, transaction);
-        Session session = getSession(transaction);
+        ISession session = getSession(transaction);
 
         // indicates the feature reader should close the connection when done
         // if it's not inside a transaction.
-        final boolean handleConnection = true;
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
-        reader = getFeatureReader(query, session, handleConnection, versionHandler);
+        reader = getFeatureReader(query, session, versionHandler);
 
         return reader;
     }
@@ -248,15 +247,11 @@ public class ArcSDEDataStore implements DataStore {
      * @param session the session to use to retrieve content. It'll be closed by the returned
      *            FeatureReader<SimpleFeatureType, SimpleFeature> only if the connection does not
      *            has a {@link Session#isTransactionActive() transaction in progress}.
-     * @param readerClosesConnection flag indicating whether the reader should auto-close the
-     *            connection when exhausted/closed. <code>false</code> indicates never close it as
-     *            its being used as the streamed content of a feature writer.
      * @return
      * @throws IOException
      */
     FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(final Query query,
-            final Session session,
-            final boolean readerClosesConnection,
+            final ISession session,
             final ArcSdeVersionHandler versionHandler) throws IOException {
 
         final String typeName = query.getTypeName();
@@ -298,7 +293,7 @@ public class ArcSDEDataStore implements DataStore {
 
         // this is the one which's gonna close the connection when done
         final ArcSDEAttributeReader attReader;
-        attReader = new ArcSDEAttributeReader(sdeQuery, session, readerClosesConnection);
+        attReader = new ArcSDEAttributeReader(sdeQuery, session);
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
         try {
             reader = new ArcSDEFeatureReader(attReader);
@@ -387,7 +382,7 @@ public class ArcSDEDataStore implements DataStore {
         final ArcSdeVersionHandler versionHandler = getVersionHandler(typeName, transaction);
         // get the connection the streamed writer content has to work over
         // so the reader and writer share it
-        final Session session = getSession(transaction);
+        final ISession session = getSession(transaction);
 
         try {
             final FeatureTypeInfo typeInfo = getFeatureTypeInfo(typeName, session);
@@ -397,10 +392,15 @@ public class ArcSDEDataStore implements DataStore {
             final SimpleFeatureType featureType = typeInfo.getFeatureType();
 
             final DefaultQuery query = new DefaultQuery(typeName, filter);
-            // don't let the reader close the connection as the writer needs it
-            final boolean closeConnection = false;
             final FeatureReader<SimpleFeatureType, SimpleFeature> reader;
-            reader = getFeatureReader(query, session, closeConnection, versionHandler);
+
+            final ISession nonDisposableSession = new SessionWrapper(session) {
+                @Override
+                public void dispose() throws IllegalStateException {
+                    // do nothing, we don't want the reader to close the session
+                }
+            };
+            reader = getFeatureReader(query, nonDisposableSession, versionHandler);
 
             final ArcSdeFeatureWriter writer;
 
@@ -422,7 +422,7 @@ public class ArcSDEDataStore implements DataStore {
             try {
                 session.rollbackTransaction();
             } finally {
-                session.close();
+                session.dispose();
             }
             throw e;
         } catch (RuntimeException e) {
@@ -431,7 +431,7 @@ public class ArcSDEDataStore implements DataStore {
             } catch (IOException e1) {
                 LOGGER.log(Level.SEVERE, "Error rolling back transaction on " + session, e);
             } finally {
-                session.close();
+                session.dispose();
             }
             throw e;
         }
@@ -533,7 +533,7 @@ public class ArcSDEDataStore implements DataStore {
      */
     private org.opengis.filter.Filter getUnsupportedFilter(final FeatureTypeInfo typeInfo,
             final Filter filter,
-            final Session session) {
+            final ISession session) {
         try {
             SeLayer layer;
             SeQueryInfo qInfo;
@@ -611,11 +611,11 @@ public class ArcSDEDataStore implements DataStore {
             typeInfo = featureTypeInfos.get(typeName);
             if (typeInfo == null) {
                 // typeInfo = ArcSDEAdapter.fetchSchema(typeName, this.namespace, connectionPool);
-                Session session = getSession(Transaction.AUTO_COMMIT);
+                ISession session = getSession(Transaction.AUTO_COMMIT);
                 try {
                     typeInfo = ArcSDEAdapter.fetchSchema(typeName, this.namespace, session);
                 } finally {
-                    session.close();
+                    session.dispose();
                 }
                 featureTypeInfos.put(typeName, typeInfo);
             }
@@ -635,7 +635,7 @@ public class ArcSDEDataStore implements DataStore {
      * @return
      * @throws IOException
      */
-    synchronized FeatureTypeInfo getFeatureTypeInfo(final String typeName, Session session)
+    synchronized FeatureTypeInfo getFeatureTypeInfo(final String typeName, ISession session)
             throws IOException {
 
         FeatureTypeInfo ftInfo = inProcessFeatureTypeInfos.get(typeName);
@@ -677,11 +677,11 @@ public class ArcSDEDataStore implements DataStore {
      */
     public void createSchema(final SimpleFeatureType featureType, final Map<String, String> hints)
             throws IOException, IllegalArgumentException {
-        final Session session = getSession(Transaction.AUTO_COMMIT);
+        final ISession session = getSession(Transaction.AUTO_COMMIT);
         try {
             ArcSDEAdapter.createSchema(featureType, hints, session);
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
@@ -709,7 +709,7 @@ public class ArcSDEDataStore implements DataStore {
 
         verifyQueryIsSupported(select);
 
-        final Session session = connectionPool.getSession();
+        final ISession session = connectionPool.getSession();
 
         try {
             final PlainSelect qualifiedSelect = SelectQualifier.qualify(session, select);
@@ -727,7 +727,7 @@ public class ArcSDEDataStore implements DataStore {
 
             inProcessFeatureTypeInfos.put(typeName, typeInfo);
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 

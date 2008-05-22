@@ -29,7 +29,7 @@ import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.FeatureCollection;
@@ -156,12 +156,12 @@ public class TestData {
         }
     }
 
-    public SeTable getTempTable(Session session) throws IOException {
+    public SeTable getTempTable(ISession session) throws IOException {
         final String tempTableName = getTempTableName();
         return session.getTable(tempTableName);
     }
 
-    public SeLayer getTempLayer(Session session) throws IOException {
+    public SeLayer getTempLayer(ISession session) throws IOException {
         final String tempTableName = getTempTableName();
         return session.getLayer(tempTableName);
     }
@@ -199,12 +199,12 @@ public class TestData {
     }
 
     public String getTempTableName() throws IOException {
-        Session session = getConnectionPool().getSession();
+        ISession session = getConnectionPool().getSession();
         String tempTableName;
         try {
             tempTableName = getTempTableName(session);
         } finally {
-            session.close();
+            session.dispose();
         }
         return tempTableName;
     }
@@ -213,7 +213,7 @@ public class TestData {
      * @return Returns the temp_table.
      * @throws SeException
      */
-    public String getTempTableName(Session session) throws IOException {
+    public String getTempTableName(ISession session) throws IOException {
         String dbName = session.getDatabaseName();
         String user = session.getUser();
         StringBuffer sb = new StringBuffer();
@@ -268,14 +268,14 @@ public class TestData {
     private static void deleteTable(final ArcSDEConnectionPool connPool, final String tableName)
             throws IOException, UnavailableArcSDEConnectionException {
 
-        final Session session = connPool.getSession();
+        final ISession session = connPool.getSession();
 
         // final SeTable layer = session.createSeTable(tableName);
 
         final Command<Void> deleteCmd = new Command<Void>() {
 
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 // try {
                 // layer.delete();
@@ -296,7 +296,7 @@ public class TestData {
         };
 
         session.issue(deleteCmd);
-        session.close();
+        session.dispose();
     }
 
     /**
@@ -311,7 +311,7 @@ public class TestData {
 
         deleteTempTable(connPool);
 
-        Session session = connPool.getSession();
+        ISession session = connPool.getSession();
 
         try {
             /*
@@ -323,7 +323,7 @@ public class TestData {
             final SeTable tempTable = session.createSeTable(tableName);
             final SeLayer tempTableLayer = session.issue(new Command<SeLayer>() {
                 @Override
-                public SeLayer execute(Session session, SeConnection connection)
+                public SeLayer execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     SeLayer tempTableLayer = new SeLayer(connection);
                     tempTableLayer.setTableName(tableName);
@@ -340,7 +340,7 @@ public class TestData {
             e.printStackTrace();
             throw e;
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
@@ -354,24 +354,24 @@ public class TestData {
     public void insertTestData() throws Exception {
         truncateTempTable();
         ArcSDEConnectionPool connPool = getConnectionPool();
-        Session session = connPool.getSession();
+        ISession session = connPool.getSession();
         try {
             SeLayer tempTableLayer = getTempLayer(session);
             insertData(tempTableLayer, session, tempTableColumns);
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
     public void truncateTempTable() throws IOException {
         final ArcSDEConnectionPool connPool = getConnectionPool();
-        final Session session = connPool.getSession();
+        final ISession session = connPool.getSession();
         final String tempTableName = getTempTableName(session);
 
         try {
             session.issue(new Command<Void>() {
                 @Override
-                public Void execute(Session session, SeConnection connection) throws SeException,
+                public Void execute(ISession session, SeConnection connection) throws SeException,
                         IOException {
                     SeTable table;
                     try {
@@ -385,7 +385,7 @@ public class TestData {
                 }
             });
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
@@ -393,7 +393,7 @@ public class TestData {
      * 
      * 
      */
-    private static SeColumnDefinition[] createBaseTable(final Session session,
+    private static SeColumnDefinition[] createBaseTable(final ISession session,
             final SeTable table,
             final SeLayer layer,
             final String configKeyword) throws IOException {
@@ -401,7 +401,7 @@ public class TestData {
         Command<SeColumnDefinition[]> createTableCmd = new Command<SeColumnDefinition[]>() {
 
             @Override
-            public SeColumnDefinition[] execute(Session session, SeConnection connection)
+            public SeColumnDefinition[] execute(ISession session, SeConnection connection)
                     throws SeException, IOException {
 
                 SeColumnDefinition[] colDefs = new SeColumnDefinition[8];
@@ -522,7 +522,7 @@ public class TestData {
      * @throws ParseException
      */
     private void insertData(final SeLayer layer,
-            final Session session,
+            final ISession session,
             final SeColumnDefinition[] colDefs) throws Exception {
         WKTReader reader = new WKTReader();
         Geometry[] geoms = new Geometry[8];
@@ -539,7 +539,7 @@ public class TestData {
         insertData(geoms, layer, session);
     }
 
-    public void insertData(final Geometry[] g, final SeLayer layer, final Session session)
+    public void insertData(final Geometry[] g, final SeLayer layer, final ISession session)
             throws Exception {
 
         SeColumnDefinition[] colDefs = tempTableColumns;
@@ -578,7 +578,7 @@ public class TestData {
 
         Command<Void> insertDataCmd = new Command<Void>() {
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
 
                 SeInsert insert = new SeInsert(connection);
@@ -854,7 +854,7 @@ public class TestData {
 
     private void createSimpleTestTables() throws IOException, SeException {
         final ArcSDEConnectionPool connectionPool = getConnectionPool();
-        final Session session = connectionPool.getSession();
+        final ISession session = connectionPool.getSession();
 
         String tableName;
         String rowIdColName;
@@ -904,11 +904,11 @@ public class TestData {
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
             createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
         } finally {
-            session.close();
+            session.dispose();
         }
     }
 
-    private void createSimpleTestTable(final Session session,
+    private void createSimpleTestTable(final ISession session,
             final String tableName,
             final String rowIdColName,
             final int rowIdColumnType,
@@ -918,7 +918,7 @@ public class TestData {
         final Command<Void> createCmd = new Command<Void>() {
 
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 final SeLayer layer = new SeLayer(connection);
                 final SeTable table = new SeTable(connection, tableName);
@@ -1019,12 +1019,12 @@ public class TestData {
      * @return the versioned table created
      * @throws Exception any exception thrown by sde
      */
-    public SeTable createVersionedTable(final Session session) throws Exception {
+    public SeTable createVersionedTable(final ISession session) throws Exception {
 
         final Command<SeTable> createCmd = new Command<SeTable>() {
 
             @Override
-            public SeTable execute(Session session, SeConnection connection) throws SeException,
+            public SeTable execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 // SeConnection conn = session.unWrap();
                 SeLayer layer = new SeLayer(connection);
@@ -1034,7 +1034,16 @@ public class TestData {
                  * Create a qualified table name with current user's name and the name of the table
                  * to be created, "EXAMPLE".
                  */
-                String tableName = (connection.getUser() + ".VERSIONED_EXAMPLE");
+                String dbname = connection.getDatabaseName();
+                String user = connection.getUser();
+                StringBuffer sb = new StringBuffer();
+                if(dbname != null && dbname.length() > 0){
+                    sb.append(dbname).append(".");
+                }
+                if(user != null && user.length() > 0){
+                    sb.append(user).append(".");
+                }
+                String tableName =  sb.append("VERSIONED_EXAMPLE").toString().toUpperCase();
                 table = new SeTable(connection, tableName);
                 layer.setTableName("VERSIONED_EXAMPLE");
 
@@ -1095,7 +1104,7 @@ public class TestData {
         return session.issue(createCmd);
     }
 
-    public void insertIntoVersionedTable(final Session session,
+    public void insertIntoVersionedTable(final ISession session,
             final SeState state,
             final String tableName,
             final String nameField) throws IOException {
@@ -1103,7 +1112,7 @@ public class TestData {
         session.issue(new Command<Void>() {
 
             @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
+            public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 final SeInsert insert = new SeInsert(connection);
                 SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);

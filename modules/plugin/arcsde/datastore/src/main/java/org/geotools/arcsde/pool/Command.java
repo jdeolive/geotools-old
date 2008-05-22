@@ -26,6 +26,6 @@ public abstract class Command<R> {
      * @return the result of the command execution, or null if the command is not meant to return
      *         anything (a command meant to return something should fail if not able to)
      */
-    public abstract R execute(Session session, SeConnection connection) throws SeException,
+    public abstract R execute(ISession session, SeConnection connection) throws SeException,
             IOException;
 }

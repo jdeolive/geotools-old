@@ -36,7 +36,7 @@ import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.Session;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -102,7 +102,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
         ArcSDEConnectionConfig connectionConfig = new ArcSDEConnectionConfig(conProps);
         pool = ArcSDEConnectionPoolFactory.getInstance().createPool(connectionConfig);
 
-        Session session = null;
+        ISession session = null;
         SeQuery q = null;
         ArcSDEPyramid pyramid;
         SdeRow r;
@@ -118,7 +118,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             final SeQuery query = q;
             rasterAttr = session.issue(new Command<SeRasterAttr>() {
                 @Override
-                public SeRasterAttr execute(Session session, SeConnection connection)
+                public SeRasterAttr execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     SeRow r = query.fetch();
                     return r.getRaster(0);
@@ -138,7 +138,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
                 session.close(q);
             }
             if (session != null) {
-                session.close();
+                session.dispose();
             }
         }
 
@@ -151,7 +151,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             final SeQuery query = q;
             rasterAttr = session.issue(new Command<SeRasterAttr>() {
                 @Override
-                public SeRasterAttr execute(Session session, SeConnection connection)
+                public SeRasterAttr execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
                     SeRow r = query.fetch();
                     return r.getRaster(0);
@@ -171,7 +171,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
                 session.close(q);
             }
             if (session != null) {
-                session.close();
+                session.dispose();
             }
         }
     }
@@ -197,7 +197,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(fourBandReaderProps);
 
-        Session session = null;
+        ISession session = null;
         try {
             session = pool.getSession();
 
@@ -243,7 +243,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
                     imgPrefix + "3.png"));
         } finally {
             if (session != null && !session.isClosed()) {
-                session.close();
+                session.dispose();
             }
         }
     }
@@ -261,7 +261,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(fourBandReaderProps);
 
-        Session session = null;
+        ISession session = null;
         try {
             session = pool.getSession();
 
@@ -325,7 +325,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
                     imgPrefix + "3.png"));
         } finally {
             if (session != null) {
-                session.close();
+                session.dispose();
             }
         }
     }
@@ -344,7 +344,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(fourBandReaderProps);
 
-        Session session = null;
+        ISession session = null;
         try {
             session = pool.getSession();
             SeRasterBand[] bands = rasterAttr.getBands();
@@ -375,7 +375,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
                     imgPrefix + "1.png"));
         } finally {
             if (session != null && !session.isClosed()) {
-                session.close();
+                session.dispose();
             }
         }
     }
