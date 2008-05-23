@@ -26,7 +26,7 @@ import java.io.IOException;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class GridTileManagerTest extends TileManagerTest {
+public final class GridTileManagerTest extends TileManagerTest {
     /**
      * The tile manager factory to be given to the {@linkplain #builder builder}. This method
      * make sure that only {@link GridTileManager} instances are created. Then we inherit the

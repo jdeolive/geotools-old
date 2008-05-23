@@ -633,19 +633,15 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
          * Index can not be negative neither greater than (nx,ny). The (xmin,ymin)
          * index are inclusive while the (xmax,ymax) index are exclusive.
          */
+        final Rectangle atr = new Rectangle(width * sx, height * sy); // "Absolute Tile Region"
         int xmin = search.x - sx * region.x;
         int ymin = search.y - sy * region.y;
         int xmax = xmin + search.width;
         int ymax = ymin + search.height;
-        {
-            // Conversion occurs here.
-            final int w = width  * sx;
-            final int h = height * sy;
-            if (xmin >= 0) xmin /= w; else xmin = 0;
-            if (ymin >= 0) ymin /= h; else ymin = 0;
-            xmax = Math.min(nx, (xmax + (w - 1)) / w); // Round toward higher integer.
-            ymax = Math.min(ny, (ymax + (h - 1)) / h);
-        }
+        if (xmin >= 0) xmin /= atr.width;  else xmin = 0;
+        if (ymin >= 0) ymin /= atr.height; else ymin = 0;
+        xmax = Math.min(nx, (xmax + (atr.width  - 1)) / atr.width); // Round toward higher integer.
+        ymax = Math.min(ny, (ymax + (atr.height - 1)) / atr.height);
         final int size = addTo.size();
         if (size == 0) {
             final int n = (xmax - xmin) * (ymax - ymin);
@@ -658,9 +654,6 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
          * put tiles from finer levels into the mix (as the loop below may do).
          */
         long totalCost = 0;
-        final Rectangle tileRegion = new Rectangle();
-        assert subsampling.width % sx == 0 && subsampling.height % sy == 0 : subsampling;
-        final Dimension sub = new Dimension(subsampling.width / sx, subsampling.height / sy);
         for (int y=ymin; y<ymax; y++) {
 nextTile:   for (int x=xmin; x<xmax; x++) {
                 final Tile tile = getTile(x, y);
@@ -672,11 +665,9 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
                  * of reading this tile and checks if reading a tile at a finer level would be
                  * cheaper.
                  */
-                tileRegion.x = x * width;
-                tileRegion.y = y * height;
-                tileRegion.width  = width;
-                tileRegion.height = height;
-                final long cost = tile.countUnwantedPixels(tileRegion, sub); // Uses relative coord.
+                atr.x = atr.width  * x;
+                atr.y = atr.height * y;
+                final long cost = tile.countUnwantedPixelsFromAbsolute(atr, subsampling);
                 if (cost != 0) {
                     totalCost += cost;
                     if (totalCost >= costLimit) {
@@ -693,16 +684,14 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
                         addTo.subList(size, addTo.size()).clear();
                         return -1;
                     }
-                    tileRegion.x *= sx; tileRegion.width  *= sx; // Convert to absolute coordinates.
-                    tileRegion.y *= sy; tileRegion.height *= sy;
-                    assert tileRegion.equals(tile.getAbsoluteRegion()) ||
-                            !tile.getClass().equals(Tile.class) : tileRegion;
+                    assert atr.equals(tile.getAbsoluteRegion()) ||
+                            !tile.getClass().equals(Tile.class) : atr;
                     OverviewLevel previous = this;
                     while ((previous = previous.getFinerLevel()) != null) {
-                        if (!previous.isAbsoluteTilesRegion(tileRegion)) {
+                        if (!previous.isAbsoluteTilesRegion(atr)) {
                             continue;
                         }
-                        final Rectangle clipped = tileRegion.intersection(search);
+                        final Rectangle clipped = atr.intersection(search);
                         final long c = previous.addTiles(addTo, clipped, subsampling, cost);
                         if (c >= 0) {
                             // Tiles at the finer level are cheaper than the current tiles. So keep

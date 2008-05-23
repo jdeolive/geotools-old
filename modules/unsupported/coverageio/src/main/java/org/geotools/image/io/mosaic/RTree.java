@@ -72,10 +72,11 @@ final class RTree {
     protected Rectangle regionOfInterest;
 
     /**
-     * The subsamplings. Before the search, must be set at the requested subsamplings.
-     * After the search, they are set to the subsamplings of the best set of tiles found.
+     * The subsampling. Before the search, must be set to the requested subsampling.
+     * After the search, this is set to the subsampling of the best set of tiles found.
+     * This field must be set before {@link #searchTiles} is invoked.
      */
-    protected int xSubsampling, ySubsampling;
+    protected Dimension subsampling;
 
     /**
      * {@code true} if the search is allowed to look for tiles with finer subsampling than the
@@ -84,16 +85,10 @@ final class RTree {
     protected boolean subsamplingChangeAllowed;
 
     /**
-     * Initialized to ({@link #xSubsampling}, {@link #ySubsampling}) at the begining
-     * of a search, then modified during the search for internal purpose.
+     * Initialized to {@link #subsampling} at the begining of a search,
+     * then modified during the search for internal purpose.
      */
-    private Dimension subsampling;
-
-    /**
-     * Modified value of {@link #subsampling}.
-     * This is a temporary value modified during searchs.
-     */
-    private final Dimension tmpSubsampling;
+    private Dimension subsamplingCandidate;
 
     /**
      * The subsampling done so far. This is used during
@@ -125,7 +120,6 @@ final class RTree {
      */
     public RTree(final TreeNode root) {
         this.root = root;
-        tmpSubsampling   = new Dimension();
         subsamplingDone  = new HashSet<Dimension>();
         subsamplingToTry = new LinkedList<Dimension>();
         distinctBounds   = new HashMap<Rectangle,SelectedNode>();
@@ -137,14 +131,6 @@ final class RTree {
     @Override
     public RTree clone() {
         return new RTree(root);
-    }
-
-    /**
-     * Sets the subsampling to the specified value.
-     */
-    public void setSubsampling(final Dimension subsampling) {
-        xSubsampling = subsampling.width;
-        ySubsampling = subsampling.height;
     }
 
     /**
@@ -178,18 +164,18 @@ final class RTree {
      * On input, the following fields must be set:
      * <ul>
      *   <li>{@link #regionOfInterest}</li>
+     *   <li>{@link #subsampling}</li>
      *   <li>{@link #subsamplingChangeAllowed}</li>
      * </ul>
      * <p>
      * On output, the following fields will be set:
      * <ul>
-     *   <li>{@link SubsampledRectangle#xSubsampling} and {@link SubsampledRectangle#ySubsampling}
-     *       if {@link #allowSubsamplingChange} is {@code true}</li>
+     *   <li>{@link #subsampling} if {@link #subsamplingChangeAllowed} is {@code true}</li>
      * </ul>
      */
     public List<Tile> searchTiles() throws IOException {
         assert subsamplingDone.isEmpty() && subsamplingToTry.isEmpty() && distinctBounds.isEmpty();
-        subsampling = new Dimension(xSubsampling, ySubsampling);
+        Dimension bestSubsampling = subsamplingCandidate = subsampling;
         SelectedNode bestCandidate = null;
         int bestCandidateCount = 0;
         try {
@@ -216,9 +202,9 @@ final class RTree {
                     }
                     bestCandidate = candidate;
                     bestCandidateCount = candidateCount;
-                    setSubsampling(subsampling);
+                    bestSubsampling = subsamplingCandidate;
                 }
-            } while ((subsampling = subsamplingToTry.poll()) != null);
+            } while ((subsamplingCandidate = subsamplingToTry.poll()) != null);
         } finally {
             subsamplingToTry.clear();
             subsamplingDone .clear();
@@ -227,6 +213,7 @@ final class RTree {
          * TODO: sort the result. I'm not sure that it is worth, but if we decide that it is,
          * we could use the Comparator<GridNode> implemented by the GridNode class.
          */
+        subsampling.setSize(bestSubsampling); // Must be set only when the loop above is over.
         final List<Tile> tiles = new ArrayList<Tile>(bestCandidateCount);
         if (bestCandidate != null) {
             assert bestCandidate.checkValidity() != null : bestCandidate;
@@ -267,14 +254,14 @@ final class RTree {
         final Tile tile = node.getUserObject();
         if (tile != null) {
             assert node.equals(tile.getAbsoluteRegion()) : tile;
-            final Dimension floor = tile.getSubsamplingFloor(subsampling);
+            final Dimension floor = tile.getSubsamplingFloor(subsamplingCandidate);
             if (floor == null) {
                 /*
                  * The tile in the given node is unable to read its image at the given subsampling
                  * or any smaller subsampling. Skip this tile. However we may try its children at
                  * the end of this method, since they typically have a finer subsampling.
                  */
-            } else if (floor != subsampling) {
+            } else if (floor != subsamplingCandidate) {
                 /*
                  * The tile in the given node is unable to read its image at the given subsampling,
                  * but would be capable if the subsampling was smaller. If we are allowed to change
@@ -293,8 +280,7 @@ final class RTree {
                 final Rectangle readRegion = node.intersection(regionOfInterest);
                 selected = new SelectedNode(readRegion);
                 selected.tile = tile;
-                tmpSubsampling.setSize(subsampling);
-                selected.cost = tile.countUnwantedPixelsFromAbsolute(readRegion, tmpSubsampling);
+                selected.cost = tile.countUnwantedPixelsFromAbsolute(readRegion, subsampling);
             }
         }
         /*
@@ -319,7 +305,7 @@ final class RTree {
              * TODO: Checks if the children fill completly the bounds (i.e. are "dense").
              */
             cost = selected.cost;
-            if (cost == 0 || (selected.equals(node) && !tile.isFinerThan(subsampling))) {
+            if (cost == 0 || (selected.equals(node) && !tile.isFinerThan(subsamplingCandidate))) {
                 return selected;
             }
             if (cost < costLimit) {

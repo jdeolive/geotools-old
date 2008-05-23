@@ -46,6 +46,9 @@ import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
+import static java.lang.Math.min;
+import static java.lang.Math.max;
+
 
 /**
  * A tile to be read by {@link MosaicImageReader}. Each tile must contains the following:
@@ -997,34 +1000,6 @@ public class Tile implements Comparable<Tile>, Serializable {
     }
 
     /**
-     * Converts the given region and subsampling from "absolute" units (i.e. pre-multiplied by
-     * {@link #xSubsampling} and {@link #ySubsampling}) to units relative to this tile, and
-     * delegates to the user-overrideable {@link #countUnwantedPixels}.
-     *
-     * @param  toRead The region to read, in the same units than {@link #getAbsoluteRegion}.
-     *         <strong>This rectangle will be modified without clone</strong>. This is okay
-     *         for our private usage, but would not be acceptable in a public API.
-     * @param  subsampling The number of columns and rows to advance between pixels in the given
-     *         region. <strong>This dimension will be modified without clone</strong>. This is
-     *         okay for our private usage, but would not be acceptable in a public API.
-     * @return The amount of pixels which would be unused if the reading was performed on this
-     *         tile. Smaller number is better.
-     * @throws IOException if it was necessary to fetch the image dimension from the
-     *         {@linkplain #getImageReader reader} and this operation failed.
-     */
-    final int countUnwantedPixelsFromAbsolute(final Rectangle toRead, final Dimension subsampling)
-            throws IOException
-    {
-        assert Utilities.equals(getSubsamplingFloor(subsampling), subsampling) : subsampling;
-        assert (subsampling.width  % xSubsampling) == 0 &&
-               (subsampling.height % ySubsampling) == 0 : subsampling;
-        subsampling.width  /= xSubsampling;
-        subsampling.height /= ySubsampling;
-        absoluteToRelative(toRead);
-        return countUnwantedPixels(toRead, subsampling);
-    }
-
-    /**
      * Returns the amount of pixels in this tile that would be useless if reading the given region
      * at the given subsampling. This method is invoked by {@link TileManager} when two or more
      * tile overlaps, in order to choose the tiles that would minimize the amount of pixels to
@@ -1035,10 +1010,10 @@ public class Tile implements Comparable<Tile>, Serializable {
      *       the given region, including the pixels below the bottom.</li>
      * </ul>
      * The later is conservative since many file formats will stop reading as soon as they reach
-     * the region bottom. Subclasses can override this method in order to alter this calculation
-     * if they are sure that pixels below the region have no disk seed cost.
+     * the region bottom. We may consider allowing overriding in order to alter this calculation
+     * if a subclass is sure that pixels below the region have no disk seed cost.
      *
-     * @param  toRead The region to read, in the same units than {@link #getRegion}.
+     * @param  toRead The region to read, in the same units than {@link #getAbsoluteRegion}.
      * @param  subsampling The number of columns and rows to advance between pixels
      *         in the given region. Must be strictly positive (not zero).
      * @return The amount of pixels which would be unused if the reading was performed on this
@@ -1046,17 +1021,33 @@ public class Tile implements Comparable<Tile>, Serializable {
      * @throws IOException if it was necessary to fetch the image dimension from the
      *         {@linkplain #getImageReader reader} and this operation failed.
      */
-    protected int countUnwantedPixels(Rectangle toRead, final Dimension subsampling)
+    final int countUnwantedPixelsFromAbsolute(final Rectangle toRead, final Dimension subsampling)
             throws IOException
     {
+        assert subsampling.width >= xSubsampling && subsampling.height >= ySubsampling : subsampling;
         final Rectangle region = getRegion();
-        toRead = region.intersection(toRead);
-        int count = toRead.width * toRead.height;
-        count -= count / (subsampling.width * subsampling.height);
-        count += (region.height - toRead.height) * region.width;
-        count += (region.width  - toRead.width)  * toRead.height; // Really 'toRead', not 'region'
-        assert count >= 0 && count <= width * height : count;
-        return count;
+        /*
+         * Converts the tile region to absolute coordinates and clips it to the region to read.
+         */
+        final long xmin, ymin, xmax, ymax;
+        xmin = max((long) toRead.x,                 xSubsampling * ((long) region.x));
+        ymin = max((long) toRead.y,                 ySubsampling * ((long) region.y));
+        xmax = min((long) toRead.x + toRead.width,  xSubsampling * ((long) region.x + region.width));
+        ymax = min((long) toRead.y + toRead.height, ySubsampling * ((long) region.y + region.height));
+        /*
+         * Computes the amount of pixels to keep for the given region and subsampling.
+         */
+        long count = max(xmax - xmin, 0) * max(ymax - ymin, 0);
+        count /= (subsampling.width * subsampling.height);
+        /*
+         * Computes the amount of pixels from the current tile that would be unused. Note that
+         * we are substracting a quantity derived from the absolute space from a quantity in the
+         * relative space. The result should be positive anyway because we divided the former by
+         * (s.width * s.height), which should be greater than (xSubsampling * ySubsampling).
+         */
+        count = (region.width * region.height) - count;
+        assert count >= 0 && count <= Integer.MAX_VALUE : count;
+        return (int) count;
     }
 
     /**

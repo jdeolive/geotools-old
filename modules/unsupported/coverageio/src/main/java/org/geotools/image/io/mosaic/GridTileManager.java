@@ -187,7 +187,6 @@ public class GridTileManager extends TileManager {
                     // and we are not allowed to use a finer one.
                     continue;
                 }
-                subsampling.setSize(doable);
             }
             /*
              * Gets the tiles at current level and checks if the cost of reading them is lower
@@ -198,6 +197,7 @@ public class GridTileManager extends TileManager {
             final ArrayList<Tile> tiles = new ArrayList<Tile>();
             level.addTiles(tiles, region, subsampling, Long.MAX_VALUE);
             // TODO: The search in finer level is not yet implemented.
+            subsampling.setSize(doable);
             return tiles;
         }
         return null;

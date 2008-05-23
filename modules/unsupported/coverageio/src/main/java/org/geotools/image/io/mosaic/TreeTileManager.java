@@ -273,12 +273,12 @@ fill:   for (final List<Tile> sameInputs : asArray) {
         try {
             // Initializes the tree with the search criterions.
             tree.regionOfInterest = region;
-            tree.setSubsampling(subsampling);
+            tree.subsampling = subsampling;
             tree.subsamplingChangeAllowed = subsamplingChangeAllowed;
             values = tree.searchTiles();
-            subsampling.setSize(tree.xSubsampling, tree.ySubsampling);
-            tree.regionOfInterest = null; // Just as a safety (not really required).
         } finally {
+            tree.regionOfInterest = null; // Just as a safety (not really required).
+            tree.subsampling = null;
             release(tree);
         }
         return values;
