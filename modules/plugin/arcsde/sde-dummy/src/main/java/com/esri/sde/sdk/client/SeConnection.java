@@ -6,7 +6,9 @@ public class SeConnection {
     public static /* GEOT-947 final*/ int SE_UNPROTECTED_POLICY = 0;
     public static int SE_ONE_THREAD_POLICY = 1;
 	
-	public SeConnection(String a, int i, String b, String c, String d) {}
+	public SeConnection(String a, int i, String b, String c, String d) {
+	    throw new UnsupportedOperationException("this is the dummy api");
+	}
 	
 	public String getDatabaseName() throws SeException { return null; }
 	public String getUser() throws SeException { return null; }
