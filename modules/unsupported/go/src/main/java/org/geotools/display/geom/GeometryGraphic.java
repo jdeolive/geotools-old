@@ -56,7 +56,7 @@ public class GeometryGraphic extends FeatureGraphic implements PropertyChangeLis
         
         BoundingBox box = feature.getBounds();
                 
-        this.geometry = (MultiLineString)feature.getDefaultGeometry();
+        this.geometry = (Geometry) feature.getDefaultGeometry();
                
         
         try {
