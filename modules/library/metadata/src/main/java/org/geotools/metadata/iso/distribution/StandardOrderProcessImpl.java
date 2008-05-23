@@ -23,9 +23,11 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.opengis.util.InternationalString;
 import org.opengis.metadata.distribution.StandardOrderProcess;
 import org.geotools.metadata.iso.MetadataEntity;
+import org.geotools.resources.jaxb.metadata.DateTimeAdapter;
 
 
 /**
@@ -107,6 +109,7 @@ public class StandardOrderProcessImpl extends MetadataEntity implements Standard
     /**
      * Returns the date and time when the dataset will be available.
      */
+    @XmlJavaTypeAdapter(DateTimeAdapter.class)
     @XmlElement(name = "plannedAvailableDateTime", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Date getPlannedAvailableDateTime() {
         return (plannedAvailableDateTime!=Long.MIN_VALUE) ?

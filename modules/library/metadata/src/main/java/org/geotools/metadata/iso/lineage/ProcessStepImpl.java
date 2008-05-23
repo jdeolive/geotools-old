@@ -25,12 +25,14 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.opengis.metadata.citation.ResponsibleParty;
 import org.opengis.metadata.lineage.Source;
 import org.opengis.metadata.lineage.ProcessStep;
 import org.opengis.util.InternationalString;
 
 import org.geotools.metadata.iso.MetadataEntity;
+import org.geotools.resources.jaxb.metadata.DateTimeAdapter;
 
 
 /**
@@ -139,6 +141,7 @@ public class ProcessStepImpl extends MetadataEntity implements ProcessStep {
      * Returns the date and time or range of date and time on or over which
      * the process step occurred.
      */
+    @XmlJavaTypeAdapter(DateTimeAdapter.class)
     @XmlElement(name = "dateTime", required = false)
     public synchronized Date getDate() {
         return (date!=Long.MIN_VALUE) ? new Date(date) : null;

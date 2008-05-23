@@ -24,10 +24,12 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.opengis.metadata.citation.ResponsibleParty;
 import org.opengis.metadata.identification.Usage;
 import org.opengis.util.InternationalString;
 import org.geotools.metadata.iso.MetadataEntity;
+import org.geotools.resources.jaxb.metadata.DateTimeAdapter;
 
 
 /**
@@ -118,6 +120,7 @@ public class UsageImpl extends MetadataEntity implements Usage {
     /**
      * Date and time of the first use or range of uses of the resource and/or resource series.
      */
+    @XmlJavaTypeAdapter(DateTimeAdapter.class)
     @XmlElement(name = "usageDateTime", required = false)
     public synchronized Date getUsageDate() {
         return (usageDate!=Long.MIN_VALUE) ? new Date(usageDate) : null;
