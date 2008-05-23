@@ -337,7 +337,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
          * will be processed. Other kind of graphics will be ignored, since we don't know how to
          * handle them.
          */
-        final Collection<Graphic> graphics = renderer.getGraphics();
+        final Collection<Graphic> graphics = getRenderer().getGraphics();
         for (final Graphic candidate : graphics) {
             if (!(candidate instanceof ReferencedGraphic)) {
                 continue;
@@ -817,7 +817,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         graphicsEnvelope.setToNull();
         CoordinateReferenceSystem lastCRS = null;
         MathTransform           transform = null;
-        final Collection<Graphic>  graphics = renderer.getGraphics();
+        final Collection<Graphic>  graphics = getRenderer().getGraphics();
         
         for (final Graphic candidate : graphics) {
             if (!(candidate instanceof ReferencedGraphic)) {

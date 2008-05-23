@@ -58,7 +58,7 @@ import org.opengis.referencing.operation.TransformException;
 
 /**
  * Default implementation of AWT canvas 2D.
- * 
+ *
  * @author Martin Desruisseaux (IRD)
  * @author Johann Sorel (Geomatys)
  */
@@ -87,7 +87,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     private final ComponentListener listener = new ComponentListener();
 
     private CanvasHandler handler;
-    
+
     private final DirectPosition objectiveCenter = new DirectPosition2D();
 
     /**
@@ -104,10 +104,10 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         @Override public void componentResized(final ComponentEvent event) {
             synchronized (AWTCanvas2D.this) {
                 //cache bounds
-                cachedBounds = event.getComponent().getBounds(cachedBounds);
+                cachedBounds = owner.getBounds(cachedBounds);
                 setDisplayBounds(cachedBounds);
                 checkDisplayBounds();
-                
+
                 zoomChanged(null);
             }
         }
@@ -119,7 +119,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
                 cachedBounds = event.getComponent().getBounds(cachedBounds);
                 setDisplayBounds(cachedBounds);
                 checkDisplayBounds();
-                
+
                 zoomChanged(null); // Translation term has changed.
             }
         }
@@ -132,7 +132,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
                 cachedBounds.width = 0;
                 cachedBounds.height = 0;
                 setDisplayBounds(cachedBounds);
-                
+
                 clearCache();
             }
             // As a symetrical approach,  it would be nice to invoke 'prefetch(...)' inside
@@ -245,11 +245,12 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
 
     //----------------------AWT Paint methods ----------------------------------
     public void paint(Graphics2D output){
+
         //correct the displayToDevice transform
         final AffineTransform normalize = output.getDeviceConfiguration().getNormalizingTransform();
         displayToDevice = new AffineTransform2D(normalize);
 
-        
+
         Rectangle clipBounds = output.getClipBounds();
 
         AffineTransform2D objToDisp = null;
@@ -263,7 +264,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
             GraphicsUtilities.paintStackTrace(output, owner.getBounds(), exception);
         }
 
-        ((AWTDirectRenderer2D)renderer).paint( output, objToDisp );
+        ((AWTDirectRenderer2D)getRenderer()).paint( output, objToDisp );
     }
 
     /**
@@ -423,13 +424,13 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
                     unexpectedException("reset", exception);
                     return;
                 }
-                
+
                 if (yAxisUpward) {
                     objectiveToDisplay.setToScale(+1, -1);
                 }else {
                     objectiveToDisplay.setToIdentity();
                 }
-                
+
                 final AffineTransform transform = setVisibleArea(preferredArea, zoomableBounds);
                 change.concatenate(objectiveToDisplay);
                 objectiveToDisplay.concatenate(transform);
@@ -512,7 +513,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         DirectPosition center = getCenter();
         Point2D objCenter = new Point2D.Double(center.getOrdinate(0) + x, center.getOrdinate(1) + y);
         objCenter = objectiveToDisplay.transform(objCenter,objCenter);
-        
+
         displayTranslate(dispCenter.getX() - objCenter.getX(), dispCenter.getY() - objCenter.getY());
     }
 
@@ -541,7 +542,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      */
     public double getScale() {
         return XAffineTransform.getScale(objectiveToDisplay);
-        
+
         //TODO : which one to keep
 //        final double m00 = objectiveToDisplay.getScaleX();
 //        final double m11 = objectiveToDisplay.getScaleY();
@@ -609,7 +610,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
             final double centerY = center.getY();
 
             change.translate(+centerX, +centerY);
-            change.rotate(r, centerX, centerY);
+            change.rotate(r);
             change.translate(-centerX, -centerY);
         }
 
@@ -677,7 +678,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         }
     }
 
-    public void setVisibleArea(ReferencedEnvelope env){        
+    public void setVisibleArea(ReferencedEnvelope env){
         Rectangle2D rect2D = new Rectangle2D.Double(env.getMinX(), env.getMinY(), env.getWidth(), env.getHeight());
         reset(rect2D, getDisplayBounds().getBounds(), true);
     }
@@ -732,6 +733,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
             unexpectedException("setVisibleArea", exception);
             return new AffineTransform();
         }
+
         final double sourceWidth  = source.getWidth ();
         final double sourceHeight = source.getHeight();
         final double   destWidth  =   dest.getWidth ();
@@ -739,7 +741,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
               double           sx = destWidth / sourceWidth;
               double           sy = destHeight / sourceHeight;
 
-              /*
+        /*
          * Standardizes the horizontal and vertical scales,
          * if such a standardization has been requested.
          */

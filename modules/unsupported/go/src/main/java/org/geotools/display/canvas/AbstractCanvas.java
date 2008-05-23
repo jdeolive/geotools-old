@@ -134,7 +134,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     /**
      * Renderer used by this canvas
      */
-    protected final AbstractRenderer renderer;
+    private final AbstractRenderer renderer;
 
     /**
      * The title assigned to this canvas, or {@code null} if none. It may be either an instance
@@ -186,6 +186,12 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
         propertyListeners.firePropertyChange(TITLE_PROPERTY, old, title);
     }
 
+    
+    public AbstractRenderer getRenderer() {
+        return renderer;
+    }
+
+    
     /**
      * Clears all cached data. Invoking this method may help to release some resources for other
      * applications. It should be invoked when we know that the map is not going to be rendered
