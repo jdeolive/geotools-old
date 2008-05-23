@@ -47,17 +47,16 @@ public class ArcSDEConnectionReference extends ArcSDEConnectionPool {
     }
 
     @Override
-    public <T> T issueReadOnly(Command<T> command) throws IOException {
-        if (cached != null && !cached.isDisposed() && !cached.isClosed()) {
-            return cached.issue(command);
-        } else {
-            return super.issueReadOnly(command);
-        }
-    }
-
-    @Override
     public ISession getSession() throws DataSourceException, UnavailableArcSDEConnectionException {
-        this.cached = super.getSession(); // this will block if session is already in use
+        if (cached == null) {
+            ISession session = super.getSession(); // this will block if session is already in use
+            this.cached = new SessionWrapper(session) {
+                @Override
+                public void dispose() {
+                    // ignore
+                }
+            };
+        }
         return cached;
     }
 }

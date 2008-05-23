@@ -207,22 +207,6 @@ public class ArcSDEConnectionPool {
     }
 
     /**
-     * This method is used to "borrow" a Session (that may already be in use) to perform a quick
-     * read-only task (such as checking the SeColumn definitions).
-     * 
-     * @param transaction
-     * @return Connection
-     */
-    public <T> T issueReadOnly(final Command<T> command) throws IOException {
-        ISession session = getSession();
-        try {
-            return session.issue(command);
-        } finally {
-            session.dispose();
-        }
-    }
-
-    /**
      * Retrieve the connection for the provided transaction.
      * <p>
      * The connection is held open until while the transaction is underway. A a Transaction.State is

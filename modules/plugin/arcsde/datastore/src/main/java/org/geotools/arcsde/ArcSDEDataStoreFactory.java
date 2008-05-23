@@ -32,6 +32,7 @@ import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
+import org.geotools.data.Transaction;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeRelease;
@@ -198,7 +199,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         // check to see if our sdk is compatible with this arcsde instance
         ISession session = null;
         try {
-            session = connPool.getSession();
+            session = connPool.getSession(Transaction.AUTO_COMMIT);
             SeRelease releaseInfo = session.getRelease();
             int majVer = releaseInfo.getMajor();
             int minVer = releaseInfo.getMinor();

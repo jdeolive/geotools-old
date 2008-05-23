@@ -707,7 +707,7 @@ public class ArcSDEDataStore implements DataStore {
 
         verifyQueryIsSupported(select);
 
-        final ISession session = connectionPool.getSession();
+        final ISession session = getSession(Transaction.AUTO_COMMIT);
 
         try {
             final PlainSelect qualifiedSelect = SelectQualifier.qualify(session, select);
