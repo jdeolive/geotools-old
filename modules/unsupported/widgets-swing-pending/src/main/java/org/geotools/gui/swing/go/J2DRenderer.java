@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.geotools.display.geom.MultiLineGraphic;
+import org.geotools.display.geom.GeometryGraphic;
 import org.geotools.display.primitive.FeatureGraphic;
 import org.geotools.display.renderer.AWTDirectRenderer2D;
 import org.geotools.feature.FeatureCollection;
@@ -52,7 +52,7 @@ public class J2DRenderer extends AWTDirectRenderer2D {
     }
 
     private void removeContextGraphics() {
-        Collection<List<FeatureGraphic>> lists = featureGraphics.values();
+//        Collection<List<FeatureGraphic>> lists = featureGraphics.values();
 
 //        for (Collection<FeatureGraphic> list : lists) {
 //            remove(list);
@@ -93,7 +93,7 @@ public class J2DRenderer extends AWTDirectRenderer2D {
         while (ite.hasNext()) {
             SimpleFeature feature = (SimpleFeature) ite.next();
             
-            MultiLineGraphic gra = new MultiLineGraphic(crs, feature, z) {};
+            GeometryGraphic gra = new GeometryGraphic(crs, feature, z) {};
             add(gra);
             
 

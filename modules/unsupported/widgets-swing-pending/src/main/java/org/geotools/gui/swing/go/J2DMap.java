@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import javax.swing.JPanel;
 import org.geotools.display.canvas.AWTCanvas2D;
+import org.geotools.gui.swing.go.handler.CanvasHandler;
 import org.geotools.gui.swing.map.map2d.AbstractMap2D;
 import org.geotools.map.event.MapLayerListEvent;
 
@@ -18,6 +19,9 @@ import org.geotools.map.event.MapLayerListEvent;
  * @author sorel
  */
 public class J2DMap extends AbstractMap2D implements GoMap2D{
+    
+    
+    private CanvasHandler handler;
     
     private final AWTCanvas2D canvas;
     private final J2DRenderer renderer;
@@ -42,6 +46,35 @@ public class J2DMap extends AbstractMap2D implements GoMap2D{
 
     public void dispose() {
         canvas.dispose();
+    }
+    
+    
+    public CanvasHandler getHandler(){
+        return handler;
+    }
+
+    public void setHandler(CanvasHandler handler){
+
+        if(this.handler != handler) {
+            //TODO : check for possible vetos
+
+            final CanvasHandler old = this.handler;
+
+            if (this.handler != null){
+                this.handler.uninstall(this);
+                this.handler.setCanvas(null);
+            }
+
+            this.handler = handler;
+
+            if (this.handler != null) {
+                this.handler.setCanvas(canvas);
+                this.handler.install(this);
+            }
+
+//            propertyListeners.firePropertyChange(HANDLER_PROPERTY, old, handler);
+        }
+
     }
     
 }

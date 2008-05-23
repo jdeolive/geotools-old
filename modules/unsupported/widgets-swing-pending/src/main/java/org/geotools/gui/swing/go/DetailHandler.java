@@ -7,8 +7,8 @@ package org.geotools.gui.swing.go;
 
 import java.awt.Component;
 import org.geotools.display.canvas.AWTCanvas2D;
-import org.geotools.display.canvas.CanvasHandler;
 import org.geotools.geometry.GeneralDirectPosition;
+import org.geotools.gui.swing.go.handler.CanvasHandler;
 import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.opengis.geometry.DirectPosition;

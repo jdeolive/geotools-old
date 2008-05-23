@@ -32,7 +32,7 @@ public class PanAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent arg0) {
         if (map != null ) {
-            map.getCanvas().setHandler(new DefaultPanHandler(map));
+            map.setHandler(new DefaultPanHandler(map));
         }
     }
 

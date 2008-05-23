@@ -33,7 +33,6 @@ import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
-import org.geotools.display.canvas.CanvasHandler;
 import org.geotools.gui.swing.go.GoMap2D;
 
 /**

@@ -32,7 +32,7 @@ public class ZoomInAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent arg0) {
         if (map != null ) {
-            map.getCanvas().setHandler(new DefaultZoomInHandler(map));
+            map.setHandler(new DefaultZoomInHandler(map));
 //            map.getCanvas().getController().scale(2);
         }
     }

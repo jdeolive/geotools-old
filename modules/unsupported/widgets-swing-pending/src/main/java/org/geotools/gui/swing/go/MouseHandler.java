@@ -19,7 +19,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import org.geotools.display.canvas.AWTCanvas2D;
-import org.geotools.display.canvas.CanvasHandler;
+import org.geotools.gui.swing.go.handler.CanvasHandler;
 
 /**
  *
