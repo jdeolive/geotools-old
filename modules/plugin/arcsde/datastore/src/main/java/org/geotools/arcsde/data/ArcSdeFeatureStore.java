@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
@@ -41,6 +42,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeTable;
 
@@ -261,12 +263,15 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
             }
         } else {
             // we're in auto commit mode, lets truncate the table the fast way
-            try {
-                LOGGER.fine("truncating table " + typeName);
-                table.truncate();
-            } catch (SeException e) {
-                throw new ArcSdeException("Cannot truncate table " + typeInfo, e);
-            }
+            LOGGER.fine("truncating table " + typeName);
+            session.issue(new Command<Void>() {
+                @Override
+                public Void execute(ISession session, SeConnection connection) throws SeException,
+                        IOException {
+                    table.truncate();
+                    return null;
+                }
+            });
         }
     }
 }

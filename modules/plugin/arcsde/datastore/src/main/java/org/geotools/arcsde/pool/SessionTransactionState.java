@@ -61,6 +61,9 @@ final class SessionTransactionState implements Transaction.State {
      *            transaction open (signaled by any use of {@link #getConnection()}
      */
     private SessionTransactionState(final ISession session) {
+        if (!session.isTransactionActive()) {
+            throw new IllegalArgumentException("session shall be in transactional mode");
+        }
         this.session = new TransactionSession(session);
     }
 
@@ -275,11 +278,17 @@ final class SessionTransactionState implements Transaction.State {
 
     /**
      * A session wrapper that does not disposes if a transaction is active.
+     * <p>
+     * This wrapper provides for client code to follow de acquire/use/dispose workflow without
+     * worrying if it should or should not actually dispose the session depending on a transaction
+     * being in progress or not.
+     * </p>
      * 
      * @author Gabriel Roldan (TOPP)
      * @version $Id$
      * @since 2.5.x
-     * @source $URL$
+     * @source $URL:
+     *         http://svn.geotools.org/trunk/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/pool/SessionTransactionState.java $
      */
     private static final class TransactionSession extends SessionWrapper {
 
@@ -287,6 +296,10 @@ final class SessionTransactionState implements Transaction.State {
             super(session);
         }
 
+        /**
+         * Does not returns the session to the pool while a transaction is active.
+         */
+        @Override
         public void dispose() throws IllegalStateException {
             if (isTransactionActive()) {
                 LOGGER.finer("Ignoring Session.close, transaction is active...");

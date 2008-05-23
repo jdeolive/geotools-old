@@ -59,8 +59,10 @@ public class AutoCommitDefaultVersionHandler implements ArcSdeVersionHandler {
                     defaultVersion.getInfo();
                     SeState currentState = new SeState(connection, defaultVersion.getStateId());
                     if (!currentState.isOpen()) {
+                        SeObjectId parentStateId = currentState.getId();
+                        currentState.close();
                         SeState newState = new SeState(connection);
-                        newState.create(currentState.getId());
+                        newState.create(parentStateId);
                         defaultVersion.changeState(newState.getId());
                     }
                 }
