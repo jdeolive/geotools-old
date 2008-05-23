@@ -9,16 +9,17 @@ import java.awt.Graphics2D;
 import org.geotools.display.primitive.GraphicPrimitive2D;
 import org.geotools.display.renderer.RenderingContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.operation.TransformException;
 
 /**
  *
  * @author sorel
  */
-public class LineGraphic extends GraphicPrimitive2D{
+public class DynamicGraphic extends GraphicPrimitive2D{
 
     
-    public LineGraphic(){
+    public DynamicGraphic(){
         super(DefaultGeographicCRS.WGS84);
         
     }
@@ -38,6 +39,11 @@ public class LineGraphic extends GraphicPrimitive2D{
         return true;
     }
 
+    @Override
+    public Envelope getEnvelope() {
+        return super.getEnvelope();
+    }
 
+    
 
 }

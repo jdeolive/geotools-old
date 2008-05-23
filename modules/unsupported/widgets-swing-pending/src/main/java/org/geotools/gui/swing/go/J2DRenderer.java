@@ -4,7 +4,6 @@
  */
 package org.geotools.gui.swing.go;
 
-import com.vividsolutions.jts.geom.MultiLineString;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Collection;
@@ -18,7 +17,6 @@ import org.geotools.display.geom.MultiLineGraphic;
 import org.geotools.display.primitive.FeatureGraphic;
 import org.geotools.display.renderer.AWTDirectRenderer2D;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.opengis.feature.Feature;
@@ -37,7 +35,7 @@ public class J2DRenderer extends AWTDirectRenderer2D {
 
     public void setContext(MapContext context) {
 
-        add(new LineGraphic());
+        add(new DynamicGraphic());
         
         if (this.context != context) {
             removeContextGraphics();

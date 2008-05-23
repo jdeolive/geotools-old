@@ -302,9 +302,9 @@ public class DefaultZoomInHandler implements CanvasHandler {
             
             if(CTRL_FLAG){
                 if(rotate<0){
-                    map2D.getCanvas().getController().rotate(Math.toRadians(-5), e.getPoint());               
+                    map2D.getCanvas().getController().rotate(Math.toRadians(-5));               
                 }else if(rotate>0){
-                    map2D.getCanvas().getController().rotate(Math.toRadians(5), e.getPoint());                    
+                    map2D.getCanvas().getController().rotate(Math.toRadians(5));                    
                 }
             }else{
                 if(rotate<0){

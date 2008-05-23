@@ -7,9 +7,7 @@
 package org.geotools.gui.swing.go;
 
 import java.awt.BorderLayout;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,14 +16,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import org.geotools.coverage.grid.GridRange2D;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
-import org.geotools.display.canvas.AWTCanvas2D;
-import org.geotools.geometry.Envelope2D;
-import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gui.swing.contexttree.JContextTree;
 import org.geotools.gui.swing.contexttree.JContextTreePopup;
 import org.geotools.gui.swing.contexttree.column.StyleTreeTableColumn;
@@ -39,7 +32,6 @@ import org.geotools.gui.swing.contexttree.popup.DuplicateItem;
 import org.geotools.gui.swing.contexttree.popup.LayerFeatureItem;
 import org.geotools.gui.swing.contexttree.popup.LayerPropertyItem;
 import org.geotools.gui.swing.contexttree.popup.LayerVisibilityItem;
-import org.geotools.gui.swing.contexttree.popup.LayerZoomItem;
 import org.geotools.gui.swing.contexttree.popup.PasteItem;
 import org.geotools.gui.swing.contexttree.popup.RuleMaxScaleItem;
 import org.geotools.gui.swing.contexttree.popup.RuleMinScaleItem;
@@ -50,7 +42,6 @@ import org.geotools.gui.swing.datachooser.JFileDataPanel;
 import org.geotools.gui.swing.datachooser.JOracleDataPanel;
 import org.geotools.gui.swing.datachooser.JPostGISDataPanel;
 import org.geotools.gui.swing.datachooser.JWFSDataPanel;
-import org.geotools.gui.swing.map.map2d.SelectableMap2D;
 import org.geotools.gui.swing.propertyedit.LayerCRSPropertyPanel;
 import org.geotools.gui.swing.propertyedit.LayerFilterPropertyPanel;
 import org.geotools.gui.swing.propertyedit.LayerGeneralPanel;
@@ -67,7 +58,6 @@ import org.geotools.styling.BasicLineStyle;
 import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.operation.TransformException;
 
 /**
@@ -76,8 +66,6 @@ import org.opengis.referencing.operation.TransformException;
  */
 public class GoFrame extends javax.swing.JFrame {
 
-    private final AWTCanvas2D canvas;
-    private final J2DRenderer renderer;
     private J2DMap guiMap;
     private DetailHandler fieldHandler;
     private MouseHandler mouseHandler;
@@ -89,27 +77,23 @@ public class GoFrame extends javax.swing.JFrame {
         initComponents();        
         initTree(guiContextTree);        
         
-        renderer = new J2DRenderer();
-        canvas = new AWTCanvas2D(renderer,this);
-        
         context = buildContext();        
-        renderer.setContext(context);
         guiContextTree.addContext(context);
                         
-        guiMap = new J2DMap(canvas);
+        guiMap = new J2DMap();
+        ((J2DRenderer)guiMap.getCanvas().getRenderer()).setContext(context); 
                         
         try {            
-            canvas.getController().setObjectiveCRS(context.getCoordinateReferenceSystem());            
+            guiMap.getCanvas().getController().setObjectiveCRS(context.getCoordinateReferenceSystem());            
         } catch (TransformException ex) {
             ex.printStackTrace();
             Logger.getLogger(J2DMap.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-                
+              
         panGeneral.add(BorderLayout.CENTER, guiMap);
         
-        
         guiNavBar.setMap(guiMap);
+        guiCoordBar.setMap(guiMap);
         
         
         setSize(1024,768);
@@ -204,6 +188,7 @@ public class GoFrame extends javax.swing.JFrame {
         jSplitPane1 = new javax.swing.JSplitPane();
         guiContextTree = new org.geotools.gui.swing.contexttree.JContextTree();
         panGeneral = new javax.swing.JPanel();
+        guiCoordBar = new org.geotools.gui.swing.go.control.JCoordinateBar();
         jPanel1 = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
         jButton1 = new javax.swing.JButton();
@@ -220,6 +205,8 @@ public class GoFrame extends javax.swing.JFrame {
         jSplitPane1.setLeftComponent(guiContextTree);
 
         panGeneral.setLayout(new java.awt.BorderLayout());
+        panGeneral.add(guiCoordBar, java.awt.BorderLayout.PAGE_END);
+
         jSplitPane1.setRightComponent(panGeneral);
 
         getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
@@ -351,6 +338,7 @@ private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private org.geotools.gui.swing.contexttree.JContextTree guiContextTree;
+    private org.geotools.gui.swing.go.control.JCoordinateBar guiCoordBar;
     private org.geotools.gui.swing.go.control.JNavigationBar guiNavBar;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

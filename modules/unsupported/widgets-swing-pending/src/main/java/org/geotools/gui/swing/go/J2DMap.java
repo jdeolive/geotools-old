@@ -18,13 +18,15 @@ import org.geotools.map.event.MapLayerListEvent;
  * @author sorel
  */
 public class J2DMap extends AbstractMap2D implements GoMap2D{
-
     
     private final AWTCanvas2D canvas;
-    
-    public J2DMap(AWTCanvas2D canvas){
+    private final J2DRenderer renderer;
+        
+    public J2DMap(){
         super();
-        this.canvas = canvas;        
+        
+        renderer = new J2DRenderer();
+        canvas = new AWTCanvas2D(renderer,this);
     }
 
     @Override
