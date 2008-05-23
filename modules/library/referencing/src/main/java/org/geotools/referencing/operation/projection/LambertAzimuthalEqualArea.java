@@ -539,6 +539,7 @@ public class LambertAzimuthalEqualArea extends MapProjection {
                 new NamedIdentifier[] {
                     new NamedIdentifier(Citations.OGC,      "latitude_of_center"),
                     new NamedIdentifier(Citations.EPSG,     "Latitude of natural origin"),
+                    new NamedIdentifier(Citations.EPSG,     "Spherical latitude of origin"),
                     new NamedIdentifier(Citations.ESRI,     "latitude_of_origin"),
                     new NamedIdentifier(Citations.GEOTIFF,  "ProjCenterLat")
                 },
@@ -552,6 +553,7 @@ public class LambertAzimuthalEqualArea extends MapProjection {
                 new NamedIdentifier[] {
                     new NamedIdentifier(Citations.OGC,      "longitude_of_center"),
                     new NamedIdentifier(Citations.EPSG,     "Longitude of natural origin"),
+                    new NamedIdentifier(Citations.EPSG,     "Spherical longitude of origin"),
                     new NamedIdentifier(Citations.ESRI,     "central_meridian"),
                     new NamedIdentifier(Citations.GEOTIFF,  "ProjCenterLong")
                 },
@@ -563,6 +565,7 @@ public class LambertAzimuthalEqualArea extends MapProjection {
         static final ParameterDescriptorGroup PARAMETERS = createDescriptorGroup(new NamedIdentifier[] {
             new NamedIdentifier(Citations.OGC,     "Lambert_Azimuthal_Equal_Area"),
             new NamedIdentifier(Citations.EPSG,    "Lambert Azimuthal Equal Area"),
+            new NamedIdentifier(Citations.EPSG,    "Lambert Azimuthal Equal Area (Spherical)"),
             new NamedIdentifier(Citations.GEOTIFF, "CT_LambertAzimEqualArea"),
             new NamedIdentifier(Citations.EPSG,    "9820"),
         },  new ParameterDescriptor[] {
