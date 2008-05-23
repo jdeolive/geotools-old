@@ -43,7 +43,12 @@ public abstract class AbstractComplexEMFBinding extends AbstractComplexBinding {
      * Factory used to create model objects
      */
     EFactory factory;
-
+    
+    /**
+     * type "hint", allows bindings to specify the type that gets parsed manually
+     */
+    Class type;
+    
     /**
      * Default constructor.
      * <p>
@@ -64,6 +69,16 @@ public abstract class AbstractComplexEMFBinding extends AbstractComplexBinding {
     }
 
     /**
+     * Constructs the binding with an efactory and a type.
+     *
+     * @param factory Factory used to create model objects.
+     */
+    public AbstractComplexEMFBinding(EFactory factory, Class type) {
+        this(factory);
+        this.type = type;
+    }
+    
+    /**
      * Dynamically tries to determine the type of the object using emf naming
      * conventions and the name returned by {@link Binding#getTarget()}.
      * <p>
@@ -72,6 +87,10 @@ public abstract class AbstractComplexEMFBinding extends AbstractComplexBinding {
      * </p>
      */
     public Class getType() {
+        if ( type != null ) {
+            return type;
+        }
+        
         //try to build up a class name 
         String pkg = factory.getClass().getPackage().getName();
 
