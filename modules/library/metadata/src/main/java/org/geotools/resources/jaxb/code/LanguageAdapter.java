@@ -29,19 +29,19 @@ import javax.xml.bind.annotation.XmlElement;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class LocaleAdapter extends CodeListLocaleAdapter<LocaleAdapter,Locale> {
+public final class LanguageAdapter extends CodeListLocaleAdapter<LanguageAdapter,Locale> {
     /**
      * Empty constructor for JAXB only.
      */
-    private LocaleAdapter() {
+    private LanguageAdapter() {
     }
 
-    public LocaleAdapter(final CodeListProxy proxy) {
+    public LanguageAdapter(final CodeListProxy proxy) {
         super(proxy);
     }
 
-    protected LocaleAdapter wrap(CodeListProxy proxy) {
-        return new LocaleAdapter(proxy);
+    protected LanguageAdapter wrap(CodeListProxy proxy) {
+        return new LanguageAdapter(proxy);
     }
 
     protected Class<Locale> getCodeListClass() {
