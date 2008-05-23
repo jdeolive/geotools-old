@@ -39,6 +39,7 @@ import org.geotools.data.DataSourceException;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeInsert;
@@ -585,6 +586,16 @@ class Session implements ISession {
             public String execute(final ISession session, final SeConnection connection)
                     throws SeException, IOException {
                 return connection.getDatabaseName();
+            }
+        });
+    }
+
+    public SeDBMSInfo getDBMSInfo() throws IOException {
+        return issue(new Command<SeDBMSInfo>() {
+            @Override
+            public SeDBMSInfo execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
+                return connection.getDBMSInfo();
             }
         });
     }

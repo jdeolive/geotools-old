@@ -2,7 +2,7 @@ package com.esri.sde.sdk.client;
 
 public class SeQueryInfo {
 
-	public void setConstruct(SeSqlConstruct s) {}
+	public void setConstruct(SeSqlConstruct s) throws SeException{}
 	public void setColumns(String[] s) {}
 	public void setByClause(String s) {}
 	public String getByClause() { return null; }

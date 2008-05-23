@@ -17,6 +17,8 @@
 package org.geotools.arcsde.data;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,9 +28,13 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
+import org.geotools.arcsde.pool.ArcSDEConnectionPool;
+import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.SchemaException;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -37,6 +43,7 @@ import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.pe.PeFactory;
 import com.esri.sde.sdk.pe.PeProjectedCS;
 import com.esri.sde.sdk.pe.PeProjectionException;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  * ArcSDEDAtaStore test cases
@@ -245,6 +252,52 @@ public class ArcSDEDataStoreTest extends TestCase {
         assertNotNull(schema);
         // ROW_ID is not included in TEST_TABLE_COLS
         assertEquals(TestData.TEST_TABLE_COLS.length, schema.getAttributeCount());
+    }
+
+    /**
+     * Tests the creation of new feature types, with CRS and all.
+     * <p>
+     * This test also ensures that the arcsde datastore is able of creating schemas where the
+     * geometry attribute is not the last one. This is important since to do so, the ArcSDE
+     * datastore must break the usual way of creating schemas with the ArcSDE Java API, in which one
+     * first creates the (non spatially enabled) "table" with all the non spatial attributes and
+     * finally creates the "layer", adding the spatial attribute to the previously created table.
+     * So, this test ensures the datastore correctly works arround this limitation.
+     * </p>
+     * 
+     * @throws IOException DOCUMENT ME!
+     * @throws SchemaException DOCUMENT ME!
+     * @throws SeException
+     */
+    public void testCreateSchema() throws IOException, SchemaException, SeException {
+        final String typeName;
+        {
+            ArcSDEConnectionPool connectionPool = testData.getConnectionPool();
+            ISession session = connectionPool.getSession();
+            final String user;
+            user = session.getUser();
+            session.dispose();
+            typeName = user + ".GT_TEST_CREATE";
+        }
+
+        SimpleFeatureTypeBuilder b = new SimpleFeatureTypeBuilder();
+        b.setName(typeName);
+
+        b.add("FST_COL", String.class);
+        b.add("SECOND_COL", String.class);
+        b.add("GEOM", Point.class);
+        b.add("FOURTH_COL", Integer.class);
+
+        final SimpleFeatureType type = b.buildFeatureType();
+
+        DataStore ds = testData.getDataStore();
+        testData.deleteTable(typeName);
+
+        Map hints = new HashMap();
+        hints.put("configuration.keyword", testData.getConfigKeyword());
+        ((ArcSDEDataStore) ds).createSchema(type, hints);
+
+        testData.deleteTable(typeName);
     }
 
     // ///////////////// HELPER FUNCTIONS ////////////////////////

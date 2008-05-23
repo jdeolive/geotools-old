@@ -22,6 +22,7 @@ import java.util.List;
 import org.geotools.arcsde.data.SdeRow;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;
 import com.esri.sde.sdk.client.SeInsert;
 import com.esri.sde.sdk.client.SeLayer;
@@ -137,6 +138,8 @@ public interface ISession {
 
     public abstract String getDatabaseName() throws IOException;
 
+    public abstract SeDBMSInfo getDBMSInfo() throws IOException;
+    
     //
     // Factory methods that make use of internal connection
     // Q: How "long" are these objects good for? until the connection closes - or longer...

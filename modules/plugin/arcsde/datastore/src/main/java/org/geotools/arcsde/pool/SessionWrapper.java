@@ -22,6 +22,7 @@ import java.util.List;
 import org.geotools.arcsde.data.SdeRow;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;
 import com.esri.sde.sdk.client.SeInsert;
 import com.esri.sde.sdk.client.SeLayer;
@@ -193,6 +194,13 @@ public class SessionWrapper implements ISession {
      */
     public String getDatabaseName() throws IOException {
         return wrapped.getDatabaseName();
+    }
+    
+    /**
+     * @see org.geotools.arcsde.pool.ISession#getDBMSInfo()
+     */
+    public SeDBMSInfo getDBMSInfo() throws IOException{
+        return wrapped.getDBMSInfo();
     }
 
     /**

@@ -64,6 +64,7 @@ import org.opengis.filter.Id;
 import org.opengis.filter.identity.FeatureId;
 
 import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRow;
@@ -97,6 +98,18 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     private static TestData testData;
 
     private static boolean forceOneTimeTearDown;
+
+    /**
+     * Flag that indicates whether the underlying database is MS SQL Server.
+     * <p>
+     * This is used to decide what's the expected result count in some transaction tests, and its
+     * value is obtained from an {@link SeDBMSInfo} object. Hacky as it seems it is. The problem is
+     * that ArcSDE for SQL Server _explicitly_ sets the transaction isolation level to READ
+     * UNCOMMITTED for all and every transaction, while for other databases it uses READ COMMITTED.
+     * And no, ESRI documentation says there's no way to change nor workaround this behaviour.
+     * </p>
+     */
+    private static boolean databaseIsMsSqlServer;
 
     /**
      * Builds a test suite for all this class' tests with per suite initialization directed to
@@ -133,6 +146,14 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         // do not insert test data, will do it at each test case
         final boolean insertTestData = false;
         testData.createTempTable(insertTestData);
+
+        ISession session = testData.getConnectionPool().getSession();
+        try {
+            SeDBMSInfo dbInfo = session.getDBMSInfo();
+            databaseIsMsSqlServer = dbInfo.dbmsId == SeDBMSInfo.SE_DBMS_IS_SQLSERVER;
+        } finally {
+            session.dispose();
+        }
     }
 
     private static void oneTimeTearDown() {
@@ -288,52 +309,6 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         }
     }
 
-    /**
-     * Tests the creation of new feature types, with CRS and all.
-     * <p>
-     * This test also ensures that the arcsde datastore is able of creating schemas where the
-     * geometry attribute is not the last one. This is important since to do so, the ArcSDE
-     * datastore must break the usual way of creating schemas with the ArcSDE Java API, in which one
-     * first creates the (non spatially enabled) "table" with all the non spatial attributes and
-     * finally creates the "layer", adding the spatial attribute to the previously created table.
-     * So, this test ensures the datastore correctly works arround this limitation.
-     * </p>
-     * 
-     * @throws IOException DOCUMENT ME!
-     * @throws SchemaException DOCUMENT ME!
-     * @throws SeException
-     */
-    public void _testCreateSchema() throws IOException, SchemaException, SeException {
-        final String typeName;
-        {
-            ArcSDEConnectionPool connectionPool = testData.getConnectionPool();
-            ISession session = connectionPool.getSession();
-            final String user;
-            user = session.getUser();
-            session.dispose();
-            typeName = user + ".GT_TEST_CREATE";
-        }
-
-        SimpleFeatureTypeBuilder b = new SimpleFeatureTypeBuilder();
-        b.setName(typeName);
-
-        b.add("FST_COL", String.class);
-        b.add("SECOND_COL", String.class);
-        b.add("GEOM", Point.class);
-        b.add("FOURTH_COL", Integer.class);
-
-        final SimpleFeatureType type = b.buildFeatureType();
-
-        DataStore ds = testData.getDataStore();
-        testData.deleteTable(typeName);
-
-        Map hints = new HashMap();
-        hints.put("configuration.keyword", testData.getConfigKeyword());
-        ((ArcSDEDataStore) ds).createSchema(type, hints);
-
-        testData.deleteTable(typeName);
-    }
-
     public void testInsertAutoCommit() throws Exception {
         // the table populated here is test friendly since it can hold
         // any kind of geometries.
@@ -401,7 +376,12 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             } finally {
                 reader.close();
             }
-            assertFalse("Features added, transaction not commited", hasNext);
+            if (databaseIsMsSqlServer) {
+                // SQL Server always is at READ UNCOMMITTED isolation level...
+                assertTrue(hasNext);
+            } else {
+                assertFalse("Features added, transaction not commited", hasNext);
+            }
 
             try {
                 transaction.commit();
@@ -529,14 +509,24 @@ public class ArcSDEFeatureStoreTest extends TestCase {
 
             reader = ds.getFeatureReader(oldValueQuery, Transaction.AUTO_COMMIT);
             try {
-                assertTrue(reader.hasNext());
+                if (databaseIsMsSqlServer) {
+                    // SQL Server always is at READ UNCOMMITTED isolation level...
+                    assertFalse(reader.hasNext());
+                } else {
+                    assertTrue(reader.hasNext());
+                }
             } finally {
                 reader.close();
             }
 
             reader = ds.getFeatureReader(newValueQuery, Transaction.AUTO_COMMIT);
             try {
-                assertFalse(reader.hasNext());
+                if (databaseIsMsSqlServer) {
+                    // SQL Server always is at READ UNCOMMITTED isolation level...
+                    assertTrue(reader.hasNext());
+                } else {
+                    assertFalse(reader.hasNext());
+                }
             } finally {
                 reader.close();
             }
@@ -1024,8 +1014,8 @@ public class ArcSDEFeatureStoreTest extends TestCase {
 
         final DataStore ds = testData.getDataStore();
         final String typeName = testData.getTempTableName();
-        final FeatureStore<SimpleFeatureType, SimpleFeature> transFs = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds
-                .getFeatureSource(typeName);
+        final FeatureStore<SimpleFeatureType, SimpleFeature> transFs;
+        transFs = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource(typeName);
         final SimpleFeatureType schema = transFs.getSchema();
 
         // once the transaction is set to the FeatureStore, it lasts until
@@ -1052,18 +1042,23 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             final Filter filterNewFeature = CQL.toFilter("INT32_COL = 1000");
             final DefaultQuery newFeatureQuery = new DefaultQuery(typeName, filterNewFeature);
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> features = transFs
-                    .getFeatures(filterNewFeature);
+            FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+            features = transFs.getFeatures(filterNewFeature);
             int size = features.size();
             assertEquals(1, size);
 
             // ok transaction respected, assert the feature does not exist outside
-            // it
+            // it (except is the db is MS SQL Server)
             {
-                FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader = ds
-                        .getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
+                FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader;
+                autoCommitReader = ds.getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
                 try {
-                    assertFalse(autoCommitReader.hasNext());
+                    if (databaseIsMsSqlServer) {
+                        // SQL Server always is at READ UNCOMMITTED isolation level...
+                        assertTrue(autoCommitReader.hasNext());
+                    } else {
+                        assertFalse(autoCommitReader.hasNext());
+                    }
                 } finally {
                     autoCommitReader.close();
                 }
@@ -1071,8 +1066,8 @@ public class ArcSDEFeatureStoreTest extends TestCase {
 
             // ok, but what if we ask for a feature reader with the same transaction
             {
-                FeatureReader<SimpleFeatureType, SimpleFeature> transactionReader = ds
-                        .getFeatureReader(newFeatureQuery, transaction);
+                FeatureReader<SimpleFeatureType, SimpleFeature> transactionReader;
+                transactionReader = ds.getFeatureReader(newFeatureQuery, transaction);
                 try {
                     assertTrue(transactionReader.hasNext());
                     transactionReader.next();
@@ -1109,7 +1104,12 @@ public class ArcSDEFeatureStoreTest extends TestCase {
                 FeatureReader<SimpleFeatureType, SimpleFeature> autoCommitReader;
                 autoCommitReader = ds.getFeatureReader(newFeatureQuery, Transaction.AUTO_COMMIT);
                 try {
-                    assertTrue(autoCommitReader.hasNext());
+                    if (databaseIsMsSqlServer) {
+                        // SQL Server always is at READ UNCOMMITTED isolation level...
+                        assertFalse(autoCommitReader.hasNext());
+                    } else {
+                        assertTrue(autoCommitReader.hasNext());
+                    }
                 } finally {
                     autoCommitReader.close();
                 }
@@ -1188,8 +1188,13 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             final FeatureSource<SimpleFeatureType, SimpleFeature> sourceNoTransaction;
             sourceNoTransaction = ds.getFeatureSource(typeName);
             int countNoTransaction = sourceNoTransaction.getCount(Query.ALL);
-            assertEquals(initialCount, countNoTransaction);
 
+            if (databaseIsMsSqlServer) {
+                // SQL Server always is at READ UNCOMMITTED isolation level...
+                assertEquals(countInsideTransaction, countNoTransaction);
+            } else {
+                assertEquals(initialCount, countNoTransaction);
+            }
             // now commit
             transaction.commit();
             countNoTransaction = sourceNoTransaction.getCount(Query.ALL);

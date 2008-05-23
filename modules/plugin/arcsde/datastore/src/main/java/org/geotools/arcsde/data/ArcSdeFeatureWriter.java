@@ -267,10 +267,10 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
                     // A call to SeDelete.byId immediately deletes the row from the
                     // database. The application does not need to call execute()
                     seDelete.byId(qualifiedName, objectID);
+                    versionHandler.editOperationWritten(seDelete);
                     if (handleTransaction) {
                         session.commitTransaction();
                     }
-                    fireRemoved(feature);
                 } catch (IOException e) {
                     if (handleTransaction) {
                         try {
@@ -297,7 +297,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
         try {
             session.issue(deleteCmd);
-            versionHandler.editOperationWritten(seDelete);
+            fireRemoved(feature);
         } catch (IOException e) {
             versionHandler.editOperationFailed(seDelete);
             throw e;
@@ -457,41 +457,54 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
         // this returns only the mutable attributes
         final LinkedHashMap<Integer, String> insertColumns = getInsertableColumnNames();
-        final SeInsert insertStream = (SeInsert) createStream(SeInsert.class);
 
         final Command<Number> insertCmd = new Command<Number>() {
 
             @Override
             public Number execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
-                final SeRow row;
+
+                final SeInsert insertStream = (SeInsert) createStream(SeInsert.class);
                 Number newId;
+                
+                try {
+                    final SeRow row;
 
-                // ensure we get the next sequence id when the fid is user managed
-                // and include it in the attributes to set
-                if (fidReader instanceof FIDReader.UserManagedFidReader) {
-                    newId = getNextAvailableUserManagedId();
-                    final int rowIdIndex = fidReader.getColumnIndex();
-                    newFeature.setAttribute(rowIdIndex, newId);
+                    // ensure we get the next sequence id when the fid is user managed
+                    // and include it in the attributes to set
+                    if (fidReader instanceof FIDReader.UserManagedFidReader) {
+                        newId = getNextAvailableUserManagedId();
+                        final int rowIdIndex = fidReader.getColumnIndex();
+                        newFeature.setAttribute(rowIdIndex, newId);
+                    }
+                    String[] rowColumnNames = new ArrayList<String>(insertColumns.values())
+                            .toArray(new String[0]);
+                    String typeName = featureType.getTypeName();
+                    insertStream.intoTable(typeName, rowColumnNames);
+                    insertStream.setWriteMode(true);
+                    row = insertStream.getRowToSet();
+
+                    setRowProperties(newFeature, seCoordRef, insertColumns, row);
+                    insertStream.execute();
+
+                    if (fidReader instanceof FIDReader.SdeManagedFidReader) {
+                        SeObjectId newRowId = insertStream.lastInsertedRowId();
+                        newId = Long.valueOf(newRowId.longValue());
+                    } else {
+                        throw new DataSourceException("fid reader is not user nor sde managed");
+                    }
+
+                    insertStream.flushBufferedWrites(); // jg: my customer wanted this uncommented
+                    versionHandler.editOperationWritten(insertStream);
+                } catch (Exception e) {
+                    versionHandler.editOperationFailed(insertStream);
+                    if (e instanceof SeException) {
+                        throw (SeException) e;
+                    } else if (e instanceof IOException) {
+                        throw (IOException) e;
+                    }
+                    throw new DataSourceException(e);
                 }
-                String[] rowColumnNames = new ArrayList<String>(insertColumns.values())
-                        .toArray(new String[0]);
-                String typeName = featureType.getTypeName();
-                insertStream.intoTable(typeName, rowColumnNames);
-                insertStream.setWriteMode(true);
-                row = insertStream.getRowToSet();
-
-                setRowProperties(newFeature, seCoordRef, insertColumns, row);
-                insertStream.execute();
-
-                if (fidReader instanceof FIDReader.SdeManagedFidReader) {
-                    SeObjectId newRowId = insertStream.lastInsertedRowId();
-                    newId = Long.valueOf(newRowId.longValue());
-                } else {
-                    throw new DataSourceException("fid reader is not user nor sde managed");
-                }
-
-                insertStream.flushBufferedWrites(); // jg: my customer wanted this uncommented
                 insertStream.close();
                 return newId;
             }
@@ -501,9 +514,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
         try {
             newId = session.issue(insertCmd);
-            versionHandler.editOperationWritten(insertStream);
         } catch (IOException e) {
-            versionHandler.editOperationFailed(insertStream);
             throw e;
         }
 

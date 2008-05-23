@@ -244,9 +244,7 @@ public class ArcSDEDataStore implements DataStore {
      * </p>
      * 
      * @param query the Query containing the request criteria
-     * @param session the session to use to retrieve content. It'll be closed by the returned
-     *            FeatureReader<SimpleFeatureType, SimpleFeature> only if the connection does not
-     *            has a {@link Session#isTransactionActive() transaction in progress}.
+     * @param session the session to use to retrieve content.
      * @return
      * @throws IOException
      */

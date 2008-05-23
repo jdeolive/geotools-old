@@ -122,9 +122,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
             }
             return featureIds;
         } finally {
-            if (!session.isTransactionActive()) {
-                session.dispose();
-            }
+            session.dispose();
         }
     }
 
@@ -154,9 +152,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
                 writer.close();
             }
         } finally {
-            if (!session.isTransactionActive()) {
-                session.dispose();
-            }
+            session.dispose();
         }
     }
 
@@ -173,36 +169,22 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
      * @see FeatureStore#removeFeatures(Filter)
      */
     public void removeFeatures(final Filter filter) throws IOException {
-        final ISession session;
         final Transaction currTransaction = getTransaction();
-        if (Transaction.AUTO_COMMIT == currTransaction) {
-            session = null;
-        } else {
-            session = getSession();
-        }
+        final String typeName = typeInfo.getFeatureTypeName();
+        // short circuit cut if needed to remove all features
+        // if (Filter.INCLUDE == filter) {
+        // truncate(typeName, connection);
+        // return;
+        // }
+        final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
+        writer = dataStore.getFeatureWriter(typeName, filter, currTransaction);
         try {
-            final String typeName = typeInfo.getFeatureTypeName();
-            // short circuit cut if needed to remove all features
-            // if (Filter.INCLUDE == filter) {
-            // truncate(typeName, connection);
-            // return;
-            // }
-            final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore
-                    .getFeatureWriter(typeName, filter, currTransaction);
-            try {
-                while (writer.hasNext()) {
-                    writer.next();
-                    writer.remove();
-                }
-            } finally {
-                writer.close();
+            while (writer.hasNext()) {
+                writer.next();
+                writer.remove();
             }
         } finally {
-            if (session != null) {
-                if (!session.isTransactionActive()) {
-                    session.dispose();
-                }
-            }
+            writer.close();
         }
     }
 
@@ -222,19 +204,21 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
             // truncate using this connection to apply or not depending on
             // whether a transaction is in progress
             truncate(typeName, session);
-            final FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore
-                    .getFeatureWriterAppend(typeName, transaction);
+        } finally {
+            session.dispose();
+        }
+
+        final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
+        writer = dataStore.getFeatureWriterAppend(typeName, transaction);
+        try {
             while (reader.hasNext()) {
                 SimpleFeature feature = reader.next();
                 SimpleFeature newFeature = writer.next();
                 newFeature.setAttributes(feature.getAttributes());
                 writer.write();
             }
-            writer.close();
         } finally {
-            if (!session.isTransactionActive()) {
-                session.dispose();
-            }
+            writer.close();
         }
     }
 

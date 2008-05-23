@@ -139,9 +139,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
         try {
             ev = getBounds(namedQuery, session);
         } finally {
-            if (!session.isTransactionActive()) {
-                session.dispose();
-            }
+            session.dispose();
         }
         return ev;
     }
@@ -193,9 +191,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
         try {
             count = getCount(namedQuery, session);
         } finally {
-            if (!session.isTransactionActive()) {
-                session.dispose();
-            }
+            session.dispose();
         }
         return count;
     }
