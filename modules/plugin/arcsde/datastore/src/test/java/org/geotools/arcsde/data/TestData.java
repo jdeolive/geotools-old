@@ -19,12 +19,10 @@ package org.geotools.arcsde.data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
@@ -433,10 +431,10 @@ public class TestData {
                 colDefs[7] = new SeColumnDefinition("SE_ANNO_CAD_DATA",
                         SeColumnDefinition.TYPE_BLOB, 1000, 0, isNullable);
 
-                try{
+                try {
                     table.delete();
-                }catch(Exception e){
-                    //ignore
+                } catch (Exception e) {
+                    // ignore
                 }
                 /*
                  * Create the table using the DBMS default configuration keyword. Valid keywords are
@@ -842,17 +840,16 @@ public class TestData {
         try {
             testData.setUp();
             testData.createSimpleTestTables();
-        } catch (SeException e) {
-            LOGGER.log(Level.WARNING, "while creating test tables got '"
-                    + e.getSeError().getErrDesc() + "'");
-            e.printStackTrace();
+            System.err.println("test tables successfully created");
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "while creating test tables got '" + e.getMessage() + "'");
             e.printStackTrace();
+        }finally{
+            System.exit(0);
         }
     }
 
-    private void createSimpleTestTables() throws IOException, SeException {
+    private void createSimpleTestTables() throws IOException {
         final ArcSDEConnectionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
 
@@ -926,7 +923,7 @@ public class TestData {
                 try {
                     table.delete();
                 } catch (SeException e) {
-                    System.out.println("table " + tableName + " didnt already exist");
+                    System.out.println("table " + tableName + " does not already exist");
                 }
                 layer.setTableName(tableName);
 
@@ -1010,7 +1007,7 @@ public class TestData {
             }
         };
 
-        session.equals(createCmd);
+        session.issue(createCmd);
     }
 
     /**
@@ -1037,13 +1034,13 @@ public class TestData {
                 String dbname = connection.getDatabaseName();
                 String user = connection.getUser();
                 StringBuffer sb = new StringBuffer();
-                if(dbname != null && dbname.length() > 0){
+                if (dbname != null && dbname.length() > 0) {
                     sb.append(dbname).append(".");
                 }
-                if(user != null && user.length() > 0){
+                if (user != null && user.length() > 0) {
                     sb.append(user).append(".");
                 }
-                String tableName =  sb.append("VERSIONED_EXAMPLE").toString().toUpperCase();
+                String tableName = sb.append("VERSIONED_EXAMPLE").toString().toUpperCase();
                 table = new SeTable(connection, tableName);
                 layer.setTableName("VERSIONED_EXAMPLE");
 
