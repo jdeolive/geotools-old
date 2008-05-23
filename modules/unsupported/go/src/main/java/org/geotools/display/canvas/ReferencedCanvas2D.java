@@ -16,7 +16,6 @@
 package org.geotools.display.canvas;
 
 import java.awt.Component;
-import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
@@ -35,6 +34,7 @@ import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.geometry.DirectPosition;
+import org.opengis.display.primitive.Graphic;
 
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CRSUtilities;
@@ -47,8 +47,6 @@ import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.geotools.display.event.ReferencedEvent;
 import org.geotools.display.primitive.ReferencedGraphic2D;
 import org.geotools.display.renderer.AbstractRenderer;
-import org.geotools.resources.GraphicsUtilities;
-import org.opengis.display.primitive.Graphic;
 
 /**
  * A canvas implementation with default support for two-dimensional CRS management. This
@@ -82,7 +80,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      */
     protected AffineTransform2D objectiveToDisplay = new AffineTransform2D();
     
-    private final AffineTransform2D previousObjectiveToDisplay = new AffineTransform2D();
+    protected final AffineTransform2D previousObjectiveToDisplay = new AffineTransform2D();
 
     /**
      * The affine transform from the {@linkplain #getDisplayCRS display CRS} to the {@linkplain
@@ -270,7 +268,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @param  area The area to test, in terms of {@linkplain #getDisplayCRS display CRS}.
      * @return {@code true} if the specified area is already in process of being painted.
      */
-    public final boolean isDirtyArea(final Rectangle area) {
+    protected final boolean isDirtyArea(final Rectangle area) {
         assert Thread.holdsLock(this);
         if (dirtyArea == null) {
             return true;
@@ -455,32 +453,14 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
     /**
      * Invoked when the display bounds may have changed as a result of component resizing.
      */
-    protected void checkDisplayBounds() {
-        if (getDisplayBounds().equals(XRectangle2D.INFINITY)) {
-            propertyListeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, null, null);
-        }
+    protected void displayBoundsChanged(Shape oldBounds, Shape newBounds) {
+        propertyListeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, oldBounds, newBounds);
     }
         
     protected AffineTransform2D setObjectiveToDisplayTransform(Rectangle clipBounds) throws TransformException{
         
-        /*
-         * Sets a flag for avoiding some "refresh()" events while we are actually painting.
-         * For example some implementation of the GraphicPrimitive2D.paint(...) method may
-         * detects changes since the last rendering and invokes some kind of invalidate(...)
-         * methods before the graphic rendering begin. Invoking those methods may cause in some
-         * indirect way a call to GraphicPrimitive2D.refresh(), which will trig an other widget
-         * repaint. This second repaint is usually not needed, since Graphics usually managed
-         * to update their informations before they start their rendering. Consequently,
-         * disabling repaint events while we are painting help to reduces duplicated rendering.
-         */
         final Rectangle displayBounds = getDisplayBounds().getBounds();
-        Rectangle2D dirtyArea = XRectangle2D.INFINITY;
-        if (clipBounds == null) {
-            clipBounds = displayBounds;
-        } else if (displayBounds.contains(clipBounds)) {
-            dirtyArea = clipBounds;
-        }
-        paintStarted(dirtyArea);
+        
         /*
          * If the zoom has changed, send a notification to all graphics before to start the
          * rendering. Graphics will update their cache, which is used in order to decide if

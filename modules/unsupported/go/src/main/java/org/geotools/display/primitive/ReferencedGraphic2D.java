@@ -297,7 +297,7 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
     @Override
     public void clearCache() {
         assert Thread.holdsLock(getTreeLock());
-        displayBounds = null;
+        displayBounds = XRectangle2D.INFINITY;
         super.clearCache();
     }
 }

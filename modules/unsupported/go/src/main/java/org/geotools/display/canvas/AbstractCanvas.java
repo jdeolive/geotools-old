@@ -95,6 +95,12 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * canvas {@linkplain ReferencedCanvas#getScale canvas scale} changed.
      */
     public static final String SCALE_PROPERTY = "scale";
+    
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * canvas {@linkplain ReferencedCanvas#getScale canvas scale} changed.
+     */
+    public static final String OBJECTIVE_TO_DISPLAY_PROPERTY = "objectiveToDisplay";
 
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event} fired when the

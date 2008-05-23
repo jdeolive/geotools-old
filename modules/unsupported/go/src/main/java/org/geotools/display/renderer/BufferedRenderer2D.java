@@ -482,7 +482,7 @@ renderOffscreen:while (true) {
             throws TransformException
     {
         assert Thread.holdsLock(this);
-        if (graphic.getVisible()) {
+        if (graphic.isVisible()) {
             final Shape paintedArea = graphic.getDisplayBounds();
             if (paintedArea==null || clipBounds==null || paintedArea.intersects(clipBounds)) {
                 context.paintedArea = null;

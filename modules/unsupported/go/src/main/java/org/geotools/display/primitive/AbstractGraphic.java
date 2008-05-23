@@ -70,6 +70,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * {@linkplain AbstractGraphic#getCanvas graphic canvas} changed.
      */
     public static final String CANVAS_PROPERTY = "canvas";
+    
     /**
      * The default {@linkplain #getZOrderHint z-order}.
      */
@@ -261,7 +262,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      *
      * @return {@code true} if the graphic is visible, {@code false} otherwise.
      */
-    public boolean getVisible() {
+    public boolean isVisible() {
         return visible;
     }
 

@@ -28,12 +28,14 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.geotools.util.logging.Logging;
 import org.geotools.display.primitive.AbstractGraphic;
+import org.geotools.display.primitive.GraphicPrimitive2D;
 import org.geotools.display.renderer.AWTDirectRenderer2D;
 import org.geotools.display.renderer.AbstractRenderer;
 import org.geotools.geometry.DirectPosition2D;
@@ -53,6 +55,7 @@ import org.geotools.resources.i18n.VocabularyKeys;
 
 import org.opengis.display.canvas.CanvasController;
 import org.opengis.display.primitive.Graphic;
+import org.opengis.display.renderer.RendererEvent;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.operation.TransformException;
 
@@ -63,11 +66,6 @@ import org.opengis.referencing.operation.TransformException;
  * @author Johann Sorel (Geomatys)
  */
 public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AWTCanvas2D#getHandler canvas handler} changed.
-     */
-    public static final String HANDLER_PROPERTY = "handler";
 
     /**
      * Small number for floating point comparaisons.
@@ -86,15 +84,13 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      */
     private final ComponentListener listener = new ComponentListener();
 
-    private CanvasHandler handler;
-
     private final DirectPosition objectiveCenter = new DirectPosition2D();
 
     /**
      * Rectangle in which to place the coordinates returned by {@link #getDisplayBounds}. This
      * object is defined in order to avoid allocating objects too often {@link Rectangle}.
      */
-    private transient Rectangle cachedBounds;
+    private transient Rectangle cachedBounds = new Rectangle();
 
     /**
      * Updates the enclosing canvas according various AWT events.
@@ -104,9 +100,13 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         @Override public void componentResized(final ComponentEvent event) {
             synchronized (AWTCanvas2D.this) {
                 //cache bounds
+                Rectangle old = null;
+                if(cachedBounds != null){
+                    old = new Rectangle(cachedBounds);
+                }
                 cachedBounds = owner.getBounds(cachedBounds);
                 setDisplayBounds(cachedBounds);
-                checkDisplayBounds();
+                displayBoundsChanged(old,cachedBounds);
 
                 zoomChanged(null);
             }
@@ -116,9 +116,13 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         @Override public void componentMoved(final ComponentEvent event) {
             synchronized (AWTCanvas2D.this) {
                 //cache bounds
+                Shape old = null;
+                if(cachedBounds != null){
+                    old = new Rectangle(cachedBounds);
+                }
                 cachedBounds = event.getComponent().getBounds(cachedBounds);
                 setDisplayBounds(cachedBounds);
-                checkDisplayBounds();
+                displayBoundsChanged(old,cachedBounds);
 
                 zoomChanged(null); // Translation term has changed.
             }
@@ -149,34 +153,6 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         if (owner != null) {
             owner.addComponentListener(listener);
         }
-    }
-
-    public CanvasHandler getHandler(){
-        return handler;
-    }
-
-    public void setHandler(CanvasHandler handler){
-
-        if(this.handler != handler) {
-            //TODO : check for possible vetos
-
-            final CanvasHandler old = this.handler;
-
-            if (this.handler != null){
-                this.handler.uninstall(owner);
-                this.handler.setCanvas(null);
-            }
-
-            this.handler = handler;
-
-            if (this.handler != null) {
-                this.handler.setCanvas(this);
-                this.handler.install(owner);
-            }
-
-            propertyListeners.firePropertyChange(HANDLER_PROPERTY, old, handler);
-        }
-
     }
 
     /**
@@ -243,16 +219,52 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     }
 
 
+     //------------------------Renderer events-----------------------------------
+    /**
+     * This method is automaticly called when a event is generate by the canvas
+     * renderer when a graphic object changes.
+     */
+    @Override
+    protected void graphicsChanged(RendererEvent event) {
+        super.graphicsChanged(event);
+        
+        Collection<Graphic> graphics = event.getGraphics();        
+        GraphicPrimitive2D g = (GraphicPrimitive2D) graphics.iterator().next();        
+        repaint(g, null,  g.getDisplayBounds().getBounds());        
+    }
+    
+    
     //----------------------AWT Paint methods ----------------------------------
     public void paint(Graphics2D output){
 
+        Rectangle clipBounds = output.getClipBounds();
+        
+        /*
+         * Sets a flag for avoiding some "refresh()" events while we are actually painting.
+         * For example some implementation of the GraphicPrimitive2D.paint(...) method may
+         * detects changes since the last rendering and invokes some kind of invalidate(...)
+         * methods before the graphic rendering begin. Invoking those methods may cause in some
+         * indirect way a call to GraphicPrimitive2D.refresh(), which will trig an other widget
+         * repaint. This second repaint is usually not needed, since Graphics usually managed
+         * to update their informations before they start their rendering. Consequently,
+         * disabling repaint events while we are painting help to reduces duplicated rendering.
+         */
+        final Rectangle displayBounds = getDisplayBounds().getBounds();
+        Rectangle2D dirtyArea = XRectangle2D.INFINITY;
+        if (clipBounds == null) {
+            clipBounds = displayBounds;
+        } else if (displayBounds.contains(clipBounds)) {
+            dirtyArea = clipBounds;
+        }
+        paintStarted(dirtyArea);
+                
         //correct the displayToDevice transform
         final AffineTransform normalize = output.getDeviceConfiguration().getNormalizingTransform();
         displayToDevice = new AffineTransform2D(normalize);
 
-
-        Rectangle clipBounds = output.getClipBounds();
-
+        
+       
+        AffineTransform2D old =  previousObjectiveToDisplay.clone();
         AffineTransform2D objToDisp = null;
 
         //retrieve an affineTransform that will not be modify
@@ -262,9 +274,25 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         }catch(TransformException exception){
             exception.printStackTrace();
             GraphicsUtilities.paintStackTrace(output, owner.getBounds(), exception);
+            paintFinished(false);
+            return;
         }
+        
+        //notify graphics that the affine changed
+        if( !old.equals(objToDisp) ){            
+                propertyListeners.firePropertyChange(AbstractCanvas.OBJECTIVE_TO_DISPLAY_PROPERTY, old, objToDisp);
+        }
+        
 
-        ((AWTDirectRenderer2D)getRenderer()).paint( output, objToDisp );
+        boolean succeed = ((AWTDirectRenderer2D)getRenderer()).paint( output, objToDisp );
+        
+        
+        
+        /**
+         * End painting, erase dirtyArea
+         */
+        paintFinished(succeed);
+        
     }
 
     /**
@@ -331,26 +359,19 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
              * started to paint but before the paint process reached the graphic. The graphic may
              * have changed its state as a result of a "scale" property change event.
              */
-            if (isDirtyArea(bounds)) {
-                return;
-            }
-
-            //--------------------------------------------------------------------------------------must be in the renderer
-//            /*
-//             * Flush the offscreen buffers and send the repaint event. The paint method
-//             * will be invoked by Swing at some later, widget-dependent, time.
-//             */
-//            if (graphic != null && graphic instanceof AbstractGraphic) {
-//                flushOffscreenBuffer( ((AbstractGraphic)graphic).getZOrderHint());
-//            } else {
-//                flushOffscreenBuffers();
+//            if (isDirtyArea(bounds)) {
+//                System.out.println("----> sortie dirty");
+//                return;
 //            }
+
             if (owner != null) {
-//                if (bounds != null) {
-//                    owner.repaint(bounds.x, bounds.y, bounds.width, bounds.height);
-//                } else {
+                if (bounds != null) {
+//                    System.out.println("REPAINT : bounds => " + bounds);
+                    owner.repaint(bounds.x, bounds.y, bounds.width, bounds.height);
+                } else {
+//                    System.out.println("REPAINT ALL");
                     owner.repaint();
-//                }
+                }
             }
         }
         /*
@@ -445,11 +466,10 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
                 if (!change.isIdentity()) {
                     repaint();
                 }
-
+                
             }
         }
     }
-
 
     public Point2D getDisplayCenter(){
         Rectangle bounds = owner.getBounds();
@@ -485,7 +505,6 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         objectiveTranslate(diffX, diffY);
     }
 
-
     /**
      * Translate of x and y amount in display units.
      *
@@ -516,9 +535,6 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
 
         displayTranslate(dispCenter.getX() - objCenter.getX(), dispCenter.getY() - objCenter.getY());
     }
-
-
-
 
     public void setScale(double newScale){
         double oldScale = XAffineTransform.getScale(objectiveToDisplay);
@@ -561,6 +577,8 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     }
 
     public void scale(double s, Point2D center){
+        double old = getScale();
+        
         final AffineTransform change;
         try {
             change = objectiveToDisplay.createInverse();
@@ -581,6 +599,8 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         change.concatenate(objectiveToDisplay);
         XAffineTransform.round(change, EPS);
         transform(change);
+        
+        propertyListeners.firePropertyChange(SCALE_PROPERTY, old, getScale());
     }
 
     public void setRotation(double r){
@@ -619,9 +639,6 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         transform(change);
     }
 
-
-
-
     /**
      * Changes the {@linkplain #zoom} by applying an affine transform. The {@code change} transform
      * must express a change in logical units, for example, a translation in metres. This method is
@@ -638,11 +655,16 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      *         listeners are not notified.
      */
     public void transform(AffineTransform change){
+        double old = getScale();
+        
         if (!change.isIdentity()) {
             objectiveToDisplay.concatenate(change);
             XAffineTransform.round(objectiveToDisplay, EPS);
             repaint();
         }
+        
+        propertyListeners.firePropertyChange(SCALE_PROPERTY, old, getScale());
+        
 //        System.out.println("NEW AFFINE \n" + objectiveToDisplay);
     }
 

@@ -60,7 +60,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      */
     public final PropertyChangeListener graphicListener = new PropertyChangeListener() {
         public void propertyChange(final PropertyChangeEvent event) {
-            final Object source = event.getSource();            
+            final Object source = event.getSource();
             graphicPropertyChanged((Graphic)source, event);            
         }
     };
