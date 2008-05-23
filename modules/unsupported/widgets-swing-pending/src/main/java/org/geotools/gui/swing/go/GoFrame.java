@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import org.apache.commons.collections.map.SingletonMap;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
@@ -42,6 +43,7 @@ import org.geotools.gui.swing.datachooser.JFileDataPanel;
 import org.geotools.gui.swing.datachooser.JOracleDataPanel;
 import org.geotools.gui.swing.datachooser.JPostGISDataPanel;
 import org.geotools.gui.swing.datachooser.JWFSDataPanel;
+import org.geotools.gui.swing.misc.Render.RandomStyleFactory;
 import org.geotools.gui.swing.propertyedit.LayerCRSPropertyPanel;
 import org.geotools.gui.swing.propertyedit.LayerFilterPropertyPanel;
 import org.geotools.gui.swing.propertyedit.LayerGeneralPanel;
@@ -66,6 +68,8 @@ import org.opengis.referencing.operation.TransformException;
  */
 public class GoFrame extends javax.swing.JFrame {
 
+    private final RandomStyleFactory RANDOM_STYLE_FACTORY = new RandomStyleFactory();
+    
     private J2DMap guiMap;
     private DetailHandler fieldHandler;
     private MouseHandler mouseHandler;
@@ -118,6 +122,31 @@ public class GoFrame extends javax.swing.JFrame {
             layer = new DefaultMapLayer(fs, style);
             layer.setTitle("Some lines");
             context.addLayer(layer);
+            
+            
+            params = new HashMap<String,Object>();
+            shape = new File("/home/sorel/GIS_DATA/ALTI_LIGNE_ISO.SHP");
+            params.put( "url", shape.toURI().toURL() );
+            
+            store = DataStoreFinder.getDataStore(params);
+            fs = store.getFeatureSource(store.getTypeNames()[0]);
+            style = RANDOM_STYLE_FACTORY.createRandomVectorStyle(fs);
+            layer = new DefaultMapLayer(fs, style);
+            layer.setTitle("demo_line.shp");
+            context.addLayer(layer);
+            
+            params = new HashMap<String,Object>();
+            shape = new File("/home/sorel/GIS_DATA/BATIMENT_SURF.SHP");
+            params.put( "url", shape.toURI().toURL() );
+            
+            store = DataStoreFinder.getDataStore(params);
+            fs = store.getFeatureSource(store.getTypeNames()[0]);
+            style = RANDOM_STYLE_FACTORY.createRandomVectorStyle(fs);
+            layer = new DefaultMapLayer(fs, style);
+            layer.setTitle("demo_line.shp");
+            context.addLayer(layer);
+            
+            
 
             context.setCoordinateReferenceSystem(layer.getFeatureSource().getSchema().getCRS());
             context.setTitle("DemoContext");
@@ -127,6 +156,41 @@ public class GoFrame extends javax.swing.JFrame {
 
 
         return context;
+        
+//         MapContext context = null;
+//        MapLayer layer;
+//
+//        try {
+//            context = new DefaultMapContext(DefaultGeographicCRS.WGS84);
+//            DataStore store = DataStoreFinder.getDataStore(new SingletonMap("url",  GoFrame.class.getResource("/org/geotools/gui/swing/demo/shape/test_polygon.shp")));
+//            FeatureSource<SimpleFeatureType, SimpleFeature> fs = store.getFeatureSource(store.getTypeNames()[0]);
+//            Style style = RANDOM_STYLE_FACTORY.createRandomVectorStyle(fs);
+//            layer = new DefaultMapLayer(fs, style);
+//            layer.setTitle("demo_polygon.shp");
+//            context.addLayer(layer);
+//
+//            store = DataStoreFinder.getDataStore(new SingletonMap("url",  GoFrame.class.getResource("/org/geotools/gui/swing/demo/shape/test_ligne.shp")));
+//            fs = store.getFeatureSource(store.getTypeNames()[0]);
+//            style = RANDOM_STYLE_FACTORY.createRandomVectorStyle(fs);
+//            layer = new DefaultMapLayer(fs, style);
+//            layer.setTitle("demo_line.shp");
+//            context.addLayer(layer);
+//
+//            store = DataStoreFinder.getDataStore(new SingletonMap("url",  GoFrame.class.getResource("/org/geotools/gui/swing/demo/shape/test_point.shp")));
+//            fs = store.getFeatureSource(store.getTypeNames()[0]);
+//            style = RANDOM_STYLE_FACTORY.createRandomVectorStyle(fs);
+//            layer = new DefaultMapLayer(fs, style);
+//            layer.setTitle("demo_point.shp");
+//            context.addLayer(layer);
+//            context.setTitle("DemoContext");
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//
+//
+//        return context;
+        
+        
     }
     
     private void initTree(JContextTree tree) {

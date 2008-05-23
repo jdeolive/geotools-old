@@ -32,9 +32,9 @@ import org.opengis.referencing.operation.TransformException;
 public class DynamicGraphic extends GraphicPrimitive2D{
 
     private final int DELAY = 20;
-    private final int STEP = 3;
+    private int STEP = (int) (6 * Math.random());
     
-    private Rectangle bounds = new Rectangle(120, 200, 20, 20);
+    private Rectangle bounds = new Rectangle((int) (200 * Math.random()),(int) (200 * Math.random()), 20, 20);
     private int extendX = 100;
     private int extendY = 100;
     private boolean upflag = false;
@@ -44,6 +44,16 @@ public class DynamicGraphic extends GraphicPrimitive2D{
     public DynamicGraphic(){
         super(DefaultGeographicCRS.WGS84);
                 
+        if(STEP<1) STEP =1;
+        
+        if (Math.random() <0.5){
+            upflag = true;
+        }    
+        
+        if (Math.random() <0.5){
+            rightflag = true;
+        }
+        
         
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {

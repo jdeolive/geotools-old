@@ -19,6 +19,8 @@ import org.geotools.display.renderer.AWTDirectRenderer2D;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
+import org.geotools.map.event.MapLayerListEvent;
+import org.geotools.map.event.MapLayerListListener;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.FeatureType;
@@ -28,14 +30,18 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  *
  * @author sorel
  */
-public class J2DRenderer extends AWTDirectRenderer2D {
+public class J2DRenderer extends AWTDirectRenderer2D implements MapLayerListListener{
 
     protected MapContext context = null;
     protected Map<MapLayer, List<FeatureGraphic>> featureGraphics = new HashMap<MapLayer, List<FeatureGraphic>>();
 
     public void setContext(MapContext context) {
 
-        add(new DynamicGraphic());
+        for (int i = 0; i < 20; i++) {
+            add(new DynamicGraphic());
+        }
+        
+        context.addMapLayerListListener(this);
         
         if (this.context != context) {
             removeContextGraphics();
@@ -103,6 +109,26 @@ public class J2DRenderer extends AWTDirectRenderer2D {
 
     public RenderedImage getSnapShot() {
         return null;
+    }
+
+    public void layerAdded(MapLayerListEvent event) {
+        try {
+            parseLayer(event.getLayer(), 10);
+        } catch (IOException ex) {
+            Logger.getLogger(J2DRenderer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void layerRemoved(MapLayerListEvent event) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void layerChanged(MapLayerListEvent event) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void layerMoved(MapLayerListEvent event) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }
