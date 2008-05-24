@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -58,13 +59,12 @@ import org.geotools.gui.swing.datachooser.JOracleDataPanel;
 import org.geotools.gui.swing.datachooser.JPostGISDataPanel;
 import org.geotools.gui.swing.datachooser.JWFSDataPanel;
 import org.geotools.gui.swing.icon.IconBundle;
-import org.geotools.gui.swing.map.map2d.JDefaultEditableMap2D;
+import org.geotools.gui.swing.map.map2d.JStreamEditMap;
 import org.geotools.gui.swing.map.map2d.Map2D;
 import org.geotools.gui.swing.map.map2d.SelectableMap2D;
 import org.geotools.gui.swing.map.map2d.decoration.ColorDecoration;
 import org.geotools.gui.swing.map.map2d.decoration.ImageDecoration;
 import org.geotools.gui.swing.map.map2d.decoration.InformationDecoration.LEVEL;
-import org.geotools.gui.swing.map.map2d.decoration.NavigationDecoration;
 import org.geotools.gui.swing.misc.Render.RandomStyleFactory;
 import org.geotools.gui.swing.propertyedit.LayerCRSPropertyPanel;
 import org.geotools.gui.swing.propertyedit.LayerFilterPropertyPanel;
@@ -82,6 +82,7 @@ import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+
 /**
  *
  * @author johann sorel
@@ -89,7 +90,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 public class DemoAll extends javax.swing.JFrame {
 
     private final RandomStyleFactory RANDOM_STYLE_FACTORY = new RandomStyleFactory();
-    private final JDefaultEditableMap2D map;
+    private final JStreamEditMap map;
     private final OpacityTreeTableColumn colOpacity = new OpacityTreeTableColumn();
     private final VisibleTreeTableColumn colVisible = new VisibleTreeTableColumn();
     private final StyleTreeTableColumn colStyle = new StyleTreeTableColumn();
@@ -98,7 +99,6 @@ public class DemoAll extends javax.swing.JFrame {
     private final StyleGroup substyle = new StyleGroup();
     private final ImageDecoration overBackImage = new ImageDecoration();
     private final ColorDecoration overBackColor = new ColorDecoration();
-    private final NavigationDecoration overNavigation = new NavigationDecoration();
     private int nb = 1;
 
     /** Creates new form DemoSwingGeowidgets */
@@ -107,7 +107,7 @@ public class DemoAll extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
 
-        map = new JDefaultEditableMap2D();
+        map = new JStreamEditMap();
 
         final MapContext context = buildContext();
         initTree(tree, map);
@@ -126,7 +126,6 @@ public class DemoAll extends javax.swing.JFrame {
         overBackImage.setBackground(new Color(0.7f, 0.7f, 1f, 0.8f));
         overBackImage.setStyle(org.jdesktop.swingx.JXImagePanel.Style.CENTERED);
         map.setBackgroundDecoration(overBackColor);
-        map.addDecoration(overNavigation);
 
         tree.addTreeContextListener(new TreeContextListener() {
 
@@ -181,26 +180,13 @@ public class DemoAll extends javax.swing.JFrame {
 
         try {
             context = new DefaultMapContext(DefaultGeographicCRS.WGS84);
-            DataStore store = DataStoreFinder.getDataStore(new SingletonMap("url", DemoAll.class.getResource("/org/geotools/gui/swing/demo/shape/test_polygon.shp")));
+            DataStore store = DataStoreFinder.getDataStore(new SingletonMap("url", DemoAll.class.getResource("/org/geotools/test-data/shapes/roads.shp")));
             FeatureSource<SimpleFeatureType, SimpleFeature> fs = store.getFeatureSource(store.getTypeNames()[0]);
             Style style = RANDOM_STYLE_FACTORY.createRandomVectorStyle(fs);
             layer = new DefaultMapLayer(fs, style);
             layer.setTitle("demo_polygon.shp");
             context.addLayer(layer);
 
-            store = DataStoreFinder.getDataStore(new SingletonMap("url", DemoAll.class.getResource("/org/geotools/gui/swing/demo/shape/test_ligne.shp")));
-            fs = store.getFeatureSource(store.getTypeNames()[0]);
-            style = RANDOM_STYLE_FACTORY.createRandomVectorStyle(fs);
-            layer = new DefaultMapLayer(fs, style);
-            layer.setTitle("demo_line.shp");
-            context.addLayer(layer);
-
-            store = DataStoreFinder.getDataStore(new SingletonMap("url", DemoAll.class.getResource("/org/geotools/gui/swing/demo/shape/test_point.shp")));
-            fs = store.getFeatureSource(store.getTypeNames()[0]);
-            style = RANDOM_STYLE_FACTORY.createRandomVectorStyle(fs);
-            layer = new DefaultMapLayer(fs, style);
-            layer.setTitle("demo_point.shp");
-            context.addLayer(layer);
             context.setTitle("DemoContext");
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -315,9 +301,6 @@ public class DemoAll extends javax.swing.JFrame {
         jRadioButtonMenuItem3 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem1 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem2 = new javax.swing.JRadioButtonMenuItem();
-        jSeparator1 = new javax.swing.JSeparator();
-        jMenuItem6 = new javax.swing.JMenuItem();
-        gui_Chknavigationlayer = new javax.swing.JCheckBoxMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
 
@@ -573,20 +556,6 @@ public class DemoAll extends javax.swing.JFrame {
             }
         });
         jMenu6.add(jRadioButtonMenuItem2);
-        jMenu6.add(jSeparator1);
-
-        jMenuItem6.setText("Decorations-----");
-        jMenuItem6.setEnabled(false);
-        jMenu6.add(jMenuItem6);
-
-        gui_Chknavigationlayer.setSelected(true);
-        gui_Chknavigationlayer.setText("Navigation");
-        gui_Chknavigationlayer.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                gui_ChknavigationlayerActionPerformed(evt);
-            }
-        });
-        jMenu6.add(gui_Chknavigationlayer);
 
         jMenu4.add(jMenu6);
 
@@ -673,14 +642,6 @@ public class DemoAll extends javax.swing.JFrame {
         map.setBackgroundDecoration(null);
     }//GEN-LAST:event_jRadioButtonMenuItem3ActionPerformed
 
-    private void gui_ChknavigationlayerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gui_ChknavigationlayerActionPerformed
-        if (gui_Chknavigationlayer.isSelected()) {
-            map.addDecoration(overNavigation);
-        } else {
-            map.removeDecoration(overNavigation);
-        }
-}//GEN-LAST:event_gui_ChknavigationlayerActionPerformed
-
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         DefaultMapContext context;
         context = new DefaultMapContext(DefaultGeographicCRS.WGS84);
@@ -748,7 +709,15 @@ public class DemoAll extends javax.swing.JFrame {
         }
 
 
-        new DemoAll().setVisible(true);
+        final DemoAll demo= new DemoAll();
+        demo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        javax.swing.SwingUtilities.invokeLater(new Runnable(){
+
+            public void run() {
+                demo.pack();
+                demo.setVisible(true);
+            }});
+
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup bg_backlayer;
@@ -759,7 +728,6 @@ public class DemoAll extends javax.swing.JFrame {
     private javax.swing.JCheckBoxMenuItem guiChkSubSource;
     private javax.swing.JCheckBoxMenuItem guiChkSubStyle;
     private javax.swing.JCheckBoxMenuItem guiChkVisible;
-    private javax.swing.JCheckBoxMenuItem gui_Chknavigationlayer;
     private org.geotools.gui.swing.map.map2d.control.JMap2DInfoBar gui_map2dinfo;
     private org.geotools.gui.swing.map.map2d.control.JMap2DNavigationBar gui_map2dnavigation;
     private org.geotools.gui.swing.map.map2d.control.JMap2DSelectionBar gui_map2dselection;
@@ -777,7 +745,6 @@ public class DemoAll extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JMenuItem jMenuItem9;
@@ -787,7 +754,6 @@ public class DemoAll extends javax.swing.JFrame {
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem2;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSplitPane jSplitPane1;

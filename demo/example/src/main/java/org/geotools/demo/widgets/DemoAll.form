@@ -245,23 +245,6 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRadioButtonMenuItem2ActionPerformed"/>
                   </Events>
                 </MenuItem>
-                <MenuItem class="javax.swing.JSeparator" name="jSeparator1">
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem6">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Decorations-----"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
-                </MenuItem>
-                <MenuItem class="javax.swing.JCheckBoxMenuItem" name="gui_Chknavigationlayer">
-                  <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Navigation"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="gui_ChknavigationlayerActionPerformed"/>
-                  </Events>
-                </MenuItem>
               </SubComponents>
             </Menu>
           </SubComponents>
