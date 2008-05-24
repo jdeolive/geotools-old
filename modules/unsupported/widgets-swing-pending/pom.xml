@@ -294,11 +294,11 @@
       <version>${project.version}</version>
     </dependency>
     
-    <dependency>
+    <!--<dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-go</artifactId>
       <version>${project.version}</version>
-    </dependency>
+    </dependency>-->
 
     <!-- hsqldb-1.8.0.7.jar -->
     <dependency>
