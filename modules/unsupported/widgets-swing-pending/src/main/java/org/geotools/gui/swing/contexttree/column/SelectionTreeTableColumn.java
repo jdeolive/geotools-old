@@ -21,7 +21,7 @@ import org.geotools.gui.swing.contexttree.renderer.DefaultCellEditor;
 import org.geotools.gui.swing.contexttree.renderer.DefaultCellRenderer;
 import org.geotools.gui.swing.contexttree.renderer.HeaderInfo;
 import org.geotools.gui.swing.icon.IconBundle;
-import org.geotools.gui.swing.map.map2d.SelectableMap2D;
+import org.geotools.gui.swing.map.map2d.stream.SelectableMap2D;
 import org.geotools.map.MapLayer;
 
 /**

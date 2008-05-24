@@ -43,7 +43,7 @@ import org.geotools.gui.swing.contexttree.popup.LayerZoomItem;
 import org.geotools.gui.swing.contexttree.popup.PasteItem;
 import org.geotools.gui.swing.contexttree.popup.SeparatorItem;
 import org.geotools.gui.swing.map.map2d.Map2D;
-import org.geotools.gui.swing.map.map2d.SelectableMap2D;
+import org.geotools.gui.swing.map.map2d.stream.SelectableMap2D;
 import org.geotools.map.MapContext;
 
 /**

@@ -26,7 +26,7 @@ import javax.swing.JCheckBox;
 
 import org.geotools.gui.swing.contexttree.renderer.RenderAndEditComponent;
 import org.geotools.gui.swing.icon.IconBundle;
-import org.geotools.gui.swing.map.map2d.SelectableMap2D;
+import org.geotools.gui.swing.map.map2d.stream.SelectableMap2D;
 import org.geotools.map.MapLayer;
 
 /**

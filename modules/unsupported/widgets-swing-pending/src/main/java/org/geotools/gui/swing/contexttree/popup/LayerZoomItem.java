@@ -24,7 +24,7 @@ import javax.swing.tree.TreePath;
 
 import org.geotools.gui.swing.contexttree.ContextTreeNode;
 import org.geotools.gui.swing.map.map2d.Map2D;
-import org.geotools.gui.swing.map.map2d.NavigableMap2D;
+import org.geotools.gui.swing.map.map2d.stream.NavigableMap2D;
 import org.geotools.map.MapLayer;
 
 /**
