@@ -108,13 +108,15 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
         SdeRow r;
         CoordinateReferenceSystem crs = CRS.decode("EPSG:26986");
         String tableName;
-        try {
-
+        tableName = conProps.getProperty("fourbandtable");
+        if( tableName == null ){
+        	return;
+        }
+		try {
             // Set up a pyramid and readerprops for the four-band 2005 imagery
-            session = pool.getSession();
-            tableName = conProps.getProperty("fourbandtable");
-            q = session.createAndExecuteQuery(new String[] { "RASTER" }, new SeSqlConstruct(
-                    tableName));
+            session = pool.getSession();            
+            SeSqlConstruct seSqlConstruct = new SeSqlConstruct( tableName);            
+            q = session.createAndExecuteQuery(new String[] { "RASTER" }, seSqlConstruct);
             final SeQuery query = q;
             rasterAttr = session.issue(new Command<SeRasterAttr>() {
                 @Override
@@ -146,8 +148,9 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             // Set up a pyramid and readerprops for the three-band 2001 imagery
             session = pool.getSession();
             conProps.getProperty("threebandtable");
-            q = session.createAndExecuteQuery(new String[] { "RASTER" }, new SeSqlConstruct(
-                    tableName));
+            SeSqlConstruct seSqlConstruct = new SeSqlConstruct( tableName);    
+            
+            q = session.createAndExecuteQuery(new String[] { "RASTER" }, seSqlConstruct);
             final SeQuery query = q;
             rasterAttr = session.issue(new Command<SeRasterAttr>() {
                 @Override
@@ -194,6 +197,9 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
     public void testRead4BandIntoTYPE_INT_RGBImage() throws Exception {
 
         String imgPrefix = "type_int_rgb-fourband-image";
+        if( fourBandReaderProps == null ){
+        	return;
+        }
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(fourBandReaderProps);
 
@@ -258,6 +264,9 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
     public void testRead4BandIntoTYPE_INT_ARGBImage() throws Exception {
 
         String imgPrefix = "type_int_argb-fourband-image";
+        if( fourBandReaderProps == null ){
+        	return;
+        }
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(fourBandReaderProps);
 
@@ -340,7 +349,9 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
     public void testRead4BandIntoTYPE_3BYTE_BGRImage() throws Exception {
 
         String imgPrefix = "type_3byte_bgr-4band-image";
-
+        if( fourBandReaderProps == null ){
+        	return;
+        }
         ArcSDERasterReader reader = (ArcSDERasterReader) new ArcSDERasterReaderSpi()
                 .createReaderInstance(fourBandReaderProps);
 

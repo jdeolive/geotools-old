@@ -152,8 +152,10 @@ public class ArcSDEPyramidTest extends TestCase {
         ISession session = pool.getSession();
         SeRasterAttr rAttr;
         try {
-            SeQuery q = session.createAndExecuteQuery(new String[] { "RASTER" },
-                    new SeSqlConstruct(conProps.getProperty("fourbandtable")));
+            String tableName = conProps.getProperty("fourbandtable");
+            if( tableName == null ) return;
+			SeQuery q = session.createAndExecuteQuery(new String[] { "RASTER" },
+                    new SeSqlConstruct(tableName));
             SeRow r = q.fetch();
             rAttr = r.getRaster(0);
         } catch (SeException se) {

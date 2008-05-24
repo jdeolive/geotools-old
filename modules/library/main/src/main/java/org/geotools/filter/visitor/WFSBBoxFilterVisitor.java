@@ -17,6 +17,8 @@ import org.geotools.filter.LiteralExpression;
 import org.geotools.filter.LogicFilter;
 import org.geotools.filter.MathExpression;
 import org.geotools.filter.NullFilter;
+import org.opengis.filter.ExcludeFilter;
+import org.opengis.filter.IncludeFilter;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -31,7 +33,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * <p> 
  * @author Jody
  */
-public class WFSBBoxFilterVisitor implements org.geotools.filter.FilterVisitor {
+public class WFSBBoxFilterVisitor implements org.geotools.filter.FilterVisitor2 {
     private static final Logger logger=org.geotools.util.logging.Logging.getLogger("org.geotools.filter");                
     Envelope maxbbox;
     public WFSBBoxFilterVisitor() {
@@ -221,8 +223,22 @@ public class WFSBBoxFilterVisitor implements org.geotools.filter.FilterVisitor {
         if(filter!=null){
             Iterator i = filter.getFilterIterator();
             while(i.hasNext()){
-                org.geotools.filter.Filter tmp = (org.geotools.filter.Filter)i.next();
-                tmp.accept(this);
+            	org.opengis.filter.Filter child = (org.opengis.filter.Filter) i.next();
+            	if( child instanceof org.geotools.filter.Filter){
+            		org.geotools.filter.Filter tmp = (org.geotools.filter.Filter) child;
+            		tmp.accept(this);
+            	}
+            	else if (child instanceof IncludeFilter){
+            		IncludeFilter include = (IncludeFilter) child;
+            		visit( include );
+            	}
+            	else if (child instanceof ExcludeFilter){
+            		ExcludeFilter exclude = (ExcludeFilter) child;
+            		visit( exclude );
+            	}
+            	else {
+            		logger.warning("Unnown filter:"+child);
+            	}
             }
         }
     }
@@ -271,4 +287,12 @@ public class WFSBBoxFilterVisitor implements org.geotools.filter.FilterVisitor {
     public void visit( FunctionExpression expression ) {
         // do nothing
     }
+	public void visit(IncludeFilter filter) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void visit(ExcludeFilter filter) {
+		// TODO Auto-generated method stub
+		
+	}
 }
