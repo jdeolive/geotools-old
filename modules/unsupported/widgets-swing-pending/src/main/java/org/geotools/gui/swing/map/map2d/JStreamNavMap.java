@@ -31,7 +31,7 @@ import org.geotools.gui.swing.map.map2d.strategy.RenderingStrategy;
  * Default implementation of NavigableMap2D
  * @author Johann Sorel
  */
-public class JDefaultNavigableMap2D extends JDefaultMap2D implements NavigableMap2D {
+public class JStreamNavMap extends JStreamMap implements NavigableMap2D {
 
     private final List<Envelope> mapAreas = new ArrayList<Envelope>();
     private Envelope lastMapArea = null;
@@ -40,7 +40,7 @@ public class JDefaultNavigableMap2D extends JDefaultMap2D implements NavigableMa
     /**
      * create a default JDefaultNavigableMap2D
      */
-    public JDefaultNavigableMap2D() {
+    public JStreamNavMap() {
         super();
     }
     

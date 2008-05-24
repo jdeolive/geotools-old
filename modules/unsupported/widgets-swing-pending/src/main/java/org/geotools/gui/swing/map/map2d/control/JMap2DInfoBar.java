@@ -26,7 +26,7 @@ import javax.swing.JDialog;
 import javax.swing.JToolBar;
 
 import org.geotools.gui.swing.icon.IconBundle;
-import org.geotools.gui.swing.map.map2d.JDefaultMap2D;
+import org.geotools.gui.swing.map.map2d.JStreamMap;
 import org.geotools.gui.swing.map.map2d.StreamingMap2D;
 
 /**
@@ -49,10 +49,10 @@ public class JMap2DInfoBar extends JToolBar {
         gui_config.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent arg0) {
-                if (map != null && map instanceof JDefaultMap2D) {
+                if (map != null && map instanceof JStreamMap) {
 
                     JMap2DConfigPanel opt = new JMap2DConfigPanel();
-                    opt.setMap((JDefaultMap2D) map);
+                    opt.setMap((JStreamMap) map);
 
                     JDialog dia = new JDialog();
                     dia.setContentPane(opt);
@@ -106,7 +106,7 @@ public class JMap2DInfoBar extends JToolBar {
             gui_chk_message.setSelected(map.getInformationDecoration().isDisplayingLowLevelMessages());
         }
 
-        if (map instanceof JDefaultMap2D) {
+        if (map instanceof JStreamMap) {
             gui_config.setEnabled(true);
         } else {
             gui_config.setEnabled(false);

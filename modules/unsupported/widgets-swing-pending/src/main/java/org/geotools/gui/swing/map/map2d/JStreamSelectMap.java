@@ -72,7 +72,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Default implementation of selectableMap2D
  * @author Johann Sorel
  */
-public class JDefaultSelectableMap2D extends JDefaultNavigableMap2D implements SelectableMap2D {
+public class JStreamSelectMap extends JStreamNavMap implements SelectableMap2D {
 
     /**
      * Geometry factory for JTS geometry creation
@@ -104,7 +104,7 @@ public class JDefaultSelectableMap2D extends JDefaultNavigableMap2D implements S
     /**
      * create a default JDefaultSelectableMap2D
      */
-    public JDefaultSelectableMap2D() {
+    public JStreamSelectMap() {
         super();
         
         //I made it like this so that matisse handle this widget

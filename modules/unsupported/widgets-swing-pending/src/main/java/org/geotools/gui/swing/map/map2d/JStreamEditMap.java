@@ -47,7 +47,7 @@ import org.geotools.gui.swing.map.map2d.event.Map2DEditionEvent;
  * Default implementation of EditableMap2D
  * @author Johann Sorel
  */
-public class JDefaultEditableMap2D extends JDefaultSelectableMap2D implements EditableMap2D {
+public class JStreamEditMap extends JStreamSelectMap implements EditableMap2D {
 
     private final SingleBufferedImageStrategy memoryStrategy = new SingleBufferedImageStrategy();
     private MapContext memoryMapContext = null;
@@ -62,7 +62,7 @@ public class JDefaultEditableMap2D extends JDefaultSelectableMap2D implements Ed
     /**
      * create a default JDefaultEditableMap2D
      */
-    public JDefaultEditableMap2D() {
+    public JStreamEditMap() {
         super();
         init();
         

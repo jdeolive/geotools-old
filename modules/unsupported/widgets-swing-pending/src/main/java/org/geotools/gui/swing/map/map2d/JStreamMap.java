@@ -47,7 +47,7 @@ import org.geotools.map.event.MapLayerListListener;
  * Default implementation of Map2D
  * @author Johann Sorel
  */
-public class JDefaultMap2D extends AbstractMap2D implements StreamingMap2D, MapLayerListListener, PropertyChangeListener {
+public class JStreamMap extends AbstractMap2D implements StreamingMap2D, MapLayerListListener, PropertyChangeListener {
 
     /**
      * Action state of the map widget
@@ -61,7 +61,7 @@ public class JDefaultMap2D extends AbstractMap2D implements StreamingMap2D, MapL
      * Map2D reference , same as "this" but needed to explicitly point to the 
      * map2d object when coding a private class
      */
-    protected final JDefaultMap2D THIS_MAP;
+    protected final JStreamMap THIS_MAP;
     /**
      * Rendering Strategy of the map2d widget, should never be null
      */
@@ -72,7 +72,7 @@ public class JDefaultMap2D extends AbstractMap2D implements StreamingMap2D, MapL
     /**
      * create a default JDefaultMap2D
      */
-    public JDefaultMap2D() {
+    public JStreamMap() {
         super();
         this.THIS_MAP = this;
         setMapComponent(renderingStrategy.getComponent());
