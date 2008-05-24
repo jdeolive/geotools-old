@@ -109,6 +109,16 @@
       <artifactId>gt-shapefile</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.jdesktop</groupId>
+      <artifactId>swing-layout</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-widgets-swing-pending</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     
   </dependencies>
 
