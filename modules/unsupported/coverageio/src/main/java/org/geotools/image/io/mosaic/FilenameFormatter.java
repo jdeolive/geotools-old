@@ -274,9 +274,10 @@ loop:   for (int fieldNumber=0; ;fieldNumber++) {
             while (start != 0) {
                 final char c = filename.charAt(start - 1);
                 if (c != fill) {
-                    if (!(useLetters ? Character.isLetter(c) : Character.isDigit(c))) {
-                        break;
+                    if (useLetters ? Character.isLetter(c) : Character.isDigit(c)) {
+                        return null; // The number is not the one given in argument to this method.
                     }
+                    break; // We have found the begining of the number (base 10 or 26).
                 }
                 start--;
             }

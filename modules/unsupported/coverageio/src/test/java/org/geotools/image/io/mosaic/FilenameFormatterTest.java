@@ -34,13 +34,16 @@ public class FilenameFormatterTest {
     @Test
     public void testGuessPattern() {
         final FilenameFormatter formatter = new FilenameFormatter();
-        assertNull(formatter.guessPattern(0, 0, 0, "L1_B1.png"));
+        assertNull  ("Mismatched column number.",        formatter.guessPattern(0,  0,  0, "L1_B1.png"));
         assertEquals("L{level:1}_{column:1}{row:1}.png", formatter.guessPattern(0,  0,  0, "L1_A1.png"));
         assertEquals("L{level:2}_{column:1}{row:1}.png", formatter.guessPattern(0,  0,  0, "L01_A1.png"));
         assertEquals("L{level:1}_{column:2}{row:1}.png", formatter.guessPattern(0,  0,  0, "L1_AA1.png"));
         assertEquals("L{level:1}_{column:1}{row:2}.png", formatter.guessPattern(0,  0,  0, "L1_A01.png"));
         assertEquals("L{level:2}_{column:2}{row:2}.png", formatter.guessPattern(0,  0,  0, "L01_AA01.png"));
         assertEquals("L{level:2}_{column:2}{row:2}.png", formatter.guessPattern(12, 3, 14, "L13_AD15.png"));
+        assertNull  ("Mismatched column number.",        formatter.guessPattern(12, 0, 14, "L13_AD15.png"));
+        assertNull  ("Mismatched row number.",           formatter.guessPattern(12, 3,  0, "L13_AD15.png"));
+        assertNull  ("Mismatched row number.",           formatter.guessPattern( 0, 7,  7, "L01_AH88.png"));
     }
 
     /**
