@@ -27,6 +27,8 @@ import java.net.URL;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.MalformedURLException;
+
+import org.geotools.util.Utilities;
 import org.geotools.util.IntegerList;
 import org.geotools.util.FrequencySortedSet;
 import org.geotools.resources.i18n.Errors;
@@ -721,6 +723,43 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
             }
         }
         return c;
+    }
+
+    /**
+     * Compares this overview level with the given object for equality.
+     *
+     * @param  other The other object to compare for equality.
+     * @return {@code true} if the given object is equals to this overview level.
+     */
+    @Override
+    public boolean equals(final Object other) {
+        if (other instanceof OverviewLevel) {
+            final OverviewLevel that = (OverviewLevel) other;
+            return this.ordinal == that.ordinal &&
+                   this.width   == that.width   &&
+                   this.height  == that.height  &&
+                   this.nx == that.nx && ny == that.ny &&
+                   this.sx == that.sx && sy == that.sy &&
+                   this. x == that. x &&  y == that. y &&
+                   Utilities.equals(this.region,      that.region)   &&
+                   Utilities.equals(this.tiles,       that.tiles)    &&
+                   Arrays   .equals(this.patterns,    that.patterns) &&
+                   Utilities.equals(this.patternUsed, that.patternUsed) &&
+                   Utilities.equals(this.finer,       that.finer);
+        }
+        return false;
+    }
+
+    /**
+     * Returns a hash code value for this overview level.
+     */
+    @Override
+    public int hashCode() {
+        int code = ordinal + 37 * (sx + 37 * (sy + Arrays.hashCode(patterns)));
+        if (finer != null) {
+            code += 31 * finer.hashCode();
+        }
+        return code;
     }
 
     /**

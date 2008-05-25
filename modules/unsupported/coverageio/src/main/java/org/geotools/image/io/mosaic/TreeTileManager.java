@@ -289,7 +289,7 @@ fill:   for (final List<Tile> sameInputs : asArray) {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(tiles) ^ 83;
+        return (int) serialVersionUID ^ Arrays.hashCode(tiles);
     }
 
     /**

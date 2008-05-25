@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
+import org.geotools.util.Utilities;
 import org.geotools.util.FrequencySortedSet;
 
 
@@ -201,5 +202,29 @@ public class GridTileManager extends TileManager {
             return tiles;
         }
         return null;
+    }
+
+    /**
+     * Returns a hash code value for this tile manager.
+     */
+    @Override
+    public int hashCode() {
+        return (int) serialVersionUID ^ root.hashCode();
+    }
+
+    /**
+     * Compares this tile manager with the specified object for equality.
+     *
+     * @param object The object to compare with.
+     */
+    @Override
+    public boolean equals(final Object object) {
+        if (object != null && object.getClass().equals(getClass())) {
+            final GridTileManager that = (GridTileManager) object;
+            return count == that.count &&
+                   Utilities.equals(region, that.region) &&
+                   Utilities.equals(root,   that.root); // Tests last since it may be expansive.
+        }
+        return false;
     }
 }

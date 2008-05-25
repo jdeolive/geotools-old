@@ -82,7 +82,12 @@ public abstract class TestBase {
      * @throws IOException If an I/O operation was required and failed.
      */
     protected TileManagerFactory getTileManagerFactory() throws IOException {
-        return null;
+        return new TileManagerFactory(null) {
+            @Override
+            protected TileManager createGeneric(final Tile[] tiles) throws IOException {
+                return new ComparedTileManager(tiles);
+            }
+        };
     }
 
     /**

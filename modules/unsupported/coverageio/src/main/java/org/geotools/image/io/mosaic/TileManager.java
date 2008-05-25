@@ -360,4 +360,21 @@ public abstract class TileManager implements Serializable {
             }
         }
     }
+
+    /**
+     * Returns a string representation of this tile manager. The default implementation
+     * formats all tiles in a table. Note that the result may be a quite long string.
+     *
+     * @return A string representation.
+     */
+    @Override
+    public String toString() {
+        final Collection<Tile> tiles;
+        try {
+            tiles = getTiles();
+        } catch (IOException e) {
+            return e.toString();
+        }
+        return Tile.toString(tiles);
+    }
 }

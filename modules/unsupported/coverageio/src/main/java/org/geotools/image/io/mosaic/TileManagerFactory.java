@@ -28,6 +28,7 @@ import org.geotools.factory.AbstractFactory;
 import org.geotools.coverage.grid.ImageGeometry;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.geotools.util.logging.Logging;
 
 
 /**
@@ -198,6 +199,17 @@ public class TileManagerFactory extends AbstractFactory {
      * @throws IOException If an I/O operation was required and failed.
      */
     protected TileManager createGeneric(final Tile[] tiles) throws IOException {
-        return new TreeTileManager(tiles);
+        TileManager manager;
+        try {
+            manager = new GridTileManager(tiles);
+        } catch (IllegalArgumentException e) {
+            // Failed to created the instance optimized for grid.
+            // Fallback on the more generic instance using RTree.
+            Logging.recoverableException(TileManagerFactory.class, "createGeneric", e);
+            return new TreeTileManager(tiles);
+        }
+        // Intentional side effect: use ComparedTileManager only if assertions are enabled.
+        assert (manager = new ComparedTileManager(manager, new TreeTileManager(tiles))) != null;
+        return manager;
     }
 }
