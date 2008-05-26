@@ -16,14 +16,14 @@
  */
 package org.geotools.util;
 
-import java.util.Set;
-import java.util.Queue;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Collections;
-import java.util.AbstractQueue;
-import java.io.Serializable;
 import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.AbstractQueue;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Queue;
+import java.util.Set;
 
 
 /**
@@ -383,7 +383,7 @@ public final class Utilities {
      *
      * @param  value The value whose hash code to compute.
      * @param  seed  The hash code value computed so far. If this method is invoked for the first
-     *               field, then any arbitrary value (preferrably different for each class) is okay.
+     *               field, then any arbitrary value (preferably different for each class) is okay.
      * @return An updated hash code value.
      */
     public static int hash(char value, int seed) {
@@ -397,7 +397,7 @@ public final class Utilities {
      *
      * @param  value The value whose hash code to compute.
      * @param  seed  The hash code value computed so far. If this method is invoked for the first
-     *               field, then any arbitrary value (preferrably different for each class) is okay.
+     *               field, then any arbitrary value (preferably different for each class) is okay.
      * @return An updated hash code value.
      */
     public static int hash(int value, int seed) {
@@ -411,7 +411,7 @@ public final class Utilities {
      *
      * @param  value The value whose hash code to compute.
      * @param  seed  The hash code value computed so far. If this method is invoked for the first
-     *               field, then any arbitrary value (preferrably different for each class) is okay.
+     *               field, then any arbitrary value (preferably different for each class) is okay.
      * @return An updated hash code value.
      */
     public static int hash(long value, int seed) {
@@ -423,7 +423,7 @@ public final class Utilities {
      *
      * @param  value The value whose hash code to compute.
      * @param  seed  The hash code value computed so far. If this method is invoked for the first
-     *               field, then any arbitrary value (preferrably different for each class) is okay.
+     *               field, then any arbitrary value (preferably different for each class) is okay.
      * @return An updated hash code value.
      */
     public static int hash(float value, int seed) {
@@ -435,7 +435,7 @@ public final class Utilities {
      *
      * @param  value The value whose hash code to compute.
      * @param  seed  The hash code value computed so far. If this method is invoked for the first
-     *               field, then any arbitrary value (preferrably different for each class) is okay.
+     *               field, then any arbitrary value (preferably different for each class) is okay.
      * @return An updated hash code value.
      */
     public static int hash(double value, int seed) {
@@ -457,7 +457,7 @@ public final class Utilities {
      *
      * @param  value The value whose hash code to compute, or {@code null}.
      * @param  seed  The hash code value computed so far. If this method is invoked for the first
-     *               field, then any arbitrary value (preferrably different for each class) is okay.
+     *               field, then any arbitrary value (preferably different for each class) is okay.
      * @return An updated hash code value.
      * @throws AssertionError If assertions are enabled and the given value is an array.
      */
