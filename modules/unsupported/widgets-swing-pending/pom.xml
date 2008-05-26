@@ -429,29 +429,6 @@
       </plugin>
       
       <!-- ====    Execute         =============================== -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase/>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-            <executable>java</executable>
-            <arguments>                        
-              <argument>-classpath</argument>
-              <!-- automatically creates the classpath using all project dependencies,also adding the project build directory -->
-              <classpath></classpath>
-              <argument>org.geotools.gui.swing.go.GoFrame</argument>
-            </arguments>
-          </configuration>
-       </plugin>
-
-
       <!-- ====    Testing          ============================== -->
       <!-- ====    Code Formatting  ============================== -->
       <!--
