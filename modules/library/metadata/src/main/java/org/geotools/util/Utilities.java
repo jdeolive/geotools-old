@@ -49,6 +49,13 @@ import java.util.Set;
  * </pre>
  *
  * Note the usage of {@link Arrays} method for comparing arrays.
+ * <p>
+ * This class also provides convenience methods for computing {@linkplain Object#hashCode hash code}
+ * values. All those methods expect a {@code seed} argument, which is the hash code value computed
+ * for previous fields in a class. For the initial seed (the one for the field for which to compute
+ * an hash code), an arbitrary value must be provided. We suggest a different number for different
+ * class in order to reduce the risk of collision between "empty" instances of different classes.
+ * {@linkplain java.io.Serializable} classes can use {@code (int) serialVersionUID} for example.
  *
  * @since 2.5
  * @source $URL$
