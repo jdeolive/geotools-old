@@ -19,9 +19,7 @@ import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.operation.matrix.Matrix1;
 import org.geotools.renderer.i18n.ErrorKeys;
 import org.geotools.renderer.i18n.Errors;
-import org.geotools.resources.Utilities;
-import org.geotools.util.EqualsUtil;
-import org.geotools.util.HashCodeUtil;
+import org.geotools.util.Utilities;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.operation.MathTransform1D;
@@ -207,10 +205,10 @@ public class DefaultPiecewiseTransform1D<T extends DefaultPiecewiseTransform1DEl
     public int hashCode() {
         if(hashCode>=0)
             return hashCode;
-        hashCode = HashCodeUtil.SEED;
-        hashCode = HashCodeUtil.hash( hashCode, defaultValue );
-        hashCode = HashCodeUtil.hash( hashCode, hasDefaultValue );
-        hashCode = HashCodeUtil.hash( hashCode, super.hashCode() );
+        hashCode = 37;
+        hashCode = Utilities.hash( defaultValue,hashCode );
+        hashCode = Utilities.hash(  hasDefaultValue ,hashCode);
+        hashCode = Utilities.hash(  super.hashCode(),hashCode );
         return hashCode;
     }
 
@@ -224,7 +222,7 @@ public class DefaultPiecewiseTransform1D<T extends DefaultPiecewiseTransform1DEl
             final DefaultPiecewiseTransform1D<?> that = (DefaultPiecewiseTransform1D<?>) object;
             if(this.hasDefaultValue!=that.hasDefaultValue)
                 return false;
-            if(EqualsUtil.equals(defaultValue, that.defaultValue));
+            if(Utilities.equals(defaultValue, that.defaultValue));
                 return false;
         }
         return super.equals(object);

@@ -22,9 +22,9 @@ import java.util.MissingResourceException;
 
 import org.geotools.renderer.i18n.Vocabulary;
 import org.geotools.renderer.i18n.VocabularyKeys;
-import org.geotools.util.HashCodeUtil;
 import org.geotools.util.NumberRange;
 import org.geotools.util.SimpleInternationalString;
+import org.geotools.util.Utilities;
 import org.opengis.util.InternationalString;
 
 /**
@@ -411,21 +411,13 @@ public class DefaultDomain1D<E extends DefaultDomainElement1D>  extends Abstract
         public int hashCode() {
             if(hashCode<0)
             {
-                int result = HashCodeUtil.SEED;
-                hashCode=HashCodeUtil.hash( result,elements );
-                hashCode=HashCodeUtil.hash( result,minimums );
-                hashCode=HashCodeUtil.hash( result,getName() );
-                hashCode=HashCodeUtil.hash( result,getApproximateDomainRange() );
+                int result =Utilities.deepHashCode( elements );
+                result=Utilities.deepHashCode( minimums );
+                result=Utilities.hash( getName(),result );
+                hashCode=Utilities.hash(getApproximateDomainRange(),hashCode );
 
             }
             return hashCode;
         }
-
-//	public boolean contains(Object o) {
-//		if (o instanceof Double) {
-//			return findDomainElement(((Double) o).doubleValue()) != null;
-//		}
-//		return false;
-//	}
 
 }

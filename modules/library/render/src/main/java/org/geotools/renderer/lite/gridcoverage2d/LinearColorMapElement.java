@@ -26,8 +26,8 @@ import org.geotools.referencing.piecewise.PiecewiseTransform1DElement;
 import org.geotools.renderer.i18n.ErrorKeys;
 import org.geotools.renderer.i18n.Errors;
 import org.geotools.renderer.lite.gridcoverage2d.LinearColorMap.LinearColorMapType;
-import org.geotools.util.HashCodeUtil;
 import org.geotools.util.NumberRange;
+import org.geotools.util.Utilities;
 import org.opengis.referencing.operation.MathTransform1D;
 
 /**
@@ -239,9 +239,9 @@ public class LinearColorMapElement extends DefaultLinearPiecewiseTransform1DElem
     public int hashCode() {
         if(hashCode>=0)
             return hashCode;
-        hashCode=HashCodeUtil.SEED;
-        hashCode=HashCodeUtil.hash(hashCode, colors);
-        hashCode=HashCodeUtil.hash(hashCode, super.hashCode());
+        hashCode=37;
+        hashCode=Utilities.hash( colors,hashCode);
+        hashCode=Utilities.hash( super.hashCode(),hashCode);
         return hashCode;
     }
 

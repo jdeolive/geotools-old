@@ -17,11 +17,9 @@ package org.geotools.referencing.piecewise;
 
 import org.geotools.renderer.i18n.ErrorKeys;
 import org.geotools.renderer.i18n.Errors;
-import org.geotools.resources.Utilities;
-import org.geotools.util.EqualsUtil;
-import org.geotools.util.HashCodeUtil;
 import org.geotools.util.NumberRange;
 import org.geotools.util.SimpleInternationalString;
+import org.geotools.util.Utilities;
 import org.opengis.util.InternationalString;
 
 /**
@@ -83,11 +81,11 @@ public class DefaultDomainElement1D implements DomainElement1D {
 		final DefaultDomainElement1D that=(DefaultDomainElement1D) obj;
 	        if(getEquivalenceClass()!=that.getEquivalenceClass())
 	            return false;
-		if (!EqualsUtil.equals(inputMinimum, that.inputMinimum))
+		if (!Utilities.equals(inputMinimum, that.inputMinimum))
 		    return false;
-                if (!EqualsUtil.equals(inputMaximum, that.inputMaximum))
+                if (!Utilities.equals(inputMaximum, that.inputMaximum))
                     return false;
-                if (!EqualsUtil.equals(this.name, that.name))
+                if (!Utilities.equals(this.name, that.name))
                     return false; 
 		if (!Utilities.equals(this.range, that.range))
 		    return false;
@@ -108,7 +106,7 @@ public class DefaultDomainElement1D implements DomainElement1D {
 	/**
 	 * @see DomainElement1D#contains(NumberRange)
 	 */
-	public boolean contains(NumberRange<?> range) {
+	public boolean contains(NumberRange<? extends Number> range) {
 		return range.contains(range);
 	}
 
@@ -251,11 +249,11 @@ public class DefaultDomainElement1D implements DomainElement1D {
 	public int hashCode() {
 	    if(hashCode>=0)
 	        return hashCode;
-	    hashCode=HashCodeUtil.SEED;
-	    hashCode=HashCodeUtil.hash(hashCode, name);
-	    hashCode=HashCodeUtil.hash(hashCode, range);
-	    hashCode=HashCodeUtil.hash(hashCode, inputMaximum);
-	    hashCode=HashCodeUtil.hash(hashCode, inputMinimum);
+	    hashCode=37;
+	    hashCode=Utilities.hash( name,hashCode);
+	    hashCode=Utilities.hash( range,hashCode);
+	    hashCode=Utilities.hash( inputMaximum,hashCode);
+	    hashCode=Utilities.hash( inputMinimum,hashCode);
 	    return hashCode;
 		
 	}

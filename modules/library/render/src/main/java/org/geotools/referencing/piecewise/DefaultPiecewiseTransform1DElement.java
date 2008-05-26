@@ -15,17 +15,13 @@
  */
 package org.geotools.referencing.piecewise;
 
-import javax.naming.ldap.HasControls;
-
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.operation.matrix.Matrix1;
 import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.geotools.renderer.i18n.ErrorKeys;
 import org.geotools.renderer.i18n.Errors;
-import org.geotools.resources.Utilities;
-import org.geotools.util.EqualsUtil;
-import org.geotools.util.HashCodeUtil;
 import org.geotools.util.NumberRange;
+import org.geotools.util.Utilities;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.operation.MathTransform1D;
 import org.opengis.referencing.operation.Matrix;
@@ -390,9 +386,9 @@ public class DefaultPiecewiseTransform1DElement extends DefaultDomainElement1D i
             final DefaultPiecewiseTransform1DElement that=(DefaultPiecewiseTransform1DElement) obj;
             if(getEquivalenceClass()!=(that.getEquivalenceClass()))
                 return false;
-            if (!EqualsUtil.equals(transform, that.transform))
+            if (!Utilities.equals(transform, that.transform))
                 return false;
-            if (!EqualsUtil.equals(inverse, that.inverse))
+            if (!Utilities.equals(inverse, that.inverse))
                 return false;
             return super.equals(obj);
 		
@@ -416,10 +412,10 @@ public class DefaultPiecewiseTransform1DElement extends DefaultDomainElement1D i
     public int hashCode() {
         if(hashCode>=0)
             return hashCode;
-        hashCode=HashCodeUtil.SEED;
-        hashCode=HashCodeUtil.hash(hashCode, transform);
-        hashCode=HashCodeUtil.hash(hashCode, inverse);
-        hashCode=HashCodeUtil.hash(hashCode, super.hashCode());
+        hashCode=37;
+        hashCode=Utilities.hash(transform,hashCode);
+        hashCode=Utilities.hash( inverse,hashCode);
+        hashCode=Utilities.hash( super.hashCode(),hashCode);
         return hashCode;
     }
 
