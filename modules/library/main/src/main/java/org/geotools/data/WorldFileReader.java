@@ -16,14 +16,21 @@
  */
 package org.geotools.data;
 
+import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.geotools.referencing.operation.LinearTransform;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.opengis.referencing.operation.MathTransform;
 
 /**
@@ -51,16 +58,36 @@ import org.opengis.referencing.operation.MathTransform;
  * we receive should map to the centre of the pixel.
  * 
  * 
- * @author Simone Giannecchini
+ * @author Simone Giannecchini, GeoSolutions
  * @since 2.3
  * 
  */
-public final class WorldFileReader {
+public class WorldFileReader {
+    /**
+     * Makes sure an argument is non-null.
+     *
+     * @param  name   Argument name.
+     * @param  object User argument.
+     * @throws InvalidParameterValueException if {@code object} is null.
+     */
+    private static void ensureNonNull(final String name, final Object object)
+            throws IllegalArgumentException
+    {
+        if (object == null) {
+            throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
+        }
+    }	
 
 	/**
 	 * Default size for the underlying buffer,
 	 */
-	private final static int DEFAULT_BUFFER_SIZE = 8192;
+	public final static int DEFAULT_BUFFER_SIZE = 4096;
+	
+	/**
+	 * Logger for this class.
+	 */
+	private final static Logger LOGGER = org.geotools.util.logging.Logging
+			.getLogger("org.geotools.data.data");
 
 	/** Resolution on the first dimension. */
 	private double xPixelSize = 0.0;
@@ -81,86 +108,138 @@ public final class WorldFileReader {
 	private double yULC = 0.0;
 
 	/** Resulting linear transform. */
-	private LinearTransform transform;
+	private GeneralMatrix transform;
 
 	/**
-	 * Constructor.
+	 * Default constructor for a {@link WorldFileReader}.
 	 * 
-	 * @param worldFile
-	 * @throws IOException
+	 * @param inFile holds the location where to read from.
+	 * @throws IOException in case something bad happens.
 	 */
-	public WorldFileReader(final File worldFile) throws IOException {
-		this(worldFile, DEFAULT_BUFFER_SIZE);
+	public WorldFileReader(final File inFile) throws IOException {
+		this(inFile, DEFAULT_BUFFER_SIZE);
 	}
 
 	/**
-	 * Constructor.
+	 * Constructor for a {@link WorldFileReader}.
 	 * 
-	 * @param worldFile
-	 * @param bufferSize
-	 * @throws IOException
+	 * @param worldfile holds the location where to read from.
+	 * @param bufferSize to buffer when reading.
+	 * @throws IOException in case something bad happens.
 	 */
-	public WorldFileReader(final File worldFile, final int bufferSize)
-			throws IOException {
-		final BufferedReader bufferedreader = new BufferedReader(
-				new FileReader(worldFile));
+	public WorldFileReader(final File worldfile, final int bufferSize)
+	throws IOException {
+		if(worldfile==null)
+			throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"worldfile"));
+		if(!worldfile.isFile()||!worldfile.canRead())
+			throw new IllegalArgumentException(Errors.format(ErrorKeys.FILE_DOES_NOT_EXIST_$1,worldfile));
+		if(bufferSize<=0)
+			throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2,"bufferSize",bufferSize));
+		parseWorldFile(new BufferedReader(
+				new FileReader(worldfile)));
+	}
+	
+	/**
+	 * Constructor for a {@link WorldFileReader}.
+	 * 
+	 * @param worldfile {@link URL} where to read from.
+	 * @param bufferSize to buffer when reading.
+	 * @throws IOException in case something bad happens.
+	 */
+	public WorldFileReader(final URL worldfile, final int bufferSize)
+	throws IOException {
+		if(worldfile==null)
+			throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"inFile"));
+		if(bufferSize<=0)
+			throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2,"bufferSize",bufferSize));		
+		parseWorldFile(new BufferedReader(
+				new InputStreamReader(worldfile.openStream())));
+	}
+	
+	/**
+	 * Constructor for a {@link WorldFileReader}.
+	 * 
+	 * @param worldfile {@link URL} where to read from.
+	 * @param bufferSize to buffer when reading.
+	 * @throws IOException in case something bad happens.
+	 */
+	public WorldFileReader(final URL worldfile)
+	throws IOException {
+		this(worldfile, WorldFileReader.DEFAULT_BUFFER_SIZE);
+	}
 
+	private void parseWorldFile(final BufferedReader bufferedreader)
+			throws IOException, DataSourceException {
 		int index = 0;
-		double value = 0;
 		String str;
-		while ((str = bufferedreader.readLine()) != null) {
+		try {
+			while ((str = bufferedreader.readLine()) != null) {
 
-			value = 0;
+				double value = 0;
 
+				try {
+					value = Double.parseDouble(str.trim());
+				} catch (Throwable t) {
+					// A trick to bypass invalid lines ...
+					if (LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE, t.getLocalizedMessage(), t);
+					continue;
+				}
+
+				switch (index) {
+				case 0:
+					xPixelSize = value;
+
+					break;
+
+				case 1:
+					rotationX = value;
+
+					break;
+
+				case 2:
+					rotationY = value;
+
+					break;
+
+				case 3:
+					yPixelSize = value;
+
+					break;
+
+				case 4:
+					xULC = value;
+
+					break;
+
+				case 5:
+					yULC = value;
+
+					break;
+
+				default:
+					break;
+				}
+
+				index++;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
 			try {
-				value = Double.parseDouble(str.trim());
-			} catch (NumberFormatException e) {
+				bufferedreader.close();
+			} catch (Throwable t) {
 				// A trick to bypass invalid lines ...
-				continue;
+				if (LOGGER.isLoggable(Level.FINE))
+					LOGGER.log(Level.FINE, t.getLocalizedMessage(), t);
 			}
 
-			switch (index) {
-			case 0:
-				xPixelSize = value;
-
-				break;
-
-			case 1:
-				rotationX = value;
-
-				break;
-
-			case 2:
-				rotationY = value;
-
-				break;
-
-			case 3:
-				yPixelSize = value;
-
-				break;
-
-			case 4:
-				xULC = value;
-
-				break;
-
-			case 5:
-				yULC = value;
-
-				break;
-
-			default:
-				break;
-			}
-
-			index++;
 		}
 		bufferedreader.close();
 
 		// did we find all we were looking for?
 		if (index < 5)
-			throw new IOException(
+			throw new DataSourceException(
 					"Not all the values were found for this world file!");
 	}
 
@@ -189,9 +268,14 @@ public final class WorldFileReader {
 	}
 
 	public synchronized MathTransform getTransform() {
+		initTransform();
+		return ProjectiveTransform.create(transform);
+	}
+
+	private void initTransform() {
 		if (transform == null) {
 			// building the transform
-			final GeneralMatrix gm = new GeneralMatrix(3); // identity
+			final GeneralMatrix gm = new GeneralMatrix(3);
 
 			// compute an "offset and scale" matrix
 			gm.setElement(0, 0, xPixelSize);
@@ -203,9 +287,19 @@ public final class WorldFileReader {
 			gm.setElement(1, 2, yULC);
 
 			// make it a LinearTransform
-			transform = ProjectiveTransform.create(gm);
+			transform = gm;
 		}
-		return transform;
+
+	}
+	
+	/**
+	 * Creates an {@link AffineTransform} for interoperability with Java2d.
+	 * @return an {@link AffineTransform} representing the transformation represented 
+	 * 		   by the underlying world file.
+	 */
+	public synchronized AffineTransform getAffineTransform() {
+		initTransform();
+		return transform.toAffineTransform2D();
 	}
 
 }
