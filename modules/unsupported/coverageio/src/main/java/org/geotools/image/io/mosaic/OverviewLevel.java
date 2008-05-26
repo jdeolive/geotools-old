@@ -152,11 +152,37 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     private transient FilenameFormatter formatter;
 
     /**
-     * Creates a new level from the given tile.
+     * Creates a new level using the given pattern. The {@link #createLinkedList} method should
+     * be invoked directly after this constructor, without prior calls to {@link #add}.
+     *
+     * @param  pattern The tile to use as a pattern.
+     * @param  region  The region encompassing every tiles at this level, in relative coordinates.
+     * @throws IOException if an error occured while reading tile information.
+     */
+    OverviewLevel(final Tile pattern, Rectangle region) throws IOException {
+        final Dimension subsampling = pattern.getSubsampling();
+        final Rectangle tileRegion  = pattern.getRegion();
+        this.region = region = new Rectangle(region);
+        this.x      = tileRegion .x;
+        this.y      = tileRegion .y;
+        this.width  = tileRegion .width;
+        this.height = tileRegion .height;
+        this.sx     = subsampling.width;
+        this.sy     = subsampling.height;
+        patterns = new Tile[] {
+            pattern
+        };
+    }
+
+    /**
+     * Creates a new level with only one initial tile. More tiles will need to be added by
+     * invoking {@link #add}, and {@link #createLinkedList} must be invoked when every tiles
+     * are there.
      *
      * @param tile The tile to wrap.
      * @param subsampling The tile subsampling, provided as an explicit argument only
      *        in order to avoid creating a temporary {@link Dimension} object again.
+     * @throws IOException if an error occured while reading tile information.
      */
     OverviewLevel(final Tile tile, final Dimension subsampling) throws IOException {
         region = tile.getRegion();
@@ -216,6 +242,11 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
         assert (region.width % width == 0) && (region.height % height == 0) : region;
         nx = region.width  / width;
         ny = region.height / height;
+        assert (tiles == null) != (patterns == null); // Exactly one of those should be non-null.
+        if (tiles == null) {
+            // No tiles. A pattern was given directly to the constructor.
+            return;
+        }
         /*
          * Searchs for the most common tuple of ImageReaderSpi, imageIndex, input pattern. The
          * rectangle below is named "size" because the (x,y) location is not representative.
@@ -517,6 +548,12 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
                 assert patternUsed == null || patternUsed.getInteger(index) == 0 : index;
                 return tile;
             }
+            // Tests here because it would be an error to have null patterns when tiles == null,
+            // so we are better to lets NullPointerException been thrown in such case so we can
+            // debug.
+            if (patterns == null) {
+                return null;
+            }
         }
         /*
          * The requested tile does not need to be handled in a special way, so now get the
@@ -573,7 +610,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      *
      * @param addTo The collection where to add the internal tiles.
      */
-    final void addInternalTiles(final FrequencySortedSet<? super Tile> addTo) {
+    final void getInternalTiles(final FrequencySortedSet<? super Tile> addTo) {
         int count = 0;
         if (tiles != null) {
             for (final Tile tile : tiles) {
@@ -598,7 +635,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * @param  addTo The list where to add the tiles.
      * @throws MalformedURLException if an error occured while creating the URL for the tiles.
      */
-    final void addTiles(final ArrayList<Tile> addTo) throws MalformedURLException {
+    final void getTiles(final ArrayList<Tile> addTo) throws MalformedURLException {
         final int n = nx * ny;
         int count = addTo.size();
         addTo.ensureCapacity(count + n);
@@ -627,7 +664,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      *         (in which case no tiles has been added to the list).
      * @throws IOException if an error occured while creating the URL for the tiles.
      */
-    final long addTiles(final ArrayList<Tile> addTo, final Rectangle search,
+    final long getTiles(final ArrayList<Tile> addTo, final Rectangle search,
             final Dimension subsampling, final long costLimit) throws IOException
     {
         /*
@@ -694,7 +731,7 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
                             continue;
                         }
                         final Rectangle clipped = atr.intersection(search);
-                        final long c = previous.addTiles(addTo, clipped, subsampling, cost);
+                        final long c = previous.getTiles(addTo, clipped, subsampling, cost);
                         if (c >= 0) {
                             // Tiles at the finer level are cheaper than the current tiles. So keep
                             // them (they have been added to the 'addTo' array) and discart 'tile'.

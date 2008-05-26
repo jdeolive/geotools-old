@@ -211,6 +211,7 @@ final class ComparedTileManager extends TileManager {
      * Compares this tile manager with the specified object for equality.
      *
      * @param object The object to compare with.
+     * @return If the given object is equals to this manager.
      */
     @Override
     public boolean equals(final Object object) {

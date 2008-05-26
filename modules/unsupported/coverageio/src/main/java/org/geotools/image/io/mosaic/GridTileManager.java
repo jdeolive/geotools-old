@@ -60,6 +60,24 @@ public class GridTileManager extends TileManager {
     private final int count;
 
     /**
+     * Creates a new tile manager from an existing collection of overviews.
+     *
+     * @param root The root overview to assign to the tile manageR.
+     */
+    GridTileManager(final OverviewLevel root) {
+        this.root = root;
+        region = new Rectangle(-1, -1);
+        int count = 0;
+        OverviewLevel level = root;
+        do {
+            region.add(level.getAbsoluteRegion());
+            count += level.getNumTiles();
+            level = level.getFinerLevel();
+        } while (level != null);
+        this.count = count;
+    }
+
+    /**
      * Creates a new tile manager for the given tiles, which must be distributed on a grid.
      * This constructor is protected for subclassing, but should not be invoked directly.
      * {@code GridTileManager} instances should be created by {@link TileManagerFactory}.
@@ -147,7 +165,7 @@ public class GridTileManager extends TileManager {
     final Collection<Tile> getInternalTiles() {
         final FrequencySortedSet<Tile> tiles = new FrequencySortedSet<Tile>();
         for (OverviewLevel level=root; level!=null; level=level.getFinerLevel()) {
-            level.addInternalTiles(tiles);
+            level.getInternalTiles(tiles);
         }
         return tiles;
     }
@@ -161,7 +179,7 @@ public class GridTileManager extends TileManager {
     public Collection<Tile> getTiles() throws IOException {
         final ArrayList<Tile> tiles = new ArrayList<Tile>(count);
         for (OverviewLevel level=root; level!=null; level=level.getFinerLevel()) {
-            level.addTiles(tiles);
+            level.getTiles(tiles);
         }
         return tiles;
     }
@@ -196,7 +214,7 @@ public class GridTileManager extends TileManager {
              * compensate the cost of applying a higher subsampling.
              */
             final ArrayList<Tile> tiles = new ArrayList<Tile>();
-            level.addTiles(tiles, region, subsampling, Long.MAX_VALUE);
+            level.getTiles(tiles, region, subsampling, Long.MAX_VALUE);
             // TODO: The search in finer level is not yet implemented.
             subsampling.setSize(doable);
             return tiles;

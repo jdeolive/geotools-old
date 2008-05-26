@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
+import java.lang.reflect.Method;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.spi.IIORegistry;
@@ -621,6 +622,7 @@ public class MosaicBuilder {
      * @throws IOException if an I/O operation was required and failed. The default implementation
      *         does not perform any I/O, but subclasses are allowed to do so.
      */
+    @SuppressWarnings("fallthrough")
     public TileManager createTileManager() throws IOException {
         tileReaderSpi = getTileReaderSpi();
         if (tileReaderSpi == null) {
@@ -636,19 +638,35 @@ public class MosaicBuilder {
             tileSize = ImageUtilities.toTileSize(untiledBounds.getSize());
         }
         formatter.initialize(tileReaderSpi);
-        final TileManager tiles;
+        final TileManager manager;
+        /*
+         * Delegates to a method using an algorithm appropriate for the requested layout.
+         */
+        boolean constantArea = false;
         switch (layout) {
-            case CONSTANT_GEOGRAPHIC_AREA: tiles = createTileManager(true);  break;
-            case CONSTANT_TILE_SIZE:       tiles = createTileManager(false); break;
-            default: throw new IllegalStateException(layout.toString());
+            case CONSTANT_GEOGRAPHIC_AREA: {
+                constantArea = true;
+                // Fall through
+            }
+            case CONSTANT_TILE_SIZE: {
+                manager = createTileManager(constantArea, canUsePattern());
+                break;
+            }
+            default: {
+                throw new IllegalStateException(layout.toString());
+            }
         }
+        /*
+         * After TileManager creation, computes the "grid to CRS" transform
+         * if an envelope was given to this builder.
+         */
         if (mosaicEnvelope != null && !mosaicEnvelope.isNull()) {
-            final GridToEnvelopeMapper mapper = createGridToEnvelopeMapper(tiles);
+            final GridToEnvelopeMapper mapper = createGridToEnvelopeMapper(manager);
             mapper.setGridRange(new GridRange2D(untiledBounds));
             mapper.setEnvelope(mosaicEnvelope);
-            tiles.setGridToCRS((AffineTransform) mapper.createTransform());
+            manager.setGridToCRS((AffineTransform) mapper.createTransform());
         }
-        return tiles;
+        return manager;
     }
 
     /**
@@ -661,12 +679,20 @@ public class MosaicBuilder {
      *       the whole image.</li>
      * </ul>
      *
+     * @param  constantArea {@code true} for constant area layout, or {@code false} for constant
+     *         tile size layout.
+     * @param  usePattern {@code true} for creating tiles using a pattern instead of creating
+     *         individual instance of every tiles.
+     * @return The tile manager.
      * @throws IOException if an I/O operation was requested and failed.
      */
-    private TileManager createTileManager(final boolean constantArea) throws IOException {
-        final List<Tile> tiles       = new ArrayList<Tile>();
-        final Rectangle  tileBounds  = new Rectangle(tileSize);
-        final Rectangle  imageBounds = new Rectangle(untiledBounds);
+    private TileManager createTileManager(final boolean constantArea, final boolean usePattern)
+            throws IOException
+    {
+        final Dimension tileSize      = this.tileSize;      // Paranoiac compile-time safety against
+        final Rectangle untiledBounds = this.untiledBounds; // unwanted reference assignments.
+        final Rectangle imageBounds   = new Rectangle(untiledBounds);
+        final Rectangle tileBounds    = new Rectangle(tileSize);
         Dimension[] subsamplings = getSubsamplings();
         if (subsamplings == null) {
             final int n;
@@ -681,45 +707,111 @@ public class MosaicBuilder {
                 subsamplings[i-1] = new Dimension(i,i);
             }
         }
+        final List<Tile> tiles;
+        final OverviewLevel[] levels;
+        if (usePattern) {
+            tiles  = null;
+            levels = new OverviewLevel[subsamplings.length];
+        } else {
+            tiles  = new ArrayList<Tile>();
+            levels = null;
+        }
+        /*
+         * For each overview level, computes the size of tiles and the size of the mosaic as
+         * a whole. The 'tileBounds' and 'imageBounds' rectangles are overwritten during each
+         * iteration. The filename formatter is configured according the expected number of
+         * tiles computed from the bounds.
+         */
         formatter.computeLevelFieldSize(subsamplings.length);
         for (int level=0; level<subsamplings.length; level++) {
             final Dimension subsampling = subsamplings[level];
-            imageBounds.setRect(untiledBounds);
-            divide(imageBounds, subsampling);
+            final int xSubsampling = subsampling.width;
+            final int ySubsampling = subsampling.height;
+            imageBounds.setBounds(untiledBounds.x      / xSubsampling,
+                                  untiledBounds.y      / ySubsampling,
+                                  untiledBounds.width  / xSubsampling,
+                                  untiledBounds.height / ySubsampling);
+            tileBounds.setBounds(imageBounds);
+            tileBounds.setSize(tileSize);
             if (constantArea) {
-                tileBounds.setSize(tileSize);
-                divide(tileBounds, subsampling);
+                tileBounds.width  /= xSubsampling;
+                tileBounds.height /= ySubsampling;
+            } else {
+                if (tileBounds.width  > imageBounds.width)  tileBounds.width  = imageBounds.width;
+                if (tileBounds.height > imageBounds.height) tileBounds.height = imageBounds.height;
             }
-            final int xmin = imageBounds.x;
-            final int ymin = imageBounds.y;
-            final int xmax = imageBounds.x + imageBounds.width;
-            final int ymax = imageBounds.y + imageBounds.height;
             formatter.computeFieldSizes(imageBounds, tileBounds);
-            int x=0, y=0;
-            for (tileBounds.y = ymin; tileBounds.y < ymax; tileBounds.y += tileBounds.height) {
-                x = 0;
-                for (tileBounds.x = xmin; tileBounds.x < xmax; tileBounds.x += tileBounds.width) {
-                    final Rectangle clippedBounds = tileBounds.intersection(imageBounds);
-                    final File file = new File(directory, generateFilename(level, x, y));
-                    final Tile tile = new Tile(tileReaderSpi, file, 0, clippedBounds, subsampling);
-                    tiles.add(tile);
-                    x++;
+            /*
+             * If we are allowed to use a pattern, create directly the pattern string.
+             * Example of pattern: "File:directory/L{level:1}_{column:2}{row:2}.png".
+             * It will take much less memory than creating every individual tiles, but
+             * is possible only if the user didn't customized too much the tiles creation.
+             */
+            if (usePattern) {
+                if ((imageBounds.width  % tileBounds.width  != 0) ||
+                    (imageBounds.height % tileBounds.height != 0))
+                {
+                    /*
+                     * Size mismatch. Aborts the attempt to create a tile manager from a set of
+                     * patterns and fallback to the more general (and more resources intensive)
+                     * way. Note that the result is likely to be a GridTileManager anyway, but
+                     * a less regular one than the one we were trying to construct here.
+                     */
+                    return createTileManager(constantArea, false);
                 }
-                y++;
+                String pattern = formatter.toString();
+                pattern = new File(directory, pattern).getPath();
+                pattern = "File:" + pattern;
+                final Tile tile = new Tile(tileReaderSpi, pattern, 0, tileBounds, subsampling);
+                final OverviewLevel ol = new OverviewLevel(tile, imageBounds);
+                ol.createLinkedList(level, (level != 0) ? levels[level - 1] : null);
+                levels[level] = ol;
+            } else {
+                /*
+                 * If we are not allowed to use a pattern, enumerate every tiles individually.
+                 * We will let TileManagerFactory tries to figure out a layout from them. Note
+                 * that the factory may create a GridTileManager instance anyway, but the later
+                 * will typically be more customized than the one created in the 'usePattern' case.
+                 */
+                final int xmin = imageBounds.x;
+                final int ymin = imageBounds.y;
+                final int xmax = imageBounds.x + imageBounds.width;
+                final int ymax = imageBounds.y + imageBounds.height;
+                final int dx   = tileBounds.width;
+                final int dy   = tileBounds.height;
+                int x=0, y=0;
+                for (tileBounds.y = ymin; tileBounds.y < ymax; tileBounds.y += dy) {
+                    x = 0;
+                    for (tileBounds.x = xmin; tileBounds.x < xmax; tileBounds.x += dx) {
+                        Rectangle clippedBounds = tileBounds.intersection(imageBounds);
+                        File file = new File(directory, generateFilename(level, x, y));
+                        Tile tile = new Tile(tileReaderSpi, file, 0, clippedBounds, subsampling);
+                        tiles.add(tile);
+                        x++;
+                    }
+                    y++;
+                }
             }
         }
-        final TileManager[] managers = factory.create(tiles);
-        return managers[0];
-    }
-
-    /**
-     * Divides a rectangle by the given subsampling.
-     */
-    private static void divide(final Rectangle bounds, final Dimension subsampling) {
-        bounds.x      /= subsampling.width;
-        bounds.y      /= subsampling.height;
-        bounds.width  /= subsampling.width;
-        bounds.height /= subsampling.height;
+        /*
+         * Creates the tile manager. If assertions are enabled, the manager created using
+         * patterns will be compared to the manager created by enumerating every tiles.
+         */
+        final TileManager manager;
+        if (usePattern) {
+            manager = new GridTileManager(levels[levels.length - 1]);
+            /*
+             * Following assertion creates a new TileManager by enumerating every tiles
+             * (instead than using the pattern) and makes sure that we get the same set
+             * of tiles. The later comparaison is trigged by the call to getTiles().
+             */
+            assert !(new ComparedTileManager(manager, createTileManager(constantArea, false)).
+                    getTiles().isEmpty());
+        } else {
+            final TileManager[] managers = factory.create(tiles);
+            manager = managers[0];
+        }
+        return manager;
     }
 
     /**
@@ -874,6 +966,27 @@ public class MosaicBuilder {
             }
         }
         return tiles;
+    }
+
+    /**
+     * Returns {@code true} if we can create {@link TileManager} using a regular pattern instead
+     * than enumerating every tiles. This method returns {@code true} if {@link #generateFilename}
+     * has not be overriden, otherwise we can't guess at this stage the pattern that the user is
+     * applying.
+     */
+    private boolean canUsePattern() {
+        final Class<?>[] parameters = new Class[3];
+        Arrays.fill(parameters, Integer.TYPE);
+        Class<?> classe = getClass();
+        Method method;
+        do try {
+            method = classe.getDeclaredMethod("generateFilename", parameters);
+            return method.getDeclaringClass().equals(MosaicBuilder.class);
+        } catch (NoSuchMethodException e) {
+            classe = classe.getSuperclass();
+        } while (classe != null);
+        // Would be a programming error. The method we are looking for is just below.
+        throw new AssertionError();
     }
 
     /**
