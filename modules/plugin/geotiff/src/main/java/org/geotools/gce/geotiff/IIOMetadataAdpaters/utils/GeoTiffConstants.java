@@ -113,17 +113,17 @@ public final class GeoTiffConstants {
 	 * The DOM attribute name for a TIFF Entry value (whether Short, Double, or
 	 * Ascii)
 	 */
-	public static final String VALUE_ATTR = "value".intern();
+	public static final String VALUE_ATTRIBUTE = "value".intern();
 
 	/**
 	 * The DOM attribute name for a TIFF Field Tag (number)
 	 */
-	public static final String NUMBER_ATTR = "number".intern();
+	public static final String NUMBER_ATTRIBUTE = "number".intern();
 
 	/**
 	 * The DOM attribute name for a TIFF Field Tag (name)
 	 */
-	public static final String NAME_ATTR = "name";
+	public static final String NAME_ATTRIBUTE = "name";
 
 	public static final String GEOTIFF_TAGSETS_ATT_NAME = "tagSets".intern();
 

@@ -16,6 +16,8 @@
  */
 package org.geotools.gce.geotiff.IIOMetadataAdpaters;
 
+import org.geotools.util.Utilities;
+
 /**
  * This class is a placeholder for defining exact affine transformations between
  * raster and model space.
@@ -48,17 +50,50 @@ package org.geotools.gce.geotiff.IIOMetadataAdpaters;
  * A single tiepoint in the ModelTiepointTag, together with this tag, completely
  * determine the relationship between raster and model space
  * 
- * @author Simone Giannecchini
+ * @author Simone Giannecchini, GeoSolutions
  * @since 2.3
  * 
  */
 public final class PixelScale {
 
-	private double scaleX;
+	@Override
+	public boolean equals(Object that) {
+		if(that==this)
+			return true;
+		if(!(that instanceof PixelScale))
+			return false;
+		final PixelScale thatO=(PixelScale) that;
+		if(
+				Utilities.equals(this.scaleX, thatO.scaleX)&&
+				Utilities.equals(this.scaleY, thatO.scaleY)&&
+				Utilities.equals(this.scaleZ, thatO.scaleZ))
+			return true;
+		return false;
+	}
 
-	private double scaleY;
+	@Override
+	public int hashCode() {
+		int hash=Utilities.hash(scaleX, 1);
+		hash=Utilities.hash(scaleY, hash);
+		hash=Utilities.hash(scaleZ, hash);
+		return hash;
+	}
 
-	private double scaleZ;
+	@Override
+	public String toString() {
+		final StringBuilder buf= new StringBuilder();
+		buf.append("Pixel Scale").append("\n");
+		buf.append("\tscalex=").append(scaleX).append(" is set? ").append(isComponentSet(scaleX)).append("\n");
+		buf.append("\tscalex=").append(scaleY).append(" is set? ").append(isComponentSet(scaleY)).append("\n");
+		buf.append("\tscalex=").append(scaleZ).append(" is set? ").append(isComponentSet(scaleZ)).append("\n");
+		return buf.toString();
+	}
+
+	private double scaleX=Double.NaN;
+
+	private double scaleY=Double.NaN;
+
+	private double scaleZ=Double.NaN;
 
 	public PixelScale(double scaleX, double scaleY, double scaleZ) {
 		this.scaleX = scaleX;
@@ -115,9 +150,8 @@ public final class PixelScale {
 	 * @param scale
 	 * @return
 	 */
-	protected boolean isComponentSet(double scale) {
-		return !Double.isInfinite(scale) && !Double.isNaN(scale)
-				&& Math.abs(scale) > 1E-6;
+	private boolean isComponentSet(double scale) {
+		return !Double.isInfinite(scale) && !Double.isNaN(scale)&& Math.abs(scale) > 1E-6;
 	}
 
 }

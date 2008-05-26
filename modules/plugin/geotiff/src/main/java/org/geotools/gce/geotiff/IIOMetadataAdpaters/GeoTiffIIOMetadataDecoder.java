@@ -62,7 +62,7 @@ import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
  * </p>
  * 
  * @author Mike Nidel
- * @author Simone Giannecchini
+ * @author Simone Giannecchini, GeoSolutions
  * 
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/geotiff/src/org/geotools/gce/geotiff/IIOMetadataAdpaters/GeoTiffIIOMetadataDecoder.java $
@@ -104,29 +104,30 @@ public final class GeoTiffIIOMetadataDecoder {
 	 */
 	public GeoTiffIIOMetadataDecoder(final IIOMetadata imageMetadata) {
 		// getting the image metadata root node.
-		rootNode = (IIOMetadataNode) imageMetadata.getAsTree(imageMetadata
-				.getNativeMetadataFormatName());
-		tiffTagsEntries = (IIOMetadataNode) rootNode.getFirstChild()
-				.getChildNodes();
+		rootNode = (IIOMetadataNode) imageMetadata.getAsTree(imageMetadata.getNativeMetadataFormatName());
+		if (rootNode == null) {
+			throw new IllegalArgumentException(
+					"Unable to retrieve metadata");
+		}
+		tiffTagsEntries = (IIOMetadataNode) rootNode.getFirstChild().getChildNodes();
+		if (rootNode == null) {
+			throw new IllegalArgumentException(
+					"Unable to retrieve metadata");
+		}
 		numTiffTasEntries = tiffTagsEntries.getLength();
 		// getting the geokey ddirectory
 		geoKeyDir = getTiffField(GeoTIFFTagSet.TAG_GEO_KEY_DIRECTORY);
 		if (geoKeyDir == null) {
-			throw new UnsupportedOperationException(
+			throw new IllegalArgumentException(
 					"GeoKey directory does not exist");
 		}
-		if (rootNode == null) {
-			throw new UnsupportedOperationException(
-					"Unable to retrieve metadata");
-		}
+
 
 		// getting all the entries and its nunber
 		geoKeyDirEntries = geoKeyDir.getFirstChild().getChildNodes();
 		// GeoKeyDirVersion and the other parameters
-		geoKeyDirVersion = getTiffShort(geoKeyDir,
-				GeoTiffGCSCodes.GEO_KEY_DIRECTORY_VERSION_INDEX);
-		geoKeyRevision = getTiffShort(geoKeyDir,
-				GeoTiffGCSCodes.GEO_KEY_REVISION_INDEX);
+		geoKeyDirVersion = getTiffShort(geoKeyDir,GeoTiffGCSCodes.GEO_KEY_DIRECTORY_VERSION_INDEX);
+		geoKeyRevision = getTiffShort(geoKeyDir,GeoTiffGCSCodes.GEO_KEY_REVISION_INDEX);
 		if (geoKeyRevision != 1) {
 			geoKeyRevision = 1;
 			// I had to remove this because I did not want to have wrong
@@ -230,7 +231,6 @@ public final class GeoTiffIIOMetadataDecoder {
 
 		if (field != null) {
 			final Node sequence = field.getFirstChild();
-
 			if (sequence != null) {
 				if (sequence.getNodeName().equals(
 						GeoTiffConstants.GEOTIFF_ASCIIS_TAG)) {
@@ -458,7 +458,7 @@ public final class GeoTiffIIOMetadataDecoder {
 	 *         above example, the string would be 123
 	 */
 	private String getValueAttribute(Node node) {
-		return node.getAttributes().getNamedItem(GeoTiffConstants.VALUE_ATTR)
+		return node.getAttributes().getNamedItem(GeoTiffConstants.VALUE_ATTRIBUTE)
 				.getNodeValue();
 	}
 
@@ -503,8 +503,7 @@ public final class GeoTiffIIOMetadataDecoder {
 			// search through all the TIFF fields to find the one with the
 			// given tag value
 			child = tiffTagsEntries.item(i);
-			number = child.getAttributes().getNamedItem(
-					GeoTiffConstants.NUMBER_ATTR);
+			number = child.getAttributes().getNamedItem(GeoTiffConstants.NUMBER_ATTRIBUTE);
 
 			if (number != null) {
 				if (tag == Integer.parseInt(number.getNodeValue()))

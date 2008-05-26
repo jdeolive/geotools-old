@@ -479,8 +479,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 		final boolean hasTiePoints = metadata.hasTiePoints();
 		final boolean hasPixelScales = metadata.hasPixelScales();
 		final boolean hasModelTransformation = metadata.hasModelTrasformation();
-		int rasterType = getGeoKeyAsInt(GeoTiffConstants.GTRasterTypeGeoKey,
-				metadata);
+		int rasterType = getGeoKeyAsInt(GeoTiffConstants.GTRasterTypeGeoKey,metadata);
 		// geotiff spec says that PixelIsArea is the default
 		if (rasterType == GeoTiffConstants.UNDEFINED)
 			rasterType = GeoTiffConstants.RasterPixelIsArea;

@@ -36,7 +36,7 @@ import com.sun.media.imageio.plugins.tiff.TIFFTag;
  * 
  * 
  * 
- * @author Simone Giannecchini
+ * @author Simone Giannecchini, GeoSolutions
  * @since 2.3
  * 
  */
@@ -599,16 +599,16 @@ public final class GeoTiffIIOMetadataEncoder {
 
 	private Element createFieldElement(final TIFFTag tag) {
 		Element field = new Element(GeoTiffConstants.GEOTIFF_FIELD_TAG);
-		field.setAttribute(GeoTiffConstants.NUMBER_ATTR, String.valueOf(tag
+		field.setAttribute(GeoTiffConstants.NUMBER_ATTRIBUTE, String.valueOf(tag
 				.getNumber()));
-		field.setAttribute(GeoTiffConstants.NAME_ATTR, tag.getName());
+		field.setAttribute(GeoTiffConstants.NAME_ATTRIBUTE, tag.getName());
 
 		return field;
 	}
 
 	private Element createShortElement(final int value) {
 		Element GeoKeyRecord = new Element(GeoTiffConstants.GEOTIFF_SHORT_TAG);
-		GeoKeyRecord.setAttribute(GeoTiffConstants.VALUE_ATTR, String
+		GeoKeyRecord.setAttribute(GeoTiffConstants.VALUE_ATTRIBUTE, String
 				.valueOf(value));
 
 		return GeoKeyRecord;
@@ -616,14 +616,14 @@ public final class GeoTiffIIOMetadataEncoder {
 
 	private Element createDoubleElement(final double value) {
 		Element param = new Element(GeoTiffConstants.GEOTIFF_DOUBLE_TAG);
-		param.setAttribute(GeoTiffConstants.VALUE_ATTR, String.valueOf(value));
+		param.setAttribute(GeoTiffConstants.VALUE_ATTRIBUTE, String.valueOf(value));
 
 		return param;
 	}
 
 	private Element createAsciiElement(final String value) {
 		Element param = new Element(GeoTiffConstants.GEOTIFF_ASCII_TAG);
-		param.setAttribute(GeoTiffConstants.VALUE_ATTR, String.valueOf(value));
+		param.setAttribute(GeoTiffConstants.VALUE_ATTRIBUTE, String.valueOf(value));
 
 		return param;
 	}

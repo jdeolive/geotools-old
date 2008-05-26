@@ -16,6 +16,9 @@
  */
 package org.geotools.gce.geotiff.IIOMetadataAdpaters;
 
+import org.geotools.util.Utilities;
+
+
 /**
  * Quoting the geotiff spec:
  * 
@@ -71,14 +74,19 @@ package org.geotools.gce.geotiff.IIOMetadataAdpaters;
  * GeoTIFF spec.
  * 
  * 
- * @author Simone Giannecchini
+ * @author Simone Giannecchini, GeoSolutions
  * @since 2.3
  */
 public final class TiePoint {
-	private double[] values = null;
+	private double[] values = new double[6];
 
+	/**
+	 * Default constructor.
+	 */
+	public TiePoint(){
+		
+	}
 	public TiePoint(double i, double j, double k, double x, double y, double z) {
-		values = new double[6];
 		set(i, j, k, x, y, z);
 	}
 
@@ -99,11 +107,56 @@ public final class TiePoint {
 	}
 
 	public double[] getData() {
-		return values;
+		return values.clone();
 	}
 	
 	public boolean isSet(){
-		return values!=null;
+		for(double val:values)
+			if(!isComponentSet(val))
+				return false;
+		return true;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this==obj)
+			return true;
+		if(!(obj instanceof TiePoint))
+			return false;
+		final TiePoint that= (TiePoint) obj;
+		if(Utilities.deepEquals(this.values, that.values))
+			return true;
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return Utilities.deepHashCode(this.values);
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder builder= new StringBuilder();
+		builder.append("Tie point").append("\n");
+		builder.append("\tRaster Space point (")
+			.append(values[0]).append(", ")
+			.append(values[1]).append(", ")
+			.append(values[2]).append(")").append("\n");
+		builder.append("\tModel Space point (")
+		.append(values[3]).append(", ")
+		.append(values[4]).append(", ")
+		.append(values[5]).append(")");
+		return builder.toString();
+	}
+
+	/**
+	 * Tells me if a component of this {@link PixelScale} is set.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	private boolean isComponentSet(double value) {
+		return !Double.isInfinite(value) && !Double.isNaN(value)&& Math.abs(value) > 1E-6;
 	}
 
 }
