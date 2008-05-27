@@ -332,10 +332,12 @@ public class MosaicImageWriter extends ImageWriter {
                 }
                 if (logWrites) {
                     logger.log(getLogRecord(true, LoggingKeys.RECOVERABLE_OUT_OF_MEMORY_$1,
-                                (imageRegion.width * imageRegion.height) / (1024 * 1024f)));
+                            ((float) imageRegion.width * imageRegion.height) / (1024 * 1024f)));
                 }
                 continue;
             }
+            assert image.getWidth()  == imageRegion.width &&
+                   image.getHeight() == imageRegion.height : imageTile;
             /*
              * Searchs tiles inside the same region with a resolution which is equals or lower by
              * an integer ratio. If such tiles are found we can write them using the image loaded

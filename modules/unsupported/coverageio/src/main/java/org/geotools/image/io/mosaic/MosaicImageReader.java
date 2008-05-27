@@ -555,6 +555,30 @@ public class MosaicImageReader extends ImageReader {
     }
 
     /**
+     * Returns {@code true} if there is only one tile in the given collection and if that singleton
+     * tile encloses fully the given source region. In such case, {@code MosaicImageReader} can
+     * delegates directly the reading process to the reader used by that tile.
+     *
+     * @param  tiles The tile collection.
+     * @param  sourceRegion The source region to be read, as computed by {@link #getSourceRegion}.
+     * @return {@code true} if {@code MosaicImageReader} can delegates the reading process to the
+     *         singleton tile contained in the given collection.
+     * @throws IOException If an I/O operation was requiered and failed.
+     */
+    private static boolean canDelegate(final Collection<Tile> tiles, final Rectangle sourceRegion)
+            throws IOException
+    {
+        final Iterator<Tile> it = tiles.iterator();
+        if (it.hasNext()) {
+            final Tile tile = it.next();
+            if (!it.hasNext()) {
+                return tile.getRegion().contains(sourceRegion);
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns {@code true} if the storage format of the given image places no inherent impediment
      * on random access to pixels. The default implementation returns {@code true} if the input of
      * every tiles is a {@link File} and {@code isRandomAccessEasy} returned {@code true} for all
@@ -1045,7 +1069,7 @@ public class MosaicImageReader extends ImageReader {
         final Rectangle destRegion;
         final Point destinationOffset;
         ImageTypePolicy policy = null;
-        if (tiles.size() == 1 && (policy = getImageTypePolicy(param)).canDelegate) {
+        if (canDelegate(tiles, sourceRegion) && (policy = getImageTypePolicy(param)).canDelegate) {
             destRegion = null;
             if (subsamplingChangeAllowed) {
                 sourceRegion.setBounds(getSourceRegion(param, srcWidth, srcHeight));
