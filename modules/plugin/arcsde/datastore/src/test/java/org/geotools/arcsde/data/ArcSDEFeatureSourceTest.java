@@ -326,13 +326,9 @@ public class ArcSDEFeatureSourceTest extends TestCase {
         } finally {
             reader.close();
         }
-        // it's conceivable that we didn't add the FID attribute, so be a little
-        // lenient.
-        // Either the result is exactly equal, or one greater
-        assertTrue(queriedAttributeCount == resultSchema.getAttributeCount()
-                || queriedAttributeCount == resultSchema.getAttributeCount() - 1);
-        // assertEquals(queriedAttributeCount,
-        // resultSchema.getAttributeCount());
+
+        assertTrue(queriedAttributeCount == resultSchema.getAttributeCount());
+
 
         for (int i = 0; i < queriedAttributeCount; i++) {
             assertEquals(queryAtts[i], resultSchema.getAttribute(i).getLocalName());
