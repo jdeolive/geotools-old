@@ -2,7 +2,6 @@ package org.geotools.wps;
 
 import java.util.Map;
 
-import net.opengis.wps.DataInputsType1;
 import net.opengis.wps.WpsFactory;
 
 import org.geotools.ows.v1_1.OWSConfiguration;
@@ -10,6 +9,8 @@ import org.geotools.wps.bindings.LanguagesBinding;
 import org.geotools.xml.ComplexEMFBinding;
 import org.geotools.xml.Configuration;
 import org.picocontainer.MutablePicoContainer;
+
+import org.geotools.wps.bindings.InputReferenceTypeBinding;
 
 /**
  * Parser configuration for the http://www.opengis.net/wps/1.0.0 schema.
@@ -20,29 +21,28 @@ public class WPSConfiguration extends Configuration {
 
     /**
      * Creates a new configuration.
-     * 
+     *
      * @generated
-     */     
+     */
     public WPSConfiguration() {
        super(WPS.getInstance());
-   
+
        addDependency( new OWSConfiguration());
     }
-    
+
     @Override
     protected void registerBindings(Map bindings) {
-        
+        bindings.put(WPS.InputReferenceType, InputReferenceTypeBinding.class);
         bindings.put(WPS.ComplexDataCombinationsType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ComplexDataCombinationsType));
         bindings.put(WPS.ComplexDataCombinationType,new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ComplexDataCombinationType));
         bindings.put(WPS.ComplexDataDescriptionType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ComplexDataDescriptionType));
         bindings.put(WPS.ComplexDataType,new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ComplexDataType));
         bindings.put(WPS.CRSsType,new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.CRSsType));
-        bindings.put(WPS.DataInputsType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DataInputsType, DataInputsType1.class));
+        bindings.put(WPS.DataInputsType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DataInputsType));
         bindings.put(WPS.DataType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DataType));
         bindings.put(WPS.DescriptionType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DescriptionType));
         bindings.put(WPS.DocumentOutputDefinitionType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DocumentOutputDefinitionType));
         bindings.put(WPS.InputDescriptionType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.InputDescriptionType));
-        bindings.put(WPS.InputReferenceType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.InputReferenceType));
         bindings.put(WPS.InputType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.InputType));
         bindings.put(WPS.LanguagesType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.LanguagesType));
         bindings.put(WPS.LiteralDataType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.LiteralDataType));
@@ -84,9 +84,9 @@ public class WPSConfiguration extends Configuration {
         bindings.put(WPS.SupportedCRSsType_Default, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.SupportedCRSsType_Default));
         bindings.put(WPS.SupportedUOMsType_Default, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.SupportedUOMsType_Default));
     }
-    
+
     @Override
     protected void configureContext(MutablePicoContainer container) {
         container.registerComponentInstance(WpsFactory.eINSTANCE);
     }
-} 
+}
