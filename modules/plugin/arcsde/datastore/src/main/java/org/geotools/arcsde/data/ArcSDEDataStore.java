@@ -260,6 +260,12 @@ public class ArcSDEDataStore implements DataStore {
         final ArcSDEQuery sdeQuery;
 
         Filter filter = query.getFilter();
+
+        if (filter == null) {
+            throw new NullPointerException("getFeatureReader requires Filter: "
+                    + "did you mean Filter.INCLUDE?");
+        }
+
         SimpleFeatureType featureType = completeSchema;
 
         if (propertyNames != null || query.getCoordinateSystem() != null) {
