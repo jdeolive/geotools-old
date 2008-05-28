@@ -335,7 +335,7 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 		// get information for the overviews in case ony exists
 		//
 		// //
-		if (numOverviews > 1) {
+		if (numOverviews >=1) {
 			overViewResolutions = new double[numOverviews][2];
 			for (int i = 0; i < numOverviews; i++) {
 				overViewResolutions[i][0] = (highestRes[0]*this.originalGridRange.getLength(0))/reader.getWidth(i+1);

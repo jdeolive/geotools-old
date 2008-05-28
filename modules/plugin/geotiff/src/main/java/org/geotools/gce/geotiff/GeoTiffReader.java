@@ -265,8 +265,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 		reader.setInput(inStream);
 		final IIOMetadata iioMetadata = reader.getImageMetadata(0);
 		metadata = new GeoTiffIIOMetadataDecoder(iioMetadata);
-		gtcs = (GeoTiffMetadata2CRSAdapter) GeoTiffMetadata2CRSAdapter
-				.get(hints);
+		gtcs = (GeoTiffMetadata2CRSAdapter) GeoTiffMetadata2CRSAdapter.get(hints);
 
 		// //
 		//
@@ -295,11 +294,9 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 		originalGridRange = new GeneralGridRange(actualDim);
 
 		this.raster2Model = gtcs.getRasterToModel(metadata);
-		final AffineTransform tempTransform = new AffineTransform(
-				(AffineTransform) raster2Model);
+		final AffineTransform tempTransform = new AffineTransform((AffineTransform) raster2Model);
 		tempTransform.translate(-0.5, -0.5);
-		originalEnvelope = CRS.transform(ProjectiveTransform
-				.create(tempTransform), new GeneralEnvelope(actualDim));
+		originalEnvelope = CRS.transform(ProjectiveTransform.create(tempTransform), new GeneralEnvelope(actualDim));
 		originalEnvelope.setCoordinateReferenceSystem(crs);
 
 		// ///
@@ -316,7 +313,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 		// get information for the successive images
 		//
 		// //
-		if (numOverviews > 1) {
+		if (numOverviews >= 1) {
 			overViewResolutions = new double[numOverviews][2];
 			for (int i = 0; i < numOverviews; i++) {
 				overViewResolutions[i][0] = (highestRes[0]*this.originalGridRange.getLength(0))/reader.getWidth(i+1);
