@@ -17,51 +17,45 @@ package org.geotools.coverage.grid.io;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
-import java.awt.image.IndexColorModel;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-import javax.media.jai.IHSColorSpace;
 import javax.media.jai.PlanarImage;
 
 import org.geotools.coverage.GridSampleDimension;
+import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultServiceInfo;
-import org.geotools.data.ResourceInfo;
 import org.geotools.data.ServiceInfo;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
-import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.util.logging.Logging;
+import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.MetadataNameNotFoundException;
-import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridRange;
-import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
@@ -85,6 +79,7 @@ import org.opengis.referencing.operation.TransformException;
  * @author Simone Giannecchini, GeoSolutions
  * @since 2.3
  */
+@SuppressWarnings("deprecation")
 public abstract class AbstractGridCoverage2DReader implements
 		GridCoverageReader {
     
@@ -363,10 +358,12 @@ public abstract class AbstractGridCoverage2DReader implements
         	 // -the aspect ratio for the overviews is constant
         	 // -the provided resolutions are taken directly from the grid
         	 resolutionsLevels.add(new Resolution(1,highestRes[0],highestRes[1], 0));
-             for (int i = 0; i < overViewResolutions.length; i++) {
-            	 resolutionsLevels.add(new Resolution(overViewResolutions[i][0]/highestRes[0],overViewResolutions[i][0],overViewResolutions[i][1] , i+1));
-             }
-             Collections.sort(resolutionsLevels);
+        	 if(numOverviews>0)
+        	 {
+	             for (int i = 0; i < overViewResolutions.length; i++) 
+	            	 resolutionsLevels.add(new Resolution(overViewResolutions[i][0]/highestRes[0],overViewResolutions[i][0],overViewResolutions[i][1] , i+1));
+        	 	Collections.sort(resolutionsLevels);
+        	}
           }
 	}
        
@@ -579,58 +576,17 @@ public abstract class AbstractGridCoverage2DReader implements
 			MathTransform raster2Model) throws IOException {
 
 		// creating bands
-		final int numBands = image.getSampleModel().getNumBands();
+        final SampleModel sm=image.getSampleModel();
+        final ColorModel cm=image.getColorModel();
+		final int numBands = sm.getNumBands();
 		final GridSampleDimension[] bands = new GridSampleDimension[numBands];
-		// checking the names
-		final ColorModel cm = image.getColorModel();
-		final String names[] = new String[numBands];
-		// in case of index color model we are already done.
-		if (cm instanceof IndexColorModel) {
-			names[0] = "index band";
-		} else {
-			// in case of multiband image we are not done yet.
-			final ColorSpace cs = cm.getColorSpace();
-
-			if (cs instanceof IHSColorSpace) {
-				names[0] = "Intensity band";
-				names[1] = "Hue band";
-				names[2] = "Saturation band";
-
-			} else {
-				// not IHS, let's take the type
-				final int type = cs.getType();
-				switch (type) {
-				case ColorSpace.CS_GRAY:
-				case ColorSpace.TYPE_GRAY:
-					names[0] = "GRAY";
-					break;
-				case ColorSpace.CS_sRGB:
-				case ColorSpace.CS_LINEAR_RGB:
-				case ColorSpace.TYPE_RGB:
-					names[0] = "RED";
-					names[1] = "GREEN";
-					names[2] = "BLUE";
-					break;
-				case ColorSpace.TYPE_CMY:
-					names[0] = "CYAN";
-					names[1] = "MAGENTA";
-					names[2] = "YELLOW";
-					break;
-				case ColorSpace.TYPE_CMYK:
-					names[0] = "CYAN";
-					names[1] = "MAGENTA";
-					names[2] = "YELLOW";
-					names[3] = "K";
-					break;
-
-				}
-			}
-		}
 		// setting bands names.
 		for (int i = 0; i < numBands; i++) {
-			bands[i] = new GridSampleDimension(names[i]).geophysics(true);
+		        final ColorInterpretation colorInterpretation=TypeMap.getColorInterpretation(cm, i);
+		        if(colorInterpretation==null)
+		               throw new IOException("Unrecognized sample dimension type");
+			bands[i] = new GridSampleDimension(colorInterpretation.name()).geophysics(true);
 		}
-
 		// creating coverage
 		if (raster2Model != null) {
 			return coverageFactory.create(coverageName, image, crs,
@@ -734,7 +690,7 @@ public abstract class AbstractGridCoverage2DReader implements
 	    synchronized (this) {
 	        if(raster2Model==null){
 	            final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(this.originalGridRange,this.originalEnvelope);
-	            geMapper.setGridType(PixelInCell.CELL_CENTER);
+	            geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
 	            raster2Model=geMapper.createTransform();
 	        }
 	    }
