@@ -6,7 +6,11 @@ import org.opengis.filter.identity.Identifier;
 
 /**
  * Implementation of {@link org.opengis.filter.identity.FeatureId}
- * 
+ * <p>
+ * This class is mutable under one condition only; during a commit
+ * a datastore can update the internal fid to reflect the real identify
+ * assigned by the database or wfs.
+ * <p>
  * @author Justin Deoliveira, The Open Planning Project
  *
  */
@@ -14,7 +18,7 @@ public class FeatureIdImpl implements FeatureId {
 
 	/** underlying fid */
 	String fid;
-	
+	String origionalFid;
 	public FeatureIdImpl( String fid ) {
 		this.fid = fid;
 		if ( fid == null ) {
@@ -26,6 +30,18 @@ public class FeatureIdImpl implements FeatureId {
 		return fid;
 	}
 
+	public void setID( String id ){
+		if ( fid == null ) {
+			throw new NullPointerException( "fid must not be null" );
+		}		
+		if( origionalFid == null ){
+			origionalFid = fid;
+			fid = id;			
+		}
+		else {
+			throw new IllegalStateException("You can only assign a real id once during a commit");
+		}
+	}
 	public boolean matches(Feature feature) {
 		return feature != null && fid.equals( feature.getID() );
 	}

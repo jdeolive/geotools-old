@@ -16,6 +16,8 @@
 package org.geotools.geometry.jts;
 
 import java.awt.geom.Rectangle2D;
+
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.geometry.DirectPosition;
@@ -34,6 +36,8 @@ import org.geotools.resources.Classes;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+
+import sun.net.www.content.audio.x_aiff;
 
 
 /**
@@ -56,6 +60,33 @@ import org.geotools.resources.i18n.Errors;
  */
 public class ReferencedEnvelope extends Envelope implements org.opengis.geometry.Envelope,
     BoundingBox {
+	/** A ReferencedEnvelope containing "everything" */
+	public static ReferencedEnvelope EVERYTHING = new ReferencedEnvelope(
+			Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY,
+			Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY,null){
+	    private static final long serialVersionUID = -3188702602373537164L;		
+		public boolean contains(BoundingBox bbox) {
+			return true;
+		}
+		public boolean contains(Coordinate p) {
+			return true;			
+		}
+		public boolean contains(DirectPosition pos) {
+			return true;
+		}
+		public boolean contains(double x, double y) {
+			return true;
+		}
+		public boolean contains(Envelope other) {
+			return true;
+		}	
+		public boolean isEmpty() {
+			return false;
+		}
+		public boolean isNull() {
+			return true;
+		}		
+	};
     /**
      * Serial number for compatibility with different versions.
      */
