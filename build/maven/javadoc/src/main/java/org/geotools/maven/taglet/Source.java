@@ -74,7 +74,7 @@ public final class Source implements Taglet {
         super();                                           //   Typical example         Could be also
         findModule = Pattern.compile(                      //   ---------------------   ---------------------
             "\\p{Alnum}+\\Q://\\E"                      +  //   http://                 https://
-            "[\\p{Alnum}\\.\\-]+"                       +  //   svn.geotools.org        gtsvn.refractions.net
+            "[\\p{Alnum}\\:\\.\\-]+"                    +  //   svn.geotools.org        gtsvn.refractions.net
             "\\/\\p{Alpha}+\\/"                         +  //   /trunk/                 /tags/
             "(?:\\p{Alnum}+\\.[\\p{Alnum}\\.\\-]+\\/)?" +  //   (nothing)               2.3-M1/
             "([\\p{Alnum}\\-]+)\\/"                     +  //   modules/                build/
