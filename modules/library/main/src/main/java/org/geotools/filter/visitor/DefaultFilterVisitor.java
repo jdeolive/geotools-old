@@ -47,9 +47,7 @@ import org.opengis.filter.spatial.Within;
  * This class implements the full FilterVisitor interface and will visit every Filter member of a
  * Filter object. This class performs no actions and is not intended to be used directly, instead
  * extend it and overide the methods for the Filter type you are interested in. Remember to call the
- * super method if you want to ensure that the entier filter tree is still visited. This class can
- * take an ExpressionVisitor as a construction parameter, if provided it will be called for each
- * expression in the Filter object.
+ * super method if you want to ensure that the entire filter tree is still visited.
  * 
  * <pre><code>
  * FilterVisitor allFids = new DefaultFilterVisitor(){

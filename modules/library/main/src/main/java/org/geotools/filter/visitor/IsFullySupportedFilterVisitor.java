@@ -55,7 +55,7 @@ import org.opengis.filter.spatial.Within;
 
 /**
  * This visitor will return Boolean.TRUE if the provided filter
- * is completly supported by the FilterCapabilities.
+ * is completely supported by the FilterCapabilities.
  * <p>
  * This method will look up the right information in the provided
  * FilterCapabilities instance for you depending on the type of filter
@@ -64,8 +64,9 @@ import org.opengis.filter.spatial.Within;
  * and supported by the provided FilterCapabilities.
  * <p>
  * Example:<pre><code>
- * boolean yes = filter.accepts( IsFullySupportedFilterVisitor( capabilities ) );
+ * boolean yes = filter.accepts( IsFullySupportedFilterVisitor( capabilities ), null );
  * </code></pre>
+ * 
  * @author Jody Garnett (Refractions Research)
  */
 public class IsFullySupportedFilterVisitor implements FilterVisitor, ExpressionVisitor {
