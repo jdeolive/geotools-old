@@ -119,7 +119,7 @@ public abstract class TestBase {
         };
         builder.setTileDirectory(new File("S960")); // Dummy directory - will not be written.
         builder.setTileSize(new Dimension(TARGET_SIZE, TARGET_SIZE));
-        manager = builder.createTileManager(sourceTiles, 0, false);
+        manager = builder.createTileManager(sourceTiles);
         targetTiles = manager.getTiles().toArray(new Tile[manager.getTiles().size()]);
     }
 

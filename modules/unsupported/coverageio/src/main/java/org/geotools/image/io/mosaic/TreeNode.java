@@ -25,7 +25,7 @@ import java.util.NoSuchElementException;
 import java.awt.Rectangle;
 import java.io.IOException;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -82,6 +82,8 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
 
     /**
      * Creates a node for the specified bounds with no tile.
+     *
+     * @param bounds The tile bounds in absolute coordinates.
      */
     protected TreeNode(final Rectangle bounds) {
         super(bounds);
@@ -566,7 +568,7 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
      *
      * @return A string representation of the state of this tree. Default implementation returns an
      *         empty string, but subclasses may override this method with more detailled message.
-     *         This string is not used directly by this class, but we provide it as a useful
+     *         This string is not used directly by this class, but is sometime useful in debugger.
      */
     String checkValidity() {
         TreeNode child = firstChildren;

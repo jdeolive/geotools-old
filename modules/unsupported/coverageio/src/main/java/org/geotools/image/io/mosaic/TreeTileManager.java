@@ -22,10 +22,9 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import javax.imageio.spi.ImageReaderSpi;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 
 import org.geotools.resources.UnmodifiableArrayList;
+import org.geotools.resources.OptionalDependencies;
 import org.geotools.util.FrequencySortedSet;
 import org.geotools.util.Comparators;
 
@@ -47,7 +46,7 @@ import org.geotools.util.Comparators;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class TreeTileManager extends TileManager {
+final class TreeTileManager extends TileManager {
     /**
      * For cross-version compatibility during serialization.
      */
@@ -101,11 +100,6 @@ public class TreeTileManager extends TileManager {
     private transient Dimension tileSize;
 
     /**
-     * A view of the tile as a Swing tree. Created only when first requested.
-     */
-    private transient TreeModel swing;
-
-    /**
      * Creates a manager for the given tiles. This constructor is protected for subclassing,
      * but should not be invoked directly. {@code TreeTileManager} instances should be created
      * by {@link TileManagerFactory}.
@@ -120,8 +114,8 @@ public class TreeTileManager extends TileManager {
          * different input, we will order by image index first, then (y,x) order.
          */
         Tile.ensureNonNull("tiles", tiles);
-        final Map<ReaderInputPair,List<Tile>> tilesByInput;
-        tilesByInput = new LinkedHashMap<ReaderInputPair, List<Tile>>();
+        final Map<ReaderInputPair,List<Tile>> tilesByInput =
+                new LinkedHashMap<ReaderInputPair, List<Tile>>(tiles.length + tiles.length/4 + 1);
         providers    = new FrequencySortedSet<ImageReaderSpi>(4, true);
         for (final Tile tile : tiles) {
             tile.checkGeometryValidity();
@@ -311,26 +305,19 @@ fill:   for (final List<Tile> sameInputs : asArray) {
      */
     @Override
     public String toString() {
-        return Tile.toString(allTiles);
-    }
-
-    /**
-     * Returns this tree as a <cite>Swing</cite> tree model. The labels displayed in this tree
-     * may change in any future version. This method is provided only as a debugging tool.
-     *
-     * @return The Swing tree.
-     * @throws IOException if an I/O operation was required and failed.
-     */
-    public synchronized TreeModel toSwingTree() throws IOException {
-        if (swing == null) {
-            final RTree tree = getTree();
-            try {
-                swing = new DefaultTreeModel(tree.root);
-            } finally {
-                release(tree);
-            }
+        final RTree tree;
+        try {
+            tree = getTree();
+        } catch (IOException e) {
+            return Tile.toString(allTiles);
         }
-        return swing;
+        final String string;
+        try {
+            string = OptionalDependencies.toString(tree.root);
+        } finally {
+            release(tree);
+        }
+        return string;
     }
 
     /**

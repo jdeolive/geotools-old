@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.InvalidClassException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -125,7 +126,7 @@ public class Tile implements Comparable<Tile>, Serializable {
     /**
      * For cross-version compatibility during serialization.
      */
-    private static final long serialVersionUID = -6435605067578674902L;
+    private static final long serialVersionUID = -5417183834232374962L;
 
     /**
      * The provider to use. The same provider is typically given to every {@code Tile} objects
@@ -136,12 +137,6 @@ public class Tile implements Comparable<Tile>, Serializable {
      * and use reflection like {@link org.geotools.coverage.grid.GridCoverage2D#readObject}.
      */
     private transient ImageReaderSpi provider;
-
-    /**
-     * The {@linkplain #provider} itself if it is serializable, or its class otherwise.
-     * Used for serialization only.
-     */
-    private final Serializable serialProvider;
 
     /**
      * The input to be given to the image reader. If the reader can not read that input
@@ -224,13 +219,12 @@ public class Tile implements Comparable<Tile>, Serializable {
             width  = tile.width;
             height = tile.height;
         }
-        this.input     = (input != null) ? input : tile.input;
-        provider       = tile.provider;
-        serialProvider = tile.serialProvider;
-        imageIndex     = tile.imageIndex;
-        xSubsampling   = tile.xSubsampling;
-        ySubsampling   = tile.ySubsampling;
-        gridToCRS      = tile.gridToCRS;
+        this.input   = (input != null) ? input : tile.input;
+        provider     = tile.provider;
+        imageIndex   = tile.imageIndex;
+        xSubsampling = tile.xSubsampling;
+        ySubsampling = tile.ySubsampling;
+        gridToCRS    = tile.gridToCRS;
     }
 
     /**
@@ -279,7 +273,6 @@ public class Tile implements Comparable<Tile>, Serializable {
         } else {
             xSubsampling = ySubsampling = 1;
         }
-        serialProvider = serial(provider);
     }
 
     /**
@@ -334,7 +327,6 @@ public class Tile implements Comparable<Tile>, Serializable {
         } else {
             xSubsampling = ySubsampling = 1;
         }
-        serialProvider = serial(provider);
     }
 
     /**
@@ -388,7 +380,6 @@ public class Tile implements Comparable<Tile>, Serializable {
             }
         }
         this.gridToCRS = new AffineTransform(gridToCRS); // Really needs a new instance - no cache
-        serialProvider = serial(provider);
     }
 
     /**
@@ -419,13 +410,6 @@ public class Tile implements Comparable<Tile>, Serializable {
     }
 
     /**
-     * Returns the given object itself if it is serializable, or its class otherwise.
-     */
-    private static Serializable serial(final Object object) {
-        return (object instanceof Serializable) ? (Serializable) object : Classes.getClass(object);
-    }
-
-    /**
      * Ensures that the given argument is non-null.
      */
     static void ensureNonNull(final String argument, final Object value) {
@@ -438,7 +422,7 @@ public class Tile implements Comparable<Tile>, Serializable {
      * Ensures that the given value is positive and in the range of 16 bits number.
      * Returns the value casted to a {@code short} type.
      */
-    private static short ensurePositive(final int n) throws IllegalArgumentException {
+    static short ensurePositive(final int n) throws IllegalArgumentException {
         if (n < 0 || n > Short.MAX_VALUE) {
             throw new IllegalArgumentException(Errors.format(
                     ErrorKeys.VALUE_OUT_OF_BOUNDS_$3, n, 0, Short.MAX_VALUE));
@@ -1328,29 +1312,35 @@ public class Tile implements Comparable<Tile>, Serializable {
     }
 
     /**
-     * Invoked on deserialization. If the {@linkplain #provider} was serializable, then it is
-     * restituted as-is. Otherwise the provider is fetch from currently registered providers
+     * Invoked on serialization. Serialization of {@linkplain #provider} is replaced by
+     * serialization of its class name only. The actual provider instance will be fetch
+     * from ImageIO registry on deserialization.
+     */
+    private void writeObject(final ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        out.writeObject(Classes.getClass(provider));
+    }
+
+    /**
+     * Invoked on deserialization. The provider is fetch from currently registered providers
      * in the {@link IIORegistry}. The search is performed by classname.
      */
     private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        if (serialProvider instanceof ImageReaderSpi) {
-            provider = (ImageReaderSpi) serialProvider;
-        } else {
-            final IIORegistry registry = IIORegistry.getDefaultInstance();
-            Class<?> type = serialProvider.getClass(); // Initialized in case of failure on next line.
-            try {
-                type = (Class<?>) serialProvider;
-                provider = (ImageReaderSpi) registry.getServiceProviderByClass(type);
-            } catch (ClassCastException cause) {
-                InvalidClassException e = new InvalidClassException(type.getName(),
-                        Errors.format(ErrorKeys.ILLEGAL_CLASS_$2, type, ImageReaderSpi.class));
-                e.initCause(cause);
-                throw e;
-            }
-            if (provider == null) {
-                throw new ClassNotFoundException(type.getName());
-            }
+        final Object candidate = in.readObject();
+        final IIORegistry registry = IIORegistry.getDefaultInstance();
+        Class<?> type = candidate.getClass(); // Initialized in case of failure on next line.
+        try {
+            type = (Class<?>) candidate;
+            provider = (ImageReaderSpi) registry.getServiceProviderByClass(type);
+        } catch (ClassCastException cause) {
+            InvalidClassException e = new InvalidClassException(type.getName(),
+                    Errors.format(ErrorKeys.ILLEGAL_CLASS_$2, type, ImageReaderSpi.class));
+            e.initCause(cause);
+            throw e;
+        }
+        if (provider == null) {
+            throw new ClassNotFoundException(type.getName());
         }
     }
 }

@@ -75,7 +75,7 @@ public final class MosaicBuilderTest extends TestBase {
             assertEquals("height[" + i + ']', height[i], subsamplings[i].height);
         }
 
-        TileManager tileManager = builder.createTileManager(sourceTiles, 0, false);
+        TileManager tileManager = builder.createTileManager(sourceTiles);
         assertEquals(4733, tileManager.getTiles().size());
         final String asText = tileManager.toString();
         assertFalse(asText.trim().length() == 0);

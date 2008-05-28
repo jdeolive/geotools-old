@@ -153,6 +153,14 @@ public class MosaicImageWriter extends ImageWriter {
     }
 
     /**
+     * Returns default parameters appropriate for this format.
+     */
+    @Override
+    public MosaicImageWriteParam getDefaultWriteParam() {
+        return new MosaicImageWriteParam();
+    }
+
+    /**
      * Writes the specified image as a set of tiles. The default implementation copies the image in
      * a temporary file, then invokes {@link #writeFromInput}. This somewhat inefficient approach
      * may be changed in a future version.
@@ -162,7 +170,7 @@ public class MosaicImageWriter extends ImageWriter {
      * @param  param    The parameter for the image to write.
      * @throws IOException if an error occured while writing the image.
      */
-    public void write(final IIOMetadata metadata, final IIOImage image, final ImageWriteParam param)
+    public void write(final IIOMetadata metadata, final IIOImage image, ImageWriteParam param)
             throws IOException
     {
         /*
@@ -185,7 +193,17 @@ public class MosaicImageWriter extends ImageWriter {
                 writer.setOutput(output);
                 writer.write(metadata, image, param);
                 output.close();
-                writeFromInput(file, 0, 0);
+                /*
+                 * We don't want to take in account parameters like source region, subsampling, etc.
+                 * since they were already handled by the writing process above. But we want to take
+                 * in account the parameters specific to MosaicImageWriteParam. So retain only them.
+                 */
+                if (param instanceof MosaicImageWriteParam) {
+                    param = new MosaicImageWriteParam((MosaicImageWriteParam) param);
+                } else {
+                    param = null;
+                }
+                writeFromInput(file, 0, param);
             } finally {
                 file.delete();
             }
@@ -202,19 +220,20 @@ public class MosaicImageWriter extends ImageWriter {
      *
      * @param  input The image input, typically as a {@link File}.
      * @param  inputIndex The image index to read from the given input file.
-     * @param  outputIndex The output image index, which is the index of the
-     *         {@linkplain TileManager tile manager} to use in the array returned by
-     *         {@link #getOutput}.
+     * @param  param The write parameters, or {@code null} for the default.
      * @return {@code true} on success, or {@code false} if the process has been aborted.
      * @throws IOException If an error occured while reading or writing.
+     *
+     * @todo Current implementation do not yet supports source region and subsampling settings.
+     *       An exception will be thrown if any of those parameters are set.
      */
-    public boolean writeFromInput(final Object input, final int inputIndex, final int outputIndex)
-            throws IOException
+    public boolean writeFromInput(final Object input, final int inputIndex,
+                                  final ImageWriteParam param) throws IOException
     {
         final boolean success;
         final ImageReader reader = getImageReader(input);
         try {
-            success = writeFromReader(reader, inputIndex, outputIndex);
+            success = writeFromReader(reader, inputIndex, param);
             close(reader.getInput(), input);
         } finally {
             reader.dispose();
@@ -224,11 +243,22 @@ public class MosaicImageWriter extends ImageWriter {
 
     /**
      * Reads the image from the given reader and writes it as a set of tiles.
+     * It is the caller responsability to dispose the reader when writing is done.
      */
-    private boolean writeFromReader(final ImageReader reader, final int inputIndex, final int outputIndex)
-            throws IOException
+    private boolean writeFromReader(final ImageReader reader, final int inputIndex,
+                                    final ImageWriteParam writeParam) throws IOException
     {
         clearAbortRequest();
+        final int outputIndex;
+        final TileWritingPolicy policy;
+        if (writeParam instanceof MosaicImageWriteParam) {
+            final MosaicImageWriteParam param = (MosaicImageWriteParam) writeParam;
+            outputIndex = param.getOutputIndex();
+            policy = param.getTileWritingPolicy();
+        } else {
+            outputIndex = 0;
+            policy = TileWritingPolicy.OVERWRITE;
+        }
         processImageStarted(outputIndex);
         /*
          * Gets the reader first - especially before getOutput() - because the user may have
@@ -238,9 +268,12 @@ public class MosaicImageWriter extends ImageWriter {
         if (managers == null) {
             throw new IllegalStateException(Errors.format(ErrorKeys.NO_IMAGE_OUTPUT));
         }
-        final int bytesPerPixel;
         final List<Tile> tiles;
-        if (isWriteEnabled()) {
+        final int bytesPerPixel;
+        if (policy.equals(TileWritingPolicy.NO_WRITE)) {
+            tiles = Collections.emptyList();
+            bytesPerPixel = 1;
+        } else {
             tiles = new LinkedList<Tile>(managers[outputIndex].getTiles());
             /*
              * Computes an estimation of the amount of memory to be required for each pixel.
@@ -250,25 +283,52 @@ public class MosaicImageWriter extends ImageWriter {
             final SampleModel model = reader.getRawImageType(inputIndex).getSampleModel();
             bytesPerPixel = Math.max(1, model.getNumBands() *
                     DataBuffer.getDataTypeSize(model.getDataType()) / Byte.SIZE);
-        } else {
-            tiles = Collections.emptyList();
-            bytesPerPixel = 1;
         }
         final int initialTileCount = tiles.size();
         /*
-         * Various other objects to be required in the loop...
+         * If the user do not wants to overwrite existing tiles (for faster processing when this
+         * write process is started again after a previous failure), removes from the collection
+         * every tiles which already exist.
+         */
+        if (policy.equals(TileWritingPolicy.WRITE_NEWS_ONLY)) {
+            for (final Iterator<Tile> it=tiles.iterator(); it.hasNext();) {
+                final Tile tile = it.next();
+                final Object input = tile.getInput();
+                if (input instanceof File) {
+                    final File file = (File) input;
+                    if (file.isFile()) {
+                        it.remove();
+                    }
+                }
+            }
+        }
+        /*
+         * Creates now the various other objects to be required in the loop. This include a
+         * RTree initialized with the tiles remaining after the removal in the previous block.
          */
         if (executor == null) {
             executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         }
         final List<Future<?>> tasks     = new ArrayList<Future<?>>();
         final TreeNode        tree      = new GridNode(tiles.toArray(new Tile[tiles.size()]));
-        final ImageReadParam  params    = reader.getDefaultReadParam();
+        final ImageReadParam  readParam = reader.getDefaultReadParam();
         final Logger          logger    = Logging.getLogger(MosaicImageWriter.class);
         final boolean         logWrites = logger.isLoggable(level);
         final boolean         logReads  = !(reader instanceof MosaicImageReader);
         if (!logReads) {
             ((MosaicImageReader) reader).setLogLevel(level);
+        }
+        if (writeParam != null) {
+            if (writeParam.getSourceXSubsampling() != 1 || writeParam.getSubsamplingXOffset() != 0 ||
+                writeParam.getSourceYSubsampling() != 1 || writeParam.getSubsamplingYOffset() != 0 ||
+                writeParam.getSourceRegion() != null)
+            {
+                // TODO: Not yet supported. May be supported in a future version
+                // if we have time to implement such support.
+                throw new IllegalArgumentException(Errors.format(
+                        ErrorKeys.UNEXPECTED_ARGUMENT_FOR_INSTRUCTION_$1, "writeFromInput"));
+            }
+            readParam.setSourceBands(writeParam.getSourceBands());
         }
         final long maximumMemory = getMaximumMemoryAllocation();
         int maximumPixelCount = (int) (maximumMemory / bytesPerPixel);
@@ -305,9 +365,9 @@ public class MosaicImageWriter extends ImageWriter {
                  */
                 maximumPixelCount = (int) (maximumMemory / bytesPerPixel);
             }
-            params.setDestination(image);
-            params.setSourceRegion(imageRegion);
-            params.setSourceSubsampling(imageSubsampling.width, imageSubsampling.height, 0, 0);
+            readParam.setDestination(image);
+            readParam.setSourceRegion(imageRegion);
+            readParam.setSourceSubsampling(imageSubsampling.width, imageSubsampling.height, 0, 0);
             if (logReads) {
                 logger.log(getLogRecord(false, VocabularyKeys.LOADING_$1, imageTile));
             }
@@ -324,7 +384,7 @@ public class MosaicImageWriter extends ImageWriter {
              * of memory that we are allowed to use and try again.
              */
             try {
-                image = reader.read(inputIndex, params);
+                image = reader.read(inputIndex, readParam);
             } catch (OutOfMemoryError error) {
                 maximumPixelCount >>>= 1;
                 if (maximumPixelCount == 0) {
@@ -641,14 +701,6 @@ search: for (final Tile tile : tiles) {
     private static boolean isDivisor(final Dimension numerator, final Dimension denominator) {
         return (numerator.width  % denominator.width ) == 0 &&
                (numerator.height % denominator.height) == 0;
-    }
-
-    /**
-     * Returns {@code true} if writting is enabled. It should always be {@code true} except
-     * in some cases for {@link TileBuilder} convenience only, which override this method.
-     */
-    boolean isWriteEnabled() {
-        return true;
     }
 
     /**

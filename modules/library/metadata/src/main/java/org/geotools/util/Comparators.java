@@ -88,6 +88,9 @@ public final class Comparators {
      * <p>
      * If both lists have the same length and equal elements in the sense of
      * {@link Comparable#compareTo}, then the comparator returns 0.
+     *
+     * @param <T> The type of elements in both lists.
+     * @return The ordering between two lists.
      */
     @SuppressWarnings("unchecked")
     public static <T extends Comparable<T>> Comparator<List<T>> forLists() {
@@ -97,6 +100,9 @@ public final class Comparators {
     /**
      * Returns a comparator for sorted sets of comparable elements. The elements are compared in
      * iteration order as {@linkplain #forLists for lists}.
+     *
+     * @param <T> The type of elements in both sets.
+     * @return The ordering between two sets.
      */
     @SuppressWarnings("unchecked")
     public static <T extends Comparable<T>> Comparator<SortedSet<T>> forSortedSets() {
@@ -109,6 +115,9 @@ public final class Comparators {
      * make sense only for collections having determinist order</strong> like
      * {@link java.util.TreeSet}, {@link java.util.LinkedHashSet} or queues.
      * Do <strong>not</strong> use it with {@link java.util.HashSet}.
+     *
+     * @param <T> The type of elements in both collections.
+     * @return The ordering between two collections.
      */
     @SuppressWarnings("unchecked")
     public static <T extends Comparable<T>> Comparator<Collection<T>> forCollections() {

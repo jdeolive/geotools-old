@@ -363,7 +363,8 @@ public abstract class TileManager implements Serializable {
 
     /**
      * Returns a string representation of this tile manager. The default implementation
-     * formats all tiles in a table. Note that the result may be a quite long string.
+     * formats all tiles in a table. Subclasses may format the tiles in a tree instead.
+     * Note that in both cases the result may be a quite long string.
      *
      * @return A string representation.
      */

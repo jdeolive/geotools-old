@@ -36,7 +36,7 @@ import org.geotools.util.FrequencySortedSet;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class GridTileManager extends TileManager {
+final class GridTileManager extends TileManager {
     /**
      * For cross-version interoperability.
      */

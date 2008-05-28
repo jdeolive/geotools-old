@@ -75,27 +75,25 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
     private boolean dense;
 
     /**
-     * Comparator for sorting tiles by descreasing area and subsamplings. The
-     * {@linkplain GridNode#GridNode(Tile[]) constructor} expects this order for inserting
-     * a tile into the smallest tile that can contains it. If two tiles cover the same area,
-     * then they are sorted by descreasing subsamplings. The intend is that tiles sorted last
-     * are usually the ones with finest resolution no matter if the layout is "constant area"
-     * or "constant tile size".
+     * Comparator for sorting tiles by descreasing subsamplings and area. The {@linkplain
+     * GridNode#GridNode(Tile[]) constructor} expects this order for inserting a tile into
+     * the smallest tile that can contains it. If two tiles have the same subsampling, then
+     * they are sorted by descreasing area in absolute coordinates.
      * <p>
-     * If two tiles have the same area and subsampling, then their order is restored on the
+     * If two tiles have the same subsampling and area, then their order is restored on the
      * basis that initial order, when sorted by {@link TileManager}, should be efficient for
      * reading tiles sequentially.
      */
-    private static final Comparator<GridNode> LARGEST_FIRST = new Comparator<GridNode>() {
+    private static final Comparator<GridNode> PRE_PROCESSING = new Comparator<GridNode>() {
         public int compare(final GridNode n1, final GridNode n2) {
-            final long a1 = (long) n1.width * (long) n1.height;
-            final long a2 = (long) n2.width * (long) n2.height;
-            if (a1 > a2) return -1; // Greatest values first
-            if (a1 < a2) return +1;
             final int s1 = (int) n1.xSubsampling * (int) n1.ySubsampling;
             final int s2 = (int) n2.xSubsampling * (int) n2.ySubsampling;
-            if (s1 > s2) return -1;
+            if (s1 > s2) return -1; // Greatest values first
             if (s1 < s2) return +1;
+            final long a1 = (long) n1.width * (long) n1.height;
+            final long a2 = (long) n2.width * (long) n2.height;
+            if (a1 > a2) return -1;
+            if (a1 < a2) return +1;
             return n1.index - n2.index;
         }
     };
@@ -141,7 +139,7 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
         for (int i=0; i<tiles.length; i++) {
             nodes[i] = new GridNode(tiles[i], i);
         }
-        Arrays.sort(nodes, LARGEST_FIRST);
+        Arrays.sort(nodes, PRE_PROCESSING);
         /*
          * Special case: checks if the first node contains all subsequent nodes. If this is true,
          * then there is no need to keep the special root TreeNode with the tile field set to null.
@@ -213,7 +211,7 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
     }
 
     /**
-     * Returns the smallest tree node containing the given region. This method do not very if
+     * Returns the smallest tree node containing the given region. This method does not verify if
      * {@code this} node {@linkplain #contains contains} the given bounds - we assume that the
      * caller verified that. This is required by the constructor which may invoke this method
      * from the root with an empty bounding box.
@@ -388,7 +386,7 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
             assert Collections.disjoint(retained, removed);
             final GridNode[] sorted = retained.toArray(new GridNode[retained.size()]);
             retained.clear();
-            Arrays.sort(sorted, LARGEST_FIRST);
+            Arrays.sort(sorted, PRE_PROCESSING);
             child = new GridNode(this);
             assert child.isLeaf();
             for (TreeNode newChild : sorted) {

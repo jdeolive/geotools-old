@@ -843,11 +843,6 @@ public class MosaicBuilder {
         private final int inputIndex;
 
         /**
-         * {@code true} if tiles should be written.
-         */
-        private final boolean writeTiles;
-
-        /**
          * The input tile managers, or {@code null} if none.
          */
         TileManager[] inputTiles;
@@ -861,17 +856,8 @@ public class MosaicBuilder {
         /**
          * Creates a writer for an untiled image to be read at the given index.
          */
-        Writer(final int inputIndex, final boolean writeTiles) {
+        Writer(final int inputIndex) {
             this.inputIndex = inputIndex;
-            this.writeTiles = writeTiles;
-        }
-
-        /**
-         * Returns {@code true} if tiles should be written.
-         */
-        @Override
-        boolean isWriteEnabled() {
-            return writeTiles;
         }
 
         /**
@@ -923,25 +909,43 @@ public class MosaicBuilder {
      * untiled image bounds} and {@linkplain #getTileReaderSpi tile reader SPI} are inferred
      * from the input, unless they were explicitly specified.
      * <p>
-     * Optionnaly if {@code writeTiles} is {@code true}, then pixel values are read from the
-     * untiled images, organized in tiles as specified by the {@link TileManager} to be returned
-     * and saved to disk. This work is done using a default {@link MosaicImageWriter}.
+     * This method does not write any tile to disk.
      *
      * @param input The image input, typically as a {@link File} or an other {@link TileManager}.
-     * @param inputIndex Index of image to read, typically 0.
-     * @param writeTiles If {@code true}, tiles are created and saved to disk.
+     * @return The tiles, or {@code null} if the process has been aborted.
+     * @throws IOException if an error occured while reading the untiled image.
+     */
+    public TileManager createTileManager(final Object input) throws IOException {
+        return createTileManager(input, 0, TileWritingPolicy.NO_WRITE);
+    }
+
+    /**
+     * Creates a tile manager from an untiled image. The {@linkplain #getUntiledImageBounds
+     * untiled image bounds} and {@linkplain #getTileReaderSpi tile reader SPI} are inferred
+     * from the input, unless they were explicitly specified.
+     * <p>
+     * Optionnaly if the tile writing policy is anything else than {@link TileWritingPolicy#NO_TILE
+     * NO_TILE}, then pixel values are read from the untiled images, organized in tiles as specified
+     * by the {@link TileManager} to be returned and saved to disk. This work is done using a
+     * default {@link MosaicImageWriter}.
+     *
+     * @param  input The image input, typically as a {@link File} or an other {@link TileManager}.
+     * @param  inputIndex Index of image to read, typically 0.
+     * @param  policy Sets whatever tiles are created and saved to disk.
      * @return The tiles, or {@code null} if the process has been aborted while writing tiles.
      * @throws IOException if an error occured while reading the untiled image or (only if
      *         {@code writeTiles} is {@code true}) while writting the tiles to disk.
      */
     public TileManager createTileManager(final Object input, final int inputIndex,
-                                         final boolean writeTiles) throws IOException
+                                         final TileWritingPolicy policy) throws IOException
     {
         formatter.ensurePrefixSet(input);
-        final Writer writer = new Writer(inputIndex, writeTiles);
+        final Writer writer = new Writer(inputIndex);
         writer.setLogLevel(getLogLevel());
+        final MosaicImageWriteParam param = writer.getDefaultWriteParam();
+        param.setTileWritingPolicy(policy);
         try {
-            if (!writer.writeFromInput(input, inputIndex, 0)) {
+            if (!writer.writeFromInput(input, inputIndex, param)) {
                 return null;
             }
         } finally {
@@ -949,7 +953,7 @@ public class MosaicBuilder {
         }
         TileManager tiles = writer.tiles;
         /*
-         * Before to returns the tile manager, if no geometry has been inferred from the target
+         * Before to return the tile manager, if no geometry has been inferred from the target
          * tiles (typically because no setEnvelope(...) has not been invoked), then inherit the
          * geometry from the source tile, if there is any. This operation is conservative and
          * performed only on a "best effort" basis.
