@@ -8,7 +8,9 @@ import java.util.Set;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
+import org.geotools.filter.function.ClassificationFunction;
 import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
 
 /**
  * Isolate function lookup code from Factory implementation(s).
@@ -35,6 +37,45 @@ public class FunctionFinder {
         return findFunction(name, null);
     }
 
+    /**
+     * Look up a function for the provided name, may return a FallbackFunction if
+     * an implementation could not be found.
+     * <p>
+     * You can create a function to represent an SQL function or a function hosted on
+     * an external service; the fallback value will be used if you evulate 
+     * by a Java implementation on the classpath.
+     * @param name Function name; this will need to be an exact match
+     * @param parameters Set of Expressions to use as function parameters
+     * @param fallbackValue Literal to use if an implementation could not be found
+     * @return Function for the provided name, may be a FallbackFunction if an implementation could not be found
+     */
+    public Function findFunction(String name, List parameters, Literal fallbackValue ){
+        try {
+            Function function = findFunction( name, parameters );
+            if( function instanceof FunctionImpl){
+                FunctionImpl functionImpl = (FunctionImpl) function;
+                functionImpl.setFallbackValue( fallbackValue );
+            }
+            if( function instanceof ClassificationFunction){
+                ClassificationFunction classification = (ClassificationFunction) function;
+                classification.setFallbackValue( fallbackValue );
+            }
+            return function;
+        }
+        catch( RuntimeException notFound ){
+            // could not find an implementation
+            return new FallbackFunction( name, parameters, fallbackValue );
+        }
+    }
+    
+    /**
+     * Look up a function for the provided name.
+     * 
+     * @param name Function name; this will need to be an exact match
+     * @param parameters Set of parameters required
+     * @return Generated function
+     * @throws a RuntimeException if an implementation for name could not be found
+     */
     public Function findFunction(String name, List/* <Expression> */parameters) {
         name = functionName(name);
 
@@ -45,7 +86,6 @@ public class FunctionFinder {
 	            if (functionExpressionCache == null) {
 	                functionExpressionCache = new HashMap();
 	                functionImplCache = new HashMap();
-	
 	                
 	                Set functions = CommonFactoryFinder.getFunctionExpressions( null );                
 	                for (Iterator it = functions.iterator(); it.hasNext();) {

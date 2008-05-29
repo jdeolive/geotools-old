@@ -25,6 +25,7 @@ import java.util.Collections;
 import org.geotools.filter.Expression;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
 
 /**
  * Abstract class for a function expression implementation
@@ -36,15 +37,22 @@ public abstract class FunctionExpressionImpl
     extends org.geotools.filter.DefaultExpression implements FunctionExpression {
 	
 	/** function name **/
-	String name;
+	protected String name;
+
 	/** function params **/
-	List params;
+	protected List params;
 	
+    protected Literal fallback;
+	
+    protected FunctionExpressionImpl(String name ){
+        this( name, null );
+    }
     /**
      * Creates a new instance of FunctionExpression
      */
-    protected FunctionExpressionImpl(String name) {
+    protected FunctionExpressionImpl(String name, Literal fallback) {
         this.name = name;
+        this.fallback = fallback;
         params = new ArrayList();
     }
 
@@ -74,6 +82,12 @@ public abstract class FunctionExpressionImpl
     	this.name = name;
     }
     
+    public Literal getFallbackValue() {
+        return fallback;
+    }    
+    public void setFallbackValue(Literal fallback) {
+        this.fallback = fallback;
+    }
     /**
      * Returns the function parameters.
      */

@@ -424,7 +424,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
     public void testCalculateBoundsMixedFilter() throws Exception {
         final String typeName = testData.getTempTableName();
-        try {
+        //try {
             String where = "INT32_COL < 5";
             String[] cols = { "SHAPE" };
             final SeFilter[] spatFilters;
@@ -469,11 +469,11 @@ public class ArcSDEJavaApiTest extends TestCase {
             assertEquals(170D, maxX, 1E-9);
             assertEquals(80D, maxY, 1E-9);
 
-        } catch (SeException e) {
-            LOGGER.warning(e.getSeError().getErrDesc());
-            new ArcSdeException(e).printStackTrace();
-            throw e;
-        }
+//        } catch (SeException e) {
+//            LOGGER.warning(e.getSeError().getErrDesc());
+//            new ArcSdeException(e).printStackTrace();
+//            throw e;
+//        }
     }
 
     /**

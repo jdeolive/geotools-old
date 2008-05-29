@@ -32,6 +32,7 @@ import org.geotools.filter.LiteralExpression;
 import org.geotools.util.ProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.ExpressionVisitor;
+import org.opengis.filter.expression.Literal;
 
 /**
  * Parent for classifiers which break a feature collection into the specified number of classes.
@@ -49,6 +50,8 @@ public abstract class ClassificationFunction extends DefaultExpression implement
     
     /** function params **/
     List params = new ArrayList(2);
+    
+    Literal fallback;
     
     ProgressListener progress;
     
@@ -75,6 +78,13 @@ public abstract class ClassificationFunction extends DefaultExpression implement
     }
 
     public abstract Object evaluate(Object arg);
+    
+    public void setFallbackValue(Literal fallback) {
+        this.fallback = fallback;
+    }
+    public Literal getFallbackValue() {
+        return fallback;
+    }
     
     /**
      * @deprecated please use getParameters

@@ -46,6 +46,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 public class Collection_MaxFunction extends FunctionExpressionImpl
     implements FunctionExpression {
+    
     /** The logger for the filter module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
             "org.geotools.filter.function");
