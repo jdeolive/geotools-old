@@ -178,6 +178,10 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * Creates a new level with only one initial tile. More tiles will need to be added by
      * invoking {@link #add}, and {@link #createLinkedList} must be invoked when every tiles
      * are there.
+     * <p>
+     * The tile given to this constructor is particular in that it will defines the origin
+     * and size of grid cells. It must be a typical tile, not a tile in the last column or
+     * last row which may be smaller than typical tiles.
      *
      * @param tile The tile to wrap.
      * @param subsampling The tile subsampling, provided as an explicit argument only
@@ -215,14 +219,16 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
         assert subsampling.equals(tile.getSubsampling()) : subsampling;
         assert subsampling.width == sx && subsampling.height == sy : subsampling;
         final Rectangle toAdd = tile.getRegion();
-        if (toAdd.width != width || toAdd.height != height) {
+        if (toAdd.width > width || toAdd.height > height) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.UNEXPECTED_IMAGE_SIZE));
         }
         int ox = toAdd.x % width;
         int oy = toAdd.y % height;
         if (ox < 0) ox += width;
         if (oy < 0) oy += height;
-        if (ox != x || oy != y) {
+        if ((ox -= x) < 0 || (ox + toAdd.width)  > width ||
+            (oy -= y) < 0 || (oy + toAdd.height) > height)
+        {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NOT_A_GRID));
         }
         region.add(toAdd);
@@ -239,9 +245,8 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
         this.ordinal = ordinal;
         this.finer   = finer;
         assert getFinerLevel() == finer; // For running the assertions inside getFinerLevel().
-        assert (region.width % width == 0) && (region.height % height == 0) : region;
-        nx = region.width  / width;
-        ny = region.height / height;
+        nx = (region.width  + (width  - 1)) / width;  // Round toward positive infinity.
+        ny = (region.height + (height - 1)) / height;
         assert (tiles == null) != (patterns == null); // Exactly one of those should be non-null.
         if (tiles == null) {
             // No tiles. A pattern was given directly to the constructor.
@@ -341,7 +346,13 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * @return The pattern, or {@code null} if none.
      */
     private String inputPattern(final Tile tile) {
-        if (!Tile.class.equals(tile.getClass())) {
+        /*
+         * Accepts only instance of Tile (not a subclass), otherwise we will not know how to create
+         * the instance on the fly. Once we have verified that the class is Tile, we are allowed to
+         * check the tile size using the 'isSizeEquals' shortcut. We accept only tiles that fill
+         * completly the cell size, otherwise we can not recreate the tile from a pattern.
+         */
+        if (!Tile.class.equals(tile.getClass()) || !tile.isSizeEquals(width, height)) {
             return null;
         }
         final Object input = tile.getInput();

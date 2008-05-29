@@ -881,6 +881,17 @@ public class Tile implements Comparable<Tile>, Serializable {
     }
 
     /**
+     * Returns {@code true} if the tile size is equals to the given dimension.
+     * This method should be invoked when we know that this instance is not a
+     * subclass of {@link Tile}, otherwise we should use {@link #getRegion} in
+     * case the user overriden the method.
+     */
+    final boolean isSizeEquals(final int width, final int height) {
+        assert getClass().equals(Tile.class) && this.width != 0 && this.height != 0 : this;
+        return this.width == width && this.height == height;
+    }
+
+    /**
      * Returns the upper-left corner in the destination image, with the image size. If this tile
      * has been created with the {@linkplain #Tile(ImageReader,Object,int,Rectangle,Dimension)
      * constructor expecting a rectangle}, a copy of the specified rectangle is returned.
