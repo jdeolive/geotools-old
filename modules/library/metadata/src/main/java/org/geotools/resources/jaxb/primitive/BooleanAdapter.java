@@ -58,14 +58,14 @@ public final class BooleanAdapter extends XmlAdapter<BooleanAdapter, Boolean> {
      * Returns the boolean value.
      */
     @XmlElement(name = "Boolean", namespace = "http://www.isotc211.org/2005/gco")
-    public boolean getBoolean() {
+    public Boolean getBoolean() {
         return value;
     }
 
     /**
      * Sets the new value for the boolean.
      */
-    public void setBoolean(final boolean bool) {
+    public void setBoolean(final Boolean bool) {
         this.value = bool;
     }
 

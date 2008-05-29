@@ -58,7 +58,7 @@ public final class IntegerAdapter extends XmlAdapter<IntegerAdapter, Integer> {
      * Returns the integer value.
      */
     @XmlElement(name = "Integer", namespace = "http://www.isotc211.org/2005/gco")
-    public int getInteger() {
+    public Integer getInteger() {
         return value;
     }
 
