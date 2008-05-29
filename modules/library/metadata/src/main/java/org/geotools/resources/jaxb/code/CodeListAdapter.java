@@ -89,7 +89,6 @@ public abstract class CodeListAdapter<ValueType extends CodeListAdapter, BoundTy
         if (value == null) {
             return null;
         }
-        System.out.println(getCodeListClass() + ", value : " + value.proxy.getCodeListValue());
         return CodeList.valueOf(getCodeListClass(), value.proxy.getCodeListValue());
     }
 
