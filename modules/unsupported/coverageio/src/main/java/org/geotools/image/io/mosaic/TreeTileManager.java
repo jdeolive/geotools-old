@@ -116,7 +116,7 @@ final class TreeTileManager extends TileManager {
         Tile.ensureNonNull("tiles", tiles);
         final Map<ReaderInputPair,List<Tile>> tilesByInput =
                 new LinkedHashMap<ReaderInputPair, List<Tile>>(tiles.length + tiles.length/4 + 1);
-        providers    = new FrequencySortedSet<ImageReaderSpi>(4, true);
+        providers = new FrequencySortedSet<ImageReaderSpi>(4, true);
         for (final Tile tile : tiles) {
             tile.checkGeometryValidity();
             final ImageReaderSpi  spi = tile.getImageReaderSpi();

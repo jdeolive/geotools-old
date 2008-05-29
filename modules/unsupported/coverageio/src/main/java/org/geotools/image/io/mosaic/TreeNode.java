@@ -209,6 +209,14 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
     }
 
     /**
+     * Returns {@code true} if this node has more than one tile and some of them overlaps.
+     * The default implementation returns {@code false}.
+     */
+    public boolean hasOverlaps() {
+        return false;
+    }
+
+    /**
      * If this node has exactly one child, returns that child. Otherwise returns {@code null}.
      */
     public final TreeNode getChild() {
@@ -554,7 +562,12 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
             text = text.substring(text.lastIndexOf('.') + 1);
         }
         if (!isLeaf()) {
-            text = text + " (" + getChildCount() + " childs)";
+            final StringBuilder buffer = new StringBuilder(text).
+                    append(" (").append(getChildCount()).append(" childs");
+            if (hasOverlaps()) {
+                buffer.append(", overlaps");
+            }
+            text = buffer.append(')').toString();
         }
         return text;
     }

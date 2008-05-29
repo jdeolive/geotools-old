@@ -222,7 +222,7 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
      */
     private GridNode smallest(final Rectangle bounds, final boolean gridded) {
         GridNode smallest = this;
-        long smallestArea = (long) width * (long) height;
+        long smallestArea = isEmpty() ? Long.MAX_VALUE : (long) width * (long) height;
         GridNode child = (GridNode) firstChildren();
         while (child != null) {
             if (child.contains(bounds)) {
@@ -412,6 +412,14 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
             child = (GridNode) child.nextSibling();
         }
         dense = isDense(this, this);
+    }
+
+    /**
+     * Returns {@code true} if this node has more than one tile and some of them overlaps.
+     */
+    @Override
+    public boolean hasOverlaps() {
+        return overlaps;
     }
 
     /**
