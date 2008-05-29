@@ -122,6 +122,9 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
          */
         @Override
         public boolean supportsSorting(final SortBy[] sortAttributes) {
+            if(super.supportsSorting(sortAttributes))
+                return true;
+            
             for (int i = 0; i < sortAttributes.length; i++) {
                 SortBy sortBy = sortAttributes[i];
                 if (SortBy.NATURAL_ORDER == sortBy) {
@@ -363,10 +366,8 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
         }
         
         final QueryCapabilities queryCapabilities = getQueryCapabilities();
-        if(request.getSortBy() != null){
-           if(!queryCapabilities.supportsSorting(request.getSortBy())){
-               throw new DataSourceException("DataStore cannot provide the requested sort order");
-           }
+        if(!queryCapabilities.supportsSorting(request.getSortBy())){
+           throw new DataSourceException("DataStore cannot provide the requested sort order");
         }
         
         return new JDBCFeatureCollection(this, request);

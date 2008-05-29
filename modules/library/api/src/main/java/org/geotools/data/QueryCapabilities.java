@@ -67,13 +67,15 @@ public class QueryCapabilities {
      * datastores where the feature id is built up from a primary key.
      * </p>
      * <p>
-     * By default returns false. FeatureSource implementations should override as needed.
+     * Returns true if passed a null or empty array, otherwise the actual attributes are checked.
+     * When the array is not null and not empty, by default returns false.
+     * FeatureSource implementations should override as needed.
      * </p>
      * 
      * @return whether the FeatureType this query capabilities refers to can be natively sorted by
      *         the provided list of attribtue/order pairs
      */
     public boolean supportsSorting(SortBy[] sortAttributes) {
-        return false;
+        return (sortAttributes == null) || (sortAttributes.length == 0);
     }
 }
