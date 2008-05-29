@@ -200,6 +200,13 @@ public abstract class AbstractFeatureSource implements FeatureSource<SimpleFeatu
             return new EmptyFeatureCollection( schema );
         }
         
+        final QueryCapabilities queryCapabilities = getQueryCapabilities();
+        if(query.getSortBy() != null){
+           if(!queryCapabilities.supportsSorting(query.getSortBy())){
+               throw new DataSourceException("DataStore cannot provide the requested sort order");
+           }
+        }
+        
         FeatureCollection<SimpleFeatureType, SimpleFeature> collection = new DefaultFeatureResults(this, query);
         if( collection.getDefaultGeometry() == null ){
             return collection; // no geometry no reprojection needed
