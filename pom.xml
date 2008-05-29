@@ -763,6 +763,18 @@
         <version>1.4.0</version>
       </dependency>
 
+      <!-- JAXB -->
+      <dependency>
+        <groupId>jaxb</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>2.1.5</version>
+      </dependency>
+      <dependency>
+        <groupId>jaxb</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>2.1.5</version>
+      </dependency>
+
       <!-- EMF -->
       <dependency>
         <groupId>org.eclipse.emf</groupId>

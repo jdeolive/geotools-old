@@ -15,6 +15,8 @@
  */
 package org.geotools.xs.bindings;
 
+import java.util.logging.Logger;
+
 import com.sun.xml.bind.DatatypeConverterImpl;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.NamespaceContext;
@@ -103,12 +105,17 @@ public class XSQNameBinding implements SimpleBinding {
      */
     public Object parse(InstanceComponent instance, Object value)
         throws Exception {
-        QName qName = DatatypeConverter.parseQName((String) value, namespaceContext);
+    	
+    	try {
+    		QName qName = DatatypeConverter.parseQName((String) value, namespaceContext);
 
-        if (qName != null) {
-            return qName;
-        }
-
+    		if (qName != null) {
+    			return qName;
+    		}
+    	}
+    	catch (IllegalArgumentException noNamespace){
+    		Logger.getLogger("org.geotools.xs.bindings").fine( noNamespace.toString() );
+    	}
         if (value == null) {
             return new QName(null);
         }

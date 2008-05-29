@@ -39,12 +39,15 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
+import org.geotools.data.FeatureEvent;
+import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.data.FeatureEvent.Type;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -53,9 +56,11 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.text.cql2.CQL;
 import org.opengis.feature.Attribute;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -71,6 +76,7 @@ import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -1503,4 +1509,48 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ArcSDEFeatureStoreTest.class);
     }
+    
+    static class Watcher implements FeatureListener {
+    	
+		private Type type;
+		private Envelope bounds;
+		private FeatureSource<? extends FeatureType, ? extends Feature> source;
+
+		public void changed(FeatureEvent featureEvent) {
+			type = featureEvent.getType();
+			bounds = featureEvent.getBounds();
+			source = featureEvent.getFeatureSource();			
+		}
+    	
+    }
+    /**
+     * This is an adaptation of a classic MemoryDataStore test to match
+     * our sample data.
+     * <p>
+     * This test is focused on two things:
+     * <ul>
+     * <li>Are the Transactions actually independent?
+     * <li>Do the correct feature event notifications get sent out
+     * </ul>
+     */
+    public void testFeatureEventsAndTransactionIndependence() throws Exception {
+    	// We are going to start with ...
+    	testData.insertTestData();
+
+        final DataStore dataStore = testData.getDataStore();
+        final String typeName = testData.getTempTableName();
+        
+        final FeatureSource origional = dataStore.getFeatureSource( typeName );
+        // we are going to use this feature source to check that the
+        // public Transaction.AUTO_COMMIT view of the world
+        // is as expected.
+        assertEquals( 43, origional.getCount( Query.ALL ) );
+        
+        DefaultTransaction t1 = new DefaultTransaction("Transaction 1");
+        // we are going to use this transaciton to modify and commit
+        
+        DefaultTransaction t2 = new DefaultTransaction("Transaction 2");
+        // we are going to use this transaction to modify and rollback
+    }
 }
+
