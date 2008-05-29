@@ -52,6 +52,19 @@ public abstract class CodeListAdapter<ValueType extends CodeListAdapter, BoundTy
     }
 
     /**
+     * Forces the initialisation of the given code list class, since some
+     * calls to {@link CodeList#valueOf} are done whereas the constructor
+     * has not already been called.
+     */
+    protected static void ensureClassLoaded(final Class<? extends CodeList> type) {
+        try {
+            Class.forName(type.getName(), true, type.getClassLoader());
+        } catch (ClassNotFoundException ex) {
+            throw new AssertionError(ex); // Should never happen.
+        }
+    }
+
+    /**
      * Wraps the proxy value into an adapter.
      *
      * @param proxy The proxy version of {@link CodeList}, designed to be marshalled.
@@ -76,6 +89,7 @@ public abstract class CodeListAdapter<ValueType extends CodeListAdapter, BoundTy
         if (value == null) {
             return null;
         }
+        System.out.println(getCodeListClass() + ", value : " + value.proxy.getCodeListValue());
         return CodeList.valueOf(getCodeListClass(), value.proxy.getCodeListValue());
     }
 

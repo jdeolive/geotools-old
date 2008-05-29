@@ -29,7 +29,16 @@ import org.opengis.metadata.distribution.MediumFormat;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class MediumFormatAdapter extends CodeListAdapter<MediumFormatAdapter, MediumFormat> {
+public final class MediumFormatAdapter
+        extends CodeListAdapter<MediumFormatAdapter, MediumFormat>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(MediumFormat.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

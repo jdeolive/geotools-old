@@ -57,8 +57,8 @@ public class CodeListProxy {
      *
      * @param languageCode The language code to define for this {@link CodeList}.
      */
-    public CodeListProxy(final String languageCode) {
-        codeList = URL.concat(languageCode);
+    public CodeListProxy(final String codeList) {
+        this.codeList = URL.concat(codeList);
     }
 
     /**
@@ -86,6 +86,14 @@ public class CodeListProxy {
     @XmlAttribute(name = "codeListValue", required = true)
     public String getCodeListValue() {
         return codeListValue;
+    }
+
+    /**
+     * Sets the {@code codeList}. It will be automatically called at
+     * unmarshalling-time.
+     */
+    public void setCodeList(final String codeList) {
+        this.codeList = codeList;
     }
 
     /**

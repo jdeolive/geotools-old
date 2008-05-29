@@ -31,6 +31,13 @@ import org.opengis.metadata.distribution.MediumName;
  */
 public class MediumNameAdapter extends CodeListAdapter<MediumNameAdapter, MediumName> {
     /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(MediumName.class);
+    }
+
+    /**
      * Empty constructor for JAXB only.
      */
     private MediumNameAdapter() {

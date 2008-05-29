@@ -30,7 +30,15 @@ import org.opengis.metadata.maintenance.MaintenanceFrequency;
  * @author Cédric Briançon
  */
 public final class MaintenanceFrequencyAdapter 
-        extends CodeListAdapter<MaintenanceFrequencyAdapter, MaintenanceFrequency> {
+        extends CodeListAdapter<MaintenanceFrequencyAdapter, MaintenanceFrequency>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(MaintenanceFrequency.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

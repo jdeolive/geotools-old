@@ -29,7 +29,16 @@ import org.opengis.metadata.constraint.Restriction;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class RestrictionAdapter extends CodeListAdapter<RestrictionAdapter, Restriction> {
+public final class RestrictionAdapter
+        extends CodeListAdapter<RestrictionAdapter, Restriction>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(Restriction.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

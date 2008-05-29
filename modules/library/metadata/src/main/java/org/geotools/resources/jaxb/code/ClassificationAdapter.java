@@ -29,7 +29,16 @@ import org.opengis.metadata.constraint.Classification;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class ClassificationAdapter extends CodeListAdapter<ClassificationAdapter, Classification> {
+public final class ClassificationAdapter
+        extends CodeListAdapter<ClassificationAdapter, Classification>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(Classification.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

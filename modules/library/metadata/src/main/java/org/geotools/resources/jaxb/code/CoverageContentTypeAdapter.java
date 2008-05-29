@@ -29,7 +29,16 @@ import org.opengis.metadata.content.CoverageContentType;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class CoverageContentTypeAdapter extends CodeListAdapter<CoverageContentTypeAdapter, CoverageContentType> {
+public final class CoverageContentTypeAdapter
+        extends CodeListAdapter<CoverageContentTypeAdapter, CoverageContentType>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(CoverageContentType.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

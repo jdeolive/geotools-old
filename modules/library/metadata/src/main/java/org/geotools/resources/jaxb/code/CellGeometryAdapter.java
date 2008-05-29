@@ -29,7 +29,16 @@ import org.opengis.metadata.spatial.CellGeometry;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class CellGeometryAdapter extends CodeListAdapter<CellGeometryAdapter, CellGeometry> {
+public final class CellGeometryAdapter
+        extends CodeListAdapter<CellGeometryAdapter, CellGeometry>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(CellGeometry.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

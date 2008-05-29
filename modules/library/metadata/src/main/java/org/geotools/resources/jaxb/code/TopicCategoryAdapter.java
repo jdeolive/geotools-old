@@ -29,7 +29,16 @@ import org.opengis.metadata.identification.TopicCategory;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class TopicCategoryAdapter extends CodeListAdapter<TopicCategoryAdapter, TopicCategory> {
+public final class TopicCategoryAdapter
+        extends CodeListAdapter<TopicCategoryAdapter, TopicCategory>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(TopicCategory.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

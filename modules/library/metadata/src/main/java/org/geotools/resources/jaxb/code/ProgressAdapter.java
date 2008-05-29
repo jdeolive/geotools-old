@@ -31,6 +31,13 @@ import org.opengis.metadata.identification.Progress;
  */
 public final class ProgressAdapter extends CodeListAdapter<ProgressAdapter, Progress> {
     /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(Progress.class);
+    }
+
+    /**
      * Empty constructor for JAXB only.
      */
     private ProgressAdapter() {

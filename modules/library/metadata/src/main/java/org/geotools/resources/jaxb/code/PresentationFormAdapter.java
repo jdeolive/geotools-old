@@ -29,7 +29,16 @@ import org.opengis.metadata.citation.PresentationForm;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class PresentationFormAdapter extends CodeListAdapter<PresentationFormAdapter, PresentationForm> {
+public final class PresentationFormAdapter
+        extends CodeListAdapter<PresentationFormAdapter, PresentationForm>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(PresentationForm.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

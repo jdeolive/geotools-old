@@ -29,7 +29,16 @@ import org.opengis.metadata.spatial.DimensionNameType;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class DimensionNameTypeAdapter extends CodeListAdapter<DimensionNameTypeAdapter, DimensionNameType> {
+public final class DimensionNameTypeAdapter
+        extends CodeListAdapter<DimensionNameTypeAdapter, DimensionNameType>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(DimensionNameType.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

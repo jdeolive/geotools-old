@@ -31,6 +31,13 @@ import org.opengis.metadata.citation.DateType;
  */
 public final class DateTypeAdapter extends CodeListAdapter<DateTypeAdapter, DateType> {
     /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(DateType.class);
+    }
+
+    /**
      * Empty constructor for JAXB only.
      */
     private DateTypeAdapter() {

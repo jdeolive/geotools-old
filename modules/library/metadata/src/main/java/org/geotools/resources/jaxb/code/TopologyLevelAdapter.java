@@ -29,7 +29,16 @@ import org.opengis.metadata.spatial.TopologyLevel;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class TopologyLevelAdapter extends CodeListAdapter<TopologyLevelAdapter, TopologyLevel> {
+public final class TopologyLevelAdapter
+        extends CodeListAdapter<TopologyLevelAdapter, TopologyLevel>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(TopologyLevel.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

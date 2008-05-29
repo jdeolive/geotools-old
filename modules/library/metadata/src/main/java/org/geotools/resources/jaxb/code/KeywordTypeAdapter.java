@@ -31,6 +31,13 @@ import org.opengis.metadata.identification.KeywordType;
  */
 public final class KeywordTypeAdapter extends CodeListAdapter<KeywordTypeAdapter, KeywordType> {
     /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(KeywordType.class);
+    }
+
+    /**
      * Empty constructor for JAXB only.
      */
     private KeywordTypeAdapter() {

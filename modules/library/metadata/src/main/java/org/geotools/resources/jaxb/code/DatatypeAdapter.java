@@ -31,6 +31,13 @@ import org.opengis.metadata.Datatype;
  */
 public final class DatatypeAdapter extends CodeListAdapter<DatatypeAdapter, Datatype> {
     /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(Datatype.class);
+    }
+
+    /**
      * Empty constructor for JAXB only.
      */
     private DatatypeAdapter() {

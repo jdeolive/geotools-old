@@ -29,7 +29,16 @@ import org.opengis.metadata.spatial.GeometricObjectType;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class GeometricObjectTypeAdapter extends CodeListAdapter<GeometricObjectTypeAdapter, GeometricObjectType> {
+public final class GeometricObjectTypeAdapter
+        extends CodeListAdapter<GeometricObjectTypeAdapter, GeometricObjectType>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(GeometricObjectType.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

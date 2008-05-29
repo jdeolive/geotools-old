@@ -29,7 +29,16 @@ import org.opengis.metadata.identification.CharacterSet;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class CharacterSetAdapter extends CodeListAdapter<CharacterSetAdapter, CharacterSet> {
+public final class CharacterSetAdapter
+        extends CodeListAdapter<CharacterSetAdapter, CharacterSet>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(CharacterSet.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

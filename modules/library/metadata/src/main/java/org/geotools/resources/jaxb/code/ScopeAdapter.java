@@ -31,6 +31,13 @@ import org.opengis.metadata.maintenance.ScopeCode;
  */
 public final class ScopeAdapter extends CodeListAdapter<ScopeAdapter, ScopeCode> {
     /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(ScopeCode.class);
+    }
+
+    /**
      * Empty constructor for JAXB only.
      */
     private ScopeAdapter() {

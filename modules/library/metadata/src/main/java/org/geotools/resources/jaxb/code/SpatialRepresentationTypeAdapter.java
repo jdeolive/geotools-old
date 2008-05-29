@@ -33,6 +33,13 @@ public class SpatialRepresentationTypeAdapter
         extends CodeListAdapter<SpatialRepresentationTypeAdapter, SpatialRepresentationType>
 {
     /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(SpatialRepresentationType.class);
+    }
+
+    /**
      * Empty constructor for JAXB only.
      */
     private SpatialRepresentationTypeAdapter() {

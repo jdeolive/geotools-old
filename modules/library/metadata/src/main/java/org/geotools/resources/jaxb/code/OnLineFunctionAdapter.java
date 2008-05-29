@@ -29,7 +29,16 @@ import org.opengis.metadata.citation.OnLineFunction;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class OnLineFunctionAdapter extends CodeListAdapter<OnLineFunctionAdapter, OnLineFunction> {
+public final class OnLineFunctionAdapter
+        extends CodeListAdapter<OnLineFunctionAdapter, OnLineFunction>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(OnLineFunction.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

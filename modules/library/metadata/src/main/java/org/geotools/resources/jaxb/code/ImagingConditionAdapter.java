@@ -29,7 +29,16 @@ import org.opengis.metadata.content.ImagingCondition;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class ImagingConditionAdapter extends CodeListAdapter<ImagingConditionAdapter, ImagingCondition> {
+public final class ImagingConditionAdapter
+        extends CodeListAdapter<ImagingConditionAdapter, ImagingCondition>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(ImagingCondition.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

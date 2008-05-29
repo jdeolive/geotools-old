@@ -29,7 +29,16 @@ import org.opengis.metadata.spatial.PixelOrientation;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class PixelOrientationAdapter extends CodeListAdapter<PixelOrientationAdapter, PixelOrientation> {
+public final class PixelOrientationAdapter
+        extends CodeListAdapter<PixelOrientationAdapter, PixelOrientation>
+{
+    /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(PixelOrientation.class);
+    }
+
     /**
      * Empty constructor for JAXB only.
      */

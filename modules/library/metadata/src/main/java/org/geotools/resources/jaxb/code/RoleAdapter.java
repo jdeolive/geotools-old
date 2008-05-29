@@ -31,6 +31,13 @@ import org.opengis.metadata.citation.Role;
  */
 public final class RoleAdapter extends CodeListAdapter<RoleAdapter, Role> {
     /**
+     * Ensures that the adapted code list class is loaded.
+     */
+    static {
+        ensureClassLoaded(Role.class);
+    }
+
+    /**
      * Empty constructor for JAXB only.
      */
     private RoleAdapter() {
