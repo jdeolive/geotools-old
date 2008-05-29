@@ -46,6 +46,7 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -1018,6 +1019,25 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         long r2 = ((Long) f.getAttribute("revision")).longValue();
         assertTrue(r1 < r2);
         it.close();
+    }
+    
+    public void testLogNoHistory() throws Exception {
+        VersionedPostgisDataStore ds = getDataStore();
+        ds.setVersioned("river", true, "mambo", "version enabling stuff");
+        
+        VersionedPostgisFeatureStore fs = (VersionedPostgisFeatureStore) ds
+        .getFeatureSource("river");
+
+        // get log only for newly created features
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fs.getLog("FIRST", "LAST", Filter.INCLUDE, null, -1);
+        assertEquals(0, fc.size());
+        
+        // the above equals succeeds even if the generated query is broken, there is
+        // a try/catch that returns 0 instead of throwing the error back
+        // The following ensure the errors seen in GEOT-1837 surfaces
+        FeatureIterator<SimpleFeature> fi = fc.features();
+        assertFalse(fi.hasNext());
+        fi.close();
     }
 
     public void testDiff() throws IOException, IllegalAttributeException {

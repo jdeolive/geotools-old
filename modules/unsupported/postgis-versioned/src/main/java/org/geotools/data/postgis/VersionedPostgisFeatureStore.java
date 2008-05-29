@@ -36,6 +36,7 @@ import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
+import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
 import org.geotools.data.VersioningFeatureStore;
 import org.geotools.data.postgis.fidmapper.VersionedFIDMapper;
@@ -394,6 +395,8 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
             Long rev = (Long) it.next();
             revisionIdSet.add(ff.featureId(rev.toString()));
         }
+        if(revisionIdSet.isEmpty())
+            return new EmptyFeatureCollection(schema);
         Filter revisionFilter = ff.id(revisionIdSet);
 
         // return the changelog
@@ -459,6 +462,16 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
             return set;
         } else {
             return Collections.EMPTY_SET;
+        }
+    }
+    
+    @Override
+    public QueryCapabilities getQueryCapabilities() {
+        try {
+            VersionedPostgisDataStore ds = (VersionedPostgisDataStore) getDataStore();
+            return ds.wrapped.getFeatureSource(schema.getTypeName()).getQueryCapabilities();
+        } catch(Exception e) {
+            throw new RuntimeException("This error should never happen", e);
         }
     }
 
