@@ -17,6 +17,7 @@
 package org.geotools.resources.jaxb.code;
 
 import javax.xml.bind.annotation.XmlElement;
+import org.geotools.resources.jaxb.metadata.MetadataAdapter;
 import org.opengis.metadata.identification.TopicCategory;
 
 
@@ -29,40 +30,35 @@ import org.opengis.metadata.identification.TopicCategory;
  * @source $URL$
  * @author Cédric Briançon
  */
-public final class TopicCategoryAdapter
-        extends CodeListAdapter<TopicCategoryAdapter, TopicCategory>
-{
-    /**
-     * Ensures that the adapted code list class is loaded.
-     */
-    static {
-        ensureClassLoaded(TopicCategory.class);
-    }
-
+public final class TopicCategoryAdapter extends MetadataAdapter<TopicCategoryAdapter, TopicCategory> {
     /**
      * Empty constructor for JAXB only.
      */
     private TopicCategoryAdapter() {
     }
 
-    public TopicCategoryAdapter(final CodeListProxy proxy) {
-        super(proxy);
+    public TopicCategoryAdapter(final TopicCategory topicCategory) {
+        super(topicCategory);
     }
 
-    protected TopicCategoryAdapter wrap(CodeListProxy proxy) {
+    protected TopicCategoryAdapter wrap(TopicCategory proxy) {
         return new TopicCategoryAdapter(proxy);
     }
 
-    protected Class<TopicCategory> getCodeListClass() {
-        return TopicCategory.class;
-    }
-
+    /**
+     * Returns the {@link AddressImpl} generated from the metadata value.
+     * This method is systematically called at marshalling-time by JAXB.
+     */
     @XmlElement(name = "MD_TopicCategoryCode")
-    public CodeListProxy getCodeListProxy() {
-        return proxy;
+    public String getTopicCategory() {
+        return metadata.identifier();
     }
 
-    public void setCodeListProxy(final CodeListProxy proxy) {
-        this.proxy = proxy;
+    /**
+     * Sets the value for the {@link AddressImpl}. This method is systematically
+     * called at unmarshalling-time by JAXB.
+     */
+    public void setTopicCategory(final String topicCategory) {
+        this.metadata = TopicCategory.valueOf(topicCategory);
     }
 }
