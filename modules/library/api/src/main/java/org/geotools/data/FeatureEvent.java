@@ -234,6 +234,17 @@ public class FeatureEvent extends EventObject {
      * This is often an Id filter.
      */
     protected Filter filter;
+    
+    /**
+     * Makes a deep copy of the provided event.
+     */
+    public FeatureEvent(FeatureEvent origional ) {
+    	super( origional.getSource() );
+    	this.type = origional.type;
+    	this.bounds = new ReferencedEnvelope( origional.bounds );
+    	this.filter = origional.filter; // filter is immutable
+    	this.featureSource = origional.getFeatureSource();
+    }
     /**
      * Constructs a new FeatureEvent.
      *
@@ -248,6 +259,7 @@ public class FeatureEvent extends EventObject {
         this.type = type;
         this.bounds = bounds;
         this.filter = filter;
+        this.featureSource = featureSource;        
     }
     
     /**
@@ -276,6 +288,7 @@ public class FeatureEvent extends EventObject {
     		type = Type.CHANGED;    			
     	}   
         this.bounds = ReferencedEnvelope.reference( bounds );
+        this.featureSource = featureSource;
     }
 
     /**
