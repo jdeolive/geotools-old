@@ -28,24 +28,24 @@ public class CoverageIO {
      *         indicated by the param set and all the required params are
      *         pressent.
      */
-    public boolean canCreateCoverageDataSetProcess(java.util.Map<String, Serializable> params){
+    public static boolean canCreateCoverageDataSetProcess(java.util.Map<String, Serializable> params){
 		return false;
     	
     }
     
-    public boolean canOpenCoverageDataSetProcess(java.util.Map<String, Serializable> params){
+    public static boolean canOpenCoverageDataSetProcess(java.util.Map<String, Serializable> params){
 		return false;
     	
     }
-    public CoverageDataStore createCoverageDataSet(Map<String, Serializable> params) throws IOException{
+    public static CoverageDataStore createCoverageDataSet(Map<String, Serializable> params) throws IOException{
     	return null;
     }
 
-    public CoverageDataStore openCoverageDataSet(Map<String, Serializable> params) throws IOException{
+    public static CoverageDataStore openCoverageDataSet(Map<String, Serializable> params) throws IOException{
     	return null;
     }
     
-    public Set<? extends CoverageService> getAvailableCoverageFormats(){
+    public static Set<? extends CoverageService> getAvailableCoverageService(){
     	return null;
     }
     

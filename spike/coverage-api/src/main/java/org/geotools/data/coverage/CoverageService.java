@@ -5,52 +5,81 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.geotools.data.ServiceInfo;
+import org.opengis.feature.type.Name;
 import org.opengis.util.InternationalString;
 import org.opengis.util.ProgressListener;
 
+/**
+ * Interface to implement a service for a certain flavors of coverage.
+ * 
+ * <p>
+ * Classes implementing this interface basically act as factory for creating
+ * connections to coverage sources like files, WCS services, WMS services, etc.
+ * 
+ * <p>
+ * Purpose of this class is to provide basic information about a certain
+ * coverage service as well as the parameters needed in order to connect to a
+ * source as well as the default parameters to access/manipulate the single
+ * coverage a source can serve.
+ * 
+ * <p>
+ * Notice that as part as the "factory" interface this class makes available an
+ * {@link #isAvailable()} method which should check if all the needed
+ * dependencies which can be jars as well as native libs or configuration files.
+ * 
+ * @author Simone Giannecchini, GeoSolutions.
+ * @since 2.5
+ * 
+ * @todo TODO {@link Name} vs {@link InternationalString}
+ * @todo TODO {@link Param} array vs {@link Map}
+ * 
+ */
 public interface CoverageService {
 	
+	/**
+	 * Retrieves basic information about this {@link CoverageService}. 
+	 * 
+	 * <p>
+	 * 
+	 * @param monitor
+	 * @return
+	 * @throws IOException
+	 */
 	ServiceInfo getInfo(ProgressListener monitor) throws IOException;
 
     /**
      * Describe the nature of the datasource constructed by this factory.
      *
      * <p>
-     * A non localized description of this data store type.
+     * A description of this data store type.
      * </p>
      *
      * @return A human readable description that is suitable for inclusion in a
      *         list of available datasources.
      */
-    InternationalString getDescription();
+    Name getDescription();
 
     /**
      * Name suitable for display to end user.
      *
      * <p>
-     * A non localized display name for this data store type.
+     * A display name for this data store type.
      * </p>
      *
      * @return A short name suitable for display in a user interface.
      */
-    InternationalString getName();
+    Name getName();
 
     /**
-     * Test to see if this datastore is available, if it has all the
-     * appropriate libraries to construct a datastore.  Most datastores should
-     * return true, because geotools will distribute the appropriate
-     * libraries.  Though it's not a bad idea for DataStoreFactories to check
-     * to make sure that the  libraries are there.  OracleDataStoreFactory is
-     * an example of one that may generally return false, since geotools can
-     * not distribute the oracle jars, they must be added by the client.  One
-     * may ask how this is different than canProcess, and basically available
-     * is used by the DataStoreFinder getAvailableDataStore method, so that
-     * DataStores that can not even be used do not show up as options in gui
-     * applications.
-     *
-     * @return <tt>true</tt> if and only if this factory has all the
-     *         appropriate jars on the classpath to create DataStores.
-     */
+	 * Test to see if this {@link CoverageService} is available, if it has all
+	 * the appropriate libraries. One may ask how this is different than
+	 * canProcess, and basically available is used by the DataStoreFinder
+	 * getAvailableDataStore method, so that DataStores that can not even be
+	 * used do not show up as options in gui applications.
+	 * 
+	 * @return <tt>true</tt> if and only if this factory has all the
+	 *         appropriate dependencies on the classpath to create DataStores.
+	 */
     boolean isAvailable();
 
     /**
@@ -87,8 +116,19 @@ public interface CoverageService {
      */
     Param[] getDefaultConnectionParameters();
     
+    /**
+     * 
+     * @param accessType
+     * @return
+     */
     Param[] getDefaultAccessParameters(CoverageDataStore.AccessType accessType);
 
+    /**
+     * 
+     * @param params
+     * @return
+     * @throws IOException
+     */
 	public CoverageDataStore connect(Map<String, Serializable> params) throws IOException;
 
 
