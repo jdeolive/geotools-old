@@ -41,14 +41,14 @@ public interface CoverageService {
 	 * 
 	 * <p>
 	 * 
-	 * @param monitor
-	 * @return
+	 * @param monitor {@link ProgressListener} class to monitor the progress of this request which could be blocking.
+	 * @return an instance of the {@link ServiceInfo} class describing this {@link CoverageService}.
 	 * @throws IOException
 	 */
 	ServiceInfo getInfo(ProgressListener monitor) throws IOException;
 
     /**
-     * Describe the nature of the datasource constructed by this factory.
+     * Describe the nature of the {@link CoverageDataStore} constructed by this factory.
      *
      * <p>
      * A description of this data store type.
@@ -60,14 +60,16 @@ public interface CoverageService {
     Name getDescription();
 
     /**
-     * Name suitable for display to end user.
-     *
-     * <p>
-     * A display name for this data store type.
-     * </p>
-     *
-     * @return A short name suitable for display in a user interface.
-     */
+	 * Name suitable for display to end user.
+	 * 
+	 * <p>
+	 * A display name for this data store type. It is highly recommended that it
+	 * is unique since it is expected that users will use it to uniquely refer
+	 * to {@link CoverageService} instance.
+	 * </p>
+	 * 
+	 * @return A short name suitable for display in a user interface.
+	 */
     Name getName();
 
     /**
@@ -83,37 +85,14 @@ public interface CoverageService {
     boolean isAvailable();
 
     /**
-     * MetaData about the required Parameters (for createDataStore).
+	 * MetaData describing the required Parameters for opening to a certain
+	 * {@link CoverageDataStore}.
+	 * 
+	 * <p>
+	 * 
      *
-     * <p>
-     * Interpretation of FeatureDescriptor values:
-     * </p>
-     *
-     * <ul>
-     * <li>
-     * getDisplayName(): Gets the localized display name of this feature.
-     * </li>
-     * <li>
-     * getName(): Gets the programmatic name of this feature (used as the key
-     * in params)
-     * </li>
-     * <li>
-     * getShortDescription(): Gets the short description of this feature.
-     * </li>
-     * </ul>
-     *
-     * <p>
-     * This should be the same as:
-     * </p>
-     * <pre><code>
-     * Object params = factory.getParameters();
-     * BeanInfo info = getBeanInfo( params );
-     *
-     * return info.getPropertyDescriptors();
-     * <code></pre>
-     *
-     * @return Param array describing the Map for createDataStore
-     */
+     * @return Param array describing the {@link Map} for {@link #connect(Map)}.
+	 */
     Param[] getDefaultConnectionParameters();
     
     /**
@@ -124,9 +103,10 @@ public interface CoverageService {
     Param[] getDefaultAccessParameters(CoverageDataStore.AccessType accessType);
 
     /**
+     * Open up a connection to a {@link CoverageDataStore}.
      * 
-     * @param params
-     * @return
+     * @param params required {@link Param}s to connect to a certain {@link CoverageStore}
+     * @return a {@link CoverageDataStore} which 
      * @throws IOException
      */
 	public CoverageDataStore connect(Map<String, Serializable> params) throws IOException;
