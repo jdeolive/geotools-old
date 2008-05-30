@@ -258,7 +258,16 @@ public class PropertyAttributeReader implements AttributeReader {
 
         String stringValue = null;
 		try {
+			// read the value
 			stringValue = text[index];
+			
+			//trim off any whitespace
+			if ( stringValue != null ) { 
+				stringValue = stringValue.trim();
+			}
+			if ( "".equals( stringValue ) ) {
+				stringValue = null;
+			}
 		} catch (RuntimeException e1) {
 			e1.printStackTrace();
 			stringValue = null;
@@ -269,24 +278,11 @@ public class PropertyAttributeReader implements AttributeReader {
 			stringValue = null;
 		}
 		if ( stringValue == null ) {
-			return null;
+			if( attType.isNillable() ){
+				return null;
+			}
 		}
-		
-		//parse the value
-        Object value = null;
-
-        if (attType instanceof GeometryDescriptor) {
-            try {
-                value = wktReader.read(stringValue);
-            } catch (ParseException e) {
-                throw new DataSourceException("Can't parse WKT for fid#" + fid,
-                    e);
-            }
-        } else {
-        	value = Converters.convert( stringValue, attType.getType().getBinding() );
-        }
-
-        return value;
+        return Converters.convert( stringValue, attType.getType().getBinding() );        
     }
 }
 
