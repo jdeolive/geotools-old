@@ -52,11 +52,11 @@ public abstract class JDBCSetup {
     }
 
     protected String[] getTileTableNames() {
-        return new String[] { "TILES0", "TILES1", "TILES2", "TILES3" };
+        return new String[] {/* "TILES0",*/ "TILES1", "TILES2", "TILES3" };
     }
 
     protected String[] getSpatialTableNames() {
-        return new String[] { "SPATIAL0", "SPATIAL1", "SPATIAL2", "SPATIAL3" };
+        return new String[] {/* "SPATIAL0",*/ "SPATIAL1", "SPATIAL2", "SPATIAL3" };
     }
 
     private DataSource getDataSource() throws Exception {
