@@ -128,6 +128,14 @@ public class Tile implements Comparable<Tile>, Serializable {
      */
     private static final long serialVersionUID = -5417183834232374962L;
 
+    /*
+     * IMPLEMENTATION NOTE: Try to keep Tile as compact as possible memory-wise (i.e. put as few
+     * non-static fields as possible).  Big mosaics may contain thousands of Tile instances, and
+     * OutOfMemoryError tends to occur. The GridTileManager subclass can keep the number of Tile
+     * instances low (generating them on the fly as needed), but sometime we have to fallback on
+     * the more generic TreeTileManager, which stores a reference to every Tiles.
+     */
+
     /**
      * The provider to use. The same provider is typically given to every {@code Tile} objects
      * to be given to the same {@link TileManager} instance, but this is not mandatory.
@@ -169,9 +177,14 @@ public class Tile implements Comparable<Tile>, Serializable {
     private int x, y;
 
     /**
-     * The size of the image to be read, or 0 if not yet computed.
+     * The size of the image to be read, or 0 if not yet computed. Values are stored
+     * as <strong>unsigned</strong> shorts:  they must be casted to {@code int} with
+     * {@code s & 0xFFFF}. We assume that the {@code [0 .. 65535]} range is suffisient
+     * on the basis that tiles need to be reasonably small for being useful. Furthermore
+     * tiles are usually square and an image of size 32767&times;32767 reachs the limit
+     * of Java Image I/O library anyway, since image area must hold in an {@code int}.
      */
-    private int width, height;
+    private short width, height;
 
     /**
      * The "grid to real world" transform, used by {@link RegionCalculator} in order to compute
@@ -209,10 +222,9 @@ public class Tile implements Comparable<Tile>, Serializable {
             if (region.isEmpty()) {
                 throw new IllegalArgumentException(Errors.format(ErrorKeys.BAD_RECTANGLE_$1, region));
             }
-            x      = region.x;
-            y      = region.y;
-            width  = region.width;
-            height = region.height;
+            x = region.x;
+            y = region.y;
+            setSize(region.width, region.height);
         } else {
             x      = tile.x;
             y      = tile.y;
@@ -319,8 +331,7 @@ public class Tile implements Comparable<Tile>, Serializable {
         this.imageIndex = ensurePositive(imageIndex);
         this.x          = region.x;
         this.y          = region.y;
-        this.width      = region.width;
-        this.height     = region.height;
+        setSize(region.width, region.height);
         if (subsampling != null) {
             xSubsampling = ensureStrictlyPositive(subsampling.width);
             ySubsampling = ensureStrictlyPositive(subsampling.height);
@@ -375,8 +386,7 @@ public class Tile implements Comparable<Tile>, Serializable {
             this.x = region.x;
             this.y = region.y;
             if (!region.isEmpty()) {
-                this.width  = region.width;
-                this.height = region.height;
+                setSize(region.width, region.height);
             }
         }
         this.gridToCRS = new AffineTransform(gridToCRS); // Really needs a new instance - no cache
@@ -886,9 +896,9 @@ public class Tile implements Comparable<Tile>, Serializable {
      * subclass of {@link Tile}, otherwise we should use {@link #getRegion} in
      * case the user overriden the method.
      */
-    final boolean isSizeEquals(final int width, final int height) {
-        assert getClass().equals(Tile.class) && this.width != 0 && this.height != 0 : this;
-        return this.width == width && this.height == height;
+    final boolean isSizeEquals(final int dx, final int dy) {
+        assert getClass().equals(Tile.class) && (width != 0) && (height != 0) : this;
+        return (width & 0xFFFF) == dx && (height & 0xFFFF) == dy;
     }
 
     /**
@@ -912,11 +922,10 @@ public class Tile implements Comparable<Tile>, Serializable {
         checkGeometryValidity();
         if (width == 0 && height == 0) {
             final ImageReader reader = getImageReader(null, true, true);
-            width  = reader.getWidth (imageIndex);
-            height = reader.getHeight(imageIndex);
+            setSize(reader.getWidth(imageIndex), reader.getHeight(imageIndex));
             reader.dispose();
         }
-        return new Rectangle(x, y, width, height);
+        return new Rectangle(x, y, width & 0xFFFF, height & 0xFFFF);
     }
 
     /**
@@ -947,10 +956,37 @@ public class Tile implements Comparable<Tile>, Serializable {
     final void setAbsoluteRegion(final Rectangle region) throws ArithmeticException {
         assert Thread.holdsLock(this);
         assert (region.width % xSubsampling) == 0 && (region.height % ySubsampling) == 0 : region;
-        x      = region.x      / xSubsampling;
-        y      = region.y      / ySubsampling;
-        width  = region.width  / xSubsampling;
-        height = region.height / ySubsampling;
+        x = region.x / xSubsampling;
+        y = region.y / ySubsampling;
+        setSize(region.width / xSubsampling, region.height / ySubsampling);
+    }
+
+    /**
+     * Sets the tile size to the given values, making sure that they can be stored as unsigned
+     * short.
+     *
+     * @param dx The tile width.
+     * @param dy The tile height.
+     * @throws IllegalArgumentException if the given size can't be stored as unsigned short.
+     */
+    private void setSize(final int dx, final int dy) throws IllegalArgumentException {
+        width  = (short) dx;
+        height = (short) dy;
+        final String name;
+        final int value;
+        if ((width & 0xFFFF) != dx) {
+            name = "width";
+            value = dx;
+        } else if ((height & 0xFFFF) != dy) {
+            name = "height";
+            value = dy;
+        } else {
+            return;
+        }
+        width  = 0;
+        height = 0;
+        throw new IllegalArgumentException(Errors.format(
+                ErrorKeys.VALUE_OUT_OF_BOUNDS_$3, name + '=' + value, 0, 0xFFFF));
     }
 
     /**
@@ -1265,7 +1301,8 @@ public class Tile implements Comparable<Tile>, Serializable {
             // Location and subsampling not yet computed, so don't display it. We can not
             // invoke 'getRegion()' neither since it would throw an IllegalStateException.
             if (width != 0 || height != 0) {
-                buffer.append(", size=(").append(width).append(',').append(height).append(')');
+                buffer.append(", size=(").append(width & 0xFFFF)
+                      .append(',').append(height & 0xFFFF).append(')');
             }
         }
         return buffer.append(']').toString();
@@ -1303,9 +1340,9 @@ public class Tile implements Comparable<Tile>, Serializable {
             table.write(String.valueOf(tile.y));
             if (tile.width != 0 || tile.height != 0) {
                 table.nextColumn();
-                table.write(String.valueOf(tile.width));
+                table.write(String.valueOf(tile.width & 0xFFFF));
                 table.nextColumn();
-                table.write(String.valueOf(tile.height));
+                table.write(String.valueOf(tile.height & 0xFFFF));
             } else {
                 table.nextColumn();
                 table.nextColumn();
