@@ -99,7 +99,7 @@
     <module>postgis-versioned</module>
     <module>process</module>
     <module>repository</module>
-    <module>temporal</module>
+    <!--module>temporal</module-->
     <module>tiger</module>
     <module>vpf</module>
     <module>widgets-swing-pending</module>
