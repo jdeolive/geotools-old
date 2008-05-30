@@ -38,6 +38,8 @@ import org.geotools.util.CheckedCollection;
  * But this class provides a very slight performance improvement since it uses one less level
  * of indirection.
  *
+ * @param <E> The type of elements in the list.
+ *
  * @since 2.1
  * @source $URL$
  * @version $Id$
@@ -75,6 +77,10 @@ public class UnmodifiableArrayList<E> extends AbstractList<E>
      * (i.e. the array is <strong>not</strong> cloned). Consequently the given array should not
      * be modified after construction if this list is intented to be immutable.
      *
+     * @param  <E> The type of elements in the list.
+     * @param  array The array to wrap.
+     * @return The given array wrapped in an unmodifiable list.
+     *
      * @since 2.5
      */
     public static <E> UnmodifiableArrayList<E> wrap(final E[] array) {
@@ -83,6 +89,8 @@ public class UnmodifiableArrayList<E> extends AbstractList<E>
 
     /**
      * Returns the element type of the wrapped array.
+     *
+     * @return The type of elements in the list.
      */
     @SuppressWarnings("unchecked") // Safe if this instance was created safely with wrap(E[]).
     public Class<E> getElementType() {
@@ -108,6 +116,8 @@ public class UnmodifiableArrayList<E> extends AbstractList<E>
      * element, or -1 if the list does not contain this element. This method
      * is overridden only for performance reason (the default implementation
      * would work as well).
+     *
+     * @param object The element to search for.
      */
     @Override
     public int indexOf(final Object object) {
@@ -132,6 +142,8 @@ public class UnmodifiableArrayList<E> extends AbstractList<E>
      * element, or -1 if the list does not contain this element. This method
      * is overridden only for performance reason (the default implementation
      * would work as well).
+     *
+     * @param object The element to searcch for.
      */
     @Override
     public int lastIndexOf(final Object object) {
@@ -156,6 +168,8 @@ public class UnmodifiableArrayList<E> extends AbstractList<E>
      * Returns {@code true} if this collection contains the specified element.
      * This method is overridden only for performance reason (the default implementation
      * would work as well).
+     *
+     * @param object The element to check for existence.
      */
     @Override
     public boolean contains(final Object object) {

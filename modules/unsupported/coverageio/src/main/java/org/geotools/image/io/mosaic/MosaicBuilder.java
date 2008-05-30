@@ -748,17 +748,6 @@ public class MosaicBuilder {
              * is possible only if the user didn't customized too much the tiles creation.
              */
             if (usePattern) {
-                if ((imageBounds.width  % tileBounds.width  != 0) ||
-                    (imageBounds.height % tileBounds.height != 0))
-                {
-                    /*
-                     * Size mismatch. Aborts the attempt to create a tile manager from a set of
-                     * patterns and fallback to the more general (and more resources intensive)
-                     * way. Note that the result is likely to be a GridTileManager anyway, but
-                     * a less regular one than the one we were trying to construct here.
-                     */
-                    return createTileManager(constantArea, false);
-                }
                 String pattern = formatter.toString();
                 pattern = new File(directory, pattern).getPath();
                 pattern = "File:" + pattern;

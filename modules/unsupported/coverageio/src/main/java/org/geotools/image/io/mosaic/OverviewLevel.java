@@ -86,21 +86,21 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     /**
      * Subsampling of every tiles at this level.
      */
-    private final int sx, sy;
+    private final int xSubsampling, ySubsampling;
 
     /**
      * The location of the tile closest to origin, positive. They are <cite>relative</cite>
      * coordinates as used in public {@link Tile} API (i.e. those coordinates are <em>not</em>
-     * pre-multiplied by {@link #sx} and {@link #sy}).
+     * pre-multiplied by {@link #xSubsampling} and {@link #ySubsampling}).
      */
-    private final int x, y;
+    private final int xOffset, yOffset;
 
     /**
-     * Size of every tiles at this level. They are <cite>relative</cite> size as used in public
-     * {@link Tile} API (i.e. those coordinates are <em>not</em> pre-multiplied by {@link #sx}
-     * and {@link #sy}).
+     * Size of every tiles at this level. They are <cite>relative</cite> size as used in
+     * public {@link Tile} API (i.e. those coordinates are <em>not</em> pre-multiplied by
+     * {@link #xSubsampling} and {@link #ySubsampling}).
      */
-    private final int width, height;
+    private final int dx, dy;
 
     /**
      * The region of every tiles in this level. The {@linkplain Rectangle#x x} and
@@ -108,10 +108,11 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * tile. The {@linkplain Rectangle#width width} and {@linkplain Rectangle#height height}
      * are big enough for including every tiles.
      * <p>
-     * They are <cite>relative</cite> coordinates as used in public {@link Tile} API (i.e.
-     * those coordinates are <em>not</em> pre-multiplied by {@link #sx} and {@link #sy}).
+     * They are <cite>relative</cite> coordinates as used in public {@link Tile} API
+     * (i.e. those coordinates are <em>not</em> pre-multiplied by {@link #xSubsampling}
+     * and {@link #ySubsampling}).
      */
-    private final Rectangle region;
+    private final Rectangle mosaic;
 
     /**
      * On construction, the list of tiles {@linkplain #add added} in this level in no particular
@@ -161,14 +162,16 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      */
     OverviewLevel(final Tile pattern, Rectangle region) throws IOException {
         final Dimension subsampling = pattern.getSubsampling();
-        final Rectangle tileRegion  = pattern.getRegion();
-        this.region = region = new Rectangle(region);
-        this.x      = tileRegion .x;
-        this.y      = tileRegion .y;
-        this.width  = tileRegion .width;
-        this.height = tileRegion .height;
-        this.sx     = subsampling.width;
-        this.sy     = subsampling.height;
+        final Rectangle tile = pattern.getRegion();
+        mosaic = region = new Rectangle(region);
+        int x = tile.x % (dx = tile.width);
+        int y = tile.y % (dy = tile.height);
+        if (x < 0) x += dx;
+        if (y < 0) y += dy;
+        xOffset = x;
+        yOffset = y;
+        xSubsampling = subsampling.width;
+        ySubsampling = subsampling.height;
         patterns = new Tile[] {
             pattern
         };
@@ -189,16 +192,16 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * @throws IOException if an error occured while reading tile information.
      */
     OverviewLevel(final Tile tile, final Dimension subsampling) throws IOException {
-        region = tile.getRegion();
-        int x = region.x % (width  = region.width);
-        int y = region.y % (height = region.height);
-        if (x < 0) x += width;
-        if (y < 0) y += height;
-        this.x = x;
-        this.y = y;
+        mosaic = tile.getRegion();
+        int x = mosaic.x % (dx = mosaic.width);
+        int y = mosaic.y % (dy = mosaic.height);
+        if (x < 0) x += dx;
+        if (y < 0) y += dy;
+        xOffset = x;
+        yOffset = y;
         assert subsampling.equals(tile.getSubsampling()) : subsampling;
-        sx = subsampling.width;
-        sy = subsampling.height;
+        xSubsampling = subsampling.width;
+        ySubsampling = subsampling.height;
         tiles = new ArrayList<Tile>();
         tiles.add(tile);
     }
@@ -217,21 +220,21 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
             throws IOException, IllegalArgumentException
     {
         assert subsampling.equals(tile.getSubsampling()) : subsampling;
-        assert subsampling.width == sx && subsampling.height == sy : subsampling;
+        assert subsampling.width == xSubsampling && subsampling.height == ySubsampling : subsampling;
         final Rectangle toAdd = tile.getRegion();
-        if (toAdd.width > width || toAdd.height > height) {
+        if (toAdd.width > dx || toAdd.height > dy) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.UNEXPECTED_IMAGE_SIZE));
         }
-        int ox = toAdd.x % width;
-        int oy = toAdd.y % height;
-        if (ox < 0) ox += width;
-        if (oy < 0) oy += height;
-        if ((ox -= x) < 0 || (ox + toAdd.width)  > width ||
-            (oy -= y) < 0 || (oy + toAdd.height) > height)
+        int ox = toAdd.x % dx;
+        int oy = toAdd.y % dy;
+        if (ox < 0) ox += dx;
+        if (oy < 0) oy += dy;
+        if ((ox -= xOffset) < 0 || (ox + toAdd.width)  > dx ||
+            (oy -= yOffset) < 0 || (oy + toAdd.height) > dy)
         {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NOT_A_GRID));
         }
-        region.add(toAdd);
+        mosaic.add(toAdd);
         tiles.add(tile);
     }
 
@@ -240,16 +243,21 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      *
      * @param ordinal The overview level of this {@code OverviewLevel}. 0 is finest subsampling.
      * @param finer A level with finer (smaller) subsampling value than this level, or {@code null}.
+     * @throws MalformedURLException if an error occured while creating the URL for the tile.
      */
-    final void createLinkedList(final int ordinal, final OverviewLevel finer) {
+    final void createLinkedList(final int ordinal, final OverviewLevel finer)
+            throws MalformedURLException
+    {
         this.ordinal = ordinal;
         this.finer   = finer;
         assert getFinerLevel() == finer; // For running the assertions inside getFinerLevel().
-        nx = (region.width  + (width  - 1)) / width;  // Round toward positive infinity.
-        ny = (region.height + (height - 1)) / height;
+        nx = (mosaic.width  + (dx - 1)) / dx;  // Round toward positive infinity.
+        ny = (mosaic.height + (dy - 1)) / dy;
         assert (tiles == null) != (patterns == null); // Exactly one of those should be non-null.
-        if (tiles == null) {
-            // No tiles. A pattern was given directly to the constructor.
+        if (patterns != null) {
+            /*
+             * If this overview level has been created from a pattern, then we are done.
+             */
             return;
         }
         /*
@@ -258,7 +266,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
          * The tiles that we failed to modelize by a pattern will be stored under the null key.
          */
         formatter = new FilenameFormatter();
-        final Rectangle size = new Rectangle(x, y, width, height);
+        final Rectangle size = new Rectangle(xOffset, yOffset, dx, dy);
         final Map<Tile,List<Tile>> models = new HashMap<Tile,List<Tile>>();
         for (final Tile tile : tiles) {
             final String input = inputPattern(tile);
@@ -352,7 +360,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
          * check the tile size using the 'isSizeEquals' shortcut. We accept only tiles that fill
          * completly the cell size, otherwise we can not recreate the tile from a pattern.
          */
-        if (!Tile.class.equals(tile.getClass()) || !tile.isSizeEquals(width, height)) {
+        if (!Tile.class.equals(tile.getClass()) || !tile.isSizeEquals(dx, dy)) {
             return null;
         }
         final Object input = tile.getInput();
@@ -377,11 +385,11 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      */
     private Point getIndex2D(final Tile tile) {
         final Point location = tile.getLocation();
-        location.x -= region.x;
-        location.y -= region.y;
-        assert (location.x % width == 0) && (location.y % height == 0) : location;
-        location.x /= width;
-        location.y /= height;
+        location.x -= mosaic.x;
+        location.y -= mosaic.y;
+        assert (location.x % dx == 0) && (location.y % dy == 0) : location;
+        location.x /= dx;
+        location.y /= dy;
         return location;
     }
 
@@ -479,8 +487,8 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * @return The tile size, or {@code null} if there is only one tile.
      */
     public Dimension getTileSize() {
-        if (region.width > width || region.height > height) {
-            return new Dimension(width, height);
+        if (mosaic.width > dx || mosaic.height > dy) {
+            return new Dimension(dx, dy);
         }
         return null;
     }
@@ -492,7 +500,10 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * @return The region in absolute coordinates.
      */
     public Rectangle getAbsoluteRegion() {
-        return new Rectangle(region.x * sx, region.y * sy, region.width * sx, region.height * sy);
+        return new Rectangle(xSubsampling * mosaic.x,
+                             ySubsampling * mosaic.y,
+                             xSubsampling * mosaic.width,
+                             ySubsampling * mosaic.height);
     }
 
     /**
@@ -504,11 +515,12 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * @return {@code true} if the given bounds matches tiles bounds.
      */
     private boolean isAbsoluteTilesRegion(final Rectangle bounds) {
-        final int w = width * sx; // The width in "absolute" units.
-        if (bounds.width % w == 0) {
-            final int h = height * sy; // The height in "absolute" units.
-            if (bounds.height % h == 0) {
-                return (bounds.x - x*sx) % w == 0 && (bounds.y - y*sy) % h == 0;
+        final int width = dx * xSubsampling; // Tile width in "absolute" units.
+        if (bounds.width % width == 0) {
+            final int height = dy * ySubsampling; // Tile height in "absolute" units.
+            if (bounds.height % height == 0) {
+                return (bounds.x - xOffset*xSubsampling) % width  == 0 &&
+                       (bounds.y - yOffset*ySubsampling) % height == 0;
             }
         }
         return false;
@@ -543,17 +555,14 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * @throws IndexOutOfBoundsException if the given index is out of bounds.
      * @throws MalformedURLException if an error occured while creating the URL for the tile.
      */
-    private Tile getTile(final int x, final int y)
-            throws IndexOutOfBoundsException, MalformedURLException
-    {
-        Tile tile;
+    private Tile getTile(int x, int y) throws IndexOutOfBoundsException, MalformedURLException {
         final int index = getIndex(x, y);
         /*
          * Checks for fully-created instance. Those instances are expected to exist if
          * some tile do not comply to a general pattern that this class can recognize.
          */
         if (tiles != null) {
-            tile = tiles.get(index);
+            final Tile tile = tiles.get(index);
             if (tile != null) {
                 // If a tile is explicitly defined, it should not have a pattern.
                 assert patternUsed == null || patternUsed.getInteger(index) == 0 : index;
@@ -579,7 +588,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
             }
             p--;
         }
-        tile = patterns[p];
+        final Tile tile = patterns[p];
         final String pattern = tile.getInput().toString();
         if (formatter == null) {
             formatter = new FilenameFormatter();
@@ -610,10 +619,15 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
         }
         assert INPUT_TYPES.contains(input.getClass()) : input;
         /*
-         * Now creates the definitive tile.
+         * Now creates the definitive tile. The tiles in the last
+         * row or last column may be smaller than other tiles.
          */
-        return new Tile(tile, input, new Rectangle(
-                region.x + x * width, region.y + y * height, width, height));
+        final Rectangle bounds = new Rectangle(
+                mosaic.x + (x *= dx),
+                mosaic.y + (y *= dy),
+                Math.min(dx, mosaic.width  - x),
+                Math.min(dy, mosaic.height - y));
+        return new Tile(tile, input, bounds);
     }
 
     /**
@@ -682,10 +696,11 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
          * Converts the search rectangle from "absolute space" to "tile index space".
          * Index can not be negative neither greater than (nx,ny). The (xmin,ymin)
          * index are inclusive while the (xmax,ymax) index are exclusive.
+         * Note: "atr" stands for "Absolute Tile Region".
          */
-        final Rectangle atr = new Rectangle(width * sx, height * sy); // "Absolute Tile Region"
-        int xmin = search.x - sx * region.x;
-        int ymin = search.y - sy * region.y;
+        final Rectangle atr = new Rectangle(dx * xSubsampling, dy * ySubsampling);
+        int xmin = search.x - mosaic.x * xSubsampling;
+        int ymin = search.y - mosaic.y * ySubsampling;
         int xmax = xmin + search.width;
         int ymax = ymin + search.height;
         if (xmin >= 0) xmin /= atr.width;  else xmin = 0;
@@ -763,11 +778,11 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
      * have the same area, sorts by <var>sx</var> first then by <var>sy</var>.
      */
     public int compareTo(final OverviewLevel other) {
-        int c = (sx * sy) - (other.sx * other.sy);
+        int c = (xSubsampling * ySubsampling) - (other.xSubsampling * other.ySubsampling);
         if (c == 0) {
-            c = sx - other.sx;
+            c = xSubsampling - other.xSubsampling;
             if (c == 0) {
-                c = sy - other.sy;
+                c = ySubsampling - other.ySubsampling;
             }
         }
         return c;
@@ -783,13 +798,11 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
     public boolean equals(final Object other) {
         if (other instanceof OverviewLevel) {
             final OverviewLevel that = (OverviewLevel) other;
-            return this.ordinal == that.ordinal &&
-                   this.width   == that.width   &&
-                   this.height  == that.height  &&
-                   this.nx == that.nx && ny == that.ny &&
-                   this.sx == that.sx && sy == that.sy &&
-                   this. x == that. x &&  y == that. y &&
-                   Utilities.equals(this.region,      that.region)   &&
+            return ordinal == that.ordinal &&
+                   dx == that.dx && dy == that.dy && nx == that.nx && ny == that.ny &&
+                   xSubsampling == that.xSubsampling && ySubsampling == that.ySubsampling &&
+                   xOffset == that.xOffset && yOffset == that.yOffset &&
+                   Utilities.equals(this.mosaic,      that.mosaic)   &&
                    Utilities.equals(this.tiles,       that.tiles)    &&
                    Arrays   .equals(this.patterns,    that.patterns) &&
                    Utilities.equals(this.patternUsed, that.patternUsed) &&
@@ -803,7 +816,7 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
      */
     @Override
     public int hashCode() {
-        int code = ordinal + 37 * (sx + 37 * (sy + Arrays.hashCode(patterns)));
+        int code = ordinal + 37 * (xSubsampling + 37 * (ySubsampling + Arrays.hashCode(patterns)));
         if (finer != null) {
             code += 31 * finer.hashCode();
         }
@@ -815,7 +828,7 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
      */
     @Override
     public String toString() {
-        return getClass().getSimpleName() + '[' + ordinal +
-                ", subsampling=(" + sx + ',' + sy + "), " + getNumTiles() + " tiles]";
+        return getClass().getSimpleName() + '[' + ordinal + ", subsampling=(" +
+                xSubsampling + ',' + ySubsampling + "), " + getNumTiles() + " tiles]";
     }
 }
