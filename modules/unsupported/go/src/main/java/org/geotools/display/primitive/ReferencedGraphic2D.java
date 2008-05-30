@@ -20,6 +20,9 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent; // For javadoc
 
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.util.Locale;
 import org.opengis.display.canvas.Canvas;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -29,6 +32,8 @@ import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.display.canvas.ReferencedCanvas2D;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 
 
 /**
@@ -49,6 +54,50 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      */
     public static final String DISPLAY_BOUNDS_PROPERTY = "displayBounds";
     
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * {@linkplain AbstractGraphic#getZOrderHint z order hint} changed.
+     */
+    public static final String Z_ORDER_HINT_PROPERTY = "zOrderHint";
+    
+    /**
+     * The default {@linkplain #getZOrderHint z-order}.
+     */
+    private static final double DEFAULT_Z_ORDER = Double.POSITIVE_INFINITY;
+    
+    /**
+     * The z value for this graphic.
+     *
+     * @see #getZOrderHint
+     * @see #setZOrderHint
+     */
+    protected double zOrder = DEFAULT_Z_ORDER;
+    
+    /**
+     * The format used during the last call to {@link #getName}. We use only one instance for
+     * all graphics, since an application is likely to use only one locale. However, more locales
+     * are allowed; it will just be slower.
+     */
+    private static Format format;
+    
+    /**
+     * Convenience class for {@link RenderedLayer#getName}.
+     * This class should be immutable and thread-safe.
+     */
+    private static final class Format {
+        /** The locale of the {@link #format}. */
+        public final Locale locale;
+        
+        /** The format in the {@link #locale}. */
+        public final NumberFormat format;
+
+        /** Construct a format for the given locale. */
+        public Format(final Locale locale) {
+            this.locale = locale;
+            this.format = NumberFormat.getNumberInstance(locale);
+        }
+    }
+        
     /**
      * A geometric shape that fully contains the area painted during the last
      * {@linkplain GraphicPrimitive2D#paint rendering}. This shape must be in terms of the
@@ -136,6 +185,67 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
         }
     }
 
+    /**
+     * {@inheritDoc }
+     * If no name were {@linkplain #setName explicitly set}, then this method returns a default
+     * name built from the {@linkplain #getZOrderHint z order}.
+     * 
+     * @return specified name or z order if not specified
+     */
+    @Override
+    public String getName() {
+        String name = super.getName();
+        
+        if(name != null){
+            return name;
+        }
+        
+        final Locale locale = getLocale();
+        Format f = format; // Avoid the need for synchronization.
+
+        if (f == null || !f.locale.equals(locale)) {
+            format = f = new Format(locale);
+        }
+        final StringBuffer buffer = new StringBuffer("z=");
+        return f.format.format(getZOrderHint(), buffer, new FieldPosition(0)).toString();
+        
+    }
+    
+    /**
+     * Returns the <var>z</var> order hint value for this graphic. Graphics with highest
+     * <var>z</var> order will be painted on top of graphics with lowest <var>z</var> order.
+     * The default value is {@link Double#POSITIVE_INFINITY}.
+     */
+    public double getZOrderHint() {
+        synchronized (getTreeLock()) {
+            return zOrder;
+        }
+    }
+
+    /**
+     * Sets the <var>z</var> order hint value for this graphic. Graphics with highest
+     * <var>z</var> order will be painted on top of graphics with lowest <var>z</var> order.
+     * <p>
+     * This method fires a {@value org.geotools.display.canvas.DisplayObject#Z_ORDER_HINT_PROPERTY}
+     * property change event.
+     */
+    public void setZOrderHint(final double zOrderHint) {
+        if (Double.isNaN(zOrderHint)) {
+            throw new IllegalArgumentException(Errors.getResources(getLocale()).getString(
+                    ErrorKeys.ILLEGAL_ARGUMENT_$2, "zOrderHint", zOrderHint));
+        }
+        final double oldZOrder;
+        synchronized (getTreeLock()) {
+            oldZOrder = this.zOrder;
+            if (zOrderHint == oldZOrder) {
+                return;
+            }
+            this.zOrder = zOrderHint;
+        }
+        propertyListeners.firePropertyChange(Z_ORDER_HINT_PROPERTY, oldZOrder, zOrderHint);
+    }
+    
+    
     /**
      * Returns a geometric shape that fully contains the display area painted during the last
      * {@linkplain GraphicPrimitive2D#paint rendering}. This shape must be in terms of the

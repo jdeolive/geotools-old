@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.display.canvas.AWTCanvas2D;
+import org.geotools.display.canvas.ReferencedCanvas2D;
 import org.geotools.display.primitive.AbstractGraphic;
-import org.geotools.display.primitive.GraphicPrimitive2D;
+import org.geotools.display.primitive.GraphicJ2D;
 import org.geotools.factory.Hints;
 
 import org.opengis.display.canvas.Canvas;
@@ -44,7 +44,7 @@ public class AWTDirectRenderer2D extends AbstractRenderer2D{
     /**
      * The canvas associated this renderer.
      */
-    protected AWTCanvas2D canvas;
+    protected ReferencedCanvas2D canvas;
 
     /**
      * Create a 2D renderer with no particular hints.
@@ -72,9 +72,9 @@ public class AWTDirectRenderer2D extends AbstractRenderer2D{
     public void setCanvas(Canvas canvas)throws IllegalArgumentException {
         if(canvas != null && canvas != this.canvas){
             
-            if(canvas instanceof AWTCanvas2D){
-                final AWTCanvas2D oldCanvas = this.canvas;
-                this.canvas = (AWTCanvas2D) canvas;
+            if(canvas instanceof ReferencedCanvas2D){
+                final ReferencedCanvas2D oldCanvas = this.canvas;
+                this.canvas = (ReferencedCanvas2D) canvas;
             
                 propertyListeners.firePropertyChange(CANVAS_PROPERTY, this, this.canvas);
             }else{
@@ -82,13 +82,16 @@ public class AWTDirectRenderer2D extends AbstractRenderer2D{
             }
             
         }
-        this.canvas = (AWTCanvas2D) canvas;
+        this.canvas = (ReferencedCanvas2D) canvas;
+        
+        
+        
     }
 
     /**
      * {@inheritDoc}
      */
-    public AWTCanvas2D getCanvas() {
+    public ReferencedCanvas2D getCanvas() {
         return canvas;
     }
 
@@ -132,9 +135,9 @@ public class AWTDirectRenderer2D extends AbstractRenderer2D{
         final List<Graphic> graphics = getSortedGraphics();
 
         for(Graphic graphic : graphics){
-            if(graphic instanceof GraphicPrimitive2D){
+            if(graphic instanceof GraphicJ2D){
                 try {
-                    ((GraphicPrimitive2D) graphic).paint(context);
+                    ((GraphicJ2D) graphic).paint(context);
                 } catch (TransformException ex) {
                     ex.printStackTrace();
                     Logger.getLogger(AWTDirectRenderer2D.class.getName()).log(Level.SEVERE, null, ex);

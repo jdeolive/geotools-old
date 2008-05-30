@@ -21,8 +21,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import org.geotools.display.canvas.DisplayObject;
-import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.display.primitive.ReferencedGraphic2D;
 import org.geotools.factory.Hints;
 import org.geotools.resources.UnmodifiableArrayList;
@@ -45,8 +43,8 @@ public abstract class AbstractRenderer2D extends AbstractRenderer implements Ren
      */
     private static final Comparator<Graphic> COMPARATOR = new Comparator<Graphic>() {
         public int compare(final Graphic graphic1, final Graphic graphic2) {
-            if(graphic1 instanceof AbstractGraphic && graphic2 instanceof AbstractGraphic){
-                return Double.compare(((AbstractGraphic)graphic1).getZOrderHint(), ((AbstractGraphic)graphic2).getZOrderHint());
+            if(graphic1 instanceof ReferencedGraphic2D && graphic2 instanceof ReferencedGraphic2D){
+                return Double.compare(((ReferencedGraphic2D)graphic1).getZOrderHint(), ((ReferencedGraphic2D)graphic2).getZOrderHint());
             }else{
                 return 0;
             }
@@ -90,7 +88,7 @@ public abstract class AbstractRenderer2D extends AbstractRenderer implements Ren
         assert Thread.holdsLock(this);
         final String propertyName = event.getPropertyName();
 
-        if (propertyName.equals(AbstractGraphic.Z_ORDER_HINT_PROPERTY)) {
+        if (propertyName.equals(ReferencedGraphic2D.Z_ORDER_HINT_PROPERTY)) {
             sortedGraphics = null; // Will force a new sorting according z-order.
         }else if(propertyName.equals(ReferencedGraphic2D.DISPLAY_BOUNDS_PROPERTY)){
             RendererEvent rendererEvent = new DefaultRendererEvent(this, graphic);

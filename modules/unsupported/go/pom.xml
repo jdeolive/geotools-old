@@ -94,29 +94,12 @@
       <artifactId>jts</artifactId>
       <!-- The version number is specified in the parent POM. -->
     </dependency>
-    
+        
     <!--dependencies from mapcontext,MapLayer and styles-->
     <!-- render-2.5-SNAPSHOT.jar -->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-render</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    
-    <!-- shapefile-2.5-SNAPSHOT.jar -->
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-shapefile</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jdesktop</groupId>
-      <artifactId>swing-layout</artifactId>
-      <version>1.0.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-widgets-swing-pending</artifactId>
       <version>${project.version}</version>
     </dependency>
     

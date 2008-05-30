@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 
 import org.geotools.util.logging.Logging;
 import org.geotools.display.primitive.AbstractGraphic;
-import org.geotools.display.primitive.GraphicPrimitive2D;
+import org.geotools.display.primitive.GraphicJ2D;
 import org.geotools.display.renderer.AWTDirectRenderer2D;
 import org.geotools.display.renderer.AbstractRenderer;
 import org.geotools.geometry.DirectPosition2D;
@@ -229,7 +229,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         super.graphicsChanged(event);
         
         Collection<Graphic> graphics = event.getGraphics();        
-        GraphicPrimitive2D g = (GraphicPrimitive2D) graphics.iterator().next();        
+        GraphicJ2D g = (GraphicJ2D) graphics.iterator().next();        
         repaint(g, null,  g.getDisplayBounds().getBounds());        
     }
     

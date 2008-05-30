@@ -15,10 +15,7 @@
  */
 package org.geotools.display.primitive;
 
-// J2SE dependencies
-import javax.swing.Action;
 
-// OpenGIS dependencies
 import org.opengis.display.canvas.Canvas;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.DirectPosition;
@@ -28,7 +25,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-// Geotools dependencies
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.display.canvas.ReferencedCanvas;

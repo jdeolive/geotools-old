@@ -50,7 +50,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import org.geotools.display.canvas.ReferencedCanvas2D;
 import org.geotools.display.primitive.AbstractGraphic;
-import org.geotools.display.primitive.GraphicPrimitive2D;
+import org.geotools.display.primitive.GraphicJ2D;
+import org.geotools.display.primitive.ReferencedGraphic2D;
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.util.Range;
@@ -131,8 +132,8 @@ public abstract class BufferedRenderer2D extends AbstractRenderer2D {
     @Override
     protected synchronized Graphic add(Graphic graphic) {
         graphic = super.add(graphic);
-        if(graphic instanceof AbstractGraphic){
-            flushOffscreenBuffer(((AbstractGraphic)graphic).getZOrderHint());
+        if(graphic instanceof ReferencedGraphic2D){
+            flushOffscreenBuffer(((ReferencedGraphic2D)graphic).getZOrderHint());
         }
 //        getCanvas().repaint(); // Must be invoked last
         return graphic;
@@ -144,8 +145,8 @@ public abstract class BufferedRenderer2D extends AbstractRenderer2D {
     @Override
     protected synchronized void remove(final Graphic graphic) {
 //        getCanvas().repaint(); // Must be invoked first
-        if(graphic instanceof AbstractGraphic){
-            flushOffscreenBuffer(((AbstractGraphic)graphic).getZOrderHint());
+        if(graphic instanceof ReferencedGraphic2D){
+            flushOffscreenBuffer(((ReferencedGraphic2D)graphic).getZOrderHint());
         }
         super.remove(graphic);
     }
@@ -282,10 +283,10 @@ public abstract class BufferedRenderer2D extends AbstractRenderer2D {
             for (int graphicIndex=0; graphicIndex<graphicCount; graphicIndex++) {
                 int graphicIndexUp = graphicIndex;
                 Graphic candidate = (Graphic) graphics.get(graphicIndex);
-                if (!(candidate instanceof GraphicPrimitive2D)) {
+                if (!(candidate instanceof GraphicJ2D)) {
                     continue;
                 }
-                final GraphicPrimitive2D graphic = (GraphicPrimitive2D) candidate;
+                final GraphicJ2D graphic = (GraphicJ2D) candidate;
                 final double zOrder = graphic.getZOrderHint();
                 while (zOrder >= minZOrder) {
                     if (!(zOrder <= maxZOrder)) {
@@ -306,7 +307,7 @@ public abstract class BufferedRenderer2D extends AbstractRenderer2D {
                      */
                     while (++graphicIndexUp < graphicCount) {
                         candidate = (Graphic) graphics.get(graphicIndexUp);
-                        if (!(((AbstractGraphic)candidate).getZOrderHint() <= maxZOrder)) {
+                        if (!(((ReferencedGraphic2D)candidate).getZOrderHint() <= maxZOrder)) {
                             break;
                         }
                     }
@@ -320,9 +321,9 @@ public abstract class BufferedRenderer2D extends AbstractRenderer2D {
                     try {
                         paint(graphic, context, clipBounds);
                     } catch (TransformException exception) {
-                        handleException(GraphicPrimitive2D.class, "paint", exception);
+                        handleException(GraphicJ2D.class, "paint", exception);
                     } catch (RuntimeException exception) {
-                        handleException(GraphicPrimitive2D.class, "paint", exception);
+                        handleException(GraphicJ2D.class, "paint", exception);
                     }
                     continue;
                 }
@@ -422,8 +423,8 @@ renderOffscreen:while (true) {
                     offscreenNeedRepaint[offscreenIndex] = false;
                     for (int i=graphicIndex; i<graphicIndexUp; i++) {
                         candidate = (Graphic) graphics.get(i);
-                        if (candidate instanceof GraphicPrimitive2D) try {
-                            paint((GraphicPrimitive2D) candidate, context, bufferClip);
+                        if (candidate instanceof GraphicJ2D) try {
+                            paint((GraphicJ2D) candidate, context, bufferClip);
                         } catch (Exception exception) {
                             /*
                              * An exception occured in user code. Do not try anymore to use
@@ -476,7 +477,7 @@ renderOffscreen:while (true) {
      * @throws TransformException If a coordinate transformation failed during the rendering
      *         process.
      */
-    private void paint(final GraphicPrimitive2D graphic,
+    private void paint(final GraphicJ2D graphic,
                        final RenderingContext   context,
                        final Rectangle          clipBounds)
             throws TransformException
@@ -705,7 +706,7 @@ renderOffscreen:while (true) {
                                           final PropertyChangeEvent event) {
 //        super.graphicPropertyChanged(graphic, event);
         final String propertyName = event.getPropertyName();
-        if (propertyName.equalsIgnoreCase(AbstractGraphic.Z_ORDER_HINT_PROPERTY)) {
+        if (propertyName.equalsIgnoreCase(ReferencedGraphic2D.Z_ORDER_HINT_PROPERTY)) {
             final Object value = event.getOldValue();
             if (value instanceof Number) {
                 final double oldZOrder = ((Number) value).doubleValue();

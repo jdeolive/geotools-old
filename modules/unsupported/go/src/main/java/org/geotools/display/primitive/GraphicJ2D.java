@@ -40,7 +40,7 @@ import org.geotools.resources.i18n.LoggingKeys;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public abstract class GraphicPrimitive2D extends ReferencedGraphic2D {
+public abstract class GraphicJ2D extends ReferencedGraphic2D {
     /**
      * Constructs a new graphic using the specified objective CRS.
      *
@@ -48,7 +48,7 @@ public abstract class GraphicPrimitive2D extends ReferencedGraphic2D {
      * @throws IllegalArgumentException if {@code crs} is null or has an incompatible number of
      *         dimensions.
      */
-    protected GraphicPrimitive2D(final CoordinateReferenceSystem crs)
+    protected GraphicJ2D(final CoordinateReferenceSystem crs)
             throws IllegalArgumentException
     {
         super(crs);
