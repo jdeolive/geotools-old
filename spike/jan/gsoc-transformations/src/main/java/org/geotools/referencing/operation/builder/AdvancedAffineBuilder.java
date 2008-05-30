@@ -23,7 +23,6 @@ import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.geometry.MismatchedReferenceSystemException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
@@ -35,8 +34,8 @@ import org.geotools.referencing.operation.transform.ProjectiveTransform;
  *
  * @author jezekjan
  * @since
- * @source $URL:$
- * @version $Id:$
+ * @source $URL$
+ * @version $Id$
  */
 public class AdvancedAffineBuilder extends MathTransformBuilder {
 	
@@ -77,7 +76,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     private double sxy;
     
     /** Map of constrains - parameter name as key and its required value*/
-    Map<String, Double> valueConstrain = new HashMap<String, Double>();
+    private Map<String, Double> valueConstrain = new HashMap<String, Double>();
   
     /**Affine transformation for approximate values*/
     private final AffineTransform2D affineTrans;
@@ -108,8 +107,8 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
 
     /**
      * Sets constrain that {@code param} is equal to {@code value}
-     * @param param
-     * @param value
+     * @param param parameter name 
+     * @param value required value
      */
     public void setConstrain(String param, double value) {
         valueConstrain.put(param, value);
@@ -158,11 +157,11 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     }
 
     /**
-     * Fill l matrix. This matrix contains differces between expected value and value
+     * Fill L matrix. This matrix contains differences between expected value and value
      * calculated from affine parameters
      * @return l matrix
      */
-    protected GeneralMatrix getl() {
+    protected GeneralMatrix getL() {
     	
         GeneralMatrix l = new GeneralMatrix(2 * this.getMappedPositions().size(), 1);
 
@@ -201,20 +200,31 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     private GeneralMatrix getDxMatrix(double tolerance, int maxSteps)
         throws FactoryException {
     	
-        // Matriix of new calculated coefficeients
+        /**
+         * Matrix of new calculated coefficients
+         */    	
         GeneralMatrix xNew = new GeneralMatrix(6, 1);
 
-        // Matrix of coefficients claculated in previous iteration
+        /**
+         * Matrix of coefficients calculated in previous iteration
+         */      
         GeneralMatrix xOld = new GeneralMatrix(6, 1);
-
-        // diference between each steps of old iteration
+        /**
+         * Difference between each steps of old iteration
+         */         
         GeneralMatrix dxMatrix = new GeneralMatrix(6, 1);
 
-        GeneralMatrix oldDxMatrix = new GeneralMatrix(6, 1);
+      
 
+        /**
+         * Zero matrix
+         */ 
         GeneralMatrix zero = new GeneralMatrix(6, 1);
         zero.setZero();
 
+        /**
+         * Result
+         */
         GeneralMatrix xk = new GeneralMatrix(6 + valueConstrain.size(), 1);
 
         // i is a number of iterations
@@ -222,11 +232,12 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
 
         // iteration
         do {
+        	
             xOld.set(new double[] { sx, sy, sxy, phi, tx, ty });
-            oldDxMatrix = dxMatrix.clone();
+          
 
             GeneralMatrix A = getA();
-            GeneralMatrix l = getl();
+            GeneralMatrix l = getL();
 
             GeneralMatrix AT = A.clone();
             AT.transpose();
@@ -234,8 +245,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
             GeneralMatrix ATA = new GeneralMatrix(6, 6);
             GeneralMatrix ATl = new GeneralMatrix(6, 1);
 
-            ATA.mul(AT, A);
-            // ATA.invert();
+            ATA.mul(AT, A);            
             ATl.mul(AT, l);
 
             /**constrains**/
@@ -255,12 +265,12 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
             xNew.sub(dxMatrix, xOld);
 
             // New values are setup for another iteration
-            sx = xNew.getElement(0, 0);
-            sy = xNew.getElement(1, 0);
+            sx  = xNew.getElement(0, 0);
+            sy  = xNew.getElement(1, 0);
             sxy = xNew.getElement(2, 0);
             phi = xNew.getElement(3, 0);
-            tx = xNew.getElement(4, 0);
-            ty = xNew.getElement(5, 0);
+            tx  = xNew.getElement(4, 0);
+            ty  = xNew.getElement(5, 0);
 
             i++;
           
@@ -275,9 +285,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     }
 
     @Override
-    public int getMinimumPointCount() {
-        GeneralMatrix M = new GeneralMatrix(3, 3);
-
+    public int getMinimumPointCount() {       
         return 3;
     }
 
@@ -289,39 +297,36 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
         GeneralMatrix B = new GeneralMatrix(valueConstrain.size(), 6);
         int i = 0;
 
-        if (valueConstrain.containsKey(this.SX)) {
+        if (valueConstrain.containsKey(SX)) {
             B.setRow(i, new double[] { 1, 0, 0, 0, 0, 0 });
             i++;
         }
 
-        if (valueConstrain.containsKey(this.SY)) {
+        if (valueConstrain.containsKey(SY)) {
             B.setRow(i, new double[] { 0, 1, 0, 0, 0, 0 });
             i++;
         }
 
-        if (valueConstrain.containsKey(this.SXY)) {
+        if (valueConstrain.containsKey(SXY)) {
             B.setRow(i, new double[] { 0, 0, 1, 0, 0, 0 });
             i++;
         }
 
-        if (valueConstrain.containsKey(this.PHI)) {
+        if (valueConstrain.containsKey(PHI)) {
             B.setRow(i, new double[] { 0, 0, 0, 1, 0, 0 });
             i++;
         }
 
-        if (valueConstrain.containsKey(this.TX)) {
+        if (valueConstrain.containsKey(TX)) {
             B.setRow(i, new double[] { 0, 0, 0, 0, 1, 0 });
             i++;
         }
 
-        if (valueConstrain.containsKey(this.TY)) {
+        if (valueConstrain.containsKey(TY)) {
             B.setRow(i, new double[] { 0, 0, 0, 0, 0, 1 });
             i++;
         }
-
-        GeneralMatrix U = new GeneralMatrix(1, 1);
-
-        //U.setZero();//.setRow(0, new double[]{0});
+       
         return B;
     }
 
@@ -365,7 +370,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     }
 
     /**
-     * Joins A <sup>T</sup> matrix with l
+     * Joins A <sup>T</sup> matrix with L
      * @param ATl
      * @param U
      * @return 
@@ -377,8 +382,6 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
         U.copySubMatrix(0, 0, U.getNumRow(), U.getNumCol(), ATl.getNumRow(), 0, AU);
 
         return AU;
-
-        //AAB.copySubMatrix(arg0, arg1, arg2, arg3, arg4, arg5, arg6)
     }
 
     /**
