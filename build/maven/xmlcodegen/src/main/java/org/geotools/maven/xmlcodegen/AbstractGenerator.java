@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -33,8 +32,6 @@ import java.util.logging.Logger;
 import org.eclipse.xsd.XSDNamedComponent;
 import org.eclipse.xsd.XSDSchema;
 import org.geotools.xml.Schemas;
-
-import com.sun.org.apache.xml.internal.utils.URI.MalformedURIException;
 
 
 /**
