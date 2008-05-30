@@ -51,17 +51,17 @@ public class DefaultClock extends DefaultTemporalReferenceSystem implements Cloc
         super(name, domainOfValidity);
     }
 
-    @Override
+    //@Override
     public InternationalString getReferenceEvent() {
         return referenceEvent;
     }
 
-    @Override
+    //@Override
     public ClockTime getReferenceTime() {
         return referenceTime;
     }
 
-    @Override
+    //@Override
     public ClockTime getUTCReference() {
         return utcReference;
     }
@@ -71,7 +71,7 @@ public class DefaultClock extends DefaultTemporalReferenceSystem implements Cloc
      * @param uTime
      * @return
      */
-    @Override
+    //@Override
     public ClockTime clkTrans(ClockTime uTime) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -81,7 +81,7 @@ public class DefaultClock extends DefaultTemporalReferenceSystem implements Cloc
      * @param clkTime
      * @return
      */
-    @Override
+    //@Override
     public ClockTime utcTrans(ClockTime clkTime) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

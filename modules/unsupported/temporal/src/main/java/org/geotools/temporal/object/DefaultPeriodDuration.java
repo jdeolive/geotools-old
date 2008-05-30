@@ -122,42 +122,42 @@ public class DefaultPeriodDuration extends DefaultDuration implements PeriodDura
     }*/
     }
 
-    @Override
+    //@Override
     public InternationalString getDesignator() {
         return DESIGNATOR;
     }
 
-    @Override
+    //@Override
     public InternationalString getYears() {
         return years;
     }
 
-    @Override
+    //@Override
     public InternationalString getMonths() {
         return months;
     }
 
-    @Override
+    //@Override
     public InternationalString getDays() {
         return days;
     }
 
-    @Override
+    //@Override
     public InternationalString getTimeIndicator() {
         return TIME_INDICATOR;
     }
 
-    @Override
+    //@Override
     public InternationalString getHours() {
         return hours;
     }
 
-    @Override
+    //@Override
     public InternationalString getMinutes() {
         return minutes;
     }
 
-    @Override
+    //@Override
     public InternationalString getSeconds() {
         return seconds;
     }

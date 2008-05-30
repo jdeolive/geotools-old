@@ -37,7 +37,7 @@ public class DefaultTemporalGeometricPrimitive extends DefaultTemporalPrimitive 
      * @param other
      * @return
      */
-    @Override
+    //@Override
     public Duration distance(TemporalGeometricPrimitive other) {
         Duration response = null;
         long diff = 0L;
@@ -112,7 +112,7 @@ public class DefaultTemporalGeometricPrimitive extends DefaultTemporalPrimitive 
      * Returns the length of this TM_GeometricPrimitive
      * @return
      */
-    @Override
+    //@Override
     public Duration length() {
         Duration response = null;
         long diff = 0L;

@@ -56,22 +56,22 @@ public class DefaultIntervalLength extends DefaultDuration implements IntervalLe
         this.value = value;
     }
 
-    @Override
+    //@Override
     public Unit getUnit() {
         return unit;
     }
 
-    @Override
+    //@Override
     public int getRadix() {
         return radix;
     }
 
-    @Override
+    //@Override
     public int getFactor() {
         return factor;
     }
 
-    @Override
+    //@Override
     public int getValue() {
         return value;
     }

@@ -38,7 +38,7 @@ public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSyste
         this.ordinalEraSequence = ordinalEraSequence;
     }
 
-    @Override
+    //@Override
     public Collection<OrdinalEra> getOrdinalEraSequence() {
         return ordinalEraSequence;
     }

@@ -49,17 +49,17 @@ public class DefaultDateAndTime extends DefaultTemporalPosition implements DateA
         this.clockTime = clockTime;
     }
 
-    @Override
+    //@Override
     public Number[] getClockTime() {
         return clockTime;
     }
 
-    @Override
+    //@Override
     public InternationalString getCalendarEraName() {
         return calendarEraName;
     }
 
-    @Override
+    //@Override
     public int[] getCalendarDate() {
         return calendarDate;
     }

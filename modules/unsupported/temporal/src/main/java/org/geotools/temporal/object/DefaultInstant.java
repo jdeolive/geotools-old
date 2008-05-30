@@ -37,17 +37,17 @@ public class DefaultInstant extends DefaultTemporalGeometricPrimitive implements
         this.position = position;
     }
 
-    @Override
+    //@Override
     public Position getPosition() {
         return position;
     }
 
-    @Override
+    //@Override
     public Collection<Period> getBegunBy() {
         return begunBy;
     }
 
-    @Override
+    //@Override
     public Collection<Period> getEndedBy() {
         return endBy;
     }

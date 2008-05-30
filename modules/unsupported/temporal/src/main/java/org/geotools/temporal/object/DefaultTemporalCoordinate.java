@@ -36,7 +36,7 @@ public class DefaultTemporalCoordinate extends DefaultTemporalPosition implement
         this.coordinateValue = coordinateValue;
     }
 
-    @Override
+    //@Override
     public Number getCoordinateValue() {
         return coordinateValue;
     }

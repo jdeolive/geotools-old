@@ -37,7 +37,7 @@ public class DefaultOrdinalPosition extends DefaultTemporalPosition implements O
         this.ordinalPosition = ordinalPosition;
     }
 
-    @Override
+    //@Override
     public OrdinalEra getOrdinalPosition() {
         return ordinalPosition;
     }

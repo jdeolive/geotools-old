@@ -50,7 +50,7 @@ public class DefaultTemporalPosition implements TemporalPosition {
         this.indeterminatePosition = indeterminatePosition;
     }
 
-    @Override
+    //@Override
     public IndeterminateValue getIndeterminatePosition() {
         return this.indeterminatePosition;
     }

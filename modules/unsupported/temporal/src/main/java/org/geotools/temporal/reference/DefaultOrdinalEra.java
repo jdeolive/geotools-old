@@ -58,22 +58,22 @@ public class DefaultOrdinalEra implements OrdinalEra {
         }
     }
 
-    @Override
+    //@Override
     public InternationalString getName() {
         return name;
     }
 
-    @Override
+    //@Override
     public Date getBeginning() {
         return beginning;
     }
 
-    @Override
+    //@Override
     public Date getEnd() {
         return end;
     }
 
-    @Override
+    //@Override
     public Collection<OrdinalEra> getComposition() {
         return composition;
     }

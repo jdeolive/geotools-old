@@ -36,7 +36,7 @@ public class DefaultClockTime extends DefaultTemporalPosition implements ClockTi
         this.clockTime = clockTime;
     }
 
-    @Override
+    //@Override
     public Number[] getClockTime() {
         return clockTime;
     }

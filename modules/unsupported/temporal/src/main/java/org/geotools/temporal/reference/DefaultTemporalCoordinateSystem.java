@@ -54,12 +54,12 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
         this.interval = interval;
     }
 
-    @Override
+    //@Override
     public Date getOrigin() {
         return origin;
     }
 
-    @Override
+    //@Override
     public InternationalString getInterval() {
         return interval;
     }
@@ -69,7 +69,7 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
      * @param c_value
      * @return
      */
-    @Override
+    //@Override
     public Date transformCoord(TemporalCoordinate c_value) {
         Date response;
         final long yearMS = 31536000000L;
@@ -120,7 +120,7 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
      * @param dateTime
      * @return
      */
-    @Override
+    //@Override
     public TemporalCoordinate transformDateTime(Date dateTime) {
         TemporalCoordinate response;
         final long yearMS = 31536000000L;

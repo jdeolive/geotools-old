@@ -64,7 +64,7 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
      * @param time
      * @return
      */
-    @Override
+    //@Override
     public JulianDate dateTrans(CalendarDate calDate, ClockTime time) {
         JulianDate response;
         if (calDate != null && time != null) {
@@ -209,17 +209,17 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
      * @param jdt
      * @return
      */
-    @Override
+    //@Override
     public CalendarDate julTrans(JulianDate jdt) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
+    //@Override
     public Collection<CalendarEra> getBasis() {
         return basis;
     }
 
-    @Override
+    //@Override
     public Clock getClock() {
         return timeBasis;
     }

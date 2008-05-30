@@ -64,27 +64,27 @@ public class DefaultCalendarEra implements CalendarEra {
         this.epochOfUse = epochOfUse;
     }
 
-    @Override
+    //@Override
     public InternationalString getName() {
         return name;
     }
 
-    @Override
+    //@Override
     public InternationalString getReferenceEvent() {
         return referenceEvent;
     }
 
-    @Override
+    //@Override
     public CalendarDate getReferenceDate() {
         return referenceDate;
     }
 
-    @Override
+    //@Override
     public JulianDate getJulianReference() {
         return julianReference;
     }
 
-    @Override
+    //@Override
     public Period getEpochOfUse() {
         return epochOfUse;
     }
