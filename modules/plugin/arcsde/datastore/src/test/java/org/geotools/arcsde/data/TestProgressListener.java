@@ -37,7 +37,7 @@ public class TestProgressListener implements ProgressListener {
     	warning = null;    	
     }
 	public void complete() {
-		if( started ) throw new IllegalStateException("Cannot complete twice");
+		if( completed ) throw new IllegalStateException("Cannot complete twice");
 		progress = 100f;
 		completed = true;
 	}

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
+import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
@@ -26,6 +27,7 @@ import org.geotools.data.Transaction;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.Filter;
 
 /**
  * A FeatureWriter aware of transactions.
@@ -107,21 +109,27 @@ class TransactionFeatureWriter extends ArcSdeFeatureWriter {
     }
 
     @Override
-    protected void doFireFeaturesAdded(String typeName, ReferencedEnvelope bounds) {
+    protected void doFireFeaturesAdded(String typeName, ReferencedEnvelope bounds, Filter filter) {
         Transaction transaction = state.getTransaction();
-        listenerManager.fireFeaturesAdded(typeName, transaction, bounds, false);
+        
+        FeatureEvent event = new FeatureEvent( this, FeatureEvent.Type.ADDED, bounds, filter ); 
+		listenerManager.fireEvent(typeName, transaction, event);                
     }
 
     @Override
-    protected void doFireFeaturesChanged(String typeName, ReferencedEnvelope bounds) {
+    protected void doFireFeaturesChanged(String typeName, ReferencedEnvelope bounds, Filter filter) {
         Transaction transaction = state.getTransaction();
-        listenerManager.fireFeaturesChanged(typeName, transaction, bounds, false);
+        
+        FeatureEvent event = new FeatureEvent( this, FeatureEvent.Type.CHANGED, bounds, filter ); 
+		listenerManager.fireEvent(typeName, transaction, event);
     }
 
     @Override
-    protected void doFireFeaturesRemoved(String typeName, ReferencedEnvelope bounds) {
+    protected void doFireFeaturesRemoved(String typeName, ReferencedEnvelope bounds, Filter filter) {
         Transaction transaction = state.getTransaction();
-        listenerManager.fireFeaturesRemoved(typeName, transaction, bounds, false);
+        
+        FeatureEvent event = new FeatureEvent( this, FeatureEvent.Type.REMOVED, bounds, filter ); 
+		listenerManager.fireEvent(typeName, transaction, event);
     }
 
 }

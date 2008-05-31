@@ -248,18 +248,20 @@ public class FeatureEvent extends EventObject {
     /**
      * Constructs a new FeatureEvent.
      *
-     * @param FeatureSource<SimpleFeatureType, SimpleFeature> The DataStore that fired the event
+     * @param source The writer or feature store that fired the event
      * @param eventType One of FEATURE_CHANGED, FEATURE_REMOVED or
      *        FEATURE_ADDED
      * @param bounds The area modified by this change
      */
-    public FeatureEvent(FeatureSource<? extends FeatureType, ? extends Feature> featureSource,
-            Type type, ReferencedEnvelope bounds, Filter filter) {
-        super(featureSource);
+    @SuppressWarnings("unchecked")
+	public FeatureEvent(Object source, Type type, ReferencedEnvelope bounds, Filter filter) {
+        super(source);
         this.type = type;
         this.bounds = bounds;
         this.filter = filter;
-        this.featureSource = featureSource;        
+        if( source instanceof FeatureSource){
+        	this.featureSource = (FeatureSource) source;
+        }
     }
     
     /**

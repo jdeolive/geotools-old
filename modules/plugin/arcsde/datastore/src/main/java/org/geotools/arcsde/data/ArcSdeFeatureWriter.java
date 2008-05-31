@@ -18,6 +18,7 @@ package org.geotools.arcsde.data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.jdbc.MutableFIDFeature;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Converters;
@@ -44,6 +46,8 @@ import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.BoundingBox;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
@@ -308,44 +312,39 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
     private void fireAdded(final SimpleFeature addedFeature) {
         final String typeName = featureType.getTypeName();
         final BoundingBox bounds = addedFeature.getBounds();
-        final ReferencedEnvelope referencedEnvelope;
-        if (bounds instanceof ReferencedEnvelope) {
-            referencedEnvelope = (ReferencedEnvelope) bounds;
-        } else {
-            referencedEnvelope = new ReferencedEnvelope(bounds);
-        }
-        doFireFeaturesAdded(typeName, referencedEnvelope);
+        ReferencedEnvelope referencedEnvelope = ReferencedEnvelope.reference( bounds );
+        String fid = addedFeature.getID();
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        Filter filter = ff.id( Collections.singleton( ff.featureId( fid )));        
+        doFireFeaturesAdded(typeName, referencedEnvelope, filter );
     }
 
     private void fireChanged(final SimpleFeature changedFeature) {
         final String typeName = featureType.getTypeName();
         final BoundingBox bounds = changedFeature.getBounds();
-        final ReferencedEnvelope referencedEnvelope;
-        if (bounds instanceof ReferencedEnvelope) {
-            referencedEnvelope = (ReferencedEnvelope) bounds;
-        } else {
-            referencedEnvelope = new ReferencedEnvelope(bounds);
-        }
-        doFireFeaturesChanged(typeName, referencedEnvelope);
+        ReferencedEnvelope referencedEnvelope = ReferencedEnvelope.reference( bounds );
+        String fid = changedFeature.getID();
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        Filter filter = ff.id( Collections.singleton( ff.featureId( fid ))); 
+        
+        doFireFeaturesChanged(typeName, referencedEnvelope, filter);
     }
 
     private void fireRemoved(final SimpleFeature removedFeature) {
-        final String typeName = featureType.getTypeName();
-        final BoundingBox bounds = removedFeature.getBounds();
-        final ReferencedEnvelope referencedEnvelope;
-        if (bounds instanceof ReferencedEnvelope) {
-            referencedEnvelope = (ReferencedEnvelope) bounds;
-        } else {
-            referencedEnvelope = new ReferencedEnvelope(bounds);
-        }
-        doFireFeaturesRemoved(typeName, referencedEnvelope);
+        String typeName = featureType.getTypeName();
+        BoundingBox bounds = removedFeature.getBounds();
+        ReferencedEnvelope referencedEnvelope = ReferencedEnvelope.reference( bounds );
+        String fid = removedFeature.getID();
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        Filter filter = ff.id( Collections.singleton( ff.featureId( fid ))); 
+        doFireFeaturesRemoved(typeName, referencedEnvelope, filter );
     }
 
-    protected abstract void doFireFeaturesAdded(String typeName, ReferencedEnvelope bounds);
+    protected abstract void doFireFeaturesAdded(String typeName, ReferencedEnvelope bounds, Filter filter );
 
-    protected abstract void doFireFeaturesChanged(String typeName, ReferencedEnvelope bounds);
+    protected abstract void doFireFeaturesChanged(String typeName, ReferencedEnvelope bounds, Filter filter );
 
-    protected abstract void doFireFeaturesRemoved(String typeName, ReferencedEnvelope bounds);
+    protected abstract void doFireFeaturesRemoved(String typeName, ReferencedEnvelope bounds, Filter filter);
 
     /**
      * @see FeatureWriter#write()
