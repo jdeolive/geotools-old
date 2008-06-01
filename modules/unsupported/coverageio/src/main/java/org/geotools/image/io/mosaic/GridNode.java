@@ -26,6 +26,7 @@ import java.util.ListIterator;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
+import static org.geotools.image.io.mosaic.Tile.MASK;
 
 
 /**
@@ -86,8 +87,8 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
      */
     private static final Comparator<GridNode> PRE_PROCESSING = new Comparator<GridNode>() {
         public int compare(final GridNode n1, final GridNode n2) {
-            final int s1 = (int) n1.xSubsampling * (int) n1.ySubsampling;
-            final int s2 = (int) n2.xSubsampling * (int) n2.ySubsampling;
+            final int s1 = (n1.xSubsampling & MASK) * (n1.ySubsampling & MASK);
+            final int s2 = (n2.xSubsampling & MASK) * (n2.ySubsampling & MASK);
             if (s1 > s2) return -1; // Greatest values first
             if (s1 < s2) return +1;
             final long a1 = (long) n1.width * (long) n1.height;
@@ -407,8 +408,8 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
         GridNode child = (GridNode) firstChildren();
         while (child != null) {
             child.postTreeCreation();
-            if (child.xSubsampling > xSubsampling) xSubsampling = child.xSubsampling;
-            if (child.ySubsampling > ySubsampling) ySubsampling = child.ySubsampling;
+            if ((child.xSubsampling & MASK) > (xSubsampling & MASK)) xSubsampling = child.xSubsampling;
+            if ((child.ySubsampling & MASK) > (ySubsampling & MASK)) ySubsampling = child.ySubsampling;
             child = (GridNode) child.nextSibling();
         }
         dense = isDense(this, this);

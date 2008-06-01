@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
 import org.geotools.resources.OptionalDependencies;
+import static org.geotools.image.io.mosaic.Tile.MASK;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -235,8 +236,8 @@ public final class TreeNodeTest extends TestBase {
         final String message = node.toString();
         assertTrue(message, --level >= 0);
         final int subsampling = subsamplings[level];
-        assertEquals(message, subsampling, node.xSubsampling);
-        assertEquals(message, subsampling, node.ySubsampling);
+        assertEquals(message, subsampling, node.xSubsampling & MASK);
+        assertEquals(message, subsampling, node.ySubsampling & MASK);
 
         final GridNode parent = (GridNode) node.getParent();
         if (parent != null) {

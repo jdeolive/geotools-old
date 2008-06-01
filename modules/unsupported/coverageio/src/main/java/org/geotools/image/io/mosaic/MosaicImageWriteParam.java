@@ -18,6 +18,8 @@ package org.geotools.image.io.mosaic;
 
 import java.io.File;
 import javax.imageio.ImageWriteParam;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.ErrorKeys;
 
 
 /**
@@ -78,11 +80,14 @@ public class MosaicImageWriteParam extends ImageWriteParam {
      * {@linkplain TileManager tile manager} to use in the array returned by
      * {@link MosaicImageWriter#getOutput}. The default value is 0.
      *
-     * @param outputIndex The index of the image to be written.
+     * @param index The index of the image to be written.
      */
-    public void setOutputIndex(final int outputIndex) {
-        Tile.ensurePositive(outputIndex);
-        this.outputIndex = outputIndex;
+    public void setOutputIndex(final int index) {
+        if (index < 0 || index > Tile.MASK) {
+            throw new IllegalArgumentException(Errors.format(
+                    ErrorKeys.VALUE_OUT_OF_BOUNDS_$3, index, 0, Tile.MASK));
+        }
+        outputIndex = index;
     }
 
     /**

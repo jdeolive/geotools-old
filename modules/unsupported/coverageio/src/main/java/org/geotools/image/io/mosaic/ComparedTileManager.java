@@ -107,7 +107,12 @@ final class ComparedTileManager extends TileManager {
         err.print("Additional tiles from ");
         err.print(manager.getClass().getSimpleName());
         err.println(':');
-        err.println(Tile.toString(remainding));
+        err.println(Tile.toString(remainding, 100));
+        /*
+         * We limit the formatting to a small number of tiles (100) because this method is
+         * expected to be invoked only with small collections. Futhermore we don't want to
+         * flood stderr because the difference are printed without stopping the program.
+         */
         return false;
     }
 

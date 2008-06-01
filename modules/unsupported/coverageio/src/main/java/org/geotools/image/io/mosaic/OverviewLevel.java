@@ -30,6 +30,7 @@ import java.net.MalformedURLException;
 
 import org.geotools.util.Utilities;
 import org.geotools.util.IntegerList;
+import org.geotools.util.logging.Logging;
 import org.geotools.util.FrequencySortedSet;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
@@ -480,6 +481,24 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     }
 
     /**
+     * Returns the number of tiles along the <var>x</var> axis.
+     *
+     * @return The number of tiles in a row.
+     */
+    public final int getNumXTiles() {
+        return nx;
+    }
+
+    /**
+     * Returns the number of tiles along the <var>y</var> axis.
+     *
+     * @return The number of tiles in a column.
+     */
+    public final int getNumYTiles() {
+        return ny;
+    }
+
+    /**
      * If there is more than one tile, returns the tile size. Otherwise returns {@code null}.
      * This special condition on the number of tile exists for {@link GridTileManager}
      * implementation convenience.
@@ -555,7 +574,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
      * @throws IndexOutOfBoundsException if the given index is out of bounds.
      * @throws MalformedURLException if an error occured while creating the URL for the tile.
      */
-    private Tile getTile(int x, int y) throws IndexOutOfBoundsException, MalformedURLException {
+    final Tile getTile(int x, int y) throws IndexOutOfBoundsException, MalformedURLException {
         final int index = getIndex(x, y);
         /*
          * Checks for fully-created instance. Those instances are expected to exist if
@@ -655,27 +674,6 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     }
 
     /**
-     * Adds all tiles to the given list.
-     *
-     * @param  addTo The list where to add the tiles.
-     * @throws MalformedURLException if an error occured while creating the URL for the tiles.
-     */
-    final void getTiles(final ArrayList<Tile> addTo) throws MalformedURLException {
-        final int n = nx * ny;
-        int count = addTo.size();
-        addTo.ensureCapacity(count + n);
-        for (int y=0; y<ny; y++) {
-            for (int x=0; x<nx; x++) {
-                final Tile tile = getTile(x, y);
-                if (tile != null) {
-                    addTo.add(tile);
-                }
-            }
-        }
-        assert (count = addTo.size() - count) == getNumTiles() : count;
-    }
-
-    /**
      * Adds to the given list every tiles that intersect the given region. This is
      * caller responsability to ensure that this level uses the subsampling of interest.
      *
@@ -771,6 +769,33 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
             }
         }
         return totalCost;
+    }
+
+    /**
+     * Returns {@code true} if this level or any finer level contains the given tile. This method
+     * is static in order to prevent accidental usage of implicit {@code this}, which would be a
+     * bug.
+     *
+     * @param  tile The tile to check for inclusion.
+     * @reutrn {@code true} if this manager contains the given tile.
+     */
+    static final boolean contains(OverviewLevel level, final Tile tile) {
+        final Dimension subsampling = tile.getSubsampling();
+        while (level != null) {
+            if (level.xSubsampling == subsampling.width && level.ySubsampling == subsampling.height) {
+                final Point index = level.getIndex2D(tile);
+                if (index.x >= 0 && index.x < level.nx && index.y >= 0 && index.y < level.ny) try {
+                    return level.getTile(index.x, index.y).equals(tile);
+                } catch (MalformedURLException e) {
+                    // If we can't format the name, then it is different than the given tile
+                    // input otherwise the user wouldn't have been able to create that tile.
+                    Logging.recoverableException(OverviewLevel.class, "contains", e);
+                }
+                break;
+            }
+            level = level.getFinerLevel();
+        }
+        return false;
     }
 
     /**

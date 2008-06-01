@@ -481,12 +481,14 @@ final class RegionCalculator {
     }
 
     /**
-     * Returns a string representation of the tiles contained in this object.
+     * Returns a string representation of the tiles contained in this object. Since this method is
+     * for debugging purpose, only the first tiles may be formatted in order to avoid consumming to
+     * much space in the debugger.
      */
     @Override
     public String toString() {
         final List<Tile> tiles = new ArrayList<Tile>(this.tiles.values());
         Collections.sort(tiles);
-        return Tile.toString(tiles);
+        return Tile.toString(tiles, 400);
     }
 }

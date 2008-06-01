@@ -19,8 +19,10 @@ package org.geotools.image.io.mosaic;
 import java.util.Map;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.AbstractSet;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -58,6 +60,11 @@ final class GridTileManager extends TileManager {
      * The number of tiles.
      */
     private final int count;
+
+    /**
+     * A view over all tiles as a set. Will be created only when first needed.
+     */
+    private transient Collection<Tile> tiles;
 
     /**
      * Creates a new tile manager from an existing collection of overviews.
@@ -164,22 +171,32 @@ final class GridTileManager extends TileManager {
     @Override
     final Collection<Tile> getInternalTiles() {
         final FrequencySortedSet<Tile> tiles = new FrequencySortedSet<Tile>();
-        for (OverviewLevel level=root; level!=null; level=level.getFinerLevel()) {
+            for (OverviewLevel level=root; level!=null; level=level.getFinerLevel()) {
             level.getInternalTiles(tiles);
         }
         return tiles;
     }
 
     /**
-     * Returns all tiles. The list is generated on the fly every time this method is invoked.
-     * The list is not and should not be cached since it may be large.
-     *
-     * @throws IOException If an I/O operation was required and failed.
+     * Returns all tiles as an unmodifiable set. The tiles are generated on the fly
+     * during the iteration.
      */
-    public Collection<Tile> getTiles() throws IOException {
-        final ArrayList<Tile> tiles = new ArrayList<Tile>(count);
-        for (OverviewLevel level=root; level!=null; level=level.getFinerLevel()) {
-            level.getTiles(tiles);
+    public synchronized Collection<Tile> getTiles() {
+        if (tiles == null) {
+            tiles = new AbstractSet<Tile>() {
+                public int size() {
+                    return count;
+                }
+
+                public Iterator<Tile> iterator() {
+                    return new GridTileIterator(root);
+                }
+
+                @Override
+                public boolean contains(final Object object) {
+                    return (object instanceof Tile) && OverviewLevel.contains(root, (Tile) object);
+                }
+            };
         }
         return tiles;
     }

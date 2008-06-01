@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.InvalidClassException;
@@ -46,6 +47,8 @@ import org.geotools.resources.XArray;
 import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Vocabulary;
+import org.geotools.resources.i18n.VocabularyKeys;
 
 import static java.lang.Math.min;
 import static java.lang.Math.max;
@@ -137,6 +140,12 @@ public class Tile implements Comparable<Tile>, Serializable {
      */
 
     /**
+     * Mask to apply on every unsigned short values (16 bits) in order to get the 32 bits
+     * integer to work with. This is also the maximal value allowed.
+     */
+    static final int MASK = 0xFFFF;
+
+    /**
      * The provider to use. The same provider is typically given to every {@code Tile} objects
      * to be given to the same {@link TileManager} instance, but this is not mandatory.
      * <p>
@@ -156,6 +165,7 @@ public class Tile implements Comparable<Tile>, Serializable {
 
     /**
      * The image index to be given to the image reader for reading this tile.
+     * Stored as a unsigned short (i.e. must be used with {@code & MASK}).
      */
     private final short imageIndex;
 
@@ -163,6 +173,8 @@ public class Tile implements Comparable<Tile>, Serializable {
      * The subsampling relative to the tile having the finest resolution. If this tile is the
      * one with finest resolution, then the value shall be 1. Should never be 0 or negative,
      * except if its value has not yet been computed.
+     * <p>
+     * Values are stored as unsigned shorts (i.e. must be used with {@code & MASK}).
      * <p>
      * This field should be considered as final. It is not final only because
      * {@link RegionCalculator} may computes its value automatically.
@@ -179,7 +191,7 @@ public class Tile implements Comparable<Tile>, Serializable {
     /**
      * The size of the image to be read, or 0 if not yet computed. Values are stored
      * as <strong>unsigned</strong> shorts:  they must be casted to {@code int} with
-     * {@code s & 0xFFFF}. We assume that the {@code [0 .. 65535]} range is suffisient
+     * {@code s & MASK}. We assume that the {@code [0 .. 65535]} range is suffisient
      * on the basis that tiles need to be reasonably small for being useful. Furthermore
      * tiles are usually square and an image of size 32767&times;32767 reachs the limit
      * of Java Image I/O library anyway, since image area must hold in an {@code int}.
@@ -201,6 +213,11 @@ public class Tile implements Comparable<Tile>, Serializable {
      * Creates a new tile which is a copy of the given one except for input and region.
      * The subsampling (and consequently the <cite>grid to CRS</cite> transform), image
      * index and image reader SPI are copied unchanged.
+     * <p>
+     * This method is not public because copying the field values may not be suffisient
+     * if the given class is not of the same class than {@code this}. For example if it
+     * is a {@link LargeTile}, then the width and height may be too small. This is okay
+     * for {@link OverviewLevel} which use this constructor only with {@link Tile} instances.
      *
      * @param tile
      *          The tile to copy.
@@ -214,7 +231,7 @@ public class Tile implements Comparable<Tile>, Serializable {
      * @throws IllegalArgumentException
      *          If a required argument is {@code null} or some argument has an invalid value.
      */
-    public Tile(final Tile tile, final Object input, final Rectangle region)
+    Tile(final Tile tile, final Object input, final Rectangle region)
             throws IllegalArgumentException
     {
         ensureNonNull("tile", tile);
@@ -393,9 +410,9 @@ public class Tile implements Comparable<Tile>, Serializable {
     }
 
     /**
-     * Creates a tile for the given region with default subsampling. This is a constructor is
-     * provided for avoiding compile-tile ambiguity between null <cite>subsampling</cite> and
-     * null <cite>affine transform</cite> (the former is legal, the later is not).
+     * Creates a tile for the given region with default subsampling. This constructor is
+     * provided for avoiding compile-tile ambiguity between null <cite>subsampling</cite>
+     * and null <cite>affine transform</cite> (the former is legal, the later is not).
      *
      * @param provider
      *          The image reader provider to use. The same provider is typically given to every
@@ -430,12 +447,12 @@ public class Tile implements Comparable<Tile>, Serializable {
 
     /**
      * Ensures that the given value is positive and in the range of 16 bits number.
-     * Returns the value casted to a {@code short} type.
+     * Returns the value casted to an unsigned {@code short} type.
      */
-    static short ensurePositive(final int n) throws IllegalArgumentException {
-        if (n < 0 || n > Short.MAX_VALUE) {
+    private static short ensurePositive(final int n) throws IllegalArgumentException {
+        if (n < 0 || n > MASK) {
             throw new IllegalArgumentException(Errors.format(
-                    ErrorKeys.VALUE_OUT_OF_BOUNDS_$3, n, 0, Short.MAX_VALUE));
+                    ErrorKeys.VALUE_OUT_OF_BOUNDS_$3, n, 0, MASK));
         }
         return (short) n;
     }
@@ -719,7 +736,7 @@ public class Tile implements Comparable<Tile>, Serializable {
      * @see ImageReader#read(int)
      */
     public int getImageIndex() {
-        return imageIndex;
+        return imageIndex & MASK;
     }
 
     /**
@@ -801,7 +818,7 @@ public class Tile implements Comparable<Tile>, Serializable {
      */
     public synchronized Dimension getSubsampling() throws IllegalStateException {
         checkGeometryValidity();
-        return new Dimension(xSubsampling, ySubsampling);
+        return new Dimension(xSubsampling & MASK, ySubsampling & MASK);
     }
 
     /**
@@ -844,8 +861,8 @@ public class Tile implements Comparable<Tile>, Serializable {
         if (subsampling != null) {
             final int dx, dy;
             try {
-                dx = subsampling.width  % xSubsampling;
-                dy = subsampling.height % ySubsampling;
+                dx = subsampling.width  % (xSubsampling & MASK);
+                dy = subsampling.height % (ySubsampling & MASK);
             } catch (ArithmeticException e) {
                 throw new IllegalStateException("Tile must be processed by TileManagerFactory.", e);
             }
@@ -867,8 +884,8 @@ public class Tile implements Comparable<Tile>, Serializable {
      * for at least one dimension. For internal usage by {@link RTree#searchTiles} only.
      */
     final boolean isFinerThan(final Dimension subsampling) {
-        return xSubsampling < subsampling.width ||
-               ySubsampling < subsampling.height;
+        return (xSubsampling & MASK) < subsampling.width ||
+               (ySubsampling & MASK) < subsampling.height;
     }
 
     /**
@@ -898,7 +915,7 @@ public class Tile implements Comparable<Tile>, Serializable {
      */
     final boolean isSizeEquals(final int dx, final int dy) {
         assert getClass().equals(Tile.class) && (width != 0) && (height != 0) : this;
-        return (width & 0xFFFF) == dx && (height & 0xFFFF) == dy;
+        return (width & MASK) == dx && (height & MASK) == dy;
     }
 
     /**
@@ -921,11 +938,12 @@ public class Tile implements Comparable<Tile>, Serializable {
     public synchronized Rectangle getRegion() throws IllegalStateException, IOException {
         checkGeometryValidity();
         if (width == 0 && height == 0) {
+            final int imageIndex = getImageIndex();
             final ImageReader reader = getImageReader(null, true, true);
             setSize(reader.getWidth(imageIndex), reader.getHeight(imageIndex));
             reader.dispose();
         }
-        return new Rectangle(x, y, width & 0xFFFF, height & 0xFFFF);
+        return new Rectangle(x, y, width & MASK, height & MASK);
     }
 
     /**
@@ -936,10 +954,12 @@ public class Tile implements Comparable<Tile>, Serializable {
      */
     final Rectangle getAbsoluteRegion() throws IOException {
         final Rectangle region = getRegion();
-        region.x      *= xSubsampling;
-        region.y      *= ySubsampling;
-        region.width  *= xSubsampling;
-        region.height *= ySubsampling;
+        final int sx = xSubsampling & MASK;
+        final int sy = ySubsampling & MASK;
+        region.x      *= sx;
+        region.y      *= sy;
+        region.width  *= sx;
+        region.height *= sy;
         return region;
     }
 
@@ -955,29 +975,32 @@ public class Tile implements Comparable<Tile>, Serializable {
      */
     final void setAbsoluteRegion(final Rectangle region) throws ArithmeticException {
         assert Thread.holdsLock(this);
-        assert (region.width % xSubsampling) == 0 && (region.height % ySubsampling) == 0 : region;
-        x = region.x / xSubsampling;
-        y = region.y / ySubsampling;
-        setSize(region.width / xSubsampling, region.height / ySubsampling);
+        final int sx = xSubsampling & MASK;
+        final int sy = ySubsampling & MASK;
+        assert (region.width % sx) == 0 && (region.height % sy) == 0 : region;
+        x = region.x / sx;
+        y = region.y / sy;
+        setSize(region.width / sx, region.height / sy);
     }
 
     /**
      * Sets the tile size to the given values, making sure that they can be stored as unsigned
-     * short.
+     * short. This method is overriden by {@link LargeTile} but should never been invoked by
+     * anyone else than {@link Tile}.
      *
      * @param dx The tile width.
      * @param dy The tile height.
      * @throws IllegalArgumentException if the given size can't be stored as unsigned short.
      */
-    private void setSize(final int dx, final int dy) throws IllegalArgumentException {
+    void setSize(final int dx, final int dy) throws IllegalArgumentException {
         width  = (short) dx;
         height = (short) dy;
         final String name;
         final int value;
-        if ((width & 0xFFFF) != dx) {
+        if ((width & MASK) != dx) {
             name = "width";
             value = dx;
-        } else if ((height & 0xFFFF) != dy) {
+        } else if ((height & MASK) != dy) {
             name = "height";
             value = dy;
         } else {
@@ -986,7 +1009,7 @@ public class Tile implements Comparable<Tile>, Serializable {
         width  = 0;
         height = 0;
         throw new IllegalArgumentException(Errors.format(
-                ErrorKeys.VALUE_OUT_OF_BOUNDS_$3, name + '=' + value, 0, 0xFFFF));
+                ErrorKeys.VALUE_OUT_OF_BOUNDS_$3, name + '=' + value, 0, MASK));
     }
 
     /**
@@ -997,18 +1020,20 @@ public class Tile implements Comparable<Tile>, Serializable {
      * @throws ArithmeticException if {@link #setSubsampling} has not be invoked.
      */
     final void absoluteToRelative(final Rectangle region) throws ArithmeticException {
+        final int sx = xSubsampling & MASK;
+        final int sy = ySubsampling & MASK;
         int xmin = region.x;
         int xmax = region.width  + xmin;
         int ymin = region.y;
         int ymax = region.height + ymin;
-        if (xmin < 0) xmin -= (xSubsampling - 1);
-        if (xmax > 0) xmax += (xSubsampling - 1);
-        if (ymin < 0) ymin -= (ySubsampling - 1);
-        if (ymax > 0) ymax += (ySubsampling - 1);
-        xmin /= xSubsampling;
-        xmax /= xSubsampling;
-        ymin /= ySubsampling;
-        ymax /= ySubsampling;
+        if (xmin < 0) xmin -= (sx - 1);
+        if (xmax > 0) xmax += (sx - 1);
+        if (ymin < 0) ymin -= (sy - 1);
+        if (ymax > 0) ymax += (sy - 1);
+        xmin /= sx;
+        xmax /= sx;
+        ymin /= sy;
+        ymax /= sy;
         region.x = xmin;
         region.y = ymin;
         region.width  = xmax - xmin;
@@ -1055,16 +1080,18 @@ public class Tile implements Comparable<Tile>, Serializable {
     final int countUnwantedPixelsFromAbsolute(final Rectangle toRead, final Dimension subsampling)
             throws IOException
     {
-        assert subsampling.width >= xSubsampling && subsampling.height >= ySubsampling : subsampling;
+        final int sx = xSubsampling & MASK;
+        final int sy = ySubsampling & MASK;
+        assert subsampling.width >= sx && subsampling.height >= sy : subsampling;
         final Rectangle region = getRegion();
         /*
          * Converts the tile region to absolute coordinates and clips it to the region to read.
          */
         final long xmin, ymin, xmax, ymax;
-        xmin = max((long) toRead.x,                 xSubsampling * ((long) region.x));
-        ymin = max((long) toRead.y,                 ySubsampling * ((long) region.y));
-        xmax = min((long) toRead.x + toRead.width,  xSubsampling * ((long) region.x + region.width));
-        ymax = min((long) toRead.y + toRead.height, ySubsampling * ((long) region.y + region.height));
+        xmin = max((long) toRead.x,                 sx * ((long) region.x));
+        ymin = max((long) toRead.y,                 sy * ((long) region.y));
+        xmax = min((long) toRead.x + toRead.width,  sx * ((long) region.x + region.width));
+        ymax = min((long) toRead.y + toRead.height, sy * ((long) region.y + region.height));
         /*
          * Computes the amount of pixels to keep for the given region and subsampling.
          */
@@ -1172,7 +1199,7 @@ public class Tile implements Comparable<Tile>, Serializable {
     public final int compareTo(final Tile other) {
         int c = compareInputs(input, other.input);
         if (c == 0) {
-            c = imageIndex - other.imageIndex;
+            c = (imageIndex & MASK) - (other.imageIndex & MASK);
             if (c == 0) {
                 /*
                  * From this point it doesn't matter much for disk access. But we continue to
@@ -1180,13 +1207,17 @@ public class Tile implements Comparable<Tile>, Serializable {
                  * subsampling first because it may be undefined while it is needed for (x,y)
                  * ordering. Undefined subsampling will be ordered first (this is arbitrary).
                  */
-                c = ySubsampling - other.ySubsampling;
+                final int sy =  this.ySubsampling & MASK;
+                final int oy = other.ySubsampling & MASK;
+                c = sy - oy;
                 if (c == 0) {
-                    c = xSubsampling - other.xSubsampling;
+                    final int sx =  this.xSubsampling & MASK;
+                    final int ox = other.xSubsampling & MASK;
+                    c = sx - ox;
                     if (c == 0) {
-                        c = (y * ySubsampling) - (other.y - other.ySubsampling);
+                        c = (y * sy) - (other.y * oy);
                         if (c == 0) {
-                            c = (x * xSubsampling) - (other.x * other.xSubsampling);
+                            c = (x * sx) - (other.x * ox);
                         }
                     }
                 }
@@ -1298,11 +1329,15 @@ public class Tile implements Comparable<Tile>, Serializable {
             buffer.append("), subsampling=(").append(subsampling.width)
                   .append(',').append(subsampling.height).append(')');
         } else {
-            // Location and subsampling not yet computed, so don't display it. We can not
-            // invoke 'getRegion()' neither since it would throw an IllegalStateException.
-            if (width != 0 || height != 0) {
-                buffer.append(", size=(").append(width & 0xFFFF)
-                      .append(',').append(height & 0xFFFF).append(')');
+            /*
+             * Location and subsampling not yet computed, so don't display it. We can not
+             * invoke 'getRegion()' neither since it would throw an IllegalStateException.
+             * Since we have to read the fields directly, make sure that this instance is
+             * not a subclass like LargeTile, otherwise those values may be wrong.
+             */
+            if ((width != 0 || height != 0) && getClass().equals(Tile.class)) {
+                buffer.append(", size=(").append(width & MASK)
+                      .append(',').append(height & MASK).append(')');
             }
         }
         return buffer.append(']').toString();
@@ -1313,17 +1348,28 @@ public class Tile implements Comparable<Tile>, Serializable {
      * table in iteration order. Tip: consider sorting the tiles before to invoke this method;
      * tiles are {@linkplain Comparable comparable} for this purpose.
      *
-     * @param tiles The tiles to format in a table.
+     * @param tiles
+     *          The tiles to format in a table.
+     * @param maximum
+     *          The maximum number of tiles to format. If there is more tiles, a message will be
+     *          formatted below the table. A reasonable value like 5000 is recommanded since
+     *          attempt to format millions of tiles leads to {@link OutOfMemoryError}.
      * @return A string representation of the given tiles as a table.
+     *
      * @see java.util.Collections#sort(List)
      */
-    public static String toString(final Collection<Tile> tiles) {
-        final TableWriter table = new TableWriter(null);
+    public static String toString(final Collection<Tile> tiles, final int maximum) {
+        int remaining = maximum;
+        final StringWriter writer = new StringWriter();
+        final TableWriter table = new TableWriter(writer);
         table.nextLine(TableWriter.DOUBLE_HORIZONTAL_LINE);
         table.write("Format\tInput\tindex\tx\ty\twidth\theight\tdx\tdy\n");
         table.nextLine(TableWriter.SINGLE_HORIZONTAL_LINE);
         table.setMultiLinesCells(true);
         for (final Tile tile : tiles) {
+            if (--remaining < 0) {
+                break;
+            }
             table.setAlignment(TableWriter.ALIGN_LEFT);
             final String format = tile.getFormatName();
             if (format != null) {
@@ -1335,28 +1381,74 @@ public class Tile implements Comparable<Tile>, Serializable {
             table.setAlignment(TableWriter.ALIGN_RIGHT);
             table.write(String.valueOf(tile.getImageIndex()));
             table.nextColumn();
-            table.write(String.valueOf(tile.x));
+            /*
+             * Extracts now the tile information that we are going to format, but those
+             * informations may be overriden later if the current tile is some subclass
+             * of Tile. We format Tile instances in a special way since it allows us to
+             * left a blank for subsampling and tile size if they are not yet computed,
+             * rather than throwing an exception.
+             */
+            int x            = tile.x;
+            int y            = tile.y;
+            int width        = tile.width        & MASK;
+            int height       = tile.height       & MASK;
+            int xSubsampling = tile.xSubsampling & MASK;
+            int ySubsampling = tile.ySubsampling & MASK;
+            if (!tile.getClass().equals(Tile.class)) {
+                final Dimension subsampling = tile.getSubsampling();
+                xSubsampling = subsampling.width;
+                ySubsampling = subsampling.height;
+                try {
+                    final Rectangle region = tile.getRegion();
+                    x      = region.x;
+                    y      = region.y;
+                    width  = region.width;
+                    height = region.height;
+                } catch (IOException e) {
+                    // The (x,y) are likely to be correct since only (width,height) are read
+                    // from the image file. So set only (width,height) to "unknown" and keep
+                    // the remaining, with (x,y) obtained from direct access to Tile fields.
+                    width  = 0;
+                    height = 0;
+                }
+            }
+            table.write(String.valueOf(x));
             table.nextColumn();
-            table.write(String.valueOf(tile.y));
-            if (tile.width != 0 || tile.height != 0) {
+            table.write(String.valueOf(y));
+            if (width != 0 || height != 0) {
                 table.nextColumn();
-                table.write(String.valueOf(tile.width & 0xFFFF));
+                table.write(String.valueOf(width));
                 table.nextColumn();
-                table.write(String.valueOf(tile.height & 0xFFFF));
+                table.write(String.valueOf(height));
             } else {
                 table.nextColumn();
                 table.nextColumn();
             }
-            if (tile.xSubsampling != 0 || tile.ySubsampling != 0) {
+            if (xSubsampling != 0 || ySubsampling != 0) {
                 table.nextColumn();
-                table.write(String.valueOf(tile.xSubsampling));
+                table.write(String.valueOf(xSubsampling));
                 table.nextColumn();
-                table.write(String.valueOf(tile.ySubsampling));
+                table.write(String.valueOf(ySubsampling));
             }
             table.nextLine();
         }
         table.nextLine(TableWriter.DOUBLE_HORIZONTAL_LINE);
-        return table.toString();
+        /*
+         * Table completed. Flushs to the StringBuffer and appends additional
+         * text if we have not formatted every tiles.
+         */
+        try {
+            table.flush();
+        } catch (IOException e) {
+            // Should never happen since we are flushing to a StringWriter.
+            throw new AssertionError(e);
+        }
+        final StringBuffer buffer = writer.getBuffer();
+        if (remaining < 0) {
+            buffer.append(Vocabulary.format(VocabularyKeys.MORE_$1, tiles.size() - maximum))
+                  .append(System.getProperty("line.separator", "\n"));
+        }
+        return buffer.toString();
     }
 
     /**

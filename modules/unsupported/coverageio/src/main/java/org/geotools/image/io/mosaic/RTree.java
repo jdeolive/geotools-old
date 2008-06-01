@@ -33,6 +33,7 @@ import java.io.IOException;
 
 import org.geotools.util.logging.Logging;
 import org.geotools.resources.OptionalDependencies;
+import static org.geotools.image.io.mosaic.Tile.MASK;
 
 
 /**
@@ -148,8 +149,8 @@ final class RTree {
         final Dimension tileSize = new Dimension();
         for (final TreeNode node : root) {
             final GridNode child = (GridNode) node;
-            final int width  = child.width  / child.xSubsampling;
-            final int height = child.height / child.ySubsampling;
+            final int width  = child.width  / (child.xSubsampling & MASK);
+            final int height = child.height / (child.ySubsampling & MASK);
             if (width  > tileSize.width)  tileSize.width  = width;
             if (height > tileSize.height) tileSize.height = height;
         }

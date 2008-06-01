@@ -259,9 +259,9 @@ public abstract class TileManager implements Serializable {
         final Tile tile;
         final ImageGeometry geometry = getGridGeometry();
         if (geometry == null) {
-            tile = new Tile(provider, input, imageIndex, getRegion());
+            tile = new LargeTile(provider, input, imageIndex, getRegion());
         } else {
-            tile = new Tile(provider, input, imageIndex, geometry.getGridRange());
+            tile = new LargeTile(provider, input, imageIndex, geometry.getGridRange());
             tile.setGridToCRS(geometry.getGridToCRS());
         }
         return tile;
@@ -363,8 +363,8 @@ public abstract class TileManager implements Serializable {
 
     /**
      * Returns a string representation of this tile manager. The default implementation
-     * formats all tiles in a table. Subclasses may format the tiles in a tree instead.
-     * Note that in both cases the result may be a quite long string.
+     * formats the first tiles in a table. Subclasses may format the tiles in a tree
+     * instead. Note that in both cases the result may be a quite long string.
      *
      * @return A string representation.
      */
@@ -376,6 +376,10 @@ public abstract class TileManager implements Serializable {
         } catch (IOException e) {
             return e.toString();
         }
-        return Tile.toString(tiles);
+        /*
+         * If each lines are 100 characters long, then limiting the formatting to 10000 tiles
+         * will limit memory consumption to approximatively 1 Mb.
+         */
+        return Tile.toString(tiles, 10000);
     }
 }

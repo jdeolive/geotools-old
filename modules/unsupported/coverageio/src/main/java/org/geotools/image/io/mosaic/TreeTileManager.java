@@ -309,7 +309,7 @@ fill:   for (final List<Tile> sameInputs : asArray) {
         try {
             tree = getTree();
         } catch (IOException e) {
-            return Tile.toString(allTiles);
+            return super.toString();
         }
         final String string;
         try {
