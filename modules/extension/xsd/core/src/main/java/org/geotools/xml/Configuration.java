@@ -442,12 +442,13 @@ public abstract class Configuration {
             //call old api
             dependency.registerBindings((MutablePicoContainer)container);
         }
-
-        //call template method, create a new container to allow subclass to override bindings
-        configureBindings(bindings);
-        
-        //call old api
-        configureBindings((MutablePicoContainer)container);
+        for (Iterator d = allDependencies().iterator(); d.hasNext();) {
+            Configuration dependency = (Configuration) d.next();
+            dependency.configureBindings(bindings);
+       
+            //call old api
+            dependency.configureBindings((MutablePicoContainer)container);
+        }
         
         return bindings;
     }
