@@ -396,8 +396,8 @@ public class MosaicImageWriter extends ImageWriter {
                 }
                 continue;
             }
-            assert image.getWidth()  == imageRegion.width &&
-                   image.getHeight() == imageRegion.height : imageTile;
+            assert image.getWidth()  * imageSubsampling.width  == imageRegion.width &&
+                   image.getHeight() * imageSubsampling.height == imageRegion.height : imageTile;
             /*
              * Searchs tiles inside the same region with a resolution which is equals or lower by
              * an integer ratio. If such tiles are found we can write them using the image loaded

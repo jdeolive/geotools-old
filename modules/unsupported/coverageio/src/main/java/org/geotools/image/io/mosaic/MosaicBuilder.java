@@ -533,9 +533,11 @@ public class MosaicBuilder {
                 nx = (untiledBounds.width  - 1) / tileSize.width  + 1;
                 ny = (untiledBounds.height - 1) / tileSize.height + 1;
             }
-            nx = Arrays.binarySearch(xSubsamplings, nx); if (nx < 0) nx = ~nx; else nx++;
-            ny = Arrays.binarySearch(ySubsamplings, ny); if (ny < 0) ny = ~ny; else ny++;
-            final int length = Math.max(nx, ny); // 'max' is safe if arrays have the same length.
+            nx = Arrays.binarySearch(xSubsamplings, nx); if (nx < 0) nx = ~nx; nx++;
+            ny = Arrays.binarySearch(ySubsamplings, ny); if (ny < 0) ny = ~ny; ny++;
+            // The above increment (++) are inconditional (outside the "if" block).
+            // Using "Math.max" below is safe since arrays have the same length.
+            final int length = Math.min(Math.max(nx, ny), xSubsamplings.length + 1);
             subsamplings = new int[length * 2];
             int source = 0;
             for (int i=0; i<length; i++) {
