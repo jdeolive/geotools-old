@@ -18,6 +18,7 @@ package org.geotools.image.io.mosaic;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.image.Raster;
 import java.awt.image.DataBuffer;
 import java.awt.image.SampleModel;
 import java.awt.image.RenderedImage;
@@ -70,6 +71,12 @@ import org.geotools.util.logging.Logging;
  * @author Martin Desruisseaux
  */
 public class MosaicImageWriter extends ImageWriter {
+    /**
+     * The value for filling empty images. The value is fixed to 0 in current implementation
+     * because this is the value of newly created image, and we do not fill them at this time.
+     */
+    private static final int FILL_VALUE = 0;
+
     /**
      * The logging level for tiling information during reads and writes.
      */
@@ -250,14 +257,17 @@ public class MosaicImageWriter extends ImageWriter {
     {
         clearAbortRequest();
         final int outputIndex;
+        final boolean ommitEmptyTiles;
         final TileWritingPolicy policy;
         if (writeParam instanceof MosaicImageWriteParam) {
             final MosaicImageWriteParam param = (MosaicImageWriteParam) writeParam;
-            outputIndex = param.getOutputIndex();
-            policy = param.getTileWritingPolicy();
+            outputIndex     = param.getOutputIndex();
+            ommitEmptyTiles = param.getOmmitEmptyTiles();
+            policy          = param.getTileWritingPolicy();
         } else {
-            outputIndex = 0;
-            policy = TileWritingPolicy.OVERWRITE;
+            outputIndex     = 0;
+            ommitEmptyTiles = false;
+            policy          = TileWritingPolicy.OVERWRITE;
         }
         processImageStarted(outputIndex);
         /*
@@ -354,7 +364,7 @@ public class MosaicImageWriter extends ImageWriter {
                 final int width  = imageRegion.width  / imageSubsampling.width;
                 final int height = imageRegion.height / imageSubsampling.height;
                 if (width == image.getWidth() && height == image.getHeight()) {
-                    ImageUtilities.fill(image, 0);
+                    ImageUtilities.fill(image, FILL_VALUE);
                 } else {
                     image = null;
                 }
@@ -413,6 +423,9 @@ public class MosaicImageWriter extends ImageWriter {
                 }
                 final Rectangle sourceRegion = tile.getAbsoluteRegion();
                 if (!imageRegion.contains(sourceRegion)) {
+                    continue;
+                }
+                if (ommitEmptyTiles && isEmpty(image, sourceRegion)) {
                     continue;
                 }
                 final int xSubsampling = subsampling.width  / imageSubsampling.width;
@@ -747,6 +760,30 @@ search: for (final Tile tile : tiles) {
      * @throws IOException if an error occured while inspecting or configuring the writer.
      */
     protected boolean filter(final ImageWriter writer) throws IOException {
+        return true;
+    }
+
+    /**
+     * Returns {@code true} if the given region in the given image contains only fill values.
+     *
+     * @param image The image to test.
+     * @param region The region in the image to test.
+     */
+    private boolean isEmpty(final BufferedImage image, final Rectangle region) {
+        int[] data = null;
+        final Raster raster = image.getRaster();
+        final int xmax = region.x + region.width;
+        final int ymax = region.y + region.height;
+        for (int y=region.y; y<ymax; y++) {
+            for (int x=region.x; x<xmax; x++) {
+                data = raster.getPixel(x, y, data);
+                for (int i=data.length; --i>=0;) {
+                    if (data[i] != FILL_VALUE) {
+                        return false;
+                    }
+                }
+            }
+        }
         return true;
     }
 
