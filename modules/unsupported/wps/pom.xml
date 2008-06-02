@@ -57,12 +57,18 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
-  <artifactId>wps</artifactId>
+  <artifactId>gt-wps</artifactId>
   <packaging>jar</packaging>
-  <name>Example</name>
+  <url>http://maven.geotools.fr/reports/modules/unsupported/wps/</url>
+  <scm>
+    <connection>
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/wps/
+    </connection>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/wps/</url>
+  </scm>
   
   <description>
-    Supply a quick description here.
+    Web Processing Service implementation.
   </description>
   
   <organization>
@@ -90,16 +96,17 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
-      <id>YOURID</id>
-      <name>YOUR NAME</name>
-      <email>you@server.org</email>
-      <organization>University, Organization or Company</organization>
+      <id>gdavis</id>
+      <name>Graham Davis</name>
+      <email>gdavis@refractions.net</email>
+      <organization>Refractions Research</organization>
       <roles>
         <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
     </developer>
   </developers>
+
 
 
   <!-- =========================================================== -->
@@ -122,6 +129,21 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.geotools.ogc</groupId>
+      <artifactId>net.opengis.wps</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools.xsd</groupId>
+      <artifactId>gt-ows</artifactId>
+      <version>${project.version}</version>
+    </dependency>   
+    <dependency>
+      <groupId>org.geotools.xsd</groupId>
+      <artifactId>gt-xsd-wps</artifactId>
+      <version>${project.version}</version>
+    </dependency> 
   </dependencies>
 
 

@@ -17,7 +17,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Value of one input to a process. 
+ * Value of one input to a process.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -41,7 +41,7 @@ public interface InputType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Unambiguous identifier or name of a process, unique for this server, or unambiguous identifier or name of an output, unique for this process. 
+	 * Unambiguous identifier or name of a process, unique for this server, or unambiguous identifier or name of an output, unique for this process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Identifier</em>' containment reference.
 	 * @see #setIdentifier(CodeType)
@@ -67,7 +67,7 @@ public interface InputType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Title of a process or output, normally available for display to a human. 
+	 * Title of a process or output, normally available for display to a human.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Title</em>' containment reference.
 	 * @see #setTitle(LanguageStringType)
@@ -93,7 +93,7 @@ public interface InputType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Brief narrative description of a process or output, normally available for display to a human. 
+	 * Brief narrative description of a process or output, normally available for display to a human.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Abstract</em>' containment reference.
 	 * @see #setAbstract(LanguageStringType)
@@ -119,7 +119,7 @@ public interface InputType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies this input value as a web accessible resource, and references that resource. 
+	 * Identifies this input value as a web accessible resource, and references that resource.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Reference</em>' containment reference.
 	 * @see #setReference(InputReferenceType)
@@ -145,7 +145,7 @@ public interface InputType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies this input value as a data embedded in this request, and includes that data. 
+	 * Identifies this input value as a data embedded in this request, and includes that data.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Data</em>' containment reference.
 	 * @see #setData(DataType)

@@ -14,7 +14,7 @@ import java.math.BigInteger;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- *  
+ * 
  * <!-- end-model-doc -->
  *
  * <p>
@@ -34,7 +34,7 @@ public interface SupportedComplexDataInputType extends SupportedComplexDataType 
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The maximum file size, in megabytes, of this input.  If the input exceeds this size, the server will return an error instead of processing the inputs. 
+	 * The maximum file size, in megabytes, of this input.  If the input exceeds this size, the server will return an error instead of processing the inputs.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Maximum Megabytes</em>' attribute.
 	 * @see #setMaximumMegabytes(BigInteger)

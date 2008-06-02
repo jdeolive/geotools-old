@@ -33,15 +33,16 @@ import org.eclipse.emf.ecore.EObject;
 public interface UOMsType extends EObject {
 	/**
 	 * Returns the value of the '<em><b>UOM</b></em>' containment reference list.
-	 * The list contents are of type {@link net.opengis.ows11.DomainMetadataType}.
+	 * The list contents are of type {@link javax.units.Unit}.
 	 * <!-- begin-user-doc -->
+	 * Changed net.opengis.ows11.DomainMetadataType to javax.units.Unit
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Reference to a UOM supported for this input or output. 
+	 * Reference to a UOM supported for this input or output.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>UOM</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getUOMsType_UOM()
-	 * @model type="net.opengis.ows11.DomainMetadataType" containment="true" required="true"
+	 * @model type="net.opengis.wps.Unit" containment="true" required="true"
 	 *        extendedMetaData="kind='element' name='UOM' namespace='http://www.opengis.net/ows/1.1'"
 	 * @generated
 	 */

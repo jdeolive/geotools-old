@@ -35,7 +35,7 @@ public interface ExecuteResponseType extends ResponseBaseType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Process description from the ProcessOfferings section of the GetCapabilities response. 
+	 * Process description from the ProcessOfferings section of the GetCapabilities response.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process</em>' containment reference.
 	 * @see #setProcess(ProcessBriefType)
@@ -61,7 +61,7 @@ public interface ExecuteResponseType extends ResponseBaseType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Execution status of this process. 
+	 * Execution status of this process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Status</em>' containment reference.
 	 * @see #setStatus(StatusType)
@@ -139,7 +139,7 @@ public interface ExecuteResponseType extends ResponseBaseType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * List of values of the Process output parameters. Normally there would be at least one output when the process has completed successfully. If the process has not finished executing, the implementer can choose to include whatever final results are ready at the time the Execute response is provided. If the reference locations of outputs are known in advance, these URLs may be provided before they are populated. 
+	 * List of values of the Process output parameters. Normally there would be at least one output when the process has completed successfully. If the process has not finished executing, the implementer can choose to include whatever final results are ready at the time the Execute response is provided. If the reference locations of outputs are known in advance, these URLs may be provided before they are populated.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Outputs</em>' containment reference.
 	 * @see #setProcessOutputs(ProcessOutputsType1)
@@ -191,7 +191,7 @@ public interface ExecuteResponseType extends ResponseBaseType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The URL referencing the location from which the ExecuteResponse can be retrieved. If "status" is "true" in the Execute request, the ExecuteResponse should also be found here as soon as the process returns the initial response to the client. It should persist at this location as long as the outputs are accessible from the server. The outputs may be stored for as long as the implementer of the server decides. If the process takes a long time, this URL can be repopulated on an ongoing basis in order to keep the client updated on progress. Before the process has succeeded, the ExecuteResponse contains information about the status of the process, including whether or not processing has started, and the percentage completed. It may also optionally contain the inputs and any ProcessStartedType interim results. When the process has succeeded, the ExecuteResponse found at this URL shall contain the output values or references to them. 
+	 * The URL referencing the location from which the ExecuteResponse can be retrieved. If "status" is "true" in the Execute request, the ExecuteResponse should also be found here as soon as the process returns the initial response to the client. It should persist at this location as long as the outputs are accessible from the server. The outputs may be stored for as long as the implementer of the server decides. If the process takes a long time, this URL can be repopulated on an ongoing basis in order to keep the client updated on progress. Before the process has succeeded, the ExecuteResponse contains information about the status of the process, including whether or not processing has started, and the percentage completed. It may also optionally contain the inputs and any ProcessStartedType interim results. When the process has succeeded, the ExecuteResponse found at this URL shall contain the output values or references to them.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Status Location</em>' attribute.
 	 * @see #setStatusLocation(String)

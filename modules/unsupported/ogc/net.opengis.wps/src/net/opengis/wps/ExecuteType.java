@@ -32,7 +32,7 @@ public interface ExecuteType extends RequestBaseType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifier of the Process to be executed. This Process identifier shall be as listed in the ProcessOfferings section of the WPS Capabilities document. 
+	 * Identifier of the Process to be executed. This Process identifier shall be as listed in the ProcessOfferings section of the WPS Capabilities document.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Identifier</em>' containment reference.
 	 * @see #setIdentifier(CodeType)
@@ -58,7 +58,7 @@ public interface ExecuteType extends RequestBaseType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * List of input (or parameter) values provided to the process, including each of the Inputs needed to execute the process. It is possible to have no inputs provided only when all the inputs are predetermined fixed resources. In all other cases, at least one input is required. 
+	 * List of input (or parameter) values provided to the process, including each of the Inputs needed to execute the process. It is possible to have no inputs provided only when all the inputs are predetermined fixed resources. In all other cases, at least one input is required.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Data Inputs</em>' containment reference.
 	 * @see #setDataInputs(DataInputsType1)

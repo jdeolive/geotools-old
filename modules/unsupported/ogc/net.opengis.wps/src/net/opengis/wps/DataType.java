@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Identifies the form of this input or output value, and provides supporting information. 
+ * Identifies the form of this input or output value, and provides supporting information.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -38,7 +38,7 @@ public interface DataType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies this input or output value as a complex data structure encoded in XML (e.g., using GML), and provides that complex data structure. For an input, this element may be used by a client for any process input coded as ComplexData in the ProcessDescription. For an output, this element shall be used by a server when "store" in the Execute request is "false". 
+	 * Identifies this input or output value as a complex data structure encoded in XML (e.g., using GML), and provides that complex data structure. For an input, this element may be used by a client for any process input coded as ComplexData in the ProcessDescription. For an output, this element shall be used by a server when "store" in the Execute request is "false".
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Complex Data</em>' containment reference.
 	 * @see #setComplexData(ComplexDataType)
@@ -64,7 +64,7 @@ public interface DataType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies this input or output data as literal data of a simple quantity (e.g., one number), and provides that data. 
+	 * Identifies this input or output data as literal data of a simple quantity (e.g., one number), and provides that data.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Literal Data</em>' containment reference.
 	 * @see #setLiteralData(LiteralDataType)
@@ -90,7 +90,7 @@ public interface DataType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies this input or output data as an ows:BoundingBox data structure, and provides that ows:BoundingBox data. 
+	 * Identifies this input or output data as an ows:BoundingBox data structure, and provides that ows:BoundingBox data.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Bounding Box Data</em>' containment reference.
 	 * @see #setBoundingBoxData(BoundingBoxType)

@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * One simple literal value (such as an integer or real number) that is embedded in the Execute operation request or response. 
+ * One simple literal value (such as an integer or real number) that is embedded in the Execute operation request or response.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -62,7 +62,7 @@ public interface LiteralDataType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies the data type of this literal input or output. This dataType should be included for each quantity whose value is not a simple string. 
+	 * Identifies the data type of this literal input or output. This dataType should be included for each quantity whose value is not a simple string.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Data Type</em>' attribute.
 	 * @see #setDataType(String)
@@ -88,7 +88,7 @@ public interface LiteralDataType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies the unit of measure of this literal input or output. This unit of measure should be referenced for any numerical value that has units (e.g., "meters", but not a more complete reference system). Shall be a UOM identified in the Process description for this input or output. 
+	 * Identifies the unit of measure of this literal input or output. This unit of measure should be referenced for any numerical value that has units (e.g., "meters", but not a more complete reference system). Shall be a UOM identified in the Process description for this input or output.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Uom</em>' attribute.
 	 * @see #setUom(String)

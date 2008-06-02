@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * References an externally defined finite set of values and ranges for this input. 
+ * References an externally defined finite set of values and ranges for this input.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -35,7 +35,7 @@ public interface ValuesReferenceType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Reference to data or metadata recorded elsewhere, either external to this XML document or within it. Whenever practical, this attribute should be a URL from which this metadata can be electronically retrieved. Alternately, this attribute can reference a URN for well-known metadata. For example, such a URN could be a URN defined in the "ogc" URN namespace. 
+	 * Reference to data or metadata recorded elsewhere, either external to this XML document or within it. Whenever practical, this attribute should be a URL from which this metadata can be electronically retrieved. Alternately, this attribute can reference a URN for well-known metadata. For example, such a URN could be a URN defined in the "ogc" URN namespace.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Reference</em>' attribute.
 	 * @see #setReference(String)

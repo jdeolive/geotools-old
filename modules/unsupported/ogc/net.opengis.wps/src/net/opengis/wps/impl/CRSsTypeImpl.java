@@ -11,10 +11,12 @@ import java.util.Collection;
 import net.opengis.wps.CRSsType;
 import net.opengis.wps.WpsPackage;
 
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.EList;
 
 import org.eclipse.emf.ecore.EClass;
 
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.EDataTypeEList;
@@ -34,14 +36,23 @@ import org.eclipse.emf.ecore.util.EDataTypeEList;
  */
 public class CRSsTypeImpl extends EObjectImpl implements CRSsType {
 	/**
-	 * The cached value of the '{@link #getCRS() <em>CRS</em>}' attribute list.
+	 * The default value of the '{@link #getCRS() <em>CRS</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getCRS()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList cRS;
+	protected static final String CRS_EDEFAULT = null;
+	/**
+	 * The cached value of the '{@link #getCRS() <em>CRS</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCRS()
+	 * @generated
+	 * @ordered
+	 */
+	protected String cRS = CRS_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -66,11 +77,20 @@ public class CRSsTypeImpl extends EObjectImpl implements CRSsType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList getCRS() {
-		if (cRS == null) {
-			cRS = new EDataTypeEList(String.class, this, WpsPackage.CR_SS_TYPE__CRS);
-		}
+	public String getCRS() {
 		return cRS;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setCRS(String newCRS) {
+		String oldCRS = cRS;
+		cRS = newCRS;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, WpsPackage.CR_SS_TYPE__CRS, oldCRS, cRS));
 	}
 
 	/**
@@ -94,8 +114,7 @@ public class CRSsTypeImpl extends EObjectImpl implements CRSsType {
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
 			case WpsPackage.CR_SS_TYPE__CRS:
-				getCRS().clear();
-				getCRS().addAll((Collection)newValue);
+				setCRS((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -109,7 +128,7 @@ public class CRSsTypeImpl extends EObjectImpl implements CRSsType {
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case WpsPackage.CR_SS_TYPE__CRS:
-				getCRS().clear();
+				setCRS(CRS_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -123,7 +142,7 @@ public class CRSsTypeImpl extends EObjectImpl implements CRSsType {
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case WpsPackage.CR_SS_TYPE__CRS:
-				return cRS != null && !cRS.isEmpty();
+				return CRS_EDEFAULT == null ? cRS != null : !CRS_EDEFAULT.equals(cRS);
 		}
 		return super.eIsSet(featureID);
 	}

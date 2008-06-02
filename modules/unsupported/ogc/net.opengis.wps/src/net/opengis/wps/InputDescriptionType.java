@@ -14,8 +14,8 @@ import java.math.BigInteger;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Description of an input to a process. 
- * In this use, the DescriptionType shall describe this process input. 
+ * Description of an input to a process.
+ * In this use, the DescriptionType shall describe this process input.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -39,7 +39,7 @@ public interface InputDescriptionType extends DescriptionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that this Input shall be a complex data structure (such as a GML document), and provides a list of Formats, Encodings, and Schemas supported for this Input. The value of this ComplexData structure can be input either embedded in the Execute request or remotely accessible to the server.  The client can select from among the identified combinations of Formats, Encodings, and Schemas to specify the form of the Input. This allows for complete specification of particular versions of GML, or image formats. 
+	 * Indicates that this Input shall be a complex data structure (such as a GML document), and provides a list of Formats, Encodings, and Schemas supported for this Input. The value of this ComplexData structure can be input either embedded in the Execute request or remotely accessible to the server.  The client can select from among the identified combinations of Formats, Encodings, and Schemas to specify the form of the Input. This allows for complete specification of particular versions of GML, or image formats.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Complex Data</em>' containment reference.
 	 * @see #setComplexData(SupportedComplexDataInputType)
@@ -65,7 +65,7 @@ public interface InputDescriptionType extends DescriptionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that this Input shall be a simple numeric value or character string that is embedded in the execute request, and describes the possible values. 
+	 * Indicates that this Input shall be a simple numeric value or character string that is embedded in the execute request, and describes the possible values.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Literal Data</em>' containment reference.
 	 * @see #setLiteralData(LiteralInputType)
@@ -91,7 +91,7 @@ public interface InputDescriptionType extends DescriptionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that this Input shall be a BoundingBox data structure that is embedded in the execute request, and provides a list of the Coordinate Reference System support for this Bounding Box. 
+	 * Indicates that this Input shall be a BoundingBox data structure that is embedded in the execute request, and provides a list of the Coordinate Reference System support for this Bounding Box.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Bounding Box Data</em>' containment reference.
 	 * @see #setBoundingBoxData(SupportedCRSsType)
@@ -117,7 +117,7 @@ public interface InputDescriptionType extends DescriptionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The maximum number of times that values for this parameter are permitted in an Execute request. If "1" then this parameter may appear only once in an Execute request.  If greater than "1", then this input parameter may appear that many times in an Execute request. 
+	 * The maximum number of times that values for this parameter are permitted in an Execute request. If "1" then this parameter may appear only once in an Execute request.  If greater than "1", then this input parameter may appear that many times in an Execute request.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Max Occurs</em>' attribute.
 	 * @see #setMaxOccurs(BigInteger)
@@ -143,7 +143,7 @@ public interface InputDescriptionType extends DescriptionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The minimum number of times that values for this parameter are required in an Execute request.  If "0", this data input is optional. If greater than "0" then this process input is required. 
+	 * The minimum number of times that values for this parameter are required in an Execute request.  If "0", this data input is optional. If greater than "0" then this process input is required.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Min Occurs</em>' attribute.
 	 * @see #setMinOccurs(BigInteger)

@@ -13,7 +13,7 @@ package net.opengis.wps;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Full description of a process. 
+ * Full description of a process.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -62,7 +62,7 @@ public interface ProcessDescriptionType extends ProcessBriefType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * List of outputs which will or can result from executing the process. 
+	 * List of outputs which will or can result from executing the process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Outputs</em>' containment reference.
 	 * @see #setProcessOutputs(ProcessOutputsType)
@@ -89,7 +89,7 @@ public interface ProcessDescriptionType extends ProcessBriefType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates if ongoing status information can be provided for this process.  If "true", the Status element of the stored Execute response document shall be kept up to date.  If "false" then the Status element shall not be updated until processing is complete. By default, status information is not provided for this process. 
+	 * Indicates if ongoing status information can be provided for this process.  If "true", the Status element of the stored Execute response document shall be kept up to date.  If "false" then the Status element shall not be updated until processing is complete. By default, status information is not provided for this process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Status Supported</em>' attribute.
 	 * @see #isSetStatusSupported()
@@ -143,7 +143,7 @@ public interface ProcessDescriptionType extends ProcessBriefType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates if ComplexData outputs from this process can be stored by the WPS server as web-accessible resources. If "storeSupported" is "true", the Execute operation request may include "asReference" equals "true" for any complex output, directing that the output of the process be stored so that the client can retrieve it as required. By default for this process, storage is not supported and all outputs are returned encoded in the Execute response. 
+	 * Indicates if ComplexData outputs from this process can be stored by the WPS server as web-accessible resources. If "storeSupported" is "true", the Execute operation request may include "asReference" equals "true" for any complex output, directing that the output of the process be stored so that the client can retrieve it as required. By default for this process, storage is not supported and all outputs are returned encoded in the Execute response.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Store Supported</em>' attribute.
 	 * @see #isSetStoreSupported()

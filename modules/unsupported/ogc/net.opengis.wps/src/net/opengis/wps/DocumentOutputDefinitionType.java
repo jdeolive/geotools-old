@@ -14,8 +14,8 @@ import net.opengis.ows11.LanguageStringType;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Definition of a format, encoding,  schema, and unit-of-measure for an output to be returned from a process. 
- * In this use, the DescriptionType shall describe this process input or output. 
+ * Definition of a format, encoding,  schema, and unit-of-measure for an output to be returned from a process.
+ * In this use, the DescriptionType shall describe this process input or output.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -37,7 +37,7 @@ public interface DocumentOutputDefinitionType extends OutputDefinitionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Title of the process output, normally available for display to a human. This element should be used if the client wishes to customize the Title in the execute response. This element should not be used if the Title provided for this output in the ProcessDescription is adequate. 
+	 * Title of the process output, normally available for display to a human. This element should be used if the client wishes to customize the Title in the execute response. This element should not be used if the Title provided for this output in the ProcessDescription is adequate.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Title</em>' containment reference.
 	 * @see #setTitle(LanguageStringType)
@@ -63,7 +63,7 @@ public interface DocumentOutputDefinitionType extends OutputDefinitionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Brief narrative description of a process output, normally available for display to a human. This element should be used if the client wishes to customize the Abstract in the execute response. This element should not be used if the Abstract provided for this output in the ProcessDescription is adequate. 
+	 * Brief narrative description of a process output, normally available for display to a human. This element should be used if the client wishes to customize the Abstract in the execute response. This element should not be used if the Abstract provided for this output in the ProcessDescription is adequate.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Abstract</em>' containment reference.
 	 * @see #setAbstract(LanguageStringType)
@@ -90,7 +90,7 @@ public interface DocumentOutputDefinitionType extends OutputDefinitionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Specifies if this output should be stored by the process as a web-accessible resource. If asReference is "true", the server shall store this output so that the client can retrieve it as required. If store is "false", all the output shall be encoded in the Execute operation response document. This parameter only applies to ComplexData outputs.  This parameter shall not be included unless the corresponding "storeSupported" parameter is included and is "true" in the ProcessDescription for this process. 
+	 * Specifies if this output should be stored by the process as a web-accessible resource. If asReference is "true", the server shall store this output so that the client can retrieve it as required. If store is "false", all the output shall be encoded in the Execute operation response document. This parameter only applies to ComplexData outputs.  This parameter shall not be included unless the corresponding "storeSupported" parameter is included and is "true" in the ProcessDescription for this process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>As Reference</em>' attribute.
 	 * @see #isSetAsReference()

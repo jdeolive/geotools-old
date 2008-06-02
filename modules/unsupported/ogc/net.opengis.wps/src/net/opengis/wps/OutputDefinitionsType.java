@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Definition of a format, encoding,  schema, and unit-of-measure for an output to be returned from a process. 
+ * Definition of a format, encoding,  schema, and unit-of-measure for an output to be returned from a process.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -37,7 +37,7 @@ public interface OutputDefinitionsType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Output definition as provided in the execute request 
+	 * Output definition as provided in the execute request
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Output</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getOutputDefinitionsType_Output()

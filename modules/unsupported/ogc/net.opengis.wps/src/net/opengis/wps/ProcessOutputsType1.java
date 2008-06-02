@@ -33,7 +33,7 @@ public interface ProcessOutputsType1 extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Unordered list of values of all the outputs produced by this process. It is not necessary to include an output until the Status is ProcessSucceeded. 
+	 * Unordered list of values of all the outputs produced by this process. It is not necessary to include an output until the Status is ProcessSucceeded.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Output</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getProcessOutputsType1_Output()

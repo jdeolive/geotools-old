@@ -31,7 +31,7 @@ public interface ProcessDescriptionsType extends ResponseBaseType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Ordered list of one or more full Process descriptions, listed in the order in which they were requested in the DescribeProcess operation request. 
+	 * Ordered list of one or more full Process descriptions, listed in the order in which they were requested in the DescribeProcess operation request.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Description</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getProcessDescriptionsType_ProcessDescription()

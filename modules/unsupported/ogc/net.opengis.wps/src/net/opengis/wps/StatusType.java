@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Description of the status of process execution. 
+ * Description of the status of process execution.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -41,7 +41,7 @@ public interface StatusType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that this process has been accepted by the server, but is in a queue and has not yet started to execute. The contents of this human-readable text string is left open to definition by each server implementation, but is expected to include any messages the server may wish to let the clients know. Such information could include how long the queue is, or any warning conditions that may have been encountered. The client may display this text to a human user. 
+	 * Indicates that this process has been accepted by the server, but is in a queue and has not yet started to execute. The contents of this human-readable text string is left open to definition by each server implementation, but is expected to include any messages the server may wish to let the clients know. Such information could include how long the queue is, or any warning conditions that may have been encountered. The client may display this text to a human user.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Accepted</em>' attribute.
 	 * @see #setProcessAccepted(String)
@@ -67,7 +67,7 @@ public interface StatusType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that this process has been accepted by the server, and processing has begun. 
+	 * Indicates that this process has been accepted by the server, and processing has begun.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Started</em>' containment reference.
 	 * @see #setProcessStarted(ProcessStartedType)
@@ -119,7 +119,7 @@ public interface StatusType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that this process has successfully completed execution. The contents of this human-readable text string is left open to definition by each server, but is expected to include any messages the server may wish to let the clients know, such as how long the process took to execute, or any warning conditions that may have been encountered. The client may display this text string to a human user. The client should make use of the presence of this element to trigger automated or manual access to the results of the process. If manual access is intended, the client should use the presence of this element to present the results as downloadable links to the user. 
+	 * Indicates that this process has successfully completed execution. The contents of this human-readable text string is left open to definition by each server, but is expected to include any messages the server may wish to let the clients know, such as how long the process took to execute, or any warning conditions that may have been encountered. The client may display this text string to a human user. The client should make use of the presence of this element to trigger automated or manual access to the results of the process. If manual access is intended, the client should use the presence of this element to present the results as downloadable links to the user.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Succeeded</em>' attribute.
 	 * @see #setProcessSucceeded(String)
@@ -145,7 +145,7 @@ public interface StatusType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that execution of this process has failed, and includes error information. 
+	 * Indicates that execution of this process has failed, and includes error information.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Failed</em>' containment reference.
 	 * @see #setProcessFailed(ProcessFailedType)

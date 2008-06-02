@@ -32,19 +32,29 @@ import org.eclipse.emf.ecore.EObject;
  */
 public interface CRSsType extends EObject {
 	/**
-	 * Returns the value of the '<em><b>CRS</b></em>' attribute list.
-	 * The list contents are of type {@link java.lang.String}.
+	 * Returns the value of the '<em><b>CRS</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Reference to a CRS supported for this Input/Output. 
+	 * Reference to a CRS supported for this Input/Output.
 	 * <!-- end-model-doc -->
-	 * @return the value of the '<em>CRS</em>' attribute list.
+	 * @return the value of the '<em>CRS</em>' attribute.
+	 * @see #setCRS(String)
 	 * @see net.opengis.wps.WpsPackage#getCRSsType_CRS()
 	 * @model unique="false" dataType="org.eclipse.emf.ecore.xml.type.AnyURI" required="true"
 	 *        extendedMetaData="kind='element' name='CRS'"
 	 * @generated
 	 */
-	EList getCRS();
+	String getCRS();
+
+	/**
+	 * Sets the value of the '{@link net.opengis.wps.CRSsType#getCRS <em>CRS</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>CRS</em>' attribute.
+	 * @see #getCRS()
+	 * @generated
+	 */
+	void setCRS(String value);
 
 } // CRSsType

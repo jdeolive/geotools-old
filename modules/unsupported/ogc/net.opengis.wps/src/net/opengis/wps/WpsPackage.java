@@ -29,57 +29,56 @@ import org.eclipse.emf.ecore.EReference;
  * <!-- begin-model-doc -->
  * 
  * 			<description>This XML Schema Document encodes the WPS GetCapabilities operation response.</description>
- * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved. 
+ * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved.
  * For conditions, see OGC Software Notice http://www.opengeospatial.org/ogc/software</copyright>
- * 		
+ * 
  * 
  * 			<description>Location of a WSDL document.</description>
- * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved. 
+ * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved.
  * For conditions, see OGC Software Notice http://www.opengeospatial.org/ogc/software</copyright>
- * 		
+ * 
  * 
  * 			<description>Brief description of a Process, designed for Process discovery. </description>
- * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved. 
+ * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved.
  * For conditions, see OGC Software Notice http://www.opengeospatial.org/ogc/software</copyright>
- * 		
+ * 
  * 
  * 			<description>This XML Schema Document encodes elements and types that are shared by multiple WPS operations.</description>
- * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved. 
+ * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved.
  * For conditions, see OGC Software Notice http://www.opengeospatial.org/ogc/software</copyright>
- * 		
+ * 
  * This XML Schema Document includes and imports, directly and indirectly, all the XML Schemas defined by the OWS Common Implemetation Specification.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document encodes the GetResourceByID operation request message. This typical operation is specified as a base for profiling in specific OWS specifications. For information on the allowed changes and limitations in such profiling, see Subclause 9.4.1 of the OWS Common specification.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document encodes the parts of the MD_DataIdentification class of ISO 19115 (OGC Abstract Specification Topic 11) which are expected to be used for most datasets. This Schema also encodes the parts of this class that are expected to be useful for other metadata. Both may be used within the Contents section of OWS service metadata (Capabilities) documents.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document encodes various parameters and parameter types that can be used in OWS operation requests and responses.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document encodes the parts of ISO 19115 used by the common "ServiceIdentification" and "ServiceProvider" sections of the GetCapabilities operation response, known as the service metadata XML document. The parts encoded here are the MD_Keywords, CI_ResponsibleParty, and related classes. The UML package prefixes were omitted from XML names, and the XML element names were all capitalized, for consistency with other OWS Schemas. This document also provides a simple coding of text in multiple languages, simplified from Annex J of ISO 19115.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document defines the GetCapabilities operation request and response XML elements and types, which are common to all OWSs. This XML Schema shall be edited by each OWS, for example, to specify a specific value for the "service" attribute.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
- * This XML Schema Document encodes the common "ServiceIdentification" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceIdentification class of ISO 19119 (OGC Abstract Specification Topic 12). 
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
- * This XML Schema Document encodes the common "ServiceProvider" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceProvider class of ISO 19119 (OGC Abstract Specification Topic 12). 
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
+ * This XML Schema Document encodes the common "ServiceIdentification" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceIdentification class of ISO 19119 (OGC Abstract Specification Topic 12).
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
+ * This XML Schema Document encodes the common "ServiceProvider" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceProvider class of ISO 19119 (OGC Abstract Specification Topic 12).
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document encodes the basic contents of the "OperationsMetadata" section of the GetCapabilities operation response, also known as the Capabilities XML document.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document encodes the allowed values (or domain) of a quantity, often for an input or output parameter to an OWS. Such a parameter is sometimes called a variable, quantity, literal, or typed literal. Such a parameter can use one of many data types, including double, integer, boolean, string, or URI. The allowed values can also be encoded for a quantity that is not explicit or not transferred, but is constrained by a server implementation.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document encodes the Exception Report response to all OWS operations.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema  Document encodes the typical Contents section of an OWS service metadata (Capabilities) document. This  Schema can be built upon to define the Contents section for a specific OWS. If the ContentsBaseType in this XML Schema cannot be restricted and extended to define the Contents section for a specific OWS, all other relevant parts defined in owsContents.xsd shall be used by the “ContentsType” in the wxsContents.xsd prepared for the specific OWS.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document specifies types and elements for input and output of operation data, allowing including multiple data items with each data item either included or referenced. The contents of each type and element specified here can be restricted and/or extended for each use in a specific OWS specification.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * This XML Schema Document specifies types and elements for document or resource references and for package manifests that contain multiple references. The contents of each type and element specified here can be restricted and/or extended for each use in a specific OWS specification.
- * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. 
+ * 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 
  * 			<description>This XML Schema Document encodes elements and types that are shared by multiple WPS operations.</description>
- * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved. 
+ * 			<copyright>Copyright (c) 2007 OGC, All Rights Reserved.
  * For conditions, see OGC Software Notice http://www.opengeospatial.org/ogc/software</copyright>
- * 		
  * <!-- end-model-doc -->
  * @see net.opengis.wps.WpsFactory
  * @model kind="package"
@@ -314,7 +313,7 @@ public interface WpsPackage extends EPackage {
 	int CR_SS_TYPE = 5;
 
 	/**
-	 * The feature id for the '<em><b>CRS</b></em>' attribute list.
+	 * The feature id for the '<em><b>CRS</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -1523,7 +1522,7 @@ public interface WpsPackage extends EPackage {
 	int LANGUAGES_TYPE = 23;
 
 	/**
-	 * The feature id for the '<em><b>Language</b></em>' attribute list.
+	 * The feature id for the '<em><b>Language</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -2018,7 +2017,7 @@ public interface WpsPackage extends EPackage {
 	int PROCESS_BRIEF_TYPE__METADATA = DESCRIPTION_TYPE__METADATA;
 
 	/**
-	 * The feature id for the '<em><b>Profile</b></em>' attribute list.
+	 * The feature id for the '<em><b>Profile</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -2146,7 +2145,7 @@ public interface WpsPackage extends EPackage {
 	int PROCESS_DESCRIPTION_TYPE__METADATA = PROCESS_BRIEF_TYPE__METADATA;
 
 	/**
-	 * The feature id for the '<em><b>Profile</b></em>' attribute list.
+	 * The feature id for the '<em><b>Profile</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -2882,6 +2881,25 @@ public interface WpsPackage extends EPackage {
 	int WSDL_TYPE_FEATURE_COUNT = 1;
 
 	/**
+	 * The meta object id for the '{@link javax.units.Unit <em>Unit</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see javax.units.Unit
+	 * @see net.opengis.wps.impl.WpsPackageImpl#getUnit()
+	 * @generated
+	 */
+	int UNIT = 54;
+
+	/**
+	 * The number of structural features of the '<em>Unit</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNIT_FEATURE_COUNT = 0;
+
+	/**
 	 * The meta object id for the '{@link net.opengis.wps.MethodType <em>Method Type</em>}' enum.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -2889,7 +2907,7 @@ public interface WpsPackage extends EPackage {
 	 * @see net.opengis.wps.impl.WpsPackageImpl#getMethodType()
 	 * @generated
 	 */
-	int METHOD_TYPE = 54;
+	int METHOD_TYPE = 55;
 
 	/**
 	 * The meta object id for the '<em>Method Type Object</em>' data type.
@@ -2899,7 +2917,7 @@ public interface WpsPackage extends EPackage {
 	 * @see net.opengis.wps.impl.WpsPackageImpl#getMethodTypeObject()
 	 * @generated
 	 */
-	int METHOD_TYPE_OBJECT = 55;
+	int METHOD_TYPE_OBJECT = 56;
 
 	/**
 	 * The meta object id for the '<em>Percent Completed Type</em>' data type.
@@ -2909,7 +2927,7 @@ public interface WpsPackage extends EPackage {
 	 * @see net.opengis.wps.impl.WpsPackageImpl#getPercentCompletedType()
 	 * @generated
 	 */
-	int PERCENT_COMPLETED_TYPE = 56;
+	int PERCENT_COMPLETED_TYPE = 57;
 
 
 	/**
@@ -3083,10 +3101,10 @@ public interface WpsPackage extends EPackage {
 	EClass getCRSsType();
 
 	/**
-	 * Returns the meta object for the attribute list '{@link net.opengis.wps.CRSsType#getCRS <em>CRS</em>}'.
+	 * Returns the meta object for the attribute '{@link net.opengis.wps.CRSsType#getCRS <em>CRS</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute list '<em>CRS</em>'.
+	 * @return the meta object for the attribute '<em>CRS</em>'.
 	 * @see net.opengis.wps.CRSsType#getCRS()
 	 * @see #getCRSsType()
 	 * @generated
@@ -3956,10 +3974,10 @@ public interface WpsPackage extends EPackage {
 	EClass getLanguagesType();
 
 	/**
-	 * Returns the meta object for the attribute list '{@link net.opengis.wps.LanguagesType#getLanguage <em>Language</em>}'.
+	 * Returns the meta object for the attribute '{@link net.opengis.wps.LanguagesType#getLanguage <em>Language</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute list '<em>Language</em>'.
+	 * @return the meta object for the attribute '<em>Language</em>'.
 	 * @see net.opengis.wps.LanguagesType#getLanguage()
 	 * @see #getLanguagesType()
 	 * @generated
@@ -4353,10 +4371,10 @@ public interface WpsPackage extends EPackage {
 	EClass getProcessBriefType();
 
 	/**
-	 * Returns the meta object for the attribute list '{@link net.opengis.wps.ProcessBriefType#getProfile <em>Profile</em>}'.
+	 * Returns the meta object for the attribute '{@link net.opengis.wps.ProcessBriefType#getProfile <em>Profile</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute list '<em>Profile</em>'.
+	 * @return the meta object for the attribute '<em>Profile</em>'.
 	 * @see net.opengis.wps.ProcessBriefType#getProfile()
 	 * @see #getProcessBriefType()
 	 * @generated
@@ -5057,6 +5075,17 @@ public interface WpsPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getWSDLType_Href();
+
+	/**
+	 * Returns the meta object for class '{@link javax.units.Unit <em>Unit</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Unit</em>'.
+	 * @see javax.units.Unit
+	 * @model instanceClass="javax.units.Unit"
+	 * @generated
+	 */
+	EClass getUnit();
 
 	/**
 	 * Returns the meta object for enum '{@link net.opengis.wps.MethodType <em>Method Type</em>}'.

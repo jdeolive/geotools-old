@@ -33,7 +33,7 @@ public interface ProcessOutputsType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Unordered list of one or more descriptions of all the outputs that can result from executing this process. At least one output is required from each process. 
+	 * Unordered list of one or more descriptions of all the outputs that can result from executing this process. At least one output is required from each process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Output</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getProcessOutputsType_Output()

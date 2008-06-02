@@ -30,6 +30,10 @@
       <artifactId>net.opengis.ows</artifactId>
       <version>2.5-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>javax.units</groupId>
+      <artifactId>jsr108</artifactId>
+    </dependency>    
   </dependencies>
 
 

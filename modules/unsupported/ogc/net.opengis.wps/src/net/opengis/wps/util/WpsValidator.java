@@ -10,10 +10,12 @@ import java.math.BigInteger;
 
 import java.util.Map;
 
+import javax.units.Unit;
 import net.opengis.wps.*;
 
 import org.eclipse.emf.common.util.DiagnosticChain;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 
 import org.eclipse.emf.ecore.util.EObjectValidator;
@@ -207,6 +209,8 @@ public class WpsValidator extends EObjectValidator {
 				return validateWPSCapabilitiesType((WPSCapabilitiesType)value, diagnostics, context);
 			case WpsPackage.WSDL_TYPE:
 				return validateWSDLType((WSDLType)value, diagnostics, context);
+			case WpsPackage.UNIT:
+				return validateUnit((Unit)value, diagnostics, context);
 			case WpsPackage.METHOD_TYPE:
 				return validateMethodType((MethodType)value, diagnostics, context);
 			case WpsPackage.METHOD_TYPE_OBJECT:
@@ -702,6 +706,15 @@ public class WpsValidator extends EObjectValidator {
 	 */
 	public boolean validateWSDLType(WSDLType wsdlType, DiagnosticChain diagnostics, Map context) {
 		return validate_EveryDefaultConstraint(wsdlType, diagnostics, context);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean validateUnit(Unit unit, DiagnosticChain diagnostics, Map context) {
+		return validate_EveryDefaultConstraint((EObject)unit, diagnostics, context);
 	}
 
 	/**

@@ -8,11 +8,12 @@ package net.opengis.wps.impl;
 
 import java.util.Collection;
 
-import net.opengis.ows11.DomainMetadataType;
+import javax.units.Unit;
 
 import net.opengis.wps.UOMsType;
 import net.opengis.wps.WpsPackage;
 
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 
 import org.eclipse.emf.common.util.EList;
@@ -20,8 +21,10 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
+import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
@@ -74,7 +77,7 @@ public class UOMsTypeImpl extends EObjectImpl implements UOMsType {
 	 */
 	public EList getUOM() {
 		if (uOM == null) {
-			uOM = new EObjectContainmentEList(DomainMetadataType.class, this, WpsPackage.UO_MS_TYPE__UOM);
+			uOM = new EObjectContainmentEList(Unit.class, this, WpsPackage.UO_MS_TYPE__UOM);
 		}
 		return uOM;
 	}

@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * A combination of format, encoding, and/or schema supported by a process input or output. 
+ * A combination of format, encoding, and/or schema supported by a process input or output.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -36,7 +36,7 @@ public interface ComplexDataDescriptionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Mime type supported for this input or output (e.g., text/xml). 
+	 * Mime type supported for this input or output (e.g., text/xml).
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Mime Type</em>' attribute.
 	 * @see #setMimeType(String)
@@ -62,7 +62,7 @@ public interface ComplexDataDescriptionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Reference to an encoding supported for this input or output (e.g., UTF-8).  This element shall be omitted if Encoding does not apply to this Input/Output. 
+	 * Reference to an encoding supported for this input or output (e.g., UTF-8).  This element shall be omitted if Encoding does not apply to this Input/Output.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Encoding</em>' attribute.
 	 * @see #setEncoding(String)
@@ -88,7 +88,7 @@ public interface ComplexDataDescriptionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Reference to a definition of XML elements or types supported for this Input/Output (e.g., GML 2.1 Application Schema). Each of these XML elements or types shall be defined in a separate XML Schema Document. This parameter shall be included when this input/output is XML encoded using an XML schema. When included, the input/output shall validate against the referenced XML Schema. This element shall be omitted if Schema does not apply to this Input/Output. Note: If the Input/Output uses a profile of a larger schema, the server administrator should provide that schema profile for validation purposes. 
+	 * Reference to a definition of XML elements or types supported for this Input/Output (e.g., GML 2.1 Application Schema). Each of these XML elements or types shall be defined in a separate XML Schema Document. This parameter shall be included when this input/output is XML encoded using an XML schema. When included, the input/output shall validate against the referenced XML Schema. This element shall be omitted if Schema does not apply to this Input/Output. Note: If the Input/Output uses a profile of a larger schema, the server administrator should provide that schema profile for validation purposes.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Schema</em>' attribute.
 	 * @see #setSchema(String)

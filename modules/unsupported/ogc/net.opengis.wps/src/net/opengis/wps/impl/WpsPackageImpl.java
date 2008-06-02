@@ -8,6 +8,7 @@ package net.opengis.wps.impl;
 
 import java.math.BigInteger;
 
+import javax.units.Unit;
 import net.opengis.ows11.Ows11Package;
 
 import net.opengis.wps.BodyReferenceType;
@@ -477,6 +478,13 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	private EClass unitEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	private EEnum methodTypeEEnum = null;
 
 	/**
@@ -550,12 +558,10 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		isInited = true;
 
 		// Initialize simple dependencies
+		XMLTypePackage.eINSTANCE.eClass();
 		Ows11Package.eINSTANCE.eClass();
-		XlinkPackage.eINSTANCE.eClass();
-		XMLNamespacePackage.eINSTANCE.eClass();
-		XMLTypePackage.eINSTANCE.eClass();
 		EcorePackage.eINSTANCE.eClass();
-		XMLTypePackage.eINSTANCE.eClass();
+		XMLNamespacePackage.eINSTANCE.eClass();
 
 		// Create package meta-data objects
 		theWpsPackage.createPackageContents();
@@ -2383,6 +2389,15 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getUnit() {
+		return unitEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EEnum getMethodType() {
 		return methodTypeEEnum;
 	}
@@ -2687,6 +2702,8 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		wsdlTypeEClass = createEClass(WSDL_TYPE);
 		createEAttribute(wsdlTypeEClass, WSDL_TYPE__HREF);
 
+		unitEClass = createEClass(UNIT);
+
 		// Create enums
 		methodTypeEEnum = createEEnum(METHOD_TYPE);
 
@@ -2719,8 +2736,9 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		setNsURI(eNS_URI);
 
 		// Obtain other dependent packages
-		XMLTypePackage theXMLTypePackage_1 = (XMLTypePackage)EPackage.Registry.INSTANCE.getEPackage(XMLTypePackage.eNS_URI);
+		XMLTypePackage theXMLTypePackage = (XMLTypePackage)EPackage.Registry.INSTANCE.getEPackage(XMLTypePackage.eNS_URI);
 		Ows11Package theOws11Package = (Ows11Package)EPackage.Registry.INSTANCE.getEPackage(Ows11Package.eNS_URI);
+		EcorePackage theEcorePackage = (EcorePackage)EPackage.Registry.INSTANCE.getEPackage(EcorePackage.eNS_URI);
 
 		// Add supertypes to classes
 		describeProcessTypeEClass.getESuperTypes().add(this.getRequestBaseType());
@@ -2739,7 +2757,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 
 		// Initialize classes and features; add operations and parameters
 		initEClass(bodyReferenceTypeEClass, BodyReferenceType.class, "BodyReferenceType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getBodyReferenceType_Href(), theXMLTypePackage_1.getAnyURI(), "href", null, 1, 1, BodyReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getBodyReferenceType_Href(), theXMLTypePackage.getAnyURI(), "href", null, 1, 1, BodyReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(complexDataCombinationsTypeEClass, ComplexDataCombinationsType.class, "ComplexDataCombinationsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getComplexDataCombinationsType_Format(), this.getComplexDataDescriptionType(), null, "format", null, 1, -1, ComplexDataCombinationsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2749,17 +2767,17 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 
 		initEClass(complexDataDescriptionTypeEClass, ComplexDataDescriptionType.class, "ComplexDataDescriptionType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getComplexDataDescriptionType_MimeType(), theOws11Package.getMimeType(), "mimeType", null, 1, 1, ComplexDataDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getComplexDataDescriptionType_Encoding(), theXMLTypePackage_1.getAnyURI(), "encoding", null, 0, 1, ComplexDataDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getComplexDataDescriptionType_Schema(), theXMLTypePackage_1.getAnyURI(), "schema", null, 0, 1, ComplexDataDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getComplexDataDescriptionType_Encoding(), theXMLTypePackage.getAnyURI(), "encoding", null, 0, 1, ComplexDataDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getComplexDataDescriptionType_Schema(), theXMLTypePackage.getAnyURI(), "schema", null, 0, 1, ComplexDataDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(complexDataTypeEClass, ComplexDataType.class, "ComplexDataType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getComplexDataType_Mixed(), ecorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, ComplexDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getComplexDataType_Encoding(), theXMLTypePackage_1.getAnyURI(), "encoding", null, 0, 1, ComplexDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getComplexDataType_Mixed(), theEcorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, ComplexDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getComplexDataType_Encoding(), theXMLTypePackage.getAnyURI(), "encoding", null, 0, 1, ComplexDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getComplexDataType_MimeType(), theOws11Package.getMimeType(), "mimeType", null, 0, 1, ComplexDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getComplexDataType_Schema(), theXMLTypePackage_1.getAnyURI(), "schema", null, 0, 1, ComplexDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getComplexDataType_Schema(), theXMLTypePackage.getAnyURI(), "schema", null, 0, 1, ComplexDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(crSsTypeEClass, CRSsType.class, "CRSsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getCRSsType_CRS(), theXMLTypePackage_1.getAnyURI(), "cRS", null, 1, -1, CRSsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCRSsType_CRS(), theXMLTypePackage.getAnyURI(), "cRS", null, 1, 1, CRSsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(dataInputsTypeEClass, DataInputsType.class, "DataInputsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getDataInputsType_Input(), this.getInputDescriptionType(), null, "input", null, 1, -1, DataInputsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2773,13 +2791,13 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEReference(getDataType_BoundingBoxData(), theOws11Package.getBoundingBoxType(), null, "boundingBoxData", null, 0, 1, DataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(defaultTypeEClass, DefaultType.class, "DefaultType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getDefaultType_CRS(), theXMLTypePackage_1.getAnyURI(), "cRS", null, 1, 1, DefaultType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getDefaultType_CRS(), theXMLTypePackage.getAnyURI(), "cRS", null, 1, 1, DefaultType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(defaultType1EClass, DefaultType1.class, "DefaultType1", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getDefaultType1_UOM(), theOws11Package.getDomainMetadataType(), null, "uOM", null, 1, 1, DefaultType1.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(defaultType2EClass, DefaultType2.class, "DefaultType2", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getDefaultType2_Language(), theXMLTypePackage_1.getLanguage(), "language", null, 1, 1, DefaultType2.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getDefaultType2_Language(), theXMLTypePackage.getLanguage(), "language", null, 1, 1, DefaultType2.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(describeProcessTypeEClass, DescribeProcessType.class, "DescribeProcessType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getDescribeProcessType_Identifier(), theOws11Package.getCodeType(), null, "identifier", null, 1, -1, DescribeProcessType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2793,12 +2811,12 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEClass(documentOutputDefinitionTypeEClass, DocumentOutputDefinitionType.class, "DocumentOutputDefinitionType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getDocumentOutputDefinitionType_Title(), theOws11Package.getLanguageStringType(), null, "title", null, 0, 1, DocumentOutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getDocumentOutputDefinitionType_Abstract(), theOws11Package.getLanguageStringType(), null, "abstract", null, 0, 1, DocumentOutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getDocumentOutputDefinitionType_AsReference(), theXMLTypePackage_1.getBoolean(), "asReference", "false", 0, 1, DocumentOutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getDocumentOutputDefinitionType_AsReference(), theXMLTypePackage.getBoolean(), "asReference", "false", 0, 1, DocumentOutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(documentRootEClass, DocumentRoot.class, "DocumentRoot", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getDocumentRoot_Mixed(), ecorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, null, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getDocumentRoot_XMLNSPrefixMap(), ecorePackage.getEStringToStringMapEntry(), null, "xMLNSPrefixMap", null, 0, -1, null, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getDocumentRoot_XSISchemaLocation(), ecorePackage.getEStringToStringMapEntry(), null, "xSISchemaLocation", null, 0, -1, null, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getDocumentRoot_Mixed(), theEcorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, null, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getDocumentRoot_XMLNSPrefixMap(), theEcorePackage.getEStringToStringMapEntry(), null, "xMLNSPrefixMap", null, 0, -1, null, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getDocumentRoot_XSISchemaLocation(), theEcorePackage.getEStringToStringMapEntry(), null, "xSISchemaLocation", null, 0, -1, null, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getDocumentRoot_Capabilities(), this.getWPSCapabilitiesType(), null, "capabilities", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 		initEReference(getDocumentRoot_DescribeProcess(), this.getDescribeProcessType(), null, "describeProcess", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 		initEReference(getDocumentRoot_Execute(), this.getExecuteType(), null, "execute", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
@@ -2808,7 +2826,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEReference(getDocumentRoot_ProcessDescriptions(), this.getProcessDescriptionsType(), null, "processDescriptions", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 		initEReference(getDocumentRoot_ProcessOfferings(), this.getProcessOfferingsType(), null, "processOfferings", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 		initEReference(getDocumentRoot_WSDL(), this.getWSDLType(), null, "wSDL", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-		initEAttribute(getDocumentRoot_ProcessVersion(), theXMLTypePackage_1.getString(), "processVersion", null, 0, 1, null, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getDocumentRoot_ProcessVersion(), theXMLTypePackage.getString(), "processVersion", null, 0, 1, null, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(executeResponseTypeEClass, ExecuteResponseType.class, "ExecuteResponseType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getExecuteResponseType_Process(), this.getProcessBriefType(), null, "process", null, 1, 1, ExecuteResponseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2816,8 +2834,8 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEReference(getExecuteResponseType_DataInputs(), this.getDataInputsType1(), null, "dataInputs", null, 0, 1, ExecuteResponseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getExecuteResponseType_OutputDefinitions(), this.getOutputDefinitionsType(), null, "outputDefinitions", null, 0, 1, ExecuteResponseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getExecuteResponseType_ProcessOutputs(), this.getProcessOutputsType1(), null, "processOutputs", null, 0, 1, ExecuteResponseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getExecuteResponseType_ServiceInstance(), theXMLTypePackage_1.getAnyURI(), "serviceInstance", null, 1, 1, ExecuteResponseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getExecuteResponseType_StatusLocation(), theXMLTypePackage_1.getAnyURI(), "statusLocation", null, 0, 1, ExecuteResponseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getExecuteResponseType_ServiceInstance(), theXMLTypePackage.getAnyURI(), "serviceInstance", null, 1, 1, ExecuteResponseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getExecuteResponseType_StatusLocation(), theXMLTypePackage.getAnyURI(), "statusLocation", null, 0, 1, ExecuteResponseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(executeTypeEClass, ExecuteType.class, "ExecuteType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getExecuteType_Identifier(), theOws11Package.getCodeType(), null, "identifier", null, 1, 1, ExecuteType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2826,29 +2844,29 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 
 		initEClass(getCapabilitiesTypeEClass, GetCapabilitiesType.class, "GetCapabilitiesType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getGetCapabilitiesType_AcceptVersions(), theOws11Package.getAcceptVersionsType(), null, "acceptVersions", null, 0, 1, GetCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getGetCapabilitiesType_Language(), theXMLTypePackage_1.getString(), "language", null, 0, 1, GetCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getGetCapabilitiesType_Language(), theXMLTypePackage.getString(), "language", null, 0, 1, GetCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getGetCapabilitiesType_Service(), theOws11Package.getServiceType(), "service", "WPS", 1, 1, GetCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(headerTypeEClass, HeaderType.class, "HeaderType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getHeaderType_Key(), theXMLTypePackage_1.getString(), "key", null, 1, 1, HeaderType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getHeaderType_Value(), theXMLTypePackage_1.getString(), "value", null, 1, 1, HeaderType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getHeaderType_Key(), theXMLTypePackage.getString(), "key", null, 1, 1, HeaderType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getHeaderType_Value(), theXMLTypePackage.getString(), "value", null, 1, 1, HeaderType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(inputDescriptionTypeEClass, InputDescriptionType.class, "InputDescriptionType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getInputDescriptionType_ComplexData(), this.getSupportedComplexDataInputType(), null, "complexData", null, 0, 1, InputDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getInputDescriptionType_LiteralData(), this.getLiteralInputType(), null, "literalData", null, 0, 1, InputDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getInputDescriptionType_BoundingBoxData(), this.getSupportedCRSsType(), null, "boundingBoxData", null, 0, 1, InputDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getInputDescriptionType_MaxOccurs(), theXMLTypePackage_1.getPositiveInteger(), "maxOccurs", null, 1, 1, InputDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getInputDescriptionType_MinOccurs(), theXMLTypePackage_1.getNonNegativeInteger(), "minOccurs", null, 1, 1, InputDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getInputDescriptionType_MaxOccurs(), theXMLTypePackage.getPositiveInteger(), "maxOccurs", null, 1, 1, InputDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getInputDescriptionType_MinOccurs(), theXMLTypePackage.getNonNegativeInteger(), "minOccurs", null, 1, 1, InputDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(inputReferenceTypeEClass, InputReferenceType.class, "InputReferenceType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getInputReferenceType_Header(), this.getHeaderType(), null, "header", null, 0, -1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getInputReferenceType_Body(), ecorePackage.getEObject(), null, "body", null, 0, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getInputReferenceType_Body(), theEcorePackage.getEObject(), null, "body", null, 0, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getInputReferenceType_BodyReference(), this.getBodyReferenceType(), null, "bodyReference", null, 0, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getInputReferenceType_Encoding(), theXMLTypePackage_1.getAnyURI(), "encoding", null, 0, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getInputReferenceType_Href(), theXMLTypePackage_1.getAnyURI(), "href", null, 1, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getInputReferenceType_Encoding(), theXMLTypePackage.getAnyURI(), "encoding", null, 0, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getInputReferenceType_Href(), theXMLTypePackage.getAnyURI(), "href", null, 1, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getInputReferenceType_Method(), this.getMethodType(), "method", "GET", 0, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getInputReferenceType_MimeType(), theOws11Package.getMimeType(), "mimeType", null, 0, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getInputReferenceType_Schema(), theXMLTypePackage_1.getAnyURI(), "schema", null, 0, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getInputReferenceType_Schema(), theXMLTypePackage.getAnyURI(), "schema", null, 0, 1, InputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(inputTypeEClass, InputType.class, "InputType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getInputType_Identifier(), theOws11Package.getCodeType(), null, "identifier", null, 1, 1, InputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2858,22 +2876,22 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEReference(getInputType_Data(), this.getDataType(), null, "data", null, 0, 1, InputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(languagesTypeEClass, LanguagesType.class, "LanguagesType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getLanguagesType_Language(), theXMLTypePackage_1.getLanguage(), "language", null, 1, -1, LanguagesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getLanguagesType_Language(), theXMLTypePackage.getLanguage(), "language", null, 1, 1, LanguagesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(languagesType1EClass, LanguagesType1.class, "LanguagesType1", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getLanguagesType1_Default(), this.getDefaultType2(), null, "default", null, 1, 1, LanguagesType1.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getLanguagesType1_Supported(), this.getLanguagesType(), null, "supported", null, 1, 1, LanguagesType1.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(literalDataTypeEClass, LiteralDataType.class, "LiteralDataType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getLiteralDataType_Value(), theXMLTypePackage_1.getString(), "value", null, 0, 1, LiteralDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getLiteralDataType_DataType(), theXMLTypePackage_1.getAnyURI(), "dataType", null, 0, 1, LiteralDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getLiteralDataType_Uom(), theXMLTypePackage_1.getAnyURI(), "uom", null, 0, 1, LiteralDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getLiteralDataType_Value(), theXMLTypePackage.getString(), "value", null, 0, 1, LiteralDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getLiteralDataType_DataType(), theXMLTypePackage.getAnyURI(), "dataType", null, 0, 1, LiteralDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getLiteralDataType_Uom(), theXMLTypePackage.getAnyURI(), "uom", null, 0, 1, LiteralDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(literalInputTypeEClass, LiteralInputType.class, "LiteralInputType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getLiteralInputType_AllowedValues(), theOws11Package.getAllowedValuesType(), null, "allowedValues", null, 0, 1, LiteralInputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getLiteralInputType_AnyValue(), theOws11Package.getAnyValueType(), null, "anyValue", null, 0, 1, LiteralInputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getLiteralInputType_ValuesReference(), this.getValuesReferenceType(), null, "valuesReference", null, 0, 1, LiteralInputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getLiteralInputType_DefaultValue(), theXMLTypePackage_1.getString(), "defaultValue", null, 0, 1, LiteralInputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getLiteralInputType_DefaultValue(), theXMLTypePackage.getString(), "defaultValue", null, 0, 1, LiteralInputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(literalOutputTypeEClass, LiteralOutputType.class, "LiteralOutputType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getLiteralOutputType_DataType(), theOws11Package.getDomainMetadataType(), null, "dataType", null, 0, 1, LiteralOutputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2888,10 +2906,10 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 
 		initEClass(outputDefinitionTypeEClass, OutputDefinitionType.class, "OutputDefinitionType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getOutputDefinitionType_Identifier(), theOws11Package.getCodeType(), null, "identifier", null, 1, 1, OutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getOutputDefinitionType_Encoding(), theXMLTypePackage_1.getAnyURI(), "encoding", null, 0, 1, OutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getOutputDefinitionType_Encoding(), theXMLTypePackage.getAnyURI(), "encoding", null, 0, 1, OutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getOutputDefinitionType_MimeType(), theOws11Package.getMimeType(), "mimeType", null, 0, 1, OutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getOutputDefinitionType_Schema(), theXMLTypePackage_1.getAnyURI(), "schema", null, 0, 1, OutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getOutputDefinitionType_Uom(), theXMLTypePackage_1.getAnyURI(), "uom", null, 0, 1, OutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getOutputDefinitionType_Schema(), theXMLTypePackage.getAnyURI(), "schema", null, 0, 1, OutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getOutputDefinitionType_Uom(), theXMLTypePackage.getAnyURI(), "uom", null, 0, 1, OutputDefinitionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(outputDescriptionTypeEClass, OutputDescriptionType.class, "OutputDescriptionType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getOutputDescriptionType_ComplexOutput(), this.getSupportedComplexDataType(), null, "complexOutput", null, 0, 1, OutputDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2899,15 +2917,15 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEReference(getOutputDescriptionType_BoundingBoxOutput(), this.getSupportedCRSsType(), null, "boundingBoxOutput", null, 0, 1, OutputDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(outputReferenceTypeEClass, OutputReferenceType.class, "OutputReferenceType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getOutputReferenceType_Encoding(), theXMLTypePackage_1.getAnyURI(), "encoding", null, 0, 1, OutputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getOutputReferenceType_Href(), theXMLTypePackage_1.getAnyURI(), "href", null, 1, 1, OutputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getOutputReferenceType_Encoding(), theXMLTypePackage.getAnyURI(), "encoding", null, 0, 1, OutputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getOutputReferenceType_Href(), theXMLTypePackage.getAnyURI(), "href", null, 1, 1, OutputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getOutputReferenceType_MimeType(), theOws11Package.getMimeType(), "mimeType", null, 0, 1, OutputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getOutputReferenceType_Schema(), theXMLTypePackage_1.getAnyURI(), "schema", null, 0, 1, OutputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getOutputReferenceType_Schema(), theXMLTypePackage.getAnyURI(), "schema", null, 0, 1, OutputReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(processBriefTypeEClass, ProcessBriefType.class, "ProcessBriefType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getProcessBriefType_Profile(), theXMLTypePackage_1.getAnyURI(), "profile", null, 0, -1, ProcessBriefType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getProcessBriefType_Profile(), theXMLTypePackage.getAnyURI(), "profile", null, 0, 1, ProcessBriefType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getProcessBriefType_WSDL(), this.getWSDLType(), null, "wSDL", null, 0, 1, ProcessBriefType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getProcessBriefType_ProcessVersion(), theXMLTypePackage_1.getString(), "processVersion", null, 1, 1, ProcessBriefType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getProcessBriefType_ProcessVersion(), theXMLTypePackage.getString(), "processVersion", null, 1, 1, ProcessBriefType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(processDescriptionsTypeEClass, ProcessDescriptionsType.class, "ProcessDescriptionsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getProcessDescriptionsType_ProcessDescription(), this.getProcessDescriptionType(), null, "processDescription", null, 1, -1, ProcessDescriptionsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2915,8 +2933,8 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEClass(processDescriptionTypeEClass, ProcessDescriptionType.class, "ProcessDescriptionType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getProcessDescriptionType_DataInputs(), this.getDataInputsType(), null, "dataInputs", null, 0, 1, ProcessDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getProcessDescriptionType_ProcessOutputs(), this.getProcessOutputsType(), null, "processOutputs", null, 1, 1, ProcessDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getProcessDescriptionType_StatusSupported(), theXMLTypePackage_1.getBoolean(), "statusSupported", "false", 0, 1, ProcessDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getProcessDescriptionType_StoreSupported(), theXMLTypePackage_1.getBoolean(), "storeSupported", "false", 0, 1, ProcessDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getProcessDescriptionType_StatusSupported(), theXMLTypePackage.getBoolean(), "statusSupported", "false", 0, 1, ProcessDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getProcessDescriptionType_StoreSupported(), theXMLTypePackage.getBoolean(), "storeSupported", "false", 0, 1, ProcessDescriptionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(processFailedTypeEClass, ProcessFailedType.class, "ProcessFailedType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getProcessFailedType_ExceptionReport(), theOws11Package.getExceptionReportType(), null, "exceptionReport", null, 1, 1, ProcessFailedType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2931,38 +2949,38 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEReference(getProcessOutputsType1_Output(), this.getOutputDataType(), null, "output", null, 1, -1, ProcessOutputsType1.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(processStartedTypeEClass, ProcessStartedType.class, "ProcessStartedType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getProcessStartedType_Value(), theXMLTypePackage_1.getString(), "value", null, 0, 1, ProcessStartedType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getProcessStartedType_Value(), theXMLTypePackage.getString(), "value", null, 0, 1, ProcessStartedType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getProcessStartedType_PercentCompleted(), this.getPercentCompletedType(), "percentCompleted", null, 0, 1, ProcessStartedType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(requestBaseTypeEClass, RequestBaseType.class, "RequestBaseType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getRequestBaseType_Language(), theXMLTypePackage_1.getString(), "language", null, 0, 1, RequestBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getRequestBaseType_Service(), theXMLTypePackage_1.getString(), "service", "WPS", 1, 1, RequestBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRequestBaseType_Language(), theXMLTypePackage.getString(), "language", null, 0, 1, RequestBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRequestBaseType_Service(), theXMLTypePackage.getString(), "service", "WPS", 1, 1, RequestBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRequestBaseType_Version(), theOws11Package.getVersionType1(), "version", "1.0.0", 1, 1, RequestBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(responseBaseTypeEClass, ResponseBaseType.class, "ResponseBaseType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getResponseBaseType_Service(), theXMLTypePackage_1.getString(), "service", "WPS", 1, 1, ResponseBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getResponseBaseType_Service(), theXMLTypePackage.getString(), "service", "WPS", 1, 1, ResponseBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getResponseBaseType_Version(), theOws11Package.getVersionType1(), "version", "1.0.0", 1, 1, ResponseBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(responseDocumentTypeEClass, ResponseDocumentType.class, "ResponseDocumentType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getResponseDocumentType_Output(), this.getDocumentOutputDefinitionType(), null, "output", null, 1, -1, ResponseDocumentType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getResponseDocumentType_Lineage(), theXMLTypePackage_1.getBoolean(), "lineage", "false", 0, 1, ResponseDocumentType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getResponseDocumentType_Status(), theXMLTypePackage_1.getBoolean(), "status", "false", 0, 1, ResponseDocumentType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getResponseDocumentType_StoreExecuteResponse(), theXMLTypePackage_1.getBoolean(), "storeExecuteResponse", "false", 0, 1, ResponseDocumentType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getResponseDocumentType_Lineage(), theXMLTypePackage.getBoolean(), "lineage", "false", 0, 1, ResponseDocumentType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getResponseDocumentType_Status(), theXMLTypePackage.getBoolean(), "status", "false", 0, 1, ResponseDocumentType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getResponseDocumentType_StoreExecuteResponse(), theXMLTypePackage.getBoolean(), "storeExecuteResponse", "false", 0, 1, ResponseDocumentType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(responseFormTypeEClass, ResponseFormType.class, "ResponseFormType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getResponseFormType_ResponseDocument(), this.getResponseDocumentType(), null, "responseDocument", null, 0, 1, ResponseFormType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getResponseFormType_RawDataOutput(), this.getOutputDefinitionType(), null, "rawDataOutput", null, 0, 1, ResponseFormType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(statusTypeEClass, StatusType.class, "StatusType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getStatusType_ProcessAccepted(), theXMLTypePackage_1.getString(), "processAccepted", null, 0, 1, StatusType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStatusType_ProcessAccepted(), theXMLTypePackage.getString(), "processAccepted", null, 0, 1, StatusType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStatusType_ProcessStarted(), this.getProcessStartedType(), null, "processStarted", null, 0, 1, StatusType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStatusType_ProcessPaused(), this.getProcessStartedType(), null, "processPaused", null, 0, 1, StatusType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getStatusType_ProcessSucceeded(), theXMLTypePackage_1.getString(), "processSucceeded", null, 0, 1, StatusType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStatusType_ProcessSucceeded(), theXMLTypePackage.getString(), "processSucceeded", null, 0, 1, StatusType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStatusType_ProcessFailed(), this.getProcessFailedType(), null, "processFailed", null, 0, 1, StatusType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getStatusType_CreationTime(), theXMLTypePackage_1.getDateTime(), "creationTime", null, 1, 1, StatusType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStatusType_CreationTime(), theXMLTypePackage.getDateTime(), "creationTime", null, 1, 1, StatusType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(supportedComplexDataInputTypeEClass, SupportedComplexDataInputType.class, "SupportedComplexDataInputType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getSupportedComplexDataInputType_MaximumMegabytes(), theXMLTypePackage_1.getInteger(), "maximumMegabytes", null, 0, 1, SupportedComplexDataInputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSupportedComplexDataInputType_MaximumMegabytes(), theXMLTypePackage.getInteger(), "maximumMegabytes", null, 0, 1, SupportedComplexDataInputType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(supportedComplexDataTypeEClass, SupportedComplexDataType.class, "SupportedComplexDataType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getSupportedComplexDataType_Default(), this.getComplexDataCombinationType(), null, "default", null, 1, 1, SupportedComplexDataType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2977,20 +2995,22 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEReference(getSupportedUOMsType_Supported(), this.getUOMsType(), null, "supported", null, 1, 1, SupportedUOMsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(uoMsTypeEClass, UOMsType.class, "UOMsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getUOMsType_UOM(), theOws11Package.getDomainMetadataType(), null, "uOM", null, 1, -1, UOMsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getUOMsType_UOM(), this.getUnit(), null, "uOM", null, 1, -1, UOMsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(valuesReferenceTypeEClass, ValuesReferenceType.class, "ValuesReferenceType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getValuesReferenceType_Reference(), theXMLTypePackage_1.getAnyURI(), "reference", null, 0, 1, ValuesReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getValuesReferenceType_ValuesForm(), theXMLTypePackage_1.getAnyURI(), "valuesForm", null, 0, 1, ValuesReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getValuesReferenceType_Reference(), theXMLTypePackage.getAnyURI(), "reference", null, 0, 1, ValuesReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getValuesReferenceType_ValuesForm(), theXMLTypePackage.getAnyURI(), "valuesForm", null, 0, 1, ValuesReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(wpsCapabilitiesTypeEClass, WPSCapabilitiesType.class, "WPSCapabilitiesType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getWPSCapabilitiesType_ProcessOfferings(), this.getProcessOfferingsType(), null, "processOfferings", null, 1, 1, WPSCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getWPSCapabilitiesType_Languages(), this.getLanguagesType1(), null, "languages", null, 1, 1, WPSCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getWPSCapabilitiesType_WSDL(), this.getWSDLType(), null, "wSDL", null, 0, 1, WPSCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getWPSCapabilitiesType_Service(), theXMLTypePackage_1.getAnySimpleType(), "service", "WPS", 1, 1, WPSCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getWPSCapabilitiesType_Service(), theXMLTypePackage.getAnySimpleType(), "service", "WPS", 1, 1, WPSCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(wsdlTypeEClass, WSDLType.class, "WSDLType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getWSDLType_Href(), theXMLTypePackage_1.getAnyURI(), "href", null, 1, 1, WSDLType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getWSDLType_Href(), theXMLTypePackage.getAnyURI(), "href", null, 1, 1, WSDLType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(unitEClass, Unit.class, "Unit", IS_ABSTRACT, IS_INTERFACE, !IS_GENERATED_INSTANCE_CLASS);
 
 		// Initialize enums and add enum literals
 		initEEnum(methodTypeEEnum, MethodType.class, "MethodType");
@@ -3005,26 +3025,8 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		createResource(eNS_URI);
 
 		// Create annotations
-		// null
-		createNullAnnotations();
 		// http:///org/eclipse/emf/ecore/util/ExtendedMetaData
 		createExtendedMetaDataAnnotations();
-	}
-
-	/**
-	 * Initializes the annotations for <b>null</b>.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void createNullAnnotations() {
-		String source = null;			
-		addAnnotation
-		  (this, 
-		   source, 
-		   new String[] {
-			 "appinfo", "$Id$\n$Id$\n$Id$\n$Id$\nowsAll.xsd 2006-10-04\nowsGetResourceByID.xsd 2006-02-14\nowsDataIdentification.xsd 2006-10-04\nowsCommon.xsd 2006-10-04\nows19115subset.xsd 2006-10-20\nowsGetCapabilities.xsd 2006-02-14\nowsServiceIdentification.xsd 2007-02-15\nowsServiceProvider.xsd 2007-02-15\nowsOperationsMetadata.xsd 2006-02-14\nowsDomainType.xsd 2006-10-06\nowsExceptionReport.xsd 2006-10-05\nowsContents.xsd 2006-02-14\nowsInputOutputData.xsd 2006-04-06\nowsManifest.xsd 2006-10-04\n$Id$"
-		   });																																																																																																																																																																																																																																																																																																																																																																																									
 	}
 
 	/**
@@ -3034,14 +3036,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 	 * @generated
 	 */
 	protected void createExtendedMetaDataAnnotations() {
-		String source = "http:///org/eclipse/emf/ecore/util/ExtendedMetaData";				
+		String source = "http:///org/eclipse/emf/ecore/util/ExtendedMetaData";			
 		addAnnotation
 		  (bodyReferenceTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "BodyReference_._type",
 			 "kind", "empty"
-		   });			
+		   });		
 		addAnnotation
 		  (getBodyReferenceType_Href(), 
 		   source, 
@@ -3112,14 +3114,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "name", "ComplexDataType",
 			 "kind", "mixed"
-		   });		
+		   });			
 		addAnnotation
 		  (getComplexDataType_Mixed(), 
 		   source, 
 		   new String[] {
 			 "kind", "elementWildcard",
 			 "name", ":mixed"
-		   });			
+		   });		
 		addAnnotation
 		  (getComplexDataType_Encoding(), 
 		   source, 
@@ -3154,14 +3156,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "kind", "element",
 			 "name", "CRS"
-		   });		
+		   });			
 		addAnnotation
 		  (dataInputsTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "DataInputs_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getDataInputsType_Input(), 
 		   source, 
@@ -3214,28 +3216,28 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "BoundingBoxData",
 			 "namespace", "##targetNamespace"
-		   });		
+		   });			
 		addAnnotation
 		  (defaultTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "Default_._1_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getDefaultType_CRS(), 
 		   source, 
 		   new String[] {
 			 "kind", "element",
 			 "name", "CRS"
-		   });		
+		   });			
 		addAnnotation
 		  (defaultType1EClass, 
 		   source, 
 		   new String[] {
 			 "name", "Default_._2_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getDefaultType1_UOM(), 
 		   source, 
@@ -3243,14 +3245,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "UOM",
 			 "namespace", "http://www.opengis.net/ows/1.1"
-		   });		
+		   });			
 		addAnnotation
 		  (defaultType2EClass, 
 		   source, 
 		   new String[] {
 			 "name", "Default_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getDefaultType2_Language(), 
 		   source, 
@@ -3258,14 +3260,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "Language",
 			 "namespace", "http://www.opengis.net/ows/1.1"
-		   });		
+		   });			
 		addAnnotation
 		  (describeProcessTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "DescribeProcess_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getDescribeProcessType_Identifier(), 
 		   source, 
@@ -3342,7 +3344,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "kind", "attribute",
 			 "name", "asReference"
-		   });		
+		   });			
 		addAnnotation
 		  (documentRootEClass, 
 		   source, 
@@ -3370,7 +3372,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "kind", "attribute",
 			 "name", "xsi:schemaLocation"
-		   });			
+		   });		
 		addAnnotation
 		  (getDocumentRoot_Capabilities(), 
 		   source, 
@@ -3402,7 +3404,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "ExecuteResponse",
 			 "namespace", "##targetNamespace"
-		   });		
+		   });			
 		addAnnotation
 		  (getDocumentRoot_GetCapabilities(), 
 		   source, 
@@ -3410,7 +3412,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "GetCapabilities",
 			 "namespace", "##targetNamespace"
-		   });			
+		   });		
 		addAnnotation
 		  (getDocumentRoot_Languages(), 
 		   source, 
@@ -3450,14 +3452,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "attribute",
 			 "name", "processVersion",
 			 "namespace", "##targetNamespace"
-		   });		
+		   });			
 		addAnnotation
 		  (executeResponseTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "ExecuteResponse_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getExecuteResponseType_Process(), 
 		   source, 
@@ -3511,14 +3513,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "kind", "attribute",
 			 "name", "statusLocation"
-		   });		
+		   });			
 		addAnnotation
 		  (executeTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "Execute_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getExecuteType_Identifier(), 
 		   source, 
@@ -3542,14 +3544,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "ResponseForm",
 			 "namespace", "##targetNamespace"
-		   });		
+		   });			
 		addAnnotation
 		  (getCapabilitiesTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "GetCapabilities_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getGetCapabilitiesType_AcceptVersions(), 
 		   source, 
@@ -3571,14 +3573,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "kind", "attribute",
 			 "name", "service"
-		   });		
+		   });			
 		addAnnotation
 		  (headerTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "Header_._type",
 			 "kind", "empty"
-		   });			
+		   });		
 		addAnnotation
 		  (getHeaderType_Key(), 
 		   source, 
@@ -3763,14 +3765,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "Language",
 			 "namespace", "http://www.opengis.net/ows/1.1"
-		   });		
+		   });			
 		addAnnotation
 		  (languagesType1EClass, 
 		   source, 
 		   new String[] {
 			 "name", "Languages_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getLanguagesType1_Default(), 
 		   source, 
@@ -3873,19 +3875,6 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "kind", "element",
 			 "name", "UOMs"
-		   });		
-		addAnnotation
-		  (methodTypeEEnum, 
-		   source, 
-		   new String[] {
-			 "name", "method_._type"
-		   });		
-		addAnnotation
-		  (methodTypeObjectEDataType, 
-		   source, 
-		   new String[] {
-			 "name", "method_._type:Object",
-			 "baseType", "method_._type"
 		   });			
 		addAnnotation
 		  (outputDataTypeEClass, 
@@ -4030,23 +4019,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "kind", "attribute",
 			 "name", "schema"
-		   });		
-		addAnnotation
-		  (percentCompletedTypeEDataType, 
-		   source, 
-		   new String[] {
-			 "name", "percentCompleted_._type",
-			 "baseType", "http://www.eclipse.org/emf/2003/XMLType#integer",
-			 "minInclusive", "0",
-			 "maxInclusive", "99"
-		   });		
+		   });			
 		addAnnotation
 		  (processBriefTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "ProcessBriefType",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getProcessBriefType_Profile(), 
 		   source, 
@@ -4070,14 +4050,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "attribute",
 			 "name", "processVersion",
 			 "namespace", "##targetNamespace"
-		   });		
+		   });			
 		addAnnotation
 		  (processDescriptionsTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "ProcessDescriptions_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getProcessDescriptionsType_ProcessDescription(), 
 		   source, 
@@ -4134,14 +4114,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "ExceptionReport",
 			 "namespace", "http://www.opengis.net/ows/1.1"
-		   });		
+		   });			
 		addAnnotation
 		  (processOfferingsTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "ProcessOfferings_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getProcessOfferingsType_Process(), 
 		   source, 
@@ -4149,28 +4129,28 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "Process",
 			 "namespace", "##targetNamespace"
-		   });		
+		   });			
 		addAnnotation
 		  (processOutputsTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "ProcessOutputs_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getProcessOutputsType_Output(), 
 		   source, 
 		   new String[] {
 			 "kind", "element",
 			 "name", "Output"
-		   });		
+		   });			
 		addAnnotation
 		  (processOutputsType1EClass, 
 		   source, 
 		   new String[] {
 			 "name", "ProcessOutputs_._1_._type",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getProcessOutputsType1_Output(), 
 		   source, 
@@ -4248,14 +4228,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "kind", "attribute",
 			 "name", "version"
-		   });		
+		   });			
 		addAnnotation
 		  (responseDocumentTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "ResponseDocumentType",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getResponseDocumentType_Output(), 
 		   source, 
@@ -4475,14 +4455,14 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "kind", "attribute",
 			 "name", "valuesForm"
-		   });		
+		   });			
 		addAnnotation
 		  (wpsCapabilitiesTypeEClass, 
 		   source, 
 		   new String[] {
 			 "name", "WPSCapabilitiesType",
 			 "kind", "elementOnly"
-		   });			
+		   });		
 		addAnnotation
 		  (getWPSCapabilitiesType_ProcessOfferings(), 
 		   source, 
@@ -4506,7 +4486,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "element",
 			 "name", "WSDL",
 			 "namespace", "##targetNamespace"
-		   });		
+		   });			
 		addAnnotation
 		  (getWPSCapabilitiesType_Service(), 
 		   source, 
@@ -4520,7 +4500,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "name", "WSDL_._type",
 			 "kind", "empty"
-		   });			
+		   });		
 		addAnnotation
 		  (getWSDLType_Href(), 
 		   source, 
@@ -4528,6 +4508,28 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 			 "kind", "attribute",
 			 "name", "href",
 			 "namespace", "http://www.w3.org/1999/xlink"
+		   });			
+		addAnnotation
+		  (methodTypeEEnum, 
+		   source, 
+		   new String[] {
+			 "name", "method_._type"
+		   });		
+		addAnnotation
+		  (methodTypeObjectEDataType, 
+		   source, 
+		   new String[] {
+			 "name", "method_._type:Object",
+			 "baseType", "method_._type"
+		   });		
+		addAnnotation
+		  (percentCompletedTypeEDataType, 
+		   source, 
+		   new String[] {
+			 "name", "percentCompleted_._type",
+			 "baseType", "http://www.eclipse.org/emf/2003/XMLType#integer",
+			 "minInclusive", "0",
+			 "maxInclusive", "99"
 		   });
 	}
 

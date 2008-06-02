@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Indicator that the process has failed to execute successfully. The reason for failure is given in the exception report. 
+ * Indicator that the process has failed to execute successfully. The reason for failure is given in the exception report.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -36,7 +36,7 @@ public interface ProcessFailedType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Report message returned to the client that requested any OWS operation when the server detects an error while processing that operation request. 
+	 * Report message returned to the client that requested any OWS operation when the server detects an error while processing that operation request.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Exception Report</em>' containment reference.
 	 * @see #setExceptionReport(ExceptionReportType)

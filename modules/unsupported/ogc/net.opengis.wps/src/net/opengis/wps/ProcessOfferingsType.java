@@ -33,7 +33,7 @@ public interface ProcessOfferingsType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Unordered list of one or more brief descriptions of all the processes offered by this WPS server. 
+	 * Unordered list of one or more brief descriptions of all the processes offered by this WPS server.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getProcessOfferingsType_Process()

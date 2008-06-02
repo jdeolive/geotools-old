@@ -34,7 +34,7 @@ public interface GetCapabilitiesType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * When omitted, server shall return latest supported version. 
+	 * When omitted, server shall return latest supported version.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Accept Versions</em>' containment reference.
 	 * @see #setAcceptVersions(AcceptVersionsType)

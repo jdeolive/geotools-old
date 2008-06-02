@@ -41,14 +41,24 @@ import org.eclipse.emf.ecore.util.EDataTypeEList;
  */
 public class ProcessBriefTypeImpl extends DescriptionTypeImpl implements ProcessBriefType {
 	/**
-	 * The cached value of the '{@link #getProfile() <em>Profile</em>}' attribute list.
+	 * The default value of the '{@link #getProfile() <em>Profile</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getProfile()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList profile;
+	protected static final String PROFILE_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getProfile() <em>Profile</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getProfile()
+	 * @generated
+	 * @ordered
+	 */
+	protected String profile = PROFILE_EDEFAULT;
 
 	/**
 	 * The cached value of the '{@link #getWSDL() <em>WSDL</em>}' containment reference.
@@ -103,11 +113,20 @@ public class ProcessBriefTypeImpl extends DescriptionTypeImpl implements Process
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList getProfile() {
-		if (profile == null) {
-			profile = new EDataTypeEList(String.class, this, WpsPackage.PROCESS_BRIEF_TYPE__PROFILE);
-		}
+	public String getProfile() {
 		return profile;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setProfile(String newProfile) {
+		String oldProfile = profile;
+		profile = newProfile;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, WpsPackage.PROCESS_BRIEF_TYPE__PROFILE, oldProfile, profile));
 	}
 
 	/**
@@ -212,8 +231,7 @@ public class ProcessBriefTypeImpl extends DescriptionTypeImpl implements Process
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
 			case WpsPackage.PROCESS_BRIEF_TYPE__PROFILE:
-				getProfile().clear();
-				getProfile().addAll((Collection)newValue);
+				setProfile((String)newValue);
 				return;
 			case WpsPackage.PROCESS_BRIEF_TYPE__WSDL:
 				setWSDL((WSDLType)newValue);
@@ -233,7 +251,7 @@ public class ProcessBriefTypeImpl extends DescriptionTypeImpl implements Process
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case WpsPackage.PROCESS_BRIEF_TYPE__PROFILE:
-				getProfile().clear();
+				setProfile(PROFILE_EDEFAULT);
 				return;
 			case WpsPackage.PROCESS_BRIEF_TYPE__WSDL:
 				setWSDL((WSDLType)null);
@@ -253,7 +271,7 @@ public class ProcessBriefTypeImpl extends DescriptionTypeImpl implements Process
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case WpsPackage.PROCESS_BRIEF_TYPE__PROFILE:
-				return profile != null && !profile.isEmpty();
+				return PROFILE_EDEFAULT == null ? profile != null : !PROFILE_EDEFAULT.equals(profile);
 			case WpsPackage.PROCESS_BRIEF_TYPE__WSDL:
 				return wSDL != null;
 			case WpsPackage.PROCESS_BRIEF_TYPE__PROCESS_VERSION:

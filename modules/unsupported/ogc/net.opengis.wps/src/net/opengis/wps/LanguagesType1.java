@@ -31,7 +31,7 @@ public interface LanguagesType1 extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies the default language that will be used unless the operation request specifies another supported language. 
+	 * Identifies the default language that will be used unless the operation request specifies another supported language.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Default</em>' containment reference.
 	 * @see #setDefault(DefaultType2)

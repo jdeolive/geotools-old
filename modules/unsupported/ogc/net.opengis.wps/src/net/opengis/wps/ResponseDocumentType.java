@@ -36,7 +36,7 @@ public interface ResponseDocumentType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Unordered list of definitions of the outputs (or parameters) requested from the process. These outputs are not normally identified, unless the client is specifically requesting a limited subset of outputs, and/or is requesting output formats and/or schemas and/or encodings different from the defaults and selected from the alternatives identified in the process description, or wishes to customize the descriptive information about the output. 
+	 * Unordered list of definitions of the outputs (or parameters) requested from the process. These outputs are not normally identified, unless the client is specifically requesting a limited subset of outputs, and/or is requesting output formats and/or schemas and/or encodings different from the defaults and selected from the alternatives identified in the process description, or wishes to customize the descriptive information about the output.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Output</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getResponseDocumentType_Output()
@@ -52,7 +52,7 @@ public interface ResponseDocumentType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates if the Execute operation response shall include the DataInputs and OutputDefinitions elements.  If lineage is "true" the server shall include in the execute response a complete copy of the DataInputs and OutputDefinition elements as received in the execute request.  If lineage is "false" then these elements shall be omitted from the response.  
+	 * Indicates if the Execute operation response shall include the DataInputs and OutputDefinitions elements.  If lineage is "true" the server shall include in the execute response a complete copy of the DataInputs and OutputDefinition elements as received in the execute request.  If lineage is "false" then these elements shall be omitted from the response.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Lineage</em>' attribute.
 	 * @see #isSetLineage()
@@ -161,7 +161,7 @@ public interface ResponseDocumentType extends EObject {
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
 	 * Indicates if the execute response document shall be stored.  If "true" then the executeResponseLocation attribute in the execute response becomes mandatory, which will point to the location where the executeResponseDocument is stored.  The service shall respond immediately to the request and return an executeResponseDocument containing the executeResponseLocation and the status element which has five possible subelements (choice):ProcessAccepted, ProcessStarted, ProcessPaused, ProcessFailed and ProcessSucceeded, which are chosen and populated as follows:   1) If the process is completed when the initial executeResponseDocument is returned, the element ProcessSucceeded is populated with the process results.  2) If the process already failed when the initial executeResponseDocument is returned, the element ProcessFailed is populated with the Exception.  3) If the process has been paused when the initial executeResponseDocument is returned, the element ProcessPaused is populated.  4) If the process has been accepted when the initial executeResponseDocument is returned, the element ProcessAccepted is populated, including percentage information. 5) If the process execution is ongoing when the initial executeResponseDocument is returned, the element ProcessStarted is populated.  In case 3, 4, and 5, if status updating is requested, updates are made to the executeResponseDocument at the executeResponseLocation until either the process completes successfully or fails.  Regardless, once the process completes successfully, the ProcessSucceeded element is populated, and if it fails, the ProcessFailed element is populated.
-	 * Specifies if the Execute operation response shall be returned quickly with status information, or not returned until process execution is complete. This parameter shall not be included unless the corresponding "statusSupported" parameter is included and is "true" in the ProcessDescription for this process. 
+	 * Specifies if the Execute operation response shall be returned quickly with status information, or not returned until process execution is complete. This parameter shall not be included unless the corresponding "statusSupported" parameter is included and is "true" in the ProcessDescription for this process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Store Execute Response</em>' attribute.
 	 * @see #isSetStoreExecuteResponse()

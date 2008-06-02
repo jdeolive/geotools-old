@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * List of the Inputs provided as part of the Execute Request. 
+ * List of the Inputs provided as part of the Execute Request.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -37,7 +37,7 @@ public interface DataInputsType1 extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Unordered list of one or more inputs to be used by the process, including each of the Inputs needed to execute the process. 
+	 * Unordered list of one or more inputs to be used by the process, including each of the Inputs needed to execute the process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Input</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getDataInputsType1_Input()

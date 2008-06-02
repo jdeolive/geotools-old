@@ -15,7 +15,7 @@ import net.opengis.ows11.AnyValueType;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Description of a process input that consists of a simple literal value (e.g., "2.1"). (Informative: This type is a subset of the ows:UnNamedDomainType defined in owsDomaintype.xsd.) 
+ * Description of a process input that consists of a simple literal value (e.g., "2.1"). (Informative: This type is a subset of the ows:UnNamedDomainType defined in owsDomaintype.xsd.)
  * <!-- end-model-doc -->
  *
  * <p>
@@ -38,7 +38,7 @@ public interface LiteralInputType extends LiteralOutputType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that there are a finite set of values and ranges allowed for this input, and contains list of all the valid values and/or ranges of values. Notice that these values and ranges can be displayed to a human client. 
+	 * Indicates that there are a finite set of values and ranges allowed for this input, and contains list of all the valid values and/or ranges of values. Notice that these values and ranges can be displayed to a human client.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Allowed Values</em>' containment reference.
 	 * @see #setAllowedValues(AllowedValuesType)
@@ -64,7 +64,7 @@ public interface LiteralInputType extends LiteralOutputType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that any value is allowed for this input. This element shall be included when there are no restrictions, except for data type, on the allowable value of this input. 
+	 * Indicates that any value is allowed for this input. This element shall be included when there are no restrictions, except for data type, on the allowable value of this input.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Any Value</em>' containment reference.
 	 * @see #setAnyValue(AnyValueType)
@@ -90,7 +90,7 @@ public interface LiteralInputType extends LiteralOutputType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Indicates that there are a finite set of values and ranges allowed for this input, which are specified in the referenced list. 
+	 * Indicates that there are a finite set of values and ranges allowed for this input, which are specified in the referenced list.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Values Reference</em>' containment reference.
 	 * @see #setValuesReference(ValuesReferenceType)
@@ -116,7 +116,7 @@ public interface LiteralInputType extends LiteralOutputType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Optional default value for this quantity, which should be included when this quantity has a default value.  The DefaultValue shall be understood to be consistent with the unit of measure selected in the Execute request. 
+	 * Optional default value for this quantity, which should be included when this quantity has a default value.  The DefaultValue shall be understood to be consistent with the unit of measure selected in the Execute request.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Default Value</em>' attribute.
 	 * @see #setDefaultValue(String)

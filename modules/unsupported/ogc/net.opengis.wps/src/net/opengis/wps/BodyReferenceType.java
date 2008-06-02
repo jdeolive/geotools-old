@@ -30,7 +30,7 @@ public interface BodyReferenceType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Reference to a remote document to be used as the body of the an HTTP POST request message. This attribute shall contain a URL from which this input can be electronically retrieved. 
+	 * Reference to a remote document to be used as the body of the an HTTP POST request message. This attribute shall contain a URL from which this input can be electronically retrieved.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Href</em>' attribute.
 	 * @see #setHref(String)

@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Identifies the default Format, Encoding, and Schema supported for this input or output. The process shall expect input in or produce output in this combination of Format/Encoding/Schema unless the Execute request specifies otherwise.. 
+ * Identifies the default Format, Encoding, and Schema supported for this input or output. The process shall expect input in or produce output in this combination of Format/Encoding/Schema unless the Execute request specifies otherwise..
  * <!-- end-model-doc -->
  *
  * <p>
@@ -34,7 +34,7 @@ public interface ComplexDataCombinationType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The default combination of MimeType/Encoding/Schema supported for this Input/Output. 
+	 * The default combination of MimeType/Encoding/Schema supported for this Input/Output.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Format</em>' containment reference.
 	 * @see #setFormat(ComplexDataDescriptionType)

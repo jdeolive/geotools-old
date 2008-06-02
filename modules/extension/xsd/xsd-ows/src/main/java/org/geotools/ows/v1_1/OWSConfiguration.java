@@ -4,6 +4,7 @@ import java.util.Map;
 
 import net.opengis.ows11.Ows11Factory;
 
+import org.geotools.ows.bindings.UnitBinding;
 import org.geotools.xlink.XLINKConfiguration;
 import org.geotools.xml.ComplexEMFBinding;
 import org.geotools.xml.Configuration;
@@ -69,10 +70,7 @@ public class OWSConfiguration extends Configuration {
         bindings.put(OWS._ServiceIdentification, new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS._ServiceIdentification));
         bindings.put(OWS._ServiceProvider, new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS._ServiceProvider));
 
-        
-        
-       
-        
+        bindings.put(OWS.UOM, new UnitBinding());
     }
     
     protected void configureContext(MutablePicoContainer container) {

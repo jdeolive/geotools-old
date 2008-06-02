@@ -99,7 +99,7 @@ public interface DocumentRoot extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * WPS GetCapabilities operation response. This document provides clients with service metadata about a specific service instance, including metadata about the processes that can be executed. Since the server does not implement the updateSequence and Sections parameters, the server shall always return the complete Capabilities document, without the updateSequence parameter. 
+	 * WPS GetCapabilities operation response. This document provides clients with service metadata about a specific service instance, including metadata about the processes that can be executed. Since the server does not implement the updateSequence and Sections parameters, the server shall always return the complete Capabilities document, without the updateSequence parameter.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Capabilities</em>' containment reference.
 	 * @see #setCapabilities(WPSCapabilitiesType)
@@ -125,7 +125,7 @@ public interface DocumentRoot extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * WPS DescribeProcess operation request. 
+	 * WPS DescribeProcess operation request.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Describe Process</em>' containment reference.
 	 * @see #setDescribeProcess(DescribeProcessType)
@@ -151,7 +151,7 @@ public interface DocumentRoot extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * WPS Execute operation request, to execute one identified Process. If a process is to be run multiple times, each run shall be submitted as a separate Execute request. 
+	 * WPS Execute operation request, to execute one identified Process. If a process is to be run multiple times, each run shall be submitted as a separate Execute request.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Execute</em>' containment reference.
 	 * @see #setExecute(ExecuteType)
@@ -179,7 +179,7 @@ public interface DocumentRoot extends EObject {
 	 * <!-- begin-model-doc -->
 	 * WPS Execute operation response. By default, this XML document is delivered to the client in response to an Execute request. If "status" is "false" in the Execute operation request, this document is normally returned when process execution has been completed.
 	 * 			If "status" in the Execute request is "true", this response shall be returned as soon as the Execute request has been accepted for processing. In this case, the same XML document is also made available as a web-accessible resource from the URL identified in the statusLocation, and the WPS server shall repopulate it once the process has completed. It may repopulate it on an ongoing basis while the process is executing.
-	 * 			However, the response to an Execute request will not include this element in the special case where the output is a single complex value result and the Execute request indicates that "store" is "false". Instead, the server shall return the complex result (e.g., GIF image or GML) directly, without encoding it in the ExecuteResponse. If processing fails in this special case, the normal ExecuteResponse shall be sent, with the error condition indicated. This option is provided to simplify the programming required for simple clients and for service chaining. 
+	 * 			However, the response to an Execute request will not include this element in the special case where the output is a single complex value result and the Execute request indicates that "store" is "false". Instead, the server shall return the complex result (e.g., GIF image or GML) directly, without encoding it in the ExecuteResponse. If processing fails in this special case, the normal ExecuteResponse shall be sent, with the error condition indicated. This option is provided to simplify the programming required for simple clients and for service chaining.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Execute Response</em>' containment reference.
 	 * @see #setExecuteResponse(ExecuteResponseType)
@@ -232,7 +232,7 @@ public interface DocumentRoot extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Listing of the default and other languages supported by this service. 
+	 * Listing of the default and other languages supported by this service.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Languages</em>' containment reference.
 	 * @see #setLanguages(LanguagesType1)
@@ -258,7 +258,7 @@ public interface DocumentRoot extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * WPS DescribeProcess operation response. 
+	 * WPS DescribeProcess operation response.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Descriptions</em>' containment reference.
 	 * @see #setProcessDescriptions(ProcessDescriptionsType)
@@ -284,7 +284,7 @@ public interface DocumentRoot extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * List of brief descriptions of the processes offered by this WPS server. 
+	 * List of brief descriptions of the processes offered by this WPS server.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Offerings</em>' containment reference.
 	 * @see #setProcessOfferings(ProcessOfferingsType)

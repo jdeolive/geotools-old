@@ -90,6 +90,7 @@
     <module>xsd-kml</module>
     <module>xsd-ows</module>
     <module>xsd-wfs</module>
+    <module>xsd-wps</module>
   </modules>
 
 </project>

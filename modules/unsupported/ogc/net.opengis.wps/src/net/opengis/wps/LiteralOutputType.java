@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Description of a literal output (or input). 
+ * Description of a literal output (or input).
  * <!-- end-model-doc -->
  *
  * <p>
@@ -37,7 +37,7 @@ public interface LiteralOutputType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Data type of this set of values (e.g. integer, real, etc). This data type metadata should be included for each quantity whose data type is not a string. 
+	 * Data type of this set of values (e.g. integer, real, etc). This data type metadata should be included for each quantity whose data type is not a string.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Data Type</em>' containment reference.
 	 * @see #setDataType(DomainMetadataType)
@@ -63,7 +63,7 @@ public interface LiteralOutputType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * List of supported units of measure for this input or output. This element should be included when this literal has a unit of measure (e.g., "meters", without a more complete reference system). Not necessary for a count, which has no units. 
+	 * List of supported units of measure for this input or output. This element should be included when this literal has a unit of measure (e.g., "meters", without a more complete reference system). Not necessary for a count, which has no units.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>UO Ms</em>' containment reference.
 	 * @see #setUOMs(SupportedUOMsType)

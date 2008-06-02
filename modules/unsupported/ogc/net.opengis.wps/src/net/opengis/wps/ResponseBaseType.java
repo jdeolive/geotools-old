@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * WPS operation response base, for all WPS operations except GetCapabilities. 
+ * WPS operation response base, for all WPS operations except GetCapabilities.
  * <!-- end-model-doc -->
  *
  * <p>

@@ -33,7 +33,7 @@ public interface WPSCapabilitiesType extends CapabilitiesBaseType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * List of brief descriptions of the processes offered by this WPS server. 
+	 * List of brief descriptions of the processes offered by this WPS server.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Process Offerings</em>' containment reference.
 	 * @see #setProcessOfferings(ProcessOfferingsType)
@@ -59,7 +59,7 @@ public interface WPSCapabilitiesType extends CapabilitiesBaseType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * List of the default and other languages supported by this service. 
+	 * List of the default and other languages supported by this service.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Languages</em>' containment reference.
 	 * @see #setLanguages(LanguagesType1)

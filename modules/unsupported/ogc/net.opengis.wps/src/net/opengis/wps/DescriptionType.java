@@ -19,7 +19,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Description of a WPS process or output object. 
+ * Description of a WPS process or output object.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -42,7 +42,7 @@ public interface DescriptionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Unambiguous identifier or name of a process, unique for this server, or unambiguous identifier or name of an output, unique for this process. 
+	 * Unambiguous identifier or name of a process, unique for this server, or unambiguous identifier or name of an output, unique for this process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Identifier</em>' containment reference.
 	 * @see #setIdentifier(CodeType)
@@ -68,7 +68,7 @@ public interface DescriptionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Title of a process or output, normally available for display to a human. 
+	 * Title of a process or output, normally available for display to a human.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Title</em>' containment reference.
 	 * @see #setTitle(LanguageStringType)
@@ -94,7 +94,7 @@ public interface DescriptionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Brief narrative description of a process or output, normally available for display to a human. 
+	 * Brief narrative description of a process or output, normally available for display to a human.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Abstract</em>' containment reference.
 	 * @see #setAbstract(LanguageStringType)
@@ -121,7 +121,7 @@ public interface DescriptionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Optional unordered list of additional metadata about this process/input/output. A list of optional and/or required metadata elements for this process/input/output could be specified in an Application Profile for this service. 
+	 * Optional unordered list of additional metadata about this process/input/output. A list of optional and/or required metadata elements for this process/input/output could be specified in an Application Profile for this service.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Metadata</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getDescriptionType_Metadata()

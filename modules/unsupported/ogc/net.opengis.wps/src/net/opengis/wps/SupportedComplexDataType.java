@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Formats, encodings, and schemas supported by a process input or output. 
+ * Formats, encodings, and schemas supported by a process input or output.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -35,7 +35,7 @@ public interface SupportedComplexDataType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies the default combination of Format, Encoding, and Schema supported for this Input/Output. The process shall expect input in or produce output in this combination of MimeType/Encoding/Schema unless the Execute request specifies otherwise.  
+	 * Identifies the default combination of Format, Encoding, and Schema supported for this Input/Output. The process shall expect input in or produce output in this combination of MimeType/Encoding/Schema unless the Execute request specifies otherwise.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Default</em>' containment reference.
 	 * @see #setDefault(ComplexDataCombinationType)
@@ -61,7 +61,7 @@ public interface SupportedComplexDataType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Unordered list of combinations of format, encoding, and schema supported for this Input/Output. This element shall be repeated for each combination of MimeType/Encoding/Schema that is supported for this Input/Output. This list shall include the default MimeType/Encoding/Schema. 
+	 * Unordered list of combinations of format, encoding, and schema supported for this Input/Output. This element shall be repeated for each combination of MimeType/Encoding/Schema that is supported for this Input/Output. This list shall include the default MimeType/Encoding/Schema.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Supported</em>' containment reference.
 	 * @see #setSupported(ComplexDataCombinationsType)

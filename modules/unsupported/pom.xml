@@ -59,6 +59,7 @@
          <module>sql-datastore</module>
          <module>geometryless</module>
          <module>notifying-collections</module>
+	 <module>wps</module>
        </modules>
      </profile>
 

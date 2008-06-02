@@ -28,20 +28,30 @@ import org.eclipse.emf.common.util.EList;
  */
 public interface ProcessBriefType extends DescriptionType {
 	/**
-	 * Returns the value of the '<em><b>Profile</b></em>' attribute list.
-	 * The list contents are of type {@link java.lang.String}.
+	 * Returns the value of the '<em><b>Profile</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
 	 * Optional unordered list of application profiles to which this process complies.
 	 * <!-- end-model-doc -->
-	 * @return the value of the '<em>Profile</em>' attribute list.
+	 * @return the value of the '<em>Profile</em>' attribute.
+	 * @see #setProfile(String)
 	 * @see net.opengis.wps.WpsPackage#getProcessBriefType_Profile()
 	 * @model unique="false" dataType="org.eclipse.emf.ecore.xml.type.AnyURI"
 	 *        extendedMetaData="kind='element' name='Profile' namespace='##targetNamespace'"
 	 * @generated
 	 */
-	EList getProfile();
+	String getProfile();
+
+	/**
+	 * Sets the value of the '{@link net.opengis.wps.ProcessBriefType#getProfile <em>Profile</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Profile</em>' attribute.
+	 * @see #getProfile()
+	 * @generated
+	 */
+	void setProfile(String value);
 
 	/**
 	 * Returns the value of the '<em><b>WSDL</b></em>' containment reference.

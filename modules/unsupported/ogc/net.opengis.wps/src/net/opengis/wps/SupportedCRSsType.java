@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Listing of the Coordinate Reference System (CRS) support for this process input or output. 
+ * Listing of the Coordinate Reference System (CRS) support for this process input or output.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -35,7 +35,7 @@ public interface SupportedCRSsType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies the default CRS that will be used unless the Execute operation request specifies another supported CRS. 
+	 * Identifies the default CRS that will be used unless the Execute operation request specifies another supported CRS.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Default</em>' containment reference.
 	 * @see #setDefault(DefaultType)

@@ -13,8 +13,8 @@ package net.opengis.wps;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Value of one output from a process. 
- * In this use, the DescriptionType shall describe this process output. 
+ * Value of one output from a process.
+ * In this use, the DescriptionType shall describe this process output.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -35,7 +35,7 @@ public interface OutputDataType extends DescriptionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies this output as a web accessible resource, and references that resource.  This element shall only be used for complex data. This element shall be used by a server when "store" in the Execute request is "true". 
+	 * Identifies this output as a web accessible resource, and references that resource.  This element shall only be used for complex data. This element shall be used by a server when "store" in the Execute request is "true".
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Reference</em>' containment reference.
 	 * @see #setReference(OutputReferenceType)
@@ -61,7 +61,7 @@ public interface OutputDataType extends DescriptionType {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Identifies this output value as a data embedded in this response, and includes that data. This element shall be used by a server when "store" in the Execute request is "false". 
+	 * Identifies this output value as a data embedded in this response, and includes that data. This element shall be used by a server when "store" in the Execute request is "false".
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Data</em>' containment reference.
 	 * @see #setData(DataType)

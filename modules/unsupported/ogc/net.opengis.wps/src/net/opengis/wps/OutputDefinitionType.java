@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * Definition of a format, encoding,  schema, and unit-of-measure for an output to be returned from a process. 
+ * Definition of a format, encoding,  schema, and unit-of-measure for an output to be returned from a process.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -40,7 +40,7 @@ public interface OutputDefinitionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Unambiguous identifier or name of an output, unique for this process. 
+	 * Unambiguous identifier or name of an output, unique for this process.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Identifier</em>' containment reference.
 	 * @see #setIdentifier(CodeType)
@@ -66,7 +66,7 @@ public interface OutputDefinitionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The encoding of this input or requested for this output (e.g., UTF-8). This "encoding" shall be included whenever the encoding required is not the default encoding indicated in the Process full description. When included, this encoding shall be one published for this output or input in the Process full description. 
+	 * The encoding of this input or requested for this output (e.g., UTF-8). This "encoding" shall be included whenever the encoding required is not the default encoding indicated in the Process full description. When included, this encoding shall be one published for this output or input in the Process full description.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Encoding</em>' attribute.
 	 * @see #setEncoding(String)
@@ -92,7 +92,7 @@ public interface OutputDefinitionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The Format of this input or requested for this output (e.g., text/xml). This element shall be omitted when the Format is indicated in the http header of the output. When included, this format shall be one published for this output or input in the Process full description. 
+	 * The Format of this input or requested for this output (e.g., text/xml). This element shall be omitted when the Format is indicated in the http header of the output. When included, this format shall be one published for this output or input in the Process full description.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Mime Type</em>' attribute.
 	 * @see #setMimeType(String)
@@ -118,8 +118,8 @@ public interface OutputDefinitionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Web-accessible XML Schema Document that defines the content model of this complex resource (e.g., encoded using GML 2.2 Application Schema).  This reference should be included for XML encoded complex resources to facilitate validation. 
-	 * PS I changed the name of this attribute to be consistent with the ProcessDescription.  The original was giving me validation troubles in XMLSpy. 
+	 * Web-accessible XML Schema Document that defines the content model of this complex resource (e.g., encoded using GML 2.2 Application Schema).  This reference should be included for XML encoded complex resources to facilitate validation.
+	 * PS I changed the name of this attribute to be consistent with the ProcessDescription.  The original was giving me validation troubles in XMLSpy.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Schema</em>' attribute.
 	 * @see #setSchema(String)
@@ -145,7 +145,7 @@ public interface OutputDefinitionType extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * Reference to the unit of measure (if any) requested for this output. A uom can be referenced when a client wants to specify one of the units of measure supported for this output. This uom shall be a unit of measure referenced for this output of this process in the Process full description. 
+	 * Reference to the unit of measure (if any) requested for this output. A uom can be referenced when a client wants to specify one of the units of measure supported for this output. This uom shall be a unit of measure referenced for this output of this process in the Process full description.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Uom</em>' attribute.
 	 * @see #setUom(String)
