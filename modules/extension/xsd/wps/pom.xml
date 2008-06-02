@@ -23,7 +23,7 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools.xsd</groupId>
-  <artifactId>gt-wps</artifactId>
+  <artifactId>gt-xsd-wps</artifactId>
   <packaging>jar</packaging>
   <name>WPS XML Support</name>
   <url>http://maven.geotools.fr/reports/modules/extension/xsd/wps/</url>

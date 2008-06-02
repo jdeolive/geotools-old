@@ -23,7 +23,7 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools.xsd</groupId>
-  <artifactId>gt-ows</artifactId>
+  <artifactId>gt-xsd-ows</artifactId>
   <packaging>jar</packaging>
   <name>OWS XML Support</name>
   <url>http://maven.geotools.fr/reports/modules/extension/xsd/ows/</url>

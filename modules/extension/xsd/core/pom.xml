@@ -24,7 +24,7 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools.xsd</groupId>
-  <artifactId>gt-core</artifactId>
+  <artifactId>gt-xsd-core</artifactId>
   <packaging>jar</packaging>
   <name>XML Parsing</name>
   <url>http://maven.geotools.fr/reports/modules/extension/xsd/core/</url>

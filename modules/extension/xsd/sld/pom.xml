@@ -24,7 +24,7 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools.xsd</groupId>
-  <artifactId>gt-sld</artifactId>
+  <artifactId>gt-xsd-sld</artifactId>
   <packaging>jar</packaging>
   <name>SLD XML Support</name>
   <url>http://maven.geotools.fr/reports/modules/extension/xsd/sld/</url>
@@ -91,12 +91,12 @@
     </dependency>    
     <dependency>
       <groupId>org.geotools.xsd</groupId>
-      <artifactId>gt-core</artifactId>
+      <artifactId>gt-xsd-core</artifactId>
       <version>${project.version}</version>
     </dependency>    
     <dependency>
       <groupId>org.geotools.xsd</groupId>
-      <artifactId>gt-filter</artifactId>
+      <artifactId>gt-xsd-filter</artifactId>
       <version>${project.version}</version>
     </dependency>    
   </dependencies>
