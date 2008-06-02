@@ -27,13 +27,13 @@
   <artifactId>gt-xsd-core</artifactId>
   <packaging>jar</packaging>
   <name>XML Parsing</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/core/</url>
+  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-core/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/core/
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-core/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/core/</url>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-core/</url>
   </scm>
 
   <description>

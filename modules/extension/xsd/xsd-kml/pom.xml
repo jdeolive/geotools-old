@@ -26,13 +26,13 @@
   <artifactId>gt-xsd-kml</artifactId>
   <packaging>jar</packaging>
   <name>KML XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/kml/</url>
+  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-kml/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/kml/
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-kml/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/kml/</url>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-kml/</url>
   </scm>
 
   <description>

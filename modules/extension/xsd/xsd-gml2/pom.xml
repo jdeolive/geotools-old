@@ -26,13 +26,13 @@
   <artifactId>gt-xsd-gml2</artifactId>
   <packaging>jar</packaging>
   <name>GML2 XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/gml2/</url>
+  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-gml2/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/gml2/
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-gml2/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/gml2/</url>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-gml2/</url>
   </scm>
 
   <description>

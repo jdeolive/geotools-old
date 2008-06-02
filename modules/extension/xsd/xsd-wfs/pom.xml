@@ -26,13 +26,13 @@
   <artifactId>gt-xsd-wfs</artifactId>
   <packaging>jar</packaging>
   <name>WFS XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/wfs/</url>
+  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-wfs/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/wfs/
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-wfs/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/wfs/</url>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-wfs/</url>
   </scm>
 
   <description>

@@ -27,13 +27,13 @@
   <artifactId>gt-xsd-filter</artifactId>
   <packaging>jar</packaging>
   <name>Filter XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/filter/</url>
+  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-filter/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/filter/
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-filter/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/filter/</url>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-filter/</url>
   </scm>
 
   <description>

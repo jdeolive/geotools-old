@@ -26,13 +26,13 @@
   <artifactId>gt-xsd-ows</artifactId>
   <packaging>jar</packaging>
   <name>OWS XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/ows/</url>
+  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-ows/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/ows/
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-ows/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/ows/</url>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-ows/</url>
   </scm>
 
   <description>

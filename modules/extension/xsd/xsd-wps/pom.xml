@@ -26,13 +26,13 @@
   <artifactId>gt-xsd-wps</artifactId>
   <packaging>jar</packaging>
   <name>WPS XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/wps/</url>
+  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-wps/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/wps/
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-wps/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/wps/</url>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-wps/</url>
   </scm>
 
   <description>
