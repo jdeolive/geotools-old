@@ -15,11 +15,10 @@
  */
 package org.geotools.xs.bindings;
 
-import com.sun.xml.bind.DatatypeConverterImpl;
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import org.geotools.xml.InstanceComponent;
 import org.geotools.xml.SimpleBinding;
+import org.geotools.xml.impl.DatatypeConverterImpl;
 import org.geotools.xs.XS;
 
 
@@ -94,11 +93,8 @@ public class XSBase64BinaryBinding implements SimpleBinding {
      */
     public Object parse(InstanceComponent instance, Object value)
         throws Exception {
-        DatatypeConverter.setDatatypeConverter(DatatypeConverterImpl.theInstance);
 
-        byte[] bin = DatatypeConverter.parseBase64Binary((String) value);
-
-        return bin;
+        return DatatypeConverterImpl.getInstance().parseBase64Binary((String)value); 
     }
 
     /**
@@ -110,6 +106,6 @@ public class XSBase64BinaryBinding implements SimpleBinding {
     public String encode(Object object, String value) {
         byte[] bin = (byte[]) object;
 
-        return DatatypeConverter.printBase64Binary(bin);
+        return DatatypeConverterImpl.getInstance().printBase64Binary(bin);
     }
 }

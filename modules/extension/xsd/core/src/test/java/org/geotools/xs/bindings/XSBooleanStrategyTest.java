@@ -15,7 +15,6 @@
  */
 package org.geotools.xs.bindings;
 
-import javax.xml.bind.ValidationException;
 import javax.xml.namespace.QName;
 import org.geotools.xs.TestSchema;
 import org.geotools.xs.XS;
@@ -43,7 +42,7 @@ public class XSBooleanStrategyTest extends TestSchema {
         try {
             validateValues("TRUE", Boolean.FALSE);
             fail("TRUTH is not absolute");
-        } catch (ValidationException expected) {
+        } catch (IllegalArgumentException expected) {
             // yeah!
         }
     }

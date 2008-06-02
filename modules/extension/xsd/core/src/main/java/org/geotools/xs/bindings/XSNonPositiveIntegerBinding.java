@@ -16,7 +16,6 @@
 package org.geotools.xs.bindings;
 
 import java.math.BigInteger;
-import javax.xml.bind.ValidationException;
 import javax.xml.namespace.QName;
 import org.geotools.xml.InstanceComponent;
 import org.geotools.xml.SimpleBinding;
@@ -90,7 +89,7 @@ public class XSNonPositiveIntegerBinding implements SimpleBinding {
         BigInteger number = (BigInteger) value;
 
         if (BigInteger.ZERO.compareTo(number) < 0) {
-            throw new ValidationException("Value '" + number
+            throw new IllegalArgumentException("Value '" + number
                 + "' must be non-positive (0 or below).");
         }
 
@@ -115,7 +114,7 @@ public class XSNonPositiveIntegerBinding implements SimpleBinding {
         Number number = (Number) object;
 
         if (number.intValue() > 0) {
-            throw new ValidationException("Value '" + number
+            throw new IllegalArgumentException("Value '" + number
                 + "' must be non-positive (0 or below).");
         }
 

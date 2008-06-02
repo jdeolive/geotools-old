@@ -15,12 +15,11 @@
  */
 package org.geotools.xs.bindings;
 
-import com.sun.xml.bind.DatatypeConverterImpl;
 import java.util.Calendar;
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import org.geotools.xml.InstanceComponent;
 import org.geotools.xml.SimpleBinding;
+import org.geotools.xml.impl.DatatypeConverterImpl;
 import org.geotools.xs.XS;
 
 
@@ -96,9 +95,7 @@ public class XSTimeBinding implements SimpleBinding {
      */
     public Object parse(InstanceComponent instance, Object value)
         throws Exception {
-        DatatypeConverter.setDatatypeConverter(DatatypeConverterImpl.theInstance);
-
-        return DatatypeConverter.parseTime((String) value);
+        return DatatypeConverterImpl.getInstance().parseTime((String) value);
     }
 
     /**
@@ -110,6 +107,6 @@ public class XSTimeBinding implements SimpleBinding {
     public String encode(Object object, String value) {
         Calendar calendar = (Calendar) object;
 
-        return DatatypeConverter.printTime(calendar);
+        return DatatypeConverterImpl.getInstance().printTime(calendar);
     }
 }

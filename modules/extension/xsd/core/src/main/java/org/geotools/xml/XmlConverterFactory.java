@@ -15,17 +15,16 @@
  */
 package org.geotools.xml;
 
-import com.sun.xml.bind.DatatypeConverterImpl;
 import org.apache.commons.beanutils.converters.SqlDateConverter;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
-import javax.xml.bind.DatatypeConverter;
 import org.geotools.factory.Hints;
 import org.geotools.util.CommonsConverterFactory;
 import org.geotools.util.Converter;
 import org.geotools.util.ConverterFactory;
+import org.geotools.xml.impl.DatatypeConverterImpl;
 
 
 /**
@@ -42,10 +41,7 @@ import org.geotools.util.ConverterFactory;
  *
  */
 public class XmlConverterFactory implements ConverterFactory {
-    static {
-        DatatypeConverter.setDatatypeConverter(DatatypeConverterImpl.theInstance);
-    }
-
+    
     public Converter createConverter(Class source, Class target, Hints hints) {
         if (String.class.equals(source)) {
             return new XmlConverter();
@@ -82,10 +78,11 @@ public class XmlConverterFactory implements ConverterFactory {
 
             //try parsing as dateTime
             try {
-                date = DatatypeConverter.parseDateTime(value);
+                date = DatatypeConverterImpl.getInstance().parseDateTime(value);
+                
             } catch (Exception e) {
                 //try as just date
-                date = DatatypeConverter.parseDate(value);
+                date = DatatypeConverterImpl.getInstance().parseDate(value);
             }
 
             if (Calendar.class.equals(target)) {

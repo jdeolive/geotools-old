@@ -15,7 +15,6 @@
  */
 package org.geotools.xs.bindings;
 
-import javax.xml.bind.ValidationException;
 import javax.xml.namespace.QName;
 import org.geotools.xml.InstanceComponent;
 import org.geotools.xml.SimpleBinding;
@@ -86,7 +85,7 @@ public class XSNegativeIntegerBinding implements SimpleBinding {
         Number number = (Number) value;
 
         if (number.intValue() == 0) {
-            throw new ValidationException("negativeInteger value '" + number
+            throw new IllegalArgumentException("negativeInteger value '" + number
                 + "' required to be negative");
         }
 

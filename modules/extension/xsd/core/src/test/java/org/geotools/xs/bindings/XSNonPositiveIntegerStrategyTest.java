@@ -16,7 +16,6 @@
 package org.geotools.xs.bindings;
 
 import java.math.BigInteger;
-import javax.xml.bind.ValidationException;
 import javax.xml.namespace.QName;
 import org.geotools.xs.TestSchema;
 import org.geotools.xs.XS;
@@ -70,7 +69,7 @@ public class XSNonPositiveIntegerStrategyTest extends TestSchema {
     public void testLargePositiveNumber() throws Exception {
         try {
             validateValues("-12678967543233", new BigInteger("-12678967543233"));
-        } catch (ValidationException expected) {
+        } catch (IllegalArgumentException expected) {
             // yeah!
         }
     }

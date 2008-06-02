@@ -15,14 +15,11 @@
  */
 package org.geotools.xs.bindings;
 
-import java.util.logging.Logger;
-
-import com.sun.xml.bind.DatatypeConverterImpl;
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import org.geotools.xml.InstanceComponent;
 import org.geotools.xml.SimpleBinding;
+import org.geotools.xml.impl.DatatypeConverterImpl;
 import org.geotools.xs.XS;
 
 
@@ -64,8 +61,6 @@ public class XSQNameBinding implements SimpleBinding {
 
     public XSQNameBinding(NamespaceContext namespaceContext) {
         this.namespaceContext = namespaceContext;
-
-        DatatypeConverter.setDatatypeConverter(DatatypeConverterImpl.theInstance);
     }
 
     /**
@@ -105,21 +100,32 @@ public class XSQNameBinding implements SimpleBinding {
      */
     public Object parse(InstanceComponent instance, Object value)
         throws Exception {
-    	
-    	try {
-    		QName qName = DatatypeConverter.parseQName((String) value, namespaceContext);
-
-    		if (qName != null) {
-    			return qName;
-    		}
-    	}
-    	catch (IllegalArgumentException noNamespace){
-    		Logger.getLogger("org.geotools.xs.bindings").fine( noNamespace.toString() );
-    	}
+        
+        //if value passed in was null just return "null" qname
         if (value == null) {
             return new QName(null);
         }
+        
+        QName qName = null;
+        try {
+            qName = DatatypeConverterImpl.getInstance().parseQName((String) value, namespaceContext);
+        }
+        catch( Exception e ) {
+            //could occur if a prefix that was not registered was found
+        }
+        
+        //try to set the prefix
+        if (qName != null && (qName.getPrefix() == null || qName.getPrefix().equals( "") ) ) {
+            if ( qName.getNamespaceURI() != null && !"".equals(qName.getNamespaceURI()) ) {
+                String prefix = namespaceContext.getPrefix(qName.getNamespaceURI());
+                if ( prefix != null && !"".equals( prefix ) ) {
+                    qName = new QName( qName.getNamespaceURI(), qName.getLocalPart(), prefix );
+                }
+            }
+            return qName;
+        }
 
+        //could not parse with convert, parse manually
         String s = (String) value;
         int i = s.indexOf(':');
 
@@ -134,6 +140,18 @@ public class XSQNameBinding implements SimpleBinding {
     }
 
     public String encode(Object object, String value) throws Exception {
-        return DatatypeConverter.printQName((QName) object, namespaceContext);
+        try {
+            return DatatypeConverterImpl.getInstance().printQName(
+                    (QName) object, namespaceContext);
+        } catch (Exception e) {
+            //will happen if a prefix is not in the context, serialize manually
+            QName qName = (QName) object;
+            if ( qName.getPrefix() == null || qName.getPrefix().equals( "") ) {
+                return qName.getLocalPart();
+            }
+            
+            return qName.getPrefix() + ":" + qName.getLocalPart();
+            
+        }        
     }
 }

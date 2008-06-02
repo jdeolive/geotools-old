@@ -20,8 +20,6 @@ import org.eclipse.xsd.XSDSimpleTypeDefinition;
 import org.eclipse.xsd.XSDTypeDefinition;
 import java.lang.reflect.Array;
 import java.util.Collection;
-import javax.xml.bind.ValidationException;
-
 
 /**
  * length is the number of units of length, where units of length varies
@@ -63,11 +61,11 @@ public abstract class Length {
      */
     public static final Length CHARACTERS = new Length() {
             public void validate(XSDTypeDefinition definition, Object value)
-                throws ValidationException {
+                throws IllegalArgumentException {
                 String text = (String) value;
 
                 if (text.length() > length(definition)) {
-                    throw new ValidationException(text);
+                    throw new IllegalArgumentException(text);
                 }
             }
         };
@@ -78,11 +76,11 @@ public abstract class Length {
      */
     public static final Length OCTETS = new Length() {
             public void validate(XSDTypeDefinition definition, Object value)
-                throws ValidationException {
+                throws IllegalArgumentException {
                 String text = (String) value;
 
                 if (text.getBytes().length > length(definition)) {
-                    throw new ValidationException(text);
+                    throw new IllegalArgumentException(text);
                 }
             }
         };
@@ -112,7 +110,7 @@ public abstract class Length {
             }
 
             public void validate(XSDTypeDefinition definition, Object value)
-                throws ValidationException {
+                throws IllegalArgumentException {
                 int length = Integer.MIN_VALUE;
 
                 if (value instanceof Collection) {
@@ -130,7 +128,7 @@ public abstract class Length {
                 String text = (String) value;
 
                 if (text.getBytes().length > length(definition)) {
-                    throw new ValidationException(text);
+                    throw new IllegalArgumentException(text);
                 }
             }
         };
@@ -154,5 +152,5 @@ public abstract class Length {
     }
 
     public abstract void validate(XSDTypeDefinition definition, Object value)
-        throws ValidationException;
+        throws IllegalArgumentException;
 }

@@ -15,7 +15,6 @@
  */
 package org.geotools.xs.bindings;
 
-import javax.xml.bind.ValidationException;
 import javax.xml.namespace.QName;
 import org.geotools.xml.InstanceComponent;
 import org.geotools.xml.SimpleBinding;
@@ -95,7 +94,7 @@ public class XSBooleanBinding implements SimpleBinding {
             return Boolean.FALSE;
         }
 
-        throw new ValidationException("boolean indeterminate from  '" + value + "'");
+        throw new IllegalArgumentException("boolean indeterminate from  '" + value + "'");
     }
 
     /**
