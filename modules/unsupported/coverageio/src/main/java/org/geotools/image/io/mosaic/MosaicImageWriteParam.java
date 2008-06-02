@@ -43,11 +43,6 @@ public class MosaicImageWriteParam extends ImageWriteParam {
     private TileWritingPolicy policy = TileWritingPolicy.OVERWRITE;
 
     /**
-     * {@code true} if empty tiles should not be written.
-     */
-    private boolean ommitEmptyTiles;
-
-    /**
      * Constructs an empty set of parameters.
      */
     public MosaicImageWriteParam() {
@@ -93,25 +88,6 @@ public class MosaicImageWriteParam extends ImageWriteParam {
                     ErrorKeys.VALUE_OUT_OF_BOUNDS_$3, index, 0, Tile.MASK));
         }
         outputIndex = index;
-    }
-
-    /**
-     * Returns {@code true} if empty tiles should not be written.
-     * The default value is {@code false}.
-     *
-     * @return {@code true} if empty tiles should not be written.
-     */
-    public boolean getOmmitEmptyTiles() {
-        return ommitEmptyTiles;
-    }
-
-    /**
-     * Sets whatever empty tiles should be ommited.
-     *
-     * @param ommit {@code true} if empty tiles should not be written.
-     */
-    public void setOmmitEmptyTiles(final boolean ommit) {
-        ommitEmptyTiles = ommit;
     }
 
     /**

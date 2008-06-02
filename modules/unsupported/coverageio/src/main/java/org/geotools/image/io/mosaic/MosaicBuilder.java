@@ -915,10 +915,10 @@ public class MosaicBuilder {
      * untiled image bounds} and {@linkplain #getTileReaderSpi tile reader SPI} are inferred
      * from the input, unless they were explicitly specified.
      * <p>
-     * Optionnaly if the tile writing policy is anything else than {@link TileWritingPolicy#NO_TILE
-     * NO_TILE}, then pixel values are read from the untiled images, organized in tiles as specified
-     * by the {@link TileManager} to be returned and saved to disk. This work is done using a
-     * default {@link MosaicImageWriter}.
+     * Optionnaly if the tile writing policy is anything else than
+     * {@link TileWritingPolicy#NO_WRITE NO_WRITE}, then pixel values are read from the untiled
+     * images, organized in tiles as specified by the {@link TileManager} to be returned and saved
+     * to disk. This work is done using a default {@link MosaicImageWriter}.
      *
      * @param  input The image input, typically as a {@link File} or an other {@link TileManager}.
      * @param  inputIndex Index of image to read, typically 0.

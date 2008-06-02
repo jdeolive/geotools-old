@@ -34,19 +34,46 @@ public enum TileWritingPolicy {
      * Overwrite existing tiles inconditionnaly.
      * This is the default behavior.
      */
-    OVERWRITE,
+    OVERWRITE(true, true),
 
     /**
      * Skip existing tiles. This option works only for {@linkplain Tile#getInput tile input}
      * of type {@link java.io.File}. Other types like {@link java.net.URL} are not garanteed
      * to be checked for existence; they may be always overwritten.
      */
-    WRITE_NEWS_ONLY,
+    WRITE_NEWS_ONLY(false, true),
+
+    /**
+     * Skip existing and empty tiles. This option works like {@link #WRITE_NEWS_ONLY}, but
+     * skips also tiles having all pixels set to 0.
+     */
+    WRITE_NEWS_NONEMPTY(false, false),
 
     /**
      * Do not write any tile. This option can be given to {@link MosaicBuilder#createTileManager}.
      * While it is legal to {@linkplain MosaicImageWriteParam#setTileWritingPolicy give this option
      * as a parameter} to the writer, this is typically useless except for testing purpose.
      */
-    NO_WRITE
+    NO_WRITE(false, false);
+
+    /**
+     * {@code true} if tiles should be overwritten.
+     */
+    final boolean overwrite;
+
+    /**
+     * {@code true} if empty tiles should be written as well.
+     */
+    final boolean empty;
+
+    /**
+     * Creates a new enum.
+     *
+     * @param overwrite {@code true} if tiles should be overwritten.
+     * @param empty {@code true} if empty tiles should be written as well.
+     */
+    private TileWritingPolicy(final boolean overwrite, final boolean empty) {
+        this.overwrite = overwrite;
+        this.empty     = empty;
+    }
 }

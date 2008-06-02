@@ -785,7 +785,8 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
             if (level.xSubsampling == subsampling.width && level.ySubsampling == subsampling.height) {
                 final Point index = level.getIndex2D(tile);
                 if (index.x >= 0 && index.x < level.nx && index.y >= 0 && index.y < level.ny) try {
-                    return level.getTile(index.x, index.y).equals(tile);
+                    // Reminder: level.getTile(x,y) may returns null.
+                    return tile.equals(level.getTile(index.x, index.y));
                 } catch (MalformedURLException e) {
                     // If we can't format the name, then it is different than the given tile
                     // input otherwise the user wouldn't have been able to create that tile.

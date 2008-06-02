@@ -257,17 +257,14 @@ public class MosaicImageWriter extends ImageWriter {
     {
         clearAbortRequest();
         final int outputIndex;
-        final boolean ommitEmptyTiles;
         final TileWritingPolicy policy;
         if (writeParam instanceof MosaicImageWriteParam) {
             final MosaicImageWriteParam param = (MosaicImageWriteParam) writeParam;
-            outputIndex     = param.getOutputIndex();
-            ommitEmptyTiles = param.getOmmitEmptyTiles();
-            policy          = param.getTileWritingPolicy();
+            outputIndex = param.getOutputIndex();
+            policy = param.getTileWritingPolicy();
         } else {
-            outputIndex     = 0;
-            ommitEmptyTiles = false;
-            policy          = TileWritingPolicy.OVERWRITE;
+            outputIndex = 0;
+            policy = TileWritingPolicy.OVERWRITE;
         }
         processImageStarted(outputIndex);
         /*
@@ -300,7 +297,7 @@ public class MosaicImageWriter extends ImageWriter {
          * write process is started again after a previous failure), removes from the collection
          * every tiles which already exist.
          */
-        if (policy.equals(TileWritingPolicy.WRITE_NEWS_ONLY)) {
+        if (!policy.overwrite) {
             for (final Iterator<Tile> it=tiles.iterator(); it.hasNext();) {
                 final Tile tile = it.next();
                 final Object input = tile.getInput();
@@ -425,9 +422,6 @@ public class MosaicImageWriter extends ImageWriter {
                 if (!imageRegion.contains(sourceRegion)) {
                     continue;
                 }
-                if (ommitEmptyTiles && isEmpty(image, sourceRegion)) {
-                    continue;
-                }
                 final int xSubsampling = subsampling.width  / imageSubsampling.width;
                 final int ySubsampling = subsampling.height / imageSubsampling.height;
                 sourceRegion.translate(-imageRegion.x, -imageRegion.y);
@@ -435,29 +429,31 @@ public class MosaicImageWriter extends ImageWriter {
                 sourceRegion.y      /= imageSubsampling.height;
                 sourceRegion.width  /= imageSubsampling.width;
                 sourceRegion.height /= imageSubsampling.height;
-                final ImageWriter writer = getImageWriter(tile, image);
-                final ImageWriteParam wp = writer.getDefaultWriteParam();
-                onTileWrite(tile, wp);
-                wp.setSourceRegion(sourceRegion);
-                wp.setSourceSubsampling(xSubsampling, ySubsampling, 0, 0);
-                final IIOImage iioImage = new IIOImage(image, null, null);
-                final Object tileInput = tile.getInput();
-                tasks.add(executor.submit(new Callable<Object>() {
-                    public Object call() throws IOException {
-                        if (!abortRequested()) {
-                            if (logWrites) {
-                                logger.log(getLogRecord(false, VocabularyKeys.SAVING_$1, tile));
+                if (policy.empty || !isEmpty(image, sourceRegion)) {
+                    final ImageWriter writer = getImageWriter(tile, image);
+                    final ImageWriteParam wp = writer.getDefaultWriteParam();
+                    onTileWrite(tile, wp);
+                    wp.setSourceRegion(sourceRegion);
+                    wp.setSourceSubsampling(xSubsampling, ySubsampling, 0, 0);
+                    final IIOImage iioImage = new IIOImage(image, null, null);
+                    final Object tileInput = tile.getInput();
+                    tasks.add(executor.submit(new Callable<Object>() {
+                        public Object call() throws IOException {
+                            if (!abortRequested()) {
+                                if (logWrites) {
+                                    logger.log(getLogRecord(false, VocabularyKeys.SAVING_$1, tile));
+                                }
+                                try {
+                                    writer.write(null, iioImage, wp);
+                                    close(writer.getOutput(), tileInput);
+                                } finally {
+                                    writer.dispose();
+                                }
                             }
-                            try {
-                                writer.write(null, iioImage, wp);
-                                close(writer.getOutput(), tileInput);
-                            } finally {
-                                writer.dispose();
-                            }
+                            return null;
                         }
-                        return null;
-                    }
-                }));
+                    }));
+                }
                 it.remove();
                 if (!tree.remove(tile)) {
                     throw new AssertionError(tile); // Should never happen.
