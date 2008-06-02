@@ -82,14 +82,14 @@
   </build-->
 
   <modules>
-    <module>core</module>
-    <module>gml2</module>
-    <module>gml3</module>
-    <module>filter</module>
-    <module>sld</module>
-    <module>kml</module>
-    <module>ows</module>
-    <module>wfs</module>
+    <module>xsd-core</module>
+    <module>xsd-gml2</module>
+    <module>xsd-gml3</module>
+    <module>xsd-filter</module>
+    <module>xsd-sld</module>
+    <module>xsd-kml</module>
+    <module>xsd-ows</module>
+    <module>xsd-wfs</module>
   </modules>
 
 </project>
