@@ -1,14 +1,12 @@
 package org.geotools.arcsde.pool;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Transaction;
 
 /**
- * This ArcSDEConnectionPool makes a maximum of *one* Connection available to the calling
- * application.
+ * This SessionPool makes a maximum of *one* Connection available to the calling application.
  * <p>
  * Why? ArcSDEConnections are both expensive to set up and expensive in cache. We still use an
  * ObjectCache internally in order to control time out behavior.
@@ -23,7 +21,7 @@ import org.geotools.data.Transaction;
  * @author Jody Garnett
  * @since 2.5
  */
-public class ArcSDEConnectionReference extends ArcSDEConnectionPool {
+public class ArcSDEConnectionReference extends SessionPool {
     /** package's logger */
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.arcsde.pool");

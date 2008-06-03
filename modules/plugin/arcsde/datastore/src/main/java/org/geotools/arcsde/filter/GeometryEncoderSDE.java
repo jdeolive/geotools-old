@@ -67,16 +67,14 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
- * Encodes the geometry related parts of a filter into a set of
- * <code>SeFilter</code> objects and provides a method to get the resulting
- * filters suitable to set up an SeQuery's spatial constraints.
- * 
+ * Encodes the geometry related parts of a filter into a set of <code>SeFilter</code> objects and
+ * provides a method to get the resulting filters suitable to set up an SeQuery's spatial
+ * constraints.
  * <p>
- * Although not all filters support is coded yet, the strategy to filtering
- * queries for ArcSDE datasources is separated in two parts, the SQL where
- * clause construction, provided by <code>FilterToSQLSDE</code> and the
- * spatial filters (or spatial constraints, in SDE vocabulary) provided here;
- * mirroring the java SDE api approach
+ * Although not all filters support is coded yet, the strategy to filtering queries for ArcSDE
+ * datasources is separated in two parts, the SQL where clause construction, provided by
+ * <code>FilterToSQLSDE</code> and the spatial filters (or spatial constraints, in SDE vocabulary)
+ * provided here; mirroring the java SDE api approach
  * </p>
  * 
  * @author Gabriel Rold?n
@@ -128,9 +126,7 @@ public class GeometryEncoderSDE implements FilterVisitor {
     /**
      * DOCUMENT ME!
      * 
-     * @param layer
-     *            DOCUMENT ME!
-     * 
+     * @param layer DOCUMENT ME!
      * @deprecated remove when the old data api dissapear
      */
     @Deprecated
@@ -162,9 +158,7 @@ public class GeometryEncoderSDE implements FilterVisitor {
      * DOCUMENT ME!
      * 
      * @return DOCUMENT ME!
-     * 
-     * @throws IllegalStateException
-     *             DOCUMENT ME!
+     * @throws IllegalStateException DOCUMENT ME!
      */
     private String getLayerName() throws SeException {
         if (this.sdeLayer == null) {
@@ -176,11 +170,8 @@ public class GeometryEncoderSDE implements FilterVisitor {
     /**
      * overriden just to avoid the "WHERE" keyword
      * 
-     * @param filter
-     *            DOCUMENT ME!
-     * 
-     * @throws GeometryEncoderException
-     *             DOCUMENT ME!
+     * @param filter DOCUMENT ME!
+     * @throws GeometryEncoderException DOCUMENT ME!
      */
     public void encode(Filter filter) throws GeometryEncoderException {
         this.sdeSpatialFilters = new ArrayList();
@@ -196,19 +187,17 @@ public class GeometryEncoderSDE implements FilterVisitor {
     }
 
     /**
-     * 
      * @param filter
      * @param sdeMethod
-     * @param truth
-     *            de default truth value for <code>sdeMethod</code>
-     * @param extraData
-     *            if an instanceof java.lang.Boolean, <code>truth</code> is
-     *            and'ed with its boolean value. May have been set by
-     *            {@link #visit(Not, Object)} to revert the logical evaluation
-     *            criteria.
+     * @param truth de default truth value for <code>sdeMethod</code>
+     * @param extraData if an instanceof java.lang.Boolean, <code>truth</code> is and'ed with its
+     *            boolean value. May have been set by {@link #visit(Not, Object)} to revert the
+     *            logical evaluation criteria.
      */
-    private void addSpatialFilter(final BinarySpatialOperator filter, final int sdeMethod,
-            final boolean truth, final Object extraData) {
+    private void addSpatialFilter(final BinarySpatialOperator filter,
+            final int sdeMethod,
+            final boolean truth,
+            final Object extraData) {
         boolean appliedTruth = truth;
         if (extraData instanceof Boolean) {
             boolean andValue = ((Boolean) extraData).booleanValue();
@@ -397,8 +386,8 @@ public class GeometryEncoderSDE implements FilterVisitor {
     }
 
     /**
-     * Sets <code>extraData</code> to Boolean.FALSE to revert the truth value
-     * of the spatial filter contained, if any.
+     * Sets <code>extraData</code> to Boolean.FALSE to revert the truth value of the spatial
+     * filter contained, if any.
      */
     public Object visit(Not filter, Object extraData) {
         Boolean truth = Boolean.FALSE;

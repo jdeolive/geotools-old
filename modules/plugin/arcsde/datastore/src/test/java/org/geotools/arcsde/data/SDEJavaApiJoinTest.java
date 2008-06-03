@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import junit.extensions.TestSetup;
@@ -30,7 +29,6 @@ import junit.framework.TestSuite;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectBody;
 
-import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DefaultQuery;

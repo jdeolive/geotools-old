@@ -24,10 +24,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.pool.SessionPoolFactory;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.FeatureCollection;
@@ -99,7 +99,7 @@ public class TestData {
     /** the configuration keyword to use when creating layers and tables */
     private String configKeyword;
 
-    private ArcSDEConnectionPool _pool;
+    private SessionPool _pool;
 
     /**
      * Creates a new TestData object.
@@ -149,7 +149,7 @@ public class TestData {
             deleteTempTable();
         }
         if (cleanPool) {
-            ArcSDEConnectionPoolFactory pfac = ArcSDEConnectionPoolFactory.getInstance();
+            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
             pfac.clear();
         }
     }
@@ -172,15 +172,15 @@ public class TestData {
      * @throws IOException DOCUMENT ME!
      */
     public ArcSDEDataStore getDataStore() throws IOException {
-        ArcSDEConnectionPool pool = getConnectionPool();
+        SessionPool pool = getConnectionPool();
         ArcSDEDataStore dataStore = new ArcSDEDataStore(pool);
 
         return dataStore;
     }
 
-    public ArcSDEConnectionPool getConnectionPool() throws DataSourceException {
+    public SessionPool getConnectionPool() throws DataSourceException {
         if (this._pool == null) {
-            ArcSDEConnectionPoolFactory pfac = ArcSDEConnectionPoolFactory.getInstance();
+            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
             ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(this.conProps);
             this._pool = pfac.createPool(config);
         }
@@ -246,7 +246,7 @@ public class TestData {
 
     public void deleteTable(final String typeName) throws IOException,
             UnavailableArcSDEConnectionException {
-        ArcSDEConnectionPool connectionPool = getConnectionPool();
+        SessionPool connectionPool = getConnectionPool();
         deleteTable(connectionPool, typeName);
     }
 
@@ -255,7 +255,7 @@ public class TestData {
      * 
      * @param connPool to get the connection to use in deleting {@link #getTempTableName()}
      */
-    public void deleteTempTable(ArcSDEConnectionPool connPool) {
+    public void deleteTempTable(SessionPool connPool) {
         try {
             deleteTable(connPool, getTempTableName());
         } catch (Exception e) {
@@ -263,7 +263,7 @@ public class TestData {
         }
     }
 
-    private static void deleteTable(final ArcSDEConnectionPool connPool, final String tableName)
+    private static void deleteTable(final SessionPool connPool, final String tableName)
             throws IOException, UnavailableArcSDEConnectionException {
 
         final ISession session = connPool.getSession();
@@ -305,7 +305,7 @@ public class TestData {
      * @throws Exception for any error
      */
     public void createTempTable(final boolean insertTestData) throws Exception {
-        ArcSDEConnectionPool connPool = getConnectionPool();
+        SessionPool connPool = getConnectionPool();
 
         deleteTempTable(connPool);
 
@@ -351,7 +351,7 @@ public class TestData {
      */
     public void insertTestData() throws Exception {
         truncateTempTable();
-        ArcSDEConnectionPool connPool = getConnectionPool();
+        SessionPool connPool = getConnectionPool();
         ISession session = connPool.getSession();
         try {
             SeLayer tempTableLayer = getTempLayer(session);
@@ -362,7 +362,7 @@ public class TestData {
     }
 
     public void truncateTempTable() throws IOException {
-        final ArcSDEConnectionPool connPool = getConnectionPool();
+        final SessionPool connPool = getConnectionPool();
         final ISession session = connPool.getSession();
         final String tempTableName = getTempTableName(session);
 
@@ -844,13 +844,13 @@ public class TestData {
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "while creating test tables got '" + e.getMessage() + "'");
             e.printStackTrace();
-        }finally{
+        } finally {
             System.exit(0);
         }
     }
 
     private void createSimpleTestTables() throws IOException {
-        final ArcSDEConnectionPool connectionPool = getConnectionPool();
+        final SessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
 
         String tableName;
@@ -965,13 +965,7 @@ public class TestData {
 
                 // Only tables with an sde maintained rowid column can be versioned
                 if (SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE == rowIdColumnType) {
-                    // make the table multiversioned
-                    System.err.println("Making " + tableName + " versioned...");
-                    SeRegistration reg = new SeRegistration(connection, tableName);
-                    reg.getInfo();
-                    reg.setMultiVersion(true);
-                    reg.alter();
-                    System.err.println(tableName + " successfully made versioned");
+                    makeVersioned(session, tableName);
                 }
 
                 /*
@@ -1008,6 +1002,27 @@ public class TestData {
         };
 
         session.issue(createCmd);
+    }
+
+    private void makeVersioned(final ISession session, final String tableName) throws IOException {
+
+        Command<Void> cmd = new Command<Void>() {
+
+            @Override
+            public Void execute(ISession session, SeConnection connection) throws SeException,
+                    IOException {
+                // make the table multiversioned
+                System.err.println("Making " + tableName + " versioned...");
+                SeRegistration reg = new SeRegistration(connection, tableName);
+                reg.getInfo();
+                reg.setMultiVersion(true);
+                reg.alter();
+                System.err.println(tableName + " successfully made versioned");
+                return null;
+            }
+        };
+
+        session.issue(cmd);
     }
 
     /**

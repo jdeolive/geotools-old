@@ -43,7 +43,8 @@ import com.esri.sde.sdk.client.SeUpdate;
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
  * @since 2.5.x
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/pool/SessionWrapper.java $
  */
 public class SessionWrapper implements ISession {
 
@@ -195,11 +196,11 @@ public class SessionWrapper implements ISession {
     public String getDatabaseName() throws IOException {
         return wrapped.getDatabaseName();
     }
-    
+
     /**
      * @see org.geotools.arcsde.pool.ISession#getDBMSInfo()
      */
-    public SeDBMSInfo getDBMSInfo() throws IOException{
+    public SeDBMSInfo getDBMSInfo() throws IOException {
         return wrapped.getDBMSInfo();
     }
 

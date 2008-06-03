@@ -193,11 +193,11 @@ public class ArcSDEConnectionConfig {
         this.namespaceUri = ns == null ? null : String.valueOf(ns);
 
         this.minConnections = getInt(params.get(MIN_CONNECTIONS_PARAM),
-                ArcSDEConnectionPool.DEFAULT_CONNECTIONS);
+                SessionPool.DEFAULT_CONNECTIONS);
         this.maxConnections = getInt(params.get(MAX_CONNECTIONS_PARAM),
-                ArcSDEConnectionPool.DEFAULT_MAX_CONNECTIONS);
+                SessionPool.DEFAULT_MAX_CONNECTIONS);
         this.connTimeOut = getInt(params.get(CONNECTION_TIMEOUT_PARAM),
-                ArcSDEConnectionPool.DEFAULT_MAX_WAIT_TIME);
+                SessionPool.DEFAULT_MAX_WAIT_TIME);
 
         if (this.minConnections.intValue() <= 0) {
             exceptionMsg += MIN_CONNECTIONS_PARAM + " must be a positive integer. ";

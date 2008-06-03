@@ -312,39 +312,45 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
     private void fireAdded(final SimpleFeature addedFeature) {
         final String typeName = featureType.getTypeName();
         final BoundingBox bounds = addedFeature.getBounds();
-        ReferencedEnvelope referencedEnvelope = ReferencedEnvelope.reference( bounds );
+        ReferencedEnvelope referencedEnvelope = ReferencedEnvelope.reference(bounds);
         String fid = addedFeature.getID();
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        Filter filter = ff.id( Collections.singleton( ff.featureId( fid )));        
-        doFireFeaturesAdded(typeName, referencedEnvelope, filter );
+        Filter filter = ff.id(Collections.singleton(ff.featureId(fid)));
+        doFireFeaturesAdded(typeName, referencedEnvelope, filter);
     }
 
     private void fireChanged(final SimpleFeature changedFeature) {
         final String typeName = featureType.getTypeName();
         final BoundingBox bounds = changedFeature.getBounds();
-        ReferencedEnvelope referencedEnvelope = ReferencedEnvelope.reference( bounds );
+        ReferencedEnvelope referencedEnvelope = ReferencedEnvelope.reference(bounds);
         String fid = changedFeature.getID();
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        Filter filter = ff.id( Collections.singleton( ff.featureId( fid ))); 
-        
+        Filter filter = ff.id(Collections.singleton(ff.featureId(fid)));
+
         doFireFeaturesChanged(typeName, referencedEnvelope, filter);
     }
 
     private void fireRemoved(final SimpleFeature removedFeature) {
         String typeName = featureType.getTypeName();
         BoundingBox bounds = removedFeature.getBounds();
-        ReferencedEnvelope referencedEnvelope = ReferencedEnvelope.reference( bounds );
+        ReferencedEnvelope referencedEnvelope = ReferencedEnvelope.reference(bounds);
         String fid = removedFeature.getID();
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        Filter filter = ff.id( Collections.singleton( ff.featureId( fid ))); 
-        doFireFeaturesRemoved(typeName, referencedEnvelope, filter );
+        Filter filter = ff.id(Collections.singleton(ff.featureId(fid)));
+        doFireFeaturesRemoved(typeName, referencedEnvelope, filter);
     }
 
-    protected abstract void doFireFeaturesAdded(String typeName, ReferencedEnvelope bounds, Filter filter );
+    protected abstract void doFireFeaturesAdded(String typeName,
+            ReferencedEnvelope bounds,
+            Filter filter);
 
-    protected abstract void doFireFeaturesChanged(String typeName, ReferencedEnvelope bounds, Filter filter );
+    protected abstract void doFireFeaturesChanged(String typeName,
+            ReferencedEnvelope bounds,
+            Filter filter);
 
-    protected abstract void doFireFeaturesRemoved(String typeName, ReferencedEnvelope bounds, Filter filter);
+    protected abstract void doFireFeaturesRemoved(String typeName,
+            ReferencedEnvelope bounds,
+            Filter filter);
 
     /**
      * @see FeatureWriter#write()
@@ -465,7 +471,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
 
                 final SeInsert insertStream = (SeInsert) createStream(SeInsert.class);
                 Number newId;
-                
+
                 try {
                     final SeRow row;
 

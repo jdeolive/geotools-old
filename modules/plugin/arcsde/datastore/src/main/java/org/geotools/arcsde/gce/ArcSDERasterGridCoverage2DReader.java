@@ -39,9 +39,9 @@ import org.geotools.arcsde.gce.imageio.ArcSDERasterImageReadParam;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterReader;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterReaderSpi;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.pool.SessionPoolFactory;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
@@ -103,7 +103,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
     /**
      * The connectionpool we're using to fetch images from this ArcSDE raster layer
      */
-    private ArcSDEConnectionPool connectionPool = null;
+    private SessionPool connectionPool = null;
 
     /** The name of the raster table we're pulling images from in this reader * */
     private String rasterTable = null;
@@ -658,7 +658,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
             LOGGER.fine("Building ArcSDEGridCoverageReader2D for " + sdeConfig
                     + ", with raster table " + rasterTable);
 
-        connectionPool = ArcSDEConnectionPoolFactory.getInstance().createPool(sdeConfig);
+        connectionPool = SessionPoolFactory.getInstance().createPool(sdeConfig);
 
         try {
             ISession session = connectionPool.getSession();

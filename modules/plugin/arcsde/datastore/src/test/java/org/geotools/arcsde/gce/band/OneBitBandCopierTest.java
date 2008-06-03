@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import org.geotools.arcsde.gce.RasterTestData;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
+import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.util.logging.Logging;
 import org.junit.AfterClass;
@@ -52,7 +52,7 @@ public class OneBitBandCopierTest {
 
         ISession session = null;
         try {
-            ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
+            SessionPool pool = rasterTestData.getTestData().getConnectionPool();
 
             session = pool.getSession();
             SeQuery q = session.createAndExecuteQuery(new String[] { "RASTER" },
@@ -103,7 +103,7 @@ public class OneBitBandCopierTest {
 
         ISession session = null;
         try {
-            ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
+            SessionPool pool = rasterTestData.getTestData().getConnectionPool();
 
             session = pool.getSession();
             SeQuery q = session.createAndExecuteQuery(new String[] { "RASTER" },

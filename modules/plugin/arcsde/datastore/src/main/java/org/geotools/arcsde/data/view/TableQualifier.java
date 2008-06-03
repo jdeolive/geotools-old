@@ -18,12 +18,9 @@ package org.geotools.arcsde.data.view;
 
 import java.io.IOException;
 
-import org.geotools.arcsde.pool.ISession;
-
 import net.sf.jsqlparser.schema.Table;
 
-import com.esri.sde.sdk.client.SeConnection;
-import com.esri.sde.sdk.client.SeException;
+import org.geotools.arcsde.pool.ISession;
 
 /**
  * Utility used to qualify table names

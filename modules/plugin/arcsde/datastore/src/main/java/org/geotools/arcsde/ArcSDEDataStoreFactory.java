@@ -25,10 +25,10 @@ import java.util.logging.Logger;
 import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.ViewRegisteringFactoryHelper;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.pool.ArcSDEConnectionReference;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.pool.SessionPoolFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
@@ -95,15 +95,15 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         // optional parameters:
         description = "Minimun number of open connections";
         paramMetadata.add(new Param("pool.minConnections", Integer.class, description, false,
-                Integer.valueOf(ArcSDEConnectionPool.DEFAULT_CONNECTIONS)));
+                Integer.valueOf(SessionPool.DEFAULT_CONNECTIONS)));
 
         description = "Maximun number of open connections (will not work if < 2)";
-        Integer MAX_CONNECTIONS = Integer.valueOf(ArcSDEConnectionPool.DEFAULT_MAX_CONNECTIONS);
+        Integer MAX_CONNECTIONS = Integer.valueOf(SessionPool.DEFAULT_MAX_CONNECTIONS);
         paramMetadata.add(new Param("pool.maxConnections", Integer.class, description, false,
                 MAX_CONNECTIONS));
 
         description = "Milliseconds to wait for an available connection before failing to connect";
-        Integer TIMEOUT = Integer.valueOf(ArcSDEConnectionPool.DEFAULT_MAX_WAIT_TIME);
+        Integer TIMEOUT = Integer.valueOf(SessionPool.DEFAULT_MAX_WAIT_TIME);
         paramMetadata.add(new Param("pool.timeOut", Integer.class, description, false, TIMEOUT));
 
         // determine which JSDE api we're running against
@@ -144,8 +144,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     }
 
     /** factory of connection pools to different SDE databases */
-    private static final ArcSDEConnectionPoolFactory poolFactory = ArcSDEConnectionPoolFactory
-            .getInstance();
+    private static final SessionPoolFactory poolFactory = SessionPoolFactory.getInstance();
 
     /**
      * empty constructor
@@ -194,7 +193,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
 
         ArcSDEDataStore sdeDStore = null;
         ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(params);
-        ArcSDEConnectionPool connPool = poolFactory.createPool(config);
+        SessionPool connPool = poolFactory.createPool(config);
 
         // check to see if our sdk is compatible with this arcsde instance
         ISession session = null;

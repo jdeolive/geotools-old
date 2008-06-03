@@ -17,7 +17,6 @@ package org.geotools.arcsde.data.versioning;
 
 import java.io.IOException;
 
-import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 

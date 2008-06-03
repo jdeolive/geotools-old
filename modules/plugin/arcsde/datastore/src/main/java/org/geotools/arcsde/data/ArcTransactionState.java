@@ -24,11 +24,9 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.data.versioning.TransactionDefaultVersionHandler;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
-import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
-import org.geotools.data.DataSourceException;
+import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.Transaction;
 
@@ -57,7 +55,7 @@ final class ArcTransactionState implements Transaction.State {
      * The ConnectionPool will hold this connection open for us until commit(), rollback() or
      * close() is called.
      */
-    private ArcSDEConnectionPool pool;
+    private SessionPool pool;
 
     private Transaction transaction;
 
@@ -83,7 +81,7 @@ final class ArcTransactionState implements Transaction.State {
      * @param pool connection pool where to grab a connection and hold it while there's a
      *            transaction open (signaled by any use of {@link #getConnection()}
      */
-    ArcTransactionState(ArcSDEConnectionPool pool, final FeatureListenerManager listenerManager) {
+    ArcTransactionState(SessionPool pool, final FeatureListenerManager listenerManager) {
         this.pool = pool;
         this.listenerManager = listenerManager;
     }

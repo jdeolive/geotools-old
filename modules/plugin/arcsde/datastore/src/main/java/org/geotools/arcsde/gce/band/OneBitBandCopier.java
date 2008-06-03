@@ -71,23 +71,23 @@ public class OneBitBandCopier extends ArcSDERasterBandCopier {
         // let's figure out the offsets into the byte-array that represent the start and end row for
         // our copying. I.e. the "y" values
         final int bytesPerImageRow = (raster.getSampleModel().getWidth() + 7) / 8; // the total
-                                                                                    // number of
-                                                                                    // imageDataBuf
-                                                                                    // bytes that
-                                                                                    // make up one
-                                                                                    // line of the
-                                                                                    // ENTIRE image
+        // number of
+        // imageDataBuf
+        // bytes that
+        // make up one
+        // line of the
+        // ENTIRE image
         final int bytesPerTileRow = (raster.getWidth() - imageDataBufOffset + 7) / 8; // the total
-                                                                                        // number of
-                                                                                        // bytes
-                                                                                        // that make
-                                                                                        // up one
-                                                                                        // row in
-                                                                                        // this
-                                                                                        // sub-image
-                                                                                        // (tile)
+        // number of
+        // bytes
+        // that make
+        // up one
+        // row in
+        // this
+        // sub-image
+        // (tile)
         final int bytesPerDataRow = (tileWidth + 7) / 8; // the total number of bytes that make
-                                                            // up one row in this data tile
+        // up one row in this data tile
         if ((copyOffY + raster.getHeight()) > tileHeight)
             throw new IllegalArgumentException(
                     "Won't copy raster tile data into an image that extends beyond the tile.  The image you've given this bandcopier is too big!");

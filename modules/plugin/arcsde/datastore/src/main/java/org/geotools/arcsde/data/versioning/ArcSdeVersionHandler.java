@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import org.geotools.arcsde.pool.ISession;
 
-import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeStreamOp;
 
 /**

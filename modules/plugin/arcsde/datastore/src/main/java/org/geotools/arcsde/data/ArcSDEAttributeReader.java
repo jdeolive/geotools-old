@@ -20,7 +20,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.DataSourceException;
@@ -28,7 +27,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
-import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeShape;

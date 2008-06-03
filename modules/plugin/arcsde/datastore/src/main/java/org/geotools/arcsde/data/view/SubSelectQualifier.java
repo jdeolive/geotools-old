@@ -16,13 +16,11 @@
  */
 package org.geotools.arcsde.data.view;
 
-import org.geotools.arcsde.pool.ISession;
-
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
-import com.esri.sde.sdk.client.SeConnection;
+import org.geotools.arcsde.pool.ISession;
 
 /**
  * Qualifies a column reference in a subselect clause.

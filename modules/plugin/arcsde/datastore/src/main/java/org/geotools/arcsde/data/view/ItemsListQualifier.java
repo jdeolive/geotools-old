@@ -21,15 +21,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.arcsde.pool.ISession;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
-import com.esri.sde.sdk.client.SeConnection;
+import org.geotools.arcsde.pool.ISession;
 
 /**
  * Seems to visit a list and update the entries and fill in the blanks qualifying them.

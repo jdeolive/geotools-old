@@ -27,9 +27,9 @@ import junit.framework.TestSuite;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 
@@ -78,7 +78,7 @@ public class ArcSDEJavaApiTest extends TestCase {
 
     private ISession session;
 
-    private ArcSDEConnectionPool pool;
+    private SessionPool pool;
 
     /**
      * Runs this test suite
@@ -424,56 +424,56 @@ public class ArcSDEJavaApiTest extends TestCase {
 
     public void testCalculateBoundsMixedFilter() throws Exception {
         final String typeName = testData.getTempTableName();
-        //try {
-            String where = "INT32_COL < 5";
-            String[] cols = { "SHAPE" };
-            final SeFilter[] spatFilters;
-            try {
-                SeExtent extent = new SeExtent(179, -1, 180, 0);
-                SeLayer layer = session.getLayer(typeName);
-                SeShape filterShape = new SeShape(layer.getCoordRef());
-                filterShape.generateRectangle(extent);
+        // try {
+        String where = "INT32_COL < 5";
+        String[] cols = { "SHAPE" };
+        final SeFilter[] spatFilters;
+        try {
+            SeExtent extent = new SeExtent(179, -1, 180, 0);
+            SeLayer layer = session.getLayer(typeName);
+            SeShape filterShape = new SeShape(layer.getCoordRef());
+            filterShape.generateRectangle(extent);
 
-                SeShapeFilter bboxFilter = new SeShapeFilter(typeName, layer.getSpatialColumn(),
-                        filterShape, SeFilter.METHOD_ENVP, true);
-                spatFilters = new SeFilter[] { bboxFilter };
-            } catch (SeException eek) {
-                throw new ArcSdeException(eek);
+            SeShapeFilter bboxFilter = new SeShapeFilter(typeName, layer.getSpatialColumn(),
+                    filterShape, SeFilter.METHOD_ENVP, true);
+            spatFilters = new SeFilter[] { bboxFilter };
+        } catch (SeException eek) {
+            throw new ArcSdeException(eek);
+        }
+        SeSqlConstruct sqlCons = new SeSqlConstruct(typeName);
+        sqlCons.setWhere(where);
+
+        final SeQueryInfo seQueryInfo = new SeQueryInfo();
+        seQueryInfo.setColumns(cols);
+        seQueryInfo.setConstruct(sqlCons);
+
+        SeExtent extent = session.issue(new Command<SeExtent>() {
+            @Override
+            public SeExtent execute(ISession session, SeConnection connection) throws SeException,
+                    IOException {
+                SeQuery spatialQuery = new SeQuery(connection);
+                spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, spatFilters);
+
+                SeExtent extent = spatialQuery.calculateLayerExtent(seQueryInfo);
+                return extent;
             }
-            SeSqlConstruct sqlCons = new SeSqlConstruct(typeName);
-            sqlCons.setWhere(where);
+        });
 
-            final SeQueryInfo seQueryInfo = new SeQueryInfo();
-            seQueryInfo.setColumns(cols);
-            seQueryInfo.setConstruct(sqlCons);
+        assertNotNull(extent);
+        double minX = Math.round(extent.getMinX());
+        double minY = Math.round(extent.getMinY());
+        double maxX = Math.round(extent.getMaxX());
+        double maxY = Math.round(extent.getMaxY());
+        assertEquals(-170D, minX, 1E-9);
+        assertEquals(-80D, minY, 1E-9);
+        assertEquals(170D, maxX, 1E-9);
+        assertEquals(80D, maxY, 1E-9);
 
-            SeExtent extent = session.issue(new Command<SeExtent>() {
-                @Override
-                public SeExtent execute(ISession session, SeConnection connection)
-                        throws SeException, IOException {
-                    SeQuery spatialQuery = new SeQuery(connection);
-                    spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, spatFilters);
-
-                    SeExtent extent = spatialQuery.calculateLayerExtent(seQueryInfo);
-                    return extent;
-                }
-            });
-
-            assertNotNull(extent);
-            double minX = Math.round(extent.getMinX());
-            double minY = Math.round(extent.getMinY());
-            double maxX = Math.round(extent.getMaxX());
-            double maxY = Math.round(extent.getMaxY());
-            assertEquals(-170D, minX, 1E-9);
-            assertEquals(-80D, minY, 1E-9);
-            assertEquals(170D, maxX, 1E-9);
-            assertEquals(80D, maxY, 1E-9);
-
-//        } catch (SeException e) {
-//            LOGGER.warning(e.getSeError().getErrDesc());
-//            new ArcSdeException(e).printStackTrace();
-//            throw e;
-//        }
+        // } catch (SeException e) {
+        // LOGGER.warning(e.getSeError().getErrDesc());
+        // new ArcSdeException(e).printStackTrace();
+        // throw e;
+        // }
     }
 
     /**
@@ -1039,7 +1039,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         testData.truncateTempTable();
 
         {
-            final ArcSDEConnectionPool connPool = testData.getConnectionPool();
+            final SessionPool connPool = testData.getConnectionPool();
             transSession = connPool.getSession();
             // start a transaction on transConn
             transSession.startTransaction();

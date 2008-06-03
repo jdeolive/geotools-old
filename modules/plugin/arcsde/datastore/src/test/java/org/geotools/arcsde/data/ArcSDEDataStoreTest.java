@@ -28,8 +28,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.factory.CommonFactoryFinder;
@@ -272,7 +272,7 @@ public class ArcSDEDataStoreTest extends TestCase {
     public void testCreateSchema() throws IOException, SchemaException, SeException {
         final String typeName;
         {
-            ArcSDEConnectionPool connectionPool = testData.getConnectionPool();
+            SessionPool connectionPool = testData.getConnectionPool();
             ISession session = connectionPool.getSession();
             final String user;
             user = session.getUser();

@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -35,12 +32,12 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+import org.geotools.arcsde.pool.ISession;
+
 import com.esri.sde.sdk.client.SeColumnDefinition;
-import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQueryInfo;
 import com.esri.sde.sdk.client.SeSqlConstruct;
-import com.esri.sde.sdk.client.SeTable;
 
 /**
  * Visits a {@link net.sf.jsqlparser.statement.select.PlainSelect} SQL SELECT construct to create

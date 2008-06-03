@@ -33,10 +33,10 @@ import org.geotools.data.DataSourceException;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/test/java/org/geotools/arcsde/pool/ArcSDEConnectionPoolTest.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/test/java/org/geotools/arcsde/pool/SessionPoolTest.java $
  * @version $Id$
  */
-public class ArcSDEConnectionPoolTest extends TestCase {
+public class SessionPoolTest extends TestCase {
     /** DOCUMENT ME! */
     private static Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.data.sde");
@@ -48,20 +48,20 @@ public class ArcSDEConnectionPoolTest extends TestCase {
     private ArcSDEConnectionConfig connectionConfig = null;
 
     /** DOCUMENT ME! */
-    private ArcSDEConnectionPool pool = null;
+    private SessionPool pool = null;
 
     /**
-     * Creates a new ArcSDEConnectionPoolTest object.
+     * Creates a new SessionPoolTest object.
      * 
      * @param name DOCUMENT ME!
      */
-    public ArcSDEConnectionPoolTest(String name) {
+    public SessionPoolTest(String name) {
         super(name);
     }
 
     /**
      * loads {@code test-data/testparams.properties} to get connection parameters and sets up a
-     * ArcSDEConnectionConfig with them for tests to set up ArcSDEConnectionPool's as requiered
+     * ArcSDEConnectionConfig with them for tests to set up SessionPool's as requiered
      * 
      * @throws Exception DOCUMENT ME!
      * @throws IllegalStateException DOCUMENT ME!
@@ -114,10 +114,10 @@ public class ArcSDEConnectionPoolTest extends TestCase {
     }
 
     /**
-     * Sets up a new ArcSDEConnectionPool with the connection parameters stored in
+     * Sets up a new SessionPool with the connection parameters stored in
      * <code>connParams</code> and throws an exception if something goes wrong
      * 
-     * @param connParams a set of connection parameters from where the new ArcSDEConnectionPool will
+     * @param connParams a set of connection parameters from where the new SessionPool will
      *            connect to the SDE database and create connections
      * @return DOCUMENT ME!
      * @throws IllegalArgumentException if the set of connection parameters are not propperly set
@@ -125,17 +125,17 @@ public class ArcSDEConnectionPoolTest extends TestCase {
      * @throws DataSourceException if the pool can't create the connections with the passed
      *             arguments (i.e. can't connect to SDE database)
      */
-    private ArcSDEConnectionPool createPool(Map connParams) throws IllegalArgumentException,
+    private SessionPool createPool(Map connParams) throws IllegalArgumentException,
             NullPointerException, DataSourceException {
         this.connectionConfig = new ArcSDEConnectionConfig(connParams);
-        LOGGER.fine("creating a new ArcSDEConnectionPool with " + connectionConfig);
+        LOGGER.fine("creating a new SessionPool with " + connectionConfig);
 
         if (this.pool != null) {
             LOGGER.fine("pool already created, closing it");
             this.pool.close();
         }
 
-        this.pool = new ArcSDEConnectionPool(connectionConfig);
+        this.pool = new SessionPool(connectionConfig);
         LOGGER.fine("pool created");
 
         return this.pool;
@@ -143,20 +143,20 @@ public class ArcSDEConnectionPoolTest extends TestCase {
 
     /**
      * tests that a connection to a live ArcSDE database can be established with the parameters
-     * defined int testparams.properties, and a ArcSDEConnectionPool can be properly setted up
+     * defined int testparams.properties, and a SessionPool can be properly setted up
      * 
      * @throws IOException DOCUMENT ME!
      */
     public void testConnect() throws IOException {
         LOGGER.fine("testing connection to the sde database");
 
-        ArcSDEConnectionPoolFactory pf = ArcSDEConnectionPoolFactory.getInstance();
+        SessionPoolFactory pf = SessionPoolFactory.getInstance();
         ArcSDEConnectionConfig congfig = null;
 
         congfig = new ArcSDEConnectionConfig(connectionParameters);
 
         try {
-            ArcSDEConnectionPool connPool = pf.createPool(congfig);
+            SessionPool connPool = pf.createPool(congfig);
             LOGGER.fine("connection succeed " + connPool.getPoolSize() + " connections ready");
         } catch (DataSourceException ex) {
             throw ex;

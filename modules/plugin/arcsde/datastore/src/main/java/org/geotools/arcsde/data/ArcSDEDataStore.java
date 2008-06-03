@@ -33,8 +33,8 @@ import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.data.versioning.AutoCommitDefaultVersionHandler;
 import org.geotools.arcsde.data.view.QueryInfoParser;
 import org.geotools.arcsde.data.view.SelectQualifier;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.arcsde.pool.SessionWrapper;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
@@ -87,7 +87,7 @@ public class ArcSDEDataStore implements DataStore {
      */
     final FeatureListenerManager listenerManager = new FeatureListenerManager();
 
-    private final ArcSDEConnectionPool connectionPool;
+    private final SessionPool connectionPool;
 
     /**
      * ArcSDE registered layers definitions
@@ -110,7 +110,7 @@ public class ArcSDEDataStore implements DataStore {
      * 
      * @param connPool pool of {@link Session} this datastore works upon.
      */
-    public ArcSDEDataStore(final ArcSDEConnectionPool connPool) {
+    public ArcSDEDataStore(final SessionPool connPool) {
         this(connPool, null);
     }
 
@@ -122,7 +122,7 @@ public class ArcSDEDataStore implements DataStore {
      *            and {@link AttributeDescriptor}s created by this datastore. May be
      *            <code>null</code>.
      */
-    public ArcSDEDataStore(final ArcSDEConnectionPool connPool, final String namespaceUri) {
+    public ArcSDEDataStore(final SessionPool connPool, final String namespaceUri) {
         this.connectionPool = connPool;
         this.namespace = namespaceUri;
         this.featureTypeInfos = new HashMap<String, FeatureTypeInfo>();
@@ -586,7 +586,7 @@ public class ArcSDEDataStore implements DataStore {
      * @return Connection Pool (as provided during construction)
      * @deprecated use {@link #getSession(Transaction)}
      */
-    // ArcSDEConnectionPool getConnectionPool() {
+    // SessionPool getConnectionPool() {
     // return this.connectionPool;
     // }
     /**

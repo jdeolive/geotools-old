@@ -111,25 +111,25 @@ class TransactionFeatureWriter extends ArcSdeFeatureWriter {
     @Override
     protected void doFireFeaturesAdded(String typeName, ReferencedEnvelope bounds, Filter filter) {
         Transaction transaction = state.getTransaction();
-        
-        FeatureEvent event = new FeatureEvent( this, FeatureEvent.Type.ADDED, bounds, filter ); 
-		listenerManager.fireEvent(typeName, transaction, event);                
+
+        FeatureEvent event = new FeatureEvent(this, FeatureEvent.Type.ADDED, bounds, filter);
+        listenerManager.fireEvent(typeName, transaction, event);
     }
 
     @Override
     protected void doFireFeaturesChanged(String typeName, ReferencedEnvelope bounds, Filter filter) {
         Transaction transaction = state.getTransaction();
-        
-        FeatureEvent event = new FeatureEvent( this, FeatureEvent.Type.CHANGED, bounds, filter ); 
-		listenerManager.fireEvent(typeName, transaction, event);
+
+        FeatureEvent event = new FeatureEvent(this, FeatureEvent.Type.CHANGED, bounds, filter);
+        listenerManager.fireEvent(typeName, transaction, event);
     }
 
     @Override
     protected void doFireFeaturesRemoved(String typeName, ReferencedEnvelope bounds, Filter filter) {
         Transaction transaction = state.getTransaction();
-        
-        FeatureEvent event = new FeatureEvent( this, FeatureEvent.Type.REMOVED, bounds, filter ); 
-		listenerManager.fireEvent(typeName, transaction, event);
+
+        FeatureEvent event = new FeatureEvent(this, FeatureEvent.Type.REMOVED, bounds, filter);
+        listenerManager.fireEvent(typeName, transaction, event);
     }
 
 }

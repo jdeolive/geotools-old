@@ -51,22 +51,21 @@ class AutoCommitFeatureWriter extends ArcSdeFeatureWriter {
         super(fidReader, featureType, filteredContent, session, listenerManager, versionHandler);
     }
 
-    
     @Override
-    protected void doFireFeaturesAdded(String typeName, ReferencedEnvelope bounds, Filter filter ) {
-    	FeatureEvent event = new FeatureEvent( this, FeatureEvent.Type.ADDED, bounds, filter ); 
-		listenerManager.fireEvent(typeName, Transaction.AUTO_COMMIT, event);
+    protected void doFireFeaturesAdded(String typeName, ReferencedEnvelope bounds, Filter filter) {
+        FeatureEvent event = new FeatureEvent(this, FeatureEvent.Type.ADDED, bounds, filter);
+        listenerManager.fireEvent(typeName, Transaction.AUTO_COMMIT, event);
     }
 
     @Override
-    protected void doFireFeaturesChanged(String typeName, ReferencedEnvelope bounds, Filter filter ) {
-    	FeatureEvent event = new FeatureEvent( this, FeatureEvent.Type.CHANGED, bounds, filter );    	
-        listenerManager.fireEvent(typeName, Transaction.AUTO_COMMIT, event );
+    protected void doFireFeaturesChanged(String typeName, ReferencedEnvelope bounds, Filter filter) {
+        FeatureEvent event = new FeatureEvent(this, FeatureEvent.Type.CHANGED, bounds, filter);
+        listenerManager.fireEvent(typeName, Transaction.AUTO_COMMIT, event);
     }
 
     @Override
-    protected void doFireFeaturesRemoved(String typeName, ReferencedEnvelope bounds, Filter filter ) {
-    	FeatureEvent event = new FeatureEvent( this, FeatureEvent.Type.REMOVED, bounds, filter );    	
+    protected void doFireFeaturesRemoved(String typeName, ReferencedEnvelope bounds, Filter filter) {
+        FeatureEvent event = new FeatureEvent(this, FeatureEvent.Type.REMOVED, bounds, filter);
         listenerManager.fireEvent(typeName, Transaction.AUTO_COMMIT, event);
     }
 

@@ -18,16 +18,14 @@ package org.geotools.arcsde.data.view;
 
 import java.util.Map;
 
-import org.geotools.arcsde.pool.ISession;
-
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 
-import com.esri.sde.sdk.client.SeConnection;
+import org.geotools.arcsde.pool.ISession;
 
 /**
- * Qualifies a column name with the ArcSDE "table.user." prefix as required by
- * the ArcSDE java api to not get confused when using joined tables.
+ * Qualifies a column name with the ArcSDE "table.user." prefix as required by the ArcSDE java api
+ * to not get confused when using joined tables.
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
@@ -39,11 +37,8 @@ class ColumnQualifier {
     /**
      * DOCUMENT ME!
      * 
-     * @param session
-     *            DOCUMENT ME!
-     * @param column
-     *            DOCUMENT ME!
-     * 
+     * @param session DOCUMENT ME!
+     * @param column DOCUMENT ME!
      * @return DOCUMENT ME!
      */
     public static Column qualify(ISession session, Map tableAliases, Column column) {

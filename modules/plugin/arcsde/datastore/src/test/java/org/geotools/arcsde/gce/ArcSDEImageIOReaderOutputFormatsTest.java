@@ -33,8 +33,8 @@ import org.geotools.arcsde.gce.imageio.ArcSDERasterImageReadParam;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterReader;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterReaderSpi;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
+import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.pool.SessionPoolFactory;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.referencing.CRS;
@@ -64,14 +64,14 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
     private static Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.arcsde.gce");
 
-    private ArcSDEConnectionPool pool = null;
+    private SessionPool pool = null;
 
     private HashMap fourBandReaderProps, threeBandReaderProps;
 
     private SeRasterAttr rasterAttr;
 
     /**
-     * Creates a new ArcSDEConnectionPoolTest object.
+     * Creates a new SessionPoolTest object.
      */
     public ArcSDEImageIOReaderOutputFormatsTest(String name) throws Exception {
         super(name);
@@ -79,7 +79,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
 
     /**
      * loads {@code test-data/testparams.properties} to get connection parameters and sets up an
-     * ArcSDEConnectionPool
+     * SessionPool
      * 
      * @throws Exception DOCUMENT ME!
      * @throws IllegalStateException DOCUMENT ME!
@@ -100,7 +100,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
         in.close();
 
         ArcSDEConnectionConfig connectionConfig = new ArcSDEConnectionConfig(conProps);
-        pool = ArcSDEConnectionPoolFactory.getInstance().createPool(connectionConfig);
+        pool = SessionPoolFactory.getInstance().createPool(connectionConfig);
 
         ISession session = null;
         SeQuery q = null;

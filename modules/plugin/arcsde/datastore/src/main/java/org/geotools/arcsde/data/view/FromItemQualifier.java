@@ -16,15 +16,12 @@
  */
 package org.geotools.arcsde.data.view;
 
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ISession;
-
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
-import com.esri.sde.sdk.client.SeConnection;
+import org.geotools.arcsde.pool.ISession;
 
 /**
  * Fully qualifies a table names.

@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
+import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
@@ -173,7 +173,7 @@ public class ArcSDEFeatureSourceTest extends TestCase {
 
         ArcSDEDataStore ds = testData.getDataStore();
 
-        ArcSDEConnectionPool pool = testData.getConnectionPool();
+        SessionPool pool = testData.getConnectionPool();
         final int initialAvailableCount = pool.getAvailableCount();
         final int initialPoolSize = pool.getPoolSize();
 
@@ -328,7 +328,6 @@ public class ArcSDEFeatureSourceTest extends TestCase {
         }
 
         assertTrue(queriedAttributeCount == resultSchema.getAttributeCount());
-
 
         for (int i = 0; i < queriedAttributeCount; i++) {
             assertEquals(queryAtts[i], resultSchema.getAttribute(i).getLocalName());

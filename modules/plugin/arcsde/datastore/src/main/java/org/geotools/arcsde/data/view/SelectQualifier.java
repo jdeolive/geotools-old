@@ -22,8 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.arcsde.pool.ISession;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
@@ -32,7 +30,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.statement.select.Union;
 
-import com.esri.sde.sdk.client.SeConnection;
+import org.geotools.arcsde.pool.ISession;
 
 /**
  * Visitor on a PlainSelect that produces another one but with all the table names and field names

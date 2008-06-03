@@ -28,12 +28,10 @@ import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 
 import com.esri.sde.sdk.client.SDEPoint;
-import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeCoordinateReference;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeQuery;
-import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeShape;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -148,6 +146,7 @@ public class GeometryBuilderTest extends TestCase {
 
     /**
      * TODO: resurrect testInsertGeometries
+     * 
      * @throws Exception
      */
     public void _testInsertGeometries() throws Exception {
@@ -269,6 +268,7 @@ public class GeometryBuilderTest extends TestCase {
 
     /**
      * TODO: resurrect testConstructShapePolygon
+     * 
      * @throws Exception
      */
     public void _testConstructShapePolygon() throws Exception {

@@ -31,7 +31,6 @@ import java.util.logging.Logger;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
@@ -234,7 +233,7 @@ public class ArcSDEAdapter {
 
     // public static FeatureTypeInfo fetchSchema(final String typeName,
     // final String namespace,
-    // final ArcSDEConnectionPool pool) throws IOException {
+    // final SessionPool pool) throws IOException {
     // return pool.issueReadOnly(new Command<FeatureTypeInfo>() {
     // @Override
     // public FeatureTypeInfo execute(Session session, SeConnection connection)

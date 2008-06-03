@@ -18,13 +18,11 @@ package org.geotools.arcsde.data.view;
 
 import java.util.Map;
 
-import org.geotools.arcsde.pool.ISession;
-
 import net.sf.jsqlparser.statement.select.ColumnReference;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.OrderByVisitor;
 
-import com.esri.sde.sdk.client.SeConnection;
+import org.geotools.arcsde.pool.ISession;
 
 /**
  * Qualifies a column reference in an order by clause

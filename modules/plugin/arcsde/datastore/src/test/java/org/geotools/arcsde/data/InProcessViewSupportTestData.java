@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
-import org.geotools.data.DataSourceException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 

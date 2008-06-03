@@ -25,25 +25,25 @@ import org.geotools.data.DataSourceException;
 
 /**
  * Singleton factory that maintains a single
- * {@link ArcSDEConnectionPool connection pool} per set of
+ * {@link SessionPool connection pool} per set of
  * {@link ArcSDEConnectionConfig connection parameters}.
  * 
  * @author Gabriel Roldan
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/arcsde/datastore/src/main/java/org/geotools/arcsde/pool/ArcSDEConnectionPoolFactory.java $
- * @version $Id: ArcSDEConnectionPoolFactory.java 24660 2007-03-02 16:10:44Z
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/arcsde/datastore/src/main/java/org/geotools/arcsde/pool/SessionPoolFactory.java $
+ * @version $Id: SessionPoolFactory.java 24660 2007-03-02 16:10:44Z
  *          saul.farber $
  */
-public class ArcSDEConnectionPoolFactory {
+public class SessionPoolFactory {
     /** package logger */
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.arcsde.pool");
 
     /** singleton pool factory */
-    private static final ArcSDEConnectionPoolFactory singleton = new ArcSDEConnectionPoolFactory();
+    private static final SessionPoolFactory singleton = new SessionPoolFactory();
 
     /**
-     * Map{ArcSDEConnectionConfig,ArcSDEConnectionPool} with per config
+     * Map{ArcSDEConnectionConfig,SessionPool} with per config
      * connection pool
      */
     private final Map currentPools = new HashMap();
@@ -51,7 +51,7 @@ public class ArcSDEConnectionPoolFactory {
     /**
      * Creates a new SdeConnectionPoolFactory object.
      */
-    private ArcSDEConnectionPoolFactory() {
+    private SessionPoolFactory() {
         // intentionally blank
     }
 
@@ -60,7 +60,7 @@ public class ArcSDEConnectionPoolFactory {
      * 
      * @return the connection pool factory singleton
      */
-    public synchronized static ArcSDEConnectionPoolFactory getInstance() {
+    public synchronized static SessionPoolFactory getInstance() {
         return singleton;
     }
 
@@ -78,9 +78,9 @@ public class ArcSDEConnectionPoolFactory {
      * @throws DataSourceException
      *             if the pool needs but can't be created
      */
-    public synchronized ArcSDEConnectionPool createPool(ArcSDEConnectionConfig config)
+    public synchronized SessionPool createPool(ArcSDEConnectionConfig config)
             throws DataSourceException {
-        ArcSDEConnectionPool pool = (ArcSDEConnectionPool) this.currentPools.get(config);
+        SessionPool pool = (SessionPool) this.currentPools.get(config);
 
         if (pool == null) {
             // the new pool will be populated with config.minConnections
@@ -90,7 +90,7 @@ public class ArcSDEConnectionPoolFactory {
                 pool = new ArcSDEConnectionReference(config);    
             }
             else {
-                pool = new ArcSDEConnectionPool(config);
+                pool = new SessionPool(config);
             }
             this.currentPools.put(config, pool);
         }
@@ -112,7 +112,7 @@ public class ArcSDEConnectionPoolFactory {
      */
     private void closeAll() {
         for (Iterator it = this.currentPools.values().iterator(); it.hasNext();) {
-            ((ArcSDEConnectionPool) it.next()).close();
+            ((SessionPool) it.next()).close();
         }
     }
 

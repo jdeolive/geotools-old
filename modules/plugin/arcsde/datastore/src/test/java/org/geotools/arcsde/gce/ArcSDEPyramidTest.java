@@ -24,8 +24,8 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
+import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.pool.SessionPoolFactory;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -50,7 +50,7 @@ import com.esri.sde.sdk.client.SeSqlConstruct;
  */
 public class ArcSDEPyramidTest extends TestCase {
 
-    private ArcSDEConnectionPool pool;
+    private SessionPool pool;
 
     private Properties conProps;
 
@@ -66,7 +66,7 @@ public class ArcSDEPyramidTest extends TestCase {
                 .openStream();
         conProps.load(in);
         in.close();
-        pool = ArcSDEConnectionPoolFactory.getInstance().createPool(
+        pool = SessionPoolFactory.getInstance().createPool(
                 new ArcSDEConnectionConfig(conProps));
 
     }

@@ -34,9 +34,9 @@ import junit.framework.TestSuite;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
@@ -72,14 +72,11 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
 import org.opengis.filter.identity.FeatureId;
-import org.opengis.util.InternationalString;
-import org.opengis.util.ProgressListener;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
-import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -201,10 +198,8 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         }
     }
 
-
     /**
-     * This is an adaptation of a classic MemoryDataStore test to match
-     * our sample data.
+     * This is an adaptation of a classic MemoryDataStore test to match our sample data.
      * <p>
      * This test is focused on two things:
      * <ul>
@@ -212,103 +207,102 @@ public class ArcSDEFeatureStoreTest extends TestCase {
      * <li>Do the correct feature event notifications get sent out
      * </ul>
      */
-	public void testFeatureEventsAndTransactionIndependence() throws Exception {
-		// We are going to start with ...
-		testData.insertTestData();
+    public void testFeatureEventsAndTransactionIndependence() throws Exception {
+        // We are going to start with ...
+        testData.insertTestData();
 
-		final DataStore dataStore = testData.getDataStore();
-		final String typeName = testData.getTempTableName();
-		final FeatureSource<SimpleFeatureType, SimpleFeature> origional = dataStore
-				.getFeatureSource(typeName);
-		TestFeatureListener listener = new TestFeatureListener();
-		origional.addFeatureListener( listener );
-		
-		// we are going to use this feature source to check that the
-		// public Transaction.AUTO_COMMIT view of the world
-		// is as expected.
-		assertEquals(8, origional.getCount(Query.ALL));
-		final SortedSet<String> allFids = new TreeSet<String>();		
-		FeatureCollection<SimpleFeatureType, SimpleFeature> collection = 
-			origional.getFeatures();		
-		TestProgressListener progress = new TestProgressListener();		
-		collection.accepts( new FeatureVisitor(){
-			public void visit(Feature feature) {
-				allFids.add( feature.getID() );
-			}			
-		}, progress );
-		assertTrue( "visitor completed", progress.completed );
-		assertEquals( "visitor 100%", 100f, progress.progress );
-		assertNull( "visitor no problems", progress.exception );
-		
-		// we are going to use this transaction to modify and commit
-		DefaultTransaction t1 = new DefaultTransaction("Transaction 1");
-		FeatureStore<SimpleFeatureType, SimpleFeature> featureStore1 = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
-				.getFeatureSource(typeName);
-		featureStore1.setTransaction(t1);
-		TestFeatureListener listener1 = new TestFeatureListener();
-		featureStore1.addFeatureListener( listener1 );
-		// we are going to use this transaction to modify and rollback        
-		DefaultTransaction t2 = new DefaultTransaction("Transaction 2");
-		FeatureStore<SimpleFeatureType, SimpleFeature> featureStore2 = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
-				.getFeatureSource(typeName);
-		featureStore2.setTransaction(t2);
-		TestFeatureListener listener2 = new TestFeatureListener();
-		featureStore2.addFeatureListener( listener2 );
-		
-		// verify they are all working
-		assertEquals(8, origional.getCount(Query.ALL));
-		assertEquals(8, featureStore1.getCount(Query.ALL));
-		assertEquals(8, featureStore2.getCount(Query.ALL));
+        final DataStore dataStore = testData.getDataStore();
+        final String typeName = testData.getTempTableName();
+        final FeatureSource<SimpleFeatureType, SimpleFeature> origional = dataStore
+                .getFeatureSource(typeName);
+        TestFeatureListener listener = new TestFeatureListener();
+        origional.addFeatureListener(listener);
 
-		DefaultQuery queryOneFeature = new DefaultQuery();
-		queryOneFeature.setTypeName(typeName);
-		queryOneFeature.setFilter(Filter.INCLUDE);
-		queryOneFeature.setMaxFeatures(1);
-		queryOneFeature.setPropertyNames(Query.ALL_NAMES);
+        // we are going to use this feature source to check that the
+        // public Transaction.AUTO_COMMIT view of the world
+        // is as expected.
+        assertEquals(8, origional.getCount(Query.ALL));
+        final SortedSet<String> allFids = new TreeSet<String>();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = origional.getFeatures();
+        TestProgressListener progress = new TestProgressListener();
+        collection.accepts(new FeatureVisitor() {
+            public void visit(Feature feature) {
+                allFids.add(feature.getID());
+            }
+        }, progress);
+        assertTrue("visitor completed", progress.completed);
+        assertEquals("visitor 100%", 100f, progress.progress);
+        assertNull("visitor no problems", progress.exception);
 
-		collection = featureStore1.getFeatures(queryOneFeature);
-		progress.reset();
-		final SortedSet<String> fids = new TreeSet<String>();
-		collection.accepts( new FeatureVisitor(){
-			public void visit(Feature feature) {
-				fids.add( feature.getID() );
-			}
-		}, progress );
-		assertTrue( "visitor completed", progress.completed );
-		assertEquals( "visitor 100%", 100f, progress.progress );
-		assertNull( "visitor no problems", progress.exception );
-		
-		assertEquals( 1, fids.size() );
-		String featureId = fids.first();
-		assertTrue( allFids.contains( featureId ));
-		
-		FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-		Filter filterOne = ff.id( Collections.singleton( ff.featureId(featureId) ) );
-		
-		assertEquals( 0, listener.list.size() );
-		assertEquals( 0, listener1.list.size() );
-		assertEquals( 0, listener2.list.size() );		
-		featureStore1.removeFeatures( filterOne );
-		assertEquals( 0, listener.list.size() );		
-		assertEquals( 1, listener1.list.size() );
-		assertEquals( 0, listener2.list.size() );
-		
-		FeatureEvent e = listener1.list.get(0);
-		assertEquals( featureStore1, e.getFeatureSource() );
-		Id id = (Id) e.getFilter();
-		assertNotNull( id );
-		assertNotNull( id.getIDs() );		
-		assertTrue( id.getIDs().contains( featureId ));
-		ReferencedEnvelope bounds = e.getBounds();
-		assertFalse( bounds.isEmpty() );
-		assertFalse( bounds.isNull() );
-		
-		t1.commit();
-		assertEquals( 1, listener.list.size() );		
-		assertEquals( 2, listener1.list.size() );
-		assertEquals( 1, listener2.list.size() );		
-	}
-	
+        // we are going to use this transaction to modify and commit
+        DefaultTransaction t1 = new DefaultTransaction("Transaction 1");
+        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore1 = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
+                .getFeatureSource(typeName);
+        featureStore1.setTransaction(t1);
+        TestFeatureListener listener1 = new TestFeatureListener();
+        featureStore1.addFeatureListener(listener1);
+        // we are going to use this transaction to modify and rollback
+        DefaultTransaction t2 = new DefaultTransaction("Transaction 2");
+        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore2 = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
+                .getFeatureSource(typeName);
+        featureStore2.setTransaction(t2);
+        TestFeatureListener listener2 = new TestFeatureListener();
+        featureStore2.addFeatureListener(listener2);
+
+        // verify they are all working
+        assertEquals(8, origional.getCount(Query.ALL));
+        assertEquals(8, featureStore1.getCount(Query.ALL));
+        assertEquals(8, featureStore2.getCount(Query.ALL));
+
+        DefaultQuery queryOneFeature = new DefaultQuery();
+        queryOneFeature.setTypeName(typeName);
+        queryOneFeature.setFilter(Filter.INCLUDE);
+        queryOneFeature.setMaxFeatures(1);
+        queryOneFeature.setPropertyNames(Query.ALL_NAMES);
+
+        collection = featureStore1.getFeatures(queryOneFeature);
+        progress.reset();
+        final SortedSet<String> fids = new TreeSet<String>();
+        collection.accepts(new FeatureVisitor() {
+            public void visit(Feature feature) {
+                fids.add(feature.getID());
+            }
+        }, progress);
+        assertTrue("visitor completed", progress.completed);
+        assertEquals("visitor 100%", 100f, progress.progress);
+        assertNull("visitor no problems", progress.exception);
+
+        assertEquals(1, fids.size());
+        String featureId = fids.first();
+        assertTrue(allFids.contains(featureId));
+
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        Filter filterOne = ff.id(Collections.singleton(ff.featureId(featureId)));
+
+        assertEquals(0, listener.list.size());
+        assertEquals(0, listener1.list.size());
+        assertEquals(0, listener2.list.size());
+        featureStore1.removeFeatures(filterOne);
+        assertEquals(0, listener.list.size());
+        assertEquals(1, listener1.list.size());
+        assertEquals(0, listener2.list.size());
+
+        FeatureEvent e = listener1.list.get(0);
+        assertEquals(featureStore1, e.getFeatureSource());
+        Id id = (Id) e.getFilter();
+        assertNotNull(id);
+        assertNotNull(id.getIDs());
+        assertTrue(id.getIDs().contains(featureId));
+        ReferencedEnvelope bounds = e.getBounds();
+        assertFalse(bounds.isEmpty());
+        assertFalse(bounds.isNull());
+
+        t1.commit();
+        assertEquals(1, listener.list.size());
+        assertEquals(2, listener1.list.size());
+        assertEquals(1, listener2.list.size());
+    }
+
     public void testDeleteByFIDAutoCommit() throws Exception {
         testData.insertTestData();
 
@@ -349,7 +343,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             }
         }
 
-        ArcSDEConnectionPool connectionPool = testData.getConnectionPool();
+        SessionPool connectionPool = testData.getConnectionPool();
         ISession session = connectionPool.getSession();
         SeQuery seQuery;
         try {
@@ -1624,19 +1618,20 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ArcSDEFeatureStoreTest.class);
     }
-    
-    static class Watcher implements FeatureListener {
-    	
-		private Type type;
-		private Envelope bounds;
-		private FeatureSource<? extends FeatureType, ? extends Feature> source;
 
-		public void changed(FeatureEvent featureEvent) {
-			type = featureEvent.getType();
-			bounds = featureEvent.getBounds();
-			source = featureEvent.getFeatureSource();			
-		}
-    	
+    static class Watcher implements FeatureListener {
+
+        private Type type;
+
+        private Envelope bounds;
+
+        private FeatureSource<? extends FeatureType, ? extends Feature> source;
+
+        public void changed(FeatureEvent featureEvent) {
+            type = featureEvent.getType();
+            bounds = featureEvent.getBounds();
+            source = featureEvent.getFeatureSource();
+        }
+
     }
 }
-

@@ -22,7 +22,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultQuery;

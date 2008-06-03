@@ -246,7 +246,7 @@ final class SessionTransactionState implements Transaction.State {
      *         as key.
      */
     public static SessionTransactionState getState(final Transaction transaction,
-            final ArcSDEConnectionPool connectionPool) throws IOException {
+            final SessionPool connectionPool) throws IOException {
         SessionTransactionState state;
         if (transaction == Transaction.AUTO_COMMIT) {
             LOGGER.log(Level.SEVERE,

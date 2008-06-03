@@ -59,10 +59,10 @@ import com.esri.sde.sdk.client.SeRelease;
  * </ul>
  * </p>
  * 
- * @author Gabriel Roldan, Axios Engineering
+ * @author Gabriel Roldan
  * @version $Id$
  */
-public class ArcSDEConnectionPool {
+public class SessionPool {
     /** package's logger */
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.arcsde.pool");
@@ -96,7 +96,7 @@ public class ArcSDEConnectionPool {
      * @throws DataSourceException If connection could not be established
      * @throws NullPointerException If config is null
      */
-    protected ArcSDEConnectionPool(ArcSDEConnectionConfig config) throws DataSourceException {
+    protected SessionPool(ArcSDEConnectionConfig config) throws DataSourceException {
         if (config == null) {
             throw new NullPointerException("parameter config can't be null");
         }
@@ -210,7 +210,7 @@ public class ArcSDEConnectionPool {
      * Retrieve the connection for the provided transaction.
      * <p>
      * The connection is held open until while the transaction is underway. A a Transaction.State is
-     * registered for this ArcSDEConnectionPool in order to hold the session.
+     * registered for this SessionPool in order to hold the session.
      * </p>
      * 
      * @param transaction
@@ -355,7 +355,7 @@ public class ArcSDEConnectionPool {
             NegativeArraySizeException cause = null;
             for (int i = 0; i < 3; i++) {
                 try {
-                    ISession seConn = new Session(ArcSDEConnectionPool.this.pool, config);
+                    ISession seConn = new Session(SessionPool.this.pool, config);
                     return seConn;
                 } catch (NegativeArraySizeException nase) {
                     LOGGER.warning("Strange failed ArcSDE connection error.  Trying again (try "

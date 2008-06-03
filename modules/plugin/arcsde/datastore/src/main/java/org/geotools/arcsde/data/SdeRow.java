@@ -21,7 +21,6 @@ import java.io.IOException;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
 
-import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeShape;
