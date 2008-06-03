@@ -114,13 +114,42 @@ public class Parameter<T> {
      */
     public final Map<String, Object> metadata;
 
-    /** Mandatory information */
+   /**
+    * Mandatory parameter
+    * @param key
+    * @param type
+    * @param title
+    * @param description
+    */
     public Parameter(String key, Class<T> type, InternationalString title,
     		InternationalString description ) {
         this( key, type, title, description, false, 1, 1, null, null );
     }
     
-    /** Addition of optional parameters */
+    /**
+     * Mandiatory parameter with metadata.
+     * @param key
+     * @param type
+     * @param title
+     * @param description
+     * @param metadata
+     */
+     public Parameter(String key, Class<T> type, InternationalString title,
+     		InternationalString description, Map<String,Object> metadata ) {
+         this( key, type, title, description, false, 1, 1, null, metadata );
+     }
+    /**
+     * Addition of optional parameters
+     * @param key
+     * @param type
+     * @param title
+     * @param description
+     * @param required
+     * @param min
+     * @param max
+     * @param sample
+     * @param metadata
+     */
     public Parameter(String key, Class<T> type, InternationalString title,
     				 InternationalString description,
                      boolean required, int min, int max, Object sample, 
