@@ -44,8 +44,8 @@ public class UnionFactory extends AbstractProcessFactory {
     // making parameters available as static constants to help java programmers
     /** First geometry for union */
     static final Parameter<Geometry> GEOM1 =
-        new Parameter<Geometry>("geom", Geometry.class, Text.text("Geometry 1"),
-        		true, 2, -1, null, null);
+        new Parameter<Geometry>("geom", Geometry.class, Text.text("Geometry"),
+        		Text.text("Geometries to union"), true, 2, -1, null, null);
     
 
     /**
@@ -58,7 +58,7 @@ public class UnionFactory extends AbstractProcessFactory {
     }
 
     static final Parameter<Geometry> RESULT = 
-        new Parameter<Geometry>("result", Geometry.class, Text.text("Result Unioning given geometries )") );
+        new Parameter<Geometry>("result", Geometry.class, Text.text("Result"), Text.text("Result Unioning given geometries )") );
         
     /**
      * Map used for getParameterInfo; used to describe operation requirements for user

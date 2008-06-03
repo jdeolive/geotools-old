@@ -35,6 +35,11 @@ public class Parameter<T> {
     public final String key;
     
     /**
+     * Human readable title/name of this parameter.
+     */
+    public final InternationalString title;    
+    
+    /**
      * Human readable description of this parameter.
      */
     public final InternationalString description;
@@ -110,15 +115,18 @@ public class Parameter<T> {
     public final Map<String, Object> metadata;
 
     /** Mandatory information */
-    public Parameter(String key, Class<T> type, InternationalString description ){
-        this( key, type, description, false, 1, 1, null, null );
+    public Parameter(String key, Class<T> type, InternationalString title,
+    		InternationalString description ) {
+        this( key, type, title, description, false, 1, 1, null, null );
     }
     
     /** Addition of optional parameters */
-    public Parameter(String key, Class<T> type, InternationalString description,
+    public Parameter(String key, Class<T> type, InternationalString title,
+    				 InternationalString description,
                      boolean required, int min, int max, Object sample, 
-                     Map<String,Object> metadata){
+                     Map<String,Object> metadata) {
         this.key = key;
+        this.title = title;
         this.type = type;
         this.description = description;
         this.required = required;

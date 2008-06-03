@@ -50,5 +50,9 @@ class IntersectionProcess extends SimpleProcess {
         
         result.put( IntersectionFactory.RESULT.key, geom1.intersection( geom2 ) );
     }
+    
+	public String getVersion() {
+		return "1.0.0";
+	}     
 
 }

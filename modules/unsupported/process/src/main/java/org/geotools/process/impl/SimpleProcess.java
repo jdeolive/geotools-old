@@ -46,6 +46,15 @@ public abstract class SimpleProcess extends AbstractProcess {
             monitor.complete();            
         }
     }
+    
+	public boolean supportsProgress() {
+		return false;
+	}  
+	
+	public String getVersion() {
+		return "1.0.0";
+	} 	
+    
     /**
      * Implement your own process here.
      * 

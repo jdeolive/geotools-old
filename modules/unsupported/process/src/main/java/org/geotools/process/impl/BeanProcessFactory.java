@@ -49,7 +49,8 @@ public abstract class BeanProcessFactory implements ProcessFactory {
             if( getter == null ) continue;
             
             Parameter<?> parameter = new Parameter(descriptor.getName(), descriptor.getPropertyType(),
-                    Text.text(descriptor.getDisplayName()) );
+            		Text.text(descriptor.getDisplayName()),
+            		Text.text(descriptor.getShortDescription()) );
             
             parameterInfo.put( descriptor.getName(), parameter );            
         }
@@ -70,7 +71,8 @@ public abstract class BeanProcessFactory implements ProcessFactory {
             if( setter == null ) continue;
             
             Parameter<?> parameter = new Parameter(descriptor.getName(), descriptor.getPropertyType(),
-                    Text.text(descriptor.getDisplayName()) );
+                    Text.text(descriptor.getDisplayName()),
+                    Text.text(descriptor.getShortDescription()) );
             
             parameterInfo.put( descriptor.getName(), parameter );            
         }

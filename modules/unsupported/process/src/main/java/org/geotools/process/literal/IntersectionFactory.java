@@ -45,11 +45,11 @@ public class IntersectionFactory extends AbstractProcessFactory {
     // making parameters available as static constants to help java programmers
     /** First geometry for intersection */
     static final Parameter<Geometry> GEOM1 =
-        new Parameter<Geometry>("geom1", Geometry.class, Text.text("Geometry 1") );
+        new Parameter<Geometry>("geom1", Geometry.class, Text.text("Geometry 1"), Text.text("Geometry 1 of 2 to intersect") );
     
     /** Second geometry for intersection */
     static final Parameter<Geometry> GEOM2 = 
-        new Parameter<Geometry>("geom2", Geometry.class, Text.text("Geometry 2") );
+        new Parameter<Geometry>("geom2", Geometry.class, Text.text("Geometry 2"), Text.text("Geometry 2 of 2 to intersect") );
     
     /**
      * Map used for getParameterInfo; used to describe operation requirements for user
@@ -62,7 +62,7 @@ public class IntersectionFactory extends AbstractProcessFactory {
     }
 
     static final Parameter<Geometry> RESULT = 
-        new Parameter<Geometry>("result", Geometry.class, Text.text("Result of Geometry1.intersect( Geometry2 )") );
+        new Parameter<Geometry>("result", Geometry.class, Text.text("Result"), Text.text("Result of Geometry1.intersect( Geometry2 )") );
         
     /**
      * Map used to describe operation results.

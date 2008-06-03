@@ -31,7 +31,9 @@ public interface UOMsType extends EObject {
 	 * Returns the value of the '<em><b>UOM</b></em>' containment reference list.
 	 * The list contents are of type {@link javax.units.Unit}.
 	 * <!-- begin-user-doc -->
-	 * Changed net.opengis.ows11.DomainMetadataType to javax.units.Unit
+	 * 1. Changed net.opengis.ows11.DomainMetadataType to javax.units.Unit
+	 * 2. Removed all annotations and changed EList return type to just List and
+	 * also updated the Impl class the same way.
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
 	 * Reference to a UOM supported for this input or output.
