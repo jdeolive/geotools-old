@@ -252,9 +252,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wps.ecore#//SupportedUOMsType/default"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wps.ecore#//SupportedUOMsType/supported"/>
     </genClasses>
-    <genClasses ecoreClass="wps.ecore#//UOMsType">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wps.ecore#//UOMsType/uOM"/>
-    </genClasses>
+    <genClasses ecoreClass="wps.ecore#//UOMsType"/>
     <genClasses ecoreClass="wps.ecore#//ValuesReferenceType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//ValuesReferenceType/reference"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//ValuesReferenceType/valuesForm"/>

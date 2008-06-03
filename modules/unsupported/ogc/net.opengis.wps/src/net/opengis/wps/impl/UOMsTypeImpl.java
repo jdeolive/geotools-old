@@ -6,8 +6,11 @@
  */
 package net.opengis.wps.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import javax.units.BaseUnit;
 import javax.units.Unit;
 
 import net.opengis.wps.UOMsType;
@@ -24,6 +27,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
@@ -33,24 +37,18 @@ import org.eclipse.emf.ecore.util.InternalEList;
  * An implementation of the model object '<em><b>UO Ms Type</b></em>'.
  * <!-- end-user-doc -->
  * <p>
- * The following features are implemented:
- * <ul>
- *   <li>{@link net.opengis.wps.impl.UOMsTypeImpl#getUOM <em>UOM</em>}</li>
- * </ul>
  * </p>
  *
  * @generated
  */
 public class UOMsTypeImpl extends EObjectImpl implements UOMsType {
 	/**
-	 * The cached value of the '{@link #getUOM() <em>UOM</em>}' containment reference list.
+	 * The cached value of the '{@link #getUOM() <em>UOM</em>}' reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getUOM()
-	 * @generated
-	 * @ordered
 	 */
-	protected EList uOM;
+	protected List uOM;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -73,81 +71,13 @@ public class UOMsTypeImpl extends EObjectImpl implements UOMsType {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * 
 	 */
-	public EList getUOM() {
+	public List getUOM() {
 		if (uOM == null) {
-			uOM = new EObjectContainmentEList(Unit.class, this, WpsPackage.UO_MS_TYPE__UOM);
+			uOM = new ArrayList();
 		}
 		return uOM;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-		switch (featureID) {
-			case WpsPackage.UO_MS_TYPE__UOM:
-				return ((InternalEList)getUOM()).basicRemove(otherEnd, msgs);
-		}
-		return super.eInverseRemove(otherEnd, featureID, msgs);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Object eGet(int featureID, boolean resolve, boolean coreType) {
-		switch (featureID) {
-			case WpsPackage.UO_MS_TYPE__UOM:
-				return getUOM();
-		}
-		return super.eGet(featureID, resolve, coreType);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void eSet(int featureID, Object newValue) {
-		switch (featureID) {
-			case WpsPackage.UO_MS_TYPE__UOM:
-				getUOM().clear();
-				getUOM().addAll((Collection)newValue);
-				return;
-		}
-		super.eSet(featureID, newValue);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void eUnset(int featureID) {
-		switch (featureID) {
-			case WpsPackage.UO_MS_TYPE__UOM:
-				getUOM().clear();
-				return;
-		}
-		super.eUnset(featureID);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public boolean eIsSet(int featureID) {
-		switch (featureID) {
-			case WpsPackage.UO_MS_TYPE__UOM:
-				return uOM != null && !uOM.isEmpty();
-		}
-		return super.eIsSet(featureID);
 	}
 
 } //UOMsTypeImpl

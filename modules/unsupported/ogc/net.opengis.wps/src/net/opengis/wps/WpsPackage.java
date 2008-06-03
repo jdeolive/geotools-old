@@ -471,7 +471,7 @@ public interface WpsPackage extends EPackage {
 	int DEFAULT_TYPE1 = 10;
 
 	/**
-	 * The feature id for the '<em><b>UOM</b></em>' containment reference.
+	 * The feature id for the '<em><b>UOM</b></em>' reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -2698,22 +2698,13 @@ public interface WpsPackage extends EPackage {
 	int UO_MS_TYPE = 50;
 
 	/**
-	 * The feature id for the '<em><b>UOM</b></em>' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int UO_MS_TYPE__UOM = 0;
-
-	/**
 	 * The number of structural features of the '<em>UO Ms Type</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int UO_MS_TYPE_FEATURE_COUNT = 1;
+	int UO_MS_TYPE_FEATURE_COUNT = 0;
 
 	/**
 	 * The meta object id for the '{@link net.opengis.wps.impl.ValuesReferenceTypeImpl <em>Values Reference Type</em>}' class.
@@ -3228,10 +3219,10 @@ public interface WpsPackage extends EPackage {
 	EClass getDefaultType1();
 
 	/**
-	 * Returns the meta object for the containment reference '{@link net.opengis.wps.DefaultType1#getUOM <em>UOM</em>}'.
+	 * Returns the meta object for the reference '{@link net.opengis.wps.DefaultType1#getUOM <em>UOM</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference '<em>UOM</em>'.
+	 * @return the meta object for the reference '<em>UOM</em>'.
 	 * @see net.opengis.wps.DefaultType1#getUOM()
 	 * @see #getDefaultType1()
 	 * @generated
@@ -4957,17 +4948,6 @@ public interface WpsPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getUOMsType();
-
-	/**
-	 * Returns the meta object for the containment reference list '{@link net.opengis.wps.UOMsType#getUOM <em>UOM</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>UOM</em>'.
-	 * @see net.opengis.wps.UOMsType#getUOM()
-	 * @see #getUOMsType()
-	 * @generated
-	 */
-	EReference getUOMsType_UOM();
 
 	/**
 	 * Returns the meta object for class '{@link net.opengis.wps.ValuesReferenceType <em>Values Reference Type</em>}'.

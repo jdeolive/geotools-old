@@ -6,6 +6,8 @@
  */
 package net.opengis.wps;
 
+import java.util.List;
+
 import org.eclipse.emf.common.util.EList;
 
 import org.eclipse.emf.ecore.EObject;
@@ -19,12 +21,6 @@ import org.eclipse.emf.ecore.EObject;
  * Identifies a UOM supported for this input or output.
  * <!-- end-model-doc -->
  *
- * <p>
- * The following features are supported:
- * <ul>
- *   <li>{@link net.opengis.wps.UOMsType#getUOM <em>UOM</em>}</li>
- * </ul>
- * </p>
  *
  * @see net.opengis.wps.WpsPackage#getUOMsType()
  * @model extendedMetaData="name='UOMsType' kind='elementOnly'"
@@ -42,10 +38,8 @@ public interface UOMsType extends EObject {
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>UOM</em>' containment reference list.
 	 * @see net.opengis.wps.WpsPackage#getUOMsType_UOM()
-	 * @model type="net.opengis.wps.Unit" containment="true" required="true"
-	 *        extendedMetaData="kind='element' name='UOM' namespace='http://www.opengis.net/ows/1.1'"
-	 * @generated
+	 * 
 	 */
-	EList getUOM();
+	List getUOM();
 
 } // UOMsType

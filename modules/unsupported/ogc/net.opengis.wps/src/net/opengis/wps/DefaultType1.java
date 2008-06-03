@@ -6,6 +6,8 @@
  */
 package net.opengis.wps;
 
+import javax.units.Unit;
+
 import net.opengis.ows11.DomainMetadataType;
 
 import org.eclipse.emf.ecore.EObject;
@@ -37,20 +39,18 @@ public interface DefaultType1 extends EObject {
 	 * @return the value of the '<em>UOM</em>' containment reference.
 	 * @see #setUOM(DomainMetadataType)
 	 * @see net.opengis.wps.WpsPackage#getDefaultType1_UOM()
-	 * @model containment="true" required="true"
-	 *        extendedMetaData="kind='element' name='UOM' namespace='http://www.opengis.net/ows/1.1'"
-	 * @generated
+	 * @model 
 	 */
-	DomainMetadataType getUOM();
+	Unit getUOM();
 
 	/**
-	 * Sets the value of the '{@link net.opengis.wps.DefaultType1#getUOM <em>UOM</em>}' containment reference.
+	 * Sets the value of the '{@link net.opengis.wps.DefaultType1#getUOM <em>UOM</em>}' reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>UOM</em>' containment reference.
+	 * @param value the new value of the '<em>UOM</em>' reference.
 	 * @see #getUOM()
 	 * @generated
 	 */
-	void setUOM(DomainMetadataType value);
+	void setUOM(Unit value);
 
 } // DefaultType1

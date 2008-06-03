@@ -6,6 +6,7 @@
  */
 package net.opengis.wps.impl;
 
+import javax.units.Unit;
 import net.opengis.ows11.DomainMetadataType;
 
 import net.opengis.wps.DefaultType1;
@@ -15,6 +16,7 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
@@ -35,14 +37,14 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class DefaultType1Impl extends EObjectImpl implements DefaultType1 {
 	/**
-	 * The cached value of the '{@link #getUOM() <em>UOM</em>}' containment reference.
+	 * The cached value of the '{@link #getUOM() <em>UOM</em>}' reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getUOM()
 	 * @generated
 	 * @ordered
 	 */
-	protected DomainMetadataType uOM;
+	protected Unit uOM;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -67,7 +69,15 @@ public class DefaultType1Impl extends EObjectImpl implements DefaultType1 {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public DomainMetadataType getUOM() {
+	public Unit getUOM() {
+		if (uOM != null && ((EObject)uOM).eIsProxy()) {
+			InternalEObject oldUOM = (InternalEObject)uOM;
+			uOM = (Unit)eResolveProxy(oldUOM);
+			if (uOM != oldUOM) {
+				if (eNotificationRequired())
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE, WpsPackage.DEFAULT_TYPE1__UOM, oldUOM, uOM));
+			}
+		}
 		return uOM;
 	}
 
@@ -76,46 +86,20 @@ public class DefaultType1Impl extends EObjectImpl implements DefaultType1 {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public NotificationChain basicSetUOM(DomainMetadataType newUOM, NotificationChain msgs) {
-		DomainMetadataType oldUOM = uOM;
+	public Unit basicGetUOM() {
+		return uOM;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setUOM(Unit newUOM) {
+		Unit oldUOM = uOM;
 		uOM = newUOM;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, WpsPackage.DEFAULT_TYPE1__UOM, oldUOM, newUOM);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setUOM(DomainMetadataType newUOM) {
-		if (newUOM != uOM) {
-			NotificationChain msgs = null;
-			if (uOM != null)
-				msgs = ((InternalEObject)uOM).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - WpsPackage.DEFAULT_TYPE1__UOM, null, msgs);
-			if (newUOM != null)
-				msgs = ((InternalEObject)newUOM).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - WpsPackage.DEFAULT_TYPE1__UOM, null, msgs);
-			msgs = basicSetUOM(newUOM, msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, WpsPackage.DEFAULT_TYPE1__UOM, newUOM, newUOM));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-		switch (featureID) {
-			case WpsPackage.DEFAULT_TYPE1__UOM:
-				return basicSetUOM(null, msgs);
-		}
-		return super.eInverseRemove(otherEnd, featureID, msgs);
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, WpsPackage.DEFAULT_TYPE1__UOM, oldUOM, uOM));
 	}
 
 	/**
@@ -126,7 +110,8 @@ public class DefaultType1Impl extends EObjectImpl implements DefaultType1 {
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
 			case WpsPackage.DEFAULT_TYPE1__UOM:
-				return getUOM();
+				if (resolve) return getUOM();
+				return basicGetUOM();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -139,7 +124,7 @@ public class DefaultType1Impl extends EObjectImpl implements DefaultType1 {
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
 			case WpsPackage.DEFAULT_TYPE1__UOM:
-				setUOM((DomainMetadataType)newValue);
+				setUOM((Unit)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -153,7 +138,7 @@ public class DefaultType1Impl extends EObjectImpl implements DefaultType1 {
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case WpsPackage.DEFAULT_TYPE1__UOM:
-				setUOM((DomainMetadataType)null);
+				setUOM((Unit)null);
 				return;
 		}
 		super.eUnset(featureID);

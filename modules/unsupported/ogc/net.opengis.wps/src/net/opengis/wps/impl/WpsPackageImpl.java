@@ -2290,15 +2290,6 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getUOMsType_UOM() {
-		return (EReference)uoMsTypeEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EClass getValuesReferenceType() {
 		return valuesReferenceTypeEClass;
 	}
@@ -2687,7 +2678,6 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		createEReference(supportedUOMsTypeEClass, SUPPORTED_UO_MS_TYPE__SUPPORTED);
 
 		uoMsTypeEClass = createEClass(UO_MS_TYPE);
-		createEReference(uoMsTypeEClass, UO_MS_TYPE__UOM);
 
 		valuesReferenceTypeEClass = createEClass(VALUES_REFERENCE_TYPE);
 		createEAttribute(valuesReferenceTypeEClass, VALUES_REFERENCE_TYPE__REFERENCE);
@@ -2794,7 +2784,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEAttribute(getDefaultType_CRS(), theXMLTypePackage.getAnyURI(), "cRS", null, 1, 1, DefaultType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(defaultType1EClass, DefaultType1.class, "DefaultType1", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getDefaultType1_UOM(), theOws11Package.getDomainMetadataType(), null, "uOM", null, 1, 1, DefaultType1.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getDefaultType1_UOM(), this.getUnit(), null, "uOM", null, 0, 1, DefaultType1.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(defaultType2EClass, DefaultType2.class, "DefaultType2", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getDefaultType2_Language(), theXMLTypePackage.getLanguage(), "language", null, 1, 1, DefaultType2.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2995,7 +2985,6 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEReference(getSupportedUOMsType_Supported(), this.getUOMsType(), null, "supported", null, 1, 1, SupportedUOMsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(uoMsTypeEClass, UOMsType.class, "UOMsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getUOMsType_UOM(), this.getUnit(), null, "uOM", null, 1, -1, UOMsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(valuesReferenceTypeEClass, ValuesReferenceType.class, "ValuesReferenceType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getValuesReferenceType_Reference(), theXMLTypePackage.getAnyURI(), "reference", null, 0, 1, ValuesReferenceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -3237,14 +3226,6 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "name", "Default_._2_._type",
 			 "kind", "elementOnly"
-		   });		
-		addAnnotation
-		  (getDefaultType1_UOM(), 
-		   source, 
-		   new String[] {
-			 "kind", "element",
-			 "name", "UOM",
-			 "namespace", "http://www.opengis.net/ows/1.1"
 		   });			
 		addAnnotation
 		  (defaultType2EClass, 
@@ -4425,14 +4406,6 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		   new String[] {
 			 "name", "UOMsType",
 			 "kind", "elementOnly"
-		   });			
-		addAnnotation
-		  (getUOMsType_UOM(), 
-		   source, 
-		   new String[] {
-			 "kind", "element",
-			 "name", "UOM",
-			 "namespace", "http://www.opengis.net/ows/1.1"
 		   });			
 		addAnnotation
 		  (valuesReferenceTypeEClass, 
