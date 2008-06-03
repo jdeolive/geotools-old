@@ -16,6 +16,7 @@
 package org.geotools.arcsde.data;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.data.BatchFeatureEvent;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
@@ -77,6 +79,8 @@ import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
+import com.esri.sde.sdk.client.SeRow;
+import com.esri.sde.sdk.client.SeShape;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -207,7 +211,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
      * <li>Do the correct feature event notifications get sent out
      * </ul>
      */
-    public void testFeatureEventsAndTransactionIndependence() throws Exception {
+    public void testFeatureEventsAndTransactionsForDelete() throws Exception {
         // We are going to start with ...
         testData.insertTestData();
 
@@ -303,6 +307,79 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         assertEquals(1, listener2.list.size());
     }
 
+    public void testFeatureEventsAndTransactionsForAdd() throws Exception {
+        // We are going to start with ...
+        testData.insertTestData();
+
+        final DataStore dataStore = testData.getDataStore();
+        final String typeName = testData.getTempTableName();
+        final FeatureSource<SimpleFeatureType, SimpleFeature> origional = dataStore
+                .getFeatureSource(typeName);
+        TestFeatureListener listener = new TestFeatureListener();
+        origional.addFeatureListener(listener);
+
+        // we are going to use this feature source to check that the
+        // public Transaction.AUTO_COMMIT view of the world
+        // is as expected.
+        assertEquals(8, origional.getCount(Query.ALL));
+
+        // we are going to use this transaction to modify and commit
+        DefaultTransaction t1 = new DefaultTransaction("Transaction 1");
+        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore1 = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
+                .getFeatureSource(typeName);
+        featureStore1.setTransaction(t1);
+        TestFeatureListener listener1 = new TestFeatureListener();
+        featureStore1.addFeatureListener(listener1);
+
+        // verify they are all working
+        assertEquals(8, origional.getCount(Query.ALL));
+        assertEquals(8, featureStore1.getCount(Query.ALL));
+
+        SimpleFeatureType schema = origional.getSchema();
+        SimpleFeatureBuilder build = new SimpleFeatureBuilder(schema);
+        
+        int value = 24;        
+        build.add( Integer.valueOf(value));
+        build.add( Short.valueOf((short) value));
+        build.add( new Float(value / 10.0F));
+        build.add( new Double(value / 10D));
+        build.add( "FEATURE_" + value);
+        
+        Calendar cal = Calendar.getInstance();
+        cal.set(2004, 06, value, 0, 0, 0);        
+        build.add( cal );
+        
+        WKTReader reader = new WKTReader();        
+        build.add( reader.read("POINT(1 1)") );
+        
+        SimpleFeature newFeature = build.buildFeature(null);
+        FeatureCollection newFeatures = DataUtilities.collection( newFeature );
+        
+        Set<String> newFids = featureStore1.addFeatures( newFeatures );
+        assertEquals(0, listener.list.size());
+        assertEquals(1, listener1.list.size());        
+        
+        FeatureEvent e = listener1.list.get(0);
+        Id id = (Id) e.getFilter();
+        assertTrue( id.getIDs().containsAll( newFids ));
+        // remember the FeatureId with a strong reference
+        FeatureId tempFeatureId = (FeatureId) id.getIdentifiers().iterator().next();
+        String tempFid = tempFeatureId.getID();
+        assertTrue( newFids.contains( tempFid ) );
+        
+        t1.commit();
+        assertEquals(1, listener.list.size());
+        assertEquals(2, listener1.list.size());
+        
+        BatchFeatureEvent batch = (BatchFeatureEvent) listener1.list.get(2);
+        assertFalse( "confirm tempFid is not in the commit", id.getIDs().contains( tempFid ) );
+        assertNotNull( batch.getFilter() );
+        
+        FeatureId featureId = (FeatureId) batch.getCreatedFeatureIds().iterator().next();
+        String fid = featureId.getID();
+        assertSame( "confirm temp feature Id was updated", tempFeatureId.getID(), featureId.getID() );        
+    }
+    
     public void testDeleteByFIDAutoCommit() throws Exception {
         testData.insertTestData();
 

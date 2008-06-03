@@ -32,9 +32,13 @@ import org.opengis.filter.Filter;
  * In reality any expression will do.
  * @author Jody
  */
-public class CategorizeFunction implements Function {
-	String SUCCEEDING = "succeeding";
-	String PRECEDING = "preceding";
+public class CategorizeFunction implements Function {	
+	/** Use as a literal value to indicate behaviour of threshold boundary */
+	public String SUCCEEDING = "succeeding";
+	/** Use as a literal value to indicate behaviour of threshold boundary */	
+	public String PRECEDING = "preceding";
+	/** Use as a PropertyName when defining a color map */
+	public String RASTER_DATA = "Rasterdata";
 	
 	private List<Expression> parameters;
 	private Literal fallback;

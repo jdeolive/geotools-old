@@ -60,6 +60,7 @@
          <module>geometryless</module>
          <module>notifying-collections</module>
 	 <module>wps</module>
+         <module>go</module>
        </modules>
      </profile>
 
@@ -87,8 +88,7 @@
     <module>coveragetools</module>
     <module>directory</module>
     <module>epsg-oracle</module>
-    <module>gml</module>
-    <!--<module>go</module>-->
+    <module>gml</module>    
     <module>gpx</module>
     <module>h2</module>
     <module>jts-wrapper</module>
