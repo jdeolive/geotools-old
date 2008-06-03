@@ -52,16 +52,4 @@ public interface Process {
 	 */
 	public Map<String,Object> execute(Map<String,Object> input, ProgressListener monitor);
 	
-	/**
-	 * It is up to the process implementors to implement progress on the task,
-	 * this method is used to see if the process has progress monitoring implemented
-	 * @return true if it supports progress monitoring
-	 */
-	public boolean supportsProgress();
-	
-	/**
-	 * Return the version of the process
-	 * @return String version
-	 */
-	public String getVersion();
 }

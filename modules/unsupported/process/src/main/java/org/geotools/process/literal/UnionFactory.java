@@ -96,5 +96,13 @@ public class UnionFactory extends AbstractProcessFactory {
 	public String getName() {
 		return "Union";
 	}
+	
+	public boolean supportsProgress() {
+		return true;
+	} 	  
+	
+	public String getVersion() {
+		return "1.0.0";
+	} 	
 
 }

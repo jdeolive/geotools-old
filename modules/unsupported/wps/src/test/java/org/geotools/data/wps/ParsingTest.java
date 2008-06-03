@@ -30,28 +30,28 @@ public class ParsingTest extends TestCase {
 		Object object;
 		BufferedReader in = null;
 		
-//	    try {
-//	        Configuration config = new WPSConfiguration();
-//	    	Parser parser = new Parser(config);
-//
-//			try {
-//				URL url = new URL("http://schemas.opengis.net/wps/1.0.0/examples/40_wpsDescribeProcess_response.xml");
-//				in = new BufferedReader(new InputStreamReader(url.openStream())); 
-//				object =  parser.parse(in);
-//			} catch (SAXException e) {
-//				throw (IOException) new IOException().initCause(e);
-//			} catch (ParserConfigurationException e) {
-//				throw (IOException) new IOException().initCause(e);
-//			}
-//			catch (MalformedURLException e ) {
-//				throw (MalformedURLException) new MalformedURLException().initCause(e);
-//			}
-//	        
-//			ProcessDescriptionType processDesc = (ProcessDescriptionType) object;
-//			assertNotNull(processDesc);
-//	    } finally {
-//	    	in.close();
-//	    }
+	    try {
+	        Configuration config = new WPSConfiguration();
+	    	Parser parser = new Parser(config);
+
+			try {
+				URL url = new URL("http://schemas.opengis.net/wps/1.0.0/examples/40_wpsDescribeProcess_response.xml");
+				in = new BufferedReader(new InputStreamReader(url.openStream())); 
+				object =  parser.parse(in);
+			} catch (SAXException e) {
+				throw (IOException) new IOException().initCause(e);
+			} catch (ParserConfigurationException e) {
+				throw (IOException) new IOException().initCause(e);
+			}
+			catch (MalformedURLException e ) {
+				throw (MalformedURLException) new MalformedURLException().initCause(e);
+			}
+	        
+			ProcessDescriptionType processDesc = (ProcessDescriptionType) object;
+			assertNotNull(processDesc);
+	    } finally {
+	    	in.close();
+	    }
 	}
 	
 //	public void testUOMsList() {

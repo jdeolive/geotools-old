@@ -47,14 +47,6 @@ public abstract class SimpleProcess extends AbstractProcess {
         }
     }
     
-	public boolean supportsProgress() {
-		return false;
-	}  
-	
-	public String getVersion() {
-		return "1.0.0";
-	} 	
-    
     /**
      * Implement your own process here.
      * 

@@ -96,5 +96,13 @@ public class BufferFactory extends AbstractProcessFactory {
 	public String getName() {
 		return "buffer";
 	}
+	
+	public boolean supportsProgress() {
+		return true;
+	} 	  
+	
+	public String getVersion() {
+		return "1.0.0";
+	} 	
 
 }

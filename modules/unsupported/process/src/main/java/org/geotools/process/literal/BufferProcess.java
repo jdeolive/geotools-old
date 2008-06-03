@@ -79,12 +79,4 @@ class BufferProcess extends AbstractProcess {
             monitor.dispose();
         }		
 	}
-	
-	public boolean supportsProgress() {
-		return true;
-	} 	
-
-	public String getVersion() {
-		return "1.0.0";
-	} 
 }

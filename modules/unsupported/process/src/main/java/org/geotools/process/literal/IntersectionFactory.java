@@ -100,5 +100,13 @@ public class IntersectionFactory extends AbstractProcessFactory {
 	public String getName() {
 		return "Intersect";
 	}
+	
+	public boolean supportsProgress() {
+		return false;
+	} 	  
+	
+	public String getVersion() {
+		return "1.0.0";
+	} 	
 
 }
