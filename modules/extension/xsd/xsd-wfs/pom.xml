@@ -86,12 +86,12 @@
     </dependency>
     <dependency>
       <groupId>org.geotools.xsd</groupId>
-      <artifactId>gt-filter</artifactId>
+      <artifactId>gt-xsd-filter</artifactId>
       <version>${project.version}</version>
     </dependency>    
     <dependency>
       <groupId>org.geotools.xsd</groupId>
-      <artifactId>gt-ows</artifactId>
+      <artifactId>gt-xsd-ows</artifactId>
       <version>${project.version}</version>
     </dependency>    
     <dependency>

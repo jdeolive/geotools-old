@@ -136,7 +136,7 @@
     </dependency>
     <dependency>
       <groupId>org.geotools.xsd</groupId>
-      <artifactId>gt-ows</artifactId>
+      <artifactId>gt-xsd-ows</artifactId>
       <version>${project.version}</version>
     </dependency>   
     <dependency>

@@ -139,7 +139,7 @@
     </dependency>
     <dependency>
       <groupId>org.geotools.xsd</groupId>
-      <artifactId>gt-filter</artifactId>
+      <artifactId>gt-xsd-filter</artifactId>
       <version>${project.version}</version>
     </dependency>
         <!-- GeoTools unsupported -->
