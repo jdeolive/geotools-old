@@ -2,6 +2,7 @@ package org.geotools.ows.v1_1;
 
 import java.util.Map;
 
+import net.opengis.ows11.AnyValueType;
 import net.opengis.ows11.Ows11Factory;
 
 import org.geotools.ows.bindings.UnitBinding;
@@ -43,6 +44,7 @@ public class OWSConfiguration extends Configuration {
     protected void registerBindings(Map bindings) {
         bindings.put(OWS.AcceptVersionsType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.AcceptVersionsType));        
         bindings.put(OWS.AddressType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.AddressType));
+        bindings.put(OWS.AnyValue,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.AnyValue, AnyValueType.class));
         
         bindings.put(OWS.GetCapabilitiesType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.GetCapabilitiesType));
         bindings.put(OWS.SectionsType ,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.SectionsType));
@@ -50,6 +52,7 @@ public class OWSConfiguration extends Configuration {
         bindings.put(OWS.BoundingBoxType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.BoundingBoxType));
         bindings.put(OWS.CodeType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.CodeType));
         bindings.put(OWS.ContactType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.ContactType));
+        bindings.put(OWS.DomainMetadataType,new ComplexEMFBinding(Ows11Factory.eINSTANCE,OWS.DomainMetadataType));
         
         bindings.put(OWS.ExceptionType,new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.ExceptionType));
         bindings.put(OWS.KeywordsType, new ComplexEMFBinding(Ows11Factory.eINSTANCE, OWS.KeywordsType));
