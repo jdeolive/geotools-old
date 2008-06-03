@@ -24,6 +24,11 @@ public class UnitBinding extends AbstractSimpleBinding {
 		return Unit.class;
 	}
 	
+    
+    public int getExecutionMode() {
+        return OVERRIDE;
+    }
+    
     /**
      * @override
      */
@@ -47,7 +52,7 @@ public class UnitBinding extends AbstractSimpleBinding {
     	}
     	// if we get here, try some aliases
     	if (name.equalsIgnoreCase("feet")) {
-    		return lookup( SI.class, "foot" );
+    		return lookup( NonSI.class, "foot" );
     	}
     	// if we get here, try some aliases
     	if (name.equalsIgnoreCase("meters") || name.equalsIgnoreCase("meter")) {
