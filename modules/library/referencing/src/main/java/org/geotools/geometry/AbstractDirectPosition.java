@@ -47,10 +47,20 @@ public abstract class AbstractDirectPosition implements DirectPosition {
     }
 
     /**
+     * @deprecated Renamed as {@link #getDirectPosition}.
+     */
+    @Deprecated
+    public DirectPosition getPosition() {
+        return this;
+    }
+
+    /**
      * Returns always {@code this}, the direct position for this
      * {@linkplain org.opengis.geometry.coordinate.Position position}.
+     *
+     * @since 2.5
      */
-    public DirectPosition getPosition() {
+    public DirectPosition getDirectPosition() {
         return this;
     }
 

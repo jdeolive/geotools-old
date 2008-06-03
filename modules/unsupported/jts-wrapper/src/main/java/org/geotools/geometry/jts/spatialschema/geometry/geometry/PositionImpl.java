@@ -51,7 +51,16 @@ public class PositionImpl implements Position {
      * @inheritDoc
      * @see org.opengis.geometry.coordinate.Position#getPosition()
      */
+    @Deprecated
     public DirectPosition getPosition() {
+        return position;
+    }
+    
+    /**
+     * @inheritDoc
+     * @see org.opengis.geometry.coordinate.Position#getDirectPosition()
+     */
+    public DirectPosition getDirectPosition() {
         return position;
     }
 }

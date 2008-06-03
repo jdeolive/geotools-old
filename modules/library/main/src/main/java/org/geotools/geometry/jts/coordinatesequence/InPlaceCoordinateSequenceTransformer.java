@@ -151,6 +151,13 @@ public class InPlaceCoordinateSequenceTransformer implements CoordinateSequenceT
         public DirectPosition getPosition() {
             return this;
         }
+
+        /**
+         * @see org.opengis.geometry.coordinate.Position#getDirectPosition()
+         */
+        public DirectPosition getDirectPosition() {
+            return this;
+        }
         
     }
 

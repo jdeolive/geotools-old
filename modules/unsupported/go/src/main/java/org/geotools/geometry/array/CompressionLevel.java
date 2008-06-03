@@ -17,14 +17,10 @@
  */
 package org.geotools.geometry.array;
 
-// J2SE directdependencies
 import java.util.List;
 import java.util.ArrayList;
-
-// OpenGIS direct dependencies
 import org.opengis.util.CodeList;
 
-// JTS dependencies
 import com.vividsolutions.jts.geom.Coordinate;  // For javadoc only
 
 
@@ -93,6 +89,8 @@ public final class CompressionLevel extends CodeList<CompressionLevel> {
 
     /**
      * Returns the list of {@code CompressionLevel}s.
+     *
+     * @return The list of codes declared in the current JVM.
      */
     public static CompressionLevel[] values() {
         synchronized (VALUES) {

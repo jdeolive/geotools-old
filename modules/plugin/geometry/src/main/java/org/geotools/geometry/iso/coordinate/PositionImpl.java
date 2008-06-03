@@ -74,7 +74,19 @@ public class PositionImpl implements Position, Serializable {
 	 * 
 	 * @see org.opengis.geometry.coordinate.Position#getPosition()
 	 */
+        @Deprecated
 	public DirectPosition getPosition() {
+		// ok
+		return (DirectPosition) this.position;
+		//return (this.position instanceof DirectPositionImpl) ? (DirectPositionImpl) this.position : ((PointImpl) this.position).getPosition();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opengis.geometry.coordinate.Position#getDirectPosition()
+	 */
+	public DirectPosition getDirectPosition() {
 		// ok
 		return (DirectPosition) this.position;
 		//return (this.position instanceof DirectPositionImpl) ? (DirectPositionImpl) this.position : ((PointImpl) this.position).getPosition();

@@ -24,6 +24,7 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
+import static java.lang.Math.*;
 
 
 /**
@@ -87,6 +88,14 @@ public final class ShapeUtilities {
      * parallèles, ou soit parce qu'ils ne se prolongent pas assez loin
      * pour se toucher), alors cette méthode retourne {@code null}.
      *
+     * @param  ax1 <var>x</var> value of the first point on the first  line.
+     * @param  ay1 <var>y</var> value of the first point on the first  line.
+     * @param  ax2 <var>x</var> value of the last  point on the first  line.
+     * @param  ay2 <var>y</var> value of the last  point on the first  line.
+     * @param  bx1 <var>x</var> value of the first point on the second line.
+     * @param  by1 <var>y</var> value of the first point on the second line.
+     * @param  bx2 <var>x</var> value of the last  point on the second line.
+     * @param  by2 <var>y</var> value of the last  point on the second line.
      * @return Si une intersection fut trouvée, les coordonnées de cette
      *         intersection. Si aucune intersection n'a été trouvée, alors
      *         cette méthode retourne {@code null}.
@@ -106,9 +115,9 @@ public final class ShapeUtilities {
          * la paire (x,y) ci-dessous sera les véritables coordonnées du point d'intersection.
          */
         x = ((by1-ay1)*(ax2*bx2)+x*ax1-y*bx1)/(x-y);
-        y = Math.abs(bx2) > Math.abs(ax2) ?
-                (by2/bx2)*(x-bx1)+by1 :
-                (ay2/ax2)*(x-ax1)+ay1;
+        y = abs(bx2) > abs(ax2) ?
+                (by2/bx2) * (x-bx1) + by1 :
+                (ay2/ax2) * (x-ax1) + ay1;
         /*
          * Les expressions '!=0' ci-dessous sont importantes afin d'éviter des problèmes
          * d'erreurs d'arrondissement lorsqu'un segment est vertical ou horizontal. Les
@@ -136,6 +145,10 @@ public final class ShapeUtilities {
      *       {@code point.distance(result)}.</li>
      * </ul>
      *
+     * @param segment The line on which to search for a point.
+     * @param point A point close to the given line.
+     * @return The nearest point on the given line.
+     *
      * @see #colinearPoint(Line2D, Point2D, double)
      */
     public static Point2D nearestColinearPoint(final Line2D segment, final Point2D point) {
@@ -161,34 +174,41 @@ public final class ShapeUtilities {
      *       <code>new&nbsp;Point2D.Double(x,y).distance(result)</code>.</li>
      * </ul>
      *
+     * @param  x1 <var>x</var> value of the first point on the line.
+     * @param  y1 <var>y</var> value of the first point on the line.
+     * @param  x2 <var>x</var> value of the last  point on the line.
+     * @param  y2 <var>y</var> value of the last  point on the line.
+     * @param  x  <var>x</var> value of a point close to the given line.
+     * @param  y  <var>y</var> value of a point close to the given line.
+     * @return The nearest point on the given line.
+     *
      * @see #colinearPoint(double,double , double,double , double,double , double)
      */
     public static Point2D nearestColinearPoint(final double x1, final double y1,
                                                final double x2, final double y2,
                                                      double x,        double y)
     {
-        final double slope = (y2-y1)/(x2-x1);
+        final double slope = (y2-y1) / (x2-x1);
         if (!Double.isInfinite(slope)) {
-            final double y0 = (y2-slope*x2);
-            x = ((y-y0)*slope+x)/(slope*slope+1);
-            y = x*slope+y0;
-        }
-        else x=x2;
-
-        if (x1<=x2) {
-            if (x<x1) x=x1;
-            if (x>x2) x=x2;
+            final double y0 = (y2 - slope*x2);
+            x = ((y-y0)*slope+x) / (slope*slope+1);
+            y = x*slope + y0;
         } else {
-            if (x>x1) x=x1;
-            if (x<x2) x=x2;
+            x = x2;
         }
-
-        if (y1<=y2) {
-            if (y<y1) y=y1;
-            if (y>y2) y=y2;
+        if (x1 <= x2) {
+            if (x < x1) x = x1;
+            if (x > x2) x = x2;
         } else {
-            if (y>y1) y=y1;
-            if (y<y2) y=y2;
+            if (x > x1) x = x1;
+            if (x < x2) x = x2;
+        }
+        if (y1 <= y2) {
+            if (y < y1) y = y1;
+            if (y > y2) y = y2;
+        } else {
+            if (y > y1) y = y1;
+            if (y < y2) y = y2;
         }
         return new Point2D.Double(x,y);
     }
@@ -211,6 +231,11 @@ public final class ShapeUtilities {
      * Si aucun point ne peut répondre à ces conditions, alors cette méthode retourne
      * {@code null}. Si deux points peuvent répondre à ces conditions, alors par
      * convention cette méthode retourne le point le plus près du point {@code line.getP1()}.
+     *
+     * @param line The line on which to searh for a point.
+     * @param point A point close to the given line.
+     * @param distance The distance between the given point and the point to be returned.
+     * @return A point on the given line located at the given distance from the given point.
      *
      * @see #nearestColinearPoint(Line2D, Point2D)
      */
@@ -239,32 +264,41 @@ public final class ShapeUtilities {
      * {@code null}. Si deux points peuvent répondre à ces conditions, alors par
      * convention cette méthode retourne le point le plus près du point {@code (x1,y1)}.
      *
+     * @param  x1 <var>x</var> value of the first point on the line.
+     * @param  y1 <var>y</var> value of the first point on the line.
+     * @param  x2 <var>x</var> value of the last  point on the line.
+     * @param  y2 <var>y</var> value of the last  point on the line.
+     * @param  x  <var>x</var> value of a point close to the given line.
+     * @param  y  <var>y</var> value of a point close to the given line.
+     * @param  distance The distance between the given point and the point to be returned.
+     * @return A point on the given line located at the given distance from the given point.
+     *
      * @see #nearestColinearPoint(double,double , double,double , double,double)
      */
     public static Point2D colinearPoint(double x1, double y1, double x2, double y2,
                                         double x, double y, double distance)
     {
-        final double ox1=x1;
-        final double oy1=y1;
-        final double ox2=x2;
-        final double oy2=y2;
+        final double ox1 = x1;
+        final double oy1 = y1;
+        final double ox2 = x2;
+        final double oy2 = y2;
         distance *= distance;
-        if (x1==x2) {
+        if (x1 == x2) {
             double dy = x1-x;
-            dy = Math.sqrt(distance-dy*dy);
-            y1 = y-dy;
-            y2 = y+dy;
-        } else if (y1==y2) {
-            double dx = y1-y;
-            dx = Math.sqrt(distance-dx*dx);
-            x1 = x-dx;
-            x2 = x+dx;
+            dy = sqrt(distance - dy*dy);
+            y1 = y - dy;
+            y2 = y + dy;
+        } else if (y1 == y2) {
+            double dx = y1 - y;
+            dx = sqrt(distance - dx*dx);
+            x1 = x - dx;
+            x2 = x + dx;
         } else {
-            final double m  = (y1-y2)/(x2-x1);
-            final double y0 = (y2-y)+m*(x2-x);
-            final double B  = m*y0;
-            final double A  = m*m+1;
-            final double C  = Math.sqrt(B*B + A*(distance-y0*y0));
+            final double m  = (y1-y2) / (x2-x1);
+            final double y0 = (y2-y) + m*(x2-x);
+            final double B  = m * y0;
+            final double A  = m*m + 1;
+            final double C  = sqrt(B*B + A*(distance - y0*y0));
             x1 = (B+C)/A;
             x2 = (B-C)/A;
             y1 = y + y0-m*x1;
@@ -280,8 +314,7 @@ public final class ShapeUtilities {
             in1 = y1>=oy1 && y1<=oy2;
             in2 = y2>=oy1 && y2<=oy2;
         }
-        if (ox1 > ox2)
-        {
+        if (ox1 > ox2) {
             in1 &= x1<=ox1 && x1>=ox2;
             in2 &= x2<=ox1 && x2>=ox2;
         } else {
@@ -291,12 +324,12 @@ public final class ShapeUtilities {
         if (!in1 && !in2) return null;
         if (!in1) return new Point2D.Double(x2,y2);
         if (!in2) return new Point2D.Double(x1,y1);
-        x = x1-ox1;
-        y = y1-oy1;
-        final double d1 = x*x+y*y;
-        x = x2-ox1;
-        y = y2-oy1;
-        final double d2 = x*x+y*y;
+        x = x1 - ox1;
+        y = y1 - oy1;
+        final double d1 = x*x + y*y;
+        x = x2 - ox1;
+        y = y2 - oy1;
+        final double d2 = x*x + y*y;
         if (d1>d2) return new Point2D.Double(x2,y2);
         else       return new Point2D.Double(x1,y1);
     }
@@ -342,6 +375,12 @@ public final class ShapeUtilities {
      * l'axe des <var>x</var> de la parabole doit être parallèle à la droite joignant les points {@code (x0,y0)} et
      * {@code (x2,y2)}. Ce dernier type produira le même résultat que {@link #HORIZONTAL} si {@code y0==y2}.
      *
+     * @param  x0 <var>x</var> value of the first  point.
+     * @param  y0 <var>y</var> value of the first  point.
+     * @param  x1 <var>x</var> value of the second point.
+     * @param  y1 <var>y</var> value of the second point.
+     * @param  x2 <var>x</var> value of the third  point.
+     * @param  y2 <var>y</var> value of the third  point.
      * @param  orientation Orientation de l'axe des <var>x</var> de la parabole: {@link #PARALLEL} ou {@link #HORIZONTAL}.
      * @return Une courbe quadratique passant par les trois points spécifiés. La courbe commencera au point {@code (x0,y0)}
      *         et se terminera au point {@code (x2,y2)}. Si deux points ont des coordonnées presque identiques, ou si les
@@ -353,8 +392,8 @@ public final class ShapeUtilities {
                                          final double x2, final double y2,
                                          final int orientation) throws IllegalArgumentException
     {
-        final Point2D p=parabolicControlPoint(x0, y0, x1, y1, x2, y2, orientation, null);
-        return (p!=null) ? new QuadCurve2D.Double(x0, y0, p.getX(), p.getY(), x2, y2) : null;
+        final Point2D p = parabolicControlPoint(x0, y0, x1, y1, x2, y2, orientation, null);
+        return (p != null) ? new QuadCurve2D.Double(x0, y0, p.getX(), p.getY(), x2, y2) : null;
     }
 
     /**
@@ -371,8 +410,15 @@ public final class ShapeUtilities {
      * {@code (x0,y0)} et {@code (x2,y2)}. Ce dernier type produira le même résultat que
      * {@link #HORIZONTAL} si {@code y0==y2}.
      *
+     * @param  x0 <var>x</var> value of the first  point.
+     * @param  y0 <var>y</var> value of the first  point.
+     * @param  x1 <var>x</var> value of the second point.
+     * @param  y1 <var>y</var> value of the second point.
+     * @param  x2 <var>x</var> value of the third  point.
+     * @param  y2 <var>y</var> value of the third  point.
      * @param  orientation Orientation de l'axe des <var>x</var> de la parabole: {@link #PARALLEL}
      *         ou {@link #HORIZONTAL}.
+     * @param  dest Where to store the control point.
      * @return Le point de contrôle d'une courbe quadratique passant par les trois points spécifiés.
      *         La courbe commencera au point {@code (x0,y0)} et se terminera au point {@code (x2,y2)}.
      *         Si deux points ont des coordonnées presque identiques, ou si les trois points sont
@@ -403,9 +449,9 @@ public final class ShapeUtilities {
                  */
                 final double rx2 = x2;
                 final double ry2 = y2;
-                x2 = Math.hypot(x2,y2);
-                y2 = (x1*rx2 + y1*ry2)/x2; // use 'y2' as a temporary variable for 'x1'
-                y1 = (y1*rx2 - x1*ry2)/x2;
+                x2 = hypot(x2,y2);
+                y2 = (x1*rx2 + y1*ry2) / x2; // use 'y2' as a temporary variable for 'x1'
+                y1 = (y1*rx2 - x1*ry2) / x2;
                 x1 = y2;
                 y2 = 0;
                 /*
@@ -414,7 +460,7 @@ public final class ShapeUtilities {
                  */
                 final double x = 0.5;                       // Really "x/x2"
                 final double y = (y1*x*x2) / (x1*(x2-x1));  // Really "y/y2"
-                final double check = Math.abs(y);
+                final double check = abs(y);
                 if (!(check <= 1/EPS)) return null; // Deux points ont les mêmes coordonnées.
                 if (!(check >=   EPS)) return null; // Les trois points sont colinéaires.
                 /*
@@ -426,8 +472,8 @@ public final class ShapeUtilities {
                 break;
             }
             case HORIZONTAL: {
-                final double a = (y2 - y1*x2/x1)/(x2-x1); // Really "a*x2"
-                final double check = Math.abs(a);
+                final double a = (y2 - y1*x2/x1) / (x2-x1); // Really "a*x2"
+                final double check = abs(a);
                 if (!(check <= 1/EPS)) return null; // Deux points ont les mêmes coordonnées.
                 if (!(check >=   EPS)) return null; // Les trois points sont colinéaires.
                 final double b = y2/x2 - a;
@@ -438,7 +484,7 @@ public final class ShapeUtilities {
             }
             default: throw new IllegalArgumentException();
         }
-        if (dest!=null) {
+        if (dest != null) {
             dest.setLocation(x1,y1);
             return dest;
         } else {
@@ -447,8 +493,12 @@ public final class ShapeUtilities {
     }
 
     /**
-     * Retourne un cercle qui passe par
-     * chacun des trois points spécifiés.
+     * Retourne un cercle qui passe par chacun des trois points spécifiés.
+     *
+     * @param  P1 The first point.
+     * @param  P2 The second point.
+     * @param  P3 The third point.
+     * @return A circle passing by the given points.
      */
     public static Ellipse2D fitCircle(final Point2D P1, final Point2D P2, final Point2D P3)
     {
@@ -471,6 +521,14 @@ public final class ShapeUtilities {
      * sera constante; ce sera le rayon d'un cercle centré
      * au point retourné et passant par les trois points
      * spécifiés.
+     *
+     * @param  x1 <var>x</var> value of the first  point.
+     * @param  y1 <var>y</var> value of the first  point.
+     * @param  x2 <var>x</var> value of the second point.
+     * @param  y2 <var>y</var> value of the second point.
+     * @param  x3 <var>x</var> value of the third  point.
+     * @param  y3 <var>y</var> value of the third  point.
+     * @return A circle passing by the given points.
      */
     public static Point2D circleCentre(double x1, double y1,
                                        double x2, double y2,
@@ -483,7 +541,7 @@ public final class ShapeUtilities {
         final double sq2 = (x2*x2 + y2*y2);
         final double sq3 = (x3*x3 + y3*y3);
         final double x   = (y2*sq3 - y3*sq2) / (y2*x3 - y3*x2);
-        return new Point2D.Double(x1+0.5*x, y1+0.5*(sq2-x*x2)/y2);
+        return new Point2D.Double(x1 + 0.5*x, y1 + 0.5*(sq2 - x*x2)/y2);
     }
 
     /**
@@ -496,12 +554,12 @@ public final class ShapeUtilities {
      * @return Forme géométrique standard, ou {@code path} si aucun remplacement n'est proposé.
      */
     public static Shape toPrimitive(final Shape path) {
-        final float[] buffer=new float[6];
-        final PathIterator it=path.getPathIterator(null);
-        if (!it.isDone() && it.currentSegment(buffer)==PathIterator.SEG_MOVETO && !it.isDone()) {
+        final float[] buffer = new float[6];
+        final PathIterator it = path.getPathIterator(null);
+        if (!it.isDone() && it.currentSegment(buffer) == PathIterator.SEG_MOVETO && !it.isDone()) {
             final float x1 = buffer[0];
             final float y1 = buffer[1];
-            final int code=it.currentSegment(buffer);
+            final int code = it.currentSegment(buffer);
             if (it.isDone()) {
                 switch (code) {
                     case PathIterator.SEG_LINETO:  return new       Line2D.Float(x1,y1, buffer[0],buffer[1]);
@@ -516,12 +574,15 @@ public final class ShapeUtilities {
     /**
      * Returns a suggested value for the {@code flatness} argument in
      * {@link Shape#getPathIterator(AffineTransform,double)} for the specified shape.
+     *
+     * @param shape The shape for which to compute a flatness factor.
+     * @return The suggested flatness factor.
      */
     public static double getFlatness(final Shape shape) {
         final Rectangle2D bounds = shape.getBounds2D();
         final double dx = bounds.getWidth();
         final double dy = bounds.getHeight();
-        return Math.max(0.025*Math.min(dx, dy),
-                        0.001*Math.max(dx, dy));
+        return max(0.025 * min(dx, dy),
+                   0.001 * max(dx, dy));
     }
 }

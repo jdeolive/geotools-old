@@ -68,6 +68,8 @@ public abstract class AbstractCRS extends AbstractReferenceSystem implements Coo
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
      *
+     * @param crs The coordinate reference system to copy.
+     *
      * @since 2.2
      */
     public AbstractCRS(final CoordinateReferenceSystem crs) {

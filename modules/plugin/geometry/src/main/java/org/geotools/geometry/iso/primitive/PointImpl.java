@@ -102,7 +102,17 @@ public class PointImpl extends PrimitiveImpl implements Point {
 	 * 
 	 * @see org.opengis.geometry.primitive.Point#getPosition()
 	 */
+        @Deprecated
 	public DirectPositionImpl getPosition() {
+		return this.position;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opengis.geometry.primitive.Point#getDirectPosition()
+	 */
+	public DirectPositionImpl getDirectPosition() {
 		return this.position;
 	}
 
@@ -116,7 +126,18 @@ public class PointImpl extends PrimitiveImpl implements Point {
 	 * 
 	 * @see org.opengis.geometry.primitive.Point#setPosition(org.opengis.geometry.coordinate.DirectPosition)
 	 */
+        @Deprecated
 	public void setPosition(DirectPosition p) {
+		this.position = new DirectPositionImpl(p);
+		//this.position = this.getGeometryFactory().getGeometryFactoryImpl().createDirectPosition(p);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opengis.geometry.primitive.Point#setPosition(org.opengis.geometry.coordinate.DirectPosition)
+	 */
+	public void setDirectPosition(DirectPosition p) {
 		this.position = new DirectPositionImpl(p);
 		//this.position = this.getGeometryFactory().getGeometryFactoryImpl().createDirectPosition(p);
 	}

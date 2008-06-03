@@ -149,6 +149,10 @@ public class MockGeometryFactory implements GeometryFactory, PrimitiveFactory {
             coordinates[dimension] = value;
 
         }
+        public DirectPosition getDirectPosition() {
+            return this;
+        }
+        @Deprecated
         public DirectPosition getPosition() {
             return this;
         }
@@ -566,10 +570,17 @@ public class MockGeometryFactory implements GeometryFactory, PrimitiveFactory {
         public Bearing getBearing( Position toPoint ) {
             return null;
         }
+        public DirectPosition getDirectPosition() {
+            return position;
+        }
+        @Deprecated
         public DirectPosition getPosition() {
             return position;
         }
-
+        public void setDirectPosition( DirectPosition position ) throws UnmodifiableGeometryException {
+            this.position = position;
+        }
+        @Deprecated
         public void setPosition( DirectPosition position ) throws UnmodifiableGeometryException {
             this.position = position;
         }

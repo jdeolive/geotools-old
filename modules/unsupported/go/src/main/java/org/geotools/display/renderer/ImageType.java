@@ -15,13 +15,11 @@
  */
 package org.geotools.display.renderer;
 
-// J2SE and JAI dependencies
 import java.util.List;
 import java.util.ArrayList;
 import java.awt.image.VolatileImage;
 import java.awt.image.BufferedImage;
 
-// OpenGIS dependencies
 import org.opengis.util.CodeList;
 
 
@@ -53,7 +51,7 @@ public final class ImageType extends CodeList<ImageType> {
      * The enum for layers not backed by any offscreen buffer.
      */
     public static final ImageType NONE = new ImageType("NONE");
-    
+
     /**
      * The enum for offscreen buffer backed by a {@link VolatileImage}.
      *
@@ -70,14 +68,14 @@ public final class ImageType extends CodeList<ImageType> {
      *       is supported there.
      */
     public static final ImageType VOLATILE = new ImageType("VOLATILE");
-    
+
     /**
      * The enum for offscreen buffer backed by a {@link BufferedImage}.
      * At the difference of {@link #VOLATILE}, buffered image supports
      * transparency. It may be more appropriate for layer above the base map.
      */
     public static final ImageType BUFFERED = new ImageType("BUFFERED");
-    
+
     /**
      * Constructs an enum with the given name. The new enum is
      * automatically added to the list returned by {@link #values}.
@@ -90,6 +88,8 @@ public final class ImageType extends CodeList<ImageType> {
 
     /**
      * Returns the list of {@code ImageType}s.
+     *
+     * @return The list of codes declared in the current JVM.
      */
     public static ImageType[] values() {
         synchronized (VALUES) {

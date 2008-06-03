@@ -21,7 +21,7 @@ package org.geotools.referencing.cs;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.Locale;  // For javadoc
 import java.util.Map;
 import java.util.NoSuchElementException;
 import javax.units.Converter;
@@ -193,7 +193,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      * and units are {@linkplain SI#METER metres}.
      *
      * The ISO 19111 name is "<cite>gravity-related height</cite>" and the abbreviation is lower
-     * case "<var>h</var>".
+     * case "<var>H</var>".
      *
      * @see #ALTITUDE
      * @see #ELLIPSOIDAL_HEIGHT
@@ -201,7 +201,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      * @see #DEPTH
      */
     public static final DefaultCoordinateSystemAxis GRAVITY_RELATED_HEIGHT = new DefaultCoordinateSystemAxis(
-            VocabularyKeys.GRAVITY_RELATED_HEIGHT, "h", AxisDirection.UP, SI.METER);
+            VocabularyKeys.GRAVITY_RELATED_HEIGHT, "H", AxisDirection.UP, SI.METER);
 
     /**
      * The default axis for altitude values.

@@ -257,7 +257,11 @@ class DoubleDirectPosition implements DirectPosition, Serializable {
     public void setOrdinate( int dimension, double value ) throws IndexOutOfBoundsException {
         array[index+dimension] = value;                        
     }
+    @Deprecated
     public DirectPosition getPosition() {
+        return this;
+    }
+    public DirectPosition getDirectPosition() {
         return this;
     }
     public DirectPosition clone() {

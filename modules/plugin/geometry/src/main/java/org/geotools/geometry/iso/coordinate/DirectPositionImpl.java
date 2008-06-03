@@ -436,7 +436,15 @@ public class DirectPositionImpl implements DirectPosition, Cloneable, Serializab
 	/* (non-Javadoc)
 	 * @see org.opengis.geometry.coordinate.Position#getPosition()
 	 */
+        @Deprecated
 	public DirectPosition getPosition() {
+		return this;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opengis.geometry.coordinate.Position#getDirectPosition()
+	 */
+	public DirectPosition getDirectPosition() {
 		return this;
 	}
 
