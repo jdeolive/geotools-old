@@ -2,6 +2,7 @@ package org.geotools.wps;
 
 import java.util.Map;
 
+import net.opengis.wps.DefaultType1;
 import net.opengis.wps.WpsFactory;
 
 import org.geotools.ows.v1_1.OWSConfiguration;
@@ -82,7 +83,7 @@ public class WPSConfiguration extends Configuration {
         bindings.put(WPS.ProcessDescriptionType_DataInputs, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ProcessDescriptionType_DataInputs));
         bindings.put(WPS.ProcessDescriptionType_ProcessOutputs, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ProcessDescriptionType_ProcessOutputs));
         bindings.put(WPS.SupportedCRSsType_Default, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.SupportedCRSsType_Default));
-        bindings.put(WPS.SupportedUOMsType_Default, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.SupportedUOMsType_Default));
+        bindings.put(WPS.SupportedUOMsType_Default, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.SupportedUOMsType_Default, DefaultType1.class));
     }
 
     @Override
