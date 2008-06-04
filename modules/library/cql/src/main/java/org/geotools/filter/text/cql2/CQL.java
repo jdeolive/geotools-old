@@ -22,8 +22,6 @@ import java.util.List;
 
 import javax.xml.transform.TransformerException;
 
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.Hints;
 import org.geotools.filter.FilterTransformer;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;

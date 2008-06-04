@@ -24,7 +24,6 @@ import java.util.List;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.filter.IllegalFilterException;
-import org.geotools.filter.text.generated.parsers.Node;
 import org.geotools.filter.text.generated.parsers.CQLParser;
 import org.geotools.filter.text.generated.parsers.Node;
 import org.geotools.filter.text.generated.parsers.ParseException;
@@ -431,8 +430,6 @@ class CQLCompiler extends CQLParser implements ICompiler{
     private org.opengis.filter.Filter buildLogicFilter(int nodeType)
             throws CQLException {
         try {
-            org.opengis.filter.Filter right = null;
-            org.opengis.filter.Filter left = null;
 
             org.opengis.filter.Filter logicFilter;
 

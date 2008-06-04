@@ -70,72 +70,50 @@ public class CQLTest extends TestCase {
      *
      * </p>
      */
-    public void testComparationPredicate() throws Exception {
-        Filter expected;
-        Filter actual;
-        // attr1 < 5
-        expected = FilterSample.getSample(FilterSample.LESS_FILTER_SAMPLE);
+// FIXME was ported to ComparatonPredicateTest
+//    public void testComparationPredicate() throws Exception {
+//        Filter expected;
+//        Filter actual;
+//        // attr1 < 5
+//        expected = FilterSample.getSample(FilterSample.LESS_FILTER_SAMPLE);
+//
+//        actual = CQL.toFilter(FilterSample.LESS_FILTER_SAMPLE);
+//
+//        assertNotNull("expects filter not null", actual);
+//
+//        assertEquals("less than compare filter error", expected, actual);
+//
+//        // attr1 <= 5
+//        expected = FilterSample.getSample(FilterSample.LESS_EQ_FILTER_SAMPLE);
+//
+//        actual = CQL.toFilter(FilterSample.LESS_EQ_FILTER_SAMPLE);
+//
+//        assertNotNull("expects filter not null", actual);
+//
+//        assertEquals("less or equal compare filter error", expected, actual);
+//
+//        // attr <> 5
+//        expected = FilterSample.getSample(FilterSample.NOT_EQ_FILTER);
+//
+//        actual = CQL.toFilter(FilterSample.NOT_EQ_FILTER);
+//
+//        assertNotNull("expects filter not null", actual);
+//
+//        assertEquals("not equal compare filter error", expected, actual);
+//
+//        // "gmd:aa:bb.gmd:cc.gmd:dd"
+//        final String prop = "gmd:aa:bb.gmd:cc.gmd:dd";
+//        final String propExpected = "gmd:aa:bb/gmd:cc/gmd:dd";
+//        actual = CQL.toFilter(prop + " < 100");
+//
+//        assertTrue("PropertyIsLessThan filter was expected", actual instanceof PropertyIsLessThan);
+//
+//        PropertyIsLessThan lessFilter = (PropertyIsLessThan) actual;
+//        Expression property = lessFilter.getExpression1();
+//
+//        assertEquals(propExpected, property.toString());
+//    }
 
-        actual = CQL.toFilter(FilterSample.LESS_FILTER_SAMPLE);
-
-        assertNotNull("expects filter not null", actual);
-
-        assertEquals("less than compare filter error", expected, actual);
-
-        // attr1 <= 5
-        expected = FilterSample.getSample(FilterSample.LESS_EQ_FILTER_SAMPLE);
-
-        actual = CQL.toFilter(FilterSample.LESS_EQ_FILTER_SAMPLE);
-
-        assertNotNull("expects filter not null", actual);
-
-        assertEquals("less or equal compare filter error", expected, actual);
-
-        // attr <> 5
-        expected = FilterSample.getSample(FilterSample.NOT_EQ_FILTER);
-
-        actual = CQL.toFilter(FilterSample.NOT_EQ_FILTER);
-
-        assertNotNull("expects filter not null", actual);
-
-        assertEquals("not equal compare filter error", expected, actual);
-
-        // "gmd:aa:bb.gmd:cc.gmd:dd"
-        final String prop = "gmd:aa:bb.gmd:cc.gmd:dd";
-        final String propExpected = "gmd:aa:bb/gmd:cc/gmd:dd";
-        actual = CQL.toFilter(prop + " < 100");
-
-        assertTrue("PropertyIsLessThan filter was expected", actual instanceof PropertyIsLessThan);
-
-        PropertyIsLessThan lessFilter = (PropertyIsLessThan) actual;
-        Expression property = lessFilter.getExpression1();
-
-        assertEquals(propExpected, property.toString());
-    }
-
-    /**
-     * Test Comparation Predicate.
-     * <p>
-     *
-     * <pre>
-     * &lt;comparison predicate &gt; ::=
-     *      &lt;attrsibute name &gt;  &lt;comp op &gt;  &lt;literal &gt;
-     * </pre>
-     *
-     * </p>
-     */
-    public void testComparationPredicateWithSimpleExpressions()
-        throws Exception {
-        Filter expected;
-        Filter actual;
-
-        expected = FilterSample.getSample(FilterSample.FILTER_SIMPLE_EXPR);
-        actual = CQL.toFilter(FilterSample.FILTER_SIMPLE_EXPR);
-
-        assertNotNull("expects filter not null", actual);
-
-        assertEquals("not equal compare filter error", expected, actual);
-    }
 
 
     /**
@@ -1239,16 +1217,6 @@ public class CQLTest extends TestCase {
         assertTrue(e1 instanceof Add);
         assertTrue(e2 instanceof PropertyName);
         assertEquals("x/y/z", ((PropertyName) e2).getPropertyName());
-    }
-
-    public void testBoolean() throws Exception {
-        Filter filter = CQL.toFilter("attr = true");
-        assertNotNull(filter);
-        assertTrue(filter instanceof PropertyIsEqualTo);
-
-        PropertyIsEqualTo f = (PropertyIsEqualTo) filter;
-        assertEquals("attr", ((PropertyName) f.getExpression1()).getPropertyName());
-        assertEquals(Boolean.TRUE, ((Literal) f.getExpression2()).getValue());
     }
 
     /**

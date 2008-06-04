@@ -697,9 +697,7 @@ public class FilterSample {
     public static Filter getSample(final String sampleRequested) {
         Filter sample = (Filter) SAMPLES.get(sampleRequested);
 
-        if (sample == null) {
-            throw new IllegalArgumentException("There is not a sample for " + sampleRequested);
-        }
+        assert (sample != null) : "There is not a sample for " + sampleRequested;
 
         return sample;
     }
