@@ -3,7 +3,6 @@
  *    http://geotools.org
  *
  *   (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *   (C) 2003, Gerald I. Evenden
  *   (C) 2001, Institut de Recherche pour le Développement
  *   (C) 2000, Frank Warmerdam
  *   (C) 1999, Fisheries and Oceans Canada
@@ -69,6 +68,7 @@ import static java.lang.Math.*;
  * @since 2.4
  * @source $URL$
  * @version $Id$
+ * @author Gerald I. Evenden (for original code in Proj4)
  * @author Rueben Schulz
  */
 public class ObliqueStereographic extends StereographicUSGS {

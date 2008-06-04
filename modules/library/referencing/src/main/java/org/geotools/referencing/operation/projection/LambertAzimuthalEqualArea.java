@@ -1,10 +1,7 @@
 /*
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
- *
  *   (C) 2006, Geotools Project Managment Committee (PMC)
- *   (C) 2000, Frank Warmerdam
- *   (C) 1995, Gerald Evenden
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -54,7 +51,7 @@ import static java.lang.Math.*;
  * @since 2.4
  * @version $Id$
  * @source $URL$
- * @author Gerald Evenden
+ * @author Gerald Evenden  (for original code in Proj4)
  * @author Beate Stollberg
  * @author Martin Desruisseaux
  */

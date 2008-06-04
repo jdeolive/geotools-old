@@ -1,10 +1,7 @@
 /*
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
- *
  *   (C) 2005-2006, Geotools Project Managment Committee (PMC)
- *   (C) 2003, Gerald I. Evenden
- *   (C) 2000, Frank Warmerdam
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -41,6 +38,7 @@ import org.geotools.metadata.iso.citation.Citations;
  * @since 2.4
  * @source $URL$
  * @version $Id$
+ * @author Gerald I. Evenden (for original code in Proj4)
  * @author Rueben Schulz
  */
 public class HotineObliqueMercator extends ObliqueMercator {

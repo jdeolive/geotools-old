@@ -2,7 +2,7 @@
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
  *    (C) 2003-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2003, Refractions Reserach Inc.
+ *    (C) 2003, Refractions Research Inc.
  *    (C) 2003, Ministry of Sustainable Resource Management,
  *        Government of British Columbia, Canada
  *        

@@ -2,7 +2,6 @@
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
  *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2003, 2ie Technologie
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -33,7 +32,7 @@ import javax.media.jai.JAI;
  * @since 2.1
  * @source $URL$
  * @version $Id$
- * @author Lionel Flahaut
+ * @author Lionel Flahaut (2ie Technologie, IRD)
  */
 public class NodataFilterCRIF extends CRIFImpl {
     /**
