@@ -1,7 +1,7 @@
 /*
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
- *    (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+ *    (C) 1999-2006, GeoTools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,27 +12,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- */
-
-/*
- * Geotools 2 - OpenSource mapping toolkit
- * (C) 2003, Geotools Project Managment Committee (PMC)
- * (C) 2001, Institut de Recherche pour le D?veloppement
- * (C) 1999, P?ches et Oc?ans Canada
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 package org.geotools.util;
 
@@ -95,7 +74,7 @@ package org.geotools.util;
  * @since 2.0
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (PMO, IRD)
  *
  * @see org.geotools.gui.headless.ProgressPrinter
  * @see org.geotools.gui.headless.ProgressMailer
