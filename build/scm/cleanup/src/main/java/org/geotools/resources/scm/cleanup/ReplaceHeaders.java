@@ -38,42 +38,50 @@ import org.geotools.console.Option;
 
 
 /**
- * Adapts the header of a file with the {@code OSGeo} format.<br/>
- * According to the changes done, a file can have different status :
+ * Alters a file or a whole directory, replacing the headers to a new format. 
+ * This code was written in 2008 to change the copyright in the headers from 
+ * being held by the "Geotools PMC" to being held by "OSGeo" but this code 
+ * should be reusable in other situations by redefining the String constants.
+ * <p>
+ * Depending on the file contents, a file can have different status values:
  * <ul>
- *   <li>Skipped : if no changes are done on this file. It could happens if the file does not
- *                 contain any header, or if the file is already well formated.</li>
- *   <li>Suspicious : if too many changes are done on this file, it is classed as suspicious,
- *                    and the user should have a look to see the proposal changes.</li>
- *   <li>Copyright problems : if a copyright red is not present in the list of copyright that
- *                            we know what to do with.</li>
+ *   <li>Skipped : if no changes are done on this file which could happen if the 
+ *                 file does not contain any header, or if the file is already 
+ *                 well formated.</li>
+ *   <li>Suspicious : if too many changes are done on this file, it is flagged 
+ *                    as suspicious but changed: users should manually inspect 
+ *                    the files with 'svn diff'.</li>
+ *   <li>Copyright problems : if a copyright line is found which is not present 
+ *                            in the list of known copyrights the file is 
+ *                            flagged and not changed.</li>
  *   <li>Changed correctly : if all changes seem correct.</li>
  * </ul>
- *
+ * </p><p>
  * HOW TO USE THIS FILE:
- *
- * 0) cd root of checkout (trunk/)
- *
- * 1) compile (mvn clean install)
- *
- * 2) cp build/scm/cleanup/target/cleanup-2.5-SNAPSHOT.jar target/binaries/.
- *
- * 3) java -jar target/binaries/cleanup-2.5-SNAPSHOT.jar \
- *        org.geotools.resources.scm.cleanup.ReplaceHeaders -info -input "path/to/dir"
- *    where the path must be in quotes. For example, use "modules/library/metadata"
- *
+ *<ol>
+ * <li>cd root of checkout (trunk/)</li>
+ * <li>compile (mvn clean install)</li>
+ * <li>cp build/scm/cleanup/target/cleanup-2.5-SNAPSHOT.jar target/binaries/.</li>
+ * <li>{@code java -jar target/binaries/cleanup-2.5-SNAPSHOT.jar -info -input "path/to/dir"}
+ *    where the path must be in quotes. For example, use "modules/library/metadata"</li>
+ * </ol>
+ * </p><p>
  * The options to run are:<br/>
- * REQUIRED
+ * REQUIRED:
  * <ul>
- *   <li>-input "dir-or-file" blah blah WARNING will clobber files in place</li>
+ *   <li>-input "dir-or-file" The quoted path to the input directory: <b>WARNING</b> 
+ *                            used on its own, this will clobber files in place</li>
  * </ul>
- * OPTIONAL
+ * OPTIONAL:
  * <ul>
  *   <li>-help   --- gives usage</li>
  *   <li>-info   --- run in information only mode; will not write any file</li>
- *   <li>-output "path/to/existing/folder-or-file" will recreate a file tree of modified files</li>
+ *   <li>-output "path/to/existing/folder-or-file" will recreate a file tree of 
+ *                             modified files in the quoted directory.</li>
  * </ul>
- *
+ *</p><p>
+ * NOTE: the file can be run several times on the same input without problems.
+ *</p>
  * @version $Id$
  * @author Cédric Briançon
  */
@@ -326,6 +334,7 @@ public final class ReplaceHeaders extends CommandLine {
 
             /* *****************************************************************
              * Analysis part
+             * @todo: add default header if no header found.
              */
             if (textIn.toString().contentEquals(textOut.toString())) {
                 unchangedFiles.add(input.getAbsolutePath());
