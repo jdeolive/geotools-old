@@ -134,7 +134,6 @@
       <groupId>org.geotools</groupId>
       <artifactId>gt-coverage</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>    
   </dependencies>
 
