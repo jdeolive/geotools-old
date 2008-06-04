@@ -132,20 +132,21 @@ public final class ReplaceHeaders extends CommandLine {
      * A set of copyrights that the process can suppress, because we know what to do
      * with them, and they can be suppressed.
      */
-    private static final Set<String> RECOGNIZED_COPYRIGHTS = new HashSet<String>(10);
+    private static final Set<String> RECOGNIZED_COPYRIGHTS = new HashSet<String>();
     static {
-        RECOGNIZED_COPYRIGHTS.add("Geotools Project Managment Committee (PMC)");
-        RECOGNIZED_COPYRIGHTS.add("GeoTools Project Managment Committee (PMC)");
-        RECOGNIZED_COPYRIGHTS.add("Geotools Project Management Committee (PMC)");
-        RECOGNIZED_COPYRIGHTS.add("GeoTools Project Management Committee (PMC)");
-        RECOGNIZED_COPYRIGHTS.add("Centre for Computational Geography");
+        RECOGNIZED_COPYRIGHTS.add("Geotools Project Manag");
+        RECOGNIZED_COPYRIGHTS.add("GeoTools Project Manag");
+        RECOGNIZED_COPYRIGHTS.add("Computational Geography");
         RECOGNIZED_COPYRIGHTS.add("Pêches et Océans Canada");
         RECOGNIZED_COPYRIGHTS.add("Fisheries and Oceans Canada");
         RECOGNIZED_COPYRIGHTS.add("Institut de Recherche pour le Développement");
         RECOGNIZED_COPYRIGHTS.add("Geomatys");
         RECOGNIZED_COPYRIGHTS.add("Open Source Geospatial Foundation (OSGeo)");
-        /*RECOGNIZED_COPYRIGHTS.add("Frank Warmerdam");
-        RECOGNIZED_COPYRIGHTS.add("Gerald Evenden");*/
+        RECOGNIZED_COPYRIGHTS.add("Refractions");
+        RECOGNIZED_COPYRIGHTS.add("GeoSolutions");
+        RECOGNIZED_COPYRIGHTS.add("Vision for New York");
+        RECOGNIZED_COPYRIGHTS.add("Frank Warmerdam");
+        /*RECOGNIZED_COPYRIGHTS.add("Gerald Evenden");*/
     }
 
     /**
@@ -276,7 +277,7 @@ public final class ReplaceHeaders extends CommandLine {
                 // Lines like " *    (C) 2005"
                 if (line.matches("(\\s)+\\*(\\s)+\\([cC]\\)(\\s)+[0-9]{4}(.)*")) {
                     final String copyrightName = getCopyrightFullText(line);
-                    if (!RECOGNIZED_COPYRIGHTS.contains(copyrightName)) {
+                    if ( !isCopyrightKnown(copyrightName) ) {
                         textOut.append(line).append("\n");
                         unknowCopyrights.add(copyrightName);
                     }
@@ -465,6 +466,17 @@ public final class ReplaceHeaders extends CommandLine {
             System.out.println("= No file skipped.");
         }
     }
+    /**
+     *
+     */
+     private boolean isCopyrightKnown(String s){
+       for (String d : RECOGNIZED_COPYRIGHTS ){
+           if ( s.contains(d) ) {
+             return true;
+           }
+       }
+       return false;
+     }
 
     /**
      * Just launches the process, with arguments specified by user.

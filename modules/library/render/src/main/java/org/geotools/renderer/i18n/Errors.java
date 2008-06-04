@@ -1,8 +1,7 @@
 /*
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2001, Institut de Recherche pour le Développement
+ *    (C) 2001-2006, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -31,7 +30,8 @@ import org.geotools.resources.IndexedResourceBundle;
  * @since 2.2
  * @source $URL$
  * @version $Id$
- * @author Simone Giannecchini, GeoSolutions.
+ * @author Martin Desruisseaux (IRD)
+ * @author Simone Giannecchini (GeoSolutions)
  */
 public class Errors extends IndexedResourceBundle {
     /**

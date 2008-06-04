@@ -1,8 +1,7 @@
 /*
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
- *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2005 by David Blasby and The Open Planning Project
+ *    (C) 2005-2008, GeoTools Project Managment Committee (PMC)
  *    
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -14,11 +13,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *    
- *    (C) 2005 by David Blasby and The Open Planning Project 
- *    http://openplans.org
- *    
- *    Released under the LGPL
- *    contact: dblasby@openplans.org
  */
 package org.geotools.filter.function;
 
@@ -48,8 +42,9 @@ import com.vividsolutions.jts.io.WKTReader;
 
 
 
-
-
+/**
+ * @author David Blasby (The Open Planning Project)
+ */
  public class StaticGeometry {
 
 

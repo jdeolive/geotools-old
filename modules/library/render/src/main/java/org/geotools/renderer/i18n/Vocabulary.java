@@ -2,7 +2,6 @@
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
  *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -33,7 +32,7 @@ import org.opengis.util.InternationalString;
  * @since 2.2
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux, GeoMatys
+ * @author Martin Desruisseaux (IRD, Geomatys)
  */
 public class Vocabulary extends IndexedResourceBundle {
     /**

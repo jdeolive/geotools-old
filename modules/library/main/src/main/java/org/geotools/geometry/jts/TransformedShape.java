@@ -1,8 +1,7 @@
 /*
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
- *    (C) 2003, Geotools Project Managment Committee (PMC)
- *    (C) 2003, Institut de Recherche pour le D?veloppement
+ *    (C) 2003-2008, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -40,7 +39,7 @@ import org.geotools.referencing.operation.matrix.XAffineTransform;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/module/render/src/org/geotools/renderer/lite/TransformedShape.java $
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 public final class TransformedShape extends AffineTransform implements Shape {
 	/**
