@@ -26,7 +26,7 @@ import org.opengis.util.InternationalString;
 
 /**
  *
- * @author Mehdi Sidhoum.
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultTemporalReferenceSystem implements TemporalReferenceSystem {
 
@@ -51,42 +51,39 @@ public class DefaultTemporalReferenceSystem implements TemporalReferenceSystem {
         this.domainOfValidity = domainOfValidity;
     }
 
-    //@Override
     public ReferenceIdentifier getName() {
         return name;
     }
 
-    //@Override
     public Extent getDomainOfValidity() {
         return domainOfValidity;
     }
 
-    //@Override
+    /**
+     * This method is deprecated, please use getDomainOfValidity() method.
+     * @return
+     */
+    @Deprecated
     public Extent getValidArea() {
         return validArea;
     }
 
-    //@Override
     public InternationalString getScope() {
         return scope;
     }
 
-    //@Override
     public Collection<GenericName> getAlias() {
         return alias;
     }
 
-    //@Override
     public Set<ReferenceIdentifier> getIdentifiers() {
         return identifiers;
     }
 
-    //@Override
     public InternationalString getRemarks() {
         return remarks;
     }
 
-    //@Override
     public String toWKT() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -108,18 +105,6 @@ public class DefaultTemporalReferenceSystem implements TemporalReferenceSystem {
 
     public void setScope(InternationalString scope) {
         this.scope = scope;
-    }
-
-    public void setAlias(Collection<GenericName> alias) {
-        this.alias = alias;
-    }
-
-    public void setIdentifiers(Set<ReferenceIdentifier> identifiers) {
-        this.identifiers = identifiers;
-    }
-
-    public void setRemarks(InternationalString remarks) {
-        this.remarks = remarks;
     }
 
     @Override

@@ -24,7 +24,7 @@ import org.opengis.temporal.OrdinalReferenceSystem;
 
 /**
  *
- * @author Mehdi Sidhoum
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSystem implements OrdinalReferenceSystem {
 
@@ -38,7 +38,6 @@ public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSyste
         this.ordinalEraSequence = ordinalEraSequence;
     }
 
-    //@Override
     public Collection<OrdinalEra> getOrdinalEraSequence() {
         return ordinalEraSequence;
     }
@@ -46,10 +45,6 @@ public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSyste
     @Override
     public String toWKT() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setOrdinalEraSequence(Collection<OrdinalEra> ordinalEraSequence) {
-        this.ordinalEraSequence = ordinalEraSequence;
     }
 
     @Override
@@ -67,7 +62,7 @@ public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSyste
 
     @Override
     public int hashCode() {
-        int hash = 5;
+        int hash = super.hashCode();
         hash = 37 * hash + (this.ordinalEraSequence != null ? this.ordinalEraSequence.hashCode() : 0);
         return hash;
     }
@@ -78,6 +73,6 @@ public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSyste
         if (ordinalEraSequence != null) {
             s.append("ordinalEraSequence:").append(ordinalEraSequence).append('\n');
         }
-        return s.toString();
+        return super.toString().concat("\n").concat(s.toString());
     }
 }

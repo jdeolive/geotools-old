@@ -20,6 +20,7 @@ import java.util.GregorianCalendar;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.NamedIdentifier;
 import org.geotools.resources.Utilities;
+import org.geotools.temporal.object.DefaultCalendarDate;
 import org.geotools.temporal.object.DefaultDateAndTime;
 import org.geotools.temporal.object.DefaultJulianDate;
 import org.geotools.util.SimpleInternationalString;
@@ -36,7 +37,7 @@ import org.opengis.temporal.TemporalCoordinateSystem;
 
 /**
  *
- * @author Mehdi Sidhoum
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultCalendar extends DefaultTemporalReferenceSystem implements Calendar {
 
@@ -64,7 +65,6 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
      * @param time
      * @return
      */
-    //@Override
     public JulianDate dateTrans(CalendarDate calDate, ClockTime time) {
         JulianDate response;
         if (calDate != null && time != null) {
@@ -151,8 +151,9 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
         Number coordinateValue = 0;
         int year = 0, month = 0, day = 0;
         Number hour = 0, minute = 0, second = 0;
-        if (dateAndTime == null)
+        if (dateAndTime == null) {
             throw new IllegalArgumentException("The DateAndTime cannot be null ! ");
+        }
         if (dateAndTime.getCalendarDate() != null) {
             int[] cal = dateAndTime.getCalendarDate();
             if (cal.length > 3) {
@@ -209,17 +210,45 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
      * @param jdt
      * @return
      */
-    //@Override
     public CalendarDate julTrans(JulianDate jdt) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (jdt == null)
+            return null;
+        
+        CalendarDate response = null;
+
+        int JGREG = 15 + 31 * (10 + 12 * 1582);
+        int jalpha, ja, jb, jc, jd, je, year, month, day;
+        ja = (int) jdt.getCoordinateValue().intValue();
+        if (ja >= JGREG) {
+            jalpha = (int) (((ja - 1867216) - 0.25) / 36524.25);
+            ja = ja + 1 + jalpha - jalpha / 4;
+        }
+
+        jb = ja + 1524;
+        jc = (int) (6680.0 + ((jb - 2439870) - 122.1) / 365.25);
+        jd = 365 * jc + jc / 4;
+        je = (int) ((jb - jd) / 30.6001);
+        day = jb - jd - (int) (30.6001 * je);
+        month = je - 1;
+        if (month > 12) {
+            month = month - 12;
+        }
+        year = jc - 4715;
+        if (month > 2) {
+            year--;
+        }
+        if (year <= 0) {
+            year--;
+        }
+        int[] calendarDate = {year, month, day};
+        response = new DefaultCalendarDate(this, null, null, calendarDate);
+        return response;
     }
 
-    //@Override
     public Collection<CalendarEra> getBasis() {
         return basis;
     }
 
-    //@Override
     public Clock getClock() {
         return timeBasis;
     }
@@ -248,7 +277,7 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
 
     @Override
     public int hashCode() {
-        int hash = 5;
+        int hash = super.hashCode();
         hash = 37 * hash + (this.timeBasis != null ? this.timeBasis.hashCode() : 0);
         hash = 37 * hash + (this.basis != null ? this.basis.hashCode() : 0);
         return hash;
@@ -263,6 +292,6 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
         if (basis != null) {
             s.append("basis:").append(basis).append('\n');
         }
-        return s.toString();
+        return super.toString().concat("\n").concat(s.toString());
     }
 }

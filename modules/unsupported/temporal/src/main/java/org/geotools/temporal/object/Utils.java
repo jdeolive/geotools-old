@@ -1,0 +1,228 @@
+/*
+ *    GeoTools - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2008, GeoTools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
+package org.geotools.temporal.object;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import org.opengis.temporal.CalendarDate;
+import org.opengis.temporal.JulianDate;
+
+/**
+ * This is a tool class to convert DateTime from ISO8601 to Date object.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
+ */
+public class Utils {
+
+    Logger logger = Logger.getLogger("org.geotools.temporal");
+    /**
+     * The number of millisecond in one year.
+     */
+    private final static long yearMS = 31536000000L;
+    /**
+     * The number of millisecond in one month.
+     */
+    private final static long monthMS = 2628000000L;
+    /**
+     * The number of millisecond in one week.
+     */
+    private final static long weekMS = 604800000L;
+    /**
+     * The number of millisecond in one day.
+     */
+    private final static long dayMS = 86400000L;
+    /**
+     * The number of millisecond in one hour.
+     */
+    private final static long hourMS = 3600000L;
+    /**
+     * The number of millisecond in one minute.
+     */
+    private final static long minMS = 60000;
+    /**
+     * The number of millisecond in one second.
+     */
+    private final static long secondMS = 1000;
+
+    public Utils() {
+    }
+
+    /**
+     * Returns the length of the duration (PnYnMnDTnHnMnS Iso 8601) in milli-seconds.
+     * @param duration
+     * @param startInstant
+     * @return
+     */
+    public static long getTimeFromDuration(String durationString, Date startInstant) throws DatatypeConfigurationException {
+        DatatypeFactory df = DatatypeFactory.newInstance();
+        Duration duration = df.newDuration(durationString);
+        return duration.getTimeInMillis(startInstant);
+    }
+
+    /**
+     * Returns a Date object from an ISO-8601 representation string. (String defined with pattern yyyy-MM-dd'T'HH:mm:ss.SSSZ or yyyy-MM-dd).
+     * @param dateString
+     * @return
+     */
+    public static Date getDateFromString(String dateString) throws ParseException {
+        Date response = null;
+        String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+        String DATE_FORMAT2 = "yyyy-MM-dd";
+        SimpleDateFormat sdf = new java.text.SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
+        SimpleDateFormat sdf2 = new java.text.SimpleDateFormat(DATE_FORMAT2, Locale.ENGLISH);
+
+        if (dateString.contains("T")) {
+            //set the timezone if exists.
+            String timezone = getTimeZone(dateString);
+            sdf.setTimeZone(TimeZone.getTimeZone(timezone));
+
+            response = sdf.parse(dateString);
+        } else {
+            if (dateString.contains("-")) {
+                response = sdf2.parse(dateString);
+            }
+        }
+        return response;
+    }
+
+    public static String getTimeZone(String dateString) {
+        int index = dateString.lastIndexOf("+");
+        if (index == -1) {
+            index = dateString.lastIndexOf("-");
+        }
+        return "GMT" + dateString.substring(index);
+    }
+
+    /**
+     * Return a Date (long time) from a String description
+     * 
+     * @param periodDuration
+     * @return
+     */
+    public static long getTimeInMillis(String periodDuration) {
+
+        long time = 0;
+        //we remove the 'P'
+        periodDuration = periodDuration.substring(1);
+
+        //we look if the period contains years (31536000000 ms)
+        if (periodDuration.indexOf('Y') != -1) {
+            int nbYear = Integer.parseInt(periodDuration.substring(0, periodDuration.indexOf('Y')));
+            time += nbYear * yearMS;
+            periodDuration = periodDuration.substring(periodDuration.indexOf('Y') + 1);
+        }
+
+        //we look if the period contains months (2628000000 ms)
+        if (periodDuration.indexOf('M') != -1 &&
+                (periodDuration.indexOf("T") == -1 || periodDuration.indexOf("T") > periodDuration.indexOf('M'))) {
+            int nbMonth = Integer.parseInt(periodDuration.substring(0, periodDuration.indexOf('M')));
+            time += nbMonth * monthMS;
+            periodDuration = periodDuration.substring(periodDuration.indexOf('M') + 1);
+        }
+
+        //we look if the period contains weeks (604800000 ms)
+        if (periodDuration.indexOf('W') != -1) {
+            int nbWeek = Integer.parseInt(periodDuration.substring(0, periodDuration.indexOf('W')));
+            time += nbWeek * weekMS;
+            periodDuration = periodDuration.substring(periodDuration.indexOf('W') + 1);
+        }
+
+        //we look if the period contains days (86400000 ms)
+        if (periodDuration.indexOf('D') != -1) {
+            int nbDay = Integer.parseInt(periodDuration.substring(0, periodDuration.indexOf('D')));
+            time += nbDay * dayMS;
+            periodDuration = periodDuration.substring(periodDuration.indexOf('D') + 1);
+        }
+
+        //if the periodDuration is not over we pass to the hours by removing 'T'
+        if (periodDuration.indexOf('T') != -1) {
+            periodDuration = periodDuration.substring(1);
+        }
+
+        //we look if the period contains hours (3600000 ms)
+        if (periodDuration.indexOf('H') != -1) {
+            int nbHour = Integer.parseInt(periodDuration.substring(0, periodDuration.indexOf('H')));
+            time += nbHour * hourMS;
+            periodDuration = periodDuration.substring(periodDuration.indexOf('H') + 1);
+        }
+
+        //we look if the period contains minutes (60000 ms)
+        if (periodDuration.indexOf('M') != -1) {
+            int nbMin = Integer.parseInt(periodDuration.substring(0, periodDuration.indexOf('M')));
+            time += nbMin * minMS;
+            periodDuration = periodDuration.substring(periodDuration.indexOf('M') + 1);
+        }
+
+        //we look if the period contains seconds (1000 ms)
+        if (periodDuration.indexOf('S') != -1) {
+            int nbSec = Integer.parseInt(periodDuration.substring(0, periodDuration.indexOf('S')));
+            time += nbSec * secondMS;
+            periodDuration = periodDuration.substring(periodDuration.indexOf('S') + 1);
+        }
+
+        if (periodDuration.length() != 0) {
+            throw new IllegalArgumentException("The period descritpion is malformed");
+        }
+        return time;
+    }
+
+    /**
+     * Convert a JulianDate to Date
+     */
+    public static Date JulianToDate(JulianDate jdt) {
+        if (jdt == null) {
+            return null;
+        }
+        Date response = null;
+
+        int JGREG = 15 + 31 * (10 + 12 * 1582);
+        int jalpha, ja, jb, jc, jd, je, year, month, day;
+        ja = (int) jdt.getCoordinateValue().intValue();
+        if (ja >= JGREG) {
+            jalpha = (int) (((ja - 1867216) - 0.25) / 36524.25);
+            ja = ja + 1 + jalpha - jalpha / 4;
+        }
+
+        jb = ja + 1524;
+        jc = (int) (6680.0 + ((jb - 2439870) - 122.1) / 365.25);
+        jd = 365 * jc + jc / 4;
+        je = (int) ((jb - jd) / 30.6001);
+        day = jb - jd - (int) (30.6001 * je);
+        month = je - 1;
+        if (month > 12) {
+            month = month - 12;
+        }
+        year = jc - 4715;
+        if (month > 2) {
+            year--;
+        }
+        if (year <= 0) {
+            year--;
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, day);
+        response = cal.getTime();
+        return response;
+    }
+}

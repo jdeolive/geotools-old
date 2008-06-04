@@ -23,7 +23,7 @@ import org.opengis.util.InternationalString;
 
 /**
  *
- * @author Mehdi Sidhoum
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultOrdinalEra implements OrdinalEra {
 
@@ -58,22 +58,18 @@ public class DefaultOrdinalEra implements OrdinalEra {
         }
     }
 
-    //@Override
     public InternationalString getName() {
         return name;
     }
 
-    //@Override
     public Date getBeginning() {
         return beginning;
     }
 
-    //@Override
     public Date getEnd() {
         return end;
     }
 
-    //@Override
     public Collection<OrdinalEra> getComposition() {
         return composition;
     }
@@ -88,10 +84,6 @@ public class DefaultOrdinalEra implements OrdinalEra {
 
     public void setEnd(Date end) {
         this.end = end;
-    }
-
-    public void setComposition(Collection<OrdinalEra> composition) {
-        this.composition = composition;
     }
 
     public DefaultOrdinalEra getGroup() {

@@ -15,6 +15,8 @@
  */
 package org.geotools.temporal.object;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opengis.temporal.Duration;
@@ -26,10 +28,12 @@ import org.opengis.temporal.Separation;
 import org.opengis.temporal.TemporalGeometricPrimitive;
 
 /**
- *
- * @author Mehdi Sidhoum
+ * An abstract class with two subclasses for representing
+ * a temporal instant and a temporal period.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
  */
-public class DefaultTemporalGeometricPrimitive extends DefaultTemporalPrimitive implements TemporalGeometricPrimitive, Separation {
+public abstract class DefaultTemporalGeometricPrimitive extends DefaultTemporalPrimitive implements TemporalGeometricPrimitive, Separation {
 
     /**
      * Returns the distance from this TM_GeometricPrimitive to another TM_GeometricPrimitive, 
@@ -37,7 +41,6 @@ public class DefaultTemporalGeometricPrimitive extends DefaultTemporalPrimitive 
      * @param other
      * @return
      */
-    //@Override
     public Duration distance(TemporalGeometricPrimitive other) {
         Duration response = null;
         long diff = 0L;
@@ -74,16 +77,20 @@ public class DefaultTemporalGeometricPrimitive extends DefaultTemporalPrimitive 
 
         if (this.relativePosition(other).equals(RelativePosition.BEFORE) || this.relativePosition(other).equals(RelativePosition.AFTER)) {
             if (this instanceof Instant && other instanceof Instant) {
-                diff = ((Instant) other).getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime();
+                diff = Math.min( Math.abs( ((Instant) other).getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime() ),
+                        Math.abs( ((Instant) this).getPosition().getDate().getTime() - ((Instant) other).getPosition().getDate().getTime() ) );
             } else {
                 if (this instanceof Instant && other instanceof Period) {
-                    diff = ((Period) other).getBeginning().getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime();
+                    diff = Math.min( Math.abs( ((Period) other).getBeginning().getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime() ), 
+                            Math.abs( ((Period) other).getEnding().getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime()));
                 } else {
                     if (this instanceof Period && other instanceof Instant) {
-                        diff = ((Instant) other).getPosition().getDate().getTime() - ((Period) this).getEnding().getPosition().getDate().getTime();
+                        diff = Math.min( Math.abs( ((Instant) other).getPosition().getDate().getTime() - ((Period) this).getEnding().getPosition().getDate().getTime() ),
+                                Math.abs( ((Instant) other).getPosition().getDate().getTime() - ((Period) this).getBeginning().getPosition().getDate().getTime()));
                     } else {
                         if (this instanceof Period && other instanceof Period) {
-                            diff = ((Period) other).getBeginning().getPosition().getDate().getTime() - ((Period) this).getEnding().getPosition().getDate().getTime();
+                            diff = Math.min( Math.abs( ((Period) other).getEnding().getPosition().getDate().getTime() - ((Period) this).getBeginning().getPosition().getDate().getTime() ),
+                                    Math.abs( ((Period) other).getBeginning().getPosition().getDate().getTime() - ((Period) this).getEnding().getPosition().getDate().getTime()));
                         }
                     }
                 }
@@ -112,7 +119,6 @@ public class DefaultTemporalGeometricPrimitive extends DefaultTemporalPrimitive 
      * Returns the length of this TM_GeometricPrimitive
      * @return
      */
-    //@Override
     public Duration length() {
         Duration response = null;
         long diff = 0L;

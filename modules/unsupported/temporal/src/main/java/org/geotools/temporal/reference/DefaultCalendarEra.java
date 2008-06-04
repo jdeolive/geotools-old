@@ -26,7 +26,7 @@ import org.opengis.util.InternationalString;
 
 /**
  *
- * @author Mehdi Sidhoum
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultCalendarEra implements CalendarEra {
 
@@ -64,27 +64,22 @@ public class DefaultCalendarEra implements CalendarEra {
         this.epochOfUse = epochOfUse;
     }
 
-    //@Override
     public InternationalString getName() {
         return name;
     }
 
-    //@Override
     public InternationalString getReferenceEvent() {
         return referenceEvent;
     }
 
-    //@Override
     public CalendarDate getReferenceDate() {
         return referenceDate;
     }
 
-    //@Override
     public JulianDate getJulianReference() {
         return julianReference;
     }
 
-    //@Override
     public Period getEpochOfUse() {
         return epochOfUse;
     }
@@ -113,10 +108,6 @@ public class DefaultCalendarEra implements CalendarEra {
         return datingSystem;
     }
 
-    public void setDatingSystem(Collection<Calendar> datingSystem) {
-        this.datingSystem = datingSystem;
-    }
-
     @Override
     public boolean equals(final Object object) {
         if (object instanceof CalendarEra) {
@@ -124,7 +115,7 @@ public class DefaultCalendarEra implements CalendarEra {
 
             return Utilities.equals(this.datingSystem, that.datingSystem) &&
                     Utilities.equals(this.epochOfUse, that.epochOfUse) &&
-                    Utilities.equals(this.julianReference, that.epochOfUse) &&
+                    Utilities.equals(this.julianReference, that.julianReference) &&
                     Utilities.equals(this.name, that.name) &&
                     Utilities.equals(this.referenceDate, that.referenceDate) &&
                     Utilities.equals(this.referenceEvent, that.referenceEvent);

@@ -19,11 +19,12 @@ import java.util.Date;
 import org.geotools.resources.Utilities;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
-import org.opengis.temporal.Position;
+import org.opengis.temporal.RelativePosition;
 
 /**
- *
- * @author Mehdi Sidhoum
+ * A one-dimensional geometric primitive that represent extent in time.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultPeriod extends DefaultTemporalGeometricPrimitive implements Period {
 
@@ -35,24 +36,23 @@ public class DefaultPeriod extends DefaultTemporalGeometricPrimitive implements 
      * This is the TM_Instant at which this Period ends.
      */
     private Instant ending;
-    private Position beginPosition;
-    private Position endPosition;
 
     public DefaultPeriod(Instant begining, Instant ending) {
-        if (((DefaultInstant) begining).getPosition().getDate().before(((DefaultInstant) begining).getPosition().getDate())) {
+        if (begining.relativePosition(ending).equals(RelativePosition.BEFORE)) {
             this.begining = begining;
             this.ending = ending;
-        } else {
+        }
+        /*if (((DefaultInstant) begining).getPosition().getDate().before(((DefaultInstant) ending).getPosition().getDate())) {
+            this.begining = begining;
+            this.ending = ending;
+        } */else {
             throw new IllegalArgumentException("The temporal position of the beginning of the period must be less than (i.e. earlier than) the temporal position of the end of the period");
         }
-
     }
 
-    public DefaultPeriod(Position beginPosition, Position endPosition) {
-        this.beginPosition = beginPosition;
-        this.endPosition = endPosition;
-    }
-
+    /**
+     * Links this period to the instant at which it starts.
+     */
     public Instant getBeginning() {
         return begining;
     }
@@ -65,6 +65,9 @@ public class DefaultPeriod extends DefaultTemporalGeometricPrimitive implements 
         this.begining = new DefaultInstant(new DefaultPosition(date));
     }
 
+    /**
+     * Links this period to the instant at which it ends.
+     */
     public Instant getEnding() {
         return ending;
     }
@@ -75,22 +78,6 @@ public class DefaultPeriod extends DefaultTemporalGeometricPrimitive implements 
 
     public void setEnding(Date date) {
         this.ending = new DefaultInstant(new DefaultPosition(date));
-    }
-
-    public Position getBeginPosition() {
-        return beginPosition;
-    }
-
-    public void setBeginPosition(Position beginPosition) {
-        this.beginPosition = beginPosition;
-    }
-
-    public Position getEndPosition() {
-        return endPosition;
-    }
-
-    public void setEndPosition(Position endPosition) {
-        this.endPosition = endPosition;
     }
 
     /**
@@ -105,8 +92,6 @@ public class DefaultPeriod extends DefaultTemporalGeometricPrimitive implements 
             final DefaultPeriod that = (DefaultPeriod) object;
 
             return Utilities.equals(this.begining, that.begining) &&
-                    Utilities.equals(this.getBeginPosition(), that.getBeginPosition()) &&
-                    Utilities.equals(this.getEndPosition(), that.getEndPosition()) &&
                     Utilities.equals(this.ending, that.ending);
         }
         return false;
@@ -115,9 +100,7 @@ public class DefaultPeriod extends DefaultTemporalGeometricPrimitive implements 
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 37 * hash + (this.getBeginPosition() != null ? this.getBeginPosition().hashCode() : 0);
         hash = 37 * hash + (this.begining != null ? this.begining.hashCode() : 0);
-        hash = 37 * hash + (this.getEndPosition() != null ? this.getEndPosition().hashCode() : 0);
         hash = 37 * hash + (this.ending != null ? this.ending.hashCode() : 0);
         return hash;
     }
@@ -130,12 +113,6 @@ public class DefaultPeriod extends DefaultTemporalGeometricPrimitive implements 
         }
         if (ending != null) {
             s.append("end:").append(ending).append('\n');
-        }
-        if (getBeginPosition() != null) {
-            s.append("beginPosition:").append(getBeginPosition()).append('\n');
-        }
-        if (getEndPosition() != null) {
-            s.append("endPosition:").append(getEndPosition()).append('\n');
         }
 
         return s.toString();

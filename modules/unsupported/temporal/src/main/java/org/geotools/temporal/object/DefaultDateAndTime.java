@@ -16,14 +16,17 @@
 package org.geotools.temporal.object;
 
 import org.geotools.resources.Utilities;
+import org.opengis.temporal.CalendarDate;
 import org.opengis.temporal.DateAndTime;
 import org.opengis.temporal.IndeterminateValue;
 import org.opengis.temporal.TemporalReferenceSystem;
 import org.opengis.util.InternationalString;
 
 /**
+ * Provides a single data type for identifying a temporal position with a resolution
+ * of less than a day.
  *
- * @author Mehdi Sidhoum
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultDateAndTime extends DefaultTemporalPosition implements DateAndTime {
 
@@ -49,17 +52,30 @@ public class DefaultDateAndTime extends DefaultTemporalPosition implements DateA
         this.clockTime = clockTime;
     }
 
-    //@Override
+    /**
+     * A sequence of numbers with a structure similar to that of {@link CalendarDate#getCalendarDate
+     * CalendarDate}. The first number integer identifies a specific instance of the unit used at the
+     * highest level of the clock hierarchy, the second number identifies a specific instance of the
+     * unit used at the next lower level, and so on. All but the last number in the sequence shall be
+     * integers; the last number may be integer or real.
+     *
+     */
     public Number[] getClockTime() {
         return clockTime;
     }
 
-    //@Override
     public InternationalString getCalendarEraName() {
         return calendarEraName;
     }
 
-    //@Override
+    /**
+     * Provides a sequence of integers in which the first integer identifies a specific instance
+     * of the unit used at the highest level of the calendar hierarchy, the second integer
+     * identifies a specific instance of the unit used at the next lower level in the hierarchy,
+     * and so on. The format defined in ISO 8601 for dates in the Gregorian calendar may be
+     * used for any date that is composed of values for year, month and day.
+     *
+     */
     public int[] getCalendarDate() {
         return calendarDate;
     }

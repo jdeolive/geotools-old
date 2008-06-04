@@ -21,8 +21,10 @@ import org.opengis.temporal.TemporalCoordinate;
 import org.opengis.temporal.TemporalReferenceSystem;
 
 /**
- *
- * @author Mehdi Sidhoum
+ * A data type that shall be used for identifying temporal position within a temporal coordinate
+ * system.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultTemporalCoordinate extends DefaultTemporalPosition implements TemporalCoordinate {
 
@@ -36,7 +38,12 @@ public class DefaultTemporalCoordinate extends DefaultTemporalPosition implement
         this.coordinateValue = coordinateValue;
     }
 
-    //@Override
+    /**
+     * Returns the distance from the scale origin expressed as a multiple of the standard
+     * interval associated with the temporal coordinate system.
+     *
+     * @todo Should we return a primitive type?
+     */
     public Number getCoordinateValue() {
         return coordinateValue;
     }
@@ -57,7 +64,7 @@ public class DefaultTemporalCoordinate extends DefaultTemporalPosition implement
 
     @Override
     public int hashCode() {
-        int hash = 5;
+        int hash = super.hashCode();
         hash = 37 * hash + (this.coordinateValue != null ? this.coordinateValue.hashCode() : 0);
         return hash;
     }
@@ -65,6 +72,12 @@ public class DefaultTemporalCoordinate extends DefaultTemporalPosition implement
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder("TemporalCoordinate:").append('\n');
+        if (getFrame() != null){
+            s.append("TemporalReferenceSystem:").append(getFrame()).append('\n');
+        }
+        if(getIndeterminatePosition() != null) {
+            s.append("IndeterminateValue:").append(getIndeterminatePosition()).append('\n');
+        }
         if (coordinateValue != null) {
             s.append("coordinateValue:").append(coordinateValue).append('\n');
         }

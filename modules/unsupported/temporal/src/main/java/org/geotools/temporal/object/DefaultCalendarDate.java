@@ -17,13 +17,15 @@ package org.geotools.temporal.object;
 
 import org.geotools.resources.Utilities;
 import org.opengis.temporal.CalendarDate;
+import org.opengis.temporal.CalendarEra;
 import org.opengis.temporal.IndeterminateValue;
 import org.opengis.temporal.TemporalReferenceSystem;
 import org.opengis.util.InternationalString;
 
 /**
- *
- * @author Mehdi Sidhoum
+ * A data type that shall be used to identify temporal position within a calendar.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultCalendarDate extends DefaultTemporalPosition implements CalendarDate {
 
@@ -44,12 +46,22 @@ public class DefaultCalendarDate extends DefaultTemporalPosition implements Cale
         this.calendarEraName = calendarEraName;
     }
 
-    //@Override
+    /**
+     * Provides the name of the {@linkplain CalendarEra calendar era}
+     * to which the date is referenced.
+     */
     public InternationalString getCalendarEraName() {
         return calendarEraName;
     }
 
-    //@Override
+    /**
+     * Provides a sequence of integers in which the first integer identifies a specific instance
+     * of the unit used at the highest level of the calendar hierarchy, the second integer
+     * identifies a specific instance of the unit used at the next lower level in the hierarchy,
+     * and so on. The format defined in ISO 8601 for dates in the Gregorian calendar may be
+     * used for any date that is composed of values for year, month and day.
+     *
+     */
     public int[] getCalendarDate() {
         return calendarDate;
     }

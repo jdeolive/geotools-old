@@ -21,8 +21,10 @@ import org.opengis.temporal.PeriodDuration;
 import org.opengis.util.InternationalString;
 
 /**
- *
- * @author Mehdi Sidhoum
+ * Uses the format specified by ISO 8601 for exchanging information
+ * about the duration of a period.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultPeriodDuration extends DefaultDuration implements PeriodDuration {
 
@@ -122,42 +124,66 @@ public class DefaultPeriodDuration extends DefaultDuration implements PeriodDura
     }*/
     }
 
-    //@Override
+    /**
+     * A mandatory element which designates that the returned string
+     * represents the duration of a period.
+     */
     public InternationalString getDesignator() {
         return DESIGNATOR;
     }
 
-    //@Override
+    /**
+     * A positive integer, followed by the character "Y",
+     * which indicated the number of years in the period.
+     */
     public InternationalString getYears() {
         return years;
     }
 
-    //@Override
+    /**
+     * A positive integer, followed by the character "M",
+     * which indicated the number of months in the period.
+     */
     public InternationalString getMonths() {
         return months;
     }
 
-    //@Override
+    /**
+     * A positive integer, followed by the character "D",
+     * which indicated the number of days in the period.
+     */
     public InternationalString getDays() {
         return days;
     }
 
-    //@Override
+    /**
+     * Included whenever the sequence includes values for
+     * units less than a day.
+     */
     public InternationalString getTimeIndicator() {
         return TIME_INDICATOR;
     }
 
-    //@Override
+    /**
+     * A positive integer, followed by the character "H",
+     * which indicated the number of hours in the period.
+     */
     public InternationalString getHours() {
         return hours;
     }
 
-    //@Override
+    /**
+     * A positive integer, followed by the character "M",
+     * which indicated the number of minutes in the period.
+     */
     public InternationalString getMinutes() {
         return minutes;
     }
 
-    //@Override
+    /**
+     * A positive integer, followed by the character "S",
+     * which indicated the number of seconds in the period.
+     */
     public InternationalString getSeconds() {
         return seconds;
     }

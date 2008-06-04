@@ -13,14 +13,16 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.temporal.object;
+package org.geotools.temporal.reference;
 
-import org.opengis.temporal.TemporalObject;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
- * Base abstract class for temporal object.
- * 
+ *
  * @author Mehdi Sidhoum (Geomatys)
  */
-public abstract class DefaultTemporalObject implements TemporalObject {
+@RunWith(Suite.class)
+@Suite.SuiteClasses({org.geotools.temporal.reference.DefaultTemporalReferenceSystemTest.class, org.geotools.temporal.reference.DefaultOrdinalEraTest.class, org.geotools.temporal.reference.DefaultTemporalCoordinateSystemTest.class, org.geotools.temporal.reference.DefaultClockTest.class, org.geotools.temporal.reference.DefaultOrdinalReferenceSystemTest.class, org.geotools.temporal.reference.DefaultCalendarEraTest.class, org.geotools.temporal.reference.DefaultCalendarTest.class})
+public class ReferenceSuite {
 }

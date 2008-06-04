@@ -22,11 +22,22 @@ import org.opengis.temporal.Period;
 import org.opengis.temporal.Position;
 
 /**
- * @author Mehdi Sidhoum
+ * A zero-dimensional geometric primitive that represents position in time, equivalent to a point
+ * in space.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultInstant extends DefaultTemporalGeometricPrimitive implements Instant {
 
+    /**
+     * This is the Collection of temporal {@link Period}s,
+     * for which this Instant is the beginning. The collection may be empty.
+     */
     private Collection<Period> begunBy;
+    /**
+     * This is the Collection of temporal {@link Period}s,
+     * for which this Instant is the end. The collection may be empty.
+     */
     private Collection<Period> endBy;
     /**
      * This is the position of this TM_Instant, it shall be associated with a single temporal reference system.
@@ -37,17 +48,27 @@ public class DefaultInstant extends DefaultTemporalGeometricPrimitive implements
         this.position = position;
     }
 
-    //@Override
+    /**
+     * Get the position of this instant.
+     */
     public Position getPosition() {
         return position;
     }
 
-    //@Override
+    /**
+     * Get the Collection of temporal {@link Period}s,
+     * for which this Instant is the beginning. The collection may be empty.
+     * @see Period#begin
+     */
     public Collection<Period> getBegunBy() {
         return begunBy;
     }
 
-    //@Override
+    /**
+     * Get the Collection of temporal {@link Period}s,
+     * for which this Instant is the end. The collection may be empty.
+     * @see Period#end
+     */
     public Collection<Period> getEndedBy() {
         return endBy;
     }

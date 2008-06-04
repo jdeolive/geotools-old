@@ -20,8 +20,10 @@ import org.geotools.resources.Utilities;
 import org.opengis.temporal.IntervalLength;
 
 /**
- *
- * @author Mehdi Sidhoum
+ *A data type for intervals of time which supports the expression of duration in
+ * terms of a specified multiple of a single unit of time.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultIntervalLength extends DefaultDuration implements IntervalLength {
 
@@ -56,22 +58,27 @@ public class DefaultIntervalLength extends DefaultDuration implements IntervalLe
         this.value = value;
     }
 
-    //@Override
+    /**
+     * The unit of measure used to express the length of the interval.
+     */
     public Unit getUnit() {
         return unit;
     }
 
-    //@Override
+    /**
+     * A positive integer that is the base of the mulitplier of the unit.
+     */
     public int getRadix() {
         return radix;
     }
 
-    //@Override
+    /**
+     * The exponent of the base.
+     */
     public int getFactor() {
         return factor;
     }
 
-    //@Override
     public int getValue() {
         return value;
     }

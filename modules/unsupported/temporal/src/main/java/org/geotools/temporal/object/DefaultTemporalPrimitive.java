@@ -15,6 +15,8 @@
  */
 package org.geotools.temporal.object;
 
+import java.util.Calendar;
+import java.util.Date;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.opengis.temporal.RelativePosition;
@@ -22,10 +24,11 @@ import org.opengis.temporal.TemporalOrder;
 import org.opengis.temporal.TemporalPrimitive;
 
 /**
- *
- * @author Mehdi Sidhoum
+ * An abstract class that represents a non-decomposed element of geometry or topology of time.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
  */
-public class DefaultTemporalPrimitive extends DefaultTemporalObject implements TemporalPrimitive, TemporalOrder {
+public abstract class DefaultTemporalPrimitive extends DefaultTemporalObject implements TemporalPrimitive, TemporalOrder {
 
     /**
      * Returns a value for relative position which are provided by the enumerated data type TM_RelativePosition 
@@ -33,7 +36,6 @@ public class DefaultTemporalPrimitive extends DefaultTemporalObject implements T
      * @param other TemporalPrimitive
      * @return
      */
-    //@Override
     public RelativePosition relativePosition(TemporalPrimitive other) {
         if (this instanceof Instant && other instanceof Instant) {
             Instant timeobject = (Instant) this;

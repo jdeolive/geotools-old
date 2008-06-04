@@ -22,13 +22,15 @@ import org.opengis.temporal.OrdinalPosition;
 import org.opengis.temporal.TemporalReferenceSystem;
 
 /**
+ * A data type that shall be used for identifying temporal position within an ordinal
+ * temporal reference system.
  *
- * @author Mehdi Sidhoum
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultOrdinalPosition extends DefaultTemporalPosition implements OrdinalPosition {
 
     /**
-     * This is z reference to the ordinal era in which the instant occurs.
+     * This is a reference to the ordinal era in which the instant occurs.
      */
     private OrdinalEra ordinalPosition;
 
@@ -37,7 +39,11 @@ public class DefaultOrdinalPosition extends DefaultTemporalPosition implements O
         this.ordinalPosition = ordinalPosition;
     }
 
-    //@Override
+    /**
+     * Provides a reference to the ordinal era in which the instant occurs.
+     *
+     * @todo The method name doesn't match the return type.
+     */
     public OrdinalEra getOrdinalPosition() {
         return ordinalPosition;
     }

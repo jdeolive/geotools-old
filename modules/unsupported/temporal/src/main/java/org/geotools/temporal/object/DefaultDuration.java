@@ -18,8 +18,9 @@ package org.geotools.temporal.object;
 import org.opengis.temporal.Duration;
 
 /**
+ * A data type to be used for describing length or distance in the temporal dimension.
  *
- * @author Mehdi Sidhoum
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultDuration implements Duration {
 }

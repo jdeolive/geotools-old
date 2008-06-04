@@ -26,7 +26,7 @@ import org.opengis.referencing.ReferenceIdentifier;
 
 /**
  *
- * @author Mehdi Sidhoum
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultClock extends DefaultTemporalReferenceSystem implements Clock {
 
@@ -47,21 +47,21 @@ public class DefaultClock extends DefaultTemporalReferenceSystem implements Cloc
      */
     private Collection<Calendar> dateBasis;
 
-    public DefaultClock(ReferenceIdentifier name, Extent domainOfValidity) {
+    public DefaultClock(ReferenceIdentifier name, Extent domainOfValidity, InternationalString referenceEvent, ClockTime referenceTime, ClockTime utcReference) {
         super(name, domainOfValidity);
+        this.referenceEvent = referenceEvent;
+        this.referenceTime = referenceTime;
+        this.utcReference = utcReference;
     }
 
-    //@Override
     public InternationalString getReferenceEvent() {
         return referenceEvent;
     }
 
-    //@Override
     public ClockTime getReferenceTime() {
         return referenceTime;
     }
 
-    //@Override
     public ClockTime getUTCReference() {
         return utcReference;
     }
@@ -71,7 +71,6 @@ public class DefaultClock extends DefaultTemporalReferenceSystem implements Cloc
      * @param uTime
      * @return
      */
-    //@Override
     public ClockTime clkTrans(ClockTime uTime) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -81,7 +80,6 @@ public class DefaultClock extends DefaultTemporalReferenceSystem implements Cloc
      * @param clkTime
      * @return
      */
-    //@Override
     public ClockTime utcTrans(ClockTime clkTime) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -102,22 +100,21 @@ public class DefaultClock extends DefaultTemporalReferenceSystem implements Cloc
         return dateBasis;
     }
 
-    public void setDateBasis(Collection<Calendar> dateBasis) {
-        this.dateBasis = dateBasis;
-    }
-
     @Override
     public boolean equals(final Object object) {
         if (object == this) {
             return true;
         }
         if (super.equals(object)) {
-            final DefaultClock that = (DefaultClock) object;
+            final DefaultClock that;
+            if (object instanceof DefaultClock) {
+                that = (DefaultClock) object;
 
-            return Utilities.equals(this.dateBasis, that.dateBasis) &&
-                    Utilities.equals(this.referenceEvent, that.referenceEvent) &&
-                    Utilities.equals(this.referenceTime, that.referenceTime) &&
-                    Utilities.equals(this.utcReference, that.utcReference);
+                return Utilities.equals(this.dateBasis, that.dateBasis) &&
+                        Utilities.equals(this.referenceEvent, that.referenceEvent) &&
+                        Utilities.equals(this.referenceTime, that.referenceTime) &&
+                        Utilities.equals(this.utcReference, that.utcReference);
+            }
         }
         return false;
     }

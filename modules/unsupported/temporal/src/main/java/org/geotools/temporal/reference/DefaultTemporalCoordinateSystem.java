@@ -26,7 +26,7 @@ import org.opengis.util.InternationalString;
 
 /**
  *
- * @author Mehdi Sidhoum
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSystem implements TemporalCoordinateSystem {
 
@@ -54,12 +54,10 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
         this.interval = interval;
     }
 
-    //@Override
     public Date getOrigin() {
         return origin;
     }
 
-    //@Override
     public InternationalString getInterval() {
         return interval;
     }
@@ -69,7 +67,6 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
      * @param c_value
      * @return
      */
-    //@Override
     public Date transformCoord(TemporalCoordinate c_value) {
         Date response;
         final long yearMS = 31536000000L;
@@ -103,7 +100,6 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
                 } else {
                     throw new IllegalArgumentException("The name of a single unit of measure used as the base interval for the scale in this current TemporalCoordinateSystem is not supported !");
                 }
-                System.out.println(">>>>> f = " + f);
                 response = new Date(origin.getTime() + f.longValue());
                 return response;
             } else {
@@ -120,7 +116,6 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
      * @param dateTime
      * @return
      */
-    //@Override
     public TemporalCoordinate transformDateTime(Date dateTime) {
         TemporalCoordinate response;
         final long yearMS = 31536000000L;
@@ -157,10 +152,12 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
             return true;
         }
         if (super.equals(object)) {
-            final DefaultTemporalCoordinateSystem that = (DefaultTemporalCoordinateSystem) object;
+            if (object instanceof DefaultTemporalCoordinateSystem) {
+                final DefaultTemporalCoordinateSystem that = (DefaultTemporalCoordinateSystem) object;
 
-            return Utilities.equals(this.interval, that.interval) &&
-                    Utilities.equals(this.origin, that.origin);
+                return Utilities.equals(this.interval, that.interval) &&
+                        Utilities.equals(this.origin, that.origin);
+            }
         }
         return false;
     }

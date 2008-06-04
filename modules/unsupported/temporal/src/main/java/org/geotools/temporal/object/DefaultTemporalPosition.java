@@ -25,8 +25,9 @@ import org.opengis.temporal.TemporalPosition;
 import org.opengis.temporal.TemporalReferenceSystem;
 
 /**
- *
- * @author Mehdi Sidhoum
+ * Used for describing temporal positions referenced to other temporal reference systems.
+ * 
+ * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultTemporalPosition implements TemporalPosition {
 
@@ -50,7 +51,11 @@ public class DefaultTemporalPosition implements TemporalPosition {
         this.indeterminatePosition = indeterminatePosition;
     }
 
-    //@Override
+    /**
+     * When this attribute is used with a subtype of {@code TemporalPosition}, it provides a qualifier to the specific value
+     * for temporal position provided by the subtype.
+     *
+     */
     public IndeterminateValue getIndeterminatePosition() {
         return this.indeterminatePosition;
     }
