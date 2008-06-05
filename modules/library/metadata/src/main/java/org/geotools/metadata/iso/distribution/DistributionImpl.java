@@ -23,6 +23,7 @@ import java.util.Collection;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.distribution.DigitalTransferOptions;
 import org.opengis.metadata.distribution.Distribution;
 import org.opengis.metadata.distribution.Distributor;
@@ -40,6 +41,9 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
+@XmlType(propOrder={
+    "distributors", "transferOptions", "distributionFormats"
+})
 @XmlRootElement(name = "MD_Distribution")
 public class DistributionImpl extends MetadataEntity implements Distribution {
     /**

@@ -466,17 +466,19 @@ public final class ReplaceHeaders extends CommandLine {
             System.out.println("= No file skipped.");
         }
     }
+
     /**
-     *
+     * Returns {@code true} if the copyright in parameter is present in the list of
+     * known copyrights. False otherwise.
      */
-     private boolean isCopyrightKnown(String s){
-       for (String d : RECOGNIZED_COPYRIGHTS ){
-           if ( s.contains(d) ) {
-             return true;
-           }
-       }
-       return false;
-     }
+    private boolean isCopyrightKnown(String copyrightName) {
+        for (String knownCopyright : RECOGNIZED_COPYRIGHTS) {
+            if (copyrightName.contains(knownCopyright)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Just launches the process, with arguments specified by user.
