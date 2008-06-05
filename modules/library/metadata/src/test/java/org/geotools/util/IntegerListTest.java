@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,10 +16,7 @@
  */
 package org.geotools.util;
 
-import java.util.List;
-import java.util.Random;
-import java.util.ArrayList;
-
+import java.util.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -86,11 +83,28 @@ public final class IntegerListTest {
     }
 
     /**
+     * Tests the fill value using the existing list, which is assumed
+     * already filled with random values prior this method call.
+     */
+    private void testFill(final int value) {
+        assertEquals(400, list.size());
+        final Set<Integer> set = new HashSet<Integer>();
+        list.fill(value);
+        set.addAll(list);
+        assertEquals(Collections.singleton(value), set);
+        list.fill(0);
+        set.clear();
+        set.addAll(list);
+        assertEquals(Collections.singleton(0), set);
+    }
+
+    /**
      * Tests with a maximal value of 1.
      */
     @Test
     public void test1() {
         testReadWrite(1);
+        testFill(1);
     }
 
     /**
@@ -99,6 +113,7 @@ public final class IntegerListTest {
     @Test
     public void test2() {
         testReadWrite(2);
+        testFill(2);
     }
 
     /**
@@ -107,6 +122,7 @@ public final class IntegerListTest {
     @Test
     public void test3() {
         testReadWrite(3);
+        testFill(3);
     }
 
     /**
@@ -115,6 +131,7 @@ public final class IntegerListTest {
     @Test
     public void test10() {
         testReadWrite(10);
+        testFill(10);
     }
 
     /**
@@ -137,6 +154,8 @@ public final class IntegerListTest {
         for (int i=101; i<200; i++) {
             assertEquals(0, list.getInteger(i));
         }
+        list.resize(400);
+        testFill(100);
     }
 
     /**
@@ -145,6 +164,7 @@ public final class IntegerListTest {
     @Test
     public void test100000() {
         testReadWrite(100000);
+        testFill(17);
     }
 
     /**
@@ -153,5 +173,6 @@ public final class IntegerListTest {
     @Test
     public void testMax() {
         testReadWrite(Integer.MAX_VALUE);
+        testFill(17);
     }
 }

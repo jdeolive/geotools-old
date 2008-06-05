@@ -205,6 +205,15 @@ final class ComparedTileManager extends TileManager {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean intersects(Rectangle region, Dimension subsampling) throws IOException {
+        return assertEqual(first.intersects(region, subsampling),
+                          second.intersects(region, subsampling));
+    }
+
+    /**
      * Returns a hash code value for this tile manager.
      */
     @Override

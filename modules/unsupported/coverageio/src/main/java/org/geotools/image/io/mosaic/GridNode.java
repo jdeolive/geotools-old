@@ -58,9 +58,15 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
     private final int index;
 
     /**
-     * The subsamplings. Valid values are greater than zero.
+     * The subsampling as an unsigned short greater than zero.
+     * The value must be used in expressions like {@code subsampling & 0xFFFF}.
+     * <p>
+     * On {@link GridNode} creation, this is initialized to {@linkplain Tile#getSubsampling tile
+     * subsampling}.  After the call to {@link #postTreeCreation}, the value is increased (never
+     * reduced) to the greatest subsampling found in all children. Because children usually have
+     * finer subsampling, this value is typically unmodified compared to its initial value.
      */
-    protected short xSubsampling, ySubsampling;
+    private short xSubsampling, ySubsampling;
 
     /**
      * {@code true} if at least one tile overlaps an other tile in direct {@linkplain #children}.
@@ -413,6 +419,58 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
             child = (GridNode) child.nextSibling();
         }
         dense = isDense(this, this);
+    }
+
+    /**
+     * Returns {@code true} if at least one tile having the given subsampling or a finer one
+     * intersects the given region.
+     *
+     * @param  region The region to look for, in "absolute" coordinates.
+     * @param  subsampling The maximal subsampling to look for.
+     * @return {@code true} if at least one tile having the given subsampling or
+     *         a finer one intersects the given region.
+     */
+    public boolean intersects(final Rectangle region, final Dimension subsampling) {
+        if (intersects(region)) {
+            if (tile != null) {
+                final int xSubsampling, ySubsampling;
+                if (isLeaf()) {
+                    // Slight optimization: if we are a leaf, x/ySubsampling are garanteed
+                    // to be equals to the value returned by Tile.getSubsampling().
+                    xSubsampling = (this.xSubsampling & MASK);
+                    ySubsampling = (this.ySubsampling & MASK);
+                } else {
+                    final Dimension candidate = tile.getSubsampling();
+                    xSubsampling = candidate.width;
+                    ySubsampling = candidate.height;
+                }
+                if (xSubsampling <= subsampling.width && ySubsampling <= subsampling.height) {
+                    return true;
+                }
+            }
+            GridNode child = (GridNode) firstChildren();
+            while (child != null) {
+                if (child.intersects(region, subsampling)) {
+                    return true;
+                }
+                child = (GridNode) child.nextSibling();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the subsampling along <var>x</var> axis.
+     */
+    public int getXSubsampling() {
+        return xSubsampling & MASK;
+    }
+
+    /**
+     * Returns the subsampling along <var>y</var> axis.
+     */
+    public int getYSubsampling() {
+        return ySubsampling & MASK;
     }
 
     /**

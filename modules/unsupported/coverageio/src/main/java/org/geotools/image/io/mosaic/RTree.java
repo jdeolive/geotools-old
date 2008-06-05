@@ -33,7 +33,6 @@ import java.io.IOException;
 
 import org.geotools.util.logging.Logging;
 import org.geotools.resources.OptionalDependencies;
-import static org.geotools.image.io.mosaic.Tile.MASK;
 
 
 /**
@@ -149,12 +148,27 @@ final class RTree {
         final Dimension tileSize = new Dimension();
         for (final TreeNode node : root) {
             final GridNode child = (GridNode) node;
-            final int width  = child.width  / (child.xSubsampling & MASK);
-            final int height = child.height / (child.ySubsampling & MASK);
+            final int width  = child.width  / child.getXSubsampling();
+            final int height = child.height / child.getYSubsampling();
             if (width  > tileSize.width)  tileSize.width  = width;
             if (height > tileSize.height) tileSize.height = height;
         }
         return tileSize;
+    }
+
+    /**
+     * Returns {@code true} if at least one tile intersects the {@linkplain #regionOfInterest
+     * region of interest} with a subsampling equals or finer than {@link #subsampling}.
+     * On input, the following fields must be set:
+     * <ul>
+     *   <li>{@link #regionOfInterest}</li>
+     *   <li>{@link #subsampling}</li>
+     * </ul>
+     *
+     * @return {@code true} if at least one tile intersects the region of interest.
+     */
+    public boolean intersects() {
+        return ((GridNode) root).intersects(regionOfInterest, subsampling);
     }
 
     /**
@@ -230,6 +244,7 @@ final class RTree {
                 LOGGER.log(record);
             }
         }
+//        assert tiles.isEmpty() == !intersects() : tiles;
         return tiles;
     }
 

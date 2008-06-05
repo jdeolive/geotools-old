@@ -304,9 +304,11 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
         /*
          * If there is no recognized pattern, clears the unused fields and finish immediately
          * this method, so we skip the construction of "pattern used" list (which may be large).
+         * Note that we clears the formatter unconditionnaly because the last pattern guessed
+         * in the 'inputPattern' method may be wrong.
          */
+        formatter = null;
         if (models.isEmpty()) {
-            formatter = null;
             return;
         }
         /*
@@ -315,7 +317,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
          * value for non-existant tiles.
          */
         patterns = new Tile[models.size()];
-        patternUsed = new IntegerList(0, nx*ny, patterns.length);
+        patternUsed = new IntegerList(nx*ny, patterns.length, true);
         int index = 0;
         for (final Map.Entry<Tile,List<Tile>> entry : models.entrySet()) {
             patterns[index++] = entry.getKey();
@@ -379,6 +381,83 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     }
 
     /**
+     * Formats an exception for a duplicated tile.
+     *
+     * @param  pt The upper-left corner coordinate.
+     * @return An exception formatted for a duplicated tile at the given coordinate.
+     */
+    private static IllegalArgumentException duplicatedTile(final Point pt) {
+        return new IllegalArgumentException(Errors.format(
+                ErrorKeys.DUPLICATED_VALUES_$1, "location=" + pt.x + ',' + pt.y));
+    }
+
+    /**
+     * Removes the tile at the given index. Current implementation can remove only tiles
+     * created from a pattern.
+     */
+    final void removeTile(final int x, final int y) {
+        final int i = getIndex(x, y);
+        assert tiles == null || tiles.get(i) == null;
+        if (patternUsed == null) {
+            patternUsed = new IntegerList(nx*ny, patterns.length, true);
+            patternUsed.fill(1);
+        }
+        patternUsed.setInteger(i, 0);
+    }
+
+    /**
+     * Expands the given tiles in a flat array. Tiles are stored by their index, with
+     * <var>x</var> index varying faster.
+     */
+    private Tile[] toArray(final Collection<Tile> tiles) {
+        final Tile[] array = new Tile[nx * ny];
+        for (final Tile tile : tiles) {
+            final Point pt = getIndex2D(tile);
+            final int index = getIndex(pt.x, pt.y);
+            if (array[index] != null && !tile.equals(array[index])) {
+                throw duplicatedTile(pt);
+            }
+            array[index] = tile;
+        }
+        return array;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////
+    ////                                                                         ////
+    ////    End of construction methods. The remainding is for querying only.    ////
+    ////    None of the methods below should modify the OverviewLevel state.     ////
+    ////                                                                         ////
+    /////////////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Converts the search rectangle from <cite>absolute space</cite> to
+     * <cite>tile index space</cite>. Index can not be negative neither
+     * greater than ({@linkplain #nx},@linkplain #ny}). The (xmin,ymin)
+     * index are inclusive while the (xmax,ymax) index are exclusive.
+     *
+     * @param search The search region in absolute coordinate. This rectangle will not be modified.
+     * @return The search region as tile index.
+     */
+    private Rectangle toTileIndex(final Rectangle search) {
+        final Rectangle index = new Rectangle(dx * xSubsampling, dy * ySubsampling);
+
+        // Computes min values.
+        int x = search.x - mosaic.x * xSubsampling;
+        int y = search.y - mosaic.y * ySubsampling;
+        if (x >= 0) index.x = x / index.width;  // Otherwise lets (x,y) to its default value (0).
+        if (y >= 0) index.y = y / index.height;
+
+        // Computes max values. We round (width,height) toward higher integer.
+        x += search.width;
+        y += search.height;
+        index.width  = Math.min(nx, (x + (index.width  - 1)) / index.width)  - index.x;
+        index.height = Math.min(ny, (y + (index.height - 1)) / index.height) - index.y;
+        return index;
+    }
+
+    /**
      * Returns the index of the given tile. The tile in the upper-left corner has index (0,0).
      *
      * @param  tile The tile for which to get the index.
@@ -408,43 +487,6 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
         }
         return y * nx + x;
     }
-
-    /**
-     * Formats an exception for a duplicated tile.
-     *
-     * @param  pt The upper-left corner coordinate.
-     * @return An exception formatted for a duplicated tile at the given coordinate.
-     */
-    private static IllegalArgumentException duplicatedTile(final Point pt) {
-        return new IllegalArgumentException(Errors.format(
-                ErrorKeys.DUPLICATED_VALUES_$1, "location=" + pt.x + ',' + pt.y));
-    }
-
-    /**
-     * Expands the given tiles in a flat array. Tiles are stored by their index, with
-     * <var>x</var> index varying faster.
-     */
-    private Tile[] toArray(final Collection<Tile> tiles) {
-        final Tile[] array = new Tile[nx * ny];
-        for (final Tile tile : tiles) {
-            final Point pt = getIndex2D(tile);
-            final int index = getIndex(pt.x, pt.y);
-            if (array[index] != null && !tile.equals(array[index])) {
-                throw duplicatedTile(pt);
-            }
-            array[index] = tile;
-        }
-        return array;
-    }
-
-
-    /////////////////////////////////////////////////////////////////////////////////
-    ////                                                                         ////
-    ////    End of construction methods. The remainding is for querying only.    ////
-    ////    None of the methods below should modify the OverviewLevel state.     ////
-    ////                                                                         ////
-    /////////////////////////////////////////////////////////////////////////////////
-
 
     /**
      * Returns a level finer than this level, or {@code null} if this level is already the finest
@@ -690,21 +732,14 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     final long getTiles(final ArrayList<Tile> addTo, final Rectangle search,
             final Dimension subsampling, final long costLimit) throws IOException
     {
-        /*
-         * Converts the search rectangle from "absolute space" to "tile index space".
-         * Index can not be negative neither greater than (nx,ny). The (xmin,ymin)
-         * index are inclusive while the (xmax,ymax) index are exclusive.
-         * Note: "atr" stands for "Absolute Tile Region".
-         */
-        final Rectangle atr = new Rectangle(dx * xSubsampling, dy * ySubsampling);
-        int xmin = search.x - mosaic.x * xSubsampling;
-        int ymin = search.y - mosaic.y * ySubsampling;
-        int xmax = xmin + search.width;
-        int ymax = ymin + search.height;
-        if (xmin >= 0) xmin /= atr.width;  else xmin = 0;
-        if (ymin >= 0) ymin /= atr.height; else ymin = 0;
-        xmax = Math.min(nx, (xmax + (atr.width  - 1)) / atr.width); // Round toward higher integer.
-        ymax = Math.min(ny, (ymax + (atr.height - 1)) / atr.height);
+        // Note: "atr" stands for "Absolute Tile Region".
+        final Rectangle atr = toTileIndex(search);
+        final int xmin = atr.x;
+        final int ymin = atr.y;
+        final int xmax = atr.width  + xmin;
+        final int ymax = atr.height + ymin;
+        atr.width  = dx * xSubsampling;
+        atr.height = dy * ySubsampling;
         final int size = addTo.size();
         if (size == 0) {
             final int n = (xmax - xmin) * (ymax - ymin);
@@ -768,13 +803,49 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
                 addTo.add(tile);
             }
         }
+        assert (addTo.size() > size) == intersects(search);
         return totalCost;
+    }
+
+    /**
+     * Returns {@code true} if at least one tile intersects the given region.
+     * This method does not search recursively into finer levels.
+     *
+     * @param  search The region (in absolute coordinates) where to search for tiles.
+     * @return {@code true} if at least one tile intersects the given region.
+     * @throws IOException if an error occured while fetching a tile size.
+     */
+    final boolean intersects(final Rectangle search) throws IOException {
+        final Rectangle index = toTileIndex(search);
+        final int xmin = index.x;
+        final int ymin = index.y;
+        final int xmax = index.width  + xmin;
+        final int ymax = index.height + ymin;
+        for (int y=ymin; y<ymax; y++) {
+            for (int x=xmin; x<xmax; x++) {
+                final int i = getIndex(x, y);
+                if (tiles != null) {
+                    final Tile tile = tiles.get(i);
+                    if (tile != null) {
+                        if (search.intersects(tile.getAbsoluteRegion())) {
+                            return true;
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+                if (patternUsed == null || patternUsed.get(i) != 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
      * Returns {@code true} if this level or any finer level contains the given tile. This method
      * is static in order to prevent accidental usage of implicit {@code this}, which would be a
-     * bug.
+     * bug. At the different of other (non-static) methods, this one is recursive.
      *
      * @param  tile The tile to check for inclusion.
      * @reutrn {@code true} if this manager contains the given tile.
@@ -800,8 +871,27 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
     }
 
     /**
-     * Compares subsamplings, sorting smallest areas first. If two subsamplings
-     * have the same area, sorts by <var>sx</var> first then by <var>sy</var>.
+     * Compares subsamplings, sorting smallest areas first. If two subsamplings have the
+     * same area, sorts by <var>xSubsampling</var> first then by <var>ySubsampling</var>.
+     * <p>
+     * The algorithm applied in this method must be identical to {@link #compareTo(OverviewLevel)}.
+     */
+    public int compareTo(final Dimension subsampling) {
+        int c = (xSubsampling * ySubsampling) - (subsampling.width * subsampling.height);
+        if (c == 0) {
+            c = xSubsampling - subsampling.width;
+            if (c == 0) {
+                c = ySubsampling - subsampling.height;
+            }
+        }
+        return c;
+    }
+
+    /**
+     * Compares subsamplings, sorting smallest areas first. If two subsamplings have the
+     * same area, sorts by <var>xSubsampling</var> first then by <var>ySubsampling</var>.
+     * <p>
+     * The algorithm applied in this method must be identical to {@link #compareTo(Dimension)}.
      */
     public int compareTo(final OverviewLevel other) {
         int c = (xSubsampling * ySubsampling) - (other.xSubsampling * other.ySubsampling);

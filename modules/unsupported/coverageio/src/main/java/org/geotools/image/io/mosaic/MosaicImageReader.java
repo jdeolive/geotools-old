@@ -1024,12 +1024,14 @@ public class MosaicImageReader extends ImageReader {
         final Dimension subsampling = new Dimension(1,1);
         boolean subsamplingChangeAllowed = false;
         MosaicImageReadParam mosaicParam = null;
+        boolean nullForEmptyImage = false;
         if (param != null) {
             subsampling.width  = param.getSourceXSubsampling();
             subsampling.height = param.getSourceYSubsampling();
             if (param instanceof MosaicImageReadParam) {
                 mosaicParam = (MosaicImageReadParam) param;
                 subsamplingChangeAllowed = mosaicParam.isSubsamplingChangeAllowed();
+                nullForEmptyImage = mosaicParam.getNullForEmptyImage();
             }
             // Note: we don't extract subsampling offsets because they will be taken in account
             //       in the 'sourceRegion' to be calculated by ImageReader.computeRegions(...).
@@ -1039,6 +1041,10 @@ public class MosaicImageReader extends ImageReader {
         final Rectangle sourceRegion = getSourceRegion(param, srcWidth, srcHeight);
         final Collection<Tile> tiles = getTileManager(imageIndex)
                 .getTiles(sourceRegion, subsampling, subsamplingChangeAllowed);
+        if (nullForEmptyImage && tiles.isEmpty()) {
+            processImageComplete();
+            return null;
+        }
         /*
          * If the subsampling changed as a result of TileManager.getTiles(...) call,
          * stores the new subsampling values in the parameters. Note that the source

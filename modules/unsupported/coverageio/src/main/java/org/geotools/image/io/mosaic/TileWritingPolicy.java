@@ -64,16 +64,16 @@ public enum TileWritingPolicy {
     /**
      * {@code true} if empty tiles should be written as well.
      */
-    final boolean empty;
+    final boolean includeEmpty;
 
     /**
      * Creates a new enum.
      *
-     * @param overwrite {@code true} if tiles should be overwritten.
-     * @param empty {@code true} if empty tiles should be written as well.
+     * @param overwrite    {@code true} if tiles should be overwritten.
+     * @param includeEmpty {@code true} if empty tiles should be written as well.
      */
-    private TileWritingPolicy(final boolean overwrite, final boolean empty) {
-        this.overwrite = overwrite;
-        this.empty     = empty;
+    private TileWritingPolicy(final boolean overwrite, final boolean includeEmpty) {
+        this.overwrite    = overwrite;
+        this.includeEmpty = includeEmpty;
     }
 }

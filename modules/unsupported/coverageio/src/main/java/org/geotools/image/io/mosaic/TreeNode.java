@@ -32,10 +32,15 @@ import org.geotools.util.Utilities;
  * Base class for tree node wrapping a {@link Tile}. Children are managed as a linked list.
  * <p>
  * This class extends {@link Rectangle} for pure opportunist reasons, in order to reduce the amount
- * of object created (because we will have thousands of TreeNodes) and for direct (no indirection,
- * no virtual calls) invocation of {@link Rectangle} services. We do this unrecommendable practice
- * only because this class is not public. The inherited {@link Rectangle} should
+ * of object created (we will have thousands of {@code TreeNode}s) and for direct (without the cost
+ * of an additional pointer) invocation of {@link Rectangle} methods. We do this unrecommendable
+ * practice only because this class is not public. The inherited {@link Rectangle} should
  * <string>never</strong> be modified by anyone outside this class.
+ * <p>
+ * The inherited {@linkplain #x x}, {@linkplain #y y}, {@linkplain #width width} and
+ * {@linkplain #height height} fields are tile bounds in <cite>absolute</cite> coordinates,
+ * as returned by {@link Tile#getAbsoluteRegion}. They must be wide enough for including
+ * all children bounds.
  *
  * @source $URL$
  * @version $Id$
@@ -405,7 +410,7 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
      *
      * @param  region The result of {@link Tile#getAbsoluteRegion}.
      * @param  candidate The tile to test for presence in this tree.
-     * @param  {@code true} if the node containing the tile should be removed.
+     * @param  remove {@code true} if the node containing the tile should be removed.
      * @return {@code true} if the given tile is presents in this tree.
      */
     private boolean contains(final Rectangle region, final Tile candidate, final boolean remove) {

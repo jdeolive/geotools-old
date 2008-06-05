@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ import org.geotools.resources.i18n.ErrorKeys;
  * @since 2.5
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (Geomatys)
  */
 public class IntegerList extends AbstractList<Integer> implements RandomAccess, Serializable, Cloneable {
     /**
@@ -86,22 +86,19 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
      * @param maximalValue The maximal value to be allowed, inclusive.
      */
     public IntegerList(int initialCapacity, int maximalValue) {
-        this(initialCapacity, 0, maximalValue);
+        this(initialCapacity, maximalValue, false);
     }
 
     /**
      * Creates a new list with the given initial size.
      * The value of all elements are initialized to 0.
      *
-     * @param initialCapacity The initial capacity. If this value is smaller than
-     *        {@code initialSize}, then the later will be used as the initial capacity.
-     * @param initialSize The initial size.
+     * @param initialCapacity The initial capacity.
      * @param maximalValue The maximal value to be allowed, inclusive.
+     * @param fill If {@code true}, the initial {@linkplain #size} is set to the initial
+     *        capacity with all values set to 0.
      */
-    public IntegerList(int initialCapacity, int initialSize, int maximalValue) {
-        if (initialSize > initialCapacity) {
-            initialCapacity = initialSize;
-        }
+    public IntegerList(final int initialCapacity, int maximalValue, final boolean fill) {
         if (initialCapacity <= 0) {
             throw new IllegalArgumentException(Errors.format(
                     ErrorKeys.NOT_GREATER_THAN_ZERO_$1, initialCapacity));
@@ -118,7 +115,9 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
         this.bitCount = bitCount;
         mask = (1 << bitCount) - 1;
         values = new long[length(initialCapacity)];
-        size = initialSize;
+        if (fill) {
+            size = initialCapacity;
+        }
     }
 
     /**
@@ -184,6 +183,40 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
     }
 
     /**
+     * Fills the list with the given value. Every existing values are overwritten from index
+     * 0 inclusive up to {@link #size} exclusive.
+     *
+     * @param value The value to set.
+     */
+    @SuppressWarnings("fallthrough")
+    public void fill(int value) {
+        if (value < 0 || value > mask) {
+            throw new IllegalArgumentException(Errors.format(ErrorKeys.VALUE_OUT_OF_BOUNDS_$3,
+                    value, 0, mask));
+        }
+        final long p;
+        if (value == 0) {
+            p = 0;   // All bits set to 0.
+        } else if (value == mask) {
+            p = -1L; // All bits set to 1.
+        } else switch (bitCount) {
+            case  1: value |= (value << 1);  // Fall through
+            case  2: value |= (value << 2);  // Fall through
+            case  4: value |= (value << 4);  // Fall through
+            case  8: value |= (value << 8);  // Fall through
+            case 16: value |= (value << 16); // Fall through
+            case 32: p = (value & 0xFFFFFFFFL) | ((long) value << 32); break;
+            default: { // General case (unoptimized)
+                for (int i=0; i<size; i++) {
+                    setUnchecked(i, value);
+                }
+                return;
+            }
+        }
+        Arrays.fill(values, 0, length(size), p);
+    }
+
+    /**
      * Discarts all elements in this list.
      */
     @Override
@@ -211,16 +244,15 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
      * @throws IllegalArgumentException if the given value is out of bounds.
      */
     public void addInteger(final int value) throws IllegalArgumentException {
+        if (value < 0 || value > mask) {
+            throw new IllegalArgumentException(Errors.format(ErrorKeys.VALUE_OUT_OF_BOUNDS_$3,
+                    value, 0, mask));
+        }
         final int length = length(++size);
         if (length > values.length) {
             values = XArray.resize(values, 2*values.length);
         }
-        try {
-            setInteger(size - 1, value);
-        } catch (RuntimeException exception) {
-            size--; // Roll back the increase in size.
-            throw exception;
-        }
+        setUnchecked(size - 1, value);
     }
 
     /**
@@ -291,6 +323,19 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
             throw new IllegalArgumentException(Errors.format(ErrorKeys.VALUE_OUT_OF_BOUNDS_$3,
                     value, 0, mask));
         }
+        setUnchecked(index, value);
+    }
+
+    /**
+     * Sets the element at the given index as the {@code int} primitive type.
+     * This argument does not check argument validity, since it is assumed already done.
+     *
+     * @param index The element index.
+     * @param value The value at the given index.
+     * @throws IndexOutOfBoundsException if the given index is out of bounds.
+     * @throws IllegalArgumentException if the given value is out of bounds.
+     */
+    private void setUnchecked(int index, int value) {
         index *= bitCount;
         int base   = index >>> BASE_SHIFT;
         int offset = index & OFFSET_MASK;

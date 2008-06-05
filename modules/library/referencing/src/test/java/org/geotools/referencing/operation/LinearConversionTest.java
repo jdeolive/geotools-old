@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -158,6 +158,8 @@ public final class LinearConversionTest {
     /**
      * Test the {@link DefaultProjectedCRS#createLinearConversion} method.
      * Note: this requires a working {@link MathTransformFactory}.
+     *
+     * @throws FactoryException If the conversion can't be created.
      */
     @Test
     public void testCreateLinearConversion() throws FactoryException {

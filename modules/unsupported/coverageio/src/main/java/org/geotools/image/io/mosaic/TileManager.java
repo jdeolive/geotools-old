@@ -317,6 +317,25 @@ public abstract class TileManager implements Serializable {
             boolean subsamplingChangeAllowed) throws IOException;
 
     /**
+     * Returns {@code true} if at least one tile having the given subsampling or a finer
+     * one intersects the given region. The default implementation returns {@code true} if
+     * <code>{@linkplain #getTiles(Rectangle,Dimension,boolean) getTiles}(region, subsampling, false)</code>
+     * returns a non-empty set. Subclasses are encouraged to provide a more efficient implementation.
+     *
+     * @param  region
+     *          The region of interest (shall not be {@code null}).
+     * @param  subsampling
+     *          The maximal subsampling to look for.
+     * @return {@code true} if at least one tile having the given subsampling or a finer one
+     *          intersects the given region.
+     * @throws IOException If it was necessary to fetch an image dimension from its
+     *         {@linkplain Tile#getImageReader reader} and this operation failed.
+     */
+    public boolean intersects(Rectangle region, Dimension subsampling) throws IOException {
+        return !getTiles(region, subsampling, false).isEmpty();
+    }
+
+    /**
      * Checks for file existence and image size of every tiles and reports any error found.
      *
      * @param out Where to report errors ({@code null} for default, which is the

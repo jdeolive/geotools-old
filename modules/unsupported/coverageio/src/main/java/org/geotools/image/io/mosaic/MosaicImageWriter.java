@@ -362,6 +362,7 @@ public class MosaicImageWriter extends ImageWriter {
                 final int height = imageRegion.height / imageSubsampling.height;
                 if (width == image.getWidth() && height == image.getHeight()) {
                     ImageUtilities.fill(image, FILL_VALUE);
+                    assert isEmpty(image, new Rectangle(image.getWidth(), image.getHeight()));
                 } else {
                     image = null;
                 }
@@ -375,6 +376,9 @@ public class MosaicImageWriter extends ImageWriter {
             readParam.setDestination(image);
             readParam.setSourceRegion(imageRegion);
             readParam.setSourceSubsampling(imageSubsampling.width, imageSubsampling.height, 0, 0);
+            if (readParam instanceof MosaicImageReadParam) {
+                ((MosaicImageReadParam) readParam).setNullForEmptyImage(true);
+            }
             if (logReads) {
                 logger.log(getLogRecord(false, VocabularyKeys.LOADING_$1, imageTile));
             }
@@ -403,8 +407,9 @@ public class MosaicImageWriter extends ImageWriter {
                 }
                 continue;
             }
-            assert image.getWidth()  * imageSubsampling.width  == imageRegion.width &&
-                   image.getHeight() * imageSubsampling.height == imageRegion.height : imageTile;
+            assert (image == null) || // Image can be null if MosaicImageReader found no tiles.
+                   (image.getWidth()  * imageSubsampling.width  == imageRegion.width &&
+                    image.getHeight() * imageSubsampling.height == imageRegion.height) : imageTile;
             /*
              * Searchs tiles inside the same region with a resolution which is equals or lower by
              * an integer ratio. If such tiles are found we can write them using the image loaded
@@ -429,7 +434,7 @@ public class MosaicImageWriter extends ImageWriter {
                 sourceRegion.y      /= imageSubsampling.height;
                 sourceRegion.width  /= imageSubsampling.width;
                 sourceRegion.height /= imageSubsampling.height;
-                if (policy.empty || !isEmpty(image, sourceRegion)) {
+                if (image != null && (policy.includeEmpty || !isEmpty(image, sourceRegion))) {
                     final ImageWriter writer = getImageWriter(tile, image);
                     final ImageWriteParam wp = writer.getDefaultWriteParam();
                     onTileWrite(tile, wp);
@@ -443,11 +448,22 @@ public class MosaicImageWriter extends ImageWriter {
                                 if (logWrites) {
                                     logger.log(getLogRecord(false, VocabularyKeys.SAVING_$1, tile));
                                 }
+                                boolean success = false;
                                 try {
                                     writer.write(null, iioImage, wp);
                                     close(writer.getOutput(), tileInput);
+                                    success = true;
                                 } finally {
-                                    writer.dispose();
+                                    if (success) {
+                                        writer.dispose();
+                                    } else {
+                                        final Object output = writer.getOutput();
+                                        writer.dispose();
+                                        close(output, null); // Unconditional close.
+                                        if (tileInput instanceof File) {
+                                            ((File) tileInput).delete();
+                                        }
+                                    }
                                 }
                             }
                             return null;

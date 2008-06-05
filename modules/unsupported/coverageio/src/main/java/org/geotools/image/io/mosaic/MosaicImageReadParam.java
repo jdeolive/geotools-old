@@ -76,6 +76,12 @@ public class MosaicImageReadParam extends ImageReadParam {
     private boolean subsamplingChangeAllowed;
 
     /**
+     * If {@code true}, then the {@link MosaicImageReader#read read} method is allowed
+     * to return {@code null} if no tile intersect the source region to be read.
+     */
+    private boolean nullForEmptyImage;
+
+    /**
      * The tile readers obtained from the {@link MosaicImageReader} given at construction time,
      * or an empty map if none. Values are the parameters to be given to those readers, created
      * only when first needed.
@@ -122,6 +128,8 @@ public class MosaicImageReadParam extends ImageReadParam {
      * The default value is {@code false}, which means that the reader will use exactly the given
      * subsampling and may leads to very slow reading. See {@linkplain MosaicImageReadParam class
      * javadoc}.
+     *
+     * @return {@code true} if the mosaic image reader is allowed to change the subsampling.
      */
     public boolean isSubsamplingChangeAllowed() {
         return subsamplingChangeAllowed;
@@ -133,9 +141,37 @@ public class MosaicImageReadParam extends ImageReadParam {
      * <strong>Users are strongly encouraged to set this value to {@code true}</strong>, which
      * is not the default because doing so would violate the {@link javax.imageio.ImageReader}
      * contract. See {@linkplain MosaicImageReadParam class javadoc} for more details.
+     *
+     * @param allowed {@code true} if the mosaic image reader is allowed to change the subsampling.
      */
     public void setSubsamplingChangeAllowed(final boolean allowed) {
         subsamplingChangeAllowed = allowed;
+    }
+
+    /**
+     * If {@code true}, then the {@link MosaicImageReader#read read} method is allowed to
+     * return {@code null} if no tile intersect the source region to be read. The default
+     * value is {@code false}.
+     * <p>
+     * Note that a non-null image is not necessarily non-empty. A non-null image intersects
+     * at least one tile, but that tile could be empty in the intersection area.
+     *
+     * @return {@code true} if the {@code read} method is allowed to return {@code null}.
+     */
+    public boolean getNullForEmptyImage() {
+        return nullForEmptyImage;
+    }
+
+    /**
+     * Sets whatever the {@link MosaicImageReader#read read} method is allowed to return
+     * {@code null} when no tile intersect the source region to be read. Setting this flag
+     * to {@code true} speedup the read process in region that doesn't intersect any tile,
+     * at the cost of requerying the caller to handle null return value.
+     *
+     * @param allowed {@code true} if the {@code read} method is allowed to return {@code null}.
+     */
+    public void setNullForEmptyImage(final boolean allowed) {
+        nullForEmptyImage = allowed;
     }
 
     /**
@@ -143,6 +179,8 @@ public class MosaicImageReadParam extends ImageReadParam {
      * If no policy has been specified, then this method returns {@code null}. In the later
      * case, the reader will use its {@linkplain MosaicImageReader#getDefaultImageTypePolicy
      * default policy}.
+     *
+     * @return The policy for computing image types.
      */
     public ImageTypePolicy getImageTypePolicy() {
         return imageTypePolicy;
@@ -185,6 +223,9 @@ public class MosaicImageReadParam extends ImageReadParam {
      * Subclasses can override this method if they want to configure the parameters for
      * tile readers in an other way. Note however that {@link MosaicController} provides
      * an other way to configure parameters.
+     *
+     * @param reader The tile reader.
+     * @return The parameter for reading a tile using the given reader.
      */
     protected ImageReadParam getTileParameters(final ImageReader reader) {
         final ImageReadParam parameters = reader.getDefaultReadParam();

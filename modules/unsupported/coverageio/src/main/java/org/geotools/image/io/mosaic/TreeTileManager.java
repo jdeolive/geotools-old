@@ -279,6 +279,31 @@ fill:   for (final List<Tile> sameInputs : asArray) {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @throws IOException If it was necessary to fetch an image dimension from its
+     *         {@linkplain Tile#getImageReader reader} and this operation failed.
+     */
+    @Override
+    public boolean intersects(final Rectangle region, final Dimension subsampling)
+            throws IOException
+    {
+        final RTree tree = getTree();
+        final boolean intersects;
+        try {
+            // Initializes the tree with the search criterions.
+            tree.regionOfInterest = region;
+            tree.subsampling = subsampling;
+            intersects = tree.intersects();
+        } finally {
+            tree.regionOfInterest = null; // Just as a safety (not really required).
+            tree.subsampling = null;
+            release(tree);
+        }
+        return intersects;
+    }
+
+    /**
      * Returns a hash code value for this tile manager.
      */
     @Override

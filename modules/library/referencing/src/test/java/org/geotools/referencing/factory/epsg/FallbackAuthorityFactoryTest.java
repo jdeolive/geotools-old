@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -102,6 +102,8 @@ public final class FallbackAuthorityFactoryTest {
     /**
      * Tests the {@code 42101} code. The purpose of this test is mostly
      * to make sure that {@link FactoryUsingWKT} is in the chain.
+     *
+     * @throws FactoryException If the CRS can't be created.
      */
     @Test
     public void test42101() throws FactoryException {
@@ -110,6 +112,8 @@ public final class FallbackAuthorityFactoryTest {
 
     /**
      * Tests the {@code 00001} fake code.
+     *
+     * @throws FactoryException If the CRS can't be created.
      */
     @Test
     public void test00001() throws FactoryException {
@@ -126,6 +130,8 @@ public final class FallbackAuthorityFactoryTest {
     /**
      * GEOT-1702, make sure looking up for an existing code does not result in a
      * {@link StackOverflowException}.
+     *
+     * @throws FactoryException If the CRS can't be created.
      */
     @Test
     public void testLookupSuccessfull() throws FactoryException {
@@ -137,6 +143,8 @@ public final class FallbackAuthorityFactoryTest {
     /**
      * GEOT-1702, make sure looking up for a non existing code does not result in a
      * {@link StackOverflowException}.
+     *
+     * @throws FactoryException If the CRS can't be created.
      */
     @Test
     public void testLookupFailing() throws FactoryException {

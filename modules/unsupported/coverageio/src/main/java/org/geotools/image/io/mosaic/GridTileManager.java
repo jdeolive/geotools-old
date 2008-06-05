@@ -232,11 +232,30 @@ final class GridTileManager extends TileManager {
              */
             final ArrayList<Tile> tiles = new ArrayList<Tile>();
             level.getTiles(tiles, region, subsampling, Long.MAX_VALUE);
-            // TODO: The search in finer level is not yet implemented.
+            // TODO: The search in finer levels is not yet implemented.
             subsampling.setSize(doable);
             return tiles;
         }
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IOException If it was necessary to fetch an image dimension from its
+     *         {@linkplain Tile#getImageReader reader} and this operation failed.
+     */
+    @Override
+    public boolean intersects(final Rectangle region, final Dimension subsampling)
+            throws IOException
+    {
+        for (OverviewLevel level=root; level!=null; level=level.getFinerLevel()) {
+            final int c = level.compareTo(subsampling);
+            if (c <= 0 && level.intersects(region)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

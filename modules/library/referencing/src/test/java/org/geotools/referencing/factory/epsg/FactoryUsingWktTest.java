@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  *
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (Geomatys)
  * @author Jody Garnett
  */
 public final class FactoryUsingWktTest {
@@ -59,6 +59,8 @@ public final class FactoryUsingWktTest {
 
     /**
      * Tests the setting of "CRS authority extra directory" hint.
+     *
+     * @throws Exception If a factory or a transform exception occured.
      */
     @Test
     public void testCrsAuthorityExtraDirectoryHint() throws Exception {
@@ -101,6 +103,8 @@ public final class FactoryUsingWktTest {
 
     /**
      * Tests the {@code 18001} code.
+     *
+     * @throws FactoryException If the CRS can't be created.
      */
     @Test
     public void test42101() throws FactoryException {

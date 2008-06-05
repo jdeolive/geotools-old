@@ -619,13 +619,37 @@ public class MosaicBuilder {
      *   <li>{@link #setUntiledImageBounds}</li>
      *   <li>{@link #setTileReaderSpi}</li>
      * </ul>
+     * <p>
+     * The other setter methods are optional.
      *
      * @return The tile manager created from the information returned by getter methods.
      * @throws IOException if an I/O operation was required and failed. The default implementation
      *         does not perform any I/O, but subclasses are allowed to do so.
      */
-    @SuppressWarnings("fallthrough")
     public TileManager createTileManager() throws IOException {
+        return createFromInput(null);
+    }
+
+    /**
+     * Implementation of {@link #createTileManager()} with a given input. This method is not
+     * public because it expects an argument controlling the behavior of tile writting, while
+     * this method actually does not write anything to disk. The policy is used in order to
+     * determine whatever this method should skip empty tiles or not. Skipping empty tiles are
+     * usually performed when reading the original untiled image, because we know only at that
+     * time which tiles are going to contain non-zero pixels. However it is possible to skip the
+     * tiles that do not intersect any input tile. This is incomplete since some of the remaining
+     * tiles may need to be skipped as well (we will do that later, during the write process),
+     * but doing this early pre-filtering here can improve a lot the performance and memory usage.
+     *
+     * @param  input
+     *          The tile manager for the input tiles, or {@code null} if none. If non-null, this is
+     *          used only in order to filter the output tiles to the ones that intersect the input
+     *          tiles. This value should be {@code null} if no such filtering should be applied.
+     * @return The tile manager created from the information returned by getter methods.
+     * @throws IOException if an I/O operation was required and failed.
+     */
+    @SuppressWarnings("fallthrough")
+    private TileManager createFromInput(final TileManager input) throws IOException {
         tileReaderSpi = getTileReaderSpi();
         if (tileReaderSpi == null) {
             // TODO: We may try to detect automatically the Spi in a future version.
@@ -640,7 +664,7 @@ public class MosaicBuilder {
             tileSize = ImageUtilities.toTileSize(untiledBounds.getSize());
         }
         formatter.initialize(tileReaderSpi);
-        final TileManager manager;
+        final TileManager output;
         /*
          * Delegates to a method using an algorithm appropriate for the requested layout.
          */
@@ -651,7 +675,7 @@ public class MosaicBuilder {
                 // Fall through
             }
             case CONSTANT_TILE_SIZE: {
-                manager = createTileManager(constantArea, canUsePattern());
+                output = createFromInput(constantArea, canUsePattern(), input);
                 break;
             }
             default: {
@@ -663,12 +687,12 @@ public class MosaicBuilder {
          * if an envelope was given to this builder.
          */
         if (mosaicEnvelope != null && !mosaicEnvelope.isNull()) {
-            final GridToEnvelopeMapper mapper = createGridToEnvelopeMapper(manager);
+            final GridToEnvelopeMapper mapper = createGridToEnvelopeMapper(output);
             mapper.setGridRange(new GridRange2D(untiledBounds));
             mapper.setEnvelope(mosaicEnvelope);
-            manager.setGridToCRS((AffineTransform) mapper.createTransform());
+            output.setGridToCRS((AffineTransform) mapper.createTransform());
         }
-        return manager;
+        return output;
     }
 
     /**
@@ -681,14 +705,21 @@ public class MosaicBuilder {
      *       the whole image.</li>
      * </ul>
      *
-     * @param  constantArea {@code true} for constant area layout, or {@code false} for constant
-     *         tile size layout.
-     * @param  usePattern {@code true} for creating tiles using a pattern instead of creating
-     *         individual instance of every tiles.
+     * @param  constantArea
+     *          {@code true} for constant area layout, or {@code false} for constant
+     *          tile size layout.
+     * @param  usePattern
+     *          {@code true} for creating tiles using a pattern instead of creating
+     *          individual instance of every tiles.
+     * @param  input
+     *          The tile manager for the input tiles, or {@code null} if none. If non-null, this is
+     *          used only in order to filter the output tiles to the ones that intersect the input
+     *          tiles. This value should be {@code null} if no such filtering should be applied.
      * @return The tile manager.
      * @throws IOException if an I/O operation was requested and failed.
      */
-    private TileManager createTileManager(final boolean constantArea, final boolean usePattern)
+    private TileManager createFromInput(final boolean constantArea, final boolean usePattern,
+                                        final TileManager input)
             throws IOException
     {
         final Dimension tileSize      = this.tileSize;      // Paranoiac compile-time safety against
@@ -718,6 +749,7 @@ public class MosaicBuilder {
             tiles  = new ArrayList<Tile>();
             levels = null;
         }
+        final Rectangle absoluteBounds = new Rectangle();
         /*
          * For each overview level, computes the size of tiles and the size of the mosaic as
          * a whole. The 'tileBounds' and 'imageBounds' rectangles are overwritten during each
@@ -756,6 +788,23 @@ public class MosaicBuilder {
                 final Tile tile = new Tile(tileReaderSpi, pattern, 0, tileBounds, subsampling);
                 final OverviewLevel ol = new OverviewLevel(tile, imageBounds);
                 ol.createLinkedList(level, (level != 0) ? levels[level - 1] : null);
+                if (input != null) {
+                    final int nx = ol.getNumXTiles();
+                    final int ny = ol.getNumYTiles();
+                    absoluteBounds.width  = xSubsampling * tileBounds.width;
+                    absoluteBounds.height = ySubsampling * tileBounds.height;
+                    absoluteBounds.y      = ySubsampling * tileBounds.y;
+                    for (int y=0; y<ny; y++) {
+                        absoluteBounds.x = xSubsampling * tileBounds.x;
+                        for (int x=0; x<nx; x++) {
+                            if (!input.intersects(absoluteBounds, subsampling)) {
+                                ol.removeTile(x, y);
+                            }
+                            absoluteBounds.x += absoluteBounds.width;
+                        }
+                        absoluteBounds.y += absoluteBounds.height;
+                    }
+                }
                 levels[level] = ol;
             } else {
                 /*
@@ -766,21 +815,28 @@ public class MosaicBuilder {
                  */
                 final int xmin = imageBounds.x;
                 final int ymin = imageBounds.y;
-                final int xmax = imageBounds.x + imageBounds.width;
-                final int ymax = imageBounds.y + imageBounds.height;
+                final int xmax = imageBounds.width  + xmin;
+                final int ymax = imageBounds.height + ymin;
                 final int dx   = tileBounds.width;
                 final int dy   = tileBounds.height;
-                int x=0, y=0;
-                for (tileBounds.y = ymin; tileBounds.y < ymax; tileBounds.y += dy) {
-                    x = 0;
-                    for (tileBounds.x = xmin; tileBounds.x < xmax; tileBounds.x += dx) {
+                absoluteBounds.width  = xSubsampling * dx;
+                absoluteBounds.height = ySubsampling * dy;
+                int y=0;
+                for (tileBounds.y = ymin; tileBounds.y < ymax; tileBounds.y += dy, y++) {
+                    int x = 0;
+                    absoluteBounds.y = ySubsampling * tileBounds.y;
+                    for (tileBounds.x = xmin; tileBounds.x < xmax; tileBounds.x += dx, x++) {
+                        if (input != null) {
+                            absoluteBounds.x = xSubsampling * tileBounds.x;
+                            if (!input.intersects(absoluteBounds, subsampling)) {
+                                continue;
+                            }
+                        }
                         Rectangle clippedBounds = tileBounds.intersection(imageBounds);
                         File file = new File(directory, generateFilename(level, x, y));
                         Tile tile = new Tile(tileReaderSpi, file, 0, clippedBounds, subsampling);
                         tiles.add(tile);
-                        x++;
                     }
-                    y++;
                 }
             }
         }
@@ -796,8 +852,8 @@ public class MosaicBuilder {
              * (instead than using the pattern) and makes sure that we get the same set
              * of tiles. The later comparaison is trigged by the call to getTiles().
              */
-            assert !(new ComparedTileManager(manager, createTileManager(constantArea, false)).
-                    getTiles().isEmpty());
+            assert !(new ComparedTileManager(manager,
+                    createFromInput(constantArea, false, input)).getTiles().isEmpty());
         } else {
             final TileManager[] managers = factory.create(tiles);
             manager = managers[0];
@@ -829,6 +885,12 @@ public class MosaicBuilder {
      */
     private final class Writer extends MosaicImageWriter {
         /**
+         * The tile writing policy. Should be identical to the value given to
+         * {@link MosaicImageWriteParam#setTileWritingPolicy}.
+         */
+        private final TileWritingPolicy policy;
+
+        /**
          * Index of the untiled image to read.
          */
         private final int inputIndex;
@@ -842,13 +904,14 @@ public class MosaicBuilder {
          * The tiles created by {@link MosaicBuilder#createTileManager}.
          * Will be set by {@link #filter} and read by {@link MosaicBuilder}.
          */
-        TileManager tiles;
+        TileManager outputTiles;
 
         /**
          * Creates a writer for an untiled image to be read at the given index.
          */
-        Writer(final int inputIndex) {
+        Writer(final int inputIndex, final TileWritingPolicy policy) {
             this.inputIndex = inputIndex;
+            this.policy = policy;
         }
 
         /**
@@ -859,10 +922,14 @@ public class MosaicBuilder {
             final Rectangle bounds = new Rectangle();
             bounds.width  = reader.getWidth (inputIndex);
             bounds.height = reader.getHeight(inputIndex);
+            TileManager input = null;
             // Sets only after successful reading of image size.
             if (reader instanceof MosaicImageReader) {
                 final MosaicImageReader mosaic = (MosaicImageReader) reader;
-                inputTiles = mosaic.getInput();
+                inputTiles = mosaic.getInput(); // Should not be null as of filter(...) contract.
+                if (inputTiles.length > inputIndex && (policy != null && !policy.includeEmpty)) {
+                    input = inputTiles[inputIndex];
+                }
                 reader = mosaic.getTileReader();
             }
             if (reader != null) { // May be null as a result of above line.
@@ -872,9 +939,9 @@ public class MosaicBuilder {
                 }
             }
             setUntiledImageBounds(bounds);
-            tiles = createTileManager();
+            outputTiles = createFromInput(input);
             try {
-                setOutput(tiles);
+                setOutput(outputTiles);
             } catch (IllegalArgumentException exception) {
                 final Throwable cause = exception.getCause();
                 if (cause instanceof IOException) {
@@ -931,7 +998,7 @@ public class MosaicBuilder {
                                          final TileWritingPolicy policy) throws IOException
     {
         formatter.ensurePrefixSet(input);
-        final Writer writer = new Writer(inputIndex);
+        final Writer writer = new Writer(inputIndex, policy);
         writer.setLogLevel(getLogLevel());
         final MosaicImageWriteParam param = writer.getDefaultWriteParam();
         param.setTileWritingPolicy(policy);
@@ -942,7 +1009,7 @@ public class MosaicBuilder {
         } finally {
             writer.dispose();
         }
-        TileManager tiles = writer.tiles;
+        TileManager tiles = writer.outputTiles;
         /*
          * Before to return the tile manager, if no geometry has been inferred from the target
          * tiles (typically because no setEnvelope(...) has not been invoked), then inherit the
