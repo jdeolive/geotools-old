@@ -393,7 +393,8 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
         out.write("/*\n" +
                   " *    GeoTools - The Open Source Java GIS Tookit\n" +
                   " *    http://geotools.org\n" +
-                  " *    (C) 2003-2007, Geotools Project Managment Committee (PMC)\n" +
+                  " *    \n" +
+                  " *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)\n" +
                   " *    \n" +
                   " *    This library is free software; you can redistribute it and/or\n" +
                   " *    modify it under the terms of the GNU Lesser General Public\n" +
