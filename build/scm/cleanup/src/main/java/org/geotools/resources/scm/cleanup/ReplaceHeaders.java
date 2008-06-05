@@ -1,7 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation; either
@@ -289,7 +291,9 @@ public final class ReplaceHeaders extends CommandLine {
                 }
                 //We have processed all the copyright lines
                 if (hasCopyright) {
-                    textOut.append(" * \n").append(" *    (C) ");
+//Toggle if module has / does not have the extra line. Second line leaves as is.
+//                    textOut.append(" * \n").append(" *    (C) ");
+                    textOut.append(" *    (C) ");
                     startCopyright = Collections.min(copyrightsRed.values());
                     if (startCopyright < CURRENT_YEAR) {
                         textOut.append(startCopyright).append("-");
