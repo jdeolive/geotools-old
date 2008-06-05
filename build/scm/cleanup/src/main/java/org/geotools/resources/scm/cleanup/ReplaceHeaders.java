@@ -80,6 +80,8 @@ import org.geotools.console.Option;
  *   <li>-info   --- run in information only mode; will not write any file</li>
  *   <li>-output "path/to/existing/folder-or-file" will recreate a file tree of 
  *                             modified files in the quoted directory.</li>
+ *   <li>-insertSpacerLine  --- adds a line above the first (C) line written. 
+                                <b>WARNING</b> This will change all files.</li>
  * </ul>
  *</p><p>
  * NOTE: the file can be run several times on the same input without problems.
@@ -176,6 +178,12 @@ public final class ReplaceHeaders extends CommandLine {
      */
     @Option(description="Only displays information about changes (write nothing).")
     private boolean info;
+
+    /**
+     * Command-line option for the output file or directory.
+     */
+    @Option(description="Insert a spacer line in the header between the url and the copyright.")
+    private boolean insertSpacerLine;
 
 
     /**
@@ -291,9 +299,12 @@ public final class ReplaceHeaders extends CommandLine {
                 }
                 //We have processed all the copyright lines
                 if (hasCopyright) {
-//Toggle if module has / does not have the extra line. Second line leaves as is.
-//                    textOut.append(" * \n").append(" *    (C) ");
-                    textOut.append(" *    (C) ");
+                    //Toggle if we add a line to the header above the copyright.
+                    if (insertSpacerLine){
+                        textOut.append(" * \n").append(" *    (C) ");
+                    } else {
+                        textOut.append(" *    (C) ");
+                    }
                     startCopyright = Collections.min(copyrightsRed.values());
                     if (startCopyright < CURRENT_YEAR) {
                         textOut.append(startCopyright).append("-");
