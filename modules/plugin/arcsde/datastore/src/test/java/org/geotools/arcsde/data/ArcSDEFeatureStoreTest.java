@@ -283,13 +283,13 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
         Filter filterOne = ff.id(Collections.singleton(ff.featureId(featureId)));
 
-        assertEquals(0, listener.list.size());
-        assertEquals(0, listener1.list.size());
-        assertEquals(0, listener2.list.size());
+        assertEquals("no events on AUTO_COMMIT",0, listener.list.size());
+        assertEquals("no events on transaction1",0, listener1.list.size());
+        assertEquals("no events on transaction2",0, listener2.list.size());
         featureStore1.removeFeatures(filterOne);
-        assertEquals(0, listener.list.size());
-        assertEquals(1, listener1.list.size());
-        assertEquals(0, listener2.list.size());
+        assertEquals("no events on AUTO_COMMIT",0, listener.list.size());
+        assertEquals("single event on transaction2",1, listener1.list.size());
+        assertEquals("no events on AUTO_COMMIT",0, listener2.list.size());
 
         FeatureEvent e = listener1.list.get(0);
         assertEquals(featureStore1, e.getFeatureSource());
@@ -302,9 +302,9 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         assertFalse(bounds.isNull());
 
         t1.commit();
-        assertEquals(1, listener.list.size());
-        assertEquals(2, listener1.list.size());
-        assertEquals(1, listener2.list.size());
+        assertEquals("commit event sent to AUTO_COMMIT",1, listener.list.size());
+        assertEquals("commit event sent to transaction 1",2, listener1.list.size());
+        assertEquals("commit event sent to transaction 2", listener2.list.size());
     }
 
     public void testFeatureEventsAndTransactionsForAdd() throws Exception {
