@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- =======================================================================    
-        Maven Project Configuration File                                        
-                                                                                
-        The Geotools Project                                                    
-            http://www.geotools.org/                                            
-                                                                                
-        Version: $Id$              
+<!-- =======================================================================
+        Maven Project Configuration File
+
+        The Geotools Project
+            http://www.geotools.org/
+
+        Version: $Id$
      ======================================================================= -->
   <project xmlns="http://maven.apache.org/POM/4.0.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -21,45 +21,12 @@
 
 
   <!-- =========================================================== -->
-  <!--   Properties and Profiles                                   -->
-  <!--       explanation of their effect.                          -->
-  <!--                                                             -->
-  <!--   Available profiles are:                                   -->
-  <!--                                                             -->
-  <!--     nameOfprofile      Explantion of what the profile does  -->
-  <!--                        for the user.                        -->
-  <!--                                                             -->
-  <!--     Example:           mvn -PnameOfprofile install          -->
-  <!--                                                             -->
-  <!--     Note ...                                                -->
-  <!-- =========================================================== -->
-  <!-- Default setting of properties -->
-  <!--
-  <properties>
-    <nameOfproperty>valueOfsetting</nameOfproperty>
-  </properties>
-  -->
-
-  <!-- Profiles set on the command-line to override default properties. -->
-  <!--
-  <profiles>
-    <profile>
-      <id>nameOfprofile</id>
-      <properties>
-        <nameOfproperty>valueOfsetting</nameOfproperty>
-      </properties>
-    </profile>
-  </profiles>
-  -->
-  
-
-  <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
   <artifactId>gt-widgets-swing-pending</artifactId>
   <packaging>jar</packaging>
-  <name>widgets-swing-pending</name>
+  <name>Widgets-swing-pending</name>
   <url>http://maven.geotools.fr/reports/modules/unsupported/widgets-swing-pending/</url>
 
   <scm>
@@ -71,8 +38,6 @@
 
   <description>Swing widgets, coming from project AlterSIG. Will be added in module swing widgets once cleaned up.</description>
 
-  <!-- Pick your license. -->
-  <!--
   <licenses>
     <license>
       <name>Lesser General Public License (LGPL)</name>
@@ -80,7 +45,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  -->
 
 
   <!-- =========================================================== -->
@@ -104,19 +68,18 @@
   <!-- =========================================================== -->
   <dependencies>
 
-    
     <!-- commons-beanutils-1.7.0.jar -->
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
     </dependency>
-    
+
     <!-- commons-collections-3.1.jar -->
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>
-    
+
     <!-- commons-jxpath-1.2.jar -->
     <dependency>
       <groupId>commons-jxpath</groupId>
@@ -137,12 +100,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
-    <!-- geoapi-2.2-SNAPSHOT.jar -->
-    <dependency>
-      <groupId>org.opengis</groupId>
-      <artifactId>geoapi</artifactId>
-    </dependency>
 
     <!-- api-2.5-SNAPSHOT.jar -->
     <dependency>
@@ -162,14 +119,14 @@
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-epsg-hsql</artifactId>
-      <version>${project.version}</version> 
+      <version>${project.version}</version>
     </dependency>
 
     <!-- geotiff-2.5-SNAPSHOT.jar -->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-geotiff</artifactId>
-      <version>${project.version}</version> 
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -183,7 +140,7 @@
       <artifactId>gt-legacy</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <!-- main-2.5-SNAPSHOT.jar -->
     <dependency>
       <groupId>org.geotools</groupId>
@@ -217,20 +174,11 @@
       <version>${project.version}</version>
     </dependency>
 
-
-
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-epsg-hsql</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-postgis</artifactId>
       <version>${project.version}</version>
     </dependency>
-
 
     <!-- referencing-2.5-SNAPSHOT.jar -->
     <dependency>
@@ -279,7 +227,7 @@
       <groupId>org.geotools.xsd</groupId>
       <artifactId>gt-xsd-gml2</artifactId>
       <version>${project.version}</version>
-    </dependency>  
+    </dependency>
 
     <dependency>
       <groupId>org.geotools</groupId>
@@ -293,30 +241,6 @@
       <artifactId>gt-xsd-sld</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
-    <!--<dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-go</artifactId>
-      <version>${project.version}</version>
-    </dependency>-->
-
-    <!-- hsqldb-1.8.0.7.jar -->
-    <dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-    </dependency>
-
-    <!-- jsr108-0.01.jar -->
-    <dependency>
-      <groupId>javax.units</groupId>
-      <artifactId>jsr108</artifactId>
-    </dependency>
-
-    <!-- jts-1.8.jar -->
-    <dependency>
-      <groupId>com.vividsolutions</groupId>
-      <artifactId>jts</artifactId>
-    </dependency>
 
     <!-- jts-wrapper -->
     <dependency>
@@ -324,25 +248,12 @@
       <artifactId>gt-jts-wrapper</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <!-- picocontainer-1.2.jar -->
     <dependency>
       <groupId>picocontainer</groupId>
       <artifactId>picocontainer</artifactId>
       <version>1.2</version>
-    </dependency>
-
-    <!-- vecmath-1.3.1.jar -->
-    <dependency>
-      <groupId>java3d</groupId>
-      <artifactId>vecmath</artifactId>
-    </dependency>
-
-    <!-- xercesImpl-2.8.0.jar -->
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.8.0</version>
     </dependency>
 
     <!-- xml-apis-1.3.03.jar -->
@@ -358,22 +269,20 @@
       <artifactId>gt-wfs</artifactId>
       <version>${project.version}</version>
     </dependency>
-      
+
     <!-- WMS datastore -->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-wms</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <!-- process -->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-process</artifactId>
       <version>${project.version}</version>
-    </dependency>    
-
-    
+    </dependency>
 
     <!-- swing-layout.jar -->
     <dependency>
@@ -389,20 +298,8 @@
       <version>0.8-SNAPSHOT</version>
     </dependency>
 
-    <!-- Java Advanced Imaging (JAI) -->
-    <dependency>
-      <groupId>javax.media</groupId>
-      <artifactId>jai_core</artifactId>
-      <version>1.1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.media</groupId>
-      <artifactId>jai_imageio</artifactId>
-      <version>1.1</version>
-    </dependency>
-    
   </dependencies>
- 
+
 
   <!-- =========================================================== -->
   <!--     Build Configuration                                     -->
@@ -427,39 +324,8 @@
           </excludes>
         </configuration>
       </plugin>
-      
-      <!-- ====    Execute         =============================== -->
-      <!-- ====    Testing          ============================== -->
-      <!-- ====    Code Formatting  ============================== -->
-      <!--
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jalopy-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>format</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      -->
-      <!-- ====    Code Coverage    ============================== -->
-      <!--
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clover-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal></goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      -->
     </plugins>
-    
+
   </build>
 
 </project>
