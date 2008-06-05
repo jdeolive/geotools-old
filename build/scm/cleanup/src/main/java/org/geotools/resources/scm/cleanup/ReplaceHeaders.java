@@ -89,8 +89,10 @@ public final class ReplaceHeaders extends CommandLine {
 
     private final static Logger LOGGER = Logger.getLogger("org.geotools.resources.scm.cleanup");
 
-    private final String FIRST_LINE = "GeoTools - The Open Source Java GIS Tookit";
-    private final String OSGEO      = "Open Source Geospatial Foundation (OSGeo)";
+    private final String AUTHOR_MARTIN    = "@author Martin Desruisseaux";
+    private final String FIRST_LINE       = "GeoTools - The Open Source Java GIS Tookit";
+    private final String GEOTOOLS_OLD     = "GeoTools - OpenSource mapping toolkit";
+    private final String OSGEO            = "Open Source Geospatial Foundation (OSGeo)";
 
     private static final int CURRENT_YEAR = 2008;
 
@@ -261,7 +263,6 @@ public final class ReplaceHeaders extends CommandLine {
             final Map<String,Integer> copyrightsRed = new HashMap<String,Integer>();
             final Set<String> unknowCopyrights = new HashSet<String>();
 
-            final String geotoolsOld = "GeoTools - OpenSource mapping toolkit";
 
 
             /* *****************************************************************
@@ -269,9 +270,9 @@ public final class ReplaceHeaders extends CommandLine {
              */
             while ((line = reader.readLine()) != null) {
                 textIn.append(line).append("\n");
-                if (line.contains(geotoolsOld)) {
+                if (line.contains(GEOTOOLS_OLD)) {
                     linesChanged++;
-                    textOut.append(line.replaceAll(geotoolsOld, FIRST_LINE)).append("\n");
+                    textOut.append(line.replaceAll(GEOTOOLS_OLD, FIRST_LINE)).append("\n");
                     continue;
                 }
                 // Lines like " *    (C) 2005"
@@ -286,8 +287,9 @@ public final class ReplaceHeaders extends CommandLine {
                     copyrightsRed.put(copyrightName, getCopyrigthStartTime(line));
                     continue;
                 }
+                //We have processed all the copyright lines
                 if (hasCopyright) {
-                    textOut.append(" *    (C) ");
+                    textOut.append(" * \n").append(" *    (C) ");
                     startCopyright = Collections.min(copyrightsRed.values());
                     if (startCopyright < CURRENT_YEAR) {
                         textOut.append(startCopyright).append("-");
@@ -296,15 +298,13 @@ public final class ReplaceHeaders extends CommandLine {
                     hasCopyright = false;
                     linesDeleted = linesWithCopyright - 1;
                     linesChanged++;
-                    continue;
                 }
 
                 ////////////////////////////////////////////////////////
                 // Block specific for Martin's @author tagline
                 // Tests whether there is a copyright defined in the header,
                 // for which Martin wants to add to the {@code author} annotation.
-                final String authorMartin = "@author Martin Desruisseaux";
-                if (line.contains(authorMartin) && !copyrightsRed.isEmpty()) {
+                if (line.contains(AUTHOR_MARTIN) && !copyrightsRed.isEmpty()) {
                     String copyrightReplacement = "";
                     for (String foundC : copyrightsRed.keySet()) {
                         if (COPYRIGHTS_FOR_MARTIN.get(foundC) != null) {
@@ -321,13 +321,13 @@ public final class ReplaceHeaders extends CommandLine {
                     }
                     // Tests whether a copyright requires to add something to Martin's name.
                     if (!copyrightReplacement.equals("")) {
-                        textOut.append(line.replaceAll(authorMartin,
-                                authorMartin + " (" + copyrightReplacement) + ")").append("\n");
+                        textOut.append(line.replaceAll(AUTHOR_MARTIN,
+                                AUTHOR_MARTIN + " (" + copyrightReplacement) + ")").append("\n");
                         linesChanged++;
                         continue;
                     }
                 }
-                //
+                //We did not match any cases so we simply write the line as it was
                 textOut.append(line).append("\n");
             }
             reader.close();
