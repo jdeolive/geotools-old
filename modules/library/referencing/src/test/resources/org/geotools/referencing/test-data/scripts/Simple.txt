@@ -1,5 +1,7 @@
 // Test coordinate transformations for simple cases.
 //
+// (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // The following test tranforms between different datums, using toWGS84 parameters,
 // to track down potential failures in the full test suite. Source to Target points 
 // were calculated with Arc/Info 8.2 using user defined datums shift parameters.

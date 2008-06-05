@@ -1,6 +1,8 @@
 // Test points for the Lambert Conformal Conic Projection 
 // (EPSG 9801, 9802, and 9803)
 //
+// (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // The following test points were calculated with ArcGIS 8.3
 // ArcGIS does not support a separate "Lambert_Conformal_Conic_1SP",
 // so this was calculated by setting SP1 == latOfOrigin.

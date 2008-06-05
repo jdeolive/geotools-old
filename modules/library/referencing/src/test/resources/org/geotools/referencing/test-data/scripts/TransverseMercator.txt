@@ -1,5 +1,6 @@
-// Test points for the Transverse Mercator Projection 
-// (EPSG 9807)
+// Test points for the Transverse Mercator Projection (EPSG 9807)
+// 
+// (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
 //
 // The following test points were calculated with ArcGIS 8.3
 // Points with an //Error: comment could not be calculated with ArcGIS, 

@@ -1,5 +1,7 @@
 // Test points for the AbridgedMolodensky Transformation
 //
+// (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // Calculations were done with ArcGIS 8.3, calculations for Z were done
 // with a spreadsheet (OO.o)
 // Note: The following test points are outside of the valid regions for 

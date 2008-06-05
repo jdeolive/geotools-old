@@ -1,5 +1,7 @@
 // Test points for the Mercator Projection
 //
+// (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // The following test points were calculated with ArcGIS 8.3 
 // ArcGIS does not distinguish between Mercator_1SP and Mercator_2SP:
 // 1SP is the case where latitude_of_origin = 0.0.

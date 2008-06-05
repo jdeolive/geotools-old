@@ -1,5 +1,7 @@
 // Test points for the Oblique Mercator Projection
 //
+// (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // Most of the following test points were calculated with ArcGIS 8.3 
 // Some test points comes from the proj4 email list, epsg guidebook 7 and Snyder.
 // The test with an azimuth of -90 was actually calculated for azimuth of -89.999999

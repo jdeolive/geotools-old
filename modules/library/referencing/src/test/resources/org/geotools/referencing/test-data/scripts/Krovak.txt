@@ -1,5 +1,7 @@
 // Test points for the Krovak
 //
+// (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // The following test points were calculated with Proj4 and also with
 // Geodetic software (Kokes) that is used in Czech Perupblic.
 //

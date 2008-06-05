@@ -1,11 +1,9 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
  *
- *   (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *   (C) 2001, Institut de Recherche pour le Développement
- *   (C) 2000, Frank Warmerdam
- *   (C) 1999, Fisheries and Oceans Canada
+ * 
+ *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -76,7 +74,7 @@ import static java.lang.Math.*;
  * @version $Id$
  * @source $URL$
  * @author André Gosselin
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (PMO, IRD)
  * @author Rueben Schulz
  *
  * @see <A HREF="http://mathworld.wolfram.com/MapProjection.html">Map projections on MathWorld</A>
@@ -928,7 +926,7 @@ public abstract class MapProjection extends AbstractMathTransform
      * {@link MapProjection#transformNormalized}.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (PMO, IRD)
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
         /**
@@ -1289,7 +1287,7 @@ public abstract class MapProjection extends AbstractMathTransform
      * The base provider for {@link MapProjection}s.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (PMO, IRD)
      */
     public static abstract class AbstractProvider extends MathTransformProvider {
         /**

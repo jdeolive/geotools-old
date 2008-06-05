@@ -1,8 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2004-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2002, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
  * @version $Id$
  * @author Yann Cézard
  * @author Remi Eve
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 public final class ScriptTest {
     /**

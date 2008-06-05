@@ -1,12 +1,9 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
  *
- *   (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *   (C) 2002, Centre for Computational Geography
- *   (C) 2001, Institut de Recherche pour le Développement
- *   (C) 2000, Frank Warmerdam
- *   (C) 1999, Fisheries and Oceans Canada
+ * 
+ *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -96,7 +93,7 @@ import static java.lang.Math.*;
  * @source $URL$
  * @version $Id$
  * @author André Gosselin
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (PMO, IRD)
  * @author Rueben Schulz
  */
 public class TransverseMercator extends MapProjection {
@@ -306,7 +303,7 @@ public class TransverseMercator extends MapProjection {
      *
      * @version $Id$
      * @author André Gosselin
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (PMO, IRD)
      * @author Rueben Schulz
      */
     private static final class Spherical extends TransverseMercator {
@@ -592,7 +589,7 @@ public class TransverseMercator extends MapProjection {
      *
      * @since 2.1
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (PMO, IRD)
      * @author Rueben Schulz
      *
      * @see org.geotools.referencing.operation.DefaultMathTransformFactory
@@ -700,7 +697,7 @@ public class TransverseMercator extends MapProjection {
      *
      * @since 2.2
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (PMO, IRD)
      *
      * @see org.geotools.referencing.operation.DefaultMathTransformFactory
      */

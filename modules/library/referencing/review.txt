@@ -2,44 +2,48 @@ MODULE REFERENCING
 ==================
 Module Maintainer:
 - Martin
-IP Review:
-- Martin, March, 2006
-- Jody Garnett, August 5th, 2006
 
-Referencing is at one level a "pure" implementation of GeoAPI interfaces, up to the level of coordinate reference
-systems. There is all kinds of fun reprojection stuff happening here, some of which is ported from
-proj4 (with permission). There has been a lot of email on this subject, and I am going to let Martin
-update this file with anything appropriate.
+IP Review:
+  - Martin, March, 2006
+  - Jody Garnett, August 5th, 2006
+  - Adrian Custer, June 5th, 2008
+
+STATUS: June 2008
+  CLEAN except
+    Rueben Shultz worked on this module but his name does not appear on the list 
+      of vetted contributors.
+      http://docs.codehaus.org/display/GEOTOOLS/GeoTools+Contributor+Status
+
+
+Referencing is at one level a "pure" implementation of GeoAPI interfaces, up to 
+the level of coordinate reference systems. There is all kinds of fun 
+reprojection stuff happening here, some of which is ported from proj4 (with 
+permission). There has been a lot of email on this subject, and I am going to 
+let Martin update this file with anything appropriate.
+
+Note beyond the Java ("*\.java") files there are some text files with copyright 
+headers:
+  cd modules/library/referencing
+  find ./src -name "*\.txt"
 
 
 
 org.geotools.geometry
 ---------------------
-Captures some geometry ideas, not yet a full implementation of the GeoAPI interfaces targeted.
-IP:
-- some files (C) 2004, Institut de Recherche pour le D�veloppement
-- updated headers
-
+The minimal elements of geometry required for Referencing: DirectPosition and
+Envelope.
 
 
 org.geotools.measure
 --------------------
-Support for unit parameter objects capturing common constructs like angle and latitude.
-IP:
-- range of (C) found (and maintained) in headers
-  (C) 2001, Institut de Recherche pour le D�veloppement
-  (C) 1999, Fisheries and Oceans Canada
-  (C) 1998, P�ches et Oc�ans Canada
-
-The two last ("Fisheries and Oceans Canada" and "P�ches et Oc�ans Canada")
-are actually the same thing and could be merged in a single copyright.
- 
- - updated headers as to (C) 200x - 2006 PMC as required
+Support for unit parameter objects capturing common constructs like angle and 
+latitude.
  
  
 org.geotools.nature
 -------------------
  Collection of Algorithms for hacking at natural phenomenons.
+ 
  IP:
  - package html cites the following:
    
@@ -47,26 +51,21 @@ org.geotools.nature
    http://www.treasure-troves.com/astro/TropicalYear.html
    Unesco technical papers in marine science #40,#44,#45,#50
    
- - range of (C) found in headers:
-      (C) 2003-2006, GeoTools Project Managment Committee (PMC)
-      (C) 2001, Institut de Recherche pour le D�veloppement
-      (C) 1999, P�ches et Oc�ans Canada
- - updated headers
- - Calendar, SeaWater, SunRelativePosition contains note allowing JScience to distribute using BSD style license
+   
+ - Calendar, SeaWater, SunRelativePosition contain a note allowing JScience to 
+   distribute those files using a BSD style license.
 
    The full org.geotools.nature may be removed from Geotools distribution if
    JScience decide to includes them in their own distribution. JScience is
    probably a more appropriate place than Geotools for them.
- 
+
+
 org.geotools.parameter
 ----------------------
-Parameter implementation, informed by an OGC specification. Contains an breakdown of
-paramters and parameter groups with enough metadata to allow for automation.
-IP:
- - range of (C) found in headers:
-      (C) 2004-2006, GeoTools Project Managment Committee (PMC)
-      (C) 2001, Institut de Recherche pour le D�veloppement
- - updated headers
+Parameter implementation, informed by an OGC specification. Contains an 
+breakdown of paramters and parameter groups with enough metadata to allow for 
+automation.
+
  
 org.geotools.referencing
 ------------------------
@@ -74,11 +73,6 @@ Contains the CRS utility class, a GeodeticCalculator and other high level api
 for putting the referencing system to good use.
 
 IP:
-- range of (C) found in headers:
-  
-  (C) 2003-2006, GeoTools Project Managment Committee (PMC)
-  (C) 2001, Institut de Recherche pour le D�veloppement
-
 - OGC credited with some abstrations:
   
   This package contains documentation from OpenGIS specifications.
@@ -93,48 +87,33 @@ IP:
 
   The above-cited NOAA code is in public domain.
 
-- updated headers
+
 
 org.geotools.referencing.crs
 ----------------------------
 Implementation of coordinate reference systems, based on geoapi interfaces.
+
 IP:
-- range of (C) information found:
-  
-  (C) 2003-2006, GeoTools Project Managment Committee (PMC)
-  (C) 2001, Institut de Recherche pour le D�veloppement
- 
 - OGC credited with some abstrations:
   
   This package contains documentation from OpenGIS specifications.
   OpenGIS consortium's work is fully acknowledged here.
 
-- updated headers
 
 org.geotools.referencing.cs
 ---------------------------
 Implementation of coordinate systems, based on geoapi interfaces.
-IP:
-- range of (C) information found:
-  
-  (C) 2004-2006, GeoTools Project Managment Committee (PMC)
-  (C) 2004, Institut de Recherche pour le D�veloppement
 
+IP:
 - OGC credited with some abstrations:
   
   This package contains documentation from OpenGIS specifications.
   OpenGIS consortium's work is fully acknowledged here.
- 
-- updated headers
+
 
 org.geotools.referencing.datum
 ------------------------------
 IP:
-- range of (C) information found:
-
-  (C) 2003-2006, GeoTools Project Managment Committee (PMC)
-  (C) 2001, Institut de Recherche pour le D�veloppement
-
 - OGC credited with some abstrations:
   
   This package contains documentation from OpenGIS specifications.
@@ -145,84 +124,56 @@ IP:
   This class contains formulas from the public FTP area of NOAA.
   NOAAS's work is fully acknowledged here. 
 
- - updated headers   
 
 org.geotools.referencing.factory
 --------------------------------
-Here is where factories are used to address some of the complexities of the who geospaital
-"standard" scene :-)  The DatumAliasesTable.txt is used to great effect to allow the
-various parsers to be more forgiving.
+Here is where factories are used to address some of the complexities of the who 
+geospaital "standard" scene :-)  The DatumAliasesTable.txt is used to great 
+effect to allow the various parsers to be more forgiving.
 
 IP:
-- range of (C) information found:
-
-  (C) 2005-2006, GeoTools Project Managment Committee (PMC)
-  (C) 2005, Institut de Recherche pour le D�veloppement
-
 - OGC credited with some abstrations:
   
   This package contains documentation from OpenGIS specifications.
   OpenGIS consortium's work is fully acknowledged here.
 
-- updated headers
-- DatumAliasesTable.txt appears to be out own data product, marked as (C) 2005 PMC on the
-  guess that it matches DatumAliases.java
 
 org.geotools.referencing.factory.epsg
 -------------------------------------
-Contains base support for an EPSG support, compare and contrast with the referencing plugins for PostGRES,
-and HSQL and the like available in the plugin folder.
+Contains base support for an EPSG support, compare and contrast with the 
+referencing plugins for PostGRES, and HSQL and the like available in the plugin 
+folder.
 
 IP:
-- range of (C) information found:
-
-  (C) 2005-2006, GeoTools Project Managment Committee (PMC)
-  (C) 2005, Institut de Recherche pour le D�veloppement
-
 - OGC credited with some abstrations:
   
   This package contains documentation from OpenGIS specifications.
   OpenGIS consortium's work is fully acknowledged here.
 
-- updated headers
 
 org.geotools.referencing.factory.wms
 ------------------------------------
-Created by Refractions for a project in early 2004 and donated to the GeoTools community, supports
-additional AUTO projects defined by the WMS specification in Appendix B.
+Created by Refractions for a project in early 2004 and donated to the GeoTools 
+community, supports additional AUTO projects defined by the WMS specification in 
+Appendix B.
 
-IP:
-- updated headers
 
 org.geotools.referencing.operation
 ----------------------------------
-Seems to define various math operations, probably the basis for reprojection. Most files
-date from 2004.
+Seems to define various math operations, probably the basis for reprojection. 
+Most files date from 2004.
 
 IP:
-- range of (C) information found:
-
-  (C) 2004-2006, GeoTools Project Managment Committee (PMC)
-  (C) 2004, Institut de Recherche pour le D�veloppement
-
 - OGC credited with some abstrations:
   
   This package contains documentation from OpenGIS specifications.
   OpenGIS consortium's work is fully acknowledged here.
 
-- updated headers
 
 org.geotools.referencing.operation.matrix
 -----------------------------------------
 Defines some basic matrix math, onto of Java 3D vecmath.
 
-IP:
-- range of (C) information found:
-
-  (C) 2005-2006, GeoTools Project Managment Committee (PMC)
-  (C) 2005, Institut de Recherche pour le D�veloppement
-
-- updated headers
 
 org.geotools.referencing.operation.projection
 ---------------------------------------------
@@ -231,21 +182,16 @@ been given permission to relicense some derrived code from the
 proj4 project.
 
 IP:
-- range of (C) found in headers:
-
-    (C) 2003-2006, Geotools Project Managment Committee (PMC)
-    (C) 2000, Frank Warmerdam
-    (C) 1999, Fisheries and Oceans Canada
-    (C) 1995, Gerald Evenden
-    (C) 2005, Institut de Recherche pour le D�veloppement
-
-- Frank has provided permission to relicense as LGPL
+- Some algorithms ported from Proj4.
+   Frank Warmerdam will sign the copyright agreement; we presume this covers
+   Gerald Evenden's copyright. Both added as authors as appropriate. Frank had 
+   perviously provided permission to relicense as LGPL. The package also 
+   credits the USGS work with:
 
      This package contains formulas from the PROJ package of USGS.
      USGS's work is fully acknowledged here. This derived work has
      been relicensed under LGPL with Frank Warmerdam's permission.
-     
-- update headers
+
 
 org.geotools.referencing.operation.transform
 --------------------------------------------
@@ -257,19 +203,10 @@ IP:
    This package contains documentation from OpenGIS specifications.
    OpenGIS consortium's work is fully acknowledged here.
 
-- updated headers
 
 org.geotools.referencing.wkt
 ----------------------------
 Support for reading and writing well known text.
-
-IP:
-- contains a range of (C) in headers:
-  
-  (C) 2003-2006, Geotools Project Managment Committee (PMC)
-  (C) 2002, Institut de Recherche pour le D�veloppement
-
-- update headers
 
 
 org.geotools.measure (test)
@@ -285,20 +222,17 @@ org.geotools.resources (test)
 Fun with JUnit.
 
 IP:
-- updated headers
-- range of (C) in headers
-
-     (C) 2003-2006, Geotools Project Managment Committee (PMC)
-     (C) 2003, Institut de Recherche pour le D�veloppement
-     (C) 1998, P�ches et Oc�ans Canada
- 
- - updated headers
  - scripts, not sure what this is.
-   Answer from Martin: a kind of executable test suite in text form. Contains source and target CRS,
-   source points and expected target points. The test suite performs the projection and fires a test
-   failure if the computed points is significantly different than the target points specified in the
-   script. The OpenGIS test script is modified from an OGC script. All other test scripts are Rueben
-   Schulz's work (as far as I know). Rueben did this job as a Geotools contributor.
+   Answer from Martin: a kind of executable test suite in text form. Contains 
+   source and target CRS, source points and expected target points. The test 
+   suite performs the projection and fires a test failure if the computed points 
+   is significantly different than the target points specified in the script. 
+   The OpenGIS test script is modified from an OGC script. All other test 
+   scripts are Rueben Schulz's work (as far as I know). Rueben did this job as a 
+   Geotools contributor.
+   
  - wkt for CoordinateReferenceSystem.txt - should confirm source of data?
-   Answer for Martin: they are mostly test scripts with comments, source and target points trimmed out.
-   So they are mostly Rueben's derivative work.
+   Answer for Martin: they are mostly test scripts with comments, source and 
+   target points trimmed out. So they are mostly Rueben's derivative work.
+
+

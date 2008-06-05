@@ -1,5 +1,7 @@
 // Test points for the Equidistant Cylindrical Projection
 //
+// (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // The following test points were calculated with ArcGIS 9.1
 // Points with an //Error: comment could not be calculated with ArcGIS.
 //

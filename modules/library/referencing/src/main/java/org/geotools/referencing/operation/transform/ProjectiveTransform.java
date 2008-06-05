@@ -1,9 +1,9 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
  *
- *   (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *   (C) 2001, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -85,7 +85,7 @@ import org.geotools.resources.i18n.Errors;
  * @since 2.0
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  *
  * @see javax.media.jai.PerspectiveTransform
  * @see java.awt.geom.AffineTransform
@@ -559,7 +559,7 @@ public class ProjectiveTransform extends AbstractMathTransform implements Linear
      * Note that affine transform is a special case of projective transform.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     public static final class ProviderAffine extends MathTransformProvider {
         /**
@@ -657,7 +657,7 @@ public class ProjectiveTransform extends AbstractMathTransform implements Linear
      * The provider for the "<cite>Longitude rotation</cite>" (EPSG 9601).
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     public static final class ProviderLongitudeRotation extends MathTransformProvider {
         /**

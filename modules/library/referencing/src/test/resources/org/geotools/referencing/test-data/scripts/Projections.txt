@@ -1,4 +1,7 @@
-// Parameterized math transform tests to test some map projections
+// Parameterized math transform tests to test some map projections.
+//
+// (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // These replace the hard coded tests in 
 // org.geotools.referencing.operation.transform.projection.MathTransformTest
 //

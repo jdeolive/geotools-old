@@ -1,10 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *   (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *   (C) 2001, Institut de Recherche pour le Développement
- *   (C) 2000, Frank Warmerdam
- *   (C) 1999, Fisheries and Oceans Canada
+ * 
+ *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -45,7 +43,7 @@ import static java.lang.Math.*;
  * @version $Id$
  * @author Gerald I. Evenden (for original code in Proj4)
  * @author André Gosselin
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (PMO, IRD)
  * @author Rueben Schulz
  */
 class StereographicUSGS extends Stereographic {
@@ -214,7 +212,7 @@ class StereographicUSGS extends Stereographic {
      * Stereographic projection.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (PMO, IRD)
      * @author Rueben Schulz
      */
     static final class Spherical extends StereographicUSGS {

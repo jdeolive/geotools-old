@@ -2,6 +2,8 @@
 // tests the USGS Stereographic. The second section tests
 // the EPSG Oblique and polar Stereographic (EPSG 9809 and 9810).
 //
+// (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // Note: these 2 projections (USGS and EPSG) should be the same for the 
 // polar and spherical cases.
 // Note: the point opposite from the projection's origin is undefined and 

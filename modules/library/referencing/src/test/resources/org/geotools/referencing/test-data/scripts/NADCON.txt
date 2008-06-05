@@ -1,5 +1,7 @@
 // Tests points for the NADCON Transformation
 //
+// (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // These test are not run by default in ScriptTest, since users may not 
 // have the shift files installed on their computers. Shift files can be
 // downloaded from http://www.ngs.noaa.gov/PC_PROD/NADCON/. 

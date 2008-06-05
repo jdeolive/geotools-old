@@ -1,5 +1,7 @@
 // Test points for the Orthographic Projection
 //
+// (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // The following test points were calculated with ArcInfo 8.2
 // It appears that there is a small bug in ArcInfo, and it is giving values
 // that are wrong (~0.5m) for the polls. I have commented these out below

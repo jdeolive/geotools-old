@@ -1,9 +1,9 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
  *
- *   (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *   (C) 2002, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -54,7 +54,7 @@ import org.geotools.resources.i18n.Vocabulary;
  * @since 2.0
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  *
  * @see ExponentialTransform1D
  * @see LinearTransform1D
@@ -371,7 +371,7 @@ public class LogarithmicTransform1D extends AbstractMathTransform
      * The provider for the {@link LogarithmicTransform1D}.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     public static class Provider extends MathTransformProvider {
         /**

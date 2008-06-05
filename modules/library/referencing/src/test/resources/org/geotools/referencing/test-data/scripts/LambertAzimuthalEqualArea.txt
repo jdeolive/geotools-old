@@ -1,5 +1,7 @@
 // Test points for the Lambert Azimuthal Equal Area Projection
 //
+// (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
+//
 // The first two test points were calculated with FME. The rest of the tests were 
 // calculated with ArcGIS 9.1.
 // 

@@ -1,5 +1,6 @@
-// Test points for the Albers Equal Area Conic Projection 
-// (EPSG 9822)
+// Test points for the Albers Equal Area Conic Projection (EPSG 9822)
+//
+// (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
 //
 // The following test points were calculated with ArcGIS 8.3
 // ArcGIS calls this projection 'Albers'.
