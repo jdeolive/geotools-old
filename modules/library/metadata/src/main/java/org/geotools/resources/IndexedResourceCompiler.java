@@ -1,8 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2001, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -38,7 +38,7 @@ import java.lang.reflect.Field;
  * @since 2.4
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 public final class IndexedResourceCompiler implements Comparator<Object> {
     /**
@@ -391,7 +391,7 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
         final BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(file), "UTF-8"));
         out.write("/*\n" +
-                  " *    GeoTools - OpenSource mapping toolkit\n" +
+                  " *    GeoTools - The Open Source Java GIS Tookit\n" +
                   " *    http://geotools.org\n" +
                   " *    (C) 2003-2007, Geotools Project Managment Committee (PMC)\n" +
                   " *    \n" +
