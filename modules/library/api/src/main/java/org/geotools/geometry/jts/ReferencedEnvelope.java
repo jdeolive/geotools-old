@@ -601,14 +601,6 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
 
         return buffer.append(']').toString();
     }
-
-    public static ReferencedEnvelope reference(ReferencedEnvelope e) {
-        if (e == null) {
-            return null;
-        } else {            
-            return new ReferencedEnvelope(e, null);
-        }
-    }
     
     /**
      * Utility method to ensure that an Envelope if a ReferencedEnvelope.

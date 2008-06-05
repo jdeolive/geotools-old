@@ -241,7 +241,7 @@ public class FeatureEvent extends EventObject {
     public FeatureEvent(FeatureEvent origional ) {
     	super( origional.getSource() );
     	this.type = origional.type;
-    	this.bounds = ReferencedEnvelope.reference( origional.bounds );
+    	this.bounds = new ReferencedEnvelope( origional.bounds );
     	this.filter = origional.filter; // filter is immutable
     	this.featureSource = origional.getFeatureSource();
     }
