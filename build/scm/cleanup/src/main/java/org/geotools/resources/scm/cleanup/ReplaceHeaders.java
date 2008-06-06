@@ -81,10 +81,10 @@ import org.geotools.console.Option;
  *   <li>{@code -info}   --- runs in information only mode; will not write any file. If not
  *                           specified, runs in writing mode (by default)</li>
  *   <li>{@code -output "path/to/existing/folder-or-file"} will recreate a file tree of 
-        *                 modified files in the quoted directory. If not present, input
- *                        files will be overwritten.</li>
+ *                           modified files in the quoted directory. If not present, input
+ *                           files will be overwritten.</li>
  *   <li>{@code -insertSpacerLine}  --- adds a line above the first (C) line written. 
-                                        <b>WARNING</b> This will change all files.</li>
+ *                                      <b>WARNING</b> This will change all files.</li>
  * </ul>
  *</p><p>
  * NOTE: the file can be run several times on the same input without problems.
