@@ -1,7 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, Geotools Project Managment Committee (PMC)
+ * 
+ *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -34,7 +35,7 @@ import org.opengis.util.InternationalString;
  * {@link CoverageProcessingNode} that actually implement a
  * {@link ChannelSelection} operation as stated in SLD 1.0 spec from OGC.
  * <p>
- * This node internally creates a small chain that does all thatì's needed to
+ * This node internally creates a small chain that does all thatï¿½'s needed to
  * satisfy a {@link ChannelSelection} element.
  * 
  * @author Simone Giannecchini, GeoSolutions

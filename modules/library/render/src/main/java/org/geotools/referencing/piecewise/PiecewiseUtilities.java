@@ -1,7 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, Geotools Project Managment Committee (PMC)
+ * 
+ *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -91,9 +92,9 @@ class PiecewiseUtilities {
 	}
 
 	/**
-	 * Effectue une recherche bi-linéaire de la valeur spécifiée. Cette méthode
-	 * est semblable à {@link Arrays#binarySearch(double[],double)}, excepté
-	 * qu'elle peut distinguer différentes valeurs de NaN.
+	 * Effectue une recherche bi-linï¿½aire de la valeur spï¿½cifiï¿½e. Cette mï¿½thode
+	 * est semblable ï¿½ {@link Arrays#binarySearch(double[],double)}, exceptï¿½
+	 * qu'elle peut distinguer diffï¿½rentes valeurs de NaN.
 	 * 
 	 * Note: This method is not private in order to allows testing by {@link }.
 	 */
@@ -154,9 +155,9 @@ class PiecewiseUtilities {
 	}
 
 	/**
-	 * Compare deux valeurs de type {@code double}. Cette méthode est similaire
-	 * à {@link Double#compare(double,double)}, excepté qu'elle ordonne aussi
-	 * les différentes valeurs NaN.
+	 * Compare deux valeurs de type {@code double}. Cette mï¿½thode est similaire
+	 * ï¿½ {@link Double#compare(double,double)}, exceptï¿½ qu'elle ordonne aussi
+	 * les diffï¿½rentes valeurs NaN.
 	 */
 	static int compare(final double v1, final double v2) {
 		if (Double.isNaN(v1) && Double.isNaN(v2)) {
@@ -171,9 +172,9 @@ class PiecewiseUtilities {
 	}
 
 	/**
-	 * Vérifie si le tableau de catégories spécifié est bien en ordre croissant.
+	 * Vï¿½rifie si le tableau de catï¿½gories spï¿½cifiï¿½ est bien en ordre croissant.
 	 * La comparaison ne tient pas compte des valeurs {@code NaN}. Cette
-	 * méthode n'est utilisée que pour les {@code assert}.
+	 * mï¿½thode n'est utilisï¿½e que pour les {@code assert}.
 	 */
 	static boolean isSorted(final DefaultDomainElement1D[] domains) {
 		if(domains==null)

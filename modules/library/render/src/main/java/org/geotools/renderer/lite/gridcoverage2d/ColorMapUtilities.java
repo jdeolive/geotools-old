@@ -1,7 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+ * 
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -26,8 +27,8 @@ import org.opengis.geometry.MismatchedDimensionException;
 class ColorMapUtilities {
 
 	/**
-	 * Codes ARGB par défaut. On utilise un exemplaire unique pour toutes les
-	 * création d'objets {@link LinearColorMapElement}.
+	 * Codes ARGB par dï¿½faut. On utilise un exemplaire unique pour toutes les
+	 * crï¿½ation d'objets {@link LinearColorMapElement}.
 	 */
 	static final int[] DEFAULT_ARGB = { 0xFF000000, 0xFFFFFFFF };
 
@@ -50,9 +51,9 @@ class ColorMapUtilities {
 	}
 
 	/**
-	 * Compare deux valeurs de type {@code double}. Cette méthode est similaire
-	 * à {@link Double#compare(double,double)}, excepté qu'elle ordonne aussi
-	 * les différentes valeurs NaN.
+	 * Compare deux valeurs de type {@code double}. Cette mï¿½thode est similaire
+	 * ï¿½ {@link Double#compare(double,double)}, exceptï¿½ qu'elle ordonne aussi
+	 * les diffï¿½rentes valeurs NaN.
 	 */
 	static int compare(final double v1, final double v2) {
 		if (Double.isNaN(v1) && Double.isNaN(v2)) {
