@@ -269,7 +269,7 @@ public final class ReplaceHeaders extends CommandLine {
         // Fix a default initial value, which should be greater than copyright dates found in
         // the java class header. The current year is then chosen.
         int startCopyright = CURRENT_YEAR;
-        int linesDeleted = 0, linesChanged = 0, linesWithCopyright = 0;
+        int linesDeleted = 0, linesChanged = 0, linesWithCopyright = 0, numOldFirstLine = 0;
         try {
             String line;
             // Defines whether the (c) value has been
@@ -286,6 +286,7 @@ public final class ReplaceHeaders extends CommandLine {
                 textIn.append(line).append("\n");
                 if (line.contains(GEOTOOLS_OLD)) {
                     linesChanged++;
+                    numOldFirstLine++;
                     textOut.append(line.replaceAll(GEOTOOLS_OLD, FIRST_LINE)).append("\n");
                     continue;
                 }
@@ -378,7 +379,7 @@ public final class ReplaceHeaders extends CommandLine {
             }
             // If too many changes are done on a file, it is considered as suspect, which means the user
             // should have a look to this file to verify that all proposal changes are rigth.
-            if (linesChanged > 4 || linesDeleted > 2) {
+            if (linesChanged > 4 || linesDeleted > 2 || numOldFirstLine > 1) {
                 if (write) {
                     System.out.println("???     Suspicious     ??? ==> " + input.getAbsolutePath());
                     System.out.println("\t\t\t\t|__\tLines deleted : " + linesDeleted +
