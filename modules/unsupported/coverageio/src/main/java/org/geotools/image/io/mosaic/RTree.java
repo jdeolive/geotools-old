@@ -244,7 +244,7 @@ final class RTree {
                 LOGGER.log(record);
             }
         }
-//        assert tiles.isEmpty() == !intersects() : tiles;
+        assert tiles.isEmpty() == !intersects() : tiles;
         return tiles;
     }
 

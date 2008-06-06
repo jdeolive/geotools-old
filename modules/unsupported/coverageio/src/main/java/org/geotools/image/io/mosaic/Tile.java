@@ -31,6 +31,7 @@ import java.io.StringWriter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.InvalidClassException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Collection;
@@ -1347,6 +1348,10 @@ public class Tile implements Comparable<Tile>, Serializable {
      * Returns a string representation of a collection of tiles. The tiles are formatted in a
      * table in iteration order. Tip: consider sorting the tiles before to invoke this method;
      * tiles are {@linkplain Comparable comparable} for this purpose.
+     * <p>
+     * This method is not public because it can consume a large amount of memory (the underlying
+     * {@link StringBuffer} can be quite large). Users are encouraged to use the method expecting
+     * a {@link Writer}, which may be expensive too but less than this method.
      *
      * @param tiles
      *          The tiles to format in a table.
@@ -1358,10 +1363,40 @@ public class Tile implements Comparable<Tile>, Serializable {
      *
      * @see java.util.Collections#sort(List)
      */
-    public static String toString(final Collection<Tile> tiles, final int maximum) {
-        int remaining = maximum;
+    static String toString(final Collection<Tile> tiles, final int maximum) {
         final StringWriter writer = new StringWriter();
-        final TableWriter table = new TableWriter(writer);
+        try {
+            writeTable(tiles, writer, maximum);
+        } catch (IOException e) {
+            // Should never happen since we are writing to a StringWriter.
+            throw new AssertionError(e);
+        }
+        return writer.toString();
+    }
+
+    /**
+     * Formats a collection of tiles in a table. The tiles are appended in iteration
+     * order. Tip: consider sorting the tiles before to invoke this method; tiles are
+     * {@linkplain Comparable comparable} for this purpose.
+     *
+     * @param tiles
+     *          The tiles to format in a table.
+     * @param out
+     *          Where to write the table.
+     * @param maximum
+     *          The maximum number of tiles to format. If there is more tiles, a message will be
+     *          formatted below the table. A reasonable value like 5000 is recommanded since
+     *          attempt to format millions of tiles leads to {@link OutOfMemoryError}.
+     * @throws IOException
+     *          If an error occured while writing to the given writer.
+     *
+     * @see java.util.Collections#sort(List)
+     */
+    public static void writeTable(final Collection<Tile> tiles, final Writer out, final int maximum)
+            throws IOException
+    {
+        int remaining = maximum;
+        final TableWriter table = new TableWriter(out);
         table.nextLine(TableWriter.DOUBLE_HORIZONTAL_LINE);
         table.write("Format\tInput\tindex\tx\ty\twidth\theight\tdx\tdy\n");
         table.nextLine(TableWriter.SINGLE_HORIZONTAL_LINE);
@@ -1434,21 +1469,15 @@ public class Tile implements Comparable<Tile>, Serializable {
         }
         table.nextLine(TableWriter.DOUBLE_HORIZONTAL_LINE);
         /*
-         * Table completed. Flushs to the StringBuffer and appends additional
-         * text if we have not formatted every tiles.
+         * Table completed. Flushs to the writer and appends additional text if we have
+         * not formatted every tiles. IOException may be trown starting from this point
+         * (the above code is not expected to thrown any IOException).
          */
-        try {
-            table.flush();
-        } catch (IOException e) {
-            // Should never happen since we are flushing to a StringWriter.
-            throw new AssertionError(e);
-        }
-        final StringBuffer buffer = writer.getBuffer();
+        table.flush();
         if (remaining < 0) {
-            buffer.append(Vocabulary.format(VocabularyKeys.MORE_$1, tiles.size() - maximum))
-                  .append(System.getProperty("line.separator", "\n"));
+            out.write(Vocabulary.format(VocabularyKeys.MORE_$1, tiles.size() - maximum));
+            out.write(System.getProperty("line.separator", "\n"));
         }
-        return buffer.toString();
     }
 
     /**

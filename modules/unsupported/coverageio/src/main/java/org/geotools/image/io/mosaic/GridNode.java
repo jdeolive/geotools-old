@@ -106,6 +106,16 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
     };
 
     /**
+     * Comparator for sorting tiles in the same order than the one specified at construction time.
+     * <p>
+     * This method is inconsistent with {@link #equals}. It is okay for our usage of it,
+     * which should be restricted to this {@link GridNode} package-privated class only.
+     */
+    public int compareTo(final GridNode that) {
+        return index - that.index;
+    }
+
+    /**
      * Creates a node for the specified bounds with no subsampling and no tile.
      */
     private GridNode(final Rectangle bounds) {
@@ -142,11 +152,39 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
          * because its creation may involve disk reading and those reading are more efficient when
          * performed in the tiles iteration order (assuming this array was sorted by TileManager).
          */
-        final GridNode[] nodes = new GridNode[tiles.length];
+        GridNode[] nodes = new GridNode[tiles.length];
         for (int i=0; i<tiles.length; i++) {
             nodes[i] = new GridNode(tiles[i], i);
         }
         Arrays.sort(nodes, PRE_PROCESSING);
+        /*
+         * If every tiles have the same subsampling, we are probably in the case where a set of
+         * input tiles, all having similar size, are given to MosaicImageWriter for creating a
+         * pyramid of images. The RTree creating from such set of tiles wil be very inefficient.
+         * Adds a couple of fictious nodes with greater area so that the code after this block
+         * can create a deeper tree structure. Note that this is a somewhat naive algorithm.
+         * The aim is not to create a sophesticated RTree here; it is just to atenuate the
+         * worst case scenario.
+         */
+        if (false && isFlat(nodes)) { // TODO: disabled for now until we debug.
+            final Dimension largest = new Dimension();
+            final Rectangle bounds = new Rectangle(-1,-1);
+            for (final GridNode node : nodes) {
+                bounds.add(node);
+                if (node.width  > largest.width)  largest.width  = node.width;
+                if (node.height > largest.height) largest.height = node.height;
+            }
+            largest.width  *= 2;
+            largest.height *= 2; // We want to be able to hold more than one tile.
+            if (bounds.width >= largest.width && bounds.height >= largest.height) {
+                final List<GridNode> list = new ArrayList<GridNode>();
+                split(bounds, list, largest);
+                final int size = list.size();
+                final GridNode[] old = nodes;
+                nodes = list.toArray(new GridNode[size + old.length]);
+                System.arraycopy(old, 0, nodes, size, old.length);
+            }
+        }
         /*
          * Special case: checks if the first node contains all subsequent nodes. If this is true,
          * then there is no need to keep the special root TreeNode with the tile field set to null.
@@ -218,18 +256,24 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
     }
 
     /**
-     * Returns the smallest tree node containing the given region. This method does not verify if
-     * {@code this} node {@linkplain #contains contains} the given bounds - we assume that the
-     * caller verified that. This is required by the constructor which may invoke this method
-     * from the root with an empty bounding box.
+     * Returns the smallest tree node containing the given region. This method assumes that
+     * {@code this} node, if non-empty, {@linkplain #contains contains} the given bounds.
+     * Note that the constructor may invoke this method from the root with an empty bounding
+     * box, which is valid.
      *
      * @param  The bounds to check for inclusion.
      * @param  {@code true} if we require that the node can align the given bounds on a grid.
      * @return The smallest node, or {@code this} if none (never {@code null}).
      */
     private GridNode smallest(final Rectangle bounds, final boolean gridded) {
+        long smallestArea;
+        if (isEmpty()) {
+            smallestArea = Long.MAX_VALUE;
+        } else {
+            assert contains(bounds);
+            smallestArea = (long) width * (long) height;
+        }
         GridNode smallest = this;
-        long smallestArea = isEmpty() ? Long.MAX_VALUE : (long) width * (long) height;
         GridNode child = (GridNode) firstChildren();
         while (child != null) {
             if (child.contains(bounds)) {
@@ -482,6 +526,48 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
     }
 
     /**
+     * Returns {@code true} if every nodes in the given array use the same subsampling.
+     *
+     * @param  tiles The array of nodes to check for common subsampling.
+     * @return {@code true} if every nodes in the given array use the same subsampling.
+     */
+    private static boolean isFlat(final GridNode[] nodes) {
+        if (nodes != null && nodes.length != 0) {
+            GridNode node = nodes[0];
+            final short xSubsampling = node.xSubsampling;
+            final short ySubsampling = node.ySubsampling;
+            for (int i=1; i<nodes.length; i++) {
+                if (node.xSubsampling != xSubsampling && node.ySubsampling != ySubsampling) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Adds sub-area of the given region to the given {@code nodes} list.
+     *
+     * @param region      The region to split, in absolute coordinates.
+     * @param nodes       The list where to add to nodes.
+     * @param minimalSize The minimal size. Iteration will stop if get tiles getter smaller.
+     */
+    private static void split(final Rectangle region, final List<GridNode> nodes,
+                              final Dimension minimalSize)
+    {
+        nodes.add(new GridNode(region));
+        final int width  = region.width  / 2;
+        final int height = region.height / 2;
+        if (region.width >= minimalSize.width && region.height >= minimalSize.height) {
+            final Rectangle quart = new Rectangle(region.x, region.y, width, height);
+            split(quart, nodes, minimalSize); quart.x += quart.width;
+            split(quart, nodes, minimalSize); quart.y += quart.height;
+            split(quart, nodes, minimalSize); quart.x = region.x;
+            split(quart, nodes, minimalSize);
+        }
+    }
+
+    /**
      * Returns {@code true} if the rectangles in the given collection fill completly the given
      * ROI with no empty space.
      *
@@ -514,15 +600,5 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
     public boolean isDense(final Rectangle roi) {
         assert contains(roi);
         return dense;
-    }
-
-    /**
-     * Comparator for sorting tiles in the same order than the one specified at construction time.
-     * <p>
-     * This method is inconsistent with {@link #equals}. It is okay for our usage of it,
-     * which should be restricted to this {@link GridNode} package-privated class only.
-     */
-    public int compareTo(final GridNode that) {
-        return index - that.index;
     }
 }

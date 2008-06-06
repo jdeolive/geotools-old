@@ -95,7 +95,7 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
     }
 
     /**
-     * Adds the given tile as a child of this tile. This method do nothing if the given tile
+     * Adds the given tile as a child of this tile. This method do nothing if the given child
      * is null (which is typically the case when it doesn't intercept the region of interest).
      * <p>
      * Note that this method has pre-conditions checked by {@code assert} statements. If the
