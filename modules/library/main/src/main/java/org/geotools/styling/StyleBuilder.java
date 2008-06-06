@@ -510,7 +510,7 @@ public class StyleBuilder {
 
         Mark mark = createMark(MARK_SQUARE, Color.decode("#808080"), Color.BLACK, 1);
         gr.setMarks( new Mark[] { mark });
-        gr.setSize(literalExpression(6.0));
+        gr.setSize(Expression.NIL);
 
         return gr;
     }

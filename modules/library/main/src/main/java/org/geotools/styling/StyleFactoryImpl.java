@@ -591,7 +591,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     public Graphic createDefaultGraphic() {
         Graphic graphic = new GraphicImpl();
 
-        graphic.setSize(filterFactory.literal(6));
+        graphic.setSize(Expression.NIL);
         graphic.setOpacity(filterFactory.literal(1.0));
         graphic.setRotation(filterFactory.literal(0.0));
 

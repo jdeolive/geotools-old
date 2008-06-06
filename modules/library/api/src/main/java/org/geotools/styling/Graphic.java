@@ -17,6 +17,7 @@
 package org.geotools.styling;
 
 import org.geotools.filter.ConstantExpression;
+import org.geotools.filter.LiteralExpression;
 import org.opengis.filter.expression.Expression;
 
 
@@ -114,7 +115,8 @@ public interface Graphic {
             }
 
             public Expression getSize() {
-                return ConstantExpression.constant(16);
+                // default size is unknown, it depends on the target
+                return Expression.NIL;
             }
 
             public Displacement getDisplacement() {

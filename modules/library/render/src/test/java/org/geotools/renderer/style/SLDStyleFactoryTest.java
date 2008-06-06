@@ -162,4 +162,26 @@ public class SLDStyleFactoryTest extends TestCase {
         // different ways they have been loaded
     }
     
+    public void testDefaultSizeExternalGraphic() throws Exception {
+        URL url = StreamingRenderer.class.getResource("test-data/");
+        PointSymbolizer symb = sf.createPointSymbolizer();
+        ExternalGraphic eg = sf.createExternalGraphic(url + "icon64.png", "image/png");
+        symb.getGraphic().addExternalGraphic(eg);
+        
+        GraphicStyle2D gs = (GraphicStyle2D) sld.createPointStyle(feature, symb, range);
+        BufferedImage img = gs.getImage();
+        assertEquals(64, img.getHeight());
+        assertEquals(64, img.getWidth());
+    }
+    
+    public void testDefaultSizeMark() throws Exception {
+        PointSymbolizer symb = sf.createPointSymbolizer();
+        Mark myMark = sf.createMark();
+        myMark.setWellKnownName(ff.literal("square"));
+        symb.getGraphic().addMark(myMark);
+        
+        MarkStyle2D ms = (MarkStyle2D) sld.createPointStyle(feature, symb, range);
+        assertEquals(16, ms.getSize());
+    }
+    
 }
