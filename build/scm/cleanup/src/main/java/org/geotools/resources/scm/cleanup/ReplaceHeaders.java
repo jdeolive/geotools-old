@@ -41,54 +41,55 @@ import org.geotools.console.Option;
 
 /**
  * <p>
- * Alters a file or a whole directory, replacing the headers to a new format. 
- * This code was written in 2008 to change the copyright in the headers from 
- * being held by the "Geotools PMC" to being held by "OSGeo" but this code 
+ * Alters a file or a whole directory, replacing the headers to a new format.
+ * This code was written in 2008 to change the copyright in the headers from
+ * being held by the "Geotools PMC" to being held by "OSGeo" but this code
  * should be reusable in other situations by redefining the String constants.
  * </p><p>
  * Depending on the file contents, a file can have different status values:
  * <ul>
- *   <li>Skipped : if no changes are done on this file which could happen if the 
- *                 file does not contain any header, or if the file is already 
+ *   <li>Skipped : if no changes are done on this file which could happen if the
+ *                 file does not contain any header, or if the file is already
  *                 well formated.</li>
- *   <li>Suspicious : if too many changes are done on this file, it is flagged 
- *                    as suspicious but changed: users should manually inspect 
+ *   <li>Suspicious : if too many changes are done on this file, it is flagged
+ *                    as suspicious but changed: users should manually inspect
  *                    the files with 'svn diff'.</li>
- *   <li>Copyright problems : if a copyright line is found which is not present 
- *                            in the list of known copyrights the file is 
+ *   <li>Copyright problems : if a copyright line is found which is not present
+ *                            in the list of known copyrights the file is
  *                            flagged and not changed.</li>
  *   <li>Changed correctly : if all changes seem correct.</li>
  * </ul>
  * </p><p>
  * HOW TO USE THIS FILE:
- *<ol>
- * <li>{@code cd root_of_checkout} (trunk/)</li>
- * <li>{@code mvn clean install} (compile)</li>
- * <li>{@code cp build/scm/cleanup/target/cleanup-2.5-SNAPSHOT.jar target/binaries/.}</li>
- * <li>{@code java -jar target/binaries/cleanup-2.5-SNAPSHOT.jar -info -input "path/to/dir"}
- *    where the path must be in quotes. For example, use "modules/library/metadata"</li>
+ * <ol>
+ *   <li>{@code cd root_of_checkout} (trunk/)</li>
+ *   <li>{@code mvn clean install} (compile)</li>
+ *   <li>{@code cp build/scm/cleanup/target/cleanup-2.5-SNAPSHOT.jar target/binaries/.}</li>
+ *   <li>{@code java -jar target/binaries/cleanup-2.5-SNAPSHOT.jar -info -input "path/to/dir"}
+ *        where the path must be in quotes. For example, use "modules/library/metadata"</li>
  * </ol>
  * </p><p>
  * The options to run are:<br/>
  * REQUIRED:
  * <ul>
- *   <li>{@code -input "dir-or-file"} The quoted path to the input directory: <b>WARNING</b> 
+ *   <li>{@code -input "dir-or-file"} The quoted path to the input directory: <b>WARNING</b>
  *                                    used on its own, this will clobber files in place</li>
  * </ul>
  * OPTIONAL:
  * <ul>
  *   <li>{@code -help}   --- gives usage</li>
- *   <li>{@code -info}   --- runs in information only mode; will not write any file. If not
- *                           specified, runs in writing mode (by default)</li>
- *   <li>{@code -output "path/to/existing/folder-or-file"} will recreate a file tree of 
+ *   <li>{@code -write}  --- runs in writing mode if present. If not specified, runs in
+ *                           information mode ; will not write any file (by default)</li>
+ *   <li>{@code -output "path/to/existing/folder-or-file"} will recreate a file tree of
  *                           modified files in the quoted directory. If not present, input
  *                           files will be overwritten.</li>
- *   <li>{@code -insertSpacerLine}  --- adds a line above the first (C) line written. 
+ *   <li>{@code -insertSpacerLine}  --- adds a line above the first (C) line written.
  *                                      <b>WARNING</b> This will change all files.</li>
  * </ul>
- *</p><p>
+ * </p><p>
  * NOTE: the file can be run several times on the same input without problems.
- *</p>
+ * </p>
+ *
  * @version $Id$
  * @author Cédric Briançon
  */
@@ -179,8 +180,8 @@ public final class ReplaceHeaders extends CommandLine {
      * Command-line option to define whether the script is launched in information mode
      * (read-only) or in writing mode.
      */
-    @Option(description="Only displays information about changes (write nothing).")
-    private boolean info;
+    @Option(description="Writing mode if present, otherwise read-only mode (just displays information)")
+    private boolean write;
 
     /**
      * Command-line option for the output file or directory.
@@ -204,7 +205,7 @@ public final class ReplaceHeaders extends CommandLine {
         if (!in.exists()) {
             throw new FileNotFoundException("Input file does not exists.");
         }
-        if (info) {
+        if (!write) {
             System.out.println("xxxxxx  INFORMATION MODE  xxxxxx");
             System.out.println(" /!\\ Nothing will be written /!\\ \n");
         } else {
@@ -362,14 +363,14 @@ public final class ReplaceHeaders extends CommandLine {
             // Specify the status of the current file by putting it in the matching list.
             numFilesChanged++;
             if (!unknowCopyrights.isEmpty()) {
-                if (!info) {
+                if (write) {
                     System.out.println("/!\\ Copyright problems /!\\ ==> " + input.getAbsolutePath());
                     System.out.println("\t\t\t\t|__\tLines deleted : " + linesDeleted +
                             "\tLines changed : " + linesChanged);
                 }
                 for (String unknownCopyright : unknowCopyrights) {
                     copyrightProblemsFiles.add(input.getAbsolutePath());
-                    if (!info) {
+                    if (write) {
                         System.out.println("\t\t\t\tUnknown copyright \"" + unknownCopyright +
                                 "\". You should handle it by hand.");
                     }
@@ -378,14 +379,14 @@ public final class ReplaceHeaders extends CommandLine {
             // If too many changes are done on a file, it is considered as suspect, which means the user
             // should have a look to this file to verify that all proposal changes are rigth.
             if (linesChanged > 4 || linesDeleted > 2) {
-                if (!info) {
+                if (write) {
                     System.out.println("???     Suspicious     ??? ==> " + input.getAbsolutePath());
                     System.out.println("\t\t\t\t|__\tLines deleted : " + linesDeleted +
                             "\tLines changed : " + linesChanged);
                 }
                 suspiciousFiles.add(input.getAbsolutePath());
             } else {
-                if (!info) {
+                if (write) {
                     System.out.println("||| Changed correctly  ||| ==> " + input.getAbsolutePath() +
                             "\tLines deleted : " + linesDeleted + "\tLines changed : " + linesChanged);
                 }
@@ -395,7 +396,7 @@ public final class ReplaceHeaders extends CommandLine {
             /* *****************************************************************
              * Writing part (only if the script is launched in the writing mode)
              */
-            if (!info) {
+            if (write) {
                 final OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(output));
                 final BufferedWriter buffer = new BufferedWriter(writer);
                 buffer.append(textOut.toString());
@@ -454,20 +455,20 @@ public final class ReplaceHeaders extends CommandLine {
             System.out.println("= " + numFilesChanged + " file(s) with changes");
 
             System.out.println("=\t+ " + suspiciousFiles.size() + " suspicious file(s)");
-            if (info) {
+            if (!write) {
                 for (String candidate : suspiciousFiles) {
                     System.out.println("=\t\t" + candidate);
                 }
             }
             System.out.println("=\t+ " + correctlyChangedFiles.size() + " file(s) correctly changed");
-            if (info) {
+            if (!write) {
                 for (String candidate : correctlyChangedFiles) {
                     System.out.println("=\t\t" + candidate);
                 }
             }
             System.out.println("= ");
             System.out.println("= " + copyrightProblemsFiles.size() + " file(s) have copyright problems");
-            if (info) {
+            if (!write) {
                 for (String candidate : copyrightProblemsFiles) {
                     System.out.println("=\t" + candidate);
                 }
