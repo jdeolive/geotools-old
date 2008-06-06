@@ -364,15 +364,16 @@ public class SLDStyleFactory {
         // extract base properties
         Graphic sldGraphic = symbolizer.getGraphic();
         float opacity = evalOpacity(sldGraphic.getOpacity(), feature);
-        int size;
+        int size = 0;
 
         // by spec size is optional, and the default value is context dependend,
         // the natural size of the image for an external graphic is the size of the raster,
         // whilst if the size cannot be evaluated, it shall be 16
         try {
-            size = (int) evalToDouble(sldGraphic.getSize(),feature,0);
+            if(sldGraphic.getSize() != null && !Expression.NIL.equals(sldGraphic.getSize()))
+                size = (int) evalToDouble(sldGraphic.getSize(),feature,0);
         } catch (NumberFormatException nfe) {
-            size = 0;
+            // nothing to do
         }
 
         float rotation = (float)((evalToFloat(sldGraphic.getRotation(),feature, 0) * Math.PI) / 180);
