@@ -1,0 +1,14 @@
+Module CQL
+==========
+Module Maintainer Cory Horner
+
+IP Review Adrian Custer, June 6, 2008
+
+STATUS: June 2008
+  CLEAN
+  
+Package origins unknown, I'll leave it to the module maintainers.
+
+org.geotools.data.jdbc
+org.geotools.filter
+  

@@ -1,7 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2004-2006, GeoTools Project Managment Committee (PMC)
+ * 
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *    
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,8 +13,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- * TODO: 26-may-2005 D. Adler Added constructor with returnFIDColumnsAsAttributes. Added accessors for ColumnInfo
  */
 /*
  * 26-may-2005 D. Adler Added constructor with returnFIDColumnsAsAttributes.
