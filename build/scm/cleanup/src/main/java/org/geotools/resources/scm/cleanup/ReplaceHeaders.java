@@ -40,11 +40,12 @@ import org.geotools.console.Option;
 
 
 /**
+ * <p>
  * Alters a file or a whole directory, replacing the headers to a new format. 
  * This code was written in 2008 to change the copyright in the headers from 
  * being held by the "Geotools PMC" to being held by "OSGeo" but this code 
  * should be reusable in other situations by redefining the String constants.
- * <p>
+ * </p><p>
  * Depending on the file contents, a file can have different status values:
  * <ul>
  *   <li>Skipped : if no changes are done on this file which could happen if the 
@@ -61,9 +62,9 @@ import org.geotools.console.Option;
  * </p><p>
  * HOW TO USE THIS FILE:
  *<ol>
- * <li>cd root of checkout (trunk/)</li>
- * <li>compile (mvn clean install)</li>
- * <li>cp build/scm/cleanup/target/cleanup-2.5-SNAPSHOT.jar target/binaries/.</li>
+ * <li>{@code cd root_of_checkout} (trunk/)</li>
+ * <li>{@code mvn clean install} (compile)</li>
+ * <li>{@code cp build/scm/cleanup/target/cleanup-2.5-SNAPSHOT.jar target/binaries/.}</li>
  * <li>{@code java -jar target/binaries/cleanup-2.5-SNAPSHOT.jar -info -input "path/to/dir"}
  *    where the path must be in quotes. For example, use "modules/library/metadata"</li>
  * </ol>
@@ -71,17 +72,19 @@ import org.geotools.console.Option;
  * The options to run are:<br/>
  * REQUIRED:
  * <ul>
- *   <li>-input "dir-or-file" The quoted path to the input directory: <b>WARNING</b> 
- *                            used on its own, this will clobber files in place</li>
+ *   <li>{@code -input "dir-or-file"} The quoted path to the input directory: <b>WARNING</b> 
+ *                                    used on its own, this will clobber files in place</li>
  * </ul>
  * OPTIONAL:
  * <ul>
- *   <li>-help   --- gives usage</li>
- *   <li>-info   --- run in information only mode; will not write any file</li>
- *   <li>-output "path/to/existing/folder-or-file" will recreate a file tree of 
- *                             modified files in the quoted directory.</li>
- *   <li>-insertSpacerLine  --- adds a line above the first (C) line written. 
-                                <b>WARNING</b> This will change all files.</li>
+ *   <li>{@code -help}   --- gives usage</li>
+ *   <li>{@code -info}   --- runs in information only mode; will not write any file. If not
+ *                           specified, runs in writing mode (by default)</li>
+ *   <li>{@code -output "path/to/existing/folder-or-file"} will recreate a file tree of 
+        *                 modified files in the quoted directory. If not present, input
+ *                        files will be overwritten.</li>
+ *   <li>{@code -insertSpacerLine}  --- adds a line above the first (C) line written. 
+                                        <b>WARNING</b> This will change all files.</li>
  * </ul>
  *</p><p>
  * NOTE: the file can be run several times on the same input without problems.
