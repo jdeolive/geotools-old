@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -78,6 +78,8 @@ public abstract class AbstractMetadata {
 
     /**
      * Returns the metadata standard implemented by subclasses.
+     *
+     * @return The metadata standard implemented.
      */
     public abstract MetadataStandard getStandard();
 
@@ -85,6 +87,8 @@ public abstract class AbstractMetadata {
      * Returns the metadata interface implemented by this class. It should be one of the
      * interfaces defined in the {@linkplain #getStandard metadata standard} implemented
      * by this class.
+     *
+     * @return The standard interface implemented by this implementation class.
      */
     public Class<?> getInterface() {
         // No need to sychronize, since this method do not depends on property values.
@@ -126,6 +130,8 @@ public abstract class AbstractMetadata {
      * <p>
      * The map supports the {@link Map#put put} operations if the underlying
      * metadata object contains {@link #set*(...)} methods.
+     *
+     * @return A view of this metadata object as a map.
      */
     public synchronized Map<String,Object> asMap() {
         if (asMap == null) {
@@ -141,6 +147,8 @@ public abstract class AbstractMetadata {
      * <p>
      * In current implementation, the tree is not live (i.e. changes in metadata are not
      * reflected in the tree). However it may be improved in a future Geotools implementation.
+     *
+     * @return A view of this metadata object as a tree.
      */
     public synchronized TreeModel asTree() {
         return getStandard().asTree(this);
@@ -155,6 +163,9 @@ public abstract class AbstractMetadata {
      * other metadata, the comparaison will walk through the other metadata content as well)
      * providing that every childs implement the {@link Object#equals} method as well. This
      * is the case by default if every childs are subclasses of {@code AbstractMetadata}.
+     *
+     * @param  object The object to compare with this metadata.
+     * @return {@code true} if the given object is equals to this metadata.
      */
     @Override
     public boolean equals(final Object object) {

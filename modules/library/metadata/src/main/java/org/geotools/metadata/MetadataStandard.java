@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -52,11 +52,29 @@ import org.geotools.resources.i18n.Errors;
  */
 public final class MetadataStandard {
     /**
+     * An instance working on ISO 19111 standard as defined by
+     * <A HREF="http://geoapi.sourceforge.net">GeoAPI</A> interfaces
+     * in the {@link org.opengis.referencing} package and subpackages.
+     *
+     * @since 2.5
+     */
+    public static final MetadataStandard ISO_19111 = new MetadataStandard("org.opengis.referencing.");
+
+    /**
      * An instance working on ISO 19115 standard as defined by
      * <A HREF="http://geoapi.sourceforge.net">GeoAPI</A> interfaces
      * in the {@link org.opengis.metadata} package and subpackages.
      */
     public static final MetadataStandard ISO_19115 = new MetadataStandard("org.opengis.metadata.");
+
+    /**
+     * An instance working on ISO 19119 standard as defined by
+     * <A HREF="http://geoapi.sourceforge.net">GeoAPI</A> interfaces
+     * in the {@link org.opengis.service} package and subpackages.
+     *
+     * @since 2.5
+     */
+    public static final MetadataStandard ISO_19119 = new MetadataStandard("org.opengis.service.");
 
     /**
      * The root packages for metadata interfaces. Must ends with {@code "."}.
@@ -141,6 +159,8 @@ public final class MetadataStandard {
     /**
      * Returns the metadata interface implemented by the specified implementation class.
      *
+     * @param  implementation The implementation class.
+     * @return The interface implemented by the given implementation class.
      * @throws ClassCastException if the specified implementation class do
      *         not implements a metadata interface of the expected package.
      *
@@ -262,6 +282,7 @@ public final class MetadataStandard {
      * @param metadata1 The first metadata object to compare.
      * @param metadata2 The second metadata object to compare.
      * @param skipNulls If {@code true}, only non-null values will be compared.
+     * @return {@code true} if the given metadata objects are equals.
      * @throws ClassCastException if at least one metadata object don't
      *         implements a metadata interface of the expected package.
      *

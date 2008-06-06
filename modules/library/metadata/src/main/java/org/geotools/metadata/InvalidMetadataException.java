@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -34,6 +34,8 @@ public class InvalidMetadataException extends IllegalStateException {
 
     /**
      * Creates a new exception with the specified detail message.
+     *
+     * @param message The detail message.
      */
     public InvalidMetadataException(final String message) {
         super(message);

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -72,7 +72,7 @@ final class PropertyAccessor {
      * Getters shared between many instances of this class. Two different implementations
      * may share the same getters but different setters.
      */
-    private static final Map<Class, Method[]> SHARED_GETTERS = new HashMap<Class, Method[]>();
+    private static final Map<Class<?>, Method[]> SHARED_GETTERS = new HashMap<Class<?>, Method[]>();
 
     /**
      * The implemented metadata interface.
@@ -205,6 +205,9 @@ final class PropertyAccessor {
     /**
      * Returns the getters. The returned array should never be modified,
      * since it may be shared among many instances of {@code PropertyAccessor}.
+     *
+     * @param  type The metadata interface.
+     * @return The getters declared in the given interface.
      */
     private static Method[] getGetters(final Class<?> type) {
         synchronized (SHARED_GETTERS) {
@@ -394,22 +397,31 @@ final class PropertyAccessor {
     /**
      * Set a value for the specified metadata.
      *
+     * @param  index The index of the property to set.
+     * @param  metadata The metadata object on which to set the value.
+     * @param  value The new value.
      * @return The old value.
      * @throws IllegalArgumentException if the specified property can't be set.
      */
     final Object set(final int index, final Object metadata, final Object value)
             throws IllegalArgumentException
     {
+        String key;
         if (index >= 0 && index < getters.length && setters != null) {
+            final Method getter = getters[index];
             final Method setter = setters[index];
             if (setter != null) {
-                final Object old = get(getters[index], metadata);
+                final Object old = get(getter, metadata);
                 set(setter, metadata, new Object[] {value});
                 return old;
+            } else {
+                key = getter.getName();
+                key = key.substring(prefix(key).length());
             }
+        } else {
+            key = String.valueOf(index);
         }
-        throw new IllegalArgumentException(
-                Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$1, "key"));
+        throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$1, key));
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -125,6 +125,8 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
     /**
      * Returns {@code true} if this metadata is modifiable. This method returns
      * {@code false} if {@link #freeze()} has been invoked on this object.
+     *
+     * @return {@code true} if this metadata is modifiable.
      */
     @Override
     public final boolean isModifiable() {
@@ -314,6 +316,7 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
      * <p>
      * A call to {@link #checkWritePermission} is implicit before the copy is performed.
      *
+     * @param  <E>         The type of elements in the collection.
      * @param  source      The source collection. {@code null} is synonymous to empty.
      * @param  target      The target collection, or {@code null} if not yet created.
      * @param  elementType The base type of elements to put in the collection.
@@ -362,6 +365,7 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
      * This is a convenience method for implementation of {@code getFoo()}
      * methods.
      *
+     * @param  <E> The type of elements in the collection.
      * @param  c The collection to checks.
      * @param  elementType The element type (used only if {@code c} is null).
      * @return {@code c}, or a new collection if {@code c} is null.
@@ -384,6 +388,7 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
      * This is a convenience method for implementation of {@code getFoo()}
      * methods.
      *
+     * @param  <E> The type of elements in the set.
      * @param  c The set to checks.
      * @param  elementType The element type (used only if {@code c} is null).
      * @return {@code c}, or a new set if {@code c} is null.
@@ -406,6 +411,7 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
      * This is a convenience method for implementation of {@code getFoo()}
      * methods.
      *
+     * @param  <E> The type of elements in the list.
      * @param  c The list to checks.
      * @param  elementType The element type (used only if {@code c} is null).
      * @return {@code c}, or a new list if {@code c} is null.
