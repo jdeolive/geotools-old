@@ -72,19 +72,19 @@ import org.geotools.console.Option;
  * The options to run are:<br/>
  * REQUIRED:
  * <ul>
- *   <li>{@code -input "dir-or-file"} The quoted path to the input directory: <b>WARNING</b>
- *                                    used on its own, this will clobber files in place</li>
+ *   <li>{@code --input "dir-or-file"} The quoted path to the input directory: <b>WARNING</b>
+ *                                     used on its own, this will clobber files in place</li>
  * </ul>
  * OPTIONAL:
  * <ul>
- *   <li>{@code -help}   --- gives usage</li>
- *   <li>{@code -write}  --- runs in writing mode if present. If not specified, runs in
- *                           information mode ; will not write any file (by default)</li>
- *   <li>{@code -output "path/to/existing/folder-or-file"} will recreate a file tree of
- *                           modified files in the quoted directory. If not present, input
- *                           files will be overwritten.</li>
- *   <li>{@code -insertSpacerLine}  --- adds a line above the first (C) line written.
- *                                      <b>WARNING</b> This will change all files.</li>
+ *   <li>{@code --help}   --- gives usage</li>
+ *   <li>{@code --write}  --- runs in writing mode if present. If not specified, runs in
+ *                            information mode ; will not write any file (by default)</li>
+ *   <li>{@code --output "path/to/existing/folder-or-file"} will recreate a file tree of
+ *                            modified files in the quoted directory. If not present, input
+ *                            files will be overwritten.</li>
+ *   <li>{@code --insertSpacerLine}  --- adds a line above the first (C) line written.
+ *                                       <b>WARNING</b> This will change all files.</li>
  * </ul>
  * </p><p>
  * NOTE: the file can be run several times on the same input without problems.

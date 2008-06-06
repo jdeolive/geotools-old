@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -50,7 +50,7 @@ public class CommandLine {
     /**
      * The prefix to prepend to option names.
      */
-    private static final char OPTION_PREFIX = '-';
+    private static final String OPTION_PREFIX = "--";
 
     /**
      * The code given to {@link System#exit} when the program failed because of an illegal
@@ -120,12 +120,12 @@ public class CommandLine {
         out    = arguments.out;
         err    = arguments.err;
         locale = arguments.locale;
-        if (arguments.getFlag("-help")) {
+        if (arguments.getFlag(OPTION_PREFIX + "help")) {
             help();
             System.exit(0);
         }
         setArgumentValues(getClass(), arguments);
-        this.arguments = arguments.getRemainingArguments(maximumRemaining, OPTION_PREFIX);
+        this.arguments = arguments.getRemainingArguments(maximumRemaining, OPTION_PREFIX.charAt(0));
     }
 
     /**
