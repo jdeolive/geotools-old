@@ -1,8 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2005-2006, Geotools Project Management Committee (PMC)
- *    (C) 2003, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -77,7 +77,7 @@ import org.geotools.resources.i18n.ErrorKeys;
  * @since 2.1
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 public class SpatioTemporalCoverage3D extends AbstractCoverage {
     /**
@@ -590,7 +590,7 @@ control:    for (int p=0; p<=1; p++) {
      * Constructs rendered images on demand.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     private final class Renderable extends AbstractCoverage.Renderable {
         /**

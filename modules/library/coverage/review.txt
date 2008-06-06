@@ -1,45 +1,37 @@
 Module Coverage
 ===============
 Module Maintainer Martin
+
 IP Review:
 - Jody Garnett August 10th, 2006
+- Adrian Custer June 6, 2008
+
+STATUS June 2008
+  CLEAN
+    Presume appropriation of 2ie Technology to IRD and thereby to OSGeo
+    Presume use of OGC text okay.
+    
 
 org.geotools.coverage
 ---------------------
 IP:
-- updated headers
 - some files include following credit to OGC
 
      This package contains documentation from OpenGIS specifications.
      OpenGIS consortium's work is fully acknowledged here.
-
-- a range of (c) information contained in headers:
-
-     (C) 2003-2006, Geotools Project Management Committee (PMC)
-     (C) 2001, Institut de Recherche pour le Développement
   
 org.geotools.coverage.grid
 --------------------------
 IP:
-- updated headers
 - some files include following credit to OGC
 
      This package contains documentation from OpenGIS specifications.
      OpenGIS consortium's work is fully acknowledged here.
 
-- - a range of (c) information contained in headers:
-
-     (C) 2003-2006, Geotools Project Management Committee (PMC)
-     (C) 2001, Institut de Recherche pour le Développement
 
 org.geotools.coverage.io
 ------------------------
-IP:
-- updated headers
-- range of (c) information in headers
-    
-    (C) 2005-2006, Geotools Project Managment Committee (PMC)
-    (C) 2001, Institut de Recherche pour le Développement
+
 
 org.geotools.coverage.processing
 org.geotools.coverage.processing.operation
@@ -47,25 +39,15 @@ org.geotools.coverage.processing.operation
 QA:
 CannotCropException missing serializationId
 IP:
-- updated headers
-- several new files missinge headers
-- range of (c) from headers
- 
-    (C) 2003-2006, Geotools Project Managment Committee (PMC)
-    (C) 2001, Institut de Recherche pour le Développement
+- Interpolate, Resample and SelectSampleDimension operation files to credit the 
+  OGC
 
-- Interpolate, Resample and SelectSampleDimension operation files to credit the OGC
- 
+
 org.geotools.image
 org.geotools.image.io
 org.geotools.image.jai
 ----------------------
 IP:
-- updated headers
-- range of (c) from headers
-  
-    (C) 2003-2006, Geotools Project Managment Committee (PMC)
-    (C) 2001, Institut de Recherche pour le Développement
     (C) 2003, 2ie Technologie
 
 Note from Martin: 2ie Technologie do not exists anymore. Their work were very closely
@@ -73,7 +55,8 @@ related to "Institut de Recherche pour le Développement" (IRD). Actually, IRD wa
 funder if I remember right. I wonder if we could remove this last copyright...
 (actually merge it with the "Institut de Recherche pour le Développement" copyright,
 which I believe is close to what the situation really was).
- 
+
+
 org.geotools.resources.image
 ----------------------------
 IP:
@@ -82,6 +65,5 @@ org.geotools.coverage (test)
 org.geotools.coverage.grid (test)
 org.geotools.coverage.io (test)
 --------------------------
-IP:
-- updated headers
-- provided headers a few files that were missing them
+
+

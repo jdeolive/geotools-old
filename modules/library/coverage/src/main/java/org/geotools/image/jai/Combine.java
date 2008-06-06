@@ -1,8 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2003, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -81,7 +81,7 @@ import org.geotools.resources.image.ImageUtilities;
  * @since 2.1
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  * @author Remi Eve
  */
 public class Combine extends PointOpImage {
@@ -315,7 +315,7 @@ public class Combine extends PointOpImage {
      *
      * @version $Id$
      * @author Remi Eve
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     final static class Dyadic extends Combine {
         /**

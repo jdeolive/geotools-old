@@ -1,6 +1,7 @@
 /*
- * Geotools 2 - OpenSource mapping toolkit
- * (C) 2006, Geotools Project Managment Committee (PMC)
+ *    GeoTools - The Open Source Java GIS Tookit
+ * 
+ *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public

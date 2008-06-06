@@ -1,7 +1,7 @@
 /*
  * Geotools 2 - OpenSource mapping toolkit
- * (C) 2003, Geotools Project Management Committee (PMC)
- * (C) 2001, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -68,7 +68,7 @@ import org.geotools.resources.i18n.LoggingKeys;
  * @since 2.2
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 public class DefaultProcessor extends AbstractProcessor {
     /**

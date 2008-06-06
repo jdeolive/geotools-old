@@ -1,8 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2001, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,7 @@ import javax.imageio.event.IIOReadProgressListener;
  * convenience for creating listener objects.
  *
  * @since 2.1
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  * @source $URL$
  * @version $Id$
  */
