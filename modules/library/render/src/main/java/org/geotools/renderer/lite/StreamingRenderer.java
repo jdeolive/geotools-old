@@ -2286,7 +2286,8 @@ public final class StreamingRenderer implements GTRenderer {
 			// get transformed, try to be lenient
 			try {
 			    if (symbolizer instanceof PointSymbolizer) {
-                    if(!clone) {
+			        // if the coordinate transformation will occurr in place on the coordinate sequence
+                    if(!clone && g.getFactory().getCoordinateSequenceFactory() instanceof LiteCoordinateSequenceFactory) {
                         // if the symbolizer is a point symbolizer we first get the transformed
                         // geometry to make sure the coordinates have been modified once, and then
                         // compute the centroid in the screen space. This is a side effect of the
