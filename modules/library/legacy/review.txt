@@ -1,0 +1,12 @@
+Module legacy
+=============
+Module Maintainer Jody Garnett
+
+IP Review Adrian Custer, June 6, 2008
+
+STATUS: June 2008
+  CLEAN
+  
+Package origins unknown, I'll leave it to Jody.
+  
+  
