@@ -3,6 +3,10 @@ MODULE SAMPLE DATA
 Module Maintainer none!
 IP Review:
 - Jody Garnett, August 6th, 2006
+- Adrian Custer, June 6th 2008
+
+STATUS
+  DATA NEEDS REVIEW
 
 James Macgill is listed as a java developer on this
 one, but there is no offical module maintainer. This
@@ -16,5 +20,4 @@ lots of data that it can access using
 its jar classloader.
 
 IP:
-- updated header
 - data of unknown source! We should confirm
