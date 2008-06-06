@@ -1,5 +1,5 @@
-Module CQL
-==========
+Module data
+===========
 Module Maintainer Jody Garnett, Justin Deolivera
 
 IP Review Adrian Custer, June 6, 2008
