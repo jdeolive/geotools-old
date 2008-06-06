@@ -44,7 +44,7 @@ public final class MrSIDFormatFactory implements GridFormatFactorySpi {
     /**
      * Tells me if the coverage plugin to access MrSID is available or not.
      *
-     * @return <code>true</code> if the plugin is available, <code>false</code> otherwise.
+     * @return {@code true} if the plugin is available, {@code false} otherwise.
      */
     public boolean isAvailable() {
         boolean available = true;

@@ -44,7 +44,7 @@ public final class ErdasImgFormatFactory implements GridFormatFactorySpi {
     /**
      * Tells me if the coverage plugin to access Erdas imagine is available or not.
      *
-     * @return <code>true</code> if the plugin is available, <code>false</code> otherwise.
+     * @return {@code true} if the plugin is available, {@code false} otherwise.
      */
     public boolean isAvailable() {
         boolean available = true;
@@ -58,17 +58,16 @@ public final class ErdasImgFormatFactory implements GridFormatFactorySpi {
             available = new ErdasImgImageReaderSpi().isAvailable();
 
             if (LOGGER.isLoggable(Level.FINE)) {
-                if (available) {
+                if (available) 
                     LOGGER.fine("ErdasImgFormatFactory is availaible.");
-                } else {
+                else
                     LOGGER.fine("ErdasImgFormatFactory is not availaible.");
-                }
+               
             }
         } catch (ClassNotFoundException cnf) {
-            if (LOGGER.isLoggable(Level.FINE)) {
+            if (LOGGER.isLoggable(Level.FINE)) 
                 LOGGER.fine("ErdasImgFormatFactory is not availaible.");
-            }
-
+            
             available = false;
         }
 

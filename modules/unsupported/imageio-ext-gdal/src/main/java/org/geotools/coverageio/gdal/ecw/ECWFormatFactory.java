@@ -44,7 +44,7 @@ public final class ECWFormatFactory implements GridFormatFactorySpi {
     /**
      * Tells me if the coverage plugin to access ECW is available or not.
      *
-     * @return <code>true</code> if the plugin is available, <code>false</code> otherwise.
+     * @return {@code true} if the plugin is available, {@code false} otherwise.
      */
     public boolean isAvailable() {
         boolean available = true;
@@ -58,16 +58,14 @@ public final class ECWFormatFactory implements GridFormatFactorySpi {
             available = new ECWImageReaderSpi().isAvailable();
 
             if (LOGGER.isLoggable(Level.FINE)) {
-                if (available) {
+                if (available) 
                     LOGGER.fine("ECWFormatFactory is availaible.");
-                } else {
+                else 
                     LOGGER.fine("ECWFormatFactory is not availaible.");
-                }
             }
         } catch (ClassNotFoundException cnf) {
-            if (LOGGER.isLoggable(Level.FINE)) {
+            if (LOGGER.isLoggable(Level.FINE)) 
                 LOGGER.fine("ECWFormatFactory is not availaible.");
-            }
 
             available = false;
         }
