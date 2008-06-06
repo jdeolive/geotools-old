@@ -64,6 +64,12 @@ public class LocaleAdapter extends XmlAdapter<LocaleAdapter, Locale> {
      * unmarshalling-time by JAXB.
      */
     public void setLocale(final String locale) {
+        for (Locale candidate : Locale.getAvailableLocales()) {
+            if (candidate.getISO3Language().equalsIgnoreCase(locale)) {
+                this.locale = candidate;
+                return;
+            }
+        }
         this.locale = new Locale(locale);
     }
 
