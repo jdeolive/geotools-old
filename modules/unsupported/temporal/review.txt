@@ -1,16 +1,18 @@
 MODULE TEMPORAL
 ===============
 Module Maintainer Mehdi Sidhoum
+  review Adrian Custer, June 2008
 
-IP Review:
+STATUS: CLEAN
+
+Copyright assigned under Geomatys' assignment document.
+
 
 org.geotools.temporal.object
 org.geotools.temporal.object (test)
 ---------------------------------------
-Created to define temporal geometric and topological objects that shall be used as values for the temporal characteristics of features and data sets.
-
-IP:
-- updated headers to (C) 2008, GeoTools Project Managment Committee (PMC)
+Created to define temporal geometric and topological objects that 
+shall be used as values for the temporal characteristics of features and data sets.
 
 
 org.geotools.temporal.reference
@@ -18,5 +20,3 @@ org.geotools.temporal.reference (test)
 ------------------------------------------
 Provides elements for describing temporal reference systems.
 
-IP:
-- updated headers to (C) 2008, GeoTools Project Managment Committee (PMC)
