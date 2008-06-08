@@ -1,0 +1,4 @@
+by adrian, June 2008
+
+These files were written by Cedric Briancon,
+covered by Geomatys.fr copyright assignment.

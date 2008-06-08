@@ -2,6 +2,7 @@ Demo Introduction
 =================
 Module Maintainer: Adrian Custer
 IP Review Adrian Custer, October 6th, 2006
+updated, June 2008-status still CLEAN
 
 org.geotools.demo.introduction
 ------------------------------
