@@ -1,6 +1,11 @@
 Plugin EPSG-EXT
 ===============
 Module Maintainer: Martin Desruisseaux
+IP Review, Jody Garnett, July 9th, 2006
+          Adrian Custer, July 2008
+
+STATUS: CLEAN pending resolution of epsg.properties
+
 
 The EPSG-EXT module is derived from the EPSG-WKT module. The "esri.properties"
 and "extra.properties" files in EPST-EXT are derived from "epsg.properties" in
@@ -9,11 +14,8 @@ applies to EPSG-EXT as well. This review is copied below with some adaptations
 for the new directory layout in EPSG-EXT. See SVN history for a list of changes.
 
 ---------------------------------------
-IP Review, Jody Garnett, July 9th, 2006
-
-The LICENSE.TXT indicated 2002 as a (C) date, this would be an error as the files date from 2004.
-The (re) distribution of epsg.properties requires clairfication, asked Paul Ramsey for advice
-via email.
+The (re) distribution of epsg.properties requires clairfication, asked 
+Paul Ramsey for advice via email.
 
 ************ insert by Adrian Custer, Jan 2008
 Beginning 2008, got a response from Paul:
@@ -28,8 +30,6 @@ But the website is governed by the painfully closed terms of use:
 ==> Still needs clarification
 *************
 
-IP:
-- LICENSE.TXT changed to (C) 2004-2006
 
 org.geotools.referencing.factory.epsg
 -------------------------------------
@@ -38,11 +38,9 @@ contained are a derived data product from the PostGIS project, modifed to hack a
 limitations in early GeoTools.
 
 IP:
-- headers updated to (C) 2004-2006, GeoTools Project Managment Committee (PMC)
 - *.properties data a derived data product from PostGIS, license unclear
+
 
 org.geotools.referencing.factory.epsg (test)
 --------------------------------------------
-
-IP:
-- headers updated to (C) 2004-2006, GeoTools Project Managment Committee (PMC)
+OK
