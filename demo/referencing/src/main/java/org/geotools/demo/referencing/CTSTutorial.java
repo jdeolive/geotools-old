@@ -1,3 +1,12 @@
+/*
+ *    GeoTools - The Open Source Java GIS Tookit
+ *    http://geotools.org
+ * 
+ *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This file is hereby placed into the Public Domain. This means anyone is
+ *    free to do whatever they wish with this file. Use it well and enjoy!
+ */
 /**
  * This tutorial code was developed and tested with the geotools 2.2.x svn.
  * If using geotools 2.1, note that referenging.jar is not needed (it was part of main.jar)
