@@ -1,6 +1,11 @@
-/**
- * GeoTools is LGPL but this example "free" so you can cut and paste it into
- * your own code. What license is "free" - help us figure it out! 
+/*
+ *    GeoTools - The Open Source Java GIS Tookit
+ *    http://geotools.org
+ * 
+ *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This file is hereby placed into the Public Domain. This means anyone is
+ *    free to do whatever they wish with this file. Use it well and enjoy!
  */
 package org.geotools.demo.jts;
 
