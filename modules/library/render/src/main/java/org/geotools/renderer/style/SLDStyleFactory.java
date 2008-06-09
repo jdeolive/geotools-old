@@ -1081,8 +1081,8 @@ public class SLDStyleFactory {
                 LOGGER.finer("applying fill to mark");
             }
 
-            g2d.setPaint(getPaint(mark.getFill(), null));
-            g2d.setComposite(getComposite(mark.getFill(), null));
+            g2d.setPaint(getPaint(mark.getFill(), feature));
+            g2d.setComposite(getComposite(mark.getFill(), feature));
             g2d.fill(shape);
         }
 
@@ -1091,9 +1091,9 @@ public class SLDStyleFactory {
                 LOGGER.finer("applying stroke to mark");
             }
 
-            g2d.setPaint(getStrokePaint(mark.getStroke(), null));
-            g2d.setComposite(getStrokeComposite(mark.getStroke(), null));
-            g2d.setStroke(getStroke(mark.getStroke(), null));
+            g2d.setPaint(getStrokePaint(mark.getStroke(), feature));
+            g2d.setComposite(getStrokeComposite(mark.getStroke(), feature));
+            g2d.setStroke(getStroke(mark.getStroke(), feature));
             g2d.draw(shape);
         }
 
