@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import net.opengis.wps.ProcessOfferingsType;
 import net.opengis.wps.WPSCapabilitiesType;
 
 import org.geotools.wps.WPS;
@@ -42,7 +43,9 @@ import net.opengis.ows11.RequestMethodType;
 import org.geotools.data.ows.Service;
 import org.geotools.data.ows.Specification;
 import org.geotools.data.wps.request.DescribeProcessRequest;
+import org.geotools.data.wps.request.ExecuteProcessRequest;
 import org.geotools.data.wps.response.DescribeProcessResponse;
+import org.geotools.data.wps.response.ExecuteProcessResponse;
 import org.geotools.ows.ServiceException;
 
 /**
@@ -188,7 +191,7 @@ public class WebProcessingService extends AbstractWPS<WPSCapabilitiesType,Object
     }
     
     /**
-     * Utility method to fetch the GET URL of the given operation from 
+     * Utility method to fetch the GET or POST URL of the given operation from 
      * the capabilities document
      * @param operation the operation URL to find in the capabilities doc
      * @param cap the capabilities document (need to pass as the method is static)
@@ -205,11 +208,11 @@ public class WebProcessingService extends AbstractWPS<WPSCapabilitiesType,Object
     			while(iterator2.hasNext()) {
     				DCPType next2 = (DCPType) iterator2.next();
     				HTTPType http = next2.getHTTP();
-    				if (getGet) {
+    				if (getGet && !http.getGet().isEmpty()) {
     					RequestMethodType rmt = (RequestMethodType) http.getGet().get(0);
     					return makeURL(rmt.getHref());
     				}
-    				else {
+    				else if (!http.getPost().isEmpty()) {
     					RequestMethodType rmt = (RequestMethodType) http.getPost().get(0);
     					return makeURL(rmt.getHref());
     				}
@@ -247,6 +250,10 @@ public class WebProcessingService extends AbstractWPS<WPSCapabilitiesType,Object
     public DescribeProcessResponse issueRequest(DescribeProcessRequest request) throws IOException, ServiceException {
         return (DescribeProcessResponse) internalIssueRequest(request);
     }
+    
+    public ExecuteProcessResponse issueRequest(ExecuteProcessRequest request) throws IOException, ServiceException {
+        return (ExecuteProcessResponse) internalIssueRequest(request);
+    }    
     
     
     /**
@@ -293,7 +300,23 @@ public class WebProcessingService extends AbstractWPS<WPSCapabilitiesType,Object
         DescribeProcessRequest request = getSpecification().createDescribeProcessRequest(onlineResource);
         
         return request;
-    }      
+    }  
+    
+    public ExecuteProcessRequest createExecuteProcessRequest() throws UnsupportedOperationException {
+    	ProcessOfferingsType processOfferings = getCapabilities().getProcessOfferings();
+    	if (processOfferings == null || !processOfferings.eAllContents().hasNext()) {
+            throw new UnsupportedOperationException("Server does not specify any processes to execute. Cannot be performed.");
+        }
+        
+        URL onlineResource = getOperationURL("execute", capabilities, true);
+        if (onlineResource == null) {
+            onlineResource = serverURL;
+        }
+        
+        ExecuteProcessRequest request = getSpecification().createExecuteProcessRequest(onlineResource);
+        
+        return request;
+    }    
     
     private WPSSpecification getSpecification() {
     	return (WPSSpecification) specification;

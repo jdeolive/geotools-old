@@ -20,9 +20,6 @@ import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.opengis.wps.ProcessDescriptionType;
-import net.opengis.wps.ProcessDescriptionsType;
-
 import org.geotools.data.ows.Response;
 import org.geotools.data.ows.ProcessDescription;
 import org.geotools.xml.Configuration;
@@ -32,14 +29,14 @@ import org.geotools.wps.WPSConfiguration;
 import org.xml.sax.SAXException;
 
 /**
- * Represents the response from a server after a DescribeProcess request
+ * Represents the response from a server after an ExecuteProcess request
  * has been issued.
  * 
  * @author gdavis
  */
-public class DescribeProcessResponse extends Response {
+public class ExecuteProcessResponse extends Response {
 
-    private ProcessDescriptionsType processDescs;
+    private ProcessDescription processDesc;
 
     /**
      * @param contentType
@@ -47,7 +44,7 @@ public class DescribeProcessResponse extends Response {
      * @throws ServiceException 
      * @throws SAXException
      */
-    public DescribeProcessResponse( String contentType, InputStream inputStream ) throws IOException, ServiceException {
+    public ExecuteProcessResponse( String contentType, InputStream inputStream ) throws IOException, ServiceException {
         super(contentType, inputStream);
         
         try {
@@ -61,19 +58,20 @@ public class DescribeProcessResponse extends Response {
 				//object = DocumentFactory.getInstance(inputStream, hints, Level.WARNING);
 				object =  parser.parse(inputStream);
 			} catch (SAXException e) {
-				throw (IOException) new IOException().initCause(e);
+				throw (IOException) new IOException().
+				initCause(e);
 			} catch (ParserConfigurationException e) {
 				throw (IOException) new IOException().initCause(e);
 			}
 	        
-	        processDescs = (ProcessDescriptionsType) object;
+	        processDesc = (ProcessDescription) object;
         } finally {
         	inputStream.close();
         }
     }
 
-    public ProcessDescriptionsType getProcessDesc() {
-        return processDescs;
+    public ProcessDescription getProcessDesc() {
+        return processDesc;
     }
 
 }

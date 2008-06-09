@@ -10,6 +10,7 @@ import javax.units.Unit;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.opengis.wps.ProcessDescriptionType;
+import net.opengis.wps.ProcessDescriptionsType;
 import net.opengis.wps.WpsPackage;
 import net.opengis.wps.impl.UOMsTypeImpl;
 
@@ -47,7 +48,7 @@ public class ParsingTest extends TestCase {
 				throw (MalformedURLException) new MalformedURLException().initCause(e);
 			}
 	        
-			ProcessDescriptionType processDesc = (ProcessDescriptionType) object;
+			ProcessDescriptionsType processDesc = (ProcessDescriptionsType) object;
 			assertNotNull(processDesc);
 	    } finally {
 	    	in.close();

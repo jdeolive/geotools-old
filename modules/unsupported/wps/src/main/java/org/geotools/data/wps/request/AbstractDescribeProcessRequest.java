@@ -29,7 +29,7 @@ import java.util.Properties;
 public abstract class AbstractDescribeProcessRequest extends AbstractWPSRequest implements DescribeProcessRequest {
 
     /**
-     * Constructs a basic DescribeLayerRequest, without versioning info.
+     * Constructs a basic DescribeProcessRequest, without versioning info.
      * 
      * @param onlineResource the location of the request
      * @param properties a set of properties to use. Can be null.

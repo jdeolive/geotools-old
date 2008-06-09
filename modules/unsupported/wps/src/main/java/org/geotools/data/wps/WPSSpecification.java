@@ -19,6 +19,7 @@ import java.net.URL;
 
 import org.geotools.data.ows.Specification;
 import org.geotools.data.wps.request.DescribeProcessRequest;
+import org.geotools.data.wps.request.ExecuteProcessRequest;
 
 
 public abstract class WPSSpecification extends Specification {
@@ -33,4 +34,14 @@ public abstract class WPSSpecification extends Specification {
      */
     public abstract DescribeProcessRequest createDescribeProcessRequest( URL onlineResource ) throws UnsupportedOperationException;
 
+    /**
+     * Creates a Execute request which can be used to execute
+     * a specific process on the WPS Server.
+     * 
+     * @param onlineResource the location where the request can be made
+     * @return an ExecuteProcessRequest to be configured and then passed to the WPS Server
+     * @throws UnsupportedOperationException if the version of the specification doesn't support this request
+     */
+    public abstract ExecuteProcessRequest createExecuteProcessRequest( URL onlineResource ) throws UnsupportedOperationException;
+    
  }

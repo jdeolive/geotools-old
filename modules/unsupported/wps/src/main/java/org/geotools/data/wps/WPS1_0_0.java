@@ -17,6 +17,7 @@ package org.geotools.data.wps;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,10 +29,16 @@ import org.geotools.data.ows.AbstractRequest;
 import org.geotools.data.ows.GetCapabilitiesRequest;
 import org.geotools.data.ows.Response;
 import org.geotools.data.wps.request.AbstractDescribeProcessRequest;
+import org.geotools.data.wps.request.AbstractExecuteProcessRequest;
 import org.geotools.data.wps.request.DescribeProcessRequest;
+import org.geotools.data.wps.request.ExecuteProcessRequest;
 import org.geotools.data.wps.response.DescribeProcessResponse;
+import org.geotools.data.wps.response.ExecuteProcessResponse;
 import org.geotools.data.wps.response.WPSGetCapabilitiesResponse;
+import org.geotools.gml2.GMLConfiguration;
 import org.geotools.ows.ServiceException;
+import org.geotools.xml.Configuration;
+import org.geotools.xml.Encoder;
 
 /**
  * Provides support for the Web Processing Service 1.0.0 Specification.
@@ -132,5 +139,31 @@ public class WPS1_0_0 extends WPSSpecification {
         public Response createResponse(String contentType, InputStream inputStream) throws ServiceException, IOException {
 			return new DescribeProcessResponse(contentType, inputStream);
 		}
+	}
+
+	@Override
+	public ExecuteProcessRequest createExecuteProcessRequest(URL onlineResource)
+			throws UnsupportedOperationException {
+		return new InternalExecuteProcessRequest(onlineResource, null);
+	}	
+	
+	public static class InternalExecuteProcessRequest extends AbstractExecuteProcessRequest {
+		
+        /**
+         * @param onlineResource
+         * @param properties
+         */
+        public InternalExecuteProcessRequest( URL onlineResource, Properties properties ) {
+            super(onlineResource, properties);
+        }
+
+        protected void initVersion() {
+            setProperty(VERSION, "1.0.0");
+        }
+        
+        public Response createResponse(String contentType, InputStream inputStream) throws ServiceException, IOException {
+			return new ExecuteProcessResponse(contentType, inputStream);
+		}
+         
 	}	
 }
