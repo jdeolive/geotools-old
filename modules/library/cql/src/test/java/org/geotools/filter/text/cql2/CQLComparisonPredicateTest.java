@@ -82,7 +82,7 @@ public class CQLComparisonPredicateTest {
      * </p>
      */
     @Test
-    public void testComparationPredicate() throws Exception {
+    public void comparisonOperators() throws Exception {
         Filter expected;
         Filter actual;
         // attr1 < 5
@@ -126,7 +126,7 @@ public class CQLComparisonPredicateTest {
     }
 
     /**
-     * Test Comparation Predicate.
+     * Test comparison Predicate.
      * <p>
      *
      * <pre>
@@ -137,7 +137,7 @@ public class CQLComparisonPredicateTest {
      * </p>
      */
     @Test
-    public void testComparationPredicateWithSimpleExpressions()
+    public void propertyComparisonSimpleExpressions()
             throws Exception {
         Filter expected;
         Filter actual;
@@ -151,11 +151,11 @@ public class CQLComparisonPredicateTest {
     }
     
     /**
-     * Comparation with boolean values
+     * Comparison with boolean values
      * @throws Exception
      */
     @Test
-    public void testBooleanLiteral() throws Exception {
+    public void booleanLiteral() throws Exception {
        
         Filter filter;
         PropertyIsEqualTo eqFilter;

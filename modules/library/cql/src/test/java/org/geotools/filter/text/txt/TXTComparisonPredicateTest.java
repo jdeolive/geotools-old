@@ -1,13 +1,12 @@
 
 package org.geotools.filter.text.txt;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.opengis.filter.Filter;
 import org.geotools.filter.text.cql2.CQLComparisonPredicateTest;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CompilerFactory;
+import org.junit.Assert;
+import org.junit.Test;
+import org.opengis.filter.Filter;
 
 
 /**
@@ -35,17 +34,17 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
     /**
      * Test: Expression on the Left hand of comparison predicate
      * Sample: (1+3) > prop1
+     *         (1+3) > (4+5)
      * @throws CQLException
      */
     @Test
-    public void expressionGreaterThanProperty() throws CQLException {
-        Filter expected = FilterTXTSample.getSample(FilterTXTSample.EXPRESION_LESS_PROPERTY);
+    public void expressionComparisonProperty() throws CQLException {
 
-        Filter actual = parse(FilterTXTSample.EXPRESION_LESS_PROPERTY);
-
-        Assert.assertNotNull("expects filter not null", actual);
-
-        Assert.assertEquals("less than compare filter error", expected, actual);
+        testComparasion(FilterTXTSample.EXPRESION_GREATER_PROPERTY);
+        
+        //TODO (1+3) > (4+5)
+        
+        
     }
 
     /**
@@ -54,7 +53,7 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
      * Samples:
      *          abs(10) < aProperty
      *          area( the_geom ) < 30000
-     *          area( the_geom ) < (2+3)
+     *          area( the_geom ) < (1+3)
      *          area( the_geom ) < abs(10)
      *
      * </pre>
@@ -62,20 +61,18 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
      */
     @Test
     public void functionsInComparison() throws CQLException {
-        Filter expected;
-        Filter actual;
         
         //abs(10) < aProperty
-        assertComparasion(FilterTXTSample.ABS_FUNCTION_LESS_PROPERTY);
+        testComparasion(FilterTXTSample.ABS_FUNCTION_LESS_PROPERTY);
 
         // area( the_geom ) < 30000
-        assertComparasion(FilterTXTSample.AREA_FUNCTION_LESS_NUMBER);
+        testComparasion(FilterTXTSample.AREA_FUNCTION_LESS_NUMBER);
         
-        //TODO area( the_geom ) < (2+3)
-        actual = parse("area( the_geom ) < (2+3)");
+        // area( the_geom ) < (1+3)
+        testComparasion(FilterTXTSample.FUNCTION_LESS_SIMPLE_ADD_EXPR);
         
-        //TODO area( the_geom ) < abs(10)
-        actual = parse("area( the_geom ) < abs(10)");
+        // area( the_geom ) < abs(10)
+        testComparasion(FilterTXTSample.FUNC_AREA_LESS_FUNC_ABS);
     }
     
     /**
@@ -84,17 +81,14 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
      * @param testPredicate predicate to test
      * @throws CQLException
      */
-    private void assertComparasion(final String testPredicate ) throws CQLException{
-        Filter expected;
-        Filter actual;
+    private void testComparasion(final String testPredicate ) throws CQLException{
         
-        expected = FilterTXTSample.getSample(testPredicate);
+        Filter expected = FilterTXTSample.getSample(testPredicate);
 
-        actual = parse(testPredicate);
+        Filter actual = parse(testPredicate);
 
         Assert.assertNotNull("expects filter not null", actual);
 
         Assert.assertEquals("compare filter error", expected, actual);
-        
     }
 }
