@@ -1,19 +1,19 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, GeoTools Project Managment Committee (PMC)
- *    
+ *
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.te
+ *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
 
 options {
    STATIC=false;
@@ -23,8 +23,6 @@ options {
 
    BUILD_NODE_FILES=false; // Generate sample implementations for SimpleNode and any other nodes used in the grammar   	
    NODE_PACKAGE="org.geotools.filter.text.generated.parsers";
-
-//   OUTPUT_DIRECTORY="../../../../../../../../target/generated-sources/jjtree-javacc/org/geotools/filter/text/generated/parsers";
 
    SANITY_CHECK=true;
    VISITOR=false;

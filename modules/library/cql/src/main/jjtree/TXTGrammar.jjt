@@ -1,20 +1,20 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, GeoTools Project Managment Committee (PMC)
- *    
+ *
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.te
+ *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
-
+ 
 options {
    STATIC=false;
    NODE_SCOPE_HOOK=true;
@@ -23,10 +23,7 @@ options {
    BUILD_NODE_FILES=false; // Generates sample implementations for SimpleNode and any other nodes used in the grammar   	
 
    NODE_PACKAGE="org.geotools.filter.text.generated.parsers";
-
-   // Comment the output directory if you need to compile with maven
-   //OUTPUT_DIRECTORY="../../../../../../../../target/generated-sources/jjtree-javacc/org/geotools/filter/text/generated/parsers";
-
+ 
    SANITY_CHECK=false;
    VISITOR=false;
 
@@ -363,16 +360,19 @@ void BooleanPrimary() #void:
 void Predicate() #void:
 {}
 {
-	LOOKAHEAD(2) IdPredicate() |
-	Attribute() 
-	(
-			LOOKAHEAD(3)TextPredicate()
-		|  	LOOKAHEAD(3)NullPredicate() 
-		| 	LOOKAHEAD(3)ExistencePredicate() 
-		| 	LOOKAHEAD(3)TemporalPredicate() 
-		|   LOOKAHEAD(3)BetweenPredicate()		
-		|	ComparissonPredicate() 
-	)
+		LOOKAHEAD(2) IdPredicate() 
+	|	LOOKAHEAD(2) Attribute() TextPredicate()
+		(
+			  	LOOKAHEAD(3)NullPredicate() 
+			| 	LOOKAHEAD(3)ExistencePredicate() 
+		)
+	|	Expression()  
+		(
+			  	LOOKAHEAD(3)NullPredicate() 
+			| 	LOOKAHEAD(3)TemporalPredicate() 
+			|   LOOKAHEAD(3)BetweenPredicate()		
+			| 	ComparissonPredicate() 
+		)
 }
 
 /* ---------------------------------------- *
