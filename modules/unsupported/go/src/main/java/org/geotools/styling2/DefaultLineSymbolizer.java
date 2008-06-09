@@ -58,7 +58,7 @@ class DefaultLineSymbolizer implements LineSymbolizer{
     }
 
     public String getGeometryAttribute() {
-        return uom;
+        return geom;
     }
 
     public String getName() {

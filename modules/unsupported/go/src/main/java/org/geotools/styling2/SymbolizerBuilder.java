@@ -19,25 +19,37 @@
 package org.geotools.styling2;
 
 import java.awt.Color;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import javax.swing.Icon;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.style.AnchorPoint;
 import org.opengis.style.ChannelSelection;
 import org.opengis.style.ColorMap;
+import org.opengis.style.ColorReplacement;
 import org.opengis.style.ContrastEnhancement;
 import org.opengis.style.Description;
 import org.opengis.style.Displacement;
+import org.opengis.style.ExternalGraphic;
+import org.opengis.style.ExternalMark;
 import org.opengis.style.Fill;
 import org.opengis.style.Font;
 import org.opengis.style.Graphic;
+import org.opengis.style.GraphicFill;
+import org.opengis.style.GraphicStroke;
 import org.opengis.style.GraphicSymbol;
 import org.opengis.style.Halo;
 import org.opengis.style.LabelPlacement;
+import org.opengis.style.LinePlacement;
 import org.opengis.style.LineSymbolizer;
 import org.opengis.style.Mark;
+import org.opengis.style.OnlineResource;
 import org.opengis.style.OverlapBehavior;
+import org.opengis.style.PointPlacement;
 import org.opengis.style.PointSymbolizer;
 import org.opengis.style.PolygonSymbolizer;
 import org.opengis.style.RasterSymbolizer;
@@ -46,6 +58,7 @@ import org.opengis.style.ShadedRelief;
 import org.opengis.style.Stroke;
 import org.opengis.style.Symbolizer;
 import org.opengis.style.TextSymbolizer;
+import org.opengis.util.InternationalString;
 
 /**
  *
@@ -143,7 +156,7 @@ public class SymbolizerBuilder {
     
     public PolygonSymbolizer createDefaultPolygonSymbolizer(){
         PolygonSymbolizer symbol = new DefaultPolygonSymbolizer(
-                createStroke(Color.BLUE.darker(), 1), 
+                createStroke(Color.BLACK, 1), 
                 createFill(Color.BLUE), 
                 DEFAULT_DISPLACEMENT, 
                 SB.literalExpression(0), 
@@ -203,21 +216,12 @@ public class SymbolizerBuilder {
         Displacement disp = new DefaultDisplacement(SB.literalExpression(x), SB.literalExpression(y));
         return disp;
     }
-    
-    public Displacement createDisplacement(Expression x, Expression y){
-        Displacement disp = new DefaultDisplacement(x, y);
-        return disp;
-    }
-    
+        
     public AnchorPoint createAnchorPoint(double x, double y){
         AnchorPoint anchor = new DefaultAnchorPoint(SB.literalExpression(x), SB.literalExpression(y));
         return anchor;
     }
     
-    public AnchorPoint createAnchorPoint(Expression x, Expression y){
-        AnchorPoint anchor = new DefaultAnchorPoint(x,y);
-        return anchor;
-    }
     
     public Mark createDefaultMark(){
         Mark mark = new DefaultMark(
@@ -273,5 +277,188 @@ public class SymbolizerBuilder {
                 SB.literalExpression(size));
         return font;
     }
+    
+    //-------------------------------------------------------------------------------------------
+    //complete creation methods -----------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    
+    public AnchorPoint createAnchorPoint(Expression x, Expression y){
+        AnchorPoint anchor = new DefaultAnchorPoint(x,y);
+        return anchor;
+    }
+    
+    public ChannelSelection createChannelSelection(SelectedChannelType[] rgb, SelectedChannelType gray){
+        ChannelSelection selection = new DefaultChannelSelection(rgb, gray);
+        return selection; 
+    }
+    
+    public ColorMap createColorMap(Function function){
+        ColorMap color = new DefaultColorMap(function);
+        return color; 
+    }
+    
+    public ColorReplacement createColorReplacement(Function recode){
+        ColorReplacement cr = new DefaultColorReplacement(recode);
+        return cr;
+    }
+    
+    public ContrastEnhancement createContrastEnhancement(boolean normalize, boolean histogram, double gamma){
+        ContrastEnhancement ce = new DefaultContrastEnchancement(normalize, histogram, gamma);
+        return ce; 
+    }
+    
+    public Description createDescription(InternationalString title, InternationalString abs){
+        Description desc = new DefaultDescription(title, abs);
+        return desc; 
+    }
+    
+    public Displacement createDisplacement(Expression x, Expression y){
+        Displacement disp = new DefaultDisplacement(x, y);
+        return disp; 
+    }
+    
+    public ExternalGraphic createExternalGraphic(OnlineResource resource, Icon icon, String format, Collection<ColorReplacement> replaces){
+        ExternalGraphic eg = new DefaultExternalGraphic(resource, icon, format, replaces);
+        return eg;
+    }
+    
+    public ExternalMark createExternalMark(OnlineResource online, Icon icon, String format, int index){
+        ExternalMark em = new DefaultExternalMark(online, icon, format, index);
+        return em;
+    }
+    
+    public Fill createFill(GraphicFill fill, Expression color, Expression opacity){
+        Fill fl = new DefaultFill(fill, color, opacity);
+        return fl; 
+    }
+    
+    public Font createFont(List<Expression> family, Expression style, Expression weight, Expression size){
+        Font f = new DefaultFont(family, style, weight, size);
+        return f;
+    }
+    
+    public Graphic createGraphic(List<GraphicSymbol> symbols, 
+            Expression opacity, 
+            Expression size, 
+            Expression rotation, 
+            AnchorPoint anchor, 
+            Displacement disp){
+        Graphic g = new DefaultGraphic(symbols, opacity, size, rotation, anchor, disp);
+        return g; 
+    }
+    
+    public GraphicFill createGraphicFill(Graphic graphic){
+        GraphicFill fill = new DefaultGraphicFill(graphic);
+        return fill;
+    }
+    
+    public GraphicStroke createGraphicStroke(Graphic graphic, Expression initial, Expression gap){
+        GraphicStroke stroke = new DefaultGraphicStroke(graphic, initial, gap);
+        return stroke;
+    }
+    
+    public Halo createHalo(Fill fill, Expression radius){
+        Halo halo = new DefaultHalo(fill, radius);
+        return halo;
+    }
+    
+    public LinePlacement createLinePlacement(Expression offset, 
+            Expression initial, 
+            Expression gap, 
+            boolean repeated, 
+            boolean aligned, 
+            boolean generalize){
+        LinePlacement lp = new DefaultLinePlacement(offset, initial, gap, repeated, aligned, generalize);
+        return lp;
+    }
+    
+    public LineSymbolizer createLineSymbolizer(Stroke stroke, Expression offset, String uom, String geom, String name, Description desc){
+        LineSymbolizer ls = new DefaultLineSymbolizer(stroke, offset, uom, geom, name, desc);
+        return ls;
+    }
+    
+    public Mark createMark(Expression wkn, ExternalMark external, Fill fill, Stroke stroke){
+        Mark mark = new DefaultMark(wkn, external, fill, stroke);
+        return mark;
+    }
+    
+    public OnlineResource createOnlineResource(URI uri){
+        OnlineResource or = new DefaultOnlineResource(uri);
+        return or;
+    }
+    
+    public PointPlacement createPointPlacement(AnchorPoint anchor, Displacement disp, Expression rotation){
+        PointPlacement pp = new DefaultPointPlacement(anchor, disp, rotation);
+        return pp;
+    }
+    
+    public PointSymbolizer createPointSymbolizer(Graphic graphic, String uom, String geom, String name, Description desc){
+        PointSymbolizer ps = new DefaultPointSymbolizer(graphic, uom, geom, name, desc);
+        return ps;
+    }
+    
+    public PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, 
+            Fill fill, 
+            Displacement disp, 
+            Expression offset, 
+            String uom, 
+            String geom,
+            String name, 
+            Description desc){
+        PolygonSymbolizer ps = new DefaultPolygonSymbolizer(stroke, fill, disp, offset, uom, geom, name, desc);
+        return ps;
+    }
+    
+    public RasterSymbolizer createRasterSymbolizer(Expression opacity, 
+            ChannelSelection selection, 
+            OverlapBehavior overlap, 
+            ColorMap colorMap, 
+            ContrastEnhancement enchance,
+            ShadedRelief relief,
+            Symbolizer outline,
+            String uom,
+            String geom,
+            String name,
+            Description desc){
+        RasterSymbolizer rs = new DefaultRasterSymbolizer(opacity, selection, overlap, colorMap, enchance, relief, outline, uom, geom, name, desc);
+        return rs; 
+    }
+    
+    public SelectedChannelType createSelectedChannelType(String name, ContrastEnhancement enchance){ 
+        SelectedChannelType sct = new DefaultSelectedChannelType(name, enchance);
+        return sct;
+    }
+    
+    public ShadedRelief createShadedRelief(boolean bright, double relief){
+        ShadedRelief sr = new DefaultShadedRelief(bright, relief);
+        return sr;
+    }
+    
+    public Stroke createStroke(GraphicFill fill, 
+            GraphicStroke stroke, 
+            Expression color, 
+            Expression opacity, 
+            Expression width, 
+            Expression join, 
+            Expression cap, 
+            float[] dashes, 
+            Expression offset){
+        Stroke str = new DefaultStroke(fill, stroke, color, opacity, width, join, cap, dashes, offset);
+        return str; 
+    }
+    
+    public TextSymbolizer createTextSymbolizer(Expression label, 
+            Font font, 
+            LabelPlacement placement, 
+            Halo halo,
+            Fill fill, 
+            String uom, 
+            String geom, 
+            String name, 
+            Description desc){
+        TextSymbolizer ts = new DefaultTextSymbolizer(label, font, placement, halo, fill, uom, geom, name, desc);
+        return ts;
+    }
+    
     
 }
