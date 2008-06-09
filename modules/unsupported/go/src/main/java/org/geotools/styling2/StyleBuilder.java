@@ -18,98 +18,101 @@
 
 package org.geotools.styling2;
 
-import org.geotools.util.SimpleInternationalString;
-import org.opengis.filter.expression.Expression;
-import org.opengis.style.ChannelSelection;
-import org.opengis.style.ColorMap;
-import org.opengis.style.ContrastEnhancement;
-import org.opengis.style.Description;
-import org.opengis.style.OverlapBehavior;
-import org.opengis.style.RasterSymbolizer;
-import org.opengis.style.SelectedChannelType;
-import org.opengis.style.ShadedRelief;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.geotools.styling.Style;
+import org.opengis.style.FeatureTypeStyle;
+import org.opengis.style.LineSymbolizer;
+import org.opengis.style.PointSymbolizer;
+import org.opengis.style.PolygonSymbolizer;
+import org.opengis.style.PortrayalCatalog;
+import org.opengis.style.Rule;
 import org.opengis.style.Symbolizer;
+import org.opengis.style.TextSymbolizer;
 
 /**
  *
+ * TODO Cache and reuse symbolizers and others (they are immutable so better do it)
+ * 
  * @author Johann Sorel
  */
 public class StyleBuilder {
         
-    private static long id = 0;
+    private static final org.geotools.styling.StyleBuilder STYLE_BUILDER = new org.geotools.styling.StyleBuilder();
+    private static final SymbolizerBuilder SYMBOL_BUILDER = new SymbolizerBuilder();
+    private static final Symbolizer DEFAULT_FALLBACK_SYMBOLIZER = SYMBOL_BUILDER.createDefaultLineSymbolizer();
     
-    private static final ChannelSelection       DEFAULT_RASTER_CHANNEL_RGB;
-    private static final ChannelSelection       DEFAULT_RASTER_CHANNEL_GRAY;
-    private static final OverlapBehavior        DEFAULT_RASTER_OVERLAP;
-    private static final ColorMap               DEFAULT_RASTER_COLORMAP;
-    private static final ContrastEnhancement    DEFAULT_RASTER_CONTRAST_ENCHANCEMENT;
-    private static final ShadedRelief           DEFAULT_RASTER_SHADED_RELIEF;
-    private static final Symbolizer             DEFAULT_RASTER_OUTLINE;
+    public PortrayalCatalog createStyle(){
+        Symbolizer symbol = SYMBOL_BUILDER.createDefaultLineSymbolizer();
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_ANY);
+        
+        List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
+        ftss.add(fts);
+        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        
+//        Style style = null;
+//        style.
+        
+        return catalog;
+    }
     
-    private static final String                 DEFAULT_POINT_NAME;
-    private static final String                 DEFAULT_LINE_NAME;
-    private static final String                 DEFAULT_POLYGON_NAME;
-    private static final String                 DEFAULT_TEXT_NAME;
-    private static final String                 DEFAULT_RASTER_NAME;
+    public PortrayalCatalog createPointStyle(PointSymbolizer symbol){
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_POINT);
+        List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
+        ftss.add(fts);
+        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        return catalog;
+    }
     
-    private static final Expression             DEFAULT_OPACITY;
-    private static final String                 DEFAULT_UOM;
-    private static final String                 DEFAULT_GEOM;
-    private static final Description            DEFAULT_DESCRIPTION;
+    public PortrayalCatalog createLineStyle(LineSymbolizer symbol){
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_LINE);
+        List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
+        ftss.add(fts);
+        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        return catalog;
+    }
     
-    private static final org.geotools.styling.StyleBuilder SB = new org.geotools.styling.StyleBuilder();
+    public PortrayalCatalog createPolygonStyle(PolygonSymbolizer symbol){
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_POLYGON);
+        List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
+        ftss.add(fts);
+        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        return catalog;
+    }
     
-    static{
-        DEFAULT_OPACITY = SB.literalExpression(1f);
-        DEFAULT_UOM = Symbolizer.UOM_DISPLAY;
-        DEFAULT_GEOM = null;        
-        DEFAULT_DESCRIPTION = new DefaultDescription(
-                new SimpleInternationalString("Title"), 
-                new SimpleInternationalString("Description"));
-        
-        DEFAULT_POINT_NAME = "PointSymbolizer ";
-        DEFAULT_LINE_NAME = "LineSymbolizer ";
-        DEFAULT_POLYGON_NAME = "PolygonSymbolizer ";
-        DEFAULT_TEXT_NAME = "TextSymbolizer ";
-        DEFAULT_RASTER_NAME = "RasterSymbolizer ";
-        
-        
-        
-        SelectedChannelType[] rgb = new SelectedChannelType[3];
-        rgb[0] = new DefaultSelectedChannelType("1", null);
-        rgb[1] = new DefaultSelectedChannelType("2", null);
-        rgb[2] = new DefaultSelectedChannelType("3", null);
-        DEFAULT_RASTER_CHANNEL_RGB = new DefaultChannelSelection(rgb, null);
-        
-        SelectedChannelType gray = new DefaultSelectedChannelType("1", null);
-        DEFAULT_RASTER_CHANNEL_GRAY = new DefaultChannelSelection(null, gray);
-        
-        DEFAULT_RASTER_OVERLAP = OverlapBehavior.LATEST_ON_TOP;
-        DEFAULT_RASTER_COLORMAP = new DefaultColorMap(null);
-        DEFAULT_RASTER_CONTRAST_ENCHANCEMENT = new DefaultContrastEnchancement(false,false,1d);
-        DEFAULT_RASTER_SHADED_RELIEF = new DefaultShadedRelief(false, 1d);
-        DEFAULT_RASTER_OUTLINE = null;
-        
-        
-        
+    public PortrayalCatalog createTextStyle(TextSymbolizer symbol){
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol, FeatureTypeStyle.SEMANTIC_ID_TEXT);
+        List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
+        ftss.add(fts);
+        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        return catalog;
+    }
+    
+    public PortrayalCatalog createRasterStyle(PointSymbolizer symbol){
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_RASTER);
+        List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
+        ftss.add(fts);
+        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        return catalog;
     }
     
     
-    public RasterSymbolizer createRasterSymbolizer(){
-        RasterSymbolizer symbol = new DefaultRasterSymbolizer(
-                DEFAULT_OPACITY,
-                DEFAULT_RASTER_CHANNEL_RGB,
-                DEFAULT_RASTER_OVERLAP,
-                DEFAULT_RASTER_COLORMAP,
-                DEFAULT_RASTER_CONTRAST_ENCHANCEMENT,
-                DEFAULT_RASTER_SHADED_RELIEF,
-                DEFAULT_RASTER_OUTLINE,
-                DEFAULT_UOM,
-                DEFAULT_GEOM,
-                DEFAULT_RASTER_NAME + id++,
-                DEFAULT_DESCRIPTION);
+    
+    public FeatureTypeStyle createFeatureTypeStyle(Symbolizer symbol, String semantic){
         
-        return symbol;
+        //TODO replace those fakenames, will disapear when merged with geotools styles
+        
+        List<Symbolizer> symbols = new ArrayList<Symbolizer>();
+        symbols.add(symbol);
+        Rule rule = new MutableRule("fakename", SymbolizerBuilder.DEFAULT_DESCRIPTION, null, null, false, 0, Double.MAX_VALUE, symbols);
+        
+        Collection<String> semantics = new ArrayList<String>();
+        semantics.add(semantic);
+        List<Rule> rules = new ArrayList<Rule>();
+        rules.add(rule);
+        FeatureTypeStyle fts = new MutableFeatureTypeStyle("fakename", SymbolizerBuilder.DEFAULT_DESCRIPTION, null, null, semantics , rules);
+        return fts;
     }
     
 }
