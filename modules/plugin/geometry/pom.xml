@@ -115,7 +115,7 @@
         <artifactId>maven-clover-plugin</artifactId>
         <configuration>
           <jdk>1.5</jdk>
-          <licenseLocation>http://svn.geotools.org/geotools/trunk/gt/build/maven/build-configs/src/main/resources/gt2/clover.license</licenseLocation>
+          <licenseLocation>http://svn.geotools.org/trunk/build/maven/build-configs/src/main/resources/gt2/clover.license</licenseLocation>
           <flushPolicy>directed</flushPolicy>
         </configuration>
         <executions>
