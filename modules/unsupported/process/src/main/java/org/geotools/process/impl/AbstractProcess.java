@@ -13,7 +13,7 @@ import org.opengis.util.ProgressListener;
  * <p>
  * This is a straight forward abstract process that has all the fields filled in.
  * </p>
- * @author Jody
+ * @author gdavis
  */
 public abstract class AbstractProcess implements Process {   
     protected ProcessFactory factory;

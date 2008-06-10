@@ -14,6 +14,11 @@
  *    Lesser General Public License for more details.
  */
 /**
- * Process examples making use of literal data structures such as Geometry and String.
+ * Process examples making use of literal data structures such as Geometry and 
+ * String.
+ * 
+ * This portion of the program was contributed by Sejong University and funded 
+ * by Seoul R&BD 10540. Any official publishing of the produced result is 
+ * requested to retain the aforementioned acknowledgment.
  */
 package org.geotools.process.literal;

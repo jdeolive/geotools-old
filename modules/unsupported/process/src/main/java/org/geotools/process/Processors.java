@@ -40,7 +40,7 @@ import org.geotools.util.NullProgressListener;
  * <p>
  * Defines static methods used to access the application's default process factory implementations.
  *
- * @author Graham Davis
+ * @author gdavis
  */
 public class Processors extends FactoryFinder {
     /**

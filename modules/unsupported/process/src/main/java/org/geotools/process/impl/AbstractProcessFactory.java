@@ -20,8 +20,8 @@ import org.geotools.process.ProcessFactory;
 /**
  * Super class that provides additional helper methods
  * useful when implementing your own ProcessFactory.
-
- * @author Jody (Refractions Research)
+ *
+ * @author gdavis
  */
 public abstract class AbstractProcessFactory implements ProcessFactory {
 

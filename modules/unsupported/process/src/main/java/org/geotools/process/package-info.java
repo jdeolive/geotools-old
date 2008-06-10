@@ -22,5 +22,9 @@
  * <li>Processors used for discovery and creation of Process implementations
  * <li>ProcessFactory used to advertise additional implementations to the framework (via the FactorySPI plug-in system)
  * </ul>
+ * 
+ * This portion of the program was contributed by Sejong University and funded 
+ * by Seoul R&BD 10540. Any official publishing of the produced result is 
+ * requested to retain the aforementioned acknowledgment.
  */
 package org.geotools.process;

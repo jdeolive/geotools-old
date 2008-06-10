@@ -28,6 +28,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Process for adding a buffer around a geometry
+ * 
  * @author gdavis
  */
 class BufferProcess extends AbstractProcess {

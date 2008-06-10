@@ -28,6 +28,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 /**
  *  Process to union 2 or more geometries together
+ *  
  * @author gdavis
  */
 class UnionProcess implements Process {
@@ -51,7 +52,7 @@ class UnionProcess implements Process {
             int chunk = 80 / div;
             int count = 1;
             Geometry result = null;
-            for( Geometry geom : list ){
+            for( Geometry geom : list ) {
                 if( monitor.isCanceled() ) return null; // user has canceled this operation                
                 if( result == null ) {
                     result = geom;

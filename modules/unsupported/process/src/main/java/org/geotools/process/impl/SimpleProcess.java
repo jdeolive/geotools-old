@@ -12,7 +12,7 @@ import org.opengis.util.ProgressListener;
  * Provide an implementation for a simple process (ie so quick and easy it
  * is not going to need to report progress as it goes).
  * 
- * @author Jody
+ * @author gdavis
  */
 public abstract class SimpleProcess extends AbstractProcess {
     /** Can only run once... should not need to check this but we are being careful */
