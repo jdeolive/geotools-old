@@ -1529,6 +1529,7 @@
         <details key="documentation" value="Version of the WPS interface specification implemented by the server (1.0.0)"/>
       </eAnnotations>
     </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="baseUrl" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ResponseBaseType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">

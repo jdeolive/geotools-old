@@ -554,13 +554,22 @@ public interface WpsPackage extends EPackage {
 	int REQUEST_BASE_TYPE__VERSION = 2;
 
 	/**
+	 * The feature id for the '<em><b>Base Url</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REQUEST_BASE_TYPE__BASE_URL = 3;
+
+	/**
 	 * The number of structural features of the '<em>Request Base Type</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REQUEST_BASE_TYPE_FEATURE_COUNT = 3;
+	int REQUEST_BASE_TYPE_FEATURE_COUNT = 4;
 
 	/**
 	 * The meta object id for the '{@link net.opengis.wps.impl.DescribeProcessTypeImpl <em>Describe Process Type</em>}' class.
@@ -598,6 +607,15 @@ public interface WpsPackage extends EPackage {
 	 * @ordered
 	 */
 	int DESCRIBE_PROCESS_TYPE__VERSION = REQUEST_BASE_TYPE__VERSION;
+
+	/**
+	 * The feature id for the '<em><b>Base Url</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DESCRIBE_PROCESS_TYPE__BASE_URL = REQUEST_BASE_TYPE__BASE_URL;
 
 	/**
 	 * The feature id for the '<em><b>Identifier</b></em>' containment reference list.
@@ -1136,6 +1154,15 @@ public interface WpsPackage extends EPackage {
 	 * @ordered
 	 */
 	int EXECUTE_TYPE__VERSION = REQUEST_BASE_TYPE__VERSION;
+
+	/**
+	 * The feature id for the '<em><b>Base Url</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXECUTE_TYPE__BASE_URL = REQUEST_BASE_TYPE__BASE_URL;
 
 	/**
 	 * The feature id for the '<em><b>Identifier</b></em>' containment reference.
@@ -4627,6 +4654,17 @@ public interface WpsPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getRequestBaseType_Version();
+
+	/**
+	 * Returns the meta object for the attribute '{@link net.opengis.wps.RequestBaseType#getBaseUrl <em>Base Url</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Base Url</em>'.
+	 * @see net.opengis.wps.RequestBaseType#getBaseUrl()
+	 * @see #getRequestBaseType()
+	 * @generated
+	 */
+	EAttribute getRequestBaseType_BaseUrl();
 
 	/**
 	 * Returns the meta object for class '{@link net.opengis.wps.ResponseBaseType <em>Response Base Type</em>}'.

@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link net.opengis.wps.RequestBaseType#getLanguage <em>Language</em>}</li>
  *   <li>{@link net.opengis.wps.RequestBaseType#getService <em>Service</em>}</li>
  *   <li>{@link net.opengis.wps.RequestBaseType#getVersion <em>Version</em>}</li>
+ *   <li>{@link net.opengis.wps.RequestBaseType#getBaseUrl <em>Base Url</em>}</li>
  * </ul>
  * </p>
  *
@@ -164,5 +165,24 @@ public interface RequestBaseType extends EObject {
 	 * @generated
 	 */
 	boolean isSetVersion();
+	
+	/**
+	 * Returns the base url of the request.
+	 * <p>
+	 * This is a special property added manually.
+	 * </p>
+	 * @model
+	 */
+	String getBaseUrl();
+
+	/**
+	 * Sets the value of the '{@link net.opengis.wps.RequestBaseType#getBaseUrl <em>Base Url</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Base Url</em>' attribute.
+	 * @see #getBaseUrl()
+	 * @generated
+	 */
+	void setBaseUrl(String value);
 
 } // RequestBaseType

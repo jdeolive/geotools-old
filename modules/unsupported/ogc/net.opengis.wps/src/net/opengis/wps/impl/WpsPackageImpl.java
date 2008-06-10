@@ -2020,6 +2020,15 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getRequestBaseType_BaseUrl() {
+		return (EAttribute)requestBaseTypeEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getResponseBaseType() {
 		return responseBaseTypeEClass;
 	}
@@ -2639,6 +2648,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		createEAttribute(requestBaseTypeEClass, REQUEST_BASE_TYPE__LANGUAGE);
 		createEAttribute(requestBaseTypeEClass, REQUEST_BASE_TYPE__SERVICE);
 		createEAttribute(requestBaseTypeEClass, REQUEST_BASE_TYPE__VERSION);
+		createEAttribute(requestBaseTypeEClass, REQUEST_BASE_TYPE__BASE_URL);
 
 		responseBaseTypeEClass = createEClass(RESPONSE_BASE_TYPE);
 		createEAttribute(responseBaseTypeEClass, RESPONSE_BASE_TYPE__SERVICE);
@@ -2946,6 +2956,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEAttribute(getRequestBaseType_Language(), theXMLTypePackage.getString(), "language", null, 0, 1, RequestBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRequestBaseType_Service(), theXMLTypePackage.getString(), "service", "WPS", 1, 1, RequestBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRequestBaseType_Version(), theOws11Package.getVersionType1(), "version", "1.0.0", 1, 1, RequestBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRequestBaseType_BaseUrl(), ecorePackage.getEString(), "baseUrl", null, 0, 1, RequestBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(responseBaseTypeEClass, ResponseBaseType.class, "ResponseBaseType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getResponseBaseType_Service(), theXMLTypePackage.getString(), "service", "WPS", 1, 1, ResponseBaseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

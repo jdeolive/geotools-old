@@ -214,6 +214,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//RequestBaseType/language"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//RequestBaseType/service"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//RequestBaseType/version"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//RequestBaseType/baseUrl"/>
     </genClasses>
     <genClasses ecoreClass="wps.ecore#//ResponseBaseType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//ResponseBaseType/service"/>
