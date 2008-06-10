@@ -160,13 +160,15 @@ public class SessionPool {
      * @return DOCUMENT ME!
      */
     public int getPoolSize() {
+        checkOpen();
         synchronized (this.pool) {
             return this.pool.getNumActive() + this.pool.getNumIdle();
         }
     }
 
     /**
-     * closes all connections in this pool
+     * closes all connections in this pool. The first call closes all SeConnections, 
+     * further calls have no effect.
      */
     public void close() {
         if (pool != null) {
@@ -177,6 +179,20 @@ public class SessionPool {
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Closing pool: " + e.getMessage(), e);
             }
+        }
+    }
+    
+    /**
+     * Returns whether this pool is closed
+     * @return
+     */
+    public boolean isClosed(){
+        return pool == null;
+    }
+    
+    private void checkOpen() throws IllegalStateException{
+        if(isClosed()){
+            throw new IllegalStateException("This session pool is closed");
         }
     }
 
@@ -194,6 +210,7 @@ public class SessionPool {
      * @return DOCUMENT ME!
      */
     public synchronized int getAvailableCount() {
+        checkOpen();
         return this.pool.getNumIdle();
     }
 
@@ -203,6 +220,7 @@ public class SessionPool {
      * @return Number of active session; used to monitor the live pool.
      */
     public synchronized int getInUseCount() {
+        checkOpen();
         return this.pool.getNumActive();
     }
 
@@ -218,6 +236,7 @@ public class SessionPool {
      */
     public ISession getSession(Transaction transaction) throws IOException {
         final ISession session;
+        checkOpen();
         if (Transaction.AUTO_COMMIT.equals(transaction)) {
             session = getSession();
         } else {
@@ -238,9 +257,7 @@ public class SessionPool {
      * @throws IllegalStateException If pool has been closed.
      */
     public ISession getSession() throws DataSourceException, UnavailableArcSDEConnectionException {
-        if (pool == null) {
-            throw new IllegalStateException("The ConnectionPool has been closed.");
-        }
+        checkOpen();
         try {
             // String caller = null;
             // if (LOGGER.isLoggable(Level.FINER)) {
@@ -283,6 +300,7 @@ public class SessionPool {
      */
     @SuppressWarnings("unchecked")
     public List<String> getAvailableLayerNames() throws IOException {
+        checkOpen();
         final ISession session;
 
         final List<String> layerNames;

@@ -156,7 +156,7 @@ public class SessionPoolTest extends TestCase {
         congfig = new ArcSDEConnectionConfig(connectionParameters);
 
         try {
-            SessionPool connPool = pf.createPool(congfig);
+            SessionPool connPool = pf.createSharedPool(congfig);
             LOGGER.fine("connection succeed " + connPool.getPoolSize() + " connections ready");
         } catch (DataSourceException ex) {
             throw ex;

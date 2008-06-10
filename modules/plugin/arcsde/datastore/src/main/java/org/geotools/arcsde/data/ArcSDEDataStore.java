@@ -195,10 +195,15 @@ public class ArcSDEDataStore implements DataStore {
     }
 
     /**
-     * TODO: implement dispose()!
+     * Disposes this ArcSDEDataStore, which means disposing its session pool and hence
+     * closing all the SeConnection objects held.
+     * 
+     * @see DataStore#dispose()
      */
     public void dispose() {
-        LOGGER.info("dispose not yet implemented for ArcSDE, don't forget to do that!");
+        LOGGER.fine("Disposing " + connectionPool);
+        this.connectionPool.close();
+        LOGGER.fine("Session pool disposed");
     }
 
     /**

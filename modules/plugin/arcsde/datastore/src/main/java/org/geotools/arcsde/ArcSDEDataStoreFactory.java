@@ -193,7 +193,8 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
 
         ArcSDEDataStore sdeDStore = null;
         ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(params);
-        SessionPool connPool = poolFactory.createPool(config);
+        //create a new session pool to be used only by this datastore
+        final SessionPool connPool = poolFactory.createPool(config);
 
         // check to see if our sdk is compatible with this arcsde instance
         ISession session = null;

@@ -658,7 +658,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
             LOGGER.fine("Building ArcSDEGridCoverageReader2D for " + sdeConfig
                     + ", with raster table " + rasterTable);
 
-        connectionPool = SessionPoolFactory.getInstance().createPool(sdeConfig);
+        connectionPool = SessionPoolFactory.getInstance().createSharedPool(sdeConfig);
 
         try {
             ISession session = connectionPool.getSession();

@@ -32,6 +32,7 @@ import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
+import org.geotools.data.Transaction;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -217,6 +218,20 @@ public class ArcSDEDataStoreTest extends TestCase {
             }
         }
 
+    }
+
+    public void testDispose() throws IOException{
+        store.dispose();
+        try{
+            ((ArcSDEDataStore)store).getSession(Transaction.AUTO_COMMIT);
+            fail("Expected IllegalStateException when the datastore has been disposed");
+        }catch(IllegalStateException e){
+            assertTrue(true);
+        }finally{
+            //dispose test data so next test does not fail due to pool being closed
+            testData.tearDown(false, true);
+            testData = null;
+        }
     }
 
     /**

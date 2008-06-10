@@ -24,15 +24,13 @@ import java.util.logging.Logger;
 import org.geotools.data.DataSourceException;
 
 /**
- * Singleton factory that maintains a single
- * {@link SessionPool connection pool} per set of
+ * Singleton factory that maintains a single {@link SessionPool connection pool} per set of
  * {@link ArcSDEConnectionConfig connection parameters}.
  * 
  * @author Gabriel Roldan
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/arcsde/datastore/src/main/java/org/geotools/arcsde/pool/SessionPoolFactory.java $
- * @version $Id: SessionPoolFactory.java 24660 2007-03-02 16:10:44Z
- *          saul.farber $
+ * @version $Id$
  */
 public class SessionPoolFactory {
     /** package logger */
@@ -43,8 +41,7 @@ public class SessionPoolFactory {
     private static final SessionPoolFactory singleton = new SessionPoolFactory();
 
     /**
-     * Map{ArcSDEConnectionConfig,SessionPool} with per config
-     * connection pool
+     * Map{ArcSDEConnectionConfig,SessionPool} with per config connection pool
      */
     private final Map currentPools = new HashMap();
 
@@ -65,37 +62,42 @@ public class SessionPoolFactory {
     }
 
     /**
-     * Creates a connection pool factory for the given connection parameters, or
-     * returns the existing one if there already exists one for that set of
-     * connection params.
+     * Creates a connection pool factory for the given connection parameters, or returns the
+     * existing one if there already exists one for that set of connection params.
      * 
-     * @param config
-     *             contains the connection parameters and pool preferences
-     * 
-     * @return a pool for the given connection parameters, wether it already
-     *         existed or had to be created.
-     * 
-     * @throws DataSourceException
-     *             if the pool needs but can't be created
+     * @param config  contains the connection parameters and pool preferences
+     * @return a pool for the given connection parameters, wether it already existed or had to be
+     *         created.
+     * @throws DataSourceException if the pool needs but can't be created
      */
-    public synchronized SessionPool createPool(ArcSDEConnectionConfig config)
+    public synchronized SessionPool createSharedPool(ArcSDEConnectionConfig config)
             throws DataSourceException {
         SessionPool pool = (SessionPool) this.currentPools.get(config);
 
         if (pool == null) {
             // the new pool will be populated with config.minConnections
             // connections
-            if( config.getMaxConnections() != null && config.getMaxConnections() == 1 ){
+            if (config.getMaxConnections() != null && config.getMaxConnections() == 1) {
                 // engage experimental single connection mode!
-                pool = new ArcSDEConnectionReference(config);    
-            }
-            else {
+                pool = new ArcSDEConnectionReference(config);
+            } else {
                 pool = new SessionPool(config);
             }
             this.currentPools.put(config, pool);
         }
 
         return pool;
+    }
+
+    /**
+     * Creates a _new_ session pool.
+     * 
+     * @param config
+     * @return
+     * @throws DataSourceException
+     */
+    public SessionPool createPool(ArcSDEConnectionConfig config) throws DataSourceException {
+        return new SessionPool(config);
     }
 
     /**
@@ -117,8 +119,7 @@ public class SessionPoolFactory {
     }
 
     /**
-     * Ensures proper closure of connection pools at this object's finalization
-     * stage.
+     * Ensures proper closure of connection pools at this object's finalization stage.
      */
     @Override
     protected void finalize() {

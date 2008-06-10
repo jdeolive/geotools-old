@@ -182,7 +182,7 @@ public class TestData {
         if (this._pool == null) {
             SessionPoolFactory pfac = SessionPoolFactory.getInstance();
             ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(this.conProps);
-            this._pool = pfac.createPool(config);
+            this._pool = pfac.createSharedPool(config);
         }
         return this._pool;
     }

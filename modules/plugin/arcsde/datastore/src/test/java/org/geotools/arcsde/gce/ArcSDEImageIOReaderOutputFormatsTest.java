@@ -100,7 +100,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
         in.close();
 
         ArcSDEConnectionConfig connectionConfig = new ArcSDEConnectionConfig(conProps);
-        pool = SessionPoolFactory.getInstance().createPool(connectionConfig);
+        pool = SessionPoolFactory.getInstance().createSharedPool(connectionConfig);
 
         ISession session = null;
         SeQuery q = null;

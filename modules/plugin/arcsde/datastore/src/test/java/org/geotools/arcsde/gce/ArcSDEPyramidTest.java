@@ -66,7 +66,7 @@ public class ArcSDEPyramidTest extends TestCase {
                 .openStream();
         conProps.load(in);
         in.close();
-        pool = SessionPoolFactory.getInstance().createPool(
+        pool = SessionPoolFactory.getInstance().createSharedPool(
                 new ArcSDEConnectionConfig(conProps));
 
     }
