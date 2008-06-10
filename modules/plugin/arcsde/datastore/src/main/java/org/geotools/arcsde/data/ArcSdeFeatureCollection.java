@@ -68,7 +68,14 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
     public ArcSdeFeatureCollection(final ArcSdeFeatureSource featureSource, final Query namedQuery) throws IOException {
         this.featureSource = featureSource;
         this.query = namedQuery;
-        this.childrenSchema = ArcSDEQuery.getQuerySchema(namedQuery, featureSource.getSchema());
+        //this.childrenSchema = ArcSDEQuery.getQuerySchema(namedQuery, featureSource.getSchema());
+
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = getReader();
+        try{
+            this.childrenSchema = reader.getFeatureType();
+        }finally{
+            reader.close();
+        }
 
         final Set<ArcSdeFeatureReaderIterator> iterators;
         iterators = new HashSet<ArcSdeFeatureReaderIterator>();
@@ -160,6 +167,14 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
      */
     @Override
     protected synchronized final Iterator<SimpleFeature> openIterator() throws IOException {
+        final FeatureReader<SimpleFeatureType, SimpleFeature> reader = getReader();
+        final ArcSdeFeatureReaderIterator iterator;
+        iterator = new ArcSdeFeatureReaderIterator(reader, this);
+        this.openIterators.add(iterator);
+        return iterator;
+    }
+
+    private FeatureReader<SimpleFeatureType, SimpleFeature> getReader() throws IOException {
         final FeatureReader<SimpleFeatureType, SimpleFeature> reader;
 
         final ArcSDEDataStore dataStore = featureSource.getDataStore();
@@ -175,10 +190,7 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
             session.dispose();
             throw re;
         }
-        final ArcSdeFeatureReaderIterator iterator;
-        iterator = new ArcSdeFeatureReaderIterator(reader, this);
-        this.openIterators.add(iterator);
-        return iterator;
+        return reader;
     }
 
     /**

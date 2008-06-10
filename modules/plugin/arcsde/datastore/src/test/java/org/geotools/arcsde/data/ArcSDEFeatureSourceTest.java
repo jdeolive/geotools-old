@@ -42,9 +42,12 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.text.cql2.CQL;
+import org.geotools.filter.text.cql2.CQLException;
+import org.opengis.feature.Feature;
 import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
@@ -372,6 +375,50 @@ public class ArcSDEFeatureSourceTest extends TestCase {
         } finally {
             reader.close();
         }
+    }
+    
+    /**
+     * Say the query contains a set of propertynames to retrieve and the query
+     * filter others, the returned feature type should still match the ones in
+     * Query.propertyNames
+     * 
+     * @throws IOException
+     * @throws IllegalAttributeException
+     * @throws SeException
+     * @throws CQLException 
+     */
+    public void testRespectsQueryAttributes() throws IOException, IllegalAttributeException,
+            SeException, CQLException {
+        final String typeName = testData.getTempTableName();
+        final DataStore ds = testData.getDataStore();
+        final FeatureSource<SimpleFeatureType, SimpleFeature> fs = ds.getFeatureSource(typeName);
+        
+        final String[] queryAtts = {"SHAPE"};
+        final Filter filter = CQL.toFilter("INT32_COL = 1");
+        
+
+        // build the query asking for a subset of attributes
+        final Query query = new DefaultQuery(typeName, filter, queryAtts);
+
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features = fs.getFeatures(query);
+        SimpleFeatureType resultSchema = features.getSchema();
+        
+        assertEquals(1, resultSchema.getAttributeCount());
+        assertEquals("SHAPE", resultSchema.getAttribute(0).getLocalName());
+    
+
+        Feature feature=null;
+        FeatureIterator<SimpleFeature> iterator = null;
+        try {
+            iterator = features.features();
+            feature = iterator.next();
+        } finally {
+            if(iterator != null){
+                features.close(iterator);
+            }
+        }
+
+        assertEquals(resultSchema, feature.getType());
     }
 
     /**
