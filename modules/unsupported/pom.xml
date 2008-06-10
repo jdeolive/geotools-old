@@ -60,7 +60,7 @@
          <module>geometryless</module>
          <module>notifying-collections</module>
 	 <module>wps</module>
-         <module>go</module>
+         <!--<module>go</module>-->
        </modules>
      </profile>
 
