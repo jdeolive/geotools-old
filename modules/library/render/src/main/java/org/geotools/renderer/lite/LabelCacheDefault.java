@@ -23,6 +23,7 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
@@ -387,7 +388,25 @@ public final class LabelCacheDefault implements LabelCache {
 	 */
 	public void end(Graphics2D graphics, Rectangle displayArea) 
 	{
-		if( !activeLayers.isEmpty() ){
+	    final Object antialiasing = graphics.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+	    final Object textAntialiasing = graphics.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
+        try {
+            // if we are asked to antialias only text but we're drawing using the outline
+            // method, we need to re-enable graphics antialiasing during label painting
+            if (outlineRenderingEnabled
+                    && antialiasing == RenderingHints.VALUE_ANTIALIAS_OFF
+                    && textAntialiasing == RenderingHints.VALUE_TEXT_ANTIALIAS_ON) {
+                graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+            }
+            paintLabels(graphics, displayArea);
+        } finally {
+            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antialiasing);
+        }
+    }
+
+    void paintLabels(Graphics2D graphics, Rectangle displayArea) {
+        if( !activeLayers.isEmpty() ){
 			throw new IllegalStateException( activeLayers+" are layers that started rendering but have not completed," +
 					" stop() or endLayer() must be called before end() is called" );
 		}
