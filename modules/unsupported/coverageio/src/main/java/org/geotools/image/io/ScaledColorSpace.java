@@ -1,8 +1,7 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2001, Institut de Recherche pour le Développement
+ *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -24,7 +23,7 @@ import org.geotools.resources.Classes;
  * Color space for images storing pixels as real numbers. The color model can have an
  * arbitrary number of bands, but in current implementation only one band is used.
  *
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  * @source $URL$
  * @version $Id$
  */

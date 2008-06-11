@@ -1,7 +1,6 @@
 /*
- * Geotools 2 - OpenSource mapping toolkit
- * (C) 2005, Geotools Project Management Committee (PMC)
- * (C) 2001, Institut de Recherche pour le Développement
+ * GeoTools - The Open Source Java GIS Tookit
+ *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -136,7 +135,7 @@ import org.geotools.geometry.GeneralEnvelope;
  *
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  *
  * @since 2.2
  */
@@ -2135,7 +2134,7 @@ public class MetadataBuilder {
      * is considered equals to <code>"false_easting"</code>.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     public static class Key<T> implements Serializable {
         /**
@@ -2210,7 +2209,7 @@ public class MetadataBuilder {
      * A key for metadata derived from {@link Envelope} and/or {@link GridRange}.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     private static final class EnvelopeKey extends Key<Comparable<?>> {
         /**
@@ -2319,7 +2318,7 @@ public class MetadataBuilder {
      * The key name must be the projection parameter name.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     private static final class ProjectionKey extends Key<Number> {
         /**
@@ -2359,7 +2358,7 @@ public class MetadataBuilder {
      * This kind of key is for internal use only.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     private static final class AliasKey extends Key<Object> {
         /**
