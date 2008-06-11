@@ -20,14 +20,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
+import org.geotools.temporal.reference.DefaultTemporalCoordinateSystem;
 import org.opengis.temporal.CalendarDate;
+import org.opengis.temporal.DateAndTime;
 import org.opengis.temporal.JulianDate;
+import org.opengis.temporal.TemporalCoordinate;
+import org.opengis.temporal.TemporalCoordinateSystem;
 
 /**
  * This is a tool class to convert DateTime from ISO8601 to Date object.
@@ -90,8 +93,8 @@ public class Utils {
         Date response = null;
         String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
         String DATE_FORMAT2 = "yyyy-MM-dd";
-        SimpleDateFormat sdf = new java.text.SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
-        SimpleDateFormat sdf2 = new java.text.SimpleDateFormat(DATE_FORMAT2, Locale.ENGLISH);
+        SimpleDateFormat sdf = new java.text.SimpleDateFormat(DATE_FORMAT);
+        SimpleDateFormat sdf2 = new java.text.SimpleDateFormat(DATE_FORMAT2);
 
         if (dateString.contains("T")) {
             //set the timezone if exists.
@@ -225,5 +228,130 @@ public class Utils {
         cal.set(year, month, day);
         response = cal.getTime();
         return response;
+    }
+
+    /**
+     * Convert a CalendarDate object to java.util.Date.
+     * @param calDate
+     * @return
+     */
+    public static Date calendarDateToDate(CalendarDate calDate) {
+        if (calDate == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        DefaultCalendarDate caldate = (DefaultCalendarDate) calDate;
+        if (caldate != null) {
+            int[] cal = calDate.getCalendarDate();
+            int year = 0;
+            int month = 0;
+            int day = 0;
+            if (cal.length > 3) {
+                throw new IllegalArgumentException("The CalendarDate integer array is malformed ! see ISO 8601 format.");
+            } else {
+                year = cal[0];
+                if (cal.length > 0) {
+                    month = cal[1];
+                }
+                if (cal.length > 1) {
+                    day = cal[2];
+                }
+                calendar.set(year, month, day);
+                return calendar.getTime();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Convert a DateAndTime object to Date.
+     * @param dateAndTime
+     * @return
+     */
+    public static Date dateAndTimeToDate(DateAndTime dateAndTime) {
+        if (dateAndTime == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        DefaultDateAndTime dateTime = (DefaultDateAndTime) dateAndTime;
+        if (dateTime != null) {
+            int[] cal = dateTime.getCalendarDate();
+            int year = 0;
+            int month = 0;
+            int day = 0;
+            if (cal.length > 3) {
+                throw new IllegalArgumentException("The CalendarDate integer array is malformed ! see ISO 8601 format.");
+            } else {
+                year = cal[0];
+                if (cal.length > 0) {
+                    month = cal[1];
+                }
+                if (cal.length > 1) {
+                    day = cal[2];
+                }
+            }
+
+            Number[] clock = dateTime.getClockTime();
+            Number hour = 0;
+            Number minute = 0;
+            Number second = 0;
+            if (clock.length > 3) {
+                throw new IllegalArgumentException("The ClockTime Number array is malformed ! see ISO 8601 format.");
+            } else {
+                hour = clock[0];
+                if (clock.length > 0) {
+                    minute = clock[1];
+                }
+                if (clock.length > 1) {
+                    second = clock[2];
+                }
+            }
+            calendar.set(year, month, day, hour.intValue(), minute.intValue(), second.intValue());
+            return calendar.getTime();
+        }
+        return null;
+    }
+
+    /**
+     * Convert a TemporalCoordinate object to Date.
+     * @param temporalCoord
+     */
+    public static Date temporalCoordToDate(TemporalCoordinate temporalCoord) {
+        if (temporalCoord == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        DefaultTemporalCoordinate timeCoord = (DefaultTemporalCoordinate) temporalCoord;
+        Number value = timeCoord.getCoordinateValue();
+        if (timeCoord.getFrame() instanceof TemporalCoordinateSystem) {
+            DefaultTemporalCoordinateSystem coordSystem = (DefaultTemporalCoordinateSystem) timeCoord.getFrame();
+            Date origin = coordSystem.getOrigin();
+            String interval = coordSystem.getInterval().toString();
+
+            Long timeInMS = 0L;
+
+            if (interval.equals("year")) {
+                timeInMS = value.longValue() * yearMS;
+            } else if (interval.equals("month")) {
+                timeInMS = value.longValue() * monthMS;
+            } else if (interval.equals("week")) {
+                timeInMS = value.longValue() * weekMS;
+            } else if (interval.equals("day")) {
+                timeInMS = value.longValue() * dayMS;
+            } else if (interval.equals("hour")) {
+                timeInMS = value.longValue() * hourMS;
+            } else if (interval.equals("minute")) {
+                timeInMS = value.longValue() * minMS;
+            } else if (interval.equals("second")) {
+                timeInMS = value.longValue() * secondMS;
+            } else {
+                throw new IllegalArgumentException(" The interval of TemporalCoordinateSystem for this TemporalCoordinate object is unknown ! ");
+            }
+            timeInMS = timeInMS + origin.getTime();
+            calendar.setTimeInMillis(timeInMS);
+            return calendar.getTime();
+        } else {
+            throw new IllegalArgumentException("The frame of this TemporalCoordinate object must be an instance of TemporalCoordinateSystem");
+        }
     }
 }

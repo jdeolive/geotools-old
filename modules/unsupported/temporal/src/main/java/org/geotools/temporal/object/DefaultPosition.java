@@ -22,8 +22,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.geotools.resources.Utilities;
 import org.geotools.util.SimpleInternationalString;
+import org.opengis.temporal.CalendarDate;
+import org.opengis.temporal.DateAndTime;
 import org.opengis.temporal.JulianDate;
 import org.opengis.temporal.Position;
+import org.opengis.temporal.TemporalCoordinate;
 import org.opengis.temporal.TemporalPosition;
 import org.opengis.util.InternationalString;
 
@@ -48,7 +51,7 @@ public class DefaultPosition implements Position {
 
     /**
      * This constructor replace the constructor with further DateTime object which will be included in the futur version of jdk (jdk7).
-     * example of datetime argument: format specified by the ISO8601 yyyy-mm-DDTHH:MM:SSZ - 2003-02-13T12:28-08:00
+     * example of datetime argument: format specified by the ISO8601 yyyy-mm-DDTHH:MM:SSZ - example : 2003-02-13T12:28:00.000GMT-08:00.
      * @param dateTime
      * @throws java.text.ParseException
      */
@@ -56,6 +59,10 @@ public class DefaultPosition implements Position {
         this.position = Utils.getDateFromString(datetime.toString());
     }
 
+    /**
+     * This constructor set the position property as a TemporalPosition.
+     * @param anyOther
+     */
     public DefaultPosition(TemporalPosition anyOther) {
         this.position = anyOther;
     }
@@ -81,12 +88,22 @@ public class DefaultPosition implements Position {
         if (this.position instanceof Date) {
             return (Date) position;
         }
-        else {
-            if (this.position instanceof TemporalPosition) {
-                if (this.position instanceof JulianDate) {
-                    DefaultJulianDate julian = (DefaultJulianDate)position;
-                    return Utils.JulianToDate(julian);
-                }
+        if (this.position instanceof TemporalPosition) {
+            if (this.position instanceof JulianDate) {
+                DefaultJulianDate julian = (DefaultJulianDate) position;
+                return Utils.JulianToDate(julian);
+            }
+            if (this.position instanceof DateAndTime) {
+                DateAndTime dateTime = (DateAndTime) position;
+                return Utils.dateAndTimeToDate(dateTime);
+            }
+            if (this.position instanceof CalendarDate) {
+                CalendarDate calDate = (CalendarDate) position;
+                return Utils.calendarDateToDate(calDate);
+            }
+            if (this.position instanceof TemporalCoordinate) {
+                TemporalCoordinate temporalCoord = (TemporalCoordinate) position;
+                return Utils.temporalCoordToDate(temporalCoord);
             }
         }
         return null;
@@ -146,3 +163,4 @@ public class DefaultPosition implements Position {
         return s.toString();
     }
 }
+
