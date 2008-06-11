@@ -2,7 +2,7 @@ package org.geotools.gui.swing.process;
 
 import javax.swing.JComponent;
 
-import org.geotools.process.Parameter;
+import org.geotools.data.Parameter;
 import org.geotools.text.Text;
 
 /**

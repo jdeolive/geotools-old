@@ -19,9 +19,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.geotools.data.Parameter;
 import org.geotools.process.Process;
 import org.geotools.process.ProcessFactory;
-import org.geotools.process.Parameter;
 import org.geotools.process.impl.AbstractProcessFactory;
 import org.geotools.text.Text;
 import org.geotools.util.SimpleInternationalString;

@@ -17,6 +17,7 @@ package org.geotools.process;
 
 import java.util.Map;
 
+import org.geotools.data.Parameter;
 import org.opengis.util.InternationalString;
 
 /**

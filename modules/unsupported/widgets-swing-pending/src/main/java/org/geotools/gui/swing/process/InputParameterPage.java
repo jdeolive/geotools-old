@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SpringLayout;
 
-import org.geotools.process.Parameter;
+import org.geotools.data.Parameter;
 import org.geotools.process.ProcessFactory;
 
 import com.vividsolutions.jts.geom.Geometry;

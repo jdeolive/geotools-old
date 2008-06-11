@@ -30,11 +30,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.data.Parameter;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.process.Parameter;
 import org.geotools.process.Process;
 import org.geotools.process.ProcessFactory;
 import org.geotools.process.impl.AbstractProcess;

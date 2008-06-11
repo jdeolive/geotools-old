@@ -21,8 +21,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.geotools.data.Parameter;
 import org.geotools.gui.swing.ProgressWindow;
-import org.geotools.process.Parameter;
 import org.geotools.process.Process;
 import org.geotools.process.ProcessFactory;
 import org.geotools.process.Processors;
