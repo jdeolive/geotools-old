@@ -783,4 +783,21 @@ public class SQLEncoderOracle extends SQLEncoder {
             currentGeomColumnName = ae.getAttributePath();
         }
     }
+    
+    public void visit(IncludeFilter filter) {
+        try {
+            out.write("1 = 1");
+        } catch (java.io.IOException ioe) {
+            throw new RuntimeException(IO_ERROR, ioe);
+        }
+        
+    }
+
+    public void visit(ExcludeFilter filter) {
+        try {
+            out.write("1 = 0");
+        } catch (java.io.IOException ioe) {
+            throw new RuntimeException(IO_ERROR, ioe);
+        }
+    }
 }

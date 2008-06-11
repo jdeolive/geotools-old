@@ -108,10 +108,8 @@ public class SQLEncoderOracleTest extends TestCase {
         fidFilter.addFid("FID.1");
         fidFilter.addFid("FID.3");
         value = encoder.encode(fidFilter);
-        // The followind test fails with Java 1.6. May be related to iterator order dependent code.
-        if (TestData.isBaseJavaPlatform()) {
-            assertEquals("WHERE FID = '3' OR FID = '1'",value);
-        }
+        // depending on the iterator order it may be swapped
+        assertTrue("WHERE FID = '3' OR FID = '1'".equals(value) || "WHERE FID = '1' OR FID = '3'".equals(value));
     }
     
     public void testLikeEncoding() throws Exception {
@@ -123,5 +121,19 @@ public class SQLEncoderOracleTest extends TestCase {
         filter.setPattern("Cory%", "%", "?", "\\");
 //        System.out.println(encoder.encode(filter));
         assertEquals("WHERE UPPER(\"name\") LIKE UPPER('Cory%')", encoder.encode(filter));
+    }
+    
+    public void testIncludeEncoding() throws Exception {
+        encoder = new SQLEncoderOracle("FID",new HashMap());
+        assertTrue(encoder.getCapabilities().supports(org.opengis.filter.Filter.INCLUDE));
+        
+        assertEquals("WHERE 1 = 1", encoder.encode(org.opengis.filter.Filter.INCLUDE));
+    }
+    
+    public void testExcludeEncoding() throws Exception {
+        encoder = new SQLEncoderOracle("FID",new HashMap());
+        assertTrue(encoder.getCapabilities().supports(org.opengis.filter.Filter.EXCLUDE));
+        
+        assertEquals("WHERE 1 = 0", encoder.encode(org.opengis.filter.Filter.EXCLUDE));
     }
 }

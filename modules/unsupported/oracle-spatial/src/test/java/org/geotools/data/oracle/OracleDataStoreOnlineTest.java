@@ -94,7 +94,7 @@ public class OracleDataStoreOnlineTest extends TestCase {
         properties.load(this.getClass().getResourceAsStream("remote.properties"));
         schemaName = properties.getProperty("schema");
         properties.put("dbtype", "oracle");
-        properties.put("min connections", "1");
+        properties.put(OracleDataStoreFactory.MINCONN.key, "1");
         
         dstore =  (OracleDataStore) DataStoreFinder.getDataStore(properties);
         conn = dstore.getConnection(Transaction.AUTO_COMMIT);
