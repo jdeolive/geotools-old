@@ -1,5 +1,5 @@
 /*
- *    GeoTools - The Open Source Java GIS Tookit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
@@ -98,7 +98,7 @@ public final class ReplaceHeaders extends CommandLine {
     private final static Logger LOGGER = Logger.getLogger("org.geotools.resources.scm.cleanup");
 
     private final String AUTHOR_MARTIN    = "@author Martin Desruisseaux";
-    private final String FIRST_LINE       = "GeoTools - The Open Source Java GIS Tookit";
+    private final String FIRST_LINE       = "GeoTools - The Open Source Java GIS Toolkit";
     private final String OSGEO            = "Open Source Geospatial Foundation (OSGeo)";
 
     private static final int CURRENT_YEAR = 2008;
@@ -152,7 +152,10 @@ public final class ReplaceHeaders extends CommandLine {
     private static final Set<String> GEOTOOLS_OLD = new HashSet<String>(2);
     static {
         GEOTOOLS_OLD.add("GeoTools - OpenSource mapping toolkit");
+        GEOTOOLS_OLD.add("Geotools2 - OpenSource mapping toolkit");
+        GEOTOOLS_OLD.add("GeoTools2 - OpenSource mapping toolkit");
         GEOTOOLS_OLD.add("GeoTools 2 - OpenSource mapping toolkit");
+        GEOTOOLS_OLD.add("GeoTools - The Open Source Java GIS Tookit");
     }
 
     /**
@@ -408,6 +411,7 @@ public final class ReplaceHeaders extends CommandLine {
                     unchangedFiles.add(filePath);
                 }
             }
+    else {//Added by AVC to correct miscount.
             // Specify the status of the current file by putting it in the matching list.
             numFilesChanged++;
             if (!unknowCopyrights.isEmpty()) {
@@ -434,13 +438,13 @@ public final class ReplaceHeaders extends CommandLine {
                 }
                 suspiciousFiles.add(filePath);
             } else {
-                if (write) {
+                if ( write) {
                     System.out.println("||| Changed correctly  ||| ==> " + filePath +
                             "\tLines deleted : " + linesDeleted + "\tLines changed : " + linesChanged);
                 }
                 correctlyChangedFiles.add(filePath);
             }
-
+    }
             /* *****************************************************************
              * Verification part
              */
@@ -518,7 +522,7 @@ public final class ReplaceHeaders extends CommandLine {
         final String[] textSplitedOnEoL = text.split("\n", 16);
         final String[] pattern = {
                 "/*",
-                " *    GeoTools - The Open Source Java GIS Tookit",
+                " *    GeoTools - The Open Source Java GIS Toolkit",
                 " *    http://geotools.org",
                 " *",
                 " *    (C) 2008, Open Source Geospatial Foundation (OSGeo)",
