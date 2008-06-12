@@ -18,6 +18,7 @@ package org.geotools.util;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -80,6 +81,31 @@ public final class Converters {
         hints = addDefaultHints(hints);
         return new LazySet(getServiceRegistry().getServiceProviders(
                 ConverterFactory.class, null, hints));
+    }
+
+    /**
+     * Returns a set of all available {@link ConverterFactory}'s which can handle
+     * convert from the source to destination class.
+     * <p>
+     * This method essentially returns all factories in which the following 
+     * returns non null.
+     * <pre>
+     * factory.createConverter( source, target );
+     * </pre>
+     * </p>
+     * 
+     * @since 2.5
+     */
+    public static Set<ConverterFactory> getConverterFactories( Class source, Class target ) {
+        HashSet factories = new HashSet();
+        for ( Iterator f = factories().iterator(); f.hasNext(); ) {
+            ConverterFactory factory = (ConverterFactory) f.next();
+            if ( factory.createConverter( source, target, null ) != null ) {
+                factories.add( factory );
+            }
+        }
+        
+        return factories;
     }
 
 	/**
