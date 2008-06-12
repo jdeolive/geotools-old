@@ -1,5 +1,5 @@
 /*
- *    GeoTools - The Open Source Java GIS Tookit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  * 
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
@@ -13,8 +13,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- * Created on 22 novembre 2003, 15.22
  */
 package org.geotools.map;
 
