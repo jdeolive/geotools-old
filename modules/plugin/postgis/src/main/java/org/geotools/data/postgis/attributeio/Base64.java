@@ -1,8 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- *    (C) 2002-2006, GeoTools Project Managment Committee (PMC)
- *    (C) 2002, Rob Hrananc
+ *
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *    
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -13,8 +13,11 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *    
- * (C) 2002, Rob Hrananc
+ */
+/*
+ *    This file was orginally copyright of Rob Hrananc in 2002 and was released
+ *    with the additional statement:
+ *
  *    I am placing this code in the Public Domain. Do with it as you will.
  *    This software comes with no guarantees or warranties but with
  *    plenty of well-wishing instead!
@@ -23,6 +26,7 @@
  *    periodically to check for updates or to contribute improvements.
  */
 package org.geotools.data.postgis.attributeio;
+
 /**
  * Encodes and decodes to and from Base64 notation.
  *
