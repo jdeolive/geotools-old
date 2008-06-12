@@ -99,7 +99,6 @@ public final class ReplaceHeaders extends CommandLine {
 
     private final String AUTHOR_MARTIN    = "@author Martin Desruisseaux";
     private final String FIRST_LINE       = "GeoTools - The Open Source Java GIS Tookit";
-    private final String GEOTOOLS_OLD     = "GeoTools - OpenSource mapping toolkit";
     private final String OSGEO            = "Open Source Geospatial Foundation (OSGeo)";
 
     private static final int CURRENT_YEAR = 2008;
@@ -136,6 +135,15 @@ public final class ReplaceHeaders extends CommandLine {
         COPYRIGHTS_FOR_MARTIN.put("Pêches et Océans Canada", "PMO");
         COPYRIGHTS_FOR_MARTIN.put("Fisheries and Oceans Canada", "PMO");
         COPYRIGHTS_FOR_MARTIN.put("Institut de Recherche pour le Développement", "IRD");
+    }
+
+    /**
+     * A set of the first line to consider in the old version of the Geotools headers.
+     */
+    private static final Set<String> GEOTOOLS_OLD = new HashSet<String>(2);
+    static {
+        GEOTOOLS_OLD.add("GeoTools - OpenSource mapping toolkit");
+        GEOTOOLS_OLD.add("GeoTools 2 - OpenSource mapping toolkit");
     }
 
     /**
@@ -272,8 +280,8 @@ public final class ReplaceHeaders extends CommandLine {
         int linesDeleted = 0, linesChanged = 0, linesWithCopyright = 0, numOldFirstLine = 0;
         try {
             String line;
-            // Defines whether the (c) value has been
-            boolean hasCopyright = false;
+            // Defines whether the (c) value has been found
+            boolean hasCopyright = false, firstLineRed = false;
             final Map<String,Integer> copyrightsRed = new HashMap<String,Integer>();
             final Set<String> unknowCopyrights = new HashSet<String>();
 
@@ -284,10 +292,19 @@ public final class ReplaceHeaders extends CommandLine {
              */
             while ((line = reader.readLine()) != null) {
                 textIn.append(line).append("\n");
-                if (line.contains(GEOTOOLS_OLD)) {
-                    linesChanged++;
-                    numOldFirstLine++;
-                    textOut.append(line.replaceAll(GEOTOOLS_OLD, FIRST_LINE)).append("\n");
+                for (final String oldLine : GEOTOOLS_OLD) {
+                    if (line.contains(oldLine)) {
+                        linesChanged++;
+                        numOldFirstLine++;
+                        textOut.append(line.replaceAll(oldLine, FIRST_LINE)).append("\n");
+                        firstLineRed = true;
+                        break;
+                    }
+                }
+                // If the line contains one of the old Geotools headers, it is already handled,
+                // and we can skip the followings tests.
+                if (firstLineRed) {
+                    firstLineRed = false;
                     continue;
                 }
                 // Lines like " *    (C) 2005"
