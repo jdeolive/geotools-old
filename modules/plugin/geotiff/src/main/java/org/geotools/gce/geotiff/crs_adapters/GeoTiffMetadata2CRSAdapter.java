@@ -1199,17 +1199,10 @@ public final class GeoTiffMetadata2CRSAdapter {
 					|| name.equalsIgnoreCase("Mercator_2SP")
 					|| code == GeoTiffCoordinateTransformationsCodes.CT_Mercator) {
 				parameters = mtFactory.getDefaultParameters("Mercator_1SP");
-				parameters.parameter("central_meridian").setValue(
-						getOriginLong(metadata));
-				// parameters
-				// .parameter("latitude_of_origin")
-				// .setValue(
-				// this
-				// .getGeoKeyAsDouble(GeoTiffPCSCodes.ProjNatOriginLatGeoKey));
+				parameters.parameter("central_meridian").setValue(getOriginLong(metadata));
+				parameters.parameter("latitude_of_origin").setValue(getOriginLat(metadata));
 				parameters.parameter("scale_factor").setValue(
-						this.getGeoKeyAsDouble(
-								GeoTiffPCSCodes.ProjScaleAtNatOriginGeoKey,
-								metadata));
+						getScaleFactor(metadata));
 				parameters.parameter("false_easting").setValue(
 						getFalseEasting(metadata));
 				parameters.parameter("false_northing").setValue(
@@ -1496,32 +1489,28 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * @return the scale factor
 	 */
 	private double getScaleFactor(final GeoTiffIIOMetadataDecoder metadata) {
-		String scale = metadata
-				.getGeoKey(GeoTiffPCSCodes.ProjScaleAtCenterGeoKey);
+		String scale = metadata.getGeoKey(GeoTiffPCSCodes.ProjScaleAtCenterGeoKey);
 		if (scale == null)
-			scale = metadata
-					.getGeoKey(GeoTiffPCSCodes.ProjScaleAtNatOriginGeoKey);
+			scale = metadata.getGeoKey(GeoTiffPCSCodes.ProjScaleAtNatOriginGeoKey);
 		if (scale == null)
-			return 0.0;
+			return 1.0;
 		return Double.parseDouble(scale);
 	}
 
 	/**
 	 * Getting the false easting with a minimum of tolerance with respect to the
-	 * parameters name. I saw that ofetn people use the wrong geokey to store
-	 * the false eassting, we cannot be too picky we need to get going pretty
-	 * smoouthly.
+	 * parameters name. I saw that often people use the wrong geokey to store
+	 * the false easting, we cannot be too picky we need to get going pretty
+	 * smouthly.
 	 * 
 	 * @param metadata
 	 *            to use for searching the false easting.
 	 * @return double False easting.
 	 */
 	private double getFalseEasting(final GeoTiffIIOMetadataDecoder metadata) {
-		String easting = metadata
-				.getGeoKey(GeoTiffPCSCodes.ProjFalseEastingGeoKey);
+		String easting = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseEastingGeoKey);
 		if (easting == null)
-			easting = metadata
-					.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginEastingGeoKey);
+			easting = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginEastingGeoKey);
 		if (easting == null)
 			return 0.0;
 		return Double.parseDouble(easting);
@@ -1539,11 +1528,9 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * @return double False northing.
 	 */
 	private double getFalseNorthing(final GeoTiffIIOMetadataDecoder metadata) {
-		String northing = metadata
-				.getGeoKey(GeoTiffPCSCodes.ProjFalseNorthingGeoKey);
+		String northing = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseNorthingGeoKey);
 		if (northing == null)
-			northing = metadata
-					.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginNorthingGeoKey);
+			northing = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginNorthingGeoKey);
 		if (northing == null)
 			return 0.0;
 		return Double.parseDouble(northing);
@@ -1561,17 +1548,13 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * @return double origin longitude.
 	 */
 	private double getOriginLong(final GeoTiffIIOMetadataDecoder metadata) {
-		String origin = metadata
-				.getGeoKey(GeoTiffPCSCodes.ProjCenterLongGeoKey);
+		String origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjCenterLongGeoKey);
 		if (origin == null)
-			origin = metadata
-					.getGeoKey(GeoTiffPCSCodes.ProjNatOriginLongGeoKey);
+			origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjNatOriginLongGeoKey);
 		if (origin == null)
-			origin = metadata
-					.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginLongGeoKey);
+			origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginLongGeoKey);
 		if (origin == null)
-			origin = metadata
-					.getGeoKey(GeoTiffPCSCodes.ProjFalseNorthingGeoKey);
+			origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseNorthingGeoKey);
 		if (origin == null)
 			return 0.0;
 		return Double.parseDouble(origin);
@@ -1592,8 +1575,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 		if (origin == null)
 			origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjNatOriginLatGeoKey);
 		if (origin == null)
-			origin = metadata
-					.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginLatGeoKey);
+			origin = metadata.getGeoKey(GeoTiffPCSCodes.ProjFalseOriginLatGeoKey);
 		if (origin == null)
 			return 0.0;
 
