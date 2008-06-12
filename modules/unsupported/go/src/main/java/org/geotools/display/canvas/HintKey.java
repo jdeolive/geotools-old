@@ -1,6 +1,7 @@
 /*
  *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -13,7 +14,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
 package org.geotools.display.canvas;
 
 import java.awt.RenderingHints;

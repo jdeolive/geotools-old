@@ -1,6 +1,7 @@
 /*
  *    GeoTools - An Open Source Java GIS Tookit
  *    http://geotools.org
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  * 
  *    This library is free software; you can redistribute it and/or
