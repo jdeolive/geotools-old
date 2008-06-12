@@ -180,6 +180,7 @@ public final class ReplaceHeaders extends CommandLine {
         RECOGNIZED_COPYRIGHTS.add("Axios");
         RECOGNIZED_COPYRIGHTS.add("IVU");
         RECOGNIZED_COPYRIGHTS.add("Lisasoft");
+        RECOGNIZED_COPYRIGHTS.add("TOPP");
         /*RECOGNIZED_COPYRIGHTS.add("Gerald Evenden");*/
     }
 
