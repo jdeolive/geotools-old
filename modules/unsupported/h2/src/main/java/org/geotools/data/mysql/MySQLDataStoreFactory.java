@@ -31,6 +31,10 @@ public class MySQLDataStoreFactory extends JDBCDataStoreFactory {
         return new MySQLDialect(dataStore);
     }
 
+    public String getDisplayName() {
+        return "MySQL";
+    }
+    
     protected String getDriverClassName() {
         return "com.mysql.jdbc.Driver";
     }
