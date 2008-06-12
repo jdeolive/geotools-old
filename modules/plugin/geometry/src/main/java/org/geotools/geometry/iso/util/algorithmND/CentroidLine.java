@@ -1,5 +1,5 @@
 /*
- *    GeoTools - The Open Source Java GIS Tookit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *    
  *    (C) 2001-2006  Vivid Solutions
@@ -14,8 +14,7 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- */ 
-
+ */
 package org.geotools.geometry.iso.util.algorithmND;
 
 import java.util.Iterator;

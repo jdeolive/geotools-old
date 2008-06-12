@@ -8,9 +8,10 @@ IP Review:
 -Adrian Custer June 12008
 
 STATUS: CLEAN
-  NB The date of the start of the copyright is wrong for all files which include
-  vivid as copyright holder: the script captured that earliest date rather than 
-  the earliest of those it recoginized.
+  NB The date of the start of the OSGeo copyright is wrong for all files which 
+  include Vivid as copyright holder: the script captured that earliest date 
+  rather than the earliest of those lines it recoginized as assigning 
+  copyright to OSGeo.
   
   Vivid has (c) on several of these files which makes them LGPL only (can't 
   relicense them under GPL+CLASSPATH).

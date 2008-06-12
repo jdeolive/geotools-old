@@ -1,5 +1,5 @@
 /*
- *    GeoTools - The Open Source Java GIS Tookit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *    
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
@@ -14,7 +14,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
 package org.geotools.geometry.iso.util.interpolation;
 
 //import org.wrm.gis.iso19107.coordinate.GM_CurveInterpolation;

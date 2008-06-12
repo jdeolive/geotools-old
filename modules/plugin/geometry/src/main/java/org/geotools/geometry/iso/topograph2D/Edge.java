@@ -1,5 +1,5 @@
 /*
- *    GeoTools - The Open Source Java GIS Tookit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *    
  *    (C) 2001-2006  Vivid Solutions
@@ -15,9 +15,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
-
-
 package org.geotools.geometry.iso.topograph2D;
 
 import java.io.PrintStream;
