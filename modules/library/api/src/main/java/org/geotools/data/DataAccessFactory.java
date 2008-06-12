@@ -27,10 +27,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.geotools.factory.Factory;
-import org.geotools.util.SimpleInternationalString;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
-import org.opengis.util.InternationalString;
 
 
 /**
@@ -262,8 +260,28 @@ public interface DataAccessFactory extends Factory {
      * wrapper for one point release (at which time it will be deprecated).
      * </p>
      */
-    @SuppressWarnings("unchecked")
-    public static class Param extends Parameter {
+    public static class Param {
+        /** True if Param is required */
+        final public boolean required;
+
+        /** Key used in Parameter map */
+        final public String key;
+
+        /** Type of information required */
+        final public Class<?> type;
+
+        /** Short description (less then 40 characters) */
+        final public String description;
+
+        /**
+         * Sampel value provided as an example for user input.
+         *
+         * <p>
+         * May be passed to getAsText( sample ) for inital text based user
+         * interface default.
+         * </p>
+         */
+        final public Object sample;
 
         /**
          * Provides support for text representations
@@ -330,10 +348,11 @@ public interface DataAccessFactory extends Factory {
          * @param sample Sample value as an example for user input
          */
         public Param(String key, Class<?> type, String description, boolean required, Object sample) {
-            super(key, type, new SimpleInternationalString(description),
-                    (InternationalString) null,
-                    required, 1, 2, sample, 
-                    (Map<String,Object>) null);
+            this.key = key;
+            this.type = type;
+            this.description = description;
+            this.required = required;
+            this.sample = sample;
         }
 
         /**
