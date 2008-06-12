@@ -6,8 +6,8 @@
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -398,8 +398,8 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
                   " *    \n" +
                   " *    This library is free software; you can redistribute it and/or\n" +
                   " *    modify it under the terms of the GNU Lesser General Public\n" +
-                  " *    License as published by the Free Software Foundation; either\n" +
-                  " *    version 2.1 of the License, or (at your option) any later version.\n" +
+                  " *    License as published by the Free Software Foundation;\n" +
+                  " *    version 2.1 of the License.\n" +
                   " *    \n" +
                   " *    This library is distributed in the hope that it will be useful,\n" +
                   " *    but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
