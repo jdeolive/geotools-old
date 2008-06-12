@@ -1,7 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- *    (C) 2006, GeoTools Project Managment Committee (PMC)
+ *
+ *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *        
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,10 +13,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- *    This class implements the AUTOCLUST algorithm of Estivill-Castro and Lee (2002)
- *    "Argument free clustering for large spatial point-data sets via boundary extraction
- *    from Delaunay Diagram" in Computers, Environment and Urban Systems, 26:315-334.
  */
 package org.geotools.graph.util.delaunay;
 
@@ -32,6 +29,10 @@ import org.geotools.graph.structure.Node;
 import org.geotools.graph.structure.basic.BasicGraph;
 
 /**
+ *
+ *    This class implements the AUTOCLUST algorithm of Estivill-Castro and Lee (2002)
+ *    "Argument free clustering for large spatial point-data sets via boundary extraction
+ *    from Delaunay Diagram" in Computers, Environment and Urban Systems, 26:315-334.
  *
  * @author jfc173
  */
