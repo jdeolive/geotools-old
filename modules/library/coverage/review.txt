@@ -7,9 +7,14 @@ IP Review:
 - Adrian Custer June 6, 2008
 
 STATUS June 2008
-  CLEAN
+  DIRTY
+    Found a sun (c) header in:
+    org/geotools/image/palette/CustomPaletteBuilder.java
+    
+  rest is CLEAN
     Presume appropriation of 2ie Technology to IRD and thereby to OSGeo
-    Presume use of OGC text okay.
+    Presume use of some text from the OGC specs can be considered fair use for 
+      specification implementors.
     
 
 org.geotools.coverage
