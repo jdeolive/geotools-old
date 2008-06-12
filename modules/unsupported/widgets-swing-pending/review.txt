@@ -1,0 +1,15 @@
+WIDGETS_SWING_PENDING
+
+Review Adrian Custer, June 2008
+
+STATUS: Clean
+  Module includes some resources used under LGPL (see below)
+
+
+This module was started around Sept, 2007. Most work done by 
+Johann Sorel. 
+
+Johann will describe the sources and conditiions of some elements 
+which are used under LGPL.
+
+
