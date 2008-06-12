@@ -104,10 +104,19 @@ public final class ReplaceHeaders extends CommandLine {
     private static final int CURRENT_YEAR = 2008;
 
     /**
-     * Files that do not contain any change. They probably should be handled
-     * by hand.
+     * Files that do not contain any change. They are already correct.
      */
     private final List<String> unchangedFiles = new ArrayList<String>();
+
+    /**
+     * Files that do not contain header. They should be handled by hand.
+     */
+    private final List<String> noHeaderFiles = new ArrayList<String>();
+
+    /**
+     * Files that have a header which does not match with the one we will get at the end.
+     */
+    private final List<String> wrongHeaderFiles = new ArrayList<String>();
 
     /**
      * Files which need to be verified, because they contain lots of changed.
@@ -163,7 +172,6 @@ public final class ReplaceHeaders extends CommandLine {
         RECOGNIZED_COPYRIGHTS.add("Refractions");
         RECOGNIZED_COPYRIGHTS.add("GeoSolutions");
         RECOGNIZED_COPYRIGHTS.add("Vision for New York");
-        RECOGNIZED_COPYRIGHTS.add("Frank Warmerdam");
         RECOGNIZED_COPYRIGHTS.add("Frank Warmerdam");
         RECOGNIZED_COPYRIGHTS.add("CSIRO");
         RECOGNIZED_COPYRIGHTS.add("Axios");
@@ -237,6 +245,7 @@ public final class ReplaceHeaders extends CommandLine {
             fixHeaders(in, (output == null) ? in : new File(output));
         }
         writeSummary();
+        writeVerification();
     }
 
     /**
@@ -286,8 +295,8 @@ public final class ReplaceHeaders extends CommandLine {
         try {
             String line;
             // Defines whether the (c) value has been found
-            boolean hasCopyright = false, firstLineRed = false;
-            final Map<String,Integer> copyrightsRed = new HashMap<String,Integer>();
+            boolean hasCopyright = false, recognizedACopyright = false, recognizeOldLicence = false;
+            final Map<String,Integer> copyrightsRead = new HashMap<String,Integer>();
             final Set<String> unknowCopyrights = new HashSet<String>();
 
 
@@ -302,14 +311,26 @@ public final class ReplaceHeaders extends CommandLine {
                         linesChanged++;
                         numOldFirstLine++;
                         textOut.append(line.replaceAll(oldLine, FIRST_LINE)).append("\n");
-                        firstLineRed = true;
+                        recognizedACopyright = true;
                         break;
                     }
                 }
                 // If the line contains one of the old Geotools headers, it is already handled,
                 // and we can skip the followings tests.
-                if (firstLineRed) {
-                    firstLineRed = false;
+                if (recognizedACopyright) {
+                    recognizedACopyright = false;
+                    continue;
+                }
+                if (line.contains("License as published by the Free Software Foundation; either")) {
+                    linesChanged++;
+                    textOut.append(line.replaceAll("License as published by the Free Software Foundation; either",
+                            "License as published by the Free Software Foundation;")).append("\n");
+                    continue;
+                }
+                if (line.contains("version 2.1 of the License, or (at your option) any later version.")) {
+                    linesChanged++;
+                    textOut.append(line.replaceAll("version 2\\.1 of the License, or \\(at your option\\) any later version",
+                            "version 2\\.1 of the License")).append("\n");
                     continue;
                 }
                 // Lines like " *    (C) 2005"
@@ -321,18 +342,17 @@ public final class ReplaceHeaders extends CommandLine {
                     }
                     linesWithCopyright++;
                     hasCopyright = true;
-                    copyrightsRed.put(copyrightName, getCopyrigthStartTime(line));
+                    copyrightsRead.put(copyrightName, getCopyrigthStartTime(line));
                     continue;
                 }
                 //We have processed all the copyright lines
                 if (hasCopyright) {
                     //Toggle if we add a line to the header above the copyright.
-                    if (insertSpacerLine){
-                        textOut.append(" * \n").append(" *    (C) ");
-                    } else {
-                        textOut.append(" *    (C) ");
+                    if (insertSpacerLine) {
+                        textOut.append(" *\n");
                     }
-                    startCopyright = Collections.min(copyrightsRed.values());
+                    textOut.append(" *    (C) ");
+                    startCopyright = Collections.min(copyrightsRead.values());
                     if (startCopyright < CURRENT_YEAR) {
                         textOut.append(startCopyright).append("-");
                     }
@@ -346,9 +366,9 @@ public final class ReplaceHeaders extends CommandLine {
                 // Block specific for Martin's @author tagline
                 // Tests whether there is a copyright defined in the header,
                 // for which Martin wants to add to the {@code author} annotation.
-                if (line.contains(AUTHOR_MARTIN) && !copyrightsRed.isEmpty()) {
+                if (line.contains(AUTHOR_MARTIN) && !copyrightsRead.isEmpty()) {
                     String copyrightReplacement = "";
-                    for (String foundC : copyrightsRed.keySet()) {
+                    for (String foundC : copyrightsRead.keySet()) {
                         if (COPYRIGHTS_FOR_MARTIN.get(foundC) != null) {
                             if (copyrightReplacement.equals("IRD") && COPYRIGHTS_FOR_MARTIN.get(foundC).equals("PMO")) {
                                 copyrightReplacement = "PMO, IRD";
@@ -379,20 +399,25 @@ public final class ReplaceHeaders extends CommandLine {
              * Analysis part
              * @todo: add default header if no header found.
              */
+            final String filePath = input.getAbsolutePath();
             if (textIn.toString().contentEquals(textOut.toString())) {
-                unchangedFiles.add(input.getAbsolutePath());
-                return;
+                if (copyrightsRead.size() == 0) {
+                    noHeaderFiles.add(filePath);
+                    return;
+                } else {
+                    unchangedFiles.add(filePath);
+                }
             }
             // Specify the status of the current file by putting it in the matching list.
             numFilesChanged++;
             if (!unknowCopyrights.isEmpty()) {
                 if (write) {
-                    System.out.println("/!\\ Copyright problems /!\\ ==> " + input.getAbsolutePath());
+                    System.out.println("/!\\ Copyright problems /!\\ ==> " + filePath);
                     System.out.println("\t\t\t\t|__\tLines deleted : " + linesDeleted +
                             "\tLines changed : " + linesChanged);
                 }
                 for (String unknownCopyright : unknowCopyrights) {
-                    copyrightProblemsFiles.add(input.getAbsolutePath());
+                    copyrightProblemsFiles.add(filePath);
                     if (write) {
                         System.out.println("\t\t\t\tUnknown copyright \"" + unknownCopyright +
                                 "\". You should handle it by hand.");
@@ -403,17 +428,24 @@ public final class ReplaceHeaders extends CommandLine {
             // should have a look to this file to verify that all proposal changes are rigth.
             if (linesChanged > 4 || linesDeleted > 2 || numOldFirstLine > 1) {
                 if (write) {
-                    System.out.println("???     Suspicious     ??? ==> " + input.getAbsolutePath());
+                    System.out.println("???     Suspicious     ??? ==> " + filePath);
                     System.out.println("\t\t\t\t|__\tLines deleted : " + linesDeleted +
                             "\tLines changed : " + linesChanged);
                 }
-                suspiciousFiles.add(input.getAbsolutePath());
+                suspiciousFiles.add(filePath);
             } else {
                 if (write) {
-                    System.out.println("||| Changed correctly  ||| ==> " + input.getAbsolutePath() +
+                    System.out.println("||| Changed correctly  ||| ==> " + filePath +
                             "\tLines deleted : " + linesDeleted + "\tLines changed : " + linesChanged);
                 }
-                correctlyChangedFiles.add(input.getAbsolutePath());
+                correctlyChangedFiles.add(filePath);
+            }
+
+            /* *****************************************************************
+             * Verification part
+             */
+            if (!matchHeader(textOut.toString())) {
+                wrongHeaderFiles.add(filePath);
             }
 
             /* *****************************************************************
@@ -465,6 +497,56 @@ public final class ReplaceHeaders extends CommandLine {
     }
 
     /**
+     * Returns {@code true} if the copyright in parameter is present in the list of
+     * known copyrights. False otherwise.
+     */
+    private boolean isCopyrightKnown(String copyrightName) {
+        for (String knownCopyright : RECOGNIZED_COPYRIGHTS) {
+            if (copyrightName.contains(knownCopyright)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param text
+     * @return
+     */
+    private boolean matchHeader(final String text) {
+        final String[] textSplitedOnEoL = text.split("\n", 16);
+        final String[] pattern = {
+                "/*",
+                " *    GeoTools - The Open Source Java GIS Tookit",
+                " *    http://geotools.org",
+                " *",
+                " *    (C) 2008, Open Source Geospatial Foundation (OSGeo)",
+                " *",
+                " *    This library is free software; you can redistribute it and/or",
+                " *    modify it under the terms of the GNU Lesser General Public",
+
+                " *    License as published by the Free Software Foundation;",
+                " *    version 2.1 of the License.",
+             // " *    License as published by the Free Software Foundation; either",
+             // " *    version 2.1 of the License, or (at your option) any later version.",
+
+                " *",
+                " *    This library is distributed in the hope that it will be useful,",
+                " *    but WITHOUT ANY WARRANTY; without even the implied warranty of",
+                " *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU",
+                " *    Lesser General Public License for more details."
+        };
+        for (int i = 0; i<pattern.length; i++) {
+            if (!textSplitedOnEoL[i].contains("(C)")
+                    && !textSplitedOnEoL[i].trim().contentEquals(pattern[i].trim())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Write a summary of what have been done in the writing mode, or what it will do in the
      * information mode.
      */
@@ -498,28 +580,45 @@ public final class ReplaceHeaders extends CommandLine {
             }
         }
         System.out.println("=");
-        final int size = unchangedFiles.size();
-        if (size != 0) {
-            System.out.println("= " + size + " file(s) skipped (no changes or no header found)");
+        final int sizeUnchanged = unchangedFiles.size();
+        if (sizeUnchanged != 0) {
+            System.out.println("= " + sizeUnchanged + " file(s) skipped (no changes, because already well-formed)");
             for (final String path : unchangedFiles) {
                 System.out.println("=\t" + path);
             }
         } else {
             System.out.println("= No file skipped.");
         }
+        System.out.println("=");
+        final int sizeNoHeader = noHeaderFiles.size();
+        if (sizeNoHeader != 0) {
+            System.out.println("= " + sizeNoHeader + " file(s) with no header. You should add it by hand.");
+            for (final String path : noHeaderFiles) {
+                System.out.println("=\t" + path);
+            }
+        } else {
+            System.out.println("= No file with no header.");
+        }
     }
 
     /**
-     * Returns {@code true} if the copyright in parameter is present in the list of
-     * known copyrights. False otherwise.
+     * Write the result of the verification process on all files.
      */
-    private boolean isCopyrightKnown(String copyrightName) {
-        for (String knownCopyright : RECOGNIZED_COPYRIGHTS) {
-            if (copyrightName.contains(knownCopyright)) {
-                return true;
-            }
+    private void writeVerification() {
+        System.out.println("=");
+        System.out.println("===========================================================");
+        System.out.println("========               Verification                ========");
+        System.out.println("===========================================================");
+        System.out.println("=");
+        final int size = wrongHeaderFiles.size();
+        if (size == 0) {
+            System.out.println("= All files were correctly processed.");
+            return;
         }
-        return false;
+        System.out.println("= "+ size + " files with header not matching");
+        for (final String wrongHeaderFile : wrongHeaderFiles) {
+            System.out.println("= " + wrongHeaderFile);
+        }
     }
 
     /**
