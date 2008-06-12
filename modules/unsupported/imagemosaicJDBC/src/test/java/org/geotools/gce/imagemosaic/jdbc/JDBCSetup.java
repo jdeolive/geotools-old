@@ -1,5 +1,6 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
+import com.ibm.jvm.util.ByteArrayOutputStream;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -16,7 +17,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

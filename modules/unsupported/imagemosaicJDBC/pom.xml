@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/modules/unsupported/imagemosaicJDBC/
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/imagemosaic/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/modules/unsupported/imagemosaicJDBC/</url>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/imagemosaic/</url>
   </scm>
 
   <description>
@@ -129,32 +129,6 @@
       <artifactId>gt-shapefile</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>javax.media</groupId>
-      <artifactId>jai_codec</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-    </dependency>
-    <dependency>
-      <groupId>javax.media</groupId>
-      <artifactId>jai_imageio</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>jdbc</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>metadata</artifactId>
-      <version>${project.version}</version>
-    </dependency>	
-   <dependency>
-      <groupId>postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-    </dependency>
-
 
     <!-- Test dependencies -->
     <dependency>
@@ -164,37 +138,52 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>1.0-SNAPSHOT</version>
-      <scope>test</scope>      
-    </dependency>
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
+      <groupId>javax.media</groupId>
+      <artifactId>jai_codec</artifactId>
       <!-- The version number is specified in the parent POM. -->
-      <scope>test</scope>            
-    </dependency>
-    <!-- The IBM DB2 JDBC driver.                                  -->
-    <!--                                                           -->
-    <dependency>
-      <groupId>com.ibm</groupId>
-      <artifactId>db2jcc</artifactId>
-      <version>9</version>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.ibm</groupId>
-      <artifactId>db2jcc_license_cu</artifactId>
-      <version>9</version>
-      <scope>provided</scope>
+      <groupId>javax.media</groupId>
+      <artifactId>jai_imageio</artifactId>
+      <!-- The version number is specified in the parent POM. -->
+      <scope>test</scope>
     </dependency>
-    
     <dependency>
-       <artifactId>ojdbc14</artifactId>
-         <groupId>com.oracle</groupId>
-            <!-- version specified in root pom -->
+      <groupId>org.geotools</groupId>
+      <artifactId>jdbc</artifactId>
+      <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>db2</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>mysql</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+        <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>postgis</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>oracle-spatial</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>metadata</artifactId>
+      <version>${project.version}</version>
+    </dependency>	
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>h2</artifactId>
+      <version>${project.version}</version>
+    </dependency>	
 
   </dependencies>
 
