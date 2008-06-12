@@ -1,6 +1,7 @@
 /* uDig - User Friendly Desktop Internet GIS client
  * http://udig.refractions.net
- * (C) 2004, Refractions Research Inc.
+ *
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

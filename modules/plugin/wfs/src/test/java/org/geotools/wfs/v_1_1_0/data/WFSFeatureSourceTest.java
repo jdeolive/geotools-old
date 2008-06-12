@@ -1,7 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- *    (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+ *
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -13,7 +14,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
 package org.geotools.wfs.v_1_1_0.data;
 
 import java.io.IOException;
