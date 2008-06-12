@@ -15,12 +15,12 @@ public class PostgisSetup extends JDBCSetup {
 
     @Override
     protected String[] getTileTableNames() {
-        return new String[] {/* "tiles0" ,*/ "tiles1", "tiles2", "tiles3" };
+        return new String[] { "tiles0", "tiles1", "tiles2", "tiles3" };
     }
 
     @Override
     protected String[] getSpatialTableNames() {
-        return new String[] { /*"spatial0",*/ "spatial1", "spatial2", "spatial3" };
+        return new String[] { "spatial0", "spatial1", "spatial2", "spatial3" };
     }
 
     @Override
