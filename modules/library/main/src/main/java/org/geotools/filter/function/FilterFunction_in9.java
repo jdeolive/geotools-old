@@ -1,7 +1,7 @@
 package org.geotools.filter.function;
 
 /*
- *    GeoTools - The Open Source Java GIS Tookit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  * 
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
