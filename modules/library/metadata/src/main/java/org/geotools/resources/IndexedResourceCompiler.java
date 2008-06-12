@@ -1,5 +1,5 @@
 /*
- *    GeoTools - The Open Source Java GIS Tookit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  * 
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
@@ -391,7 +391,7 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
         final BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(file), "UTF-8"));
         out.write("/*\n" +
-                  " *    GeoTools - The Open Source Java GIS Tookit\n" +
+                  " *    GeoTools - The Open Source Java GIS Toolkit\n" +
                   " *    http://geotools.org\n" +
                   " *    \n" +
                   " *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)\n" +
