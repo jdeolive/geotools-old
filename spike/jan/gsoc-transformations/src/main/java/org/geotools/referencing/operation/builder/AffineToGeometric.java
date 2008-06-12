@@ -1,11 +1,31 @@
+/*
+ *    GeoTools - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002-2008, GeoTools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.referencing.operation.builder;
 
 import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.opengis.referencing.FactoryException;
 
+/**
+ * Helper class for converting values from affine transformation matrix to geometric values.
+ * @see http://groups.csail.mit.edu/graphics/classes/6.837/F98/Notes/lecture10.ps
+ * @author jezekjan
+ * @source $URL: $
+ * @version $Id: $
+ */
 public class AffineToGeometric {
-
-	  /** translation in x */
+    /** translation in x */
     private double tx;
 
     /** translation in y */
@@ -21,44 +41,70 @@ public class AffineToGeometric {
     private double phi;
 
     /** skew */
-    private double sxy;
-    
-	private final AffineTransform2D trans;
-	
-	public AffineToGeometric(AffineTransform2D trans){
-		this.trans = trans;
-		
-	    sy = Math.pow(Math.pow(trans.getScaleY(), 2) + Math.pow(trans.getShearY(), 2), 0.5);
+    private double sxy;   
 
-        phi =  (Math.signum(trans.getShearY()))*Math.asin(trans.getShearY() / sy);
-        
-               
-        sx = ((Math.cos(phi) * trans.getScaleX()) -(Math.sin(phi) * trans.getShearX()));
-                  
+    /**
+     * Constructs AffineToGeometric from AffineTransform2D
+     * @param trans Affine transformation from which we want to get geometric coefficients.
+     */
+    public AffineToGeometric(AffineTransform2D trans) {       
 
+        sy = Math.pow(Math.pow(trans.getScaleY(), 2) + Math.pow(trans.getShearY(), 2), 0.5);
 
-        sxy = ((trans.getScaleX() - (sx * Math.cos(phi)))) / Math.sin(phi);
+        phi = (Math.signum(trans.getShearY())) * Math.asin(trans.getShearY() / sy);
+
+        sx = ((Math.cos(phi) * trans.getScaleX()) - (Math.sin(phi) * trans.getShearX()));
+
+        sxy = (trans.getScaleX() - (sx * Math.cos(phi))) / Math.sin(phi);
         tx = trans.getTranslateX();
-        ty = trans.getTranslateY();    
-	}
+        ty = trans.getTranslateY();
+    }
 
-	  public double getXScale() throws FactoryException {	    
-	        return sx;
-	    }
-	    public double getYScale() throws FactoryException {	    
-	        return sy;
-	    }
-	    public double getSkew() throws FactoryException {	    
-	        return sxy;
-	    }
-	    public double getXTranslate() throws FactoryException {
-	    
-	        return tx;
-	    }
-	    public double getYTranslate() throws FactoryException {    	
-	        return ty;
-	    }
-	    public double getRotation() throws FactoryException {  
-	        return phi;
-	    }
+    /**
+     * Returns Scale in x direction
+     * @return scale in x direction   
+     */
+    public double getXScale() {
+        return sx;
+    }
+
+    /**
+     * Returns Scale in y direction
+     * @return scale in y direction  
+     */
+    public double getYScale() {
+        return sy;
+    }
+
+    /**
+     * Returns skew
+     * @return skew   
+     */
+    public double getSkew() {
+        return sxy;
+    }
+
+    /**
+     * Returns translation in x direction
+     * @return translation in x direction 
+     */
+    public double getXTranslate() {
+        return tx;
+    }
+
+    /**
+     * Returns translation in y direction
+     * @return translation in y direction
+     */
+    public double getYTranslate() {
+        return ty;
+    }
+
+    /**
+     * Returns rotation in radians
+     * @return rotation in radians
+     */
+    public double getRotation() {
+        return phi;
+    }
 }
