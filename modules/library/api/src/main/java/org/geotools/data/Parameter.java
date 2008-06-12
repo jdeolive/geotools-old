@@ -79,6 +79,11 @@ public class Parameter<T> {
     /** "featureType" FeatureType to validate a Feature value against */
     public static final String FEATURE_TYPE = "featureType";
     
+    /** Boolean indicating whether the parameter shall be used as a password field,
+     * provides a hint for UI's to mask text fields, configuration systems to encrypt content, etc
+     */
+    public static final String IS_PASSWORD = "isPassword";
+
     /**
      * "length" Integer used to limit the length of strings or literal geometries.
      */

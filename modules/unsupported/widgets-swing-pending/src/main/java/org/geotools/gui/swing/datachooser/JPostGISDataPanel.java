@@ -70,19 +70,19 @@ public class JPostGISDataPanel extends javax.swing.JPanel implements DataPanel {
 
         setProperties(params);
         
-        jtf_host.setToolTipText(PostgisDataStoreFactory.HOST.description);
-        jtf_port.setToolTipText(PostgisDataStoreFactory.PORT.description);
-        jtf_schema.setToolTipText(PostgisDataStoreFactory.SCHEMA.description);
-        jtf_database.setToolTipText(PostgisDataStoreFactory.DATABASE.description);
-        jtf_user.setToolTipText(PostgisDataStoreFactory.USER.description);
-        jtf_password.setToolTipText(PostgisDataStoreFactory.PASSWD.description);
-        jsp_max_connects.setToolTipText(PostgisDataStoreFactory.MAXCONN.description);
-        jsp_min_connects.setToolTipText(PostgisDataStoreFactory.MINCONN.description);
-        jtf_namespace.setToolTipText(PostgisDataStoreFactory.NAMESPACE.description);
-        chk_validate.setToolTipText(PostgisDataStoreFactory.VALIDATECONN.description);
-        chk_estimated.setToolTipText(PostgisDataStoreFactory.ESTIMATEDEXTENT.description);
-        chk_loose.setToolTipText(PostgisDataStoreFactory.LOOSEBBOX.description);
-        chk_wkb.setToolTipText(PostgisDataStoreFactory.WKBENABLED.description);
+        jtf_host.setToolTipText(PostgisDataStoreFactory.HOST.description.toString());
+        jtf_port.setToolTipText(PostgisDataStoreFactory.PORT.description.toString());
+        jtf_schema.setToolTipText(PostgisDataStoreFactory.SCHEMA.description.toString());
+        jtf_database.setToolTipText(PostgisDataStoreFactory.DATABASE.description.toString());
+        jtf_user.setToolTipText(PostgisDataStoreFactory.USER.description.toString());
+        jtf_password.setToolTipText(PostgisDataStoreFactory.PASSWD.description.toString());
+        jsp_max_connects.setToolTipText(PostgisDataStoreFactory.MAXCONN.description.toString());
+        jsp_min_connects.setToolTipText(PostgisDataStoreFactory.MINCONN.description.toString());
+        jtf_namespace.setToolTipText(PostgisDataStoreFactory.NAMESPACE.description.toString());
+        chk_validate.setToolTipText(PostgisDataStoreFactory.VALIDATECONN.description.toString());
+        chk_estimated.setToolTipText(PostgisDataStoreFactory.ESTIMATEDEXTENT.description.toString());
+        chk_loose.setToolTipText(PostgisDataStoreFactory.LOOSEBBOX.description.toString());
+        chk_wkb.setToolTipText(PostgisDataStoreFactory.WKBENABLED.description.toString());
 
         tab_table.setTableHeader(null);
         tab_table.setModel(new DBModel(tab_table));

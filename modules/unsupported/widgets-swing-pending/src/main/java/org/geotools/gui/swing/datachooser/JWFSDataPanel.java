@@ -69,16 +69,16 @@ public class JWFSDataPanel extends javax.swing.JPanel implements DataPanel {
 
         setProperties(params);
 
-        jtf_url.setToolTipText(WFSDataStoreFactory.URL.description);
-        jtf_user.setToolTipText(WFSDataStoreFactory.USERNAME.description);
-        jtf_password.setToolTipText(WFSDataStoreFactory.PASSWORD.description);
-        jsp_buff_size.setToolTipText(WFSDataStoreFactory.BUFFER_SIZE.description);
-        jsp_max_features.setToolTipText(WFSDataStoreFactory.MAXFEATURES.description);
-        jsp_timeout.setToolTipText(WFSDataStoreFactory.TIMEOUT.description);
-        jtf_encoding.setToolTipText(WFSDataStoreFactory.ENCODING.description);
-        chk_lenient.setToolTipText(WFSDataStoreFactory.LENIENT.description);
-        chk_gzip.setToolTipText(WFSDataStoreFactory.TRY_GZIP.description);
-        chk_protocol.setToolTipText(WFSDataStoreFactory.PROTOCOL.description);
+        jtf_url.setToolTipText(WFSDataStoreFactory.URL.description.toString());
+        jtf_user.setToolTipText(WFSDataStoreFactory.USERNAME.description.toString());
+        jtf_password.setToolTipText(WFSDataStoreFactory.PASSWORD.description.toString());
+        jsp_buff_size.setToolTipText(WFSDataStoreFactory.BUFFER_SIZE.description.toString());
+        jsp_max_features.setToolTipText(WFSDataStoreFactory.MAXFEATURES.description.toString());
+        jsp_timeout.setToolTipText(WFSDataStoreFactory.TIMEOUT.description.toString());
+        jtf_encoding.setToolTipText(WFSDataStoreFactory.ENCODING.description.toString());
+        chk_lenient.setToolTipText(WFSDataStoreFactory.LENIENT.description.toString());
+        chk_gzip.setToolTipText(WFSDataStoreFactory.TRY_GZIP.description.toString());
+        chk_protocol.setToolTipText(WFSDataStoreFactory.PROTOCOL.description.toString());
 
         tab_table.setTableHeader(null);
         tab_table.setModel(new DBModel(tab_table));

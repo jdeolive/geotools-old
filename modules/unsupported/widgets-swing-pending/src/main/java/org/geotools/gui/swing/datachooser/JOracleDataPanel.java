@@ -73,9 +73,9 @@ public class JOracleDataPanel extends javax.swing.JPanel implements DataPanel {
         jtf_user.setToolTipText("");
         jtf_password.setToolTipText("");
         jtf_instance.setToolTipText("");
-        jsp_max_connects.setToolTipText(OracleDataStoreFactory.MAXCONN.description);
-        jsp_min_connects.setToolTipText(OracleDataStoreFactory.MINCONN.description);
-        chk_validate.setToolTipText(OracleDataStoreFactory.VALIDATECONN.description);
+        jsp_max_connects.setToolTipText(OracleDataStoreFactory.MAXCONN.description.toString());
+        jsp_min_connects.setToolTipText(OracleDataStoreFactory.MINCONN.description.toString());
+        chk_validate.setToolTipText(OracleDataStoreFactory.VALIDATECONN.description.toString());
         jtf_namespace.setToolTipText("");
 
         tab_table.setTableHeader(null);

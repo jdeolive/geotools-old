@@ -27,8 +27,10 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.geotools.factory.Factory;
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
+import org.opengis.util.InternationalString;
 
 
 /**
@@ -260,28 +262,8 @@ public interface DataAccessFactory extends Factory {
      * wrapper for one point release (at which time it will be deprecated).
      * </p>
      */
-    public static class Param {
-        /** True if Param is required */
-        final public boolean required;
-
-        /** Key used in Parameter map */
-        final public String key;
-
-        /** Type of information required */
-        final public Class<?> type;
-
-        /** Short description (less then 40 characters) */
-        final public String description;
-
-        /**
-         * Sampel value provided as an example for user input.
-         *
-         * <p>
-         * May be passed to getAsText( sample ) for inital text based user
-         * interface default.
-         * </p>
-         */
-        final public Object sample;
+    @SuppressWarnings("unchecked")
+    public static class Param extends Parameter {
 
         /**
          * Provides support for text representations
@@ -348,13 +330,57 @@ public interface DataAccessFactory extends Factory {
          * @param sample Sample value as an example for user input
          */
         public Param(String key, Class<?> type, String description, boolean required, Object sample) {
-            this.key = key;
-            this.type = type;
-            this.description = description;
-            this.required = required;
-            this.sample = sample;
+            this(key, type, description == null? null : new SimpleInternationalString(description),
+                    required, sample, null);
         }
 
+        /**
+         * Provides support for text representations
+         *
+         * @param key Key used to file this Param in the Parameter Map for
+         *        createDataStore
+         * @param type Class type intended for this Param
+         * @param description User description of Param (40 chars or less)
+         * @param required <code>true</code> is param is required
+         * @param sample Sample value as an example for user input
+         */
+        public Param(String key,
+                     Class type,
+                     InternationalString description,
+                     boolean required,
+                     Object sample) {
+            super(key, type, description, null, required, 1, 1, sample, null);
+        }
+
+        /**
+         * Provides support for text representations
+         *
+         * @param key Key used to file this Param in the Parameter Map for
+         *        createDataStore
+         * @param type Class type intended for this Param
+         * @param description User description of Param (40 chars or less)
+         * @param required <code>true</code> is param is required
+         * @param sample Sample value as an example for user input
+         * @param extra metadata information, preferably keyed by known identifiers 
+         * like {@link Parameter#IS_PASSWORD}
+         */
+        public Param(String key,
+                     Class type,
+                     InternationalString description,
+                     boolean required,
+                     Object sample,
+                     Map<String, Object> metadata) {
+            super(key, type, description, null, required, 1, 1, sample, metadata);
+        }
+
+        /**
+         * Provides for easy access to the {@link Parameter#IS_PASSWORD} metadata
+         * @return true if {@code metadata.get(IS_PASSWORD) == Boolean.TRUE}
+         */
+        public boolean isPassword(){
+            return Boolean.TRUE.equals(super.metadata.get(IS_PASSWORD));
+        }
+        
         /**
          * Lookup Param in a user supplied map.
          *

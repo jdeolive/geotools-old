@@ -72,7 +72,7 @@ public class PostGISDialog extends JDialog implements ActionListener {
 		database = new JParamField( PostgisDataStoreFactory.DATABASE, config );
 		user = new JParamField( PostgisDataStoreFactory.USER, config );
 		password = new JPasswordField( (String) config.get( PostgisDataStoreFactory.USER.key ));			
-		password.setToolTipText( PostgisDataStoreFactory.PASSWD.description );
+		password.setToolTipText( PostgisDataStoreFactory.PASSWD.description.toString() );
 
 		okay = new JButton("OK");
 		cancel = new JButton("Cancel");
@@ -152,12 +152,12 @@ public class PostGISDialog extends JDialog implements ActionListener {
 					refresh();
 				}
 			});
-			setToolTipText( param.description );
+			setToolTipText( param.description.toString() );
 		}
 		public void refresh(){
 			try {
 				JParamField.this.value = param.parse( getText() );
-				setToolTipText( param.description );
+				setToolTipText( param.description.toString() );
 				setForeground( Color.BLACK );
 			} catch (Throwable e) {
 				setToolTipText( e.getLocalizedMessage() );
