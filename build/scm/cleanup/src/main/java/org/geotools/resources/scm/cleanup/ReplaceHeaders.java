@@ -164,6 +164,11 @@ public final class ReplaceHeaders extends CommandLine {
         RECOGNIZED_COPYRIGHTS.add("GeoSolutions");
         RECOGNIZED_COPYRIGHTS.add("Vision for New York");
         RECOGNIZED_COPYRIGHTS.add("Frank Warmerdam");
+        RECOGNIZED_COPYRIGHTS.add("Frank Warmerdam");
+        RECOGNIZED_COPYRIGHTS.add("CSIRO");
+        RECOGNIZED_COPYRIGHTS.add("Axios");
+        RECOGNIZED_COPYRIGHTS.add("IVU");
+        RECOGNIZED_COPYRIGHTS.add("Lisasoft");
         /*RECOGNIZED_COPYRIGHTS.add("Gerald Evenden");*/
     }
 
