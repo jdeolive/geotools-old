@@ -1,8 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2003, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -89,7 +89,7 @@ import org.geotools.gui.swing.image.KernelEditor;
  * @since 2.0
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  *
  * @see org.geotools.gui.swing.image.KernelEditor
  * @see org.geotools.gui.swing.image.ImageProperties
@@ -540,7 +540,7 @@ public class ParameterEditor extends JPanel {
      * The interface for editor capable to returns the edited value.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      *
      * @todo This interface should have a 'setEditable(boolean)' method.
      */
@@ -561,7 +561,7 @@ public class ParameterEditor extends JPanel {
      * {@link Number}, {@link Date}, {@link Angle}, {@link Boolean} or {@link String}.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      *
      * @todo This editor should use {@code JSpinner}, but we need to gets
      *       the minimum and maximum values first since spinner needs bounds.
@@ -686,7 +686,7 @@ public class ParameterEditor extends JPanel {
      * Instance of this class are created by {@link #updateEditor} when first needed.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     private static final class Table extends AbstractTableModel implements Editor {
         /**
@@ -810,7 +810,7 @@ public class ParameterEditor extends JPanel {
      * are created by {@link #updateEditor} when first needed.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     private static final class Matrix extends AbstractTableModel implements Editor {
         /**

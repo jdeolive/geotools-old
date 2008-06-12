@@ -1,8 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2001, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -189,7 +189,7 @@ import org.geotools.resources.i18n.VocabularyKeys;
  * @since 2.0
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 @SuppressWarnings("serial")
 public abstract class ZoomPane extends JComponent implements DeformableViewer {
@@ -527,7 +527,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * changes in the size of the component (to adjust the zoom), etc.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     private final class Listeners extends MouseAdapter
             implements MouseWheelListener, ComponentListener, Serializable
@@ -1617,7 +1617,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * Menu with a position.  This class retains the exact coordinates of the
      * place the user clicked when this menu was invoked.
      *
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      * @version $Id$
      */
     private static final class PointPopupMenu extends JPopupMenu {
@@ -1798,7 +1798,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * cooperate with transformations already handled by {@link ZoomPane#zoom}.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     private final class ScrollPane extends JComponent implements PropertyChangeListener {
         /**
@@ -1968,7 +1968,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * scrollbars. Whilst not generally useful, it would be possible to synchronize several
      * pairs of {@link BoundedRangeModel} objects on one {@code ZoomPane} object.
      *
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      * @version $Id$
      */
     private final class Synchronizer implements ChangeListener, ZoomChangeListener {

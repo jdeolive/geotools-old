@@ -1,8 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2002, Institut de Recherche pour le Développement
+ * 
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -81,7 +81,7 @@ import org.geotools.resources.SwingUtilities;
  * @since 2.3
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  *
  * @see GradientKernelEditor
  * @see ConvolveDescriptor
@@ -426,7 +426,7 @@ public class KernelEditor extends JComponent {
      * events (like changing the size of the table).
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (IRD)
      */
     private final class Model extends AbstractTableModel implements ComboBoxModel,
                                                      ChangeListener, ItemListener

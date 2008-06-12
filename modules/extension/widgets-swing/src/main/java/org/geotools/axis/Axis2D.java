@@ -1,9 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- *    (C) 2003-2006, Geotools Project Managment Committee (PMC)
- *    (C) 2000, Institut de Recherche pour le Développement
- *    (C) 1999, Pêches et Océans Canada
+ * 
+ *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -73,7 +72,7 @@ import org.geotools.referencing.operation.matrix.XAffineTransform;
  * @since 2.0
  * @source $URL$
  * @version $Id$
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (PMO, IRD)
  *
  * @see DefaultCoordinateSystemAxis
  * @see AxisDirection
@@ -734,7 +733,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      *
      * @since 2.0
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (PMO, IRD)
      */
     public class TickIterator implements org.geotools.axis.TickIterator {
         /**
@@ -1217,7 +1216,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * et jamais de courbes, il ne prend pas d'argument {@code flatness}.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (PMO, IRD)
      */
     private class TickPathIterator extends TickIterator implements PathIterator {
         /**
@@ -1418,7 +1417,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * Cet itérateur balaye aussi les étiquettes de graduations.
      *
      * @version $Id$
-     * @author Martin Desruisseaux
+     * @author Martin Desruisseaux (PMO, IRD)
      */
     private final class CompletePathIterator extends TickPathIterator {
         /**
