@@ -7,7 +7,6 @@
  *    This file is hereby placed into the Public Domain. This means anyone is
  *    free to do whatever they wish with this file. Use it well and enjoy!
  */
-
 package org.geotools.demo.referencing;
 
 // J2SE and JAI dependencies
