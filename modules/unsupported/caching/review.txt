@@ -9,7 +9,25 @@ STATUS:
     fully under his copyright can only be licensed under the LGPL.
     
     Email sent for clarification.
+    ==> Response was
+Hi,
 
+Part of the code in org/geotools/caching/spatialindex was indeed
+derived from Mario's work.
+I reused the design he proposed ; however, I finally ended keeping
+mostly the interfaces, as I had to reimplement most of the code to fit
+my purpose.
+Files that used Mario's original code mention the original copyright
+notice in the header, as you stated.
+
+Files under org/geotools/caching/firstdraft were kept for history and
+can be discarded, as code is certainly not functional any more.
+
+Hope this is useful.
+
+Cheers,
+
+Christophe
 
 This appears to be a Summer of code project to implement some feature caching 
 system. See the README file for details.
@@ -18,12 +36,9 @@ system. See the README file for details.
 
 
 org/geotools/caching/spatialindex/
-org/geotools/caching/firstdraft/spatialindex/storagemanager/
-org/geotools/caching/firstdraft/spatialindex/spatialindex/
-org/geotools/caching/firstdraft/spatialindex/
 --------------------------------------------
 
-Files are LGPL with the following header:
+All files are LGPL, some with the following header:
   
 // Spatial Index Library
 //
