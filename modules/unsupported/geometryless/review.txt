@@ -6,70 +6,33 @@ Module Maintainer:
 IP Review:
 - Jody Garnett August 6th, 2006
 - Rob Atkinson - removed dependencies on third party JDBC drivers 24-07-2007
+- Adrian Custer June 2008
+
+STATUS: Clean
 
 
-This module was adapted from the postgis module in GT 2.0 We will record the (C) range as 2002-2006 with the understanding that it may in fact be earlier.
+
+This module was adapted from the postgis module in GT 2.0 We will record the 
+(C) range as 2002-2006 with the understanding that it may in fact be earlier.
 
 
 org.geotools.data.geometryless
 ------------------------
-Contains the first JDBC based DataStore implementation from GeoTools 2.0 (aka 2003), based
-on earlier DataSource API (2002).
-IP:
-- added headers to (C) 2002-2006 PMC as needed
+Contains the first JDBC based DataStore implementation from GeoTools 2.0 
+(aka 2003), based on earlier DataSource API (2002).
 
 
 org.geotools.data.postgis.attributeio
 ------------------------
 
-/*
- * The JTS Topology Suite is a collection of Java classes that
- * implement the fundamental operations required to validate a given
- * geo-spatial data set to a known topological specification.
- *
- * Copyright (C) 2001 Vivid Solutions
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * For more information, contact:
- *
- *     Vivid Solutions
- *     Suite #1A
- *     2328 Government Street
- *     Victoria BC  V8T 5G5
- *     Canada
- *
- *     (250)385-6040
- *     www.vividsolutions.com
- */
- 
- 
- 
+
 org.geotools.filter
 -------------------
- IP:
- - updated headers
- - includes JTS
- 
- 
+
 org.geotools.data.filter (test)
 ------------------------
-- one file lacked any header, updated to (C) 2005-2006 PMC
-- updated headers
 
 org.geotools.data.geometryless.wrapper
 --------------------------------------
-- added (C) headers, including to commented out wrappers.
-- now all removed and obsolete since that availability of generic connection pooling
+
+
