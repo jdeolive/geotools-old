@@ -3,7 +3,12 @@ PLUGIN VPF
 Module Maintainer
 - Jeff Yutzler 
 IP Review:
-- Jody Garnetty August 7th, 2006
+- Jody Garnett, August 7th, 2006
+ Adrian Custer, June 2008
+
+STATUS: 
+  Clean (we can toss the unit tests at some point if we want).
+
 
 Email from Module Maintainer:
 
@@ -18,42 +23,30 @@ org.geotools.data.vpf
 ---------------------
 Support for the VPF file format (heck I am not sure I know what that is)
 
-IP:
-- updated headers, only specific date found was 2004
 
 org.geotools.data.vpf.exc
 -------------------------
-IP:
-- some class javadocs found w/ created 2003, moved information to headers
-- updated headers
+
 
 org.geotools.data.vpf.file
 --------------------------
-IP:
-- updated headers as needed
+
 
 org.geotools.data.vpf.ifc
 -------------------------
-IP:
-- files marked (C) 2004, conflict with class javadocs going back to 2002
-- updated headers as needed
+
 
 org.geotools.data.vpf.io
 ------------------------
-IP:
-- headers inconsistent with class javadoc
-- updated headers as needed
+
 
 org.geotools.data.vpf.readers
 -----------------------------
-IP:
-- updated headers to (C) 2004-2006 PMC
+
 
 org.geotools.data.vpf.util
 --------------------------
-IP:
-- one file header inconsistent with class javadoc
-- updated headers (C) PMC
+
 
 org.geotools.data.vpf.io (test)
 org.geotools.data.vpf.util (test)
@@ -71,3 +64,5 @@ IP:
     by this tool are belonged to author of 'unittestsgen' utility.
  
  - TO_RESOLVE - unable to figure out what to do 
+ 
+ 
