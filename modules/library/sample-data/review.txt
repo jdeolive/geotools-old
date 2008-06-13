@@ -20,4 +20,10 @@ lots of data that it can access using
 its jar classloader.
 
 IP:
+- QL95209.png is an overview of a Sea Surface Temperature raster
+  received at the station managed by IRD (Institut de Recherche
+  pour le Développement - France) on the Réunion island. Commited
+  on GeoTools SVN by Martin Desruisseaux with the permission of
+  Michel Petit, who is the chief scientist in charge of those data.
+
 - data of unknown source! We should confirm
