@@ -1,7 +1,5 @@
-package org.geotools.data.db2;
-
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *    (C) Copyright IBM Corporation, 2008. All rights reserved.
  *
@@ -16,6 +14,8 @@ package org.geotools.data.db2;
  *    Lesser General Public License for more details.
  *
  */
+package org.geotools.data.db2;
+
 
 import java.io.IOException;
 import java.sql.PreparedStatement;

@@ -2,6 +2,9 @@ Module DB2
 ==========
 Module Maintainer David Adler
 Review by Jody Garnett, July 9th, 2006
+         Adrian Custer, June 2008
+
+STATUS: see below. Also we need to document the source of the sample-data.
 
 This module is interesting in that it operatings against a comercial database, leaving us without the
 rights to distribute a jdbc driver in jar form. As with other modules in this situtation we need to 

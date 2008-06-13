@@ -1,5 +1,5 @@
 /*
- *    Geotools2 - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *    (C) Copyright IBM Corporation, 2005-2007. All rights reserved.
  *
