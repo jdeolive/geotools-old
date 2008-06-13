@@ -30,7 +30,6 @@ import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.style.PortrayalCatalog;
 
 /**
  *
@@ -91,13 +90,13 @@ public class MapLayerExt extends DefaultMapLayer {
     
     //---------------------NEW OGC SE Styles------------------------------------------------------------------------
     
-    private PortrayalCatalog catalog;
+    private org.opengis.style.Style catalog;
     
-    public void setSEStyle(PortrayalCatalog catalog){
+    public void setSEStyle(org.opengis.style.Style catalog){
         this.catalog = catalog;
     }
     
-    public PortrayalCatalog getSEStyle(){
+    public org.opengis.style.Style getSEStyle(){
         return catalog;
     }
     

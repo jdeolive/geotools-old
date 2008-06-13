@@ -19,13 +19,12 @@ package org.geotools.styling2;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.geotools.styling.Style;
 import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.LineSymbolizer;
 import org.opengis.style.PointSymbolizer;
 import org.opengis.style.PolygonSymbolizer;
-import org.opengis.style.PortrayalCatalog;
 import org.opengis.style.Rule;
+import org.opengis.style.Style;
 import org.opengis.style.Symbolizer;
 import org.opengis.style.TextSymbolizer;
 
@@ -41,57 +40,54 @@ public class StyleBuilder {
     private static final SymbolizerBuilder SYMBOL_BUILDER = new SymbolizerBuilder();
     private static final Symbolizer DEFAULT_FALLBACK_SYMBOLIZER = SYMBOL_BUILDER.createDefaultLineSymbolizer();
     
-    public PortrayalCatalog createStyle(){
+    public Style createStyle(){
         Symbolizer symbol = SYMBOL_BUILDER.createDefaultLineSymbolizer();
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_ANY);
         
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
-        
-//        Style style = null;
-//        style.
-        
+        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
+                
         return catalog;
     }
     
-    public PortrayalCatalog createPointStyle(PointSymbolizer symbol){
+    public Style createPointStyle(PointSymbolizer symbol){
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_POINT);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
     
-    public PortrayalCatalog createLineStyle(LineSymbolizer symbol){
+    public Style createLineStyle(LineSymbolizer symbol){
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_LINE);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
     
-    public PortrayalCatalog createPolygonStyle(PolygonSymbolizer symbol){
+    public Style createPolygonStyle(PolygonSymbolizer symbol){
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_POLYGON);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
     
-    public PortrayalCatalog createTextStyle(TextSymbolizer symbol){
+    public Style createTextStyle(TextSymbolizer symbol){
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol, FeatureTypeStyle.SEMANTIC_ID_TEXT);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
     
-    public PortrayalCatalog createRasterStyle(PointSymbolizer symbol){
+    public Style createRasterStyle(PointSymbolizer symbol){
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_RASTER);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        PortrayalCatalog catalog = new MutablePortrayalCatalog(ftss, DEFAULT_FALLBACK_SYMBOLIZER);
+        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
     

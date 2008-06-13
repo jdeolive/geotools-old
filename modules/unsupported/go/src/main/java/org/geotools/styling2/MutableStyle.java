@@ -18,20 +18,25 @@ package org.geotools.styling2;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.opengis.style.Description;
 import org.opengis.style.FeatureTypeStyle;
-import org.opengis.style.PortrayalCatalog;
+import org.opengis.style.Style;
 import org.opengis.style.Symbolizer;
 
 /**
  *
  * @author Johann Sorel
  */
-public class MutablePortrayalCatalog implements PortrayalCatalog{
+public class MutableStyle implements Style{
 
     private final List<FeatureTypeStyle> fts;
     private Symbolizer symbol;
+    private String name;
+    private Description description;
+    private boolean isDefault = false;
     
-    public MutablePortrayalCatalog(List<FeatureTypeStyle> fts, Symbolizer symbol){
+    
+    public MutableStyle(String name, Description desc, List<FeatureTypeStyle> fts, Symbolizer symbol, boolean isDefault){
         if(symbol == null){
             throw new NullPointerException("default symbolizer can't be null");
         }
@@ -40,6 +45,9 @@ public class MutablePortrayalCatalog implements PortrayalCatalog{
         this.fts = new ArrayList<FeatureTypeStyle>();
         if(fts != null) this.fts.addAll(fts);
         this.symbol = symbol;
+        this.name = name;
+        this.description = desc;
+        this.isDefault = isDefault;
     }
     
     /**
@@ -59,6 +67,18 @@ public class MutablePortrayalCatalog implements PortrayalCatalog{
         }
         this.symbol = symbol;
         //TODO fire event
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Description getDescription() {
+        return description;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
     }
     
 }
