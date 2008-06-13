@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -37,13 +37,12 @@ import static org.junit.Assert.*;
  */
 public final class MosaicBuilderTest extends TestBase {
     /**
-     * Tests with a set of files corresponding to a Blue Marble mosaic.
+     * Tests subsampling calculation.
      *
-     * @throws IOException If an I/O operation failed.
-     * @throws ClassNotFoundException if a deserialization failed.
+     * @throws IOException Should never occurs.
      */
     @Test
-    public void testBlueMarble() throws IOException, ClassNotFoundException {
+    public void testSubsampling() throws IOException {
         assertTrue(MosaicBuilder.class.desiredAssertionStatus());
         builder.setSubsamplings((Dimension[]) null);
         builder.setTileSize(null);
@@ -74,8 +73,17 @@ public final class MosaicBuilderTest extends TestBase {
             assertEquals("width["  + i + ']', width [i], subsamplings[i].width);
             assertEquals("height[" + i + ']', height[i], subsamplings[i].height);
         }
+    }
 
-        TileManager tileManager = builder.createTileManager(sourceTiles);
+    /**
+     * Tests the serialization of current {@linkplain #builder}.
+     *
+     * @throws IOException If an I/O operation failed.
+     * @throws ClassNotFoundException if a deserialization failed.
+     */
+    @Test
+    public void testSerialization() throws IOException, ClassNotFoundException {
+        final TileManager tileManager = builder.createTileManager(sourceTiles);
         assertEquals(4733, tileManager.getTiles().size());
         final String asText = tileManager.toString();
         assertFalse(asText.trim().length() == 0);

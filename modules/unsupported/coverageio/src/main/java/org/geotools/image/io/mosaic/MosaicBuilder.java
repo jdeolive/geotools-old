@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -36,6 +36,7 @@ import org.opengis.geometry.Envelope;
 import org.opengis.referencing.datum.PixelInCell;
 
 import org.geotools.math.XMath;
+import org.geotools.math.Fraction;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.coverage.grid.GridRange2D;
 import org.geotools.coverage.grid.ImageGeometry;
@@ -324,7 +325,7 @@ public class MosaicBuilder {
      *
      * @return The current tile size.
      *
-     * @see #suggestTileSize
+     * @see #suggestedTileSize
      */
     public Dimension getTileSize() {
         if (tileSize == null) {
@@ -334,8 +335,8 @@ public class MosaicBuilder {
             }
             int width  = untiledBounds.width;
             int height = untiledBounds.height;
-            width  = suggestTileSize(width);
-            height = (height == untiledBounds.width) ? width : suggestTileSize(height);
+            width  = suggestedTileSize(width);
+            height = (height == untiledBounds.width) ? width : suggestedTileSize(height);
             tileSize = new Dimension(width, height);
         }
         return (Dimension) tileSize.clone();
@@ -359,19 +360,21 @@ public class MosaicBuilder {
     }
 
     /**
-     * Suggests a tile size using default values.
+     * Returns the suggested tile size using default values.
      */
-    private static int suggestTileSize(final int imageSize) {
-        return suggestTileSize(imageSize, DEFAULT_TILE_SIZE,
-                DEFAULT_TILE_SIZE - DEFAULT_TILE_SIZE/4, DEFAULT_TILE_SIZE + DEFAULT_TILE_SIZE/4);
+    private static int suggestedTileSize(final int imageSize) {
+        return suggestedTileSize(imageSize, DEFAULT_TILE_SIZE,
+                DEFAULT_TILE_SIZE - DEFAULT_TILE_SIZE/4,
+                DEFAULT_TILE_SIZE + DEFAULT_TILE_SIZE/4);
     }
 
     /**
-     * Suggests a tile size ({@linkplain Dimension#width width} or {@linkplain Dimension#height
-     * height}) for the given image size. This methods search for a value <var>x</var> inside the
-     * {@code [minSize...maxSize]} range where {@code imageSize}/<var>x</var> has the largest amount
-     * of {@linkplain XMath#divisors divisors}. If more than one value have the same amount of
-     * divisors, then the one which is the closest to {@code tileSize} is returned.
+     * Returns a suggested tile size ({@linkplain Dimension#width width} or
+     * {@linkplain Dimension#height height}) for the given image size. This
+     * method searchs for a value <var>x</var> inside the {@code [minSize...maxSize]}
+     * range where {@code imageSize}/<var>x</var> has the largest amount of
+     * {@linkplain XMath#divisors divisors}. If more than one value have the same amount
+     * of divisors, then the one which is the closest to {@code tileSize} is returned.
      *
      * @param  imageSize The image size.
      * @param  tileSize  The preferred tile size. Must be inside the {@code [minSize...maxSize]} range.
@@ -381,8 +384,8 @@ public class MosaicBuilder {
      *         if {@code imageSize} was smaller than {@link minSize}.
      * @throws IllegalArgumentException if any argument doesn't meet the above-cited conditions.
      */
-    public static int suggestTileSize(final int imageSize, final int tileSize,
-                                      final int minSize,   final int maxSize)
+    public static int suggestedTileSize(final int imageSize, final int tileSize,
+                                        final int minSize,   final int maxSize)
             throws IllegalArgumentException
     {
         if (minSize <= 1 || minSize > maxSize) {
@@ -402,7 +405,8 @@ public class MosaicBuilder {
             if (imageSize % i != 0) {
                 continue;
             }
-            final int n = XMath.divisors(imageSize / i).length;
+            // Note: Fraction rounding mode must be the same than in getSubsamplings().
+            final int n = XMath.divisors(Fraction.round(imageSize, i)).length;
             if (n < numDivisors) {
                 continue;
             }
@@ -418,11 +422,188 @@ public class MosaicBuilder {
     }
 
     /**
+     * Returns a suggested set of divisors of the number of tiles that can fit in an image.
+     * More specifically, this method executes the following pseudo code twice, once for
+     * {@linkplain Dimension#width width} and once for {@linkplain Dimension#height height},
+     * resulting in two arrays of type {@code int[]}:
+     *
+     * <blockquote><code>
+     * {@linkplain XMath#divisors divisors}({@linkplain Fraction#round round}(imageBounds / tileSize))
+     * </code></blockquote>
+     *
+     * The two arrays are then decimated using the following procedures:
+     * <p>
+     * <ul>
+     *   <li>If {@code multiples} is {@code true}, then the arrays are decimated in such a way
+     *       that each value {@code divisors[i]} is a multiple of {@code divisors[i-1]}. This
+     *       is useful for getting only tiles that can fit entirely in bigger tiles.</li>
+     *   <li>The largest of the two arrays is trimmed in order to get arrays of the same
+     *       length.</li>
+     * <p>
+     * If the number of divisors is lower than the {@code preferredCount}, then this method will
+     * try again for smaller tiles until the preferred count or some other (currently undocumented)
+     * stop condition is reached.
+     * <p>
+     * Let {@code r} be the return value. The following contract should hold in all cases:
+     * <p>
+     * <ul>
+     *   <li>{@code r} is never {@code null}</li>
+     *   <li>{@code r.length} is always 2</li>
+     *   <li>{@code r[0].length} == {@code r[1].length} and this length is greater than 0</li>
+     *   <li>{@code r[0][0]} == {@code r[1][0]} == 1 (i.e. the first divisor is always 1)</li>
+     * </ul>
+     *
+     * @param  imageBounds The image size.
+     * @param  tileSize The tile size.
+     * @param  preferredCount The preferred minimal amount of divisors, or 0 if there is no
+     *         minimal count.
+     * @param  multiples If {@code true}, then the returned numbers are restricted to multiples.
+     * @return Two arrays of the same length, which are respectively the divisors of
+     *         image {@linkplain Rectangle#width width} and the divisors of image
+     *         {@linkplain Rectangle#height height}.
+     */
+    public static int[][] suggestedNumTiles(final Rectangle imageBounds, final Dimension tileSize,
+                                            final int preferredCount, final boolean multiples)
+    {
+        final int width  = tileSize.width;
+        final int height = tileSize.height;
+        final int[][] divisors = new int[2][];
+        final int xmax = imageBounds.width  / width;
+        final int ymax = imageBounds.height / height;
+        final int maxScale = Math.min(tileSize.width, tileSize.height) / MIN_TILE_SIZE;
+        int scale = 1;
+        boolean oldTileDivideImage = false;
+        do {
+            final int[] oldX = divisors[0];
+            final int[] oldY = divisors[1];
+            final long dx = scale * (long) imageBounds.width;
+            final long dy = scale * (long) imageBounds.height;
+            final int  nx = (int) Fraction.round(dx, width);
+            final int  ny = (int) Fraction.round(dy, height);
+            final boolean tileDivideImage = (nx * width == dx) && (ny * height == dy);
+            if (oldTileDivideImage && !tileDivideImage) {
+                continue; // Doesn't worth to continue for this scale.
+            }
+            int[] sx = XMath.divisors(nx);
+            int[] sy;
+            if (nx == ny) {
+                sx = XArray.resize(sx, decimate(sx, Math.min(xmax, ymax), multiples));
+                divisors[0] = divisors[1] = sy = sx;
+            } else {
+                sy = XMath.divisors(ny);
+                divisors[0] = sx = XArray.resize(sx, decimate(sx, xmax, multiples));
+                divisors[1] = sy = XArray.resize(sy, decimate(sy, ymax, multiples));
+                reduceLargest(divisors);
+            }
+            final int length = divisors[0].length;
+            if (tileDivideImage && length >= preferredCount) {
+                // In addition of the preferred count, we also favorise the results
+                // computed from a tile size which is a divisor of the image bounds.
+                break;
+            }
+            if (oldX != null) {
+                if (tileDivideImage && !oldTileDivideImage) {
+                    oldTileDivideImage = true;
+                    continue; // Keep the new divisors.
+                }
+                if (length <= oldX.length) {
+                    divisors[0] = oldX;
+                    divisors[1] = oldY;
+                }
+            }
+        } while (++scale <= maxScale);
+        return divisors;
+    }
+
+    /**
+     * Decimates the given array in-place so that each value {@code divisors[i]} is a multiple
+     * of {@code divisors[i-1]}. Value greater than {@code maximum} are trimmed.
+     *
+     * @param  divisors The array to decimate in-place.
+     * @param  maximum The maximal value to keep, inclusive.
+     * @param  multiples If {@code false}, disables the restriction to multiples.
+     * @return The number of valid values in the given array.
+     */
+    private static int decimate(final int[] divisors, final int maximum, final boolean multiples) {
+        assert XArray.isStrictlySorted(divisors);
+        int n;
+        if (!multiples) {
+            n = Arrays.binarySearch(divisors, maximum);
+            if (n < 0) {
+                n = (~n) - 1;
+            }
+        } else {
+            n = 0;
+            for (int i=1; i<divisors.length; i++) {
+                final int x = divisors[i];
+                if (x > maximum) {
+                    break;
+                }
+                if ((x % divisors[n]) == 0) {
+                    divisors[++n] = x;
+                }
+            }
+        }
+        return ++n;
+    }
+
+    /**
+     * Given two arrays which may be of different length, remove some elements from the largest
+     * array in order to get the same length than the shortest array. Arrays most be sorted in
+     * strictly increasing order.
+     *
+     * @return The divisors of image {@linkplain Rectangle#width width} and the divisors of image
+     *         {@linkplain Rectangle#height height}. The largest array will be replaced by a new
+     *         one.
+     */
+    private static void reduceLargest(final int[][] divisors) {
+        int[] large = divisors[0];
+        int[] small = divisors[1];
+        assert XArray.isStrictlySorted(large) && XArray.isStrictlySorted(small);
+        if (large.length == small.length) {
+            return;
+        }
+        final int target;
+        if (large.length >= small.length) {
+            target = 0;
+        } else {
+            target = 1;
+            final int[] tmp = large;
+            large = small;
+            small = tmp;
+        }
+        final int[] reduced = new int[small.length];
+        for (int i=0; i<small.length; i++) {
+            int value = small[i];
+            int k = Arrays.binarySearch(large, value);
+            if (k < 0) {
+                k = ~k; // Really tilde, not minus operator.
+                if (k != 0 && (k == large.length || (large[k] - value) >= (value - large[k-1]))) {
+                    k--;
+                }
+                value = large[k];
+            }
+            reduced[i] = value;
+        }
+        divisors[target] = reduced;
+    }
+
+    /**
      * Returns the subsampling for overview computations. If no subsamplings were {@linkplain
      * #setSubsamplings(Dimension[]) explicitly set}, then this method computes automatically
      * some subsamplings from the {@linkplain #getUntiledImageBounds untiled image bounds} and
-     * {@linkplain #getTileSize tile size}. If no subsampling can be computed, then this method
-     * returns {@code null}.
+     * {@linkplain #getTileSize tile size}, with the following properties (note that those
+     * properties are not garanteed if the subsampling was explicitly specified rather than
+     * computed):
+     * <p>
+     * <ul>
+     *   <li>The first element in the returned array is (1,1).</li>
+     *   <li>Elements are sorted by increasing subsampling values.</li>
+     *   <li>At most one subsampling (the last one) results in an image big enough for holding
+     *       the whole mosaic.</li>
+     * </ul>
+     * <p>
+     * If no subsampling can be computed, then this method returns {@code null}.
      *
      * @return The current subsamplings for each overview levels.
      */
@@ -443,20 +624,22 @@ public class MosaicBuilder {
              *
              * If the tile layout is CONSTANT_TILE_SIZE, increasing the subsampling will have the
              * effect of reducing the number of tiles required for covering the whole image. So we
-             * are better to choose subsamplings that are divisors of the number of tiles. However
-             * if the number of tiles are not integers, we can't do much.
+             * are better to choose subsamplings that are divisors of the number of tiles. If the
+             * number of tiles are not integers, we round towards nearest integers in the hope that
+             * to get a number closer to user's intend.
              *
-             * In the later case (non-integer amount of tiles) and in the case where the tile layout
-             * is unknown, we don't really know what to choose. We fallback on some values that seem
-             * reasonable, but our fallback may change in future version. It doesn't hurt any code
-             * in this module - the only consequence is that tiling may be suboptimal.
+             * If the tile layout is unknown, we don't really know what to choose. We fallback on
+             * some values that seem reasonable, but our fallback may change in future version.
+             * It doesn't hurt any code in this module - the only consequence is that tiling may
+             * be suboptimal.
              */
             final boolean constantArea = TileLayout.CONSTANT_GEOGRAPHIC_AREA.equals(layout);
             int nx = tileSize.width;
             int ny = tileSize.height;
             if (!constantArea) {
-                if (untiledBounds.width  % nx == 0) nx = untiledBounds.width  / nx;
-                if (untiledBounds.height % ny == 0) ny = untiledBounds.height / ny;
+                // Must performs the division in the same way than in suggestedTileSize(...).
+                nx = Fraction.round(untiledBounds.width,  nx);
+                ny = Fraction.round(untiledBounds.height, ny);
             }
             int[] xSubsamplings = XMath.divisors(nx);
             int[] ySubsamplings;

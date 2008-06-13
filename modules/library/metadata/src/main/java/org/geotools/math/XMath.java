@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -64,6 +64,9 @@ public final class XMath {
      * Computes 10 raised to the power of <var>x</var>. This method delegates to
      * {@link #pow10(int)} if <var>x</var> is an integer, or to {@link Math#pow}
      * otherwise.
+     *
+     * @param x The exponent.
+     * @return 10 raised to the given exponent.
      */
     public static double pow10(final double x) {
         final int ix = (int) x;
@@ -83,6 +86,9 @@ public final class XMath {
      * representation. More accurate calculations are slower and usually not necessary, but the
      * base 10 is a special case since it is used for scaling axes or formatting human-readable
      * output, in which case the precision may matter.
+     *
+     * @param x The exponent.
+     * @return 10 raised to the given exponent.
      */
     public static strictfp double pow10(final int x) {
         if (x >= 0) {
@@ -113,6 +119,9 @@ public final class XMath {
      *     0 if <var>x</var> is zero or {@code NaN} and
      *    +1 if <var>x</var> is positive.
      *
+     * @param x The number from which to get the sign.
+     * @return {@code +1} if <var>x</var> is positive, {@code -1} if negative, or 0 otherwise.
+     *
      * @see Math#signum(double)
      */
     public static int sgn(final double x) {
@@ -127,6 +136,9 @@ public final class XMath {
      *     0 if <var>x</var> is zero or {@code NaN} and
      *    +1 if <var>x</var> is positive.
      *
+     * @param x The number from which to get the sign.
+     * @return {@code +1} if <var>x</var> is positive, {@code -1} if negative, or 0 otherwise.
+     *
      * @see Math#signum(float)
      */
     public static int sgn(final float x) {
@@ -140,6 +152,9 @@ public final class XMath {
      *    -1 if <var>x</var> is negative,
      *     0 if <var>x</var> is zero and
      *    +1 if <var>x</var> is positive.
+     *
+     * @param x The number from which to get the sign.
+     * @return {@code +1} if <var>x</var> is positive, {@code -1} if negative, or 0 otherwise.
      */
     public static int sgn(long x) {
         if (x > 0) return +1;
@@ -152,6 +167,9 @@ public final class XMath {
      *    -1 if <var>x</var> is negative,
      *     0 if <var>x</var> is zero and
      *    +1 if <var>x</var> is positive.
+     *
+     * @param x The number from which to get the sign.
+     * @return {@code +1} if <var>x</var> is positive, {@code -1} if negative, or 0 otherwise.
      */
     public static int sgn(int x) {
         if (x > 0) return +1;
@@ -164,6 +182,9 @@ public final class XMath {
      *    -1 if <var>x</var> is negative,
      *     0 if <var>x</var> is zero and
      *    +1 if <var>x</var> is positive.
+     *
+     * @param x The number from which to get the sign.
+     * @return {@code +1} if <var>x</var> is positive, {@code -1} if negative, or 0 otherwise.
      */
     public static short sgn(short x) {
         if (x > 0) return (short) +1;
@@ -176,6 +197,9 @@ public final class XMath {
      *    -1 if <var>x</var> is negative,
      *     0 if <var>x</var> is zero and
      *    +1 if <var>x</var> is positive.
+     *
+     * @param x The number from which to get the sign.
+     * @return {@code +1} if <var>x</var> is positive, {@code -1} if negative, or 0 otherwise.
      */
     public static byte sgn(byte x) {
         if (x > 0) return (byte) +1;
@@ -242,6 +266,9 @@ public final class XMath {
      * Counts the fraction digits in the string representation of the specified value. This method
      * is equivalent to a calling <code>{@linkplain Double#toString(double) Double.toString}(value)</code>
      * and counting the number of digits after the decimal separator.
+     *
+     * @param value The value for which to count the fraction digits.
+     * @return The number of fraction digits.
      */
     public static int countDecimalFractionDigits(final double value) {
         final String asText = Double.toString(value);
@@ -328,6 +355,9 @@ next:           while (true) {
      * Returns the divisors of the specified number as positive integers. For any value other
      * than {@code O} (which returns an empty array), the first element in the returned array
      * is always {@code 1} and the last element is always the absolute value of {@code number}.
+     *
+     * @param number The number for which to compute the divisors.
+     * @return The divisors in strictly increasing order.
      */
     public static int[] divisors(int number) {
         if (number == 0) {

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -160,30 +160,15 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
         /*
          * If every tiles have the same subsampling, we are probably in the case where a set of
          * input tiles, all having similar size, are given to MosaicImageWriter for creating a
-         * pyramid of images. The RTree creating from such set of tiles wil be very inefficient.
+         * pyramid of images. The RTree creating from such set of tiles will be very inefficient.
          * Adds a couple of fictious nodes with greater area so that the code after this block
          * can create a deeper tree structure. Note that this is a somewhat naive algorithm.
          * The aim is not to create a sophesticated RTree here; it is just to atenuate the
          * worst case scenario.
          */
-        if (false && isFlat(nodes)) { // TODO: disabled for now until we debug.
-            final Dimension largest = new Dimension();
-            final Rectangle bounds = new Rectangle(-1,-1);
-            for (final GridNode node : nodes) {
-                bounds.add(node);
-                if (node.width  > largest.width)  largest.width  = node.width;
-                if (node.height > largest.height) largest.height = node.height;
-            }
-            largest.width  *= 2;
-            largest.height *= 2; // We want to be able to hold more than one tile.
-            if (bounds.width >= largest.width && bounds.height >= largest.height) {
-                final List<GridNode> list = new ArrayList<GridNode>();
-                split(bounds, list, largest);
-                final int size = list.size();
-                final GridNode[] old = nodes;
-                nodes = list.toArray(new GridNode[size + old.length]);
-                System.arraycopy(old, 0, nodes, size, old.length);
-            }
+        final boolean isFlat = isFlat(nodes);
+        if (isFlat) {
+            nodes = prependTree(nodes);
         }
         /*
          * Special case: checks if the first node contains all subsequent nodes. If this is true,
@@ -218,10 +203,13 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
          * good results for TileLayout.CONSTANT_TILE_SIZE. However it may not work so well with
          * random tiles (open issue).
          */
-        for (int i=(index >= 0 ? 1 : 0); i<nodes.length; i++) {
+        for (int i=(root != null ? 1 : 0); i<nodes.length; i++) {
             final GridNode child = nodes[i];
             GridNode parent = smallest(child, true);
-            if (parent == this && !isGridded(child)) {
+            if (parent == this) {
+                // Note: a previous version had also the following condition: !isGridded(child).
+                // However it leads to the "worst case" scenario when the mosaic doesn't contain
+                // and integer number of tiles, so we should not put this condition.
                 parent = smallest(child, false);
             }
             if (!parent.overlaps) {
@@ -236,11 +224,14 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
             }
             parent.addChild(child);
         }
+        if (isFlat) {
+            removeEmpty();
+        }
         /*
          * Calculates the bounds only for root node, if not already computed. We do not iterate
          * down the tree since every children should have their bounds set to the tile bounds.
          */
-        if (getUserObject() == null) {
+        if (root == null) {
             assert (width | height) < 0 : this;
             TreeNode child = firstChildren();
             while (child != null) {
@@ -450,6 +441,21 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
     }
 
     /**
+     * Remove empty nodes.
+     */
+    private void removeEmpty() {
+        GridNode child = (GridNode) firstChildren();
+        while (child != null) {
+            final GridNode next = (GridNode) child.nextSibling();
+            child.removeEmpty(); // May lost its nextSibling().
+            child = next;
+        }
+        if (tile == null && isLeaf() && !isRoot()) {
+            remove();
+        }
+    }
+
+    /**
      * Invoked when the tree construction is completed with every nodes assigned to its final
      * parent. This method calculate the values that depend on the child hierarchy, including
      * subsampling.
@@ -546,25 +552,58 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
     }
 
     /**
-     * Adds sub-area of the given region to the given {@code nodes} list.
+     * Inserts a tree of nodes without tiles before the nodes in the given array. This method is
+     * typically invoked for {@linkplain #isFlat flat} array of nodes only, which are the "worst
+     * case" scenario. This method tries to attenuate the effect of worst case scenario.
+     * <p>
+     * The order of nodes is significant. This method must prepend bigger nodes first, like what
+     * we would get if the nodes where associated with real tiles and the array sorted with the
+     * {@link #PRE_PROCESSING} comparator.
      *
-     * @param region      The region to split, in absolute coordinates.
-     * @param nodes       The list where to add to nodes.
-     * @param minimalSize The minimal size. Iteration will stop if get tiles getter smaller.
+     * @param  nodes The nodes for which to prepend a tree.
+     * @return The nodes with a tree prepend before them.
      */
-    private static void split(final Rectangle region, final List<GridNode> nodes,
-                              final Dimension minimalSize)
-    {
-        nodes.add(new GridNode(region));
-        final int width  = region.width  / 2;
-        final int height = region.height / 2;
-        if (region.width >= minimalSize.width && region.height >= minimalSize.height) {
-            final Rectangle quart = new Rectangle(region.x, region.y, width, height);
-            split(quart, nodes, minimalSize); quart.x += quart.width;
-            split(quart, nodes, minimalSize); quart.y += quart.height;
-            split(quart, nodes, minimalSize); quart.x = region.x;
-            split(quart, nodes, minimalSize);
+    private static GridNode[] prependTree(GridNode[] nodes) {
+        final Dimension largest = new Dimension();
+        final Rectangle bounds = new Rectangle(-1,-1);
+        for (final GridNode node : nodes) {
+            bounds.add(node);
+            if (node.width  > largest.width)  largest.width  = node.width;
+            if (node.height > largest.height) largest.height = node.height;
         }
+        if (!bounds.isEmpty()) {
+            /*
+             * Asks for node that can contain at least 2×2 tiles, otherwise creating
+             * those nodes would consume memory without significant performance gain.
+             */
+            largest.width  *= 2;
+            largest.height *= 2;
+            final int[][] divisors = MosaicBuilder.suggestedNumTiles(bounds, largest, 16, false);
+            final int[] sx = divisors[0];
+            final int[] sy = divisors[1];
+            final Rectangle part = new Rectangle();
+            final List<GridNode> list = new ArrayList<GridNode>();
+            for (int i=0; i<sx.length; i++) {
+                final int nx = sx[i];
+                final int ny = sy[i];
+                part.y      = bounds.y;
+                part.width  = bounds.width  / nx;
+                part.height = bounds.height / ny;
+                for (int y=0; y<ny; y++) {
+                    part.x = bounds.x;
+                    for (int x=0; x<nx; x++) {
+                        list.add(new GridNode(part));
+                        part.x += part.width;
+                    }
+                    part.y += part.height;
+                }
+            }
+            final int size = list.size();
+            final GridNode[] old = nodes;
+            nodes = list.toArray(new GridNode[size + old.length]);
+            System.arraycopy(old, 0, nodes, size, old.length);
+        }
+        return nodes;
     }
 
     /**

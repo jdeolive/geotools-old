@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -267,7 +267,7 @@ final class RTree {
             return null;
         }
         SelectedNode selected = null;
-        final Tile tile = node.getUserObject();
+        final Tile tile = node.tile;
         if (tile != null) {
             assert node.equals(tile.getAbsoluteRegion()) : tile;
             final Dimension floor = tile.getSubsamplingFloor(subsamplingCandidate);
