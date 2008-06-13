@@ -1,5 +1,11 @@
 Module Maintainer: Gabriel Roldan
 IP Review: Gabriel Roldan
+           Adrian Custer, June 2008
+
+STATUS: Clean except for 18M (!?excuse me?) of test data for which we need 
+  a provenance review.
+  
+  
 
 The following was taken from the ArcSDE wiki page...
 
