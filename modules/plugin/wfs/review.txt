@@ -6,8 +6,6 @@ IP Review:
  Adrian Custer, June 2008
  
 STATUS Clean
-  One file with a uDig header
-  modules/plugin/wfs/.../wfs/v_1_0_0/data/MapServerWFSStrategy.java
 
 
 
