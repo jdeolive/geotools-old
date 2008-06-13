@@ -1,0 +1,57 @@
+Unsupported CACHING
+
+Review Adrian Custer, June 2008
+
+STATUS: 
+  NEEDS REVIEW: 
+    License is okay but we may need to give copyright to Marios 
+    Hadjieleftheriou on most of these files. Certainly, the files which are 
+    fully under his copyright can only be licensed under the LGPL.
+    
+    Email sent for clarification.
+
+
+This appears to be a Summer of code project to implement some feature caching 
+system. See the README file for details.
+
+
+
+
+org/geotools/caching/spatialindex/
+org/geotools/caching/firstdraft/spatialindex/storagemanager/
+org/geotools/caching/firstdraft/spatialindex/spatialindex/
+org/geotools/caching/firstdraft/spatialindex/
+--------------------------------------------
+
+Files are LGPL with the following header:
+  
+// Spatial Index Library
+//
+// Copyright (C) 2002  Navel Ltd.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation;
+// version 2.1 of the License.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Contact information:
+//  Mailing address:
+//    Marios Hadjieleftheriou
+//    University of California, Riverside
+//    Department of Computer Science
+//    Surge Building, Room 310
+//    Riverside, CA 92521
+//
+//  Email:
+//    marioh@cs.ucr.edu
+
+
