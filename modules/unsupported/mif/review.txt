@@ -3,6 +3,11 @@ PLUGIN MIF
 Module Maintainer Luca Sigfrido Percich
 IP Review Jody Garnett July 30th
 IP Review Jody Garnett July 31th, updated w/ feedback from Luca
+         Adrian Custer, June 2008
+
+STATUS: Clean except for test data
+
+
 
 MapInfo MIF DataStore access.
 
