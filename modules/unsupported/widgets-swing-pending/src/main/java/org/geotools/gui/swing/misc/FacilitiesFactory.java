@@ -30,8 +30,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 /**
- *
- * @author johann sorel
+ * facilities factory
+ * 
+ * @author Johann Sorel
  */
 public class FacilitiesFactory {
 

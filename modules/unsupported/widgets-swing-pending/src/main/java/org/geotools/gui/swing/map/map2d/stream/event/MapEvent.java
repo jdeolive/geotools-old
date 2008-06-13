@@ -23,6 +23,8 @@ import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D.ACTION_STATE;
 import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
 
 /**
+ * Map event
+ * 
  * @author Johann Sorel
  */
 public class MapEvent extends EventObject{

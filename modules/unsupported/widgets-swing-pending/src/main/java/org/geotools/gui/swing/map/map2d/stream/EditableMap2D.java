@@ -22,10 +22,10 @@ import org.geotools.map.MapLayer;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.Style;
 
 /**
  * interface for map2d widget who handle Edition
+ * 
  * @author Johann Sorel
  */
 public interface EditableMap2D extends SelectableMap2D {

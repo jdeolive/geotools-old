@@ -33,7 +33,9 @@ import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
 
 /**
- * @author johann sorel
+ * Text Symbolizer edition panel
+ * 
+ * @author Johann Sorel
  */
 public class JTextSymbolizerPane extends javax.swing.JPanel implements SymbolizerPane<TextSymbolizer> {
 

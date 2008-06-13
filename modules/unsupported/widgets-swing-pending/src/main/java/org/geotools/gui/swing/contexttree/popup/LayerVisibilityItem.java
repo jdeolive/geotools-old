@@ -33,8 +33,9 @@ import org.geotools.map.MapLayer;
 
 
 /**
- * @author johann sorel
  * popup control for visibility of MapLayer, use for JContextTreePopup
+ *
+ * @author Johann Sorel
  */
 public class LayerVisibilityItem extends JPanel implements TreePopupItem{
     

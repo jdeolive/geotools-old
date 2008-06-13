@@ -26,7 +26,9 @@ import org.geotools.map.MapLayer;
 import org.jdesktop.swingx.JXTable;
 
 /**
- * @author johann sorel
+ * Data model
+ * 
+ * @author Johann Sorel
  */
 public class DataModel implements TableModel{
     

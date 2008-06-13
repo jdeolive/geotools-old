@@ -19,8 +19,9 @@ package org.geotools.gui.swing.map.map2d.stream.handler;
 import javax.swing.event.MouseInputListener;
 
 /**
- *
- * @author johann sorel
+ * special mouse listener
+ * 
+ * @author Johann Sorel
  */
 abstract class SpecialMouseListener implements MouseInputListener{
 

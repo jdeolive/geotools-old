@@ -25,7 +25,7 @@ import javax.swing.tree.TreePath;
 /**
  * Default popup control separator, use for JContextTreePopup
  * 
- * @author johann sorel
+ * @author Johann Sorel
  * 
  */
 public class SeparatorItem extends JSeparator implements TreePopupItem{

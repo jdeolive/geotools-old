@@ -17,20 +17,15 @@
 package org.geotools.gui.swing.style.sld;
 
 import java.awt.Component;
-import javax.swing.Icon;
-import javax.swing.JDialog;
-import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.gui.swing.style.StyleElementEditor;
 import org.geotools.map.MapLayer;
-import org.geotools.styling.ChannelSelection;
-import org.geotools.styling.ColorMap;
 import org.geotools.styling.ContrastEnhancement;
 import org.geotools.styling.ContrastEnhancementImpl;
-import org.geotools.styling.Fill;
-import org.geotools.styling.StyleBuilder;
 
 /**
- * @author  johann sorel
+ * ContrastEnchancement panel
+ * 
+ * @author  Johann Sorel
  */
 public class JContrastEnhancement extends javax.swing.JPanel implements StyleElementEditor<ContrastEnhancement>{
 

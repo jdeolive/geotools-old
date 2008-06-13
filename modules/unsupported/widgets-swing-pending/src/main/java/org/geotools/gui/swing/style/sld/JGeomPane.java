@@ -19,7 +19,9 @@ package org.geotools.gui.swing.style.sld;
 import org.geotools.map.MapLayer;
 
 /**
- * @author johann sorel
+ * Geometrie panel
+ * 
+ * @author Johann Sorel
  */
 public class JGeomPane extends javax.swing.JPanel {
      

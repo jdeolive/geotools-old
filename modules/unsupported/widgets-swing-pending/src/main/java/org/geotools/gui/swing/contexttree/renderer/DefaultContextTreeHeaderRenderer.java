@@ -25,8 +25,9 @@ import org.geotools.gui.swing.icon.IconBundle;
 import org.jdesktop.swingx.table.ColumnHeaderRenderer;
 
 /**
+ * headerRenderer for treetable
  *
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class DefaultContextTreeHeaderRenderer extends ColumnHeaderRenderer{
 

@@ -25,8 +25,9 @@ import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D;
 import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D.ACTION_STATE;
 
 /**
- *
- * @author johann sorel
+ * Selection action
+ * 
+ * @author Johann Sorel
  */
 public class StreamSelect extends AbstractAction {
 

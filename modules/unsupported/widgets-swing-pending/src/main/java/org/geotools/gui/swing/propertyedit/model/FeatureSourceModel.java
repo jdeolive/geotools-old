@@ -43,8 +43,9 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 
 /**
- *
- * @author johann sorel
+ * Feature source model
+ * 
+ * @author Johann Sorel
  */
 public class FeatureSourceModel implements TableModel {
 

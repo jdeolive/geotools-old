@@ -39,7 +39,8 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 
 /**
  * ContextTreeModel for JContextTree
- * @author johann sorel
+ * 
+ * @author Johann Sorel
  */
 public final class ContextTreeModel extends DefaultTreeTableModel implements MapLayerListListener {
 

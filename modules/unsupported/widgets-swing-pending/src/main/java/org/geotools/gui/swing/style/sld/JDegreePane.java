@@ -21,8 +21,9 @@ import org.geotools.styling.StyleBuilder;
 import org.opengis.filter.expression.Expression;
 
 /**
- *
- * @author johann sorel
+ * Degree panel
+ * 
+ * @author Johann Sorel
  */
 public class JDegreePane extends javax.swing.JPanel {
 

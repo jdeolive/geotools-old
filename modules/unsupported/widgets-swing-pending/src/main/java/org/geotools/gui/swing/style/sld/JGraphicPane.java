@@ -23,7 +23,9 @@ import org.geotools.styling.Graphic;
 import org.geotools.styling.StyleBuilder;
 
 /**
- * @author johann sorel
+ * Graphic panel
+ * 
+ * @author Johann Sorel
  */
 public class JGraphicPane extends javax.swing.JPanel implements StyleElementEditor<Graphic> {
 

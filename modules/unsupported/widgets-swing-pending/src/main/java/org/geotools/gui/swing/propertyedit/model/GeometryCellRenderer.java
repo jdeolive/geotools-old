@@ -34,8 +34,9 @@ import javax.swing.table.TableCellRenderer;
 import org.geotools.gui.swing.icon.IconBundle;
 
 /**
- * @author johann sorel
  * Cell Renderer for JXMapContextTree
+ * 
+ * @author Johann Sorel
  */
 public class GeometryCellRenderer extends JPanel implements TableCellRenderer{
     

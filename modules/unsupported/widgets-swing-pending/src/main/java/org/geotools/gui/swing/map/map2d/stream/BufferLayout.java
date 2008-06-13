@@ -25,7 +25,7 @@ import java.awt.LayoutManager;
  * Specific Layout used for JLayeredPane, all added componant take
  * the complete size of the parent
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class BufferLayout implements LayoutManager{
 

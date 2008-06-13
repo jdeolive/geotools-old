@@ -36,8 +36,9 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.operation.TransformException;
 
 /**
- *
- * @author  johann sorel
+ * ContextCRS property panel
+ * 
+ * @author  Johann Sorel
  */
 public class ContextCRSPropertyPanel extends javax.swing.JPanel implements PropertyPane {
 

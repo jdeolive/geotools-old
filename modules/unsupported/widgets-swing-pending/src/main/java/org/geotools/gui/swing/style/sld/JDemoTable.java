@@ -26,9 +26,10 @@ import org.geotools.gui.swing.contexttree.renderer.DefaultCellRenderer;
 import org.geotools.styling.Symbolizer;
 
 /**
- *
+ * Demo panel
+ * 
  * @param T 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class JDemoTable<T extends Symbolizer> extends org.jdesktop.swingx.JXTable {
 

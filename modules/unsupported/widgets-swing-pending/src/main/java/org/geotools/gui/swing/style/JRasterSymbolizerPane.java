@@ -19,7 +19,6 @@ package org.geotools.gui.swing.style;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Map;
 import javax.swing.JComponent;
 
@@ -37,8 +36,9 @@ import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.Symbolizer;
 
 /**
+ * Raster Sybolizer edition panel
  *
- * @author  johann sorel
+ * @author  Johann Sorel
  */
 public class JRasterSymbolizerPane extends javax.swing.JPanel implements SymbolizerPane<RasterSymbolizer> {
 

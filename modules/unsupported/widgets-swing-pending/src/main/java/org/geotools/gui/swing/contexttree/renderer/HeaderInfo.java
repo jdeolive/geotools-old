@@ -19,8 +19,9 @@ package org.geotools.gui.swing.contexttree.renderer;
 import javax.swing.Icon;
 
 /**
+ * General header
  *
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class HeaderInfo {
 

@@ -18,6 +18,11 @@ package org.geotools.gui.swing.contexttree;
 
 import javax.swing.tree.TreePath;
 
+/**
+ * Drag and drop information
+ * 
+ * @author Johann Sorel
+ */
 final class DADMetaTransfer{
     
     public int origine = 0;

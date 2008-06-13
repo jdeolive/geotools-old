@@ -9,7 +9,20 @@ STATUS: Clean
 This module was started around Sept, 2007. Most work done by 
 Johann Sorel. 
 
-Johann will describe the sources and conditiions of some elements 
-which are used under LGPL.
+Here are the diferents sources used by this module :
 
+- Crystal Project Icons
+Description : a great set of free icons
+Web : http://www.everaldo.com/crystal
+License : LGPL
 
+- Swing Layout
+Description : Some more layout manager for better UI design, this dependebcy can be removed
+if we move on JRE 1.6
+Web : https://swing-layout.dev.java.net
+License : LGPL
+
+- SwingLabs SwingX
+Description : new generation of swing components, treetable, taskpane ...etc...
+Web : https://swingx.dev.java.net
+License : LGPL

@@ -23,8 +23,9 @@ import javax.swing.ImageIcon;
 import org.geotools.gui.swing.propertyedit.PropertyPane;
 
 /**
- *
- * @author  johann sorel
+ * Geometry panel
+ * 
+ * @author  Johann Sorel
  */
 public class GeometryPanel extends javax.swing.JPanel implements PropertyPane {
     

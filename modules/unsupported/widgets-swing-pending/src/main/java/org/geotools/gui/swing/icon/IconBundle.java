@@ -26,7 +26,9 @@ import java.util.WeakHashMap;
 import javax.swing.ImageIcon;
 
 /**
- * @author johann sorel
+ * IconBundle, manage icons and avoid double loading
+ * 
+ * @author Johann Sorel
  */
 public class IconBundle {
 

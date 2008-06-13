@@ -37,8 +37,9 @@ import org.geotools.styling.Symbolizer;
 import org.opengis.filter.expression.Expression;
 
 /**
- *
- * @author johann sorel
+ * Component used to present opacity
+ * 
+ * @author Johann Sorel
  */
 public final class OpacityComponent extends RenderAndEditComponent {
 

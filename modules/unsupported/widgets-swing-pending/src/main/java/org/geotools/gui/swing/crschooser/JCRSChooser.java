@@ -30,8 +30,9 @@ import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- *
- * @author johann sorel
+ * CRSChooser component
+ * 
+ * @author Johann Sorel
  */
 public class JCRSChooser extends javax.swing.JDialog {
 

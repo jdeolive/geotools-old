@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Default implementation of selectableMap2D
+ * 
  * @author Johann Sorel
  */
 class JStreamSelectMap extends JStreamNavMap implements SelectableMap2D {

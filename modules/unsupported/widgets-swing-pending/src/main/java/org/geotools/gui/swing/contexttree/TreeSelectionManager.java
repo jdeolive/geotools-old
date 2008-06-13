@@ -21,8 +21,9 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
 /**
- *
- * @author johann sorel
+ * Selection manager for treetable
+ * 
+ * @author Johann Sorel
  */
 class TreeSelectionManager implements javax.swing.event.TreeSelectionListener{
     

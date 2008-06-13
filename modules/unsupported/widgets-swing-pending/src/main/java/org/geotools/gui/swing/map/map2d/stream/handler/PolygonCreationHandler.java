@@ -44,8 +44,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
- *
- * @author johann sorel
+ * polygon creation gandler
+ * 
+ * @author Johann Sorel
  */
 public class PolygonCreationHandler extends AbstractEditionHandler {
 

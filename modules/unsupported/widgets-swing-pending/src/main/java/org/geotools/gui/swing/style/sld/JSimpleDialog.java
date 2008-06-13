@@ -25,8 +25,9 @@ import javax.swing.JToolBar;
 import org.geotools.gui.swing.icon.IconBundle;
 
 /**
- *
- * @author  sorel
+ * Simple dialog
+ * 
+ * @author Johann Sorel
  */
 public class JSimpleDialog extends javax.swing.JDialog {
 

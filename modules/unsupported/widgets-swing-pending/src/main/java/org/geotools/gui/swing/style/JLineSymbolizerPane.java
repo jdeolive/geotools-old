@@ -35,8 +35,9 @@ import org.geotools.styling.Symbolizer;
 
 
 /**
- *
- * @author johann sorel
+ * Line symbolizer edition panel
+ * 
+ * @author Johann Sorel
  */
 public class JLineSymbolizerPane extends javax.swing.JPanel implements org.geotools.gui.swing.style.SymbolizerPane<LineSymbolizer> {
   

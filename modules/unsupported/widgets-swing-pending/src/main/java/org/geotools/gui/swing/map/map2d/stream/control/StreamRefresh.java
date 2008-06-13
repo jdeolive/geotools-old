@@ -23,8 +23,9 @@ import javax.swing.AbstractAction;
 import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D;
 
 /**
- *
- * @author johann sorel
+ * Refrash Action
+ * 
+ * @author Johann Sorel
  */
 public class StreamRefresh extends AbstractAction {
 

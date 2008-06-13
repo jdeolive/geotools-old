@@ -29,8 +29,9 @@ import org.geotools.gui.swing.contexttree.JContextTree;
 import org.geotools.gui.swing.icon.IconBundle;
 
 /**
- *
- * @author johann sorel
+ * cut item for treetable
+ * 
+ * @author Johann Sorel
  */
 public class CutItem implements TreePopupItem{
 

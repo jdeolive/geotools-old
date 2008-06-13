@@ -62,13 +62,9 @@
             <TitledBorder/>
           </Border>
         </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="org.geotools.gui.swing.style.sld.JLinePlacementPane" name="guiLine">
-      <Properties>
-        <Property name="opaque" type="boolean" value="false"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JRadioButton" name="jrbLine">
       <Properties>

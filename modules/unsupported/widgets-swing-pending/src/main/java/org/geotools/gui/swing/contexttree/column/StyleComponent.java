@@ -29,8 +29,9 @@ import org.geotools.map.MapLayer;
 import org.geotools.styling.Symbolizer;
 
 /**
- *
- * @author johann sorel
+ * Component used to present style glyph
+ * 
+ * @author Johann Sorel
  */
 public final class StyleComponent extends org.geotools.gui.swing.contexttree.renderer.RenderAndEditComponent {
     

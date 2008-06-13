@@ -29,7 +29,7 @@ import org.jdesktop.swingx.renderer.ComponentProvider;
 /**
  * Provider for ContextTree to render TreeColumn
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public final class TreeNodeProvider extends ComponentProvider<JLabel> {
 

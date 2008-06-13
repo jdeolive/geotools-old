@@ -24,7 +24,9 @@ import org.geotools.styling.Fill;
 import org.geotools.styling.StyleBuilder;
 
 /**
- * @author  johann sorel
+ * Fill panel
+ * 
+ * @author  Johann Sorel
  */
 public class JFillPane extends javax.swing.JPanel implements StyleElementEditor<Fill>{
 

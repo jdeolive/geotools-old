@@ -45,8 +45,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
- *
- * @author johann sorel
+ * multipoint creation handler
+ * 
+ * @author Johann Sorel
  */
 public class MultiPointCreationHandler extends AbstractEditionHandler {
 

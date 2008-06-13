@@ -29,10 +29,11 @@ import org.geotools.styling.Mark;
 import org.geotools.styling.StyleBuilder;
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import org.jdesktop.swingx.plaf.macosx.MacOSXLookAndFeelAddons;
-import org.jdesktop.swingx.plaf.windows.WindowsClassicLookAndFeelAddons;
 
 /**
- * @author johann sorel
+ * Mark panel
+ * 
+ * @author Johann Sorel
  */
 public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<Mark> {
 

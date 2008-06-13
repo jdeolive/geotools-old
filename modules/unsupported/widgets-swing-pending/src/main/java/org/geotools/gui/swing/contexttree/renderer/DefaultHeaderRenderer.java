@@ -33,7 +33,7 @@ import javax.swing.table.TableCellRenderer;
 /**
  * Styled header Renderer for JContextTree
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class DefaultHeaderRenderer implements TableCellRenderer{
 

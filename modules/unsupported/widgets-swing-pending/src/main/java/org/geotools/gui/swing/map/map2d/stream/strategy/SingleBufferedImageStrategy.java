@@ -16,7 +16,6 @@
  */
 package org.geotools.gui.swing.map.map2d.stream.strategy;
 
-import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -24,14 +23,12 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.map.event.MapLayerListEvent;
@@ -44,6 +41,7 @@ import java.awt.geom.AffineTransform;
 /**
  * Not optimize Strategy, use a single bufferedImage. slow.
  * Must repaint everything each time.
+ * 
  * @author Johann Sorel
  */
 public class SingleBufferedImageStrategy extends AbstractRenderingStrategy {

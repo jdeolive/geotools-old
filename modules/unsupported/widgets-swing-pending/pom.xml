@@ -67,7 +67,7 @@
   <!--     Dependency Mangement                                    -->
   <!-- =========================================================== -->
   <dependencies>
-
+      
     <!-- commons-jxpath-1.2.jar -->
     <dependency>
       <groupId>commons-jxpath</groupId>
@@ -297,6 +297,22 @@
 
     <plugins>
       <!-- ====    Compilation      ============================== -->
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <mode>development</mode>
+              <url>${pom.url}</url>
+            </manifestEntries>
+            <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+      </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

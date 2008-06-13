@@ -42,8 +42,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- *
- * @author  johann sorel
+ * layer feature panel
+ * 
+ * @author  Johann Sorel
  */
 public class LayerFeaturePropertyPanel extends javax.swing.JPanel implements PropertyPane {
 

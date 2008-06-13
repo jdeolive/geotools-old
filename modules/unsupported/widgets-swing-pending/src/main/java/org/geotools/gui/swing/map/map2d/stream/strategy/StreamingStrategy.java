@@ -19,11 +19,8 @@ package org.geotools.gui.swing.map.map2d.stream.strategy;
 import com.vividsolutions.jts.geom.Coordinate;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JComponent;
-
 import org.geotools.gui.swing.map.map2d.stream.listener.StrategyListener;
 import org.geotools.map.MapContext;
-import org.geotools.map.MapLayer;
 
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Component;
@@ -33,6 +30,7 @@ import java.awt.geom.AffineTransform;
 /**
  * Rendering Strategy is used to specify a memory management
  * technic and different solutions to answer a need (low memory, high drawing speed, smooth edition ...)
+ * 
  * @author Johann Sorel
  */
 public interface StreamingStrategy {

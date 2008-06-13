@@ -26,7 +26,9 @@ import javax.swing.table.TableModel;
 import org.geotools.data.DataAccessFactory.Param;
 
 /**
- * @author johann sorel
+ * Keys model
+ * 
+ * @author Johann Sorel
  */
 public class KeyModel implements TableModel {
 

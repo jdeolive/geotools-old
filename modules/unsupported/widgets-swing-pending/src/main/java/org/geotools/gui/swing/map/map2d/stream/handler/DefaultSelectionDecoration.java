@@ -25,7 +25,8 @@ import org.geotools.gui.swing.map.map2d.Map2D;
 import org.geotools.gui.swing.map.map2d.decoration.MapDecoration;
 
 /**
- *
+ * Default selection decoration
+ * 
  * @author Johann Sorel
  */
 public class DefaultSelectionDecoration extends JComponent implements MapDecoration{

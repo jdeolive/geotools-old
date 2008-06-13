@@ -29,8 +29,9 @@ import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.map.MapLayer;
 
 /**
- *
- * @author johann sorel
+ * subnode showing layer souurce
+ * 
+ * @author Johann Sorel
  */
 public class SourceGroup implements SubNodeGroup {
 

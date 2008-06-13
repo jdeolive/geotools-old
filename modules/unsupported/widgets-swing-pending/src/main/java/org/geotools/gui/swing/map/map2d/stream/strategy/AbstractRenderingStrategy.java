@@ -20,7 +20,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
-import org.geotools.gui.swing.map.map2d.*;
 import java.awt.Rectangle;
 import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
@@ -38,6 +37,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 /**
  * Abstract rendering strategy
+ * 
  * @author Johann Sorel
  */
 public abstract class AbstractRenderingStrategy implements StreamingStrategy, MapLayerListListener {

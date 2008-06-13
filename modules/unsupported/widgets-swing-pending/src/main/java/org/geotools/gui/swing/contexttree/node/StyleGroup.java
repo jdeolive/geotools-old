@@ -32,8 +32,9 @@ import org.geotools.styling.Style;
 import org.geotools.styling.Symbolizer;
 
 /**
- *
- * @author johann sorel
+ * subnode showing styles
+ * 
+ * @author Johann Sorel
  */
 public class StyleGroup implements SubNodeGroup {
 

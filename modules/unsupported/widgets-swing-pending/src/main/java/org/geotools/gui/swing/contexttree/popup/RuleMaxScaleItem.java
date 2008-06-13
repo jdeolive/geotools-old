@@ -25,8 +25,9 @@ import org.geotools.gui.swing.contexttree.ContextTreeNode;
 import org.geotools.styling.Rule;
 
 /**
- *
- * @author  johann sorel
+ * max scale rule item
+ * 
+ * @author  Johann Sorel
  */
 public class RuleMaxScaleItem extends javax.swing.JPanel implements TreePopupItem{
     

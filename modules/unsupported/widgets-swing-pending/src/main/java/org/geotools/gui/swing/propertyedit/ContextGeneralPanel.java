@@ -23,8 +23,9 @@ import javax.swing.ImageIcon;
 import org.geotools.map.MapContext;
 
 /**
- *
- * @author johann sorel
+ * Context general panel
+ * 
+ * @author Johann Sorel
  */
 public class ContextGeneralPanel extends javax.swing.JPanel implements PropertyPane{
     

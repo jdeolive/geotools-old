@@ -29,8 +29,9 @@ import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
 import org.geotools.map.MapLayer;
 
 /**
- *
- * @author johann sorel
+ * layer general information panel
+ * 
+ * @author Johann Sorel
  */
 public class LayerGeneralPanel extends javax.swing.JPanel implements PropertyPane {
 

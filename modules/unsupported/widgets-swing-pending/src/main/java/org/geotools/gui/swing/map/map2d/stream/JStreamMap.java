@@ -16,37 +16,26 @@
  */
 package org.geotools.gui.swing.map.map2d.stream;
 
-import org.geotools.gui.swing.map.map2d.*;
 import com.vividsolutions.jts.geom.Envelope;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 import javax.swing.event.EventListenerList;
 
-import javax.swing.plaf.DimensionUIResource;
-import org.geotools.gui.swing.map.map2d.decoration.DefaultInformationDecoration;
-import org.geotools.gui.swing.map.map2d.decoration.MapDecoration;
+import org.geotools.gui.swing.map.map2d.AbstractMap2D;
 import org.geotools.gui.swing.map.map2d.stream.event.StrategyEvent;
 import org.geotools.gui.swing.map.map2d.stream.listener.MapListener;
 import org.geotools.gui.swing.map.map2d.stream.listener.StrategyListener;
 import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
 import org.geotools.gui.swing.map.map2d.stream.strategy.SingleBufferedImageStrategy;
 import org.geotools.map.MapContext;
-import org.geotools.gui.swing.map.map2d.decoration.ColorDecoration;
-import org.geotools.gui.swing.map.map2d.decoration.InformationDecoration;
 import org.geotools.gui.swing.map.map2d.stream.event.MapEvent;
 import org.geotools.map.event.MapLayerListEvent;
 import org.geotools.map.event.MapLayerListListener;
 
 /**
  * Default implementation of Map2D
+ * 
  * @author Johann Sorel
  */
 abstract class JStreamMap extends AbstractMap2D implements StreamingMap2D, MapLayerListListener, PropertyChangeListener {

@@ -21,8 +21,9 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 
 /**
- *
- * @author johann sorel
+ * multitree model
+ * 
+ * @author Johann Sorel
  */
 public class MultiTreeModel extends DefaultTreeModel implements TreeModel{
         

@@ -23,8 +23,9 @@ import org.geotools.util.ResourceInternationalString;
 import org.opengis.util.InternationalString;
 
 /**
- *
- * @author johann sorel
+ * file filter factory
+ *  
+ * @author Johann Sorel
  */
 public class FileFilterFactory {
 

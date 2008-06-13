@@ -23,8 +23,9 @@ import org.geotools.styling.Displacement;
 import org.geotools.styling.StyleBuilder;
 
 /**
- *
- * @author johann sorel
+ * Displacement panel
+ * 
+ * @author Johann Sorel
  */
 public class JDisplacementPane extends javax.swing.JPanel implements StyleElementEditor<Displacement>{
     

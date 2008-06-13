@@ -22,8 +22,9 @@ import javax.swing.ImageIcon;
 import org.geotools.gui.swing.icon.IconBundle;
 
 /**
+ * layer style panel
  *
- * @author  johann sorel
+ * @author  Johann Sorel
  */
 public class LayerStylePropertyPanel extends MultiPropertyPanel {
 

@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
 
 /**
  *
- * @author johann sorel
+ * @author Johann Sorel
  */
 class BUNDLE {
 

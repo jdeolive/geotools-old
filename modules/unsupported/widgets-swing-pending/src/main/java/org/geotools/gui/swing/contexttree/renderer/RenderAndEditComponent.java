@@ -22,7 +22,7 @@ import javax.swing.border.EmptyBorder;
  * Abstrat class extending JPanel, can be used for Render and Edition Cell
  * in the JContextTree
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public abstract class RenderAndEditComponent extends javax.swing.JPanel {
 

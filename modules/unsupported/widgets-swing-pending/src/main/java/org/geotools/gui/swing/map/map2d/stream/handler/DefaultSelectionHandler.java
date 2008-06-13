@@ -35,8 +35,9 @@ import com.vividsolutions.jts.geom.LinearRing;
 import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
 
 /**
- *
- * @author johann sorel
+ * Default selection handler
+ * 
+ * @author Johann Sorel
  */
 public class DefaultSelectionHandler implements SelectionHandler {
 

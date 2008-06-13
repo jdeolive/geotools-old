@@ -29,8 +29,9 @@ import org.geotools.gui.swing.map.map2d.stream.NavigableMap2D;
 import org.geotools.map.MapLayer;
 
 /**
- * @author johann sorel
  * Default popup control for zoom on MapLayer, use for JContextTreePopup
+ * 
+ * @author Johann Sorel
  */
 public class LayerZoomItem extends JMenuItem implements TreePopupItem {
 

@@ -43,6 +43,7 @@ import java.lang.ref.WeakReference;
 
 /**
  * Optimize Strategy for edition. high memory needed
+ * 
  * @author Johann Sorel
  */
 public class MergeBufferedImageStrategy extends AbstractRenderingStrategy {

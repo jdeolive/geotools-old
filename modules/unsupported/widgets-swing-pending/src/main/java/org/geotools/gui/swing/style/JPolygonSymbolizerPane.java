@@ -34,8 +34,9 @@ import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.Symbolizer;
 
 /**
- *
- * @author  johann sorel
+ * Polygon symbolizer edition panel
+ * 
+ * @author  Johann Sorel
  */
 public class JPolygonSymbolizerPane extends javax.swing.JPanel implements org.geotools.gui.swing.style.SymbolizerPane<PolygonSymbolizer> {
 

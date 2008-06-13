@@ -22,8 +22,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.geotools.gui.swing.propertyedit.PropertyPane;
 
 /**
- *
- * @author johann sorel
+ * multi tree node
+ * 
+ * @author Johann Sorel
  */
 public class MultiTreeNode extends DefaultMutableTreeNode{
     

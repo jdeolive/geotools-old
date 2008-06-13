@@ -22,7 +22,9 @@ import javax.swing.ImageIcon;
 import org.geotools.map.MapLayer;
 
 /**
- * @author johann sorel
+ * Data chooser panel
+ * 
+ * @author Johann Sorel
  */
 public interface DataPanel {
         

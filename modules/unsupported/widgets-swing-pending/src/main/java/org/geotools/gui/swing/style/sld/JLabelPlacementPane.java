@@ -25,7 +25,9 @@ import org.geotools.styling.PointPlacement;
 import org.geotools.styling.StyleBuilder;
 
 /**
- * @author johann sorel
+ * Label placement panel
+ * 
+ * @author Johann Sorel
  */
 public class JLabelPlacementPane extends javax.swing.JPanel implements StyleElementEditor<LabelPlacement> {
 

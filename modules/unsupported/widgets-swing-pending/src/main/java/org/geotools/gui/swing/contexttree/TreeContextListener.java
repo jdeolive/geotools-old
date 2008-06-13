@@ -21,7 +21,7 @@ import java.util.EventListener;
 /**
  * Listener for ContextTreeModel
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public interface TreeContextListener extends EventListener{
         

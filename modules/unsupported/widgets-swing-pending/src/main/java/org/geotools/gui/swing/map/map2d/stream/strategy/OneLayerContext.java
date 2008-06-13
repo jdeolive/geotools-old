@@ -44,6 +44,7 @@ import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * A MapContext with only one layer
+ * 
  * @author Johann Sorel
  */
 final class OneLayerContext implements MapContext {

@@ -21,8 +21,9 @@ import javax.swing.ImageIcon;
 import org.geotools.gui.swing.map.map2d.stream.SelectableMap2D;
 
 /**
- *
- * @author johann sorel
+ * selection handler
+ * 
+ * @author Johann Sorel
  */
 public interface SelectionHandler {
 

@@ -23,7 +23,8 @@ import java.io.IOException;
 
 /**
  * Transfer Class used for drag and drop purpose
- * @author johann sorel
+ * 
+ * @author Johann Sorel
  */
 final class DADContextTreeTransferable implements Transferable {
         

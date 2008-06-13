@@ -20,7 +20,8 @@ import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * Abstract class for columnmodel
- * @author johann sorel
+ * 
+ * @author Johann Sorel
  */
 public abstract class TreeTableColumn extends TableColumnExt{
 

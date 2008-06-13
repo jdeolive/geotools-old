@@ -27,7 +27,8 @@ import org.geotools.gui.swing.map.map2d.Map2D;
 import org.geotools.gui.swing.map.map2d.decoration.MapDecoration;
 
 /**
- *
+ * Selection decoration
+ * 
  * @author Johann Sorel
  */
 public class LasoSelectionDecoration extends JComponent implements MapDecoration{

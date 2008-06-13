@@ -49,7 +49,8 @@ import org.geotools.map.MapContext;
 /**
  * JContextTree is used to handle MapContexts and their MapLayers. this component
  * is based on a JXTreeTable.
- * @author johann sorel
+ * 
+ * @author Johann Sorel
  */
 public class JContextTree extends javax.swing.JPanel{
 

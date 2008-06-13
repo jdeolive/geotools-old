@@ -24,7 +24,8 @@ import javax.swing.JComponent;
 import org.geotools.gui.swing.map.map2d.Map2D;
 
 /**
- *
+ * Edition Decoration
+ * 
  * @author Johann Sorel
  */
 public class EditionDecoration extends JComponent implements MapDecoration{

@@ -30,6 +30,7 @@ import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
 
 /**
  * Default implementation of NavigableMap2D
+ * 
  * @author Johann Sorel
  */
 public class JStreamNavMap extends JStreamMap implements NavigableMap2D {

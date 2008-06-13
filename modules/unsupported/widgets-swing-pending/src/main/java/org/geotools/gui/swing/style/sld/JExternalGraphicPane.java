@@ -25,8 +25,9 @@ import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.StyleBuilder;
 
 /**
+ * External graphic panel
  *
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class JExternalGraphicPane extends javax.swing.JPanel implements StyleElementEditor<ExternalGraphic> {
 

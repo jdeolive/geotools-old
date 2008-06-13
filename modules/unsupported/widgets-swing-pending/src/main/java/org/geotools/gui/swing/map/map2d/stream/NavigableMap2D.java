@@ -21,6 +21,7 @@ import org.geotools.gui.swing.map.map2d.stream.listener.NavigationListener;
 
 /**
  * interface for map2d widget how handle Navigation
+ * 
  * @author Johann Sorel
  */
 public interface NavigableMap2D extends StreamingMap2D{

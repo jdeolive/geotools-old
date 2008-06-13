@@ -31,7 +31,7 @@ import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D;
  * JMap2DControlBar is a JPanel to handle Navigation state for a NavigableMap2D
  * ZoomIn/Out, pan, selection, refresh ...
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class JStreamSelectionBar extends JToolBar {
 

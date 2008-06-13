@@ -23,7 +23,9 @@ import org.geotools.styling.Font;
 import org.geotools.styling.StyleBuilder;
 
 /**
- * @author johann sorel
+ * Font panel
+ * 
+ * @author Johann Sorel
  */
 public class JFontPane extends javax.swing.JPanel implements StyleElementEditor<Font>{
     

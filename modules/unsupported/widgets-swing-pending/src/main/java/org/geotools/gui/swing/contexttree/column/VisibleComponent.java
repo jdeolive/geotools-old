@@ -30,8 +30,9 @@ import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.map.MapLayer;
 
 /**
- *
- * @author johann sorel
+ * Component used to present layer visibility
+ * 
+ * @author Johann Sorel
  */
 final class VisibleComponent extends RenderAndEditComponent{
 

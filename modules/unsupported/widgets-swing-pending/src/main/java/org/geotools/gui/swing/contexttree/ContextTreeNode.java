@@ -24,7 +24,7 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 /**
  * a specific mutabletreenode for jcontexttree
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public abstract class ContextTreeNode extends AbstractMutableTreeTableNode{
     

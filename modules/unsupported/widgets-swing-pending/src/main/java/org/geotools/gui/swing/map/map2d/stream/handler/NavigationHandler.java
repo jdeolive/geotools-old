@@ -21,8 +21,9 @@ import javax.swing.ImageIcon;
 import org.geotools.gui.swing.map.map2d.stream.NavigableMap2D;
 
 /**
- *
- * @author johann sorel
+ * navigation handler
+ * 
+ * @author Johann Sorel
  */
 public interface NavigationHandler {
 

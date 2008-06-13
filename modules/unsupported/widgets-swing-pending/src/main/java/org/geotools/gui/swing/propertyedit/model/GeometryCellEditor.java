@@ -28,7 +28,9 @@ import javax.swing.table.TableCellEditor;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * @author johann sorel
+ * geometry cell editor
+ * 
+ * @author Johann Sorel
  */
 public class GeometryCellEditor extends AbstractCellEditor implements TableCellEditor{
     

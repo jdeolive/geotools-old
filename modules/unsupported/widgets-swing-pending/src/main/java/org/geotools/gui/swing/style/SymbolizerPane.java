@@ -22,6 +22,8 @@ import org.geotools.styling.Style;
 import org.geotools.styling.Symbolizer;
 
 /**
+ * Symbolizer panel interface
+ * 
  * @param T 
  * @author Johann Sorel
  */

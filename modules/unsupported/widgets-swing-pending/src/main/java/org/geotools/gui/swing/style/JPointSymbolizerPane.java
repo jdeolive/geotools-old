@@ -32,8 +32,9 @@ import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.Symbolizer;
 
 /**
- *
- * @author johann sorel
+ * Point symbolizer edition panel
+ * 
+ * @author Johann Sorel
  */
 public class JPointSymbolizerPane extends javax.swing.JPanel implements org.geotools.gui.swing.style.SymbolizerPane<PointSymbolizer> {
 

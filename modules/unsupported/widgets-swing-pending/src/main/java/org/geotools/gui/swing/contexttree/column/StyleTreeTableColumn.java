@@ -25,7 +25,7 @@ import org.geotools.map.MapLayer;
 /**
  * Style column, glyph legend
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public final class StyleTreeTableColumn extends TreeTableColumn {
     

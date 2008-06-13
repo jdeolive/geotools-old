@@ -22,6 +22,8 @@ import org.geotools.map.MapLayer;
 import org.opengis.filter.Filter;
 
 /**
+ * Filter panel interface
+ * 
  * @author Johann Sorel
  */
 public interface FilterPanel {

@@ -27,7 +27,7 @@ import org.geotools.styling.Symbolizer;
 /**
  * opacity column for jcontexttree, with slider
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public final class OpacityTreeTableColumn extends TreeTableColumn {
 

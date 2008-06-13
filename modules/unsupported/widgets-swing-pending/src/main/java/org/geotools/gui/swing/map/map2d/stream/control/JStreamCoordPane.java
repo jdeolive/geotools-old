@@ -23,7 +23,6 @@ import java.util.ResourceBundle;
 
 import org.geotools.geometry.jts.JTS;
 import org.geotools.gui.swing.crschooser.JCRSChooser;
-import org.geotools.gui.swing.map.map2d.Map2D;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -36,8 +35,9 @@ import com.vividsolutions.jts.geom.Point;
 import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D;
 
 /**
- *
- * @author johann sorel
+ * Coordinate panel
+ * 
+ * @author Johann Sorel
  */
 public class JStreamCoordPane extends javax.swing.JPanel {
     

@@ -21,8 +21,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,13 +29,12 @@ import javax.swing.JPanel;
 
 import org.geotools.gui.swing.map.map2d.decoration.DefaultInformationDecoration;
 import org.geotools.gui.swing.map.map2d.decoration.MapDecoration;
-import org.geotools.gui.swing.map.map2d.stream.event.StrategyEvent;
 import org.geotools.gui.swing.map.map2d.decoration.ColorDecoration;
 import org.geotools.gui.swing.map.map2d.decoration.InformationDecoration;
-import org.geotools.map.event.MapLayerListListener;
 
 /**
  * Default implementation of Map2D
+ * 
  * @author Johann Sorel
  */
 public abstract class AbstractMap2D extends JPanel implements Map2D {

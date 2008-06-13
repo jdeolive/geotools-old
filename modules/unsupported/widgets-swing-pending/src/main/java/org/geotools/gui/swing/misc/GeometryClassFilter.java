@@ -24,7 +24,8 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterVisitor;
 
 /**
- *
+ * geometry class filter
+ * 
  * @author Johann Sorel
  */
 public class GeometryClassFilter implements Filter {

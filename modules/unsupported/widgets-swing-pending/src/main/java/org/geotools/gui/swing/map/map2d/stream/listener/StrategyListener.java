@@ -22,6 +22,7 @@ import org.geotools.gui.swing.map.map2d.stream.event.StrategyEvent;
 
 /**
  * StrategyListener used to listen to RenderingStrategy events 
+ * 
  * @author Johann Sorel
  */
 public interface StrategyListener extends EventListener{

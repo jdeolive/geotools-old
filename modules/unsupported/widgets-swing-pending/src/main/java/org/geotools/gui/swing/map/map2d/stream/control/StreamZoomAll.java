@@ -26,8 +26,9 @@ import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D;
 import org.geotools.map.MapContext;
 
 /**
- *
- * @author johann sorel
+ * Zoom all action
+ * 
+ * @author Johann Sorel
  */
 public class StreamZoomAll extends AbstractAction {
 

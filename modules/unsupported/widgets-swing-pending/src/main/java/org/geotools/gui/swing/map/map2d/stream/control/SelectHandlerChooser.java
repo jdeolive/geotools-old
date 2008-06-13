@@ -37,8 +37,9 @@ import org.geotools.gui.swing.map.map2d.stream.handler.SelectionHandler;
 import org.geotools.gui.swing.map.map2d.stream.listener.SelectionListener;
 
 /**
- *
- * @author johann sorel
+ * Handler chooser
+ * 
+ * @author Johann Sorel
  */
 public class SelectHandlerChooser extends JComboBox {
 

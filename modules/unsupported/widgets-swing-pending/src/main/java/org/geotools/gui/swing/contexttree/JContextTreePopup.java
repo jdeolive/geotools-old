@@ -25,7 +25,8 @@ import org.geotools.gui.swing.contexttree.popup.TreePopupItem;
 
 /**
  * Dynamic Popup used by JXMapContextTree
- * @author johann Sorel
+ * 
+ * @author Johann Sorel
  *
  */
 public final class JContextTreePopup {

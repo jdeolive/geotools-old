@@ -23,8 +23,9 @@ import org.geotools.styling.StyleBuilder;
 import org.opengis.filter.expression.Expression;
 
 /**
- *
- * @author  johann sorel
+ * Line join panel
+ * 
+ * @author  Johann Sorel
  */
 public class JLinejoinPane extends javax.swing.JPanel {
     

@@ -19,9 +19,6 @@ package org.geotools.gui.swing.map.map2d;
 import java.awt.Component;
 
 import org.geotools.gui.swing.map.map2d.decoration.MapDecoration;
-import org.geotools.gui.swing.map.map2d.stream.listener.MapListener;
-import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
-
 import org.geotools.gui.swing.map.map2d.decoration.InformationDecoration;
 
 /**

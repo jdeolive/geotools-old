@@ -34,8 +34,9 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.IdentifiedObject;
 
 /**
- *
- * @author  johann sorel
+ * layer CRS panel
+ * 
+ * @author  Johann Sorel
  */
 public class LayerCRSPropertyPanel extends javax.swing.JPanel implements PropertyPane {
 

@@ -19,8 +19,9 @@ package org.geotools.gui.swing.propertyedit.filterproperty;
 import java.util.ResourceBundle;
 
 /**
- *
- * @author johann sorel
+ * Bundle class
+ * 
+ * @author Johann Sorel
  */
 class BUNDLE {
 

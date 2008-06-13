@@ -31,7 +31,7 @@ import org.geotools.map.MapContext;
 /**
  * Default popup control for activation of MapContext, use for JContextTreePopup
  * 
- * @author johann sorel
+ * @author Johann Sorel
  * 
  */
 public class ContextActiveItem extends JCheckBoxMenuItem implements TreePopupItem{

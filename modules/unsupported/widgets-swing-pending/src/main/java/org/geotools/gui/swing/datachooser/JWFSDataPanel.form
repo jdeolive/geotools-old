@@ -27,7 +27,7 @@
                       <Component id="jScrollPane1" min="-2" pref="199" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="gui_progress" pref="399" max="32767" attributes="0"/>
+                      <Component id="gui_progress" pref="430" max="32767" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="but_refresh" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -46,7 +46,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jScrollPane1" pref="347" max="32767" attributes="1"/>
+                  <Component id="jScrollPane1" pref="400" max="32767" attributes="1"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -79,17 +79,17 @@
                       <Group type="102" attributes="0">
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jtf_url" pref="211" max="32767" attributes="0"/>
+                          <Component id="jtf_url" pref="222" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jtf_user" pref="208" max="32767" attributes="0"/>
+                          <Component id="jtf_user" pref="216" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jtf_password" pref="184" max="32767" attributes="0"/>
+                          <Component id="jtf_password" pref="185" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>

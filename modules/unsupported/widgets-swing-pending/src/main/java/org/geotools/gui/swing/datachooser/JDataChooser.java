@@ -27,8 +27,9 @@ import javax.swing.event.ChangeListener;
 import org.geotools.map.MapLayer;
 
 /**
+ * DataChooser Dialog
  *
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class JDataChooser extends javax.swing.JDialog {
 

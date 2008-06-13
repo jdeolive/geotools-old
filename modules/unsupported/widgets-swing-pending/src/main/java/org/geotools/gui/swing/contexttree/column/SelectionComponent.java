@@ -30,8 +30,9 @@ import org.geotools.gui.swing.map.map2d.stream.SelectableMap2D;
 import org.geotools.map.MapLayer;
 
 /**
- *
- * @author johann sorel
+ * Component used to present selection.
+ * 
+ * @author Johann Sorel
  */
 final class SelectionComponent extends RenderAndEditComponent{
 

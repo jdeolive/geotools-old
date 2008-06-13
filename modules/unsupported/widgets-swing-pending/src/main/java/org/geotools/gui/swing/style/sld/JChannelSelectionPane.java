@@ -17,19 +17,16 @@
 package org.geotools.gui.swing.style.sld;
 
 import java.awt.Component;
-import javax.swing.Icon;
-import javax.swing.JDialog;
-import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.gui.swing.style.StyleElementEditor;
 import org.geotools.map.MapLayer;
 import org.geotools.styling.ChannelSelection;
 import org.geotools.styling.ChannelSelectionImpl;
-import org.geotools.styling.Fill;
 import org.geotools.styling.SelectedChannelType;
-import org.geotools.styling.StyleBuilder;
 
 /**
- * @author  johann sorel
+ * Channel selection panel
+ * 
+ * @author  Johann Sorel
  */
 public class JChannelSelectionPane extends javax.swing.JPanel implements StyleElementEditor<ChannelSelection>{
 

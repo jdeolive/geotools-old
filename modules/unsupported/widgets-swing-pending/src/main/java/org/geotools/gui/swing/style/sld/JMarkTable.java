@@ -38,7 +38,9 @@ import org.geotools.styling.Mark;
 import org.geotools.styling.StyleBuilder;
 
 /**
- * @author johann sorel
+ * mark table
+ * 
+ * @author Johann Sorel
  */
 public class JMarkTable extends javax.swing.JPanel implements StyleElementEditor<Mark[]> {
 

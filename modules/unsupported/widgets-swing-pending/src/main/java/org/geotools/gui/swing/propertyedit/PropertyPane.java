@@ -21,8 +21,9 @@ import java.awt.Component;
 import javax.swing.ImageIcon;
 
 /**
- *
- * @author johann Sorel
+ * property panel interface
+ * 
+ * @author Johann Sorel
  */
 public interface PropertyPane {
     

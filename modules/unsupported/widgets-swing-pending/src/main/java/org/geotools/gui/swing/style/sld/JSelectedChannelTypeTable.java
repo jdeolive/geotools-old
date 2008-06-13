@@ -39,7 +39,9 @@ import org.geotools.styling.SelectedChannelTypeImpl;
 
 
 /**
- * @author johann sorel
+ * SelectedChannnel type panel
+ * 
+ * @author Johann Sorel
  */
 public class JSelectedChannelTypeTable extends javax.swing.JPanel implements StyleElementEditor<SelectedChannelType[]> {
 

@@ -27,7 +27,7 @@ import org.jdesktop.swingx.JXTitledSeparator;
 /**
  * popup control separator, use for JContextTreePopup
  * 
- * @author johann sorel
+ * @author Johann Sorel
  * 
  */
 public abstract class TitledSeparatorItem extends JXTitledSeparator implements TreePopupItem{

@@ -30,8 +30,9 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 
 /**
- *
- * @author johann Sorel
+ * Expression dialog
+ * 
+ * @author Johann Sorel
  */
 public class JExpressionDialog extends javax.swing.JDialog {
 

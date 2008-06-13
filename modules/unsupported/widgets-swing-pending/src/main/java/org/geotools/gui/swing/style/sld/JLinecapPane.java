@@ -19,13 +19,14 @@ package org.geotools.gui.swing.style.sld;
 import java.awt.Component;
 import javax.swing.Icon;
 import org.geotools.gui.swing.icon.IconBundle;
-import org.geotools.gui.swing.style.StyleElementEditor;
 import org.geotools.map.MapLayer;
 import org.geotools.styling.StyleBuilder;
 import org.opengis.filter.expression.Expression;
 
 /**
- * @author  johann sorel
+ * Line cap panel
+ * 
+ * @author  Johann Sorel
  */
 public class JLinecapPane extends javax.swing.JPanel {
 

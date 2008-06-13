@@ -42,8 +42,9 @@ import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- *
- * @author johann sorel
+ * CRS list
+ * 
+ * @author Johann Sorel
  */
 public class JCRSList extends JComponent{
 

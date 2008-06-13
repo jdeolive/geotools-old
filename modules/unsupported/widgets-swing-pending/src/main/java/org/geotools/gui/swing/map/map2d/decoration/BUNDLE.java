@@ -19,8 +19,9 @@ package org.geotools.gui.swing.map.map2d.decoration;
 import java.util.ResourceBundle;
 
 /**
- *
- * @author johann sorel
+ * Bundle class
+ * 
+ * @author Johann Sorel
  */
 class BUNDLE {
 

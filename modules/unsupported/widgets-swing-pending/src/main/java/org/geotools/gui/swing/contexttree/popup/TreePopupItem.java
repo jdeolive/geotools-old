@@ -22,8 +22,9 @@ import javax.swing.tree.TreePath;
 
 
 /**
- * @author johann sorel
  * Interface used to build a Popup control for JXMapContextPopup
+ * 
+ * @author Johann Sorel
  */
 public interface TreePopupItem {
         

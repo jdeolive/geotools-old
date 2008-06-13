@@ -23,7 +23,7 @@ import javax.swing.event.TreeSelectionEvent;
 /**
  * Selection listener for JContextTree
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public interface TreeSelectionListener extends EventListener{
         

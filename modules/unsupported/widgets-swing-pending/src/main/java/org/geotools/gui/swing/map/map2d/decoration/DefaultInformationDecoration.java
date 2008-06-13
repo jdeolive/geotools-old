@@ -39,7 +39,8 @@ import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.gui.swing.map.map2d.Map2D;
 
 /**
- *
+ * Default information decoration
+ * 
  * @author Johann Sorel
  */
 public class DefaultInformationDecoration extends JComponent implements InformationDecoration {

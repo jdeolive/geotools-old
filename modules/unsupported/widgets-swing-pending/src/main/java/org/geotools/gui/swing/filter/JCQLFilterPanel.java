@@ -36,7 +36,9 @@ import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 
 /**
- * @author  johann sorel
+ * CQL filter panel
+ * 
+ * @author Johann Sorel
  */
 public class JCQLFilterPanel extends javax.swing.JPanel implements FilterPanel{
 

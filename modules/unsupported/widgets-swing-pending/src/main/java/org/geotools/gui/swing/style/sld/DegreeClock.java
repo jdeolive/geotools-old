@@ -28,8 +28,9 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.SwingUtilities;
 
 /**
- *
- * @author johann sorel
+ * Degree clock
+ * 
+ * @author Johann Sorel
  */
 class DegreeClock extends javax.swing.JPanel implements MouseMotionListener, MouseListener{
 

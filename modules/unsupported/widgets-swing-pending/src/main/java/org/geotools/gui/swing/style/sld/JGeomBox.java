@@ -28,7 +28,9 @@ import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.PropertyDescriptor;
 
 /**
- * @author johann sorel
+ * Geometrie box attribut
+ * 
+ * @author Johann Sorel
  */
 public class JGeomBox extends JComboBox {
 

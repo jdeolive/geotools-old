@@ -21,11 +21,13 @@ import org.opengis.filter.expression.Expression;
 
 /**
  *
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class JDashPane extends javax.swing.JPanel {
 
     /** 
+     * Dashes panel
+     * 
      * Creates new form JDashPanel 
      */
     public JDashPane() {

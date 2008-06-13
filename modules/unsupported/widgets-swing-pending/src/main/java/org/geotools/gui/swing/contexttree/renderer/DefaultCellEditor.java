@@ -25,7 +25,7 @@ import javax.swing.table.TableCellEditor;
 /**
  * DefaultCellEditot for JContextTree columns
  * 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class DefaultCellEditor extends AbstractCellEditor implements TableCellEditor{
 

@@ -24,7 +24,9 @@ import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.map.MapLayer;
 
 /**
- * @author johann sorel
+ * Default visibility column
+ * 
+ * @author Johann Sorel
  */
 public final class VisibleTreeTableColumn extends TreeTableColumn {
     

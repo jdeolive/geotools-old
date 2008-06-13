@@ -25,8 +25,9 @@ import org.geotools.gui.swing.contexttree.ContextTreeNode;
 import org.geotools.styling.Rule;
 
 /**
+ * Min scale rule item
  *
- * @author  johann sorel
+ * @author  Johann Sorel
  */
 public class RuleMinScaleItem extends javax.swing.JPanel implements TreePopupItem{
     

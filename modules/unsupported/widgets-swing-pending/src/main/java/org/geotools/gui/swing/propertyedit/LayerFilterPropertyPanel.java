@@ -22,8 +22,9 @@ import javax.swing.ImageIcon;
 import org.geotools.gui.swing.icon.IconBundle;
 
 /**
- *
- * @author  johann sorel
+ * layer filter panel
+ * 
+ * @author  Johann Sorel
  */
 public class LayerFilterPropertyPanel extends MultiPropertyPanel {
 

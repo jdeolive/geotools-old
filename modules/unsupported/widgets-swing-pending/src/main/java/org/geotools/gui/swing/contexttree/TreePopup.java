@@ -27,8 +27,9 @@ import org.geotools.gui.swing.contexttree.popup.TitledSeparatorItem;
 import org.geotools.gui.swing.contexttree.popup.TreePopupItem;
 
 /**
+ * TreePopup item.
  *
- * @author johann sorel
+ * @author Johann Sorel
  */
 final class TreePopup extends JPopupMenu {
 

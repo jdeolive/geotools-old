@@ -21,8 +21,9 @@ import javax.swing.ImageIcon;
 import org.geotools.gui.swing.map.map2d.stream.EditableMap2D;
 
 /**
- *
- * @author johann sorel
+ * Edition handler
+ * 
+ * @author Johann Sorel
  */
 public interface EditionHandler {
 

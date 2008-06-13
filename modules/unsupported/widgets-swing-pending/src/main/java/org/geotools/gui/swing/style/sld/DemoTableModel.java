@@ -25,9 +25,10 @@ import javax.swing.table.TableModel;
 import org.geotools.styling.Symbolizer;
 
 /**
- *
+ * demo table model
+ * 
  * @param T 
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class DemoTableModel<T extends Symbolizer> extends AbstractTableModel implements TableModel {
     

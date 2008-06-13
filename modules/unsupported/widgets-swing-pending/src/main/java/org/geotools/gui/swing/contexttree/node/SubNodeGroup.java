@@ -20,8 +20,9 @@ import org.geotools.gui.swing.contexttree.ContextTreeNode;
 import org.geotools.gui.swing.contexttree.LightContextTreeModel;
 
 /**
- *
- * @author johann sorel
+ * subnode group interface
+ * 
+ * @author Johann Sorel
  */
 public interface SubNodeGroup {
 

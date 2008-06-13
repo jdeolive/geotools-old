@@ -49,9 +49,6 @@
   </Layout>
   <SubComponents>
     <Component class="org.geotools.gui.swing.style.sld.JFillPane" name="guiFill">
-      <Properties>
-        <Property name="opaque" type="boolean" value="false"/>
-      </Properties>
     </Component>
     <Component class="org.geotools.gui.swing.style.sld.JExpressionPane" name="guiRadius">
     </Component>

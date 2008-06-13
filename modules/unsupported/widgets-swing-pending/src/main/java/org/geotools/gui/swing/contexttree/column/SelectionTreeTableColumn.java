@@ -25,7 +25,9 @@ import org.geotools.gui.swing.map.map2d.stream.SelectableMap2D;
 import org.geotools.map.MapLayer;
 
 /**
- * @author johann sorel
+ * Default selection column.
+ * 
+ * @author Johann Sorel
  */
 public final class SelectionTreeTableColumn extends TreeTableColumn {
     

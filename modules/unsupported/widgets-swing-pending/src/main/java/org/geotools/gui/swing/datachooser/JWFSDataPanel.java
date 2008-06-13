@@ -26,8 +26,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
@@ -41,8 +39,9 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
+ * WFS DataChoosert panel
  *
- * @author johann sorel
+ * @author Johann Sorel
  */
 public class JWFSDataPanel extends javax.swing.JPanel implements DataPanel {
 

@@ -17,15 +17,15 @@
 package org.geotools.gui.swing.style.sld;
 
 import java.awt.Component;
-import javax.swing.JDialog;
 import org.geotools.gui.swing.style.StyleElementEditor;
 import org.geotools.map.MapLayer;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.StyleBuilder;
 
 /**
- *
- * @author johann sorel
+ * Stroke panel
+ * 
+ * @author Johann Sorel
  */
 public class JStrokePane extends javax.swing.JPanel implements StyleElementEditor<Stroke>{
     

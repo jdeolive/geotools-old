@@ -22,8 +22,9 @@ import org.geotools.gui.swing.propertyedit.PropertyPane;
 import org.geotools.map.MapLayer;
 
 /**
- *
- * @author johann sorel
+ * CQL property panel
+ * 
+ * @author Johann Sorel
  */
 public class JCQLPropertyPanel extends JCQLFilterPanel implements PropertyPane{
 

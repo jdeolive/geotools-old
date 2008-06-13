@@ -39,8 +39,9 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
- *
- * @author johann sorel
+ * PostGIS databaseChooser
+ * 
+ * @author Johann Sorel
  */
 public class JPostGISDataPanel extends javax.swing.JPanel implements DataPanel {
 

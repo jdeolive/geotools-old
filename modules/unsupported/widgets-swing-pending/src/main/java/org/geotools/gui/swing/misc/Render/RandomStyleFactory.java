@@ -47,16 +47,14 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import org.geotools.styling.Halo;
-import org.geotools.styling.HaloImpl;
 import org.geotools.styling.Rule;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
-import org.opengis.filter.expression.Expression;
 
 /**
- *
- * @author johann sorel
+ * Random style factory
+ * 
+ * @author Johann Sorel
  */
 public class RandomStyleFactory {
 

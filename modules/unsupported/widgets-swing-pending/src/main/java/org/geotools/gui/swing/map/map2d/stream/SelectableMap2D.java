@@ -30,6 +30,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * interface for map2d widget how handle Selection
+ * 
  * @author Johann Sorel
  */
 public interface SelectableMap2D extends NavigableMap2D{

@@ -23,11 +23,9 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
@@ -36,7 +34,9 @@ import org.geotools.gui.swing.icon.IconBundle;
 
 
 /**
- * @author johann sorel
+ * Property panel
+ * 
+ * @author Johann Sorel
  */
 public class JPropertyDialog extends JDialog{
         

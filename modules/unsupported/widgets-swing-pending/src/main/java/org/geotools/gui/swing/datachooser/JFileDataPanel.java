@@ -48,8 +48,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.operation.TransformException;
 
 /**
- *
- * @author  johann sorel
+ * File datachooser
+ * 
+ * @author  Johann Sorel
  */
 public class JFileDataPanel extends javax.swing.JPanel implements DataPanel {
 

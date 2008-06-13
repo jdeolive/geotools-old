@@ -38,8 +38,9 @@ import org.geotools.gui.swing.map.map2d.stream.NavigableMap2D;
 import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
 
 /**
- *
- * @author johann sorel
+ * Zoom in handler
+ * 
+ * @author Johann Sorel
  */
 public class DefaultZoomInHandler implements NavigationHandler {
 

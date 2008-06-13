@@ -30,8 +30,9 @@ import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.gui.swing.map.map2d.stream.StreamingMap2D;
 
 /**
- *
- * @author johann sorel
+ * Information bar
+ * 
+ * @author Johann Sorel
  */
 public class JStreamInfoBar extends JToolBar {
 

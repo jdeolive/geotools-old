@@ -45,8 +45,9 @@ import org.jdesktop.swingx.renderer.DefaultTreeRenderer;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 
 /**
- *
- * @author johann sorel
+ * TreeTable
+ * 
+ * @author Johann Sorel
  */
 final class TreeTable extends org.jdesktop.swingx.JXTreeTable {
 

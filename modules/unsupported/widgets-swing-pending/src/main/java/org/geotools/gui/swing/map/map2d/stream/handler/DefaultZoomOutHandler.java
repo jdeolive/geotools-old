@@ -37,8 +37,9 @@ import java.awt.event.MouseWheelListener;
 import org.geotools.gui.swing.map.map2d.stream.NavigableMap2D;
 
 /**
- *
- * @author johann sorel
+ * Zoom out handler
+ * 
+ * @author Johann Sorel
  */
 public class DefaultZoomOutHandler implements NavigationHandler {
 

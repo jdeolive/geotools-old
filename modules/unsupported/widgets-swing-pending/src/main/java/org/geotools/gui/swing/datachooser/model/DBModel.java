@@ -25,7 +25,9 @@ import javax.swing.table.TableModel;
 import org.jdesktop.swingx.JXTable;
 
 /**
- * @author johann sorel
+ * DataBase model
+ * 
+ * @author Johann Sorel
  */
 public class DBModel implements TableModel{
     

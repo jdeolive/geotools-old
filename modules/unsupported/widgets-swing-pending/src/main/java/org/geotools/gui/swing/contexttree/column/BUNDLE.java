@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,15 +19,16 @@ package org.geotools.gui.swing.contexttree.column;
 import java.util.ResourceBundle;
 
 /**
+ * Bundle class
  *
- * @author johann sorel
+ * @author Johann Sorel
  */
 class BUNDLE {
 
     private static ResourceBundle bundle = ResourceBundle.getBundle("org/geotools/gui/swing/contexttree/column/Bundle");
-    
+
     static String getString(String key){
         return bundle.getString(key);
     }
-    
+
 }

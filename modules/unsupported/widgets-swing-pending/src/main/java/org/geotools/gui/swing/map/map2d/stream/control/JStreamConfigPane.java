@@ -25,7 +25,8 @@ import org.geotools.gui.swing.map.map2d.stream.strategy.SingleVolatileImageStrat
 
 /**
  * JMap2DConfigPanel is a JPanel to edit the GTRenderer and Rendering Strategy of the Map2D
- * @author  johann Sorel
+ * 
+ * @author  Johann Sorel
  */
 public class JStreamConfigPane extends javax.swing.JPanel {
 

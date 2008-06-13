@@ -38,7 +38,9 @@ import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.StyleBuilder;
 
 /**
- * @author johann sorel
+ * External graphic panel
+ * 
+ * @author Johann Sorel
  */
 public class JExternalGraphicTable extends javax.swing.JPanel implements StyleElementEditor<ExternalGraphic[]> {
 

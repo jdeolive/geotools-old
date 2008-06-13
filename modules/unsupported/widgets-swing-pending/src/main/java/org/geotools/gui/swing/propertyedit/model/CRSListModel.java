@@ -33,7 +33,9 @@ import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * @author johann sorel
+ * CRS list model
+ * 
+ * @author Johann Sorel
  */
 public class CRSListModel extends AbstractListModel{
 

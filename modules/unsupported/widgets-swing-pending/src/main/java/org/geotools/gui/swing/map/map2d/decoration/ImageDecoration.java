@@ -22,7 +22,8 @@ import org.geotools.gui.swing.map.map2d.Map2D;
 import org.jdesktop.swingx.JXImagePanel;
 
 /**
- *
+ * Image Decoration
+ * 
  * @author Johann Sorel
  */
 public class ImageDecoration extends JXImagePanel implements MapDecoration{

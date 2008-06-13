@@ -33,8 +33,9 @@ import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.map.MapLayer;
 
 /**
- *
- * @author johann sorel
+ * layer list renderer
+ * 
+ * @author Johann Sorel
  */
 public class LayerListRenderer implements ListCellRenderer{
 

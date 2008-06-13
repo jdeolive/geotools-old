@@ -45,7 +45,6 @@
             <StringItem index="3" value="Item 4"/>
           </StringArray>
         </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lbl">

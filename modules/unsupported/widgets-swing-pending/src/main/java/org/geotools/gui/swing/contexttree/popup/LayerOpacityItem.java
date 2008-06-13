@@ -25,8 +25,9 @@ import org.geotools.gui.swing.contexttree.column.OpacityComponent;
 import org.geotools.map.MapLayer;
 
 /**
- *
- * @author johann sorel
+ * layer opacity item
+ * 
+ * @author Johann Sorel
  */
 public class LayerOpacityItem implements TreePopupItem{
 

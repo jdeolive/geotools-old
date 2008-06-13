@@ -47,6 +47,7 @@ import org.geotools.gui.swing.map.map2d.stream.event.EditionEvent;
 
 /**
  * Default implementation of EditableMap2D
+ * 
  * @author Johann Sorel
  */
 public class JStreamEditMap extends JStreamSelectMap implements EditableMap2D {

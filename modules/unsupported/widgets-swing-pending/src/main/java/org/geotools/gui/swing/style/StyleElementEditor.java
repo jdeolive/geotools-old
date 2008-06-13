@@ -17,12 +17,13 @@
 package org.geotools.gui.swing.style;
 
 import java.awt.Component;
-import javax.swing.JComponent;
 import org.geotools.map.MapLayer;
 
 /**
+ * Style element editor
+ * 
  * @param T : style element class edited
- * @author johann sorel
+ * @author Johann Sorel
  */
 public interface StyleElementEditor<T> {
 

@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.ImageIcon;
-import javax.swing.SwingUtilities;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
@@ -60,7 +59,6 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import org.geotools.data.Transaction;
 import org.geotools.gui.swing.map.map2d.stream.strategy.StreamingStrategy;
 import org.geotools.gui.swing.misc.FacilitiesFactory;
 import org.geotools.gui.swing.misc.GeometryClassFilter;
@@ -70,8 +68,9 @@ import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.Symbolizer;
 
 /**
- *
- * @author johann sorel
+ * Abstract edition handler
+ * 
+ * @author Johann Sorel
  */
 abstract class AbstractEditionHandler implements EditionHandler {
 

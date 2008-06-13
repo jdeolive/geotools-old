@@ -22,8 +22,9 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
- *
- * @author johann sorel
+ * multi tree renderer
+ * 
+ * @author Johann Sorel
  */
 public class MultiTreeRenderer extends DefaultTreeCellRenderer{
     
