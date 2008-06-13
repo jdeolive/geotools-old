@@ -2,21 +2,19 @@ PLUGIN GTOPO30
 ==============
 Module Maintainer Andrea
 IP Review Jody Garnett July 10th, 2006
+         Adrian Custer, June 2008
 
-IP:
-- LICENSE.TXT updated to (C) 2003-2006, GeoTools Project Managment Committee (PMC)
+STATUS: Clean except that the data provenance is unknown
+
+  src/test/resources/org/geotools/gce/gtopo30/test-data/W002N52.zip ?
+  
+  The dates of the files look like a mess. Jody already moved some of this to
+  2003 or later, now it seems to have moved to 2002. Leaving as is.
 
 org.geotools.gce.gtopo30
 ------------------------
 Created to access the GTOPO grid format, all existing code deates from 2005
 
-IP:
-- updated headers to (C) 2003-2006, GeoTools Project Managment Committee (PMC)
-- a few files were obviously created in 2004 and 2005
 
 org.geotools.gce.gtopo30
 ------------------------
-
-IP:
-- updated headers to (C) 2003-2006, GeoTools Project Managment Committee (PMC)
-- test data no longer included
