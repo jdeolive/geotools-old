@@ -404,6 +404,10 @@ public final class ReplaceHeaders extends CommandLine {
              * @todo: add default header if no header found.
              */
             final String filePath = input.getAbsolutePath();
+            // Verify if input and output are the same, which means if no change has been applied.
+            // This could happen for two cases :
+            //   - The file does not contain any header => nothing is done
+            //   - The file already has a good copyright header.
             if (textIn.toString().contentEquals(textOut.toString())) {
                 if (copyrightsRead.size() == 0) {
                     noHeaderFiles.add(filePath);
@@ -411,56 +415,57 @@ public final class ReplaceHeaders extends CommandLine {
                 } else {
                     unchangedFiles.add(filePath);
                 }
-            }
-    else {//Added by AVC to correct miscount.
-            // Specify the status of the current file by putting it in the matching list.
-            numFilesChanged++;
-            if (!unknowCopyrights.isEmpty()) {
-                if (write) {
-                    System.out.println("/!\\ Copyright problems /!\\ ==> " + filePath);
-                    System.out.println("\t\t\t\t|__\tLines deleted : " + linesDeleted +
-                            "\tLines changed : " + linesChanged);
-                }
-                for (String unknownCopyright : unknowCopyrights) {
-                    copyrightProblemsFiles.add(filePath);
+            } else {
+                // Specify the status of the current file by putting it in the matching list.
+                numFilesChanged++;
+                if (!unknowCopyrights.isEmpty()) {
                     if (write) {
-                        System.out.println("\t\t\t\tUnknown copyright \"" + unknownCopyright +
-                                "\". You should handle it by hand.");
+                        System.out.println("/!\\ Copyright problems /!\\ ==> " + filePath);
+                        System.out.println("\t\t\t\t|__\tLines deleted : " + linesDeleted +
+                                "\tLines changed : " + linesChanged);
+                    }
+                    for (String unknownCopyright : unknowCopyrights) {
+                        copyrightProblemsFiles.add(filePath);
+                        if (write) {
+                            System.out.println("\t\t\t\tUnknown copyright \"" + unknownCopyright +
+                                    "\". You should handle it by hand.");
+                        }
                     }
                 }
-            }
-            // If too many changes are done on a file, it is considered as suspect, which means the user
-            // should have a look to this file to verify that all proposal changes are rigth.
-            if (linesChanged > 4 || linesDeleted > 2 || numOldFirstLine > 1) {
+                // If too many changes are done on a file, it is considered as suspect, which means the user
+                // should have a look to this file to verify that all proposal changes are rigth.
+                if (linesChanged > 5 || linesDeleted > 2 || numOldFirstLine > 1) {
+                    if (write) {
+                        System.out.println("???     Suspicious     ??? ==> " + filePath);
+                        System.out.println("\t\t\t\t|__\tLines deleted : " + linesDeleted +
+                                "\tLines changed : " + linesChanged);
+                    }
+                    suspiciousFiles.add(filePath);
+                } else {
+                    if (write) {
+                        System.out.println("||| Changed correctly  ||| ==> " + filePath +
+                                "\tLines deleted : " + linesDeleted + "\tLines changed : " + linesChanged);
+                    }
+                    correctlyChangedFiles.add(filePath);
+                }
+
+                /* *****************************************************************
+                 * Writing part (only if the script is launched in the writing mode
+                 * and the output contains some changes).
+                 */
                 if (write) {
-                    System.out.println("???     Suspicious     ??? ==> " + filePath);
-                    System.out.println("\t\t\t\t|__\tLines deleted : " + linesDeleted +
-                            "\tLines changed : " + linesChanged);
+                    final OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(output));
+                    final BufferedWriter buffer = new BufferedWriter(writer);
+                    buffer.append(textOut.toString());
+                    buffer.close();
                 }
-                suspiciousFiles.add(filePath);
-            } else {
-                if ( write) {
-                    System.out.println("||| Changed correctly  ||| ==> " + filePath +
-                            "\tLines deleted : " + linesDeleted + "\tLines changed : " + linesChanged);
-                }
-                correctlyChangedFiles.add(filePath);
             }
-    }
+
             /* *****************************************************************
              * Verification part
              */
             if (!matchHeader(textOut.toString())) {
                 wrongHeaderFiles.add(filePath);
-            }
-
-            /* *****************************************************************
-             * Writing part (only if the script is launched in the writing mode)
-             */
-            if (write) {
-                final OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(output));
-                final BufferedWriter buffer = new BufferedWriter(writer);
-                buffer.append(textOut.toString());
-                buffer.close();
             }
         } finally {
             reader.close();
