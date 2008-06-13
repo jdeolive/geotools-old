@@ -4,33 +4,16 @@ Module Maintainer Jody Garnett
 IP Review Jody Garnett, July 8th, 2006 (as part of api module)
 IP Review Jody Garnett, July 20th, 2006 (as part of api module)
 IP Review Jody Garnett, April 1, 2008
+         Adrian Custer, June 2008
 
-Header Used:
-/*
- *    GeoTools - The Open Source Java GIS Tookit
- *    http://geotools.org
- *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
- *    
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- */
+STATUS: Clean
+
  
 org.geotools.repository
 --------------------
 Provides a catalog capable of managing resources and their associated connections.
 
-This code started out as part of the uDig project (LGPL) and has been ported for GeoTools
-2.2.x.
+This code started out as part of the uDig project (LGPL) and has been ported for 
+GeoTools 2.2.x.
 
-General:
-- Headers updated with (C) 2005-2006, GeoTools Project Managment Committee (PMC)
-- Headers updated with (C) 2005, Refractions Research Inc.
-- Update header to (C) 2008, Open Source Geospatial Foundation (OSGeo)
 
