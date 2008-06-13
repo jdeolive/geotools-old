@@ -1,7 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- *    (C) 2006, GeoTools Project Managment Committee (PMC)
+ *
+ *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,10 +17,6 @@
 package org.geotools.gui.swing;
 
 
-/**
- * a simple selection manager
- * @author Ian Turton
- */
 import javax.swing.event.EventListenerList;
 
 import org.geotools.gui.swing.event.SelectionChangeListener;
@@ -28,6 +25,10 @@ import org.geotools.map.MapLayer;
 import org.opengis.filter.Filter;
 
 
+/**
+ * a simple selection manager
+ * @author Ian Turton
+ */
 public class SelectionManager {
     EventListenerList listeners = new EventListenerList();
 

@@ -6,31 +6,33 @@ MODULE MAINAINER:
 
 IP REVIEW:
 - Jody Garnett August 1st, 2006
+- Adrian Custer, June 2008
 
-This package is a "rescue" for the origional JStyledMapPane demo code used by GeoTools 2.0, this
-code was not updated to the new CRS system and had been neglected. Ian brought together a quick
-cut of the important part for GeoTools 2.2, and it will be used by several geotools demos.
+STATUS: Clean
+   Still the issue with the swing icons: to be resolved.
+
+
+This package is a "rescue" for the origional JStyledMapPane demo code used by 
+GeoTools 2.0, this code was not updated to the new CRS system and had been 
+neglected. Ian brought together a quick cut of the important part for GeoTools 
+2.2, and it will be used by several geotools demos.
 
 org.geotools.gui.swing
 ----------------------
-Looks to be mostly recent IanT code with no headers(!)
-IP:
-- headers updated to (C) 2006 PMC
 
 org.geotools.gui.swing.resources
 --------------------------------
-Some of these are part of the swing standard icons, they have their own license (will need to have that looked up)
+Some of these are part of the swing standard icons, they have their own 
+license (will need to have that looked up)
 IP:
 - find licence for icons --or--
 - remove swing standard and replace with uDig icons?
 
 org.geotools.gui.swing.tools
 ----------------------------
-Looks to be the origional GeoTools 2.0 "tools" framework started by cameron, brough
-back from the dead for mappane use.
+Looks to be the origional GeoTools 2.0 "tools" framework started by cameron, 
+brought back from the dead for mappane use.
 
-IP:
-- updated headers (C) 2002-2006 PMC
 
 data
 ----

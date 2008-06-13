@@ -1,7 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- *    (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+ *
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -14,18 +15,6 @@
  *    Lesser General Public License for more details.
  */
 package org.geotools.gui.swing;
-
-/**
- * A simple map container that is a JPanel with a map in. provides simple
- * pan,zoom, highlight and selection The mappane stores an image of the map
- * (drawn from the context) and an image of the slected feature(s) to speed up
- * rendering of the highlights. Thus the whole map is only redrawn when the bbox
- * changes, selection is only redrawn when the selected feature changes.
- *
- *
- * @author Ian Turton
- *
- */
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -83,6 +72,17 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
+/**
+ * A simple map container that is a JPanel with a map in. provides simple
+ * pan,zoom, highlight and selection The mappane stores an image of the map
+ * (drawn from the context) and an image of the slected feature(s) to speed up
+ * rendering of the highlights. Thus the whole map is only redrawn when the bbox
+ * changes, selection is only redrawn when the selected feature changes.
+ *
+ *
+ * @author Ian Turton
+ *
+ */
 public class JMapPane extends JPanel implements MouseListener,
         MouseMotionListener, HighlightChangeListener,SelectionChangeListener, PropertyChangeListener,
         MapLayerListListener {
