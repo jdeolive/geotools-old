@@ -5,7 +5,8 @@ Module Maintainer Mehdi Sidhoum
 
 STATUS: CLEAN
 
-Copyright assigned under Geomatys' assignment document.
+Work done up to now by Mehdi, and his copyright assigned to OSGeo under 
+Geomatys' assignment document.
 
 
 org.geotools.temporal.object
