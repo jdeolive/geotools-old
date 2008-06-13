@@ -2,6 +2,10 @@ PLUGIN HSQL
 ===========
 Module Maintainer Amr
 IP Review Jody Garnett, July 10th, 2007
+         Adrian Custer, June 2008
+
+STATUS: Clean
+        still requires decision on the issue below
 
 This module was created by Refractions Research for a uDig based project,
 based on a mysterious LICENSE.TXT included in the epsg-hsql project I am
@@ -17,6 +21,3 @@ Created to make use of a local java database, hsql. This database is
 not spatial enabled, we make use of a post processing for the required
 SFSQL functions.
 
-IP:
-- updated headers to (C) 2005-2006, GeoTools Project Managment Committee (PMC)
-- some test code copied out of memory datastore test
