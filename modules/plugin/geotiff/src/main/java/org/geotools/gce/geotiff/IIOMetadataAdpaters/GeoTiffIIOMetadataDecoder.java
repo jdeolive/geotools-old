@@ -1,5 +1,8 @@
 /*
  * (c) 2004 Mike Nidel
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  * Take, Modify, Distribute freely
  * Buy, Sell, Pass it off as your own

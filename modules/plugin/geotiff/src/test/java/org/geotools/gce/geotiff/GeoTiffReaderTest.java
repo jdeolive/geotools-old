@@ -1,7 +1,8 @@
 /*
- *    Geotools2 - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -32,7 +33,7 @@ import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 
 /*
- * GeoTools - OpenSource mapping toolkit http://geotools.org (C) 2005-2006,
+ * GeoTools - The Open Source Java GIS Toolkit http://geotools.org (C) 2005-2006,
  * GeoTools Project Managment Committee (PMC) This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; version
