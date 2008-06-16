@@ -1,7 +1,8 @@
 /*
- *    GeoTools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- *    (C) 2002-2008, GeoTools Project Managment Committee (PMC)
+ *
+ *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -21,8 +22,8 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
  * Helper class for converting values from affine transformation matrix to geometric values.
  * @see http://groups.csail.mit.edu/graphics/classes/6.837/F98/Notes/lecture10.ps
  * @author jezekjan
- * @source $URL: $
- * @version $Id: $
+ * @source $URL$
+ * @version $Id$
  */
 public class AffineToGeometric {
     /** translation in x */
