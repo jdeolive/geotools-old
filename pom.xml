@@ -381,6 +381,16 @@
       </roles>
     </developer>
     <developer>
+	    <name>Mauricio Pazos</name>
+	    <id>mauricio.pazos</id>
+	    <email>mauricio.pazos@axios.es</email>
+	    <organization>Axios</organization>
+	    <roles>
+		    <role>Java Developer</role>
+		    <role>Module Maintainer</role>
+	    </roles>
+    </developer>
+    <developer>
       <name>Christiaan ten Klooster</name>
       <id>ckl</id>
       <email>ckl@dacelo.nl</email>
