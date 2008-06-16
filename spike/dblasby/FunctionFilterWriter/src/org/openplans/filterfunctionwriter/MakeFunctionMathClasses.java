@@ -1,9 +1,8 @@
-package org.openplans.filterfunctionwriter;
-
 /*
- *    Geotools2 - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -14,8 +13,10 @@ package org.openplans.filterfunctionwriter;
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
  */
+package org.openplans.filterfunctionwriter;
+
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -41,9 +42,10 @@ public class MakeFunctionMathClasses {
     private static final String PATH_AND_FILE_NAME_PREFIX = "src/org/geotools/filter/function/math/FilterFunction_";
 
     private static final String LICENSE = "/*\n"
-            + " *    GeoTools - OpenSource mapping toolkit\n"
+            + " *    GeoTools - The Open Source Java GIS Toolkit\n"
             + " *    http://geotools.org\n"
-            + " *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)\n"
+            + " *\n"
+            + " *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)\n"
             + " *    \n"
             + " *    This library is free software; you can redistribute it and/or\n"
             + " *    modify it under the terms of the GNU Lesser General Public\n"
@@ -54,6 +56,7 @@ public class MakeFunctionMathClasses {
             + " *    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
             + " *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n"
             + " *    Lesser General Public License for more details.\n" + " */";
+
 
     public static void main(String[] args) {
         MakeFunctionMathClasses cg = new MakeFunctionMathClasses();

@@ -1,0 +1,7 @@
+Miscelaneous projects by D Blasby.
+
+Review: Adrian CUster, June 2008.
+
+Status: CLEAN
+
+Nothing but code, all headers updated to OSGeo.
