@@ -1,0 +1,10 @@
+Justin's experiments with OSGi modules.
+
+REview: Adrian CUster, June 2008
+
+STATUS: Clean
+
+Files are all code either java or configuration xml.
+
+Updated Java file headers to OSGeo.
+
