@@ -225,9 +225,8 @@ TOKEN:
 TOKEN [IGNORE_CASE]: /* Literals */
 {
 
-  	< INTEGER_LITERAL: ("-")? (<DIGIT>)+ > |
+  	< INTEGER_LITERAL: (<DIGIT>)+ > |
   	< FLOATING_LITERAL:
-    	("-")?
     	( ( <DIGIT> )* "." ( <DIGIT> )+ (<EXPONENT>)? ) |
     	( ( <DIGIT> )+ ("." ( <DIGIT> )*)? (<EXPONENT>)? )
   	> |
@@ -462,10 +461,10 @@ void BBoxArgumentList() #void:
 {}
 {
 		<LP> Attribute() <COMMA> 
-			 SignedNumericLiteral() <COMMA>
-			 SignedNumericLiteral() <COMMA>
-			 SignedNumericLiteral() <COMMA>
-			 SignedNumericLiteral() 
+			 NumericLiteral() <COMMA>
+			 NumericLiteral() <COMMA>
+			 NumericLiteral() <COMMA>
+			 NumericLiteral() 
 			 ( <RP> 						#RoutineInvocation_GeoOp_BBOX_Node
 			  | <COMMA> StringLiteral()<RP> #RoutineInvocation_GeoOp_BBOX_SRS_Node)
 }
@@ -496,12 +495,6 @@ void Tolerance() :
 {}
 {
 	UnsignedNumericLiteral() #Tolerance_Node <COMMA> DistanceUnits()
-}
-
-void UnsignedNumericLiteral():
-{}
-{
-	SignedNumericLiteral() // TODO must be redefined for number token to handle sign correctly
 }
 
 /**
@@ -760,9 +753,9 @@ void BinaryExpression() #void:
 {
   MultiplicativeExpression()
   (
-    <PLUS> MultiplicativeExpression() #AddNode(2)
+    <PLUS> MultiplicativeExpression() #AddNode
    |
-    <MINUS> MultiplicativeExpression() #SubtractNode(2)
+    <MINUS> MultiplicativeExpression() #SubtractNode
   )*
 }
  
@@ -774,9 +767,9 @@ void MultiplicativeExpression() #void :
   
   UnaryExpression()
   (
-    <MULT> UnaryExpression() #MulNode(2)
+    <MULT> UnaryExpression() #MulNode
    |
-    <SLASH> UnaryExpression() #DivNode(2)
+    <SLASH> UnaryExpression() #DivNode
   )*
 }
 
@@ -784,7 +777,7 @@ void UnaryExpression() #void:
 {}
 {
 	  LOOKAHEAD(2) Function() 
-	| Literal()
+	| NumericLiteral() 
 	| Attribute()
 	| <LP> Expression()<RP>
 	| <LSP> Expression()<RSP>
@@ -851,16 +844,23 @@ void AttributeTail() #Compound_Attribute_Node:
 void Literal() #void :
 {}
 {
-		SignedNumericLiteral()
+		NumericLiteral()
 	| 	GeneralLiteral()	
 }
-
-void SignedNumericLiteral() #void :
+void NumericLiteral() #void :
 {}
 {
-  	IntegerLiteral() 
-  | FloatingLiteral()
+		(("-") UnsignedNumericLiteral())  #NegativeNumber_Node 
+	| 	UnsignedNumericLiteral() 
+
 }
+void UnsignedNumericLiteral() #void :
+{}
+{
+		IntegerLiteral() 
+  	| 	FloatingLiteral() 
+}
+
 /*
  *<general literal> ::= 
  * 			<character string literal>
@@ -1089,9 +1089,4 @@ void GeometryCollectionTaggedText() #WKTNode:
  		NumericLiteral() 
  	 <RP> )?
  }
- 
-void NumericLiteral() #void:
-{}
-{
-	<FLOATING_LITERAL>|<INTEGER_LITERAL>
-}
+

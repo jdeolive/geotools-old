@@ -55,7 +55,13 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTReader;
 
 /**
- * DOCUMENT ME!
+ * Filter builder for CQL expressions.
+ * 
+ * <p>
+ * Builds Filter or Expression and their components (literal, functions, etc).
+ * It maintains the results of semantic actions in the stack used to build complex
+ * filters and expressions.
+ * </p>
  *
  * @author Mauricio Pazos (Axios Engineering)
  * @version Revision: 1.9

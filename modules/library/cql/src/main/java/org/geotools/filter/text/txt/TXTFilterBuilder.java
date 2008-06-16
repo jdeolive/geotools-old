@@ -28,6 +28,7 @@ import org.geotools.filter.text.cql2.IToken;
 import org.geotools.filter.text.cql2.Result;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
+import org.opengis.filter.expression.Literal;
 import org.opengis.filter.identity.FeatureId;
 
 /**
@@ -50,12 +51,6 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
      */
     public FeatureId buildFeatureID(IToken token) {
        
-//      TODO delete it
-//        // remove the #
-//        String txtId = token.toString();
-//        txtId = txtId.trim();
-//        txtId = txtId.substring(1);
-        
         String strId = removeQuotes(token.toString());
 
         FeatureId id = getFilterFactory().featureId( strId);
@@ -93,6 +88,37 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
         Id filter = getFilterFactory().id(idSet);
 
         return filter;
+    }
+
+    /**
+     * Builds a negative Number
+     * @return Negative number
+     * @throws CQLException
+     */
+    public Literal bulidNegativeNumber() throws CQLException {
+        
+        // retrieves the number value from stack and adds the (-) minus
+        Literal literal = getResultStack().popLiteral();
+        String strNumber = "-" + literal.getValue();
+        Object value = literal.getValue();
+        
+        //builds the negative number
+        @SuppressWarnings("unused")
+        Number number = null;
+        if(value instanceof Double){
+            number = Double.parseDouble(strNumber);
+        }else if (value instanceof Float){
+            number = Float.parseFloat(strNumber);
+        }else if(value instanceof Integer) {
+            number = Integer.parseInt(strNumber);
+        }else if(value instanceof Long) {
+            number = Long.parseLong(strNumber);
+        }else{
+            assert false: "Number instnce is expected";
+        }
+        Literal signedNumber = getFilterFactory().literal(strNumber);
+        
+        return signedNumber;
     }
 
 }

@@ -59,7 +59,7 @@ public class TXTCompiler extends TXTParser implements ICompiler{
     private static final String ATTRIBUTE_PATH_SEPARATOR = "/";
 
     /** cql expression to compile */
-    private final String source;
+    private final String           source;
 
     private final TXTFilterBuilder builder;
 
@@ -96,7 +96,7 @@ public class TXTCompiler extends TXTParser implements ICompiler{
     }
     
     /** 
-     * compile source to produce a Expression
+     * compiles source to produce a Expression
      */
     public void compileExpression() throws CQLException{
         try {
@@ -108,7 +108,9 @@ public class TXTCompiler extends TXTParser implements ICompiler{
         }
     }
 
-    
+    /**
+     * Compiles a list of filters
+     */
     public void compileFilterList() throws CQLException{
         try {
             super.FilterListCompilationUnit();
@@ -198,228 +200,239 @@ public class TXTCompiler extends TXTParser implements ICompiler{
      */
     private Object build(Node n) throws CQLException {
         switch (n.getType()) {
-        // Literals
-        // note, these should never throw because the parser grammar
-        // constrains input before we ever reach here!
-        case JJTINTEGERNODE:
-            return this.builder.buildLiteralInteger(getTokenInPosition(0).toString());
-
-        case JJTFLOATINGNODE:
-            return  this.builder.buildLiteralDouble(getTokenInPosition(0).toString());
-
-        case JJTSTRINGNODE:
-            return this.builder.buildLiteralString(getTokenInPosition(0).toString());
-            // ----------------------------------------
-            // Identifier
-            // ----------------------------------------
-        case JJTIDENTIFIER_NODE:
-            return this.builder.buildIdentifier(JJTIDENTIFIER_PART_NODE);
-
-        case JJTIDENTIFIER_PART_NODE:
-            return this.builder.buildIdentifierPart(getTokenInPosition(0));
 
             // ----------------------------------------
-            // attribute
+            // (+|-) Integer and Float
             // ----------------------------------------
-        case JJTSIMPLE_ATTRIBUTE_NODE:
-            return this.builder.buildSimpleAttribute();
+            case JJTINTEGERNODE:
+                return this.builder.buildLiteralInteger(getTokenInPosition(0).toString());
+            case JJTFLOATINGNODE:
+                return this.builder.buildLiteralDouble(getTokenInPosition(0).toString());
+            case JJTNEGATIVENUMBER_NODE:
+                return this.builder.bulidNegativeNumber();
 
-        case JJTCOMPOUND_ATTRIBUTE_NODE:
-            return this.builder.buildCompoundAttribute(JJTSIMPLE_ATTRIBUTE_NODE, ATTRIBUTE_PATH_SEPARATOR);
+                // ----------------------------------------
+                // String
+                // ----------------------------------------
+            case JJTSTRINGNODE:
+                return this.builder.buildLiteralString(getTokenInPosition(0)
+                        .toString());
 
-            // ----------------------------------------
-            // function
-            // ----------------------------------------
-        case JJTFUNCTION_NODE:
-            return this.builder.buildFunction(JJTFUNCTIONNAME_NODE);
+                // ----------------------------------------
+                // Identifier
+                // ----------------------------------------
+            case JJTIDENTIFIER_NODE:
+                return this.builder.buildIdentifier(JJTIDENTIFIER_PART_NODE);
 
-        case JJTFUNCTIONNAME_NODE:
-            return n; // used as mark of function name in stack
+            case JJTIDENTIFIER_PART_NODE:
+                return this.builder.buildIdentifierPart(getTokenInPosition(0));
 
-        case JJTFUNCTIONARG_NODE:
-            return n; // used as mark of args in stack
+                // ----------------------------------------
+                // attribute
+                // ----------------------------------------
+            case JJTSIMPLE_ATTRIBUTE_NODE:
+                return this.builder.buildSimpleAttribute();
 
-            // Math Nodes
-        case JJTADDNODE:
-        case JJTSUBTRACTNODE:
-        case JJTMULNODE:
-        case JJTDIVNODE:
-            return buildBinaryExpression(n.getType());
+            case JJTCOMPOUND_ATTRIBUTE_NODE:
+                return this.builder.buildCompoundAttribute(
+                        JJTSIMPLE_ATTRIBUTE_NODE, ATTRIBUTE_PATH_SEPARATOR);
 
-            // Boolean expression
-        case JJTBOOLEAN_AND_NODE:
-            return buildLogicFilter(JJTBOOLEAN_AND_NODE);
+                // ----------------------------------------
+                // function
+                // ----------------------------------------
+            case JJTFUNCTION_NODE:
+                return this.builder.buildFunction(JJTFUNCTIONNAME_NODE);
 
-        case JJTBOOLEAN_OR_NODE:
-            return buildLogicFilter(JJTBOOLEAN_OR_NODE);
+            case JJTFUNCTIONNAME_NODE:
+                return n; // used as mark of function name in stack
 
-        case JJTBOOLEAN_NOT_NODE:
-            return buildLogicFilter(JJTBOOLEAN_NOT_NODE);
+            case JJTFUNCTIONARG_NODE:
+                return n; // used as mark of args in stack
 
-            // ----------------------------------------
-            // between predicate actions
-            // ----------------------------------------
-        case JJTBETWEEN_NODE:
-            return this.builder.buildBetween();
+                // Math Nodes
+            case JJTADDNODE:
+            case JJTSUBTRACTNODE:
+            case JJTMULNODE:
+            case JJTDIVNODE:
+                return buildBinaryExpression(n.getType());
 
-        case JJTNOT_BETWEEN_NODE:
-            return this.builder.buildNotBetween();
+                // Boolean expression
+            case JJTBOOLEAN_AND_NODE:
+                return buildLogicFilter(JJTBOOLEAN_AND_NODE);
 
-            // ----------------------------------------
-            // Compare predicate actions
-            // ----------------------------------------
-        case JJTCOMPARISSONPREDICATE_EQ_NODE:
-        case JJTCOMPARISSONPREDICATE_GT_NODE:
-        case JJTCOMPARISSONPREDICATE_LT_NODE:
-        case JJTCOMPARISSONPREDICATE_GTE_NODE:
-        case JJTCOMPARISSONPREDICATE_LTE_NODE:
-            return buildBinaryComparasionOperator(n.getType());
+            case JJTBOOLEAN_OR_NODE:
+                return buildLogicFilter(JJTBOOLEAN_OR_NODE);
 
-        case JJTCOMPARISSONPREDICATE_NOT_EQUAL_NODE:
+            case JJTBOOLEAN_NOT_NODE:
+                return buildLogicFilter(JJTBOOLEAN_NOT_NODE);
 
-            Filter eq = buildBinaryComparasionOperator(JJTCOMPARISSONPREDICATE_EQ_NODE);
-            Not notFilter = this.builder.buildNotFilter(eq);
+                // ----------------------------------------
+                // between predicate actions
+                // ----------------------------------------
+            case JJTBETWEEN_NODE:
+                return this.builder.buildBetween();
 
-            return notFilter;
+            case JJTNOT_BETWEEN_NODE:
+                return this.builder.buildNotBetween();
 
-            // ----------------------------------------
-            // Text predicate (Like)
-            // ----------------------------------------
-        case JJTLIKE_NODE:
-            return this.builder.buildLikeFilter();
+                // ----------------------------------------
+                // Compare predicate actions
+                // ----------------------------------------
+            case JJTCOMPARISSONPREDICATE_EQ_NODE:
+            case JJTCOMPARISSONPREDICATE_GT_NODE:
+            case JJTCOMPARISSONPREDICATE_LT_NODE:
+            case JJTCOMPARISSONPREDICATE_GTE_NODE:
+            case JJTCOMPARISSONPREDICATE_LTE_NODE:
+                return buildBinaryComparasionOperator(n.getType());
 
-        case JJTNOT_LIKE_NODE:
+            case JJTCOMPARISSONPREDICATE_NOT_EQUAL_NODE:
 
-            return this.builder.buildNotLikeFilter();
+                Filter eq = buildBinaryComparasionOperator(JJTCOMPARISSONPREDICATE_EQ_NODE);
+                Not notFilter = this.builder.buildNotFilter(eq);
 
+                return notFilter;
 
-            // ----------------------------------------
-            // Null predicate
-            // ----------------------------------------
-        case JJTNULLPREDICATENODE:
-            return this.builder.buildPropertyIsNull();
+                // ----------------------------------------
+                // Text predicate (Like)
+                // ----------------------------------------
+            case JJTLIKE_NODE:
+                return this.builder.buildLikeFilter();
 
-        case JJTNOTNULLPREDICATENODE:
-            return this.builder.buildPorpertyNotIsNull();
+            case JJTNOT_LIKE_NODE:
 
-            // ----------------------------------------
-            // temporal predicate actions
-            // ----------------------------------------
-        case JJTDATETIME_NODE:
-            return this.builder.buildDateTimeExpression(getTokenInPosition(0));
+                return this.builder.buildNotLikeFilter();
 
-        case JJTDURATION_DATE_NODE:
-            return this.builder.buildDurationExpression(getTokenInPosition(0));
+                // ----------------------------------------
+                // Null predicate
+                // ----------------------------------------
+            case JJTNULLPREDICATENODE:
+                return this.builder.buildPropertyIsNull();
 
-        case JJTPERIOD_BETWEEN_DATES_NODE:
-            return this.builder.buildPeriodBetweenDates();
+            case JJTNOTNULLPREDICATENODE:
+                return this.builder.buildPorpertyNotIsNull();
 
-        case JJTPERIOD_WITH_DATE_DURATION_NODE:
-            return this.builder.buildPeriodDateAndDuration();
+                // ----------------------------------------
+                // temporal predicate actions
+                // ----------------------------------------
+            case JJTDATETIME_NODE:
+                return this.builder
+                        .buildDateTimeExpression(getTokenInPosition(0));
 
-        case JJTPERIOD_WITH_DURATION_DATE_NODE:
-            return this.builder.buildPeriodDurationAndDate();
+            case JJTDURATION_DATE_NODE:
+                return this.builder
+                        .buildDurationExpression(getTokenInPosition(0));
 
-        case JJTTPBEFORE_DATETIME_NODE:
-            return buildTemporalPredicateBefore();
+            case JJTPERIOD_BETWEEN_DATES_NODE:
+                return this.builder.buildPeriodBetweenDates();
 
-        case JJTTPAFTER_DATETIME_NODE:
-            return buildTemporalPredicateAfter();
+            case JJTPERIOD_WITH_DATE_DURATION_NODE:
+                return this.builder.buildPeriodDateAndDuration();
 
-        case JJTTPDURING_PERIOD_NODE:
-            return buildTemporalPredicateDuring();
+            case JJTPERIOD_WITH_DURATION_DATE_NODE:
+                return this.builder.buildPeriodDurationAndDate();
 
-        case JJTTPBEFORE_OR_DURING_PERIOD_NODE:
-            return buildTemporalPredicateBeforeOrDuring();
+            case JJTTPBEFORE_DATETIME_NODE:
+                return buildTemporalPredicateBefore();
 
-        case JJTTPDURING_OR_AFTER_PERIOD_NODE:
-            return buildTemporalPredicateDuringOrAfter();
+            case JJTTPAFTER_DATETIME_NODE:
+                return buildTemporalPredicateAfter();
 
-            // ----------------------------------------
-            // existence predicate actions
-            // ----------------------------------------
-        case JJTEXISTENCE_PREDICATE_EXISTS_NODE:
-            return this.builder.buildPropertyExists();
+            case JJTTPDURING_PERIOD_NODE:
+                return buildTemporalPredicateDuring();
 
-        case JJTEXISTENCE_PREDICATE_DOESNOTEXIST_NODE:
+            case JJTTPBEFORE_OR_DURING_PERIOD_NODE:
+                return buildTemporalPredicateBeforeOrDuring();
 
-            Filter filter = this.builder.buildPropertyExists();
-            Filter filterPropNotExist = this.builder.buildNotFilter(filter);
+            case JJTTPDURING_OR_AFTER_PERIOD_NODE:
+                return buildTemporalPredicateDuringOrAfter();
 
-            return filterPropNotExist;
+                // ----------------------------------------
+                // existence predicate actions
+                // ----------------------------------------
+            case JJTEXISTENCE_PREDICATE_EXISTS_NODE:
+                return this.builder.buildPropertyExists();
 
-            // ----------------------------------------
-            // routine invocation Geo Operation
-            // ----------------------------------------
-        case JJTROUTINEINVOCATION_GEOOP_EQUAL_NODE:
-        case JJTROUTINEINVOCATION_GEOOP_DISJOINT_NODE:
-        case JJTROUTINEINVOCATION_GEOOP_INTERSECT_NODE:
-        case JJTROUTINEINVOCATION_GEOOP_TOUCH_NODE:
-        case JJTROUTINEINVOCATION_GEOOP_CROSS_NODE:
-        case JJTROUTINEINVOCATION_GEOOP_WITHIN_NODE:
-        case JJTROUTINEINVOCATION_GEOOP_CONTAIN_NODE:
-        case JJTROUTINEINVOCATION_GEOOP_OVERLAP_NODE:
-            return buildBinarySpatialOperator(n.getType());
+            case JJTEXISTENCE_PREDICATE_DOESNOTEXIST_NODE:
 
-        case JJTROUTINEINVOCATION_GEOOP_BBOX_NODE:
-        case JJTROUTINEINVOCATION_GEOOP_BBOX_SRS_NODE:
-            return buildBBox(n.getType());
+                Filter filter = this.builder.buildPropertyExists();
+                Filter filterPropNotExist = this.builder.buildNotFilter(filter);
 
-        case JJTROUTINEINVOCATION_GEOOP_RELATE_NODE:
-            throw new CQLException(
-                    "Unsupported geooperation RELATE (is not implemented by GeoTools)",
-                    getTokenInPosition(0), this.source);
+                return filterPropNotExist;
 
-            // ----------------------------------------
-            // routine invocation RelGeo Operation
-            // ----------------------------------------
-        case JJTTOLERANCE_NODE:
-            return this.builder.buildTolerance();
+                // ----------------------------------------
+                // routine invocation Geo Operation
+                // ----------------------------------------
+            case JJTROUTINEINVOCATION_GEOOP_EQUAL_NODE:
+            case JJTROUTINEINVOCATION_GEOOP_DISJOINT_NODE:
+            case JJTROUTINEINVOCATION_GEOOP_INTERSECT_NODE:
+            case JJTROUTINEINVOCATION_GEOOP_TOUCH_NODE:
+            case JJTROUTINEINVOCATION_GEOOP_CROSS_NODE:
+            case JJTROUTINEINVOCATION_GEOOP_WITHIN_NODE:
+            case JJTROUTINEINVOCATION_GEOOP_CONTAIN_NODE:
+            case JJTROUTINEINVOCATION_GEOOP_OVERLAP_NODE:
+                return buildBinarySpatialOperator(n.getType());
 
-        case JJTDISTANCEUNITS_NODE:
-            return this.builder.buildDistanceUnit(getTokenInPosition(0));
+            case JJTROUTINEINVOCATION_GEOOP_BBOX_NODE:
+            case JJTROUTINEINVOCATION_GEOOP_BBOX_SRS_NODE:
+                return buildBBox(n.getType());
 
-        case JJTROUTINEINVOCATION_RELOP_BEYOND_NODE:
-        case JJTROUTINEINVOCATION_RELOP_DWITHIN_NODE:
-            return buildDistanceBufferOperator(n.getType());
+            case JJTROUTINEINVOCATION_GEOOP_RELATE_NODE:
+                throw new CQLException(
+                        "Unsupported geooperation RELATE (is not implemented by GeoTools)",
+                        getTokenInPosition(0), this.source);
 
-            // ----------------------------------------
-            // Geometries:
-            // ----------------------------------------
-        case JJTWKTNODE:
-            return this.builder.buildGeometry(TokenAdapter.newAdapterFor(n.getToken()));
+                // ----------------------------------------
+                // routine invocation RelGeo Operation
+                // ----------------------------------------
+            case JJTTOLERANCE_NODE:
+                return this.builder.buildTolerance();
 
-        case JJTENVELOPETAGGEDTEXT_NODE:
-            return this.builder.buildEnvelop(TokenAdapter.newAdapterFor(n.getToken()));
+            case JJTDISTANCEUNITS_NODE:
+                return this.builder.buildDistanceUnit(getTokenInPosition(0));
 
-        case JJTINCLUDE_NODE:
-            return Filter.INCLUDE;
+            case JJTROUTINEINVOCATION_RELOP_BEYOND_NODE:
+            case JJTROUTINEINVOCATION_RELOP_DWITHIN_NODE:
+                return buildDistanceBufferOperator(n.getType());
 
-        case JJTEXCLUDE_NODE:
-            return Filter.EXCLUDE;
+                // ----------------------------------------
+                // Geometries:
+                // ----------------------------------------
+            case JJTWKTNODE:
+                return this.builder.buildGeometry(TokenAdapter.newAdapterFor(n
+                        .getToken()));
 
-        case JJTTRUENODE:
-            return this.builder.buildTrueLiteral();
+            case JJTENVELOPETAGGEDTEXT_NODE:
+                return this.builder.buildEnvelop(TokenAdapter.newAdapterFor(n
+                        .getToken()));
 
-        case JJTFALSENODE:
-            return this.builder.buildFalseLiteral(); 
+            case JJTINCLUDE_NODE:
+                return Filter.INCLUDE;
 
-            // ----------------------------------------
-            //  id predicate
-            // ----------------------------------------
-        case JJTFEATURE_ID_NODE:
-            //return this.builder.buildLiteralString(getTokenInPosition(0).toString());
-            return this.builder.buildFeatureID(getTokenInPosition(0));
-            
-        case JJTID_PREDICATE_NODE:
-            return this.builder.buildFilterId(JJTFEATURE_ID_NODE);
-        
-        case JJTNOT_ID_PREDICATE_NODE:
-            
-            Id idFilter = this.builder.buildFilterId(JJTFEATURE_ID_NODE);
-            Not notIdFilter = this.builder.buildNotFilter(idFilter);
+            case JJTEXCLUDE_NODE:
+                return Filter.EXCLUDE;
 
-            return notIdFilter;
+            case JJTTRUENODE:
+                return this.builder.buildTrueLiteral();
+
+            case JJTFALSENODE:
+                return this.builder.buildFalseLiteral();
+
+                // ----------------------------------------
+                //  id predicate
+                // ----------------------------------------
+            case JJTFEATURE_ID_NODE:
+                //return this.builder.buildLiteralString(getTokenInPosition(0).toString());
+                return this.builder.buildFeatureID(getTokenInPosition(0));
+
+            case JJTID_PREDICATE_NODE:
+                return this.builder.buildFilterId(JJTFEATURE_ID_NODE);
+
+            case JJTNOT_ID_PREDICATE_NODE:
+
+                Id idFilter = this.builder.buildFilterId(JJTFEATURE_ID_NODE);
+                Not notIdFilter = this.builder.buildNotFilter(idFilter);
+
+                return notIdFilter;
         }
 
         return null;

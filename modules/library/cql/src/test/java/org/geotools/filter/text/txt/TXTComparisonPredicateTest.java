@@ -41,6 +41,7 @@ import org.opengis.filter.Filter;
  * @since 2.5
  */
 public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
+
     public TXTComparisonPredicateTest() {
         // sets the language used to execute this test case
         super(CompilerFactory.Language.TXT);
@@ -49,19 +50,55 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
     /**
      * Test: Expression on the Left hand of comparison predicate
      * Sample: (1+3) > prop1
-     *         (1+3) > (4+5)
+     *         (1+3) > (4-5)
      * @throws CQLException
      */
     @Test
     public void expressionComparisonProperty() throws CQLException {
 
-        testComparasion(FilterTXTSample.EXPRESION_GREATER_PROPERTY);
+        // (1+3) > prop1
+        testComparison(FilterTXTSample.EXPRESION_GREATER_PROPERTY);
         
-        //TODO (1+3) > (4+5)
-        
-        
+        //(1+3) > (4-5)
+        testComparison(FilterTXTSample.ADD_EXPRESION_GREATER_SUBTRACT_EXPRESION);
     }
 
+    /**
+     * Negative value test
+     * 
+     * @throws CQLException
+     */
+    @Test
+    public void negativeNumber() throws CQLException {
+
+        // minus integer
+        //aProperty > -1
+        testComparison(FilterTXTSample.PROPERTY_GREATER_MINUS_INGEGER);
+
+        //-1 > aProperty 
+        testComparison(FilterTXTSample.MINUS_INTEGER_GREATER_PROPERTY);
+
+        // minus float
+        // aProperty > -1.05 
+        testComparison(FilterTXTSample.PROPERTY_GREATER_MINUS_FLOAT);
+
+        // -1.05 > aProperty
+        testComparison(FilterTXTSample.MINUS_FLOAT_GREATER_PROPERTY);
+        
+        // -1.05 + 4.6 > aProperty
+        testComparison(FilterTXTSample.MINUS_EXPR_GREATER_PROPERTY);
+
+        //  aProperty > -1.05 + 4.6
+        testComparison(FilterTXTSample.PROPERTY_GREATER_MINUS_EXPR);
+        
+        // -1.05 + (-4.6* -10) > aProperty 
+        testComparison(FilterTXTSample.PROPERTY_GREATER_NESTED_EXPR);
+        
+        // 10--1.05 > aProperty
+        testComparison(FilterTXTSample.MINUS_MINUS_EXPR_GRATER_PROPERTY);
+
+    }
+    
     /**
      * Test: function on the Left hand of comparison predicate
      * <pre>
@@ -78,25 +115,25 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
     public void functionsInComparison() throws CQLException {
         
         //abs(10) < aProperty
-        testComparasion(FilterTXTSample.ABS_FUNCTION_LESS_PROPERTY);
+        testComparison(FilterTXTSample.ABS_FUNCTION_LESS_PROPERTY);
 
         // area( the_geom ) < 30000
-        testComparasion(FilterTXTSample.AREA_FUNCTION_LESS_NUMBER);
+        testComparison(FilterTXTSample.AREA_FUNCTION_LESS_NUMBER);
         
         // area( the_geom ) < (1+3)
-        testComparasion(FilterTXTSample.FUNCTION_LESS_SIMPLE_ADD_EXPR);
+        testComparison(FilterTXTSample.FUNCTION_LESS_SIMPLE_ADD_EXPR);
         
         // area( the_geom ) < abs(10)
-        testComparasion(FilterTXTSample.FUNC_AREA_LESS_FUNC_ABS);
+        testComparison(FilterTXTSample.FUNC_AREA_LESS_FUNC_ABS);
     }
     
     /**
-     * asserts that the filter returned is the specified by the predicate 
+     * Asserts that the filter returned is the specified by the predicate 
      * 
      * @param testPredicate predicate to test
      * @throws CQLException
      */
-    private void testComparasion(final String testPredicate ) throws CQLException{
+    private void testComparison(final String testPredicate ) throws CQLException{
         
         Filter expected = FilterTXTSample.getSample(testPredicate);
 
