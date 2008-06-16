@@ -205,7 +205,7 @@ final class RTree {
                 if (candidate != null) {
                     final int candidateCount;
                     try {
-                        candidate.filter(distinctBounds);
+                        candidate.removeTrivialOverlaps(distinctBounds);
                         candidateCount = distinctBounds.size();
                     } finally {
                         distinctBounds.clear();
@@ -231,7 +231,7 @@ final class RTree {
         subsampling.setSize(bestSubsampling); // Must be set only when the loop above is over.
         final List<Tile> tiles = new ArrayList<Tile>(bestCandidateCount);
         if (bestCandidate != null) {
-            assert bestCandidate.checkValidity() != null : bestCandidate;
+            assert bestCandidate.checkValidity() : bestCandidate.toTree();
             bestCandidate.getTiles(tiles);
             if (LOGGER.isLoggable(LEVEL)) {
                 final String lineSeparator = System.getProperty("line.separator", "\n");
@@ -351,7 +351,7 @@ final class RTree {
         }
         /*
          * At this point, we decided to keep the children in replacement of the selected
-         * tile. Clears the tile, adjust the cost remove an indirection level if we can.
+         * tile. Clears the tile, adjust the cost and remove an indirection level if we can.
          */
         selected.tile = null;
         selected.cost -= cost;

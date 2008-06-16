@@ -52,23 +52,37 @@ public class CommandLine {
      */
     private static final String OPTION_PREFIX = "--";
 
+    // There is no clear convention on exit code, except 0 == SUCCES.
+    // However a typical usage is to use higher values for more sever causes.
+
     /**
      * The code given to {@link System#exit} when the program failed because of an illegal
      * user argument.
      */
-    public static final int ILLEGAL_ARGUMENT_EXIT_CODE = Arguments.ILLEGAL_ARGUMENT_EXIT_CODE;
+    public static final int ILLEGAL_ARGUMENT_EXIT_CODE = 1;
 
     /**
-     * The code given to {@link System#exit} when the program failed because of an
-     * {@link IOException}.
+     * The code given to {@link System#exit} when the program aborted at user request.
      */
-    public static final int IOEXCEPTION_EXIT_CODE = 2;
+    public static final int ABORT_EXIT_CODE = 2;
 
     /**
      * The code given to {@link System#exit} when the program failed because of bad
      * content in a file.
      */
     public static final int BAD_CONTENT_EXIT_CODE = 3;
+
+    /**
+     * The code given to {@link System#exit} when the program failed because of an
+     * {@link java.io.IOException}.
+     */
+    public static final int IO_EXCEPTION_EXIT_CODE = 100;
+
+    /**
+     * The code given to {@link System#exit} when the program failed because of a
+     * {@link java.sql.SQLException}.
+     */
+    public static final int SQL_EXCEPTION_EXIT_CODE = 101;
 
     /**
      * Output stream to the console. This output stream may use the encoding

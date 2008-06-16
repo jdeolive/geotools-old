@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -59,7 +59,10 @@ public class Arguments {
     /**
      * The code given to {@link System#exit} when this class exits because of an illegal
      * user argument.
+     *
+     * @deprecated Moved to {@link org.geotools.console.CommandLine}.
      */
+    @Deprecated
     public static final int ILLEGAL_ARGUMENT_EXIT_CODE = 1;
 
     /**

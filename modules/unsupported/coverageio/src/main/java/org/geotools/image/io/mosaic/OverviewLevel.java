@@ -833,6 +833,11 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
                             continue;
                         }
                     }
+                    // If there is an explicit list of tiles, we may have no pattern. In this
+                    // case we don't want to return 'true' on the 'patternUsed' check below.
+                    if (patterns == null) {
+                        continue;
+                    }
                 }
                 if (patternUsed == null || patternUsed.get(i) != 0) {
                     return true;

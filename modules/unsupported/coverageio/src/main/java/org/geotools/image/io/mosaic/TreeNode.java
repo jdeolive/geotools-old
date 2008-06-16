@@ -26,6 +26,7 @@ import java.awt.Rectangle;
 import java.io.IOException;
 
 import org.geotools.util.Utilities;
+import org.geotools.resources.OptionalDependencies;
 
 
 /**
@@ -552,6 +553,13 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
     }
 
     /**
+     * Returns a string representation of this node as a tree. This is for debugging purpose only.
+     */
+    public final String toTree() {
+        return OptionalDependencies.toString(this);
+    }
+
+    /**
      * Returns the string representation of this node. This string should holds in a single line
      * since it may be displayed in a {@link javax.swing.JTree}. The content may change in any
      * future version. It is provided mostly for debugging purpose.
@@ -578,17 +586,14 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
     }
 
     /**
-     * Invoked in assertion for checking the validity of the whole tree. Note that the checks are
-     * performed inconditionnaly though explicit {@code if ... throw new AssertionError(...)}
-     * statements rather than {@code assert} statements. The whole methods is expected to be
-     * invoked in an {@code assert} statement, so we do not want to repeat the assertion status
-     * check in every line of this method.
+     * Invoked in assertion for checking the validity of the whole tree. Checks in this method body
+     * are performed inconditionnaly though explicit {@code if ... throw new AssertionError(...)}
+     * statements rather than {@code assert} statements because the whole methods is expected to be
+     * invoked in an {@code assert} statement.
      *
-     * @return A string representation of the state of this tree. Default implementation returns an
-     *         empty string, but subclasses may override this method with more detailled message.
-     *         This string is not used directly by this class, but is sometime useful in debugger.
+     * @return {@code true} on success.
      */
-    String checkValidity() {
+    boolean checkValidity() {
         TreeNode child = firstChildren;
         if (child != null) {
             if (child.previousSibling != null) {
@@ -604,7 +609,9 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
                 if (getIndex(child) != index) {
                     throw new AssertionError(child);
                 }
-                child.checkValidity();
+                if (!child.checkValidity()) {
+                    return false;
+                }
                 final TreeNode next = child.nextSibling;
                 if (next == null) {
                     break;
@@ -635,6 +642,6 @@ class TreeNode extends Rectangle implements Iterable<TreeNode>, javax.swing.tree
                 throw new AssertionError(this);
             }
         }
-        return "";
+        return true;
     }
 }

@@ -80,8 +80,8 @@ final class ComparedTileManager extends TileManager {
     private <T> T assertEqual(final T o1, final T o2) throws AssertionError {
         if (!Utilities.equals(o1, o2)) {
             throw new AssertionError(
-                    first.getClass().getSimpleName() + ": " + o1 + '\n' +
-                   second.getClass().getSimpleName() + ": " + o2);
+                    first.getClass().getSimpleName() + '=' + o1 + ", " +
+                   second.getClass().getSimpleName() + '=' + o2);
         }
         return o1;
     }

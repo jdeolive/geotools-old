@@ -243,7 +243,7 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
         }
         splitOverlappingChildren(); // Must be after bounds calculation.
         postTreeCreation();
-        assert checkValidity() != null : this;
+        assert checkValidity() : toTree();
     }
 
     /**

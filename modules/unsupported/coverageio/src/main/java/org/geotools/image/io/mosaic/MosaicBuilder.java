@@ -1004,7 +1004,7 @@ public class MosaicBuilder {
                 final int dy   = tileBounds.height;
                 absoluteBounds.width  = xSubsampling * dx;
                 absoluteBounds.height = ySubsampling * dy;
-                int y=0;
+                int y = 0;
                 for (tileBounds.y = ymin; tileBounds.y < ymax; tileBounds.y += dy, y++) {
                     int x = 0;
                     absoluteBounds.y = ySubsampling * tileBounds.y;

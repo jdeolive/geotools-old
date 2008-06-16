@@ -18,7 +18,6 @@ package org.geotools.image.io.mosaic;
 
 import java.util.Map;
 import java.awt.Rectangle;
-import org.geotools.resources.OptionalDependencies;
 
 
 /**
@@ -130,20 +129,58 @@ final class SelectedNode extends TreeNode {
      * This check is not generic since we search for an exact match, but this case is common
      * enough. Handling it with a {@link java.util.HashMap} will help to reduce the amount of
      * tiles to handle in a more costly way later.
+     * <p>
+     * As a side effect, this method trims the bounding box of selected nodes to the tiles
+     * that they contain.
      *
      * @param overlaps An initially empty map. Will be filled through recursive invocation
      *        of this method while we iterate down the tree.
      */
-    final void filter(final Map<Rectangle,SelectedNode> overlaps) {
+    final void removeTrivialOverlaps(final Map<Rectangle,SelectedNode> overlaps) {
         /*
          * Must process children first because if any of them are removed, it will lower
          * the cost and consequently can change the decision taken at the end of this method.
          */
         SelectedNode child = (SelectedNode) firstChildren();
         while (child != null) {
-            child.filter(overlaps);
-            child = (SelectedNode) child.nextSibling();
+            // Must ask for next sibling before to filter since the later
+            // may set it to null if the child is removed from the tree.
+            final SelectedNode next = (SelectedNode) child.nextSibling();
+            child.removeTrivialOverlaps(overlaps);
+            child = next;
         }
+        /*
+         * If this node is just a container for other nodes, trims the bounding box to the tiles
+         * that it contains. We would not need to do that if the size of parent nodes was always
+         * a multiple of child nodes.  But sometime they are not, in which case some child nodes
+         * may live on the boundary between two parent nodes. It is not easy to predict in which
+         * parent such child will end up and what will be its bounding box since the computation
+         * involves intersection, but the end result is that two parents may have identical bbox
+         * while their child do not overlaps at all.
+         *
+         * We don't perform this computation if this node contains a tile, because in such case
+         * we assume that the bounding box was carefully choosen by the user. This is different
+         * than a null tile in which case the bounding box was calculated by our code.
+         */
+        if (tile == null) {
+            child = (SelectedNode) firstChildren();
+            if (child != null) {
+                int xmin=x, ymin=y, w=width, h=height;
+                width = height = -1;
+                do {
+                    assert !child.isEmpty() : child;
+                    add(child);
+                    child = (SelectedNode) child.nextSibling();
+                } while (child != null);
+                if (x < xmin) {w -= (xmin - x); x = xmin;}
+                if (y < ymin) {h -= (ymin - y); y = ymin;}
+                if (width  > w) width  = w;
+                if (height > h) height = h;
+            }
+        }
+        /*
+         * Now searchs for overlaps.
+         */
         SelectedNode existing = overlaps.put(this, this);
         if (existing != null && existing != this) {
             if (!isCheaperThan(existing)) {
@@ -191,14 +228,10 @@ final class SelectedNode extends TreeNode {
      * because the later is used for formatting the nodes in the tree.
      */
     @Override
-    String checkValidity() {
+    boolean checkValidity() {
         if (childrenCost() > cost) {
             throw new AssertionError(this);
         }
-        String message = super.checkValidity();
-        if (isRoot()) {
-            message = OptionalDependencies.toString(this);
-        }
-        return message;
+        return super.checkValidity();
     }
 }
