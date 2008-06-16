@@ -2,6 +2,9 @@ Plugin GeoMedia
 ===============
 Module Maintainer: Julian Ray 
 IP review Jody Garnett, July 10th, 2006
+         Adrian Custer, June 2008
+         
+STATUS: problems remain
 
 The headers indicate that this code is not copyright the GeoTools PMC,
 as such I do not feel I have permission to change anything, and am not sure
@@ -29,14 +32,10 @@ if the GeoTools community wishes to take responsibility for distribution.
  
  org.geotools.data.geomedia
  --------------------------
- 
  IP:
  - most files (C) 2004, Julian J. Ray, All Rights Reserved
- - updated GFeatureType.java (C) 2003-2006, GeoTools Project Managment Committee (PMC)
  
  org.geotools.data.geomedia.attributeio
  --------------------------------------
- 
  IP:
  - most files (C) 2004, Julian J. Ray, All Rights Reserved
- - updated GeoMediaAttributeIO.java to (C) 2003-2006, GeoTools Project Managment Committee (PMC)
