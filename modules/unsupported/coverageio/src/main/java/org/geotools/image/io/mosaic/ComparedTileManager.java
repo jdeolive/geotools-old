@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -99,7 +99,15 @@ final class ComparedTileManager extends TileManager {
      */
     private static boolean equals(TileManager manager, Collection<Tile> c1, Collection<Tile> c2) {
         final Set<Tile> remainding = new LinkedHashSet<Tile>(c1);
-        remainding.removeAll(c2);
+        /*
+         * Following loop is equivalent to remainding.removeAll(c2), but we do not want to invoke
+         * the later because the default AbstractSet.removeAll(Collection) implementation invokes
+         * c2.contains(Tile) repetively for every elements in c1. This is efficient when c2 is a
+         * Set. But since our c2 collection is often an List, this leads to O(n²) computation cost.
+         */
+        for (final Tile tile : c2) {
+            remainding.remove(tile);
+        }
         if (remainding.isEmpty()) {
             return true;
         }

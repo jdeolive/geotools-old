@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,7 +20,6 @@ import java.util.Map;
 import javax.imageio.IIOParam;
 import javax.imageio.IIOParamController;
 import javax.imageio.ImageReader;
-import javax.imageio.ImageWriter;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageWriteParam;
 
