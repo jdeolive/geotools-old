@@ -102,6 +102,11 @@
       <artifactId>gt-render</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-image</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- dependency for FunctionsImpl etc... -->
     <dependency>
       <groupId>org.geotools</groupId>
