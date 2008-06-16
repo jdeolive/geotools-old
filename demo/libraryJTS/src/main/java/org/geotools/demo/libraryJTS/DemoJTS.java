@@ -85,7 +85,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  *   http://www.geotools.org/CreateAGeometry
  *     retrived on 24 Sept 2005
  *
- * @author Adrian Custer, (c) assigned to the Geotools Project Management Committee.
+ * @author Adrian Custer
  * @version 0.0.1   April 2006
  *
  */
