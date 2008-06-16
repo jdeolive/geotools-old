@@ -24,6 +24,7 @@ import org.opengis.style.Description;
 import org.opengis.style.OverlapBehavior;
 import org.opengis.style.RasterSymbolizer;
 import org.opengis.style.ShadedRelief;
+import org.opengis.style.StyleVisitor;
 import org.opengis.style.Symbolizer;
 
 /**
@@ -110,6 +111,10 @@ class DefaultRasterSymbolizer implements RasterSymbolizer{
 
     public Description getDescription() {
         return desc;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

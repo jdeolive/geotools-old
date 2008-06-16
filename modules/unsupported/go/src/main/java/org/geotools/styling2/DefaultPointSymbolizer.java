@@ -19,6 +19,7 @@ package org.geotools.styling2;
 import org.opengis.style.Description;
 import org.opengis.style.Graphic;
 import org.opengis.style.PointSymbolizer;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -58,6 +59,10 @@ class DefaultPointSymbolizer implements PointSymbolizer{
 
     public Description getDescription() {
         return desc;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

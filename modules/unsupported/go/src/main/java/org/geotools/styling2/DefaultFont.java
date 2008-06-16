@@ -19,6 +19,7 @@ package org.geotools.styling2;
 import java.util.List;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Font;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -52,6 +53,10 @@ class DefaultFont implements Font{
 
     public Expression getSize() {
         return size;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

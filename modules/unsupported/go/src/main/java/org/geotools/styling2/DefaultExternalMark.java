@@ -19,6 +19,7 @@ package org.geotools.styling2;
 import javax.swing.Icon;
 import org.opengis.style.ExternalMark;
 import org.opengis.style.OnlineResource;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -52,6 +53,10 @@ class DefaultExternalMark implements ExternalMark{
 
     public int getMarkIndex() {
         return index;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

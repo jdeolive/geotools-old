@@ -17,6 +17,7 @@
 package org.geotools.styling2;
 
 import org.opengis.style.ContrastEnhancement;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -44,6 +45,10 @@ class DefaultContrastEnchancement implements ContrastEnhancement{
 
     public double getGammaValue() {
         return gamma;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

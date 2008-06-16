@@ -21,6 +21,7 @@ import org.opengis.style.ExternalMark;
 import org.opengis.style.Fill;
 import org.opengis.style.Mark;
 import org.opengis.style.Stroke;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -54,6 +55,10 @@ class DefaultMark implements Mark{
 
     public Stroke getStroke() {
         return stroke;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

@@ -22,6 +22,7 @@ import org.opengis.style.AnchorPoint;
 import org.opengis.style.Displacement;
 import org.opengis.style.Graphic;
 import org.opengis.style.GraphicSymbol;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -67,6 +68,10 @@ class DefaultGraphic implements Graphic{
 
     public Displacement getDisplacement() {
         return disp;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

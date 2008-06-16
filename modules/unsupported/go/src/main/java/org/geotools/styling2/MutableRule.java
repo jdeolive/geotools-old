@@ -22,6 +22,7 @@ import org.opengis.filter.Filter;
 import org.opengis.style.Description;
 import org.opengis.style.LegendGraphic;
 import org.opengis.style.Rule;
+import org.opengis.style.StyleVisitor;
 import org.opengis.style.Symbolizer;
 
 /**
@@ -129,6 +130,10 @@ public class MutableRule implements Rule{
      */
     public List<Symbolizer> getSymbolizers() {
         return symbols;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

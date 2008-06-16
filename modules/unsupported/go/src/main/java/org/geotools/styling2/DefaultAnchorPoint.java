@@ -18,6 +18,7 @@ package org.geotools.styling2;
 
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.AnchorPoint;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -39,6 +40,10 @@ class DefaultAnchorPoint implements AnchorPoint{
 
     public Expression getAnchorPointY() {
         return anchorY;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

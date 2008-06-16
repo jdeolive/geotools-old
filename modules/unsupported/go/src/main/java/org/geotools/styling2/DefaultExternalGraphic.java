@@ -21,6 +21,7 @@ import javax.swing.Icon;
 import org.opengis.style.ColorReplacement;
 import org.opengis.style.ExternalGraphic;
 import org.opengis.style.OnlineResource;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -54,6 +55,10 @@ class DefaultExternalGraphic implements ExternalGraphic{
 
     public Collection<ColorReplacement> getColorReplacements() {
         return replaces;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import org.opengis.style.Description;
 import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.Rule;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -106,6 +107,10 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
      */
     public List<Rule> getRules() {
         return rules;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

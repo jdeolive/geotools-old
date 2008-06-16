@@ -18,6 +18,7 @@ package org.geotools.styling2;
 
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Displacement;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -39,6 +40,10 @@ class DefaultDisplacement implements Displacement{
 
     public Expression getDisplacementY() {
         return dispY;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

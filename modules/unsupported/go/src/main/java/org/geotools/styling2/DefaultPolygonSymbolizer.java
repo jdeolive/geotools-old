@@ -22,6 +22,7 @@ import org.opengis.style.Displacement;
 import org.opengis.style.Fill;
 import org.opengis.style.PolygonSymbolizer;
 import org.opengis.style.Stroke;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -79,6 +80,10 @@ class DefaultPolygonSymbolizer implements PolygonSymbolizer{
 
     public Description getDescription() {
         return desc;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

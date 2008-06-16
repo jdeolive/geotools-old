@@ -18,6 +18,7 @@ package org.geotools.styling2;
 
 import org.opengis.filter.expression.Function;
 import org.opengis.style.ColorReplacement;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -33,6 +34,10 @@ class DefaultColorReplacement implements ColorReplacement{
     
     public Function getRecoding() {
         return recode;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

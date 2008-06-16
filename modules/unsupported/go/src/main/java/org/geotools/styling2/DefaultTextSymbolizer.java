@@ -22,6 +22,7 @@ import org.opengis.style.Fill;
 import org.opengis.style.Font;
 import org.opengis.style.Halo;
 import org.opengis.style.LabelPlacement;
+import org.opengis.style.StyleVisitor;
 import org.opengis.style.TextSymbolizer;
 
 /**
@@ -86,6 +87,10 @@ class DefaultTextSymbolizer implements TextSymbolizer{
 
     public Description getDescription() {
         return desc;
+    }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

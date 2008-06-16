@@ -17,6 +17,7 @@
 package org.geotools.styling2;
 
 import org.opengis.style.Description;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.InternationalString;
 
 /**
@@ -39,6 +40,10 @@ class DefaultDescription implements Description{
 
     public InternationalString getAbstract() {
         return desc;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

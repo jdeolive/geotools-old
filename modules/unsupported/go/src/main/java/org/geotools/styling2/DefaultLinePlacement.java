@@ -18,6 +18,7 @@ package org.geotools.styling2;
 
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.LinePlacement;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -63,6 +64,10 @@ class DefaultLinePlacement implements LinePlacement{
 
     public boolean isGeneralizeLine() {
         return generalize;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

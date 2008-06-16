@@ -18,6 +18,7 @@ package org.geotools.styling2;
 
 import java.net.URI;
 import org.opengis.style.OnlineResource;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -33,6 +34,10 @@ class DefaultOnlineResource implements OnlineResource{
     
     public URI getURI() {
         return uri;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

@@ -20,6 +20,7 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.style.GraphicFill;
 import org.opengis.style.GraphicStroke;
 import org.opengis.style.Stroke;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -86,6 +87,8 @@ class DefaultStroke implements Stroke{
         return offset;
     }
 
-    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
 
 }

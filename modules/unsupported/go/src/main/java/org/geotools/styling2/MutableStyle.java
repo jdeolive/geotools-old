@@ -21,6 +21,7 @@ import java.util.List;
 import org.opengis.style.Description;
 import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.Style;
+import org.opengis.style.StyleVisitor;
 import org.opengis.style.Symbolizer;
 
 /**
@@ -34,13 +35,13 @@ public class MutableStyle implements Style{
     private String name;
     private Description description;
     private boolean isDefault = false;
-    
-    
+
+
     public MutableStyle(String name, Description desc, List<FeatureTypeStyle> fts, Symbolizer symbol, boolean isDefault){
         if(symbol == null){
             throw new NullPointerException("default symbolizer can't be null");
         }
-        
+
         //TODO fix this list to listen to changes and fire events if necessary
         this.fts = new ArrayList<FeatureTypeStyle>();
         if(fts != null) this.fts.addAll(fts);
@@ -49,10 +50,10 @@ public class MutableStyle implements Style{
         this.description = desc;
         this.isDefault = isDefault;
     }
-    
+
     /**
      * @return live list
-     */    
+     */
     public List<FeatureTypeStyle> getFeatureTypes() {
         return fts;
     }
@@ -80,5 +81,9 @@ public class MutableStyle implements Style{
     public boolean isDefault() {
         return isDefault;
     }
-    
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }

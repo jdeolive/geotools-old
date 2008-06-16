@@ -18,6 +18,7 @@ package org.geotools.styling2;
 
 import org.opengis.style.ChannelSelection;
 import org.opengis.style.SelectedChannelType;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -41,4 +42,8 @@ class DefaultChannelSelection implements ChannelSelection{
         return gray;
     }
 
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

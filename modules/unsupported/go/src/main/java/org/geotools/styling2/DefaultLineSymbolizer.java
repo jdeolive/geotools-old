@@ -20,6 +20,7 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.style.Description;
 import org.opengis.style.LineSymbolizer;
 import org.opengis.style.Stroke;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -67,5 +68,8 @@ class DefaultLineSymbolizer implements LineSymbolizer{
         return desc;
     }
     
-    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }

@@ -18,6 +18,7 @@ package org.geotools.styling2;
 
 import org.opengis.style.Graphic;
 import org.opengis.style.GraphicFill;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -35,5 +36,8 @@ class DefaultGraphicFill implements GraphicFill{
         return graphic;
     }
 
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
 
 }

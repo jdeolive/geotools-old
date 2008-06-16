@@ -19,6 +19,7 @@ package org.geotools.styling2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Graphic;
 import org.opengis.style.GraphicStroke;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -46,6 +47,10 @@ class DefaultGraphicStroke implements GraphicStroke{
 
     public Expression getGap() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

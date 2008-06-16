@@ -19,6 +19,7 @@ package org.geotools.styling2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Fill;
 import org.opengis.style.Halo;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -40,6 +41,10 @@ class DefaultHalo implements Halo{
 
     public Expression getRadius() {
         return radius;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

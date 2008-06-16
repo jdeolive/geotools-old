@@ -19,6 +19,7 @@ package org.geotools.styling2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Fill;
 import org.opengis.style.GraphicFill;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -46,6 +47,10 @@ class DefaultFill implements Fill{
 
     public Expression getOpacity() {
         return opacity;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

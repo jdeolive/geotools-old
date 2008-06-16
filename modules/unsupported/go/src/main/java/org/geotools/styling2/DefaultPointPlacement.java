@@ -20,6 +20,7 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.style.AnchorPoint;
 import org.opengis.style.Displacement;
 import org.opengis.style.PointPlacement;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -47,6 +48,10 @@ class DefaultPointPlacement implements PointPlacement{
 
     public Expression getRotation() {
         return rotation;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

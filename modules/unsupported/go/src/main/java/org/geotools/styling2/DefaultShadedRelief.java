@@ -17,6 +17,7 @@
 package org.geotools.styling2;
 
 import org.opengis.style.ShadedRelief;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -38,6 +39,10 @@ class DefaultShadedRelief implements ShadedRelief{
 
     public double getReliefFactor() {
         return relief;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

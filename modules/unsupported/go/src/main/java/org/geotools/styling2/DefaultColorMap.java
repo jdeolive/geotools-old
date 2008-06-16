@@ -18,6 +18,7 @@ package org.geotools.styling2;
 
 import org.opengis.filter.expression.Function;
 import org.opengis.style.ColorMap;
+import org.opengis.style.StyleVisitor;
 
 /**
  *
@@ -33,6 +34,10 @@ class DefaultColorMap implements ColorMap{
     
     public Function getFunction() {
         return function;
+    }
+
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
 }
