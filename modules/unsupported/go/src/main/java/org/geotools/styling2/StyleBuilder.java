@@ -23,6 +23,7 @@ import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.LineSymbolizer;
 import org.opengis.style.PointSymbolizer;
 import org.opengis.style.PolygonSymbolizer;
+import org.opengis.style.RasterSymbolizer;
 import org.opengis.style.Rule;
 import org.opengis.style.Style;
 import org.opengis.style.StyleVisitor;
@@ -84,7 +85,7 @@ public class StyleBuilder {
         return catalog;
     }
 
-    public Style createRasterStyle(PointSymbolizer symbol){
+    public Style createRasterStyle(RasterSymbolizer symbol){
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_RASTER);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);

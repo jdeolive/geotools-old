@@ -47,7 +47,7 @@ public class CategorizeOperation extends AbstractOperation {
 
                 Color pxColor = new Color(r, g, b);
                 
-                Color catColor = exp.evaluate(new int[]{r,g,b}, Color.class);
+                Color catColor = exp.evaluate(g, Color.class);
                 inPixels[i] = catColor.getRGB();
                 
 //                r = (int) (r * (1.0f - mixValue) + mix_r * mixValue);

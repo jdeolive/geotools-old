@@ -20,22 +20,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.awt.image.ColorConvertOp;
-import java.awt.image.ColorModel;
-import java.awt.image.LookupOp;
-import java.awt.image.LookupTable;
-import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.awt.image.ShortLookupTable;
-import java.awt.image.WritableRaster;
 import java.awt.image.renderable.RenderableImage;
 import java.io.File;
 import java.io.IOException;
@@ -45,26 +33,19 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import org.geotools.coverage.grid.AbstractGridCoverage;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.DataSourceException;
-import org.geotools.factory.Hints;
 import org.geotools.filter.CategorizeFunction;
 import org.geotools.filter.FunctionFactory;
-import org.geotools.filter.RasterBandExpression;
 import org.geotools.gce.image.WorldImageReader;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling2.SymbolizerBuilder;
 import org.geotools.styling2.raster.CategorizeOperation;
-import org.opengis.coverage.CannotEvaluateException;
-import org.opengis.coverage.SampleDimension;
 import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.style.ChannelSelection;
 import org.opengis.style.ColorMap;
 import org.opengis.style.ContrastEnhancement;
@@ -118,7 +99,6 @@ public class RasterFunctionTest {
     
     private BufferedImageOp createImageOp(RasterSymbolizer symbol){
         
-        
         BufferedImageOp op = new CategorizeOperation(symbol.getColorMap().getFunction());
                 
         ChannelSelection selection = symbol.getChannelSelection();
@@ -128,7 +108,6 @@ public class RasterFunctionTest {
         Expression opacity = symbol.getOpacity();
         OverlapBehavior behavior = symbol.getOverlap();
         ShadedRelief relief = symbol.getShadedRelief();
-        
         
         return op;
     }
@@ -170,7 +149,7 @@ public class RasterFunctionTest {
         
         String catagorizeName = CategorizeFunction.NAME.getName();
         List<Expression> parameters = new ArrayList<Expression>();
-        Expression lookupValue = new RasterBandExpression(1); //styleBuilder.literalExpression("");
+        Expression lookupValue = styleBuilder.literalExpression(CategorizeFunction.RASTER_DATA);
         Literal lessInfinity = (Literal) styleBuilder.literalExpression(Color.RED);
         Literal middle = (Literal) styleBuilder.literalExpression(160);
         Literal plusInfinity = (Literal) styleBuilder.literalExpression(Color.BLUE);

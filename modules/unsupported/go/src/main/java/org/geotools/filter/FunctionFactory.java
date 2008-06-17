@@ -23,7 +23,6 @@ import org.opengis.filter.capability.Functions;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
-import org.opengis.go.CommonFactory;
 
 /**
  * FunctionFactory allowing access to both a Function implementation
