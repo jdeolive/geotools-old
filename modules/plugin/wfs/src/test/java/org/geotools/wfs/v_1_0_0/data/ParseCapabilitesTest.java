@@ -77,7 +77,8 @@ public class ParseCapabilitesTest extends TestCase {
 		InputStream in = TestData.openStream("xml/capabilities/WFSGetCapsSomeFunctionExpressions.xml");
         WFSCapabilities obj=(WFSCapabilities) DocumentFactory.getInstance(in, hints, Level.WARNING);
         FilterCapabilities filterCapabilities = obj.getFilterCapabilities();
-		assertTrue(filterCapabilities.supports(FilterCapabilities.FUNCTIONS));
+        
+		assertTrue("supports functions", filterCapabilities.supports(FilterCapabilities.FUNCTIONS));
 		
 		assertTrue(filterCapabilities.supports(FilterFunction_distance.class));
 		assertFalse(filterCapabilities.supports(FilterFunction_abs.class));
@@ -109,15 +110,17 @@ public class ParseCapabilitesTest extends TestCase {
 		InputStream in = TestData.openStream("xml/capabilities/WFSGetCapsGeoserverFunctionExpressions.xml");
         WFSCapabilities obj=(WFSCapabilities) DocumentFactory.getInstance(in, hints, Level.WARNING);
         FilterCapabilities filterCapabilities = obj.getFilterCapabilities();
-		assertTrue(filterCapabilities.supports(FilterCapabilities.FUNCTIONS));
+        
+		boolean supports = filterCapabilities.supports(FilterCapabilities.FUNCTIONS);
+        assertTrue("supports functions", supports);
 		
-		assertTrue(filterCapabilities.supports(FilterFunction_distance.class));
-		assertTrue(filterCapabilities.supports(FilterFunction_abs.class));
-		assertTrue(filterCapabilities.supports(FilterFunction_geometryType.class));
+		assertTrue("supports distance", filterCapabilities.supports(FilterFunction_distance.class));
+		assertTrue("supports filter", filterCapabilities.supports(FilterFunction_abs.class));
+		assertTrue("supports geometry", filterCapabilities.supports(FilterFunction_geometryType.class));
 
-		assertTrue(filterCapabilities.supports(FilterCapabilities.SPATIAL_DISJOINT));
-		assertTrue(filterCapabilities.supports(FilterCapabilities.SPATIAL_EQUALS));
-		assertTrue(filterCapabilities.supports(FilterCapabilities.SPATIAL_DWITHIN));
+		assertTrue("supports disjoint", filterCapabilities.supports(FilterCapabilities.SPATIAL_DISJOINT));
+		assertTrue("supports equals", filterCapabilities.supports(FilterCapabilities.SPATIAL_EQUALS));
+		assertTrue("supports dwithin", filterCapabilities.supports(FilterCapabilities.SPATIAL_DWITHIN));
 		assertTrue(filterCapabilities.supports(FilterCapabilities.SPATIAL_BEYOND));
 		assertTrue(filterCapabilities.supports(FilterCapabilities.SPATIAL_INTERSECT));
 		assertTrue(filterCapabilities.supports(FilterCapabilities.SPATIAL_TOUCHES));

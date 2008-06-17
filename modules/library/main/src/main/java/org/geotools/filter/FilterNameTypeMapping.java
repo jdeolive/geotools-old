@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.geotools.factory.CommonFactoryFinder;
+import org.opengis.filter.expression.Function;
 
 /**
  * A utility class for {@link FilterCapabilities} that assists in mapping between a filter or expression or
@@ -153,6 +154,11 @@ class FilterNameTypeMapping {
 			FunctionExpression exp=(FunctionExpression) expressions.next();
 			functionNameMap.put(exp.getName().toLowerCase(), new FilterCapabilities(exp.getClass()));
 		}
+		Iterator functions = CommonFactoryFinder.getFunctions(null ).iterator();
+        while ( functions.hasNext() ){
+            Function exp=(Function) functions.next();
+            functionNameMap.put(exp.getName().toLowerCase(), new FilterCapabilities(exp.getClass()));
+        }
         return functionNameMap;
     }
 

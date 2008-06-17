@@ -154,8 +154,19 @@ public class FunctionFinder {
             }
         } catch (Exception e) {
         	LOGGER.log( Level.FINER, "Unable to create class " + name + "Function", e);
+            if( fallback != null ){
+                return new FallbackFunction( name, parameters, fallback );                
+            }
+            else {
+                throw new RuntimeException("Unable to create class " + name + "Function", e);
+            }
         }
-        return new FallbackFunction( name, parameters, fallback );                
+        if(  fallback != null ){
+            return new FallbackFunction( name, parameters, fallback );                
+        }
+        else {
+            throw new RuntimeException("Unable to find function " + name);
+        }
     }
 
     private String functionName(String name) {
