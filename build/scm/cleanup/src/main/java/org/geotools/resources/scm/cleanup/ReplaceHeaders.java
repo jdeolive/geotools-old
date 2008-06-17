@@ -97,7 +97,6 @@ public final class ReplaceHeaders extends CommandLine {
 
     private final static Logger LOGGER = Logger.getLogger("org.geotools.resources.scm.cleanup");
 
-    private final String AUTHOR_MARTIN    = "@author Martin Desruisseaux";
     private final String FIRST_LINE       = "GeoTools - The Open Source Java GIS Toolkit";
     private final String OSGEO            = "Open Source Geospatial Foundation (OSGeo)";
 
@@ -135,21 +134,9 @@ public final class ReplaceHeaders extends CommandLine {
     private final List<String> correctlyChangedFiles = new ArrayList<String>();
 
     /**
-     * Mapping between copyrights full text and the abbreviation to put in a
-     * {@code @author Martin Desruisseaux} annotation.
-     */
-    private static final Map<String,String> COPYRIGHTS_FOR_MARTIN =
-            new HashMap<String,String>(3);
-    static {
-        COPYRIGHTS_FOR_MARTIN.put("Pêches et Océans Canada", "PMO");
-        COPYRIGHTS_FOR_MARTIN.put("Fisheries and Oceans Canada", "PMO");
-        COPYRIGHTS_FOR_MARTIN.put("Institut de Recherche pour le Développement", "IRD");
-    }
-
-    /**
      * A set of the first line to consider in the old version of the Geotools headers.
      */
-    private static final Set<String> GEOTOOLS_OLD = new HashSet<String>(2);
+    private static final Set<String> GEOTOOLS_OLD = new HashSet<String>();
     static {
         GEOTOOLS_OLD.add("GeoTools - OpenSource mapping toolkit");
         GEOTOOLS_OLD.add("Geotools2 - OpenSource mapping toolkit");
@@ -299,7 +286,7 @@ public final class ReplaceHeaders extends CommandLine {
         try {
             String line;
             // Defines whether the (c) value has been found
-            boolean hasCopyright = false, recognizedACopyright = false, recognizeOldLicence = false;
+            boolean hasCopyright = false;
             final Map<String,Integer> copyrightsRead = new HashMap<String,Integer>();
             final Set<String> unknowCopyrights = new HashSet<String>();
 
@@ -308,22 +295,15 @@ public final class ReplaceHeaders extends CommandLine {
             /* *****************************************************************
              * Reading part
              */
-            while ((line = reader.readLine()) != null) {
+readLine:   while ((line = reader.readLine()) != null) {
                 textIn.append(line).append("\n");
                 for (final String oldLine : GEOTOOLS_OLD) {
                     if (line.contains(oldLine)) {
                         linesChanged++;
                         numOldFirstLine++;
                         textOut.append(line.replaceAll(oldLine, FIRST_LINE)).append("\n");
-                        recognizedACopyright = true;
-                        break;
+                        continue readLine;
                     }
-                }
-                // If the line contains one of the old Geotools headers, it is already handled,
-                // and we can skip the followings tests.
-                if (recognizedACopyright) {
-                    recognizedACopyright = false;
-                    continue;
                 }
                 if (line.contains("License as published by the Free Software Foundation; either")) {
                     linesChanged++;
@@ -354,6 +334,7 @@ public final class ReplaceHeaders extends CommandLine {
                     //Toggle if we add a line to the header above the copyright.
                     if (insertSpacerLine) {
                         textOut.append(" *\n");
+                        linesChanged++;
                     }
                     textOut.append(" *    (C) ");
                     startCopyright = Collections.min(copyrightsRead.values());
@@ -366,33 +347,6 @@ public final class ReplaceHeaders extends CommandLine {
                     linesChanged++;
                 }
 
-                ////////////////////////////////////////////////////////
-                // Block specific for Martin's @author tagline
-                // Tests whether there is a copyright defined in the header,
-                // for which Martin wants to add to the {@code author} annotation.
-                if (line.contains(AUTHOR_MARTIN) && !copyrightsRead.isEmpty()) {
-                    String copyrightReplacement = "";
-                    for (String foundC : copyrightsRead.keySet()) {
-                        if (COPYRIGHTS_FOR_MARTIN.get(foundC) != null) {
-                            if (copyrightReplacement.equals("IRD") && COPYRIGHTS_FOR_MARTIN.get(foundC).equals("PMO")) {
-                                copyrightReplacement = "PMO, IRD";
-                            } else {
-                                if (!copyrightReplacement.equals("")) {
-                                    copyrightReplacement += ", " + COPYRIGHTS_FOR_MARTIN.get(foundC);
-                                } else {
-                                    copyrightReplacement = COPYRIGHTS_FOR_MARTIN.get(foundC);
-                                }
-                            }
-                        }
-                    }
-                    // Tests whether a copyright requires to add something to Martin's name.
-                    if (!copyrightReplacement.equals("")) {
-                        textOut.append(line.replaceAll(AUTHOR_MARTIN,
-                                AUTHOR_MARTIN + " (" + copyrightReplacement) + ")").append("\n");
-                        linesChanged++;
-                        continue;
-                    }
-                }
                 //We did not match any cases so we simply write the line as it was
                 textOut.append(line).append("\n");
             }
@@ -520,9 +474,10 @@ public final class ReplaceHeaders extends CommandLine {
     }
 
     /**
+     * Returns true if the header read matches with the wished header. False if some
+     * differencies are present.
      *
-     * @param text
-     * @return
+     * @param text A string containing the whole file.
      */
     private boolean matchHeader(final String text) {
         final String[] textSplitedOnEoL = text.split("\n", 16);
