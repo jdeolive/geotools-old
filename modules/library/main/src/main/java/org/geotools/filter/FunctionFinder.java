@@ -16,11 +16,14 @@
  */
 package org.geotools.filter;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
@@ -41,10 +44,12 @@ import org.opengis.filter.expression.Literal;
  * @author Jody Garnett
  */
 public class FunctionFinder {
-    private Map functionExpressionCache;
-
-    private Map functionImplCache;
-
+	private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.filter");
+	
+    private Map<String,Class<FunctionExpression>> functionExpressionCache;
+    private Map<String,Class<FunctionImpl>> functionImplCache;
+    private Map<String,Class<Function>> functionCache;
+    
     public FunctionFinder(Hints hints) {
         // currently hints are not used, need help :-P
     }
@@ -53,36 +58,7 @@ public class FunctionFinder {
         return findFunction(name, null);
     }
 
-    /**
-     * Look up a function for the provided name, may return a FallbackFunction if
-     * an implementation could not be found.
-     * <p>
-     * You can create a function to represent an SQL function or a function hosted on
-     * an external service; the fallback value will be used if you evulate 
-     * by a Java implementation on the classpath.
-     * @param name Function name; this will need to be an exact match
-     * @param parameters Set of Expressions to use as function parameters
-     * @param fallbackValue Literal to use if an implementation could not be found
-     * @return Function for the provided name, may be a FallbackFunction if an implementation could not be found
-     */
-    public Function findFunction(String name, List parameters, Literal fallbackValue ){
-        try {
-            Function function = findFunction( name, parameters );
-            if( function instanceof FunctionImpl){
-                FunctionImpl functionImpl = (FunctionImpl) function;
-                functionImpl.setFallbackValue( fallbackValue );
-            }
-            if( function instanceof ClassificationFunction){
-                ClassificationFunction classification = (ClassificationFunction) function;
-                classification.setFallbackValue( fallbackValue );
-            }
-            return function;
-        }
-        catch( RuntimeException notFound ){
-            // could not find an implementation
-            return new FallbackFunction( name, parameters, fallbackValue );
-        }
-    }
+    
     
     /**
      * Look up a function for the provided name.
@@ -92,7 +68,23 @@ public class FunctionFinder {
      * @return Generated function
      * @throws a RuntimeException if an implementation for name could not be found
      */
-    public Function findFunction(String name, List/* <Expression> */parameters) {
+    public Function findFunction(String name, List/* <Expression> */parameters){
+    	return findFunction(name, parameters, null );
+	}
+    
+	/**
+	 * Look up a function for the provided name, may return a FallbackFunction if
+	 * an implementation could not be found.
+	 * <p>
+	 * You can create a function to represent an SQL function or a function hosted on
+	 * an external service; the fallback value will be used if you evulate 
+	 * by a Java implementation on the classpath.
+	 * @param name Function name; this will need to be an exact match
+	 * @param parameters Set of Expressions to use as function parameters
+	 * @param fallbackValue Literal to use if an implementation could not be found
+	 * @return Function for the provided name, may be a FallbackFunction if an implementation could not be found
+	 */
+    public Function findFunction(String name, List parameters, Literal fallback ) {
         name = functionName(name);
 
         try {
@@ -102,17 +94,30 @@ public class FunctionFinder {
 	            if (functionExpressionCache == null) {
 	                functionExpressionCache = new HashMap();
 	                functionImplCache = new HashMap();
+	                functionCache = new HashMap();
 	                
 	                Set functions = CommonFactoryFinder.getFunctionExpressions( null );                
 	                for (Iterator it = functions.iterator(); it.hasNext();) {
 	                    FunctionExpression function = (FunctionExpression) it.next();
-	                    functionExpressionCache.put(function.getName().toLowerCase(), function.getClass());
+	                    functionExpressionCache.put(function.getName().toLowerCase(), (Class<FunctionExpression>) function.getClass());
 	                }
 	
 	                functions = CommonFactoryFinder.getFunctions( null );                                
 	                for (Iterator i = functions.iterator(); i.hasNext();) {
-	                    FunctionImpl function = (FunctionImpl) i.next();
-	                    functionImplCache.put(function.getName().toLowerCase(), function.getClass());
+	                    Function function = (Function) i.next();
+	                    String functionName = function.getName().toLowerCase();
+						Class functionImplementation = function.getClass();
+						if( function instanceof FunctionImpl){
+							functionImplCache.put(functionName, (Class<FunctionImpl>) functionImplementation );
+						}
+						else if( function instanceof FunctionExpression){
+							if( !functionExpressionCache.containsKey( functionName )){
+								functionExpressionCache.put( functionName, functionImplementation );
+							}							
+						}
+						else {
+							functionCache.put(functionName, (Class<Function>) functionImplementation );
+						}
 	                }
 	            }
         	}
@@ -123,20 +128,34 @@ public class FunctionFinder {
                 FunctionExpression function = (FunctionExpression) clazz.newInstance();
                 if(parameters != null)
                     function.setParameters(parameters);
+                
+                if( fallback != null && function instanceof ClassificationFunction){
+                    ClassificationFunction classification = (ClassificationFunction) function;
+                    classification.setFallbackValue( fallback );
+                }
                 return function;
             }
             clazz = (Class) functionImplCache.get(name.toLowerCase());
             if(clazz != null) {
                 FunctionImpl function = (FunctionImpl) clazz.newInstance();
-                if(parameters != null)
-                    function.setParameters(parameters);
+                if(parameters != null){
+                    function.setParameters( (List) parameters );
+                }
+                if(fallback != null)
+                	function.setFallbackValue( fallback );
                 return function;
             }    
             
+            if(functionCache.containsKey(name.toLowerCase()) ){
+            	Class<Function> functionClass = functionCache.get( name.toLowerCase() );
+            	//Function function = (Function) functionClass.newInstance();
+            	Constructor<Function> constructor = functionClass.getConstructor( new Class[]{ List.class, Literal.class} );
+                return constructor.newInstance( parameters, fallback );
+            }
         } catch (Exception e) {
-            throw new RuntimeException("Unable to create class " + name + "Function", e);
+        	LOGGER.log( Level.FINER, "Unable to create class " + name + "Function", e);
         }
-        throw new RuntimeException("Unable to find function " + name);
+        return new FallbackFunction( name, parameters, fallback );                
     }
 
     private String functionName(String name) {

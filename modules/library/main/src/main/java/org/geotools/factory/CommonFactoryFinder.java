@@ -124,12 +124,11 @@ public final class CommonFactoryFinder extends FactoryFinder {
     public static synchronized Set getFunctionExpressions(Hints hints) {
         hints = mergeSystemHints(hints);
         return new LazySet(getServiceRegistry().getServiceProviders(
-                Function.class, null, hints));
+                FunctionExpression.class, null, hints));
     }
 
-
     /**
-     * Returns a set of all available implementations for the {@link FunctionExpression} interface.
+     * Returns a set of all available implementations for the {@link Function} interface.
      * 
      * @param  hints An optional map of hints, or {@code null} if none.
      * @return Set of available function expression implementations.
@@ -137,7 +136,7 @@ public final class CommonFactoryFinder extends FactoryFinder {
     public static synchronized Set getFunctions(Hints hints) {
         hints = mergeSystemHints(hints);
         return new LazySet(getServiceRegistry().getServiceProviders(
-                FunctionImpl.class, null, hints));
+                Function.class, null, hints));
     }    
 
     /**

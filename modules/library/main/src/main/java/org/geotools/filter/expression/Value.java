@@ -21,12 +21,11 @@ import org.geotools.util.Converters;
 /**
  * Placeholder value for the result of an expression.
  * <p>
- * This class holds onto the value of an expression in one form, and converts it on demand
- * into 
+ * This class holds onto the value of an expression in one form, and converts it
+ * (on demand) into the requested type. 
  * </p>
  * 
  * @author Justin Deoliveira, The Open Planning Project
- *
  */
 public class Value {
 

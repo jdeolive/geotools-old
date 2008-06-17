@@ -105,7 +105,7 @@ public abstract class FunctionExpressionImpl
         }
         final int argCount = getArgCount();
         final int paramsSize = params.size();
-        if(argCount != paramsSize){
+        if(argCount > 0 && argCount != paramsSize){
             throw new IllegalArgumentException("Function "+name+" expected " + argCount + 
                     " arguments, got " + paramsSize);
         }

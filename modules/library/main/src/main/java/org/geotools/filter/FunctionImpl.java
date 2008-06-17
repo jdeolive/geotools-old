@@ -19,11 +19,16 @@ package org.geotools.filter;
 import java.util.List;
 
 import org.geotools.filter.expression.ExpressionAbstract;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.Expression;
 
 /**
+ * Default implementation of a Function; you may extend this class to
+ * implement specific functionality.
+ * <p>
  * 
  * @author Cory Horner, Refractions Research
  *
@@ -63,6 +68,18 @@ public class FunctionImpl extends ExpressionAbstract implements Function {
     }
     
     /**
+     * Default implementation simply returns the fallbackValue.
+     * <p>
+     * Please override this method to produce a value based on the
+     * provided arguments.
+     * @param object Object being evaluated; often a Feature
+     * @return value for the provided object
+     */
+    public Object evaluate(Object object) {
+    	return fallbackValue.evaluate( object );
+    }
+    
+    /**
      * Sets the function parameters.
      */
     public void setParameters(List<Expression> params) {
@@ -76,4 +93,5 @@ public class FunctionImpl extends ExpressionAbstract implements Function {
     public Literal getFallbackValue() {
         return fallbackValue;
     }
+	
 }

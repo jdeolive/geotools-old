@@ -48,15 +48,14 @@ public abstract class ExpressionAbstract implements Expression {
 		return null;
 	}
 	
-        /**
-         * Default implementation delegates handling of context
-         * conversion to Value utility class.
-         * <p>
-         * Subclasses are expected to make use of the Value utility class
-         * (as the easiest way to provide value morphing in confirmance with
-         *  the Filter specification).
-         *  
-         */
+    /**
+     * Default implementation delegates handling of context
+     * conversion to Value utility class.
+     * <p>
+     * Subclasses are expected to make use of the Value utility class
+     * (as the easiest way to provide value morphing in confirmance with
+     *  the Filter specification).
+     */
 	public Object evaluate(Object object, Class context) {
 		Value value = new Value( evaluate( object ) );
 		return value.value( context );

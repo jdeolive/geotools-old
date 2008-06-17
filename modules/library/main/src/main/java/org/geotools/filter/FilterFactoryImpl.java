@@ -449,15 +449,21 @@ public class FilterFactoryImpl implements FilterFactory {
         return function;
     }
 
+    /** @deprecated Pending see org.opengis.filter.Factory2 */
+    public Function function(String name, List<org.opengis.filter.expression.Expression> parameters, Literal fallback ){
+        Function function = 
+        	functionFinder.findFunction( name, parameters, fallback );
+        
+        return function;        
+    }
     public Function function(String name, Expression arg1, Expression arg2,
             Expression arg3) {
         Function function = 
         	functionFinder.findFunction( name, Arrays.asList( new Expression[]{ arg1, arg2, arg3 }) );
         
-        return function;
-        
+        return function;        
     }
-
+    
     public Literal literal(Object obj) {
         try {
             return new LiteralExpressionImpl(obj);
