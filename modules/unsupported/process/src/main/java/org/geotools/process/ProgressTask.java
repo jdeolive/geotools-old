@@ -1,8 +1,18 @@
 /*
- * @(#)FutureTask.java  1.7 04/04/15
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
  *
- * Copyright 2004 Sun Microsystems, Inc. All rights reserved.
- * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
  */
 package org.geotools.process;
 
@@ -18,318 +28,343 @@ import org.opengis.util.InternationalString;
 import org.opengis.util.ProgressListener;
 
 /**
- * An implementation of Progress, based on FutureTask.
- * <p>
- * We will need to reimplement this prior to public release.
- * <p>
- * @author Jody
+ * An implementation of the Progress interface.
+ *
+ * @author gdavis, Jody
  */
-public class ProgressTask implements Runnable,Progress {
+public class ProgressTask implements Runnable, Progress {
+
+    /** Synchronization control */
+    private final Synchronizer synchronizer;
+     
+    /**
+     * Creates a ProgressTask that will execute the
+     * given Process when run.
+     *
+     * @param  process the process to execute
+     * @param input the inputs to use when executing the process
+     * @throws NullPointerException if process is null
+     */
+    public ProgressTask(Process process, Map<String,Object> input) {
+        if (process== null) {
+            throw new NullPointerException();
+        }
+        synchronizer = new Synchronizer(process, input);            
+    }	
+	
+    public float getProgress() {
+        return synchronizer.getProgress();
+    }
     
-        /** Synchronization control for FutureTask */
-        private final Sync sync;
-         
-        /**
-         * Creates a <tt>FutureTask</tt> that will upon running, execute the
-         * given <tt>Callable</tt>.
-         *
-         * @param  callable the callable task
-         * @throws NullPointerException if callable is null
+    public boolean isCancelled() {
+        return synchronizer.innerIsCancelled();
+    }
+    
+    public boolean isDone() {
+        return synchronizer.innerIsDone();
+    }
+
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        return synchronizer.innerCancel(mayInterruptIfRunning);
+    }
+    
+    public Map<String,Object> get() throws InterruptedException, ExecutionException {
+        return synchronizer.innerGet();
+    }
+
+    public Map<String,Object> get(long timeout, TimeUnit unit)
+        throws InterruptedException, ExecutionException, TimeoutException {
+        return synchronizer.innerGet(unit.toNanos(timeout));
+    }
+
+    /**
+     * This protected method is invoked when this process transitions to state
+     * isDone (whether normally or via cancellation). The
+     * default implementation does nothing.  Subclasses may override
+     * this method to invoke completion callbacks.  You can query status inside 
+     * the implementation of this method to determine whether this task
+     * has been canceled.
+     */
+    protected void done() { }
+
+    /**
+     * Sets the result of this ProgressTask to the given value unless
+     * this ProgressTask has already been set or has been canceled.
+     * 
+     * @param value the value to set
+     */ 
+    protected void set(Map<String,Object> value) {
+        synchronizer.innerSet(value);
+    }
+
+    /**
+     * Causes this ProgressTask to report an ExecutionException
+     * with the given throwable as its cause, unless this ProgressTask has
+     * already been set or has been canceled.
+     * 
+     * @param t the cause of failure.
+     */ 
+    protected void setException(Throwable t) {
+        synchronizer.innerSetException(t);
+    }
+    
+    /**
+     * Sets this ProgressTask to the result of the computation unless
+     * it has been canceled.
+     */
+    public void run() {
+        synchronizer.innerRun();
+    }
+
+    /**
+     * Executes the process without setting its result, and then
+     * resets this ProgressTask to its initial state, failing to do so if the
+     * computation encounters an exception or is canceled.  This is
+     * designed for use with processes that execute more
+     * than once.
+     * 
+     * @return true if successfully run and reset
+     */
+    protected boolean runAndReset() {
+        return synchronizer.innerRunAndReset();
+    }
+
+    /**
+     * Synchronization control for ProgressTask. 
+	 *
+	 * This must be a non-static inner class in order to invoke the protected
+     * done method. For clarity, all inner class support
+     * methods are same as outer, prefixed with "inner".
+     *
+     * Uses AQS synchronizer state to represent run status
+     */
+	private final class Synchronizer extends AbstractQueuedSynchronizer implements ProgressListener {
+
+		private static final long serialVersionUID = 6633428077533811475L;
+
+        /** State for process running */
+        private static final int RUNNING = 1;
+        /** State for process completed */
+        private static final int COMPLETED = 2;
+        /** State for process canceled */
+        private static final int CANCELED = 4;
+
+        /** The process */
+        private final Process process;
+        
+        /** The process input parameters */
+        private Map<String,Object> input;
+        
+        /** The result to return from get() */
+        private Map<String,Object> result;
+        
+        /** The exception to throw from get() */
+        private Throwable exception;
+
+        /** 
+         * The thread running process. When it is nulled after set/cancel, this
+         * indicates that the results are now accessible.  This must be
+         * volatile to ensure visibility upon completion.
          */
-        public ProgressTask(Process process, Map<String,Object> input) {
-            if (process== null)
-                throw new NullPointerException();
-            sync = new Sync(process, input );            
+        private volatile Thread runningThread;
+        private float percentComplete;
+        private InternationalString processName;
+
+        Synchronizer(Process process, Map<String,Object> input ) {
+            this.process = process;
+            this.input = input;
+        }
+
+        private boolean ranOrCancelled(int state) {
+            return (state & (COMPLETED | CANCELED)) != 0;
+        }
+
+        /**
+         * Implements AQS base acquire to succeed if ran or canceled
+         */
+        protected int tryAcquireShared(int ignore) {
+            return innerIsDone()? 1 : -1;
+        }
+
+        /**
+         * Implements AQS base release to always signal after setting
+         * final done status by nulling the runningThread.
+         */
+        protected boolean tryReleaseShared(int ignore) {
+            runningThread = null;
+            return true; 
+        }
+
+        boolean innerIsCancelled() {
+            return getState() == CANCELED;
+        }
+        
+        boolean innerIsDone() {
+            return ranOrCancelled(getState()) && runningThread == null;
+        }
+
+        Map<String,Object> innerGet() throws InterruptedException, ExecutionException {
+            acquireSharedInterruptibly(0);
+            if (getState() == CANCELED) {
+                throw new CancellationException();
+            }
+            if (exception != null) {
+                throw new ExecutionException(exception);
+            }
+            
+            return result;
+        }
+
+        Map<String,Object> innerGet(long nanosTimeout) throws InterruptedException, ExecutionException, TimeoutException {
+            if (!tryAcquireSharedNanos(0, nanosTimeout)) {
+                throw new TimeoutException();    
+            }
+            if (getState() == CANCELED) {
+                throw new CancellationException();
+            }
+            if (exception != null) {
+                throw new ExecutionException(exception);
+            }
+            
+            return result;
+        }
+
+        void innerSet(Map<String,Object> v) {
+	        for (;;) {
+	        	int s = getState();
+	        	if (ranOrCancelled(s)) {
+	        		return;
+	        	}
+	        	if (compareAndSetState(s, COMPLETED)) {
+	        		break;
+	        	}
+	        }
+	        
+            result = v;
+            releaseShared(0);
+            done();
+        }
+
+        void innerSetException(Throwable t) {
+	        for (;;) {
+		        int s = getState();
+		        if (ranOrCancelled(s)) {
+		            return;
+		        }
+		        if (compareAndSetState(s, COMPLETED)) {
+		            break;
+		        }
+	        }
+	        
+	        exception = t;
+	        result = null;
+	        releaseShared(0);
+	        done();
+        }
+
+        boolean innerCancel(boolean mayInterruptIfRunning) {
+        	for (;;) {
+        		int s = getState();
+        		if (ranOrCancelled(s)) {
+        			return false;
+        		}
+        		if (compareAndSetState(s, CANCELED)) {
+        			break;
+        		}
+        	}
+        	
+            if (mayInterruptIfRunning) {
+                Thread r = runningThread;
+                if (r != null) {
+                    r.interrupt();
+                }
+            }
+            
+            releaseShared(0);
+            done();
+            return true;
+        }
+
+        void innerRun() {
+            if (!compareAndSetState(0, RUNNING)) {
+                return;
+            }
+            
+            try {
+                runningThread = Thread.currentThread();
+                innerSet(process.execute( input, this ));
+            } catch(Throwable ex) {
+                innerSetException(ex);
+            } 
+        }
+
+        boolean innerRunAndReset() {
+            if (!compareAndSetState(0, RUNNING)) {
+                return false;
+            }
+            
+            try {
+                runningThread = Thread.currentThread();
+                process.execute( input, this ); // don't set the result
+                runningThread = null;
+                return compareAndSetState(RUNNING, 0);
+            } catch(Throwable ex) {
+                innerSetException(ex);
+                return false;
+            } 
+        }
+
+        public void complete() {
+            // ignore
+        }
+
+        public void dispose() {
+            // ignore
+        }
+
+        public void exceptionOccurred( Throwable t ) {
+            innerSetException( t );
+        }
+
+        public String getDescription() {
+            return getTask().toString();
         }
 
         public float getProgress() {
-            return sync.getProgress();
+            return percentComplete;
+        }
+
+        public InternationalString getTask() {
+            return processName;
+        }
+
+        public boolean isCanceled() {
+            return innerIsCancelled();
+        }
+
+        public void progress( float percent ) {
+            this.percentComplete = percent;
+        }
+
+        public void setCanceled( boolean stop ) {
+            innerCancel( stop );
+        }
+
+        public void setDescription( String description ) {
+            processName = new SimpleInternationalString( description );
+        }
+
+        public void setTask( InternationalString arg0 ) {
+            this.processName = arg0; 
+        }
+
+        public void started() {
+        	// ignore
+        }
+
+        public void warningOccurred( String arg0, String arg1, String arg2 ) {
+        	// ignore 
         }
         
-        public boolean isCancelled() {
-            return sync.innerIsCancelled();
-        }
-        
-        public boolean isDone() {
-            return sync.innerIsDone();
-        }
-
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            return sync.innerCancel(mayInterruptIfRunning);
-        }
-        
-        public Map<String,Object> get() throws InterruptedException, ExecutionException {
-            return sync.innerGet();
-        }
-
-        public Map<String,Object> get(long timeout, TimeUnit unit)
-            throws InterruptedException, ExecutionException, TimeoutException {
-            return sync.innerGet(unit.toNanos(timeout));
-        }
-
-        /**
-         * Protected method invoked when this task transitions to state
-         * <tt>isDone</tt> (whether normally or via cancellation). The
-         * default implementation does nothing.  Subclasses may override
-         * this method to invoke completion callbacks or perform
-         * bookkeeping. Note that you can query status inside the
-         * implementation of this method to determine whether this task
-         * has been cancelled.
-         */
-        protected void done() { }
-
-        /**
-         * Sets the result of this Future to the given value unless
-         * this future has already been set or has been cancelled.
-         * @param v the value
-         */ 
-        protected void set(Map<String,Object> v) {
-            sync.innerSet(v);
-        }
-
-        /**
-         * Causes this future to report an <tt>ExecutionException</tt>
-         * with the given throwable as its cause, unless this Future has
-         * already been set or has been cancelled.
-         * @param t the cause of failure.
-         */ 
-        protected void setException(Throwable t) {
-            sync.innerSetException(t);
-        }
-        
-        /**
-         * Sets this Future to the result of computation unless
-         * it has been cancelled.
-         */
-        public void run() {
-            sync.innerRun();
-        }
-
-        /**
-         * Executes the computation without setting its result, and then
-         * resets this Future to initial state, failing to do so if the
-         * computation encounters an exception or is cancelled.  This is
-         * designed for use with tasks that intrinsically execute more
-         * than once.
-         * @return true if successfully run and reset
-         */
-        protected boolean runAndReset() {
-            return sync.innerRunAndReset();
-        }
-
-        /**
-         * Synchronization control for FutureTask. Note that this must be
-         * a non-static inner class in order to invoke the protected
-         * <tt>done</tt> method. For clarity, all inner class support
-         * methods are same as outer, prefixed with "inner".
-         *
-         * Uses AQS sync state to represent run status
-         */
-        private final class Sync extends AbstractQueuedSynchronizer implements ProgressListener {
-            private static final long serialVersionUID = 7877294126458709323L;
-            /** State value representing that task is running */
-            private static final int RUNNING   = 1;
-            /** State value representing that task ran */
-            private static final int RAN       = 2;
-            /** State value representing that task was canceled */
-            private static final int CANCELLED = 4;
-
-            /** The underlying process */
-            private final Process process;
-            
-            /** The result to return from get() */
-            private Map<String,Object> input;
-            
-            /** The result to return from get() */
-            private Map<String,Object> result;
-            
-            /** The exception to throw from get() */
-            private Throwable exception;
-
-            /** 
-             * The thread running task. When nulled after set/cancel, this
-             * indicates that the results are accessible.  Must be
-             * volatile, to ensure visibility upon completion.
-             */
-            private volatile Thread runner;
-            private float percent;
-            private InternationalString task;
-
-            Sync(Process process, Map<String,Object> input ) {
-                this.process = process;
-                this.input = input;
-            }
-
-            private boolean ranOrCancelled(int state) {
-                return (state & (RAN | CANCELLED)) != 0;
-            }
-
-            /**
-             * Implements AQS base acquire to succeed if ran or cancelled
-             */
-            protected int tryAcquireShared(int ignore) {
-                return innerIsDone()? 1 : -1;
-            }
-
-            /**
-             * Implements AQS base release to always signal after setting
-             * final done status by nulling runner thread.
-             */
-            protected boolean tryReleaseShared(int ignore) {
-                runner = null;
-                return true; 
-            }
-
-            boolean innerIsCancelled() {
-                return getState() == CANCELLED;
-            }
-            
-            boolean innerIsDone() {
-                return ranOrCancelled(getState()) && runner == null;
-            }
-
-            Map<String,Object> innerGet() throws InterruptedException, ExecutionException {
-                acquireSharedInterruptibly(0);
-                if (getState() == CANCELLED)
-                    throw new CancellationException();
-                if (exception != null)
-                    throw new ExecutionException(exception);
-                return result;
-            }
-
-            Map<String,Object> innerGet(long nanosTimeout) throws InterruptedException, ExecutionException, TimeoutException {
-                if (!tryAcquireSharedNanos(0, nanosTimeout))
-                    throw new TimeoutException();                
-                if (getState() == CANCELLED)
-                    throw new CancellationException();
-                if (exception != null)
-                    throw new ExecutionException(exception);
-                return result;
-            }
-
-            void innerSet(Map<String,Object> v) {
-            for (;;) {
-            int s = getState();
-            if (ranOrCancelled(s))
-                return;
-            if (compareAndSetState(s, RAN))
-                break;
-            }
-                result = v;
-                releaseShared(0);
-                done();
-            }
-
-            void innerSetException(Throwable t) {
-            for (;;) {
-            int s = getState();
-            if (ranOrCancelled(s))
-                return;
-            if (compareAndSetState(s, RAN))
-                break;
-            }
-                exception = t;
-                result = null;
-                releaseShared(0);
-                done();
-            }
-
-            boolean innerCancel(boolean mayInterruptIfRunning) {
-            for (;;) {
-            int s = getState();
-            if (ranOrCancelled(s))
-                return false;
-            if (compareAndSetState(s, CANCELLED))
-                break;
-            }
-                if (mayInterruptIfRunning) {
-                    Thread r = runner;
-                    if (r != null)
-                        r.interrupt();
-                }
-                releaseShared(0);
-                done();
-                return true;
-            }
-
-            void innerRun() {
-                if (!compareAndSetState(0, RUNNING)) 
-                    return;
-                try {
-                    runner = Thread.currentThread();
-                    innerSet(process.execute( input, this ));
-                } catch(Throwable ex) {
-                    innerSetException(ex);
-                } 
-            }
-
-            boolean innerRunAndReset() {
-                if (!compareAndSetState(0, RUNNING)) 
-                    return false;
-                try {
-                    runner = Thread.currentThread();
-                    process.execute( input, this ); // don't set result
-                    runner = null;
-                    return compareAndSetState(RUNNING, 0);
-                } catch(Throwable ex) {
-                    innerSetException(ex);
-                    return false;
-                } 
-            }
-
-            public void complete() {
-                // ignore
-            }
-
-            public void dispose() {
-                // ignore
-            }
-
-            public void exceptionOccurred( Throwable t ) {
-                innerSetException( t );
-            }
-
-            public String getDescription() {
-                return getTask().toString();
-            }
-
-            public float getProgress() {
-                return percent;
-            }
-
-            public InternationalString getTask() {
-                return task;
-            }
-
-            public boolean isCanceled() {
-                return innerIsCancelled();
-            }
-
-            public void progress( float percent ) {
-                this.percent = percent;
-            }
-
-            public void setCanceled( boolean stop ) {
-                innerCancel( stop );
-            }
-
-            public void setDescription( String description ) {
-                task = new SimpleInternationalString( description );
-            }
-
-            public void setTask( InternationalString arg0 ) {
-                // TODO Auto-generated method stub
-                
-            }
-
-            public void started() {
-                // TODO Auto-generated method stub
-                
-            }
-
-            public void warningOccurred( String arg0, String arg1, String arg2 ) {
-                // TODO Auto-generated method stub
-                
-            }
-        }
-    }
+    } // end Synchornizer inner class
+}

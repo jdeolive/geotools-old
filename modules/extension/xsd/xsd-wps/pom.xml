@@ -77,7 +77,12 @@
       <groupId>org.geotools.xsd</groupId>
       <artifactId>gt-xsd-ows</artifactId>
       <version>${project.version}</version>
-    </dependency>    
+    </dependency>  
+    <dependency>
+      <groupId>org.geotools.xsd</groupId>
+      <artifactId>gt-xsd-gml2</artifactId>
+      <version>${project.version}</version>
+    </dependency>          
   </dependencies>
 
   <build>

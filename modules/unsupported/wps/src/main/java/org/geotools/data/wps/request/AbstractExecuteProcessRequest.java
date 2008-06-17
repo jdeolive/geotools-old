@@ -20,12 +20,16 @@ package org.geotools.data.wps.request;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Properties;
-import java.util.Set;
+
+import net.opengis.ows11.CodeType;
+import net.opengis.ows11.Ows11Factory;
+import net.opengis.wps.DataInputsType1;
+import net.opengis.wps.ExecuteType;
+import net.opengis.wps.WpsFactory;
 
 import org.geotools.gml2.GMLConfiguration;
+import org.geotools.wps.WPS;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Encoder;
 
@@ -79,6 +83,12 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     	Configuration config = new GMLConfiguration();
     	Encoder encoder = new Encoder(config);
     	
+    	//http://schemas.opengis.net/wps/1.0.0/wpsExecute_request.xsd
+    	
+    	ExecuteType request = createExecuteType();
+    	encoder.encode(request, WPS.Execute, outputStream);
+    	
+    	/*
     	Set<Object> keyset = this.properties.keySet();
     	Iterator<Object> iterator = keyset.iterator();
     	while (iterator.hasNext()) {
@@ -86,8 +96,25 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     		Object object = this.properties.get(key);
     		// will a null QName work? Or do I have to know the QName this
     		// object maps to?  I hope I don't need to know...
-    		encoder.encode(object, null, outputStream);
+    		encoder.encode(object, WPS.Execute, outputStream);
     	}
+    	*/
 
-	}      
+	}   
+    
+    @SuppressWarnings("unchecked")
+    private ExecuteType createExecuteType() {
+        ExecuteType request = WpsFactory.eINSTANCE.createExecuteType();
+        CodeType codetype = Ows11Factory.eINSTANCE.createCodeType();
+        codetype.setValue((String)this.properties.get(this.IDENTIFIER));
+        request.setIdentifier(codetype);
+        request.setService("WPS");// TODO: un-hardcode
+        request.setVersion("1.0.0");// TODO: un-hardcode
+        DataInputsType1 inputs = WpsFactory.eINSTANCE.createDataInputsType1();
+        //inputs.getInput().
+        request.setDataInputs(inputs);
+        //request.setResponseForm(value);
+        return request;
+    }    
+
 }

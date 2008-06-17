@@ -79,22 +79,22 @@ public class OnlineWPSTest extends TestCase {
 		
 	}
 	
-//	public void testExecuteProcess() throws ServiceException, IOException {
-//		
-//		WPSCapabilitiesType capabilities = wps.getCapabilities();
-//		
-//		// get the first process and execute it
-//		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
-//		EList processes = processOfferings.getProcess();
-//		ProcessBriefType process = (ProcessBriefType) processes.get(0);
-//		
-//		ExecuteProcessRequest request = wps.createExecuteProcessRequest();
-//		request.setIdentifier(process.getIdentifier().getValue());
-//		ExecuteProcessResponse response = wps.issueRequest(request);
-//		//System.out.println(response);
-//		assertNotNull(response);
-//		
-//	}	
+	public void testExecuteProcess() throws ServiceException, IOException {
+		
+		WPSCapabilitiesType capabilities = wps.getCapabilities();
+		
+		// get the first process and execute it
+		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
+		EList processes = processOfferings.getProcess();
+		ProcessBriefType process = (ProcessBriefType) processes.get(0);
+		
+		ExecuteProcessRequest request = wps.createExecuteProcessRequest();
+		request.setIdentifier(process.getIdentifier().getValue());
+		ExecuteProcessResponse response = wps.issueRequest(request);
+		//System.out.println(response);
+		assertNotNull(response);
+		
+	}	
 	
 
 }

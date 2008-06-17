@@ -20,6 +20,7 @@ package org.geotools.wps;
 import java.util.Set;
 import javax.xml.namespace.QName;
 
+import org.geotools.gml2.GML;
 import org.geotools.ows.v1_1.OWS;
 import org.geotools.xml.XSD;
 
@@ -49,6 +50,7 @@ public final class WPS extends XSD {
     
     protected void addDependencies(Set dependencies) {
        dependencies.add( OWS.getInstance() );
+       dependencies.add( GML.getInstance() );
     }
     
     /**
