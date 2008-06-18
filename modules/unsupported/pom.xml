@@ -114,6 +114,7 @@
     <module>vpf</module>
     <module>widgets-swing-pending</module>
     <module>xml-gpx</module>
+    <module>imagemosaic-jdbc</module>
   </modules>
 
 </project>
