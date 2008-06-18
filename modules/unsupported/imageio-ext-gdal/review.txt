@@ -1,0 +1,16 @@
+IMAGEIO-EXT-GDAL
+==============
+IP Review:
+- Daniele Romagnoli June 2008
+
+STATUS: waiting for checks.
+
+This module is the set of geotools plugins leveraging on imageio-ext project which provides access to several raster data formats leveraging on GDAL.
+
+----------------------
+--- Important Note ---
+----------------------
+The ECW plugin shall not be used within a server application to DECODE ECW format. 
+The ECW EULA (read this at http://www.geo-solutions.it/doc/readme/ECWEULA.txt) 
+explicitly prohibits that type of use unless you have paid a lincesing fee to Leica to use ECW SDK on a server.
+In case you dont agree the ECW EULA, stop using this module.
