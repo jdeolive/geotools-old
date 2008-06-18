@@ -51,8 +51,8 @@ import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
-import javax.units.Unit;
-import javax.units.UnitFormat;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 
 import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
@@ -663,12 +663,12 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 			final int min) {
 		// Create the SampleDimension, with colors and byte transformation
 		// needed for visualization
-		UnitFormat unitFormat = UnitFormat.getStandardInstance();
+		UnitFormat unitFormat = UnitFormat.getInstance();
 		Unit uom = null;
 
 		try {
 			// unit of measure is meter
-			uom = unitFormat.parseUnit("m");
+			uom = (Unit) unitFormat.parseObject("m");
 		} catch (ParseException ex1) {
 			uom = null;
 		}

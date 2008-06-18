@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,7 +23,9 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
 
 import org.opengis.referencing.*;
 import org.opengis.referencing.cs.*;
@@ -102,6 +104,8 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * {@linkplain CRSFactory}   factory = FactoryFinder.{@linkplain ReferencingFactoryFinder#getCRSFactory   getCRSFactory}(hints);
      * </pre></blockquote>
      *
+     * @param hints An optional set of hints, or {@code null} if none.
+     *
      * @since 2.5
      */
     public ReferencingObjectFactory(final Hints hints) {
@@ -167,9 +171,7 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * @throws FactoryException if the object creation failed.
      */
     public Ellipsoid createEllipsoid(Map<String,?> properties,
-                                     double     semiMajorAxis,
-                                     double     semiMinorAxis,
-                                     Unit       unit) throws FactoryException
+            double semiMajorAxis, double semiMinorAxis, Unit<Length> unit) throws FactoryException
     {
         Ellipsoid ellipsoid;
         try {
@@ -192,9 +194,7 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * @throws FactoryException if the object creation failed.
      */
     public Ellipsoid createFlattenedSphere(Map<String,?> properties,
-                                           double     semiMajorAxis,
-                                           double inverseFlattening,
-                                           Unit   unit) throws FactoryException
+            double semiMajorAxis, double inverseFlattening, Unit<Length> unit) throws FactoryException
     {
         Ellipsoid ellipsoid;
         try {
@@ -216,8 +216,7 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * @throws FactoryException if the object creation failed.
      */
     public PrimeMeridian createPrimeMeridian(Map<String,?> properties,
-                                             double        longitude,
-                                             Unit          angularUnit) throws FactoryException
+            double longitude, Unit<Angle> angularUnit) throws FactoryException
     {
         PrimeMeridian meridian;
         try {
@@ -238,8 +237,7 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * @throws FactoryException if the object creation failed.
      */
     public GeodeticDatum createGeodeticDatum(Map<String,?> properties,
-                                             Ellipsoid     ellipsoid,
-                                             PrimeMeridian primeMeridian) throws FactoryException
+            Ellipsoid ellipsoid, PrimeMeridian primeMeridian) throws FactoryException
     {
         GeodeticDatum datum;
         try {
@@ -258,8 +256,8 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * @param  type The type of this vertical datum (often geoidal).
      * @throws FactoryException if the object creation failed.
      */
-    public VerticalDatum createVerticalDatum(Map<String,?> properties,
-                                             VerticalDatumType type) throws FactoryException
+    public VerticalDatum createVerticalDatum(Map<String,?> properties, VerticalDatumType type)
+            throws FactoryException
     {
         VerticalDatum datum;
         try {
@@ -278,8 +276,8 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * @param  origin The date and time origin of this temporal datum.
      * @throws FactoryException if the object creation failed.
      */
-    public TemporalDatum createTemporalDatum(Map<String,?> properties,
-                                             Date origin) throws FactoryException
+    public TemporalDatum createTemporalDatum(Map<String,?> properties, Date origin)
+            throws FactoryException
     {
         TemporalDatum datum;
         try {
@@ -318,8 +316,8 @@ public class ReferencingObjectFactory extends ReferencingFactory
      *         with the image data attributes.
      * @throws FactoryException if the object creation failed.
      */
-    public ImageDatum createImageDatum(Map<String,?> properties,
-                                       PixelInCell   pixelInCell) throws FactoryException
+    public ImageDatum createImageDatum(Map<String,?> properties, PixelInCell pixelInCell)
+            throws FactoryException
     {
         ImageDatum datum;
         try {
@@ -349,9 +347,7 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * @throws FactoryException if the object creation failed.
      */
     public CoordinateSystemAxis createCoordinateSystemAxis(Map<String,?> properties,
-                                                           String        abbreviation,
-                                                           AxisDirection direction,
-                                                           Unit          unit) throws FactoryException
+            String abbreviation, AxisDirection direction, Unit<?> unit) throws FactoryException
     {
         CoordinateSystemAxis axis;
         try {
@@ -694,8 +690,8 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * @param  elements ordered array of {@code CoordinateReferenceSystem} objects.
      * @throws FactoryException if the object creation failed.
      */
-    public CompoundCRS createCompoundCRS(Map<String,?>             properties,
-                                         CoordinateReferenceSystem[] elements) throws FactoryException
+    public CompoundCRS createCompoundCRS(Map<String,?> properties,
+            CoordinateReferenceSystem[] elements) throws FactoryException
     {
         CompoundCRS crs;
         try {
@@ -955,11 +951,11 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * @deprecated Use {@link CoordinateOperationFactory#createDefiningConversion} followed by
      *             {@link #createProjectedCRS} instead.
      */
-    public ProjectedCRS createProjectedCRS(Map<String,?>    properties,
-                                           OperationMethod      method,
-                                           GeographicCRS          base,
-                                           MathTransform baseToDerived,
-                                           CartesianCS       derivedCS) throws FactoryException
+    public ProjectedCRS createProjectedCRS(Map<String,?>   properties,
+                                           OperationMethod method,
+                                           GeographicCRS   base,
+                                           MathTransform   baseToDerived,
+                                           CartesianCS     derivedCS) throws FactoryException
     {
         ProjectedCRS crs;
         try {

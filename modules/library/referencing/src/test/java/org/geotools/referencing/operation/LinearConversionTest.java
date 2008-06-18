@@ -17,8 +17,9 @@
 package org.geotools.referencing.operation;
 
 import java.util.Random;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Length;
 
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
@@ -135,8 +136,8 @@ public final class LinearConversionTest {
      */
     @Test
     public void testScaleAndSwapAxis() {
-        final Unit cm = SI.CENTI(SI.METER);
-        final Unit mm = SI.MILLI(SI.METER);
+        final Unit<Length> cm = SI.CENTI(SI.METER);
+        final Unit<Length> mm = SI.MILLI(SI.METER);
         final AbstractCS cs = new DefaultCartesianCS("Test",
               new DefaultCoordinateSystemAxis("y", SOUTH, cm),
               new DefaultCoordinateSystemAxis("x", EAST,  mm));

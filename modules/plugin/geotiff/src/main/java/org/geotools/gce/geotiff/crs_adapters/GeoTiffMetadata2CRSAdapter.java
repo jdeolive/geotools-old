@@ -43,9 +43,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.GeoTiffException;
@@ -1641,7 +1641,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 				}
 
 				double sz = Double.parseDouble(unitSize);
-				return base.multiply(sz);
+				return base.times(sz);
 			} catch (NumberFormatException nfe) {
 				final IOException ioe = new GeoTiffException(metadata, nfe
 						.getLocalizedMessage(), nfe);

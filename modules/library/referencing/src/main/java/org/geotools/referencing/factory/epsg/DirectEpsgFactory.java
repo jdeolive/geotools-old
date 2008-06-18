@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -33,9 +33,9 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.ref.SoftReference;
 import java.util.logging.Level;
-import javax.units.NonSI;
-import javax.units.Unit;
-import javax.units.SI;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.SI;
 
 import org.opengis.metadata.Identifier;
 import org.opengis.metadata.extent.Extent;
@@ -139,7 +139,7 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
      * @param  code The code.
      * @return The unit, or {@code null} if the code is unrecognized.
      */
-    private static Unit getUnit(final int code) {
+    private static Unit<?> getUnit(final int code) {
         switch (code) {
             case 9001: return    SI.METER;
             case 9002: return NonSI.FOOT;
@@ -173,10 +173,10 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
      * @throws FactoryException if the code is unrecognized.
      */
     private static void setBursaWolfParameter(final BursaWolfParameters parameters,
-                                              final int code, double value, final Unit unit)
+                                              final int code, double value, final Unit<?> unit)
             throws FactoryException
     {
-        Unit target = unit;
+        Unit<?> target = unit;
         if (code >= 8605) {
             if      (code <= 8607) target = SI   .METER;
             else if (code <= 8710) target = NonSI.SECOND_ANGLE;
@@ -1095,9 +1095,9 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
      *         store. This exception usually have {@link SQLException} as its cause.
      */
     @Override
-    public synchronized Unit createUnit(final String code) throws FactoryException {
+    public synchronized Unit<?> createUnit(final String code) throws FactoryException {
         ensureNonNull("code", code);
-        Unit returnValue = null;
+        Unit<?> returnValue = null;
         try {
             final String primaryKey = toPrimaryKey(Unit.class, code,
                     "[Unit of Measure]", "UOM_CODE", "UNIT_OF_MEAS_NAME");
@@ -1115,15 +1115,15 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
                 final double   b = result.getDouble(2);
                 final double   c = result.getDouble(3);
                 final int target = getInt(result,   4, code);
-                final Unit  base = getUnit(target);
+                final Unit<?> base = getUnit(target);
                 if (base == null) {
                     throw noSuchAuthorityCode(Unit.class, String.valueOf(target));
                 }
-                Unit unit = getUnit(source);
+                Unit<?> unit = getUnit(source);
                 if (unit != null) {
                     // TODO: check unit consistency here.
                 } else if (b!=0 && c!=0) {
-                    unit = (b==c) ? base : base.multiply(b/c);
+                    unit = (b == c) ? base : base.times(b / c);
                 } else {
                     // TODO: provide a localized message.
                     throw new FactoryException("Unsupported unit: " + code);

@@ -19,7 +19,7 @@
  */
 package org.geotools.metadata.iso.content;
 
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;

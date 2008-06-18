@@ -17,7 +17,7 @@
 package org.geotools.referencing.operation.transform;
 
 import java.io.Serializable;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
@@ -119,6 +119,7 @@ public class ExponentialTransform1D extends AbstractMathTransform
      *
      * @param base   The base to be raised to a power.
      * @param scale  The scale value to be multiplied.
+     * @return The math transform.
      */
     public static MathTransform1D create(final double base, final double scale) {
         if (base==0 || scale==0) {

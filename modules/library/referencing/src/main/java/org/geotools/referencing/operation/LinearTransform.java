@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.geotools.referencing.operation;
 
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.Matrix;
-import org.geotools.referencing.operation.matrix.XMatrix; // For javadoc
+import org.geotools.referencing.operation.matrix.XMatrix;
 
 
 /**
@@ -39,6 +39,8 @@ import org.geotools.referencing.operation.matrix.XMatrix; // For javadoc
 public interface LinearTransform extends MathTransform {
     /**
      * Returns this transform as an affine transform matrix.
+     *
+     * @return A copy of the underlying matrix.
      */
     Matrix getMatrix();
 
@@ -50,6 +52,9 @@ public interface LinearTransform extends MathTransform {
      * <blockquote><pre>
      * {@linkplain #getMatrix()}.{@linkplain XMatrix#isIdentity(double) isIdentity}(tolerance);
      * </pre></blockquote>
+     *
+     * @param tolerance The tolerance factor.
+     * @return {@code true} if this transform is the identity one
      *
      * @since 2.4
      */

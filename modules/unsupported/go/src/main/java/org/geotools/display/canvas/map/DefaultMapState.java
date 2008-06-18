@@ -17,7 +17,7 @@
 package org.geotools.display.canvas.map;
 
 import java.awt.Rectangle;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.util.InternationalString;
 import org.opengis.go.display.canvas.Canvas;  // For javadoc

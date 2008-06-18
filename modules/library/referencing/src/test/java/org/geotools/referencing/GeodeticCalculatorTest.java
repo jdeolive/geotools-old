@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@ import java.awt.Shape;
 import java.awt.geom.IllegalPathStateException;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import javax.units.SI;
+import javax.measure.unit.SI;
 
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.GeographicCRS;

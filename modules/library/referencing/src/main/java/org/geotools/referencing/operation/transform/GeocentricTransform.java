@@ -23,9 +23,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collections;
-import javax.units.Converter;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Length;
+import javax.measure.converter.UnitConverter;
 
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
@@ -150,11 +151,11 @@ public class GeocentricTransform extends AbstractMathTransform implements Serial
      */
     public GeocentricTransform(final double  semiMajor,
                                final double  semiMinor,
-                               final Unit    units,
+                               final Unit<Length> units,
                                final boolean hasHeight)
     {
         this.hasHeight = hasHeight;
-        final Converter converter = units.getConverterTo(SI.METER);
+        final UnitConverter converter = units.getConverterTo(SI.METER);
         a   = converter.convert(semiMajor);
         b   = converter.convert(semiMinor);
         a2  = a*a;
@@ -312,12 +313,20 @@ public class GeocentricTransform extends AbstractMathTransform implements Serial
      * parameters. The method used here is derived from "An Improved
      * Algorithm for Geocentric to Geodetic Coordinate Conversion", by
      * Ralph Toms, Feb 1996.
+     *
+     * @param srcPts the array containing the source point coordinates.
+     * @param srcOff the offset to the first point to be transformed in the source array.
+     * @param dstPts the array into which the transformed point coordinates are returned.
+     *               May be the same than {@code srcPts}.
+     * @param dstOff the offset to the location of the first transformed point that is stored
+     *               in the destination array.
+     * @param numPts the number of point objects to be transformed.
      */
     public void inverseTransform(double[] srcPts, int srcOff,
                            final double[] dstPts, int dstOff, final int numPts)
     {
         final int dimTarget = getSourceDimensions();
-        if (srcPts==dstPts && needCopy(srcOff, 3, dstOff, dimTarget, numPts)) {
+        if (srcPts == dstPts && needCopy(srcOff, 3, dstOff, dimTarget, numPts)) {
             // Source and destination arrays overlaps: copy in a temporary buffer.
             final double[] old = srcPts;
             srcPts = new double[numPts*3];
@@ -333,12 +342,20 @@ public class GeocentricTransform extends AbstractMathTransform implements Serial
      * parameters. The method used here is derived from "An Improved
      * Algorithm for Geocentric to Geodetic Coordinate Conversion", by
      * Ralph Toms, Feb 1996.
+     *
+     * @param srcPts the array containing the source point coordinates.
+     * @param srcOff the offset to the first point to be transformed in the source array.
+     * @param dstPts the array into which the transformed point coordinates are returned.
+     *               May be the same than {@code srcPts}.
+     * @param dstOff the offset to the location of the first transformed point that is stored
+     *               in the destination array.
+     * @param numPts the number of point objects to be transformed.
      */
     public void inverseTransform(float[] srcPts, int srcOff,
                            final float[] dstPts, int dstOff, final int numPts)
     {
         final int dimTarget = getSourceDimensions();
-        if (srcPts==dstPts && needCopy(srcOff, 3, dstOff, dimTarget, numPts)) {
+        if (srcPts == dstPts && needCopy(srcOff, 3, dstOff, dimTarget, numPts)) {
             // Source and destination arrays overlaps: copy in a temporary buffer.
             final float[] old = srcPts;
             srcPts = new float[numPts*3];

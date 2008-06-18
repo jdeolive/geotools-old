@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.SampleDimension;
@@ -53,13 +53,13 @@ import org.geotools.axis.AbstractGraduation;
 import org.geotools.axis.LogarithmicNumberGraduation;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.util.logging.Logging;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -148,7 +148,7 @@ public class ColorRamp extends JComponent {
     private final UI ui = new UI();
 
     /**
-     * Constructs an initially empty color bar. Colors can be
+     * Constructs an initially empty color ramp. Colors can be
      * set using one of the {@code setColors(...)} methods.
      */
     public ColorRamp() {
@@ -157,7 +157,9 @@ public class ColorRamp extends JComponent {
     }
 
     /**
-     * Constructs a color bar for the specified coverage.
+     * Constructs a color ramp for the specified coverage.
+     *
+     * @param coverage The coverage for which to create a color ramp.
      */
     public ColorRamp(final Coverage coverage) {
         this();
@@ -167,6 +169,8 @@ public class ColorRamp extends JComponent {
     /**
      * Returns the graduation to paint over colors. If the graduation is
      * not yet defined, then this method returns {@code null}.
+     *
+     * @return The graduation to draw.
      */
     public Graduation getGraduation() {
         return graduation;
@@ -194,7 +198,7 @@ public class ColorRamp extends JComponent {
             this.graduation = graduation;
             units = null;
             if (graduation != null) {
-                final Unit unit = graduation.getUnit();
+                final Unit<?> unit = graduation.getUnit();
                 if (unit != null) {
                     units = unit.toString();
                 }
@@ -408,6 +412,8 @@ public class ColorRamp extends JComponent {
      * Returns the component's orientation (horizontal or vertical).
      * It should be one of the following constants:
      * ({@link SwingConstants#HORIZONTAL} or {@link SwingConstants#VERTICAL}).
+     *
+     * @return The component orientation.
      */
     public int getOrientation() {
         return (horizontal) ? SwingConstants.HORIZONTAL : SwingConstants.VERTICAL;
@@ -429,6 +435,8 @@ public class ColorRamp extends JComponent {
     /**
      * Tests if graduation labels are paint on top of the
      * colors ramp. Default value is {@code true}.
+     *
+     * @return {@code true} if graduation labels are drawn.
      */
     public boolean isLabelVisibles() {
         return labelVisibles;
@@ -436,6 +444,8 @@ public class ColorRamp extends JComponent {
 
     /**
      * Sets whatever the graduation labels should be painted on top of the colors ramp.
+     *
+     * @param visible {@code true} if graduation labels should be drawn.
      */
     public void setLabelVisibles(final boolean visible) {
         labelVisibles = visible;
@@ -666,7 +676,7 @@ public class ColorRamp extends JComponent {
             // Transformation failed. We don't know if the scale is linear or logarithmic.
             // Continue anyway. A warning will be logged later in this method.
         }
-        final Unit units = band.getUnits();
+        final Unit<?> units = band.getUnits();
         AbstractGraduation graduation = (reuse instanceof AbstractGraduation) ?
                                         (AbstractGraduation) reuse : null;
         if (linear) {
@@ -693,6 +703,8 @@ public class ColorRamp extends JComponent {
     /**
      * Returns an image representation for this color ramp. The image size will be this
      * {@linkplain #getSize widget size}.
+     *
+     * @return The color ramp as a buffered image.
      *
      * @since 2.4
      */

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.geotools.referencing.crs;
 
 import java.util.Map;
 import java.util.HashMap;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -120,7 +120,7 @@ public abstract class AbstractCRS extends AbstractReferenceSystem implements Coo
      * then this method returns {@code null}. This method is often used for
      * Well Know Text (WKT) formatting.
      */
-    final Unit getUnit() {
+    final Unit<?> getUnit() {
         return CRSUtilities.getUnit(coordinateSystem);
     }
 
@@ -206,7 +206,7 @@ public abstract class AbstractCRS extends AbstractReferenceSystem implements Coo
      * and {@link DefaultVerticalCRS} use only.
      */
     void formatDefaultWKT(final Formatter formatter) {
-        final Unit unit = getUnit();
+        final Unit<?> unit = getUnit();
         formatter.append(unit);
         final int dimension = coordinateSystem.getDimension();
         for (int i=0; i<dimension; i++) {

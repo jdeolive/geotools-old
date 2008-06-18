@@ -16,7 +16,7 @@
  */
 package org.geotools.resources.jaxb.code;
 
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 

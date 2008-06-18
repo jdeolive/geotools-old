@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 import javax.imageio.ImageIO;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
@@ -329,7 +329,7 @@ public class GridCoverageBuilder {
      * @param  units The variable units, or {@code null} if unknown.
      * @return A new variable.
      */
-    public Variable newVariable(final CharSequence name, final Unit units) {
+    public Variable newVariable(final CharSequence name, final Unit<?> units) {
         final Variable variable = new Variable(name, units);
         variables.add(variable);
         return variable;
@@ -443,7 +443,7 @@ public class GridCoverageBuilder {
         /**
          * The variable units, or {@code null} for a default units.
          */
-        private final Unit units;
+        private final Unit<?> units;
 
         /**
          * The "nodata" values.
@@ -469,7 +469,7 @@ public class GridCoverageBuilder {
          *
          * @see GridCoverageBuilder#newVariable
          */
-        protected Variable(final CharSequence name, final Unit units) {
+        protected Variable(final CharSequence name, final Unit<?> units) {
             this.name   = name;
             this.units  = units;
             this.nodata = new TreeMap<Integer,CharSequence>();

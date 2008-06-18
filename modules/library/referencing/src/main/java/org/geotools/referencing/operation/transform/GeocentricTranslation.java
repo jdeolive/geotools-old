@@ -17,8 +17,8 @@
 package org.geotools.referencing.operation.transform;
 
 import java.util.Collections;
-import javax.units.NonSI;
-import javax.units.SI;
+import javax.measure.unit.SI;
+import javax.measure.unit.NonSI;
 
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;

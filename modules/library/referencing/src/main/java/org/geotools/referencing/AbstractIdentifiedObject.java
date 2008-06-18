@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.logging.Level;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.opengis.metadata.Identifier;
 import org.opengis.metadata.citation.Citation;
@@ -859,7 +859,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
     @Override
     public final boolean equals(final Object object) {
         return (object instanceof AbstractIdentifiedObject) &&
-                equals((AbstractIdentifiedObject)object, true);
+                equals((AbstractIdentifiedObject) object, true);
     }
 
     /**
@@ -935,7 +935,8 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
     {
         if (!(object1 instanceof AbstractIdentifiedObject)) return Utilities.equals(object1, object2);
         if (!(object2 instanceof AbstractIdentifiedObject)) return Utilities.equals(object2, object1);
-        return equals((AbstractIdentifiedObject)object1, (AbstractIdentifiedObject)object2, compareMetadata);
+        return equals((AbstractIdentifiedObject) object1,
+                      (AbstractIdentifiedObject) object2, compareMetadata);
     }
 
     /**
@@ -1090,7 +1091,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
      * @param  unit Unit to check.
      * @throws IllegalArgumentException if {@code unit} is not a temporal unit.
      */
-    protected static void ensureTimeUnit(final Unit unit) throws IllegalArgumentException {
+    protected static void ensureTimeUnit(final Unit<?> unit) throws IllegalArgumentException {
         if (!SI.SECOND.isCompatible(unit)) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NON_TEMPORAL_UNIT_$1, unit));
         }
@@ -1103,7 +1104,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
      * @param  unit Unit to check.
      * @throws IllegalArgumentException if {@code unit} is not a linear unit.
      */
-    protected static void ensureLinearUnit(final Unit unit) throws IllegalArgumentException {
+    protected static void ensureLinearUnit(final Unit<?> unit) throws IllegalArgumentException {
         if (!SI.METER.isCompatible(unit)) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NON_LINEAR_UNIT_$1, unit));
         }
@@ -1116,7 +1117,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
      * @param  unit Unit to check.
      * @throws IllegalArgumentException if {@code unit} is not an angular unit.
      */
-    protected static void ensureAngularUnit(final Unit unit) throws IllegalArgumentException {
+    protected static void ensureAngularUnit(final Unit<?> unit) throws IllegalArgumentException {
         if (!SI.RADIAN.isCompatible(unit) && !Unit.ONE.equals(unit)) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NON_ANGULAR_UNIT_$1, unit));
         }

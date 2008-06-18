@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 package org.geotools.parameter;
 
 import java.net.URI;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.parameter.InvalidParameterTypeException;
 import org.opengis.parameter.InvalidParameterValueException;
@@ -108,7 +108,7 @@ public class FloatParameter extends AbstractParameter implements ParameterValue<
      *
      * @return The unit of measure, or {@code null} if none.
      */
-    public Unit getUnit() {
+    public Unit<?> getUnit() {
         return ((ParameterDescriptor) descriptor).getUnit();
     }
 
@@ -121,9 +121,9 @@ public class FloatParameter extends AbstractParameter implements ParameterValue<
      *         {@code double} and conversion to {@code unit}.
      * @throws IllegalArgumentException if the specified unit is invalid for this parameter.
      */
-    public double doubleValue(final Unit unit) throws IllegalArgumentException {
+    public double doubleValue(final Unit<?> unit) throws IllegalArgumentException {
         ensureNonNull("unit", unit);
-        final Unit thisUnit = getUnit();
+        final Unit<?> thisUnit = getUnit();
         if (thisUnit == null) {
             throw unitlessParameter(descriptor);
         }
@@ -179,7 +179,7 @@ public class FloatParameter extends AbstractParameter implements ParameterValue<
      *         {@code double} and conversion to {@code unit}.
      * @throws IllegalArgumentException if the specified unit is invalid for this parameter.
      */
-    public double[] doubleValueList(final Unit unit) throws IllegalArgumentException {
+    public double[] doubleValueList(final Unit<?> unit) throws IllegalArgumentException {
         return new double[] {doubleValue(unit)};
     }
 
@@ -235,11 +235,11 @@ public class FloatParameter extends AbstractParameter implements ParameterValue<
      * @throws InvalidParameterValueException if the value is illegal for some reason
      *         (for example a value out of range).
      */
-    public void setValue(double value, final Unit unit) throws InvalidParameterValueException {
+    public void setValue(double value, final Unit<?> unit) throws InvalidParameterValueException {
         ensureNonNull("unit", unit);
         @SuppressWarnings("unchecked") // Checked by constructor.
         final ParameterDescriptor<Double> descriptor = (ParameterDescriptor) this.descriptor;
-        final Unit thisUnit = descriptor.getUnit();
+        final Unit<?> thisUnit = descriptor.getUnit();
         if (thisUnit == null) {
             throw unitlessParameter(descriptor);
         }
@@ -302,7 +302,9 @@ public class FloatParameter extends AbstractParameter implements ParameterValue<
     /**
      * Always throws an exception, since this parameter is not an array.
      */
-    public void setValue(double[] values, final Unit unit) throws InvalidParameterValueException {
+    public void setValue(double[] values, final Unit<?> unit)
+            throws InvalidParameterValueException
+    {
         throw new InvalidParameterTypeException(getClassTypeError(),
                   Parameter.getName(descriptor));
     }

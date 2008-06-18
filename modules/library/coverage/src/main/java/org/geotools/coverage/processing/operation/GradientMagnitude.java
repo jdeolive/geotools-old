@@ -24,7 +24,7 @@ import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
 import javax.media.jai.operator.GradientMagnitudeDescriptor; // For javadoc
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 // OpenGIS dependencies
 import org.opengis.util.InternationalString;

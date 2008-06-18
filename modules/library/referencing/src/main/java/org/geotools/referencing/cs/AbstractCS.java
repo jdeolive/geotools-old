@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,10 +23,10 @@ import java.util.Map;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Collections;
-import javax.units.SI;
-import javax.units.Unit;
-import javax.units.Converter;
-import javax.units.ConversionException;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.converter.UnitConverter;
+import javax.measure.converter.ConversionException;
 
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystem;
@@ -67,7 +67,7 @@ import org.geotools.resources.i18n.Vocabulary;
  * @author Martin Desruisseaux (IRD)
  *
  * @see DefaultCoordinateSystemAxis
- * @see javax.units.Unit
+ * @see javax.measure.unit.Unit
  * @see org.geotools.referencing.datum.AbstractDatum
  * @see org.geotools.referencing.crs.AbstractCRS
  */
@@ -97,7 +97,7 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
      * The unit for measuring distance in this coordinate system, or {@code null} if none.
      * Will be computed only when first needed.
      */
-    private transient Unit distanceUnit;
+    private transient Unit<?> distanceUnit;
 
     /**
      * Constructs a new coordinate system with the same values than the specified one.
@@ -158,7 +158,7 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
                 throw new IllegalArgumentException(Errors.format(
                         ErrorKeys.ILLEGAL_AXIS_ORIENTATION_$2, direction.name(), getClass()));
             }
-            final Unit unit = axis[i].getUnit();
+            final Unit<?> unit = axis[i].getUnit();
             ensureNonNull("unit", unit);
             if (!isCompatibleUnit(direction, unit)) {
                 throw new IllegalArgumentException(Errors.format(
@@ -256,7 +256,7 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
      *
      * @since 2.2
      */
-    protected boolean isCompatibleUnit(final AxisDirection direction, final Unit unit) {
+    protected boolean isCompatibleUnit(final AxisDirection direction, final Unit<?> unit) {
         return true;
     }
 
@@ -351,7 +351,7 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
         assert sourceDim == sourceCS.getDimension() : sourceCS;
         assert targetDim == targetCS.getDimension() : targetCS;
         for (int j=0; j<targetDim; j++) {
-            final Unit targetUnit = targetCS.getAxis(j).getUnit();
+            final Unit<?> targetUnit = targetCS.getAxis(j).getUnit();
             for (int i=0; i<sourceDim; i++) {
                 final double element = matrix.getElement(j,i);
                 if (element == 0) {
@@ -359,19 +359,20 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
                     // (i.e. axis are orthogonal).
                     continue;
                 }
-                final Unit sourceUnit = sourceCS.getAxis(i).getUnit();
+                final Unit<?> sourceUnit = sourceCS.getAxis(i).getUnit();
                 if (Utilities.equals(sourceUnit, targetUnit)) {
                     // There is no units conversion to apply
                     // between source[i] and target[j].
                     continue;
                 }
-                final Converter converter = sourceUnit.getConverterTo(targetUnit);
+                final UnitConverter converter = sourceUnit.getConverterTo(targetUnit);
                 if (!converter.isLinear()) {
                     throw new ConversionException(Errors.format(
                               ErrorKeys.NON_LINEAR_UNIT_CONVERSION_$2, sourceUnit, targetUnit));
                 }
                 final double offset = converter.convert(0);
-                final double scale  = converter.derivative(0);
+// JSR-275      final double scale  = converter.derivative(0);
+                final double scale  = converter.convert(1) - offset;
                 matrix.setElement(j,i, element*scale);
                 matrix.setElement(j,sourceDim, matrix.getElement(j,sourceDim) + element*offset);
             }
@@ -426,21 +427,23 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
      * @return Suggested distance unit.
      * @throws ConversionException if some non-angular units are incompatibles.
      */
-    final Unit getDistanceUnit() throws ConversionException {
-        Unit unit = distanceUnit;  // Avoid the need for synchronization.
+    final Unit<?> getDistanceUnit() throws ConversionException {
+        Unit<?> unit = distanceUnit;  // Avoid the need for synchronization.
         if (unit == null) {
             for (int i=0; i<axis.length; i++) {
-                final Unit candidate = axis[i].getUnit();
+                final Unit<?> candidate = axis[i].getUnit();
                 if (candidate!=null && !candidate.isCompatible(SI.RADIAN)) {
                     // TODO: checks the unit scale type (keeps RATIO only).
                     if (unit != null) {
-                        final Converter converter = candidate.getConverterTo(unit);
+                        final UnitConverter converter = candidate.getConverterTo(unit);
                         if (!converter.isLinear()) {
                             // TODO: use the localization provided in 'swapAxis'. We could also
                             //       do a more intelligent work by checking the unit scale type.
                             throw new ConversionException("Unit conversion is non-linear");
                         }
-                        if (Math.abs(converter.derivative(0)) <= 1) {
+// JSR-275              final double scale = converter.derivative(0);
+                        final double scale = converter.convert(1) - converter.convert(0);
+                        if (Math.abs(scale) <= 1) {
                             // The candidate is a "smaller" unit than the current one
                             // (e.g. "m" instead of "km"). Keeps the "largest" unit.
                             continue;
@@ -500,7 +503,7 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
      * @see DefaultCartesianCS#usingUnit
      * @see DefaultEllipsoidalCS#usingUnit
      */
-    final CoordinateSystemAxis[] axisUsingUnit(final Unit unit) throws IllegalArgumentException {
+    final CoordinateSystemAxis[] axisUsingUnit(final Unit<?> unit) throws IllegalArgumentException {
         CoordinateSystemAxis[] newAxis = null;
         for (int i=0; i<axis.length; i++) {
             CoordinateSystemAxis a = axis[i];

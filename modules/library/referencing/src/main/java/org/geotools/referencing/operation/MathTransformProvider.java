@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@ package org.geotools.referencing.operation;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
@@ -181,10 +181,11 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
      * @param minimum The minimum parameter value, or {@link Double#NEGATIVE_INFINITY} if none.
      * @param maximum The maximum parameter value, or {@link Double#POSITIVE_INFINITY} if none.
      * @param unit    The unit for default, minimum and maximum values.
+     * @return The descriptor for the given identifiers.
      */
     protected static ParameterDescriptor<Double> createDescriptor(
             final ReferenceIdentifier[] identifiers, final double defaultValue,
-            final double minimum, final double maximum, final Unit unit)
+            final double minimum, final double maximum, final Unit<?> unit)
     {
         return new DefaultParameterDescriptor(toMap(identifiers), defaultValue,
                                               minimum, maximum, unit, true);
@@ -198,10 +199,11 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
      * @param minimum The minimum parameter value, or {@link Double#NEGATIVE_INFINITY} if none.
      * @param maximum The maximum parameter value, or {@link Double#POSITIVE_INFINITY} if none.
      * @param unit    The unit for default, minimum and maximum values.
+     * @return The descriptor for the given identifiers.
      */
     protected static ParameterDescriptor<Double> createOptionalDescriptor(
             final ReferenceIdentifier[] identifiers,
-            final double minimum, final double maximum, final Unit unit)
+            final double minimum, final double maximum, final Unit<?> unit)
     {
         return new DefaultParameterDescriptor(toMap(identifiers), Double.NaN,
                                               minimum, maximum, unit, false);
@@ -223,6 +225,7 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
      *
      * @param identifiers  The operation identifiers. Most contains at least one entry.
      * @param parameters   The set of parameters, or {@code null} or an empty array if none.
+     * @return The descriptor for the given identifiers.
      */
     protected static ParameterDescriptorGroup createDescriptorGroup(
             final ReferenceIdentifier[] identifiers, final GeneralParameterDescriptor[] parameters)
@@ -354,8 +357,8 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
                 exception.initCause(cause);
                 throw exception;
             }
-            final Object v  = source.getValue();
-            final Unit unit = source.getUnit();
+            final Object  v    = source.getValue();
+            final Unit<?> unit = source.getUnit();
             if (unit == null) {
                 target.setValue(v);
             } else if (v instanceof Number) {
@@ -421,6 +424,7 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
      * This convenience method is used by subclasses for initializing
      * {@linkplain MathTransform math transform} from a set of parameters.
      *
+     * @param  <T> The type of parameter value.
      * @param  param The parameter to look for.
      * @param  group The parameter value group to search into.
      * @return The requested parameter value, or {@code null} if {@code param} is
@@ -502,7 +506,7 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
                                         final ParameterValueGroup    group)
             throws ParameterNotFoundException
     {
-        final Unit unit = param.getUnit();
+        final Unit<?> unit = param.getUnit();
         final ParameterValue<?> value = getParameter(param, group);
         return (value == null) ? Double.NaN :
                 (unit != null) ? value.doubleValue(unit) : value.doubleValue();
@@ -567,6 +571,9 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
 
         /**
          * Encapsulates the math transform created by the specified provider.
+         *
+         * @param transform The math transform created by provider.
+         * @param method The provider, typically as an instance of {@link MathTransformProvider}.
          */
         public Delegate(final MathTransform transform, final OperationMethod method) {
             super(transform);

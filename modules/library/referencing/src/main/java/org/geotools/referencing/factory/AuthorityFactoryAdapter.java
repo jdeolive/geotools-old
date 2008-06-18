@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.metadata.extent.Extent;
 import org.opengis.metadata.citation.Citation;
@@ -384,6 +384,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
      * Returns {@code true} if this factory is ready for use. This default implementation
      * checks the availability of CRS, CS, datum and operation authority factories specified
      * at construction time.
+     *
+     * @return {@code true} if this factory is ready for use.
      */
     @Override
     public boolean isAvailable() {
@@ -404,7 +406,7 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
      * Replaces the specified unit, if applicable.
      * To be overridden with {@code protected} access by {@link TransformedAuthorityFactory}.
      */
-    Unit replace(Unit units) throws FactoryException {
+    Unit<?> replace(Unit<?> units) throws FactoryException {
         return units;
     }
 
@@ -537,6 +539,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
     /**
      * Returns an arbitrary object from a code.
      *
+     * @throws FactoryException if the object creation failed.
+     *
      * @see #createCoordinateReferenceSystem
      * @see #createDatum
      * @see #createEllipsoid
@@ -550,6 +554,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
     /**
      * Returns an arbitrary {@linkplain Datum datum} from a code.
      *
+     * @throws FactoryException if the object creation failed.
+     *
      * @see #createGeodeticDatum
      * @see #createVerticalDatum
      * @see #createTemporalDatum
@@ -562,6 +568,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
     /**
      * Creates a {@linkplain EngineeringDatum engineering datum} from a code.
      *
+     * @throws FactoryException if the object creation failed.
+     *
      * @see #createEngineeringCRS
      */
     @Override
@@ -572,6 +580,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a {@linkplain ImageDatum image datum} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      *
      * @see #createImageCRS
      */
@@ -584,6 +594,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
     /**
      * Creates a {@linkplain VerticalDatum vertical datum} from a code.
      *
+     * @throws FactoryException if the object creation failed.
+     *
      * @see #createVerticalCRS
      */
     @Override
@@ -595,6 +607,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
     /**
      * Creates a {@linkplain TemporalDatum temporal datum} from a code.
      *
+     * @throws FactoryException if the object creation failed.
+     *
      * @see #createTemporalCRS
      */
     @Override
@@ -605,6 +619,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Returns a {@linkplain GeodeticDatum geodetic datum} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      *
      * @see #createEllipsoid
      * @see #createPrimeMeridian
@@ -620,6 +636,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
     /**
      * Returns an {@linkplain Ellipsoid ellipsoid} from a code.
      *
+     * @throws FactoryException if the object creation failed.
+     *
      * @see #createGeodeticDatum
      */
     @Override
@@ -630,6 +648,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
     /**
      * Returns a {@linkplain PrimeMeridian prime meridian} from a code.
      *
+     * @throws FactoryException if the object creation failed.
+     *
      * @see #createGeodeticDatum
      */
     @Override
@@ -639,6 +659,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Returns a {@linkplain Extent extent} (usually an area of validity) from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public Extent createExtent(final String code) throws FactoryException {
@@ -647,6 +669,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Returns an arbitrary {@linkplain CoordinateSystem coordinate system} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public CoordinateSystem createCoordinateSystem(final String code) throws FactoryException {
@@ -656,6 +680,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a cartesian coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public CartesianCS createCartesianCS(final String code) throws FactoryException {
@@ -665,6 +691,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a polar coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public PolarCS createPolarCS(final String code) throws FactoryException {
@@ -674,6 +702,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a cylindrical coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public CylindricalCS createCylindricalCS(final String code) throws FactoryException {
@@ -683,6 +713,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a spherical coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public SphericalCS createSphericalCS(final String code) throws FactoryException {
@@ -692,6 +724,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates an ellipsoidal coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public EllipsoidalCS createEllipsoidalCS(final String code) throws FactoryException {
@@ -701,6 +735,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a vertical coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public VerticalCS createVerticalCS(final String code) throws FactoryException {
@@ -710,6 +746,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a temporal coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public TimeCS createTimeCS(final String code) throws FactoryException {
@@ -719,6 +757,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Returns a {@linkplain CoordinateSystemAxis coordinate system axis} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public CoordinateSystemAxis createCoordinateSystemAxis(final String code)
@@ -730,9 +770,11 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Returns an {@linkplain Unit unit} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
-    public Unit createUnit(final String code) throws FactoryException {
+    public Unit<?> createUnit(final String code) throws FactoryException {
         return replace(getCSAuthorityFactory(code).
                 createUnit(toBackingFactoryCode(code)));
     }
@@ -740,6 +782,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
     /**
      * Returns an arbitrary {@linkplain CoordinateReferenceSystem coordinate reference system}
      * from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      *
      * @see #createGeographicCRS
      * @see #createProjectedCRS
@@ -757,6 +801,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a 3D coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public CompoundCRS createCompoundCRS(final String code) throws FactoryException {
@@ -766,6 +812,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a derived coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public DerivedCRS createDerivedCRS(final String code) throws FactoryException {
@@ -775,6 +823,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a {@linkplain EngineeringCRS engineering coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public EngineeringCRS createEngineeringCRS(final String code) throws FactoryException {
@@ -784,6 +834,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Returns a {@linkplain GeographicCRS geographic coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public GeographicCRS createGeographicCRS(final String code) throws FactoryException {
@@ -793,6 +845,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Returns a {@linkplain GeocentricCRS geocentric coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public GeocentricCRS createGeocentricCRS(final String code) throws FactoryException {
@@ -802,6 +856,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a {@linkplain ImageCRS image coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public ImageCRS createImageCRS(final String code) throws FactoryException {
@@ -811,6 +867,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Returns a {@linkplain ProjectedCRS projected coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public ProjectedCRS createProjectedCRS(final String code) throws FactoryException {
@@ -820,6 +878,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a {@linkplain TemporalCRS temporal coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public TemporalCRS createTemporalCRS(final String code) throws FactoryException {
@@ -829,6 +889,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a {@linkplain VerticalCRS vertical coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public VerticalCRS createVerticalCRS(final String code) throws FactoryException {
@@ -838,6 +900,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates a parameter descriptor from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public ParameterDescriptor createParameterDescriptor(final String code) throws FactoryException {
@@ -847,6 +911,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates an operation method from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public OperationMethod createOperationMethod(final String code) throws FactoryException {
@@ -856,6 +922,8 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates an operation from a single operation code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public CoordinateOperation createCoordinateOperation(final String code) throws FactoryException {
@@ -865,14 +933,16 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
 
     /**
      * Creates an operation from coordinate reference system codes.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public Set<CoordinateOperation> createFromCoordinateReferenceSystemCodes(
-            final String sourceCode, final String targetCode) throws FactoryException
+            final String sourceCRS, final String targetCRS) throws FactoryException
     {
         final CoordinateOperationAuthorityFactory factory, check;
-        factory = getCoordinateOperationAuthorityFactory(sourceCode);
-        check   = getCoordinateOperationAuthorityFactory(targetCode);
+        factory = getCoordinateOperationAuthorityFactory(sourceCRS);
+        check   = getCoordinateOperationAuthorityFactory(targetCRS);
         if (factory != check) {
             /*
              * No coordinate operation because of mismatched factories. This is not
@@ -880,19 +950,21 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
              * user since this case has some chances to be an user error.
              */
             final LogRecord record = Loggings.format(Level.WARNING,
-                    LoggingKeys.MISMATCHED_COORDINATE_OPERATION_FACTORIES_$2, sourceCode, targetCode);
+                    LoggingKeys.MISMATCHED_COORDINATE_OPERATION_FACTORIES_$2, sourceCRS, targetCRS);
             record.setSourceMethodName("createFromCoordinateReferenceSystemCodes");
             record.setSourceClassName(AuthorityFactoryAdapter.class.getName());
             LOGGER.log(record);
             return Collections.emptySet();
         }
         return factory.createFromCoordinateReferenceSystemCodes(
-                toBackingFactoryCode(sourceCode), toBackingFactoryCode(targetCode));
+                toBackingFactoryCode(sourceCRS), toBackingFactoryCode(targetCRS));
     }
 
     /**
      * Returns a finder which can be used for looking up unidentified objects.
      * The default implementation delegates the lookups to the underlying factory.
+     *
+     * @throws FactoryException if the object creation failed.
      *
      * @since 2.4
      */

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,14 +18,14 @@ package org.geotools.coverage;
 
 import java.awt.Color;
 import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;  // For javadoc
+import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import javax.media.jai.JAI;
 
 import org.opengis.coverage.ColorInterpretation;
@@ -320,7 +320,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
                                final double            maximum,
                                final double              scale,
                                final double             offset,
-                               final Unit                 unit)
+                               final Unit<?>              unit)
     {
         // TODO: 'list(...)' should be inlined there if only Sun was to fix RFE #4093999
         //       ("Relax constraint on placement of this()/super() call in constructors").
@@ -339,7 +339,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
                                      double            maximum,
                                final double              scale,
                                final double             offset,
-                               final Unit                 unit)
+                               final Unit<?>              unit)
     {
         if (description == null) {
             description = Vocabulary.formatInternational(VocabularyKeys.UNTITLED);
@@ -550,7 +550,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      *
      * @since 2.3
      */
-    public GridSampleDimension(CharSequence description, Category[] categories, Unit units)
+    public GridSampleDimension(CharSequence description, Category[] categories, Unit<?> units)
             throws IllegalArgumentException
     {
         // TODO: 'list(...)' should be inlined there if only Sun was to fix RFE #4093999
@@ -559,7 +559,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
     }
 
     /** Constructs a list of categories. Used by constructors only. */
-    private static CategoryList list(final Category[] categories, final Unit units) {
+    private static CategoryList list(final Category[] categories, final Unit<?> units) {
         if (categories == null || categories.length == 0) {
             return null;
         }
@@ -1006,7 +1006,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      *
      * @see #getSampleToGeophysics
      */
-    public Unit getUnits() {
+    public Unit<?> getUnits() {
         return (categories != null) ? categories.geophysics(true).getUnits() : null;
     }
 

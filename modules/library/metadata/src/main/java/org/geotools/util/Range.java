@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 package org.geotools.util;
 
 import java.io.Serializable;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -47,7 +47,7 @@ import org.geotools.resources.i18n.ErrorKeys;
  * or subclasses implementation.
  *
  * @param <T> The type of range elements, typically {@link java.util.Date} or some subclass
- *            if {@link Number}.
+ *            of {@link Number}.
  *
  * @since 2.5
  * @source $URL$
@@ -606,7 +606,7 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
     /**
      * To be overriden by {@link MeasurementRange} only.
      */
-    Unit getUnits() {
+    Unit<?> getUnits() {
         return null;
     }
 
@@ -632,7 +632,7 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
             buffer.append(maxValue);
         }
         buffer.append(isMaxIncluded ? ']' : ')');
-        final Unit units = getUnits();
+        final Unit<?> units = getUnits();
         if (units != null) {
             buffer.append(' ').append(units);
         }

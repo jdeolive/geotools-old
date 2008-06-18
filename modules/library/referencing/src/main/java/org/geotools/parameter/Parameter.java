@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -25,10 +25,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 
-import javax.units.Converter;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.opengis.parameter.InvalidParameterTypeException;
 import org.opengis.parameter.InvalidParameterValueException;
@@ -50,6 +50,8 @@ import org.geotools.util.Utilities;
  * <code>{@linkplain #getValue()}.{@linkplain Object#getClass() getClass()}</code> idiom.
  * The {@link #getValue()} and {@link #setValue(Object)} methods can be invoked at any time.
  * Others getters and setters are parameter-type dependents.
+ *
+ * @param <T> The value type.
  *
  * @since 2.1
  * @source $URL$
@@ -74,7 +76,7 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
     /**
      * The unit of measure for the value, or {@code null} if it doesn't apply.
      */
-    private Unit unit;
+    private Unit<?> unit;
 
     /**
      * Constructs a parameter from the specified name and value. This convenience
@@ -106,7 +108,7 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * @deprecated Should move to a static factory method (required for getting ride of warnings).
      */
     @Deprecated
-    public Parameter(final String name, final double value, final Unit unit) {
+    public Parameter(final String name, final double value, final Unit<?> unit) {
         this(new DefaultParameterDescriptor(name, Double.NaN, Double.NEGATIVE_INFINITY,
                                             Double.POSITIVE_INFINITY, normalize(unit)));
         this.value = (T) (Object) value;
@@ -162,7 +164,7 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
     /**
      * Normalize the specified unit into one of "standard" units used in projections.
      */
-    private static Unit normalize(final Unit unit) {
+    private static Unit<?> normalize(final Unit<?> unit) {
         if (unit != null) {
             if (SI.METER          .isCompatible(unit)) return SI.METER;
             if (NonSI.DAY         .isCompatible(unit)) return NonSI.DAY;
@@ -252,7 +254,7 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * @see #doubleValueList()
      * @see #getValue
      */
-    public Unit getUnit() {
+    public Unit<?> getUnit() {
         return unit;
     }
 
@@ -268,7 +270,7 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * @todo Provides a better way to differentiate scale units (currently Unit.ONE)
      *       and angular units. Both are dimensionless...
      */
-    static int getUnitMessageID(final Unit unit) {
+    static int getUnitMessageID(final Unit<?> unit) {
         // Note: ONE must be tested before RADIAN.
         if (Unit.ONE .equals      (unit) ||
             Units.PPM.equals      (unit)) return ErrorKeys.NON_SCALE_UNIT_$1;
@@ -292,7 +294,7 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * @see #setValue(double,Unit)
      * @see #doubleValueList(Unit)
      */
-    public double doubleValue(final Unit unit) throws InvalidParameterTypeException {
+    public double doubleValue(final Unit<?> unit) throws InvalidParameterTypeException {
         if (this.unit == null) {
             throw unitlessParameter(descriptor);
         }
@@ -404,7 +406,7 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * @see #setValue(double[],Unit)
      * @see #doubleValue(Unit)
      */
-    public double[] doubleValueList(final Unit unit) throws InvalidParameterTypeException {
+    public double[] doubleValueList(final Unit<?> unit) throws InvalidParameterTypeException {
         if (this.unit == null) {
             throw unitlessParameter(descriptor);
         }
@@ -413,7 +415,7 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
         if (getUnitMessageID(unit) != expectedID) {
             throw new IllegalArgumentException(Errors.format(expectedID, unit));
         }
-        final Converter converter = this.unit.getConverterTo(unit);
+        final UnitConverter converter = this.unit.getConverterTo(unit);
         final double[] values = doubleValueList().clone();
         for (int i=0; i<values.length; i++) {
             values[i] = converter.convert(values[i]);
@@ -534,11 +536,13 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * @see #setValue(double)
      * @see #doubleValue(Unit)
      */
-    public void setValue(final double value, final Unit unit) throws InvalidParameterValueException {
+    public void setValue(final double value, final Unit<?> unit)
+            throws InvalidParameterValueException
+    {
         ensureNonNull("unit", unit);
         @SuppressWarnings("unchecked") // Checked by constructor.
         final ParameterDescriptor<T> descriptor = (ParameterDescriptor) this.descriptor;
-        final Unit targetUnit = descriptor.getUnit();
+        final Unit<?> targetUnit = descriptor.getUnit();
         if (targetUnit == null) {
             throw unitlessParameter(descriptor);
         }
@@ -637,11 +641,13 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      *         parameter, or if the value is illegal for some other reason (for example a value out
      *         of range).
      */
-    public void setValue(double[] values, final Unit unit) throws InvalidParameterValueException {
+    public void setValue(double[] values, final Unit<?> unit)
+            throws InvalidParameterValueException
+    {
         ensureNonNull("unit", unit);
         @SuppressWarnings("unchecked") // Checked by constructor.
         final ParameterDescriptor<T> descriptor = (ParameterDescriptor) this.descriptor;
-        final Unit targetUnit = descriptor.getUnit();
+        final Unit<?> targetUnit = descriptor.getUnit();
         if (targetUnit == null) {
             throw unitlessParameter(descriptor);
         }
@@ -650,7 +656,7 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
             throw new IllegalArgumentException(Errors.format(expectedID, unit));
         }
         final double[] converted = values.clone();
-        final Converter converter = unit.getConverterTo(targetUnit);
+        final UnitConverter converter = unit.getConverterTo(targetUnit);
         for (int i=0; i<converted.length; i++) {
             converted[i] = converter.convert(converted[i]);
         }

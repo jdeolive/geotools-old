@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -13,16 +13,15 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *    
+ *
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.referencing.factory;
 
-// J2SE dependencies and extensions
 import java.util.Set;
 
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.geotools.factory.BufferedFactory;
 import org.geotools.factory.FactoryRegistryException;
@@ -68,6 +67,7 @@ import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.operation.CoordinateOperationAuthorityFactory;
 import org.opengis.util.InternationalString;
 
+
 /**
  * An authority factory that caches all objects created by delegate factories.
  * This class is set up to cache the full complement of referencing objects:
@@ -86,12 +86,10 @@ import org.opengis.util.InternationalString;
  * This object is responsible for owning a {{ReferencingObjectCache}}; there are
  * several implementations to choose from on construction.
  * </p>
- * 
+ *
  * @since 2.4
- * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/library/referencing/src/main/java/org/geotools/referencing/factory/AbstractBufferedAuthorityFactory.java $
- * @version $Id: BufferedAuthorityDecorator.java 26038 2007-06-27 01:58:12Z
- *          jgarnett $
+ * @source $URL$
+ * @version $Id$
  * @author Jody Garnett
  */
 public final class CachedAuthorityDecorator extends AbstractAuthorityFactory
@@ -128,7 +126,7 @@ public final class CachedAuthorityDecorator extends AbstractAuthorityFactory
 	 * {@link DatumAuthorityFactory}, {@link CSAuthorityFactory},
 	 * {@link CRSAuthorityFactory} and
 	 * {@link CoordinateOperationAuthorityFactory} .
-	 * 
+	 *
 	 * @param factory
 	 *            The factory to cache. Can not be {@code null}.
 	 */
@@ -148,7 +146,7 @@ public final class CachedAuthorityDecorator extends AbstractAuthorityFactory
 	 * {@link CRSAuthorityFactory} {@link SearchableAuthorityFactory} and
 	 * {@link CoordinateOperationAuthorityFactory} interfaces they choose to
 	 * implement.
-	 * 
+	 *
 	 * @param factory
 	 *            The factory to cache. Can not be {@code null}.
 	 * @param maxStrongReferences
@@ -181,7 +179,7 @@ public final class CachedAuthorityDecorator extends AbstractAuthorityFactory
 
 	//
 	// AuthorityFactory
-	//    
+	//
 	public IdentifiedObject createObject(String code) throws FactoryException {
 		final String key = toKey(code);
 		IdentifiedObject obj = (IdentifiedObject) cache.get(key);
@@ -554,9 +552,9 @@ public final class CachedAuthorityDecorator extends AbstractAuthorityFactory
 		return cs;
 	}
 
-	public Unit createUnit(String code) throws FactoryException {
+	public Unit<?> createUnit(String code) throws FactoryException {
 		final String key = toKey(code);
-		Unit unit = (Unit) cache.get(key);
+		Unit<?> unit = (Unit) cache.get(key);
 		if (unit == null) {
 			try {
 				cache.writeLock(key);
@@ -765,18 +763,18 @@ public final class CachedAuthorityDecorator extends AbstractAuthorityFactory
 	public synchronized Set/*<CoordinateOperation>*/ createFromCoordinateReferenceSystemCodes(
 			final String sourceCode, final String targetCode)
 			throws FactoryException {
-		
+
 		final Object key = ObjectCaches.toKey( getAuthority(),  sourceCode, targetCode );
-		Set operations = (Set) cache.get(key);			
+		Set operations = (Set) cache.get(key);
 		if (operations == null) {
 			try {
 				cache.writeLock(key);
 				operations = (Set) cache.peek(key);
 				if (operations == null) {
-					operations = operationAuthority.createFromCoordinateReferenceSystemCodes( sourceCode, targetCode );				
+					operations = operationAuthority.createFromCoordinateReferenceSystemCodes( sourceCode, targetCode );
 					// can we not trust operationAuthority to return us an unmodifiableSet ?
 					//operations = Collections.unmodifiableSet( operations );
-					
+
 					cache.put( key, operations );
 				}
 			}
@@ -785,7 +783,7 @@ public final class CachedAuthorityDecorator extends AbstractAuthorityFactory
 			}
 		}
 		return operations;
-	}	
+	}
 	//
 	// AbstractAuthorityFactory
 	//

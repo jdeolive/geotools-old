@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 package org.geotools.coverage.processing;
 
 import java.awt.Color;
-import javax.units.SI;
+import javax.measure.unit.SI;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

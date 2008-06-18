@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ package org.geotools.referencing.crs;
 
 import java.util.Collections;
 import java.util.Map;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.referencing.cs.CartesianCS;
 import org.opengis.referencing.cs.SphericalCS;
@@ -183,7 +183,7 @@ public class DefaultGeocentricCRS extends AbstractSingleCRS implements Geocentri
      */
     @Override
     protected String formatWKT(final Formatter formatter) {
-        final Unit unit = getUnit();
+        final Unit<?> unit = getUnit();
         formatter.append(datum);
         formatter.append(((GeodeticDatum) datum).getPrimeMeridian());
         formatter.append(unit);

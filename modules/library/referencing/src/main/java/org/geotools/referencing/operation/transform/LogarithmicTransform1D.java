@@ -17,7 +17,7 @@
 package org.geotools.referencing.operation.transform;
 
 import java.io.Serializable;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
@@ -134,6 +134,7 @@ public class LogarithmicTransform1D extends AbstractMathTransform
      *
      * @param base    The base of the logarithm (typically 10).
      * @param offset  The offset to add to the logarithm.
+     * @return The math transform.
      */
     public static MathTransform1D create(final double base, final double offset) {
         if (base == Double.POSITIVE_INFINITY || Math.abs(base) <= EPS) {

@@ -8,7 +8,7 @@ package net.opengis.wps.impl;
 
 import java.math.BigInteger;
 
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import net.opengis.ows11.Ows11Package;
 
 import net.opengis.wps.BodyReferenceType;

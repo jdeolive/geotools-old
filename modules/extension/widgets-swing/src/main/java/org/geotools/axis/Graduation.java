@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ import java.awt.RenderingHints;
 import java.beans.PropertyChangeListener;
 import java.text.Format;
 import java.util.Locale;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 
 /**
@@ -101,6 +101,8 @@ public interface Graduation {
      * Returns the graduation's range. This is equivalents to computing
      * <code>{@link #getMaximum}-{@link #getMinimum}</code>. However, some
      * implementation may optimize this computation in order to avoid rounding errors.
+     *
+     * @return The graduation range.
      */
     double getRange();
 
@@ -116,11 +118,15 @@ public interface Graduation {
 
     /**
      * Returns the graduation's units, or {@code null} if unknow.
+     *
+     * @return The graduation units, or {@code null}.
      */
-    Unit getUnit();
+    Unit<?> getUnit();
 
     /**
      * Returns the locale to use for formatting title and labels.
+     *
+     * @return The locale for formatting title and labels.
      */
     Locale getLocale();
 
@@ -128,6 +134,8 @@ public interface Graduation {
      * Returns the format to use for formatting labels. The format really used by
      * {@link TickIterator#currentLabel} may not be the same. For example, some
      * iterators may adjust automatically the number of fraction digits.
+     *
+     * @return The labels format.
      */
     Format getFormat();
 
@@ -150,11 +158,15 @@ public interface Graduation {
      * Adds a {@link PropertyChangeListener} to the listener list.
      * The listener is registered for all properties, such as "label"
      * and "locale".
+     *
+     * @param listener The listener to add.
      */
     void addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
      * Removes a {@link PropertyChangeListener} from the listener list.
+     *
+     * @param listener The listener to remove.
      */
     void removePropertyChangeListener(PropertyChangeListener listener);
 }

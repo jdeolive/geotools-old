@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import javax.units.SI;
+import javax.measure.unit.SI;
 
 import org.opengis.referencing.datum.VerticalDatumType;
 import org.geotools.referencing.crs.DefaultGeographicCRS;

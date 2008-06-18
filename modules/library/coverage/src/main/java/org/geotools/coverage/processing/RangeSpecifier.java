@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@ package org.geotools.coverage.processing;
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.Arrays;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.util.Cloneable;
 import org.opengis.referencing.operation.MathTransform1D;
@@ -72,7 +72,7 @@ public class RangeSpecifier implements Serializable, Cloneable {
     /**
      * The target range units, or {@code null} if none.
      */
-    private Unit unit;
+    private Unit<?> unit;
 
     /**
      * The target colors, or {@code null} if none.
@@ -151,7 +151,7 @@ public class RangeSpecifier implements Serializable, Cloneable {
      *
      * @return The current units.
      */
-    public Unit getUnit() {
+    public Unit<?> getUnit() {
         return unit;
     }
 
@@ -160,7 +160,7 @@ public class RangeSpecifier implements Serializable, Cloneable {
      *
      * @param unit The new units.
      */
-    public void setUnit(final Unit unit) {
+    public void setUnit(final Unit<?> unit) {
         this.unit = unit;
     }
 

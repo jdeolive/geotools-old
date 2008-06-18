@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.WeakHashMap;
 import java.util.logging.LogRecord;
 import java.util.logging.Level;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.metadata.extent.Extent;
 import org.opengis.metadata.citation.Citation;
@@ -697,10 +697,10 @@ public class ThreadedAuthorityFactory extends AbstractAuthorityFactory implement
      * Returns an unit from a code.
      */
     @Override
-    public synchronized Unit createUnit(final String code)
+    public synchronized Unit<?> createUnit(final String code)
             throws FactoryException
     {
-        final Unit unit;
+        final Unit<?> unit;
         final String key = trimAuthority(code);
         final Object cached = objectCache.get(key);
         if (cached instanceof Unit) {

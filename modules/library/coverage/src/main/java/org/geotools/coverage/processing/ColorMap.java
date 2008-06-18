@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.units.Unit;
-import javax.units.ConversionException;
+import javax.measure.unit.Unit;
+import javax.measure.converter.ConversionException;
 
 import org.opengis.util.InternationalString;
 import org.opengis.referencing.operation.MathTransform1D;
@@ -376,7 +376,7 @@ public class ColorMap implements Serializable {
      * @return The range, or {@code null} if none. The lower index is always inclusive
      *         and the upper index is always exclusive.
      */
-    private NumberRange getTargetRange(final Category category, final Unit units) {
+    private NumberRange getTargetRange(final Category category, final Unit<?> units) {
         NumberRange scale = getRange(category.getName());
         if (scale == null) {
             if (category.isQuantitative()) {

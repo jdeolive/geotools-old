@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,8 +19,8 @@ package org.geotools.geometry;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.Arrays;
-import javax.units.Unit;
-import javax.units.ConversionException;
+import javax.measure.unit.Unit;
+import javax.measure.converter.ConversionException;
 
 import org.opengis.util.Cloneable;
 import org.opengis.coverage.grid.GridRange;
@@ -585,10 +585,10 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      *
      * @since 2.2
      */
-    public double getLength(final int dimension, final Unit unit) throws ConversionException {
+    public double getLength(final int dimension, final Unit<?> unit) throws ConversionException {
         double value = getLength(dimension);
         if (crs != null) {
-            final Unit source = crs.getCoordinateSystem().getAxis(dimension).getUnit();
+            final Unit<?> source = crs.getCoordinateSystem().getAxis(dimension).getUnit();
             if (source != null) {
                 value = source.getConverterTo(unit).convert(value);
             }

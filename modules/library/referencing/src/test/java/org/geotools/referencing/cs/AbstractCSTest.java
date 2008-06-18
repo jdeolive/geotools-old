@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,8 +16,9 @@
  */
 package org.geotools.referencing.cs;
 
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Length;
 
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystem;
@@ -110,7 +111,7 @@ public final class AbstractCSTest {
         assertNull("Should detect that no axis change is needed",
                    DefaultCartesianCS.PROJECTED.axisUsingUnit(SI.METER));
 
-        final Unit KILOMETER = SI.KILO(SI.METER);
+        final Unit<Length> KILOMETER = SI.KILO(SI.METER);
         final CoordinateSystemAxis[] axis =
                 DefaultCartesianCS.PROJECTED.axisUsingUnit(KILOMETER);
         assertNotNull(axis);

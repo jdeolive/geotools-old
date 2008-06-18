@@ -10,7 +10,7 @@ import java.math.BigInteger;
 
 import java.util.Map;
 
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import net.opengis.wps.*;
 
 import org.eclipse.emf.common.util.DiagnosticChain;

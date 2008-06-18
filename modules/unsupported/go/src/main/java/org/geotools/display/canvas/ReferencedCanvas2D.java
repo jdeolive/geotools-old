@@ -25,10 +25,10 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import javax.swing.Action;
-import javax.units.Unit;
-import javax.units.SI;
-import javax.units.NonSI;
-import javax.units.ConversionException;
+import javax.measure.unit.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.NonSI;
+import javax.measure.converter.ConversionException;
 
 import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.cs.CoordinateSystem;
@@ -37,7 +37,7 @@ import org.opengis.referencing.operation.TransformException;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.display.primitive.Graphic;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.LoggingKeys;
@@ -80,7 +80,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #zoomChanged
      */
     protected AffineTransform2D objectiveToDisplay = new AffineTransform2D();
-    
+
     protected final AffineTransform2D previousObjectiveToDisplay = new AffineTransform2D();
 
     /**
@@ -99,8 +99,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #getDisplayCRS
      * @see #getDeviceCRS
      */
-    protected AffineTransform2D displayToDevice = new AffineTransform2D();    
-    
+    protected AffineTransform2D displayToDevice = new AffineTransform2D();
+
     private final AffineTransform2D previousDisplayToDevice = new AffineTransform2D();
 
     /**
@@ -115,7 +115,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #updateNormalizationFactor
      */
     protected final AffineTransform normalizeToDots = new AffineTransform();
-        
+
     /**
      * If different than 1, then calls to the {@linkplain #zoomChanged} method will be performed
      * with an affine transform expanded by this factor. This is used in order to avoid rounding
@@ -214,6 +214,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * <p>
      * This method fires a {@value org.geotools.display.canvas.DisplayObject#DISPLAY_BOUNDS_PROPERTY}
      * property change event.
+     *
+     * @param bounds The new canvas bounds in display coordinates.
      */
     public synchronized void setDisplayBounds(Shape bounds) {
         if (bounds == null) {
@@ -362,8 +364,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
         super.updateNormalizationFactor(crs);
         final Ellipsoid ellipsoid = CRSUtilities.getHeadGeoEllipsoid(crs);
         final CoordinateSystem cs = crs.getCoordinateSystem();
-        final Unit          unit0 = cs.getAxis(0).getUnit();
-        final Unit          unit1 = cs.getAxis(1).getUnit();
+        final Unit<?>       unit0 = cs.getAxis(0).getUnit();
+        final Unit<?>       unit1 = cs.getAxis(1).getUnit();
         final boolean    sameUnit = Utilities.equals(unit0, unit1);
         normalizeToDots.setToScale(getNormalizationFactor(unit0, ellipsoid, true),
                                    getNormalizationFactor(unit1, ellipsoid, !sameUnit));
@@ -380,7 +382,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @param log {@code true} if this method is allowed to log a warning in case of failure.
      *        This is used in order to avoid logging the same message twice.
      */
-    private double getNormalizationFactor(Unit unit, final Ellipsoid ellipsoid, final boolean log) {
+    private double getNormalizationFactor(Unit<?> unit, final Ellipsoid ellipsoid, final boolean log) {
         double m = 1;
         try {
             if (ellipsoid != null) {
@@ -450,18 +452,18 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
 //        }
 //        super.zoomChanged(change);
     }
-    
+
     /**
      * Invoked when the display bounds may have changed as a result of component resizing.
      */
     protected void displayBoundsChanged(Shape oldBounds, Shape newBounds) {
         propertyListeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, oldBounds, newBounds);
     }
-        
+
     protected AffineTransform2D setObjectiveToDisplayTransform(Rectangle clipBounds) throws TransformException{
-        
+
         final Rectangle displayBounds = getDisplayBounds().getBounds();
-        
+
         /*
          * If the zoom has changed, send a notification to all graphics before to start the
          * rendering. Graphics will update their cache, which is used in order to decide if
@@ -513,9 +515,9 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
              * to create this CRS will make the rendering process impossible. In such case, we
              * will paint the stack trace right into the component and exit from this method.
              */
-            previousObjectiveToDisplay.setTransform(objectiveToDisplay);            
+            previousObjectiveToDisplay.setTransform(objectiveToDisplay);
             setObjectiveToDisplayTransform(previousObjectiveToDisplay);
-            
+
         }
         /*
          * If the device changed, then the 'deviceCRS' must be recreated. Failure to create this
@@ -525,13 +527,13 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
         // TODO: concatenate with the information provided in config. Check if changed since last call.
         previousDisplayToDevice.setToTranslation(-displayBounds.x, -displayBounds.y);
         setDisplayToDeviceTransform(previousDisplayToDevice);
-        
-        
+
+
         return previousObjectiveToDisplay;
     }
- 
-    
-    
-    
-    
+
+
+
+
+
 }

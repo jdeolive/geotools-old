@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,8 +22,9 @@ package org.geotools.referencing.crs;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.units.NonSI;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
+import javax.measure.unit.NonSI;
+import javax.measure.quantity.Angle;
 
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystem;
@@ -104,6 +105,8 @@ public class DefaultGeographicCRS extends AbstractSingleCRS implements Geographi
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param crs The coordinate reference system to copy.
      *
      * @since 2.2
      */
@@ -223,13 +226,13 @@ public class DefaultGeographicCRS extends AbstractSingleCRS implements Geographi
      * Returns the angular unit of the specified coordinate system.
      * The preference will be given to the longitude axis, if found.
      */
-    static Unit getAngularUnit(final CoordinateSystem coordinateSystem) {
-        Unit unit = NonSI.DEGREE_ANGLE;
+    static Unit<Angle> getAngularUnit(final CoordinateSystem coordinateSystem) {
+        Unit<Angle> unit = NonSI.DEGREE_ANGLE;
         for (int i=coordinateSystem.getDimension(); --i>=0;) {
             final CoordinateSystemAxis axis = coordinateSystem.getAxis(i);
-            final Unit candidate = axis.getUnit();
+            final Unit<?> candidate = axis.getUnit();
             if (NonSI.DEGREE_ANGLE.isCompatible(candidate)) {
-                unit = candidate;
+                unit = candidate.asType(Angle.class);
                 if (AxisDirection.EAST.equals(axis.getDirection().absolute())) {
                     break; // Found the longitude axis.
                 }
@@ -248,8 +251,8 @@ public class DefaultGeographicCRS extends AbstractSingleCRS implements Geographi
      */
     @Override
     protected String formatWKT(final Formatter formatter) {
-        final Unit oldUnit = formatter.getAngularUnit();
-        final Unit unit = getAngularUnit(coordinateSystem);
+        final Unit<Angle> oldUnit = formatter.getAngularUnit();
+        final Unit<Angle> unit = getAngularUnit(coordinateSystem);
         formatter.setAngularUnit(unit);
         formatter.append(datum);
         formatter.append(((GeodeticDatum) datum).getPrimeMeridian());

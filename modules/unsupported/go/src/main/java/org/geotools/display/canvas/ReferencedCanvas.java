@@ -48,8 +48,8 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 
 import org.geotools.factory.Hints;
+import org.geotools.util.Utilities;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Loggings;
@@ -117,7 +117,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      */
     private final transient Map<CoordinateReferenceSystem,MathTransform> transforms =
             new HashMap<CoordinateReferenceSystem,MathTransform>();
-        
+
     /**
      * The display coordinate reference system.
      *
@@ -183,7 +183,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * the first graphic {@linkplain #add added}.
      */
     private boolean useDefaultCRS;
-    
+
     /**
      * {@code true} if this canvas or graphic has {@value #SCALE_PROPERTY} properties listeners.
      * Used in order to reduce the amount of {@link PropertyChangeEvent} objects created in the
@@ -205,7 +205,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * @see #listenersChanged
      */
     private boolean hasDisplayListeners;
-    
+
     /**
      * {@code true} if this canvas has
      * {@value org.geotools.display.canvas.DisplayObject#ENVELOPE_PROPERTY} properties listeners.
@@ -216,16 +216,16 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      */
     private boolean hasEnvelopeListeners;
 
-    
+
     /**
      * Creates an initially empty canvas with a default CRS of the specified number of dimensions.
      *
-     * @param renderer 
+     * @param renderer
      * @param  dimension The number of dimensions, which must be 2 or 3.
      * @throws IllegalArgumentException if the specified number of dimensions is not supported.
      */
     protected ReferencedCanvas(final AbstractRenderer renderer, final int dimension)
-            throws IllegalArgumentException 
+            throws IllegalArgumentException
     {
         this(renderer,getDefaultCRS(dimension), null);
     }
@@ -233,11 +233,11 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     /**
      * Creates an initially empty canvas with the specified objective CRS.
      *
-     * @param renderer 
+     * @param renderer
      * @param objectiveCRS The initial objective CRS.
      * @param hints        The initial set of hints, or {@code null} if none.
      */
-    protected ReferencedCanvas(final AbstractRenderer renderer, 
+    protected ReferencedCanvas(final AbstractRenderer renderer,
                                final CoordinateReferenceSystem objectiveCRS,
                                final Hints hints)
     {
@@ -272,7 +272,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * Same as {@link #getEnvelope}, but returns the bounds as an {@link Rectangle2D}.
      * This method will be made public by {@link ReferencedCanvas2D}.
      */
-    protected synchronized Rectangle2D getGraphicsEnvelope2D() {
+    synchronized Rectangle2D getGraphicsEnvelope2D() {
         return graphicsEnvelope.toRectangle2D();
     }
 
@@ -282,14 +282,14 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * envelope.
      */
     public synchronized CanvasState getState() {
-        
+
         //TODO : correct this method to return an immutable object
         InternationalString title = getTitle();
         DirectPosition center = new GeneralDirectPosition(displayPosition);
         CoordinateReferenceSystem objCRS = graphicsEnvelope.getCoordinateReferenceSystem();
         MathTransform objToDisp = getObjectiveToDisplayTransform();
         MathTransform dispToObj = getDisplayToObjectiveTransform();
-                
+
         return new DefaultCanvasState(title, center, objCRS, displayCRS, objToDisp, dispToObj);
     }
 
@@ -332,7 +332,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
             for (int i=objectivePosition.getDimension(); --i>=0;) {
                 objectivePosition.setOrdinate(i, graphicsEnvelope.getCenter(i));
             }
-        }                
+        }
         /*
          * Iterates over all graphics contained in this canvas. Only ReferencedGraphic instances
          * will be processed. Other kind of graphics will be ignored, since we don't know how to
@@ -530,8 +530,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         displayPosition   = null;
     }
 
-    
-    
+
+
     //---------------------- Convinient methods --------------------------------
     /**
      * Returns the top-most {@code Graphic} that occupies given direct position. The top-most
@@ -560,7 +560,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     public Graphic[] getGraphicsIn(final Envelope bounds) {
         throw new UnsupportedOperationException();
     }
-    
+
 
     //---------------------- Renderer events -----------------------------------
     /**
@@ -569,11 +569,11 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     @Override
     protected void graphicsAdded(RendererEvent event) {
         super.graphicsAdded(event);
-                
+
         Envelope oldEnvelope = null;
-             
+
         Collection<Graphic> graphics = event.getGraphics();
-        
+
         for(Graphic graphic : graphics){
 
             if (graphic instanceof ReferencedGraphic) {
@@ -596,7 +596,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                         handleException("add", unexpected);
                     }
                 }
-                                
+
                 // prepare notify envelope change : optimisation
                 if (hasEnvelopeListeners) {
                     oldEnvelope = new GeneralEnvelope(getGraphicsEnvelope());
@@ -605,28 +605,28 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                 final Envelope graphicEnvelope = referenced.getEnvelope();
                 graphicEnvelopeChanged(null, graphicEnvelope, graphicCRS,ReferencedCanvas.class, "add");
             }
-        
+
         }
-        
+
         // notify envelope change : optimisation
         if (oldEnvelope != null) {
             propertyListeners.firePropertyChange(ENVELOPE_PROPERTY, oldEnvelope, graphicsEnvelope);
         }
-        
+
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     protected void graphicsRemoved(RendererEvent event) {
-        
+
         Envelope oldEnvelope = null;
-        
+
         Collection<Graphic> graphics = event.getGraphics();
-                
+
         for(Graphic graphic : graphics){
-        
+
             if (graphic instanceof ReferencedGraphic) {
                 final ReferencedGraphic referenced = (ReferencedGraphic) graphic;
                 if (referenced.getCanvas() == this) {
@@ -642,16 +642,16 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                 }
             }
         }
-        
-        super.graphicsRemoved(event);        
-        
+
+        super.graphicsRemoved(event);
+
         // notify envelope change : optimisation
         if (oldEnvelope != null) {
             propertyListeners.firePropertyChange(ENVELOPE_PROPERTY, oldEnvelope, graphicsEnvelope);
         }
-        
+
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -659,9 +659,9 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     protected void graphicsChanged(RendererEvent event) {
         super.graphicsChanged(event);
     }
-    
-    
-    
+
+
+
     //----------------------CRS & MathTransform methods-------------------------
     /**
      * Returns a default CRS for the specified number of dimensions.
@@ -679,7 +679,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                                                         "dimension", new Integer(dimension)));
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -819,7 +819,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         CoordinateReferenceSystem lastCRS = null;
         MathTransform           transform = null;
         final Collection<Graphic>  graphics = getRenderer().getGraphics();
-        
+
         for (final Graphic candidate : graphics) {
             if (!(candidate instanceof ReferencedGraphic)) {
                 continue;
@@ -1261,7 +1261,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * Returns the coordinate transformation object for this {@code Canvas}. This allows the
      * {@code Canvas} to resolve conversions of coordinates between the objective and display
      * Coordinate Reference Systems.
-     * 
+     *
      * @return MathTransform
      */
     public synchronized MathTransform getObjectiveToDisplayTransform() {
@@ -1277,7 +1277,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * <p>
      * The default implementation returns the {@linkplain MathTransform#inverse inverse} of
      * the {@linkplain #getObjectiveToDisplayTransform objective to display transform}.
-     * 
+     *
      * @return MathTransform
      */
     public MathTransform getDisplayToObjectiveTransform() {
@@ -1448,4 +1448,4 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         return displayPosition;
     }
 
-}    
+}

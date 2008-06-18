@@ -18,7 +18,7 @@ package org.geotools.gml3.bindings;
 
 import java.net.URI;
 
-import javax.units.BaseUnit;
+import javax.measure.unit.BaseUnit;
 import javax.xml.namespace.QName;
 
 import org.geotools.gml3.GML;

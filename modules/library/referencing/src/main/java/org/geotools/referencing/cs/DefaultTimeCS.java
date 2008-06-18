@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 package org.geotools.referencing.cs;
 
 import java.util.Map;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.opengis.referencing.cs.TimeCS;
 import org.opengis.referencing.cs.AxisDirection;
@@ -58,7 +58,7 @@ public class DefaultTimeCS extends AbstractCS implements TimeCS {
     /**
      * A one-dimensional temporal CS with
      * <var>{@linkplain DefaultCoordinateSystemAxis#TIME time}</var>,
-     * axis in {@linkplain javax.units.NonSI#DAY day} units.
+     * axis in {@linkplain javax.measure.unit.NonSI#DAY day} units.
      *
      * @see org.geotools.referencing.crs.DefaultTemporalCRS#JULIAN
      * @see org.geotools.referencing.crs.DefaultTemporalCRS#MODIFIED_JULIAN
@@ -70,7 +70,7 @@ public class DefaultTimeCS extends AbstractCS implements TimeCS {
     /**
      * A one-dimensional temporal CS with
      * <var>{@linkplain DefaultCoordinateSystemAxis#TIME time}</var>,
-     * axis in {@linkplain javax.units.SI#SECOND second} units.
+     * axis in {@linkplain javax.measure.unit.SI#SECOND second} units.
      *
      * @see org.geotools.referencing.crs.DefaultTemporalCRS#UNIX
      *
@@ -109,6 +109,8 @@ public class DefaultTimeCS extends AbstractCS implements TimeCS {
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param cs The coordinate system to copy.
      *
      * @since 2.2
      */
@@ -157,7 +159,7 @@ public class DefaultTimeCS extends AbstractCS implements TimeCS {
      * @since 2.2
      */
     @Override
-    protected boolean isCompatibleUnit(final AxisDirection direction, final Unit unit) {
+    protected boolean isCompatibleUnit(final AxisDirection direction, final Unit<?> unit) {
         return SI.SECOND.isCompatible(unit);
     }
 

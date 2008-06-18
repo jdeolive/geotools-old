@@ -29,9 +29,9 @@ import org.eclipse.emf.ecore.EObject;
 public interface UOMsType extends EObject {
 	/**
 	 * Returns the value of the '<em><b>UOM</b></em>' containment reference list.
-	 * The list contents are of type {@link javax.units.Unit}.
+	 * The list contents are of type {@link javax.measure.unit.Unit}.
 	 * <!-- begin-user-doc -->
-	 * 1. Changed net.opengis.ows11.DomainMetadataType to javax.units.Unit
+	 * 1. Changed net.opengis.ows11.DomainMetadataType to javax.measure.unit.Unit
 	 * 2. Removed all annotations and changed EList return type to just List and
 	 * also updated the Impl class the same way.
 	 * <!-- end-user-doc -->

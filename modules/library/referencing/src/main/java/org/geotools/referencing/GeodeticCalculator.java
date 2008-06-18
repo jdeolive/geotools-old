@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.GeneralPath;
 import java.text.Format;
-import javax.units.NonSI;
+import javax.measure.unit.NonSI;
 import static java.lang.Math.*;
 
 import org.opengis.referencing.datum.Datum;
@@ -484,6 +484,8 @@ public class GeodeticCalculator {
      * This is the CRS specified at {@linkplain #GeodeticCalculator(CoordinateReferenceSystem)
      * construction time}.
      *
+     * @return The CRS for all {@link Position}s.
+     *
      * @since 2.2
      */
     public CoordinateReferenceSystem getCoordinateReferenceSystem() {
@@ -497,6 +499,8 @@ public class GeodeticCalculator {
      * Returns the geographic coordinate reference system for all methods working
      * on {@link Point2D} objects. This is inferred from the CRS specified at
      * {@linkplain #GeodeticCalculator(CoordinateReferenceSystem) construction time}.
+     *
+     * @return The CRS for {@link Point2D}s.
      *
      * @since 2.3
      */
@@ -512,6 +516,8 @@ public class GeodeticCalculator {
 
     /**
      * Returns the referenced ellipsoid.
+     *
+     * @return The referenced ellipsoid.
      */
     public Ellipsoid getEllipsoid() {
         return ellipsoid;
@@ -572,7 +578,7 @@ public class GeodeticCalculator {
      * @since 2.3
      */
     public void setStartingPosition(final Position position) throws TransformException {
-        DirectPosition p = position.getPosition();
+        DirectPosition p = position.getDirectPosition();
         if (userToGeodetic != null) {
             userToGeodetic.transform(p);
             p = userToGeodetic;
@@ -598,6 +604,7 @@ public class GeodeticCalculator {
      * The coordinate reference system is the one specified to the
      * {@linkplain #GeodeticCalculator(CoordinateReferenceSystem) constructor}.
      *
+     * @return The starting position in user CRS.
      * @throws TransformException if the position can't be transformed to user coordinates.
      *
      * @since 2.3
@@ -670,7 +677,7 @@ public class GeodeticCalculator {
      * @since 2.2
      */
     public void setDestinationPosition(final Position position) throws TransformException {
-        DirectPosition p = position.getPosition();
+        DirectPosition p = position.getDirectPosition();
         if (userToGeodetic != null) {
             userToGeodetic.transform(p);
             p = userToGeodetic;
@@ -706,6 +713,7 @@ public class GeodeticCalculator {
      * The coordinate reference system is the one specified to the
      * {@linkplain #GeodeticCalculator(CoordinateReferenceSystem) constructor}.
      *
+     * @return The destination position in user CRS.
      * @throws TransformException if the position can't be transformed to user coordinates.
      *
      * @since 2.2

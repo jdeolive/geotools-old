@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,12 +22,13 @@ import java.text.Format;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.units.SI;
-import javax.units.Unit;
-import javax.units.Converter;
-import javax.units.ConversionException;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Duration;
+import javax.measure.converter.UnitConverter;
+import javax.measure.converter.ConversionException;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -49,7 +50,7 @@ public class DateGraduation extends AbstractGraduation {
     /**
      * The unit for millisecond.
      */
-    public static final Unit MILLISECOND = SI.MILLI(SI.SECOND);
+    public static final Unit<Duration> MILLISECOND = SI.MILLI(SI.SECOND);
 
     /**
      * The minimal value for this graduation, in milliseconds ellapsed since January 1st,
@@ -72,13 +73,13 @@ public class DateGraduation extends AbstractGraduation {
      * The converter from {@link #MILLISECOND} to {@link #getUnit}.
      * Will be created only when first needed.
      */
-    private transient Converter fromMillis;
+    private transient UnitConverter fromMillis;
 
     /**
      * The converter from {@link #getUnit} to {@link #MILLISECOND}.
      * Will be created only when first needed.
      */
-    private transient Converter toMillis;
+    private transient UnitConverter toMillis;
 
     /**
      * Construct a graduation with the supplied time zone.
@@ -97,7 +98,9 @@ public class DateGraduation extends AbstractGraduation {
      * @param  unit The unit. Must be compatible with {@linkplain #MILLISECOND milliseconds}.
      * @throws ConversionException if the supplied unit is not a time unit.
      */
-    public DateGraduation(final TimeZone timezone, final Unit unit) throws ConversionException {
+    public DateGraduation(final TimeZone timezone, final Unit<Duration> unit)
+            throws ConversionException
+    {
         super(unit);
         ensureTimeUnit(unit);
         this.timezone = (TimeZone) timezone.clone();
@@ -109,19 +112,28 @@ public class DateGraduation extends AbstractGraduation {
      * @param the unit to check.
      * @throws ConversionException if the specified unit is not a time unit.
      */
-    private static void ensureTimeUnit(final Unit unit) throws ConversionException {
-        if (unit==null || !MILLISECOND.isCompatible(unit)) {
+    private static void ensureTimeUnit(final Unit<?> unit) throws ConversionException {
+        if (unit == null || !MILLISECOND.isCompatible(unit)) {
             throw new ConversionException(Errors.format(
                     ErrorKeys.ILLEGAL_ARGUMENT_$2, "unit", unit));
         }
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked") // Checked by constructor and setters.
+    public Unit<Duration> getUnit() {
+        return (Unit) super.getUnit();
+    }
+
+    /**
      * Returns the converter from {@link #MILLISECOND} to {@link #getUnit}.
      */
-    private Converter fromMillis() {
+    private UnitConverter fromMillis() {
         if (fromMillis == null) {
-            Unit unit = getUnit();
+            Unit<Duration> unit = getUnit();
             if (unit == null) {
                 unit = MILLISECOND;
             }
@@ -133,9 +145,9 @@ public class DateGraduation extends AbstractGraduation {
     /**
      * Returns the converter from {@link #getUnit} to {@link #MILLISECOND}.
      */
-    private Converter toMillis() {
+    private UnitConverter toMillis() {
         if (toMillis == null) {
-            Unit unit = getUnit();
+            Unit<Duration> unit = getUnit();
             if (unit == null) {
                 unit = MILLISECOND;
             }
@@ -244,13 +256,15 @@ public class DateGraduation extends AbstractGraduation {
         } else {
             // TODO: we would need something similar to AffineTransform.deltaTransform(...)
             //       here in order to performs the conversion in a more efficient way.
-            final Converter toMillis = toMillis();
+            final UnitConverter toMillis = toMillis();
             return toMillis.convert(maximum) - toMillis.convert(minimum);
         }
     }
 
     /**
      * Returns the timezone for this graduation.
+     *
+     * @return The current timezone.
      */
     public TimeZone getTimeZone() {
         return timezone;
@@ -258,6 +272,8 @@ public class DateGraduation extends AbstractGraduation {
 
     /**
      * Sets the time zone for this graduation. This affect only the way labels are displayed.
+     *
+     * @param timezone The new timezone.
      */
     public void setTimeZone(final TimeZone timezone) {
         this.timezone = (TimeZone) timezone.clone();
@@ -280,7 +296,7 @@ public class DateGraduation extends AbstractGraduation {
      * @throws ConversionException if the specified unit is not a time unit.
      */
     @Override
-    public void setUnit(final Unit unit) throws ConversionException {
+    public void setUnit(final Unit<?> unit) throws ConversionException {
         ensureTimeUnit(unit);
         fromMillis = null;
         toMillis   = null;

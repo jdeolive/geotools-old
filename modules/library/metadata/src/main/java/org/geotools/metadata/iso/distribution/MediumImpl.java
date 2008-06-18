@@ -20,7 +20,7 @@
 package org.geotools.metadata.iso.distribution;
 
 import java.util.Collection;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

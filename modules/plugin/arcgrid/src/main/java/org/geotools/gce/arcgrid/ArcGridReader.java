@@ -48,7 +48,7 @@ import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;

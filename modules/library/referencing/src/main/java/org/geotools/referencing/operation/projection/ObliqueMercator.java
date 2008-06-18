@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ package org.geotools.referencing.operation.projection;
 
 import java.awt.geom.Point2D;
 import java.util.Collection;
-import javax.units.NonSI;
+import javax.measure.unit.NonSI;
 import org.opengis.util.InternationalString;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptor;
@@ -521,6 +521,9 @@ public class ObliqueMercator extends MapProjection {
 
     /**
      * {@inheritDoc}
+     *
+     * @param x The longitude of the coordinate, in <strong>radians</strong>.
+     * @param y The  latitude of the coordinate, in <strong>radians</strong>.
      */
     protected Point2D transformNormalized(double x, double y, Point2D ptDst)
             throws ProjectionException
@@ -758,6 +761,8 @@ public class ObliqueMercator extends MapProjection {
 
         /**
          * Constructs a new provider.
+         *
+         * @param params A description of parameters.
          */
         protected Provider(final ParameterDescriptorGroup params) {
             super(params);
@@ -867,6 +872,8 @@ public class ObliqueMercator extends MapProjection {
 
         /**
          * Constructs a new provider.
+         *
+         * @param params A description of parameters.
          */
         protected Provider_TwoPoint(final ParameterDescriptorGroup params) {
             super(params);

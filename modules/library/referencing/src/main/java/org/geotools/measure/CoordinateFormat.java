@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 1998-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -27,11 +27,11 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import javax.units.Converter;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
-import javax.units.UnitFormat;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.AxisDirection;
@@ -119,7 +119,7 @@ public class CoordinateFormat extends Format {
      * Conversions from temporal axis units to milliseconds.
      * Non-null only if at least one ordinate is a date.
      */
-    private Converter[] toMillis;
+    private UnitConverter[] toMillis;
 
     /**
      * Dummy field position.
@@ -222,7 +222,7 @@ public class CoordinateFormat extends Format {
         formats  = new Format[cs.getDimension()];
         types    = new byte[formats.length];
         for (int i=0; i<formats.length; i++) {
-            final Unit unit = cs.getAxis(i).getUnit();
+            final Unit<?> unit = cs.getAxis(i).getUnit();
             /////////////////
             ////  Angle  ////
             /////////////////
@@ -248,8 +248,8 @@ public class CoordinateFormat extends Format {
                 final Datum datum = CRSUtilities.getDatum(CRSUtilities.getSubCRS(crs, i, i+1));
                 if (datum instanceof TemporalDatum) {
                     if (toMillis == null) {
-                        toMillis = new Converter[formats.length];
-                        epochs   = new long     [formats.length];
+                        toMillis = new UnitConverter[formats.length];
+                        epochs   = new long[formats.length];
                     }
                     toMillis[i] = unit.getConverterTo(DefaultTemporalCRS.MILLISECOND);
                     epochs  [i] = ((TemporalDatum) datum).getOrigin().getTime();
@@ -278,6 +278,8 @@ public class CoordinateFormat extends Format {
     /**
      * Returns the separator between each coordinate (number, angle or date).
      *
+     * @return The current coordinate separator.
+     *
      * @since 2.2
      */
     public String getSeparator() {
@@ -286,6 +288,8 @@ public class CoordinateFormat extends Format {
 
     /**
      * Set the separator between each coordinate.
+     *
+     * @param separator The new coordinate separator.
      *
      * @since 2.2
      */
@@ -452,7 +456,7 @@ public class CoordinateFormat extends Format {
              * If the formatted value is a number, append the units.
              */
             if (type==0 && cs!=null) {
-                final Unit unit = cs.getAxis(i).getUnit();
+                final Unit<?> unit = cs.getAxis(i).getUnit();
                 if (unit != null) {
                     if (unitFormat == null) {
                         unitFormat = UnitFormat.getInstance();
@@ -496,6 +500,9 @@ public class CoordinateFormat extends Format {
 
     /**
      * Not yet implemented.
+     *
+     * @param source The string to parse.
+     * @param position The position of the first character to parse.
      */
     public DirectPosition parseObject(final String source, final ParsePosition position) {
         throw new UnsupportedOperationException("DirectPosition parsing not yet implemented.");

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.Locale;  // For javadoc
 import java.util.Map;
 import java.util.NoSuchElementException;
-import javax.units.Converter;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
@@ -616,7 +616,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
     /**
      * The unit of measure used for this coordinate system axis.
      */
-    private final Unit unit;
+    private final Unit<?> unit;
 
     /**
      * Minimal and maximal value for this axis.
@@ -675,7 +675,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
     public DefaultCoordinateSystemAxis(final Map<String,?> properties,
                                        final String        abbreviation,
                                        final AxisDirection direction,
-                                       final Unit          unit,
+                                       final Unit<?>       unit,
                                        final double        minimum,
                                        final double        maximum,
                                        final RangeMeaning  rangeMeaning)
@@ -713,7 +713,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
     public DefaultCoordinateSystemAxis(final Map<String,?> properties,
                                        final String        abbreviation,
                                        final AxisDirection direction,
-                                       final Unit          unit)
+                                       final Unit<?>       unit)
     {
         // NOTE: we would invoke this(properties, abbreviation, ...) instead if Sun fixed
         // RFE #4093999 ("Relax constraint on placement of this()/super() call in constructors").
@@ -725,7 +725,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
         ensureNonNull("direction",    direction);
         ensureNonNull("unit",         unit);
         if (unit.isCompatible(NonSI.DEGREE_ANGLE)) {
-            final Converter fromDegrees = NonSI.DEGREE_ANGLE.getConverterTo(unit);
+            final UnitConverter fromDegrees = NonSI.DEGREE_ANGLE.getConverterTo(unit);
             final AxisDirection dir = direction.absolute();
             if (dir.equals(AxisDirection.NORTH)) {
                 final double range = Math.abs(fromDegrees.convert(90));
@@ -758,7 +758,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      */
     public DefaultCoordinateSystemAxis(final String        abbreviation,
                                        final AxisDirection direction,
-                                       final Unit          unit)
+                                       final Unit<?>       unit)
     {
         this(Collections.singletonMap(NAME_KEY, abbreviation), abbreviation, direction, unit);
     }
@@ -781,7 +781,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
     public DefaultCoordinateSystemAxis(final InternationalString name,
                                        final String        abbreviation,
                                        final AxisDirection direction,
-                                       final Unit          unit)
+                                       final Unit<?>       unit)
     {
         this(toMap(name), abbreviation, direction, unit);
     }
@@ -814,7 +814,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
     private DefaultCoordinateSystemAxis(final int           name,
                                         final String        abbreviation,
                                         final AxisDirection direction,
-                                        final Unit          unit)
+                                        final Unit<?>       unit)
     {
         this(name>=0 ? Vocabulary.formatInternational(name) :
                 new SimpleInternationalString(abbreviation), abbreviation, direction, unit);
@@ -967,7 +967,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      * whenever those coordinates use a coordinate reference system that uses a
      * coordinate system that uses this axis.
      */
-    public Unit getUnit() {
+    public Unit<?> getUnit() {
         return unit;
     }
 
@@ -1127,7 +1127,9 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      * @return An axis using the specified unit.
      * @throws IllegalArgumentException If the specified unit is incompatible with the expected one.
      */
-    final DefaultCoordinateSystemAxis usingUnit(final Unit newUnit) throws IllegalArgumentException {
+    final DefaultCoordinateSystemAxis usingUnit(final Unit<?> newUnit)
+            throws IllegalArgumentException
+    {
         if (unit.equals(newUnit)) {
             return this;
         }

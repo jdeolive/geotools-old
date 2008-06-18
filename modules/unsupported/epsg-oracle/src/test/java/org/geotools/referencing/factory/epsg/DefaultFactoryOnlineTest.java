@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.sql.SQLException;
 import java.awt.geom.AffineTransform;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 // JUnit dependencies
 import junit.framework.Test;

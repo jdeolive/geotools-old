@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,10 +22,10 @@ import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.Locale;
 
-import javax.units.Unit;
-import javax.units.ConversionException;
+import javax.measure.unit.Unit;
+import javax.measure.converter.ConversionException;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -47,7 +47,7 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
     /**
      * The axis's units, or {@code null} if unknow.
      */
-    private Unit unit;
+    private Unit<?> unit;
 
     /**
      * The axis title for this graduation.
@@ -69,7 +69,7 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
      *
      * @param unit The axis's units, or {@code null} if unknow.
      */
-    public AbstractGraduation(final Unit unit) {
+    public AbstractGraduation(final Unit<?> unit) {
         listenerList = new PropertyChangeSupport(this);
         this.unit = unit;
     }
@@ -141,14 +141,14 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
      * representation of {@link #getUnit}.
      */
     String getSymbol() {
-        final Unit unit = getUnit();
-        return (unit!=null) ? unit.toString() : null;
+        final Unit<?> unit = getUnit();
+        return (unit != null) ? unit.toString() : null;
     }
 
     /**
      * Returns the graduation's units, or {@code null} if unknow.
      */
-    public Unit getUnit() {
+    public Unit<?> getUnit() {
         return unit;
     }
 
@@ -162,8 +162,8 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
      * @throws ConversionException if units are not convertible, or if the
      *         specified units is illegal for this graduation.
      */
-    public void setUnit(final Unit unit) throws ConversionException {
-        final Unit oldUnit;
+    public void setUnit(final Unit<?> unit) throws ConversionException {
+        final Unit<?> oldUnit;
         synchronized (this) {
             oldUnit = this.unit;
             this.unit = unit;
@@ -181,6 +181,8 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
     /**
      * Sets the locale to use for formatting labels.
      * This will fire a property change event with the {@code "locale"} property name.
+     *
+     * @param locale The new labels format.
      */
     public synchronized void setLocale(final Locale locale) {
         final Locale old;
@@ -289,6 +291,9 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
     /**
      * Compares this graduation with the specified object for equality.
      * This method do not compare listeners registered in {@link #listenerList}.
+     *
+     * @param object The object to compare with.
+     * @return {@code true} if this graduation is equals to the given object.
      */
     @Override
     public boolean equals(final Object object) {

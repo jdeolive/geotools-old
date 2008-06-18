@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.units.NonSI;
-import javax.units.SI; 
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI; 
 
 //GeoAPI dependencies
 import org.opengis.referencing.FactoryException;

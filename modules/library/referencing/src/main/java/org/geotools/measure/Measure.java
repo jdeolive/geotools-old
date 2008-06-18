@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  */
 package org.geotools.measure;
 
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import org.geotools.util.Utilities;
 
 
@@ -42,7 +42,7 @@ public final class Measure extends Number {
     /**
      * The unit.
      */
-    private final Unit unit;
+    private final Unit<?> unit;
 
     /**
      * Creates a new measure with the specified value and unit.
@@ -50,7 +50,7 @@ public final class Measure extends Number {
      * @param value The value.
      * @param unit The unit of measurement for the given value.
      */
-    public Measure(final double value, final Unit unit) {
+    public Measure(final double value, final Unit<?> unit) {
         this.value = value;
         this.unit  = unit;
     }
@@ -67,7 +67,7 @@ public final class Measure extends Number {
      *
      * @return The unit of measurement.
      */
-    public Unit getUnit() {
+    public Unit<?> getUnit() {
         return unit;
     }
 

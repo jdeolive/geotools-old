@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -26,8 +26,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.TreeSet;
-import javax.units.Unit;
-import javax.units.ConversionException;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Length;
+import javax.measure.converter.ConversionException;
 
 import org.opengis.metadata.citation.Citation;
 import org.opengis.parameter.ParameterValueGroup;
@@ -343,7 +344,7 @@ public class DefaultMathTransformFactory extends ReferencingFactory implements M
          */
         final Ellipsoid ellipsoid = CRSUtilities.getHeadGeoEllipsoid(baseCRS);
         if (ellipsoid != null) {
-            final Unit axisUnit = ellipsoid.getAxisUnit();
+            final Unit<Length> axisUnit = ellipsoid.getAxisUnit();
             Parameters.ensureSet(parameters, "semi_major", ellipsoid.getSemiMajorAxis(), axisUnit, false);
             Parameters.ensureSet(parameters, "semi_minor", ellipsoid.getSemiMinorAxis(), axisUnit, false);
         }

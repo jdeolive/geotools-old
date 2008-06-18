@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -31,13 +31,13 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
-import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.renderable.RenderContext;
 import java.awt.image.renderable.RenderableImage;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -443,7 +443,7 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *
      * @since 2.3
      */
-    public Set<Record> evaluate(final DirectPosition coord, final Set<String> list) {
+    public Set<Record> evaluate(final DirectPosition coord, final Collection<String> list) {
         throw unsupported();
     }
 

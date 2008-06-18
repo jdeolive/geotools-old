@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,9 +22,11 @@ package org.geotools.referencing.operation;
 import java.util.Map;
 import java.util.List;
 import java.util.Collections;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Duration;
 import javax.vecmath.SingularMatrixException;
 
 import org.opengis.parameter.ParameterValueGroup;
@@ -85,7 +87,7 @@ public class DefaultCoordinateOperationFactory extends AbstractCoordinateOperati
     /**
      * A unit of one millisecond.
      */
-    private static final Unit MILLISECOND = SI.MILLI(SI.SECOND);
+    private static final Unit<Duration> MILLISECOND = SI.MILLI(SI.SECOND);
 
     /**
      * The operation to use by {@link #createTransformationStep(GeographicCRS,GeographicCRS)} for
@@ -599,7 +601,7 @@ public class DefaultCoordinateOperationFactory extends AbstractCoordinateOperati
                  * account. Note that the resulting longitude may be outside the usual [-180..180°]
                  * range.
                  */
-                final Unit              unit = axis.getUnit();
+                final Unit<Angle>       unit = axis.getUnit().asType(Angle.class);
                 final double sourceLongitude = getGreenwichLongitude(sourcePM, unit);
                 final double targetLongitude = getGreenwichLongitude(targetPM, unit);
                 final int   lastMatrixColumn = matrix.getNumCol()-1;
@@ -618,7 +620,7 @@ public class DefaultCoordinateOperationFactory extends AbstractCoordinateOperati
      * Returns the longitude value relative to the Greenwich Meridian,
      * expressed in the specified units.
      */
-    private static double getGreenwichLongitude(final PrimeMeridian pm, final Unit unit) {
+    private static double getGreenwichLongitude(final PrimeMeridian pm, final Unit<Angle> unit) {
         return pm.getAngularUnit().getConverterTo(unit).convert(pm.getGreenwichLongitude());
     }
 

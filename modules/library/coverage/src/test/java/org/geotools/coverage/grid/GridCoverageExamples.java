@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 import javax.imageio.ImageIO;
-import javax.units.SI;
+import javax.measure.unit.SI;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.factory.Hints;

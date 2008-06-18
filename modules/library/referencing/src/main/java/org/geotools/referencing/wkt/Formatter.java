@@ -23,10 +23,12 @@ import java.lang.reflect.Array;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Collection;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
-import javax.units.UnitFormat;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
 
 import org.opengis.metadata.Identifier;
 import org.opengis.metadata.citation.Citation;
@@ -118,10 +120,16 @@ public class Formatter {
 
     /**
      * The unit for formatting measures, or {@code null} for the "natural" unit of each WKT
+     * element.
+     */
+    private Unit<Length> linearUnit;
+
+    /**
+     * The unit for formatting measures, or {@code null} for the "natural" unit of each WKT
      * element. This value is set for example by "GEOGCS", which force its enclosing "PRIMEM" to
      * take the same units than itself.
      */
-    private Unit linearUnit, angularUnit;
+    private Unit<Angle> angularUnit;
 
     /**
      * The object to use for formatting numbers.
@@ -131,7 +139,7 @@ public class Formatter {
     /**
      * The object to use for formatting units.
      */
-    private final UnitFormat unitFormat = UnitFormat.getAsciiInstance();
+    private final UnitFormat unitFormat = UnitFormat.getInstance();
 
     /**
      * Dummy field position.
@@ -473,10 +481,10 @@ public class Formatter {
             }
         }
         if (parameter instanceof ParameterValue) {
-            final ParameterValue param = (ParameterValue) parameter;
-            final ParameterDescriptor descriptor = param.getDescriptor();
-            final Unit valueUnit = descriptor.getUnit();
-            Unit unit = valueUnit;
+            final ParameterValue<?> param = (ParameterValue) parameter;
+            final ParameterDescriptor<?> descriptor = param.getDescriptor();
+            final Unit<?> valueUnit = descriptor.getUnit();
+            Unit<?> unit = valueUnit;
             if (unit!=null && !Unit.ONE.equals(unit)) {
                 if (linearUnit!=null && unit.isCompatible(linearUnit)) {
                     unit = linearUnit;
@@ -570,8 +578,10 @@ public class Formatter {
     /**
      * Appends a unit in WKT form. For example, {@code append(SI.KILOMETER)}
      * can append "<code>UNIT["km", 1000]</code>" to the WKT.
+     *
+     * @param unit The unit to append.
      */
-    public void append(final Unit unit) {
+    public void append(final Unit<?> unit) {
         if (unit != null) {
             appendSeparator(lineChanged);
             buffer.append("UNIT").append(symbols.open);
@@ -584,7 +594,7 @@ public class Formatter {
             }
             buffer.append(symbols.quote);
             resetColor();
-            Unit base = null;
+            Unit<?> base = null;
             if (SI.METER.isCompatible(unit)) {
                 base = SI.METER;
             } else if (SI.SECOND.isCompatible(unit)) {
@@ -761,7 +771,7 @@ public class Formatter {
      *
      * @return The unit for measure. Default value is {@code null}.
      */
-    public Unit getLinearUnit() {
+    public Unit<Length> getLinearUnit() {
         return linearUnit;
     }
 
@@ -770,7 +780,7 @@ public class Formatter {
      *
      * @param unit The new unit, or {@code null}.
      */
-    public void setLinearUnit(final Unit unit) {
+    public void setLinearUnit(final Unit<Length> unit) {
         if (unit!=null && !SI.METER.isCompatible(unit)) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NON_LINEAR_UNIT_$1, unit));
         }
@@ -784,7 +794,7 @@ public class Formatter {
      *
      * @return The unit for measure. Default value is {@code null}.
      */
-    public Unit getAngularUnit() {
+    public Unit<Angle> getAngularUnit() {
         return angularUnit;
     }
 
@@ -793,7 +803,7 @@ public class Formatter {
      *
      * @param unit The new unit, or {@code null}.
      */
-    public void setAngularUnit(final Unit unit) {
+    public void setAngularUnit(final Unit<Angle> unit) {
         if (unit!=null && (!SI.RADIAN.isCompatible(unit) || Unit.ONE.equals(unit))) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NON_ANGULAR_UNIT_$1, unit));
         }
@@ -808,6 +818,8 @@ public class Formatter {
      * For example {@link Formattable#toString} will accepts loose WKT formatting and ignore this
      * flag, while {@link Formattable#toWKT} requires strict WKT formatting and will thrown an
      * exception if this flag is set.
+     *
+     * @return {@code true} if the WKT is invalid.
      */
     public boolean isInvalidWKT() {
         return unformattable != null || (buffer!=null && buffer.length() == 0);

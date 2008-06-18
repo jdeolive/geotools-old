@@ -16,8 +16,8 @@
  */
 package org.geotools.temporal.object;
 
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class DefaultIntervalLengthTest {
 
     @Before
     public void setUp() {
-        Unit unit1 = SI.SECOND, unit2 = SI.SECOND.multiply(3600);
+        Unit unit1 = SI.SECOND, unit2 = SI.SECOND.times(3600);
         int radix1 = 10, radix2 = 10;
         int factor1 = 3, factor2 = 6;
         int value1 = 7, value2 = 12;

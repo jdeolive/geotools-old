@@ -6,7 +6,7 @@
  */
 package net.opengis.wps;
 
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import net.opengis.ows11.DomainMetadataType;
 

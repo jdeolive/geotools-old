@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,16 +22,17 @@ package org.geotools.referencing.crs;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-import javax.units.Converter;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Duration;
+import javax.measure.converter.UnitConverter;
 
 import org.opengis.referencing.cs.TimeCS;
 import org.opengis.referencing.crs.TemporalCRS;
 import org.opengis.referencing.datum.TemporalDatum;
 
 import org.geotools.referencing.cs.DefaultTimeCS;
-import org.geotools.referencing.AbstractReferenceSystem;  // For javadoc
+import org.geotools.referencing.AbstractReferenceSystem;
 import org.geotools.referencing.datum.DefaultTemporalDatum;
 
 
@@ -132,13 +133,13 @@ public class DefaultTemporalCRS extends AbstractSingleCRS implements TemporalCRS
      *
      * @todo Should probably move elswhere. To be revisited after the move to JSR-275.
      */
-    public static Unit MILLISECOND = SI.MILLI(SI.SECOND);
+    public static Unit<Duration> MILLISECOND = SI.MILLI(SI.SECOND);
 
     /**
      * A converter from values in this CRS to values in milliseconds.
      * Will be constructed only when first needed.
      */
-    private transient Converter toMillis;
+    private transient UnitConverter toMillis;
 
     /**
      * The {@linkplain TemporalDatum#getOrigin origin} in milliseconds since January 1st, 1970.
@@ -153,6 +154,8 @@ public class DefaultTemporalCRS extends AbstractSingleCRS implements TemporalCRS
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param crs The coordinate reference system to copy.
      *
      * @since 2.2
      *
@@ -209,9 +212,12 @@ public class DefaultTemporalCRS extends AbstractSingleCRS implements TemporalCRS
      * if the user wants to take advantage of {@link #toDate} and {@link #toValue} methods.
      * If the supplied CRS is already an instance of {@code DefaultTemporalCRS} or is {@code null},
      * then it is returned unchanged.
+     *
+     * @param crs The temporal CRS to wrap.
+     * @return The given CRS as a {@code DefaultTemporalCRS}.
      */
     public static DefaultTemporalCRS wrap(final TemporalCRS crs) {
-        if (crs==null || crs instanceof DefaultTemporalCRS) {
+        if (crs == null || crs instanceof DefaultTemporalCRS) {
             return (DefaultTemporalCRS) crs;
         }
         return new DefaultTemporalCRS(crs);

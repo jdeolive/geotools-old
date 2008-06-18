@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 package org.geotools.parameter;
 
 import java.net.URI;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import javax.media.jai.ParameterList;
 
 import org.opengis.parameter.ParameterValue;
@@ -38,7 +38,7 @@ import org.geotools.resources.i18n.ErrorKeys;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-final class ImagingParameter extends AbstractParameter implements ParameterValue {
+final class ImagingParameter<T> extends AbstractParameter implements ParameterValue<T> {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -61,7 +61,8 @@ final class ImagingParameter extends AbstractParameter implements ParameterValue
      * Returns the abstract definition of this parameter.
      */
     @Override
-    public ParameterDescriptor getDescriptor() {
+    @SuppressWarnings("unchecked")
+    public ParameterDescriptor<T> getDescriptor() {
         return (ParameterDescriptor) super.getDescriptor();
     }
 
@@ -87,21 +88,21 @@ final class ImagingParameter extends AbstractParameter implements ParameterValue
     /**
      * Returns the parameter type.
      */
-    private Class getType() {
-        return ((ParameterDescriptor)descriptor).getValueClass();
+    private Class<T> getType() {
+        return getDescriptor().getValueClass();
     }
 
     /**
      * Returns {@code null} since JAI's parameters have no units.
      */
-    public Unit getUnit() {
+    public Unit<?> getUnit() {
         return null;
     }
 
     /**
      * Always throws an exception, since this parameter has no unit.
      */
-    public double doubleValue(final Unit unit) throws InvalidParameterTypeException {
+    public double doubleValue(final Unit<?> unit) throws InvalidParameterTypeException {
         throw unitlessParameter(descriptor);
     }
 
@@ -167,7 +168,7 @@ final class ImagingParameter extends AbstractParameter implements ParameterValue
     /**
      * Always throws an exception, since this parameter has no unit.
      */
-    public double[] doubleValueList(Unit unit) throws InvalidParameterTypeException {
+    public double[] doubleValueList(Unit<?> unit) throws InvalidParameterTypeException {
         throw unitlessParameter(descriptor);
     }
 
@@ -214,10 +215,11 @@ final class ImagingParameter extends AbstractParameter implements ParameterValue
      * {@link Integer}, {@link Boolean}, {@link String}, {@link URI}, {@code double[]} or
      * {@code int[]}.
      */
-    public Object getValue() {
+    public T getValue() {
         final String name = getName();
+        final Object value;
         try {
-            return parameters.getObjectParameter(name);
+            value = parameters.getObjectParameter(name);
         } catch (IllegalStateException ignore) {
             /*
              * Thrown when the value still ParameterListDescriptor.NO_PARAMETER_DEFAULT.
@@ -225,12 +227,13 @@ final class ImagingParameter extends AbstractParameter implements ParameterValue
              */
             return null;
         }
+        return getType().cast(value);
     }
 
     /**
      * Always throws an exception, since this parameter has no unit.
      */
-    public void setValue(final double value, Unit unit) throws InvalidParameterValueException {
+    public void setValue(final double value, Unit<?> unit) throws InvalidParameterValueException {
         throw unitlessParameter(descriptor);
     }
 
@@ -296,7 +299,7 @@ final class ImagingParameter extends AbstractParameter implements ParameterValue
     /**
      * Always throws an exception, since this parameter has no unit.
      */
-    public void setValue(double[] values, Unit unit) throws InvalidParameterValueException {
+    public void setValue(double[] values, Unit<?> unit) throws InvalidParameterValueException {
         throw unitlessParameter(descriptor);
     }
 
@@ -334,8 +337,8 @@ final class ImagingParameter extends AbstractParameter implements ParameterValue
      * parameter is not really cloneable (it would requires a clone of {@link #parameters} first).
      */
     @Override
-    public Parameter clone() {
-        final Parameter parameter = new Parameter((ParameterDescriptor) descriptor);
+    public Parameter<T> clone() {
+        final Parameter<T> parameter = new Parameter<T>(getDescriptor());
         parameter.setValue(getValue());
         return parameter;
     }

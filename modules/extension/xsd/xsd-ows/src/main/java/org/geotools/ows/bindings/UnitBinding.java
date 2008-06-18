@@ -18,12 +18,12 @@ package org.geotools.ows.bindings;
 
 import java.lang.reflect.Field;
 
-import javax.units.BaseUnit;
-import javax.units.DerivedUnit;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
-import javax.units.UnitFormat;
+import javax.measure.unit.BaseUnit;
+import javax.measure.unit.DerivedUnit;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 import javax.xml.namespace.QName;
 
 import org.geotools.ows.v1_1.OWS;

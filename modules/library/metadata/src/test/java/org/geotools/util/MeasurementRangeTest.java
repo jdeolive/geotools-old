@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,8 +16,9 @@
  */
 package org.geotools.util;
 
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Length;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -39,7 +40,7 @@ public final class MeasurementRangeTest {
     public void testConversion() {
         final MeasurementRange<Float> range = MeasurementRange.create(1000f, 2000f, SI.METER);
         assertSame(range, range.convertTo(SI.METER));
-        final Unit KILOMETER = SI.KILO(SI.METER);
+        final Unit<Length> KILOMETER = SI.KILO(SI.METER);
         assertEquals(MeasurementRange.create(1f, 2f, KILOMETER), range.convertTo(KILOMETER));
     }
 
@@ -123,7 +124,7 @@ public final class MeasurementRangeTest {
      */
     @Test
     public void testIntersectWithConversion() {
-        final Unit KILOMETER = SI.KILO(SI.METER);
+        final Unit<Length> KILOMETER = SI.KILO(SI.METER);
         NumberRange<Float> r1 = MeasurementRange.create(1000f, 2000f, SI.METER);
         NumberRange<Float> r2 = MeasurementRange.create(1.5f, 3f, KILOMETER);
         assertEquals(Float.class, r1.getElementClass());

@@ -27,9 +27,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.opengis.parameter.InvalidParameterValueException;
 import org.opengis.parameter.GeneralParameterDescriptor;

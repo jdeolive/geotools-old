@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,11 +16,12 @@
  */
 package org.geotools.measure;
 
-import javax.units.SI;
-import javax.units.NonSI;
-import javax.units.Unit;
-import javax.units.UnitFormat;
-import javax.units.TransformedUnit;
+import javax.measure.unit.SI;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Dimensionless;
 
 
 /**
@@ -29,7 +30,7 @@ import javax.units.TransformedUnit;
  * @since 2.1
  * @source $URL$
  * @version $Id$
- * @author Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  */
 public final class Units {
     /**
@@ -48,11 +49,8 @@ public final class Units {
      * avoid as much as possible. Unfortunatly, this pseudo-unit is extensively used in the
      * EPSG database (code 9110).
      */
-    public static final Unit SEXAGESIMAL_DMS = TransformedUnit.getInstance(NonSI.DEGREE_ANGLE,
-                                               new SexagesimalConverter(10000).inverse());
-    static {
-        UnitFormat.label(SEXAGESIMAL_DMS, "D.MS");
-    }
+    public static final Unit<Angle> SEXAGESIMAL_DMS = NonSI.DEGREE_ANGLE.transform(
+            new SexagesimalConverter(10000).inverse()).asType(Angle.class);
 
     /**
      * Pseudo-unit for degree - minute - second. Numbers in this pseudo-unit has the following
@@ -65,17 +63,21 @@ public final class Units {
      * avoid as much as possible. Unfortunatly, this pseudo-unit is extensively used in the
      * EPSG database (code 9107).
      */
-    public static final Unit DEGREE_MINUTE_SECOND = TransformedUnit.getInstance(NonSI.DEGREE_ANGLE,
-                                                    new SexagesimalConverter(1).inverse());
-    static {
-        UnitFormat.label(DEGREE_MINUTE_SECOND, "DMS");
-    }
+    public static final Unit<Angle> DEGREE_MINUTE_SECOND = NonSI.DEGREE_ANGLE.transform(
+            new SexagesimalConverter(1).inverse()).asType(Angle.class);
 
     /**
      * Parts per million.
      */
-    public static final Unit PPM = Unit.ONE.multiply(1E-6);
+    public static final Unit<Dimensionless> PPM = Unit.ONE.times(1E-6);
+
+    /**
+     * Associates the labels to units created in this class.
+     */
     static {
-        UnitFormat.label(PPM, "ppm");
+        final UnitFormat format = UnitFormat.getInstance();
+        format.label(SEXAGESIMAL_DMS,      "D.MS");
+        format.label(DEGREE_MINUTE_SECOND, "DMS" );
+        format.label(PPM,                  "ppm" );
     }
 }

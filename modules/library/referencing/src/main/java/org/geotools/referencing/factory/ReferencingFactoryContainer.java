@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,8 +17,6 @@
 package org.geotools.referencing.factory;
 
 import java.util.*;
-import javax.units.Unit;
-import javax.units.ConversionException;
 import java.awt.RenderingHints;
 
 import org.opengis.parameter.ParameterValueGroup;
@@ -229,6 +227,8 @@ public class ReferencingFactoryContainer extends ReferencingFactory {
 
     /**
      * Returns the {@linkplain Datum datum} factory.
+     *
+     * @return The Datum factory.
      */
     public DatumFactory getDatumFactory() {
         if (datumFactory == null) {
@@ -241,6 +241,8 @@ public class ReferencingFactoryContainer extends ReferencingFactory {
 
     /**
      * Returns the {@linkplain CoordinateSystem coordinate system} factory.
+     *
+     * @return The Coordinate System factory.
      */
     public CSFactory getCSFactory() {
         if (csFactory == null) {
@@ -253,6 +255,8 @@ public class ReferencingFactoryContainer extends ReferencingFactory {
 
     /**
      * Returns the {@linkplain CoordinateReferenceSystem coordinate reference system} factory.
+     *
+     * @return The Coordinate Reference System factory.
      */
     public CRSFactory getCRSFactory() {
         if (crsFactory == null) {
@@ -265,6 +269,8 @@ public class ReferencingFactoryContainer extends ReferencingFactory {
 
     /**
      * Returns the {@linkplain MathTransform math transform} factory.
+     *
+     * @return The Math Transform factory.
      */
     public MathTransformFactory getMathTransformFactory() {
         if (mtFactory == null) {
@@ -571,6 +577,7 @@ public class ReferencingFactoryContainer extends ReferencingFactory {
      * @param  crs The original (usually compound) CRS.
      * @param  dimensions The dimensions to keep.
      * @return The CRS with only the specified dimensions.
+     * @throws FactoryException if the given dimensions can not be isolated in the given CRS.
      */
     public CoordinateReferenceSystem separate(final CoordinateReferenceSystem crs,
                                               final int[] dimensions)

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,10 +20,10 @@
 package org.geotools.referencing.cs;
 
 import java.util.Map;
-import javax.units.Converter;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.opengis.referencing.cs.EllipsoidalCS;
 import org.opengis.referencing.cs.AxisDirection;
@@ -92,7 +92,7 @@ public class DefaultEllipsoidalCS extends AbstractCS implements EllipsoidalCS {
      * The unit converters for longitude, latitude and height.
      * Will be constructed only when first needed.
      */
-    private transient Converter longitudeConverter, latitudeConverter, heightConverter;
+    private transient UnitConverter longitudeConverter, latitudeConverter, heightConverter;
 
     /**
      * Constructs a new coordinate system with the same values than the specified one.
@@ -100,6 +100,8 @@ public class DefaultEllipsoidalCS extends AbstractCS implements EllipsoidalCS {
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param cs The coordinate system to copy.
      *
      * @since 2.2
      */
@@ -202,9 +204,9 @@ public class DefaultEllipsoidalCS extends AbstractCS implements EllipsoidalCS {
      * @since 2.2
      */
     @Override
-    protected boolean isCompatibleUnit(AxisDirection direction, final Unit unit) {
+    protected boolean isCompatibleUnit(AxisDirection direction, final Unit<?> unit) {
         direction = direction.absolute();
-        final Unit expected = AxisDirection.UP.equals(direction) ? SI.METER : NonSI.DEGREE_ANGLE;
+        final Unit<?> expected = AxisDirection.UP.equals(direction) ? SI.METER : NonSI.DEGREE_ANGLE;
         return expected.isCompatible(unit);
     }
 
@@ -215,7 +217,7 @@ public class DefaultEllipsoidalCS extends AbstractCS implements EllipsoidalCS {
         for (int i=getDimension(); --i>=0;) {
             final CoordinateSystemAxis axis = getAxis(i);
             final AxisDirection   direction = axis.getDirection().absolute();
-            final Unit                 unit = axis.getUnit();
+            final Unit<?>              unit = axis.getUnit();
             if (AxisDirection.EAST.equals(direction)) {
                 longitudeAxis      = i;
                 longitudeConverter = unit.getConverterTo(NonSI.DEGREE_ANGLE);
@@ -307,7 +309,7 @@ public class DefaultEllipsoidalCS extends AbstractCS implements EllipsoidalCS {
      *
      * @since 2.2
      */
-    public DefaultEllipsoidalCS usingUnit(final Unit unit) throws IllegalArgumentException {
+    public DefaultEllipsoidalCS usingUnit(final Unit<?> unit) throws IllegalArgumentException {
         final CoordinateSystemAxis[] axis = axisUsingUnit(unit);
         if (axis == null) {
             return this;

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,8 +22,9 @@ package org.geotools.referencing.datum;
 import java.awt.geom.Point2D;
 import java.util.Collections;
 import java.util.Map;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Length;
 
 import org.opengis.referencing.datum.Ellipsoid;
 
@@ -125,7 +126,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
     /**
      * The units of the semi-major and semi-minor axis values.
      */
-    private final Unit unit;
+    private final Unit<Length> unit;
 
     /**
      * Constructs a new ellipsoid with the same values than the specified one.
@@ -169,7 +170,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
                                final double  semiMinorAxis,
                                final double  inverseFlattening,
                                final boolean ivfDefinitive,
-                               final Unit    unit)
+                               final Unit<Length> unit)
     {
         super(properties);
         this.unit = unit;
@@ -193,7 +194,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
     public static DefaultEllipsoid createEllipsoid(final String name,
                                                    final double semiMajorAxis,
                                                    final double semiMinorAxis,
-                                                   final Unit   unit)
+                                                   final Unit<Length> unit)
     {
         return createEllipsoid(Collections.singletonMap(NAME_KEY, name),
                                semiMajorAxis, semiMinorAxis, unit);
@@ -213,7 +214,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
     public static DefaultEllipsoid createEllipsoid(final Map<String,?> properties,
                                                    final double semiMajorAxis,
                                                    final double semiMinorAxis,
-                                                   final Unit   unit)
+                                                   final Unit<Length> unit)
     {
         if (semiMajorAxis == semiMinorAxis) {
             return new Spheroid(properties, semiMajorAxis, false, unit);
@@ -236,7 +237,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
     public static DefaultEllipsoid createFlattenedSphere(final String name,
                                                          final double semiMajorAxis,
                                                          final double inverseFlattening,
-                                                         final Unit   unit)
+                                                         final Unit<Length> unit)
     {
         return createFlattenedSphere(Collections.singletonMap(NAME_KEY, name),
                                      semiMajorAxis, inverseFlattening, unit);
@@ -257,7 +258,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
     public static DefaultEllipsoid createFlattenedSphere(final Map<String,?> properties,
                                                          final double semiMajorAxis,
                                                          final double inverseFlattening,
-                                                         final Unit   unit)
+                                                         final Unit<Length> unit)
     {
         if (Double.isInfinite(inverseFlattening)) {
             return new Spheroid(properties, semiMajorAxis, true, unit);
@@ -315,7 +316,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      *
      * @return The axis linear unit.
      */
-    public Unit getAxisUnit() {
+    public Unit<Length> getAxisUnit() {
         return unit;
     }
 

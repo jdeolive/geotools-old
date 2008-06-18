@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.util.Arrays;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import javax.media.jai.iterator.RectIter;
 import javax.media.jai.iterator.RectIterFactory;
@@ -179,7 +179,7 @@ final class RenderedSampleDimension extends GridSampleDimension {
                                         final Raster         raster,
                                         final double[]       min,
                                         final double[]       max,
-                                        final Unit           units,
+                                        final Unit<?>        units,
                                         final Color[][]      colors,
                                         final RenderingHints hints)
     {
@@ -218,7 +218,7 @@ final class RenderedSampleDimension extends GridSampleDimension {
                                final SampleModel           model,
                                double[]                    min,
                                double[]                    max,
-                               final Unit                  units,
+                               final Unit<?>               units,
                                final Color[][]             colors,
                                final GridSampleDimension[] dst,
                                final RenderingHints        hints)

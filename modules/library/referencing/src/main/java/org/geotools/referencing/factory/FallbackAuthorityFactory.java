@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.referencing.cs.*;
 import org.opengis.referencing.crs.*;
@@ -101,10 +101,12 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
      * Wraps the specified authority factories. If the specified collection contains more than
      * one element, then a chain of {@code FallbackAuthorityFactory} instances is created.
      *
+     * @param <T> The interface to implement.
      * @param  type The interface to implement. Should be one of {@link DatumAuthorityFactory},
      *         {@link CSAuthorityFactory}, {@link CRSAuthorityFactory} or
      *         {@link CoordinateOperationAuthorityFactory}.
      * @param  factories The factories to wrap, in iteration order.
+     * @return The given factories as a chain of fallback factories.
      * @throws FactoryNotFoundException if the collection doesn't contains at least one element.
      * @throws ClassCastException if {@code type} is illegal.
      */
@@ -128,6 +130,7 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
      * instead when the type is known at compile time.
      *
      * @param  factories The factories to wrap, in iteration order.
+     * @return The given factories as a chain of fallback factories.
      * @throws FactoryNotFoundException if the collection doesn't contains at least one element.
      *
      * @since 2.4
@@ -260,6 +263,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns an arbitrary {@linkplain org.opengis.referencing.datum.Datum datum} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public org.opengis.referencing.datum.Datum createDatum(final String code) throws FactoryException {
@@ -277,6 +282,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a {@linkplain EngineeringDatum engineering datum} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public EngineeringDatum createEngineeringDatum(final String code) throws FactoryException {
@@ -294,6 +301,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a {@linkplain ImageDatum image datum} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public ImageDatum createImageDatum(final String code) throws FactoryException {
@@ -311,6 +320,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a {@linkplain VerticalDatum vertical datum} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public VerticalDatum createVerticalDatum(final String code) throws FactoryException {
@@ -328,6 +339,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a {@linkplain TemporalDatum temporal datum} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public TemporalDatum createTemporalDatum(final String code) throws FactoryException {
@@ -345,6 +358,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns a {@linkplain GeodeticDatum geodetic datum} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public GeodeticDatum createGeodeticDatum(final String code) throws FactoryException {
@@ -362,6 +377,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns an {@linkplain Ellipsoid ellipsoid} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public Ellipsoid createEllipsoid(final String code) throws FactoryException {
@@ -379,6 +396,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns a {@linkplain PrimeMeridian prime meridian} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public PrimeMeridian createPrimeMeridian(final String code) throws FactoryException {
@@ -396,6 +415,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns a {@linkplain Extent extent} (usually an area of validity) from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public Extent createExtent(final String code) throws FactoryException {
@@ -413,6 +434,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns an arbitrary {@linkplain CoordinateSystem coordinate system} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public CoordinateSystem createCoordinateSystem(final String code) throws FactoryException {
@@ -430,6 +453,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a cartesian coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public CartesianCS createCartesianCS(final String code) throws FactoryException {
@@ -447,6 +472,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a polar coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public PolarCS createPolarCS(final String code) throws FactoryException {
@@ -464,6 +491,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a cylindrical coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public CylindricalCS createCylindricalCS(final String code) throws FactoryException {
@@ -481,6 +510,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a spherical coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public SphericalCS createSphericalCS(final String code) throws FactoryException {
@@ -498,6 +529,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates an ellipsoidal coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public EllipsoidalCS createEllipsoidalCS(final String code) throws FactoryException {
@@ -515,6 +548,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a vertical coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public VerticalCS createVerticalCS(final String code) throws FactoryException {
@@ -532,6 +567,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a temporal coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public TimeCS createTimeCS(final String code) throws FactoryException {
@@ -549,6 +586,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns a {@linkplain CoordinateSystemAxis coordinate system axis} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public CoordinateSystemAxis createCoordinateSystemAxis(final String code)
@@ -568,9 +607,11 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns an {@linkplain Unit unit} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
-    public Unit createUnit(final String code) throws FactoryException {
+    public Unit<?> createUnit(final String code) throws FactoryException {
         try {
             return super.createUnit(code);
         } catch (FactoryException exception) {
@@ -586,6 +627,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
     /**
      * Returns an arbitrary {@linkplain CoordinateReferenceSystem coordinate reference system}
      * from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public CoordinateReferenceSystem createCoordinateReferenceSystem(final String code)
@@ -605,6 +648,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a 3D coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public CompoundCRS createCompoundCRS(final String code) throws FactoryException {
@@ -622,6 +667,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a derived coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public DerivedCRS createDerivedCRS(final String code) throws FactoryException {
@@ -639,6 +686,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a {@linkplain EngineeringCRS engineering coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public EngineeringCRS createEngineeringCRS(final String code) throws FactoryException {
@@ -656,6 +705,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns a {@linkplain GeographicCRS geographic coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public GeographicCRS createGeographicCRS(final String code) throws FactoryException {
@@ -673,6 +724,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns a {@linkplain GeocentricCRS geocentric coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public GeocentricCRS createGeocentricCRS(final String code) throws FactoryException {
@@ -690,6 +743,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a {@linkplain ImageCRS image coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public ImageCRS createImageCRS(final String code) throws FactoryException {
@@ -707,6 +762,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Returns a {@linkplain ProjectedCRS projected coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public ProjectedCRS createProjectedCRS(final String code) throws FactoryException {
@@ -724,6 +781,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a {@linkplain TemporalCRS temporal coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public TemporalCRS createTemporalCRS(final String code) throws FactoryException {
@@ -741,6 +800,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a {@linkplain VerticalCRS vertical coordinate reference system} from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public VerticalCRS createVerticalCRS(final String code) throws FactoryException {
@@ -758,6 +819,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a parameter descriptor from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public ParameterDescriptor createParameterDescriptor(final String code) throws FactoryException {
@@ -775,6 +838,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates an operation method from a code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public OperationMethod createOperationMethod(final String code) throws FactoryException {
@@ -792,6 +857,8 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates an operation from a single operation code.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public CoordinateOperation createCoordinateOperation(final String code) throws FactoryException {
@@ -809,18 +876,20 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates an operation from coordinate reference system codes.
+     *
+     * @throws FactoryException if the object creation failed for all factories.
      */
     @Override
     public Set<CoordinateOperation> createFromCoordinateReferenceSystemCodes(
-            final String sourceCode, final String targetCode)
+            final String sourceCRS, final String targetCRS)
             throws FactoryException
     {
         try {
-            return super.createFromCoordinateReferenceSystemCodes(sourceCode, targetCode);
+            return super.createFromCoordinateReferenceSystemCodes(sourceCRS, targetCRS);
         } catch (FactoryException exception) {
             notifyFailure("createFromCoordinateReferenceSystemCodes", exception);
             try {
-                return fallback.createFromCoordinateReferenceSystemCodes(sourceCode, targetCode);
+                return fallback.createFromCoordinateReferenceSystemCodes(sourceCRS, targetCRS);
             } catch (NoSuchAuthorityCodeException ignore) {
                 throw exception;
             }

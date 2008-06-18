@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Collections;
 import java.awt.RenderingHints;
-import javax.units.ConversionException;
+import javax.measure.converter.ConversionException;
 
 import org.opengis.metadata.quality.PositionalAccuracy;
 import org.opengis.parameter.ParameterValueGroup;

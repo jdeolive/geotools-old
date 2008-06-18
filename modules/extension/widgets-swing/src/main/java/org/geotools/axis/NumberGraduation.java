@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,9 +22,9 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import static java.lang.Double.doubleToLongBits;
 
-import javax.units.Unit;
-import javax.units.Converter;
-import javax.units.ConversionException;
+import javax.measure.unit.Unit;
+import javax.measure.converter.UnitConverter;
+import javax.measure.converter.ConversionException;
 
 
 /**
@@ -56,7 +56,7 @@ public class NumberGraduation extends AbstractGraduation {
      *
      * @param unit The axis's units, or {@code null} if unknow.
      */
-    public NumberGraduation(final Unit unit) {
+    public NumberGraduation(final Unit<?> unit) {
         super(unit);
     }
 
@@ -153,8 +153,12 @@ public class NumberGraduation extends AbstractGraduation {
     /**
      * Sets the graduation's minimum, maximum and units. This method will fire property change
      * events for {@code "minimum"}, {@code "maximum"} and {@code "unit"} property names.
+     *
+     * @param min The minimal value in the graduation.
+     * @param max The maximal value in the graduation.
+     * @param unit The graduation unit.
      */
-    public void setRange(final double min, final double max, final Unit unit) {
+    public void setRange(final double min, final double max, final Unit<?> unit) {
         final Double oldMin;
         final Double oldMax;
         synchronized (this) {
@@ -177,12 +181,12 @@ public class NumberGraduation extends AbstractGraduation {
      * @throws ConversionException if units are not convertible.
      */
     @Override
-    public synchronized void setUnit(final Unit newUnit) throws ConversionException {
+    public synchronized void setUnit(final Unit<?> newUnit) throws ConversionException {
         double min = minimum;
         double max = maximum;
-        final Unit unit = getUnit();
+        final Unit<?> unit = getUnit();
         if (unit!=null && newUnit!=null) {
-            final Converter converter = unit.getConverterTo(newUnit);
+            final UnitConverter converter = unit.getConverterTo(newUnit);
             min = converter.convert(min);
             max = converter.convert(max);
         }

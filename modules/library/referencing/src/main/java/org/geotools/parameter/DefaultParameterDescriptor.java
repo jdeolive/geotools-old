@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.util.CodeList;
 import org.opengis.metadata.citation.Citation;
@@ -100,7 +100,7 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
     /**
      * The unit for default, minimum and maximum values, or {@code null}.
      */
-    private final Unit unit;
+    private final Unit<?> unit;
 
     /**
      * Constructs a descriptor with the same values than the specified one. This copy constructor
@@ -179,7 +179,7 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
                                       final double defaultValue,
                                       final double minimum,
                                       final double maximum,
-                                      final Unit   unit)
+                                      final Unit<?> unit)
     {
         this(Collections.singletonMap(NAME_KEY, name),
              defaultValue, minimum, maximum, unit, true);
@@ -202,7 +202,7 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
                                       final double  defaultValue,
                                       final double  minimum,
                                       final double  maximum,
-                                      final Unit    unit,
+                                      final Unit<?> unit,
                                       final boolean required)
     {
         this(properties, required, (Class<T>) Double.class, null,
@@ -347,7 +347,7 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
                                       final T             defaultValue,
                                       final Comparable<T> minimum,
                                       final Comparable<T> maximum,
-                                      final Unit          unit,
+                                      final Unit<?>       unit,
                                       final boolean       required)
     {
         this(Collections.singletonMap(NAME_KEY, new NamedIdentifier(authority, name)),
@@ -377,7 +377,7 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
                                       final T             defaultValue,
                                       final Comparable<T> minimum,
                                       final Comparable<T> maximum,
-                                      final Unit          unit,
+                                      final Unit<?>       unit,
                                       final boolean       required)
     {
         this(properties, required, valueClass, validValues, defaultValue, minimum, maximum, unit);
@@ -409,7 +409,7 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
                                        final T             defaultValue,
                                        final Comparable<T> minimum,
                                        final Comparable<T> maximum,
-                                       final Unit          unit)
+                                       final Unit<?>       unit)
     {
         super(properties, required ? 1 : 0, 1);
         this.valueClass     = valueClass;
@@ -539,7 +539,7 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * @return The unit for numeric value, or {@code null} if it
      *         doesn't apply to the value type.
      */
-    public Unit getUnit() {
+    public Unit<?> getUnit() {
         return unit;
     }
 

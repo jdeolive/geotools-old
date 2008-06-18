@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.SingleCRS;
@@ -121,12 +121,15 @@ public final class CRSUtilities {
      * If not all axis uses the same unit, then this method returns {@code null}.
      * This convenience method is often used for Well Know Text (WKT) formatting.
      *
+     * @param cs The coordinate system for which to get the unit.
+     * @return The unit for all axis in the given coordinate system, or {@code null}.
+     *
      * @since 2.2
      */
-    public static Unit getUnit(final CoordinateSystem cs) {
-        Unit unit = null;
+    public static Unit<?> getUnit(final CoordinateSystem cs) {
+        Unit<?> unit = null;
         for (int i=cs.getDimension(); --i>=0;) {
-            final Unit candidate = cs.getAxis(i).getUnit();
+            final Unit<?> candidate = cs.getAxis(i).getUnit();
             if (candidate != null) {
                 if (unit == null) {
                     unit = candidate;
@@ -250,6 +253,9 @@ public final class CRSUtilities {
 
     /**
      * Returns the datum of the specified CRS, or {@code null} if none.
+     *
+     * @param  crs The coordinate reference system for which to get the datum. May be {@code null}.
+     * @return The datum in the given CRS, or {@code null} if none.
      */
     public static Datum getDatum(final CoordinateReferenceSystem crs) {
         return (crs instanceof SingleCRS) ? ((SingleCRS) crs).getDatum() : null;
@@ -259,6 +265,9 @@ public final class CRSUtilities {
      * Returns the ellipsoid used by the specified coordinate reference system, providing that
      * the two first dimensions use an instance of {@link GeographicCRS}. Otherwise (i.e. if the
      * two first dimensions are not geographic), returns {@code null}.
+     *
+     * @param  crs The coordinate reference system for which to get the ellipsoid.
+     * @return The ellipsoid in the given CRS, or {@code null} if none.
      */
     public static Ellipsoid getHeadGeoEllipsoid(CoordinateReferenceSystem crs) {
         while (!(crs instanceof GeographicCRS)) {
@@ -381,6 +390,10 @@ public final class CRSUtilities {
      * form "45°00.00'N-50°00.00'N 30°00.00'E-40°00.00'E". If a map projection is required in
      * order to obtain this representation, it will be automatically applied.  This string is
      * mostly used for debugging purpose.
+     *
+     * @param  crs The coordinate reference system of the bounding box.
+     * @param  bounds The bounding box to format.
+     * @return The bounding box formatted as a string.
      *
      * @todo Move this method as a static method in {@link org.geotools.referencing.CRS}.
      *       Or yet better: move formatting code in {@code GeographicBoundingBox.toString()}

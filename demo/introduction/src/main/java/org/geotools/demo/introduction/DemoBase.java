@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
-import javax.units.SI;
+import javax.measure.unit.SI;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.data.postgis.PostgisDataStoreFactory;

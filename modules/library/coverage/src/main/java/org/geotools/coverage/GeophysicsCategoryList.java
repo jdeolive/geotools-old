@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@ package org.geotools.coverage;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Locale;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import org.geotools.util.Utilities;
 
 
@@ -54,7 +54,7 @@ final class GeophysicsCategoryList extends CategoryList {
      * Ce champ peut être nul s'il ne s'applique pas ou si les unités
      * ne sont pas connues.
      */
-    private final Unit unit;
+    private final Unit<?> unit;
 
     /**
      * Nombre de chiffres significatifs après la virgule.
@@ -94,7 +94,7 @@ final class GeophysicsCategoryList extends CategoryList {
      * @throws IllegalArgumentException if two or more categories
      *         have overlapping sample value range.
      */
-    GeophysicsCategoryList(Category[] categories, final Unit unit, final CategoryList inverse) {
+    GeophysicsCategoryList(Category[] categories, final Unit<?> unit, final CategoryList inverse) {
         super(categories, unit, true, inverse);
         this.unit    = unit;
         this.ndigits = getFractionDigitCount(categories);
@@ -146,7 +146,7 @@ final class GeophysicsCategoryList extends CategoryList {
      * in this list, or if there is no unit information.
      */
     @Override
-    public Unit getUnits() {
+    public Unit<?> getUnits() {
         return unit;
     }
 

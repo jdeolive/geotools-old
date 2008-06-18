@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.vecmath.MismatchedSizeException;
 import javax.vecmath.SingularMatrixException;
-import javax.units.NonSI;
+import javax.measure.unit.NonSI;
 
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
@@ -137,6 +137,9 @@ public class ProjectiveTransform extends AbstractMathTransform implements Linear
     /**
      * Creates a transform for the specified matrix.
      * The matrix should be affine, but it is not be verified.
+     *
+     * @param matrix The affine transform as a matrix.
+     * @return The transform for the given matrix.
      */
     public static LinearTransform create(final Matrix matrix) {
         final int dimension = matrix.getNumRow()-1;
@@ -162,6 +165,9 @@ public class ProjectiveTransform extends AbstractMathTransform implements Linear
      * Creates a transform for the specified matrix as a Java2D object.
      * This method is provided for interoperability with
      * <A HREF="http://java.sun.com/products/java-media/2D/index.jsp">Java2D</A>.
+     *
+     * @param matrix The affine transform as a matrix.
+     * @return The transform for the given matrix.
      */
     public static LinearTransform create(final AffineTransform matrix) {
         if (matrix.isIdentity()) {
@@ -175,6 +181,7 @@ public class ProjectiveTransform extends AbstractMathTransform implements Linear
      *
      * @param dimension The input and output dimensions.
      * @param scale The scale factor.
+     * @return The scale transform.
      *
      * @since 2.3
      */
@@ -194,6 +201,7 @@ public class ProjectiveTransform extends AbstractMathTransform implements Linear
      *
      * @param dimension The input and output dimensions.
      * @param offset The translation.
+     * @return The offset transform.
      *
      * @since 2.3
      */
@@ -634,6 +642,10 @@ public class ProjectiveTransform extends AbstractMathTransform implements Linear
         /**
          * Returns the operation method for the specified source and target dimensions.
          * This method provides different methods for different matrix sizes.
+         *
+         * @param sourceDimensions The number of source dimensions.
+         * @param targetDimensions The number of target dimensions.
+         * @return The provider for transforms of the given source and target dimensions.
          */
         public static ProviderAffine getProvider(final int sourceDimensions,
                                                  final int targetDimensions)

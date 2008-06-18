@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -120,6 +120,7 @@ public class DefaultOperation extends DefaultSingleOperation implements Operatio
      * @param type      The minimal type as <code>{@linkplain Conversion}.class</code>,
      *                  <code>{@linkplain Projection}.class</code>, etc. This method may
      *                  create an instance of a subclass of {@code type}.
+     * @return A new coordinate operation of the given type.
      *
      * @see DefaultConversion#create
      */

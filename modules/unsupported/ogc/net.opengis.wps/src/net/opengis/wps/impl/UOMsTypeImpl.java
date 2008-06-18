@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.units.BaseUnit;
-import javax.units.Unit;
+import javax.measure.unit.BaseUnit;
+import javax.measure.unit.Unit;
 
 import net.opengis.wps.UOMsType;
 import net.opengis.wps.WpsPackage;

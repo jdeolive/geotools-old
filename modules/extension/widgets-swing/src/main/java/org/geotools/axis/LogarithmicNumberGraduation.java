@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 1999-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 package org.geotools.axis;
 
 import java.util.Locale;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 
 /**
@@ -36,8 +36,10 @@ public class LogarithmicNumberGraduation extends NumberGraduation {
 
     /**
      * Contructs a new logarithmic graduation with the supplied units.
+     *
+     * @param unit The graduation unit.
      */
-    public LogarithmicNumberGraduation(final Unit unit) {
+    public LogarithmicNumberGraduation(final Unit<?> unit) {
         super(unit);
     }
 

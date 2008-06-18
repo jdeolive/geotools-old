@@ -16,7 +16,7 @@
  */
 package org.geotools.gml3.bindings;
 
-import javax.units.BaseUnit;
+import javax.measure.unit.BaseUnit;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.GML3TestSupport;
 import org.geotools.measure.Measure;

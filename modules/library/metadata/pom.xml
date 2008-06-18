@@ -137,8 +137,8 @@
       <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
-      <groupId>javax.units</groupId>
-      <artifactId>jsr108</artifactId>
+      <groupId>net.java.dev.jsr-275</groupId>
+      <artifactId>jsr-275</artifactId>
       <!-- The version number is specified in the parent POM. -->
     </dependency>
 

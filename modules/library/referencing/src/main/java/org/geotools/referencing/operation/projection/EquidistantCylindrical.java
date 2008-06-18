@@ -18,7 +18,7 @@ package org.geotools.referencing.operation.projection;
 
 import java.awt.geom.Point2D;
 import java.util.Collection;
-import javax.units.NonSI;
+import javax.measure.unit.NonSI;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
@@ -125,6 +125,9 @@ public class EquidistantCylindrical extends MapProjection {
      * Transforms the specified (<var>&lambda;</var>,<var>&phi;</var>) coordinates
      * (units in radians) and stores the result in {@code ptDst} (linear distance
      * on a unit sphere).
+     *
+     * @param x The longitude of the coordinate, in <strong>radians</strong>.
+     * @param y The  latitude of the coordinate, in <strong>radians</strong>.
      */
     protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException
@@ -260,6 +263,7 @@ public class EquidistantCylindrical extends MapProjection {
          * @param  parameters The group of parameter values.
          * @return The created math transform.
          * @throws ParameterNotFoundException if a required parameter was not found.
+         * @throws FactoryException if the projection can not be created.
          */
         protected MathTransform createMathTransform(final ParameterValueGroup parameters)
                 throws ParameterNotFoundException, FactoryException

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -21,7 +21,9 @@ package org.geotools.referencing.crs;
 
 import java.util.Collections;
 import java.util.Map;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
 
 import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.GeneralParameterValue;
@@ -78,6 +80,8 @@ public class DefaultProjectedCRS extends AbstractDerivedCRS implements Projected
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param crs The coordinate reference system to copy.
      *
      * @since 2.2
      */
@@ -249,6 +253,8 @@ public class DefaultProjectedCRS extends AbstractDerivedCRS implements Projected
 
     /**
      * Returns the base coordinate reference system, which must be geographic.
+     *
+     * @return The base CRS.
      */
     @Override
     public GeographicCRS getBaseCRS() {
@@ -257,6 +263,8 @@ public class DefaultProjectedCRS extends AbstractDerivedCRS implements Projected
 
     /**
      * Returns the map projection from the {@linkplain #getBaseCRS base CRS} to this CRS.
+     *
+     * @return The map projection from base CRS to this CRS.
      */
     @Override
     public Projection getConversionFromBase() {
@@ -285,10 +293,11 @@ public class DefaultProjectedCRS extends AbstractDerivedCRS implements Projected
     @Override
     protected String formatWKT(final Formatter formatter) {
         final Ellipsoid ellipsoid = ((GeodeticDatum) datum).getEllipsoid();
-        final Unit unit        = getUnit();
-        final Unit linearUnit  = formatter.getLinearUnit();
-        final Unit angularUnit = formatter.getAngularUnit();
-        final Unit axisUnit    = ellipsoid.getAxisUnit();
+        @SuppressWarnings("unchecked") // Formatter.setLinearUnit(...) will do the check for us.
+        final Unit<Length> unit        = (Unit) getUnit();
+        final Unit<Length> linearUnit  = formatter.getLinearUnit();
+        final Unit<Angle>  angularUnit = formatter.getAngularUnit();
+        final Unit<Length> axisUnit    = ellipsoid.getAxisUnit();
         formatter.setLinearUnit(unit);
         formatter.setAngularUnit(DefaultGeographicCRS.getAngularUnit(baseCRS.getCoordinateSystem()));
         formatter.append(baseCRS);
@@ -303,7 +312,7 @@ public class DefaultProjectedCRS extends AbstractDerivedCRS implements Projected
                  * the lengths are different from the ones declared in the datum.
                  */
                 if (param instanceof ParameterValue) {
-                    final double value = ((ParameterValue) param).doubleValue(axisUnit);
+                    final double value = ((ParameterValue<?>) param).doubleValue(axisUnit);
                     final double expected = (name == SEMI_MINOR) ? // using '==' is okay here.
                             ellipsoid.getSemiMinorAxis() : ellipsoid.getSemiMajorAxis();
                     if (value == expected) {

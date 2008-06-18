@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2000-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,8 +16,8 @@
  */
 package org.geotools.measure;
 
-import javax.units.Converter;
-import javax.units.ConversionException;
+import javax.measure.converter.UnitConverter;
+import javax.measure.converter.ConversionException;
 
 
 /**
@@ -34,7 +34,7 @@ import javax.units.ConversionException;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-class SexagesimalConverter extends Converter {
+class SexagesimalConverter extends UnitConverter {
     /**
      * Serial number for compatibility with different versions.
      */
@@ -55,7 +55,7 @@ class SexagesimalConverter extends Converter {
     /**
      * The inverse of this converter.
      */
-    private final Converter inverse;
+    private final UnitConverter inverse;
 
     /**
      * Constructs a converter for sexagesimal units.
@@ -73,7 +73,7 @@ class SexagesimalConverter extends Converter {
      * Constructs a converter for sexagesimal units.
      * This constructor is for {@link Inverse} usage only.
      */
-    private SexagesimalConverter(final int divider, final Converter inverse) {
+    private SexagesimalConverter(final int divider, final UnitConverter inverse) {
         this.divider = divider;
         this.inverse = inverse;
     }
@@ -81,7 +81,7 @@ class SexagesimalConverter extends Converter {
     /**
      * Returns the inverse of this converter.
      */
-    public final Converter inverse() {
+    public final UnitConverter inverse() {
         return inverse;
     }
 

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import javax.units.Unit;
-import javax.units.SI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.SI;
 
 import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
@@ -234,13 +234,13 @@ final class ProjectionAnalyzer {
          * implementation and is closer to OGC 01-009 spirit. But we will log a warning
          * in case of doubt.
          */
-        Unit unit = null;
+        Unit<?> unit = null;
         String warning = null;
         for (final Iterator<GeneralParameterValue> it=parameters.iterator(); it.hasNext();) {
             final GeneralParameterValue parameter = it.next();
             if (parameter instanceof ParameterValue) {
-                final ParameterValue value = (ParameterValue) parameter;
-                final ParameterDescriptor descriptor = value.getDescriptor();
+                final ParameterValue<?> value = (ParameterValue) parameter;
+                final ParameterDescriptor<?> descriptor = value.getDescriptor();
                 if (Number.class.isAssignableFrom(descriptor.getValueClass())) {
                     if (nameMatches(descriptor, "scale_factor")) {
                         final double scale = value.doubleValue();
@@ -297,14 +297,11 @@ search: for (final Iterator<GeneralParameterValue> targetIter=target.iterator();
                     continue;
                 }
                 if (sourcePrm instanceof ParameterValue && targetPrm instanceof ParameterValue) {
-                    final ParameterValue sourceValue = (ParameterValue) sourcePrm;
-                    final ParameterValue targetValue = (ParameterValue) targetPrm;
-                    // TODO: Remove the cast when we will be allowed to compile for J2SE 1.5.
-                    if (Number.class.isAssignableFrom(
-                        ((ParameterDescriptor) targetPrm.getDescriptor()).getValueClass()))
-                    {
+                    final ParameterValue<?> sourceValue = (ParameterValue) sourcePrm;
+                    final ParameterValue<?> targetValue = (ParameterValue) targetPrm;
+                    if (Number.class.isAssignableFrom(targetValue.getDescriptor().getValueClass())) {
                         final double sourceNum, targetNum;
-                        final Unit unit = targetValue.getUnit();
+                        final Unit<?> unit = targetValue.getUnit();
                         if (unit != null) {
                             sourceNum = sourceValue.doubleValue(unit);
                             targetNum = targetValue.doubleValue(unit);

@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -16,7 +16,6 @@
  */
 package org.geotools.referencing.factory;
 
-// J2SE dependencies and extensions
 import java.util.Map;
 import java.util.Set;
 import java.util.List;
@@ -24,9 +23,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
-// OpenGIS dependencies
 import org.opengis.metadata.citation.Citation;
 import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.AuthorityFactory;
@@ -36,7 +34,6 @@ import org.opengis.referencing.crs.*;
 import org.opengis.referencing.datum.*;
 import org.opengis.referencing.operation.*;
 
-// Geotools dependencies
 import org.geotools.util.CanonicalSet;
 import org.geotools.factory.Hints;
 import org.geotools.factory.FactoryRegistryException;
@@ -64,12 +61,12 @@ import org.geotools.util.Utilities;
  * All constructors are protected because this class must be subclassed in order to
  * determine which of the {@link DatumAuthorityFactory}, {@link CSAuthorityFactory}
  * and {@link CRSAuthorityFactory} interfaces to implement.
- * 
+ *
  * @since 2.3
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
- * 
+ *
  * @todo Use generic types for all {@code replace(...)} methods when we will be
  *       allowed to compile for J2SE 1.5, and remove casts in all
  *       {@code createXXX(...)} methods.
@@ -95,7 +92,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a wrapper around the specified factory.
-     * 
+     *
      * @param factory The factory to wrap.
      */
     protected TransformedAuthorityFactory(final AuthorityFactory factory) {
@@ -104,7 +101,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
 
     /**
      * Creates a wrapper around the specified factories.
-     * 
+     *
      * @param crsFactory   The {@linkplain CoordinateReferenceSystem coordinate reference system}
      *                     authority factory, or {@code null}.
      * @param csFactory    The {@linkplain CoordinateSystem coordinate system} authority
@@ -124,7 +121,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
     /**
      * Creates a wrappers around the default factories for the specified
      * authority. The factories are fetched using {@link ReferencingFactoryFinder}.
-     * 
+     *
      * @param authority The authority to wraps (example: {@code "EPSG"}). If {@code null},
      *                  then all authority factories must be explicitly specified in the
      *                  set of hints.
@@ -156,13 +153,13 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * Replaces the specified unit, if applicable. This method is invoked
      * automatically by the {@link #replace(CoordinateSystem)} method. The
      * default implementation returns the unit unchanged.
-     * 
+     *
      * @param units The units to replace.
      * @return The new units, or {@code units} if no change were needed.
      * @throws FactoryException if an error occured while creating the new units.
      */
-    // @Override
-    protected Unit replace(final Unit units) throws FactoryException {
+    @Override
+    protected Unit<?> replace(final Unit<?> units) throws FactoryException {
         return units;
     }
 
@@ -170,7 +167,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * Replaces the specified direction, if applicable. This method is invoked
      * automatically by the {@link #replace(CoordinateSystem)} method. The
      * default implementation returns the axis direction unchanged.
-     * 
+     *
      * @param direction The axis direction to replace.
      * @return The new direction, or {@code direction} if no change were needed.
      * @throws FactoryException if an error occured while creating the new axis direction.
@@ -183,17 +180,17 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * Replaces (if needed) the specified axis by a new one. The default
      * implementation invokes {@link #replace(Unit)} and
      * {@link #replace(AxisDirection)}.
-     * 
+     *
      * @param axis The coordinate system axis to replace.
      * @return The new coordinate system axis, or {@code axis} if no change were needed.
      * @throws FactoryException if an error occured while creating the new coordinate system axis.
      */
-    // @Override
+    @Override
     protected CoordinateSystemAxis replace(CoordinateSystemAxis axis) throws FactoryException {
         final AxisDirection oldDirection = axis.getDirection();
         final AxisDirection newDirection = replace(oldDirection);
-              Unit          oldUnits     = axis.getUnit();
-        final Unit          newUnits     = replace(oldUnits);
+              Unit<?>       oldUnits     = axis.getUnit();
+        final Unit<?>       newUnits     = replace(oldUnits);
         boolean directionChanged = !oldDirection.equals(newDirection);
         if (directionChanged) {
             /*
@@ -233,7 +230,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * default implementation invokes {@link #replace(CoordinateSystemAxis) replace}
      * for each axis. In addition, axis are sorted if this factory implements the
      * {@link Comparator} interface.
-     * 
+     *
      * @param  cs The coordinate system to replace.
      * @return The new coordinate system, or {@code cs} if no change were needed.
      * @throws FactoryException if an error occured while creating the new coordinate system.
@@ -264,7 +261,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * Replaces (if needed) the specified datum by a new one. The default
      * implementation returns the datum unchanged. Subclasses should override
      * this method if some datum replacements are desired.
-     * 
+     *
      * @param datum The datum to replace.
      * @return The new datum, or {@code datum} if no change were needed.
      * @throws FactoryException if an error occured while creating the new datum.
@@ -280,7 +277,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * or a {@linkplain #replace(CoordinateSystem) coordinate system replacement}.
      * If there is at least one of those, then this method returns a new
      * coordinate reference system using the new datum and coordinate system.
-     * 
+     *
      * @param crs The coordinate reference system to replace.
      * @return A new CRS, or {@code crs} if no change were needed.
      * @throws FactoryException if an error occured while creating the new CRS object.
@@ -380,7 +377,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * {@linkplain #replace(CoordinateReferenceSystem) CRS replacement}. If
      * there is at least one of those, then this method returns a new coordinate
      * operation using the new CRS.
-     * 
+     *
      * @param operation The coordinate operation to replace.
      * @return A new operation, or {@code operation} if no change were needed.
      * @throws FactoryException if an error occured while creating the new operation object.
@@ -409,7 +406,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * Creates a new coordinate system of the specified kind. This method is
      * invoked automatically by {@link #replace(CoordinateSystem)} after it
      * determined that the axis need to be changed.
-     * 
+     *
      * @param type       The coordinate system type to create.
      * @param properties The properties to gives to the new coordinate system.
      * @param axis       The axis to give to the new coordinate system. Subclasses are
@@ -474,7 +471,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * preserved. Otherwise (i.e. if a new authority is given to the new
      * object), then the old identifiers will be removed from the new object
      * metadata.
-     * 
+     *
      * @param object The original object.
      * @return The properties to be given to the object created as a substitute
      *         of {@code object}.

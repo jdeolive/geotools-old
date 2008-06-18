@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ import java.util.WeakHashMap;
 import java.util.LinkedHashMap;
 import java.util.logging.LogRecord;
 import java.util.logging.Level;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.metadata.extent.Extent;
 import org.opengis.metadata.citation.Citation;
@@ -38,6 +38,7 @@ import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.referencing.AuthorityFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.IdentifiedObject;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.cs.*;
 import org.opengis.referencing.crs.*;
 import org.opengis.referencing.datum.*;
@@ -320,7 +321,7 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
      *         returns an {@linkplain java.util.Collections#EMPTY_SET empty set}.
      * @throws FactoryException if access to the underlying database failed.
      */
-    public synchronized Set<String> getAuthorityCodes(final Class type)
+    public synchronized Set<String> getAuthorityCodes(final Class<? extends IdentifiedObject> type)
             throws FactoryException
     {
         return getBackingStore().getAuthorityCodes(type);
@@ -336,13 +337,15 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
      * @throws FactoryException if the query failed for some other reason.
      */
     public synchronized InternationalString getDescriptionText(final String code)
-            throws FactoryException
+            throws NoSuchAuthorityCodeException, FactoryException
     {
         return getBackingStore().getDescriptionText(code);
     }
 
     /**
      * Returns an arbitrary object from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized IdentifiedObject createObject(final String code)
@@ -362,6 +365,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an arbitrary datum from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized Datum createDatum(final String code)
@@ -381,6 +386,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an engineering datum from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized EngineeringDatum createEngineeringDatum(final String code)
@@ -400,6 +407,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an image datum from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized ImageDatum createImageDatum(final String code)
@@ -419,6 +428,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a vertical datum from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized VerticalDatum createVerticalDatum(final String code)
@@ -438,6 +449,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a temporal datum from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized TemporalDatum createTemporalDatum(final String code)
@@ -457,6 +470,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a geodetic datum from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized GeodeticDatum createGeodeticDatum(final String code)
@@ -476,6 +491,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an ellipsoid from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized Ellipsoid createEllipsoid(final String code)
@@ -495,6 +512,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a prime meridian from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized PrimeMeridian createPrimeMeridian(final String code)
@@ -514,6 +533,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an extent (usually an area of validity) from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized Extent createExtent(final String code)
@@ -533,6 +554,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an arbitrary coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized CoordinateSystem createCoordinateSystem(final String code)
@@ -552,6 +575,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a cartesian coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized CartesianCS createCartesianCS(final String code)
@@ -571,6 +596,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a polar coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized PolarCS createPolarCS(final String code)
@@ -590,6 +617,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a cylindrical coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized CylindricalCS createCylindricalCS(final String code)
@@ -609,6 +638,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a spherical coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized SphericalCS createSphericalCS(final String code)
@@ -628,6 +659,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an ellipsoidal coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized EllipsoidalCS createEllipsoidalCS(final String code)
@@ -647,6 +680,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a vertical coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized VerticalCS createVerticalCS(final String code)
@@ -666,6 +701,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a temporal coordinate system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized TimeCS createTimeCS(final String code)
@@ -685,6 +722,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a coordinate system axis from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized CoordinateSystemAxis createCoordinateSystemAxis(final String code)
@@ -704,12 +743,14 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an unit from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
-    public synchronized Unit createUnit(final String code)
+    public synchronized Unit<?> createUnit(final String code)
             throws FactoryException
     {
-        final Unit unit;
+        final Unit<?> unit;
         final String key = trimAuthority(code);
         final Object cached = get(key);
         if (cached instanceof Unit) {
@@ -723,6 +764,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an arbitrary coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized CoordinateReferenceSystem createCoordinateReferenceSystem(final String code)
@@ -742,6 +785,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a 3D coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized CompoundCRS createCompoundCRS(final String code)
@@ -761,6 +806,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a derived coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized DerivedCRS createDerivedCRS(final String code)
@@ -780,6 +827,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an engineering coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized EngineeringCRS createEngineeringCRS(final String code)
@@ -799,6 +848,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a geographic coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized GeographicCRS createGeographicCRS(final String code)
@@ -818,6 +869,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a geocentric coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized GeocentricCRS createGeocentricCRS(final String code)
@@ -837,6 +890,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an image coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized ImageCRS createImageCRS(final String code)
@@ -856,6 +911,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a projected coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized ProjectedCRS createProjectedCRS(final String code)
@@ -875,6 +932,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a temporal coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized TemporalCRS createTemporalCRS(final String code)
@@ -894,6 +953,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a vertical coordinate reference system from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      */
     @Override
     public synchronized VerticalCRS createVerticalCRS(final String code)
@@ -913,6 +974,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns a parameter descriptor from a code.
+     *
+     * @throws FactoryException if the object creation failed.
      *
      * @since 2.2
      */
@@ -935,6 +998,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
     /**
      * Returns an operation method from a code.
      *
+     * @throws FactoryException if the object creation failed.
+     *
      * @since 2.2
      */
     @Override
@@ -955,6 +1020,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Returns an operation from a single operation code.
+     *
+     * @throws FactoryException if the object creation failed.
      *
      * @since 2.2
      */
@@ -977,21 +1044,23 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
     /**
      * Returns an operation from coordinate reference system codes.
      *
+     * @throws FactoryException if the object creation failed.
+     *
      * @since 2.2
      */
     @Override
     public synchronized Set<CoordinateOperation> createFromCoordinateReferenceSystemCodes(
-                        final String sourceCode, final String targetCode)
+                        final String sourceCRS, final String targetCRS)
             throws FactoryException
     {
         final Set<CoordinateOperation> operations;
-        final CodePair key = new CodePair(trimAuthority(sourceCode), trimAuthority(targetCode));
+        final CodePair key = new CodePair(trimAuthority(sourceCRS), trimAuthority(targetCRS));
         final Object cached = get(key);
         if (cached instanceof Set) {
             operations = (Set<CoordinateOperation>) cached;
         } else {
             operations = Collections.unmodifiableSet(getBackingStore()
-                         .createFromCoordinateReferenceSystemCodes(sourceCode, targetCode));
+                         .createFromCoordinateReferenceSystemCodes(sourceCRS, targetCRS));
         }
         put(key, operations);
         return operations;
@@ -1037,6 +1106,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
      * Returns a finder which can be used for looking up unidentified objects.
      * The default implementation delegates lookup to the underlying backing
      * store and caches the result.
+     *
+     * @throws FactoryException if the finder can not be created.
      *
      * @since 2.4
      */
@@ -1117,6 +1188,8 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
 
     /**
      * Releases resources immediately instead of waiting for the garbage collector.
+     *
+     * @throws FactoryException if an error occured while disposing the factory.
      */
     @Override
     public synchronized void dispose() throws FactoryException {

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -46,6 +46,8 @@ import static org.junit.Assert.*;
 public final class FormatTest {
     /**
      * Test {@link AngleFormat}.
+     *
+     * @throws ParseException If an angle can't be parsed.
      */
     @Test
     public void testAngleFormat() throws ParseException {

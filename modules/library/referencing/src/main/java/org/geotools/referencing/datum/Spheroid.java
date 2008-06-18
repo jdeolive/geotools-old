@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,7 +20,8 @@
 package org.geotools.referencing.datum;
 
 import java.util.Map;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Length;
 
 
 /**
@@ -47,7 +48,7 @@ final class Spheroid extends DefaultEllipsoid {
      * @param ivfDefinitive {@code true} if the inverse flattening is definitive.
      * @param unit          The units of the radius value.
      */
-    protected Spheroid(Map<String,?> properties, double radius, boolean ivfDefinitive, Unit unit) {
+    protected Spheroid(Map<String,?> properties, double radius, boolean ivfDefinitive, Unit<Length> unit) {
         super(properties, check("radius", radius), radius, Double.POSITIVE_INFINITY, ivfDefinitive, unit);
     }
 

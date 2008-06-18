@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -21,8 +21,9 @@ package org.geotools.referencing.datum;
 
 import java.util.Collections;
 import java.util.Map;
-import javax.units.NonSI;
-import javax.units.Unit;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Angle;
 
 import org.opengis.referencing.datum.PrimeMeridian;
 import org.geotools.referencing.AbstractIdentifiedObject;
@@ -62,7 +63,7 @@ public class DefaultPrimeMeridian extends AbstractIdentifiedObject implements Pr
     /**
      * The angular unit of the {@linkplain #getGreenwichLongitude Greenwich longitude}.
      */
-    private final Unit angularUnit;
+    private final Unit<Angle> angularUnit;
 
     /**
      * Constructs a new prime meridian with the same values than the specified one.
@@ -100,7 +101,7 @@ public class DefaultPrimeMeridian extends AbstractIdentifiedObject implements Pr
      * @param angularUnit         The angular unit of the longitude.
      */
     public DefaultPrimeMeridian(final String name, final double greenwichLongitude,
-                                final Unit angularUnit)
+                                final Unit<Angle> angularUnit)
     {
         this(Collections.singletonMap(NAME_KEY, name), greenwichLongitude, angularUnit);
     }
@@ -115,7 +116,7 @@ public class DefaultPrimeMeridian extends AbstractIdentifiedObject implements Pr
      * @param angularUnit         The angular unit of the longitude.
      */
     public DefaultPrimeMeridian(final Map<String,?> properties, final double greenwichLongitude,
-                                final Unit angularUnit)
+                                final Unit<Angle> angularUnit)
     {
         super(properties);
         this.greenwichLongitude = greenwichLongitude;
@@ -143,14 +144,14 @@ public class DefaultPrimeMeridian extends AbstractIdentifiedObject implements Pr
      * @param targetUnit The unit in which to express longitude.
      * @return The Greenwich longitude in the given units.
      */
-    public double getGreenwichLongitude(final Unit targetUnit) {
+    public double getGreenwichLongitude(final Unit<Angle> targetUnit) {
         return getAngularUnit().getConverterTo(targetUnit).convert(getGreenwichLongitude());
     }
 
     /**
      * Returns the angular unit of the {@linkplain #getGreenwichLongitude Greenwich longitude}.
      */
-    public Unit getAngularUnit() {
+    public Unit<Angle> getAngularUnit() {
         return angularUnit;
     }
 
@@ -212,7 +213,7 @@ public class DefaultPrimeMeridian extends AbstractIdentifiedObject implements Pr
      */
     @Override
     protected String formatWKT(final Formatter formatter) {
-        Unit context = formatter.getAngularUnit();
+        Unit<Angle> context = formatter.getAngularUnit();
         if (context == null) {
             // If the PrimeMeridian is written inside a "GEOGCS",
             // then OpenGIS say that it must be written into the

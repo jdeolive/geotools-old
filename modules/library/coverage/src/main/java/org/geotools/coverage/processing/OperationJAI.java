@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Collections;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -756,7 +756,7 @@ public class OperationJAI extends Operation2D {
          */
         final GridSampleDimension[] result = new GridSampleDimension[numBands];
         final Category[]        categoryXS = new Category[bandLists.length];
-        final Unit[]                unitXS = new Unit[bandLists.length];
+        final Unit<?>[]             unitXS = new Unit[bandLists.length];
         while (--numBands >= 0) {
             GridSampleDimension sampleDim = null;
             Category[]      categoryArray = null;
@@ -790,9 +790,9 @@ public class OperationJAI extends Operation2D {
             	continue;
             }
             final Category oldCategory = categoryArray[indexOfQuantitative];
-            final Unit     oldUnit     = sampleDim.getUnits();
+            final Unit<?>  oldUnit     = sampleDim.getUnits();
             final Category newCategory = deriveCategory(categoryXS, parameters);
-            final Unit     newUnit     = deriveUnit(unitXS, parameters);
+            final Unit<?>  newUnit     = deriveUnit(unitXS, parameters);
             if (newCategory == null) {
                 return null;
             }
@@ -887,7 +887,7 @@ public class OperationJAI extends Operation2D {
      * @param  parameters Parameters, rendering hints and coordinate reference system to use.
      * @return The unit of data in the destination image, or {@code null} if unknow.
      */
-    protected Unit deriveUnit(final Unit[] units, final Parameters parameters) {
+    protected Unit<?> deriveUnit(final Unit<?>[] units, final Parameters parameters) {
         return null;
     }
 

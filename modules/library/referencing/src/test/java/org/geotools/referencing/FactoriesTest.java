@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,9 +22,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
 
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
@@ -101,14 +103,14 @@ public final class FactoriesTest {
         final MathTransformFactory    mtFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
 
         final Ellipsoid airy1830;
-        final Unit meters = SI.METER;
+        final Unit<Length> meters = SI.METER;
         airy1830 = datumFactory.createEllipsoid(name("Airy1830"), 6377563.396, 6356256.910, meters);
         out.println();
         out.println("create Coodinate Reference System....2: ");
         out.println(airy1830.toWKT());
 
         final PrimeMeridian greenwich;
-        final Unit degrees = NonSI.DEGREE_ANGLE;
+        final Unit<Angle> degrees = NonSI.DEGREE_ANGLE;
         greenwich = datumFactory.createPrimeMeridian(name("Greenwich"), 0, degrees);
         out.println();
         out.println("create Coodinate Reference System....3: ");

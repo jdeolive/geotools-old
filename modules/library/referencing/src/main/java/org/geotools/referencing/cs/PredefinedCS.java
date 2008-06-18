@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.opengis.referencing.cs.*;
 import org.geotools.resources.i18n.Errors;
@@ -186,7 +186,7 @@ final class PredefinedCS implements Comparator<CoordinateSystem> {
              * method will thrown an exception if the unit is incompatible. See
              * DefaultAffineCS.isCompatibleUnit(Unit).
              */
-            final Unit unit = axe.getUnit();
+            final Unit<?> unit = axe.getUnit();
             if (!Unit.ONE.equals(unit) && !SI.METER.equals(unit)) {
                 if (!(axe instanceof DefaultCoordinateSystemAxis)) {
                     axe = new DefaultCoordinateSystemAxis(axe);

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 package org.geotools.referencing.cs;
 
 import java.util.Map;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.opengis.referencing.cs.AffineCS;
 import org.opengis.referencing.cs.AxisDirection;
@@ -58,6 +58,8 @@ public class DefaultAffineCS extends AbstractCS implements AffineCS {
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param cs The coordinate system to copy.
      *
      * @since 2.2
      */
@@ -153,7 +155,7 @@ public class DefaultAffineCS extends AbstractCS implements AffineCS {
      * @since 2.2
      */
     @Override
-    protected boolean isCompatibleUnit(final AxisDirection direction, final Unit unit) {
+    protected boolean isCompatibleUnit(final AxisDirection direction, final Unit<?> unit) {
         return SI.METER.isCompatible(unit) || Unit.ONE.equals(unit);
         // Note: this condition is also coded in PredefinedCS.rightHanded(AffineCS).
     }

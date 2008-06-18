@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
@@ -103,6 +103,7 @@ public final class Parameters {
      * immediately if the parameter does not have the expected value class. This
      * is a helper method for type safety when using Java 5 parameterized types.
      *
+     * @param <T> The expected value class.
      * @param  descriptor The descriptor to cast.
      * @param  type The expected value class.
      * @return The descriptor casted to the given type.
@@ -131,6 +132,7 @@ public final class Parameters {
      * immediately if the parameter does not have the expected value class. This
      * is a helper method for type safety when using Java 5 parameterized types.
      *
+     * @param <T> The expected value class.
      * @param  value The value to cast.
      * @param  type The expected value class.
      * @return The value casted to the given type.
@@ -262,6 +264,7 @@ public final class Parameters {
      * @param  name  The name of the parameter to search for. See the class javadoc
      *               for a rational about the usage of name as a key instead of
      *               {@linkplain ParameterDescriptor descriptor}.
+     * @param maxDepth The maximal depth while descending down the parameter tree.
      * @return The set (possibly empty) of parameters with the given name.
      */
     public static List<Object> search(final GeneralParameterValue param, final String name, int maxDepth) {
@@ -293,6 +296,9 @@ public final class Parameters {
      * this method is for transfering values from an arbitrary implementation to some specific
      * implementation (e.g. a parameter group implementation backed by a
      * {@link java.awt.image.renderable.ParameterBlock} for image processing operations).
+     *
+     * @param source The parameters to copy.
+     * @param target Where to copy the source parameters.
      *
      * @since 2.2
      */
@@ -363,10 +369,10 @@ public final class Parameters {
      *         used with no change.
      */
     public static boolean ensureSet(final ParameterValueGroup parameters,
-                                    final String name, final double value, final Unit unit,
+                                    final String name, final double value, final Unit<?> unit,
                                     final boolean force)
     {
-        final ParameterValue parameter;
+        final ParameterValue<?> parameter;
         try {
             parameter = parameters.parameter(name);
         } catch (ParameterNotFoundException ignore) {
@@ -379,7 +385,7 @@ public final class Parameters {
             return false;
         }
         try {
-            if (Math.abs(parameter.doubleValue(unit)/value - 1) <= EPS) {
+            if (Math.abs(parameter.doubleValue(unit) / value - 1) <= EPS) {
                 return false;
             }
         } catch (InvalidParameterTypeException exception) {

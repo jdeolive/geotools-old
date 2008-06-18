@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.units.NonSI;
+import javax.measure.unit.NonSI;
 
 import org.opengis.go.CommonFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;

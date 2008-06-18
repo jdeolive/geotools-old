@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,7 +23,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
 
 import org.opengis.metadata.Identifier;
 import org.opengis.referencing.datum.*;
@@ -528,7 +530,7 @@ public class DatumAliases extends ReferencingFactory implements DatumFactory {
      * @throws FactoryException if the object creation failed.
      */
     public synchronized Ellipsoid createEllipsoid(final Map<String,?> properties,
-            final double semiMajorAxis, final double semiMinorAxis, final Unit unit)
+            final double semiMajorAxis, final double semiMinorAxis, final Unit<Length> unit)
             throws FactoryException
     {
         return getDatumFactory().createEllipsoid(addAliases(properties),
@@ -545,7 +547,7 @@ public class DatumAliases extends ReferencingFactory implements DatumFactory {
      * @throws FactoryException if the object creation failed.
      */
     public synchronized Ellipsoid createFlattenedSphere(final Map<String,?> properties,
-            final double semiMajorAxis, final double inverseFlattening, final Unit unit)
+            final double semiMajorAxis, final double inverseFlattening, final Unit<Length> unit)
             throws FactoryException
     {
         return getDatumFactory().createFlattenedSphere(addAliases(properties),
@@ -561,7 +563,7 @@ public class DatumAliases extends ReferencingFactory implements DatumFactory {
      * @throws FactoryException if the object creation failed.
      */
     public synchronized PrimeMeridian createPrimeMeridian(final Map<String,?> properties,
-            final double longitude, final Unit angularUnit) throws FactoryException
+            final double longitude, final Unit<Angle> angularUnit) throws FactoryException
     {
         return getDatumFactory().createPrimeMeridian(addAliases(properties),
                 longitude, angularUnit);

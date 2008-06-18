@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,8 +18,8 @@ package org.geotools.referencing.operation;
 
 import java.util.Collections;
 import java.util.Map;
-import javax.units.NonSI;
-import javax.units.SI;
+import javax.measure.unit.SI;
+import javax.measure.unit.NonSI;
 
 import org.opengis.referencing.cs.*;
 import org.opengis.referencing.crs.*;

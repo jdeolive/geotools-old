@@ -26,9 +26,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
 
 import org.opengis.metadata.citation.Citation;
 import org.opengis.parameter.ParameterNotFoundException;
@@ -95,6 +98,11 @@ import org.geotools.resources.i18n.ErrorKeys;
  * @see <A HREF="http://gdal.velocet.ca/~warmerda/wktproblems.html">OGC WKT Coordinate System Issues</A>
  */
 public class Parser extends MathTransformParser {
+    /**
+     * For cross-version compatibility.
+     */
+    private static final long serialVersionUID = -144097689843465085L;
+
     /**
      * {@code true} in order to allows the non-standard Oracle syntax. Oracle put the Bursa-Wolf
      * parameters straight into the {@code DATUM} elements, without enclosing them in a
@@ -383,13 +391,15 @@ public class Parser extends MathTransformParser {
      * @todo Authority code is currently ignored. We may consider to create a subclass of
      *       {@link Unit} which implements {@link IdentifiedObject} in a future version.
      */
-    private Unit parseUnit(final Element parent, final Unit unit) throws ParseException {
+    private <T extends Quantity> Unit<T> parseUnit(final Element parent, final Unit<T> unit)
+            throws ParseException
+    {
         final Element element = parent.pullElement("UNIT");
         final String     name = element.pullString("name");
         final double   factor = element.pullDouble("factor");
-        final Map  properties = parseAuthority(element, name);
+        final Map<String,?> properties = parseAuthority(element, name);
         element.close();
-        return (factor != 1) ? unit.multiply(factor) : unit;
+        return (factor != 1) ? unit.times(factor) : unit;
     }
 
     /**
@@ -414,7 +424,7 @@ public class Parser extends MathTransformParser {
      * @throws ParseException if the "AXIS" element can't be parsed.
      */
     private CoordinateSystemAxis parseAxis(final Element parent,
-                                           final Unit    unit,
+                                           final Unit<?> unit,
                                            final boolean required)
             throws ParseException
     {
@@ -457,7 +467,7 @@ public class Parser extends MathTransformParser {
     private CoordinateSystemAxis createAxis(Map<String,?> properties,
                                       final String        abbreviation,
                                       final AxisDirection direction,
-                                      final Unit          unit)
+                                      final Unit<?>       unit)
             throws FactoryException
     {
         final CoordinateSystemAxis candidate =
@@ -483,7 +493,7 @@ public class Parser extends MathTransformParser {
      * @return The "PRIMEM" element as a {@link PrimeMeridian} object.
      * @throws ParseException if the "PRIMEM" element can't be parsed.
      */
-    private PrimeMeridian parsePrimem(final Element parent, final Unit angularUnit)
+    private PrimeMeridian parsePrimem(final Element parent, final Unit<Angle> angularUnit)
             throws ParseException
     {
         final Element   element = parent.pullElement("PRIMEM");
@@ -576,15 +586,15 @@ public class Parser extends MathTransformParser {
      * @return The "PROJECTION" element as a {@link ParameterValueGroup} object.
      * @throws ParseException if the "PROJECTION" element can't be parsed.
      */
-    private ParameterValueGroup parseProjection(final Element   parent,
-                                                final Ellipsoid ellipsoid,
-                                                final Unit      linearUnit,
-                                                final Unit      angularUnit)
-        throws ParseException
+    private ParameterValueGroup parseProjection(final Element      parent,
+                                                final Ellipsoid    ellipsoid,
+                                                final Unit<Length> linearUnit,
+                                                final Unit<Angle>  angularUnit)
+            throws ParseException
     {
-        final Element       element = parent.pullElement("PROJECTION");
-        final String classification = element.pullString("name");
-        final Map        properties = parseAuthority(element, classification);
+        final Element          element = parent.pullElement("PROJECTION");
+        final String    classification = element.pullString("name");
+        final Map<String,?> properties = parseAuthority(element, classification);
         element.close();
         /*
          * Set the list of parameters.  NOTE: Parameters are defined in
@@ -605,15 +615,15 @@ public class Parser extends MathTransformParser {
         Element param = parent;
         try {
             if (ellipsoid != null) {
-                final Unit axisUnit = ellipsoid.getAxisUnit();
+                final Unit<Length> axisUnit = ellipsoid.getAxisUnit();
                 parameters.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis(), axisUnit);
                 parameters.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis(), axisUnit);
             }
             while ((param=parent.pullOptionalElement("PARAMETER")) != null) {
-                final String         paramName  = param.pullString("name");
-                final double         paramValue = param.pullDouble("value");
-                final ParameterValue parameter  = parameters.parameter(paramName);
-                final Unit expected = parameter.getDescriptor().getUnit();
+                final String paramName  = param.pullString("name");
+                final double paramValue = param.pullDouble("value");
+                final ParameterValue<?> parameter = parameters.parameter(paramName);
+                final Unit<?> expected = parameter.getDescriptor().getUnit();
                 if (expected!=null && !Unit.ONE.equals(expected)) {
                     if (linearUnit!=null && SI.METER.isCompatible(expected)) {
                         parameter.setValue(paramValue, linearUnit);
@@ -752,7 +762,7 @@ public class Parser extends MathTransformParser {
         Element           element = parent.pullElement("LOCAL_CS");
         String               name = element.pullString("name");
         EngineeringDatum    datum = parseLocalDatum(element);
-        Unit           linearUnit = parseUnit(element, SI.METER);
+        Unit<Length>   linearUnit = parseUnit(element, SI.METER);
         CoordinateSystemAxis axis = parseAxis(element, linearUnit, true);
         List<CoordinateSystemAxis> list = new ArrayList<CoordinateSystemAxis>();
         do {
@@ -790,7 +800,7 @@ public class Parser extends MathTransformParser {
         final Map<String,?> properties = parseAuthority(element, name);
         final PrimeMeridian   meridian = parsePrimem   (element, NonSI.DEGREE_ANGLE);
         final GeodeticDatum      datum = parseDatum    (element, meridian);
-        final Unit          linearUnit = parseUnit     (element, SI.METER);
+        final Unit<Length>  linearUnit = parseUnit     (element, SI.METER);
         CoordinateSystemAxis axis0, axis1, axis2;
         axis0 = parseAxis(element, linearUnit, false);
         try {
@@ -830,7 +840,7 @@ public class Parser extends MathTransformParser {
         }
         String               name = element.pullString("name");
         VerticalDatum       datum = parseVertDatum(element);
-        Unit           linearUnit = parseUnit(element, SI.METER);
+        Unit<Length>   linearUnit = parseUnit(element, SI.METER);
         CoordinateSystemAxis axis = parseAxis(element, linearUnit, false);
         Map<String,?>  properties = parseAuthority(element, name);
         element.close();
@@ -860,7 +870,7 @@ public class Parser extends MathTransformParser {
         Element            element = parent.pullElement("GEOGCS");
         String                name = element.pullString("name");
         Map<String,?>   properties = parseAuthority(element, name);
-        Unit           angularUnit = parseUnit     (element, SI.RADIAN);
+        Unit<Angle>    angularUnit = parseUnit     (element, SI.RADIAN);
         PrimeMeridian     meridian = parsePrimem   (element, angularUnit);
         GeodeticDatum        datum = parseDatum    (element, meridian);
         CoordinateSystemAxis axis0 = parseAxis     (element, angularUnit, false);
@@ -900,8 +910,8 @@ public class Parser extends MathTransformParser {
         Map<String,?>       properties = parseAuthority(element, name);
         GeographicCRS           geoCRS = parseGeoGCS(element);
         Ellipsoid            ellipsoid = geoCRS.getDatum().getEllipsoid();
-        Unit                linearUnit = parseUnit(element, SI.METER);
-        Unit               angularUnit = geoCRS.getCoordinateSystem().getAxis(0).getUnit();
+        Unit<Length>        linearUnit = parseUnit(element, SI.METER);
+        Unit<Angle>        angularUnit = geoCRS.getCoordinateSystem().getAxis(0).getUnit().asType(Angle.class);
         ParameterValueGroup projection = parseProjection(element, ellipsoid, linearUnit, angularUnit);
         CoordinateSystemAxis     axis0 = parseAxis(element, linearUnit, false);
         CoordinateSystemAxis     axis1;
@@ -1090,6 +1100,8 @@ public class Parser extends MathTransformParser {
      *   <TR><TD NOWRAP><CODE>-locale</CODE> <VAR>&lt;language&gt;</VAR></TD>
      *       <TD NOWRAP>&nbsp;Set the language for the output (e.g. "fr" for French)</TD></TR>
      * </TABLE>
+     *
+     * @param args The command line arguments.
      */
     public static void main(String[] args) {
         final Arguments arguments = new Arguments(args);

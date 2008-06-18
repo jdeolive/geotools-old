@@ -22,16 +22,15 @@ import com.polexis.referencing.crs.CRSUtils;
 import com.polexis.referencing.cs.CSUtils;
 import com.polexis.units.UnitUtils;*/
 
-//J2SE dependencies
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.units.Converter;
-import javax.units.NonSI;
-import javax.units.Unit;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
 
 //apache dependencies
 import org.apache.commons.logging.Log;
@@ -129,9 +128,9 @@ public final class GeometryUtils {
         final int yIndex = getDirectedAxisIndex(cs, AxisDirection.NORTH);
         final Unit yUnit = getDirectedAxisUnit(cs, AxisDirection.NORTH);
         
-        //edited to use javax.units.Convertor
-        Converter xConverter = xUnit.getConverterTo(unit);
-        Converter yConverter = yUnit.getConverterTo(unit);
+        //edited to use javax.measure.unit.Convertor
+        UnitConverter xConverter = xUnit.getConverterTo(unit);
+        UnitConverter yConverter = yUnit.getConverterTo(unit);
         
         returnable[0] = xConverter.convert(lowerCorner.getOrdinate(xIndex));
         returnable[1] = yConverter.convert(lowerCorner.getOrdinate(yIndex));
@@ -193,9 +192,9 @@ public final class GeometryUtils {
                 crs.getCoordinateSystem(), 
                 new AxisDirection[] { AxisDirection.EAST, AxisDirection.NORTH });*/
         
-        //edited to use javax.units.Convertor
-        Converter xConverter = xUnit.getConverterTo(unit);
-        Converter yConverter = yUnit.getConverterTo(unit);
+        //edited to use javax.measure.unit.Convertor
+        UnitConverter xConverter = xUnit.getConverterTo(unit);
+        UnitConverter yConverter = yUnit.getConverterTo(unit);
         
         double[] lowerOrdinates = new double[crs.getCoordinateSystem().getDimension()];
         lowerOrdinates[xIndex] = xConverter.convert(minx);
@@ -382,7 +381,7 @@ public final class GeometryUtils {
         // find the indices for the axes we want
         int[] axisIndices = new int[targetDirections.length];
         // also need the unit converters
-        Converter[] converters = new Converter[targetUnits.length];
+        UnitConverter[] converters = new UnitConverter[targetUnits.length];
 
         // loop through the directions that were passed in
         for (int i = 0; i < targetDirections.length; i++) {

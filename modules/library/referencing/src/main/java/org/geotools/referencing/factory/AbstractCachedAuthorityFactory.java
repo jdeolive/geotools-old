@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -13,16 +13,15 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *    
+ *
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.referencing.factory;
 
-// J2SE dependencies and extensions
 import java.util.Set;
 
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.geotools.factory.BufferedFactory;
 import org.geotools.factory.Hints;
@@ -85,7 +84,7 @@ import org.opengis.util.InternationalString;
  * <p>
  * This object is responsible for using a provided {{ReferencingObjectCache}}.
  * </p>
- * 
+ *
  * @since 2.4
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/library/referencing/src/main/java/org/geotools/referencing/factory/AbstractBufferedAuthorityFactory.java $
@@ -103,27 +102,27 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
      * cache may be shared!
      * <p>
      * Your cache may grow to considerable size during actual use; in addition to storing
-     * CoordinateReferenceSystems (by code); it will also store all the component parts 
+     * CoordinateReferenceSystems (by code); it will also store all the component parts
      * (each under its own code), along with MathTransformations between two
      * CoordinateReferenceSystems. So even if you are only planning on working with
      * 50 CoordianteReferenceSystems please keep in mind that you will need larger
      * cache size in order to prevent a bottleneck.
      */
 	protected ObjectCache cache;
-	
+
 	/**
      * The findCache is used to store search results; often match a "raw"
      * CoordinateReferenceSystem created from WKT (as the key) with a
      * "real" CoordianteReferenceSystem as defined by this authority.
      */
     ObjectCache findCache;
-		
+
 	/**
 	 * A container of the "real factories" actually used to construct objects.
 	 */
     protected ReferencingFactoryContainer factories;
 
-	
+
 	/**
 	 * Constructs an instance making use of the default cache.
 	 *
@@ -152,7 +151,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
 	 * {@link CRSAuthorityFactory} and
 	 * {@link CoordinateOperationAuthorityFactory} interfaces they choose to
 	 * implement.
-	 * 
+	 *
 	 * @param factory
 	 *            The factory to cache. Can not be {@code null}.
 	 * @param maxStrongReferences
@@ -169,9 +168,9 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
         hints.put(Hints.DATUM_AUTHORITY_FACTORY, this );
         hints.put(Hints.CS_AUTHORITY_FACTORY, this );
         hints.put(Hints.CRS_AUTHORITY_FACTORY, this );
-        hints.put(Hints.COORDINATE_OPERATION_AUTHORITY_FACTORY, this );        
+        hints.put(Hints.COORDINATE_OPERATION_AUTHORITY_FACTORY, this );
     }
-    
+
 	//
 	// Utility Methods and Cache Care and Feeding
 	//
@@ -204,7 +203,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
         }
         return code;
     }
-    
+
     /**
      * Creates an exception for an unknown authority code. This convenience method is provided
      * for implementation of {@code createXXX} methods.
@@ -226,7 +225,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
     }
 	//
 	// AuthorityFactory
-	//    
+	//
 	public abstract Citation getAuthority();
 	public Set getAuthorityCodes(Class type) throws FactoryException{
 		Set codes = (Set) cache.get(type);
@@ -323,7 +322,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(EngineeringCRS.class, code, exception);
         }
     }
-    
+
     public GeocentricCRS createGeocentricCRS(final String code) throws FactoryException {
         final CoordinateReferenceSystem crs = createCoordinateReferenceSystem(code);
         try {
@@ -332,7 +331,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(GeocentricCRS.class, code, exception);
         }
     }
-    
+
     public GeographicCRS createGeographicCRS(final String code) throws FactoryException {
         final CoordinateReferenceSystem crs = createCoordinateReferenceSystem(code);
         try {
@@ -341,7 +340,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(GeographicCRS.class, code, exception);
         }
     }
-    
+
     public ImageCRS createImageCRS(final String code) throws FactoryException {
         final CoordinateReferenceSystem crs = createCoordinateReferenceSystem(code);
         try {
@@ -350,7 +349,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(ImageCRS.class, code, exception);
         }
     }
-    
+
     public ProjectedCRS createProjectedCRS(final String code) throws FactoryException {
         final CoordinateReferenceSystem crs = createCoordinateReferenceSystem(code);
         try {
@@ -359,7 +358,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(ProjectedCRS.class, code, exception);
         }
     }
-    
+
     public TemporalCRS createTemporalCRS(final String code) throws FactoryException {
         final CoordinateReferenceSystem crs = createCoordinateReferenceSystem(code);
         try {
@@ -368,7 +367,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(TemporalCRS.class, code, exception);
         }
     }
-    
+
     public VerticalCRS createVerticalCRS(final String code) throws FactoryException {
         final CoordinateReferenceSystem crs = createCoordinateReferenceSystem(code);
         try {
@@ -380,7 +379,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
 	//
 	// CSAuthority
 	//
-	
+
     /**
      * Creates a cartesian coordinate system from a code.
      * The default implementation invokes
@@ -476,7 +475,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(PolarCS.class, code, exception);
         }
     }
-    
+
     public SphericalCS createSphericalCS(final String code) throws FactoryException {
         final CoordinateSystem cs = createCoordinateSystem(code);
         try {
@@ -485,7 +484,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(SphericalCS.class, code, exception);
         }
     }
-    
+
     public TimeCS createTimeCS(final String code) throws FactoryException {
         final CoordinateSystem cs = createCoordinateSystem(code);
         try {
@@ -494,10 +493,10 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(TimeCS.class, code, exception);
         }
     }
-    
-	public Unit createUnit(String code) throws FactoryException {
+
+	public Unit<?> createUnit(String code) throws FactoryException {
 		final String key = toKey(code);
-		Unit unit = (Unit) cache.get(key);
+		Unit<?> unit = (Unit) cache.get(key);
 		if (unit == null) {
 			try {
 				cache.writeLock(key);
@@ -513,7 +512,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
 		return unit;
 	}
 
-	protected abstract Unit generateUnit(String code) throws FactoryException;
+	protected abstract Unit<?> generateUnit(String code) throws FactoryException;
 
     public VerticalCS createVerticalCS(final String code) throws FactoryException {
         final CoordinateSystem cs = createCoordinateSystem(code);
@@ -523,7 +522,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(VerticalCS.class, code, exception);
         }
     }
-    
+
 	//
 	// DatumAuthorityFactory
 	//
@@ -575,7 +574,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(EngineeringDatum.class, code, exception);
         }
     }
-    
+
     public GeodeticDatum createGeodeticDatum(final String code) throws FactoryException {
         final Datum datum = createDatum(code);
         try {
@@ -584,7 +583,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(GeodeticDatum.class, code, exception);
         }
     }
-    
+
     public ImageDatum createImageDatum(final String code) throws FactoryException {
         final Datum datum = createDatum(code);
         try {
@@ -593,7 +592,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(ImageDatum.class, code, exception);
         }
     }
-    
+
 	public PrimeMeridian createPrimeMeridian(String code)
 			throws FactoryException {
 		final String key = toKey(code);
@@ -623,7 +622,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             throw noSuchAuthorityCode(TemporalDatum.class, code, exception);
         }
     }
-    
+
     public VerticalDatum createVerticalDatum(final String code) throws FactoryException {
         final Datum datum = createDatum(code);
         try {
@@ -657,18 +656,18 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
 	public synchronized Set/*<CoordinateOperation>*/ createFromCoordinateReferenceSystemCodes(
 			final String sourceCode, final String targetCode)
 			throws FactoryException {
-		
+
 		final Object key = ObjectCaches.toKey( getAuthority(),  sourceCode, targetCode );
-		Set operations = (Set) cache.get(key);			
+		Set operations = (Set) cache.get(key);
 		if (operations == null) {
 			try {
 				cache.writeLock(key);
 				operations = (Set) cache.peek(key);
 				if (operations == null) {
-					operations = generateFromCoordinateReferenceSystemCodes( sourceCode, targetCode );				
+					operations = generateFromCoordinateReferenceSystemCodes( sourceCode, targetCode );
 					// can we not trust operationAuthority to return us an unmodifiableSet ?
 					//operations = Collections.unmodifiableSet( operations );
-					
+
 					cache.put( key, operations );
 				}
 			}
@@ -681,13 +680,13 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
 
 	protected abstract Set generateFromCoordinateReferenceSystemCodes(String sourceCode, String targetCode)  throws FactoryException;
 
-	/** We will clear out our cache and factories reference 
+	/** We will clear out our cache and factories reference
 	 * @throws FactoryException */
     public void dispose() throws FactoryException {
         this.cache = null;
         this.factories = null;
     }
-    
+
     /**
      * Returns a finder which can be used for looking up unidentified objects.
      * The default implementation delegates lookup to the underlying backing
@@ -698,8 +697,8 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
     @Override
     public synchronized IdentifiedObjectFinder getIdentifiedObjectFinder(
             final Class/*<? extends IdentifiedObject>*/ type) throws FactoryException
-    {        
-        return new CachedFinder( type );        
+    {
+        return new CachedFinder( type );
     }
 
     /**
@@ -732,7 +731,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
         @Override
         public IdentifiedObject find(final IdentifiedObject object) throws FactoryException {
             IdentifiedObject candidate;
-            
+
             candidate = (IdentifiedObject) findCache.get(object);
             if (candidate != null) {
                 return candidate;
@@ -743,7 +742,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
                 if( found == null) {
                     return null; // not found
                 }
-                candidate = (IdentifiedObject) findCache.peek(object); 
+                candidate = (IdentifiedObject) findCache.peek(object);
                 if( candidate == null ){
                     findCache.put(object, found);
                     return found;

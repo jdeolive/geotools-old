@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,8 +20,8 @@
 package org.geotools.referencing.cs;
 
 import java.util.Map;
-import javax.units.Converter;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
+import javax.measure.converter.UnitConverter;
 
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CartesianCS;
@@ -142,7 +142,7 @@ public class DefaultCartesianCS extends DefaultAffineCS implements CartesianCS {
      * {@linkplain #getDistanceUnit distance unit}. Will be constructed only when
      * first needed.
      */
-    private transient Converter[] converters;
+    private transient UnitConverter[] converters;
 
     /**
      * Constructs a new coordinate system with the same values than the specified one.
@@ -150,6 +150,8 @@ public class DefaultCartesianCS extends DefaultAffineCS implements CartesianCS {
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param cs The coordinate system to copy.
      *
      * @since 2.2
      */
@@ -266,10 +268,10 @@ public class DefaultCartesianCS extends DefaultAffineCS implements CartesianCS {
     {
         ensureDimensionMatch("coord1", coord1);
         ensureDimensionMatch("coord2", coord2);
-        final Unit unit = getDistanceUnit();
-        Converter[] converters = this.converters; // Avoid the need for synchronization.
+        final Unit<?> unit = getDistanceUnit();
+        UnitConverter[] converters = this.converters; // Avoid the need for synchronization.
         if (converters == null) {
-            converters = new Converter[getDimension()];
+            converters = new UnitConverter[getDimension()];
             for (int i=0; i<converters.length; i++) {
                 converters[i] = getAxis(i).getUnit().getConverterTo(unit);
             }
@@ -277,7 +279,7 @@ public class DefaultCartesianCS extends DefaultAffineCS implements CartesianCS {
         }
         double sum = 0;
         for (int i=0; i<converters.length; i++) {
-            final Converter  c = converters[i];
+            final UnitConverter  c = converters[i];
             final double delta = c.convert(coord1[i]) - c.convert(coord2[i]);
             sum += delta*delta;
         }
@@ -294,7 +296,7 @@ public class DefaultCartesianCS extends DefaultAffineCS implements CartesianCS {
      *
      * @since 2.2
      */
-    public DefaultCartesianCS usingUnit(final Unit unit) throws IllegalArgumentException {
+    public DefaultCartesianCS usingUnit(final Unit<?> unit) throws IllegalArgumentException {
         final CoordinateSystemAxis[] axis = axisUsingUnit(unit);
         if (axis == null) {
             return this;

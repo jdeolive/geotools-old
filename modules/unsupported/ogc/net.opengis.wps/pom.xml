@@ -31,8 +31,8 @@
       <version>2.5-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>javax.units</groupId>
-      <artifactId>jsr108</artifactId>
+      <groupId>net.java.dev.jsr-275</groupId>
+      <artifactId>jsr-275</artifactId>
     </dependency>    
   </dependencies>
 

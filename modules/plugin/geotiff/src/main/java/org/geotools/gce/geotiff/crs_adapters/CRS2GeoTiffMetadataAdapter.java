@@ -23,9 +23,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.geotools.gce.geotiff.GeoTiffException;
 import org.geotools.gce.geotiff.IIOMetadataAdpaters.GeoTiffIIOMetadataEncoder;

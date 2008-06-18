@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@ package org.geotools.coverage.grid;
 
 import java.awt.image.WritableRaster;
 import java.util.Random;
-import javax.units.SI;
+import javax.measure.unit.SI;
 
 import org.junit.*;
 import static org.junit.Assert.*;

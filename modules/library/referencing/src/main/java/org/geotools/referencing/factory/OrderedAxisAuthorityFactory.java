@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -16,21 +16,15 @@
  */
 package org.geotools.referencing.factory;
 
-// J2SE dependencies and extensions
-import java.util.Map;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Comparator;
-import javax.units.Unit;
-import javax.units.SI;
-import javax.units.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
 
-// OpenGIS dependencies
 import org.opengis.referencing.cs.*;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.FactoryException;
 
-// Geotools dependencies
 import org.geotools.factory.Hints;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -334,7 +328,8 @@ public class OrderedAxisAuthorityFactory extends TransformedAuthorityFactory
      *
      * @since 2.3
      */
-    protected Unit replace(final Unit units) {
+    @Override
+    protected Unit<?> replace(final Unit<?> units) {
         if (forceStandardUnits) {
             if (units.isCompatible(SI.METER)) {
                 return SI.METER;
@@ -356,15 +351,8 @@ public class OrderedAxisAuthorityFactory extends TransformedAuthorityFactory
      *
      * @since 2.3
      */
+    @Override
     protected AxisDirection replace(final AxisDirection direction) {
         return (forceStandardDirections) ? direction.absolute() : direction;
-    }
-
-    /**
-     * Returns the error message for the specified coordinate system.
-     * Used when throwing {@link FactoryException}.
-     */
-    private static final String getErrorMessage(final CoordinateSystem cs) {
-        return Errors.format(ErrorKeys.UNSUPPORTED_COORDINATE_SYSTEM_$1, cs.getName().getCode());
     }
 }

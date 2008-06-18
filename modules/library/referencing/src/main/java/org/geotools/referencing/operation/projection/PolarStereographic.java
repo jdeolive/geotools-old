@@ -22,13 +22,12 @@ package org.geotools.referencing.operation.projection;
 
 import java.awt.geom.Point2D;
 import java.util.Collection;
-import javax.units.NonSI;
+import javax.measure.unit.NonSI;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.parameter.ParameterNotFoundException;
-import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.operation.MathTransform;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.referencing.NamedIdentifier;
@@ -172,6 +171,9 @@ public class PolarStereographic extends Stereographic {
      * Transforms the specified (<var>&lambda;</var>,<var>&phi;</var>) coordinates
      * (units in radians) and stores the result in {@code ptDst} (linear distance
      * on a unit sphere).
+     *
+     * @param x The longitude of the coordinate, in <strong>radians</strong>.
+     * @param y The  latitude of the coordinate, in <strong>radians</strong>.
      */
     protected Point2D transformNormalized(double x, double y, Point2D ptDst)
             throws ProjectionException

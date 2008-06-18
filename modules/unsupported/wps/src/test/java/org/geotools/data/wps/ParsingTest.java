@@ -22,7 +22,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.opengis.wps.ProcessDescriptionType;

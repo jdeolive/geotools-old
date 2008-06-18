@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@ package org.geotools.parameter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;

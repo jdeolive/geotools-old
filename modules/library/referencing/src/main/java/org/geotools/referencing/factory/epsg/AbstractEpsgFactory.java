@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -49,9 +49,9 @@ import java.awt.RenderingHints;
 
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import javax.units.NonSI;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
@@ -912,11 +912,11 @@ public abstract class AbstractEpsgFactory extends AbstractCachedAuthorityFactory
      * @throws FactoryException if some other kind of failure occured in the backing
      *         store. This exception usually have {@link SQLException} as its cause.
      */
-    public synchronized Unit generateUnit(final String code)
+    public synchronized Unit<?> generateUnit(final String code)
             throws FactoryException
     {
         ensureNonNull("code", code);
-        Unit returnValue = null;
+        Unit<?> returnValue = null;
         try {
             final String primaryKey = toPrimaryKey(Unit.class, code,
                     "[Unit of Measure]", "UOM_CODE", "UNIT_OF_MEAS_NAME");
@@ -934,7 +934,7 @@ public abstract class AbstractEpsgFactory extends AbstractCachedAuthorityFactory
                 final double   b = result.getDouble(2);
                 final double   c = result.getDouble(3);
                 final int target = getInt(result,   4, code);
-                final Unit  base = getUnit(target);
+                final Unit<?> base = getUnit(target);
                 if (base == null) {
                     throw noSuchAuthorityCode(Unit.class, String.valueOf(target));
                 }
@@ -942,7 +942,7 @@ public abstract class AbstractEpsgFactory extends AbstractCachedAuthorityFactory
                 if (unit != null) {
                     // TODO: check unit consistency here.
                 } else if (b!=0 && c!=0) {
-                    unit = (b==c) ? base : base.multiply(b/c);
+                    unit = (b == c) ? base : base.times(b / c);
                 } else {
                     // TODO: provide a localized message.
                     throw new FactoryException("Unsupported unit: " + code);
@@ -2831,7 +2831,7 @@ public abstract class AbstractEpsgFactory extends AbstractCachedAuthorityFactory
      * @param  code The code.
      * @return The unit, or {@code null} if the code is unrecognized.
      */
-    private static Unit getUnit(final int code) {
+    private static Unit<?> getUnit(final int code) {
         switch (code) {
             case 9001: return    SI.METER;
             case 9002: return NonSI.FOOT;
@@ -2865,10 +2865,10 @@ public abstract class AbstractEpsgFactory extends AbstractCachedAuthorityFactory
      * @throws FactoryException if the code is unrecognized.
      */
     private static void setBursaWolfParameter(final BursaWolfParameters parameters,
-                                              final int code, double value, final Unit unit)
+                                              final int code, double value, final Unit<?> unit)
             throws FactoryException
     {
-        Unit target = unit;
+        Unit<?> target = unit;
         if (code >= 8605) {
             if      (code <= 8607) target = SI   .METER;
             else if (code <= 8710) target = NonSI.SECOND_ANGLE;

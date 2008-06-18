@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -30,13 +30,13 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ImageFunction;
 import javax.media.jai.RasterFactory;
-import javax.media.jai.util.CaselessStringKey; // For javadoc
-import javax.units.Unit;
+import javax.media.jai.util.CaselessStringKey;
+import javax.measure.unit.Unit;
 
-import org.opengis.coverage.SampleDimensionType; // For javadoc
+import org.opengis.coverage.SampleDimensionType;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridRange;
-import org.opengis.referencing.cs.AxisDirection; // For javadoc
+import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.geometry.Envelope;
@@ -322,7 +322,7 @@ public class GridCoverageFactory extends AbstractFactory {
                                  final Envelope                  envelope,
                                  final double[]                  minValues,
                                  final double[]                  maxValues,
-                                 final Unit                      units,
+                                 final Unit<?>                   units,
                                  final Color[][]                 colors,
                                  final RenderingHints            hints)
     {
@@ -368,7 +368,7 @@ public class GridCoverageFactory extends AbstractFactory {
                                  final MathTransform             gridToCRS,
                                  final double[]                  minValues,
                                  final double[]                  maxValues,
-                                 final Unit                      units,
+                                 final Unit<?>                   units,
                                  final Color[][]                 colors,
                                  final RenderingHints            hints)
     {

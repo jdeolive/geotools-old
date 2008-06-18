@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -29,9 +29,10 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import javax.units.Unit;
-import javax.units.SI;
-import javax.units.NonSI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.NonSI;
+import javax.measure.quantity.Length;
 
 import javax.imageio.IIOException;
 import javax.media.jai.DeferredData;
@@ -195,16 +196,16 @@ public class MetadataBuilder {
      * @see #PROJECTION
      * @see #COORDINATE_REFERENCE_SYSTEM
      */
-    public static final Key<Unit> UNITS = new Key<Unit>("Unit") {
+    public static final Key<Unit<?>> UNITS = new Key<Unit<?>>("Unit") {
         @Override
-        public Unit getValue(final GridCoverage coverage) {
-            Unit unit = null;
+        public Unit<?> getValue(final GridCoverage coverage) {
+            Unit<?> unit = null;
             final CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem();
             if (crs != null) {
                 final CoordinateSystem cs = crs.getCoordinateSystem();
                 if (cs != null) {
                     for (int i=cs.getDimension(); --i>=0;) {
-                        final Unit candidate = cs.getAxis(i).getUnit();
+                        final Unit<?> candidate = cs.getAxis(i).getUnit();
                         if (candidate != null) {
                             if (unit == null) {
                                 unit = candidate;
@@ -1434,7 +1435,7 @@ public class MetadataBuilder {
      * Returns the units, or the specified value if no units is found.
      * The default value may be {@code null}.
      */
-    private Unit getUnit(final Unit defaultValue) {
+    private Unit<?> getUnit(final Unit<?> defaultValue) {
         try {
             return getUnit();
         } catch (MetadataException exception) {
@@ -1452,7 +1453,7 @@ public class MetadataBuilder {
      *
      * @see #getCoordinateReferenceSystem
      */
-    public synchronized Unit getUnit() throws MetadataException {
+    public synchronized Unit<?> getUnit() throws MetadataException {
         final Object value = get(UNITS);
         if (value instanceof Unit) {
             return (Unit) value;
@@ -1563,9 +1564,11 @@ public class MetadataBuilder {
      * don't know for sure on which parameter the unit applies, which explain why it is not part
      * of any public API. This method is for internal usage by {@link #getProjection}.
      */
-    private static void setValue(final ParameterValue parameter, final double value, final Unit unit) {
+    private static void setValue(final ParameterValue<?> parameter,
+                                 final double value, final Unit<?> unit)
+    {
         if (unit != null) {
-            final Unit expected = parameter.getDescriptor().getUnit();
+            final Unit<?> expected = parameter.getDescriptor().getUnit();
             if (expected!=null && unit.isCompatible(expected)) {
                 parameter.setValue(value, unit);
                 return;
@@ -1672,7 +1675,7 @@ public class MetadataBuilder {
         } catch (NoSuchIdentifierException exception) {
             throw new MetadataException(exception, OPERATION_METHOD, lastAlias);
         }
-        final Unit unit = getUnit(null);
+        final Unit<?> unit = getUnit(null);
         for (final GeneralParameterDescriptor descriptor : parameters.getDescriptor().descriptors()) {
             if (descriptor instanceof ParameterDescriptor) {
                 final String          name = descriptor.getName().getCode();
@@ -1696,10 +1699,10 @@ public class MetadataBuilder {
          * with the ellipsoid.
          */
         if (!semiMajorAxisDefined || !semiMinorAxisDefined) {
-            final Ellipsoid ellipsoid = getEllipsoid();
-            final double semiMajor = ellipsoid.getSemiMajorAxis();
-            final double semiMinor = ellipsoid.getSemiMinorAxis();
-            final Unit   axisUnit  = ellipsoid.getAxisUnit();
+            final Ellipsoid    ellipsoid = getEllipsoid();
+            final double       semiMajor = ellipsoid.getSemiMajorAxis();
+            final double       semiMinor = ellipsoid.getSemiMinorAxis();
+            final Unit<Length> axisUnit  = ellipsoid.getAxisUnit();
             if ((semiMajorAxisDefined && parameters.parameter("semi_major").doubleValue(axisUnit)!=semiMajor) ||
                 (semiMinorAxisDefined && parameters.parameter("semi_minor").doubleValue(axisUnit)!=semiMinor))
             {
@@ -1756,11 +1759,11 @@ public class MetadataBuilder {
         }
         final String        crsAlias = lastAlias; // Protect from change
         final String         crsName = toString(value, COORDINATE_REFERENCE_SYSTEM, crsAlias);
-        final Unit              unit = getUnit();
+        final Unit<?>           unit = getUnit();
         final GeodeticDatum    datum = getGeodeticDatum();
         final boolean   isGeographic = NonSI.DEGREE_ANGLE.isCompatible(unit);
-        final Unit       angularUnit = isGeographic ? unit : NonSI.DEGREE_ANGLE;
-        final Unit        linearUnit = SI.METER.isCompatible(unit) ? unit : SI.METER;
+        final Unit<?>    angularUnit = isGeographic ? unit : NonSI.DEGREE_ANGLE;
+        final Unit<?>     linearUnit = SI.METER.isCompatible(unit) ? unit : SI.METER;
         final EllipsoidalCS    geoCS = DefaultEllipsoidalCS.GEODETIC_2D.usingUnit(angularUnit);
         final Map<String,String> properties =
                 Collections.singletonMap(IdentifiedObject.NAME_KEY, crsName);

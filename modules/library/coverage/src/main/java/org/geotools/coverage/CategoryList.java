@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@ import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import javax.media.jai.iterator.WritableRectIter;
 
 import org.opengis.referencing.operation.MathTransform1D;
@@ -160,7 +160,7 @@ class CategoryList extends AbstractList<Category>
      * @throws IllegalArgumentException if two or more categories
      *         have overlapping sample value range.
      */
-    public CategoryList(final Category[] categories, final Unit units)
+    public CategoryList(final Category[] categories, final Unit<?> units)
             throws IllegalArgumentException
     {
         this(categories, units, false, null);
@@ -185,7 +185,7 @@ class CategoryList extends AbstractList<Category>
      * @throws IllegalArgumentException if two or more categories have overlapping sample value
      *         range.
      */
-    CategoryList(Category[] categories, Unit units, boolean searchNearest, CategoryList inverse)
+    CategoryList(Category[] categories, Unit<?> units, boolean searchNearest, CategoryList inverse)
             throws IllegalArgumentException
     {
         /*
@@ -501,7 +501,7 @@ class CategoryList extends AbstractList<Category>
      * been transformed. The {@link GridSampleDimension} class will invoke
      * {@code geophysics(true).getUnits()} in order to get a non-null unit.
      */
-    public Unit getUnits() {
+    public Unit<?> getUnits() {
         return null;
     }
 
@@ -552,7 +552,7 @@ class CategoryList extends AbstractList<Category>
             buffer.append(" ... ");
             buffer = format(range.getMaximum(), true,  locale, buffer);
         } else {
-            final Unit unit = getUnits();
+            final Unit<?> unit = getUnits();
             if (unit != null) {
                 buffer.append(unit);
             }

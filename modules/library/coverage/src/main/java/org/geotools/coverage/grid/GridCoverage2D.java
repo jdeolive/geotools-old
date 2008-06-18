@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import javax.units.Unit;
+import javax.measure.unit.Unit;
 import javax.media.jai.Interpolation;
 import javax.media.jai.OperationNode;
 import javax.media.jai.PlanarImage;
@@ -381,6 +381,8 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
      * Returns the two-dimensional bounding box for the coverage domain in coordinate reference
      * system coordinates. If the coverage envelope has more than two dimensions, only the
      * dimensions used in the underlying rendered image are returned.
+     *
+     * @return The two-dimensional bounding box.
      */
     public Envelope2D getEnvelope2D() {
         return gridGeometry.getEnvelope2D();
@@ -392,6 +394,8 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
      * method returns the same CRS. Otherwise it returns a CRS for the two first axis having
      * a {@linkplain GridRange#length length} greater than 1 in the grid range. Note that those
      * axis are garanteed to appears in the same order than in the complete CRS.
+     *
+     * @return The two-dimensional part of the grid coverage CRS.
      *
      * @see #getCoordinateReferenceSystem
      */
@@ -419,6 +423,8 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
 
     /**
      * Returns all sample dimensions for this grid coverage.
+     *
+     * @return All sample dimensions.
      */
     public GridSampleDimension[] getSampleDimensions() {
         return sampleDimensions.clone();
@@ -709,6 +715,8 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
 
     /**
      * Returns grid data as a rendered image.
+     *
+     * @return The grid data as a rendered image.
      */
     public RenderedImage getRenderedImage() {
         return image;
@@ -745,7 +753,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
             final StringBuilder buffer = new StringBuilder(String.valueOf(getName()));
             final int visibleBandIndex = CoverageUtilities.getVisibleBand(this);
             final SampleDimension visibleBand = getSampleDimension(visibleBandIndex);
-            final Unit unit = visibleBand.getUnits();
+            final Unit<?> unit = visibleBand.getUnits();
             buffer.append(" - ").append(String.valueOf(visibleBand.getDescription()));
             if (unit != null) {
                 buffer.append(" (").append(unit).append(')');
@@ -961,6 +969,8 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
      * Returns the set of views that this coverage represents. The same coverage may be used for
      * more than one view. For example a coverage could be valid both as a {@link ViewType#PACKED
      * PACKED} and {@link ViewType#RENDERED RENDERED} view.
+     *
+     * @return The set of views that this coverage represents.
      *
      * @since 2.5
      */

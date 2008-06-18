@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
-import javax.units.SI;
-import javax.units.Unit;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.opengis.metadata.extent.Extent;
 import org.opengis.metadata.quality.Result;
@@ -393,7 +393,7 @@ public class AbstractCoordinateOperation extends AbstractIdentifiedObject
                     final QuantitativeResult quantity = (QuantitativeResult) result;
                     final Collection<? extends Record> records = quantity.getValues();
                     if (records != null) {
-                        final Unit unit = quantity.getValueUnit();
+                        final Unit<?> unit = quantity.getValueUnit();
                         if (unit!=null && SI.METER.isCompatible(unit)) {
                             for (final Record record : records) {
                                 for (final Object value : record.getAttributes().values()) {
