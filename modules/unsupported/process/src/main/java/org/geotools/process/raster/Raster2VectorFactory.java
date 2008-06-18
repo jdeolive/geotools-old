@@ -345,12 +345,12 @@ class RasterToVector {
 	        minRasterCol = raster.getMinX();
 	        maxRasterCol = minRasterCol + raster.getWidth() - 1;
 	
-	        lines = CAUtils.newArrayList();
+	        lines = new ArrayList<LineString>();
 	        polygonizer = new Polygonizer();
 	
 	        progress.progress(0.8f);
 	        
-	        vertLines = CAUtils.newMap();
+	        vertLines = new HashMap<Integer, LineSeg>();
     	}
     	finally {
     		progress.complete();
@@ -686,44 +686,4 @@ class LineSeg {
     public int right; // ditto
 }
 
-/**
-* Utilities to create collection classes.
-* <p>
-* This appears to be an AbstractFactory; in GeoTools
-* we usually make these settings by providing a set
-* of Hints as "context" (ie rather than a global
-* factory; we let people define what collections
-* they want for the current work).
-* <p>
-* @author Michael Bedward <michael.bedward@gmail.com>
-*/
-class CAUtils {
-   
-   /**
-    * Magic method to create a generic Map
-    * 
-    * @return a new Map<K,V> instance
-    */
-   public static <K,V> Map<K,V> newMap() {
-       return new HashMap<K,V>();
-   }
-   
-   /**
-    * Magic method to create a generic ArrayList
-    * 
-    * @return a new ArrayList<T> instance
-    */
-   public static <T> ArrayList<T> newArrayList() {
-       return new ArrayList<T>();
-   }
-   
-   /** 
-    * Magic method to create a generic Set
-    * 
-    * @return a new Set<T> instance
-    */
-   public static <T> Set<T> newSet() {
-       return new HashSet<T>();
-   }
-}
 
