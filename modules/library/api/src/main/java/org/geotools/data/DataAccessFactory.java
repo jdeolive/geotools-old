@@ -378,7 +378,7 @@ public interface DataAccessFactory extends Factory {
          * @return true if {@code metadata.get(IS_PASSWORD) == Boolean.TRUE}
          */
         public boolean isPassword(){
-            return Boolean.TRUE.equals(super.metadata.get(IS_PASSWORD));
+            return metadata != null && Boolean.TRUE.equals(super.metadata.get(IS_PASSWORD));
         }
         
         /**
