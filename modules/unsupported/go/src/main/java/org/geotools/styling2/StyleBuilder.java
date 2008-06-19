@@ -69,6 +69,15 @@ public class StyleBuilder {
         return catalog;
     }
 
+    public Style createStyle(Symbolizer[] symbols){
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbols,FeatureTypeStyle.SEMANTIC_ID_LINE);
+        List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
+        ftss.add(fts);
+        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
+        return catalog;
+    }
+
+    
     public Style createPolygonStyle(PolygonSymbolizer symbol){
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_POLYGON);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
@@ -110,5 +119,25 @@ public class StyleBuilder {
         FeatureTypeStyle fts = new MutableFeatureTypeStyle("fakename", SymbolizerBuilder.DEFAULT_DESCRIPTION, null, null, semantics , rules);
         return fts;
     }
+    
+    public FeatureTypeStyle createFeatureTypeStyle(Symbolizer[] symbol, String semantic){
+
+        //TODO replace those fakenames, will disapear when merged with geotools styles
+
+        List<Symbolizer> symbols = new ArrayList<Symbolizer>();
+        for(Symbolizer s : symbol){
+            symbols.add(s);
+        }
+        Rule rule = new MutableRule("fakename", SymbolizerBuilder.DEFAULT_DESCRIPTION, null, null, false, 0, Double.MAX_VALUE, symbols);
+
+        Collection<String> semantics = new ArrayList<String>();
+        semantics.add(semantic);
+        List<Rule> rules = new ArrayList<Rule>();
+        rules.add(rule);
+        FeatureTypeStyle fts = new MutableFeatureTypeStyle("fakename", SymbolizerBuilder.DEFAULT_DESCRIPTION, null, null, semantics , rules);
+        return fts;
+    }
+    
+    
 
 }

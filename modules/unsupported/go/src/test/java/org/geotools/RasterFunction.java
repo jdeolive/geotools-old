@@ -61,7 +61,7 @@ import org.opengis.style.Symbolizer;
  * 
  * @author Johann Sorel
  */
-public class RasterFunctionTest {
+public class RasterFunction {
 
     private final File gridFile = new File("/home/sorel/GIS_DATA/GIS/2000-0264-2259-OL.tif");
     
@@ -221,7 +221,7 @@ public class RasterFunctionTest {
     }
     
     public static void main(String[] args){
-        new RasterFunctionTest().testSimpleRaster();
+        new RasterFunction().testSimpleRaster();
     }
     
     

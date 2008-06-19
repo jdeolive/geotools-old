@@ -106,6 +106,7 @@
       <groupId>org.geotools</groupId>
       <artifactId>gt-image</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <!-- dependency for FunctionsImpl etc... -->
     <dependency>

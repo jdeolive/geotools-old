@@ -252,6 +252,20 @@ public class SymbolizerBuilder {
         return stroke;
     }
     
+    public Stroke createStroke(Color color, double width, float[] dashes){
+        Stroke stroke = new DefaultStroke(
+                null, 
+                null, 
+                SB.colorExpression(color), 
+                DEFAULT_OPACITY, 
+                SB.literalExpression(width), 
+                SB.literalExpression("bevel"), 
+                SB.literalExpression("butt"), 
+                dashes, 
+                DEFAULT_OPACITY);
+        return stroke;
+    }
+    
     public Halo createHalo(Color color, double width){
         Halo halo = new DefaultHalo(
                 createFill(color), 
