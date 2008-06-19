@@ -38,19 +38,24 @@ public class SourceTest {
         Matcher m;
         String tag, url, group, category, module;
         tag = "$URL$";
-        m = s.findURL.matcher(tag);
-        assertTrue(m.matches());
+        //The url above is only converted from $URL$ if we have obtained the 
+        //  file using a standard access mechanism to SVN. This fails, for 
+        //  example, with mercurial converstion 'hg convert svnrepo hgrepo'
+        if ( !tag.equals("$URL$") ){
+            m = s.findURL.matcher(tag);
+            assertTrue(m.matches());
 
-        // Try to match the URL provided by SVN.
-        url = m.group(1).trim();
-        m = s.findModule.matcher(url);
-        assertTrue(m.matches());
-        group    = m.group(1);
-        category = m.group(2);
-        module   = m.group(3);
-        assertEquals("build", group);
-        assertEquals("maven", category);
-        assertEquals("javadoc", module);
+            // Try to match the URL provided by SVN.
+            url = m.group(1).trim();
+            m = s.findModule.matcher(url);
+            assertTrue(m.matches());
+            group    = m.group(1);
+            category = m.group(2);
+            module   = m.group(3);
+            assertEquals("build", group);
+            assertEquals("maven", category);
+            assertEquals("javadoc", module);
+        }
 
         // Try an other URL from a tag.
         url = "http://svn.geotools.org/tags/2.4-M0/modules/library/api/src/main/java/org/geotools/catalog/ResolveChangeListener.java";
