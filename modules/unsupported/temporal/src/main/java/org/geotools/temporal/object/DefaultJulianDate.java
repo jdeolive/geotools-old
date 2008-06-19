@@ -22,7 +22,7 @@ import org.opengis.temporal.TemporalReferenceSystem;
 
 /**
  * The Julian day numbering system is a temporal coordinate system that has its origin at noon
- * on 1 January 4713 BC in the Julian proleptic calendar. The Julian day number is an integer
+ * on 1 January 4713 BCE in the Julian proleptic calendar. The Julian day number is an integer
  * value; the Julian date is a decimal value that allows greater resolution.
  *
  * @author Mehdi Sidhoum (Geomatys)

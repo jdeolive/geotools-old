@@ -73,6 +73,7 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
             return dateTrans(dateAndTime);
         }
         GregorianCalendar gc = new GregorianCalendar(-4713, 1, 1);
+        gc.set(GregorianCalendar.ERA, GregorianCalendar.BC);
         final int julianGre = 15 + 31 * (10 + 12 * 1582);
         Number coordinateValue = 0;
         TemporalCoordinateSystem refSystem = new DefaultTemporalCoordinateSystem(new NamedIdentifier(Citations.CRS, new SimpleInternationalString("Julian calendar")),
@@ -146,6 +147,7 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
     public JulianDate dateTrans(DateAndTime dateAndTime) {
         JulianDate response;
         GregorianCalendar gc = new GregorianCalendar(-4713, 1, 1);
+        gc.set(GregorianCalendar.ERA, GregorianCalendar.BC);
         final int julianGre = 15 + 31 * (10 + 12 * 1582);
         TemporalCoordinateSystem refSystem = new DefaultTemporalCoordinateSystem(new NamedIdentifier(Citations.CRS, new SimpleInternationalString("Julian calendar")),
                 null, gc.getTime(), new SimpleInternationalString("day"));

@@ -14,7 +14,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
 package org.geotools.temporal.reference;
 
 import java.text.ParseException;
@@ -43,19 +42,19 @@ import org.opengis.temporal.DateAndTime;
 import org.opengis.temporal.IndeterminateValue;
 import org.opengis.temporal.JulianDate;
 
-
 /**
  *
  * @author Mehdi Sidhoum (Geomatys)
  */
 public class DefaultCalendarTest {
+
     private Calendar calendar1;
     private Calendar calendar2;
 
     @Before
     public void setUp() {
         NamedIdentifier name1 = new NamedIdentifier(Citations.CRS, "Gregorian calendar");
-        NamedIdentifier name2 = new NamedIdentifier(Citations.CRS, "Julian calebndar");
+        NamedIdentifier name2 = new NamedIdentifier(Citations.CRS, "Julian calendar");
         calendar1 = new DefaultCalendar(name1, null);
         calendar2 = new DefaultCalendar(name2, null);
     }
@@ -71,9 +70,9 @@ public class DefaultCalendarTest {
      */
     @Test
     public void testDateTrans_CalendarDate_ClockTime() {
-        int[] cal = {2012,9,10};
+        int[] cal = {2012, 9, 10};
         CalendarDate calendarDate = new DefaultCalendarDate(calendar1, IndeterminateValue.NOW, new SimpleInternationalString("new Era"), cal);
-        Number[] clock = {12,10,5.488};
+        Number[] clock = {12, 10, 5.488};
         ClockTime clockTime = new DefaultClockTime(calendar1, IndeterminateValue.NOW, clock);
         JulianDate result = calendar1.dateTrans(calendarDate, clockTime);
         assertTrue(calendar2.dateTrans(calendarDate, clockTime).equals(result));
@@ -84,11 +83,11 @@ public class DefaultCalendarTest {
      */
     @Test
     public void testDateTrans_DateAndTime() {
-        int[] cal = {2012,9,10};
-        Number[] clock = {12,10,5.488};
+        int[] cal = {2012, 9, 10};
+        Number[] clock = {12, 10, 5.488};
         DateAndTime dateAndTime = new DefaultDateAndTime(calendar1, null, null, cal, clock);
-        JulianDate result = ((DefaultCalendar)calendar1).dateTrans(dateAndTime);
-        assertTrue(((DefaultCalendar)calendar1).dateTrans(dateAndTime).equals(result));
+        JulianDate result = ((DefaultCalendar) calendar1).dateTrans(dateAndTime);
+        assertTrue(((DefaultCalendar) calendar1).dateTrans(dateAndTime).equals(result));
     }
 
     /**
@@ -123,16 +122,16 @@ public class DefaultCalendarTest {
     @Test
     public void testSetBasis() throws ParseException {
         Collection<CalendarEra> result = calendar1.getBasis();
-        int[] calendarDate = {1,1,1};
+        int[] calendarDate = {1, 1, 1};
         CalendarEra calendarEra = new DefaultCalendarEra(new SimpleInternationalString("Babylonian calendar"),
                 new SimpleInternationalString("Ascension of Nebuchadnezzar II to the throne of Babylon"),
                 new DefaultCalendarDate(calendar1, null, null, calendarDate),
                 new DefaultJulianDate(calendar1, null, 1721423.25),
-                new DefaultPeriod(new DefaultInstant(new DefaultPosition(new DefaultJulianDate(calendar1, null, 2087769))), 
-                                  new DefaultInstant(new DefaultPosition(new DefaultJulianDate(calendar1, null, 2299160)))));
+                new DefaultPeriod(new DefaultInstant(new DefaultPosition(new DefaultJulianDate(calendar1, null, 2087769))),
+                new DefaultInstant(new DefaultPosition(new DefaultJulianDate(calendar1, null, 2299160)))));
         Collection<CalendarEra> collection = new ArrayList<CalendarEra>();
         collection.add(calendarEra);
-        ((DefaultCalendar)calendar1).setBasis(collection);
+        ((DefaultCalendar) calendar1).setBasis(collection);
         assertFalse(calendar1.getBasis().equals(result));
     }
 
@@ -142,7 +141,7 @@ public class DefaultCalendarTest {
     @Test
     public void testSetClock() {
         Clock result = calendar1.getClock();
-        ((DefaultCalendar)calendar1).setClock(null);
+        ((DefaultCalendar) calendar1).setClock(null);
         assertEquals(calendar1.getClock(), result);
     }
 
@@ -173,5 +172,4 @@ public class DefaultCalendarTest {
         String result = calendar1.toString();
         assertFalse(calendar2.toString().equals(result));
     }
-
 }
