@@ -100,6 +100,7 @@
     <module>gml</module>    
     <module>gpx</module>
     <module>h2</module>
+    <!-- <module>imagemosaic-jdbc</module> -->
     <module>jts-wrapper</module>
     <module>mappane</module>
     <module>mif</module>
@@ -114,7 +115,6 @@
     <module>vpf</module>
     <module>widgets-swing-pending</module>
     <module>xml-gpx</module>
-    <module>imagemosaic-jdbc</module>
   </modules>
 
 </project>
