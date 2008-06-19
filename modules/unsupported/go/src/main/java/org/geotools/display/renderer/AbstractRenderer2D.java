@@ -94,6 +94,9 @@ public abstract class AbstractRenderer2D extends AbstractRenderer implements Ren
         }else if(propertyName.equals(ReferencedGraphic2D.DISPLAY_BOUNDS_PROPERTY)){
             RendererEvent rendererEvent = new DefaultRendererEvent(this, graphic);
             fireGraphicChanged(rendererEvent);
+        }else if(propertyName.equals(ReferencedGraphic2D.VISIBLE_PROPERTY)){
+            RendererEvent rendererEvent = new DefaultRendererEvent(this, graphic);
+            fireGraphicChanged(rendererEvent);
         }
 
     }
