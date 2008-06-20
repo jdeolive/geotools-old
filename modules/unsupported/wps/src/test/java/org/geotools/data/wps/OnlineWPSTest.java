@@ -61,23 +61,23 @@ public class OnlineWPSTest extends TestCase {
 
 	}
 	
-	public void testDescribeProcess() throws ServiceException, IOException {
-		
-		WPSCapabilitiesType capabilities = wps.getCapabilities();
-		
-		// get the first process and describe it
-		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
-		EList processes = processOfferings.getProcess();
-		ProcessBriefType process = (ProcessBriefType) processes.get(0);
-		
-		DescribeProcessRequest request = wps.createDescribeProcessRequest();
-		request.setIdentifier(process.getIdentifier().getValue());
-		//System.out.println(request.getFinalURL());
-		DescribeProcessResponse response = wps.issueRequest(request);
-		//System.out.println(response);
-		assertNotNull(response);
-		
-	}
+//	public void testDescribeProcess() throws ServiceException, IOException {
+//		
+//		WPSCapabilitiesType capabilities = wps.getCapabilities();
+//		
+//		// get the first process and describe it
+//		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
+//		EList processes = processOfferings.getProcess();
+//		ProcessBriefType process = (ProcessBriefType) processes.get(0);
+//		
+//		DescribeProcessRequest request = wps.createDescribeProcessRequest();
+//		request.setIdentifier(process.getIdentifier().getValue());
+//		//System.out.println(request.getFinalURL());
+//		DescribeProcessResponse response = wps.issueRequest(request);
+//		//System.out.println(response);
+//		assertNotNull(response);
+//		
+//	}
 	
 	public void testExecuteProcess() throws ServiceException, IOException {
 		

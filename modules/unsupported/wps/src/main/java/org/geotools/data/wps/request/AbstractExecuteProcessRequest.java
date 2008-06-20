@@ -113,6 +113,7 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
         CodeType codetype = Ows11Factory.eINSTANCE.createCodeType();
         String iden = (String)this.properties.get(this.IDENTIFIER);
         codetype.setValue(iden);
+        codetype.setCodeSpace("test");
         request.setIdentifier(codetype);
         
         request.setService("WPS");// TODO: un-hardcode
