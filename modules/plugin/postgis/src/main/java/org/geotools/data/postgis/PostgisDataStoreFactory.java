@@ -18,6 +18,7 @@ package org.geotools.data.postgis;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -25,9 +26,12 @@ import javax.sql.DataSource;
 import org.geotools.data.AbstractDataStoreFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
+import org.geotools.data.Parameter;
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.datasource.DataSourceUtil;
 import org.geotools.data.jdbc.datasource.ManageableDataSource;
+import org.geotools.util.SimpleInternationalString;
+import org.opengis.util.InternationalString;
 
 
 /**
@@ -65,7 +69,8 @@ public class PostgisDataStoreFactory extends AbstractDataStoreFactory
             "user name to login as");
 
     public static final Param PASSWD = new Param("passwd", String.class,
-            "password used to login", false);
+            new SimpleInternationalString("password used to login"),
+            false, null, Collections.singletonMap(Parameter.IS_PASSWORD, Boolean.TRUE));
     
     public static final Param MAXCONN = new Param("max connections", Integer.class,
             "maximum number of open connections", false, new Integer(10));
