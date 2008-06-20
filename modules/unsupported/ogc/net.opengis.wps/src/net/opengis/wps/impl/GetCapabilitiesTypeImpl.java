@@ -30,6 +30,7 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  *   <li>{@link net.opengis.wps.impl.GetCapabilitiesTypeImpl#getAcceptVersions <em>Accept Versions</em>}</li>
  *   <li>{@link net.opengis.wps.impl.GetCapabilitiesTypeImpl#getLanguage <em>Language</em>}</li>
  *   <li>{@link net.opengis.wps.impl.GetCapabilitiesTypeImpl#getService <em>Service</em>}</li>
+ *   <li>{@link net.opengis.wps.impl.GetCapabilitiesTypeImpl#getBaseUrl <em>Base Url</em>}</li>
  * </ul>
  * </p>
  *
@@ -94,6 +95,26 @@ public class GetCapabilitiesTypeImpl extends EObjectImpl implements GetCapabilit
 	 * @ordered
 	 */
 	protected boolean serviceESet;
+
+	/**
+	 * The default value of the '{@link #getBaseUrl() <em>Base Url</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getBaseUrl()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String BASE_URL_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getBaseUrl() <em>Base Url</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getBaseUrl()
+	 * @generated
+	 * @ordered
+	 */
+	protected String baseUrl = BASE_URL_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -228,6 +249,27 @@ public class GetCapabilitiesTypeImpl extends EObjectImpl implements GetCapabilit
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setBaseUrl(String newBaseUrl) {
+		String oldBaseUrl = baseUrl;
+		baseUrl = newBaseUrl;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, WpsPackage.GET_CAPABILITIES_TYPE__BASE_URL, oldBaseUrl, baseUrl));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case WpsPackage.GET_CAPABILITIES_TYPE__ACCEPT_VERSIONS:
@@ -249,6 +291,8 @@ public class GetCapabilitiesTypeImpl extends EObjectImpl implements GetCapabilit
 				return getLanguage();
 			case WpsPackage.GET_CAPABILITIES_TYPE__SERVICE:
 				return getService();
+			case WpsPackage.GET_CAPABILITIES_TYPE__BASE_URL:
+				return getBaseUrl();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -268,6 +312,9 @@ public class GetCapabilitiesTypeImpl extends EObjectImpl implements GetCapabilit
 				return;
 			case WpsPackage.GET_CAPABILITIES_TYPE__SERVICE:
 				setService((String)newValue);
+				return;
+			case WpsPackage.GET_CAPABILITIES_TYPE__BASE_URL:
+				setBaseUrl((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -289,6 +336,9 @@ public class GetCapabilitiesTypeImpl extends EObjectImpl implements GetCapabilit
 			case WpsPackage.GET_CAPABILITIES_TYPE__SERVICE:
 				unsetService();
 				return;
+			case WpsPackage.GET_CAPABILITIES_TYPE__BASE_URL:
+				setBaseUrl(BASE_URL_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -306,6 +356,8 @@ public class GetCapabilitiesTypeImpl extends EObjectImpl implements GetCapabilit
 				return LANGUAGE_EDEFAULT == null ? language != null : !LANGUAGE_EDEFAULT.equals(language);
 			case WpsPackage.GET_CAPABILITIES_TYPE__SERVICE:
 				return isSetService();
+			case WpsPackage.GET_CAPABILITIES_TYPE__BASE_URL:
+				return BASE_URL_EDEFAULT == null ? baseUrl != null : !BASE_URL_EDEFAULT.equals(baseUrl);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -323,6 +375,8 @@ public class GetCapabilitiesTypeImpl extends EObjectImpl implements GetCapabilit
 		result.append(language);
 		result.append(", service: ");
 		if (serviceESet) result.append(service); else result.append("<unset>");
+		result.append(", baseUrl: ");
+		result.append(baseUrl);
 		result.append(')');
 		return result.toString();
 	}

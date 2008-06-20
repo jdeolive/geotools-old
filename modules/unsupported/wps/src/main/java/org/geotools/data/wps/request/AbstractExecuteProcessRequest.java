@@ -26,10 +26,12 @@ import net.opengis.ows11.CodeType;
 import net.opengis.ows11.Ows11Factory;
 import net.opengis.wps.DataInputsType1;
 import net.opengis.wps.ExecuteType;
+import net.opengis.wps.ResponseFormType;
 import net.opengis.wps.WpsFactory;
 
 import org.geotools.gml2.GMLConfiguration;
 import org.geotools.wps.WPS;
+import org.geotools.wps.WPSConfiguration;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Encoder;
 
@@ -80,14 +82,15 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
 	public void performPostOutput(OutputStream outputStream) throws IOException {
     	// Encode the request into GML2 with the schema provided in the
     	// describeprocess
-    	Configuration config = new GMLConfiguration();
+    	Configuration config = new WPSConfiguration();
     	Encoder encoder = new Encoder(config);
     	
     	//http://schemas.opengis.net/wps/1.0.0/wpsExecute_request.xsd
     	
     	ExecuteType request = createExecuteType();
     	encoder.encode(request, WPS.Execute, outputStream);
-    	
+    	System.out.println(outputStream.toString());
+
     	/*
     	Set<Object> keyset = this.properties.keySet();
     	Iterator<Object> iterator = keyset.iterator();
@@ -96,7 +99,7 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     		Object object = this.properties.get(key);
     		// will a null QName work? Or do I have to know the QName this
     		// object maps to?  I hope I don't need to know...
-    		encoder.encode(object, WPS.Execute, outputStream);
+    		encoder.encode(object, null, outputStream);
     	}
     	*/
 
@@ -105,15 +108,26 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     @SuppressWarnings("unchecked")
     private ExecuteType createExecuteType() {
         ExecuteType request = WpsFactory.eINSTANCE.createExecuteType();
+        
+        // identifier
         CodeType codetype = Ows11Factory.eINSTANCE.createCodeType();
-        codetype.setValue((String)this.properties.get(this.IDENTIFIER));
+        String iden = (String)this.properties.get(this.IDENTIFIER);
+        codetype.setValue(iden);
         request.setIdentifier(codetype);
+        
         request.setService("WPS");// TODO: un-hardcode
         request.setVersion("1.0.0");// TODO: un-hardcode
+        
+        //inputs
         DataInputsType1 inputs = WpsFactory.eINSTANCE.createDataInputsType1();
         //inputs.getInput().
         request.setDataInputs(inputs);
-        //request.setResponseForm(value);
+        
+        // responsetype
+        ResponseFormType respF = WpsFactory.eINSTANCE.createResponseFormType();
+        //respF.
+        request.setResponseForm(respF);
+        
         return request;
     }    
 

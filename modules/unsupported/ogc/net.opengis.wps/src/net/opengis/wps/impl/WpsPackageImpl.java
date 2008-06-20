@@ -1237,6 +1237,15 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getGetCapabilitiesType_BaseUrl() {
+		return (EAttribute)getCapabilitiesTypeEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getHeaderType() {
 		return headerTypeEClass;
 	}
@@ -2538,6 +2547,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		createEReference(getCapabilitiesTypeEClass, GET_CAPABILITIES_TYPE__ACCEPT_VERSIONS);
 		createEAttribute(getCapabilitiesTypeEClass, GET_CAPABILITIES_TYPE__LANGUAGE);
 		createEAttribute(getCapabilitiesTypeEClass, GET_CAPABILITIES_TYPE__SERVICE);
+		createEAttribute(getCapabilitiesTypeEClass, GET_CAPABILITIES_TYPE__BASE_URL);
 
 		headerTypeEClass = createEClass(HEADER_TYPE);
 		createEAttribute(headerTypeEClass, HEADER_TYPE__KEY);
@@ -2846,6 +2856,7 @@ public class WpsPackageImpl extends EPackageImpl implements WpsPackage {
 		initEReference(getGetCapabilitiesType_AcceptVersions(), theOws11Package.getAcceptVersionsType(), null, "acceptVersions", null, 0, 1, GetCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getGetCapabilitiesType_Language(), theXMLTypePackage.getString(), "language", null, 0, 1, GetCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getGetCapabilitiesType_Service(), theOws11Package.getServiceType(), "service", "WPS", 1, 1, GetCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getGetCapabilitiesType_BaseUrl(), ecorePackage.getEString(), "baseUrl", null, 0, 1, GetCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(headerTypeEClass, HeaderType.class, "HeaderType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getHeaderType_Key(), theXMLTypePackage.getString(), "key", null, 1, 1, HeaderType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

@@ -21,6 +21,9 @@ import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.opengis.ows11.ExceptionReportType;
+import net.opengis.wps.ExecuteResponseType;
+
 import org.geotools.data.ows.Response;
 import org.geotools.data.ows.ProcessDescription;
 import org.geotools.xml.Configuration;
@@ -37,7 +40,7 @@ import org.xml.sax.SAXException;
  */
 public class ExecuteProcessResponse extends Response {
 
-    private ProcessDescription processDesc;
+    private ExecuteResponseType exeResponse;
 
     /**
      * @param contentType
@@ -64,15 +67,29 @@ public class ExecuteProcessResponse extends Response {
 			} catch (ParserConfigurationException e) {
 				throw (IOException) new IOException().initCause(e);
 			}
-	        
-	        processDesc = (ProcessDescription) object;
+			
+			// try casting the response
+			if (object instanceof ExecuteResponseType) {
+				exeResponse = (ExecuteResponseType) object;
+			}
+			// exception caught on server and returned
+			else if (object instanceof ExceptionReportType) {
+				ExceptionReportType excep = (ExceptionReportType) object;
+				exeResponse = null;
+			}
+			else {
+				// unknown response
+				exeResponse = null;
+			}
+
+			
         } finally {
         	inputStream.close();
         }
     }
 
-    public ProcessDescription getProcessDesc() {
-        return processDesc;
+    public ExecuteResponseType getExecuteResponse() {
+        return exeResponse;
     }
 
 }

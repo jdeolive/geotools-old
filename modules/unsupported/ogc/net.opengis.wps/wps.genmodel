@@ -104,6 +104,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wps.ecore#//GetCapabilitiesType/acceptVersions"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//GetCapabilitiesType/language"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//GetCapabilitiesType/service"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//GetCapabilitiesType/baseUrl"/>
     </genClasses>
     <genClasses ecoreClass="wps.ecore#//HeaderType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//HeaderType/key"/>

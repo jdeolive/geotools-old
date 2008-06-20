@@ -21,6 +21,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link net.opengis.wps.GetCapabilitiesType#getAcceptVersions <em>Accept Versions</em>}</li>
  *   <li>{@link net.opengis.wps.GetCapabilitiesType#getLanguage <em>Language</em>}</li>
  *   <li>{@link net.opengis.wps.GetCapabilitiesType#getService <em>Service</em>}</li>
+ *   <li>{@link net.opengis.wps.GetCapabilitiesType#getBaseUrl <em>Base Url</em>}</li>
  * </ul>
  * </p>
  *
@@ -134,5 +135,24 @@ public interface GetCapabilitiesType extends EObject {
 	 * @generated
 	 */
 	boolean isSetService();
+	
+	/**
+	 * Returns the base url of the request.
+	 * <p>
+	 * This is a special property added manually.
+	 * </p>
+	 * @model
+	 */
+	String getBaseUrl();
+
+	/**
+	 * Sets the value of the '{@link net.opengis.wps.GetCapabilitiesType#getBaseUrl <em>Base Url</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Base Url</em>' attribute.
+	 * @see #getBaseUrl()
+	 * @generated
+	 */
+	void setBaseUrl(String value);	
 
 } // GetCapabilitiesType

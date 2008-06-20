@@ -1238,13 +1238,22 @@ public interface WpsPackage extends EPackage {
 	int GET_CAPABILITIES_TYPE__SERVICE = 2;
 
 	/**
+	 * The feature id for the '<em><b>Base Url</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int GET_CAPABILITIES_TYPE__BASE_URL = 3;
+
+	/**
 	 * The number of structural features of the '<em>Get Capabilities Type</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int GET_CAPABILITIES_TYPE_FEATURE_COUNT = 3;
+	int GET_CAPABILITIES_TYPE_FEATURE_COUNT = 4;
 
 	/**
 	 * The meta object id for the '{@link net.opengis.wps.impl.HeaderTypeImpl <em>Header Type</em>}' class.
@@ -3720,6 +3729,17 @@ public interface WpsPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getGetCapabilitiesType_Service();
+
+	/**
+	 * Returns the meta object for the attribute '{@link net.opengis.wps.GetCapabilitiesType#getBaseUrl <em>Base Url</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Base Url</em>'.
+	 * @see net.opengis.wps.GetCapabilitiesType#getBaseUrl()
+	 * @see #getGetCapabilitiesType()
+	 * @generated
+	 */
+	EAttribute getGetCapabilitiesType_BaseUrl();
 
 	/**
 	 * Returns the meta object for class '{@link net.opengis.wps.HeaderType <em>Header Type</em>}'.
