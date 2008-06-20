@@ -369,7 +369,7 @@ public interface DataAccessFactory extends Factory {
                      InternationalString description,
                      boolean required,
                      Object sample,
-                     Map<String, Object> metadata) {
+                     Map<String, ?> metadata) {
             super(key, type, description, null, required, 1, 1, sample, metadata);
         }
 
