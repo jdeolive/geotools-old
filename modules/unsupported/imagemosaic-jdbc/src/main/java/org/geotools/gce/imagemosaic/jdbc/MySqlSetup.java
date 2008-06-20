@@ -1,13 +1,13 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
-import java.sql.Connection;
 
 
 public class MySqlSetup extends JDBCSetup {
-    public static MySqlSetup Singleton = new MySqlSetup();
 
-    public MySqlSetup() {
-    }
+    public MySqlSetup(Config config) {
+		super(config);
+	}
+
 
     protected String getDriverClassName() {
         return "com.mysql.jdbc.Driver";
@@ -33,19 +33,19 @@ public class MySqlSetup extends JDBCSetup {
     }
 
     @Override
-    protected void createIndex(String tn, Connection con)
-        throws Exception {
-        //    	
+    protected String getCreateIndexStatement(String tn) throws Exception {            	
         // String stmt = "ALTER TABLE "+tn + " MODIFY
         // "+getConfig().getGeomAttributeNameInSpatialTable() + " "
         // + getMulitPolygonSQLType() + " NOT NULL";
         // con.prepareStatement(stmt).execute();
-        String stmt = "CREATE SPATIAL INDEX IX_" + tn + " ON " + tn + "(" +
+        return "CREATE SPATIAL INDEX IX_" + tn + " ON " + tn + "(" +
             getConfig().getGeomAttributeNameInSpatialTable() + ") ";
-        con.prepareStatement(stmt).execute();
+        
     }
 
     protected String getXMLConnectFragmentName() {
         return "connect.mysql.xml.inc";
     }
+    
+
 }

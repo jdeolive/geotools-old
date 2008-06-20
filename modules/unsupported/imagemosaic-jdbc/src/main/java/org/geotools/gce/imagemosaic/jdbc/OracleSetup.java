@@ -6,10 +6,11 @@ import java.sql.PreparedStatement;
 
 public class OracleSetup extends JDBCSetup {
     static final int SRSID = 31287;
-    public static OracleSetup Singleton = new OracleSetup();
 
-    public OracleSetup() {
-    }
+    public OracleSetup(Config config) {
+		super(config);
+	}
+
 
     protected String getDriverClassName() {
         return "oracle.jdbc.OracleDriver";
@@ -66,12 +67,12 @@ public class OracleSetup extends JDBCSetup {
     }
 
     @Override
-    protected void createIndex(String tn, Connection con)
-        throws Exception {
-        String stmt = "CREATE INDEX IX_" + tn + " ON " + tn + "(" +
+    protected String getCreateIndexStatement(String tn) throws Exception {
+        
+        return "CREATE INDEX IX_" + tn + " ON " + tn + "(" +
             getConfig().getGeomAttributeNameInSpatialTable() +
             ") INDEXTYPE IS MDSYS.SPATIAL_INDEX";
-        con.prepareStatement(stmt).execute();
+        
     }
 
     protected String getXMLConnectFragmentName() {

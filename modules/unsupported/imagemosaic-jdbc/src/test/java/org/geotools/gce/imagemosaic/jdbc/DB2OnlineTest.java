@@ -1,5 +1,8 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
+
+import java.net.URL;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -42,8 +45,20 @@ public class DB2OnlineTest extends AbstractTest {
         return "db2";
     }
 
+    
+    
+    static JDBCSetup setup=null;
+    
     @Override
     protected JDBCSetup getJDBCSetup() {
-        return DB2Setup.Singleton;
+    	if (setup!=null) return setup;
+    	Config config=null;
+    	try {
+    		config = Config.readFrom(new URL("file:target/resources/oek.db2.xml"));
+    	} catch (Exception e) {
+    		throw new RuntimeException(e);
+    	}
+        setup=JDBCSetup.getJDBCSetup(config);
+        return setup;
     }
 }

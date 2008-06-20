@@ -47,7 +47,7 @@ import java.util.logging.Logger;
 
 public class Import {
     private final static int DefaultCommitCount = 100;
-    private final static String UsageInfo = "Importing from a shapefile\n" +
+    private final static String UsageInfo = "Importing from a shapefile or csv file\n" +
         "-configUrl url -spatialTN spatialTableName -tileTN tileTableName [-commitCount commitCount] -shapeUrl shapeUrl -shapeKeyField shapeKeyField\n" +
         "Importing form a csv file\n" +
         "-configUrl url -spatialTN spatialTableName -tileTN tileTableName [-commitCount commitCount] -csvUrl csvUrl -csvDelim csvDelim\n" +
@@ -122,7 +122,7 @@ public class Import {
         }
     }
 
-    public static void main(String[] args) {
+    public  static  void start (String[] args) {
         Config config = null;
         String spatialTableName = null;
         String tileTableName = null;

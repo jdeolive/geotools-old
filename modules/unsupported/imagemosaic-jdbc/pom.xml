@@ -144,20 +144,16 @@
       <artifactId>metadata</artifactId>
       <version>${project.version}</version>
     </dependency>	
-   <dependency>
-      <groupId>postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-    </dependency>
 
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-sample-data</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <!-- The version number is specified in the parent POM. -->
+      <scope>test</scope>      
     </dependency>
+    
     <dependency>
       <groupId>org.h2database</groupId>
       <artifactId>h2</artifactId>
@@ -204,7 +200,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.geotools.gce.imagemosaic.jdbc.Import</mainClass>
+              <mainClass>org.geotools.gce.imagemosaic.jdbc.Toolbox</mainClass>
               <addClasspath>true</addClasspath>
             </manifest>
           </archive>

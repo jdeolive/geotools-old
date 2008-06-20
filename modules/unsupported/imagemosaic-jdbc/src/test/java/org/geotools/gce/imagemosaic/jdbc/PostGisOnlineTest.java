@@ -1,5 +1,8 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
+
+import java.net.URL;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -42,8 +45,18 @@ public class PostGisOnlineTest extends AbstractTest {
         return "postgis";
     }
 
+    static JDBCSetup setup=null;
+    
     @Override
     protected JDBCSetup getJDBCSetup() {
-        return PostgisSetup.Singleton;
+    	if (setup!=null) return setup;
+    	Config config=null;
+    	try {
+    		config = Config.readFrom(new URL("file:target/resources/oek.postgis.xml"));
+    	} catch (Exception e) {
+    		throw new RuntimeException(e);
+    	}
+        setup=JDBCSetup.getJDBCSetup(config);
+        return setup;
     }
 }

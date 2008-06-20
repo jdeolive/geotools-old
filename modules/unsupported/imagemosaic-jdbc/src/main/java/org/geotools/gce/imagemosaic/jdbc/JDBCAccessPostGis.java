@@ -13,8 +13,6 @@ import org.geotools.referencing.CRS;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import org.postgresql.util.PGobject;
-
 import java.io.IOException;
 
 import java.sql.Connection;
@@ -83,8 +81,9 @@ class JDBCAccessPostGis extends JDBCAccessBase {
         ResultSet r = s.executeQuery();
 
         if (r.next()) {
-            PGobject o = (PGobject) r.getObject(1);
-            String pgString = o.getValue();
+            Object o =  r.getObject(1);
+            String pgString = o.toString();
+            
             int start = pgString.indexOf("(") + 1;
             int end = pgString.indexOf(")");
             pgString = pgString.substring(start, end);

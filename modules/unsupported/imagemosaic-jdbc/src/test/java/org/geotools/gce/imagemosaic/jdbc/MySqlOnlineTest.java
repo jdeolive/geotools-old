@@ -1,5 +1,8 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
+
+import java.net.URL;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -43,8 +46,18 @@ public class MySqlOnlineTest extends AbstractTest {
         return "mysql";
     }
 
+    static JDBCSetup setup=null;
+    
     @Override
     protected JDBCSetup getJDBCSetup() {
-        return MySqlSetup.Singleton;
+    	if (setup!=null) return setup;
+    	Config config=null;
+    	try {
+    		config = Config.readFrom(new URL("file:target/resources/oek.mysql.xml"));
+    	} catch (Exception e) {
+    		throw new RuntimeException(e);
+    	}
+        setup=JDBCSetup.getJDBCSetup(config);
+        return setup;
     }
 }

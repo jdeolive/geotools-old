@@ -13,6 +13,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Color;
+import java.net.URL;
 
 
 public class H2Test extends AbstractTest {
@@ -66,9 +67,19 @@ public class H2Test extends AbstractTest {
         return "h2";
     }
 
+    static JDBCSetup setup=null;
+    
     @Override
     protected JDBCSetup getJDBCSetup() {
-        return H2Setup.Singleton;
+    	if (setup!=null) return setup;
+    	Config config=null;
+    	try {
+    		config = Config.readFrom(new URL("file:target/resources/oek.h2.xml"));
+    	} catch (Exception e) {
+    		throw new RuntimeException(e);
+    	}
+        setup=JDBCSetup.getJDBCSetup(config);
+        return setup;
     }
 
     public void testReproject1() {

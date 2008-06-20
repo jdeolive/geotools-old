@@ -1,6 +1,7 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
 import org.geotools.data.jdbc.datasource.DataSourceFinder;
+import org.geotools.gce.imagemosaic.jdbc.AbstractTest;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,8 +19,34 @@ import javax.sql.DataSource;
 
 public abstract class JDBCSetup {
     protected DataSource dataSource;
+    protected Config config;
 
-    public abstract String getConfigUrl();
+    public JDBCSetup(Config config) {
+		super();
+		this.config = config;
+	}
+
+    static JDBCSetup getJDBCSetup(Config config) {
+        SpatialExtension type = config.getSpatialExtension();
+        if (type == null)  return null;
+
+        if (type == SpatialExtension.DB2) {
+            return new DB2Setup(config);
+        } else if (type == SpatialExtension.POSTGIS) {
+        	return new PostgisSetup(config);
+        } else if (type == SpatialExtension.MYSQL) {
+        	return new MySqlSetup(config);
+        } else if (type == SpatialExtension.UNIVERSAL) {
+        	return new H2Setup(config);
+        } else if (type == SpatialExtension.ORACLE) {
+        	return new OracleSetup(config);
+        } else {
+        	return null;
+        }
+
+    }
+    
+	public abstract String getConfigUrl();
 
     protected abstract String getBLOBSQLType();
 
@@ -32,8 +59,8 @@ public abstract class JDBCSetup {
 
     protected abstract String getXMLConnectFragmentName();
 
-    protected Config getConfig() throws Exception {
-        return Configurations.getConfig(getConfigUrl());
+    protected Config getConfig()  {
+        return config;
     }
 
     protected String[] getTileTableNames() {
@@ -66,29 +93,43 @@ public abstract class JDBCSetup {
         return con;
     }
 
+    String getDropTableStatemnt(String tableName) {
+    	return "drop table " + tableName;
+    }
     private void drop(String tableName, Connection con) {
         try {
-            con.prepareStatement("drop table " + tableName).execute();
+            con.prepareStatement(getDropTableStatemnt(tableName)).execute();
         } catch (SQLException e) {
             // e.printStackTrace();
         }
     }
 
-    protected void registerSpatial(String tn, Connection con)
-        throws Exception {
+    
+    protected void registerSpatial(String tn, Connection con) throws Exception{
+
     }
 
+    
     protected void unregisterSpatial(String tn, Connection con)
         throws Exception {
     }
 
-    protected abstract void createIndex(String tn, Connection con)
-        throws Exception;
+    protected abstract String getCreateIndexStatement(String tn) throws Exception;
+    
+    protected  void createIndex(String tn, Connection con) 
+        throws Exception {
+    	con.prepareStatement(getCreateIndexStatement(tn)).execute();
+    }
+        
 
-    protected void dropIndex(String tn, Connection con)
+    String getDropIndexStatment(String tn) {
+    	return "drop index IX_" + tn;
+    }
+    
+    private void dropIndex(String tn, Connection con)
         throws Exception {
         try {
-            con.prepareStatement("drop index IX_" + tn).execute();
+            con.prepareStatement(getDropIndexStatment(tn)).execute();
         } catch (SQLException e) {
         }
     }
@@ -128,7 +169,7 @@ public abstract class JDBCSetup {
         return "DOUBLE";
     }
 
-    private String getCreateMasterStatement() throws Exception {
+    String getCreateMasterStatement() throws Exception {
         Config config = getConfig();
         String doubleType = getDoubleSQLType();
         String statement = " CREATE TABLE " + config.getMasterTable();
@@ -153,7 +194,7 @@ public abstract class JDBCSetup {
         return statement;
     }
 
-    private String getCreateTileTableStatement(String tableName)
+    String getCreateTileTableStatement(String tableName)
         throws Exception {
         String statement = " CREATE TABLE " + tableName;
         statement += ("(" + getConfig().getKeyAttributeNameInTileTable() +
@@ -270,29 +311,4 @@ public abstract class JDBCSetup {
         con.close();
     }
 
-    protected void run(InputStream script) throws Exception {
-        // load the script
-        BufferedReader reader = new BufferedReader(new InputStreamReader(script));
-
-        // connect
-        Connection conn = getConnection();
-
-        try {
-            Statement st = conn.createStatement();
-
-            try {
-                String line = null;
-
-                while ((line = reader.readLine()) != null) {
-                    st.execute(line);
-                }
-
-                reader.close();
-            } finally {
-                st.close();
-            }
-        } finally {
-            conn.close();
-        }
-    }
 }

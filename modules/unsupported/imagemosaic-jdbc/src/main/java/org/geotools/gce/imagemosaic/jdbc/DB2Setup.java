@@ -13,10 +13,11 @@ public class DB2Setup extends JDBCSetup {
     // db2 create db mosaic
     // db2se enable_db mosaic
     //
-    public static DB2Setup Singleton = new DB2Setup();
 
-    public DB2Setup() {
-    }
+    public DB2Setup(Config config) {
+		super(config);
+	}
+
 
     protected String getJDBCUrl(String host, Integer port, String dbName) {
         if (host == null) {
@@ -141,11 +142,10 @@ public class DB2Setup extends JDBCSetup {
     }
 
     @Override
-    protected void createIndex(String tn, Connection con)
-        throws Exception {
-        String stmt = "CREATE  INDEX IX_" + tn + " ON " + tn + "(" +
+    protected String getCreateIndexStatement(String tn) throws Exception {        
+        return   "CREATE  INDEX IX_" + tn + " ON " + tn + "(" +
             getConfig().getGeomAttributeNameInSpatialTable() + ") " +
             " EXTEND USING db2gse.spatial_index (10000.0, 100000.0, 1000000.0)";
-        con.prepareStatement(stmt).execute();
+        
     }
 }

@@ -4,21 +4,11 @@ import java.sql.Connection;
 
 
 public class H2Setup extends JDBCSetup {
-    public static H2Setup Singleton = new H2Setup();
 
-    public H2Setup() {
-        // //spatially enable the database
-        //        
-        // try {
-        // run(getClass().getResourceAsStream("h2-drop.sql"));
-        // } catch (Exception e) {}
-        //        
-        // try {
-        // run(getClass().getResourceAsStream("h2.sql"));
-        // } catch (Exception e) {
-        // throw new RuntimeException(e);
-        // }
-    }
+    public H2Setup(Config config) {
+		super(config);
+	}
+
 
     protected String getDriverClassName() {
         return "org.h2.Driver";
@@ -81,16 +71,18 @@ public class H2Setup extends JDBCSetup {
     }
 
     @Override
-    protected void createIndex(String tn, Connection con)
-        throws Exception {
-        String stmt = "CREATE  INDEX IX_" + tn + " ON " + tn + "(" +
+    protected String getCreateIndexStatement(String tn) throws Exception {
+        
+        return "CREATE  INDEX IX_" + tn + " ON " + tn + "(" +
             getConfig().getTileMinXAttribute() + "," +
             getConfig().getTileMinYAttribute() + ")";
 
-        con.prepareStatement(stmt).execute();
+        
     }
 
     protected String getXMLConnectFragmentName() {
         return "connect.h2.xml.inc";
     }
+    
+
 }

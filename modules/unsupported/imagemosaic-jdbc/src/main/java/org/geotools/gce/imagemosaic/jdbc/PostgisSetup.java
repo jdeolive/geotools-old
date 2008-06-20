@@ -6,10 +6,12 @@ import java.sql.ResultSet;
 
 
 public class PostgisSetup extends JDBCSetup {
-    public static PostgisSetup Singleton = new PostgisSetup();
 
-    public PostgisSetup() {
-    }
+    public PostgisSetup(Config config) {
+		super(config);
+		// TODO Auto-generated constructor stub
+	}
+
 
     protected String getDriverClassName() {
         return "org.postgresql.Driver";
@@ -50,6 +52,9 @@ public class PostgisSetup extends JDBCSetup {
         s.close();
     }
 
+    
+
+    
     @Override
     protected void unregisterSpatial(String tn, Connection con)
         throws Exception {
@@ -118,11 +123,10 @@ public class PostgisSetup extends JDBCSetup {
     }
 
     @Override
-    protected void createIndex(String tn, Connection con)
-        throws Exception {
-        String stmt = "CREATE INDEX IX_" + tn + " ON " + tn + " USING gist(" +
-            getConfig().getGeomAttributeNameInSpatialTable() + ") ";
-        con.prepareStatement(stmt).execute();
+    protected String getCreateIndexStatement(String tn) throws Exception {
+        
+        return "CREATE INDEX IX_" + tn + " ON " + tn + " USING gist(" +
+            getConfig().getGeomAttributeNameInSpatialTable() + ") ";        
     }
 
     protected String getXMLConnectFragmentName() {
