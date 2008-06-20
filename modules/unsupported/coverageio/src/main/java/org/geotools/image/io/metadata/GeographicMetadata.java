@@ -74,7 +74,7 @@ public class GeographicMetadata extends IIOMetadata {
     private ImageReferencing referencing;
 
     /**
-     * The grid geometry node.
+     * The geometry information.
      * Will be created only when first needed.
      */
     private ImageGeometry geometry;
@@ -216,7 +216,7 @@ public class GeographicMetadata extends IIOMetadata {
      * to all {@linkplain Band bands}.
      */
     public String getSampleType() {
-        return getBands().getString("type");
+        return getBands().getAttributeAsString("type");
     }
 
     /**
@@ -226,7 +226,7 @@ public class GeographicMetadata extends IIOMetadata {
      * @param type The sample type, or {@code null} if none.
      */
     public void setSampleType(final String type) {
-        getBands().setEnum("type", type, GeographicMetadataFormat.SAMPLE_TYPES);
+        getBands().setAttributeAsEnum("type", type, GeographicMetadataFormat.SAMPLE_TYPES);
     }
 
     /**

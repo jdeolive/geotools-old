@@ -17,7 +17,7 @@
 package org.geotools.image.io.metadata;
 
 import java.io.Serializable;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -57,8 +57,8 @@ public class Identification implements CharSequence, Serializable {
      * in the specified accessor.
      */
     public Identification(final MetadataAccessor accessor) {
-        name = accessor.getString("name");
-        type = accessor.getString("type");
+        name = accessor.getAttributeAsString("name");
+        type = accessor.getAttributeAsString("type");
     }
 
     /**

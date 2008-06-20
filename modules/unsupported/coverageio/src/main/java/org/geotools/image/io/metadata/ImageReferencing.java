@@ -33,15 +33,16 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;   // For javadoc
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux
+ * @author Cédric Briançon
  */
 public class ImageReferencing extends MetadataAccessor {
     /**
-     * The {@code "CoordinateReferenceSystem/Datum"} node.
+     * The {@code "rectifiedGridDomain/crs/datum"} node.
      */
     private final MetadataAccessor datum;
 
     /**
-     * The {@code "CoordinateReferenceSystem/CoordinateSystem"} node.
+     * The {@code "rectifiedGridDomain/crs/cs"} node.
      */
     final ChildList<Axis> cs;
 
@@ -52,8 +53,8 @@ public class ImageReferencing extends MetadataAccessor {
      * @param metadata The metadata node.
      */
     protected ImageReferencing(final GeographicMetadata metadata) {
-        super(metadata, "CoordinateReferenceSystem", null);
-        datum = new MetadataAccessor(metadata, "CoordinateReferenceSystem/Datum",  null);
+        super(metadata, "rectifiedGridDomain/crs", null);
+        datum = new MetadataAccessor(metadata, "rectifiedGridDomain/crs/datum",  null);
         cs    = new ChildList.Axes(metadata);
     }
 
@@ -79,8 +80,8 @@ public class ImageReferencing extends MetadataAccessor {
      * @see CoordinateReferenceSystem
      */
     public void setCoordinateReferenceSystem(final String name, final String type) {
-        setString("name", name);
-        setEnum  ("type", type, GeographicMetadataFormat.CRS_TYPES);
+        setAttributeAsString("name", name);
+        setAttributeAsEnum  ("type", type, GeographicMetadataFormat.CRS_TYPES);
     }
 
     /**
@@ -105,8 +106,8 @@ public class ImageReferencing extends MetadataAccessor {
      * @see CoordinateSystem
      */
     public void setCoordinateSystem(final String name, final String type) {
-        cs.setString("name", name);
-        cs.setEnum  ("type", type, GeographicMetadataFormat.CS_TYPES);
+        cs.setAttributeAsString("name", name);
+        cs.setAttributeAsEnum  ("type", type, GeographicMetadataFormat.CS_TYPES);
     }
 
     /**
@@ -128,7 +129,7 @@ public class ImageReferencing extends MetadataAccessor {
      * @see Datum
      */
     public void setDatum(final String name) {
-        datum.setString("name", name);
+        datum.setAttributeAsString("name", name);
     }
 
     /**
@@ -174,8 +175,9 @@ public class ImageReferencing extends MetadataAccessor {
      * <A HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html"><cite>Well
      * Known Text</cite> format</A>, or {@code null} if none.
      */
+    @Deprecated
     public String getWKT() {
-        return getString("WKT");
+        return getAttributeAsString("WKT");
     }
 
     /**
@@ -183,7 +185,8 @@ public class ImageReferencing extends MetadataAccessor {
      * <A HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html"><cite>Well
      * Known Text</cite> format</A>.
      */
+    @Deprecated
     public void setWKT(final String wkt) {
-        setString("WKT", wkt);
+        setAttributeAsString("WKT", wkt);
     }
 }

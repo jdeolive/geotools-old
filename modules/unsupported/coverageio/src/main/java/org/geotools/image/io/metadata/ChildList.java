@@ -103,7 +103,7 @@ abstract class ChildList<T extends MetadataAccessor> extends MetadataAccessor {
     static final class Bands extends ChildList<Band> {
         /** Creates a parser for bands. */
         public Bands(final GeographicMetadata metadata) {
-            super(metadata, "SampleDimensions", "SampleDimension");
+            super(metadata, "rectifiedGridDomain/rangeSet/bands", "band");
         }
 
         /** Create a new band. */
@@ -124,7 +124,7 @@ abstract class ChildList<T extends MetadataAccessor> extends MetadataAccessor {
     static final class Axes extends ChildList<Axis> {
         /** Creates a parser for axis. */
         public Axes(final GeographicMetadata metadata) {
-            super(metadata, "CoordinateReferenceSystem/CoordinateSystem", "Axis");
+            super(metadata, "rectifiedGridDomain/crs/cs", "axis");
         }
 
         /** Create a new band. */

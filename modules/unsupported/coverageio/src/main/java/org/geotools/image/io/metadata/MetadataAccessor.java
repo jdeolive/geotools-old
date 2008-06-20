@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -33,7 +33,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.geotools.resources.XMath;
 import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
@@ -76,16 +75,17 @@ import org.geotools.util.UnsupportedImplementationException;
  *         "CoordinateReferenceSystem/CoordinateSystem", "Axis");
  *
  * accessor.selectParent();
- * String csName = accessor.getString("name");
+ * String csName = accessor.getAttributeAsString("name");
  *
  * accessor.selectChild(0);
- * String firstAxisName = accessor.getString("name");
+ * String firstAxisName = accessor.getAttributeAsString("name");
  * </pre></blockquote>
  *
  * @since 2.4
  * @version $Id$
  * @source $URL$
  * @author Martin Desruisseaux
+ * @author Cédric Briançon
  */
 public class MetadataAccessor {
     /**
@@ -356,7 +356,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * some parsing of nodes that are not {@link IIOMetadataNode} instances.
      * <p>
      * The {@code getUserObject} methods are the only ones to not parse the value returned by
-     * {@link #getString}.
+     * {@link #getAttributeAsString}.
      *
      * @return The user object, or {@code null} if none.
      *
@@ -392,13 +392,13 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @see #setUserObject
      */
     protected <T> T getUserObject(Class<? extends T> type) throws ClassCastException {
-        type = XMath.primitiveToWrapper(type).asSubclass(type);
+        type = Classes.primitiveToWrapper(type).asSubclass(type);
         Object value = getUserObject();
         if (value instanceof CharSequence) {
             if (Number.class.isAssignableFrom(type)) {
-                value = XMath.valueOf(type, value.toString());
+                value = Classes.valueOf(type, value.toString());
             } else {
-                final Class<?> component = XMath.primitiveToWrapper(type.getComponentType());
+                final Class<?> component = Classes.primitiveToWrapper(type.getComponentType());
                 if (Double.class.equals(component)) {
                     value = parseSequence(value.toString(), false, false);
                 } else if (Integer.class.equals(component)) {
@@ -412,7 +412,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
     /**
      * Sets the {@linkplain IIOMetadataNode#setUserObject user object} associated with the
      * {@linkplain #selectChild selected element}. This is the only {@code set} method that
-     * doesn't invoke {@link #setString} with a formatted value.
+     * doesn't invoke {@link #setAttributeAsString} with a formatted value.
      * <p>
      * If the specified value is formattable (i.e. is a {@linkplain CharSequence character
      * sequence}, a {@linkplain Number number} or an array of the above), then this method
@@ -429,13 +429,14 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      */
     protected void setUserObject(final Object value) throws UnsupportedImplementationException {
         final Element element = currentElement();
-        final String asText;
-        if (isFormattable(value)) {
-            asText = value.toString();
-        } else if (value!=null && isFormattable(value.getClass().getComponentType())) {
-            asText = formatSequence(value);
-        } else {
-            asText = null;
+        String asText = null;
+        if (value != null) {
+            final Class<?> type = value.getClass();
+            if (isFormattable(type)) {
+                asText = value.toString();
+            } else if (isFormattable(type.getComponentType())) {
+                asText = formatSequence(value);
+            }
         }
         if (element instanceof IIOMetadataNode) {
             ((IIOMetadataNode) element).setUserObject(value);
@@ -447,12 +448,13 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
     }
 
     /**
-     * Returns {@code true} if the specified value can be formatted as a text.
-     * We allows formatting only for reasonably cheap objects, for example a
-     * Number but not a CoordinateReferenceSystem.
+     * Returns {@code true} if values of the specified type can be formatted as a
+     * text. We allows formatting only for reasonably cheap objects, for example
+     * a Number but not a CoordinateReferenceSystem.
      */
-    private static boolean isFormattable(final Object value) {
-        return (value instanceof CharSequence) || (value instanceof Number);
+    private static boolean isFormattable(final Class<?> type) {
+        return CharSequence.class.isAssignableFrom(type) ||
+               Number.class.isAssignableFrom(Classes.primitiveToWrapper(type));
     }
 
     /**
@@ -466,7 +468,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute to fetch (e.g. {@code "name"}).
      * @return The attribute value (never an empty string), or {@code null} if none.
      */
-    protected String getString(final String attribute) {
+    protected String getAttributeAsString(final String attribute) {
         String candidate = currentElement().getAttribute(attribute);
         if (candidate != null) {
             candidate = candidate.trim();
@@ -488,7 +490,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute name.
      * @param value     The attribute value.
      */
-    protected void setString(final String attribute, String value) {
+    protected void setAttributeAsString(final String attribute, String value) {
         final Element element = currentElement();
         if (value == null || (value=value.trim()).length() == 0) {
             if (element.hasAttribute(attribute)) {
@@ -507,7 +509,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param value     The attribute value.
      * @param enums     The set of allowed values, or {@code null} if unknown.
      */
-    final void setEnum(final String attribute, String value, final Collection enums) {
+    final void setAttributeAsEnum(final String attribute, String value, final Collection enums) {
         if (value != null) {
             value = value.replace('_', ' ').trim();
             for (final Iterator it=enums.iterator(); it.hasNext();) {
@@ -518,7 +520,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
                 }
             }
         }
-        setString(attribute, value);
+        setAttributeAsString(attribute, value);
     }
 
     /**
@@ -529,14 +531,14 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute to fetch (e.g. {@code "minimum"}).
      * @return The attribute value, or {@code null} if none or unparseable.
      */
-    protected Integer getInteger(final String attribute) {
-        String value = getString(attribute);
+    protected Integer getAttributeAsInteger(final String attribute) {
+        String value = getAttributeAsString(attribute);
         if (value != null) {
             value = trimFractionalPart(value);
             try {
                 return Integer.valueOf(value);
             } catch (NumberFormatException e) {
-                warning("getInteger", ErrorKeys.UNPARSABLE_NUMBER_$1, value);
+                warning("getAttributeAsInteger", ErrorKeys.UNPARSABLE_NUMBER_$1, value);
             }
         }
         return null;
@@ -548,8 +550,8 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute name.
      * @param value     The attribute value.
      */
-    protected void setInteger(final String attribute, final int value) {
-        setString(attribute, Integer.toString(value));
+    protected void setAttributeAsInteger(final String attribute, final int value) {
+        setAttributeAsString(attribute, Integer.toString(value));
     }
 
     /**
@@ -562,8 +564,8 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      *         or {@code false} for preserving duplicated values.
      * @return The attribute values, or {@code null} if none.
      */
-    protected int[] getIntegers(final String attribute, final boolean unique) {
-        return (int[]) parseSequence(getString(attribute), unique, true);
+    protected int[] getAttributeAsIntegers(final String attribute, final boolean unique) {
+        return (int[]) parseSequence(getAttributeAsString(attribute), unique, true);
     }
 
     /**
@@ -573,8 +575,8 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute name.
      * @param value     The attribute value.
      */
-    protected void setIntegers(final String attribute, final int[] values) {
-        setString(attribute, formatSequence(values));
+    protected void setAttributeAsIntegers(final String attribute, final int[] values) {
+        setAttributeAsString(attribute, formatSequence(values));
     }
 
     /**
@@ -585,12 +587,12 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute to fetch (e.g. {@code "minimum"}).
      * @return The attribute value, or {@code null} if none or unparseable.
      */
-    protected Double getDouble(final String attribute) {
-        final String value = getString(attribute);
+    protected Double getAttributeAsDouble(final String attribute) {
+        final String value = getAttributeAsString(attribute);
         if (value != null) try {
             return Double.valueOf(value);
         } catch (NumberFormatException e) {
-            warning("getDouble", ErrorKeys.UNPARSABLE_NUMBER_$1, value);
+            warning("getAttributeAsDouble", ErrorKeys.UNPARSABLE_NUMBER_$1, value);
         }
         return null;
     }
@@ -602,12 +604,12 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute name.
      * @param value     The attribute value.
      */
-    protected void setDouble(final String attribute, final double value) {
+    protected void setAttributeAsDouble(final String attribute, final double value) {
         String text = null;
         if (!Double.isNaN(value) && !Double.isInfinite(value)) {
             text = Double.toString(value);
         }
-        setString(attribute, text);
+        setAttributeAsString(attribute, text);
     }
 
     /**
@@ -620,8 +622,8 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      *         or {@code false} for preserving duplicated values.
      * @return The attribute values, or {@code null} if none.
      */
-    protected double[] getDoubles(final String attribute, final boolean unique) {
-        return (double[]) parseSequence(getString(attribute), unique, false);
+    protected double[] getAttributeAsDoubles(final String attribute, final boolean unique) {
+        return (double[]) parseSequence(getAttributeAsString(attribute), unique, false);
     }
 
     /**
@@ -631,12 +633,12 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute name.
      * @param value     The attribute value.
      */
-    protected void setDoubles(final String attribute, final double[] values) {
-        setString(attribute, formatSequence(values));
+    protected void setAttributeAsDoubles(final String attribute, final double[] values) {
+        setAttributeAsString(attribute, formatSequence(values));
     }
 
     /**
-     * Implementation of {@link #getIntegers} and {@link #getDoubles} methods.
+     * Implementation of {@link #getAttributeAsIntegers} and {@link #getAttributeAsDoubles} methods.
      *
      * @param  sequence The sequence to parse.
      * @param  unique {@code true} if duplicated values should be collapsed into unique values,
@@ -666,7 +668,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
                     number = Double.valueOf(token);
                 }
             } catch (NumberFormatException e) {
-                warning(integers ? "getIntegers" : "getDoubles", ErrorKeys.UNPARSABLE_NUMBER_$1, token);
+                warning(integers ? "getAttributeAsIntegers" : "getAttributeAsDoubles", ErrorKeys.UNPARSABLE_NUMBER_$1, token);
                 continue;
             }
             numbers.add(number);
@@ -686,7 +688,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
     }
 
     /**
-     * Formats a sequence for {@link #setIntegers} and {@link #setDoubles} implementations.
+     * Formats a sequence for {@link #setAttributeAsIntegers} and {@link #setAttributeAsDoubles} implementations.
      *
      * @param  value The attribute value.
      * @return The formatted sequence.
@@ -715,8 +717,8 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute to fetch (e.g. {@code "origin"}).
      * @return The attribute value, or {@code null} if none or unparseable.
      */
-    protected Date getDate(final String attribute) {
-        String value = getString(attribute);
+    protected Date getAttributeAsDate(final String attribute) {
+        String value = getAttributeAsString(attribute);
         if (value != null) {
             value = trimFractionalPart(value);
             return metadata.dateFormat().parse(value);
@@ -730,19 +732,19 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
      * @param attribute The attribute name.
      * @param value     The attribute value.
      */
-    protected void setDate(final String attribute, final Date value) {
+    protected void setAttributeAsDate(final String attribute, final Date value) {
         String text = null;
         if (value != null) {
             text = metadata.dateFormat().format(value);
         }
-        setString(attribute, text);
+        setAttributeAsString(attribute, text);
     }
 
     /**
      * Trims the factional part of the given string, provided that it doesn't change the value.
      * More specifically, this method removes the trailing {@code ".0"} characters if any. This
-     * method is automatically invoked before to {@linkplain #getInteger parse an integer} or to
-     * {@linkplain #getDate parse a date} (for simplifying fractional seconds).
+     * method is automatically invoked before to {@linkplain #getAttributeAsInteger parse an integer} or to
+     * {@linkplain #getAttributeAsDate parse a date} (for simplifying fractional seconds).
      *
      * @param  value The value to trim.
      * @return The value without the trailing {@code ".0"} part.
@@ -761,7 +763,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
 
     /**
      * Convenience method for logging a warning. Do not allow overriding, because
-     * it would not work for warnings emitted by the {@link #getDate} method.
+     * it would not work for warnings emitted by the {@link #getAttributeAsDate} method.
      */
     final void warning(final String method, final int key, final Object value) {
         if (warningsEnabled) {
@@ -787,7 +789,7 @@ search: for (int upper; (upper = path.indexOf(SEPARATOR, lower)) >= 0; lower=upp
     /**
      * Enables or disables the warnings. Warnings are enabled by default. Subclasses way want
      * to temporarily disable the warnings when failures are expected as the normal behavior.
-     * For example a subclass may invokes {@link #getInteger} and fallbacks on {@link #getDouble}
+     * For example a subclass may invokes {@link #getAttributeAsInteger} and fallbacks on {@link #getAttributeAsDouble}
      * if the former failed. In such case, the warnings should be disabled for the integer parsing,
      * but not for the floating point parsing.
      *

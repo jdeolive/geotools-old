@@ -21,6 +21,7 @@ import java.util.Collection;
 import javax.imageio.metadata.IIOMetadataFormat;
 
 import org.junit.*;
+import org.opengis.metadata.spatial.PixelOrientation;
 import static org.junit.Assert.*;
 
 
@@ -30,6 +31,7 @@ import static org.junit.Assert.*;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux
+ * @author Cédric Briançon
  */
 public final class GeographicMetadataTest {
     /**
@@ -43,10 +45,10 @@ public final class GeographicMetadataTest {
         final IIOMetadataFormat format = metadata.getMetadataFormat(GeographicMetadataFormat.FORMAT_NAME);
         assertTrue(format instanceof GeographicMetadataFormat);
 
-        final Collection crsChilds = Arrays.asList(format.getChildNames("CoordinateReferenceSystem"));
-        assertTrue(crsChilds.contains("CoordinateSystem"));
-        assertTrue(crsChilds.contains("Datum"));
-        assertEquals(IIOMetadataFormat.DATATYPE_STRING, format.getAttributeDataType("Datum", "name"));
+        final Collection crsChilds = Arrays.asList(format.getChildNames("crs"));
+        assertTrue(crsChilds.contains("cs"));
+        assertTrue(crsChilds.contains("datum"));
+        assertEquals(IIOMetadataFormat.DATATYPE_STRING, format.getAttributeDataType("datum", "name"));
     }
 
     /**
@@ -61,8 +63,23 @@ public final class GeographicMetadataTest {
         referencing.setCoordinateSystem("WGS84", "geographic");
         referencing.setDatum("WGS84");
 
+        final ImageGeometry geometry = metadata.getGeometry();
+        geometry.setPixelOrientation(PixelOrientation.CENTER.identifier());
+        geometry.setCoordinateRange(0, -90.0,  90.0);
+        geometry.setCoordinateRange(1, -180.0, 180.0);
+        geometry.setGridRange(0, 0, 800);
+        geometry.setGridRange(1, 0, 600);
+        geometry.addOffsetVector(new double[]{12.5, 0.0});
+        geometry.addOffsetVector(new double[]{ 0.0, 7.5});
+
+        metadata.addBand("temperature");
+        assertTrue(metadata.getNumBands() > 0);
         final String text = metadata.toString();
         assertTrue(text.indexOf("name=\"latitude\"" ) >= 0);
         assertTrue(text.indexOf("name=\"longitude\"") >= 0);
+        
+        assertEquals(geometry.getPixelOrientation(), "center");
+        assertTrue(geometry.getDimension() == 2);
+        assertEquals(7.5, geometry.getOffsetVector(1)[1], 1E-6);
     }
 }

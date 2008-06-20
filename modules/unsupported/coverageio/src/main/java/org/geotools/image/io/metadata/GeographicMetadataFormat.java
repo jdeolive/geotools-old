@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,12 +22,10 @@ import javax.imageio.metadata.IIOMetadataFormatImpl;
 
 import org.opengis.geometry.Envelope;
 import org.opengis.coverage.SampleDimension;
-import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.datum.Datum;
-import org.opengis.referencing.operation.MathTransform;
 import org.geotools.resources.UnmodifiableArrayList;
 
 
@@ -41,11 +39,17 @@ import org.geotools.resources.UnmodifiableArrayList;
  *   <li>Dates must be formatted with the {@code "yyyy-MM-dd HH:mm:ss"}
  *       {@linkplain SimpleDateFormat pattern} in UTC {@linkplain TimeZone timezone}.</li>
  * </ul>
+ * <p>
+ * This format tries to match approximatively the
+ * <a href="http://www.opengeospatial.org/standards/gmljp2">GML in JPEG 2000</a> standard.
+ * See the {@linkplain org.geotools.image.io.metadata package javadoc} for a list of departures
+ * from the standard.
  *
  * @since 2.4
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux
+ * @author Cédric Briançon
  */
 public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
     /**
@@ -221,80 +225,139 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
     protected GeographicMetadataFormat(final String rootName,
             final int maximumDimensions, final int maximumBands)
     {
+        /*
+         * The schemas illustrated in the following comments use the this syntax:
+         *
+         *   +-- element (attribute) : ClassName
+         *
+         * Legend: (*)  Mandatory element or attribute.
+         *         (!)  Element or attribute that is not from the OGC specification.
+         */
         super(rootName, CHILD_POLICY_SOME);
         /*
          * root
-         *   +-- CoordinateReferenceSystem (name, type, WKT)
-         *   |     +-- Datum (name)
-         *   |     +-- CoordinateSystem (name, type)
-         *   |           +-- Axis[0] (name, direction, units, origin)
-         *   |           +-- Axis[1] (name, direction, units, origin)
-         *   |           +-- ...etc...
-         *   +-- GridGeometry (pixelOrientation)
-         *         +-- GridRange
-         *         |     +-- IndexRange[0] (minimum, maximum)
-         *         |     +-- IndexRange[1] (minimum, maximum)
-         *         |     +-- ...etc...
-         *         +-- Envelope
-         *         |     +-- CoordinateValues[0] (minimum, maximum)
-         *         |     +-- CoordinateValues[1] (minimum, maximum)
-         *         |     +-- ...etc...
-         *         +-- AffineTransform (elements[6..n])
+         * +-- boundedBy : Envelope
+         *     +-- lowerCorner  (*)
+         *     +-- upperCorner  (*)
          */
-        addElement  ("CoordinateReferenceSystem", rootName,    CHILD_POLICY_SOME);
-        addAttribute("CoordinateReferenceSystem", "name",      DATATYPE_STRING);
-        addAttribute("CoordinateReferenceSystem", "type",      DATATYPE_STRING, false, null, CRS_TYPES);
-        addAttribute("CoordinateReferenceSystem", "WKT",       DATATYPE_STRING);
-        addElement  ("Datum", "CoordinateReferenceSystem",     CHILD_POLICY_EMPTY);
-        addAttribute("Datum",             "name",              DATATYPE_STRING, true,  null);
-        addElement  ("CoordinateSystem",  "CoordinateReferenceSystem", 2, maximumDimensions);
-        addAttribute("CoordinateSystem",  "name",              DATATYPE_STRING);
-        addAttribute("CoordinateSystem",  "type",              DATATYPE_STRING, false, null, CS_TYPES);
-        addElement  ("Axis",              "CoordinateSystem",  CHILD_POLICY_EMPTY);
-        addAttribute("Axis",              "name",              DATATYPE_STRING);
-        addAttribute("Axis",              "direction",         DATATYPE_STRING, false, null, DIRECTIONS);
-        addAttribute("Axis",              "units",             DATATYPE_STRING);
-        addAttribute("Axis",              "origin",            DATATYPE_STRING);
-        addElement  ("GridGeometry",       rootName,           CHILD_POLICY_SOME);
-        addAttribute("GridGeometry",      "pixelOrientation",  DATATYPE_STRING, false, "center", PIXEL_ORIENTATIONS);
-        addElement  ("GridRange",         "GridGeometry",      CHILD_POLICY_SEQUENCE);
-        addElement  ("IndexRange",        "GridRange",         CHILD_POLICY_EMPTY);
-        addAttribute("IndexRange",        "minimum",           DATATYPE_INTEGER, true, "0");
-        addAttribute("IndexRange",        "maximum",           DATATYPE_INTEGER, true, null); // inclusive
-        addElement  ("Envelope",          "GridGeometry",      CHILD_POLICY_SEQUENCE);
-        addElement  ("CoordinateValues",  "Envelope",          CHILD_POLICY_EMPTY);
-        addAttribute("CoordinateValues",  "minimum",           DATATYPE_DOUBLE, true, null);
-        addAttribute("CoordinateValues",  "maximum",           DATATYPE_DOUBLE, true, null); // inclusive
-        addElement  ("AffineTransform",   "GridGeometry",      CHILD_POLICY_EMPTY);
-        addAttribute("AffineTransform",   "elements",          DATATYPE_DOUBLE, true,
-                6, maximumDimensions * (maximumDimensions - 1));
+        addElement    ("boundedBy",   rootName,       CHILD_POLICY_ALL);
+        addElement    ("lowerCorner", "boundedBy",    CHILD_POLICY_EMPTY);
+        addElement    ("upperCorner", "boundedBy",    CHILD_POLICY_EMPTY);
+        addObjectValue("lowerCorner", Double.TYPE, 1, MAXIMUM_DIMENSIONS);
+        addObjectValue("upperCorner", Double.TYPE, 1, MAXIMUM_DIMENSIONS);
         /*
-         * root
-         *   +-- SampleDimensions (type)
-         *         +-- SampleDimension[0] (name, scale, offset, minValue, maxValue, fillValues)
-         *         +-- SampleDimension[1] (name, scale, offset, minValue, maxValue, fillValues)
-         *         +-- ...etc...
+         * root : RectifiedGridCoverage
+         * +-- rectifiedGridDomain (dimension, srsName) : RectifiedGrid    (*)
+         *     +-- crs (name, type) : CoordinateReferenceSystem            (!)
+         *     |   +-- datum (name) : Datum                                (!)
+         *     |   +-- cs (name, type) : CoordinateSystem                  (!)
+         *     |       +-- axis[0] (name, direction, units, origin) : Axis (!)
+         *     |       +-- axis[1] (name, direction, units, origin) : Axis (!)
+         *     |       +-- ...
+         *     +-- limits : GridEnvelope                                   (*)
+         *     |   +-- low  : int[]                                        (*)
+         *     |   +-- high : int[]                                        (*)
+         *     +-- origin : Point                                          (*)
+         *     |   +-- coordinates                                         (*)
+         *     +-- cells                                                   (!)
+         *     |   +-- offsetVector[0]                                     (!)
+         *     |   +-- ...                                                 (!)
+         *     |   +-- offsetVector[n]                                     (!)
+         *     +-- localizationGrid                                        (!) 
+         *     |   +-- ordinates[0] : double[]                             (!)
+         *     |   +-- ...                                                 (!)
+         *     |   +-- ordinates[n] : double[]                             (!)
+         *     +-- pixelOrientation                                        (!)
+         *     +-- rangeSet : File                                         (*)
+         *         +-- rangeParameters
+         *         |   +-- TBD
+         *         +-- fileName                                            (*)
+         *         +-- fileStructure                                       (*)
+         *         +-- fileDate
+         *         +-- fileFormat
+         *         +-- spatialResolution (uom)
+         *         +-- spectrum
+         *         +-- bandRange (uom)
+         *         +-- bands (type)                                        (!)
+         *         |   +-- band[0] (name, scale, offset, minValue, maxValue, fillValues) : Band
+         *         |   +-- band[1] (name, scale, offset, minValue, maxValue, fillValues) : Band
+         *         |   +-- ...
+         *         +-- mimeType
+         *         +-- compression
          */
-        addElement  ("SampleDimensions",  rootName,          1, maximumBands);
-        addAttribute("SampleDimensions", "type",             DATATYPE_STRING, false, null, SAMPLE_TYPES);
-        addElement  ("SampleDimension",  "SampleDimensions", CHILD_POLICY_SOME);
-        addAttribute("SampleDimension",  "name",             DATATYPE_STRING);
-        addAttribute("SampleDimension",  "scale",            DATATYPE_DOUBLE);
-        addAttribute("SampleDimension",  "offset",           DATATYPE_DOUBLE);
-        addAttribute("SampleDimension",  "minValue",         DATATYPE_DOUBLE);
-        addAttribute("SampleDimension",  "maxValue",         DATATYPE_DOUBLE);
-        addAttribute("SampleDimension",  "fillValues",       DATATYPE_DOUBLE, false, 0, Short.MAX_VALUE);
+        addElement    ("rectifiedGridDomain", rootName,    CHILD_POLICY_SOME);
+        addAttribute  ("rectifiedGridDomain", "dimension", DATATYPE_INTEGER, true,  null);
+        addAttribute  ("rectifiedGridDomain", "srsName",   DATATYPE_STRING);
+
+        addElement    ("crs",    "rectifiedGridDomain",    CHILD_POLICY_SOME);
+        addAttribute  ("crs",    "name",                   DATATYPE_STRING);
+        addAttribute  ("crs",    "type",                   DATATYPE_STRING,  false, null, CRS_TYPES);
+        addElement    ("datum",  "crs",                    CHILD_POLICY_ALL);
+        addAttribute  ("datum",  "name",                   DATATYPE_STRING);
+        addElement    ("cs",     "crs",                    2, maximumDimensions);
+        addAttribute  ("cs",     "name",                   DATATYPE_STRING);
+        addAttribute  ("cs",     "type",                   DATATYPE_STRING,  false, null, CS_TYPES);
+        addElement    ("axis",   "cs",                     CHILD_POLICY_EMPTY);
+        addAttribute  ("axis",   "name",                   DATATYPE_STRING);
+        addAttribute  ("axis",   "direction",              DATATYPE_STRING,  true,  null, DIRECTIONS);
+        addAttribute  ("axis",   "units",                  DATATYPE_STRING);
+        addAttribute  ("axis",   "origin",                 DATATYPE_STRING);
+
+        addElement    ("limits",              "rectifiedGridDomain",   CHILD_POLICY_ALL);
+        addElement    ("low",                 "limits",                CHILD_POLICY_EMPTY);
+        addElement    ("high",                "limits",                CHILD_POLICY_EMPTY);
+        addObjectValue("low",                 Integer.class);
+        addObjectValue("high",                Integer.class);
+        addElement    ("origin",              "rectifiedGridDomain",   CHILD_POLICY_ALL);
+        addElement    ("coordinates",         "origin",                CHILD_POLICY_EMPTY);
+        addElement    ("cells",               "rectifiedGridDomain",   1, MAXIMUM_DIMENSIONS);
+        addElement    ("offsetVector",        "cells",                 CHILD_POLICY_EMPTY);
+        addElement    ("localizationGrid",    "rectifiedGridDomain",   1, MAXIMUM_DIMENSIONS);
+        addElement    ("ordinates",           "localizationGrid",      CHILD_POLICY_EMPTY);
+        addElement    ("pixelOrientation",    "rectifiedGridDomain",   CHILD_POLICY_EMPTY);
+        addObjectValue("pixelOrientation",    String.class,            1, PIXEL_ORIENTATIONS.size());
+
+        addElement    ("rangeSet",            "rectifiedGridDomain",   CHILD_POLICY_SOME);
+        addElement    ("rangeParameters",     "rangeSet",              CHILD_POLICY_EMPTY);
+        // todo: handle rangeParameters' children; for the moment it is considered
+        //as a leaf of the tree.
+        addElement    ("fileName",            "rangeSet",              CHILD_POLICY_EMPTY);
+        addElement    ("fileStructure",       "rangeSet",              CHILD_POLICY_EMPTY);
+        addElement    ("fileDate",            "rangeSet",              CHILD_POLICY_EMPTY);
+        addElement    ("fileFormat",          "rangeSet",              CHILD_POLICY_EMPTY);
+        addElement    ("spatialResolution",   "rangeSet",              CHILD_POLICY_EMPTY);
+        addAttribute  ("spatialResolution",   "uom",                   DATATYPE_STRING);
+        addElement    ("spectrum",            "rangeSet",              CHILD_POLICY_EMPTY);
+        addElement    ("bandRange",           "rangeSet",              0, MAXIMUM_BANDS);
+        addAttribute  ("bandRange",           "uom",                   DATATYPE_STRING);
+        addElement    ("bands",               "rangeSet",              0, MAXIMUM_BANDS);
+        addAttribute  ("bands",               "type",                  DATATYPE_STRING, false, null, SAMPLE_TYPES);
+        addElement    ("band",                "bands",                 CHILD_POLICY_EMPTY);
+        addElement    ("mimeType",            "rangeSet",              CHILD_POLICY_EMPTY);
+        addElement    ("compression",         "rangeSet",              CHILD_POLICY_EMPTY);
+        /*
+         * root : RectifiedGridCoverage
+         *   +-- rectifiedGridDomain (dimension, srsName) : RectifiedGrid (*)
+         *       +-- rangeSet : File                                      (*)
+         *           +-- bands                                            (!)
+         *               +-- band[0] (name, scale, offset, minValue, maxValue, fillValues)
+         *               +-- band[1] (name, scale, offset, minValue, maxValue, fillValues)
+         *               +-- ...
+         */
+        addAttribute("band", "name",       DATATYPE_STRING);
+        addAttribute("band", "scale",      DATATYPE_DOUBLE);
+        addAttribute("band", "offset",     DATATYPE_DOUBLE);
+        addAttribute("band", "minValue",   DATATYPE_DOUBLE);
+        addAttribute("band", "maxValue",   DATATYPE_DOUBLE);
+        addAttribute("band", "fillValues", DATATYPE_DOUBLE, false, 0, Short.MAX_VALUE);
         /*
          * Allow users to specify fully-constructed GeoAPI objects.
          */
-        addObjectValue("CoordinateReferenceSystem", CoordinateReferenceSystem.class);
-        addObjectValue("Datum",                     Datum.class);
-        addObjectValue("CoordinateSystem",          CoordinateSystem.class);
-        addObjectValue("Axis",                      CoordinateSystemAxis.class);
-        addObjectValue("GridGeometry",              GridGeometry.class);
-        addObjectValue("Envelope",                  Envelope.class);
-        addObjectValue("AffineTransform",           MathTransform.class);
-        addObjectValue("SampleDimension",           SampleDimension.class);
+        addObjectValue("crs",        CoordinateReferenceSystem.class);
+        addObjectValue("datum",      Datum.class);
+        addObjectValue("cs",         CoordinateSystem.class);
+        addObjectValue("axis",       CoordinateSystemAxis.class);
+        addObjectValue("boundedBy",  Envelope.class);
     }
 
     /**

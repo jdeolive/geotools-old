@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 package org.geotools.image.io.metadata;
 
 import java.util.Date;
-import org.opengis.referencing.cs.CoordinateSystemAxis;  // For javadoc
+import org.opengis.referencing.cs.CoordinateSystemAxis;
 
 
 /**
@@ -60,7 +60,7 @@ public class Axis extends MetadataAccessor {
      * Returns the name for this axis, or {@code null} if none.
      */
     public String getName() {
-        return getString("name");
+        return getAttributeAsString("name");
     }
 
     /**
@@ -69,14 +69,14 @@ public class Axis extends MetadataAccessor {
      * @param name The axis name, or {@code null} if none.
      */
     public void setName(final String name) {
-        setString("name", name);
+        setAttributeAsString("name", name);
     }
 
     /**
      * Returns the direction for this axis, or {@code null} if none.
      */
     public String getDirection() {
-        return getString("direction");
+        return getAttributeAsString("direction");
     }
 
     /**
@@ -85,14 +85,14 @@ public class Axis extends MetadataAccessor {
      * @param direction The axis direction, or {@code null} if none.
      */
     public void setDirection(final String direction) {
-        setEnum("direction", direction, GeographicMetadataFormat.DIRECTIONS);
+        setAttributeAsEnum("direction", direction, GeographicMetadataFormat.DIRECTIONS);
     }
 
     /**
      * Returns the units for this axis, or {@code null} if none.
      */
     public String getUnits() {
-        return getString("units");
+        return getAttributeAsString("units");
     }
 
     /**
@@ -101,14 +101,14 @@ public class Axis extends MetadataAccessor {
      * @param units The axis units, or {@code null} if none.
      */
     public void setUnits(final String units) {
-        setString("units", units);
+        setAttributeAsString("units", units);
     }
 
     /**
      * Returns the time origin for this axis, or {@code null} if none.
      */
     public Date getTimeOrigin() {
-        return getDate("origin");
+        return getAttributeAsDate("origin");
     }
 
     /**
@@ -117,6 +117,6 @@ public class Axis extends MetadataAccessor {
      * @param origin The axis time origin, or {@code null} if none.
      */
     public void setTimeOrigin(final Date origin) {
-        setDate("origin", origin);
+        setAttributeAsDate("origin", origin);
     }
 }

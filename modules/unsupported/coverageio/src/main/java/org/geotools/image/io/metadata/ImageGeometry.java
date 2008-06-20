@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,22 +16,24 @@
  */
 package org.geotools.image.io.metadata;
 
-import org.opengis.geometry.Envelope;                   // For javadoc
-import org.opengis.coverage.grid.GridRange;             // For javadoc
-import org.opengis.metadata.spatial.PixelOrientation;   // For javadoc
+import java.util.Arrays;
+import org.geotools.resources.XArray;
+import org.opengis.geometry.Envelope;
+import org.opengis.coverage.grid.GridRange;
+import org.opengis.metadata.spatial.PixelOrientation;
 
 import org.geotools.util.NumberRange;
 import org.geotools.resources.i18n.ErrorKeys;
 
 
 /**
- * A {@code <GridGeometry>} element in
+ * A combinaison of {@code <Envelope>} and {@code <RectifiedGrid>} elements in
  * {@linkplain GeographicMetadataFormat geographic metadata format}. This class offers similar
- * service than {@link GridRange} and {@link Envelope}, except that the maximum value for
- * {@linkplain #getGridRange grid range} and {@linkplain #getCoordinateRange coordinate range}
+ * service than {@link Envelope} and {@link GridRange}, except that the maximum value for
+ * {@linkplain #getCoordinateRange coordinate range} and {@linkplain #getGridRange grid range}
  * are inclusives.
  * <p>
- * The {@code <GridRange>} child element is typically (but not always) initialized
+ * The {@code <GridEnvelope>} child element is typically (but not always) initialized
  * to the following ranges:
  * <p>
  * <li>
@@ -45,17 +47,48 @@ import org.geotools.resources.i18n.ErrorKeys;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux
+ * @author Cédric Briançon
  */
 public class ImageGeometry extends MetadataAccessor {
     /**
-     * The {@code "GridGeometry/GridRange"} node.
+     * The {@code "boundedBy/lowerCorner"} node.
      */
-    private final MetadataAccessor gridRange;
+    private final MetadataAccessor lowerCorner;
 
     /**
-     * The {@code "GridGeometry/Envelope"} node.
+     * The {@code "boundedBy/upperCorner"} node.
      */
-    private final MetadataAccessor envelope;
+    private final MetadataAccessor upperCorner;
+
+    /**
+     * The {@code "rectifiedGridDomain/cells"} node.
+     */
+    private final MetadataAccessor cells;
+
+    /**
+     * The {@code "rectifiedGridDomain/crs/cs"} node.
+     */
+    private final MetadataAccessor cs;
+
+    /**
+     * The {@code "rectifiedGridDomain/limits/low"} node.
+     */
+    private final MetadataAccessor low;
+
+    /**
+     * The {@code "rectifiedGridDomain/limits/high"} node.
+     */
+    private final MetadataAccessor high;
+
+    /**
+     * The {@code "rectifiedGridDomain/localizationGrid"} node.
+     */
+    private final MetadataAccessor localizationGrid;
+
+    /**
+     * The {@code "rectifiedGridDomain/pixelOrientation"} node.
+     */
+    private final MetadataAccessor pixelOrientation;
 
     /**
      * Creates a parser for a grid geometry. This constructor should not be invoked
@@ -64,21 +97,43 @@ public class ImageGeometry extends MetadataAccessor {
      * @param metadata The metadata node.
      */
     protected ImageGeometry(final GeographicMetadata metadata) {
-        super(metadata, "GridGeometry", null);
-        envelope  = new MetadataAccessor(metadata, "GridGeometry/Envelope",  "CoordinateValues");
-        gridRange = new MetadataAccessor(metadata, "GridGeometry/GridRange", "IndexRange");
+        super(metadata, "rectifiedGridDomain", null);
+        lowerCorner      = new MetadataAccessor(metadata,
+                "boundedBy/lowerCorner", null);
+        upperCorner      = new MetadataAccessor(metadata,
+                "boundedBy/upperCorner", null);
+        cs               = new MetadataAccessor(metadata,
+                "rectifiedGridDomain/crs/cs", "axis");
+        cells            = new MetadataAccessor(metadata,
+                "rectifiedGridDomain/cells", "offsetVector");
+        low              = new MetadataAccessor(metadata,
+                "rectifiedGridDomain/limits/low", null);
+        high             = new MetadataAccessor(metadata,
+                "rectifiedGridDomain/limits/high", null);
+        localizationGrid = new MetadataAccessor(metadata,
+                "rectifiedGridDomain/localizationGrid", "ordinates");
+        pixelOrientation = new MetadataAccessor(metadata,
+                "rectifiedGridDomain/pixelOrientation", null);
     }
 
     /**
-     * Returns the number of dimensions. If the {@linkplain GridRange grid range} and
-     * {@linkplain Envelope envelope} don't have the same dimension, then a warning
-     * is logged and the smallest dimension is returned.
+     * Returns the number of dimensions. If the {@linkplain CoordinateSystem coordinate system}
+     * and the cells don't have the same dimension, then a warning is logged and
+     * the smallest dimension is returned.
+     * If one of them is empty, the dimension of the oter one is then returned.
      */
     public int getDimension() {
-        final int dim1 = gridRange.childCount();
-        final int dim2  = envelope .childCount();
+        final int dim1 = cs   .childCount();
+        final int dim2 = cells.childCount();
+        if (dim2 == 0) {
+            return dim1;
+        }
+        if (dim1 == 0) {
+            return dim2;
+        }
         if (dim1 != dim2) {
-            warning("getDimension", ErrorKeys.MISMATCHED_DIMENSION_$2, new Integer[] {dim1, dim2});
+            warning("getDimension", ErrorKeys.MISMATCHED_DIMENSION_$2,
+                    new int[] {dim1, dim2});
         }
         return Math.min(dim1, dim2);
     }
@@ -87,58 +142,104 @@ public class ImageGeometry extends MetadataAccessor {
      * Returns the range of grid index along the specified dimension. Note that range
      * {@linkplain NumberRange#getMinValue minimum value},
      * {@linkplain NumberRange#getMaxValue maximum value} or both may be null if no
-     * {@code "minimum"} or {@code "maximum"} attribute were found for the
-     * {@code "GridGeometry/GridRange/IndexRange"} element.
+     * {@code "low"} or {@code "high"} attribute were found for the
+     * {@code "rectifiedGridDomain/limits"} element.
      *
      * @param dimension The dimension index, from 0 inclusive to {@link #getDimension} exclusive.
      */
     public NumberRange getGridRange(final int dimension) {
-        gridRange.selectChild(dimension);
-        final Integer minimum = gridRange.getInteger("minimum");
-        final Integer maximum = gridRange.getInteger("maximum");
+        final int minimum = low. getUserObject(int[].class)[dimension];
+        final int maximum = high.getUserObject(int[].class)[dimension];
         return new NumberRange(Integer.class, minimum, true, maximum, true);
     }
 
     /**
-     * Set the grid range along the specified dimension.
+     * Set the grid range along the specified dimension. If the dimension is greater
+     * than the current envelope dimension, then this dimension is added.
      *
-     * @param dimension The dimension to set, from 0 inclusive to {@link #getDimension} exclusive.
+     * @param dimension The dimension to set. It can eventually be greater than {@link #getDimension}.
      * @param minimum   The minimum value along the specified dimension (inclusive).
      * @param maximum   The maximum value along the specified dimension (<strong>inclusive</strong>).
      */
     public void setGridRange(final int dimension, final int minimum, final int maximum) {
-        gridRange.selectChild(dimension);
-        gridRange.setInteger("minimum", minimum);
-        gridRange.setInteger("maximum", maximum);
+        int[] lows  = low. getUserObject(int[].class);
+        int[] highs = high.getUserObject(int[].class);
+        final int length = dimension + 1;
+        if (lows == null) {
+            lows = new int[length];
+        } else {
+            final int oldLength = lows.length;
+            if (length > oldLength) {
+                lows = XArray.resize(lows, length);
+            }
+        }
+        if (highs == null) {
+            highs = new int[length];
+        } else {
+            final int oldLength = highs.length;
+            if (length > oldLength) {
+                highs = XArray.resize(highs, length);
+            }
+        }
+        lows[dimension]  = minimum;
+        highs[dimension] = maximum;
+        low. setUserObject(lows);
+        high.setUserObject(highs);
     }
 
     /**
      * Returns the range of coordinate values along the specified dimension. Note that range
      * {@linkplain NumberRange#getMinValue minimum value},
      * {@linkplain NumberRange#getMaxValue maximum value} or both may be null if no
-     * {@code "minimum"} or {@code "maximum"} attribute were found for the
-     * {@code "GridGeometry/Envelope/CoordinateValues"} element.
+     * {@code "lowerCorner"} or {@code "upperCorner"} attribute were found for the
+     * {@code "boundedBy/Envelope"} element.
      *
      * @param dimension The dimension index, from 0 inclusive to {@link #getDimension} exclusive.
      */
     public NumberRange getCoordinateRange(final int dimension) {
-        envelope.selectChild(dimension);
-        final Double minimum = envelope.getDouble("minimum");
-        final Double maximum = envelope.getDouble("maximum");
-        return new NumberRange(Double.class, minimum, true, maximum, true);
+        final double lower = lowerCorner.getUserObject(double[].class)[dimension];
+        final double upper = upperCorner.getUserObject(double[].class)[dimension];
+        return new NumberRange(Double.class, lower, true, upper, true);
     }
 
     /**
-     * Set the envelope range along the specified dimension.
+     * Set the envelope range along the specified dimension. If the dimension is greater
+     * than the current envelope dimension, then this dimension is added.
      *
-     * @param dimension The dimension to set, from 0 inclusive to {@link #getDimension} exclusive.
+     * @param dimension The dimension to set. It can eventually be greater than {@link #getDimension}.
      * @param minimum   The minimum value along the specified dimension (inclusive).
      * @param maximum   The maximum value along the specified dimension (<strong>inclusive</strong>).
      */
-    public void setCoordinateRange(final int dimension, final double minimum, final double maximum) {
-        envelope.selectChild(dimension);
-        envelope.setDouble("minimum", minimum);
-        envelope.setDouble("maximum", maximum);
+    public void setCoordinateRange(final int dimension, final double minimum,
+                                                        final double maximum)
+    {
+        double[] lowers = lowerCorner.getUserObject(double[].class);
+        double[] uppers = upperCorner.getUserObject(double[].class);
+        final int length = dimension + 1;
+        if (lowers == null) {
+            lowers = new double[length];
+            Arrays.fill(lowers, Double.NaN);
+        } else {
+            final int oldLength = lowers.length;
+            if (length > oldLength) {
+                lowers = XArray.resize(lowers, length);
+                Arrays.fill(lowers, oldLength, length, Double.NaN);
+            }
+        }
+        if (uppers == null) {
+            uppers = new double[length];
+            Arrays.fill(uppers, Double.NaN);
+        } else {
+            final int oldLength = uppers.length;
+            if (length > oldLength) {
+                uppers = XArray.resize(uppers, length);
+                Arrays.fill(uppers, oldLength, length, Double.NaN);
+            }
+        }
+        lowers[dimension]  = minimum;
+        uppers[dimension]  = maximum;
+        lowerCorner.setUserObject(lowers);
+        upperCorner.setUserObject(uppers);
     }
 
     /**
@@ -157,30 +258,69 @@ public class ImageGeometry extends MetadataAccessor {
     public void addCoordinateRange(final int    minIndex, final int    maxIndex,
                                    final double minValue, final double maxValue)
     {
-        setGridRange      (gridRange.appendChild(), minIndex, maxIndex);
-        setCoordinateRange(envelope .appendChild(), minValue, maxValue);
+        int last;
+        int[]    lows   = low        .getUserObject(int[]   .class);
+        int[]    highs  = high       .getUserObject(int[]   .class);
+        double[] lowers = lowerCorner.getUserObject(double[].class);
+        double[] uppers = upperCorner.getUserObject(double[].class);
+        if (lows == null) {
+            last = 0;
+            lows = new int[1];
+        } else {
+            last = lows.length;
+            lows = XArray.resize(lows, last + 1);
+        }
+        lows[last] = minIndex;
+        if (highs == null) {
+            last = 0;
+            highs = new int[1];
+        } else {
+            last = highs.length;
+            highs = XArray.resize(highs, last + 1);
+        }
+        highs[last] = maxIndex;
+        if (lowers == null) {
+            last = 0;
+            lowers = new double[1];
+        } else {
+            last = lowers.length;
+            lowers = XArray.resize(lowers, last + 1);
+        }
+        lowers[last] = minValue;
+        if (uppers == null) {
+            last = 0;
+            uppers = new double[1];
+        } else {
+            last = uppers.length;
+            uppers = XArray.resize(uppers, last + 1);
+        }
+        uppers[last] = maxValue;
+        low        .setUserObject(lows);
+        high       .setUserObject(highs);
+        lowerCorner.setUserObject(lowers);
+        upperCorner.setUserObject(uppers);
     }
 
     /**
-     * Returns the coordinate values along the specified dimension, or {@code null} if none.
+     * Returns the ordinate values along the specified dimension, or {@code null} if none.
      * This method returns a non-null values only if an array of was explicitly specified,
      * for example by a call to {@link #setCoordinateValues}.
      *
      * @param dimension The dimension index, from 0 inclusive to {@link #getDimension} exclusive.
      */
-    public double[] getCoordinateValues(final int dimension) {
-        envelope.selectChild(dimension);
-        return (double[]) envelope.getUserObject();
+    public double[] getOrdinates(final int dimension) {
+        localizationGrid.selectChild(dimension);
+        return (double[]) localizationGrid.getUserObject();
     }
 
     /**
-     * Set the envelope coordinate values along the specified dimension. The minimum and
+     * Set the ordinate values along the specified dimension. The minimum and
      * maximum coordinates will be determined from the specified array.
      *
      * @param dimension The dimension to set, from 0 inclusive to {@link #getDimension} exclusive.
      * @param values The coordinate values.
      */
-    public void setCoordinateValues(final int dimension, final double[] values) {
+    public void setOrdinates(final int dimension, final double[] values) {
         double minimum = Double.POSITIVE_INFINITY;
         double maximum = Double.NEGATIVE_INFINITY;
         if (values != null) {
@@ -191,11 +331,12 @@ public class ImageGeometry extends MetadataAccessor {
             }
         }
         setCoordinateRange(dimension, minimum, maximum);
-        envelope.setUserObject(values);
+        localizationGrid.selectChild(dimension);
+        localizationGrid.setUserObject(values);
     }
 
     /**
-     * Adds coordinate values for an envelope along a dimension. Invoking this method
+     * Adds ordinate values for an envelope along a dimension. Invoking this method
      * will increase the envelope {@linkplain #getDimension dimension} by one. This method
      * may be invoked in replacement of {@link #addCoordinateRange} when every cell
      * coordinates need to be specified explicitly.
@@ -205,9 +346,62 @@ public class ImageGeometry extends MetadataAccessor {
      *
      * @see #addCoordinateRange
      */
-    public void addCoordinateValues(final int minIndex, final double[] values) {
-        setGridRange(gridRange.appendChild(), minIndex, minIndex + values.length - 1);
-        setCoordinateValues(envelope.appendChild(), values);
+    public void addOrdinates(final int minIndex, final double[] values) {
+        int[] lows  = low. getUserObject(int[].class);
+        int[] highs = high.getUserObject(int[].class);
+        if (lows != null && highs != null) {
+            final int last = Math.max(lows.length, highs.length);
+            if (last != lows.length || last != highs.length) {
+                warning("addOrdinates", ErrorKeys.MISMATCHED_DIMENSION_$2,
+                        new int[]{lows.length, highs.length});
+            }
+            lows = XArray.resize(lows, last + 1);
+            highs = XArray.resize(highs, last + 1);
+            lows[last] = minIndex;
+            highs[last] = minIndex + values.length - 1;
+        } else {
+            if (lows == null) {
+                lows = new int[1];
+                lows[0] = minIndex;
+            }
+            if (highs == null) {
+                highs = new int[1];
+                highs[0] = minIndex + values.length - 1;
+            }
+        }
+        low.setUserObject(lows);
+        high.setUserObject(highs);
+        setOrdinates(localizationGrid.appendChild(), values);
+    }
+
+    /**
+     * Returns the offset vector for the specified dimension.
+     *
+     * @param dimension The dimension index, from 0 inclusive to {@link #getDimension} exclusive.
+     */
+    public double[] getOffsetVector(final int dimension) {
+        cells.selectChild(dimension);
+        return (double[]) cells.getUserObject();
+    }
+
+    /**
+     * Set the offset vector for the specified dimension.
+     *
+     * @param dimension The dimension to set, from 0 inclusive to {@link #getDimension} exclusive.
+     * @param values    The offset values.
+     */
+    public void setOffsetVector(final int dimension, final double[] values) {
+        cells.selectChild(dimension);
+        cells.setUserObject(values);
+    }
+
+    /**
+     * Adds offset vector values for a new dimension.
+     *
+     * @param values The offset values for this new dimension.
+     */
+    public void addOffsetVector(final double[] values) {
+        setOffsetVector(cells.appendChild(), values);
     }
 
     /**
@@ -222,7 +416,7 @@ public class ImageGeometry extends MetadataAccessor {
      * @see PixelOrientation
      */
     public String getPixelOrientation() {
-        return getString("pixelOrientation");
+        return pixelOrientation.getUserObject(String.class);
     }
 
     /**
@@ -238,6 +432,10 @@ public class ImageGeometry extends MetadataAccessor {
      * @see PixelOrientation
      */
     public void setPixelOrientation(final String pixelOrientation) {
-        setEnum("pixelOrientation", pixelOrientation, GeographicMetadataFormat.PIXEL_ORIENTATIONS);
+        if (GeographicMetadataFormat.PIXEL_ORIENTATIONS.contains(pixelOrientation)) {
+            this.pixelOrientation.setUserObject(pixelOrientation);
+        } else {
+            warning("setPixelOrientation", ErrorKeys.BAD_PARAMETER_$2, pixelOrientation);
+        }
     }
 }

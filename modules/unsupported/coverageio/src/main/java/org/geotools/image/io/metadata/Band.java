@@ -59,7 +59,7 @@ public class Band extends MetadataAccessor {
      * Returns the name for this band, or {@code null} if none.
      */
     public String getName() {
-        return getString("name");
+        return getAttributeAsString("name");
     }
 
     /**
@@ -68,7 +68,7 @@ public class Band extends MetadataAccessor {
      * @param name The band name, or {@code null} if none.
      */
     public void setName(final String name) {
-        setString("name", name);
+        setAttributeAsString("name", name);
     }
 
     /**
@@ -83,15 +83,15 @@ public class Band extends MetadataAccessor {
         Number minimum, maximum;
         final boolean enabled = setWarningsEnabled(false);
         try {
-            minimum = getInteger("minValue");
-            maximum = getInteger("maxValue");
+            minimum = getAttributeAsInteger("minValue");
+            maximum = getAttributeAsInteger("maxValue");
         } finally {
             setWarningsEnabled(enabled);
         }
         final Class<? extends Number> type;
         if (minimum == null || maximum == null) {
-            minimum = getDouble("minValue");
-            maximum = getDouble("maxValue");
+            minimum = getAttributeAsDouble("minValue");
+            maximum = getAttributeAsDouble("maxValue");
             type = Double.class;
         } else {
             type = Integer.class;
@@ -120,11 +120,11 @@ public class Band extends MetadataAccessor {
         final int minIndex = (int) minValue;
         final int maxIndex = (int) maxValue;
         if (minIndex == minValue && maxIndex == maxValue) {
-            setInteger("minValue", minIndex);
-            setInteger("maxValue", maxIndex);
+            setAttributeAsInteger("minValue", minIndex);
+            setAttributeAsInteger("maxValue", maxIndex);
         } else {
-            setDouble("minValue", minValue);
-            setDouble("maxValue", maxValue);
+            setAttributeAsDouble("minValue", minValue);
+            setAttributeAsDouble("maxValue", maxValue);
         }
     }
 
@@ -132,7 +132,7 @@ public class Band extends MetadataAccessor {
      * Returns the fill values for this band, or {@code null} if none.
      */
     public double[] getNoDataValues() {
-        return getDoubles("fillValues", true);
+        return getAttributeAsDoubles("fillValues", true);
     }
 
     /**
@@ -155,11 +155,11 @@ public class Band extends MetadataAccessor {
                 }
             }
             if (asIntegers != null) {
-                setIntegers("fillValues", asIntegers);
+                setAttributeAsIntegers("fillValues", asIntegers);
                 return;
             }
         }
-        setDoubles("fillValues", fillValues);
+        setAttributeAsDoubles("fillValues", fillValues);
     }
 
     /**
@@ -265,7 +265,7 @@ public class Band extends MetadataAccessor {
      * Returns the scale factor from packed to geophysics values, or {@code 1} if none.
      */
     public double getScale() {
-        final Double scale = getDouble("scale");
+        final Double scale = getAttributeAsDouble("scale");
         return (scale != null) ? scale.doubleValue() : 1.0;
     }
 
@@ -275,14 +275,14 @@ public class Band extends MetadataAccessor {
      * @param scale The scale from packed to geophysics values, or {@code 1} if none.
      */
     public void setScale(final double scale) {
-        setDouble("scale", scale);
+        setAttributeAsDouble("scale", scale);
     }
 
     /**
      * Returns the offset from packed to geophysics values, or {@code 0} if none.
      */
     public double getOffset() {
-        final Double offset = getDouble("offset");
+        final Double offset = getAttributeAsDouble("offset");
         return (offset != null) ? offset.doubleValue() : 0.0;
     }
 
@@ -292,6 +292,6 @@ public class Band extends MetadataAccessor {
      * @param offset The offset from packed to geophysics values, or {@code 0} if none.
      */
     public void setOffset(final double offset) {
-        setDouble("offset", offset);
+        setAttributeAsDouble("offset", offset);
     }
 }
