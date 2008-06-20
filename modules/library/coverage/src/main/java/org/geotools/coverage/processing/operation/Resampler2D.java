@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,7 +20,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
-import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.util.List;
 import java.util.Locale;
@@ -39,7 +38,7 @@ import javax.media.jai.BorderExtenderConstant;
 import javax.media.jai.operator.MosaicDescriptor;
 import javax.media.jai.InterpolationNearest;
 
-import org.opengis.coverage.grid.GridRange;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.datum.PixelInCell;
@@ -386,7 +385,7 @@ final class Resampler2D extends GridCoverage2D {
              *   big enough to hold the result.
              */
             if (targetGG == null) {
-                final GridRange targetGR;
+                final GridEnvelope targetGR;
                 targetGR = force2D ? new GeneralGridRange(sourceGG.getGridRange2D()) : sourceGG.getGridRange();
                 targetGG = new GridGeometry2D(targetGR, targetEnvelope);
                 step1    = targetGG.getGridToCRS(CORNER);
@@ -623,14 +622,17 @@ final class Resampler2D extends GridCoverage2D {
          * As a safety, we check the bounding box in any case. If it doesn't matches, then we will
          * reconstruct the target grid geometry.
          */
-        final GridRange targetGR = targetGG.getGridRange();
-        final int[] lower = targetGR.getLower().getCoordinateValues();
-        final int[] upper = targetGR.getUpper().getCoordinateValues();
+        final GridEnvelope targetGR = targetGG.getGridRange();
+        final int[] lower = targetGR.getLow().getCoordinateValues();
+        final int[] upper = targetGR.getHigh().getCoordinateValues();
+        for (int i=0; i<upper.length; i++) {
+            upper[i]++; // Make them exclusive.
+        }
         lower[targetGG.gridDimensionX] = targetImage.getMinX();
         lower[targetGG.gridDimensionY] = targetImage.getMinY();
         upper[targetGG.gridDimensionX] = targetImage.getMaxX();
         upper[targetGG.gridDimensionY] = targetImage.getMaxY();
-        final GridRange actualGR = new GeneralGridRange(lower, upper);
+        final GridEnvelope actualGR = new GeneralGridRange(lower, upper);
         if (!targetGR.equals(actualGR)) {
             MathTransform gridToCRS = targetGG.getGridToCRS(CORNER);
             targetGG = new GridGeometry2D(actualGR, gridToCRS, targetCRS);
@@ -816,13 +818,13 @@ final class Resampler2D extends GridCoverage2D {
      * Casts the specified grid range into an envelope. This is used before to transform
      * the envelope using {@link CRSUtilities#transform(MathTransform, Envelope)}.
      */
-    private static Envelope toEnvelope(final GridRange gridRange) {
+    private static Envelope toEnvelope(final GridEnvelope gridRange) {
         final int dimension = gridRange.getDimension();
         final double[] lower = new double[dimension];
         final double[] upper = new double[dimension];
         for (int i=0; i<dimension; i++) {
-            lower[i] = gridRange.getLower(i);
-            upper[i] = gridRange.getUpper(i);
+            lower[i] = gridRange.getLow(i);
+            upper[i] = gridRange.getHigh(i) + 1;
         }
         return new GeneralEnvelope(lower, upper);
     }

@@ -16,6 +16,7 @@
  */
 package org.geotools.measure;
 
+import java.io.*;
 import javax.measure.unit.Unit;
 import javax.measure.quantity.Quantity;
 import javax.measure.converter.UnitConverter;
@@ -54,5 +55,41 @@ public class UnitsTest {
         checkConversion(10.01, DEGREE_ANGLE, 10.0036, SEXAGESIMAL_DMS);
         checkConversion(10.50, DEGREE_ANGLE, 10.3000, SEXAGESIMAL_DMS);
         checkConversion(10.99, DEGREE_ANGLE, 10.5924, SEXAGESIMAL_DMS);
+    }
+
+    /**
+     * Serialize and deserialize the given object.
+     *
+     * @param object The object to serialize.
+     * @return The deserialized object.
+     * @throws IOException Should never occurs.
+     * @throws ClassNotFoundException Should never occurs.
+     */
+    private static Object serialize(final Object object) throws IOException, ClassNotFoundException {
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final ObjectOutputStream out = new ObjectOutputStream(buffer);
+        out.writeObject(object);
+        out.close();
+        final ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
+        final Object read = in.readObject();
+        in.close();
+        return read;
+    }
+
+    /**
+     * Tests serialization of units.
+     *
+     * @throws IOException Should never occurs.
+     * @throws ClassNotFoundException Should never occurs.
+     *
+     * @todo Disabled for now. Needs JSR-275 fix.
+     */
+    @Test
+    @Ignore
+    public void testSerialization() throws IOException, ClassNotFoundException {
+        assertEquals(DEGREE_ANGLE,         serialize(DEGREE_ANGLE));
+        assertEquals(SEXAGESIMAL_DMS,      serialize(SEXAGESIMAL_DMS));
+        assertEquals(DEGREE_MINUTE_SECOND, serialize(DEGREE_MINUTE_SECOND));
+        assertEquals(PPM,                  serialize(PPM));
     }
 }

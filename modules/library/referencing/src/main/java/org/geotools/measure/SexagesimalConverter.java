@@ -16,6 +16,7 @@
  */
 package org.geotools.measure;
 
+import java.io.ObjectStreamException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.converter.ConversionException;
 
@@ -46,6 +47,16 @@ class SexagesimalConverter extends UnitConverter {
     private static final double EPS = 1E-8;
 
     /**
+     * The converter for DMS units.
+     */
+    static final SexagesimalConverter INTEGER = new SexagesimalConverter(1);
+
+    /**
+     * The converter for D.MS units.
+     */
+    static final SexagesimalConverter FRACTIONAL = new SexagesimalConverter(10000);
+
+    /**
      * The value to divide DMS unit by.
      * For "degree minute second" (EPSG code 9107), this is 1.
      * For "sexagesimal degree" (EPSG code 9110), this is 10000.
@@ -64,7 +75,7 @@ class SexagesimalConverter extends UnitConverter {
      *        For "degree minute second" (EPSG code 9107), this is 1.
      *        For "sexagesimal degree" (EPSG code 9110), this is 10000.
      */
-    public SexagesimalConverter(final int divider) {
+    private SexagesimalConverter(final int divider) {
         this.divider = divider;
         this.inverse = new Inverse(this);
     }
@@ -125,6 +136,24 @@ class SexagesimalConverter extends UnitConverter {
     @Override
     public int hashCode() {
         return (int) serialVersionUID + divider;
+    }
+
+    /**
+     * On deserialization, returns an existing instance.
+     */
+    protected Object readResolve() throws ObjectStreamException {
+        UnitConverter candidate = INTEGER;
+        for (int i=0; i<=3; i++) {
+            switch (i) {
+                case 0:  break; // Do nothing since candidate is already set to INTEGER/
+                case 2:  candidate = FRACTIONAL; break;
+                default: candidate = candidate.inverse(); break;
+            }
+            if (equals(candidate)) {
+                return candidate;
+            }
+        }
+        return this;
     }
 
     /**

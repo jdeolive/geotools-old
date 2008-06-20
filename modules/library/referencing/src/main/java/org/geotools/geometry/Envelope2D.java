@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.geometry.MismatchedReferenceSystemException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.cs.AxisDirection;  // For javadoc
+import org.opengis.referencing.cs.AxisDirection;
 
 import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
@@ -205,16 +205,24 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
     }
 
     /**
+     * Creates an exception for an index out of bounds.
+     */
+    private static IndexOutOfBoundsException indexOutOfBounds(final int dimension) {
+        return new IndexOutOfBoundsException(Errors.format(ErrorKeys.INDEX_OUT_OF_BOUNDS_$1, dimension));
+    }
+
+    /**
      * Returns the minimal ordinate along the specified dimension.
      *
      * @param dimension The dimension to query.
      * @return The minimal ordinate value along the given dimension.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
      */
-    public final double getMinimum(final int dimension) {
+    public final double getMinimum(final int dimension) throws IndexOutOfBoundsException {
         switch (dimension) {
             case 0:  return getMinX();
             case 1:  return getMinY();
-            default: throw new ArrayIndexOutOfBoundsException(dimension);
+            default: throw indexOutOfBounds(dimension);
         }
     }
 
@@ -223,12 +231,13 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
      *
      * @param dimension The dimension to query.
      * @return The maximal ordinate value along the given dimension.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
      */
-    public final double getMaximum(final int dimension) {
+    public final double getMaximum(final int dimension) throws IndexOutOfBoundsException {
         switch (dimension) {
             case 0:  return getMaxX();
             case 1:  return getMaxY();
-            default: throw new ArrayIndexOutOfBoundsException(dimension);
+            default: throw indexOutOfBounds(dimension);
         }
     }
 
@@ -237,12 +246,28 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
      *
      * @param dimension The dimension to query.
      * @return The mid ordinate value along the given dimension.
+     *
+     * @deprecated Renamed as {@link #getMedian}.
      */
+    @Deprecated
     public final double getCenter(final int dimension) {
+        return getMedian(dimension);
+    }
+
+    /**
+     * Returns the median ordinate along the specified dimension. The result should be equals
+     * (minus rounding error) to <code>({@linkplain #getMaximum getMaximum}(dimension) -
+     * {@linkplain #getMinimum getMinimum}(dimension)) / 2</code>.
+     *
+     * @param dimension The dimension to query.
+     * @return The mid ordinate value along the given dimension.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
+     */
+    public final double getMedian(final int dimension) throws IndexOutOfBoundsException {
         switch (dimension) {
             case 0:  return getCenterX();
             case 1:  return getCenterY();
-            default: throw new ArrayIndexOutOfBoundsException(dimension);
+            default: throw indexOutOfBounds(dimension);
         }
     }
 
@@ -253,12 +278,28 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
      *
      * @param dimension The dimension to query.
      * @return The difference along maximal and minimal ordinates in the given dimension.
+     *
+     * @deprecated Renamed as {@link #getSpan}.
      */
+    @Deprecated
     public final double getLength(final int dimension) {
+        return getSpan(dimension);
+    }
+
+    /**
+     * Returns the envelope span (typically width or height) along the specified dimension.
+     * The result should be equals (minus rounding error) to <code>{@linkplain #getMaximum
+     * getMaximum}(dimension) - {@linkplain #getMinimum getMinimum}(dimension)</code>.
+     *
+     * @param dimension The dimension to query.
+     * @return The difference along maximal and minimal ordinates in the given dimension.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
+     */
+    public final double getSpan(final int dimension) throws IndexOutOfBoundsException {
         switch (dimension) {
             case 0:  return getWidth ();
             case 1:  return getHeight();
-            default: throw new ArrayIndexOutOfBoundsException(dimension);
+            default: throw indexOutOfBounds(dimension);
         }
     }
 
@@ -268,7 +309,7 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
      */
     @Override
     public int hashCode() {
-        int code = super.hashCode() ^ (int)serialVersionUID;
+        int code = super.hashCode() ^ (int) serialVersionUID;
         if (crs != null) {
             code += crs.hashCode();
         }

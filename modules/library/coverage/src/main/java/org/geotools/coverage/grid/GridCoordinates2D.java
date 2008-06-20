@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,8 +17,8 @@
 package org.geotools.coverage.grid;
 
 import java.awt.Point;
-import org.opengis.coverage.grid.Grid;      // For javadoc
-import org.opengis.coverage.grid.GridPoint; // For javadoc
+import org.opengis.coverage.grid.Grid;
+import org.opengis.coverage.grid.GridPoint;
 import org.opengis.coverage.grid.GridCoordinates;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
@@ -51,6 +51,9 @@ public class GridCoordinates2D extends Point implements GridCoordinates {
 
     /**
      * Creates a grid coordinates initialized to the specified values.
+     *
+     * @param x The <var>x</var> coordinate value.
+     * @param y The <var>y</var> coordinate value.
      */
     public GridCoordinates2D(final int x, final int y) {
         super(x,y);
@@ -58,6 +61,8 @@ public class GridCoordinates2D extends Point implements GridCoordinates {
 
     /**
      * Creates a grid coordinates initialized to the specified point.
+     *
+     * @param coordinates The coordinate values to copy.
      */
     public GridCoordinates2D(final Point coordinates) {
         super(coordinates);
@@ -85,7 +90,7 @@ public class GridCoordinates2D extends Point implements GridCoordinates {
      *
      * @param  dimension The dimension from 0 inclusive to {@link #getDimension} exclusive.
      * @return The value at the requested dimension.
-     * @throws ArrayIndexOutOfBoundsException if the specified dimension is out of bounds.
+     * @throws IndexOutOfBoundsException if the specified dimension is out of bounds.
      */
     public int getCoordinateValue(final int dimension) throws IndexOutOfBoundsException {
         switch (dimension) {
@@ -100,7 +105,8 @@ public class GridCoordinates2D extends Point implements GridCoordinates {
      *
      * @param  dimension The index of the value to set.
      * @param  value The new value.
-     * @throws ArrayIndexOutOfBoundsException if the specified dimension is out of bounds.
+     * @throws IndexOutOfBoundsException if the specified dimension is out of bounds.
+     * @throws UnsupportedOperationException if this grid coordinates is not modifiable.
      */
     public void setCoordinateValue(final int dimension, final int value)
             throws IndexOutOfBoundsException, UnsupportedOperationException
@@ -133,6 +139,8 @@ public class GridCoordinates2D extends Point implements GridCoordinates {
 
     /**
      * Returns a clone of this coordinates.
+     *
+     * @return A clone of this coordinates.
      */
     @Override
     public GridCoordinates2D clone() {

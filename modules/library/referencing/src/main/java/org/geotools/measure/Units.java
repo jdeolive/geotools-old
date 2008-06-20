@@ -50,7 +50,7 @@ public final class Units {
      * EPSG database (code 9110).
      */
     public static final Unit<Angle> SEXAGESIMAL_DMS = NonSI.DEGREE_ANGLE.transform(
-            new SexagesimalConverter(10000).inverse()).asType(Angle.class);
+            SexagesimalConverter.FRACTIONAL.inverse()).asType(Angle.class);
 
     /**
      * Pseudo-unit for degree - minute - second. Numbers in this pseudo-unit has the following
@@ -64,7 +64,7 @@ public final class Units {
      * EPSG database (code 9107).
      */
     public static final Unit<Angle> DEGREE_MINUTE_SECOND = NonSI.DEGREE_ANGLE.transform(
-            new SexagesimalConverter(1).inverse()).asType(Angle.class);
+            SexagesimalConverter.INTEGER.inverse()).asType(Angle.class);
 
     /**
      * Parts per million.

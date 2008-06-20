@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import javax.media.jai.Interpolation;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.opengis.coverage.grid.GridRange;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
 
 
@@ -118,12 +118,12 @@ public class InterpolatorTest extends GridCoverageTest {
         double[] buffer = null;
         final Raster          data = coverage.getRenderedImage().getData();
         final Envelope    envelope = coverage.getEnvelope();
-        final GridRange      range = coverage.getGridGeometry().getGridRange();
+        final GridEnvelope   range = coverage.getGridGeometry().getGridRange();
         final double          left = envelope.getMinimum(0);
         final double         upper = envelope.getMaximum(1);
         final Point2D.Double point = new Point2D.Double(); // Will maps to pixel upper-left corner
-        for (int j=range.getLength(1); --j>=1;) {
-            for (int i=range.getLength(0); --i>=1;) {
+        for (int j=range.getSpan(1); --j>=1;) {
+            for (int i=range.getSpan(0); --i>=1;) {
                 point.x  = left  + PIXEL_SIZE*i;
                 point.y  = upper - PIXEL_SIZE*j;
                 buffer   = coverage.evaluate(point, buffer);

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,11 +16,11 @@
  */
 package org.geotools.coverage.grid;
 
-import java.awt.geom.RectangularShape;
-import java.awt.image.RenderedImage;   // For javadoc
+import java.awt.image.RenderedImage;
 import java.io.Serializable;
 
 import org.opengis.coverage.grid.GridRange;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
@@ -28,6 +28,7 @@ import org.opengis.referencing.operation.TransformException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.util.Cloneable;
 
 import org.geotools.util.Utilities;
 import org.geotools.geometry.GeneralEnvelope;
@@ -43,8 +44,8 @@ import org.geotools.resources.i18n.ErrorKeys;
  * coordinates to real world coordinates. Grid geometries contains:
  * <p>
  * <ul>
- *   <li>An optional {@linkplain GridRange grid range}, usually inferred from the
- *       {@linkplain RenderedImage rendered image} size.</li>
+ *   <li>An optional {@linkplain GridEnvelope grid envelope} (a.k.a. "<cite>grid range</cite>"),
+ *       usually inferred from the {@linkplain RenderedImage rendered image} size.</li>
  *   <li>An optional "grid to CRS" {@linkplain MathTransform transform}, which may be inferred
  *       from the grid range and the envelope.</li>
  *   <li>An optional {@linkplain Envelope envelope}, which may be inferred from the grid range
@@ -56,7 +57,7 @@ import org.geotools.resources.i18n.ErrorKeys;
  * All grid geometry attributes are optional because some of them may be inferred from a wider
  * context. For example a grid geometry know nothing about {@linkplain RenderedImage rendered
  * images}, but {@link GridCoverage2D} do. Consequently, the later may infer the {@linkplain
- * GridRange grid range} by itself.
+ * GridEnvelope grid range} by itself.
  * <p>
  * By default, any request for an undefined attribute will thrown an
  * {@link InvalidGridGeometryException}. In order to check if an attribute is defined,
@@ -121,7 +122,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      * @see RenderedImage#getWidth
      * @see RenderedImage#getHeight
      */
-    protected final GridRange gridRange;
+    protected final GridEnvelope gridRange;
 
     /**
      * The envelope, which is usually the {@linkplain #gridRange grid range}
@@ -214,7 +215,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @since 2.2
      */
-    public GeneralGridGeometry(final GridRange           gridRange,
+    public GeneralGridGeometry(final GridEnvelope        gridRange,
                                final MathTransform       gridToCRS,
                                final CoordinateReferenceSystem crs)
             throws MismatchedDimensionException, IllegalArgumentException
@@ -245,7 +246,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @since 2.5
      */
-    public GeneralGridGeometry(final GridRange           gridRange,
+    public GeneralGridGeometry(final GridEnvelope        gridRange,
                                final PixelInCell         anchor,
                                final MathTransform       gridToCRS,
                                final CoordinateReferenceSystem crs)
@@ -339,7 +340,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @since 2.2
      */
-    public GeneralGridGeometry(final GridRange gridRange, final Envelope userRange)
+    public GeneralGridGeometry(final GridEnvelope gridRange, final Envelope userRange)
             throws MismatchedDimensionException
     {
         this(gridRange, userRange, null, false, true);
@@ -351,7 +352,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      * <p>
      * If this convenience constructor do not provides suffisient control on axis order or reversal,
      * then an affine transform shall be created explicitly and the grid geometry shall be created
-     * using the {@linkplain #GeneralGridGeometry(GridRange,MathTransform,CoordinateReferenceSystem)
+     * using the {@linkplain #GeneralGridGeometry(GridEnvelope,MathTransform,CoordinateReferenceSystem)
      * constructor expecting a math transform} argument.
      *
      * @param gridRange The valid coordinate range of a grid coverage.
@@ -377,7 +378,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      * @deprecated Use {@link GridToEnvelopeMapper} instead, which provides more control.
      */
     @Deprecated
-    public GeneralGridGeometry(final GridRange gridRange,
+    public GeneralGridGeometry(final GridEnvelope gridRange,
                                final Envelope  userRange,
                                final boolean[] reverse,
                                final boolean   swapXY)
@@ -389,7 +390,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
     /**
      * Implementation of heuristic constructors.
      */
-    GeneralGridGeometry(final GridRange gridRange,
+    GeneralGridGeometry(final GridEnvelope gridRange,
                         final Envelope  userRange,
                         final boolean[] reverse,
                         final boolean   swapXY,
@@ -412,9 +413,9 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      * the {@link GridRange2D} super-class which defines a {@code clone()} method, instead of
      * {@link GridRange2D} itself, for gaining some generality.
      */
-    private static GridRange clone(GridRange gridRange) {
-        if (gridRange instanceof RectangularShape) {
-            gridRange = (GridRange) ((RectangularShape) gridRange).clone();
+    private static GridEnvelope clone(GridEnvelope gridRange) {
+        if (gridRange instanceof Cloneable) {
+            gridRange = (GridEnvelope) ((Cloneable) gridRange).clone();
         }
         return gridRange;
     }
@@ -495,7 +496,13 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
     public GridRange getGridRange() throws InvalidGridGeometryException {
         if (gridRange != null) {
             assert isDefined(GRID_RANGE);
-            return clone(gridRange);
+//            return clone(gridRange);
+            // TODO: uncomment the above line and delete following lines in this "if" block
+            //       when we will have replaced the GridRange return type by GridEnvelope.
+            if (gridRange instanceof GridRange) {
+                return (GridRange) clone(gridRange);
+            }
+            return new GeneralGridRange(gridRange);
         }
         assert !isDefined(GRID_RANGE);
         throw new InvalidGridGeometryException(ErrorKeys.UNSPECIFIED_IMAGE_SIZE);

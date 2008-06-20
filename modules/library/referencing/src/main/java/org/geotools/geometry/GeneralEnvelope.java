@@ -23,7 +23,7 @@ import javax.measure.unit.Unit;
 import javax.measure.converter.ConversionException;
 
 import org.opengis.util.Cloneable;
-import org.opengis.coverage.grid.GridRange;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
@@ -98,7 +98,7 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * @param dimension The envelope dimension.
      */
     public GeneralEnvelope(final int dimension) {
-        ordinates = new double[dimension*2];
+        ordinates = new double[dimension * 2];
     }
 
     /**
@@ -254,9 +254,9 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      *
      * @since 2.3
      *
-     * @see org.geotools.coverage.grid.GeneralGridRange#GeneralGridRange(Envelope,PixelInCell)
+     * @see org.geotools.coverage.grid.GeneralGridEnvelope#GeneralGridEnvelope(Envelope,PixelInCell,boolean)
      */
-    public GeneralEnvelope(final GridRange     gridRange,
+    public GeneralEnvelope(final GridEnvelope  gridRange,
                            final PixelInCell   anchor,
                            final MathTransform gridToCRS,
                            final CoordinateReferenceSystem crs)
@@ -269,13 +269,18 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
         final int dimTarget = gridToCRS.getTargetDimensions();
         ensureSameDimension(dimRange, dimSource);
         ensureSameDimension(dimRange, dimTarget);
-        ordinates = new double[dimSource*2];
+        ordinates = new double[dimSource * 2];
         final double offset = PixelTranslation.getPixelTranslation(anchor) + 0.5;
         for (int i=0; i<dimSource; i++) {
-            // According OpenGIS specification, GridGeometry maps pixel's center.
-            // We want a bounding box for all pixels, not pixel's centers. Offset by
-            // 0.5 (use -0.5 for maximum too, not +0.5, since maximum is exclusive).
-            setRange(i, gridRange.getLower(i)-offset, gridRange.getUpper(i)-offset);
+            /*
+             * According OpenGIS specification, GridGeometry maps pixel's center. We want a bounding
+             * box for all pixels, not pixel's centers. Offset by 0.5 (use -0.5 for maximum too, not
+             * +0.5, since maximum is exclusive).
+             *
+             * Note: the offset of 1 after getHigh(i) is because high values are inclusive according
+             *       ISO specification, while our algorithm and Java usage expect exclusive values.
+             */
+            setRange(i, gridRange.getLow(i) - offset, gridRange.getHigh(i) - (offset - 1));
         }
         final GeneralEnvelope transformed;
         try {
@@ -339,7 +344,7 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * @return The coordinate reference system, or {@code null}.
      */
     public final CoordinateReferenceSystem getCoordinateReferenceSystem() {
-        assert crs==null || crs.getCoordinateSystem().getDimension() == getDimension();
+        assert crs == null || crs.getCoordinateSystem().getDimension() == getDimension();
         return crs;
     }
 
@@ -515,14 +520,36 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * @return The center coordinates.
      *
      * @since 2.3
+     *
+     * @deprecated Renamed as {@link #getMedian(}.
      */
+    @Deprecated
     public DirectPosition getCenter() {
-        final GeneralDirectPosition position = new GeneralDirectPosition(ordinates.length/2);
+        return getMedian();
+    }
+
+    /**
+     * A coordinate position consisting of all the {@linkplain #getCenter(int) middle ordinates}
+     * for each dimension for all points within the {@code Envelope}.
+     *
+     * @return The median coordinates.
+     *
+     * @since 2.5
+     */
+    public DirectPosition getMedian() {
+        final GeneralDirectPosition position = new GeneralDirectPosition(ordinates.length / 2);
         for (int i=position.ordinates.length; --i>=0;) {
-            position.ordinates[i] = getCenter(i);
+            position.ordinates[i] = getMedian(i);
         }
         position.setCoordinateReferenceSystem(crs);
         return position;
+    }
+
+    /**
+     * Creates an exception for an index out of bounds.
+     */
+    private static IndexOutOfBoundsException indexOutOfBounds(final int dimension) {
+        return new IndexOutOfBoundsException(Errors.format(ErrorKeys.INDEX_OUT_OF_BOUNDS_$1, dimension));
     }
 
     /**
@@ -530,12 +557,13 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      *
      * @param dimension The dimension to query.
      * @return The minimal ordinate value along the given dimension.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
      */
-    public final double getMinimum(final int dimension) {
+    public final double getMinimum(final int dimension) throws IndexOutOfBoundsException {
         if (dimension < ordinates.length/2) {
             return ordinates[dimension];
         } else {
-            throw new ArrayIndexOutOfBoundsException(dimension);
+            throw indexOutOfBounds(dimension);
         }
     }
 
@@ -544,12 +572,13 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      *
      * @param dimension The dimension to query.
      * @return The maximal ordinate value along the given dimension.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
      */
-    public final double getMaximum(final int dimension) {
+    public final double getMaximum(final int dimension) throws IndexOutOfBoundsException {
         if (dimension >= 0) {
             return ordinates[dimension + ordinates.length/2];
         } else {
-            throw new ArrayIndexOutOfBoundsException(dimension);
+            throw indexOutOfBounds(dimension);
         }
     }
 
@@ -558,8 +587,24 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      *
      * @param dimension The dimension to query.
      * @return The mid ordinate value along the given dimension.
+     *
+     * @deprecated Renamed as {@link #getMedian(int)}.
      */
+    @Deprecated
     public final double getCenter(final int dimension) {
+        return getMedian(dimension);
+    }
+
+    /**
+     * Returns the median ordinate along the specified dimension. The result should be equals
+     * (minus rounding error) to <code>({@linkplain #getMaximum getMaximum}(dimension) -
+     * {@linkplain #getMinimum getMinimum}(dimension)) / 2</code>.
+     *
+     * @param dimension The dimension to query.
+     * @return The mid ordinate value along the given dimension.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
+     */
+    public final double getMedian(final int dimension) throws IndexOutOfBoundsException {
         return 0.5*(ordinates[dimension] + ordinates[dimension + ordinates.length/2]);
     }
 
@@ -570,8 +615,24 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      *
      * @param dimension The dimension to query.
      * @return The difference along maximal and minimal ordinates in the given dimension.
+     *
+     * @deprecated Renamed as {@link #getSpan(int)}.
      */
+    @Deprecated
     public final double getLength(final int dimension) {
+        return getSpan(dimension);
+    }
+
+    /**
+     * Returns the envelope span (typically width or height) along the specified dimension.
+     * The result should be equals (minus rounding error) to <code>{@linkplain #getMaximum
+     * getMaximum}(dimension) - {@linkplain #getMinimum getMinimum}(dimension)</code>.
+     *
+     * @param dimension The dimension to query.
+     * @return The difference along maximal and minimal ordinates in the given dimension.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
+     */
+    public final double getSpan(final int dimension) throws IndexOutOfBoundsException {
         return ordinates[dimension + ordinates.length/2] - ordinates[dimension];
     }
 
@@ -584,9 +645,29 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * @throws ConversionException if the length can't be converted to the specified units.
      *
      * @since 2.2
+     *
+     * @deprecated Renamed as {@link #getSpan(int,Unit)}.
      */
+    @Deprecated
     public double getLength(final int dimension, final Unit<?> unit) throws ConversionException {
-        double value = getLength(dimension);
+        return getSpan(dimension, unit);
+    }
+
+    /**
+     * Returns the envelope span along the specified dimension, in terms of the given units.
+     *
+     * @param  dimension The dimension to query.
+     * @param  unit The unit for the return value.
+     * @return The span in terms of the given unit.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
+     * @throws ConversionException if the length can't be converted to the specified units.
+     *
+     * @since 2.5
+     */
+    public double getSpan(final int dimension, final Unit<?> unit)
+            throws IndexOutOfBoundsException, ConversionException
+    {
+        double value = getSpan(dimension);
         if (crs != null) {
             final Unit<?> source = crs.getCoordinateSystem().getAxis(dimension).getUnit();
             if (source != null) {
@@ -602,8 +683,11 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * @param dimension The dimension to set.
      * @param minimum   The minimum value along the specified dimension.
      * @param maximum   The maximum value along the specified dimension.
+     * @throws IndexOutOfBoundsException If the given index is out of bounds.
      */
-    public void setRange(final int dimension, double minimum, double maximum) {
+    public void setRange(final int dimension, double minimum, double maximum)
+            throws IndexOutOfBoundsException
+    {
         if (minimum > maximum) {
             // Make an empty envelope (min == max)
             // while keeping it legal (min <= max).
@@ -614,7 +698,7 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
             ordinates[dimension + ordinates.length/2] = maximum;
             ordinates[dimension                     ] = minimum;
         } else {
-            throw new ArrayIndexOutOfBoundsException(dimension);
+            throw indexOutOfBounds(dimension);
         }
     }
 
@@ -1107,7 +1191,7 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
         for (int i=0; i<dimension; i++) {
             double epsilon;
             if (epsIsRelative) {
-                epsilon = Math.max(getLength(i), envelope.getLength(i));
+                epsilon = Math.max(getSpan(i), envelope.getSpan(i));
                 epsilon = (epsilon>0 && epsilon<Double.POSITIVE_INFINITY) ? epsilon*eps : eps;
             } else {
                 epsilon = eps;

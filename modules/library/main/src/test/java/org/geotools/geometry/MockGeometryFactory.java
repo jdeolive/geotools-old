@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.geometry.Boundary;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.Geometry;
@@ -182,6 +181,9 @@ public class MockGeometryFactory implements GeometryFactory, PrimitiveFactory {
             MismatchedDimensionException {
         return new Envelope(){
             public double getCenter( int dimension ) {
+                return getMedian( dimension );
+            }
+            public double getMedian( int dimension ) {
                 double lower = lowerCorner.getOrdinate(dimension);
                 double upper = upperCorner.getOrdinate(dimension);
                 return (upper + lower) / 2.0;
@@ -193,6 +195,9 @@ public class MockGeometryFactory implements GeometryFactory, PrimitiveFactory {
                 return crs.getCoordinateSystem().getDimension();
             }
             public double getLength( int dimension ) {
+                return getSpan( dimension );
+            }
+            public double getSpan( int dimension ) {
                 double lower = lowerCorner.getOrdinate(dimension);
                 double upper = upperCorner.getOrdinate(dimension);
                 return Math.abs(upper - lower);

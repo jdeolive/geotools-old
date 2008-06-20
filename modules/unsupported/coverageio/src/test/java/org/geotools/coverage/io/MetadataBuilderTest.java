@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@ package org.geotools.coverage.io;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.opengis.coverage.grid.GridRange;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -168,9 +168,9 @@ public final class MetadataBuilderTest {
         assertEquals( 450, parser.getAsInt   (MetadataBuilder.WIDTH));
         assertEquals( 460, parser.getAsInt   (MetadataBuilder.HEIGHT));
 
-        final GridRange range = parser.getGridRange();
-        assertEquals("Width",  450, range.getLength(0));
-        assertEquals("Height", 460, range.getLength(1));
+        final GridEnvelope range = parser.getGridRange();
+        assertEquals("Width",  450, range.getSpan(0));
+        assertEquals("Height", 460, range.getSpan(1));
 
         final CoordinateReferenceSystem expectedCRS = coverage.getCoordinateReferenceSystem();
         final CoordinateReferenceSystem  createdCRS =   parser.getCoordinateReferenceSystem();

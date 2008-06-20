@@ -347,9 +347,16 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
     }
 
     /**
-     * Returns the center ordinate along the specified dimension.
+     * @deprecated Use {@link #getMedian}.
      */
     public double getCenter(final int dimension) {
+        return getMedian(dimension);
+    }
+
+    /**
+     * Returns the center ordinate along the specified dimension.
+     */
+    public double getMedian(final int dimension) {
         switch (dimension) {
         case 0:
             return 0.5 * (getMinX() + getMaxX());
@@ -363,10 +370,17 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
     }
 
     /**
+     * @deprecated Use {@link #getSpan}.
+     */
+    public double getLength(final int dimension) {
+        return getSpan(dimension);
+    }
+
+    /**
      * Returns the envelope length along the specified dimension. This length is
      * equals to the maximum ordinate minus the minimal ordinate.
      */
-    public double getLength(final int dimension) {
+    public double getSpan(final int dimension) {
         switch (dimension) {
         case 0:
             return getWidth();

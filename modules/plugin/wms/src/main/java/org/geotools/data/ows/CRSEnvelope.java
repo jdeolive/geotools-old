@@ -108,6 +108,10 @@ public class CRSEnvelope implements Envelope {
     }
 
     public double getCenter( int dimension ) {
+        return getMedian(dimension);
+    }
+
+    public double getMedian( int dimension ) {
         double min, max;
         if (dimension == 0) {
             min = getMinX();
@@ -120,6 +124,10 @@ public class CRSEnvelope implements Envelope {
     }
 
     public double getLength( int dimension ) {
+        return getSpan(dimension);
+    }
+
+    public double getSpan( int dimension ) {
         double min, max;
         if (dimension == 0) {
             min = getMinX();

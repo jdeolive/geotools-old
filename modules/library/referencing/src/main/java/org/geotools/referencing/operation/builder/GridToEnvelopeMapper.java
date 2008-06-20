@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.awt.image.BufferedImage;
 import java.awt.geom.AffineTransform;
 
-import org.opengis.coverage.grid.GridRange;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -39,7 +39,7 @@ import org.geotools.util.Utilities;
 
 /**
  * A helper class for building <var>n</var>-dimensional {@linkplain AffineTransform
- * affine transform} mapping {@linkplain GridRange grid ranges} to {@linkplain Envelope
+ * affine transform} mapping {@linkplain GridEnvelope grid ranges} to {@linkplain Envelope
  * envelopes}. The affine transform will be computed automatically from the information
  * specified by the {@link #setGridRange setGridRange} and {@link #setEnvelope setEnvelope}
  * methods, which are mandatory. All other setter methods are optional hints about the
@@ -115,7 +115,7 @@ public class GridToEnvelopeMapper {
     /**
      * The grid range, or {@code null} if not yet specified.
      */
-    private GridRange gridRange;
+    private GridEnvelope gridRange;
 
     /**
      * The envelope, or {@code null} if not yet specified.
@@ -163,7 +163,7 @@ public class GridToEnvelopeMapper {
      * @throws MismatchedDimensionException if the grid range and the envelope doesn't have
      *         consistent dimensions.
      */
-    public GridToEnvelopeMapper(final GridRange gridRange, final Envelope userRange)
+    public GridToEnvelopeMapper(final GridEnvelope gridRange, final Envelope userRange)
             throws MismatchedDimensionException
     {
         ensureNonNull("gridRange", gridRange);
@@ -192,8 +192,8 @@ public class GridToEnvelopeMapper {
     /**
      * Makes sure that the specified objects have the same dimension.
      */
-    private static void ensureDimensionMatch(final GridRange gridRange,
-                                             final Envelope  envelope,
+    private static void ensureDimensionMatch(final GridEnvelope gridRange,
+                                             final Envelope envelope,
                                              final boolean checkingRange)
     {
         if (gridRange != null && envelope != null) {
@@ -286,7 +286,7 @@ public class GridToEnvelopeMapper {
      * @return The grid range.
      * @throws IllegalStateException if the grid range has not yet been defined.
      */
-    public GridRange getGridRange() throws IllegalStateException {
+    public GridEnvelope getGridRange() throws IllegalStateException {
         if (gridRange == null) {
             throw new IllegalStateException(Errors.format(
                     ErrorKeys.MISSING_PARAMETER_VALUE_$1, "gridRange"));
@@ -299,7 +299,7 @@ public class GridToEnvelopeMapper {
      *
      * @param gridRange The new grid range.
      */
-    public void setGridRange(final GridRange gridRange) {
+    public void setGridRange(final GridEnvelope gridRange) {
         ensureNonNull("gridRange", gridRange);
         ensureDimensionMatch(gridRange, envelope, true);
         if (!Utilities.equals(this.gridRange, gridRange)) {
@@ -324,7 +324,7 @@ public class GridToEnvelopeMapper {
     }
 
     /**
-     * Set the envelope. This method do not clone the specified envelope,
+     * Sets the envelope. This method do not clone the specified envelope,
      * so it should not be modified after this method has been invoked.
      *
      * @param envelope The new envelope.
@@ -540,12 +540,12 @@ public class GridToEnvelopeMapper {
      */
     public MathTransform createTransform() throws IllegalStateException {
         if (transform == null) {
-            final GridRange   gridRange = getGridRange();
-            final Envelope    userRange = getEnvelope();
-            final boolean     swapXY    = getSwapXY();
-            final boolean[]   reverse   = getReverseAxis();
-            final PixelInCell gridType  = getGridType();
-            final int         dimension = gridRange.getDimension();
+            final GridEnvelope gridRange = getGridRange();
+            final Envelope     userRange = getEnvelope();
+            final boolean      swapXY    = getSwapXY();
+            final boolean[]    reverse   = getReverseAxis();
+            final PixelInCell  gridType  = getPixelAnchor();
+            final int          dimension = gridRange.getDimension();
             /*
              * Setup the multi-dimensional affine transform for use with OpenGIS.
              * According OpenGIS specification, transforms must map pixel center.
@@ -568,7 +568,7 @@ public class GridToEnvelopeMapper {
                 if (swapXY && j<=1) {
                     j = 1-j;
                 }
-                double scale = userRange.getLength(j) / gridRange.getLength(i);
+                double scale = userRange.getSpan(j) / gridRange.getSpan(i);
                 double offset;
                 if (reverse==null || j>=reverse.length || !reverse[j]) {
                     offset = userRange.getMinimum(j);
@@ -576,7 +576,7 @@ public class GridToEnvelopeMapper {
                     scale  = -scale;
                     offset = userRange.getMaximum(j);
                 }
-                offset -= scale * (gridRange.getLower(i) - translate);
+                offset -= scale * (gridRange.getLow(i) - translate);
                 matrix.setElement(j, j,         0.0   );
                 matrix.setElement(j, i,         scale );
                 matrix.setElement(j, dimension, offset);

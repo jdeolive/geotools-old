@@ -143,9 +143,27 @@ public class EnvelopeImpl implements Envelope, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.opengis.geometry.coordinate.Envelope#getMedian(int)
+	 */
+	public double getMedian(int dimension) {
+		return (pMax.getOrdinate(dimension)-pMin.getOrdinate(dimension))/2;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.opengis.geometry.coordinate.Envelope#getLength(int)
 	 */
 	public double getLength(int dimension) {
+		return (pMax.getOrdinate(dimension)-pMin.getOrdinate(dimension));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opengis.geometry.coordinate.Envelope#getSpan(int)
+	 */
+	public double getSpan(int dimension) {
 		return (pMax.getOrdinate(dimension)-pMin.getOrdinate(dimension));
 	}
 

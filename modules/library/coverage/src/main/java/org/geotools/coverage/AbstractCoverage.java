@@ -62,6 +62,7 @@ import org.opengis.coverage.Coverage;
 import org.opengis.coverage.GeometryValuePair;
 import org.opengis.coverage.AttributeValues;
 import org.opengis.coverage.DomainObject;
+import org.opengis.coverage.PointOutsideCoverageException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystem;
@@ -191,6 +192,8 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
     /**
      * Returns the coverage name, or {@code null} if none. The default
      * implementation returns the name specified at construction time.
+     *
+     * @return The coverage name, or {@code null}.
      */
     public InternationalString getName() {
         return name;
@@ -199,6 +202,8 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
     /**
      * Returns the dimension of this coverage. This is a shortcut for
      * <code>{@linkplain #crs}.getCoordinateSystem().getDimension()</code>.
+     *
+     * @return The dimension of this coverage.
      */
     public final int getDimension() {
         return crs.getCoordinateSystem().getDimension();
@@ -272,7 +277,7 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *       spatial and temporal parts, get the grid geometry and create on-the-fly a
      *       {@link DomainObject} for each cell.
      */
-    public Set getDomainElements() {
+    public Set<? extends DomainObject<?>> getDomainElements() {
         throw unsupported();
     }
 
@@ -443,7 +448,7 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *
      * @since 2.3
      */
-    public Set<Record> evaluate(final DirectPosition coord, final Collection<String> list) {
+    public Set<Record> evaluate(final DirectPosition p, final Collection<String> list) {
         throw unsupported();
     }
 
@@ -466,7 +471,9 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *         to {@code boolean} by an identity or widening conversion. Subclasses may relax this
      *         constraint if appropriate.
      */
-    public boolean[] evaluate(final DirectPosition coord, boolean[] dest) throws CannotEvaluateException {
+    public boolean[] evaluate(final DirectPosition coord, boolean[] dest)
+            throws PointOutsideCoverageException, CannotEvaluateException
+    {
         final Object array = evaluate(coord);
         try {
             final int length = Array.getLength(array);
@@ -496,14 +503,14 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      * @return The {@code dest} array, or a newly created array if {@code dest} was null.
      * @throws PointOutsideCoverageException if the evaluation failed because the input point
      *         has invalid coordinates.
-     * @throws PointOutsideCoverageException if the evaluation failed because the input point
-     *         has invalid coordinates.
      * @throws CannotEvaluateException if the values can't be computed at the specified coordinate
      *         for an other reason. It may be thrown if the coverage data type can't be converted
      *         to {@code byte} by an identity or widening conversion. Subclasses may relax this
      *         constraint if appropriate.
      */
-    public byte[] evaluate(final DirectPosition coord, byte[] dest) throws CannotEvaluateException {
+    public byte[] evaluate(final DirectPosition coord, byte[] dest)
+            throws PointOutsideCoverageException, CannotEvaluateException
+    {
         final Object array = evaluate(coord);
         try {
             final int length = Array.getLength(array);
@@ -538,7 +545,9 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *         to {@code int} by an identity or widening conversion. Subclasses may relax this
      *         constraint if appropriate.
      */
-    public int[] evaluate(final DirectPosition coord, int[] dest) throws CannotEvaluateException {
+    public int[] evaluate(final DirectPosition coord, int[] dest)
+            throws PointOutsideCoverageException, CannotEvaluateException
+    {
         final Object array = evaluate(coord);
         try {
             final int length = Array.getLength(array);
@@ -573,7 +582,9 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *         to {@code float} by an identity or widening conversion. Subclasses may relax this
      *         constraint if appropriate.
      */
-    public float[] evaluate(final DirectPosition coord, float[] dest) throws CannotEvaluateException {
+    public float[] evaluate(final DirectPosition coord, float[] dest)
+            throws PointOutsideCoverageException, CannotEvaluateException
+    {
         final Object array = evaluate(coord);
         try {
             final int length = Array.getLength(array);
@@ -608,7 +619,9 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *         to {@code double} by an identity or widening conversion. Subclasses may relax this
      *         constraint if appropriate.
      */
-    public double[] evaluate(final DirectPosition coord, double[] dest) throws CannotEvaluateException {
+    public double[] evaluate(final DirectPosition coord, double[] dest)
+            throws PointOutsideCoverageException, CannotEvaluateException
+    {
         final Object array = evaluate(coord);
         try {
             final int length = Array.getLength(array);
@@ -639,7 +652,7 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *
      * @since 2.3
      */
-    public Set evaluateInverse(Record v) {
+    public Set<? extends DomainObject<?>> evaluateInverse(Record v) {
         throw unsupported();
     }
 
@@ -720,7 +733,7 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
             this.yAxis = yAxis;
             final Envelope envelope = getEnvelope();
             bounds = new Rectangle2D.Double(envelope.getMinimum(xAxis), envelope.getMinimum(yAxis),
-                                            envelope.getLength (xAxis), envelope.getLength (yAxis));
+                                            envelope.getSpan   (xAxis), envelope.getSpan   (yAxis));
         }
 
         /**
@@ -742,6 +755,8 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
 
         /**
          * Returns {@code false} since values are not complex.
+         *
+         * @return Always {@code false} in default implementation.
          */
         public boolean isComplex() {
             return false;
@@ -995,6 +1010,8 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
          * the maximum value plus 1 allowed in {@code getElements(...)} methods
          * invocation. The default implementation returns the number of sample
          * dimensions in the coverage.
+         *
+         * @return The number of sample dimensions.
          */
         public int getNumElements() {
             return getNumSampleDimensions();
@@ -1154,6 +1171,8 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
 
     /**
      * Returns the default locale for logging, error messages, <cite>etc.</cite>.
+     *
+     * @return The default locale for logging and error message.
      */
     public Locale getLocale() {
         return Locale.getDefault();

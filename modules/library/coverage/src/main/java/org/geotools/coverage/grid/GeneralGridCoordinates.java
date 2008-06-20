@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,8 +18,8 @@ package org.geotools.coverage.grid;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import org.opengis.coverage.grid.Grid;      // For javadoc
-import org.opengis.coverage.grid.GridPoint; // For javadoc
+import org.opengis.coverage.grid.Grid;
+import org.opengis.coverage.grid.GridPoint;
 import org.opengis.coverage.grid.GridCoordinates;
 import org.geotools.resources.Classes;
 
@@ -44,11 +44,13 @@ public class GeneralGridCoordinates implements GridCoordinates, Serializable {
     /**
      * The grid coordinates.
      */
-    private final int[] coordinates;
+    final int[] coordinates;
 
     /**
      * Creates a grid coordinates of the specified dimension.
      * All coordinates are initially set to 0.
+     *
+     * @param dimension The number of dimension.
      */
     public GeneralGridCoordinates(final int dimension) {
         coordinates = new int[dimension];
@@ -56,16 +58,23 @@ public class GeneralGridCoordinates implements GridCoordinates, Serializable {
 
     /**
      * Creates a grid coordinates initialized to the specified values.
+     *
+     * @param coordinates The grid coordinates to copy.
      */
     public GeneralGridCoordinates(final int[] coordinates) {
         this.coordinates = coordinates.clone();
     }
 
     /**
-     * Creates a grid coordinates initialized to the specified values
-     * in the specified range.
+     * Creates a grid coordinates initialized to the specified values in the specified range.
+     *
+     * @param coordinates The coordinates to copy.
+     * @param lower Index of the first value to copy, inclusive.
+     * @param upper Index of the last value to copy, exclusive.
+     *
+     * @since 2.5
      */
-    GeneralGridCoordinates(final int[] coordinates, final int lower, final int upper) {
+    public GeneralGridCoordinates(final int[] coordinates, final int lower, final int upper) {
         final int length = upper - lower;
         this.coordinates = new int[length];
         System.arraycopy(coordinates, lower, this.coordinates, 0, length);
@@ -73,6 +82,8 @@ public class GeneralGridCoordinates implements GridCoordinates, Serializable {
 
     /**
      * Creates a grid coordinates which is a copy of the specified one.
+     *
+     * @param coordinates The grid coordinates to copy.
      *
      * @since 2.5
      */
@@ -165,6 +176,9 @@ public class GeneralGridCoordinates implements GridCoordinates, Serializable {
 
     /**
      * Compares this grid coordinates with the specified object for equality.
+     *
+     * @param object The object to compares with this grid coordinates.
+     * @return {@code true} if the given object is equals to this grid coordinates.
      */
     @Override
     public boolean equals(final Object object) {
@@ -172,7 +186,9 @@ public class GeneralGridCoordinates implements GridCoordinates, Serializable {
             // Slight optimization.
             return true;
         }
-        if (object!=null && object.getClass().equals(getClass())) {
+        // We do not require the exact same class because we that that clones of
+        // immutable grid coordinates to be equal to their original coordinates.
+        if (object instanceof GeneralGridCoordinates) {
             final GeneralGridCoordinates that = (GeneralGridCoordinates) object;
             return Arrays.equals(this.coordinates, that.coordinates);
         }
@@ -180,28 +196,74 @@ public class GeneralGridCoordinates implements GridCoordinates, Serializable {
     }
 
     /**
-     * Returns a clone of this coordinates.
+     * Returns a clone of this grid coordinates.
+     *
+     * @return A clone of this grid coordinates.
      */
     @Override
     public GeneralGridCoordinates clone() {
-        return new GeneralGridCoordinates(coordinates);
+        try {
+            return (GeneralGridCoordinates) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
     }
 
     /**
-     * An immutable flavor of {@link GridCoordinates}.
+     * An immutable {@link GridCoordinates}. This is sometime useful for creating a single
+     * instance to be shared by many objects without the cost of cloning. This class is
+     * final in order to prevent subclasses from making it mutable again.
+     *
+     * @since 2.5
+     * @source $URL$
+     * @version $Id$
+     * @author Martin Desruisseaux
      */
-    static final class Immutable extends GeneralGridCoordinates {
+    public static final class Immutable extends GeneralGridCoordinates {
         /**
          * For cross-version compatibility.
          */
         private static final long serialVersionUID = -7723383411061425866L;
 
         /**
-         * Creates a grid coordinates initialized to the specified values
-         * in the specified range.
+         * Creates an immutable grid coordinates with the specified values.
+         *
+         * @param coordinates The grid coordinates to copy.
          */
-        Immutable(final int[] coordinates, final int lower, final int upper) {
+        public Immutable(final int[] coordinates) {
+            super(coordinates);
+        }
+
+        /**
+         * Creates an immutable grid coordinates with the specified values in the specified range.
+         *
+         * @param coordinates The coordinates to copy.
+         * @param lower Index of the first value to copy, inclusive.
+         * @param upper Index of the last value to copy, exclusive.
+         */
+        public Immutable(final int[] coordinates, final int lower, final int upper) {
             super(coordinates, lower, upper);
+        }
+
+        /**
+         * Creates an immutable grid coordinates with the specified values.
+         *
+         * @param coordinates The grid coordinates to copy.
+         */
+        public Immutable(final GridCoordinates coordinates) {
+            super(coordinates);
+        }
+
+        /**
+         * Translates all ordinate values by the given offset. This method is for internal usage by
+         * {@link GeneralGridEnvelope} only, to be invoked only right after construction and before
+         * the instance goes public. This method should not be public since it breaks the
+         * immutability contract.
+         */
+        final void translate(final int offset) {
+            for (int i=0; i<coordinates.length; i++) {
+                coordinates[i] += offset;
+            }
         }
 
         /**
@@ -210,10 +272,21 @@ public class GeneralGridCoordinates implements GridCoordinates, Serializable {
          * @throws UnsupportedOperationException always thrown.
          */
         @Override
-        public void setCoordinateValue(final int i, final int value)
+        public void setCoordinateValue(final int dimension, final int value)
                 throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Returns a mutable clone of this grid coordinates. The clone is an instance of
+         * {@link GeneralGridCoordinates} rather than this {@code Immutable} subclass.
+         *
+         * @return A mutable clone of this grid coordinates.
+         */
+        @Override
+        public GeneralGridCoordinates clone() {
+            return new GeneralGridCoordinates(coordinates);
         }
     }
 }
