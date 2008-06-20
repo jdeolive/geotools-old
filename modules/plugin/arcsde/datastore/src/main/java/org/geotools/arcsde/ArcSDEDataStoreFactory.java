@@ -33,7 +33,9 @@ import org.geotools.arcsde.pool.SessionPoolFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
+import org.geotools.data.Parameter;
 import org.geotools.data.Transaction;
+import org.geotools.util.SimpleInternationalString;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeRelease;
@@ -91,7 +93,8 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         paramMetadata.add(new Param("user", String.class, description, true));
 
         description = "the database user's password.";
-        paramMetadata.add(new Param("password", String.class, description, true));
+        paramMetadata.add(new Param("password", String.class, new SimpleInternationalString(description),
+                false, null, Collections.singletonMap(Parameter.IS_PASSWORD, Boolean.TRUE)));
 
         // optional parameters:
         description = "Minimun number of open connections";
