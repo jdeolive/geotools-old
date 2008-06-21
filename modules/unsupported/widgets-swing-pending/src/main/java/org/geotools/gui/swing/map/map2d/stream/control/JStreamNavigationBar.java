@@ -46,7 +46,7 @@ public class JStreamNavigationBar extends JToolBar {
     private static final ImageIcon ICON_REFRESH = IconBundle.getResource().getIcon("16_data_reload");
     
     private final StreamZoomAll ACTION_ZOOM_ALL = new StreamZoomAll();
-    private final StreamNextAreaAction ACTION_NEXT = new StreamNextAreaAction();
+    private final StreamNextArea ACTION_NEXT = new StreamNextArea();
     private final StreamPreviousArea ACTION_PREVIOUS = new StreamPreviousArea();
     private final StreamZoomIn ACTION_ZOOM_IN = new StreamZoomIn();
     private final StreamZoomOut ACTION_ZOOM_OUT = new StreamZoomOut();

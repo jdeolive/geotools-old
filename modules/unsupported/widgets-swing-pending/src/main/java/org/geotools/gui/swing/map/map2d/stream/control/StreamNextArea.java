@@ -28,7 +28,7 @@ import org.geotools.gui.swing.map.map2d.stream.NavigableMap2D;
  * 
  * @author Johann Sorel
  */
-public class StreamNextAreaAction extends AbstractAction {
+public class StreamNextArea extends AbstractAction {
 
     private Map2D map = null;
 
