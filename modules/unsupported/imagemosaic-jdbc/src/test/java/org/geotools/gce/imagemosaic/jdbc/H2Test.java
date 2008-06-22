@@ -4,7 +4,6 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.apache.commons.dbcp.DriverConnectionFactory;
 import org.geotools.geometry.GeneralEnvelope;
 
 import org.geotools.referencing.CRS;
@@ -27,12 +26,33 @@ public class H2Test extends AbstractTest {
         "PARAMETER[\"false_northing\", 400000.0], PARAMETER[\"standard_parallel_2\", 46.0], UNIT[\"m\", 1.0]," +
         "AXIS[\"Easting\", EAST], AXIS[\"Northing\", NORTH], AUTHORITY[\"EPSG\",\"31287\"]] ";
 
+    
+    protected static CoordinateReferenceSystem  SOURCE;   
+    protected static  CoordinateReferenceSystem TARGET;
+    
+    {
+    	try {
+    		SOURCE = CRS.parseWKT(EPSG_31287_TOWGS84);
+    		TARGET = CRS.decode("EPSG:4326");
+    		
+//    		TARGET = CRS.parseWKT(EPSG_31287_TOWGS84);
+//    		SOURCE = CRS.decode("EPSG:4326");
+
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+
+    
     public H2Test(String test) {
         super(test);
     }
 
     public static Test suite() {
     	
+    	
+
     	
         TestSuite suite = new TestSuite();
     	
@@ -87,23 +107,21 @@ public class H2Test extends AbstractTest {
         ImageLevelInfo li = access.getLevelInfo(access.getNumOverviews());
 
         GeneralEnvelope env = new GeneralEnvelope(new double[] {
-                    li.getExtentMaxX() - 200000, li.getExtentMaxY() - 200000
+                    li.getExtentMaxX() - DELTA, li.getExtentMaxY() - DELTA
                 },
                 new double[] {
-                    li.getExtentMaxX() + 200000, li.getExtentMaxY() + 200000
+                    li.getExtentMaxX() + DELTA, li.getExtentMaxY() + DELTA
                 });
 
         try {
-            CoordinateReferenceSystem source = CRS.parseWKT(EPSG_31287_TOWGS84);
-            env.setCoordinateReferenceSystem(source);
-
-            CoordinateReferenceSystem target = CRS.decode("EPSG:4326");
-            MathTransform t = CRS.findMathTransform(source, target);
+            env.setCoordinateReferenceSystem(SOURCE);
+            
+            MathTransform t = CRS.findMathTransform(SOURCE, TARGET);
             GeneralEnvelope tenv = CRS.transform(t, env);
-            tenv.setCoordinateReferenceSystem(target);
+            tenv.setCoordinateReferenceSystem(TARGET);
             imageMosaic("partialgreen_reprojected",
                 getJDBCSetup().getConfigUrl(), tenv, 400, 400, Color.GREEN,
-                source);
+                SOURCE);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -114,14 +132,14 @@ public class H2Test extends AbstractTest {
         ImageLevelInfo li = access.getLevelInfo(access.getNumOverviews());
 
         GeneralEnvelope env = new GeneralEnvelope(new double[] {
-                    li.getExtentMaxX() - 200000, li.getExtentMaxY() - 200000
+                    li.getExtentMaxX() - DELTA, li.getExtentMaxY() - DELTA
                 },
                 new double[] {
-                    li.getExtentMaxX() + 200000, li.getExtentMaxY() + 200000
+                    li.getExtentMaxX() + DELTA, li.getExtentMaxY() + DELTA
                 });
 
         try {
-            env.setCoordinateReferenceSystem(CRS.decode("EPSG:31287"));
+            env.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
             imageMosaic("partialgreen", getJDBCSetup().getConfigUrl(), env,
                 400, 400, Color.GREEN, null);
         } catch (Exception e) {

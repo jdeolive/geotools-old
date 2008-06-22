@@ -6,7 +6,7 @@ import java.sql.Types;
 
 
 public class DB2Setup extends JDBCSetup {
-    static final String SRSID = "EPSG:31297";
+    static final String SRSID = "WGS84_SRS_1003";
 
     // preparing db
 
@@ -47,53 +47,53 @@ public class DB2Setup extends JDBCSetup {
         System.out.println(s.getInt(2) + "|" + s.getString(3));
         s.close();
 
-        s = con.prepareCall(
-                " {call db2gse.ST_create_srs(?,?,?,?,?,?,0,1,0,1,?,null,?,?) }");
-        s.setString(1, SRSID);
-        s.setInt(2, 31297);
-        s.setDouble(3, -10000000.0);
-        s.setDouble(4, 100.0);
-        s.setDouble(5, -10000000.0);
-        s.setDouble(6, 100.0);
-        s.setString(7, "MGI_AUSTRIA_LAMBERT");
-        s.registerOutParameter(8, Types.INTEGER);
-        s.registerOutParameter(9, Types.CHAR);
-        s.executeUpdate();
-        System.out.println(s.getInt(8) + "|" + s.getString(9));
-        s.close();
+//        s = con.prepareCall(
+//                " {call db2gse.ST_create_srs(?,?,?,?,?,?,0,1,0,1,?,null,?,?) }");
+//        s.setString(1, SRSID);
+//        s.setInt(2, 31297);
+//        s.setDouble(3, -10000000.0);
+//        s.setDouble(4, 100.0);
+//        s.setDouble(5, -10000000.0);
+//        s.setDouble(6, 100.0);
+//        s.setString(7, "MGI_AUSTRIA_LAMBERT");
+//        s.registerOutParameter(8, Types.INTEGER);
+//        s.registerOutParameter(9, Types.CHAR);
+//        s.executeUpdate();
+//        System.out.println(s.getInt(8) + "|" + s.getString(9));
+//        s.close();
 
         con.commit();
         con.close();
     }
 
     @Override
-    public void createAll() throws Exception {
+    public void createAll(String outputDir) throws Exception {
         preCreateActions();
-        super.createAll();
+        super.createAll(outputDir);
     }
 
     @Override
-    public void createAllJoined() throws Exception {
+    public void createAllJoined(String outputDir) throws Exception {
         preCreateActions();
-        super.createAllJoined();
+        super.createAllJoined(outputDir);
     }
 
-    @Override
-    public void dropAll() throws Exception {
-        super.dropAll();
-
-        Connection con = getConnection();
-        CallableStatement s = con.prepareCall(
-                " {call db2gse.ST_drop_srs(?,?,?) }");
-        s.registerOutParameter(2, Types.INTEGER);
-        s.registerOutParameter(3, Types.CHAR);
-        s.setString(1, SRSID);
-        s.executeUpdate();
-        System.out.println(s.getInt(2) + "|" + s.getString(3));
-        s.close();
-        con.commit();
-        con.close();
-    }
+//    @Override
+//    public void dropAll() throws Exception {
+//        super.dropAll();
+//
+//        Connection con = getConnection();
+//        CallableStatement s = con.prepareCall(
+//                " {call db2gse.ST_drop_srs(?,?,?) }");
+//        s.registerOutParameter(2, Types.INTEGER);
+//        s.registerOutParameter(3, Types.CHAR);
+//        s.setString(1, SRSID);
+//        s.executeUpdate();
+//        System.out.println(s.getInt(2) + "|" + s.getString(3));
+//        s.close();
+//        con.commit();
+//        con.close();
+//    }
 
     @Override
     protected void registerSpatial(String tn, Connection con)

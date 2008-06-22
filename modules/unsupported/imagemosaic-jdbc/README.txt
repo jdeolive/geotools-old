@@ -10,9 +10,10 @@ The standard test is running against an H2 Database. In src/test/resources you f
 
 resources.zip		:	a zip file containing image material needed for the tests
 
-						IMPORTANT:
-						The content of the zip file is restricted to test purposes and 
-						may not be distributed or used in any other way. 
+						The sample data is downloaded from www.openstreemap.com
+						WGS84 Coordinates (lon/lat)
+						lower left:		9/46
+						upper right:	17/49
 						
 db2.properties		:	a template for connect info for db2 online tests
 postgis.properties	: 	a template for connect info for postgis online tests

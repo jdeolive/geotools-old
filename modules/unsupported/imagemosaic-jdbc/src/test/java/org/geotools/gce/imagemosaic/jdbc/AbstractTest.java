@@ -40,6 +40,32 @@ import javax.imageio.ImageIO;
 
 
 public abstract class AbstractTest extends TestCase {
+	
+	protected static String CRSNAME = "EPSG:31287";
+	
+//	protected static double DELTA = 200000;
+	protected static double DELTA = 1;
+	
+//	protected static GeneralEnvelope ENV_1 = new GeneralEnvelope(new double[] { 500000, 480000 },
+ //           new double[] { 600000, 530000 });
+	
+	protected static GeneralEnvelope ENV_1 = new GeneralEnvelope(new double[] { 14, 47 },
+            new double[] { 16, 48 });
+	
+//    protected static GeneralEnvelope ENV_VIENNA = new GeneralEnvelope(new double[] { 608000, 472000 },
+//            new double[] { 642000, 496000 });
+
+    protected static GeneralEnvelope ENV_VIENNA = new GeneralEnvelope(new double[] { 16.2533, 48.1371 },
+            new double[] { 16.4909, 48.2798 });
+	
+
+//    protected static GeneralEnvelope  ENV_VIENNA2 = new GeneralEnvelope(new double[] { 568000, 432000 },
+//            new double[] { 682000, 536000 });
+    
+    protected static GeneralEnvelope  ENV_VIENNA2 = new GeneralEnvelope(new double[] { 15.7533, 47.6371 },
+            new double[] { 15.9909, 47.7298 });
+
+    
     protected static String OUTPUTDIR_BASE = "target";
     protected static String OUTPUTDIR_RESOURCES = OUTPUTDIR_BASE +
         File.separator + "resources" + File.separator;
@@ -47,6 +73,13 @@ public abstract class AbstractTest extends TestCase {
     protected Properties fixture;
 
     boolean checkPreConditions ( ) {
+    	try {
+			initOutputDir();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println( "Cannot init "+OUTPUTDIR_RESOURCES+", skipping test");
+			return false;
+		}
     	String driverClassName =getJDBCSetup().getDriverClassName(); 
     	try {
     		Class.forName(driverClassName);
@@ -131,10 +164,9 @@ public abstract class AbstractTest extends TestCase {
     }
 
     public void testCreate() {
-        try {
-            initOutputDir();
+        try {            
             createXMLConnectFragment();
-            getJDBCSetup().createAll();
+            getJDBCSetup().createAll(OUTPUTDIR_RESOURCES);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
             e.printStackTrace();
@@ -155,7 +187,7 @@ public abstract class AbstractTest extends TestCase {
         }
 
         try {
-            getJDBCSetup().createAllJoined();
+            getJDBCSetup().createAllJoined(OUTPUTDIR_RESOURCES);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
             e.printStackTrace();
@@ -262,36 +294,32 @@ public abstract class AbstractTest extends TestCase {
     }
 
     private void doVienna(String name) {
-        GeneralEnvelope env = new GeneralEnvelope(new double[] { 608000, 472000 },
-                new double[] { 642000, 496000 });
 
         try {
-            env.setCoordinateReferenceSystem(CRS.decode("EPSG:31287"));
-            imageMosaic(name, getJDBCSetup().getConfigUrl(), env, 500, 500);
+            ENV_VIENNA.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
+            imageMosaic(name, getJDBCSetup().getConfigUrl(), ENV_VIENNA, 500, 500);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
     }
 
     private void doViennaEnv(String name) {
-        GeneralEnvelope env = new GeneralEnvelope(new double[] { 568000, 432000 },
-                new double[] { 682000, 536000 });
 
         try {
-            env.setCoordinateReferenceSystem(CRS.decode("EPSG:31287"));
-            imageMosaic(name, getJDBCSetup().getConfigUrl(), env, 500, 500);
+            ENV_VIENNA2.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
+            imageMosaic(name, getJDBCSetup().getConfigUrl(), ENV_VIENNA2, 500, 500);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
     }
 
+    
+    
     private void doTestImage1(String name) {
-        GeneralEnvelope env = new GeneralEnvelope(new double[] { 500000, 480000 },
-                new double[] { 600000, 530000 });
 
         try {
-            env.setCoordinateReferenceSystem(CRS.decode("EPSG:31287"));
-            imageMosaic(name, getJDBCSetup().getConfigUrl(), env, 500, 250);
+            ENV_1.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
+            imageMosaic(name, getJDBCSetup().getConfigUrl(), ENV_1, 500, 250);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -307,7 +335,7 @@ public abstract class AbstractTest extends TestCase {
                 }, new double[] { li.getExtentMaxX(), li.getExtentMaxY() });
 
         try {
-            env.setCoordinateReferenceSystem(CRS.decode("EPSG:31287"));
+            env.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
             imageMosaic(name, getJDBCSetup().getConfigUrl(), env, 400,
                 (int) (li.getEnvelope().getHeight() / scale));
         } catch (Exception e) {
@@ -327,7 +355,7 @@ public abstract class AbstractTest extends TestCase {
                 });
 
         try {
-            env.setCoordinateReferenceSystem(CRS.decode("EPSG:31287"));
+            env.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
             imageMosaic(name, getJDBCSetup().getConfigUrl(), env, 400, 400);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -339,14 +367,14 @@ public abstract class AbstractTest extends TestCase {
         ImageLevelInfo li = access.getLevelInfo(access.getNumOverviews());
 
         GeneralEnvelope env = new GeneralEnvelope(new double[] {
-                    li.getExtentMaxX() - 200000, li.getExtentMaxY() - 200000
+                    li.getExtentMaxX() - DELTA, li.getExtentMaxY() - DELTA
                 },
                 new double[] {
-                    li.getExtentMaxX() + 200000, li.getExtentMaxY() + 200000
+                    li.getExtentMaxX() + DELTA, li.getExtentMaxY() + DELTA
                 });
 
         try {
-            env.setCoordinateReferenceSystem(CRS.decode("EPSG:31287"));
+            env.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
             imageMosaic(name, getJDBCSetup().getConfigUrl(), env, 400, 400);
         } catch (Exception e) {
             Assert.fail(e.getMessage());

@@ -7,9 +7,10 @@ import java.sql.ResultSet;
 
 public class PostgisSetup extends JDBCSetup {
 
+	static protected int SRSID=4326; 
+	
     public PostgisSetup(Config config) {
 		super(config);
-		// TODO Auto-generated constructor stub
 	}
 
 
@@ -40,7 +41,7 @@ public class PostgisSetup extends JDBCSetup {
                 " select AddGeometryColumn(?,?,?,?,?) ");
         s.setString(1, tn.toLowerCase());
         s.setString(2, getConfig().getGeomAttributeNameInSpatialTable());
-        s.setInt(3, 31287);
+        s.setInt(3, SRSID);
         s.setString(4, getMulitPolygonSQLType());
         s.setInt(5, 2);
 

@@ -1,18 +1,13 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
 import org.geotools.data.jdbc.datasource.DataSourceFinder;
-import org.geotools.gce.imagemosaic.jdbc.AbstractTest;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import java.net.URL;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.sql.DataSource;
 
@@ -79,10 +74,6 @@ public abstract class JDBCSetup {
         Config config = getConfig();
         dataSource = DataSourceFinder.getDataSource(config.getDataSourceParams());
 
-        // dataSource = new BasicDataSource();
-        // dataSource.setUrl(config.getJdbcUrl());
-        // dataSource.setDriverClassName(config.getDriverClassName());
-        // dataSource.setPoolPreparedStatements(false);
         return dataSource;
     }
 
@@ -238,7 +229,7 @@ public abstract class JDBCSetup {
         return statement;
     }
 
-    public void createAll() throws Exception {
+    public void createAll(String outputDir) throws Exception {
         String createMaster = getCreateMasterStatement();
         Connection con = getConnection();
         con.prepareStatement(createMaster).execute();
@@ -256,17 +247,13 @@ public abstract class JDBCSetup {
 
         for (int i = 0; i < getTileTableNames().length; i++) {
             URL shapeFileUrl = new URL("file:" +
-                    AbstractTest.OUTPUTDIR_RESOURCES + i + File.separator +
+            		outputDir + i + File.separator +
                     "index.shp");
             Import imp = new Import(getConfig(), getSpatialTableNames()[i],
                     getTileTableNames()[i], shapeFileUrl, "LOCATION", 2, con,
                     true);
             imp.fillSpatialTable();
 
-            // fillTileTable(getTileTableNames()[i], i, con);
-            // fillSpatialTable(getSpatialTableNames()[i], i, con);
-            // insertMasterRecord(getTileTableNames()[i],
-            // getSpatialTableNames()[i], con);
         }
 
         for (String tn : getSpatialTableNames()) {
@@ -277,7 +264,7 @@ public abstract class JDBCSetup {
         con.close();
     }
 
-    public void createAllJoined() throws Exception {
+    public void createAllJoined(String outputDir) throws Exception {
         String createMaster = getCreateMasterStatement();
         Connection con = getConnection();
         con.prepareStatement(createMaster).execute();
@@ -292,15 +279,12 @@ public abstract class JDBCSetup {
 
         for (int i = 0; i < getTileTableNames().length; i++) {
             URL csvFileUrl = new URL("file:" +
-                    AbstractTest.OUTPUTDIR_RESOURCES + i + File.separator +
+                    outputDir + i + File.separator +
                     "index.csv");
             Import imp = new Import(getConfig(), getSpatialTableNames()[i],
                     getSpatialTableNames()[i], csvFileUrl, ";", 2, con, false);
             imp.fillSpatialTable();
 
-            // fillSpatialTableJoined(getSpatialTableNames()[i], i, con);
-            // insertMasterRecord(getSpatialTableNames()[i],
-            // getSpatialTableNames()[i], con);
         }
 
         for (String tn : getSpatialTableNames()) {

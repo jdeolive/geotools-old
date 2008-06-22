@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 
 
 public class OracleSetup extends JDBCSetup {
-    static final int SRSID = 31287;
+    static final int SRSID = 4326;
 
     public OracleSetup(Config config) {
 		super(config);
