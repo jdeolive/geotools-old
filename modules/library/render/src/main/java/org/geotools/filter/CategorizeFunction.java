@@ -107,10 +107,6 @@ public class CategorizeFunction implements Function {
     }
 
     public CategorizeFunction(List<Expression> parameters, Literal fallback) {
-        if(parameters == null || parameters.size() <2){
-            throw new IllegalArgumentException("Categorize function must have at least 2 parameters : lookup value and first value");
-        }
-        
         this.parameters = parameters;
         this.fallback = fallback;
     }
