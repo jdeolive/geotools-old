@@ -59,6 +59,7 @@
      <profile>
        <id>inwork</id>
        <modules>
+         <module>imagemosaic-jdbc</module>
          <module>go</module>
        </modules>
      </profile>
@@ -85,7 +86,6 @@
      <profile>
        <id>archive</id>
        <modules>
-         <module>imagemosaic-jdbc</module>
          <module>community-schemas</module>
          <module>hsql</module>
          <module>jpox</module>
