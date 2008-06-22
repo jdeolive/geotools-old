@@ -80,9 +80,12 @@
      <!-- ================================================== -->
      <!--     Modules kicked out of the build                -->
      <!-- ================================================== -->
+     <!-- these modules do not compile; some are just here   -->
+     <!-- as a historical curisosity                         -->
      <profile>
        <id>archive</id>
        <modules>
+         <module>imagemosaic-jdbc</module>
          <module>community-schemas</module>
          <module>hsql</module>
          <module>jpox</module>
@@ -104,7 +107,6 @@
     <module>gml</module>    
     <module>gpx</module>
     <module>h2</module>
-    <module>imagemosaic-jdbc</module>
     <module>jts-wrapper</module>
     <module>mappane</module>
     <module>mif</module>
