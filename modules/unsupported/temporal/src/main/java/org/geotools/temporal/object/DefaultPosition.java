@@ -25,6 +25,7 @@ import org.geotools.util.SimpleInternationalString;
 import org.opengis.temporal.CalendarDate;
 import org.opengis.temporal.DateAndTime;
 import org.opengis.temporal.JulianDate;
+import org.opengis.temporal.OrdinalPosition;
 import org.opengis.temporal.Position;
 import org.opengis.temporal.TemporalCoordinate;
 import org.opengis.temporal.TemporalPosition;
@@ -104,6 +105,10 @@ public class DefaultPosition implements Position {
             if (this.position instanceof TemporalCoordinate) {
                 TemporalCoordinate temporalCoord = (TemporalCoordinate) position;
                 return Utils.temporalCoordToDate(temporalCoord);
+            }
+            if (this.position instanceof OrdinalPosition) {
+                OrdinalPosition ordinalPosition = (OrdinalPosition) position;
+                return Utils.ordinalToDate(ordinalPosition);
             }
         }
         return null;

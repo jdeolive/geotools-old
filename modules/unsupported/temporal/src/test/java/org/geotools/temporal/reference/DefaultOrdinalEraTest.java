@@ -139,7 +139,9 @@ public class DefaultOrdinalEraTest {
     @Test
     public void testSetGroup() {
         DefaultOrdinalEra result = ((DefaultOrdinalEra) ordinalEra1).getGroup();
-        ((DefaultOrdinalEra) ordinalEra1).setGroup(new DefaultOrdinalEra(new SimpleInternationalString(""), new Date(), new Date()));
+        Calendar cal = Calendar.getInstance();
+        cal.set(1900, 0, 0);
+        ((DefaultOrdinalEra) ordinalEra1).setGroup(new DefaultOrdinalEra(new SimpleInternationalString(""), cal.getTime(), new Date()));
         assertFalse(((DefaultOrdinalEra) ordinalEra1).getGroup().equals(result));
     }
 

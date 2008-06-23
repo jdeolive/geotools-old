@@ -25,10 +25,15 @@ import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
+import org.geotools.temporal.reference.DefaultOrdinalEra;
 import org.geotools.temporal.reference.DefaultTemporalCoordinateSystem;
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.temporal.CalendarDate;
 import org.opengis.temporal.DateAndTime;
+import org.opengis.temporal.IndeterminateValue;
 import org.opengis.temporal.JulianDate;
+import org.opengis.temporal.OrdinalEra;
+import org.opengis.temporal.OrdinalPosition;
 import org.opengis.temporal.TemporalCoordinate;
 import org.opengis.temporal.TemporalCoordinateSystem;
 
@@ -353,5 +358,19 @@ public class Utils {
         } else {
             throw new IllegalArgumentException("The frame of this TemporalCoordinate object must be an instance of TemporalCoordinateSystem");
         }
+    }
+    
+    public static Date ordinalToDate(OrdinalPosition ordinalPosition) {
+        if (ordinalPosition == null)
+            return null;
+        Calendar calendar = Calendar.getInstance();
+        if (ordinalPosition.getOrdinalPosition() != null) {
+            Date beginEra = ordinalPosition.getOrdinalPosition().getBeginning();
+            Date endEra = ordinalPosition.getOrdinalPosition().getEnd();
+            Long middle =((endEra.getTime() - beginEra.getTime()) / 2) + beginEra.getTime();
+            calendar.setTimeInMillis(middle);
+            return calendar.getTime();
+        }
+        else return null;
     }
 }

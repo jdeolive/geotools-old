@@ -82,7 +82,7 @@ public class DefaultOrdinalPositionTest {
     public void testSetOrdinalPosition() {
         OrdinalEra result = ordinalPosition1.getOrdinalPosition();
         Calendar cal = Calendar.getInstance();
-        cal.set(0, 0, 0);
+        cal.set(10, 0, 0);
         Date beginning = cal.getTime();
         cal.set(2012, 12, 23);
         Date end = cal.getTime();
