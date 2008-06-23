@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,6 +24,8 @@ import java.util.Collection;
  * The base {@linkplain #getElement type} is usually specified at collection
  * construction time.
  *
+ * @param <E> The type of elements in the collection.
+ *
  * @since 2.4
  * @source $URL$
  * @version $Id$
@@ -32,6 +34,8 @@ import java.util.Collection;
 public interface CheckedCollection<E> extends Collection<E> {
     /**
      * Returns the element type.
+     *
+     * @return The element type.
      */
     Class<E> getElementType();
 }

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -41,6 +41,8 @@ import org.geotools.util.logging.Logging;
  * duplicate immutable objects, please look at the {@link CanonicalSet} subclass.
  * <p>
  * The {@code WeakHashSet} class is thread-safe.
+ *
+ * @param <E> The type of elements in the set.
  *
  * @since 2.0
  * @source $URL$
@@ -176,9 +178,8 @@ public class WeakHashSet<E> extends AbstractSet<E> implements CheckedCollection<
     }
 
     /**
-     * Invoked by {@link Entry} when an element has been collected
-     * by the garbage collector. This method will remove the weak reference
-     * from {@link #table}.
+     * Invoked by {@link Entry} when an element has been collected by the garbage
+     * collector. This method will remove the weak reference from {@link #table}.
      */
     private synchronized void removeEntry(final Entry toRemove) {
         assert valid() : count;
@@ -222,9 +223,9 @@ public class WeakHashSet<E> extends AbstractSet<E> implements CheckedCollection<
     /**
      * Rehash {@link #table}.
      *
-     * @param augmentation {@code true} if this method is invoked
-     *        for augmenting {@link #table}, or {@code false} if
-     *        it is invoked for making the table smaller.
+     * @param augmentation
+     *          {@code true} if this method is invoked for augmenting {@link #table},
+     *          or {@code false} if it is invoked for making the table smaller.
      */
     private void rehash(final boolean augmentation) {
         assert Thread.holdsLock(this);
@@ -268,7 +269,7 @@ public class WeakHashSet<E> extends AbstractSet<E> implements CheckedCollection<
     }
 
     /**
-     * Check if this {@code WeakHashSet} is valid. This method counts the
+     * Checks if this {@code WeakHashSet} is valid. This method counts the
      * number of elements and compare it to {@link #count}. If the check fails,
      * the number of elements is corrected (if we didn't, an {@link AssertionError}
      * would be thrown for every operations after the first error,  which make

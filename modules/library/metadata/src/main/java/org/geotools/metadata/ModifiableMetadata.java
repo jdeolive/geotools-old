@@ -16,7 +16,6 @@
  */
 package org.geotools.metadata;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -31,6 +30,7 @@ import org.geotools.util.CheckedHashSet;
 import org.geotools.util.logging.Logging;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.UnmodifiableArrayList;
 
 
 /**
@@ -204,26 +204,29 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
          *          type.
          */
         if (object instanceof Collection) {
-            final Collection collection = (Collection) object;
+            Collection<?> collection = (Collection) object;
             if (collection.isEmpty()) {
-                return (collection instanceof List) ?
-                        (Collection) Collections.EMPTY_LIST :
-                        (Collection) Collections.EMPTY_SET;
-            }
-            final Object[] array = collection.toArray();
-            for (int i=0; i<array.length; i++) {
-                array[i] = unmodifiable(array[i]);
-            }
-            // Uses standard Java collections rather than Geotools Checked* classes,
-            // since we don't need anymore synchronization or type checking.
-            final List asList = Arrays.asList(array);
-            if (collection instanceof Set) {
-                return Collections.unmodifiableSet(new LinkedHashSet(asList));
+                if (collection instanceof List) {
+                    collection = Collections.EMPTY_LIST;
+                } else {
+                    collection = Collections.EMPTY_SET;
+                }
             } else {
-                // Conservatively assumes a List if we are not sure to have a Set,
-                // since the list is less destructive (no removal of duplicated).
-                return Collections.unmodifiableList(asList);
+                final Object[] array = collection.toArray();
+                for (int i=0; i<array.length; i++) {
+                    array[i] = unmodifiable(array[i]);
+                }
+                // Uses standard Java collections rather than Geotools Checked* classes,
+                // since we don't need anymore synchronization or type checking.
+                collection = UnmodifiableArrayList.wrap(array);
+                if (collection instanceof Set) {
+                    collection = Collections.unmodifiableSet(new LinkedHashSet<Object>(collection));
+                } else {
+                    // Conservatively assumes a List if we are not sure to have a Set,
+                    // since the list is less destructive (no removal of duplicated).
+                }
             }
+            return collection;
         }
         /*
          * CASE 3 - The object is a map. Copies all entries in a new map and replaces all values
@@ -310,6 +313,52 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
     }
 
     /**
+     * Copies the content of one list ({@code source}) into an other ({@code target}).
+     * If the target list is {@code null}, a new target list is created.
+     * <p>
+     * A call to {@link #checkWritePermission} is implicit before the copy is performed.
+     *
+     * @param  <E>         The type of elements in the list.
+     * @param  source      The source list. {@code null} is synonymous to empty.
+     * @param  target      The target list, or {@code null} if not yet created.
+     * @param  elementType The base type of elements to put in the list.
+     * @return {@code target}, or a newly created list.
+     * @throws UnmodifiableMetadataException if this metadata is unmodifiable.
+     *
+     * @since 2.5
+     */
+    protected final <E> List<E> copyList(final Collection<? extends E> source,
+            List<E> target, final Class<E> elementType)
+            throws UnmodifiableMetadataException
+    {
+        if (unmodifiable == FREEZING) {
+            /*
+             * freeze() method is under progress. The source list is already
+             * an unmodifiable instance created by unmodifiable(Object).
+             */
+            assert !isModifiable(source);
+            @SuppressWarnings("unchecked")
+            final List<E> unmodifiable = (List<E>) source;
+            return unmodifiable;
+        }
+        checkWritePermission();
+        if (source == null) {
+            if (target != null) {
+                target.clear();
+            }
+        } else {
+            if (target != null) {
+                target.clear();
+            } else {
+                int capacity = source.size();
+                target = new MutableList<E>(elementType, capacity);
+            }
+            target.addAll(source);
+        }
+        return target;
+    }
+
+    /**
      * Copies the content of one collection ({@code source}) into an other ({@code target}).
      * If the target collection is {@code null}, or if its type ({@link List} vs {@link Set})
      * doesn't matches the type of the source collection, a new target collection is created.
@@ -349,10 +398,10 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
             } else {
                 int capacity = source.size();
                 if (isList) {
-                    target = new CheckedArrayList<E>(elementType, capacity);
+                    target = new MutableList<E>(elementType, capacity);
                 } else {
                     capacity = Math.round(capacity / 0.75f) + 1;
-                    target = new CheckedHashSet<E>(elementType, capacity);
+                    target = new MutableSet<E>(elementType, capacity);
                 }
             }
             target.addAll(source);
@@ -378,7 +427,7 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
             return c;
         }
         if (isModifiable()) {
-            return new CheckedHashSet<E>(elementType);
+            return new MutableSet<E>(elementType);
         }
         return Collections.emptySet();
     }
@@ -401,7 +450,7 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
             return c;
         }
         if (isModifiable()) {
-            return new CheckedHashSet<E>(elementType);
+            return new MutableSet<E>(elementType);
         }
         return Collections.emptySet();
     }
@@ -422,9 +471,53 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
             return c;
         }
         if (isModifiable()) {
-            return new CheckedArrayList<E>(elementType);
+            return new MutableList<E>(elementType);
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * A checked set synchronized on the enclosing {@link ModifiableMetadata}.
+     * Used for mutable sets only. Note that the lock most be modified after
+     * {@link #clone}. This is currently done in {@link #unmodifiable(Object)}.
+     */
+    private final class MutableSet<E> extends CheckedHashSet<E> {
+        private static final long serialVersionUID = 2337350768744454264L;
+
+        public MutableSet(Class<E> type) {
+            super(type);
+        }
+
+        public MutableSet(Class<E> type, int capacity) {
+            super(type, capacity);
+        }
+
+        @Override
+        protected Object getLock() {
+            return ModifiableMetadata.this;
+        }
+    }
+
+    /**
+     * A checked list synchronized on the enclosing {@link ModifiableMetadata}.
+     * Used for mutable lists only. Note that the lock most be modified after
+     * {@link #clone}. This is currently done in {@link #unmodifiable(Object)}.
+     */
+    private final class MutableList<E> extends CheckedArrayList<E> {
+        private static final long serialVersionUID = -5016778173550153002L;
+
+        public MutableList(Class<E> type) {
+            super(type);
+        }
+
+        public MutableList(Class<E> type, int capacity) {
+            super(type, capacity);
+        }
+
+        @Override
+        protected Object getLock() {
+            return ModifiableMetadata.this;
+        }
     }
 
     /**

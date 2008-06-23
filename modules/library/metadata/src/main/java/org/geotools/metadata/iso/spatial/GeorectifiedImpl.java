@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -30,7 +30,6 @@ import org.opengis.metadata.spatial.Georectified;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.geometry.primitive.Point;
 import org.opengis.util.InternationalString;
-import org.geotools.util.CheckedArrayList;
 
 
 /**
@@ -175,7 +174,7 @@ public class GeorectifiedImpl extends GridSpatialRepresentationImpl implements G
      * and the grid coordinate of the cells at opposite ends of grid coverage along two
      * diagonals in the grid spatial dimensions. There are four corner points in a
      * georectified grid; at least two corner points along one diagonal are required.
-     * 
+     *
      * @TODO: needs to annotate the geometry module before.
      */
     //@XmlElement(name = "cornerPoints", required = false)
@@ -187,20 +186,14 @@ public class GeorectifiedImpl extends GridSpatialRepresentationImpl implements G
      * Set the corner points.
      */
     public synchronized void setCornerPoints(final List<? extends Point> newValues) {
-        checkWritePermission();
-        if (cornerPoints == null) {
-            cornerPoints = new CheckedArrayList<Point>(Point.class);
-        } else {
-            cornerPoints.clear();
-        }
-        cornerPoints.addAll(newValues);
+        cornerPoints = copyList(newValues, cornerPoints, Point.class);
     }
 
     /**
      * Earth location in the coordinate system defined by the Spatial Reference System
      * and the grid coordinate of the cell halfway between opposite ends of the grid in the
      * spatial dimensions.
-     * 
+     *
      * @TODO: needs to annotate the geometry module before.
      */
     //@XmlElement(name = "centerPoint", required = false)

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,15 +19,14 @@
  */
 package org.geotools.metadata.iso.quality;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
+import java.util.Arrays;
 import javax.measure.unit.Unit;
 
 import org.opengis.metadata.quality.QuantitativeResult;
 import org.opengis.util.InternationalString;
 import org.opengis.util.Record;
 import org.opengis.util.RecordType;
-import org.geotools.util.CheckedArrayList;
 
 
 /**
@@ -49,7 +48,7 @@ public class QuantitativeResultImpl extends ResultImpl implements QuantitativeRe
     /**
      * Quantitative value or values, content determined by the evaluation procedure used.
      */
-    private Collection<Record> values;
+    private List<Record> values;
 
     /**
      * Value type for reporting a data quality result, or {@code null} if none.
@@ -91,30 +90,34 @@ public class QuantitativeResultImpl extends ResultImpl implements QuantitativeRe
     /**
      * Quantitative value or values, content determined by the evaluation procedure used.
      */
-    public synchronized Collection<Record> getValues() {
-        if (values == null) {
-            if (isModifiable()) {
-                values = new CheckedArrayList<Record>(Record.class);
-            } else {
-                values = Collections.emptyList();
-            }
-        }
-        return values;
+    public synchronized List<Record> getValues() {
+        return values = nonNullList(values, Record.class);
+    }
+
+    /**
+     * Set the quantitative value or values, content determined by the evaluation procedure used.
+     *
+     * @since 2.4
+     */
+    public synchronized void setValues(final List<Record> newValues) {
+        values = copyList(newValues, values, Record.class);
     }
 
     /**
      * Set the quantitative value or values, content determined by the evaluation procedure used.
      */
     public synchronized void setValues(final double[] newValues) {
-        checkWritePermission();
+        final List<Record> records;
         if (newValues == null) {
-            values = null;
+            records = null;
         } else {
-            values = new CheckedArrayList<Record>(Record.class, newValues.length);
+            final Record[] data = new Record[newValues.length];
             for (int i=0; i<newValues.length; i++) {
-                values.add(new SimpleRecord(newValues[i]));
+                data[i] = new SimpleRecord(newValues[i]);
             }
+            records = Arrays.asList(data);
         }
+        setValues(records);
     }
 
     /**
@@ -156,15 +159,6 @@ public class QuantitativeResultImpl extends ResultImpl implements QuantitativeRe
         public int hashCode() {
             return map.hashCode();
         }
-    }
-
-    /**
-     * Set the quantitative value or values, content determined by the evaluation procedure used.
-     *
-     * @since 2.4
-     */
-    public synchronized void setValues(final Collection<Record> newValues) {
-        values = copyCollection(newValues, values, Record.class);
     }
 
     /**

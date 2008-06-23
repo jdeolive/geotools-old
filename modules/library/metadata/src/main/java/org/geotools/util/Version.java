@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -75,6 +75,8 @@ public class Version implements CharSequence, Comparable<Version>, Serializable 
 
     /**
      * Creates a new version object from the supplied string.
+     *
+     * @param version The version as a string.
      */
     public Version(final String version) {
         this.version = version.trim();
@@ -83,6 +85,8 @@ public class Version implements CharSequence, Comparable<Version>, Serializable 
     /**
      * Returns the major version number. This method returns an {@link Integer} if possible,
      * or a {@link String} otherwise.
+     *
+     * @return The major version number.
      */
     public Comparable<?> getMajor() {
         return getComponent(0);
@@ -92,6 +96,8 @@ public class Version implements CharSequence, Comparable<Version>, Serializable 
      * Returns the minor version number. This method returns an {@link Integer} if possible,
      * or a {@link String} otherwise. If there is no minor version number, then this method
      * returns {@code null}.
+     *
+     * @return The minor version number, or {@code null} if none.
      */
     public Comparable<?> getMinor() {
         return getComponent(1);
@@ -101,6 +107,8 @@ public class Version implements CharSequence, Comparable<Version>, Serializable 
      * Returns the revision number. This method returns an {@link Integer} if possible,
      * or a {@link String} otherwise. If there is no revision number, then this method
      * returns {@code null}.
+     *
+     * @return The revision number, or {@code null} if none.
      */
     public Comparable<?> getRevision() {
         return getComponent(2);
@@ -222,6 +230,8 @@ public class Version implements CharSequence, Comparable<Version>, Serializable 
     /**
      * Compare this version string with the specified object for equality. Two version are
      * considered equal if <code>{@linkplain #compareTo(Object) compareTo}(other) == 0</code>.
+     *
+     * @param other The object to compare with this version for equality.
      */
     @Override
     public boolean equals(final Object other) {

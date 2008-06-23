@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -66,6 +66,7 @@ public class Ranks {
      * Sorts the elements in the given array and return their ranks.
      * See class description for details.
      *
+     * @param <T> The type of elements in the array to be sorted.
      * @param  source The array of values to sort, or {@code null}.
      * @param  target The array where to store sorted values, or {@code null} if none. May be the
      *         same array than {@code source}, in which case the sorting will be performed in place.

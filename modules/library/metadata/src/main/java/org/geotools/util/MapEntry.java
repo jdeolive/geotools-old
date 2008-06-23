@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -89,6 +89,8 @@ public class MapEntry<K,V> implements Map.Entry<K,V>, Serializable {
 
     /**
      * Compares the specified object with this entry for equality.
+     *
+     * @param object The object to compare with this entry for equality.
      */
     @Override
     public boolean equals(final Object object) {

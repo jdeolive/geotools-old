@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -31,6 +31,12 @@ import java.io.Serializable;
 
 /**
  * List of elements sorted by a key which is not the element itself.
+ * <p>
+ * This class is <strong>not</strong> thread-safe. Synchronizations (if wanted) are user's
+ * reponsability.
+ *
+ * @param <K> The type of keys in the sorted list, to be used for sorting.
+ * @param <V> The type of elements in the list.
  *
  * @since 2.2
  * @source $URL$
@@ -104,7 +110,10 @@ public class KeySortedList<K extends Comparable<K>,V> extends AbstractSequential
 
     /**
      * Removes all values that were {@linkplain #add(Comparable,Object) added} with the specified
-     * key. Returns the number of elements removed.
+     * key.
+     *
+     * @param key The key of values to remove.
+     * @return The number of elements removed.
      */
     public int removeAll(final K key) {
         final List<V> values = map.remove(key);
@@ -114,6 +123,9 @@ public class KeySortedList<K extends Comparable<K>,V> extends AbstractSequential
     /**
      * Returns the number of elements {@linkplain #add(Comparable,Object) added} with the specified
      * key.
+     *
+     * @param key The key of elements to count.
+     * @return The number of elements inserted with the given key.
      */
     public int count(final K key) {
         final List<V> values = map.get(key);

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -41,6 +41,8 @@ import java.io.Serializable;
  * </pre></blockquote>
  *
  * Disjoint sets are thread-safe.
+ *
+ * @param <E> The type of elements in this set.
  *
  * @since 2.0
  * @source $URL$
@@ -149,6 +151,8 @@ public class DisjointSet<E> extends AbstractSet<E> implements Serializable {
     /**
      * Returns the trash set, or {@code null} if there is none.
      * The trash set receive all elements removed from this set.
+     *
+     * @return The trash set, or {@code null} if none.
      */
     public Set<E> getTrash() {
         return trash;
@@ -317,6 +321,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Serializable {
     /**
      * Returns an array containing all of the elements in this collection.
      *
+     * @param <T> The type of elements in the array.
      * @param  a The array into which the elements of the set are to be
      *           stored, if it is big enough; otherwise, a new array of
      *           the same runtime type is allocated for this purpose.
@@ -351,6 +356,8 @@ public class DisjointSet<E> extends AbstractSet<E> implements Serializable {
 
     /**
      * Compare this set with the specified object for equality.
+     *
+     * @param set The object to compare with this set for equality.
      */
     @Override
     public boolean equals(final Object set) {

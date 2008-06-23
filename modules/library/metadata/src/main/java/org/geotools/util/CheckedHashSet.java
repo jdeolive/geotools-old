@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,6 +16,9 @@
  */
 package org.geotools.util;
 
+import java.util.Iterator;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 
 import org.opengis.util.Cloneable;
@@ -24,18 +27,24 @@ import org.geotools.resources.i18n.ErrorKeys;
 
 
 /**
- * Acts as a typed {@link java.util.Set}. Type checks are performed at run-time in
- * addition of compile-time checks.
+ * A {@linkplain Collections#checkedSet checked} and {@linkplain Collections#synchronizedSet
+ * synchronized} {@link java.util.Set}. Type checks are performed at run-time in addition of
+ * compile-time checks. The synchronization lock can be modified at runtime by overriding the
+ * {@link #getLock} method.
+ * <p>
+ * This class is similar to using the wrappers provided in {@link Collections}, minus the cost
+ * of indirection levels and with the addition of overrideable methods.
+ *
+ * @param <E> The type of elements in the set.
  *
  * @since 2.1
  * @source $URL$
  * @version $Id$
  * @author Jody Garnett (Refractions Research)
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  *
- * @todo Provides synchronization facility on arbitrary lock, for use with the metadata package.
- *       The lock would be the metadata that owns this collection. Be carefull to update the lock
- *       after a clone (this work may be done in {@code MetadataEntity.unmodifiable(Object)}).
+ * @see Collections#checkedSet
+ * @see Collections#synchronizedSet
  */
 public class CheckedHashSet<E> extends LinkedHashSet<E> implements CheckedCollection<E>, Cloneable {
     /**
@@ -106,6 +115,74 @@ public class CheckedHashSet<E> extends LinkedHashSet<E> implements CheckedCollec
     }
 
     /**
+     * Checks the type of all elements in the specified collection.
+     *
+     * @param  collection the collection to check, or {@code null}.
+     * @throws IllegalArgumentException if at least one element is not of the expected type.
+     */
+    private void ensureValid(final Collection<? extends E> collection) throws IllegalArgumentException {
+        if (collection != null) {
+            for (final E element : collection) {
+                ensureValidType(element);
+            }
+        }
+    }
+
+    /**
+     * Returns the synchronization lock. The default implementation returns {@code this}.
+     * Subclasses that override this method should be careful to update the lock reference
+     * when this set is {@linkplain #clone cloned}.
+     *
+     * @return The synchronization lock.
+     *
+     * @since 2.5
+     */
+    protected Object getLock() {
+        return this;
+    }
+
+    /**
+     * Returns an iterator over the elements in this set.
+     */
+    @Override
+    public Iterator<E> iterator() {
+        final Object lock = getLock();
+        synchronized (lock) {
+            return new SynchronizedIterator<E>(super.iterator(), lock);
+        }
+    }
+
+    /**
+     * Returns the number of elements in this set.
+     */
+    @Override
+    public int size() {
+	synchronized (getLock()) {
+            return super.size();
+        }
+    }
+
+    /**
+     * Returns {@code true} if this set contains no elements.
+     */
+    @Override
+    public boolean isEmpty() {
+	synchronized (getLock()) {
+            return super.isEmpty();
+        }
+    }
+
+    /**
+     * Returns {@code true} if this set contains the specified element.
+     */
+    @Override
+    public boolean contains(final Object o) {
+	synchronized (getLock()) {
+            return super.contains(o);
+        }
+    }
+
+    /**
      * Adds the specified element to this set if it is not already present.
      *
      * @param  element element to be added to this set.
@@ -113,8 +190,130 @@ public class CheckedHashSet<E> extends LinkedHashSet<E> implements CheckedCollec
      * @throws IllegalArgumentException if the specified element is not of the expected type.
      */
     @Override
-    public boolean add(final E element) {
+    public boolean add(final E element) throws IllegalArgumentException {
         ensureValidType(element);
-        return super.add(element);
+	synchronized (getLock()) {
+            return super.add(element);
+        }
+    }
+
+    /**
+     * Appends all of the elements in the specified collection to this set.
+     *
+     * @param collection the elements to be inserted into this set.
+     * @return {@code true} if this set changed as a result of the call.
+     * @throws IllegalArgumentException if at least one element is not of the expected type.
+     */
+    @Override
+    public boolean addAll(final Collection<? extends E> collection) throws IllegalArgumentException {
+        ensureValid(collection);
+        synchronized (getLock()) {
+            return super.addAll(collection);
+        }
+    }
+
+    /**
+     * Removes the pecified element from this set.
+     */
+    @Override
+    public boolean remove(Object o) {
+        synchronized (getLock()) {
+            return super.remove(o);
+        }
+    }
+
+    /**
+     * Removes all of this set's elements that are also contained in the specified collection.
+     */
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        synchronized (getLock()) {
+            return super.removeAll(c);
+        }
+    }
+
+    /**
+     * Retains only the elements in this set that are contained in the specified collection.
+     */
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        synchronized (getLock()) {
+            return super.retainAll(c);
+        }
+    }
+
+    /**
+     * Removes all of the elements from this set.
+     */
+    @Override
+    public void clear() {
+        synchronized (getLock()) {
+            super.clear();
+        }
+    }
+
+    /**
+     * Returns an array containing all of the elements in this set.
+     */
+    @Override
+    public Object[] toArray() {
+        synchronized (getLock()) {
+            return super.toArray();
+        }
+    }
+
+    /**
+     * Returns an array containing all of the elements in this set.
+     *
+     * @param <T> The type of array elements.
+     */
+    @Override
+    public <T> T[] toArray(T[] a) {
+        synchronized (getLock()) {
+            return super.toArray(a);
+        }
+    }
+
+    /**
+     * Returns a string representation of this set.
+     */
+    @Override
+    public String toString() {
+        synchronized (getLock()) {
+            return super.toString();
+        }
+    }
+
+    /**
+     * Compares the specified object with this set for equality.
+     */
+    @Override
+    public boolean equals(Object o) {
+        synchronized (getLock()) {
+            return super.equals(o);
+        }
+    }
+
+    /**
+     * Returns the hash code value for this set.
+     */
+    @Override
+    public int hashCode() {
+        synchronized (getLock()) {
+            return super.hashCode();
+        }
+    }
+
+    /**
+     * Returns a shallow copy of this set.
+     *
+     * @return A shallow copy of this set.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public CheckedHashSet<E> clone() {
+        synchronized (getLock()) {
+            return (CheckedHashSet) super.clone();
+        }
     }
 }

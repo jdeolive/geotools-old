@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -46,6 +46,9 @@ import org.geotools.resources.i18n.ErrorKeys;
  * {@link java.util.ConcurrentModificationException} randomly depending on the garbage collector
  * activity.
  *
+ * @param <K> The type of keys in the map.
+ * @param <V> The type of values in the map.
+ *
  * @since 2.3
  * @source $URL$
  * @version $Id$
@@ -89,6 +92,8 @@ public class SoftValueHashMap<K,V> extends AbstractMap<K,V> {
 
     /**
      * Creates a map with the specified hard references count.
+     *
+     * @param hardReferencesCount The maximal number of hard references to keep.
      */
     public SoftValueHashMap(final int hardReferencesCount) {
         this.hardReferencesCount = hardReferencesCount;
@@ -268,6 +273,8 @@ public class SoftValueHashMap<K,V> extends AbstractMap<K,V> {
 
     /**
      * Copies all of the mappings from the specified map to this map.
+     *
+     * @param map Mappings to be stored in this map.
      */
     @Override
     public void putAll(final Map<? extends K, ? extends V> map) {
@@ -335,6 +342,8 @@ public class SoftValueHashMap<K,V> extends AbstractMap<K,V> {
 
     /**
      * Compares the specified object with this map for equality.
+     *
+     * @param object The object to compare with this map for equality.
      */
     @Override
     public boolean equals(final Object object) {

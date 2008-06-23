@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -27,6 +27,12 @@ import org.geotools.resources.i18n.ErrorKeys;
  * A {@link Map} with a fixed maximum size which removes the <cite>least recently used</cite> (LRU)
  * entry if an entry is added when full. This class implements a simple technique for LRU pooling
  * of objects.
+ * <p>
+ * This class is <strong>not</strong> thread-safe. Synchronizations (if wanted) are user's
+ * reponsability.
+ *
+ * @param <K> The type of keys in the map.
+ * @param <V> The type of values in the map.
  *
  * @source $URL$
  * @version $Id$
@@ -194,6 +200,9 @@ public final class LRULinkedHashMap<K,V> extends LinkedHashMap<K,V> {
      * uses an initial capacity big enough for holding the given maximum number of entries,
      * so it is not appropriate if {@code maximumSize} is very large.
      *
+     * @param <K> The type of keys in the map.
+     * @param <V> The type of values in the map.
+     *
      * @param  maximumSize Maximum number of entries for this LRU map.
      * @return A map holding only the {@code maximumSize} most recently accessed entries.
      *
@@ -209,6 +218,9 @@ public final class LRULinkedHashMap<K,V> extends LinkedHashMap<K,V> {
      * uses an initial capacity big enough for holding the given maximum number of entries,
      * so it is not appropriate if {@code maximumSize} is very large.
      *
+     * @param <K> The type of keys in the map.
+     * @param <V> The type of values in the map.
+     *
      * @param  maximumSize Maximum number of entries for this LRU map.
      * @return A map holding only the {@code maximumSize} most recently inserted entries.
      *
@@ -221,6 +233,9 @@ public final class LRULinkedHashMap<K,V> extends LinkedHashMap<K,V> {
 
     /**
      * Returns the maximal {@linkplain #size size} allowed for this map.
+     * This is the value given to constructors.
+     *
+     * @return The maximal size allowed for this map.
      *
      * @since 2.5
      */

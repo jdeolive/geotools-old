@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -445,6 +445,7 @@ public class NumberRange<T extends Number & Comparable<? super T>> extends Range
      * Wraps the specified {@link Range} in a {@code NumberRange} object. If the specified
      * range is already an instance of {@code NumberRange}, then it is returned unchanged.
      *
+     * @param <N> The type of elements in the given range.
      * @param range The range to wrap.
      * @return The same range than {@code range} as a {@code NumberRange} object.
      */
@@ -497,6 +498,7 @@ public class NumberRange<T extends Number & Comparable<? super T>> extends Range
     /**
      * Casts this range to the specified type.
      *
+     * @param <N> The class to cast to.
      * @param type  The class to cast to. Must be one of {@link Byte}, {@link Short},
      *              {@link Integer}, {@link Long}, {@link Float} or {@link Double}.
      * @return The casted range, or {@code this} if this range already uses the specified type.
@@ -520,6 +522,8 @@ public class NumberRange<T extends Number & Comparable<? super T>> extends Range
     /**
      * Returns {@code true} if the specified value is within this range.
      *
+     * @param value The value to check for inclusion.
+     * @return {@code true} if the given value is withing this range.
      * @throws IllegalArgumentException if the given value is not comparable.
      */
     public boolean contains(final Number value) throws IllegalArgumentException {
@@ -646,6 +650,8 @@ public class NumberRange<T extends Number & Comparable<? super T>> extends Range
     /**
      * Returns the {@linkplain #getMinValue minimum value} as a {@code double}.
      * If this range is unbounded, then {@link Double#NEGATIVE_INFINITY} is returned.
+     *
+     * @return The minimum value.
      */
     @SuppressWarnings("unchecked")
     public double getMinimum() {
@@ -674,6 +680,8 @@ public class NumberRange<T extends Number & Comparable<? super T>> extends Range
     /**
      * Returns the {@linkplain #getMaxValue maximum value} as a {@code double}.
      * If this range is unbounded, then {@link Double#POSITIVE_INFINITY} is returned.
+     *
+     * @return The maximum value.
      */
     @SuppressWarnings("unchecked")
     public double getMaximum() {

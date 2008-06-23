@@ -29,6 +29,9 @@ import org.geotools.resources.i18n.ErrorKeys;
 /**
  * A list of unsigned integer values. This class packs the values in the minimal amount of bits
  * required for storing unsigned integers of the given {@linkplain #maximalValue maximal value}.
+ * <p>
+ * This class is <strong>not</strong> thread-safe. Synchronizations (if wanted) are user's
+ * reponsability.
  *
  * @since 2.5
  * @source $URL$

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -41,6 +41,9 @@ import org.geotools.resources.i18n.ErrorKeys;
  * but not identical to creating a defaut {@code FrequencySortedSet} and iterating through it
  * in reverse order. The difference is that elements added the same amount of time will still
  * be traversed in their insertion order.
+ * <p>
+ * This class is <strong>not</strong> thread-safe. Synchronizations (if wanted) are user's
+ * reponsability.
  *
  * @param <E> The type of elements in the set.
  *

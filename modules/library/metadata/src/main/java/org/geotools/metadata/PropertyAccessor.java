@@ -109,15 +109,16 @@ final class PropertyAccessor {
      */
     PropertyAccessor(final Class<?> implementation, final Class<?> type) {
         this.implementation = implementation;
-        this.type           = type;
+        this.type = type;
         assert type.isAssignableFrom(implementation) : implementation;
         getters = getGetters(type);
         Method[] setters = null;
         final Class<?>[] arguments = new Class[1];
         for (int i=0; i<getters.length; i++) {
-            final Method getter = getters[i];
-            final Method setter; // To be determined later
-            arguments[0] = getter.getReturnType();
+            Method getter = getters[i];
+            Method setter; // To be determined later
+            Class<?> returnType = getter.getReturnType();
+            arguments[0] = returnType;
             String name  = getter.getName();
             final int base = prefix(name).length();
             if (name.length() > base) {
@@ -132,7 +133,28 @@ final class PropertyAccessor {
             try {
                 setter = implementation.getMethod(name, arguments);
             } catch (NoSuchMethodException e) {
-                continue;
+                /*
+                 * If we found no setter method expecting an argument of the same type than the
+                 * argument returned by the GeoAPI method,  try again with the type returned by
+                 * the implementation class. It is typically the same type, but sometime it may
+                 * be a subtype.
+                 */
+                try {
+                    getter = implementation.getMethod(getter.getName(), (Class[]) null);
+                } catch (NoSuchMethodException error) {
+                    // Should never happen, since the implementation class
+                    // implements the the interface where the getter come from.
+                    throw new AssertionError(error);
+                }
+                if (returnType.equals(returnType = getter.getReturnType())) {
+                    continue;
+                }
+                arguments[0] = returnType;
+                try {
+                    setter = implementation.getMethod(name, arguments);
+                } catch (NoSuchMethodException ignore) {
+                    continue;
+                }
             }
             if (setters == null) {
                 setters = new Method[getters.length];
@@ -230,6 +252,9 @@ final class PropertyAccessor {
                          * Consequently we must provide special cases for no-arg methods inherited
                          * from java.lang.Object because some interfaces declare explicitly the
                          * contract for those methods.
+                         *
+                         * Note that testing candidate.getDeclaringClass().equals(Object.class)
+                         * is not suffisient because the method may be overriden in a subclass.
                          */
                         final String name = candidate.getName();
                         if (!name.startsWith(SET) && !isExcluded(name)) {

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -30,6 +30,12 @@ import java.util.Set;
  * when no mapping from {@linkplain #base} to {@code this} exists.
  * This class is serializable if the underlying {@linkplain #base} set is serializable
  * too.
+ * <p>
+ * This class is <strong>not</strong> thread-safe. Synchronizations (if wanted) are user's
+ * reponsability.
+ *
+ * @param <B> The type of elements in the backing set.
+ * @param <E> The type of elements in this set.
  *
  * @since 2.0
  * @source $URL$

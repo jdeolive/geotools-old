@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -163,6 +163,10 @@ public abstract class AbstractInternationalString implements InternationalString
      * Compares this string with the specified object for order. This method compare
      * the string in the {@linkplain Locale#getDefault default locale}, as returned
      * by {@link #toString()}.
+     *
+     * @param object The string to compare with this string.
+     * @return A negative number if this string is before the given string, a positive
+     *         number if after, or 0 if equals.
      */
     public int compareTo(final InternationalString object) {
         return toString().compareTo(object.toString());

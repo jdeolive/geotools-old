@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,8 +16,10 @@
  */
 package org.geotools.util;
 
+import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.opengis.util.Cloneable;
 import org.geotools.resources.i18n.Errors;
@@ -25,18 +27,24 @@ import org.geotools.resources.i18n.ErrorKeys;
 
 
 /**
- * Acts as a typed {@link java.util.List}. Type checks are performed at run-time in
- * addition of compile-time checks.
+ * A {@linkplain Collections#checkedList checked} and {@linkplain Collections#synchronizedList
+ * synchronized} {@link java.util.List}. Type checks are performed at run-time in addition of
+ * compile-time checks. The synchronization lock can be modified at runtime by overriding the
+ * {@link #getLock} method.
+ * <p>
+ * This class is similar to using the wrappers provided in {@link Collections}, minus the cost
+ * of indirection levels and with the addition of overrideable methods.
+ *
+ * @param <E> The type of elements in the list.
  *
  * @since 2.1
  * @source $URL$
  * @version $Id$
  * @author Jody Garnett (Refractions Research)
- * @author Martin Desruisseaux
+ * @author Martin Desruisseaux (IRD)
  *
- * @todo Provides synchronization facility on arbitrary lock, for use with the metadata package.
- *       The lock would be the metadata that owns this collection. Be carefull to update the lock
- *       after a clone (this work may be done in {@code MetadataEntity.unmodifiable(Object)}).
+ * @see Collections#checkedList
+ * @see Collections#synchronizedList
  */
 public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollection<E>, Cloneable {
     /**
@@ -121,6 +129,97 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
     }
 
     /**
+     * Returns the synchronization lock. The default implementation returns {@code this}.
+     * Subclasses that override this method should be careful to update the lock reference
+     * when this list is {@linkplain #clone cloned}.
+     *
+     * @return The synchronization lock.
+     *
+     * @since 2.5
+     */
+    protected Object getLock() {
+        return this;
+    }
+
+    /**
+     * Returns an iterator over the elements in this list.
+     */
+    @Override
+    public Iterator<E> iterator() {
+        final Object lock = getLock();
+        synchronized (lock) {
+            return new SynchronizedIterator<E>(super.iterator(), lock);
+        }
+    }
+
+    // Note: providing a synchronized iterator is a little bit of paranoia because the ArrayList
+    // implementation inherits the default AbstractList implementation, which delegates its work
+    // to the public List methods. And the later are synchronized. We do not override ListIterator
+    // for this reason and because it is less used.
+
+    /**
+     * Returns the number of elements in this list.
+     */
+    @Override
+    public int size() {
+	synchronized (getLock()) {
+            return super.size();
+        }
+    }
+
+    /**
+     * Returns {@code true} if this list contains no elements.
+     */
+    @Override
+    public boolean isEmpty() {
+	synchronized (getLock()) {
+            return super.isEmpty();
+        }
+    }
+
+    /**
+     * Returns {@code true} if this list contains the specified element.
+     */
+    @Override
+    public boolean contains(final Object o) {
+	synchronized (getLock()) {
+            return super.contains(o);
+        }
+    }
+
+    /**
+     * Returns the index of the first occurrence of the specified element in this list,
+     * or -1 if none.
+     */
+    @Override
+    public int indexOf(Object o) {
+	synchronized (getLock()) {
+            return super.indexOf(o);
+        }
+    }
+
+    /**
+     * Returns the index of the last occurrence of the specified element in this list,
+     * or -1 if none.
+     */
+    @Override
+    public int lastIndexOf(Object o) {
+	synchronized (getLock()) {
+            return super.lastIndexOf(o);
+        }
+    }
+
+    /**
+     * Returns the element at the specified position in this list.
+     */
+    @Override
+    public E get(int index) {
+        synchronized (getLock()) {
+            return super.get(index);
+        }
+    }
+
+    /**
      * Replaces the element at the specified position in this list with the specified element.
      *
      * @param  index   index of element to replace.
@@ -130,9 +229,11 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @throws IllegalArgumentException if the specified element is not of the expected type.
      */
     @Override
-    public E set(final int index, final E element) {
+    public E set(final int index, final E element) throws IllegalArgumentException {
         ensureValidType(element);
-        return super.set(index, element);
+        synchronized (getLock()) {
+            return super.set(index, element);
+        }
     }
 
     /**
@@ -143,9 +244,11 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @throws IllegalArgumentException if the specified element is not of the expected type.
      */
     @Override
-    public boolean add(final E element) {
+    public boolean add(final E element) throws IllegalArgumentException {
         ensureValidType(element);
-        return super.add(element);
+        synchronized (getLock()) {
+            return super.add(element);
+        }
     }
 
     /**
@@ -157,9 +260,11 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @throws IllegalArgumentException if the specified element is not of the expected type.
      */
     @Override
-    public void add(final int index, final E element) {
+    public void add(final int index, final E element) throws IllegalArgumentException {
         ensureValidType(element);
-        super.add(index, element);
+        synchronized (getLock()) {
+            super.add(index, element);
+        }
     }
 
     /**
@@ -171,9 +276,11 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @throws IllegalArgumentException if at least one element is not of the expected type.
      */
     @Override
-    public boolean addAll(final Collection<? extends E> collection) {
+    public boolean addAll(final Collection<? extends E> collection) throws IllegalArgumentException {
         ensureValid(collection);
-        return super.addAll(collection);
+        synchronized (getLock()) {
+            return super.addAll(collection);
+        }
     }
 
     /**
@@ -186,8 +293,148 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @throws IllegalArgumentException if at least one element is not of the expected type.
      */
     @Override
-    public boolean addAll(final int index, final Collection<? extends E> collection) {
+    public boolean addAll(final int index, final Collection<? extends E> collection)
+            throws IllegalArgumentException
+    {
         ensureValid(collection);
-        return super.addAll(index, collection);
+        synchronized (getLock()) {
+            return super.addAll(index, collection);
+        }
+    }
+
+    /**
+     * Removes the element at the specified position in this list.
+     */
+    @Override
+    public E remove(int index) {
+        synchronized (getLock()) {
+            return super.remove(index);
+        }
+    }
+
+    /**
+     * Removes the first occurrence of the specified element from this list.
+     */
+    @Override
+    public boolean remove(Object o) {
+        synchronized (getLock()) {
+            return super.remove(o);
+        }
+    }
+
+    /**
+     * Removes all of this list's elements that are also contained in the specified collection.
+     */
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        synchronized (getLock()) {
+            return super.removeAll(c);
+        }
+    }
+
+    /**
+     * Retains only the elements in this list that are contained in the specified collection.
+     */
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        synchronized (getLock()) {
+            return super.retainAll(c);
+        }
+    }
+
+    /**
+     * Trims the capacity to the list's current size.
+     */
+    @Override
+    public void trimToSize() {
+        synchronized (getLock()) {
+            super.trimToSize();
+        }
+    }
+
+    /**
+     * Increases the capacity, if necessary, to ensure that it can hold the given number
+     * of elements.
+     */
+    @Override
+    public void ensureCapacity(final int minCapacity) {
+        synchronized (getLock()) {
+            super.ensureCapacity(minCapacity);
+        }
+    }
+
+    /**
+     * Removes all of the elements from this list.
+     */
+    @Override
+    public void clear() {
+        synchronized (getLock()) {
+            super.clear();
+        }
+    }
+
+    /**
+     * Returns an array containing all of the elements in this list.
+     */
+    @Override
+    public Object[] toArray() {
+        synchronized (getLock()) {
+            return super.toArray();
+        }
+    }
+
+    /**
+     * Returns an array containing all of the elements in this list in proper sequence.
+     *
+     * @param <T> The type of array elements.
+     */
+    @Override
+    public <T> T[] toArray(T[] a) {
+        synchronized (getLock()) {
+            return super.toArray(a);
+        }
+    }
+
+    /**
+     * Returns a string representation of this list.
+     */
+    @Override
+    public String toString() {
+        synchronized (getLock()) {
+            return super.toString();
+        }
+    }
+
+    /**
+     * Compares the specified object with this list for equality.
+     */
+    @Override
+    public boolean equals(Object o) {
+        synchronized (getLock()) {
+            return super.equals(o);
+        }
+    }
+
+    /**
+     * Returns the hash code value for this list.
+     */
+    @Override
+    public int hashCode() {
+        synchronized (getLock()) {
+            return super.hashCode();
+        }
+    }
+
+    /**
+     * Returns a shallow copy of this list.
+     *
+     * @return A shallow copy of this list.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public CheckedArrayList<E> clone() {
+        synchronized (getLock()) {
+            return (CheckedArrayList) super.clone();
+        }
     }
 }
