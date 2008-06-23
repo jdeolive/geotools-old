@@ -1,14 +1,9 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
-import java.sql.Connection;
-
-
-public class H2Setup extends JDBCSetup {
-
-    public H2Setup(Config config) {
-		super(config);
-	}
-
+public class UniversalDialect extends DBDialect {
+    public UniversalDialect(Config config) {
+        super(config);
+    }
 
     protected String getDriverClassName() {
         return "org.h2.Driver";
@@ -16,11 +11,6 @@ public class H2Setup extends JDBCSetup {
 
     protected String getJDBCUrl(String host, Integer port, String dbName) {
         return "jdbc:h2:target/h2/testdata";
-    }
-
-    @Override
-    public String getConfigUrl() {
-        return "file:target/resources/oek.h2.xml";
     }
 
     @Override
@@ -71,18 +61,14 @@ public class H2Setup extends JDBCSetup {
     }
 
     @Override
-    protected String getCreateIndexStatement(String tn) throws Exception {
-        
+    protected String getCreateIndexStatement(String tn)
+        throws Exception {
         return "CREATE  INDEX IX_" + tn + " ON " + tn + "(" +
-            getConfig().getTileMinXAttribute() + "," +
-            getConfig().getTileMinYAttribute() + ")";
-
-        
+        getConfig().getTileMinXAttribute() + "," +
+        getConfig().getTileMinYAttribute() + ")";
     }
 
     protected String getXMLConnectFragmentName() {
         return "connect.h2.xml.inc";
     }
-    
-
 }

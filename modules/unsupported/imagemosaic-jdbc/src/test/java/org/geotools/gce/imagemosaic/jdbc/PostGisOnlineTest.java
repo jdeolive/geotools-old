@@ -1,24 +1,35 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
-
-import java.net.URL;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import java.net.URL;
+
+import java.sql.SQLException;
+
 
 public class PostGisOnlineTest extends AbstractTest {
+    static DBDialect dialect = null;
+
     public PostGisOnlineTest(String test) {
         super(test);
     }
 
-    public static Test suite() {
-    	
-        TestSuite suite = new TestSuite();
-        
-    	PostGisOnlineTest test = new PostGisOnlineTest("");
-    	if (test.checkPreConditions()==false) return suite;
+    @Override
+    protected String getSrsId() {
+        return "4326";
+    }
 
+    public static Test suite() {
+        TestSuite suite = new TestSuite();
+
+        PostGisOnlineTest test = new PostGisOnlineTest("");
+
+        if (test.checkPreConditions() == false) {
+            return suite;
+        }
+
+        suite.addTest(new PostGisOnlineTest("testGetConnection"));
         suite.addTest(new PostGisOnlineTest("testDrop"));
         suite.addTest(new PostGisOnlineTest("testCreate"));
         suite.addTest(new PostGisOnlineTest("testImage1"));
@@ -36,8 +47,24 @@ public class PostGisOnlineTest extends AbstractTest {
         suite.addTest(new PostGisOnlineTest("testViennaJoined"));
         suite.addTest(new PostGisOnlineTest("testViennaEnvJoined"));
         suite.addTest(new PostGisOnlineTest("testDrop"));
+        suite.addTest(new PostGisOnlineTest("testCloseConnection"));
 
         return suite;
+    }
+
+    @Override
+    protected String[] getTileTableNames() {
+        return new String[] {  /* "tiles0" , */"tiles1", "tiles2", "tiles3" };
+    }
+
+    @Override
+    protected String[] getSpatialTableNames() {
+        return new String[] {  /* "spatial0", */"spatial1", "spatial2", "spatial3" };
+    }
+
+    @Override
+    public String getConfigUrl() {
+        return "file:target/resources/oek.postgis.xml";
     }
 
     @Override
@@ -45,18 +72,30 @@ public class PostGisOnlineTest extends AbstractTest {
         return "postgis";
     }
 
-    static JDBCSetup setup=null;
-    
     @Override
-    protected JDBCSetup getJDBCSetup() {
-    	if (setup!=null) return setup;
-    	Config config=null;
-    	try {
-    		config = Config.readFrom(new URL("file:target/resources/oek.postgis.xml"));
-    	} catch (Exception e) {
-    		throw new RuntimeException(e);
-    	}
-        setup=JDBCSetup.getJDBCSetup(config);
-        return setup;
+    protected DBDialect getDBDialect() {
+        if (dialect != null) {
+            return dialect;
+        }
+
+        Config config = null;
+
+        try {
+            config = Config.readFrom(new URL(getConfigUrl()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        dialect = DBDialect.getDBDialect(config);
+
+        return dialect;
+    }
+
+    void executeRegister(String stmt) throws SQLException {
+        Connection.prepareStatement(stmt).executeQuery();
+    }
+
+    void executeUnRegister(String stmt) throws SQLException {
+        Connection.prepareStatement(stmt).executeQuery();
     }
 }

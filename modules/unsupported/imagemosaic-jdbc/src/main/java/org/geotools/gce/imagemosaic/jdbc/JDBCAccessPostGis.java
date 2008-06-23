@@ -81,9 +81,9 @@ class JDBCAccessPostGis extends JDBCAccessBase {
         ResultSet r = s.executeQuery();
 
         if (r.next()) {
-            Object o =  r.getObject(1);
+            Object o = r.getObject(1);
             String pgString = o.toString();
-            
+
             int start = pgString.indexOf("(") + 1;
             int end = pgString.indexOf(")");
             pgString = pgString.substring(start, end);

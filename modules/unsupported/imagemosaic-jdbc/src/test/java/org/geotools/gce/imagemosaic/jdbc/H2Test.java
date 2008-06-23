@@ -12,6 +12,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Color;
+
 import java.net.URL;
 
 
@@ -25,40 +26,40 @@ public class H2Test extends AbstractTest {
         "PARAMETER[\"latitude_of_origin\", 47.5], PARAMETER[\"standard_parallel_1\", 49.0], PARAMETER[\"false_easting\", 400000.0]," +
         "PARAMETER[\"false_northing\", 400000.0], PARAMETER[\"standard_parallel_2\", 46.0], UNIT[\"m\", 1.0]," +
         "AXIS[\"Easting\", EAST], AXIS[\"Northing\", NORTH], AUTHORITY[\"EPSG\",\"31287\"]] ";
+    protected static CoordinateReferenceSystem SOURCE;
+    protected static CoordinateReferenceSystem TARGET;
+    static DBDialect dialect = null;
 
-    
-    protected static CoordinateReferenceSystem  SOURCE;   
-    protected static  CoordinateReferenceSystem TARGET;
-    
     {
-    	try {
-    		SOURCE = CRS.parseWKT(EPSG_31287_TOWGS84);
-    		TARGET = CRS.decode("EPSG:4326");
-    		
-//    		TARGET = CRS.parseWKT(EPSG_31287_TOWGS84);
-//    		SOURCE = CRS.decode("EPSG:4326");
-
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
+        try {
+            //    		SOURCE = CRS.parseWKT(EPSG_31287_TOWGS84);
+            //    		TARGET = CRS.decode("EPSG:4326");
+            TARGET = CRS.parseWKT(EPSG_31287_TOWGS84);
+            SOURCE = CRS.decode("EPSG:4326");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    
 
-    
     public H2Test(String test) {
         super(test);
     }
 
-    public static Test suite() {
-    	
-    	
+    @Override
+    public String getConfigUrl() {
+        return "file:target/resources/oek.h2.xml";
+    }
 
-    	
+    public static Test suite() {
         TestSuite suite = new TestSuite();
-    	
-    	H2Test test = new H2Test("");
-    	if (test.checkPreConditions()==false) return suite;
-    	       
+
+        H2Test test = new H2Test("");
+
+        if (test.checkPreConditions() == false) {
+            return suite;
+        }
+
+        suite.addTest(new H2Test("testGetConnection"));
         suite.addTest(new H2Test("testDrop"));
         suite.addTest(new H2Test("testCreate"));
         suite.addTest(new H2Test("testImage1"));
@@ -78,6 +79,7 @@ public class H2Test extends AbstractTest {
         suite.addTest(new H2Test("testViennaJoined"));
         suite.addTest(new H2Test("testViennaEnvJoined"));
         suite.addTest(new H2Test("testDrop"));
+        suite.addTest(new H2Test("testCloseConnection"));
 
         return suite;
     }
@@ -87,19 +89,23 @@ public class H2Test extends AbstractTest {
         return "h2";
     }
 
-    static JDBCSetup setup=null;
-    
     @Override
-    protected JDBCSetup getJDBCSetup() {
-    	if (setup!=null) return setup;
-    	Config config=null;
-    	try {
-    		config = Config.readFrom(new URL("file:target/resources/oek.h2.xml"));
-    	} catch (Exception e) {
-    		throw new RuntimeException(e);
-    	}
-        setup=JDBCSetup.getJDBCSetup(config);
-        return setup;
+    protected DBDialect getDBDialect() {
+        if (dialect != null) {
+            return dialect;
+        }
+
+        Config config = null;
+
+        try {
+            config = Config.readFrom(new URL(getConfigUrl()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        dialect = DBDialect.getDBDialect(config);
+
+        return dialect;
     }
 
     public void testReproject1() {
@@ -115,13 +121,12 @@ public class H2Test extends AbstractTest {
 
         try {
             env.setCoordinateReferenceSystem(SOURCE);
-            
+
             MathTransform t = CRS.findMathTransform(SOURCE, TARGET);
             GeneralEnvelope tenv = CRS.transform(t, env);
             tenv.setCoordinateReferenceSystem(TARGET);
-            imageMosaic("partialgreen_reprojected",
-                getJDBCSetup().getConfigUrl(), tenv, 400, 400, Color.GREEN,
-                SOURCE);
+            imageMosaic("partialgreen_reprojected", getConfigUrl(), tenv, 400,
+                400, Color.GREEN, SOURCE);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -140,8 +145,8 @@ public class H2Test extends AbstractTest {
 
         try {
             env.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
-            imageMosaic("partialgreen", getJDBCSetup().getConfigUrl(), env,
-                400, 400, Color.GREEN, null);
+            imageMosaic("partialgreen", getConfigUrl(), env, 400, 400,
+                Color.GREEN, null);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -150,8 +155,8 @@ public class H2Test extends AbstractTest {
     public void setUp() throws Exception {
         // No fixture check needed
     }
+
     String getFixtureId() {
         return null;
     }
-
 }

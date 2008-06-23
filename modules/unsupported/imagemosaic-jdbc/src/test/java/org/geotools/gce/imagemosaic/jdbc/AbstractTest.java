@@ -31,6 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
+import java.net.URL;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -40,67 +45,89 @@ import javax.imageio.ImageIO;
 
 
 public abstract class AbstractTest extends TestCase {
-	
-	protected static String CRSNAME = "EPSG:31287";
-	
-//	protected static double DELTA = 200000;
-	protected static double DELTA = 1;
-	
-//	protected static GeneralEnvelope ENV_1 = new GeneralEnvelope(new double[] { 500000, 480000 },
- //           new double[] { 600000, 530000 });
-	
-	protected static GeneralEnvelope ENV_1 = new GeneralEnvelope(new double[] { 14, 47 },
-            new double[] { 16, 48 });
-	
-//    protected static GeneralEnvelope ENV_VIENNA = new GeneralEnvelope(new double[] { 608000, 472000 },
-//            new double[] { 642000, 496000 });
+    //protected static String CRSNAME = "EPSG:31287";
+    protected static String CRSNAME = "EPSG:4326";
+    protected static Connection Connection = null;
 
-    protected static GeneralEnvelope ENV_VIENNA = new GeneralEnvelope(new double[] { 16.2533, 48.1371 },
-            new double[] { 16.4909, 48.2798 });
-	
+    //	protected static double DELTA = 200000;
+    protected static double DELTA = 1;
 
-//    protected static GeneralEnvelope  ENV_VIENNA2 = new GeneralEnvelope(new double[] { 568000, 432000 },
-//            new double[] { 682000, 536000 });
-    
-    protected static GeneralEnvelope  ENV_VIENNA2 = new GeneralEnvelope(new double[] { 15.7533, 47.6371 },
-            new double[] { 15.9909, 47.7298 });
+    //	protected static GeneralEnvelope ENV_1 = new GeneralEnvelope(new double[] { 500000, 480000 },
+    //           new double[] { 600000, 530000 });
+    protected static GeneralEnvelope ENV_1 = new GeneralEnvelope(new double[] {
+                14, 47
+            }, new double[] { 16, 48 });
 
-    
+    //    protected static GeneralEnvelope ENV_VIENNA = new GeneralEnvelope(new double[] { 608000, 472000 },
+    //            new double[] { 642000, 496000 });
+    protected static GeneralEnvelope ENV_VIENNA = new GeneralEnvelope(new double[] {
+                16.2533, 48.1371
+            }, new double[] { 16.4909, 48.2798 });
+
+    //    protected static GeneralEnvelope  ENV_VIENNA2 = new GeneralEnvelope(new double[] { 568000, 432000 },
+    //            new double[] { 682000, 536000 });
+    protected static GeneralEnvelope ENV_VIENNA2 = new GeneralEnvelope(new double[] {
+                15.7533, 47.6371
+            }, new double[] { 15.9909, 47.7298 });
     protected static String OUTPUTDIR_BASE = "target";
     protected static String OUTPUTDIR_RESOURCES = OUTPUTDIR_BASE +
         File.separator + "resources" + File.separator;
     protected static String RESOURCE_ZIP = "src/test/resources/resources.zip";
     protected Properties fixture;
 
-    boolean checkPreConditions ( ) {
-    	try {
-			initOutputDir();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println( "Cannot init "+OUTPUTDIR_RESOURCES+", skipping test");
-			return false;
-		}
-    	String driverClassName =getJDBCSetup().getDriverClassName(); 
-    	try {
-    		Class.forName(driverClassName);
-    	} catch (ClassNotFoundException ex) {
-    		System.out.println( driverClassName+" not found, skipping test");
-    		return false;
-    	}
-    	File file = getFixtureFile();
-    	if (file!=null && file.exists()==false) {
-    		System.out.println( file.getAbsolutePath()+" not found, skipping test");
-    		return false;
-    	}	
-    	return true;
-    }
-    
     public AbstractTest(String test) {
         super(test);
     }
 
+    boolean checkPreConditions() {
+        try {
+            initOutputDir();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Cannot init " + OUTPUTDIR_RESOURCES +
+                ", skipping test");
+
+            return false;
+        }
+
+        String driverClassName = getDBDialect().getDriverClassName();
+
+        try {
+            Class.forName(driverClassName);
+        } catch (ClassNotFoundException ex) {
+            System.out.println(driverClassName + " not found, skipping test");
+
+            return false;
+        }
+
+        File file = getFixtureFile();
+
+        if ((file != null) && (file.exists() == false)) {
+            System.out.println(file.getAbsolutePath() +
+                " not found, skipping test");
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public abstract String getConfigUrl();
+
+    protected String getSrsId() {
+        return null;
+    }
+
     protected String getOutPutDir() {
         return OUTPUTDIR_BASE + File.separator + getSubDir();
+    }
+
+    protected String[] getTileTableNames() {
+        return new String[] { "TILES1", "TILES2", "TILES3" };
+    }
+
+    protected String[] getSpatialTableNames() {
+        return new String[] { "SPATIAL1", "SPATIAL2", "SPATIAL3" };
     }
 
     protected void createTargetResourceDir(File targetResourcedir)
@@ -156,26 +183,166 @@ public abstract class AbstractTest extends TestCase {
 
     public void testDrop() {
         try {
-            getJDBCSetup().dropAll();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            Connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Connection.prepareStatement(getDBDialect()
+                                            .getDropTableStatement(getDBDialect()
+                                                                       .getConfig()
+                                                                       .getMasterTable()))
+                      .execute();
+            Connection.commit();
+        } catch (SQLException e) {
+            try {
+                Connection.rollback();
+            } catch (SQLException ex) {
+            }
+
+            ;
+        }
+
+        ;
+
+        for (String tn : getTileTableNames()) {
+            try {
+                Connection.prepareStatement((getDBDialect()
+                                                 .getDropTableStatement(tn)))
+                          .execute();
+                Connection.commit();
+            } catch (SQLException e) {
+                try {
+                    Connection.rollback();
+                } catch (SQLException ex) {
+                }
+
+                ;
+            }
+        }
+
+        for (String tn : getSpatialTableNames()) {
+            try {
+                Connection.prepareStatement((getDBDialect()
+                                                 .getDropIndexStatment(tn)))
+                          .execute();
+
+                String stmt = getDBDialect().getUnregisterSpatialStatement((tn));
+
+                if (stmt != null) {
+                    executeUnRegister(stmt);
+                }
+
+                Connection.prepareStatement((getDBDialect()
+                                                 .getDropTableStatement(tn)))
+                          .execute();
+
+                try {
+                    Connection.rollback();
+                } catch (SQLException ex) {
+                }
+
+                ;
+            } catch (SQLException e) {
+                try {
+                    Connection.rollback();
+                } catch (SQLException ex) {
+                }
+
+                ;
+            }
+
+            ;
+        }
+
+        for (String tn : getSpatialTableNames()) {
+            try {
+                Connection.prepareStatement((getDBDialect()
+                                                 .getDropIndexStatment(tn)))
+                          .execute();
+
+                String stmt = getDBDialect().getUnregisterSpatialStatement((tn));
+
+                if (stmt != null) {
+                    executeUnRegister(stmt);
+                }
+
+                Connection.prepareStatement((getDBDialect()
+                                                 .getDropTableStatement(tn)))
+                          .execute();
+                Connection.commit();
+            } catch (SQLException e) {
+                try {
+                    Connection.rollback();
+                } catch (SQLException ex) {
+                }
+
+                ;
+            }
+
+            ;
+        }
+
+        try {
+            Connection.commit();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void testCreate() {
-        try {            
+        try {
             createXMLConnectFragment();
-            getJDBCSetup().createAll(OUTPUTDIR_RESOURCES);
+
+            Connection.prepareStatement(getDBDialect().getCreateMasterStatement())
+                      .execute();
+
+            for (String tn : getTileTableNames()) {
+                Connection.prepareStatement(getDBDialect()
+                                                .getCreateTileTableStatement(tn))
+                          .execute();
+            }
+
+            for (String tn : getSpatialTableNames()) {
+                Connection.prepareStatement(getDBDialect()
+                                                .getCreateSpatialTableStatement(tn))
+                          .execute();
+
+                String stmt = getDBDialect()
+                                  .getRegisterSpatialStatement(tn, getSrsId());
+
+                if (stmt != null) {
+                    executeRegister(stmt);
+                }
+            }
+
+            Connection.commit();
+
+            for (int i = 0; i < getTileTableNames().length; i++) {
+                URL shapeFileUrl = new URL("file:" + OUTPUTDIR_RESOURCES + i +
+                        File.separator + "index.shp");
+                Import imp = new Import(getDBDialect().getConfig(),
+                        getSpatialTableNames()[i], getTileTableNames()[i],
+                        shapeFileUrl, "LOCATION", 2, Connection, true);
+                imp.fillSpatialTable();
+            }
+
+            for (String tn : getSpatialTableNames()) {
+                Connection.prepareStatement(getDBDialect()
+                                                .getCreateIndexStatement(tn))
+                          .execute();
+            }
+
+            Connection.commit();
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
     protected JDBCAccess getJDBCAccess() {
-        return JDBCAccessFactory.JDBCAccessMap.get(getJDBCSetup().getConfigUrl()
-                                                       .toString());
+        return JDBCAccessFactory.JDBCAccessMap.get(getConfigUrl().toString());
     }
 
     public void testCreateJoined() {
@@ -187,10 +354,43 @@ public abstract class AbstractTest extends TestCase {
         }
 
         try {
-            getJDBCSetup().createAllJoined(OUTPUTDIR_RESOURCES);
+            Connection.prepareStatement(getDBDialect().getCreateMasterStatement())
+                      .execute();
+
+            for (String tn : getSpatialTableNames()) {
+                Connection.prepareStatement(getDBDialect()
+                                                .getCreateSpatialTableStatementJoined(tn))
+                          .execute();
+
+                String stmt = getDBDialect()
+                                  .getRegisterSpatialStatement(tn, getSrsId());
+
+                if (stmt != null) {
+                    executeRegister(stmt);
+                }
+            }
+
+            Connection.commit();
+
+            for (int i = 0; i < getTileTableNames().length; i++) {
+                URL csvFileUrl = new URL("file:" + OUTPUTDIR_RESOURCES + i +
+                        File.separator + "index.csv");
+                Import imp = new Import(getDBDialect().getConfig(),
+                        getSpatialTableNames()[i], getSpatialTableNames()[i],
+                        csvFileUrl, ";", 2, Connection, false);
+                imp.fillSpatialTable();
+            }
+
+            for (String tn : getSpatialTableNames()) {
+                Connection.prepareStatement(getDBDialect()
+                                                .getCreateIndexStatement(tn))
+                          .execute();
+            }
+
+            Connection.commit();
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -243,7 +443,7 @@ public abstract class AbstractTest extends TestCase {
 
     protected abstract String getSubDir();
 
-    protected abstract JDBCSetup getJDBCSetup();
+    protected abstract DBDialect getDBDialect();
 
     public void testImage1() {
         doTestImage1("image1");
@@ -294,32 +494,27 @@ public abstract class AbstractTest extends TestCase {
     }
 
     private void doVienna(String name) {
-
         try {
             ENV_VIENNA.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
-            imageMosaic(name, getJDBCSetup().getConfigUrl(), ENV_VIENNA, 500, 500);
+            imageMosaic(name, getConfigUrl(), ENV_VIENNA, 500, 500);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
     }
 
     private void doViennaEnv(String name) {
-
         try {
             ENV_VIENNA2.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
-            imageMosaic(name, getJDBCSetup().getConfigUrl(), ENV_VIENNA2, 500, 500);
+            imageMosaic(name, getConfigUrl(), ENV_VIENNA2, 500, 500);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
     }
 
-    
-    
     private void doTestImage1(String name) {
-
         try {
             ENV_1.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
-            imageMosaic(name, getJDBCSetup().getConfigUrl(), ENV_1, 500, 250);
+            imageMosaic(name, getConfigUrl(), ENV_1, 500, 250);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -336,7 +531,7 @@ public abstract class AbstractTest extends TestCase {
 
         try {
             env.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
-            imageMosaic(name, getJDBCSetup().getConfigUrl(), env, 400,
+            imageMosaic(name, getConfigUrl(), env, 400,
                 (int) (li.getEnvelope().getHeight() / scale));
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -348,15 +543,16 @@ public abstract class AbstractTest extends TestCase {
         ImageLevelInfo li = access.getLevelInfo(access.getNumOverviews());
 
         GeneralEnvelope env = new GeneralEnvelope(new double[] {
-                    li.getExtentMaxX() + 1000, li.getExtentMaxY() + 1000
+                    li.getExtentMaxX() + DELTA, li.getExtentMaxY() + DELTA
                 },
                 new double[] {
-                    li.getExtentMaxX() + 2000, li.getExtentMaxY() + 2000
+                    li.getExtentMaxX() + (DELTA * 2),
+                    li.getExtentMaxY() + (DELTA * 2)
                 });
 
         try {
             env.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
-            imageMosaic(name, getJDBCSetup().getConfigUrl(), env, 400, 400);
+            imageMosaic(name, getConfigUrl(), env, 400, 400);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -375,7 +571,7 @@ public abstract class AbstractTest extends TestCase {
 
         try {
             env.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
-            imageMosaic(name, getJDBCSetup().getConfigUrl(), env, 400, 400);
+            imageMosaic(name, getConfigUrl(), env, 400, 400);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -403,22 +599,25 @@ public abstract class AbstractTest extends TestCase {
         return "imagemosaic." + getSubDir();
     }
 
-    protected File getFixtureFile () {
+    protected File getFixtureFile() {
         File base = new File(System.getProperty("user.home") + File.separator +
-        ".geotools");
+                ".geotools");
         String fixtureId = getFixtureId();
 
-        if (fixtureId == null)  return null;
+        if (fixtureId == null) {
+            return null;
+        }
+
         File fixtureFile = new File(base,
                 fixtureId.replace('.', File.separatorChar).concat(".properties"));
+
         return fixtureFile;
     }
 
-    	
     protected void initFixture() throws Exception {
-
         File fixtureFile = getFixtureFile();
-        if (fixtureFile!=null && fixtureFile.exists()) {
+
+        if ((fixtureFile != null) && fixtureFile.exists()) {
             InputStream input = new BufferedInputStream(new FileInputStream(
                         fixtureFile));
 
@@ -468,18 +667,48 @@ public abstract class AbstractTest extends TestCase {
         }
 
         PrintWriter w = new PrintWriter(new FileOutputStream(OUTPUTDIR_RESOURCES +
-                    getJDBCSetup().getXMLConnectFragmentName()));
+                    getDBDialect().getXMLConnectFragmentName()));
         w.println("<connect>");
         w.println("     <dstype value=\"DBCP\"/>");
         w.println("     <username value=\"" + user + "\"/>");
         w.println("     <password value=\"" + password + "\"/>");
         w.println("     <jdbcUrl value=\"" +
-            getJDBCSetup().getJDBCUrl(host, port, dbName) + "\"/>");
+            getDBDialect().getJDBCUrl(host, port, dbName) + "\"/>");
         w.println("     <driverClassName value=\"" +
-            getJDBCSetup().getDriverClassName() + "\"/>");
+            getDBDialect().getDriverClassName() + "\"/>");
         w.println("     <maxActive value=\"10\"/>");
         w.println("     <maxIdle value=\"0\"/>");
         w.println("</connect>");
         w.close();
+    }
+
+    public void testGetConnection() {
+        Connection = null;
+
+        try {
+            Connection = getDBDialect().getConnection();
+        } catch (Exception e) {
+            Assert.fail("Error getting connection");
+            e.printStackTrace();
+        }
+    }
+
+    public void testCloseConnection() {
+        if (Connection != null) {
+            try {
+                Connection.close();
+            } catch (SQLException e) {
+                Assert.fail("Error closing connection");
+                e.printStackTrace();
+            } finally {
+                Connection = null;
+            }
+        }
+    }
+
+    void executeRegister(String stmt) throws SQLException {
+    }
+
+    void executeUnRegister(String stmt) throws SQLException {
     }
 }

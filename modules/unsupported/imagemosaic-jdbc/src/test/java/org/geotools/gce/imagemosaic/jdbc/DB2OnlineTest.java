@@ -1,24 +1,38 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
-
-import java.net.URL;
-
+import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import java.net.URL;
+
+import java.sql.CallableStatement;
+import java.sql.SQLException;
+import java.sql.Types;
+
 
 public class DB2OnlineTest extends AbstractTest {
+    static DBDialect dialect = null;
+
     public DB2OnlineTest(String test) {
         super(test);
     }
 
+    @Override
+    protected String getSrsId() {
+        return "WGS84_SRS_1003";
+    }
+
     public static Test suite() {
-    	
-    	TestSuite suite = new TestSuite();
-    	
-    	DB2OnlineTest test = new DB2OnlineTest("");
-    	if (test.checkPreConditions()==false) return suite;
-    	       
+        TestSuite suite = new TestSuite();
+
+        DB2OnlineTest test = new DB2OnlineTest("");
+
+        if (test.checkPreConditions() == false) {
+            return suite;
+        }
+
+        suite.addTest(new DB2OnlineTest("testGetConnection"));
         suite.addTest(new DB2OnlineTest("testDrop"));
         suite.addTest(new DB2OnlineTest("testCreate"));
         suite.addTest(new DB2OnlineTest("testImage1"));
@@ -36,6 +50,7 @@ public class DB2OnlineTest extends AbstractTest {
         suite.addTest(new DB2OnlineTest("testViennaJoined"));
         suite.addTest(new DB2OnlineTest("testViennaEnvJoined"));
         suite.addTest(new DB2OnlineTest("testDrop"));
+        suite.addTest(new DB2OnlineTest("testCloseConnection"));
 
         return suite;
     }
@@ -45,20 +60,60 @@ public class DB2OnlineTest extends AbstractTest {
         return "db2";
     }
 
-    
-    
-    static JDBCSetup setup=null;
-    
     @Override
-    protected JDBCSetup getJDBCSetup() {
-    	if (setup!=null) return setup;
-    	Config config=null;
-    	try {
-    		config = Config.readFrom(new URL("file:target/resources/oek.db2.xml"));
-    	} catch (Exception e) {
-    		throw new RuntimeException(e);
-    	}
-        setup=JDBCSetup.getJDBCSetup(config);
-        return setup;
+    public String getConfigUrl() {
+        return "file:target/resources/oek.db2.xml";
+    }
+
+    @Override
+    protected DBDialect getDBDialect() {
+        if (dialect != null) {
+            return dialect;
+        }
+
+        Config config = null;
+
+        try {
+            config = Config.readFrom(new URL(getConfigUrl()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        dialect = DBDialect.getDBDialect(config);
+
+        return dialect;
+    }
+
+    public void testGetConnection() {
+        super.testGetConnection();
+
+        try {
+            CallableStatement s = Connection.prepareCall(
+                    " {call db2gse.ST_enable_db(?,?,?) }");
+            s.registerOutParameter(2, Types.INTEGER);
+            s.registerOutParameter(3, Types.CHAR);
+            s.setNull(1, Types.CHAR);
+            s.executeUpdate();
+            System.out.println(s.getInt(2) + "|" + s.getString(3));
+        } catch (SQLException e) {
+            Assert.fail(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    void executeRegister(String stmt) throws SQLException {
+        String s = "{" + stmt + "}";
+        CallableStatement ps = Connection.prepareCall(s);
+        ps.registerOutParameter(1, Types.INTEGER);
+        ps.registerOutParameter(2, Types.CHAR);
+        ps.executeUpdate();
+    }
+
+    void executeUnRegister(String stmt) throws SQLException {
+        String s = "{" + stmt + "}";
+        CallableStatement ps = Connection.prepareCall(s);
+        ps.registerOutParameter(1, Types.INTEGER);
+        ps.registerOutParameter(2, Types.CHAR);
+        ps.executeUpdate();
     }
 }

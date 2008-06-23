@@ -1,13 +1,13 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
+public class MySqlDialect extends DBDialect {
+    public MySqlDialect(Config config) {
+        super(config);
+    }
 
-
-public class MySqlSetup extends JDBCSetup {
-
-    public MySqlSetup(Config config) {
-		super(config);
-	}
-
+    String getDropIndexStatment(String tn) {
+        return "drop index IX_" + tn + " on " + tn;
+    }
 
     protected String getDriverClassName() {
         return "com.mysql.jdbc.Driver";
@@ -15,11 +15,6 @@ public class MySqlSetup extends JDBCSetup {
 
     protected String getJDBCUrl(String host, Integer port, String dbName) {
         return "jdbc:mysql://" + host + ":" + port + "/" + dbName;
-    }
-
-    @Override
-    public String getConfigUrl() {
-        return "file:target/resources/oek.mysql.xml";
     }
 
     @Override
@@ -33,19 +28,17 @@ public class MySqlSetup extends JDBCSetup {
     }
 
     @Override
-    protected String getCreateIndexStatement(String tn) throws Exception {            	
+    protected String getCreateIndexStatement(String tn)
+        throws Exception {
         // String stmt = "ALTER TABLE "+tn + " MODIFY
         // "+getConfig().getGeomAttributeNameInSpatialTable() + " "
         // + getMulitPolygonSQLType() + " NOT NULL";
         // con.prepareStatement(stmt).execute();
         return "CREATE SPATIAL INDEX IX_" + tn + " ON " + tn + "(" +
-            getConfig().getGeomAttributeNameInSpatialTable() + ") ";
-        
+        getConfig().getGeomAttributeNameInSpatialTable() + ") ";
     }
 
     protected String getXMLConnectFragmentName() {
         return "connect.mysql.xml.inc";
     }
-    
-
 }

@@ -141,7 +141,7 @@
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>metadata</artifactId>
+      <artifactId>gt-metadata</artifactId>
       <version>${project.version}</version>
     </dependency>	
 

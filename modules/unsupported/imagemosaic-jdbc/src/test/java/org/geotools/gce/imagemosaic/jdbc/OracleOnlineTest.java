@@ -1,25 +1,40 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
-
-import java.net.URL;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import java.net.URL;
+
+import java.sql.SQLException;
+
 
 public class OracleOnlineTest extends AbstractTest {
+    static DBDialect dialect = null;
+
     public OracleOnlineTest(String test) {
         super(test);
     }
 
-    public static Test suite() {
-    	
+    @Override
+    protected String getSrsId() {
+        return "4326";
+    }
 
+    @Override
+    public String getConfigUrl() {
+        return "file:target/resources/oek.oracle.xml";
+    }
+
+    public static Test suite() {
         TestSuite suite = new TestSuite();
-        
-    	OracleOnlineTest test = new OracleOnlineTest("");
-    	if (test.checkPreConditions()==false) return suite;
-        
+
+        OracleOnlineTest test = new OracleOnlineTest("");
+
+        if (test.checkPreConditions() == false) {
+            return suite;
+        }
+
+        suite.addTest(new OracleOnlineTest("testGetConnection"));
         suite.addTest(new OracleOnlineTest("testDrop"));
         suite.addTest(new OracleOnlineTest("testCreate"));
         suite.addTest(new OracleOnlineTest("testImage1"));
@@ -37,6 +52,7 @@ public class OracleOnlineTest extends AbstractTest {
         suite.addTest(new OracleOnlineTest("testViennaJoined"));
         suite.addTest(new OracleOnlineTest("testViennaEnvJoined"));
         suite.addTest(new OracleOnlineTest("testDrop"));
+        suite.addTest(new OracleOnlineTest("testCloseConnection"));
 
         return suite;
     }
@@ -46,19 +62,30 @@ public class OracleOnlineTest extends AbstractTest {
         return "oracle";
     }
 
-    
-    static JDBCSetup setup=null;
-    
     @Override
-    protected JDBCSetup getJDBCSetup() {
-    	if (setup!=null) return setup;
-    	Config config=null;
-    	try {
-    		config = Config.readFrom(new URL("file:target/resources/oek.oracle.xml"));
-    	} catch (Exception e) {
-    		throw new RuntimeException(e);
-    	}
-        setup=JDBCSetup.getJDBCSetup(config);
-        return setup;
+    protected DBDialect getDBDialect() {
+        if (dialect != null) {
+            return dialect;
+        }
+
+        Config config = null;
+
+        try {
+            config = Config.readFrom(new URL(getConfigUrl()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        dialect = DBDialect.getDBDialect(config);
+
+        return dialect;
+    }
+
+    void executeRegister(String stmt) throws SQLException {
+        Connection.prepareStatement(stmt).execute();
+    }
+
+    void executeUnRegister(String stmt) throws SQLException {
+        Connection.prepareStatement(stmt).execute();
     }
 }

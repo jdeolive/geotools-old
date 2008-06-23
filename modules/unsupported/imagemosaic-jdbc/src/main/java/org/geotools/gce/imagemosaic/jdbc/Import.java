@@ -122,7 +122,7 @@ public class Import {
         }
     }
 
-    public  static  void start (String[] args) {
+    public static void start(String[] args) {
         Config config = null;
         String spatialTableName = null;
         String tileTableName = null;
