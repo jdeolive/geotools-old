@@ -81,7 +81,7 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
      * 
      * @return live list
      */
-    public Collection<Object> getFeatureInstanceID() {
+    public Collection<Object> featureInstanceIDs() {
         return ids;
     }
 
@@ -89,7 +89,7 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
      * 
      * @return live list
      */
-    public Collection<String> getFeatureTypeName() {
+    public Collection<String> featureTypeNames() {
         return names;
     }
 
@@ -97,7 +97,7 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
      * 
      * @return live list
      */
-    public Collection<String> getSemanticTypeIdentifiers() {
+    public Collection<String> semanticTypeIdentifiers() {
         return semantics;
     }
 
@@ -105,7 +105,7 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
      * 
      * @return live list
      */
-    public List<Rule> getRules() {
+    public List<Rule> rules() {
         return rules;
     }
 

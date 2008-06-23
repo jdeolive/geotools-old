@@ -49,7 +49,7 @@ class DefaultPointSymbolizer implements PointSymbolizer{
         return uom;
     }
 
-    public String getGeometryAttribute() {
+    public String getGeometryPropertyName() {
         return geom;
     }
 

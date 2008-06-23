@@ -25,6 +25,7 @@ import javax.swing.Icon;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
+import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.AnchorPoint;
 import org.opengis.style.ChannelSelection;
 import org.opengis.style.ColorMap;
@@ -45,7 +46,6 @@ import org.opengis.style.LabelPlacement;
 import org.opengis.style.LinePlacement;
 import org.opengis.style.LineSymbolizer;
 import org.opengis.style.Mark;
-import org.opengis.style.OnlineResource;
 import org.opengis.style.OverlapBehavior;
 import org.opengis.style.PointPlacement;
 import org.opengis.style.PointSymbolizer;
@@ -329,12 +329,12 @@ public class SymbolizerBuilder {
         return disp; 
     }
     
-    public ExternalGraphic createExternalGraphic(OnlineResource resource, Icon icon, String format, Collection<ColorReplacement> replaces){
+    public ExternalGraphic createExternalGraphic(OnLineResource resource, Icon icon, String format, Collection<ColorReplacement> replaces){
         ExternalGraphic eg = new DefaultExternalGraphic(resource, icon, format, replaces);
         return eg;
     }
     
-    public ExternalMark createExternalMark(OnlineResource online, Icon icon, String format, int index){
+    public ExternalMark createExternalMark(OnLineResource online, Icon icon, String format, int index){
         ExternalMark em = new DefaultExternalMark(online, icon, format, index);
         return em;
     }
@@ -394,8 +394,8 @@ public class SymbolizerBuilder {
         return mark;
     }
     
-    public OnlineResource createOnlineResource(URI uri){
-        OnlineResource or = new DefaultOnlineResource(uri);
+    public OnLineResource createOnlineResource(URI uri){
+        OnLineResource or = new DefaultOnlineResource(uri);
         return or;
     }
     

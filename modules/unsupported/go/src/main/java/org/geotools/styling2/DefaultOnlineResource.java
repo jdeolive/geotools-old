@@ -17,14 +17,16 @@
 package org.geotools.styling2;
 
 import java.net.URI;
-import org.opengis.style.OnlineResource;
+import org.opengis.metadata.citation.OnLineFunction;
+import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.StyleVisitor;
+import org.opengis.util.InternationalString;
 
 /**
  *
  * @author Johann Sorel
  */
-class DefaultOnlineResource implements OnlineResource{
+class DefaultOnlineResource implements OnLineResource{
 
     private final URI uri;
     
@@ -32,12 +34,32 @@ class DefaultOnlineResource implements OnlineResource{
         this.uri = uri;
     }
     
-    public URI getURI() {
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    public URI getLinkage() {
         return uri;
     }
 
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public String getProtocol() {
+        return null;
+    }
+
+    public String getApplicationProfile() {
+        return null;
+    }
+
+    public String getName() {
+        return null;
+    }
+
+    public InternationalString getDescription() {
+       return null;
+    }
+
+    public OnLineFunction getFunction() {
+        return null;
     }
 
 }

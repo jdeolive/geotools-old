@@ -128,7 +128,7 @@ public class MutableRule implements Rule{
      * 
      * @return live list
      */
-    public List<Symbolizer> getSymbolizers() {
+    public List<Symbolizer> symbolizers() {
         return symbols;
     }
 

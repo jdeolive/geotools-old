@@ -18,9 +18,9 @@ package org.geotools.styling2;
 
 import java.util.Collection;
 import javax.swing.Icon;
+import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.ColorReplacement;
 import org.opengis.style.ExternalGraphic;
-import org.opengis.style.OnlineResource;
 import org.opengis.style.StyleVisitor;
 
 /**
@@ -29,19 +29,19 @@ import org.opengis.style.StyleVisitor;
  */
 class DefaultExternalGraphic implements ExternalGraphic{
 
-    private final OnlineResource resource;
+    private final OnLineResource resource;
     private final Icon icon;
     private String format;
     private Collection<ColorReplacement> replaces;
     
-    DefaultExternalGraphic(OnlineResource resource, Icon icon, String format, Collection<ColorReplacement> replaces){
+    DefaultExternalGraphic(OnLineResource resource, Icon icon, String format, Collection<ColorReplacement> replaces){
         this.resource = resource;
         this.icon = icon;
         this.format = format;
         this.replaces = replaces;
     }
     
-    public OnlineResource getOnlineResource() {
+    public OnLineResource getOnlineResource() {
         return resource;
     }
 

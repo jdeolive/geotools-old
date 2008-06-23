@@ -70,7 +70,7 @@ class DefaultPolygonSymbolizer implements PolygonSymbolizer{
         return uom;
     }
 
-    public String getGeometryAttribute() {
+    public String getGeometryPropertyName() {
         return geom;
     }
 

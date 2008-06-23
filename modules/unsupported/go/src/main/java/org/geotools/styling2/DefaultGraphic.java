@@ -46,7 +46,7 @@ class DefaultGraphic implements Graphic{
         this.disp = disp;
     }
     
-    public List<GraphicSymbol> getExternalGraphicOrMark() {
+    public List<GraphicSymbol> graphicSymbols() {
         return symbols;
     }
 

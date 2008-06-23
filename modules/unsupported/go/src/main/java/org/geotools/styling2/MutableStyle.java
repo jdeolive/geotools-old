@@ -54,7 +54,7 @@ public class MutableStyle implements Style{
     /**
      * @return live list
      */
-    public List<FeatureTypeStyle> getFeatureTypes() {
+    public List<FeatureTypeStyle> featureTypeStyles() {
         return fts;
     }
 

@@ -101,7 +101,7 @@ class DefaultRasterSymbolizer implements RasterSymbolizer{
         return uom;
     }
 
-    public String getGeometryAttribute() {
+    public String getGeometryPropertyName() {
         return geom;
     }
 

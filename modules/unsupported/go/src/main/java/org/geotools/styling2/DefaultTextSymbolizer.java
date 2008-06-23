@@ -77,7 +77,7 @@ class DefaultTextSymbolizer implements TextSymbolizer{
         return uom;
     }
 
-    public String getGeometryAttribute() {
+    public String getGeometryPropertyName() {
         return geom;
     }
 

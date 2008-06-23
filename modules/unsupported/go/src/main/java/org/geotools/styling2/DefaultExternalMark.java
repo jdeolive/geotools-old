@@ -17,8 +17,8 @@
 package org.geotools.styling2;
 
 import javax.swing.Icon;
+import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.ExternalMark;
-import org.opengis.style.OnlineResource;
 import org.opengis.style.StyleVisitor;
 
 /**
@@ -27,19 +27,19 @@ import org.opengis.style.StyleVisitor;
  */
 class DefaultExternalMark implements ExternalMark{
 
-    private final OnlineResource online;
+    private final OnLineResource online;
     private final Icon icon;
     private final String format;
     private final int index;
     
-    DefaultExternalMark(OnlineResource online, Icon icon, String format, int index){
+    DefaultExternalMark(OnLineResource online, Icon icon, String format, int index){
         this.online = online;
         this.icon = icon;
         this.format = format;
         this.index = index;
     }
     
-    public OnlineResource getOnlineResource() {
+    public OnLineResource getOnlineResource() {
         return online;
     }
 
