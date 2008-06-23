@@ -89,7 +89,7 @@
     <plugins>
       <plugin>
         <groupId>org.geotools.maven</groupId>
-        <artifactId>gt2-xmlcodegen</artifactId>
+        <artifactId>xmlcodegen</artifactId>
         <configuration>
           <schemaLocation>wpsAll.xsd</schemaLocation>
           <schemaSourceDirectory>${basedir}/src/main/resources/org/geotools/wps/</schemaSourceDirectory>
