@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -181,7 +183,7 @@ public class RasterFunction {
         ContrastEnhancement enchance = SymbolizerBuilder.DEFAULT_RASTER_CONTRAST_ENCHANCEMENT;
         ShadedRelief relief = SymbolizerBuilder.DEFAULT_RASTER_SHADED_RELIEF;
         Symbolizer outline = symbolBuilder.createDefaultLineSymbolizer();
-        String uom = Symbolizer.UOM_DISPLAY;
+        Unit uom = NonSI.PIXEL;
         String geom = SymbolizerBuilder.DEFAULT_GEOM;
         String name = "raster symbol name";
         Description desc = SymbolizerBuilder.DEFAULT_DESCRIPTION;

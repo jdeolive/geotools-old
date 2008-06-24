@@ -16,6 +16,7 @@
  */
 package org.geotools.styling2;
 
+import javax.measure.unit.Unit;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Description;
 import org.opengis.style.LineSymbolizer;
@@ -30,12 +31,12 @@ class DefaultLineSymbolizer implements LineSymbolizer{
 
     private final Stroke stroke;
     private final Expression offset;
-    private final String uom;
+    private final Unit uom;
     private final String geom;
     private final String name;
     private final Description desc;
     
-    DefaultLineSymbolizer(Stroke stroke, Expression offset, String uom, String geom, String name, Description desc){
+    DefaultLineSymbolizer(Stroke stroke, Expression offset, Unit uom, String geom, String name, Description desc){
         this.stroke = stroke;
         this.offset = offset;
         this.uom = uom;
@@ -52,7 +53,7 @@ class DefaultLineSymbolizer implements LineSymbolizer{
         return offset;
     }
 
-    public String getUnitOfMeasure() {
+    public Unit getUnitOfMeasure() {
         return uom;
     }
 

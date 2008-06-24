@@ -22,6 +22,7 @@ import java.util.List;
 import org.opengis.style.Description;
 import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.Rule;
+import org.opengis.style.SemanticType;
 import org.opengis.style.StyleVisitor;
 
 /**
@@ -34,11 +35,11 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
     private Description desc;
     private final Collection<Object> ids;
     private final Collection<String> names;
-    private final List<String> semantics;
+    private final List<SemanticType> semantics;
     private final List<Rule> rules;
     
     
-    public MutableFeatureTypeStyle(String name, Description desc, Collection<Object> ids, Collection<String> names, Collection<String> semantics, List<Rule> rules){
+    public MutableFeatureTypeStyle(String name, Description desc, Collection<Object> ids, Collection<String> names, Collection<SemanticType> semantics, List<Rule> rules){
         if(name == null){
             throw new NullPointerException("name can't be null");
         }
@@ -52,7 +53,7 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
         //TODO fix this list to listen to changes and fire events if necessary
         this.ids = new ArrayList<Object>();
         this.names = new ArrayList<String>();
-        this.semantics = new ArrayList<String>();
+        this.semantics = new ArrayList<SemanticType>();
         this.rules = new ArrayList<Rule>();
         if(ids != null) this.ids.addAll(ids);
         if(names != null) this.names.addAll(names);
@@ -97,7 +98,7 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
      * 
      * @return live list
      */
-    public Collection<String> semanticTypeIdentifiers() {
+    public Collection<SemanticType> semanticTypeIdentifiers() {
         return semantics;
     }
 

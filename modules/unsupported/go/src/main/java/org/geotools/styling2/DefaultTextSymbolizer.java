@@ -16,6 +16,7 @@
  */
 package org.geotools.styling2;
 
+import javax.measure.unit.Unit;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Description;
 import org.opengis.style.Fill;
@@ -36,12 +37,12 @@ class DefaultTextSymbolizer implements TextSymbolizer{
     private final LabelPlacement placement;
     private final Halo halo;
     private final Fill fill;
-    private final String uom;
+    private final Unit uom;
     private final String geom;
     private final String name;
     private final Description desc;
     
-    DefaultTextSymbolizer(Expression label, Font font, LabelPlacement placement, Halo halo, Fill fill, String uom, String geom, String name, Description desc){
+    DefaultTextSymbolizer(Expression label, Font font, LabelPlacement placement, Halo halo, Fill fill, Unit uom, String geom, String name, Description desc){
         this.label = label;
         this.font = font;
         this.placement = placement;
@@ -73,7 +74,7 @@ class DefaultTextSymbolizer implements TextSymbolizer{
         return fill;
     }
 
-    public String getUnitOfMeasure() {
+    public Unit getUnitOfMeasure() {
         return uom;
     }
 

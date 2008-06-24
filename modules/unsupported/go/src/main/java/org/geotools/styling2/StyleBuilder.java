@@ -25,8 +25,8 @@ import org.opengis.style.PointSymbolizer;
 import org.opengis.style.PolygonSymbolizer;
 import org.opengis.style.RasterSymbolizer;
 import org.opengis.style.Rule;
+import org.opengis.style.SemanticType;
 import org.opengis.style.Style;
-import org.opengis.style.StyleVisitor;
 import org.opengis.style.Symbolizer;
 import org.opengis.style.TextSymbolizer;
 
@@ -44,7 +44,7 @@ public class StyleBuilder {
 
     public Style createStyle(){
         Symbolizer symbol = SYMBOL_BUILDER.createDefaultLineSymbolizer();
-        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_ANY);
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,SemanticType.ANY);
 
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
@@ -54,7 +54,7 @@ public class StyleBuilder {
     }
 
     public Style createPointStyle(PointSymbolizer symbol){
-        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_POINT);
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,SemanticType.POINT);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
         Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
@@ -62,7 +62,7 @@ public class StyleBuilder {
     }
 
     public Style createLineStyle(LineSymbolizer symbol){
-        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_LINE);
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,SemanticType.LINE);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
         Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
@@ -70,7 +70,7 @@ public class StyleBuilder {
     }
 
     public Style createStyle(Symbolizer[] symbols){
-        FeatureTypeStyle fts = createFeatureTypeStyle(symbols,FeatureTypeStyle.SEMANTIC_ID_LINE);
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbols,SemanticType.ANY);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
         Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
@@ -79,7 +79,7 @@ public class StyleBuilder {
 
     
     public Style createPolygonStyle(PolygonSymbolizer symbol){
-        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_POLYGON);
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,SemanticType.POLYGON);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
         Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
@@ -87,7 +87,7 @@ public class StyleBuilder {
     }
 
     public Style createTextStyle(TextSymbolizer symbol){
-        FeatureTypeStyle fts = createFeatureTypeStyle(symbol, FeatureTypeStyle.SEMANTIC_ID_TEXT);
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol, SemanticType.TEXT);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
         Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
@@ -95,7 +95,7 @@ public class StyleBuilder {
     }
 
     public Style createRasterStyle(RasterSymbolizer symbol){
-        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,FeatureTypeStyle.SEMANTIC_ID_RASTER);
+        FeatureTypeStyle fts = createFeatureTypeStyle(symbol,SemanticType.RASTER);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
         Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
@@ -104,7 +104,7 @@ public class StyleBuilder {
 
 
 
-    public FeatureTypeStyle createFeatureTypeStyle(Symbolizer symbol, String semantic){
+    public FeatureTypeStyle createFeatureTypeStyle(Symbolizer symbol, SemanticType semantic){
 
         //TODO replace those fakenames, will disapear when merged with geotools styles
 
@@ -112,7 +112,7 @@ public class StyleBuilder {
         symbols.add(symbol);
         Rule rule = new MutableRule("fakename", SymbolizerBuilder.DEFAULT_DESCRIPTION, null, null, false, 0, Double.MAX_VALUE, symbols);
 
-        Collection<String> semantics = new ArrayList<String>();
+        Collection<SemanticType> semantics = new ArrayList<SemanticType>();
         semantics.add(semantic);
         List<Rule> rules = new ArrayList<Rule>();
         rules.add(rule);
@@ -120,7 +120,7 @@ public class StyleBuilder {
         return fts;
     }
     
-    public FeatureTypeStyle createFeatureTypeStyle(Symbolizer[] symbol, String semantic){
+    public FeatureTypeStyle createFeatureTypeStyle(Symbolizer[] symbol, SemanticType semantic){
 
         //TODO replace those fakenames, will disapear when merged with geotools styles
 
@@ -130,7 +130,7 @@ public class StyleBuilder {
         }
         Rule rule = new MutableRule("fakename", SymbolizerBuilder.DEFAULT_DESCRIPTION, null, null, false, 0, Double.MAX_VALUE, symbols);
 
-        Collection<String> semantics = new ArrayList<String>();
+        Collection<SemanticType> semantics = new ArrayList<SemanticType>();
         semantics.add(semantic);
         List<Rule> rules = new ArrayList<Rule>();
         rules.add(rule);

@@ -16,6 +16,7 @@
  */
 package org.geotools.styling2;
 
+import javax.measure.unit.Unit;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.ChannelSelection;
 import org.opengis.style.ColorMap;
@@ -40,7 +41,7 @@ class DefaultRasterSymbolizer implements RasterSymbolizer{
     private final ContrastEnhancement enchance;
     private final ShadedRelief relief;
     private final Symbolizer outline;
-    private final String uom;
+    private final Unit uom;
     private final String geom;
     private final String name;
     private final Description desc;
@@ -52,7 +53,7 @@ class DefaultRasterSymbolizer implements RasterSymbolizer{
             ContrastEnhancement enchance,
             ShadedRelief relief,
             Symbolizer outline,
-            String uom,
+            Unit uom,
             String geom,
             String name,
             Description desc){
@@ -97,7 +98,7 @@ class DefaultRasterSymbolizer implements RasterSymbolizer{
         return outline;
     }
 
-    public String getUnitOfMeasure() {
+    public Unit getUnitOfMeasure() {
         return uom;
     }
 

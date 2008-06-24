@@ -16,6 +16,7 @@
  */
 package org.geotools.styling2;
 
+import javax.measure.unit.Unit;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Description;
 import org.opengis.style.Displacement;
@@ -34,12 +35,12 @@ class DefaultPolygonSymbolizer implements PolygonSymbolizer{
     private final Fill fill;
     private final Displacement disp;
     private final Expression offset;
-    private final String uom;
+    private final Unit uom;
     private final String geom;
     private final String name;
     private final Description desc;
     
-    DefaultPolygonSymbolizer(Stroke stroke, Fill fill, Displacement disp, Expression offset, String uom, String geom, String name, Description desc){
+    DefaultPolygonSymbolizer(Stroke stroke, Fill fill, Displacement disp, Expression offset, Unit uom, String geom, String name, Description desc){
         this.stroke = stroke;
         this.fill = fill;
         this.disp = disp;
@@ -66,7 +67,7 @@ class DefaultPolygonSymbolizer implements PolygonSymbolizer{
         return offset;
     }
 
-    public String getUnitOfMeasure() {
+    public Unit getUnitOfMeasure() {
         return uom;
     }
 

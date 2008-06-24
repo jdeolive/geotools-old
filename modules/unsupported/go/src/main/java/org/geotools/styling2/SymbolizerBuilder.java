@@ -21,6 +21,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
 import javax.swing.Icon;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.filter.expression.Expression;
@@ -85,7 +87,7 @@ public class SymbolizerBuilder {
     public static final String                 DEFAULT_RASTER_NAME;
     
     public static final Expression             DEFAULT_OPACITY;
-    public static final String                 DEFAULT_UOM;
+    public static final Unit                   DEFAULT_UOM;
     public static final String                 DEFAULT_GEOM;
     public static final Description            DEFAULT_DESCRIPTION;
     public static final Displacement           DEFAULT_DISPLACEMENT; 
@@ -96,7 +98,7 @@ public class SymbolizerBuilder {
     
     static{
         DEFAULT_OPACITY = SB.literalExpression(1f);
-        DEFAULT_UOM = Symbolizer.UOM_DISPLAY;
+        DEFAULT_UOM = NonSI.PIXEL;
         DEFAULT_GEOM = null;        
         DEFAULT_DESCRIPTION = new DefaultDescription(
                 new SimpleInternationalString("Title"), 
@@ -384,7 +386,7 @@ public class SymbolizerBuilder {
         return lp;
     }
     
-    public LineSymbolizer createLineSymbolizer(Stroke stroke, Expression offset, String uom, String geom, String name, Description desc){
+    public LineSymbolizer createLineSymbolizer(Stroke stroke, Expression offset, Unit uom, String geom, String name, Description desc){
         LineSymbolizer ls = new DefaultLineSymbolizer(stroke, offset, uom, geom, name, desc);
         return ls;
     }
@@ -404,7 +406,7 @@ public class SymbolizerBuilder {
         return pp;
     }
     
-    public PointSymbolizer createPointSymbolizer(Graphic graphic, String uom, String geom, String name, Description desc){
+    public PointSymbolizer createPointSymbolizer(Graphic graphic, Unit uom, String geom, String name, Description desc){
         PointSymbolizer ps = new DefaultPointSymbolizer(graphic, uom, geom, name, desc);
         return ps;
     }
@@ -413,7 +415,7 @@ public class SymbolizerBuilder {
             Fill fill, 
             Displacement disp, 
             Expression offset, 
-            String uom, 
+            Unit uom, 
             String geom,
             String name, 
             Description desc){
@@ -428,7 +430,7 @@ public class SymbolizerBuilder {
             ContrastEnhancement enchance,
             ShadedRelief relief,
             Symbolizer outline,
-            String uom,
+            Unit uom,
             String geom,
             String name,
             Description desc){
@@ -464,7 +466,7 @@ public class SymbolizerBuilder {
             LabelPlacement placement, 
             Halo halo,
             Fill fill, 
-            String uom, 
+            Unit uom, 
             String geom, 
             String name, 
             Description desc){

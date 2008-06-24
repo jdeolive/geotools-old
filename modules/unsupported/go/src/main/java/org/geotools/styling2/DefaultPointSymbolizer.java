@@ -16,6 +16,7 @@
  */
 package org.geotools.styling2;
 
+import javax.measure.unit.Unit;
 import org.opengis.style.Description;
 import org.opengis.style.Graphic;
 import org.opengis.style.PointSymbolizer;
@@ -28,12 +29,12 @@ import org.opengis.style.StyleVisitor;
 class DefaultPointSymbolizer implements PointSymbolizer{
 
     private final Graphic graphic;
-    private final String uom;
+    private final Unit uom;
     private final String geom;
     private final String name;
     private final Description desc;
     
-    DefaultPointSymbolizer(Graphic graphic, String uom, String geom, String name, Description desc){
+    DefaultPointSymbolizer(Graphic graphic, Unit uom, String geom, String name, Description desc){
         this.graphic = graphic;
         this.uom = uom;
         this.geom = geom;
@@ -45,7 +46,7 @@ class DefaultPointSymbolizer implements PointSymbolizer{
         return graphic;
     }
 
-    public String getUnitOfMeasure() {
+    public Unit getUnitOfMeasure() {
         return uom;
     }
 
