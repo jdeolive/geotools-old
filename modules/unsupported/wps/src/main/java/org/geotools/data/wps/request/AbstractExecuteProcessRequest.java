@@ -20,12 +20,18 @@ package org.geotools.data.wps.request;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
 
 import net.opengis.ows11.CodeType;
 import net.opengis.ows11.Ows11Factory;
+import net.opengis.wps.ComplexDataType;
 import net.opengis.wps.DataInputsType1;
+import net.opengis.wps.DataType;
 import net.opengis.wps.ExecuteType;
+import net.opengis.wps.InputType;
+import net.opengis.wps.LiteralDataType;
 import net.opengis.wps.ResponseFormType;
 import net.opengis.wps.WpsFactory;
 
@@ -49,6 +55,11 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
 	 * for this request).
 	 */
 	private boolean usePost = true;
+	
+	/**
+	 * store the inputs for this request
+	 */
+	private Properties inputs;
 	
     /**
      * Constructs a basic ExecuteProcessRequest, without versioning info.
@@ -89,7 +100,6 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     	
     	ExecuteType request = createExecuteType();
     	encoder.encode(request, WPS.Execute, outputStream);
-    	System.out.println(outputStream.toString());
 
     	/*
     	Set<Object> keyset = this.properties.keySet();
@@ -102,6 +112,8 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     		encoder.encode(object, null, outputStream);
     	}
     	*/
+    	
+    	System.out.println(outputStream.toString());
 
 	}   
     
@@ -113,23 +125,55 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
         CodeType codetype = Ows11Factory.eINSTANCE.createCodeType();
         String iden = (String)this.properties.get(this.IDENTIFIER);
         codetype.setValue(iden);
-        codetype.setCodeSpace("test");
         request.setIdentifier(codetype);
         
+        // service and version
         request.setService("WPS");// TODO: un-hardcode
         request.setVersion("1.0.0");// TODO: un-hardcode
         
-        //inputs
-        DataInputsType1 inputs = WpsFactory.eINSTANCE.createDataInputsType1();
-        //inputs.getInput().
-        request.setDataInputs(inputs);
+        // inputs - loop through inputs and add them
+        if (this.inputs != null && !this.inputs.isEmpty()) {
+	        DataInputsType1 inputtypes = WpsFactory.eINSTANCE.createDataInputsType1();
+	        
+	    	Set<Object> keyset = this.inputs.keySet();
+	    	Iterator<Object> iterator = keyset.iterator();
+	    	while (iterator.hasNext()) {
+	    		Object key = iterator.next();
+	    		Object object = this.inputs.get(key);
+	    		
+	    		// identifier
+	    		InputType input = WpsFactory.eINSTANCE.createInputType();
+	    		CodeType ct = Ows11Factory.eINSTANCE.createCodeType();
+	    		ct.setValue((String)key);
+	    		input.setIdentifier(ct);
+	    		input.setData((DataType)object);
+	    		inputtypes.getInput().add(input);
+	    	}        
+	
+	        request.setDataInputs(inputtypes);
+        }
         
         // responsetype
-        ResponseFormType respF = WpsFactory.eINSTANCE.createResponseFormType();
+        //ResponseFormType respF = WpsFactory.eINSTANCE.createResponseFormType();
         //respF.
-        request.setResponseForm(respF);
+        //request.setResponseForm(respF);
         
         return request;
     }    
 
+    /**
+     * Add an input to the input properties.  
+     * If null is passed as the value, remove any current input with the given name.
+     * @param name input name
+     * @param value the datatype input object
+     */
+    public void addInput(String name, DataType value) {
+    	if (value == null) {
+    		inputs.remove(name);
+    	} else {
+    		
+    		inputs.put(name, value);
+    	}
+    }
+    
 }

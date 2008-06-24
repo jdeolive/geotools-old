@@ -25,6 +25,7 @@ package org.geotools.data.ows;
 public class WPSRequest {
     private OperationType getCapabilities;
     private OperationType describeProcess;
+    private OperationType executeProcess;
 
     /**
      * DOCUMENT ME!
@@ -51,5 +52,12 @@ public class WPSRequest {
     public void setDescribeProcess( OperationType describeProcess ) {
         this.describeProcess = describeProcess;
     }
+    
+    public OperationType getExecuteProcess() {
+        return executeProcess;
+    }
+    public void setExecuteProcess( OperationType executeProcess ) {
+        this.executeProcess = executeProcess;
+    }    
  
 }
