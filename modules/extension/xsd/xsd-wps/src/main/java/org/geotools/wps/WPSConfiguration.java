@@ -30,6 +30,7 @@ import org.geotools.xml.Configuration;
 import org.picocontainer.MutablePicoContainer;
 
 import org.geotools.wps.bindings.InputReferenceTypeBinding;
+import org.geotools.wps.bindings.ComplexDataTypeBinding;
 
 /**
  * Parser configuration for the http://www.opengis.net/wps/1.0.0 schema.
@@ -52,10 +53,11 @@ public class WPSConfiguration extends Configuration {
     @Override
     protected void registerBindings(Map bindings) {
         bindings.put(WPS.InputReferenceType, InputReferenceTypeBinding.class);
+        bindings.put(WPS.ComplexDataType, ComplexDataTypeBinding.class);    // XXX TEST
         bindings.put(WPS.ComplexDataCombinationsType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ComplexDataCombinationsType));
         bindings.put(WPS.ComplexDataCombinationType,new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ComplexDataCombinationType));
         bindings.put(WPS.ComplexDataDescriptionType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ComplexDataDescriptionType));
-        bindings.put(WPS.ComplexDataType,new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ComplexDataType));
+        //bindings.put(WPS.ComplexDataType,new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ComplexDataType));
         bindings.put(WPS.CRSsType,new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.CRSsType));
         bindings.put(WPS.DataInputsType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DataInputsType, DataInputsType1.class));
         bindings.put(WPS.DataType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DataType));

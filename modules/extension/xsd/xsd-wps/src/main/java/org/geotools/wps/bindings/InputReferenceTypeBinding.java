@@ -14,6 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
+
 package org.geotools.wps.bindings;
 
 import java.util.List;
@@ -51,8 +52,6 @@ public class InputReferenceTypeBinding extends ComplexEMFBinding
 
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception
     {
-        InputReferenceType inputReference = factory.createInputReferenceType();
-
         Node attr = node.getAttribute("method");
 
         if (null != attr)
