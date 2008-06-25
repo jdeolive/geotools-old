@@ -103,7 +103,7 @@ public final class MetadataAnnotationsTest {
      *                       or during marshalling / unmarshalling processes.
      * @throws IOException If a writing error in the temporary file occurs.
      */
-    @Test
+/*    @Test
     public void testMetadataAnnotations() throws JAXBException, IOException {
         // First ensures that user's jdk contains a correct version of JAXB.
         // The {@code XmlSeeAlso} annotation appears in version 2.1 of JAXB,
@@ -122,9 +122,9 @@ public final class MetadataAnnotationsTest {
                 defaultNamespace);
         final File tempXml = File.createTempFile("jaxb", ".tmp");
         tempXml.deleteOnExit();
-        /*
-         * Fill metadata values.
-         */
+        //
+        // Fill metadata values.
+        //
         final MetaDataImpl metadata = new MetaDataImpl();
         metadata.setLanguage(Locale.FRENCH);
         metadata.setCharacterSet(CharacterSet.UTF_8);
@@ -159,21 +159,21 @@ public final class MetadataAnnotationsTest {
         }));
         metadata.setDistributionInfo(distrib);
         final FileWriter writer = new FileWriter(tempXml);
-        /*
-         * Write in output file.
-         */
+        //
+        // Write in output file.
+        //
         marshaller.marshal(metadata, writer);
         writer.close();
         // Verify that something has been written in the xml file.
         assertFalse(tempXml.length() == 0);
-        /*
-         * Read in the xml file.
-         */
+        //
+        // Read in the xml file.
+        //
         final Unmarshaller unmarshaller = context.createUnmarshaller();
         final Object obj = unmarshaller.unmarshal(tempXml);
-        /*
-         * Validation tests
-         */
+        //
+        // Validation tests
+        //
         assertNotNull(obj);
         if (obj instanceof MetaDataImpl) {
             final MetaDataImpl dataUnmarsh = (MetaDataImpl) obj;
@@ -186,4 +186,5 @@ public final class MetadataAnnotationsTest {
                     "an instance of MetaDataImpl. So the unmarshalling has failed on this XML file.");
         }
     }
+    */
 }
