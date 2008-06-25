@@ -21,10 +21,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.opengis.ows11.CodeType;
+import net.opengis.ows11.Ows11Factory;
+import net.opengis.wps.ComplexDataType;
+import net.opengis.wps.DataInputsType1;
+import net.opengis.wps.DataType;
+import net.opengis.wps.ExecuteType;
+import net.opengis.wps.InputType;
+import net.opengis.wps.WpsFactory;
+
+import org.geotools.xml.Encoder;
 import org.xml.sax.SAXException;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
 
 import junit.framework.TestCase;
 
@@ -40,4 +55,31 @@ public class ExecuteTest extends TestCase {
 		   Object obj = parser.parse(in);
 		   assertNotNull(obj);
 	}
+        
+        public void testExecuteEncode() throws Exception {
+            WpsFactory f = WpsFactory.eINSTANCE;
+            ExecuteType ex = f.createExecuteType();
+            
+            CodeType id = Ows11Factory.eINSTANCE.createCodeType();
+            ex.setIdentifier( id );
+            id.setValue( "foo" );
+            
+            DataInputsType1 inputs = f.createDataInputsType1();
+            ex.setDataInputs(inputs);
+            
+            InputType in = f.createInputType();
+            inputs.getInput().add( in );
+        
+            DataType data = f.createDataType();
+            in.setData( data );
+            
+            ComplexDataType cd = f.createComplexDataType();
+            data.setComplexData( cd );
+                
+            cd.getData().add( new GeometryFactory().createPoint( new Coordinate( 1, 2 ) ) );
+            
+            Encoder e = new Encoder( new WPSConfiguration() );
+            e.setIndenting( true );
+            e.encode( ex, WPS.Execute, System.out );
+        }
 }
