@@ -61,7 +61,9 @@ public class WPSUtils {
 			// do I need to add a FeatureMap object, or Entry object, or what?
 			//EStructuralFeature eStructuralFeature = null;
 			//Entry createEntry = FeatureMapUtil.createEntry(eStructuralFeature, obj);
-			cdt.getMixed().add(obj);
+			//cdt.getMixed().add(obj);
+			cdt.getData().add(obj);
+			
 			if (schema != null) {
 				cdt.setSchema(schema);
 			}

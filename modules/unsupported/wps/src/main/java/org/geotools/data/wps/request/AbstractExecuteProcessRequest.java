@@ -69,6 +69,7 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
      */
     public AbstractExecuteProcessRequest( URL onlineResource, Properties properties ) {
         super(onlineResource, properties);
+        this.inputs = new Properties();
     }
     
     protected void initRequest() {

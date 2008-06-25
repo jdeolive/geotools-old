@@ -144,14 +144,14 @@ public class OnlineWPSTest extends TestCase {
         Geometry geom1 = (Polygon) reader.read("POLYGON((20 10, 30 0, 40 10, 30 20, 20 10))");
 
         // create and set the input on the exe request
-//		DataType input = WPSUtils.createInput(geom1, schema);
-//		exeRequest.addInput(idt.getIdentifier().getValue(), input);
-//		
-//		// send the request
-//		ExecuteProcessResponse response = wps.issueRequest(exeRequest);
-//		//System.out.println(response);
-//		//System.out.println(response.getExecuteResponse());
-//		assertNotNull(response);
+		DataType input = WPSUtils.createInput(geom1, schema);
+		exeRequest.addInput(idt.getIdentifier().getValue(), input);
+		
+		// send the request
+		ExecuteProcessResponse response = wps.issueRequest(exeRequest);
+		//System.out.println(response);
+		//System.out.println(response.getExecuteResponse());
+		assertNotNull(response);
 		
 	}	
 	
