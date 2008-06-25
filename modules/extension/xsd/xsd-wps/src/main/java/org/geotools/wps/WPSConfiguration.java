@@ -23,6 +23,7 @@ import net.opengis.wps.WpsFactory;
 
 import net.opengis.wps.DataInputsType1;
 
+import org.geotools.gml3.GMLConfiguration;
 import org.geotools.ows.v1_1.OWSConfiguration;
 import org.geotools.wps.bindings.LanguagesBinding;
 import org.geotools.xml.ComplexEMFBinding;
@@ -48,6 +49,7 @@ public class WPSConfiguration extends Configuration {
        super(WPS.getInstance());
 
        addDependency( new OWSConfiguration());
+       addDependency( new GMLConfiguration());
     }
 
     @Override
