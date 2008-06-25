@@ -59,9 +59,9 @@ import com.esri.sde.sdk.client.SeVersion;
  * Exercises the ArcSDE Java API to ensure our assumptions are correct.
  * <p>
  * Some of this tests asserts the information from the documentation found on <a
- * href="http://arcsdeonline.esri.com">arcsdeonline </a>, and others are needed to validate our
- * assumptions in the API behavior due to the very little documentation ESRI provides about the less
- * obvious things.
+ * href="http://arcsdeonline.esri.com">arcsdeonline </a>, and others are needed
+ * to validate our assumptions in the API behavior due to the very little
+ * documentation ESRI provides about the less obvious things.
  * </p>
  * 
  * @author Gabriel Roldan, Axios Engineering
@@ -89,8 +89,9 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     /**
-     * Builds a test suite for all this class' tests with per suite initialization directed to
-     * {@link #oneTimeSetUp()} and per suite clean up directed to {@link #oneTimeTearDown()}
+     * Builds a test suite for all this class' tests with per suite
+     * initialization directed to {@link #oneTimeSetUp()} and per suite clean up
+     * directed to {@link #oneTimeTearDown()}
      * 
      * @return
      */
@@ -115,10 +116,7 @@ public class ArcSDEJavaApiTest extends TestCase {
     private static void oneTimeSetUp() throws Exception {
         testData = new TestData();
         testData.setUp();
-        if (ArcSDEDataStoreFactory.getSdeClientVersion() == ArcSDEDataStoreFactory.JSDE_VERSION_DUMMY) {
-            throw new RuntimeException("Don't run the test-suite with the dummy jar.  "
-                    + "Make sure the real ArcSDE jars are on your classpath.");
-        }
+
         final boolean insertTestData = true;
         testData.createTempTable(insertTestData);
     }
@@ -130,10 +128,12 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     /**
-     * loads {@code test-data/testparams.properties} into a Properties object, wich is used to
-     * obtain test tables names and is used as parameter to find the DataStore
+     * loads {@code test-data/testparams.properties} into a Properties object,
+     * wich is used to obtain test tables names and is used as parameter to find
+     * the DataStore
      * 
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
+     *             DOCUMENT ME!
      */
     @Override
     protected void setUp() throws Exception {
@@ -150,7 +150,8 @@ public class ArcSDEJavaApiTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
+     *             DOCUMENT ME!
      */
     @Override
     protected void tearDown() throws Exception {
@@ -196,7 +197,8 @@ public class ArcSDEJavaApiTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
+     *             DOCUMENT ME!
      */
     public void testGetBoundsWhileFetchingRows() throws Exception {
         final String typeName = testData.getTempTableName();
@@ -254,20 +256,24 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     /**
-     * @param session the session to use in obtaining the query result count
-     * @param tableName the name of the table to query
-     * @param whereClause where clause, may be null
-     * @param spatFilters spatial filters, may be null
-     * @param the state identifier to query over a versioned table, may be {@code null}
+     * @param session
+     *            the session to use in obtaining the query result count
+     * @param tableName
+     *            the name of the table to query
+     * @param whereClause
+     *            where clause, may be null
+     * @param spatFilters
+     *            spatial filters, may be null
+     * @param the
+     *            state identifier to query over a versioned table, may be
+     *            {@code null}
      * @return the sde calculated counts for the given filter
      * @throws IOException
      * @throws Exception
      */
-    private static int getTempTableCount(final ISession session,
-            final String tableName,
-            final String whereClause,
-            final SeFilter[] spatFilters,
-            final SeState state) throws IOException {
+    private static int getTempTableCount(final ISession session, final String tableName,
+            final String whereClause, final SeFilter[] spatFilters, final SeState state)
+            throws IOException {
 
         final Command<Integer> countCmd = new Command<Integer>() {
             @Override
@@ -308,7 +314,8 @@ public class ArcSDEJavaApiTest extends TestCase {
     /**
      * DOCUMENT ME!
      * 
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
+     *             DOCUMENT ME!
      */
     public void testCalculateCount() throws Exception {
         try {
@@ -360,7 +367,8 @@ public class ArcSDEJavaApiTest extends TestCase {
             public SeExtent execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeQuery spatialQuery = new SeQuery(connection);
-                // spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, filters);
+                // spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE,
+                // false, filters);
                 SeExtent extent = spatialQuery.calculateLayerExtent(seQueryInfo);
                 return extent;
             }
@@ -414,10 +422,14 @@ public class ArcSDEJavaApiTest extends TestCase {
             }
         });
 
-        // just checking the extent were returned, which is something as I get lots of
-        // exceptions with trial and error approaches. checking the coordinate results seems
-        // hard as the test data or layer or crs is screwing things up and getting somehing like
-        // 9.223E18. I guess the may be a problem with the test layer accepting any type of
+        // just checking the extent were returned, which is something as I get
+        // lots of
+        // exceptions with trial and error approaches. checking the coordinate
+        // results seems
+        // hard as the test data or layer or crs is screwing things up and
+        // getting somehing like
+        // 9.223E18. I guess the may be a problem with the test layer accepting
+        // any type of
         // geometry or the CRS definition used in TestData, not sure
         assertNotNull(extent);
 
@@ -480,7 +492,8 @@ public class ArcSDEJavaApiTest extends TestCase {
     /**
      * Ensures a point SeShape behaves as expected.
      * 
-     * @throws SeException if it is thrown while constructing the SeShape
+     * @throws SeException
+     *             if it is thrown while constructing the SeShape
      */
     public void testPointFormat() throws SeException {
         int numPts = 1;
@@ -511,7 +524,8 @@ public class ArcSDEJavaApiTest extends TestCase {
     /**
      * Ensures a multipoint SeShape behaves as expected.
      * 
-     * @throws SeException if it is thrown while constructing the SeShape
+     * @throws SeException
+     *             if it is thrown while constructing the SeShape
      */
     public void testMultiPointFormat() throws SeException {
         int numPts = 4;
@@ -545,7 +559,8 @@ public class ArcSDEJavaApiTest extends TestCase {
     /**
      * Ensures a linestring SeShape behaves as expected.
      * 
-     * @throws SeException if it is thrown while constructing the SeShape
+     * @throws SeException
+     *             if it is thrown while constructing the SeShape
      */
     public void testLineStringFormat() throws SeException {
         int numPts = 4;
@@ -573,7 +588,8 @@ public class ArcSDEJavaApiTest extends TestCase {
     /**
      * Ensures a multilinestring SeShape behaves as expected.
      * 
-     * @throws SeException if it is thrown while constructing the SeShape
+     * @throws SeException
+     *             if it is thrown while constructing the SeShape
      */
     public void testMultiLineStringFormat() throws SeException {
         int numPts = 4;
@@ -601,14 +617,16 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     /**
-     * Ensures a polygon SeShape behaves as expected, building a simple polygon and a polygon with a
-     * hole.
+     * Ensures a polygon SeShape behaves as expected, building a simple polygon
+     * and a polygon with a hole.
      * 
-     * @throws SeException if it is thrown while constructing the SeShape
+     * @throws SeException
+     *             if it is thrown while constructing the SeShape
      */
     public void testPolygonFormat() throws SeException {
         /*
-         * Generate an area shape composed of two polygons, the first with a hole
+         * Generate an area shape composed of two polygons, the first with a
+         * hole
          */
         int numPts = 4;
         int numParts = 1;
@@ -674,11 +692,13 @@ public class ArcSDEJavaApiTest extends TestCase {
     /**
      * Ensures a multipolygon SeShape behaves as expected.
      * 
-     * @throws SeException if it is thrown while constructing the SeShape
+     * @throws SeException
+     *             if it is thrown while constructing the SeShape
      */
     public void testMultiPolygonFormat() throws SeException {
         /*
-         * Generate an area shape composed of two polygons, the first with a hole
+         * Generate an area shape composed of two polygons, the first with a
+         * hole
          */
         int numPts = 18;
         int numParts = 2;
@@ -736,15 +756,20 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     /**
-     * Creates an ArcSDE table, "EXAMPLE", and adds a spatial column, "SHAPE", to it.
+     * Creates an ArcSDE table, "EXAMPLE", and adds a spatial column, "SHAPE",
+     * to it.
      * <p>
-     * This code is directly taken from the createBaseTable mehtod of the arcsdeonline "Working with
-     * layers" example, to verify that it works prior to blame the gt implementation.
+     * This code is directly taken from the createBaseTable mehtod of the
+     * arcsdeonline "Working with layers" example, to verify that it works prior
+     * to blame the gt implementation.
      * </p>
      * 
-     * @throws SeException DOCUMENT ME!
-     * @throws IOException DOCUMENT ME!
-     * @throws UnavailableArcSDEConnectionException DOCUMENT ME!
+     * @throws SeException
+     *             DOCUMENT ME!
+     * @throws IOException
+     *             DOCUMENT ME!
+     * @throws UnavailableArcSDEConnectionException
+     *             DOCUMENT ME!
      */
     public void testCreateBaseTable() throws SeException, IOException,
             UnavailableArcSDEConnectionException {
@@ -752,8 +777,9 @@ public class ArcSDEJavaApiTest extends TestCase {
         final SeColumnDefinition[] colDefs = new SeColumnDefinition[7];
 
         /*
-         * Define the columns and their attributes for the table to be created. NOTE: The valid
-         * range/values of size and scale parameters vary from one database to another.
+         * Define the columns and their attributes for the table to be created.
+         * NOTE: The valid range/values of size and scale parameters vary from
+         * one database to another.
          */
         boolean isNullable = true;
         colDefs[0] = new SeColumnDefinition("INT32_COL", SeColumnDefinition.TYPE_INTEGER, 10, 0,
@@ -781,8 +807,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                 SeTable table = null;
 
                 /*
-                 * Create a qualified table name with current user's name and the name of the table
-                 * to be created, "EXAMPLE".
+                 * Create a qualified table name with current user's name and
+                 * the name of the table to be created, "EXAMPLE".
                  */
                 String tableName = (connection.getUser() + ".EXAMPLE");
                 table = new SeTable(connection, tableName);
@@ -795,8 +821,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                 }
 
                 /*
-                 * Create the table using the DBMS default configuration keyword. Valid keywords are
-                 * defined in the dbtune table.
+                 * Create the table using the DBMS default configuration
+                 * keyword. Valid keywords are defined in the dbtune table.
                  */
                 if (LOGGER.isLoggable(Level.FINE)) {
                     LOGGER.fine("\n--> Creating a table using DBMS Default Keyword");
@@ -811,10 +837,11 @@ public class ArcSDEJavaApiTest extends TestCase {
                 layer.setSpatialColumnName("SHAPE");
 
                 /*
-                 * Set the type of shapes that can be inserted into the layer. Shape type can be
-                 * just one or many. NOTE: Layers that contain more than one shape type can only be
-                 * accessed through the C and Java APIs and Arc Explorer Java 3.x. They cannot be
-                 * seen from ArcGIS desktop applications.
+                 * Set the type of shapes that can be inserted into the layer.
+                 * Shape type can be just one or many. NOTE: Layers that contain
+                 * more than one shape type can only be accessed through the C
+                 * and Java APIs and Arc Explorer Java 3.x. They cannot be seen
+                 * from ArcGIS desktop applications.
                  */
                 layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
                         | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
@@ -851,15 +878,20 @@ public class ArcSDEJavaApiTest extends TestCase {
     } // End method createBaseTable
 
     /**
-     * Creates an ArcSDE table, "EXAMPLE", and adds a spatial column, "SHAPE", to it.
+     * Creates an ArcSDE table, "EXAMPLE", and adds a spatial column, "SHAPE",
+     * to it.
      * <p>
-     * This code is directly taken from the createBaseTable mehtod of the arcsdeonline "Working with
-     * layers" example, to verify that it works prior to blame the gt implementation.
+     * This code is directly taken from the createBaseTable mehtod of the
+     * arcsdeonline "Working with layers" example, to verify that it works prior
+     * to blame the gt implementation.
      * </p>
      * 
-     * @throws SeException DOCUMENT ME!
-     * @throws IOException DOCUMENT ME!
-     * @throws UnavailableArcSDEConnectionException DOCUMENT ME!
+     * @throws SeException
+     *             DOCUMENT ME!
+     * @throws IOException
+     *             DOCUMENT ME!
+     * @throws UnavailableArcSDEConnectionException
+     *             DOCUMENT ME!
      */
     public void testCreateNonStandardSchema() throws SeException, IOException,
             UnavailableArcSDEConnectionException {
@@ -870,8 +902,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                     IOException {
                 final SeLayer layer = new SeLayer(connection);
                 /*
-                 * Create a qualified table name with current user's name and the name of the table
-                 * to be created, "EXAMPLE".
+                 * Create a qualified table name with current user's name and
+                 * the name of the table to be created, "EXAMPLE".
                  */
                 final String tableName = (connection.getUser() + ".NOTENDSWITHGEOM");
                 final SeTable table = new SeTable(connection, tableName);
@@ -885,8 +917,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                     }
 
                     /*
-                     * Create the table using the DBMS default configuration keyword. Valid keywords
-                     * are defined in the dbtune table.
+                     * Create the table using the DBMS default configuration
+                     * keyword. Valid keywords are defined in the dbtune table.
                      */
                     if (LOGGER.isLoggable(Level.FINE)) {
                         System.out.println("\n--> Creating a table using DBMS Default Keyword");
@@ -900,9 +932,9 @@ public class ArcSDEJavaApiTest extends TestCase {
                     SeColumnDefinition[] colDefs = new SeColumnDefinition[7];
 
                     /*
-                     * Define the columns and their attributes for the table to be created. NOTE:
-                     * The valid range/values of size and scale parameters vary from one database to
-                     * another.
+                     * Define the columns and their attributes for the table to
+                     * be created. NOTE: The valid range/values of size and
+                     * scale parameters vary from one database to another.
                      */
                     boolean isNullable = true;
                     colDefs[0] = new SeColumnDefinition("INT32_COL",
@@ -932,10 +964,12 @@ public class ArcSDEJavaApiTest extends TestCase {
                     layer.setSpatialColumnName("SHAPE");
 
                     /*
-                     * Set the type of shapes that can be inserted into the layer. Shape type can be
-                     * just one or many. NOTE: Layers that contain more than one shape type can only
-                     * be accessed through the C and Java APIs and Arc Explorer Java 3.x. They
-                     * cannot be seen from ArcGIS desktop applications.
+                     * Set the type of shapes that can be inserted into the
+                     * layer. Shape type can be just one or many. NOTE: Layers
+                     * that contain more than one shape type can only be
+                     * accessed through the C and Java APIs and Arc Explorer
+                     * Java 3.x. They cannot be seen from ArcGIS desktop
+                     * applications.
                      */
                     layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
                             | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
@@ -1028,8 +1062,8 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     /**
-     * Does a query over a non autocommit transaction return the added/modified features and hides
-     * the deleted ones?
+     * Does a query over a non autocommit transaction return the added/modified
+     * features and hides the deleted ones?
      * 
      * @throws DataSourceException
      */
@@ -1079,7 +1113,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                         IOException {
                     // the query over the transaction connection
                     SeQuery transQuery = new SeQuery(connection, columns, sqlConstruct);
-                    // transaction is not committed, so transQuery should give the
+                    // transaction is not committed, so transQuery should give
+                    // the
                     // inserted
                     // record and query don't
                     transQuery.prepareQuery();
@@ -1125,8 +1160,9 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     /**
-     * Creates a versioned table with two versions, the default one and another one, makes edits
-     * over the default one, checks states are consistent in both
+     * Creates a versioned table with two versions, the default one and another
+     * one, makes edits over the default one, checks states are consistent in
+     * both
      * 
      * @throws Exception
      */
@@ -1137,16 +1173,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         final SeVersion defaultVersion;
         final SeVersion newVersion;
         {
-            defaultVersion = session.issue(new Command<SeVersion>() {
-                @Override
-                public SeVersion execute(ISession session, SeConnection connection)
-                        throws SeException, IOException {
-                    SeVersion defaultVersion = new SeVersion(connection,
-                            SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
-                    defaultVersion.getInfo();
-                    return defaultVersion;
-                }
-            });
+            defaultVersion = session.getDefaultVersion();
 
             newVersion = session.issue(new Command<SeVersion>() {
 
@@ -1160,7 +1187,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                     newVersion.setParentName(defaultVersion.getName());
                     newVersion.setDescription(defaultVersion.getName()
                             + " child for GeoTools ArcSDE unit tests");
-                    // do not require ArcSDE to create a unique name if the required
+                    // do not require ArcSDE to create a unique name if the
+                    // required
                     // version already exists
                     boolean uniqueName = false;
                     try {
@@ -1185,7 +1213,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                     IOException {
                 SeObjectId defVersionStateId = defaultVersion.getStateId();
                 SeState defVersionState = new SeState(connection, defVersionStateId);
-                // create a new state as a child of the current one, the current one
+                // create a new state as a child of the current one, the current
+                // one
                 // must be closed
                 if (defVersionState.isOpen()) {
                     defVersionState.close();
@@ -1247,5 +1276,4 @@ public class ArcSDEJavaApiTest extends TestCase {
                 newVersionState);
         assertEquals(0, newVersionCount);
     }
-
 }

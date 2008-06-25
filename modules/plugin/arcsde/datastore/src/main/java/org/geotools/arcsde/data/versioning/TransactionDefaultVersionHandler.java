@@ -52,16 +52,7 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
 
     public TransactionDefaultVersionHandler(final ISession session) throws IOException {
         this.session = session;
-        defaultVersion = session.issue(new Command<SeVersion>() {
-            @Override
-            public SeVersion execute(ISession session, SeConnection connection) throws SeException,
-                    IOException {
-                SeVersion defaultVersion = new SeVersion(connection,
-                        SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
-                defaultVersion.getInfo();
-                return defaultVersion;
-            }
-        });
+        defaultVersion = session.getDefaultVersion();
     }
 
     /**

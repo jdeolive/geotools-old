@@ -80,8 +80,6 @@ import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
-import com.esri.sde.sdk.client.SeRow;
-import com.esri.sde.sdk.client.SeShape;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -154,10 +152,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     private static void oneTimeSetUp() throws Exception {
         testData = new TestData();
         testData.setUp();
-        if (ArcSDEDataStoreFactory.getSdeClientVersion() == ArcSDEDataStoreFactory.JSDE_VERSION_DUMMY) {
-            throw new RuntimeException("Don't run the test-suite with the dummy jar.  "
-                    + "Make sure the real ArcSDE jars are on your classpath.");
-        }
+
         // do not insert test data, will do it at each test case
         final boolean insertTestData = false;
         testData.createTempTable(insertTestData);
@@ -1527,7 +1522,33 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         }
     }
 
-    public void testEditVersionedTableTransaction() throws Exception {
+    /**
+     * DOCUMENT ME!
+     * 
+     * @param args DOCUMENT ME!
+     */
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(ArcSDEFeatureStoreTest.class);
+    }
+
+    static class Watcher implements FeatureListener {
+
+        private Type type;
+
+        private Envelope bounds;
+
+        private FeatureSource<? extends FeatureType, ? extends Feature> source;
+
+        public void changed(FeatureEvent featureEvent) {
+            type = featureEvent.getType();
+            bounds = featureEvent.getBounds();
+            source = featureEvent.getFeatureSource();
+        }
+
+    }
+
+
+    public void testEditVersionedTableTransactionConcurrently() throws Exception {
         try {
             final String tableName;
             {
@@ -1626,90 +1647,4 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         }
     }
 
-    public void testEditVersionedTableAutoCommit() throws Exception {
-        try {
-            final String tableName;
-            {
-                ISession session = testData.getConnectionPool().getSession();
-                try {
-                    SeTable versionedTable = testData.createVersionedTable(session);
-                    tableName = versionedTable.getQualifiedName();
-                } finally {
-                    session.dispose();
-                }
-            }
-
-            final ArcSDEDataStore dataStore = testData.getDataStore();
-            final FeatureSource<SimpleFeatureType, SimpleFeature> source;
-            final FeatureStore<SimpleFeatureType, SimpleFeature> store;
-            source = dataStore.getFeatureSource(tableName);
-            store = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
-                    .getFeatureSource(tableName);
-
-            ArcSdeResourceInfo info = (ArcSdeResourceInfo) store.getInfo();
-            assertTrue(info.isVersioned());
-
-            final SimpleFeatureType schema = store.getSchema();
-            assertNull(schema.getAttribute("ROW_ID"));
-
-            final int initialCount = store.getCount(Query.ALL);
-            assertEquals(0, initialCount);
-
-            final WKTReader reader = new WKTReader();
-            Object[] content = new Object[2];
-            SimpleFeature feature;
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
-            int count;
-
-            content[0] = "Feature name 1";
-            content[1] = reader.read("POINT (0 0)");
-            feature = SimpleFeatureBuilder.build(schema, content, (String) null);
-            collection = DataUtilities.collection(feature);
-
-            store.addFeatures(collection);
-
-            count = store.getCount(Query.ALL);
-            assertEquals(1, count);
-
-            content[0] = "Feature name 2";
-            content[1] = reader.read("POINT (1 1)");
-            feature = SimpleFeatureBuilder.build(schema, content, (String) null);
-            collection = DataUtilities.collection(feature);
-
-            store.addFeatures(collection);
-
-            count = store.getCount(Query.ALL);
-            assertEquals(2, count);
-
-            assertEquals(2, source.getCount(Query.ALL));
-
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param args DOCUMENT ME!
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ArcSDEFeatureStoreTest.class);
-    }
-
-    static class Watcher implements FeatureListener {
-
-        private Type type;
-
-        private Envelope bounds;
-
-        private FeatureSource<? extends FeatureType, ? extends Feature> source;
-
-        public void changed(FeatureEvent featureEvent) {
-            type = featureEvent.getType();
-            bounds = featureEvent.getBounds();
-            source = featureEvent.getFeatureSource();
-        }
-
-    }
 }

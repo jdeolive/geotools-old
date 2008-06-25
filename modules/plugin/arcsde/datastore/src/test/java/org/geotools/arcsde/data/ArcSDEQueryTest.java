@@ -118,10 +118,7 @@ public class ArcSDEQueryTest extends TestCase {
     private static void oneTimeSetUp() throws Exception {
         testData = new TestData();
         testData.setUp();
-        if (ArcSDEDataStoreFactory.getSdeClientVersion() == ArcSDEDataStoreFactory.JSDE_VERSION_DUMMY) {
-            throw new RuntimeException("Don't run the test-suite with the dummy jar.  "
-                    + "Make sure the real ArcSDE jars are on your classpath.");
-        }
+
         final boolean insertTestData = true;
         testData.createTempTable(insertTestData);
     }
