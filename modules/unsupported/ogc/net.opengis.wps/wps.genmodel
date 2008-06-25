@@ -33,6 +33,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//ComplexDataType/encoding"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//ComplexDataType/mimeType"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//ComplexDataType/schema"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//ComplexDataType/data"/>
     </genClasses>
     <genClasses ecoreClass="wps.ecore#//CRSsType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wps.ecore#//CRSsType/cRS"/>
