@@ -17,6 +17,41 @@
 package org.geotools.styling;
 
 import org.geotools.filter.FilterAttributeExtractor;
+import org.geotools.styling.AnchorPoint;
+import org.geotools.styling.ChannelSelection;
+import org.geotools.styling.ColorMap;
+import org.geotools.styling.ColorMapEntry;
+import org.geotools.styling.ContrastEnhancement;
+import org.geotools.styling.Displacement;
+import org.geotools.styling.ExternalGraphic;
+import org.geotools.styling.FeatureTypeConstraint;
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.Fill;
+import org.geotools.styling.Font;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.Halo;
+import org.geotools.styling.ImageOutline;
+import org.geotools.styling.LinePlacement;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.Mark;
+import org.geotools.styling.NamedLayer;
+import org.geotools.styling.OverlapBehavior;
+import org.geotools.styling.PointPlacement;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.RasterSymbolizer;
+import org.geotools.styling.Rule;
+import org.geotools.styling.SelectedChannelType;
+import org.geotools.styling.ShadedRelief;
+import org.geotools.styling.Stroke;
+import org.geotools.styling.StyleVisitor;
+import org.geotools.styling.StyledLayer;
+import org.geotools.styling.StyledLayerDescriptor;
+import org.geotools.styling.Symbol;
+import org.geotools.styling.Symbolizer;
+import org.geotools.styling.TextSymbolizer;
+import org.geotools.styling.TextSymbolizer2;
+import org.geotools.styling.UserLayer;
 import org.opengis.filter.Filter;
 import org.opengis.filter.expression.ExpressionVisitor;
 
@@ -34,32 +69,32 @@ import org.opengis.filter.expression.ExpressionVisitor;
 /**
  * A simple visitor whose purpose is to extract the set of attributes used by a Style, that is, those that the Style expects to find in order to work properly
  * @author  wolf
- * @source  $URL$
+ * @source  $URL: http://svn.geotools.org/trunk/modules/library/main/src/main/java/org/geotools/styling/StyleAttributeExtractor.java 
  */
 
 public class StyleAttributeExtractor extends FilterAttributeExtractor
     implements StyleVisitor {
 
-	/**
-	 *   if the default geometry is used, this will be true.  See GEOS-469
-	 */
-	boolean defaultGeometryUsed = false;
+    /**
+     *   if the default geometry is used, this will be true.  See GEOS-469
+     */
+    boolean defaultGeometryUsed = false;
 
-	/**
-	 * reads the read-only-property.
-	 * See GEOS-469
-	 *
-	 * @return true if any of the symbolizers visted use the default geometry.
-	 */
-	public boolean getDefaultGeometryUsed()
-	{
-		return defaultGeometryUsed;
-	}
+    /**
+     * reads the read-only-property.
+     * See GEOS-469
+     *
+     * @return true if any of the symbolizers visted use the default geometry.
+     */
+    public boolean getDefaultGeometryUsed()
+    {
+        return defaultGeometryUsed;
+    }
 
     /**
      * @see org.geotools.styling.StyleVisitor#visit(org.geotools.styling.Style)
      */
-    public void visit(Style style) {
+    public void visit(org.geotools.styling.Style style) {
         FeatureTypeStyle[] ftStyles = style.getFeatureTypeStyles();
 
         for (int i = 0; i < ftStyles.length; i++) {
@@ -215,7 +250,7 @@ public class StyleAttributeExtractor extends FilterAttributeExtractor
         }
         else
         {
-        	this.defaultGeometryUsed = true; // they want the default geometry (see GEOS-469)
+            this.defaultGeometryUsed = true; // they want the default geometry (see GEOS-469)
         }
 
         if (ps.getGraphic() != null) {
@@ -233,7 +268,7 @@ public class StyleAttributeExtractor extends FilterAttributeExtractor
         }
         else
         {
-        	this.defaultGeometryUsed = true; // they want the default geometry (see GEOS-469)
+            this.defaultGeometryUsed = true; // they want the default geometry (see GEOS-469)
         }
 
         if (line.getStroke() != null) {
@@ -250,7 +285,7 @@ public class StyleAttributeExtractor extends FilterAttributeExtractor
         }
         else
         {
-        	this.defaultGeometryUsed = true; // they want the default geometry (see GEOS-469)
+            this.defaultGeometryUsed = true; // they want the default geometry (see GEOS-469)
         }
 
         if (poly.getStroke() != null) {
@@ -271,13 +306,13 @@ public class StyleAttributeExtractor extends FilterAttributeExtractor
         }
         else
         {
-        	this.defaultGeometryUsed = true; // they want the default geometry (see GEOS-469)
+            this.defaultGeometryUsed = true; // they want the default geometry (see GEOS-469)
         }
 
         if (text instanceof TextSymbolizer2)
         {
-        	if ( ((TextSymbolizer2)text).getGraphic() !=null)
-        		((TextSymbolizer2)text).getGraphic().accept(this);
+            if ( ((TextSymbolizer2)text).getGraphic() !=null)
+                ((TextSymbolizer2)text).getGraphic().accept(this);
         }
 
         if (text.getFill() != null) {
@@ -467,7 +502,7 @@ public class StyleAttributeExtractor extends FilterAttributeExtractor
     }
 
     public void visit(NamedLayer layer) {
-        Style[] styles = layer.getStyles();
+        org.geotools.styling.Style[] styles = layer.getStyles();
 
         for (int i = 0; i < styles.length; i++) {
             styles[i].accept(this);
@@ -475,7 +510,7 @@ public class StyleAttributeExtractor extends FilterAttributeExtractor
     }
 
     public void visit(UserLayer layer) {
-        Style[] styles = layer.getUserStyles();
+        org.geotools.styling.Style[] styles = layer.getUserStyles();
 
         for (int i = 0; i < styles.length; i++) {
             styles[i].accept(this);
@@ -486,45 +521,45 @@ public class StyleAttributeExtractor extends FilterAttributeExtractor
         ftc.accept(this);
     }
 
-	public void visit(ColorMap map) {
-		ColorMapEntry[] entries = map.getColorMapEntries();
+    public void visit(ColorMap map) {
+        ColorMapEntry[] entries = map.getColorMapEntries();
 
-		for (int i = 0; i < entries.length; i++) {
-			entries[i].accept(this);
-		}
-	}
+        for (int i = 0; i < entries.length; i++) {
+            entries[i].accept(this);
+        }
+    }
 
-	public void visit(ColorMapEntry entry) {
-		entry.accept(this);
-	}
+    public void visit(ColorMapEntry entry) {
+        entry.accept(this);
+    }
 
-	public void visit(ContrastEnhancement contrastEnhancement) {
-		contrastEnhancement.accept(this);
-		
-	}
+    public void visit(ContrastEnhancement contrastEnhancement) {
+        contrastEnhancement.accept(this);
+        
+    }
 
-	public void visit(ImageOutline outline) {
-		outline.getSymbolizer().accept(this);
-		
-	}
+    public void visit(ImageOutline outline) {
+        outline.getSymbolizer().accept(this);
+        
+    }
 
-	public void visit(ChannelSelection cs) {
-		cs.accept(this);
-		
-	}
+    public void visit(ChannelSelection cs) {
+        cs.accept(this);
+        
+    }
 
-	public void visit(OverlapBehavior ob) {
-		ob.accept(this);
-		
-	}
+    public void visit(OverlapBehavior ob) {
+        ob.accept(this);
+        
+    }
 
-	public void visit(SelectedChannelType sct) {
-		sct.accept(this);
-		
-	}
+    public void visit(SelectedChannelType sct) {
+        sct.accept(this);
+        
+    }
 
-	public void visit(ShadedRelief sr) {
-	    sr.accept(this);
-		
-	}
+    public void visit(ShadedRelief sr) {
+        sr.accept(this);
+        
+    }
 }

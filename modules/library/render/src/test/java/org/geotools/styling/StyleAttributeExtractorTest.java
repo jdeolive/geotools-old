@@ -32,21 +32,26 @@ import org.opengis.filter.expression.Expression;
 
 import com.vividsolutions.jts.geom.LineString;
 
-
 /**
  * Tests style cloning
- *
+ * 
  * @author Sean Geoghegan
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/library/main/src/test/java
+ *         /org/geotools/styling/StyleAttributeExtractorTest.java $
+ * @deprecated This one has been replaced by the same test in the renderer
+ *             module
  */
 public class StyleAttributeExtractorTest extends TestCase {
     private StyleFactory styleFactory;
+
     private FilterFactory filterFactory;
+
     private SimpleFeatureType testSchema = null;
 
     /**
      * Constructor for StyleCloneTest.
-     *
+     * 
      * @param arg0
      */
     public StyleAttributeExtractorTest(String arg0) {
@@ -61,19 +66,19 @@ public class StyleAttributeExtractorTest extends TestCase {
         filterFactory = CommonFactoryFinder.getFilterFactory(null);
 
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-		ftb.add("testGeometry", LineString.class);
-		ftb.add("testBoolean", Boolean.class);
-		ftb.add("testCharacter", Character.class);
-		ftb.add("testByte", Byte.class);
-		ftb.add("testShort", Short.class);
-		ftb.add("testInteger", Integer.class);
-		ftb.add("testLong", Long.class);
-		ftb.add("testFloat", Float.class);
-		ftb.add("testDouble", Double.class);
-		ftb.add("testString", String.class);
-		ftb.add("testZeroDouble", Double.class);
-		ftb.setName("testSchema");
-		testSchema = ftb.buildFeatureType();
+        ftb.add("testGeometry", LineString.class);
+        ftb.add("testBoolean", Boolean.class);
+        ftb.add("testCharacter", Character.class);
+        ftb.add("testByte", Byte.class);
+        ftb.add("testShort", Short.class);
+        ftb.add("testInteger", Integer.class);
+        ftb.add("testLong", Long.class);
+        ftb.add("testFloat", Float.class);
+        ftb.add("testDouble", Double.class);
+        ftb.add("testString", String.class);
+        ftb.add("testZeroDouble", Double.class);
+        ftb.setName("testSchema");
+        testSchema = ftb.buildFeatureType();
     }
 
     /*
@@ -126,10 +131,10 @@ public class StyleAttributeExtractorTest extends TestCase {
     }
 
     public void testRule() throws Exception {
-        Symbolizer symb1 = styleFactory.createLineSymbolizer(styleFactory
-                .getDefaultStroke(), "geometry");
-        Symbolizer symb2 = styleFactory.createPolygonSymbolizer(styleFactory
-                .getDefaultStroke(), styleFactory.getDefaultFill(), "shape");
+        Symbolizer symb1 = styleFactory.createLineSymbolizer(styleFactory.getDefaultStroke(),
+                "geometry");
+        Symbolizer symb2 = styleFactory.createPolygonSymbolizer(styleFactory.getDefaultStroke(),
+                styleFactory.getDefaultFill(), "shape");
         Rule rule = styleFactory.createRule();
         rule.setSymbolizers(new Symbolizer[] { symb1, symb2 });
 
@@ -146,8 +151,7 @@ public class StyleAttributeExtractorTest extends TestCase {
 
     public void testPointSymbolizer() throws Exception {
         PointSymbolizer pointSymb = styleFactory.createPointSymbolizer();
-        ExternalGraphic eg = styleFactory.createExternalGraphic("www.test.com",
-                "image/png");
+        ExternalGraphic eg = styleFactory.createExternalGraphic("www.test.com", "image/png");
         Mark mark = styleFactory.createMark();
         Stroke stroke = styleFactory.getDefaultStroke();
         stroke.setWidth(filterFactory.property("testInteger"));
@@ -157,23 +161,18 @@ public class StyleAttributeExtractorTest extends TestCase {
         Expression opacity = filterFactory.property("testLong");
         Expression rotation = filterFactory.property("testDouble");
         Expression size = filterFactory.property("testFloat");
-        Graphic g = styleFactory.createGraphic(new ExternalGraphic[] { eg },
-                new Mark[] { mark }, null, opacity, rotation, size);
+        Graphic g = styleFactory.createGraphic(new ExternalGraphic[] { eg }, new Mark[] { mark },
+                null, opacity, rotation, size);
         pointSymb.setGraphic(g);
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                pointSymb
-            });
-        assertAttributeName(s,
-            new String[] { "testInteger", "testLong", "testDouble", "testFloat", "testString" });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { pointSymb });
+        assertAttributeName(s, new String[] { "testInteger", "testLong", "testDouble", "testFloat",
+                "testString" });
 
         pointSymb.setGeometryPropertyName("testGeometry");
-        assertAttributeName(s,
-            new String[] {
-                "testInteger", "testLong", "testDouble", "testFloat", "testString",
-                "testGeometry"
-            });
+        assertAttributeName(s, new String[] { "testInteger", "testLong", "testDouble", "testFloat",
+                "testString", "testGeometry" });
     }
 
     public void testTextSymbolizer() throws Exception {
@@ -184,28 +183,22 @@ public class StyleAttributeExtractorTest extends TestCase {
         textSymb.setLabel(label);
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                textSymb
-            });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { textSymb });
         assertAttributeName(s, new String[] { "testInteger", "testString" });
 
         Expression ancX = filterFactory.property("testFloat");
         Expression ancY = filterFactory.property("testDouble");
         AnchorPoint ancPoint = styleFactory.createAnchorPoint(ancX, ancY);
-        LabelPlacement placement = styleFactory.createPointPlacement(ancPoint,
-                null, null);
+        LabelPlacement placement = styleFactory.createPointPlacement(ancPoint, null, null);
         textSymb.setLabelPlacement(placement);
 
-        assertAttributeName(s,
-            new String[] { "testFloat", "testDouble", "testString" });
+        assertAttributeName(s, new String[] { "testFloat", "testDouble", "testString" });
     }
-    
+
     public void testFont() throws Exception {
-        Font font = styleFactory.createFont(filterFactory
-                .property("testString"),
-                filterFactory.property("testString2"),
-                filterFactory.property("testLong"),
-                filterFactory.property("testBoolean"));
+        Font font = styleFactory.createFont(filterFactory.property("testString"), filterFactory
+                .property("testString2"), filterFactory.property("testLong"), filterFactory
+                .property("testBoolean"));
 
         TextSymbolizer textSymb = styleFactory.createTextSymbolizer();
         Expression offset = filterFactory.property("testFloat");
@@ -215,14 +208,9 @@ public class StyleAttributeExtractorTest extends TestCase {
         textSymb.setFonts(new Font[] { font });
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                textSymb
-            });
-        assertAttributeName(s,
-            new String[] {
-                "testString", "testString2", "testLong", "testBoolean",
-                "testFloat", "testByte"
-            });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { textSymb });
+        assertAttributeName(s, new String[] { "testString", "testString2", "testLong",
+                "testBoolean", "testFloat", "testByte" });
     }
 
     public void testHalo() throws Exception {
@@ -235,9 +223,7 @@ public class StyleAttributeExtractorTest extends TestCase {
         textSymb.setHalo(halo);
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                textSymb
-            });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { textSymb });
         assertAttributeName(s, new String[] { "testString", "testLong" });
     }
 
@@ -248,9 +234,7 @@ public class StyleAttributeExtractorTest extends TestCase {
         textSymb.setLabelPlacement(linePlacement);
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                textSymb
-            });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { textSymb });
         assertAttributeName(s, new String[] { "testLong" });
     }
 
@@ -273,11 +257,9 @@ public class StyleAttributeExtractorTest extends TestCase {
         textSymb.setLabelPlacement(pp);
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                textSymb
-            });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { textSymb });
         assertAttributeName(s,
-            new String[] { "testLong", "testInteger", "testFloat", "testDouble" });
+                new String[] { "testLong", "testInteger", "testFloat", "testDouble" });
     }
 
     public void testPolygonSymbolizer() throws Exception {
@@ -291,9 +273,7 @@ public class StyleAttributeExtractorTest extends TestCase {
         ps.setFill(fill);
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                ps
-            });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { ps });
         assertAttributeName(s, new String[] { "testString", "testDouble" });
     }
 
@@ -304,9 +284,7 @@ public class StyleAttributeExtractorTest extends TestCase {
         ls.setStroke(stroke);
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                ls
-            });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { ls });
         assertAttributeName(s, new String[] { "testString" });
     }
 
@@ -318,19 +296,15 @@ public class StyleAttributeExtractorTest extends TestCase {
         Mark mark = styleFactory.createMark();
         Expression le = filterFactory.literal(1);
         Expression rot = filterFactory.property("testFloat");
-        Graphic graphic = styleFactory.createGraphic(null, new Mark[] { mark },
-                null, le, le, rot);
+        Graphic graphic = styleFactory.createGraphic(null, new Mark[] { mark }, null, le, le, rot);
         fill.setGraphicFill(graphic);
 
         PolygonSymbolizer ps = styleFactory.getDefaultPolygonSymbolizer();
         ps.setFill(fill);
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                ps
-            });
-        assertAttributeName(s,
-            new String[] { "testString", "testString2", "testFloat" });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { ps });
+        assertAttributeName(s, new String[] { "testString", "testString2", "testFloat" });
     }
 
     public void testStroke() throws IllegalFilterException {
@@ -341,25 +315,22 @@ public class StyleAttributeExtractorTest extends TestCase {
         Mark mark = styleFactory.createMark();
         Expression le = filterFactory.literal(1);
         Expression rot = filterFactory.property("testFloat");
-        Graphic graphic = styleFactory.createGraphic(null, new Mark[] { mark },
-                null, le, le, rot);
+        Graphic graphic = styleFactory.createGraphic(null, new Mark[] { mark }, null, le, le, rot);
         stroke.setGraphicFill(graphic);
 
         LineSymbolizer ls = styleFactory.getDefaultLineSymbolizer();
         ls.setStroke(stroke);
 
         Style s = createStyle();
-        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] {
-                ls
-            });
-        assertAttributeName(s,
-            new String[] { "testString", "testString2", "testFloat" });
+        s.getFeatureTypeStyles()[0].getRules()[0].setSymbolizers(new Symbolizer[] { ls });
+        assertAttributeName(s, new String[] { "testString", "testString2", "testFloat" });
     }
 
     /**
      * Main for test runner.
-     *
-     * @param args DOCUMENT ME!
+     * 
+     * @param args
+     *            DOCUMENT ME!
      */
     public static void main(String[] args) {
         junit.textui.TestRunner.run(suite());
@@ -367,7 +338,7 @@ public class StyleAttributeExtractorTest extends TestCase {
 
     /**
      * Required suite builder.
-     *
+     * 
      * @return A test suite for this unit test.
      */
     public static Test suite() {

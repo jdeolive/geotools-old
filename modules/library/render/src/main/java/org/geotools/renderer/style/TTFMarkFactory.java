@@ -25,7 +25,6 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
