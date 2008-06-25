@@ -218,9 +218,9 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 
         originalGridRange = new GeneralGridRange(new Rectangle(
                     (int) Math.round(
-                        originalEnvelope.getLength(0) / highestRes[0]),
+                        originalEnvelope.getSpan(0) / highestRes[0]),
                     (int) Math.round(
-                        originalEnvelope.getLength(1) / highestRes[1])));
+                        originalEnvelope.getSpan(1) / highestRes[1])));
     }
 
     /**

@@ -291,6 +291,18 @@ public abstract class AbstractTest extends TestCase {
         }
     }
 
+    public void testScripts() {
+        DDLGenerator gen = new DDLGenerator(getDBDialect().getConfig(),
+        		"SPAT","TILE",2,";",getSrsId(),OUTPUTDIR_BASE+File.separator+getSubDir());
+        try {
+        	gen.generate();
+        } catch (Exception e) {
+        	Assert.fail(e.getMessage());
+        	e.printStackTrace();
+        }
+
+    	
+    }
     public void testCreate() {
         try {
             createXMLConnectFragment();
@@ -320,12 +332,30 @@ public abstract class AbstractTest extends TestCase {
             Connection.commit();
 
             for (int i = 0; i < getTileTableNames().length; i++) {
+            	            	              
+              Import imp = null;
+              if (i==0) {
+                  URL dirFileUrl = new URL("file:" + OUTPUTDIR_RESOURCES + i);
+            	  imp = new Import(getDBDialect().getConfig(),
+            			  getSpatialTableNames()[i], getTileTableNames()[i],
+            			  dirFileUrl, "tif", 2, Connection, Import.ImportTyp.DIR);
+              }
+              if (i==1) {              	
                 URL shapeFileUrl = new URL("file:" + OUTPUTDIR_RESOURCES + i +
                         File.separator + "index.shp");
-                Import imp = new Import(getDBDialect().getConfig(),
+                imp = new Import(getDBDialect().getConfig(),
                         getSpatialTableNames()[i], getTileTableNames()[i],
-                        shapeFileUrl, "LOCATION", 2, Connection, true);
-                imp.fillSpatialTable();
+                        shapeFileUrl, "LOCATION", 2, Connection, Import.ImportTyp.SHAPE);
+              }
+              if (i==2) {
+                  URL csvFileUrl = new URL("file:" + OUTPUTDIR_RESOURCES + i +
+                          File.separator + "index.csv");
+                  imp = new Import(getDBDialect().getConfig(),
+                          getSpatialTableNames()[i], getTileTableNames()[i],
+                          csvFileUrl, ";", 2, Connection, Import.ImportTyp.CSV);
+
+              }
+              imp.fillSpatialTable();
             }
 
             for (String tn : getSpatialTableNames()) {
@@ -373,11 +403,28 @@ public abstract class AbstractTest extends TestCase {
             Connection.commit();
 
             for (int i = 0; i < getTileTableNames().length; i++) {
-                URL csvFileUrl = new URL("file:" + OUTPUTDIR_RESOURCES + i +
-                        File.separator + "index.csv");
-                Import imp = new Import(getDBDialect().getConfig(),
-                        getSpatialTableNames()[i], getSpatialTableNames()[i],
-                        csvFileUrl, ";", 2, Connection, false);
+                Import imp = null;
+                if (i==0) {
+                    URL dirFileUrl = new URL("file:" + OUTPUTDIR_RESOURCES + i);
+              	  imp = new Import(getDBDialect().getConfig(),
+              			  getSpatialTableNames()[i], getSpatialTableNames()[i],
+              			  dirFileUrl, "tif", 2, Connection, Import.ImportTyp.DIR);
+                }
+                if (i==1) {              	
+                  URL shapeFileUrl = new URL("file:" + OUTPUTDIR_RESOURCES + i +
+                          File.separator + "index.shp");
+                  imp = new Import(getDBDialect().getConfig(),
+                          getSpatialTableNames()[i], getSpatialTableNames()[i],
+                          shapeFileUrl, "LOCATION", 2, Connection, Import.ImportTyp.SHAPE);
+                }
+                if (i==2) {
+                    URL csvFileUrl = new URL("file:" + OUTPUTDIR_RESOURCES + i +
+                            File.separator + "index.csv");
+                    imp = new Import(getDBDialect().getConfig(),
+                            getSpatialTableNames()[i], getSpatialTableNames()[i],
+                            csvFileUrl, ";", 2, Connection, Import.ImportTyp.CSV);
+
+                }
                 imp.fillSpatialTable();
             }
 

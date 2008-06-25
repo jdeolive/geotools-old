@@ -31,7 +31,7 @@ public class DB2OnlineTest extends AbstractTest {
         if (test.checkPreConditions() == false) {
             return suite;
         }
-
+        suite.addTest(new DB2OnlineTest("testScripts"));
         suite.addTest(new DB2OnlineTest("testGetConnection"));
         suite.addTest(new DB2OnlineTest("testDrop"));
         suite.addTest(new DB2OnlineTest("testCreate"));
@@ -51,6 +51,7 @@ public class DB2OnlineTest extends AbstractTest {
         suite.addTest(new DB2OnlineTest("testViennaEnvJoined"));
         suite.addTest(new DB2OnlineTest("testDrop"));
         suite.addTest(new DB2OnlineTest("testCloseConnection"));
+        
 
         return suite;
     }

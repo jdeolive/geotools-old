@@ -57,8 +57,8 @@ abstract class AbstractThread extends Thread {
         this.levelInfo = levelInfo;
         this.pixelDimension = pixelDimenison;
 
-        resX = requestEnvelope.getLength(0) / pixelDimenison.getWidth();
-        resY = requestEnvelope.getLength(1) / pixelDimenison.getHeight();
+        resX = requestEnvelope.getSpan(0) / pixelDimenison.getWidth();
+        resY = requestEnvelope.getSpan(1) / pixelDimenison.getHeight();
         rescaleX = levelInfo.getResX() / resX;
         rescaleY = levelInfo.getResY() / resY;
     }

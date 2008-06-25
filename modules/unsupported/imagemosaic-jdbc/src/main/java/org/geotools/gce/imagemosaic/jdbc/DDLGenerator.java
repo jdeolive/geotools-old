@@ -1,5 +1,6 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -21,7 +22,7 @@ class DDLGenerator {
     private final static String FN_DROPINIDEXES = "dropindexes.sql";
     private final static String UsageInfo = "Generating DDL scripts\n" +
         "-configUrl url -spatialTNPrefix spatialTNPrefix [-tileTNPrefix tileTNPrefix]\n" +
-        "  [-pyramids pyramids] -statementDelim statementDelim -srs srs";
+        "  [-pyramids pyramids] -statementDelim statementDelim [-srs srs ] -targetDir";
     private Config config;
     private String spatialTNPrefix;
     private String tileTNPrefix;
@@ -30,9 +31,10 @@ class DDLGenerator {
     private Logger logger;
     private DBDialect dbDialect;
     private String srs;
+    private String targetDir;
 
     DDLGenerator(Config config, String spatialTNPrefix, String tileTNPrefix,
-        int pyramids, String statementDelim, String srs) {
+        int pyramids, String statementDelim, String srs, String targetDir) {
         this.config = config;
         this.pyramids = pyramids;
         this.spatialTNPrefix = spatialTNPrefix;
@@ -42,7 +44,11 @@ class DDLGenerator {
 
         this.logger = Logger.getLogger(this.getClass().getName());
         this.dbDialect = DBDialect.getDBDialect(config);
-    }
+        if (targetDir.endsWith(File.separator))
+        	this.targetDir=targetDir;
+        else
+        	this.targetDir=targetDir+File.separator;
+    	}
 
     public static void start(String[] args) {
         Config config = null;
@@ -50,6 +56,7 @@ class DDLGenerator {
         String tileTNPrefix = null;
         String statementDelim = null;
         String srs = null;
+        String targetDir=null;
         int pyramids = DefaultPyramids;
 
         for (int i = 0; i < args.length; i++) {
@@ -74,9 +81,13 @@ class DDLGenerator {
             } else if (args[i].equals("-srs")) {
                 srs = args[i + 1];
                 i++;
+                
             } else if (args[i].equals("-pyramids")) {
                 pyramids = new Integer(args[i + 1]);
                 i++;
+            } else if (args[i].equals("-targetDir")) {
+                targetDir = args[i + 1];
+                i++;                
             } else {
                 System.out.println("Unkwnown option: " + args[i]);
                 System.exit(1);
@@ -95,7 +106,7 @@ class DDLGenerator {
         }
 
         DDLGenerator gen = new DDLGenerator(config, spatialTNPrefix,
-                tileTNPrefix, pyramids, statementDelim, srs);
+                tileTNPrefix, pyramids, statementDelim, srs,targetDir);
 
         try {
             gen.generate();
@@ -120,7 +131,7 @@ class DDLGenerator {
     }
 
     void writeFillMeta() throws IOException {
-        PrintWriter w = new PrintWriter(FN_FILLMETA);
+        PrintWriter w = new PrintWriter(targetDir+FN_FILLMETA);
 
         String statmentString = "INSERT INTO " + config.getMasterTable() + "(" +
             config.getCoverageNameAttribute() + "," +
@@ -141,7 +152,7 @@ class DDLGenerator {
     }
 
     void writeCreateMeta() throws Exception {
-        PrintWriter w = new PrintWriter(FN_CREATEMETA);
+        PrintWriter w = new PrintWriter(targetDir+FN_CREATEMETA);
         w.print(dbDialect.getCreateMasterStatement());
         w.println(statementDelim);
         w.close();
@@ -149,7 +160,7 @@ class DDLGenerator {
     }
 
     void writeCreateTables() throws Exception {
-        PrintWriter w = new PrintWriter(FN_CREATETABLES);
+        PrintWriter w = new PrintWriter(targetDir+FN_CREATETABLES);
 
         for (int i = 0; i <= pyramids; i++) {
             if (tileTNPrefix == null) {
@@ -171,7 +182,7 @@ class DDLGenerator {
     }
 
     void writeCreateIndexes() throws Exception {
-        PrintWriter w = new PrintWriter(FN_CREATEINDEXES);
+        PrintWriter w = new PrintWriter(targetDir+FN_CREATEINDEXES);
 
         for (int i = 0; i <= pyramids; i++) {
             w.print(dbDialect.getCreateIndexStatement(getTabelName(
@@ -184,7 +195,7 @@ class DDLGenerator {
     }
 
     void writeDropMeta() throws IOException {
-        PrintWriter w = new PrintWriter(FN_DROPMETA);
+        PrintWriter w = new PrintWriter(targetDir+FN_DROPMETA);
         w.print(dbDialect.getDropTableStatement(config.getMasterTable()));
         w.println(statementDelim);
         w.close();
@@ -192,7 +203,7 @@ class DDLGenerator {
     }
 
     void writeDropTables() throws IOException {
-        PrintWriter w = new PrintWriter(FN_DROPTABLES);
+        PrintWriter w = new PrintWriter(targetDir+FN_DROPTABLES);
 
         for (int i = 0; i <= pyramids; i++) {
             w.print(dbDialect.getDropTableStatement(getTabelName(
@@ -219,7 +230,7 @@ class DDLGenerator {
     }
 
     void writeDropIndexes() throws IOException {
-        PrintWriter w = new PrintWriter(FN_DROPINIDEXES);
+        PrintWriter w = new PrintWriter(targetDir+FN_DROPINIDEXES);
 
         for (int i = 0; i <= pyramids; i++) {
             w.print(dbDialect.getDropIndexStatment(getTabelName(
@@ -248,7 +259,7 @@ class DDLGenerator {
             return;
         }
 
-        PrintWriter w = new PrintWriter(FN_REGISTER);
+        PrintWriter w = new PrintWriter(targetDir+FN_REGISTER);
 
         for (int i = 0; i <= pyramids; i++) {
             w.print(dbDialect.getRegisterSpatialStatement(getTabelName(
@@ -265,7 +276,7 @@ class DDLGenerator {
             return;
         }
 
-        PrintWriter w = new PrintWriter(FN_UNREGISTER);
+        PrintWriter w = new PrintWriter(targetDir+FN_UNREGISTER);
 
         for (int i = 0; i <= pyramids; i++) {
             w.print(dbDialect.getUnregisterSpatialStatement(getTabelName(

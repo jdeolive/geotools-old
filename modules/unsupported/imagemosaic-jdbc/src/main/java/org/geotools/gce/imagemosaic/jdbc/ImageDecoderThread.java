@@ -92,16 +92,16 @@ class ImageDecoderThread extends AbstractThread {
                 GeneralEnvelope savedTileEnvelope = new GeneralEnvelope(tileEnvelope);
                 tileEnvelope.intersect(requestEnvelope);
 
-                double scaleX = savedTileEnvelope.getLength(0) / bufferedImage.getWidth();
-                double scaleY = savedTileEnvelope.getLength(1) / bufferedImage.getHeight();
+                double scaleX = savedTileEnvelope.getSpan(0) / bufferedImage.getWidth();
+                double scaleY = savedTileEnvelope.getSpan(1) / bufferedImage.getHeight();
                 int x = (int) (Math.round((tileEnvelope.getMinimum(0) -
                         savedTileEnvelope.getMinimum(0)) / scaleX));
                 int y = (int) (Math.round((savedTileEnvelope.getMaximum(1) -
                         tileEnvelope.getMaximum(1)) / scaleY));
-                int width = (int) (Math.round(bufferedImage.getWidth() / savedTileEnvelope.getLength(
-                            0) * tileEnvelope.getLength(0)));
-                int height = (int) (Math.round(bufferedImage.getHeight() / savedTileEnvelope.getLength(
-                            1) * tileEnvelope.getLength(1)));
+                int width = (int) (Math.round(bufferedImage.getWidth() / savedTileEnvelope.getSpan(
+                            0) * tileEnvelope.getSpan(0)));
+                int height = (int) (Math.round(bufferedImage.getHeight() / savedTileEnvelope.getSpan(
+                            1) * tileEnvelope.getSpan(1)));
 
                 if ((width > 0) && (height > 0)) {
                     clippedImage = new BufferedImage(width, height,

@@ -22,6 +22,7 @@ public class MySqlOnlineTest extends AbstractTest {
             return suite;
         }
 
+        suite.addTest(new MySqlOnlineTest("testScripts"));
         suite.addTest(new MySqlOnlineTest("testGetConnection"));
         suite.addTest(new MySqlOnlineTest("testDrop"));
         suite.addTest(new MySqlOnlineTest("testCreate"));

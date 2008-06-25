@@ -34,6 +34,7 @@ public class OracleOnlineTest extends AbstractTest {
             return suite;
         }
 
+        suite.addTest(new OracleOnlineTest("testScripts"));
         suite.addTest(new OracleOnlineTest("testGetConnection"));
         suite.addTest(new OracleOnlineTest("testDrop"));
         suite.addTest(new OracleOnlineTest("testCreate"));

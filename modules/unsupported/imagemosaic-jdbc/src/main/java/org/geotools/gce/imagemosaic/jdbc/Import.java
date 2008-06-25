@@ -18,9 +18,13 @@ import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,15 +48,39 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
+
 
 public class Import {
+	class ImageFilter extends Object implements FileFilter {
+		public ImageFilter(String extension) {
+			this.extension=extension;
+		}
+		String extension;
+		public boolean accept(File file) {
+			int index = file.getName().lastIndexOf(".");
+			if (index==-1) return false;
+			String ext = file.getName().substring(index+1);
+			return extension.equalsIgnoreCase(ext);
+			
+		}
+
+	}
+
+	public enum ImportTyp {
+		SHAPE,CSV,DIR
+	};
+	
     private final static int DefaultCommitCount = 100;
     private final static String UsageInfo = "Importing from a shapefile or csv file\n" +
         "-configUrl url -spatialTN spatialTableName -tileTN tileTableName [-commitCount commitCount] -shapeUrl shapeUrl -shapeKeyField shapeKeyField\n" +
-        "Importing form a csv file\n" +
+        "Importing from a csv file\n" +
         "-configUrl url -spatialTN spatialTableName -tileTN tileTableName [-commitCount commitCount] -csvUrl csvUrl -csvDelim csvDelim\n" +
+        "Importing using world wfiles\n" +
+        "-configUrl url -spatialTN spatialTableName -tileTN tileTableName [-commitCount commitCount] -dir directory -ext extension" +
         "\n" + "The default for commitCount is 100\n";
     private Config config;
+    private ImportTyp typ;
     private String spatialTableName;
     private String tileTableName;
     private Connection con;
@@ -61,6 +89,8 @@ public class Import {
     private PreparedStatement sqlInsertSpatial;
     private URL shapeFileUrl;
     private URL csvFileURL;
+    private URL directoryURL;
+    private String extension;
     private String csvDelimiter;
     private BufferedReader csvReader;
     private String keyInShapeFile;
@@ -72,22 +102,28 @@ public class Import {
     private int commitCount = DefaultCommitCount;
     private FeatureIterator<SimpleFeature> featureIterator;
     private FeatureCollection<SimpleFeatureType, SimpleFeature> featureColl;
+    private File imageFiles[];
     private Logger logger;
 
     Import(Config config, String spatialTableName, String tileTableName,
-        URL tileIndexUrl, String tileIndexParam, int commitCount,
-        Connection con, boolean isShape) throws IOException, SQLException {
+        URL sourceURL, String sourceParam, int commitCount,
+        Connection con, ImportTyp typ) throws IOException, SQLException {
         this.config = config;
         this.commitCount = commitCount;
         this.spatialTableName = spatialTableName;
+        this.typ=typ;
+        
         this.tileTableName = tileTableName;
-
-        if (isShape) {
-            this.shapeFileUrl = tileIndexUrl;
-            this.keyInShapeFile = tileIndexParam;
-        } else {
-            this.csvFileURL = tileIndexUrl;
-            this.csvDelimiter = tileIndexParam;
+        
+        if (typ==ImportTyp.SHAPE) {
+            this.shapeFileUrl = sourceURL;
+            this.keyInShapeFile = sourceParam;
+        } else if (typ==ImportTyp.CSV){
+            this.csvFileURL = sourceURL;
+            this.csvDelimiter = sourceParam;;
+        } if (typ==ImportTyp.DIR) {
+        	this.directoryURL=sourceURL;
+        	this.extension=sourceParam;
         }
 
         this.logger = Logger.getLogger("Import " + "<" + spatialTableName +
@@ -131,6 +167,7 @@ public class Import {
         URL shapeUrl = null;
         String csvDelim = null;
         String shapeKeyField = null;
+        String dir = null, extension=null;;
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-configUrl")) {
@@ -175,6 +212,12 @@ public class Import {
             } else if (args[i].equals("-shapeKeyField")) {
                 shapeKeyField = args[i + 1];
                 i++;
+            } else if (args[i].equals("-dir")) {
+                dir = args[i + 1];
+                i++;
+            } else if (args[i].equals("-ext")) {
+                extension = args[i + 1];
+                i++;                                
             } else {
                 System.out.println("Unkwnown option: " + args[i]);
                 System.exit(1);
@@ -187,14 +230,33 @@ public class Import {
             System.exit(1);
         }
 
-        if (((shapeUrl == null) && (csvUrl == null)) ||
-                ((shapeUrl != null) && (csvUrl != null))) {
+        ImportTyp typ=null;
+        int countNull=0;
+        if (shapeUrl == null) 
+        	countNull++;
+        else 
+        	typ=ImportTyp.SHAPE;
+        
+        if (csvUrl == null) 
+        	countNull++;
+        else 
+        	typ=ImportTyp.CSV;
+        
+        if (dir == null) 
+        	countNull++;
+        else 
+        	typ=ImportTyp.DIR;
+
+        
+        if (dir == null) countNull++;
+        if (countNull != 2) {  // select exaclty one image source
             System.out.println(UsageInfo);
             System.exit(1);
         }
 
         if (((shapeUrl != null) && (shapeKeyField == null)) ||
-                ((csvUrl != null) && (csvDelim == null))) {
+                ((csvUrl != null) && (csvDelim == null)) ||
+                ((dir != null) && (extension == null))) {
             System.out.println(UsageInfo);
             System.exit(1);
         }
@@ -206,17 +268,21 @@ public class Import {
             con = DriverManager.getConnection(config.getJdbcUrl(),
                     config.getUsername(), config.getPassword());
 
-            Import imp = new Import(config, spatialTableName, tileTableName,
-                    (shapeUrl != null) ? shapeUrl : csvUrl,
-                    (shapeUrl != null) ? shapeKeyField : csvDelim, commitCount,
-                    con, shapeUrl != null);
+            Import imp = null;
+            if (typ==ImportTyp.SHAPE) 
+            	imp = new Import(config, spatialTableName, tileTableName,shapeUrl,shapeKeyField,commitCount,con,typ);
+            if (typ==ImportTyp.CSV)
+            	imp = new Import(config, spatialTableName, tileTableName,csvUrl,csvDelim,commitCount,con,typ);
+            if (typ==ImportTyp.DIR) {            	
+            	imp = new Import(config, spatialTableName, tileTableName,new File(dir).toURL(),extension,commitCount,con,typ);
+            }
+            
             imp.fillSpatialTable();
             con.close();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
-
         System.exit(0);
     }
 
@@ -353,9 +419,9 @@ public class Import {
         return spatialTableName.equals(tileTableName);
     }
 
-    private void insertImage(URL imageUrl) throws SQLException, IOException {
+    private void insertImage(URL imageUrl,byte[] imageBytes) throws SQLException, IOException {
         try {
-            sqlInsertImage.setBytes(1, getImageBytes(imageUrl));
+            sqlInsertImage.setBytes(1, imageBytes);
 
             String path = imageUrl.getPath();
             String location = new File(path).getName();
@@ -428,7 +494,18 @@ public class Import {
     }
 
     private URL calculateImageUrl() {
-        URL startUrl = (shapeFileUrl != null) ? shapeFileUrl : csvFileURL;
+    	
+    	if (typ==ImportTyp.DIR) {
+			try {
+				return imageFiles[currentPos-1].toURL();
+			} catch (MalformedURLException e1) {
+			}
+    	}
+    	
+        URL startUrl =  null;        
+        if (typ==ImportTyp.SHAPE) startUrl=shapeFileUrl;
+        if (typ==ImportTyp.CSV) startUrl=csvFileURL;
+        
         String path = startUrl.getPath();
         int index = path.lastIndexOf('/');
         String imagePath = null;
@@ -456,6 +533,11 @@ public class Import {
 
         while (next()) {
             URL imageUrl = calculateImageUrl();
+            byte[] imageBytes = getImageBytes(imageUrl);
+            if (typ==ImportTyp.DIR) {
+            	BufferedImage image =ImageIO.read(new ByteArrayInputStream(imageBytes));
+            	currentGeom=getGeomFromWorldFile(imageFiles[currentPos-1], image.getWidth(),image.getHeight());
+            }
 
             if (config.getSpatialExtension() == SpatialExtension.UNIVERSAL) {
                 sqlInsertSpatial.setString(1, currentLocation);
@@ -467,9 +549,9 @@ public class Import {
                 sqlInsertSpatial.setDouble(5, env.getMaxY());
 
                 if (isJoined()) {
-                    sqlInsertSpatial.setBytes(6, getImageBytes(imageUrl));
+                    sqlInsertSpatial.setBytes(6, imageBytes);
                 } else {
-                    insertImage(imageUrl);
+                    insertImage(imageUrl,imageBytes);
                 }
 
                 sqlExecute(sqlInsertSpatial);
@@ -483,9 +565,9 @@ public class Import {
                 sqlInsertSpatial.setBytes(2, wkb);
 
                 if (isJoined()) {
-                    sqlInsertSpatial.setBytes(3, getImageBytes(imageUrl));
+                    sqlInsertSpatial.setBytes(3, imageBytes);
                 } else {
-                    insertImage(imageUrl);
+                    insertImage(imageUrl,imageBytes);
                 }
 
                 sqlExecute(sqlInsertSpatial);
@@ -496,9 +578,9 @@ public class Import {
                 sqlInsertSpatial.setString(1, currentLocation);
 
                 if (isJoined()) {
-                    sqlInsertSpatial.setBytes(2, getImageBytes(imageUrl));
+                    sqlInsertSpatial.setBytes(2, imageBytes);
                 } else {
-                    insertImage(imageUrl);
+                    insertImage(imageUrl,imageBytes);
                 }
 
                 sqlInsertSpatial.execute();
@@ -524,7 +606,7 @@ public class Import {
 
     private boolean next() throws IOException {
         try {
-            if (shapeFileUrl != null) {
+            if (typ==ImportTyp.SHAPE) {
                 if (currentLocation == null) {
                     featureIterator = getFeatureIterator();
                 }
@@ -541,7 +623,7 @@ public class Import {
                 currentLocation = (String) feature.getAttribute(keyInShapeFile);
 
                 return true;
-            } else if (csvFileURL != null) {
+            } else if (typ==ImportTyp.CSV) {
                 if (currentLocation == null) {
                     csvReader = new BufferedReader(new InputStreamReader(
                                 csvFileURL.openStream()));
@@ -584,6 +666,24 @@ public class Import {
                 currentGeom = factory.createMultiPolygon(new Polygon[] { poly });
 
                 return true;
+            } else if  (typ==ImportTyp.DIR) {
+            	if (currentLocation == null) {
+            		File dir = new File(directoryURL.getFile());
+            		imageFiles = dir.listFiles(new ImageFilter(extension));
+            		if (imageFiles==null) {
+            			logInfo("No files found in: "+directoryURL.getFile()+ " with extension "+ extension);
+            			System.exit(1);
+            		}
+            		total=imageFiles.length;
+                    logTotalInfo();
+
+            	}
+            	if (currentPos==total) return false;
+            	File imageFile = imageFiles[currentPos];
+            	currentLocation=imageFile.getName();
+            	currentGeom=null; // cant calculate at this point
+            	currentPos++;
+            	return true;
             } else {
                 return false;
             }
@@ -593,6 +693,42 @@ public class Import {
         }
     }
 
+    private Geometry getGeomFromWorldFile(File imageFile, int width, int height) throws IOException{
+    	StringBuffer buff = new StringBuffer(imageFile.getAbsolutePath());
+    	char charToRemove = buff.charAt(buff.length()-2);
+    	buff = buff.deleteCharAt(buff.length()-2);
+    	if (Character.isUpperCase(charToRemove))
+    		buff.append("W");
+    	else 
+    		buff.append("w");
+    	BufferedReader in = new BufferedReader(new FileReader(buff.toString()));
+    	Double resx = new Double(in.readLine());
+    	in.readLine(); // skip rotate x
+    	in.readLine(); // skip rotaty y
+    	Double resy = new Double(in.readLine());
+    	Double ulx = new Double(in.readLine());
+    	Double uly = new Double(in.readLine());
+    	
+    	in.close();
+    	
+    	double minx = ulx; 
+    	double maxx = ulx + width * resx;
+    	if (resy > 0) resy*=-1;
+
+    	double miny = uly+height * resy;
+    	double maxy = uly;
+        GeometryFactory factory = new GeometryFactory();
+        Coordinate[] coords = new Coordinate[] {
+                new Coordinate(minx, miny), new Coordinate(minx, maxy),
+                new Coordinate(maxx, maxy), new Coordinate(maxx, miny),
+                new Coordinate(minx, miny)
+            };
+        Polygon poly = factory.createPolygon(factory.createLinearRing(
+                    coords), new LinearRing[0]);
+        return factory.createMultiPolygon(new Polygon[] { poly });
+
+    }
+    
     private void logError(Exception e, String msg) {
         logger.log(Level.SEVERE, msg, e);
     }

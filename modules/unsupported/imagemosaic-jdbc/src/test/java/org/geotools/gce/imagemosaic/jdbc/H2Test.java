@@ -59,6 +59,7 @@ public class H2Test extends AbstractTest {
             return suite;
         }
 
+        suite.addTest(new H2Test("testScripts"));
         suite.addTest(new H2Test("testGetConnection"));
         suite.addTest(new H2Test("testDrop"));
         suite.addTest(new H2Test("testCreate"));
@@ -69,7 +70,7 @@ public class H2Test extends AbstractTest {
         suite.addTest(new H2Test("testVienna"));
         suite.addTest(new H2Test("testViennaEnv"));
         suite.addTest(new H2Test("testOutputTransparentColor"));
-        suite.addTest(new H2Test("testReproject1"));
+        //suite.addTest(new H2Test("testReproject1"));
         suite.addTest(new H2Test("testDrop"));
         suite.addTest(new H2Test("testCreateJoined"));
         suite.addTest(new H2Test("testImage1Joined"));

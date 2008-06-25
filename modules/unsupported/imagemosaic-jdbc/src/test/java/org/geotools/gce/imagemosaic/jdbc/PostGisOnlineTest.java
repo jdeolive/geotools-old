@@ -29,6 +29,7 @@ public class PostGisOnlineTest extends AbstractTest {
             return suite;
         }
 
+        suite.addTest(new PostGisOnlineTest("testScripts"));
         suite.addTest(new PostGisOnlineTest("testGetConnection"));
         suite.addTest(new PostGisOnlineTest("testDrop"));
         suite.addTest(new PostGisOnlineTest("testCreate"));
