@@ -33,6 +33,8 @@ import org.geotools.xml.ComplexEMFBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 
+import com.vividsolutions.jts.geom.Point;
+
 public class ComplexDataTypeBinding extends ComplexEMFBinding
 {
     private WpsFactory factory;
@@ -51,20 +53,25 @@ public class ComplexDataTypeBinding extends ComplexEMFBinding
     {
     	ComplexDataType data = (ComplexDataType)obj;
 
-    	List<List<Object>> properties = new ArrayList<List<Object>>();
-    	List<Object>       tuple      = new ArrayList<Object>();
+    	List/*<List<Object>>*/ properties = new ArrayList/*<List<Object>>*/();
+//        List<Object>       tuple      = new ArrayList<Object>();
 
-    	List<?> features = data.getMixed();
+    	List<?> features = data.getData();
 
     	for(Object obj0 : features)	// XXX TEST
     	{
-    		String objName = obj0.getClass().toString();
+            if ( obj0 instanceof Point ) {
+                properties.add( new Object[]{ GML.Point, obj0 } );
+                //tuple.put( GML.Point, obj0 );
+            }
+//    		String objName = obj0.getClass().toString();
     	}
 
-    	tuple.add(GML.Polygon);
-    	tuple.add(features.get(1));
-
-    	properties.add(tuple);
+        
+//    	tuple.add(GML.Polygon);
+//    	tuple.add(features.get(1));
+//
+//    	properties.add(tuple);
 
     	return properties;
     }
