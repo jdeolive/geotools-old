@@ -71,9 +71,9 @@ import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.BasicFeatureTypes;
+import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.styling.StyleAttributeExtractor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -344,7 +344,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
 
         // gather attributes needed by the query tool, they will be used by the
         // query filter
-        StyleAttributeExtractor extractor = new StyleAttributeExtractor();
+        FilterAttributeExtractor extractor = new FilterAttributeExtractor();
         Filter filter = query.getFilter();
         filter.accept(extractor, null);
         String[] filterAttnames = extractor.getAttributeNames();
