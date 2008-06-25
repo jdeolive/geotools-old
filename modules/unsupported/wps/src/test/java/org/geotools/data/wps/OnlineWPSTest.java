@@ -131,20 +131,15 @@ public class OnlineWPSTest extends TestCase {
 		exeRequest.setIdentifier(iden);
 		
 		// this process takes 1 input, a building polygon to collapse.
-		// fetch the schema for the input param from the describeprocess
 		ProcessDescriptionType pdt = (ProcessDescriptionType) processDesc.getProcessDescription().get(0);
 		InputDescriptionType idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(0);
-		SupportedComplexDataInputType complexData = idt.getComplexData();
-		ComplexDataCombinationsType supported = complexData.getSupported();
-		ComplexDataDescriptionType cddt = (ComplexDataDescriptionType) supported.getFormat().get(0);
-		String schema = cddt.getSchema();
 		
 		// create a polygon for the input
         WKTReader reader = new WKTReader( new GeometryFactory() );
         Geometry geom1 = (Polygon) reader.read("POLYGON((20 10, 30 0, 40 10, 30 20, 20 10))");
 
         // create and set the input on the exe request
-		DataType input = WPSUtils.createInput(geom1, schema);
+		DataType input = WPSUtils.createInput(geom1, idt);
 		exeRequest.addInput(idt.getIdentifier().getValue(), input);
 		
 		// send the request
