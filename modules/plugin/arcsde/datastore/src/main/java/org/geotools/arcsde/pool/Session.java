@@ -56,12 +56,13 @@ import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
+import com.esri.sde.sdk.client.SeVersion;
 
 /**
  * Provides thread safe access to an SeConnection.
  * <p>
- * This class has become more and more magic over time! It no longer represents a Connection but
- * provides "safe" access to a connection.
+ * This class has become more and more magic over time! It no longer represents
+ * a Connection but provides "safe" access to a connection.
  * <p>
  * 
  * @author Gabriel Roldan (TOPP)
@@ -98,9 +99,9 @@ class Session implements ISession {
     private Map<String, SeRasterColumn> cachedRasters = new HashMap<String, SeRasterColumn>();
 
     /**
-     * The SeConnection bound task executor, ensures all operations against a given connection are
-     * performed in the same thread regardless of the thread the {@link #issue(Command)} is being
-     * called from.
+     * The SeConnection bound task executor, ensures all operations against a
+     * given connection are performed in the same thread regardless of the
+     * thread the {@link #issue(Command)} is being called from.
      */
     private final ExecutorService taskExecutor;
 
@@ -112,9 +113,12 @@ class Session implements ISession {
     /**
      * Provides safe access to an SeConnection.
      * 
-     * @param pool ObjectPool used to manage SeConnection
-     * @param config Used to set up a SeConnection
-     * @throws SeException If we cannot connect
+     * @param pool
+     *            ObjectPool used to manage SeConnection
+     * @param config
+     *            Used to set up a SeConnection
+     * @throws SeException
+     *             If we cannot connect
      */
     Session(final ObjectPool pool, final ArcSDEConnectionConfig config) throws IOException {
         this.config = config;
@@ -124,7 +128,8 @@ class Session implements ISession {
         // grab command thread
         updateCommandThread();
 
-        // This ensures the connection runs always on the same thread. Will fail if its
+        // This ensures the connection runs always on the same thread. Will fail
+        // if its
         // accessed by different threads
         this.connection = issue(new Command<SeConnection>() {
             @Override
@@ -168,7 +173,8 @@ class Session implements ISession {
             }
         } else {
             StackTraceElement ste = callingThread.getStackTrace()[3];
-            // System.err.println("executing command " + ste.getClassName() + "."
+            // System.err.println("executing command " + ste.getClassName() +
+            // "."
             // + ste.getMethodName() + ":" + ste.getLineNumber() + " ("
             // + callingThread.getName() + ")");
 
@@ -184,7 +190,8 @@ class Session implements ISession {
                     }
 
                     // System.err.println(" -executing command for Session "
-                    // + Session.this.connectionId + " in thread " + currentThread.getId());
+                    // + Session.this.connectionId + " in thread " +
+                    // currentThread.getId());
 
                     if (currentThread != commandThread) {
                         throw new IllegalStateException("currentThread != commandThread");
@@ -257,7 +264,8 @@ class Session implements ISession {
     }
 
     /**
-     * Marks the connection as being active (i.e. its out of the pool and ready to be used).
+     * Marks the connection as being active (i.e. its out of the pool and ready
+     * to be used).
      * <p>
      * Shall be called just before being returned from the connection pool
      * </p>
@@ -271,7 +279,8 @@ class Session implements ISession {
     }
 
     /**
-     * Marks the connection as being inactive (i.e. laying on the connection pool)
+     * Marks the connection as being inactive (i.e. laying on the connection
+     * pool)
      * <p>
      * Shall be callled just before sending it back to the pool
      * </p>
@@ -292,9 +301,11 @@ class Session implements ISession {
     }
 
     /**
-     * Sanity check method called before every public operation delegates to the superclass.
+     * Sanity check method called before every public operation delegates to the
+     * superclass.
      * 
-     * @throws IllegalStateException if {@link #isDisposed() isPassivated() == true} as this is a
+     * @throws IllegalStateException
+     *             if {@link #isDisposed() isPassivated() == true} as this is a
      *             serious workflow breackage.
      */
     private void checkActive() {
@@ -501,7 +512,8 @@ class Session implements ISession {
     }
 
     /**
-     * Actually closes the connection, called when the session is discarded from the pool
+     * Actually closes the connection, called when the session is discarded from
+     * the pool
      */
     void destroy() {
         LOGGER.fine("Destroying connection " + toString());
@@ -603,7 +615,8 @@ class Session implements ISession {
 
     //
     // Factory methods that make use of internal connection
-    // Q: How "long" are these objects good for? until the connection closes - or longer...
+    // Q: How "long" are these objects good for? until the connection closes -
+    // or longer...
     //
     /**
      * @see ISession#createSeLayer()
@@ -803,7 +816,8 @@ class Session implements ISession {
     }
 
     /**
-     * @see ISession#createSeQuery(java.lang.String[], com.esri.sde.sdk.client.SeSqlConstruct)
+     * @see ISession#createSeQuery(java.lang.String[],
+     *      com.esri.sde.sdk.client.SeSqlConstruct)
      */
     public SeQuery createSeQuery(final String[] propertyNames, final SeSqlConstruct sql)
             throws IOException {
@@ -831,6 +845,22 @@ class Session implements ISession {
                 query.prepareQuery();
                 query.execute();
                 return query;
+            }
+        });
+    }
+
+    /**
+     * @see ISession#getDefaultVersion()
+     */
+    public SeVersion getDefaultVersion() throws IOException {
+        return issue(new Command<SeVersion>() {
+            @Override
+            public SeVersion execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
+                SeVersion defaultVersion = new SeVersion(connection,
+                        SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
+                defaultVersion.getInfo();
+                return defaultVersion;
             }
         });
     }

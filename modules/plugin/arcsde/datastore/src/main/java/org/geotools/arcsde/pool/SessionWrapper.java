@@ -37,6 +37,7 @@ import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
+import com.esri.sde.sdk.client.SeVersion;
 
 /**
  * A pure session wrapper to aid in creating session decorators by extending this class.
@@ -287,6 +288,14 @@ public class SessionWrapper implements ISession {
      */
     public void startTransaction() throws IOException {
         wrapped.startTransaction();
+    }
+
+    
+    /**
+     * @see ISession#getDefaultVersion()
+     */
+    public SeVersion getDefaultVersion() throws IOException {
+        return wrapped.getDefaultVersion();
     }
 
 }

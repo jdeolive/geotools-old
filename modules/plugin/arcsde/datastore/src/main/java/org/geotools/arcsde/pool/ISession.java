@@ -38,15 +38,18 @@ import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
+import com.esri.sde.sdk.client.SeVersion;
 
 public interface ISession {
 
     /**
      * Executes the given command and returns its result.
      * 
-     * @param command the command to execute
-     * @throws IOException if an exception occurs handling any ArcSDE resource while executing the
-     *             command
+     * @param command
+     *            the command to execute
+     * @throws IOException
+     *             if an exception occurs handling any ArcSDE resource while
+     *             executing the command
      */
     public abstract <T> T issue(final Command<T> command) throws IOException;
 
@@ -55,8 +58,9 @@ public interface ISession {
     /**
      * Returns whether this connection is on the connection pool domain or not.
      * 
-     * @return <code>true</code> if this connection has beed returned to the pool and thus cannot
-     *         be used, <code>false</code> if its safe to keep using it.
+     * @return <code>true</code> if this connection has beed returned to the
+     *         pool and thus cannot be used, <code>false</code> if its safe to
+     *         keep using it.
      */
     public abstract boolean isDisposed();
 
@@ -69,7 +73,8 @@ public interface ISession {
     /**
      * Starts a transaction over the connection held by this Session
      * <p>
-     * If this method succeeds, {@link #isTransactionActive()} will return true afterwards
+     * If this method succeeds, {@link #isTransactionActive()} will return true
+     * afterwards
      * </p>
      * 
      * @throws IOException
@@ -90,7 +95,8 @@ public interface ISession {
     /**
      * Returns whether a transaction is in progress over this connection
      * <p>
-     * As for any other public method, this one can't be called if {@link #isDisposed()} is true.
+     * As for any other public method, this one can't be called if
+     * {@link #isDisposed()} is true.
      * </p>
      * 
      * @return
@@ -100,8 +106,9 @@ public interface ISession {
     /**
      * Rolls back the current transaction
      * <p>
-     * When this method returns it is guaranteed that {@link #isTransactionActive()} will return
-     * false, regardless of the success of the rollback operation.
+     * When this method returns it is guaranteed that
+     * {@link #isTransactionActive()} will return false, regardless of the
+     * success of the rollback operation.
      * </p>
      * 
      * @throws IOException
@@ -109,9 +116,11 @@ public interface ISession {
     public abstract void rollbackTransaction() throws IOException;
 
     /**
-     * Return to the pool (may not close the internal connection, depends on pool settings).
+     * Return to the pool (may not close the internal connection, depends on
+     * pool settings).
      * 
-     * @throws IllegalStateException if close() is called while a transaction is in progress
+     * @throws IllegalStateException
+     *             if close() is called while a transaction is in progress
      * @see #destroy()
      */
     public abstract void dispose() throws IllegalStateException;
@@ -124,8 +133,8 @@ public interface ISession {
     public abstract int hashCode();
 
     /**
-     * Returns the live list of layers, not the cached ones, so it may pick up the differences in
-     * the database.
+     * Returns the live list of layers, not the cached ones, so it may pick up
+     * the differences in the database.
      * 
      * @return
      * @throws IOException
@@ -143,7 +152,8 @@ public interface ISession {
 
     //
     // Factory methods that make use of internal connection
-    // Q: How "long" are these objects good for? until the connection closes - or longer...
+    // Q: How "long" are these objects good for? until the connection closes -
+    // or longer...
     //
     public abstract SeLayer createSeLayer() throws IOException;
 
@@ -175,13 +185,13 @@ public interface ISession {
     public abstract SeColumnDefinition[] describe(final SeTable table) throws IOException;
 
     /**
-     * Issues a command that fetches a row from an already executed SeQuery and returns the
-     * {@link SdeRow} object with its contents.
+     * Issues a command that fetches a row from an already executed SeQuery and
+     * returns the {@link SdeRow} object with its contents.
      * <p>
-     * The point in returning an {@link SdeRow} instead of a plain {@link SeRow} is that the former
-     * prefetches the row values and this can be freely used outside a {@link Command}. Otherwise
-     * the SeRow should only be used inside a command as accessing its values implies using the
-     * connection.
+     * The point in returning an {@link SdeRow} instead of a plain {@link SeRow}
+     * is that the former prefetches the row values and this can be freely used
+     * outside a {@link Command}. Otherwise the SeRow should only be used
+     * inside a command as accessing its values implies using the connection.
      * </p>
      * 
      * @param query
@@ -199,8 +209,8 @@ public interface ISession {
     public abstract SeQuery createSeQuery() throws IOException;
 
     /**
-     * Creates an SeQuery to fetch the given propertyNames with the provided attribute based
-     * restrictions
+     * Creates an SeQuery to fetch the given propertyNames with the provided
+     * attribute based restrictions
      * <p>
      * This method shall only be called from inside a {@link Command}
      * </p>
@@ -215,5 +225,10 @@ public interface ISession {
 
     public abstract SeQuery createAndExecuteQuery(final String[] propertyNames,
             final SeSqlConstruct sql) throws IOException;
+
+    /**
+     * Returns the up to date information about the database default version
+     */
+    public abstract SeVersion getDefaultVersion() throws IOException;
 
 }
