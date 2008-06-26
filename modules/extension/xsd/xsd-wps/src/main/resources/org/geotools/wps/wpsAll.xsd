@@ -9,7 +9,8 @@ For conditions, see OGC Software Notice http://www.opengeospatial.org/ogc/softwa
 		</documentation>
 	</annotation>
 	
-	<import namespace="http://www.opengis.net/gml" schemaLocation="../../gml/3.2.1/gml.xsd"/>
+	<!-- Manually added gml import for geotools xsd parsing -->
+	<import namespace="http://www.opengis.net/gml" schemaLocation="../../gml/2.1.2/feature.xsd"/>
 		
 	<!-- ==============================================================
 		includes
@@ -20,4 +21,7 @@ For conditions, see OGC Software Notice http://www.opengeospatial.org/ogc/softwa
 	<include schemaLocation="wpsExecute_response.xsd"/>
 	<include schemaLocation="wpsGetCapabilities_request.xsd"/>
 	<include schemaLocation="wpsGetCapabilities_response.xsd"/>
+	
+	<!-- adding a dummy element to force eclipse xsd to load the gml schema -->
+	<element name="dummy" type="gml:Polygon"/>
 </schema>
