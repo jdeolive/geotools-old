@@ -18,6 +18,7 @@
 package org.geotools.wps.bindings;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -25,11 +26,9 @@ import javax.xml.namespace.QName;
 import net.opengis.wps.ComplexDataType;
 import net.opengis.wps.WpsFactory;
 
-import org.eclipse.emf.ecore.util.FeatureMap;
-import org.geotools.geometry.jts.JTS;
 import org.geotools.gml2.GML;
 import org.geotools.wps.WPS;
-import org.geotools.xml.ComplexEMFBinding;
+import org.geotools.xml.AbstractComplexBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 
@@ -41,16 +40,30 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-public class ComplexDataTypeBinding extends ComplexEMFBinding
+public class ComplexDataTypeBinding extends AbstractComplexBinding
 {
     private WpsFactory factory;
 
     public ComplexDataTypeBinding(WpsFactory factory)
     {
-        super(factory, WPS.ComplexDataType);
         this.factory = factory;
     }
+    
+    public QName getTarget()
+    {
+        return WPS.ComplexDataType;
+    }
 
+    public Class<?> getType()
+    {
+        return ComplexDataType.class;
+    }
+
+    public int getExecutionMode() {
+        return OVERRIDE;
+    }
+    
+    
     /*
     	Would need to look at the contained values to detect the correct
     	order.
@@ -92,30 +105,17 @@ public class ComplexDataTypeBinding extends ComplexEMFBinding
     	return properties;
     }
 
-    public QName getTarget()
-    {
-        return WPS.ComplexDataType;
-    }
-
-    public Class<?> getType()
-    {
-        return ComplexDataType.class;
-    }
-
     /*
     	NodeImpl -> JTS.Polygon
     */
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception
     {
-        Object parsed = super.parse(instance, node, value);
-
-        // XXX DEBUG +
-        String d = parsed.getClass().toString();
-        List<Object> b = node.getChildren();
-        Object c = b.get(1);
-        String e = c.getClass().toString();
-        // XXX -
-
-    	return parsed;
+        ComplexDataType data = factory.createComplexDataType();
+        for ( Iterator i = node.getChildren().iterator(); i.hasNext(); ) {
+            Node c = (Node) i.next();
+            data.getData().add( c.getValue() );
+        }
+        
+        return data;
     }
 }
