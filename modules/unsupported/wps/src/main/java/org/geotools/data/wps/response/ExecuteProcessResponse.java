@@ -41,6 +41,7 @@ import org.xml.sax.SAXException;
 public class ExecuteProcessResponse extends Response {
 
     private ExecuteResponseType exeResponse;
+    private ExceptionReportType excepResponse;
 
     /**
      * @param contentType
@@ -58,6 +59,8 @@ public class ExecuteProcessResponse extends Response {
         	Parser parser = new Parser(config);
 	
 	        Object object;
+	        excepResponse = null;
+	        exeResponse = null;
 			try {
 				//object = DocumentFactory.getInstance(inputStream, hints, Level.WARNING);
 				object =  parser.parse(inputStream);
@@ -74,14 +77,9 @@ public class ExecuteProcessResponse extends Response {
 			}
 			// exception caught on server and returned
 			else if (object instanceof ExceptionReportType) {
-				ExceptionReportType excep = (ExceptionReportType) object;
-				exeResponse = null;
+				excepResponse = (ExceptionReportType) object;
 			}
-			else {
-				// unknown response
-				exeResponse = null;
-			}
-
+			
 			
         } finally {
         	inputStream.close();
@@ -91,5 +89,9 @@ public class ExecuteProcessResponse extends Response {
     public ExecuteResponseType getExecuteResponse() {
         return exeResponse;
     }
+    
+    public ExceptionReportType getExceptionResponse() {
+        return excepResponse;
+    }    
 
 }

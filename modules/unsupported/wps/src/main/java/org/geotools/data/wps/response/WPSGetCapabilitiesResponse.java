@@ -21,6 +21,8 @@ import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.opengis.ows11.ExceptionReportType;
+import net.opengis.wps.ProcessDescriptionsType;
 import net.opengis.wps.WPSCapabilitiesType;
 
 import org.geotools.data.ows.AbstractWPSGetCapabilitiesResponse;
@@ -51,6 +53,8 @@ public class WPSGetCapabilitiesResponse extends AbstractWPSGetCapabilitiesRespon
         	Parser parser = new Parser(config);
 	
 	        Object object;
+	        excepResponse = null;
+	        capabilities = null;		        
 			try {
 				//object = DocumentFactory.getInstance(inputStream, hints, Level.WARNING);
 				object = parser.parse(inputStream);
@@ -60,14 +64,19 @@ public class WPSGetCapabilitiesResponse extends AbstractWPSGetCapabilitiesRespon
 				throw (ServiceException) new ServiceException("Error while parsing XML.").initCause(e);
 			}
 	        
-	        if (object instanceof ServiceException) {
-	        	throw (ServiceException) object;
-	        }
+	        //if (object instanceof ServiceException) {
+	        //	throw (ServiceException) object;
+	        //}
 	        
-	        //Class<? extends Object> class1 = object.getClass();
-	        //System.out.println(class1);
-	        // CapabilitiesBaseType / WPSCapabilitiesType
-	        this.capabilities = (WPSCapabilitiesType) object;
+			// try casting the response
+			if (object instanceof WPSCapabilitiesType) {
+				capabilities = (WPSCapabilitiesType) object;
+			}
+			// exception caught on server and returned
+			else if (object instanceof ExceptionReportType) {
+				excepResponse = (ExceptionReportType) object;
+			}				
+
 		} finally {
 			inputStream.close();
 		}

@@ -96,26 +96,12 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     	// describeprocess
     	Configuration config = new WPSConfiguration();
     	Encoder encoder = new Encoder(config);
-    	
+    	encoder.setIndenting(true);
+
     	//http://schemas.opengis.net/wps/1.0.0/wpsExecute_request.xsd
-    	
     	ExecuteType request = createExecuteType();
     	encoder.encode(request, WPS.Execute, outputStream);
-
-    	/*
-    	Set<Object> keyset = this.properties.keySet();
-    	Iterator<Object> iterator = keyset.iterator();
-    	while (iterator.hasNext()) {
-    		Object key = iterator.next();
-    		Object object = this.properties.get(key);
-    		// will a null QName work? Or do I have to know the QName this
-    		// object maps to?  I hope I don't need to know...
-    		encoder.encode(object, null, outputStream);
-    	}
-    	*/
-    	
-    	System.out.println(outputStream.toString());
-
+    	//System.out.println(outputStream.toString());
 	}   
     
     @SuppressWarnings("unchecked")

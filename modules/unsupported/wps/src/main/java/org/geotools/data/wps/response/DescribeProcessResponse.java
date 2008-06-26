@@ -21,6 +21,8 @@ import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.opengis.ows11.ExceptionReportType;
+import net.opengis.wps.ExecuteResponseType;
 import net.opengis.wps.ProcessDescriptionType;
 import net.opengis.wps.ProcessDescriptionsType;
 
@@ -41,6 +43,7 @@ import org.xml.sax.SAXException;
 public class DescribeProcessResponse extends Response {
 
     private ProcessDescriptionsType processDescs;
+    private ExceptionReportType excepResponse;    
 
     /**
      * @param contentType
@@ -58,6 +61,8 @@ public class DescribeProcessResponse extends Response {
         	Parser parser = new Parser(config);
 	
 	        Object object;
+	        excepResponse = null;
+	        processDescs = null;	        
 			try {
 				//object = DocumentFactory.getInstance(inputStream, hints, Level.WARNING);
 				object =  parser.parse(inputStream);
@@ -67,7 +72,15 @@ public class DescribeProcessResponse extends Response {
 				throw (IOException) new IOException().initCause(e);
 			}
 	        
-	        processDescs = (ProcessDescriptionsType) object;
+			// try casting the response
+			if (object instanceof ProcessDescriptionsType) {
+				processDescs = (ProcessDescriptionsType) object;
+			}
+			// exception caught on server and returned
+			else if (object instanceof ExceptionReportType) {
+				excepResponse = (ExceptionReportType) object;
+			}			
+			
         } finally {
         	inputStream.close();
         }
@@ -76,5 +89,9 @@ public class DescribeProcessResponse extends Response {
     public ProcessDescriptionsType getProcessDesc() {
         return processDescs;
     }
+    
+    public ExceptionReportType getExceptionResponse() {
+        return excepResponse;
+    }      
 
 }

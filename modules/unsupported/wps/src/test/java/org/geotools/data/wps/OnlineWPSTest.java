@@ -48,14 +48,31 @@ import junit.framework.TestCase;
 
 public class OnlineWPSTest extends TestCase {
 	
+	private boolean useLocalServer;
 	private WebProcessingService wps;
 	private URL url;
+	private String processIden;
 	
 	public void setUp() throws ServiceException, IOException {
 		
-		//url = new URL("http://192.168.50.77:8080/geoserver/ows?service=WPS&request=GetCapabilities&language=ko");
-		// try the 52 North test server
-		url = new URL("http://geoserver.itc.nl:8080/wps100/WebProcessingService?service=WPS&request=GetCapabilities&language=ko");
+		// set to true for local server test, false for 52N server test
+		useLocalServer = false;
+		
+		// local server
+		URL urlLocal = new URL("http://192.168.50.77:8080/geoserver/ows?service=WPS&request=GetCapabilities&language=ko");
+		String processIdenLocal = "buffer";
+		
+		// the 52 North test server
+		URL url52N = new URL("http://geoserver.itc.nl:8080/wps100/WebProcessingService?service=WPS&request=GetCapabilities&language=ko");
+		String processIden52N = "org.n52.wps.server.algorithm.collapse.SimplePolygon2PointCollapse";
+		
+		url = urlLocal;
+		processIden = processIdenLocal;
+		if (!useLocalServer) {
+			url = url52N;
+			processIden = processIden52N;
+		}
+		
 		wps = new WebProcessingService(url);
 	}
 	
@@ -70,28 +87,28 @@ public class OnlineWPSTest extends TestCase {
 		for (int i=0; i<processes.size(); i++) {
 			ProcessBriefType process = (ProcessBriefType) processes.get(i);
 			//System.out.println(process.getTitle());
-			assertNotNull("process ["+ process + " shouldn't be null", process);
+			assertNotNull("process ["+ process + " shouldn't be null", process.getTitle());
 		}
 
 	}
 	
-//	public void testDescribeProcess() throws ServiceException, IOException {
-//		
-//		WPSCapabilitiesType capabilities = wps.getCapabilities();
-//		
-//		// get the first process and describe it
-//		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
-//		EList processes = processOfferings.getProcess();
-//		ProcessBriefType process = (ProcessBriefType) processes.get(0);
-//		
-//		DescribeProcessRequest request = wps.createDescribeProcessRequest();
-//		request.setIdentifier(process.getIdentifier().getValue());
-//		//System.out.println(request.getFinalURL());
-//		DescribeProcessResponse response = wps.issueRequest(request);
-//		//System.out.println(response);
-//		assertNotNull(response);
-//		
-//	}
+	public void testDescribeProcess() throws ServiceException, IOException {
+		
+		WPSCapabilitiesType capabilities = wps.getCapabilities();
+		
+		// get the first process and describe it
+		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
+		EList processes = processOfferings.getProcess();
+		ProcessBriefType process = (ProcessBriefType) processes.get(0);
+		
+		DescribeProcessRequest request = wps.createDescribeProcessRequest();
+		request.setIdentifier(process.getIdentifier().getValue());
+		//System.out.println(request.getFinalURL());
+		DescribeProcessResponse response = wps.issueRequest(request);
+		//System.out.println(response);
+		assertNotNull(response);
+		assertNotNull(response.getProcessDesc());
+	}
 	
 	public void testExecuteProcess() throws ServiceException, IOException, ParseException {
 		
@@ -103,12 +120,11 @@ public class OnlineWPSTest extends TestCase {
 		//ProcessBriefType process = (ProcessBriefType) processes.get(0);
 
 		// does the server contain the specific process I want
-		String iden = "org.n52.wps.server.algorithm.collapse.SimplePolygon2PointCollapse";
 		boolean found = false;
 		Iterator iterator = processes.iterator();
 		while (iterator.hasNext()) {
 			ProcessBriefType process = (ProcessBriefType) iterator.next();
-			if (process.getIdentifier().getValue().equalsIgnoreCase(iden)) {
+			if (process.getIdentifier().getValue().equalsIgnoreCase(processIden)) {
 				found =true;
 				break;
 			}
@@ -122,14 +138,68 @@ public class OnlineWPSTest extends TestCase {
 		// do a full describeprocess on my process
 		// http://geoserver.itc.nl:8080/wps100/WebProcessingService?REQUEST=DescribeProcess&IDENTIFIER=org.n52.wps.server.algorithm.collapse.SimplePolygon2PointCollapse&VERSION=1.0.0&SERVICE=WPS
 		DescribeProcessRequest descRequest = wps.createDescribeProcessRequest();
-		descRequest.setIdentifier(iden);
+		descRequest.setIdentifier(processIden);
 		DescribeProcessResponse descResponse = wps.issueRequest(descRequest);
 		
 		// based on the describeprocess, setup the execute
 		ProcessDescriptionsType processDesc = descResponse.getProcessDesc();
 		ExecuteProcessRequest exeRequest = wps.createExecuteProcessRequest();
-		exeRequest.setIdentifier(iden);
+		exeRequest.setIdentifier(processIden);
 		
+		// set input data
+		if (useLocalServer) {
+			setLocalInputData(exeRequest, processDesc);
+		}
+		else {
+			set52NInputData(exeRequest, processDesc);
+		}
+		
+		// send the request
+		ExecuteProcessResponse response = wps.issueRequest(exeRequest);
+		
+		// response should not be null and no exception should occur.
+		assertNotNull(response);
+		assertNotNull(response.getExecuteResponse());
+		assertNull(response.getExceptionResponse());
+		
+	}
+	
+	private void setLocalInputData(ExecuteProcessRequest exeRequest, 
+			ProcessDescriptionsType processDesc) throws ParseException {
+
+		// this process takes 2 input, a geometry and a buffer amount.
+		ProcessDescriptionType pdt = (ProcessDescriptionType) processDesc.getProcessDescription().get(0);
+		InputDescriptionType idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(0);
+		
+		// create a polygon for the input
+        WKTReader reader = new WKTReader( new GeometryFactory() );
+        Geometry geom1 = (Polygon) reader.read("POLYGON((20 10, 30 0, 40 10, 30 20, 20 10))");
+        int bufferAmnt = 350;
+        
+        // create and set the input on the exe request
+        if (idt.getIdentifier().getValue().equalsIgnoreCase("buffer")) {
+    		// set buffer input
+        	DataType input = WPSUtils.createInput(bufferAmnt, idt);
+    		exeRequest.addInput(idt.getIdentifier().getValue(), input);	
+    		// set geom input
+    		idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(1);
+        	DataType input2 = WPSUtils.createInput(geom1, idt);
+    		exeRequest.addInput(idt.getIdentifier().getValue(), input2);
+        }
+        else {
+    		// set geom input
+        	DataType input2 = WPSUtils.createInput(geom1, idt);
+    		exeRequest.addInput(idt.getIdentifier().getValue(), input2);        	
+    		// set buffer input
+    		idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(1);
+        	DataType input = WPSUtils.createInput(bufferAmnt, idt);
+    		exeRequest.addInput(idt.getIdentifier().getValue(), input);	
+        }
+	}	
+
+	private void set52NInputData(ExecuteProcessRequest exeRequest, 
+			ProcessDescriptionsType processDesc) throws ParseException {
+
 		// this process takes 1 input, a building polygon to collapse.
 		ProcessDescriptionType pdt = (ProcessDescriptionType) processDesc.getProcessDescription().get(0);
 		InputDescriptionType idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(0);
@@ -141,13 +211,6 @@ public class OnlineWPSTest extends TestCase {
         // create and set the input on the exe request
 		DataType input = WPSUtils.createInput(geom1, idt);
 		exeRequest.addInput(idt.getIdentifier().getValue(), input);
-		
-		// send the request
-		ExecuteProcessResponse response = wps.issueRequest(exeRequest);
-		//System.out.println(response);
-		//System.out.println(response.getExecuteResponse());
-		assertNotNull(response);
-		
 	}	
 	
 
