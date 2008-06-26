@@ -360,16 +360,13 @@ void Predicate() #void:
 {}
 {
 		LOOKAHEAD(2) IdPredicate() 
-	|	LOOKAHEAD(2) Attribute() TextPredicate()
-		(
-			  	LOOKAHEAD(3)NullPredicate() 
-			| 	LOOKAHEAD(3)ExistencePredicate() 
-		)
 	|	Expression()  
 		(
-			  	LOOKAHEAD(3)NullPredicate() 
-			| 	LOOKAHEAD(3)TemporalPredicate() 
-			|   LOOKAHEAD(3)BetweenPredicate()		
+				LOOKAHEAD(3) TextPredicate()
+			| 	LOOKAHEAD(3) ExistencePredicate() 
+			|  	LOOKAHEAD(3) NullPredicate() 
+			| 	LOOKAHEAD(3) TemporalPredicate() 
+			|   LOOKAHEAD(3) BetweenPredicate()		
 			| 	ComparissonPredicate() 
 		)
 }
@@ -777,7 +774,7 @@ void UnaryExpression() #void:
 {}
 {
 	  LOOKAHEAD(2) Function() 
-	| NumericLiteral() 
+	| Literal()
 	| Attribute()
 	| <LP> Expression()<RP>
 	| <LSP> Expression()<RSP>

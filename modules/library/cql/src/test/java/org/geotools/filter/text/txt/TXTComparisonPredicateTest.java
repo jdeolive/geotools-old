@@ -16,6 +16,7 @@
  */
 package org.geotools.filter.text.txt;
 
+import org.geotools.filter.text.commons.CompilerUtil;
 import org.geotools.filter.text.cql2.CQLComparisonPredicateTest;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CompilerFactory;
@@ -137,7 +138,7 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
         
         Filter expected = FilterTXTSample.getSample(testPredicate);
 
-        Filter actual = parse(testPredicate);
+        Filter actual = CompilerUtil.parse(this.language, testPredicate);
 
         Assert.assertNotNull("expects filter not null", actual);
 
