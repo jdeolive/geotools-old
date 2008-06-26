@@ -33,6 +33,11 @@ import org.geotools.xml.ComplexEMFBinding;
 import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
 
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -60,12 +65,29 @@ public class ComplexDataTypeBinding extends ComplexEMFBinding
 
     	for(Object obj0 : features)	// XXX TEST
     	{
+    		// put all the possible values mapped to qnames.
+    		// for now just support the main GML 2 types
             if ( obj0 instanceof Point ) {
                 properties.add( new Object[]{ GML.Point, obj0 } );
             }
             else if ( obj0 instanceof Polygon ) {
                 properties.add( new Object[]{ GML.Polygon, obj0 } );
             }
+            else if ( obj0 instanceof LinearRing ) {
+                properties.add( new Object[]{ GML.LinearRing, obj0 } );
+            }             
+            else if ( obj0 instanceof LineString ) {
+                properties.add( new Object[]{ GML.LineString, obj0 } );
+            }   
+            else if ( obj0 instanceof MultiLineString ) {
+                properties.add( new Object[]{ GML.MultiLineString, obj0 } );
+            }      
+            else if ( obj0 instanceof MultiPoint ) {
+                properties.add( new Object[]{ GML.MultiPoint, obj0 } );
+            }          
+            else if ( obj0 instanceof MultiPolygon ) {
+                properties.add( new Object[]{ GML.MultiPolygon, obj0 } );
+            }             
     	}
     	return properties;
     }
