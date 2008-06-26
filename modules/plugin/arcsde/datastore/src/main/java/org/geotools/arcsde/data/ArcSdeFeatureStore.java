@@ -94,30 +94,26 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         // System.err.println(">>addFeatures called at " +
         // Thread.currentThread().getName());
         final String typeName = typeInfo.getFeatureTypeName();
-        final ISession session = getSession();
+
+        final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
+        writer = dataStore.getFeatureWriterAppend(typeName, transaction);
+        final FeatureIterator<SimpleFeature> iterator = collection.features();
+        Set<String> featureIds = new HashSet<String>();
         try {
-            final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
-            writer = dataStore.getFeatureWriterAppend(typeName, transaction);
-            final FeatureIterator<SimpleFeature> iterator = collection.features();
-            Set<String> featureIds = new HashSet<String>();
-            try {
-                SimpleFeature toAdd;
-                SimpleFeature newFeature;
-                while (iterator.hasNext()) {
-                    toAdd = iterator.next();
-                    newFeature = writer.next();
-                    newFeature.setAttributes(toAdd.getAttributes());
-                    writer.write();
-                    featureIds.add(newFeature.getID());
-                }
-            } finally {
-                iterator.close();
-                writer.close();
+            SimpleFeature toAdd;
+            SimpleFeature newFeature;
+            while (iterator.hasNext()) {
+                toAdd = iterator.next();
+                newFeature = writer.next();
+                newFeature.setAttributes(toAdd.getAttributes());
+                writer.write();
+                featureIds.add(newFeature.getID());
             }
-            return featureIds;
         } finally {
-            session.dispose();
+            iterator.close();
+            writer.close();
         }
+        return featureIds;
     }
 
     /**
