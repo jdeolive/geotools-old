@@ -115,12 +115,12 @@ public class SymbolizerBuilder {
         DEFAULT_RASTER_NAME = "RasterSymbolizer ";
         
         SelectedChannelType[] rgb = new SelectedChannelType[3];
-        rgb[0] = new DefaultSelectedChannelType("1", null);
-        rgb[1] = new DefaultSelectedChannelType("2", null);
-        rgb[2] = new DefaultSelectedChannelType("3", null);
+        rgb[0] = new DefaultSelectedChannelType("0", null);
+        rgb[1] = new DefaultSelectedChannelType("1", null);
+        rgb[2] = new DefaultSelectedChannelType("2", null);
         DEFAULT_RASTER_CHANNEL_RGB = new DefaultChannelSelection(rgb, null);
         
-        SelectedChannelType gray = new DefaultSelectedChannelType("1", null);
+        SelectedChannelType gray = new DefaultSelectedChannelType("0", null);
         DEFAULT_RASTER_CHANNEL_GRAY = new DefaultChannelSelection(null, gray);
         
         DEFAULT_RASTER_OVERLAP = OverlapBehavior.LATEST_ON_TOP;
