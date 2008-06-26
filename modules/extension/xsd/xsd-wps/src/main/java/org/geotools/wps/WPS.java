@@ -17,13 +17,9 @@
 package org.geotools.wps;
 
 
-import java.io.IOException;
 import java.util.Set;
-import javax.xml.namespace.QName;
 
-import org.eclipse.xsd.XSDFactory;
-import org.eclipse.xsd.XSDImport;
-import org.eclipse.xsd.XSDSchema;
+import javax.xml.namespace.QName;
 
 import org.geotools.gml2.GML;
 import org.geotools.ows.v1_1.OWS;
