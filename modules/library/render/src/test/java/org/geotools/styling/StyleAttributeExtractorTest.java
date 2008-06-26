@@ -151,7 +151,7 @@ public class StyleAttributeExtractorTest extends TestCase {
 
     public void testPointSymbolizer() throws Exception {
         PointSymbolizer pointSymb = styleFactory.createPointSymbolizer();
-        ExternalGraphic eg = styleFactory.createExternalGraphic("www.test.com", "image/png");
+        ExternalGraphic eg = styleFactory.createExternalGraphic("http://www.test.com", "image/png");
         Mark mark = styleFactory.createMark();
         Stroke stroke = styleFactory.getDefaultStroke();
         stroke.setWidth(filterFactory.property("testInteger"));

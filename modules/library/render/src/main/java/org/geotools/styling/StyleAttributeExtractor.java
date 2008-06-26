@@ -16,7 +16,10 @@
  */
 package org.geotools.styling;
 
+import java.net.MalformedURLException;
+
 import org.geotools.filter.FilterAttributeExtractor;
+import org.geotools.renderer.style.ExpressionExtractor;
 import org.geotools.styling.AnchorPoint;
 import org.geotools.styling.ChannelSelection;
 import org.geotools.styling.ColorMap;
@@ -53,7 +56,9 @@ import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.TextSymbolizer2;
 import org.geotools.styling.UserLayer;
 import org.opengis.filter.Filter;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.ExpressionVisitor;
+import org.opengis.filter.expression.Literal;
 
 
 /**
@@ -413,15 +418,37 @@ public class StyleAttributeExtractor extends FilterAttributeExtractor
             mark.getSize().accept(this,null);
         }
         
-        if(mark.getWellKnownName() != null)
-            mark.getWellKnownName().accept(this,null);
+        if(mark.getWellKnownName() != null) {
+            if(mark.getWellKnownName() instanceof Literal) {
+                visitCqlExpression(mark.getWellKnownName().evaluate(null, String.class));
+            } else {
+                mark.getWellKnownName().accept(this,null);
+            }
+        }
+    }
+
+    /**
+     * Handles the special CQL expressions embedded in the style markers since
+     * the time 
+     * @param expression
+     */
+    private void visitCqlExpression(String expression) {
+        Expression parsed = ExpressionExtractor.extractCqlExpressions(expression);
+        if(parsed != null)
+            parsed.accept(this, null);
     }
 
     /**
      * @see org.geotools.styling.StyleVisitor#visit(org.geotools.styling.ExternalGraphic)
      */
     public void visit(ExternalGraphic exgr) {
-        // nothing to do
+        try {
+            if(exgr.getLocation() != null)
+                visitCqlExpression(exgr.getLocation().toString());
+        } catch(MalformedURLException e) {
+            throw new RuntimeException("Errors while inspecting " +
+            		"the location of an external graphic", e);
+        }
     }
 
     /**

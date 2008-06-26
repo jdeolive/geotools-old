@@ -1183,7 +1183,7 @@ public class SLDStyleFactory {
      *
      * @author aaime
      */
-    private static class SymbolizerKey {
+    static class SymbolizerKey {
         private Symbolizer symbolizer;
         private double minScale;
         private double maxScale;

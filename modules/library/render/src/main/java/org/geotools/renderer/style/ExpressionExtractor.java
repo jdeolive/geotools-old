@@ -149,7 +149,7 @@ public class ExpressionExtractor {
         return result;
     }
 
-    static Expression extractCqlExpressions(String expression) {
+    public static Expression extractCqlExpressions(String expression) {
         return catenateExpressions(splitCqlExpressions(expression));
     }
 }
