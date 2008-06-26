@@ -516,7 +516,6 @@ public class WfsPackageImpl extends EPackageImpl implements WfsPackage {
         XMLTypePackage.eINSTANCE.eClass();
         EcorePackage.eINSTANCE.eClass();
         Ows10Package.eINSTANCE.eClass();
-        XMLTypePackage.eINSTANCE.eClass();
 
         // Create package meta-data objects
         theWfsPackage.createPackageContents();
@@ -609,6 +608,15 @@ public class WfsPackageImpl extends EPackageImpl implements WfsPackage {
      */
     public EAttribute getBaseRequestType_BaseUrl() {
         return (EAttribute)baseRequestTypeEClass.getEStructuralFeatures().get(3);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public EAttribute getBaseRequestType_ProvidedVersion() {
+        return (EAttribute)baseRequestTypeEClass.getEStructuralFeatures().get(4);
     }
 
     /**
@@ -2332,6 +2340,7 @@ public class WfsPackageImpl extends EPackageImpl implements WfsPackage {
         createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__SERVICE);
         createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__VERSION);
         createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__BASE_URL);
+        createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__PROVIDED_VERSION);
 
         deleteElementTypeEClass = createEClass(DELETE_ELEMENT_TYPE);
         createEAttribute(deleteElementTypeEClass, DELETE_ELEMENT_TYPE__FILTER);
@@ -2584,7 +2593,6 @@ public class WfsPackageImpl extends EPackageImpl implements WfsPackage {
 
         // Obtain other dependent packages
         XMLTypePackage theXMLTypePackage = (XMLTypePackage)EPackage.Registry.INSTANCE.getEPackage(XMLTypePackage.eNS_URI);
-        XMLTypePackage theXMLTypePackage_1 = (XMLTypePackage)EPackage.Registry.INSTANCE.getEPackage(XMLTypePackage.eNS_URI);
         EcorePackage theEcorePackage = (EcorePackage)EPackage.Registry.INSTANCE.getEPackage(EcorePackage.eNS_URI);
         Ows10Package theOws10Package = (Ows10Package)EPackage.Registry.INSTANCE.getEPackage(Ows10Package.eNS_URI);
 
@@ -2608,7 +2616,8 @@ public class WfsPackageImpl extends EPackageImpl implements WfsPackage {
         initEAttribute(getBaseRequestType_Handle(), theXMLTypePackage.getString(), "handle", null, 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getBaseRequestType_Service(), this.getServiceType(), "service", "WFS", 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getBaseRequestType_Version(), theXMLTypePackage.getString(), "version", "1.1.0", 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBaseRequestType_BaseUrl(), theXMLTypePackage_1.getString(), "baseUrl", null, 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBaseRequestType_BaseUrl(), theXMLTypePackage.getString(), "baseUrl", null, 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBaseRequestType_ProvidedVersion(), ecorePackage.getEString(), "providedVersion", null, 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(deleteElementTypeEClass, DeleteElementType.class, "DeleteElementType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getDeleteElementType_Filter(), this.getFilter(), "filter", null, 0, 1, DeleteElementType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2749,7 +2758,7 @@ public class WfsPackageImpl extends EPackageImpl implements WfsPackage {
         initEClass(noSRSTypeEClass, NoSRSType.class, "NoSRSType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
         initEClass(operationsTypeEClass, OperationsType.class, "OperationsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getOperationsType_Operation(), this.getOperationType(), "operation", "Insert", 1, -1, OperationsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getOperationsType_Operation(), this.getOperationType(), "operation", "Insert", 1, 1, OperationsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(outputFormatListTypeEClass, OutputFormatListType.class, "OutputFormatListType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getOutputFormatListType_Group(), theEcorePackage.getEFeatureMapEntry(), "group", null, 0, -1, OutputFormatListType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -3477,7 +3486,7 @@ public class WfsPackageImpl extends EPackageImpl implements WfsPackage {
            new String[] {
              "kind", "attribute",
              "name", "traverseXlinkExpiry"
-           });						
+           });			
         addAnnotation
           (insertElementTypeEClass, 
            source, 
@@ -3753,7 +3762,7 @@ public class WfsPackageImpl extends EPackageImpl implements WfsPackage {
            new String[] {
              "kind", "attribute",
              "name", "typeName"
-           });					
+           });			
         addAnnotation
           (transactionResponseTypeEClass, 
            source, 
@@ -3998,7 +4007,7 @@ public class WfsPackageImpl extends EPackageImpl implements WfsPackage {
            new String[] {
              "kind", "attribute",
              "name", "traverseXlinkExpiry"
-           });	
+           });						
     }
 
 } //WfsPackageImpl

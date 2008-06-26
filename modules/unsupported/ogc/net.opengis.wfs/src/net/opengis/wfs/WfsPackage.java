@@ -156,13 +156,22 @@ public interface WfsPackage extends EPackage {
     int BASE_REQUEST_TYPE__BASE_URL = 3;
 
     /**
+     * The feature id for the '<em><b>Provided Version</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int BASE_REQUEST_TYPE__PROVIDED_VERSION = 4;
+
+    /**
      * The number of structural features of the '<em>Base Request Type</em>' class.
      * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-	int BASE_REQUEST_TYPE_FEATURE_COUNT = 4;
+	int BASE_REQUEST_TYPE_FEATURE_COUNT = 5;
 
 	/**
      * The meta object id for the '{@link net.opengis.wfs.impl.DeleteElementTypeImpl <em>Delete Element Type</em>}' class.
@@ -255,6 +264,15 @@ public interface WfsPackage extends EPackage {
      * @ordered
      */
     int DESCRIBE_FEATURE_TYPE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Provided Version</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int DESCRIBE_FEATURE_TYPE_TYPE__PROVIDED_VERSION = BASE_REQUEST_TYPE__PROVIDED_VERSION;
 
     /**
      * The feature id for the '<em><b>Type Name</b></em>' attribute list.
@@ -1032,6 +1050,15 @@ public interface WfsPackage extends EPackage {
     int GET_FEATURE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
+     * The feature id for the '<em><b>Provided Version</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_TYPE__PROVIDED_VERSION = BASE_REQUEST_TYPE__PROVIDED_VERSION;
+
+    /**
      * The feature id for the '<em><b>Query</b></em>' containment reference list.
      * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1139,6 +1166,15 @@ public interface WfsPackage extends EPackage {
      * @ordered
      */
     int GET_FEATURE_WITH_LOCK_TYPE__BASE_URL = GET_FEATURE_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Provided Version</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_WITH_LOCK_TYPE__PROVIDED_VERSION = GET_FEATURE_TYPE__PROVIDED_VERSION;
 
     /**
      * The feature id for the '<em><b>Query</b></em>' containment reference list.
@@ -1257,6 +1293,15 @@ public interface WfsPackage extends EPackage {
      * @ordered
      */
     int GET_GML_OBJECT_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Provided Version</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_GML_OBJECT_TYPE__PROVIDED_VERSION = BASE_REQUEST_TYPE__PROVIDED_VERSION;
 
     /**
      * The feature id for the '<em><b>Gml Object Id</b></em>' attribute.
@@ -1525,6 +1570,15 @@ public interface WfsPackage extends EPackage {
     int LOCK_FEATURE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
+     * The feature id for the '<em><b>Provided Version</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int LOCK_FEATURE_TYPE__PROVIDED_VERSION = BASE_REQUEST_TYPE__PROVIDED_VERSION;
+
+    /**
      * The feature id for the '<em><b>Lock</b></em>' containment reference list.
      * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1719,7 +1773,7 @@ public interface WfsPackage extends EPackage {
 	int OPERATIONS_TYPE = 25;
 
 	/**
-     * The feature id for the '<em><b>Operation</b></em>' attribute list.
+     * The feature id for the '<em><b>Operation</b></em>' attribute.
      * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
      * @generated
@@ -2102,6 +2156,15 @@ public interface WfsPackage extends EPackage {
      * @ordered
      */
     int TRANSACTION_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Provided Version</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int TRANSACTION_TYPE__PROVIDED_VERSION = BASE_REQUEST_TYPE__PROVIDED_VERSION;
 
     /**
      * The feature id for the '<em><b>Lock Id</b></em>' attribute.
@@ -2661,6 +2724,17 @@ public interface WfsPackage extends EPackage {
      * @generated
      */
     EAttribute getBaseRequestType_BaseUrl();
+
+    /**
+     * Returns the meta object for the attribute '{@link net.opengis.wfs.BaseRequestType#getProvidedVersion <em>Provided Version</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute '<em>Provided Version</em>'.
+     * @see net.opengis.wfs.BaseRequestType#getProvidedVersion()
+     * @see #getBaseRequestType()
+     * @generated
+     */
+    EAttribute getBaseRequestType_ProvidedVersion();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs.DeleteElementType <em>Delete Element Type</em>}'.
@@ -3915,10 +3989,10 @@ public interface WfsPackage extends EPackage {
 	EClass getOperationsType();
 
 	/**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs.OperationsType#getOperation <em>Operation</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs.OperationsType#getOperation <em>Operation</em>}'.
      * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Operation</em>'.
+     * @return the meta object for the attribute '<em>Operation</em>'.
      * @see net.opengis.wfs.OperationsType#getOperation()
      * @see #getOperationsType()
      * @generated
@@ -4778,6 +4852,14 @@ public interface WfsPackage extends EPackage {
          * @generated
          */
         EAttribute BASE_REQUEST_TYPE__BASE_URL = eINSTANCE.getBaseRequestType_BaseUrl();
+
+        /**
+         * The meta object literal for the '<em><b>Provided Version</b></em>' attribute feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute BASE_REQUEST_TYPE__PROVIDED_VERSION = eINSTANCE.getBaseRequestType_ProvidedVersion();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs.impl.DeleteElementTypeImpl <em>Delete Element Type</em>}' class.
@@ -5756,7 +5838,7 @@ public interface WfsPackage extends EPackage {
 		EClass OPERATIONS_TYPE = eINSTANCE.getOperationsType();
 
 		/**
-         * The meta object literal for the '<em><b>Operation</b></em>' attribute list feature.
+         * The meta object literal for the '<em><b>Operation</b></em>' attribute feature.
          * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
          * @generated

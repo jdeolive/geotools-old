@@ -79,6 +79,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="baseUrl" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="providedVersion" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="DeleteElementType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">

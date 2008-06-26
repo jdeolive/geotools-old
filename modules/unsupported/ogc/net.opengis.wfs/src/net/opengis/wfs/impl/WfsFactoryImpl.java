@@ -51,7 +51,7 @@ public class WfsFactoryImpl extends EFactoryImpl implements WfsFactory {
      */
 	public static WfsFactory init() {
         try {
-            WfsFactory theWfsFactory = (WfsFactory)EPackage.Registry.INSTANCE.getEFactory("http:///net/opengis/wfs.ecore"); 
+            WfsFactory theWfsFactory = (WfsFactory)EPackage.Registry.INSTANCE.getEFactory("http://www.opengis.net/wfs"); 
             if (theWfsFactory != null) {
                 return theWfsFactory;
             }
@@ -719,8 +719,8 @@ public class WfsFactoryImpl extends EFactoryImpl implements WfsFactory {
      * @generated
      */
 	@SuppressWarnings("unchecked")
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> createFeatureCollectionFromString(EDataType eDataType, String initialValue) {
-        return (FeatureCollection<SimpleFeatureType, SimpleFeature>) super.createFromString(eDataType, initialValue);
+    public FeatureCollection createFeatureCollectionFromString(EDataType eDataType, String initialValue) {
+        return (FeatureCollection)super.createFromString(eDataType, initialValue);
     }
 
 	/**

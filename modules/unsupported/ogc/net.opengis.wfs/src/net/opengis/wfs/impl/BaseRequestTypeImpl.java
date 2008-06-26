@@ -27,6 +27,7 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  *   <li>{@link net.opengis.wfs.impl.BaseRequestTypeImpl#getService <em>Service</em>}</li>
  *   <li>{@link net.opengis.wfs.impl.BaseRequestTypeImpl#getVersion <em>Version</em>}</li>
  *   <li>{@link net.opengis.wfs.impl.BaseRequestTypeImpl#getBaseUrl <em>Base Url</em>}</li>
+ *   <li>{@link net.opengis.wfs.impl.BaseRequestTypeImpl#getProvidedVersion <em>Provided Version</em>}</li>
  * </ul>
  * </p>
  *
@@ -130,6 +131,26 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
      * @ordered
      */
     protected String baseUrl = BASE_URL_EDEFAULT;
+
+    /**
+     * The default value of the '{@link #getProvidedVersion() <em>Provided Version</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getProvidedVersion()
+     * @generated
+     * @ordered
+     */
+    protected static final String PROVIDED_VERSION_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getProvidedVersion() <em>Provided Version</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getProvidedVersion()
+     * @generated
+     * @ordered
+     */
+    protected String providedVersion = PROVIDED_VERSION_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -285,6 +306,27 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
 
     /**
      * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String getProvidedVersion() {
+        return providedVersion;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setProvidedVersion(String newProvidedVersion) {
+        String oldProvidedVersion = providedVersion;
+        providedVersion = newProvidedVersion;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, WfsPackage.BASE_REQUEST_TYPE__PROVIDED_VERSION, oldProvidedVersion, providedVersion));
+    }
+
+    /**
+     * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
      * @generated
      */
@@ -298,6 +340,8 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
                 return getVersion();
             case WfsPackage.BASE_REQUEST_TYPE__BASE_URL:
                 return getBaseUrl();
+            case WfsPackage.BASE_REQUEST_TYPE__PROVIDED_VERSION:
+                return getProvidedVersion();
         }
         return super.eGet(featureID, resolve, coreType);
     }
@@ -320,6 +364,9 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
                 return;
             case WfsPackage.BASE_REQUEST_TYPE__BASE_URL:
                 setBaseUrl((String)newValue);
+                return;
+            case WfsPackage.BASE_REQUEST_TYPE__PROVIDED_VERSION:
+                setProvidedVersion((String)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -344,6 +391,9 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
             case WfsPackage.BASE_REQUEST_TYPE__BASE_URL:
                 setBaseUrl(BASE_URL_EDEFAULT);
                 return;
+            case WfsPackage.BASE_REQUEST_TYPE__PROVIDED_VERSION:
+                setProvidedVersion(PROVIDED_VERSION_EDEFAULT);
+                return;
         }
         super.eUnset(featureID);
     }
@@ -363,6 +413,8 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
                 return isSetVersion();
             case WfsPackage.BASE_REQUEST_TYPE__BASE_URL:
                 return BASE_URL_EDEFAULT == null ? baseUrl != null : !BASE_URL_EDEFAULT.equals(baseUrl);
+            case WfsPackage.BASE_REQUEST_TYPE__PROVIDED_VERSION:
+                return PROVIDED_VERSION_EDEFAULT == null ? providedVersion != null : !PROVIDED_VERSION_EDEFAULT.equals(providedVersion);
         }
         return super.eIsSet(featureID);
     }
@@ -384,6 +436,8 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
         if (versionESet) result.append(version); else result.append("<unset>");
         result.append(", baseUrl: ");
         result.append(baseUrl);
+        result.append(", providedVersion: ");
+        result.append(providedVersion);
         result.append(')');
         return result.toString();
     }
