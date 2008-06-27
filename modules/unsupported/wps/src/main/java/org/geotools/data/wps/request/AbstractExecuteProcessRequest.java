@@ -101,7 +101,7 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     	//http://schemas.opengis.net/wps/1.0.0/wpsExecute_request.xsd
     	ExecuteType request = createExecuteType();
     	encoder.encode(request, WPS.Execute, outputStream);
-    	//System.out.println(outputStream.toString());
+    	System.out.println(outputStream.toString());
 	}   
     
     @SuppressWarnings("unchecked")

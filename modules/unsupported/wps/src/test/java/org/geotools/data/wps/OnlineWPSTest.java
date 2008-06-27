@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 
+import net.opengis.ows11.ExceptionReportType;
 import net.opengis.wps.ComplexDataCombinationsType;
 import net.opengis.wps.ComplexDataDescriptionType;
 import net.opengis.wps.DataType;
@@ -160,7 +161,8 @@ public class OnlineWPSTest extends TestCase {
 		// response should not be null and no exception should occur.
 		assertNotNull(response);
 		assertNotNull(response.getExecuteResponse());
-		assertNull(response.getExceptionResponse());
+		ExceptionReportType exceptionResponse = response.getExceptionResponse();
+		assertNull(exceptionResponse);
 		
 	}
 	
