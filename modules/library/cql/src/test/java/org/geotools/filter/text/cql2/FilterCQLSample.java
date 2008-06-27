@@ -53,7 +53,7 @@ import org.opengis.filter.expression.PropertyName;
  * @since 2.5
  *
  */
-public class FilterSample {
+public class FilterCQLSample {
 
     
     private static final FilterFactory FACTORY = CommonFactoryFinder.getFilterFactory((Hints) null);
@@ -641,7 +641,7 @@ public class FilterSample {
         }
     } // end static initialization
 
-    protected FilterSample() {
+    protected FilterCQLSample() {
         // factory class
     }
 

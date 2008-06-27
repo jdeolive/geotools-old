@@ -67,7 +67,13 @@ public final class FilterTXTSample {
 
     public static final String           PROPERTY_GREATER_NESTED_EXPR             = "-1.05 + (-4.6* -10) > aProperty";
 
-    public static final String           MINUS_MINUS_EXPR_GRATER_PROPERTY         = "10--1.05 > aProperty"; 
+    public static final String           MINUS_MINUS_EXPR_GRATER_PROPERTY         = "10--1.05 > aProperty";
+
+    public static final String           FUNCTION_LIKE_TXT_PATTERN                = "strConcat('aa', 'bbcc') like '%bb%'";
+
+    public static final String           LITERAL_LIKE_TXT_PATTERN                 = "'aabbcc' like '%bb%'";
+
+    public static final String           LITERAL_NOT_LIKE_TXT_PATTERN             = "'aabbcc' not like '%bb%'";
 
     /** Maintains the TXT predicates (input) and the expected filters (output) */
     public static Map<String, Object> SAMPLES = new HashMap<String, Object>();
@@ -180,6 +186,26 @@ public final class FilterTXTSample {
         filter = FACTORY.greater(subtractExpr, aProperty);
         
         SAMPLES.put(MINUS_MINUS_EXPR_GRATER_PROPERTY,filter); 
+        
+        // strConcat('aa', 'bbcc') like '%bb%'"
+        Expression[] strConcatArgs = new Expression[2];
+        strConcatArgs[0] = FACTORY.literal("aa");
+        strConcatArgs[1] = FACTORY.literal("bbcc");
+        Function strConcat = FACTORY.function("strConcat", strConcatArgs);
+
+        filter = FACTORY.like(strConcat, "%bb%");
+
+        SAMPLES.put( FUNCTION_LIKE_TXT_PATTERN, filter );
+        
+        // 'aabbcc' like '%bb%'
+        filter = FACTORY.like(FACTORY.literal("aabbcc"), "%bb%");
+
+        SAMPLES.put( LITERAL_LIKE_TXT_PATTERN, filter );
+        
+        // 'aabbcc' not like '%bb%'
+        filter = FACTORY.not( FACTORY.like(FACTORY.literal("aabbcc"), "%bb%"));
+
+        SAMPLES.put( LITERAL_NOT_LIKE_TXT_PATTERN, filter );
     
     }
 

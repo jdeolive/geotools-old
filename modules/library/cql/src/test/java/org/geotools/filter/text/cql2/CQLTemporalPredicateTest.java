@@ -82,55 +82,55 @@ public class CQLTemporalPredicateTest {
         // <attribute_name> BEFORE <date-time expression>
         // -------------------------------------------------------------
         // ATTR1 BEFORE 2006-12-31T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language, FilterSample.FILTER_BEFORE_DATE);
+        resultFilter = CompilerUtil.parse(this.language, FilterCQLSample.FILTER_BEFORE_DATE);
 
         Assert.assertNotNull("not null expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_BEFORE_DATE);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_BEFORE_DATE);
         Assert.assertEquals("less filter ", expected, resultFilter);
 
         // ATTR1 BEFORE 2006-11-31T01:30:00Z/2006-12-31T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_BEFORE_PERIOD_BETWEEN_DATES);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_BEFORE_PERIOD_BETWEEN_DATES);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_BEFORE_PERIOD_BETWEEN_DATES);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_BEFORE_PERIOD_BETWEEN_DATES);
 
         Assert.assertEquals("less than first date of period ", expected, resultFilter);
 
         // ATTR1 BEFORE 2006-11-31T01:30:00Z/P30D
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_BEFORE_PERIOD_DATE_AND_DAYS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_BEFORE_PERIOD_DATE_AND_DAYS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_BEFORE_PERIOD_DATE_AND_DAYS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_BEFORE_PERIOD_DATE_AND_DAYS);
 
         Assert.assertEquals("less than first date of period ", expected, resultFilter);
 
         // "ATTR1 BEFORE 2006-11-31T01:30:00Z/P1Y"
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_BEFORE_PERIOD_DATE_AND_YEARS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_BEFORE_PERIOD_DATE_AND_YEARS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_BEFORE_PERIOD_DATE_AND_YEARS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_BEFORE_PERIOD_DATE_AND_YEARS);
 
         Assert.assertEquals("less than first date of period ", expected, resultFilter);
 
         // "ATTR1 BEFORE 2006-11-31T01:30:00Z/P12M"
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_BEFORE_PERIOD_DATE_AND_MONTHS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_BEFORE_PERIOD_DATE_AND_MONTHS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_BEFORE_PERIOD_DATE_AND_MONTHS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_BEFORE_PERIOD_DATE_AND_MONTHS);
 
         Assert.assertEquals("less than first date of period ", expected, resultFilter);
 
         // ATTR1 BEFORE P10Y10M10DT5H5M5S/2006-11-30T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_BEFORE_PERIOD_YMD_HMS_DATE);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_BEFORE_PERIOD_YMD_HMS_DATE);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_BEFORE_PERIOD_YMD_HMS_DATE);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_BEFORE_PERIOD_YMD_HMS_DATE);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
@@ -176,29 +176,29 @@ public class CQLTemporalPredicateTest {
         // <attribute_name> BEFORE OR DURING <period>
         // -------------------------------------------------------------
         // ATTR1 BEFORE OR DURING 2006-11-31T01:30:00Z/2006-12-31T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_BEFORE_OR_DURING_PERIOD_BETWEEN_DATES);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_BEFORE_OR_DURING_PERIOD_BETWEEN_DATES);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_BEFORE_OR_DURING_PERIOD_BETWEEN_DATES);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_BEFORE_OR_DURING_PERIOD_BETWEEN_DATES);
 
         Assert.assertEquals("less than or equal the last date of period ", expected, resultFilter);
 
         // ATTR1 BEFORE OR DURING P10Y10M10DT5H5M5S/2006-11-30T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_BEFORE_OR_DURING_PERIOD_YMD_HMS_DATE);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_BEFORE_OR_DURING_PERIOD_YMD_HMS_DATE);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_BEFORE_OR_DURING_PERIOD_YMD_HMS_DATE);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_BEFORE_OR_DURING_PERIOD_YMD_HMS_DATE);
 
         Assert.assertEquals(" filter", expected, resultFilter);
 
         // ATTR1 BEFORE OR DURING 2006-11-30T01:30:00Z/P10Y10M10DT5H5M5S
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_BEFORE_OR_DURING_PERIOD_DATE_YMD_HMS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_BEFORE_OR_DURING_PERIOD_DATE_YMD_HMS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_BEFORE_OR_DURING_PERIOD_DATE_YMD_HMS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_BEFORE_OR_DURING_PERIOD_DATE_YMD_HMS);
 
         Assert.assertEquals(" filter", expected, resultFilter);
     }
@@ -231,30 +231,30 @@ public class CQLTemporalPredicateTest {
         // <attribute_name> BEFORE OR DURING <period>
         // -------------------------------------------------------------
         // ATTR1 DURING OF AFTER 2006-11-31T01:30:00Z/2006-12-31T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_DURING_OR_AFTER_PERIOD_BETWEEN_DATES);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_DURING_OR_AFTER_PERIOD_BETWEEN_DATES);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_DURING_OR_AFTER_PERIOD_BETWEEN_DATES);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_DURING_OR_AFTER_PERIOD_BETWEEN_DATES);
 
         Assert.assertEquals("greater than or equal the first date of period ", expected, resultFilter);
 
         // ATTR1 DURING OR AFTER P10Y10M10DT5H5M5S/2006-11-30T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_DURING_OR_AFTER_PERIOD_YMD_HMS_DATE);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_DURING_OR_AFTER_PERIOD_YMD_HMS_DATE);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_DURING_OR_AFTER_PERIOD_YMD_HMS_DATE);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_DURING_OR_AFTER_PERIOD_YMD_HMS_DATE);
 
         Assert.assertEquals("greater than or equal the first date (is calculated subtract period to last date) of period",
             expected, resultFilter);
 
         // ATTR1 DURING OR AFTER 2006-11-30T01:30:00Z/P10Y10M10DT5H5M5S
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_DURING_OR_AFTER_PERIOD_DATE_YMD_HMS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_DURING_OR_AFTER_PERIOD_DATE_YMD_HMS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_DURING_OR_AFTER_PERIOD_DATE_YMD_HMS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_DURING_OR_AFTER_PERIOD_DATE_YMD_HMS);
 
         Assert.assertEquals("greater than or equal the first date", expected, resultFilter);
     }
@@ -285,29 +285,29 @@ public class CQLTemporalPredicateTest {
         Filter expected;
 
         // ATTR1 DURING 2006-11-30T01:30:00Z/2006-12-31T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_DURING_PERIOD_BETWEEN_DATES);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_DURING_PERIOD_BETWEEN_DATES);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_DURING_PERIOD_BETWEEN_DATES);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_DURING_PERIOD_BETWEEN_DATES);
 
         Assert.assertEquals("greater filter ", expected, resultFilter);
 
         // ATTR1 DURING 2006-11-30T01:30:00Z/P10Y10M10DT5H5M5S
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_DURING_PERIOD_DATE_YMD_HMS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_DURING_PERIOD_DATE_YMD_HMS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_DURING_PERIOD_DATE_YMD_HMS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_DURING_PERIOD_DATE_YMD_HMS);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
         // ATTR1 DURING P10Y10M10DT5H5M5S/2006-11-30T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_DURING_PERIOD_YMD_HMS_DATE);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_DURING_PERIOD_YMD_HMS_DATE);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_DURING_PERIOD_YMD_HMS_DATE);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_DURING_PERIOD_YMD_HMS_DATE);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
     }
@@ -341,11 +341,11 @@ public class CQLTemporalPredicateTest {
         // <attribute_name> AFTER <date-time expression>
         // -------------------------------------------------------------
         //
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_DATE);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_DATE);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_DATE);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_DATE);
 
         Assert.assertEquals("greater filter ", expected, resultFilter);
 
@@ -353,83 +353,83 @@ public class CQLTemporalPredicateTest {
         // <attribute_name> AFTER <period>
         // -------------------------------------------------------------
         // ATTR1 BEFORE 2006-11-31T01:30:00Z/2006-12-31T01:30:00Z
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_PERIOD_BETWEEN_DATES);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_PERIOD_BETWEEN_DATES);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_PERIOD_BETWEEN_DATES);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_PERIOD_BETWEEN_DATES);
 
         Assert.assertEquals("greater filter ", expected, resultFilter);
 
         // ATTR1 AFTER 2006-11-30T01:30:00Z/P10D
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_PERIOD_DATE_DAYS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_PERIOD_DATE_DAYS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_PERIOD_DATE_DAYS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_PERIOD_DATE_DAYS);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
         // ATTR1 AFTER 2006-11-30T01:30:00Z/P10M
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_PERIOD_DATE_MONTH);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_PERIOD_DATE_MONTH);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_PERIOD_DATE_MONTH);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_PERIOD_DATE_MONTH);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
         // ATTR1 AFTER 2006-11-30T01:30:00Z/P10Y
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_PERIOD_DATE_YEARS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_PERIOD_DATE_YEARS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_PERIOD_DATE_YEARS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_PERIOD_DATE_YEARS);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
         // ATTR1 AFTER 2006-11-30T01:30:00Z/P10Y10M
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_PERIOD_DATE_YEARS_MONTH);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_PERIOD_DATE_YEARS_MONTH);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_PERIOD_DATE_YEARS_MONTH);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_PERIOD_DATE_YEARS_MONTH);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
         // ATTR1 AFTER 2006-11-30T01:30:00Z/T5H
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_PERIOD_DATE_HOURS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_PERIOD_DATE_HOURS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_PERIOD_DATE_HOURS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_PERIOD_DATE_HOURS);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
         // ATTR1 AFTER 2006-11-30T01:30:00Z/T5M
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_PERIOD_DATE_MINUTES);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_PERIOD_DATE_MINUTES);
 
         Assert.assertNotNull("FilSter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_PERIOD_DATE_MINUTES);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_PERIOD_DATE_MINUTES);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
         // ATTR1 AFTER 2006-11-30T01:30:00Z/T5S
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_PERIOD_DATE_SECONDS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_PERIOD_DATE_SECONDS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_PERIOD_DATE_SECONDS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_PERIOD_DATE_SECONDS);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
         // ATTR1 AFTER 2006-11-30T01:30:00Z/P10Y10M10DT5H5M5S
-        resultFilter = CompilerUtil.parse(this.language,FilterSample.FILTER_AFTER_PERIOD_DATE_YMD_HMS);
+        resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.FILTER_AFTER_PERIOD_DATE_YMD_HMS);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AFTER_PERIOD_DATE_YMD_HMS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AFTER_PERIOD_DATE_YMD_HMS);
 
         Assert.assertEquals("greater filter", expected, resultFilter);
     }

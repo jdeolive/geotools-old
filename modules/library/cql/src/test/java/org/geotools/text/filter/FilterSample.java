@@ -29,12 +29,12 @@ import org.opengis.filter.Filter;
  *
  * @author Mauricio Pazos - Axios Engineering
  * @author Gabriel Roldan - Axios Engineering
- * @deprecated was replaced by {@link  org.geotools.filter.text.cql2.FilterSample}
+ * @deprecated was replaced by {@link  org.geotools.filter.text.cql2.FilterCQLSample}
  */
-public final class FilterSample extends org.geotools.filter.text.cql2.FilterSample{
+public final class FilterSample extends org.geotools.filter.text.cql2.FilterCQLSample{
     
 
     public static Filter getSample(final String sampleRequested) {
-        return org.geotools.filter.text.cql2.FilterSample.getSample(sampleRequested);
+        return org.geotools.filter.text.cql2.FilterCQLSample.getSample(sampleRequested);
     }
 }

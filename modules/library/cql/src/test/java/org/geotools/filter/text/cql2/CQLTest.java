@@ -85,11 +85,11 @@ public class CQLTest extends TestCase {
         // -------------------------------------------------------------
         // <attribute_name> DOES-NOT-EXIST
         // -------------------------------------------------------------
-        resultFilter = CQL.toFilter(FilterSample.ATTRIBUTE_NAME_DOES_NOT_EXIST);
+        resultFilter = CQL.toFilter(FilterCQLSample.ATTRIBUTE_NAME_DOES_NOT_EXIST);
 
         assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.ATTRIBUTE_NAME_DOES_NOT_EXIST);
+        expected = FilterCQLSample.getSample(FilterCQLSample.ATTRIBUTE_NAME_DOES_NOT_EXIST);
 
         assertEquals(expected, resultFilter);
 
@@ -97,7 +97,7 @@ public class CQLTest extends TestCase {
         // <attribute_name> EXISTS
         // TODO Exist function must be implemented in Geotools
         // -------------------------------------------------------------
-        resultFilter = CQL.toFilter(FilterSample.ATTRIBUTE_NAME_EXISTS);
+        resultFilter = CQL.toFilter(FilterCQLSample.ATTRIBUTE_NAME_EXISTS);
 
         assertNotNull("Filter expected", resultFilter);
 
@@ -105,7 +105,7 @@ public class CQLTest extends TestCase {
 
         eqToResultFilter = (PropertyIsEqualTo) resultFilter;
 
-        expected = FilterSample.getSample(FilterSample.ATTRIBUTE_NAME_EXISTS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.ATTRIBUTE_NAME_EXISTS);
 
         assertEquals(expected, eqToResultFilter);
 
@@ -129,8 +129,8 @@ public class CQLTest extends TestCase {
         // -------------------------------------------------------------
         // ATTR1 IS NULL
         // -------------------------------------------------------------
-        expected = FilterSample.getSample(FilterSample.PROPERTY_IS_NULL);
-        resultFilter = CQL.toFilter(FilterSample.PROPERTY_IS_NULL);
+        expected = FilterCQLSample.getSample(FilterCQLSample.PROPERTY_IS_NULL);
+        resultFilter = CQL.toFilter(FilterCQLSample.PROPERTY_IS_NULL);
 
         assertNotNull("Filter expected", resultFilter);
 
@@ -139,8 +139,8 @@ public class CQLTest extends TestCase {
         // -------------------------------------------------------------
         // ATTR1 IS NOT NULL
         // -------------------------------------------------------------
-        expected = FilterSample.getSample(FilterSample.PROPERTY_IS_NOT_NULL);
-        resultFilter = CQL.toFilter(FilterSample.PROPERTY_IS_NOT_NULL);
+        expected = FilterCQLSample.getSample(FilterCQLSample.PROPERTY_IS_NOT_NULL);
+        resultFilter = CQL.toFilter(FilterCQLSample.PROPERTY_IS_NOT_NULL);
 
         assertNotNull("Filter expected", resultFilter);
 
@@ -149,15 +149,15 @@ public class CQLTest extends TestCase {
 
     public void testParenRoundtripExpression() throws Exception {
         // ATTR1 > ((1 + 2) / 3)
-        testEqualsExpressions(FilterSample.FILTER_WITH_PAREN_ROUNDTRIP_EXPR);
+        testEqualsExpressions(FilterCQLSample.FILTER_WITH_PAREN_ROUNDTRIP_EXPR);
 
         // "ATTR1 < (1 + ((2 / 3) * 4))"
-        testEqualsExpressions(FilterSample.FILTER_WITH_NESTED_PAREN_EXPR);
+        testEqualsExpressions(FilterCQLSample.FILTER_WITH_NESTED_PAREN_EXPR);
     }
 
     public void testBracketRoundtripFilter() throws Exception {
         // ATTR1 > [[1 + 2] / 3]
-        testEqualsExpressions(FilterSample.FILTER_WITH_BRACKET_ROUNDTRIP_EXPR);
+        testEqualsExpressions(FilterCQLSample.FILTER_WITH_BRACKET_ROUNDTRIP_EXPR);
 
         // TODO more test
         // roundtripFilter("[[[ 3 < 4 ] AND NOT [ 2 < 4 ]] AND [ 5 < 4 ]]");
@@ -182,20 +182,20 @@ public class CQLTest extends TestCase {
         Filter expected;
 
         // between
-        resultFilter = CQL.toFilter(FilterSample.BETWEEN_FILTER);
+        resultFilter = CQL.toFilter(FilterCQLSample.BETWEEN_FILTER);
 
         assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.BETWEEN_FILTER);
+        expected = FilterCQLSample.getSample(FilterCQLSample.BETWEEN_FILTER);
 
         assertEquals("Between filter was expected", expected, resultFilter);
 
         // not between
-        resultFilter = CQL.toFilter(FilterSample.NOT_BETWEEN_FILTER);
+        resultFilter = CQL.toFilter(FilterCQLSample.NOT_BETWEEN_FILTER);
 
         assertNotNull("Filter expected", resultFilter);
 
-        expected = FilterSample.getSample(FilterSample.NOT_BETWEEN_FILTER);
+        expected = FilterCQLSample.getSample(FilterCQLSample.NOT_BETWEEN_FILTER);
 
         assertEquals("Between filter was expected", expected, resultFilter);
 
@@ -276,56 +276,56 @@ public class CQLTest extends TestCase {
         Filter expected;
 
         // ATTR1 < 10 AND ATTR2 < 2
-        result = CQL.toFilter(FilterSample.FILTER_AND);
+        result = CQL.toFilter(FilterCQLSample.FILTER_AND);
 
         assertNotNull("filter expected", result);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AND);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AND);
 
         assertEquals("ATTR1 < 10 AND ATTR2 < 2 was expected", expected, result);
 
         // "ATTR1 > 10 OR ATTR2 < 2"
-        result = CQL.toFilter(FilterSample.FILTER_OR);
+        result = CQL.toFilter(FilterCQLSample.FILTER_OR);
 
         assertNotNull("filter expected", result);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_OR);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_OR);
 
         assertEquals("ATTR1 > 10 OR ATTR2 < 2 was expected", expected, result);
 
         // ATTR1 < 10 AND ATTR2 < 2 OR ATTR3 > 10
-        result = CQL.toFilter(FilterSample.FILTER_OR_AND);
+        result = CQL.toFilter(FilterCQLSample.FILTER_OR_AND);
 
         assertNotNull("filter expected", result);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_OR_AND);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_OR_AND);
 
         assertEquals("(ATTR1 < 10 AND ATTR2 < 2 OR ATTR3 > 10) was expected", expected, result);
 
         // ATTR3 < 4 AND (ATT1 > 10 OR ATT2 < 2)
-        result = CQL.toFilter(FilterSample.FILTER_OR_AND_PARENTHESIS);
+        result = CQL.toFilter(FilterCQLSample.FILTER_OR_AND_PARENTHESIS);
 
         assertNotNull("filter expected", result);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_OR_AND_PARENTHESIS);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_OR_AND_PARENTHESIS);
 
         assertEquals("ATTR3 < 4 AND (ATT1 > 10 OR ATT2 < 2) was expected", expected, result);
 
         // ATTR3 < 4 AND (NOT( ATTR1 < 10 AND ATTR2 < 2))
-        result = CQL.toFilter(FilterSample.FILTER_AND_NOT_AND);
+        result = CQL.toFilter(FilterCQLSample.FILTER_AND_NOT_AND);
 
         assertNotNull("filter expected", result);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AND_NOT_AND);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AND_NOT_AND);
 
         assertEquals("ATTR3 < 4 AND (NOT( ATTR1 < 10 AND ATTR2 < 2)) was expected", expected, result);
 
         // "ATTR1 < 1 AND (NOT (ATTR2 < 2)) AND ATTR3 < 3"
-        result = CQL.toFilter(FilterSample.FILTER_AND_NOT_COMPARASION);
+        result = CQL.toFilter(FilterCQLSample.FILTER_AND_NOT_COMPARASION);
 
         assertNotNull("filter expected", result);
 
-        expected = FilterSample.getSample(FilterSample.FILTER_AND_NOT_COMPARASION);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AND_NOT_COMPARASION);
 
         assertEquals("ATTR1 < 4 AND (NOT (ATTR2 < 4)) AND ATTR3 < 4 was expected", expected, result);
     }
@@ -754,7 +754,7 @@ public class CQLTest extends TestCase {
      */
     private void testEqualsExpressions(final String cqlSample)
         throws Exception {
-        Filter expected = FilterSample.getSample(cqlSample);
+        Filter expected = FilterCQLSample.getSample(cqlSample);
         Filter actual = CQL.toFilter(cqlSample);
 
         assertNotNull("expects filter not null", actual);

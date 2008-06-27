@@ -73,27 +73,27 @@ public class CQLComparisonPredicateTest {
         Filter expected;
         Filter actual;
         // attr1 < 5
-        expected = FilterSample.getSample(FilterSample.LESS_FILTER_SAMPLE);
+        expected = FilterCQLSample.getSample(FilterCQLSample.LESS_FILTER_SAMPLE);
 
-        actual = CompilerUtil.parse(this.language, FilterSample.LESS_FILTER_SAMPLE);
+        actual = CompilerUtil.parse(this.language, FilterCQLSample.LESS_FILTER_SAMPLE);
 
         Assert.assertNotNull("expects filter not null", actual);
 
         Assert.assertEquals("less than compare filter error", expected, actual);
 
         // attr1 <= 5
-        expected = FilterSample.getSample(FilterSample.LESS_EQ_FILTER_SAMPLE);
+        expected = FilterCQLSample.getSample(FilterCQLSample.LESS_EQ_FILTER_SAMPLE);
 
-        actual = CompilerUtil.parse(this.language, FilterSample.LESS_EQ_FILTER_SAMPLE);
+        actual = CompilerUtil.parse(this.language, FilterCQLSample.LESS_EQ_FILTER_SAMPLE);
 
         Assert.assertNotNull("expects filter not null", actual);
 
         Assert.assertEquals("less or equal compare filter error", expected, actual);
 
         // attr <> 5
-        expected = FilterSample.getSample(FilterSample.NOT_EQ_FILTER);
+        expected = FilterCQLSample.getSample(FilterCQLSample.NOT_EQ_FILTER);
 
-        actual = CompilerUtil.parse(this.language, FilterSample.NOT_EQ_FILTER);
+        actual = CompilerUtil.parse(this.language, FilterCQLSample.NOT_EQ_FILTER);
 
         Assert.assertNotNull("expects filter not null", actual);
 
@@ -147,8 +147,8 @@ public class CQLComparisonPredicateTest {
         Filter expected;
         Filter actual;
 
-        expected = FilterSample.getSample(FilterSample.FILTER_SIMPLE_EXPR);
-        actual = CompilerUtil.parse(this.language, FilterSample.FILTER_SIMPLE_EXPR);
+        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_SIMPLE_EXPR);
+        actual = CompilerUtil.parse(this.language, FilterCQLSample.FILTER_SIMPLE_EXPR);
 
         Assert.assertNotNull("expects filter not null", actual);
 

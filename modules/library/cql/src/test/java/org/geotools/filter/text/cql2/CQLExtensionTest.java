@@ -435,21 +435,21 @@ public class CQLExtensionTest extends TestCase {
         Filter expected;
         String cqlUnaryExp;
 
-        cqlUnaryExp = FilterSample.FILTER_WITH_FUNCTION_ABS;
+        cqlUnaryExp = FilterCQLSample.FILTER_WITH_FUNCTION_ABS;
         result = CQL.toFilter(cqlUnaryExp);
 
         assertNotNull("filter expected", result);
 
-        expected = FilterSample.getSample(cqlUnaryExp);
+        expected = FilterCQLSample.getSample(cqlUnaryExp);
 
         assertEquals( "Equals Functions is expected", expected,result);
 
         // Key: GEOT-1167 type: BUG
-        cqlUnaryExp = FilterSample.FILTER__WITH_FUNCTION_STR_CONCAT;
+        cqlUnaryExp = FilterCQLSample.FILTER__WITH_FUNCTION_STR_CONCAT;
         result = CQL.toFilter(cqlUnaryExp);
         assertNotNull("filter expected", result);
 
-        expected = FilterSample.getSample(cqlUnaryExp);
+        expected = FilterCQLSample.getSample(cqlUnaryExp);
 
         // TODO BUG in Function equals strConcat
         //assertEquals( "Functions", expected, result);

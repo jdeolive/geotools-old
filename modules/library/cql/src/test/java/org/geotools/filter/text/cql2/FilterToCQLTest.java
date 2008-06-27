@@ -42,11 +42,11 @@ public class FilterToCQLTest extends TestCase {
     }
     
     public void testSample() throws Exception {
-        Filter filter = CQL.toFilter(FilterSample.LESS_FILTER_SAMPLE);
+        Filter filter = CQL.toFilter(FilterCQLSample.LESS_FILTER_SAMPLE);
         
         String output = filter.accept( toCQL, null ).toString();
         assertNotNull( output );
-        assertEquals( FilterSample.LESS_FILTER_SAMPLE, output );
+        assertEquals( FilterCQLSample.LESS_FILTER_SAMPLE, output );
     }
     /* NOT (ATTR1 BETWEEN 10 AND 20) */
     public void testNotBetween() throws Exception {
