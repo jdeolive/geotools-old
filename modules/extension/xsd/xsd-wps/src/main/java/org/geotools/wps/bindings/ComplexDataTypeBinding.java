@@ -17,6 +17,7 @@
 
 package org.geotools.wps.bindings;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -64,6 +65,24 @@ public class ComplexDataTypeBinding extends AbstractComplexBinding
     }
     
     
+    public Object getProperty(Object object, QName name) throws Exception {
+        ComplexDataType data = (ComplexDataType) object;
+        
+        if ( "schema".equals( name.getLocalPart() ) ) {
+            return data.getSchema();
+        }
+        
+        if ( "mimeType".equals( name.getLocalPart() ) ) {
+            return data.getMimeType();
+        }
+        
+        if ( "encoding".equals( name.getLocalPart() ) ) {
+            return data.getEncoding();
+        }
+        
+        return super.getProperty(object, name);
+    }
+    
     /*
     	Would need to look at the contained values to detect the correct
     	order.
@@ -71,7 +90,7 @@ public class ComplexDataTypeBinding extends AbstractComplexBinding
     public List<List<Object>> getProperties(Object obj)
     {
     	ComplexDataType data = (ComplexDataType)obj;
-
+    	
     	List/*<List<Object>>*/ properties = new ArrayList/*<List<Object>>*/();
 
     	List<?> features = data.getData();
@@ -102,6 +121,7 @@ public class ComplexDataTypeBinding extends AbstractComplexBinding
                 properties.add( new Object[]{ GML.MultiPolygon, obj0 } );
             }             
     	}
+    	
     	return properties;
     }
 
@@ -111,6 +131,17 @@ public class ComplexDataTypeBinding extends AbstractComplexBinding
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception
     {
         ComplexDataType data = factory.createComplexDataType();
+        
+        if ( node.hasAttribute( "schema" ) ) {
+            data.setSchema( node.getAttributeValue( "schema").toString() );
+        }
+        if ( node.hasAttribute( "mimeType" ) ) {
+            data.setMimeType( node.getAttributeValue( "mimeType").toString() );
+        }
+        if ( node.hasAttribute( "encoding" ) ) {
+            data.setEncoding( node.getAttributeValue( "encoding").toString() );
+        }
+        
         for ( Iterator i = node.getChildren().iterator(); i.hasNext(); ) {
             Node c = (Node) i.next();
             data.getData().add( c.getValue() );
