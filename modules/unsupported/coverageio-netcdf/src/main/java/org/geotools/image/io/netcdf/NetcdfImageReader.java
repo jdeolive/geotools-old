@@ -718,7 +718,9 @@ scan:       while (it.hasNext()) {
         }
         final int rank = variable.getRank();
         int bandDimension = rank - Z_DIMENSION;
-        if (param instanceof NetcdfReadParam) {
+	// @todo handle properly NetcdfReadParam and the way to get the band dimension, since
+	// NetcdfReadParam is deprecated.
+        /*if (param instanceof NetcdfReadParam) {
             final NetcdfReadParam p = (NetcdfReadParam) param;
             if (p.isBandDimensionSet() && variable instanceof VariableEnhanced) {
                 ensureMetadataLoaded(); // Build the CoordinateSystems
@@ -729,7 +731,7 @@ scan:       while (it.hasNext()) {
                             "bandDimension", bandDimension));
                 }
             }
-        }
+        }*/
         /*
          * Gets the destination image of appropriate size. We create it now
          * since it is a convenient way to get the number of destination bands.
