@@ -90,10 +90,9 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
         throws MismatchedSizeException, MismatchedDimensionException,
             MismatchedReferenceSystemException, FactoryException {
         /**
-         * get approximate values
-         */
-        affineTrans = (AffineTransform2D) (new AffineTransformBuilder(vectors).getMathTransform());
-        new AdvancedAffineBuilder(vectors, affineTrans);
+         * use constructor with approximate values taken from 6 parameters of affine transform
+         */       
+        this(vectors, (AffineTransform2D) (new AffineTransformBuilder(vectors).getMathTransform()));
     }
 
     /**
@@ -178,9 +177,9 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
 
             /** derivation fx by sxy */
             double dxsxy = (sinphi * x) + (cosphi * y);
-
+         
             A.setRow(j, new double[] { dxsx, 0, dxsxy, dxphi, 1, 0 });
-            A.setRow(A.getNumRow() + j, new double[] { 0, dysy, 0, dyphi, 0, 1 });
+            A.setRow(A.getNumRow()/2 + j, new double[] { 0, dysy, 0, dyphi, 0, 1 });
         }
 
         return A;
@@ -208,6 +207,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
             double dy = getTargetPoints()[j].getOrdinate(1)
                 - ((sy * sinphi * getSourcePoints()[j].getOrdinate(0))
                 + (sy * cosphi * getSourcePoints()[j].getOrdinate(1)) + ty);
+        
             l.setElement(j, 0, dx);
             l.setElement((l.getNumRow() / 2) + j, 0, dy);
         }
@@ -221,7 +221,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
      * @throws FactoryException
      */
     private GeneralMatrix getDxMatrix() throws FactoryException {
-        return getDxMatrix(0.00000001, 200);
+        return getDxMatrix(0.0000001, 300);
     }
 
     /**
@@ -303,7 +303,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
             ty = xNew.getElement(5, 0);
 
             i++;
-
+      
             if (i > maxSteps) { //&& oldDxMatrix.getElement(0, 0) < dxMatrix.getElement(0, 0)){          	
                 throw new FactoryException("Calculation of transformation is divergating");
             }
