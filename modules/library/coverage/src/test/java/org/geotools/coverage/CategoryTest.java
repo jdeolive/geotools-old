@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -69,6 +69,8 @@ public final class CategoryTest {
 
     /**
      * Make sure that qualitative category produce the expected result.
+     *
+     * @throws TransformException If an error occured while transforming a value.
      */
     @Test
     public void testQualitativeCategory() throws TransformException {
@@ -103,6 +105,8 @@ public final class CategoryTest {
      * Make sure that linear category produce the expected result.
      * This test check also if the default {@link MathTransform1D}
      * for a linear relation is right.
+     *
+     * @throws TransformException If an error occured while transforming a value.
      */
     @Test
     public void testLinearCategory() throws TransformException {

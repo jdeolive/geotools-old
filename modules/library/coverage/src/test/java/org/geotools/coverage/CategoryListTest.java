@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ public final class CategoryListTest {
     /**
      * Set to {@code true} in order to print diagnostic messages.
      */
-    private static final boolean PRINT = false;
+    private static final boolean VERBOSE = false;
 
     /**
      * Small value for comparaisons.
@@ -112,7 +112,7 @@ public final class CategoryListTest {
             new CategoryList(categories, null);
             fail("Argument check");
         } catch (IllegalArgumentException exception) {
-            if (PRINT) {
+            if (VERBOSE) {
                 System.out.println(exception.getLocalizedMessage());
                 // This is the expected exception.
             }
@@ -126,7 +126,7 @@ public final class CategoryListTest {
             new CategoryList(categories, null);
             fail("Argument check");
         } catch (IllegalArgumentException exception) {
-            if (PRINT) {
+            if (VERBOSE) {
                 System.out.println(exception.getLocalizedMessage());
                 // This is the expected exception.
             }
@@ -139,6 +139,8 @@ public final class CategoryListTest {
     /**
      * Tests the {@link CategoryList#getCategory} method and a
      * limited set of {@link CategoryList#transform} calls.
+     *
+     * @throws TransformException If an error occured while transforming a value.
      */
     @Test
     public void testGetCategory() throws TransformException {
@@ -250,12 +252,12 @@ public final class CategoryListTest {
     /**
      * Compares two arrays. Special comparaison is performed for NaN values.
      */
-    public static void compare(final double[] output0, final double[] output1, final double eps) {
+    static void compare(final double[] output0, final double[] output1, final double eps) {
         assertEquals("length", output0.length, output1.length);
         for (int i=0; i<output0.length; i++) {
             final double expected = output0[i];
             final double actual   = output1[i];
-            final String name = "transform["+i+']';
+            final String name = "transform[" + i + ']';
             if (Double.isNaN(expected)) {
                 final String hex1 = Integer.toHexString(Float.floatToRawIntBits((float) expected));
                 final String hex2 = Integer.toHexString(Float.floatToRawIntBits((float)   actual));

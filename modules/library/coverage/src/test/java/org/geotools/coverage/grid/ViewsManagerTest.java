@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public final class ViewsManagerTest {
+public final class ViewsManagerTest extends GridCoverageTestBase {
     /**
      * The random number generator to use in this test suite.
      */
@@ -60,7 +60,9 @@ public final class ViewsManagerTest {
         // Tests...
         GridCoverage2D packed = builder.getGridCoverage2D();
         GridCoverage2D geophysics = packed.view(ViewType.GEOPHYSICS);
-//        show(geophysics);
+        if (SHOW) {
+            show(geophysics);
+        }
         // TODO: complete the tests...
     }
 
@@ -90,22 +92,10 @@ public final class ViewsManagerTest {
         // Tests without "sample to geophysics" transform...
         GridCoverage2D packed = builder.getGridCoverage2D();
         GridCoverage2D geophysics = packed.view(ViewType.GEOPHYSICS);
-
+        if (SHOW) {
+            show(geophysics);
+        }
         variable.setLinearTransform(scale, offset);
         packed = builder.getGridCoverage2D();
-    }
-
-    /**
-     * @todo Move this method in some subclass. Instead of sleeping, go back to work
-     *       when the frame is closed.
-     */
-    private static void show(final GridCoverage2D coverage) {
-//        org.geotools.gui.swing.image.OperationTreeBrowser.show(coverage.getRenderedImage());
-        coverage.show();
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            // Go back to worj...
-        }
     }
 }

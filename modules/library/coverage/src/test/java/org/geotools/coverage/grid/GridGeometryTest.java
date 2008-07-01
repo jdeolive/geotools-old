@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,9 +18,8 @@ package org.geotools.coverage.grid;
 
 import java.awt.geom.AffineTransform;
 
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import org.geotools.geometry.GeneralEnvelope;
@@ -42,19 +41,19 @@ public final class GridGeometryTest {
      * Tests the construction with an identity transform.
      */
     @Test
-    public void testIdentity() throws FactoryException {
+    public void testIdentity() {
         final int[] lower = new int[] {0,     0, 2};
         final int[] upper = new int[] {100, 200, 4};
         final MathTransform identity = IdentityTransform.create(3);
         GridGeometry2D gg;
         try {
-            gg = new GridGeometry2D(new GeneralGridRange(lower,upper), identity, null);
+            gg = new GridGeometry2D(new GeneralGridEnvelope(lower, upper, false), identity, null);
             fail();
         } catch (IllegalArgumentException e) {
             // This is the expected dimension.
         }
         upper[2] = 3;
-        gg = new GridGeometry2D(new GeneralGridRange(lower,upper), identity, null);
+        gg = new GridGeometry2D(new GeneralGridEnvelope(lower, upper, false), identity, null);
         assertTrue(identity.isIdentity());
         assertTrue(gg.getGridToCRS().isIdentity());
         assertTrue(gg.getGridToCRS2D().isIdentity());
@@ -87,7 +86,7 @@ public final class GridGeometryTest {
         final double[] minimum = new double[] {-180, -90,  9};
         final double[] maximum = new double[] {+180, +90, 10};
         final GridGeometry2D gg;
-        gg = new GridGeometry2D(new GeneralGridRange(lower,upper),
+        gg = new GridGeometry2D(new GeneralGridEnvelope(lower, upper, false),
                                 new GeneralEnvelope(minimum, maximum));
         final AffineTransform tr = (AffineTransform) gg.getGridToCRS2D();
         assertEquals(AffineTransform.TYPE_UNIFORM_SCALE |
@@ -108,7 +107,7 @@ public final class GridGeometryTest {
         final MathTransform identity = IdentityTransform.create(4);
         final int[] lower = new int[] {100, 300, 3, 6};
         final int[] upper = new int[] {200, 400, 4, 7};
-        final GeneralGridRange range = new GeneralGridRange(lower, upper);
+        final GeneralGridEnvelope range = new GeneralGridEnvelope(lower, upper, false);
         GridGeometry2D gg = new GridGeometry2D(range, PixelInCell.CELL_CORNER, identity, null, null);
 
         assertSame (identity, gg.getGridToCRS(PixelInCell.CELL_CORNER));

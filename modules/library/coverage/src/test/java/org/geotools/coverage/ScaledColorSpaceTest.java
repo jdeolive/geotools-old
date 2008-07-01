@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -104,6 +104,9 @@ public final class ScaledColorSpaceTest {
 
     /**
      * Runs the visual test.
+     *
+     * @param  args The command line arguments (ignored).
+     * @throws Exception if any error occured.
      */
     public static void main(final String[] args) throws Exception {
         final ScaledColorSpaceTest test = new ScaledColorSpaceTest();

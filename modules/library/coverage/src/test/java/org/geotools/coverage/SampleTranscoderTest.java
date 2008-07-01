@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -82,6 +82,8 @@ public final class SampleTranscoderTest {
 
     /**
      * Tests the transformation using a random raster with only one band.
+     *
+     * @throws TransformException If an error occured while transforming a value.
      */
     @Test
     public void testOneBand() throws TransformException {
@@ -125,7 +127,7 @@ public final class SampleTranscoderTest {
         final GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
         GridCoverage2D coverage;
         coverage = factory.create("Test", source, DefaultGeographicCRS.WGS84,
-                    identity, new GridSampleDimension[]{band}, null, null);
+                    identity, new GridSampleDimension[] {band}, null, null);
         /*
          * Apply the operation. The SampleTranscoder class is suppose to transform our
          * integers into real-world values. Check if the result use floating-points.
@@ -139,8 +141,8 @@ public final class SampleTranscoderTest {
         /*
          * Now, gets the data as an array and compare it with the expected values.
          */
-        double[] sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
-        double[] targetData = target.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
+        double[] sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[]) null);
+        double[] targetData = target.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[]) null);
         band.getSampleToGeophysics().transform(sourceData, 0, sourceData, 0, sourceData.length);
         CategoryListTest.compare(sourceData, targetData, EPS);
         /*
@@ -153,9 +155,9 @@ public final class SampleTranscoderTest {
 
         back = coverage.view(ViewType.PACKED).getRenderedImage();
         assertEquals(DataBuffer.TYPE_BYTE, back.getSampleModel().getDataType());
-        sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
-        targetData =   back.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
-        CategoryListTest.compare(sourceData, targetData, 1+EPS);
+        sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[]) null);
+        targetData =   back.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[]) null);
+        CategoryListTest.compare(sourceData, targetData, 1.0 + EPS);
         /*
          * Returns the "geophysics view" of the image.
          */

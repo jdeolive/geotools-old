@@ -122,10 +122,10 @@ public class ExponentialTransform1D extends AbstractMathTransform
      * @return The math transform.
      */
     public static MathTransform1D create(final double base, final double scale) {
-        if (base==0 || scale==0) {
+        if (base == 0 || scale == 0) {
             return LinearTransform1D.create(0, 0);
         }
-        if (base==1) {
+        if (base == 1) {
             return LinearTransform1D.create(0, scale);
         }
         return new ExponentialTransform1D(base, scale);

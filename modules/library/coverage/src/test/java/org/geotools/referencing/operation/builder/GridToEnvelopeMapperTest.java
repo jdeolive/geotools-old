@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import java.awt.geom.NoninvertibleTransformException;
 
 import org.opengis.geometry.MismatchedDimensionException;
 
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
 import org.geotools.referencing.cs.DefaultEllipsoidalCS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -52,6 +52,8 @@ public final class GridToEnvelopeMapperTest {
 
     /**
      * Various tests.
+     *
+     * @throws NoninvertibleTransformException If the attempt to inverse a transform failed.
      */
     @Test
     public void testMapper() throws NoninvertibleTransformException {
@@ -82,14 +84,13 @@ public final class GridToEnvelopeMapperTest {
             // This is the expected exception.
         }
 
-
         ///////////////////////////////////////////////////////////////
         ///  Tests the setting of grid range and envelope.
         ///
-        Point2D.Double   point = new Point2D.Double();
-        GeneralGridRange gridRange;
-        GeneralEnvelope  envelope;
-        gridRange = new GeneralGridRange(new int[] {10, 20}, new int[] {110, 220});
+        Point2D.Double point = new Point2D.Double();
+        GeneralGridEnvelope gridRange;
+        GeneralEnvelope envelope;
+        gridRange = new GeneralGridEnvelope(new int[] {10, 20}, new int[] {110, 220}, false);
         envelope  = new GeneralEnvelope(new double[] {1, 4, 6}, new double[] {11, 44, 66});
         mapper.setGridRange(gridRange);
         assertSame(gridRange, mapper.getGridRange());

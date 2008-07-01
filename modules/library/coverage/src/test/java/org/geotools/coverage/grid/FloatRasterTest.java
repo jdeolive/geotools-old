@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -40,13 +40,7 @@ import static org.junit.Assert.*;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public final class FloatRasterTest {
-    /**
-     * Tells if the test should show the image in a windows. Set to {@code true} only if this
-     * test is executed from the command line (instead than from Maven or Netbeans for example).
-     */
-    private static boolean display;
-
+public final class FloatRasterTest extends GridCoverageTestBase {
     /**
      * Tests the creation of a floating point {@link WritableRaster}.
      */
@@ -59,8 +53,8 @@ public final class FloatRasterTest {
          */
         final int width  = 500;
         final int height = 500;
-        WritableRaster raster = RasterFactory.createBandedRaster(DataBuffer.TYPE_FLOAT,
-                                                                 width, height, 1, null);
+        WritableRaster raster =
+                RasterFactory.createBandedRaster(DataBuffer.TYPE_FLOAT, width, height, 1, null);
         for (int y=0; y<height; y++) {
             for (int x=0; x<width; x++) {
                 raster.setSample(x, y, 0, x+y);
@@ -75,7 +69,9 @@ public final class FloatRasterTest {
         Envelope envelope = new Envelope2D(crs, 0, 0, 30, 30);
         GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
         GridCoverage gc = factory.create("My grayscale coverage", raster, envelope);
-        if (display) ((GridCoverage2D) gc).show(); // Convenience method specific to Geotools.
+        if (SHOW) {
+            ((GridCoverage2D) gc).show(); // Convenience method specific to Geotools.
+        }
         /*
          * The above example created a grayscale image. The example below creates a new grid
          * coverage for the same data, but using a specified color map. Note that the factory
@@ -86,7 +82,7 @@ public final class FloatRasterTest {
         Color[] colors = new Color[] {Color.BLUE, Color.CYAN, Color.WHITE, Color.YELLOW, Color.RED};
         gc = factory.create("My colored coverage", raster, envelope,
                             null, null, null, new Color[][] {colors}, null);
-        if (display) {
+        if (SHOW) {
             ((GridCoverage2D) gc).view(ViewType.RENDERED).show();
         }
     }
@@ -108,6 +104,8 @@ public final class FloatRasterTest {
         Envelope envelope = new Envelope2D(crs, 0, 0, 30, 30);
         GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
         GridCoverage gc = factory.create("My grayscale matrix", matrix, envelope);
-        if (display) ((GridCoverage2D) gc).show(); // Convenience method specific to Geotools.
+        if (SHOW) {
+            ((GridCoverage2D) gc).show(); // Convenience method specific to Geotools.
+        }
     }
 }

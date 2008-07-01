@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -530,7 +530,7 @@ public class Operations {
      * @param xTrans   The translation along the <var>x</var> axis.
      * @param yTrans   The translation along the <var>x</var> axis.
      * @param interpolation The interpolation to use, or {@code null} for the default.
-     * @param be The border extender, or {@code null} for the default.
+     * @param extender The border extender, or {@code null} for the default.
      * @throws CoverageProcessingException if the operation can't be applied.
      *
      * @see org.geotools.coverage.processing.operation.Scale

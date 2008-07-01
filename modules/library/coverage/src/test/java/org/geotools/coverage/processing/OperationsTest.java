@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -14,26 +14,20 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.coverage.grid;
+package org.geotools.coverage.processing;
 
-// J2SE and JAI dependencies
-import java.io.IOException;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import javax.media.jai.OperationNode;
 
-// JUnit dependencies
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-// OpenGIS dependencies
 import org.opengis.coverage.grid.GridCoverage;
-
-// Geotools dependencies
-import org.geotools.test.TestData;
-import org.geotools.resources.Arguments;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.processing.Operations;
+import static org.geotools.coverage.grid.ViewType.*;
+
+import org.geotools.test.TestData;
+
+import org.junit.*;
+import static org.junit.Assert.*;
 
 
 /**
@@ -57,19 +51,11 @@ import org.geotools.coverage.processing.Operations;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public final class OperationsTest extends GridCoverageTest {
+public final class OperationsTest extends GridProcessingTestBase {
     /**
-     * Sets to {@code true} in order to display the coverage. This is used for manual inspection
-     * only. This field is set to {@code true} if this test suite is executed from the command line
-     * with the {@code -show} option.
+     * Sample image.
      */
-    private static boolean show;
-
-    /**
-     * Sample image. This field is static in order to avoid reloading it for every test cases
-     * in this class.
-     */
-    private static GridCoverage2D SST;
+    private GridCoverage2D SST;
 
     /**
      * The grid coverage processor.
@@ -77,68 +63,12 @@ public final class OperationsTest extends GridCoverageTest {
     private Operations processor;
 
     /**
-     * Run the suite from the command line.
-     */
-    public static void main(final String[] args) {
-        final Arguments arguments = new Arguments(args);
-        show = arguments.getFlag("-show");
-        arguments.getRemainingArguments(0);
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(OperationsTest.class);
-    }
-
-    /**
-     * Constructs a test case with the given name.
-     */
-    public OperationsTest(final String name) {
-        super(name);
-    }
-
-    /**
      * Fetch the processor before each test.
      */
-    protected void setUp() throws IOException {
+    @Before
+    public void setUp() {
         processor = Operations.DEFAULT;
-        if (SST == null) {
-            SST = GridCoverageExamples.getExample(0);
-        }
-    }
-
-    /**
-     * Applies an operation on the specified coverage. All tests in the parent classes will
-     * be executed on this transformed coverage.
-     *
-     * @todo Applies some operation.
-     */
-    @Override
-    protected GridCoverage2D transform(final GridCoverage2D coverage) {
-        return ((GridCoverage2D) processor.nodataFilter(coverage.geophysics(true))).geophysics(false);
-    }
-
-    /**
-     * Show the specified coverage. This is used for debugging only.
-     */
-    private static void show(GridCoverage coverage) {
-        if (coverage instanceof GridCoverage2D) {
-            coverage = ((GridCoverage2D) coverage).geophysics(false);
-        }
-        final RenderedImage image = coverage.getRenderableImage(0,1).createDefaultRendering();
-        try {
-            Class.forName("org.geotools.gui.swing.OperationTreeBrowser")
-                 .getMethod("show", new Class[]{RenderedImage.class})
-                 .invoke(null, new Object[]{image});
-        } catch (Exception e) {
-            /*
-             * The OperationTreeBrowser is not part of Geotools's core. It is optional and this
-             * class should not fails if it is not presents. This is only a helper for debugging.
-             */
-        }
+        SST = EXAMPLES.get(0);
     }
 
     /**
@@ -146,9 +76,10 @@ public final class OperationsTest extends GridCoverageTest {
      *
      * @todo Investigate why the color palette is lost.
      */
+    @Test
     public void testSubtract() {
         double[]      constants      = new double[] {18.75};
-        GridCoverage  sourceCoverage = SST.geophysics(true);
+        GridCoverage  sourceCoverage = SST.view(GEOPHYSICS);
         GridCoverage  targetCoverage = (GridCoverage) processor.subtract(sourceCoverage, constants);
         RenderedImage sourceImage    = sourceCoverage.getRenderableImage(0,1).createDefaultRendering();
         RenderedImage targetImage    = targetCoverage.getRenderableImage(0,1).createDefaultRendering();
@@ -188,7 +119,7 @@ public final class OperationsTest extends GridCoverageTest {
                 }
             }
         }
-        if (show) {
+        if (SHOW) {
             show(targetCoverage);
         }
     }
@@ -196,8 +127,9 @@ public final class OperationsTest extends GridCoverageTest {
     /**
      * Tests {@link Operations#nodataFilter}.
      */
+    @Test
     public void testNodataFilter() {
-        GridCoverage  sourceCoverage = SST.geophysics(true);
+        GridCoverage  sourceCoverage = SST.view(GEOPHYSICS);
         GridCoverage  targetCoverage = processor.nodataFilter(sourceCoverage);
         RenderedImage sourceImage    = sourceCoverage.getRenderableImage(0,1).createDefaultRendering();
         RenderedImage targetImage    = targetCoverage.getRenderableImage(0,1).createDefaultRendering();
@@ -230,7 +162,7 @@ public final class OperationsTest extends GridCoverageTest {
                 }
             }
         }
-        if (show) {
+        if (SHOW) {
             show(targetCoverage);
         }
     }
@@ -240,8 +172,9 @@ public final class OperationsTest extends GridCoverageTest {
      *
      * @todo Investigate why the geophysics view is much more visible than the non-geophysics one.
      */
+    @Test
     public void testGradientMagnitude() {
-        GridCoverage  sourceCoverage = SST.geophysics(true);
+        GridCoverage  sourceCoverage = SST.view(GEOPHYSICS);
         GridCoverage  targetCoverage = (GridCoverage) processor.gradientMagnitude(sourceCoverage);
         RenderedImage sourceImage    = sourceCoverage.getRenderableImage(0,1).createDefaultRendering();
         RenderedImage targetImage    = targetCoverage.getRenderableImage(0,1).createDefaultRendering();
@@ -260,11 +193,11 @@ public final class OperationsTest extends GridCoverageTest {
         assertEquals (0, sourceRaster.getMinX());
         assertEquals (0, sourceRaster.getMinY());
         assertEquals ("GradientMagnitude", ((OperationNode) targetImage).getOperationName());
-        
+
         assertEquals(3.95f, targetRaster.getSampleFloat(304, 310, 0), 1E-2f);
         assertEquals(1.88f, targetRaster.getSampleFloat(262, 357, 0), 1E-2f);
 
-        if (show) {
+        if (SHOW) {
             show(targetCoverage);
         }
     }

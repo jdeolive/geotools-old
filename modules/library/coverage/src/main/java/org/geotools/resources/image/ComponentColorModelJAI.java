@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,7 +16,6 @@
  */
 package org.geotools.resources.image;
 
-// J2SE dependencies
 import java.awt.color.ColorSpace;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.ComponentSampleModel;
@@ -34,7 +33,7 @@ import javax.media.jai.iterator.RectIter;
  * This leads to the following problems:
  *
  * <ul>
- *   <li>{@link ComponentColorModel} support {@code float} and {@code double}
+ *   <li>{@link ComponentColorModel} supports {@code float} and {@code double}
  *       datatypes since J2SE 1.4 only. The workaround for J2SE 1.3 is to use the
  *       {@link FloatDoubleColorModel} provided with JAI 1.1.</li>
  *   <li>{@link FloatDoubleColorModel} ignores the new API in {@link ColorSpace}, especially
@@ -45,7 +44,7 @@ import javax.media.jai.iterator.RectIter;
  *       to use {@link RectIter} with one of those will throw {@link ClassCastException}.</li>
  * </ul>
  *
- * The work around it to use J2SE's {@link ComponentColorModel} (which work with our custom
+ * The work around is to use J2SE's {@link ComponentColorModel} (which work with our custom
  * {@link ColorSpace}) and override its {@code createCompatibleSampleModel} in order to
  * returns {@link ComponentSampleModelJAI} instead of {@link ComponentSampleModel} when
  * {@code float} or {@code double} datatype is requested.
@@ -58,6 +57,11 @@ import javax.media.jai.iterator.RectIter;
  * @author Martin Desruisseaux (IRD)
  */
 public class ComponentColorModelJAI extends ComponentColorModel {
+    /**
+     * Whatever usage of this class should be enabled or not.
+     */
+    public static final boolean ENABLED = false;
+
     /**
      * Construct a new color model.
      */
@@ -105,7 +109,7 @@ public class ComponentColorModelJAI extends ComponentColorModel {
             }
         }
     }
-    
+
     /**
      * Returns the {@code String} representation of the contents of
      * this {@code ColorModel}object.

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -163,6 +163,8 @@ public class TestData implements Runnable {
      * <p>
      * This method was used for some broken JUnit tests that were know to run on JSE 1.4 but
      * not on JSE 1.6 for example.
+     *
+     * @return {@code true} if we are running on the target Java platform.
      */
     public static boolean isBaseJavaPlatform() {
         return System.getProperty("java.version").startsWith("1.5");
@@ -173,6 +175,8 @@ public class TestData implements Runnable {
      * <p>
      * This method is used to disable some checks in unit tests that fail when JAI is
      * run in pure java mode.
+     *
+     * @return {@code true} if JAI medialib are available.
      */
     public static boolean isMediaLibAvailable() {
         return mediaLibAvailable;
@@ -181,6 +185,8 @@ public class TestData implements Runnable {
     /**
      * Returns {@code true} if {@value #EXTENSIVE_TEST_KEY} system property is set to
      * {@code true}. Test suites should check this value before to perform lengthly tests.
+     *
+     * @return {@code true} if extensive tests are enabled.
      */
     public static boolean isExtensiveTest() {
         return getBoolean(EXTENSIVE_TEST_KEY);
@@ -189,6 +195,8 @@ public class TestData implements Runnable {
     /**
      * Returns {@code true} if {@value #INTERACTIVE_TEST_KEY} system property is set to {@code true}.
      * Test suites should check this value before showing any kind of graphical window to the user.
+     *
+     * @return {@code true} if interactive tests are enabled.
      */
     public static boolean isInteractiveTest() {
         return getBoolean(INTERACTIVE_TEST_KEY);
@@ -235,7 +243,7 @@ public class TestData implements Runnable {
     public static URL url(final Object caller, final String path) throws FileNotFoundException {
         final URL url = getResource(caller, path);
         if (url == null) {
-            throw new FileNotFoundException("Could not locate test-data: " + path);
+            throw new FileNotFoundException("Can not locate test-data for \"" + path + '"');
         }
         return url;
     }
@@ -254,11 +262,13 @@ public class TestData implements Runnable {
      * @throws FileNotFoundException if the file is not found.
      * @throws IOException if the resource can't be fetched for an other reason.
      */
-    public static File file(final Object caller, final String path) throws IOException {
+    public static File file(final Object caller, final String path)
+            throws FileNotFoundException, IOException
+    {
         final URL url = url(caller, path);
         final File file = new File(URLDecoder.decode(url.getPath(), ENCODING));
         if (!file.exists()) {
-            throw new FileNotFoundException("Could not locate test-data: " + path);
+            throw new FileNotFoundException("Can not locate test-data for \"" + path + '"');
         }
         return file;
     }
@@ -268,7 +278,7 @@ public class TestData implements Runnable {
      * {@code test-data} directory and will be deleted on exit.
      *
      * @param  caller Calling class or object used to locate {@code test-data}.
-     * @param  A base name for the temporary file.
+     * @param  name A base name for the temporary file.
      * @return The temporary file in the {@code test-data} directory.
      * @throws IOException if the file can't be created.
      */
@@ -277,7 +287,7 @@ public class TestData implements Runnable {
         final int split = name.lastIndexOf('.');
         final String prefix = (split < 0) ? name  : name.substring(0,split);
         final String suffix = (split < 0) ? "tmp" : name.substring(split+1);
-        final File tmp = File.createTempFile(prefix, '.'+suffix, testData);
+        final File tmp = File.createTempFile(prefix, '.' + suffix, testData);
         deleteOnExit(tmp);
         return tmp;
     }
@@ -295,7 +305,7 @@ public class TestData implements Runnable {
      * @since 2.2
      */
     public static InputStream openStream(final Object caller, final String name)
-            throws IOException
+            throws FileNotFoundException, IOException
     {
         return new BufferedInputStream(url(caller, name).openStream());
     }
@@ -314,7 +324,7 @@ public class TestData implements Runnable {
      * @since 2.2
      */
     public static LineNumberReader openReader(final Object caller, final String name)
-            throws IOException
+            throws FileNotFoundException, IOException
     {
         return new LineNumberReader(new InputStreamReader(url(caller, name).openStream()));
     }
@@ -335,6 +345,7 @@ public class TestData implements Runnable {
      *  the stream is not closed automatically and is also consistent with other method names in
      *  this class.
      */
+    @Deprecated
     public static BufferedReader getReader(final Object caller, final String name)
             throws IOException
     {
@@ -358,7 +369,7 @@ public class TestData implements Runnable {
      * @since 2.2
      */
     public static ReadableByteChannel openChannel(final Object caller, final String name)
-            throws IOException
+            throws FileNotFoundException, IOException
     {
         final URL url = url(caller, name);
         final File file = new File(URLDecoder.decode(url.getPath(), ENCODING));
@@ -388,7 +399,9 @@ public class TestData implements Runnable {
      *
      * @since 2.2
      */
-    public static void unzipFile(final Object caller, final String name) throws IOException {
+    public static void unzipFile(final Object caller, final String name)
+            throws FileNotFoundException, IOException
+    {
         final File        file    = file(caller, name);
         final File        parent  = file.getParentFile().getAbsoluteFile();
         final ZipFile     zipFile = new ZipFile(file);
@@ -427,6 +440,8 @@ public class TestData implements Runnable {
     /**
      * Requests that the file or directory denoted by the specified
      * pathname be deleted when the virtual machine terminates.
+     *
+     * @param file The file to delete on exit.
      */
     protected static void deleteOnExit(final File file) {
         deleteOnExit(file, true);

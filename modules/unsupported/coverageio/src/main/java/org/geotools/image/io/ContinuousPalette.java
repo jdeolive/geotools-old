@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -44,15 +44,17 @@ final class ContinuousPalette extends Palette {
      * <p>
      * <ul>
      *   <li>As of J2SE 1.4.0, {@link ImageTypeSpecifier#createBanded} doesn't accept
-     *       {@link DataBuffer#TYPE_FLOAT} and {@link DataBuffer#TYPE_DOUBLE} argument.</li>
+     *       {@link DataBuffer#TYPE_FLOAT} and {@link DataBuffer#TYPE_DOUBLE} argument.
+     *
+     *       UPDATE: it seems to be fixed with Java 5.</li>
+     *
      *   <li>As of JAI 1.1, operators don't accept Java2D's {@link java.awt.image.DataBufferFloat}
-     *       and {@link java.awt.image.DataBufferDouble}. They require JAI's DataBuffer instead.</li>
+     *       and {@link java.awt.image.DataBufferDouble}. They require JAI's DataBuffer instead.
+     *
+     *       We have not yet checked if the problem still presents with JAI 1.1.3.</li>
      * </ul>
-     * <p>
-     * This flag is set to {@code true} for J2SE 1.4. It may be
-     * changed to {@code false} with future J2SE and JAI versions.
      */
-    static final boolean USE_JAI_MODEL = true;
+    static final boolean USE_JAI_MODEL = ComponentColorModelJAI.ENABLED;
 
     /**
      * The minimal value, inclusive.

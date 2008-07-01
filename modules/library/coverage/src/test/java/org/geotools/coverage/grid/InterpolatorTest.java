@@ -18,56 +18,34 @@ package org.geotools.coverage.grid;
 
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
+import java.io.IOException;
 import javax.media.jai.Interpolation;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
 
+import org.junit.*;
+import static org.junit.Assert.*;
+
 
 /**
- * Tests the {@link Interpolator2D} implementation. This method inherit all tests from
- * {@link GridCoverageTest}. Because we override {@link #transform}, tests will be performed
- * on {@link Interpolator2D} objects instead of default {@link GridCoverage2D}.
+ * Tests the {@link Interpolator2D} implementation.
  *
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class InterpolatorTest extends GridCoverageTest {
-    /**
-     * Small value for comparaison of sample values. Since most grid coverage implementation in
-     * Geotools 2 store geophysics values as {@code float} numbers, this {@code EPS} value must
-     * be of the order of {@code float} relative precision, not {@code double}.
-     */
-    private static final double EPS = 1E-5;
-
+public final class InterpolatorTest extends GridCoverageTestBase {
     /**
      * The interpolators to use.
      */
     private Interpolation[] interpolations;
 
     /**
-     * Run the suite from the command line.
+     * Setup the {@linkplain #interpolations} values.
      */
-    public static void main(final String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(InterpolatorTest.class);
-    }
-
-    /**
-     * Constructs a test case with the given name.
-     */
-    public InterpolatorTest(final String name) {
-        super(name);
+    @Before
+    public void setup() {
         final int[] types = {
             Interpolation.INTERP_BICUBIC,
             Interpolation.INTERP_BILINEAR,
@@ -80,26 +58,13 @@ public class InterpolatorTest extends GridCoverageTest {
     }
 
     /**
-     * Applies an operation on the specified coverage, if wanted.
-     * The default implementation applies a set of interpolations
-     * on <code>coverage</code>.
+     * Tests the instances to be created.
      */
-    @Override
-    protected GridCoverage2D transform(final GridCoverage2D coverage) {
-        return Interpolator2D.create(coverage, interpolations);
-    }
-
-    /**
-     * Tests the interpolations. Since <code>testGridCoverage()</code> tests value
-     * at the center of pixels, all interpolations results should be identical to
-     * a result without interpolation.
-     */
-    @Override
-    public void testGridCoverage() {
+    public void testRandomCoverage() {
         final GridCoverage2D coverage = getRandomCoverage();
         assertTrue(coverage instanceof Interpolator2D);
-        assertTrue(coverage.geophysics(true)  instanceof Interpolator2D);
-        assertTrue(coverage.geophysics(false) instanceof Interpolator2D);
+        assertTrue(coverage.view(ViewType.GEOPHYSICS) instanceof Interpolator2D);
+        assertTrue(coverage.view(ViewType.PACKED)     instanceof Interpolator2D);
     }
 
     /**
@@ -110,10 +75,11 @@ public class InterpolatorTest extends GridCoverageTest {
         // Following constant is pixel size (in degrees).
         // This constant must be identical to the one defined in 'getRandomCoverage()'
         final double PIXEL_SIZE = 0.25;
-
-        final GridCoverage2D coverage = Interpolator2D.create(getRandomCoverage().geophysics(true),
-              new Interpolation[] {Interpolation.getInstance(Interpolation.INTERP_BILINEAR)});
-
+        GridCoverage2D coverage = getRandomCoverage();
+        coverage = coverage.view(ViewType.GEOPHYSICS);
+        coverage = Interpolator2D.create(coverage, new Interpolation[] {
+            Interpolation.getInstance(Interpolation.INTERP_BILINEAR)
+        });
         final int  band = 0; // Band to test.
         double[] buffer = null;
         final Raster          data = coverage.getRenderedImage().getData();
@@ -134,13 +100,29 @@ public class InterpolatorTest extends GridCoverageTest {
                 double r01 = data.getSampleDouble(i-0, j-1, band);
                 double r10 = data.getSampleDouble(i-1, j-0, band);
                 double r11 = data.getSampleDouble(i-1, j-1, band);
-                double r = (r00+r01+r10+r11)/4;
-                if (Double.isNaN(r)) {
-                    assertTrue("NaN", Double.isNaN(t));
-                } else {
-                    assertEquals(r, t, EPS);
-                }
+                double r = (r00 + r01 + r10 + r11) / 4;
+                assertEquals(r, t, EPS);
             }
         }
+    }
+
+    /**
+     * Tests the serialization of a grid coverage.
+     *
+     * @throws IOException if an I/O operation was needed and failed.
+     * @throws ClassNotFoundException Should never happen.
+     */
+    @Test
+    public void testSerialization() throws IOException, ClassNotFoundException {
+        GridCoverage2D coverage = EXAMPLES.get(0);
+        coverage = Interpolator2D.create(coverage, interpolations);
+        GridCoverage2D serial = serialize(coverage);
+        assertNotSame(coverage, serial);
+        assertEquals(Interpolator2D.class, serial.getClass());
+        // Compares the geophysics view for working around the
+        // conversions of NaN values which may be the expected ones.
+        coverage = coverage.view(ViewType.GEOPHYSICS);
+        serial   = serial  .view(ViewType.GEOPHYSICS);
+        assertRasterEquals(coverage, serial);
     }
 }

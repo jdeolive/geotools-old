@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.media.jai.GraphicsJAI;
 import javax.media.jai.PlanarImage;
 
+import org.opengis.util.InternationalString;
 import org.opengis.parameter.ParameterValueGroup;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.processing.AbstractProcessor;
@@ -118,6 +119,18 @@ public class Viewer extends JPanel {
     }
 
     /**
+     * A convenience method showing an image. The application
+     * will be terminated when the user close the frame.
+     *
+     * @param  image The coverage to display.
+     * @param  title The windows title, or {@code null} for a default one.
+     * @return The viewer, for information.
+     */
+    public static Viewer show(final RenderedImage image, final String title) {
+        return show(new Viewer(image), title);
+    }
+
+    /**
      * A convenience method showing a grid coverage. The application
      * will be terminated when the user close the frame.
      *
@@ -142,7 +155,10 @@ public class Viewer extends JPanel {
             buffer.append(title);
             buffer.append(" - ");
         }
-        buffer.append(coverage.getName().toString(JComponent.getDefaultLocale()));
+        final InternationalString name = coverage.getName();
+        if (name != null) {
+            buffer.append(name.toString(JComponent.getDefaultLocale()));
+        }
         if (coverage != coverage.view(ViewType.GEOPHYSICS)) {
             buffer.append(" (packed)");
         } else if (coverage != coverage.view(ViewType.RENDERED)) {
@@ -166,7 +182,7 @@ public class Viewer extends JPanel {
         frame.getContentPane().add(viewer);
         frame.pack();
         frame.setVisible(true);
-        location += 64;
+        location += 16;
         return viewer;
     }
 
@@ -256,7 +272,7 @@ public class Viewer extends JPanel {
             out.println("Usage: Viewer [options] example");
             out.println();
             out.print("Where \"example\" is the number of the requested example (0 to ");
-            out.print(GridCoverageExamples.getNumExamples()-1);
+            out.print(GridCoverageTestBase.EXAMPLES.size() - 1);
             out.println(" inclusive)");
             out.println("and [options] includes:");
             out.println();
@@ -269,7 +285,7 @@ public class Viewer extends JPanel {
             out.flush();
             return;
         }
-        GridCoverage2D coverage = GridCoverageExamples.getExample(Integer.parseInt(args[0]));
+        GridCoverage2D coverage = GridCoverageTestBase.EXAMPLES.get(Integer.parseInt(args[0]));
         if (geophysics != null) {
             coverage = coverage.view(geophysics.booleanValue() ? ViewType.GEOPHYSICS : ViewType.RENDERED);
         }

@@ -19,14 +19,13 @@ package org.geotools.coverage.processing;
 import java.awt.Color;
 import javax.measure.unit.SI;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.util.MeasurementRange;
 import org.geotools.util.NumberRange;
+
+import org.junit.*;
+import static org.junit.Assert.*;
 
 
 /**
@@ -36,7 +35,7 @@ import org.geotools.util.NumberRange;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class ColorMapTest extends TestCase {
+public class ColorMapTest {
     /**
      * The grid sample dimension to be used for testing purpose.
      */
@@ -53,30 +52,9 @@ public class ColorMapTest extends TestCase {
     private int[] ARGB;
 
     /**
-     * Run the suite from the command line.
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(ColorMapTest.class);
-    }
-
-    /**
-     * Constructs a test case with the given name.
-     */
-    public ColorMapTest(final String name) {
-        super(name);
-    }
-
-    /**
      * Creates a sample dimension and a color map for testing purpose.
      */
-    @Override
+    @Before
     public void setUp() {
         band = new GridSampleDimension("Temperature", new Category[] {
             new Category("Sea",         Color.BLUE,  2),
@@ -97,6 +75,7 @@ public class ColorMapTest extends TestCase {
     /**
      * Operations that should not modify the sample dimension.
      */
+    @Test
     public void testIdentity() {
         assertEquals(map, map);
         assertSame("No category changes expected.", band, map.recolor(band, null));
@@ -119,6 +98,7 @@ public class ColorMapTest extends TestCase {
     /**
      * Simple color changes.
      */
+    @Test
     public void testSimpleChange() {
         map.setColor("Lands", Color.RED);
         map.setColors("Temperature", new Color[] {Color.WHITE, Color.YELLOW, Color.ORANGE});
@@ -134,6 +114,7 @@ public class ColorMapTest extends TestCase {
     /**
      * Applies a relative range.
      */
+    @Test
     public void testRelativeRange() {
         map.setRelativeRange("Temperature", NumberRange.create(20, 70));
         assertSame(band, map.recolor(band, ARGB));
@@ -152,6 +133,7 @@ public class ColorMapTest extends TestCase {
     /**
      * Applies a geophysics range.
      */
+    @Test
     public void testGeophysicsRange() {
         map.setGeophysicsRange("Temperature", MeasurementRange.create(5, 20, SI.CELSIUS));
         assertSame(band, map.recolor(band, ARGB));
@@ -170,6 +152,7 @@ public class ColorMapTest extends TestCase {
     /**
      * Recolor the quantitative range, without prior knowledge of its name.
      */
+    @Test
     public void testAnyQuantitativeCategory() {
         map.setColor ("Sea",         null);
         map.setColor ("Lands",       null);

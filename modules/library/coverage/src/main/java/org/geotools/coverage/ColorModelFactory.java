@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -165,10 +165,10 @@ final class ColorModelFactory {
             // fallback on a generic (but very slow!) color model.
             final int  transparency = Transparency.OPAQUE;
             final ColorSpace colors = new ScaledColorSpace(visibleBand, numBands, minimum, maximum);
-            if (false) {
+            if (true) {
                 // This is the J2SE implementation of color model. It should be our preferred one.
-                // Unfortunatly, as of JAI 1.1 we have to use JAI implementation instead of J2SE's
-                // one because javax.media.jai.iterator.RectIter do not work with J2SE's DataBuffer
+                // In JAI 1.1 we had to use JAI implementation instead of J2SE's one because
+                // javax.media.jai.iterator.RectIter didn't work with J2SE's DataBuffer
                 // when the data type is float or double.
                 return new ComponentColorModel(colors, false, false, transparency, type);
             }
@@ -179,7 +179,7 @@ final class ColorModelFactory {
                 // up basically with all-black or all-white images.
                 return new FloatDoubleColorModel(colors, false, false, transparency, type);
             }
-            if (true) {
+            if (false) {
                 // Our patched color model extends J2SE's ComponentColorModel (which work correctly
                 // with our custom ColorSpace), but create JAI's SampleModel instead of J2SE's one.
                 // It make RectIter happy and display colors correctly.

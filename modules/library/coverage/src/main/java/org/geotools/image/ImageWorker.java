@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,7 +16,6 @@
  */
 package org.geotools.image;
 
-// J2SE dependencies
 import java.awt.Image;
 import java.awt.image.*;
 import java.awt.image.renderable.ParameterBlock;
@@ -47,14 +46,10 @@ import java.util.Locale;
 import java.util.logging.Logger;
 import java.lang.reflect.InvocationTargetException;
 
-// Image I/O and JAI dependencies
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
-
-
 import com.sun.media.jai.util.ImageUtil;
 
-// Geotools dependencies
 import org.geotools.factory.Hints;
 import org.geotools.util.logging.Logging;
 import org.geotools.resources.Arguments;
@@ -213,12 +208,9 @@ public class ImageWorker {
      * Loads an image using the provided file name and the provided hints, which
      * are used to control caching and layout.
      *
-     * @param source
-     *            The source image.
-     * @param hints
-     *            The hints to use.
-     * @param imageChoice
-     *            For multipage images.
+     * @param source      The source image.
+     * @param hints       The hints to use.
+     * @param imageChoice For multipage images.
      * @return The loaded image.
      *
      * @deprecated Use #load instead.
@@ -239,12 +231,9 @@ public class ImageWorker {
      * Loads an image using the provided file name and the
      * {@linkplain #getRenderingHints current hints}, which are used to control caching and layout.
      *
-     * @param source
-     *            Filename of the source image to read.
-     * @param imageChoice
-     *            Image index in multipage images.
-     * @param readMatadata
-     *            If {@code true}, metadata will be read.
+     * @param source       Filename of the source image to read.
+     * @param imageChoice  Image index in multipage images.
+     * @param readMatadata If {@code true}, metadata will be read.
      */
     public final void load(final String source, final int imageChoice, final boolean readMetadata) {
         final ParameterBlockJAI pbj = new ParameterBlockJAI("ImageRead");
@@ -266,6 +255,9 @@ public class ImageWorker {
     /**
      * Returns the current image.
      *
+     * @return The rendered image.
+     *
+     * @see #getBufferedImage
      * @see #getPlanarImage
      * @see #getRenderedOperation
      * @see #getImageAsROI
@@ -275,7 +267,29 @@ public class ImageWorker {
     }
 
     /**
+     * Returns the current image as a buffered image.
+     *
+     * @return The buffered image.
+     *
+     * @see #getRenderedImage
+     * @see #getPlanarImage
+     * @see #getRenderedOperation
+     * @see #getImageAsROI
+     *
+     * @since 2.5
+     */
+    public final BufferedImage getBufferedImage() {
+        if (image instanceof BufferedImage) {
+            return (BufferedImage) image;
+        } else {
+            return getPlanarImage().getAsBufferedImage();
+        }
+    }
+
+    /**
      * Returns the {@linkplain #getRenderedImage rendered image} as a planar image.
+     *
+     * @return The planar image.
      *
      * @see #getRenderedImage
      * @see #getRenderedOperation
@@ -287,6 +301,8 @@ public class ImageWorker {
 
     /**
      * Returns the {@linkplain #getRenderedImage rendered image} as a rendered operation.
+     *
+     * @return The rendered operation.
      *
      * @see #getRenderedImage
      * @see #getPlanarImage
@@ -306,6 +322,8 @@ public class ImageWorker {
      * computes an estimation of its {@linkplain #intensity intensity}. Next, this method
      * {@linkplain #binarize() binarize} the image and constructs a {@link ROI} from the result.
      *
+     * @return The image as a region of interest.
+     *
      * @see #getRenderedImage
      * @see #getPlanarImage
      * @see #getRenderedOperation
@@ -319,6 +337,8 @@ public class ImageWorker {
      * Returns the <cite>region of interest</cite> currently set, or {@code null} if none.
      * The default value is {@code null}.
      *
+     * @return The current region of interest.
+     *
      * @see #getMinimums
      * @see #getMaximums
      */
@@ -331,6 +351,7 @@ public class ImageWorker {
      * {@linkplain #image}. The ROI is used by statistical methods like {@link #getMinimums}
      * and {@link #getMaximums}.
      *
+     * @param roi The new region of interest.
      * @return This ImageWorker
      *
      * @see #getMinimums
@@ -377,7 +398,7 @@ public class ImageWorker {
      * Set a map of rendering hints  to use for all images to be computed by this class. This method
      * applies only to the next images to be computed; images already computed before this method
      * call (if any) will not be affected.
-     * 
+     *
      * <p>
      * If <code>hints</code> is null we won't modify this list.
      * @return This ImageWorker
@@ -1111,15 +1132,15 @@ public class ImageWorker {
         assert isColorSpaceRGB();
         return this;
     }
-	
+
 	/**
 	 * Forces the {@linkplain #image} color model to the
 	 *  IHS color space. If the current color
 	 * space is already of IHS type, then this
 	 * method does nothing. This operation may loose the alpha channel.
-	 * 
+	 *
 	 * @return this {@link ImageWorker}.
-	 * 
+	 *
 	 * @see ColorConvertDescriptor
 	 */
 	public final ImageWorker forceColorSpaceIHS() {
@@ -1147,12 +1168,12 @@ public class ImageWorker {
 
 	/**
 	 * Add the bands to the Component Color Model
-	 * 
+	 *
 	 * @param writeband
 	 *            number of bands after the bandmerge.
-	 * 
+	 *
 	 * @return this {@link ImageWorker}.
-	 * 
+	 *
 	 */
 	public final ImageWorker bandMerge(int writeband) {
 		ParameterBlock pb = new ParameterBlock();
@@ -1187,17 +1208,17 @@ public class ImageWorker {
 		assert image.getSampleModel().getNumBands() == writeband;
 		return this;
 	}
-	
+
 	/**
 	 * Perform a BandMerge operation between the underlying image and the provided one.
-	 * 
+	 *
 	 * @param image
 	 *            to merge with the underlying one.
 	 * @param before <code>true</code> if we want to use first the provided image, <code>false</code>
 	 *  otherwise.
-	 * 
+	 *
 	 * @return this {@link ImageWorker}.
-	 * 
+	 *
 	 */
 	public final ImageWorker addBand(RenderedImage image, boolean before) {
 
@@ -1277,7 +1298,7 @@ public class ImageWorker {
         if (numColorBands == 1 && hasAlpha) {
             retainFirstBand();
             return this;
-		}			
+		}
 		//remove the alpha band
 		if (numColorBands != numBands) {
 			this.retainBands(numBands);
@@ -1802,7 +1823,7 @@ public class ImageWorker {
 			/*
 			 * Build a lookup table in order to make the transparent pixels
 			 * equal to 255 and all the others equal to 0.
-			 * 
+			 *
 			 */
 			final byte[] lutData = new byte[256];
 			// mapping all the non-transparent pixels to opaque
@@ -1814,7 +1835,7 @@ public class ImageWorker {
 
 			/*
 			 * Adding to the other image exploiting the implict clamping
-			 * 
+			 *
 			 */
 			image = AddDescriptor.create(image, mask, getRenderingHints());
 			tileCacheEnabled(true);
