@@ -42,6 +42,7 @@ import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;
+import com.esri.sde.sdk.client.SeError;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeInsert;
 import com.esri.sde.sdk.client.SeLayer;
@@ -861,6 +862,70 @@ class Session implements ISession {
                         SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
                 defaultVersion.getInfo();
                 return defaultVersion;
+            }
+        });
+    }
+
+    /**
+     * Creates either a direct child state of parentStateId, or a sibling being
+     * an exact copy of parentStatId if either the state can't be closed because
+     * its in use or parentStateId does not belong to the current user.
+     */
+    public SeState createChildState(final long parentStateId) throws IOException {
+        return issue(new Command<SeState>() {
+            @Override
+            public SeState execute(ISession session, SeConnection connection) throws SeException,
+                    IOException {
+                SeState parentState = new SeState(connection, new SeObjectId(parentStateId));
+
+                SeState realParent = null;
+
+                boolean mergeParentToRealParent = false;
+
+                if (parentState.isOpen()) {
+                    // only closed states can have child states
+                    try {
+                        parentState.close();
+                        realParent = parentState;
+                    } catch (SeException e) {
+                        final int errorCode = e.getSeError().getSdeError();
+                        if (SeError.SE_STATE_INUSE == errorCode
+                                || SeError.SE_NO_PERMISSIONS == errorCode) {
+                            // it's not our state or somebody's editing it so we
+                            // need to clone the parent,
+                            // starting from the parent of the parent
+                            realParent = new SeState(connection, parentState.getParentId());
+                            mergeParentToRealParent = true;
+                        } else {
+                            throw e;
+                        }
+                    }
+                }else{
+                    realParent = parentState;
+                }
+
+                // create the new state
+                SeState newState = new SeState(connection);
+                newState.create(realParent.getId());
+
+                if (mergeParentToRealParent) {
+                    // a sibling of parentStateId was created instead of a
+                    // child, we need to merge the changes
+                    // in parentStateId to the new state so they refer to the
+                    // same content.
+                    // SE_state_merge applies changes to a parent state to
+                    // create a new merged state.
+                    // The new state is the child of the parent state with the
+                    // changes of the second state.
+                    // Both input states must have the same parent state.
+                    // When a row has been changed in both parent and second
+                    // states, the row from the changes state is used.
+                    // The parent and changes states must be open or owned by
+                    // the current user unless the current user is the ArcSDE DBA.
+                    newState.merge(realParent.getId(), parentState.getId());
+                }
+
+                return newState;
             }
         });
     }

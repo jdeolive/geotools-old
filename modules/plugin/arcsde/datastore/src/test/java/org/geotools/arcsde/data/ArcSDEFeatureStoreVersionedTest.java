@@ -16,6 +16,7 @@
  */
 package org.geotools.arcsde.data;
 
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import junit.extensions.TestSetup;
@@ -25,7 +26,11 @@ import junit.framework.TestSuite;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.pool.SessionPoolFactory;
+import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureSource;
@@ -52,62 +57,42 @@ import com.vividsolutions.jts.io.WKTReader;
  * @author Gabriel Roldan
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/da/src/test/java/org/geotools/arcsde/data/ArcSDEFeatureStoreTest.java $
- * @version $Id$
+ * @version $Id: ArcSDEFeatureStoreVersionedTest.java 30807 2008-06-25 17:02:40Z
+ *          groldan $
  */
 public class ArcSDEFeatureStoreVersionedTest extends TestCase {
     /** package logger */
     private static Logger LOGGER = Logging.getLogger(" org.geotools.arcsde.data");
 
-    private static TestData testData;
+    private TestData testData;
 
     /**
      * Qualified name of the versioned table used for tests
      */
-    private static String tableName;
-
-    private static boolean forceOneTimeTearDown;
+    private String tableName;
 
     /**
      * Flag that indicates whether the underlying database is MS SQL Server.
      * <p>
-     * This is used to decide what's the expected result count in some
-     * transaction tests, and its value is obtained from an {@link SeDBMSInfo}
-     * object. Hacky as it seems it is. The problem is that ArcSDE for SQL
-     * Server _explicitly_ sets the transaction isolation level to READ
-     * UNCOMMITTED for all and every transaction, while for other databases it
-     * uses READ COMMITTED. And no, ESRI documentation says there's no way to
-     * change nor workaround this behaviour.
+     * This is used to decide what's the expected result count in some transaction tests, and its
+     * value is obtained from an {@link SeDBMSInfo} object. Hacky as it seems it is. The problem is
+     * that ArcSDE for SQL Server _explicitly_ sets the transaction isolation level to READ
+     * UNCOMMITTED for all and every transaction, while for other databases it uses READ COMMITTED.
+     * And no, ESRI documentation says there's no way to change nor workaround this behaviour.
      * </p>
      */
     private static boolean databaseIsMsSqlServer;
 
     /**
-     * Builds a test suite for all this class' tests with per suite
-     * initialization directed to {@link #oneTimeSetUp()} and per suite clean up
-     * directed to {@link #oneTimeTearDown()}
+     * loads {@code test-data/testparams.properties} into a Properties object,
+     * wich is used to obtain test tables names and is used as parameter to find
+     * the DataStore
      * 
-     * @return
+     * @throws Exception
+     *             DOCUMENT ME!
      */
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(ArcSDEFeatureStoreVersionedTest.class);
-
-        TestSetup wrapper = new TestSetup(suite) {
-            @Override
-            protected void setUp() throws Exception {
-                forceOneTimeTearDown = false;
-                oneTimeSetUp();
-            }
-
-            @Override
-            protected void tearDown() {
-                oneTimeTearDown();
-            }
-        };
-        return wrapper;
-    }
-
-    private static void oneTimeSetUp() throws Exception {
+    @Override
+    protected void setUp() throws Exception {
         testData = new TestData();
         testData.setUp();
         {
@@ -130,86 +115,57 @@ public class ArcSDEFeatureStoreVersionedTest extends TestCase {
         }
     }
 
-    private static void oneTimeTearDown() {
-        boolean cleanTestTable = false;
-        boolean cleanPool = true;
-        testData.tearDown(cleanTestTable, cleanPool);
-    }
-
-    /**
-     * loads {@code test-data/testparams.properties} into a Properties object,
-     * wich is used to obtain test tables names and is used as parameter to find
-     * the DataStore
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
-     */
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        // facilitates running a single test at a time (eclipse lets you do this
-        // and it's very useful)
-        if (testData == null) {
-            forceOneTimeTearDown = true;
-            oneTimeSetUp();
-        }
-        testData.truncateTempTable();
-    }
-
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        if (forceOneTimeTearDown) {
-            oneTimeTearDown();
-        }
+        testData.tearDown(false, true);
     }
 
     public void testEditVersionedTableAutoCommit() throws Exception {
-            final ArcSDEDataStore dataStore = testData.getDataStore();
-            final FeatureSource<SimpleFeatureType, SimpleFeature> source;
-            final FeatureStore<SimpleFeatureType, SimpleFeature> store;
-            source = dataStore.getFeatureSource(tableName);
-            store = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
-                    .getFeatureSource(tableName);
+        final ArcSDEDataStore dataStore = testData.getDataStore();
+        final FeatureSource<SimpleFeatureType, SimpleFeature> source;
+        final FeatureStore<SimpleFeatureType, SimpleFeature> store;
+        source = dataStore.getFeatureSource(tableName);
+        store = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
+                .getFeatureSource(tableName);
 
-            ArcSdeResourceInfo info = (ArcSdeResourceInfo) store.getInfo();
-            assertTrue(info.isVersioned());
+        ArcSdeResourceInfo info = (ArcSdeResourceInfo) store.getInfo();
+        assertTrue(info.isVersioned());
 
-            final SimpleFeatureType schema = store.getSchema();
-            assertNull(schema.getAttribute("ROW_ID"));
+        final SimpleFeatureType schema = store.getSchema();
+        assertNull(schema.getAttribute("ROW_ID"));
 
-            final int initialCount = store.getCount(Query.ALL);
-            assertEquals(0, initialCount);
+        final int initialCount = store.getCount(Query.ALL);
+        assertEquals(0, initialCount);
 
-            final WKTReader reader = new WKTReader();
-            Object[] content = new Object[2];
-            SimpleFeature feature;
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
-            int count;
+        final WKTReader reader = new WKTReader();
+        Object[] content = new Object[2];
+        SimpleFeature feature;
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+        int count;
 
-            content[0] = "Feature name 1";
-            content[1] = reader.read("POINT (0 0)");
-            feature = SimpleFeatureBuilder.build(schema, content, (String) null);
-            collection = DataUtilities.collection(feature);
+        content[0] = "Feature name 1";
+        content[1] = reader.read("POINT (0 0)");
+        feature = SimpleFeatureBuilder.build(schema, content, (String) null);
+        collection = DataUtilities.collection(feature);
 
-            store.addFeatures(collection);
+        store.addFeatures(collection);
 
-            count = store.getCount(Query.ALL);
-            assertEquals(1, count);
+        count = store.getCount(Query.ALL);
+        assertEquals(1, count);
 
-            content[0] = "Feature name 2";
-            content[1] = reader.read("POINT (1 1)");
-            feature = SimpleFeatureBuilder.build(schema, content, (String) null);
-            collection = DataUtilities.collection(feature);
+        content[0] = "Feature name 2";
+        content[1] = reader.read("POINT (1 1)");
+        feature = SimpleFeatureBuilder.build(schema, content, (String) null);
+        collection = DataUtilities.collection(feature);
 
-            store.addFeatures(collection);
+        store.addFeatures(collection);
 
-            count = store.getCount(Query.ALL);
-            assertEquals(2, count);
+        count = store.getCount(Query.ALL);
+        assertEquals(2, count);
 
-            assertEquals(2, source.getCount(Query.ALL));
+        assertEquals(2, source.getCount(Query.ALL));
     }
-    
 
     public void testEditVersionedTableTransaction() throws Exception {
         try {
@@ -258,6 +214,7 @@ public class ArcSDEFeatureStoreVersionedTest extends TestCase {
 
             count = store.getCount(Query.ALL);
             assertEquals(1, count);
+            
             assertEquals(0, source.getCount(Query.ALL));
 
             {
@@ -311,86 +268,72 @@ public class ArcSDEFeatureStoreVersionedTest extends TestCase {
     }
 
     public void testEditVersionedTableTransactionConcurrently() throws Exception {
-        final ArcSDEDataStore dataStore = testData.getDataStore();
-        final FeatureSource<SimpleFeatureType, SimpleFeature> source;
-        final FeatureStore<SimpleFeatureType, SimpleFeature> store;
+        Properties conProps = testData.getConProps();
 
-        source = dataStore.getFeatureSource(tableName);
-        store = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
+        final ArcSDEDataStore dataStore1 = (ArcSDEDataStore) DataStoreFinder.getDataStore(conProps);
+        final ArcSDEDataStore dataStore2 = (ArcSDEDataStore) DataStoreFinder.getDataStore(conProps);
+        assertNotSame(dataStore1, dataStore2);
+        assertNotSame(dataStore1.connectionPool, dataStore2.connectionPool);
+
+        final FeatureStore<SimpleFeatureType, SimpleFeature> store1, store2;
+
+        store1 = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore1
                 .getFeatureSource(tableName);
 
-        Transaction transaction = new DefaultTransaction();
-        store.setTransaction(transaction);
+        store2 = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore2
+        .getFeatureSource(tableName);
 
-        ArcSdeResourceInfo info = (ArcSdeResourceInfo) store.getInfo();
-        assertTrue(info.isVersioned());
+        Transaction transaction1 = new DefaultTransaction();
+        store1.setTransaction(transaction1);
 
-        final SimpleFeatureType schema = store.getSchema();
+        Transaction transaction2 = new DefaultTransaction();
+        store2.setTransaction(transaction2);
 
-        final int initialCount = store.getCount(Query.ALL);
+        final SimpleFeatureType schema = store1.getSchema();
+
+        final int initialCount = store1.getCount(Query.ALL);
         assertEquals(0, initialCount);
 
         final WKTReader reader = new WKTReader();
         Object[] content = new Object[2];
         SimpleFeature feature;
         FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
-        int count;
 
+        //add a feature to store1
         content[0] = "Feature name 1";
         content[1] = reader.read("POINT (10 10)");
         feature = SimpleFeatureBuilder.build(schema, content, (String) null);
         collection = DataUtilities.collection(feature);
+        store1.addFeatures(collection);
+                
+        //transaction not committed, store1 expects a count of 1, store2 still 0
+        assertEquals(1, store1.getCount(Query.ALL));
+        
+        assertEquals(0, store2.getCount(Query.ALL));
 
-        store.addFeatures(collection);
-
-        count = store.getCount(Query.ALL);
-        assertEquals(1, count);
-        assertEquals(0, source.getCount(Query.ALL));
-
-        {
-            FeatureIterator<SimpleFeature> features = store.getFeatures().features();
-            SimpleFeature f = features.next();
-            features.close();
-            Object obj = f.getDefaultGeometry();
-            assertTrue(obj instanceof Point);
-            Point p = (Point) obj;
-            double x = p.getX();
-            double y = p.getY();
-            assertEquals(10D, x, 1E-5);
-            assertEquals(10D, y, 1E-5);
-        }
-
-        transaction.commit();
-        assertEquals(1, source.getCount(Query.ALL));
-
+        //add a feature to store2
         content[0] = "Feature name 2";
-        content[1] = reader.read("POINT (2 2)");
+        content[1] = reader.read("POINT (20 20)");
         feature = SimpleFeatureBuilder.build(schema, content, (String) null);
         collection = DataUtilities.collection(feature);
+        store2.addFeatures(collection);
 
-        store.addFeatures(collection);
+        //neither transaction committed, both stores expect a count of 1
+        assertEquals(1, store1.getCount(Query.ALL));
 
-        count = store.getCount(Query.ALL);
-        assertEquals(2, count);
+        assertEquals(1, store2.getCount(Query.ALL));
 
-        assertEquals(1, source.getCount(Query.ALL));
-        transaction.rollback();
-        assertEquals(1, store.getCount(Query.ALL));
+        //commit t1, store1 still counts 1, store2 counts 2
+        transaction1.commit();
+        assertEquals(1, store1.getCount(Query.ALL));
 
-        transaction.close();
+        ///assertEquals(2, store2.getCount(Query.ALL));
+        assertEquals(1, store2.getCount(Query.ALL));
 
-        {
-            FeatureIterator<SimpleFeature> features = source.getFeatures().features();
-            SimpleFeature f = features.next();
-            features.close();
-            Object obj = f.getDefaultGeometry();
-            assertTrue(obj instanceof Point);
-            Point p = (Point) obj;
-            double x = p.getX();
-            double y = p.getY();
-            assertEquals(10D, x, 1E-5);
-            assertEquals(10D, y, 1E-5);
-        }
+        //commit t2, overrides the state commited by t1
+        transaction2.commit();
+        assertEquals(1, store1.getCount(Query.ALL));
+        assertEquals(1, store2.getCount(Query.ALL));
     }
 
 }

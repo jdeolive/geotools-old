@@ -88,7 +88,7 @@ public class ArcSDEDataStore implements DataStore {
      */
     final FeatureListenerManager listenerManager = new FeatureListenerManager();
 
-    private final SessionPool connectionPool;
+    final SessionPool connectionPool;
 
     /**
      * ArcSDE registered layers definitions

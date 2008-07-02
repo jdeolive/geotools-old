@@ -231,4 +231,5 @@ public interface ISession {
      */
     public abstract SeVersion getDefaultVersion() throws IOException;
 
+    public SeState createChildState(long parentStateId) throws IOException;
 }

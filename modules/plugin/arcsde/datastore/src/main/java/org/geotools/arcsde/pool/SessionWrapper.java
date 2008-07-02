@@ -298,4 +298,8 @@ public class SessionWrapper implements ISession {
         return wrapped.getDefaultVersion();
     }
 
+    public SeState createChildState(long parentStateId) throws IOException {
+        return wrapped.createChildState(parentStateId);
+    }
+
 }

@@ -1276,4 +1276,17 @@ public class ArcSDEJavaApiTest extends TestCase {
                 newVersionState);
         assertEquals(0, newVersionCount);
     }
+
+    private void insertIntoDifferentTransactionsAndMerge(ISession session) throws IOException{
+        SeVersion defaultVersion = session.getDefaultVersion();
+        SeState currentState = session.createState(defaultVersion.getStateId());
+        if(currentState.isOpen()){
+            try{
+                currentState.close();
+            }catch(SeException e){
+                
+            }
+        }
+       // SeState newState1 = session.createchi
+    }
 }

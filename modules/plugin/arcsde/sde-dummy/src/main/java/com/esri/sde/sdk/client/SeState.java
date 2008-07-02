@@ -38,4 +38,13 @@ public class SeState {
     public void open()throws SeException {
     }
 
+    public void freeLock()throws SeException {
+    }
+
+    public void lock()throws SeException {
+    }
+
+    public void merge(SeObjectId id, SeObjectId id2)throws SeException {
+    }
+
 }
