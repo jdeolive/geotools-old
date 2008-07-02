@@ -1,15 +1,20 @@
 Unsupported CACHING
+~~~~~~~~~~~~~~~~~~~
 
-Review Adrian Custer, June 2008
+  IP Review:
+ 
+    * Adrian Custer, June 2008
 
-STATUS: 
+  STATUS: 
   NEEDS REVIEW: 
     License is okay but we may need to give copyright to Marios 
     Hadjieleftheriou on most of these files. Certainly, the files which are 
     fully under his copyright can only be licensed under the LGPL.
     
     Email sent for clarification.
+
     ==> Response was
+------------------------------------------------------------------------
 Hi,
 
 Part of the code in org/geotools/caching/spatialindex was indeed
@@ -28,18 +33,19 @@ Hope this is useful.
 Cheers,
 
 Christophe
+------------------------------------------------------------------------
 
-This appears to be a Summer of code project to implement some feature caching 
-system. See the README file for details.
+  This appears to be a Summer of code project to implement some feature caching 
+  system. See the README file for details.
 
 
 
 
-org/geotools/caching/spatialindex/
---------------------------------------------
-
-All files are LGPL, some with the following header:
+* org/geotools/caching/spatialindex/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  All files are LGPL, some with the following header:
   
+------------------------------------------------------------------------
 // Spatial Index Library
 //
 // Copyright (C) 2002  Navel Ltd.
@@ -68,5 +74,4 @@ All files are LGPL, some with the following header:
 //
 //  Email:
 //    marioh@cs.ucr.edu
-
-
+------------------------------------------------------------------------

@@ -1,18 +1,25 @@
 Module DB2
-==========
-Module Maintainer David Adler
-Review by Jody Garnett, July 9th, 2006
-         Adrian Custer, June 2008
+~~~~~~~~~~
 
-STATUS: see below. Also we need to document the source of the sample-data.
+  Module Maintainer: David Adler
 
-This module is interesting in that it operatings against a comercial database, leaving us without the
-rights to distribute a jdbc driver in jar form. As with other modules in this situtation we need to 
-produce a stub jar based on what is needed to make the module compile. This is viewed as being similar
-in spirit to use of a C++ header file and not of interest in an IP review.
+  IP Review:
 
-The header contained in this file leaves me with a question:
+    * Jody Garnett, July 9th, 2006
 
+    * Adrian Custer, June 2008
+
+
+  STATUS: see below. Also we need to document the source of the sample-data.
+
+  This module is interesting in that it operatings against a comercial database, leaving us without the
+  rights to distribute a jdbc driver in jar form. As with other modules in this situtation we need to
+  produce a stub jar based on what is needed to make the module compile. This is viewed as being similar
+  in spirit to use of a C++ header file and not of interest in an IP review.
+
+  The header contained in this file leaves me with a question:
+
+-------------------------------------------------------------------------
 /*
  *    Geotools2 - OpenSource mapping toolkit
  *    http://geotools.org
@@ -29,25 +36,27 @@ The header contained in this file leaves me with a question:
  *    Lesser General Public License for more details.
  *
  */
- 
-That is this code is has not had copyright assigned to the GeoTools PMC,
-so I am uncomfortable updating the headers with out first talking to
-David Adler.
+-------------------------------------------------------------------------
 
-We can either proceed to assign copyright to the GeoTools PMC, or wait
-until we move to OSGEO giving IBM a chance to formally donate code to
-the OSGO Foundation.
+  That is this code is has not had copyright assigned to the GeoTools PMC,
+  so I am uncomfortable updating the headers with out first talking to
+  David Adler.
 
-Note we have publically thanks IBM for their involvement with GeoTools
-at the first Where 2.0 conference. This (C) with all rights reserved
-was a surprise to me.
+  We can either proceed to assign copyright to the GeoTools PMC, or wait
+  until we move to OSGEO giving IBM a chance to formally donate code to
+  the OSGO Foundation.
 
-org.geotools.data.db2
----------------------
-Added in GeoTools 2.1 to facilitate use of DB2 with GeoServer and uDig.
+  Note we have publically thanks IBM for their involvement with GeoTools
+  at the first Where 2.0 conference. This (C) with all rights reserved
+  was a surprise to me.
 
 
-IP:
-- Headers updated to  GeoTools - OpenSource mapping toolkit
-- (C) IBM presents a management issues
-- LGPL license is compatible, so library use at least is not compromized
+* org.geotools.data.db2
+  ~~~~~~~~~~~~~~~~~~~~~
+  Added in GeoTools 2.1 to facilitate use of DB2 with GeoServer and uDig.
+
+    * Headers updated to  GeoTools - OpenSource mapping toolkit
+
+    * (C) IBM presents a management issues
+
+    * LGPL license is compatible, so library use at least is not compromized

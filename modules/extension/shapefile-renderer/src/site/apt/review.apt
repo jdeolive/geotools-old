@@ -1,19 +1,29 @@
 EXTENTION SHAPEFILE RENDERER
-============================
-Module Maintainer Jesse Eichar
-IP Review:
-- Jody Garnett, August 6th, 2006
- Adrian Custer, June 2008
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-STATUS: Clean
+  Module Maintainer: Jesse Eichar
 
+  IP Review:
 
-org.geotools.data.shapefile
-org.geotools.renderer.shape
----------------------------
-Optimized renderer for shapefiles, developed as part of the uDig project.
+    * Jody Garnett, August 6th, 2006
+
+    * Adrian Custer, June 2008
 
 
-org.geotools.data.shapefile.shp (test)
-org.geotools.renderer.shape (test)
----------------------------
+  STATUS: Clean
+
+
+* org.geotools.data.shapefile
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* org.geotools.renderer.shape
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Optimized renderer for shapefiles, developed as part of the uDig project.
+
+
+* org.geotools.data.shapefile.shp (test)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+* org.geotools.renderer.shape (test)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

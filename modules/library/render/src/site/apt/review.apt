@@ -1,47 +1,49 @@
 MODULE RENDER
-=============
-Module Maintainer:
-- Jesse Eichar
+~~~~~~~~~~~~~
 
-IP Review:
-- Jody Garnett, August 6th, 2006
-- Adrian Custer, June 6th 2008
+  Module Maintainer: Jesse Eichar
 
-STATUS
+  IP Review:
+    * Jody Garnett, August 6th, 2006
+
+    * Adrian Custer, June 6th 2008
+
+
+  STATUS:
   CLEAN with minor issues below
-    Presume copyright transfer from (C) 2002, Centre for Computational Geography
 
-org.geotools.renderer
----------------------
-Contains a "unified" rendering interface for which several implementations have been
-made available.
+  * Presume copyright transfer from (C) 2002, Centre for Computational Geography
+
+
+
+* org.geotools.renderer
+  ~~~~~~~~~~~~~~~~~~~~~
+  Contains a "unified" rendering interface for which several implementations have been
+  made available.
 
   
-org.geotools.renderer.lite
---------------------------
-Andrea's experimental simplified rendering pipeline, on the grounds that simple
-code can be debugged, and go fast.
+* org.geotools.renderer.lite
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Andrea's experimental simplified rendering pipeline, on the grounds that simple
+  code can be debugged, and go fast.
 
-IP:
-- ListenerList appears to hava JFace javadocs ... this needs to be fixed (or reimplemented)
-
-
-org.geotools.renderer.lite.gridcoverage2d
------------------------------------------
-Think this was recently added from the coverage branch, (C) says 2002 ... going to guess 2005.
+    * ListenerList appears to hava JFace javadocs ... this needs to be fixed (or reimplemented)
 
 
-org.geotools.renderer.style
----------------------------
-Some code here dates back to 2003, appears to be some cross over with the geovista project (supporting
-dynamic style obejcts and the like).
+* org.geotools.renderer.lite.gridcoverage2d
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Think this was recently added from the coverage branch, (C) says 2002 ... going to guess 2005.
 
 
-org.geotools.renderer.lite (test)
-org.geotools.renderer.style (test)
----------------------------
-Fun with JUnit.
+* org.geotools.renderer.style
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Some code here dates back to 2003, appears to be some cross over with the geovista project (supporting
+  dynamic style obejcts and the like).
 
-IP:
-- some test case headers are cleary (C) 2002, so will need to use svn history 
-  to sort this module out
+
+* org.geotools.renderer.[lite|style] (test)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Fun with JUnit.
+
+    * some test case headers are cleary (C) 2002, so will need to use svn history 
+      to sort this module out.

@@ -1,13 +1,16 @@
-Community-Schemas:
+Community-Schemas
+~~~~~~~~~~~~~~~~~
+
   A project to test the new feature model based on user
   generated schemata.
 
-Review: Adrian Custer, June 2008
+  IP Review:
+ 
+    * Adrian Custer, June 2008
 
-STATUS: Code is clean; data sources unknown.
+  STATUS: Code is clean; data sources unknown.
   There's also the infamous DateUtil with a double Copyright.
 
-There are a bunch of xml/.xsd data/schema file pairs, 
-which were presumably generated for this project but 
-their licensing needs to be documented.
-
+  There are a bunch of xml/.xsd data/schema file pairs, 
+  which were presumably generated for this project but 
+  their licensing needs to be documented.

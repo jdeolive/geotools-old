@@ -1,20 +1,23 @@
 Plugin EPSG HSQL
-----------------
-Module Maintainer: Martin
-IP Review Jody Garnett, July 9th, 2006
-          Adrian Custer, June 2008
+~~~~~~~~~~~~~~~~
 
-STATUS: CLEAN need confirm for use of EPSG database.
+  Module Maintainer: Martin
+
+  IP Review:
+
+    * Jody Garnett, July 9th, 2006
+
+    * Adrian Custer, June 2008
+
+  STATUS: CLEAN need confirm for use of EPSG database.
 
 
-This module includes data generated from the EPSG access database, would like to 
-see the details of distribution (and redistribution) documented somewhere please.
+  This module includes data generated from the EPSG access database, would like to
+  see the details of distribution (and redistribution) documented somewhere please.
 
 
-org.geotools.referencing.factory.epsg
--------------------------------------
+* org.geotools.referencing.factory.epsg
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-IP:
-- contains a copy of the epsg data base tweaked for hibernate, need to check 
-  redistribution policy.
-
+  *  contains a copy of the epsg data base tweaked for hibernate, need to check
+     redistribution policy.

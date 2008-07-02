@@ -1,8 +1,11 @@
 Module ImageMosaic
-===============
-Review By Simone Giannecchini, it is a go.
-         Adrian Custer, July 2008
+~~~~~~~~~~~~~~~~~~
 
-STATUS: Clean except from unknown test data (3.4M) whose origin needs to be 
- documented.
+  IP Review:
 
+    * Simone Giannecchini
+
+    * Adrian Custer, July 2008
+
+  STATUS: Clean except from unknown test data (3.4M) whose origin needs to be
+  documented.

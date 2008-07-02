@@ -1,45 +1,48 @@
 EXTENTION VALIDATION
-====================
-Module Maintainer:
-- Brent Owens
-- David Zwiers
-- Jody Garnett
-IP Review:
-- Jody Garnett, August 7th, 2006
- Adrian Custer, June 2008
+~~~~~~~~~~~~~~~~~~~~
 
-STATUS: Clean
- validation.dto shema "probably needs a note" (see below)
+  Module Maintainer: Brent Owens, David Zwiers, Jody Garnett
+
+  IP Review:
+
+    * Jody Garnett, August 7th, 2006
+
+    * Adrian Custer, June 2008
 
 
+  STATUS: Clean.
+  validation.dto shema "probably needs a note" (see below)
 
 
-org.geotools.validation
------------------------
-Outlines the validaiton framework and infrastructure.
 
-org.geotools.validation.attributes
-----------------------------------
-Attribute validaiton, aka what SQL is good at checking.
 
-org.geotools.validation.dto
----------------------------
-Beans use dto hold data enroute from xml to memory ...
-IP:
-- schema probably needs a note
+* org.geotools.validation
+  ~~~~~~~~~~~~~~~~~~~~~~~
+  Outlines the validaiton framework and infrastructure.
 
-org.geotools.validation.network
-org.geotools.validation.relate
-org.geotools.validation.spatial
--------------------------------
-Remaining validation test, nothing that exciting.
 
-org.geotools.validation.xml
----------------------------
+* org.geotools.validation.attributes
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Attribute validaiton, aka what SQL is good at checking.
 
-org.geotools.validation (test)
-org.geotools.validation.attributes (test)
-org.geotools.validation.relate (test)
-------------------------------
-Bleah, the horribe memory leak test, the first brute force abuse of geotools 
-datastore api.
+
+* org.geotools.validation.dto
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Beans use dto hold data enroute from xml to memory ...
+
+    * schema probably needs a note
+
+
+* org.geotools.validation.[network|relate|spatial]
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Remaining validation test, nothing that exciting.
+
+
+* org.geotools.validation.xml
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+* org.geotools.validation.[attributes|relate] (test)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Bleah, the horribe memory leak test, the first brute force abuse of geotools
+  datastore api.

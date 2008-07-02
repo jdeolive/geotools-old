@@ -1,31 +1,40 @@
 PLUGIN WFS
-==========
-Module Maintainer: David Zwiers
-IP Review:
-- Jody Garnett, August 7th, 2006
- Adrian Custer, June 2008
- 
-STATUS Clean
+~~~~~~~~~~~~~~~~~~~~~
+
+  Module Maintainer: David Zwiers
+
+  IP Review:
+
+    * Jody Garnett, August 7th, 2006
+
+    * Adrian Custer, June 2008
+
+
+  STATUS: Clean
 
 
 
-org.geotools.catalog.wfs
-------------------------
+* org.geotools.catalog.wfs
+  ~~~~~~~~~~~~~~~~~~~~~~~~
 
-org.geotools.data.ows
----------------------
 
-org.geotools.data.wfs
----------------------
+* org.geotools.data.ows
+  ~~~~~~~~~~~~~~~~~~~~~
 
-org.geotools.xml.gml
---------------------
-Looks to be jesse adding a hack.
 
-org.geotools.xml.wfs
---------------------
+* org.geotools.data.wfs
+  ~~~~~~~~~~~~~~~~~~~~~
 
-org.geotools.data.wfs (test)
-org.geotools.data.wfs.demo (test)
---------------------------
-Fun w/ junit.
+
+* org.geotools.xml.gml
+  ~~~~~~~~~~~~~~~~~~~~
+  Looks to be jesse adding a hack.
+
+
+* org.geotools.xml.wfs
+  ~~~~~~~~~~~~~~~~~~~~
+
+
+* org.geotools.data.wfs.[demo] (test)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Fun w/ junit.

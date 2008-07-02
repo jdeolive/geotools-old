@@ -1,19 +1,25 @@
 Module API
-==========
-Module Maintainer Jody Garnett
-IP Review Jody Garnett, July 8th, 2006 (as part of api module)
-IP Review Jody Garnett, July 20th, 2006 (as part of api module)
-IP Review Jody Garnett, April 1, 2008
-         Adrian Custer, June 2008
+~~~~~~~~~~
 
-STATUS: Clean
+  Module Maintainer: Jody Garnett
+
+  IP Review:
+ 
+    * Jody Garnett, July 8th, 2006 (as part of api module)
+
+    * Jody Garnett, July 20th, 2006 (as part of api module)
+
+    * Jody Garnett, April 1, 2008
+
+    * Adrian Custer, June 2008
+
+
+    STATUS: Clean
 
  
-org.geotools.repository
---------------------
-Provides a catalog capable of managing resources and their associated connections.
+* org.geotools.repository
+  ~~~~~~~~~~~~~~~~~~~~~~~
+  Provides a catalog capable of managing resources and their associated connections.
 
-This code started out as part of the uDig project (LGPL) and has been ported for 
-GeoTools 2.2.x.
-
-
+  This code started out as part of the uDig project (LGPL) and has been ported for 
+  GeoTools 2.2.x.

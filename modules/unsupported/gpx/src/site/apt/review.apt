@@ -1,15 +1,15 @@
 Unsupported GPX
----------------
+~~~~~~~~~~~~~~~
 
-Review Adrian Custer, June 2008
+  IP Review:
 
-STATUS: Clean
+    * Adrian Custer, June 2008
 
-
-This is a datastore to read GPX format files for GPS points. Compare this to 
-unsupported/xml-gpx.
-
-Headers are all clean, there is one trivial test file that should not cause any 
-objections however it was produced.
+  STATUS: Clean
 
 
+  This is a datastore to read GPX format files for GPS points. Compare this to 
+  unsupported/xml-gpx.
+
+  Headers are all clean, there is one trivial test file that should not cause any 
+  objections however it was produced.

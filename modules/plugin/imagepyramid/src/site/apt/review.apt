@@ -1,6 +1,11 @@
 Module ImagePyramid
-===============
-Review By Simone Giannecchini, it is a go.
-          Adrian Custer, June 2008
+~~~~~~~~~~~~~~~~~~~
 
-STATUS: Clean except for 1.5M of data from unknown origin.
+  IP Review:
+
+    * Simone Giannecchini
+
+    * Adrian Custer, June 2008
+
+
+  STATUS: Clean except for 1.5M of data from unknown origin.

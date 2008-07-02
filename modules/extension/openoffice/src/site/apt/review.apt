@@ -1,11 +1,16 @@
 EXT OPENOFFICE
-==============
-Module Maintainer Martin
-IP Review Jody Garnett July 31st
-         Adrian Custer, June 2008
+~~~~~~~~~~~~~~
 
-STATUS: CLEAN
+  Module Maintainer: Martin
 
-org.geotools.openoffice
------------------------
-A referencing pluing for OpenOffice.org
+  IP Review:
+
+    * Jody Garnett July 31st
+
+    * Adrian Custer, June 2008
+
+  STATUS: CLEAN
+
+* org.geotools.openoffice
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  A referencing pluging for OpenOffice.org

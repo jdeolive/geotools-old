@@ -1,20 +1,22 @@
 PLUGIN GTOPO30
-==============
-Module Maintainer Andrea
-IP Review Jody Garnett July 10th, 2006
-         Adrian Custer, June 2008
+~~~~~~~~~~~~~~
 
-STATUS: Clean except that the data provenance is unknown
+  Module Maintainer: Andrea
+
+  IP Review:
+
+    * Jody Garnett July 10th, 2006
+
+    * Adrian Custer, June 2008
+
+  STATUS: Clean except that the data provenance is unknown
 
   src/test/resources/org/geotools/gce/gtopo30/test-data/W002N52.zip ?
-  
+
   The dates of the files look like a mess. Jody already moved some of this to
   2003 or later, now it seems to have moved to 2002. Leaving as is.
 
-org.geotools.gce.gtopo30
-------------------------
-Created to access the GTOPO grid format, all existing code deates from 2005
 
-
-org.geotools.gce.gtopo30
-------------------------
+* org.geotools.gce.gtopo30
+  ~~~~~~~~~~~~~~~~~~~~~~~~
+  Created to access the GTOPO grid format, all existing code deates from 2005

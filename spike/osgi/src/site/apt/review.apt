@@ -1,10 +1,11 @@
-Justin's experiments with OSGi modules.
+  Justin's experiments with OSGi modules.
 
-REview: Adrian CUster, June 2008
+  IP Review:
 
-STATUS: Clean
+    * Adrian CUster, June 2008
 
-Files are all code either java or configuration xml.
+  STATUS: Clean
 
-Updated Java file headers to OSGeo.
+    * Files are all code either java or configuration xml.
 
+    * Updated Java file headers to OSGeo.

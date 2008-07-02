@@ -1,29 +1,33 @@
 MODULE SAMPLE DATA
-==================
-Module Maintainer none!
-IP Review:
-- Jody Garnett, August 6th, 2006
-- Adrian Custer, June 6th 2008
+~~~~~~~~~~~~~~~~~~
 
-STATUS
-  DATA NEEDS REVIEW
+  Module Maintainer: none!
 
-James Macgill is listed as a java developer on this
-one, but there is no offical module maintainer. This
-module has become more important as maven 2 forces us
-into some kind of classloader induced data access madness.
+  IP Review:
 
-org.geotools
-------------
-Contains a single TestData class, with
-lots of data that it can access using
-its jar classloader.
+    * Jody Garnett, August 6th, 2006
 
-IP:
-- QL95209.png is an overview of a Sea Surface Temperature raster
-  received at the station managed by IRD (Institut de Recherche
-  pour le Développement - France) on the Réunion island. Commited
-  on GeoTools SVN by Martin Desruisseaux with the permission of
-  Michel Petit, who is the chief scientist in charge of those data.
+    * Adrian Custer, June 6th 2008
 
-- data of unknown source! We should confirm
+
+  STATUS: DATA NEEDS REVIEW
+
+  James Macgill is listed as a java developer on this
+  one, but there is no offical module maintainer. This
+  module has become more important as maven 2 forces us
+  into some kind of classloader induced data access madness.
+
+
+* org.geotools
+  ~~~~~~~~~~~~
+  Contains a single TestData class, with
+  lots of data that it can access using
+  its jar classloader.
+
+    * QL95209.png is an overview of a Sea Surface Temperature raster
+      received at the station managed by IRD (Institut de Recherche
+      pour le Développement - France) on the Réunion island. Commited
+      on GeoTools SVN by Martin Desruisseaux with the permission of
+      Michel Petit, who is the chief scientist in charge of those data.
+
+    * data of unknown source! We should confirm

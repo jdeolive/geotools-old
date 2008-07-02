@@ -1,55 +1,60 @@
 PLUGIN SHAPEFILE
-================
-Module Maintainer:
-- Ian
-- Jesse
+~~~~~~~~~~~~~~~~
 
-IP Review:
-- Richard Gould, March 2006
-- Jody Garnett, March 2006
-- Jody Garnett, August 6th, 2006
- Adrian Custer, June 2008
+  Module Maintainer: Ian, Jesse
+
+  IP Review:
+
+    * Richard Gould, March 2006
+
+    * Jody Garnett, March 2006
+
+    * Jody Garnett, August 6th, 2006
+
+    * Adrian Custer, June 2008
  
-STATUS: Clean except for two issues below
+
+  STATUS: Clean except for two issues below
 
 
 
-org.geotools.catalog.shapefile
-------------------------------
+* org.geotools.catalog.shapefile
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-org.geotools.data.shapefile
----------------------------
+* org.geotools.data.shapefile
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-org.geotools.data.shapefile.dbf
--------------------------------
-IP:
-- DbaseFileHeader is apparnetly based on something from GISToolkit - see credit:
+* org.geotools.data.shapefile.dbf
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-     This file is based on an origional contained in the GISToolkit project:
-     http://gistoolkit.sourceforge.net/
+    * DbaseFileHeader is apparnetly based on something from GISToolkit - see credit:
+
+-----------------------------------------------------------------------
+This file is based on an origional contained in the GISToolkit project:
+http://gistoolkit.sourceforge.net/
+-----------------------------------------------------------------------
      
-   original is LGPL we are also distributing as LGPL so we are compliant with 
-   the license
+      original is LGPL we are also distributing as LGPL so we are compliant with 
+      the license
 
 
-org.geotools.data.shapefile.prj
--------------------------------
+* org.geotools.data.shapefile.prj
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-org.geotools.data.shapefile.shp
--------------------------------
-IP:
-- File is apparnetly based on something from GISToolkit. Header unchanged. *TO_RESOLVE*
+* org.geotools.data.shapefile.shp
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    * File is apparently based on something from GISToolkit. Header unchanged. *TO_RESOLVE*
 
 
-org.geotools.data.shapefile.shp.xml
------------------------------------
-Added to try and figure out bbox from metadata file, ended up being silly because
-the bounds are already supposed to be in the header.
+* org.geotools.data.shapefile.shp.xml
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Added to try and figure out bbox from metadata file, ended up being silly because
+  the bounds are already supposed to be in the header.
 
 
-org.geotools.data.shapefile (test)
-org.geotools.data.shapefile.shp.xml (test)
------------------------------------
+* org.geotools.data.shapefile.[shp.xml] (test)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

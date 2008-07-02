@@ -1,50 +1,60 @@
 Module data
-===========
-Module Maintainer Jody Garnett, Justin Deolivera
+~~~~~~~~~~~
 
-IP Review Adrian Custer, June 6, 2008
-          Jody Garnett, July 24th, 2006
-          Martin, Feb 1st, 2006
+  Module Maintainer: Jody Garnett, Justin Deolivera
 
-STATUS: June 2008
-  CLEAN
+  IP Review:
+ 
+    * Adrian Custer, June 6, 2008
+
+    * Jody Garnett, July 24th, 2006
+
+    * Martin, Feb 1st, 2006
+
+
+  STATUS as of June 2008: CLEAN
   
-Package origins unknown, I'll leave it to Jody/Justin.
+  Package origins unknown, I'll leave it to Jody/Justin.
 
-STATUS: Feb 1st, 2006
+  STATUS as of Feb 1st, 2006
 
-This package was split from main for GeoTools 2.4.x; as such the following information was origionally in main/review.txt
-
-org.geotools.data
------------------
-The contents of the data package were overhalled for the GeoTools 2.0 release, 
-this package contains the default implementations, and a bit more utility 
-classes then can be sensibly figured out.
+  This package was split from main for GeoTools 2.4.x; as such the following information was origionally in main/review.txt
 
 
-org.geotools.data.collection
-----------------------------
-Included to clean up code as part of GeoTools 2.2, common utility classes.
 
-org.geotools.data.memory
-------------------------
-Created as the API proof of concept for GeoTools 2.0 DataStore API. MemoryDataStore 
-added for GeoTools 2.0 (although really a port of DefaulFeatureCollection).
-
-org.geotools.data.ows
----------------------
-Added to support OGC Open Web Services constructs, for WMS client code and WFS
- datastore code. Implemened for GeoTools 2.1 as part of the uDig project.
-
-org.geotools.data.store
------------------------
-Remaining code from first cut at supporting metadata, code retained as the start 
-of a replacement for AbstractDataStore based on what we have learned. Code 
-origionally based on GeoServer internals, for end product see the catalog 
-package.
+* org.geotools.data
+  ~~~~~~~~~~~~~~~~~
+  The contents of the data package were overhalled for the GeoTools 2.0 release, 
+  this package contains the default implementations, and a bit more utility 
+  classes then can be sensibly figured out.
 
 
-org.geotools.data.view
-----------------------
-Support read only view on feature source information, port of internal GPL 
-GeoServer code donated to PMC.
+* org.geotools.data.collection
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Included to clean up code as part of GeoTools 2.2, common utility classes.
+
+
+* org.geotools.data.memory
+  ~~~~~~~~~~~~~~~~~~~~~~~~
+  Created as the API proof of concept for GeoTools 2.0 DataStore API. MemoryDataStore 
+  added for GeoTools 2.0 (although really a port of DefaulFeatureCollection).
+
+
+* org.geotools.data.ows
+  ~~~~~~~~~~~~~~~~~~~~~
+  Added to support OGC Open Web Services constructs, for WMS client code and WFS
+  datastore code. Implemened for GeoTools 2.1 as part of the uDig project.
+
+
+* org.geotools.data.store
+  ~~~~~~~~~~~~~~~~~~~~~~~
+  Remaining code from first cut at supporting metadata, code retained as the start 
+  of a replacement for AbstractDataStore based on what we have learned. Code 
+  origionally based on GeoServer internals, for end product see the catalog 
+  package.
+
+
+* org.geotools.data.view
+  ~~~~~~~~~~~~~~~~~~~~~~
+  Support read only view on feature source information, port of internal GPL 
+  GeoServer code donated to PMC.
