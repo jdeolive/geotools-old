@@ -44,9 +44,9 @@ public class DefaultPosition implements Position {
     /**
      * this object represents one of the data types listed as : Date, Time, DateTime, and TemporalPosition with its subtypes
      */
-    private Object position;
+    private final Object position;
 
-    public DefaultPosition(Date date) {
+    public DefaultPosition(final Date date) {
         this.position = date;
     }
 
@@ -56,7 +56,7 @@ public class DefaultPosition implements Position {
      * @param dateTime
      * @throws java.text.ParseException
      */
-    public DefaultPosition(InternationalString datetime) throws ParseException {
+    public DefaultPosition(final InternationalString datetime) throws ParseException {
         this.position = Utils.getDateFromString(datetime.toString());
     }
 
@@ -64,7 +64,7 @@ public class DefaultPosition implements Position {
      * This constructor set the position property as a TemporalPosition.
      * @param anyOther
      */
-    public DefaultPosition(TemporalPosition anyOther) {
+    public DefaultPosition(final TemporalPosition anyOther) {
         this.position = anyOther;
     }
 
@@ -91,24 +91,19 @@ public class DefaultPosition implements Position {
         }
         if (this.position instanceof TemporalPosition) {
             if (this.position instanceof JulianDate) {
-                DefaultJulianDate julian = (DefaultJulianDate) position;
-                return Utils.JulianToDate(julian);
+                return Utils.JulianToDate((DefaultJulianDate) position);
             }
             if (this.position instanceof DateAndTime) {
-                DateAndTime dateTime = (DateAndTime) position;
-                return Utils.dateAndTimeToDate(dateTime);
+                return Utils.dateAndTimeToDate((DateAndTime) position);
             }
             if (this.position instanceof CalendarDate) {
-                CalendarDate calDate = (CalendarDate) position;
-                return Utils.calendarDateToDate(calDate);
+                return Utils.calendarDateToDate((CalendarDate) position);
             }
             if (this.position instanceof TemporalCoordinate) {
-                TemporalCoordinate temporalCoord = (TemporalCoordinate) position;
-                return Utils.temporalCoordToDate(temporalCoord);
+                return Utils.temporalCoordToDate((TemporalCoordinate) position);
             }
             if (this.position instanceof OrdinalPosition) {
-                OrdinalPosition ordinalPosition = (OrdinalPosition) position;
-                return Utils.ordinalToDate(ordinalPosition);
+                return Utils.ordinalToDate((OrdinalPosition) position);
             }
         }
         return null;

@@ -25,14 +25,10 @@ import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
-import org.geotools.temporal.reference.DefaultOrdinalEra;
 import org.geotools.temporal.reference.DefaultTemporalCoordinateSystem;
-import org.geotools.util.SimpleInternationalString;
 import org.opengis.temporal.CalendarDate;
 import org.opengis.temporal.DateAndTime;
-import org.opengis.temporal.IndeterminateValue;
 import org.opengis.temporal.JulianDate;
-import org.opengis.temporal.OrdinalEra;
 import org.opengis.temporal.OrdinalPosition;
 import org.opengis.temporal.TemporalCoordinate;
 import org.opengis.temporal.TemporalCoordinateSystem;
@@ -83,9 +79,9 @@ public class Utils {
      * @param startInstant
      * @return
      */
-    public static long getTimeFromDuration(String durationString, Date startInstant) throws DatatypeConfigurationException {
-        DatatypeFactory df = DatatypeFactory.newInstance();
-        Duration duration = df.newDuration(durationString);
+    public static long getTimeFromDuration(final String durationString, final Date startInstant) throws DatatypeConfigurationException {
+        final DatatypeFactory df = DatatypeFactory.newInstance();
+        final Duration duration = df.newDuration(durationString);
         return duration.getTimeInMillis(startInstant);
     }
 
@@ -95,32 +91,60 @@ public class Utils {
      * @return
      */
     public static Date getDateFromString(String dateString) throws ParseException {
-        Date response = null;
-        String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-        String DATE_FORMAT2 = "yyyy-MM-dd";
-        SimpleDateFormat sdf = new java.text.SimpleDateFormat(DATE_FORMAT);
-        SimpleDateFormat sdf2 = new java.text.SimpleDateFormat(DATE_FORMAT2);
+        final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
+        final String DATE_FORMAT2 = "yyyy-MM-dd";
+        final String DATE_FORMAT3 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+        final SimpleDateFormat sdf = new java.text.SimpleDateFormat(DATE_FORMAT);
+        final SimpleDateFormat sdf2 = new java.text.SimpleDateFormat(DATE_FORMAT2);
+        final SimpleDateFormat sdf3 = new java.text.SimpleDateFormat(DATE_FORMAT3);
 
         if (dateString.contains("T")) {
-            //set the timezone if exists.
-            String timezone = getTimeZone(dateString);
+            String timezoneStr;
+            int index = dateString.lastIndexOf("+");
+            if (index == -1) {
+                index = dateString.lastIndexOf("-");
+            }
+            if (index > dateString.indexOf("T")) {
+                timezoneStr = dateString.substring(index + 1);
+
+                if (timezoneStr.contains(":")) {
+                    //e.g : 1985-04-12T10:15:30+04:00
+                    timezoneStr = timezoneStr.replace(":", "");
+                    dateString = dateString.substring(0, index + 1).concat(timezoneStr);
+                } else if (timezoneStr.length() == 2) {
+                    //e.g : 1985-04-12T10:15:30-04
+                    dateString = dateString.concat("00");
+                }
+            } else if (dateString.endsWith("Z")) {
+                //e.g : 1985-04-12T10:15:30Z
+                dateString = dateString.substring(0, dateString.length() - 1).concat("+0000");
+            }
+            final String timezone = getTimeZone(dateString);
             sdf.setTimeZone(TimeZone.getTimeZone(timezone));
 
-            response = sdf.parse(dateString);
-        } else {
-            if (dateString.contains("-")) {
-                response = sdf2.parse(dateString);
+            if (dateString.contains(".")) {
+                return sdf3.parse(dateString);
             }
+            return sdf.parse(dateString);
         }
-        return response;
+        if (dateString.contains("-")) {
+            return sdf2.parse(dateString);
+        }
+        return null;
     }
 
-    public static String getTimeZone(String dateString) {
+    public static String getTimeZone(final String dateString) {
+        if (dateString.endsWith("Z")) {
+            return "GMT+" + 0;
+        }
         int index = dateString.lastIndexOf("+");
         if (index == -1) {
             index = dateString.lastIndexOf("-");
         }
-        return "GMT" + dateString.substring(index);
+        if (index > dateString.indexOf("T")) {
+            return "GMT" + dateString.substring(index);
+        }
+        return TimeZone.getDefault().getID();
     }
 
     /**
@@ -199,7 +223,7 @@ public class Utils {
     /**
      * Convert a JulianDate to Date
      */
-    public static Date JulianToDate(JulianDate jdt) {
+    public static Date JulianToDate(final JulianDate jdt) {
         if (jdt == null) {
             return null;
         }
@@ -240,12 +264,12 @@ public class Utils {
      * @param calDate
      * @return
      */
-    public static Date calendarDateToDate(CalendarDate calDate) {
+    public static Date calendarDateToDate(final CalendarDate calDate) {
         if (calDate == null) {
             return null;
         }
-        Calendar calendar = Calendar.getInstance();
-        DefaultCalendarDate caldate = (DefaultCalendarDate) calDate;
+        final Calendar calendar = Calendar.getInstance();
+        final DefaultCalendarDate caldate = (DefaultCalendarDate) calDate;
         if (caldate != null) {
             int[] cal = calDate.getCalendarDate();
             int year = 0;
@@ -273,12 +297,12 @@ public class Utils {
      * @param dateAndTime
      * @return
      */
-    public static Date dateAndTimeToDate(DateAndTime dateAndTime) {
+    public static Date dateAndTimeToDate(final DateAndTime dateAndTime) {
         if (dateAndTime == null) {
             return null;
         }
-        Calendar calendar = Calendar.getInstance();
-        DefaultDateAndTime dateTime = (DefaultDateAndTime) dateAndTime;
+        final Calendar calendar = Calendar.getInstance();
+        final DefaultDateAndTime dateTime = (DefaultDateAndTime) dateAndTime;
         if (dateTime != null) {
             int[] cal = dateTime.getCalendarDate();
             int year = 0;
@@ -321,12 +345,12 @@ public class Utils {
      * Convert a TemporalCoordinate object to Date.
      * @param temporalCoord
      */
-    public static Date temporalCoordToDate(TemporalCoordinate temporalCoord) {
+    public static Date temporalCoordToDate(final TemporalCoordinate temporalCoord) {
         if (temporalCoord == null) {
             return null;
         }
-        Calendar calendar = Calendar.getInstance();
-        DefaultTemporalCoordinate timeCoord = (DefaultTemporalCoordinate) temporalCoord;
+        final Calendar calendar = Calendar.getInstance();
+        final DefaultTemporalCoordinate timeCoord = (DefaultTemporalCoordinate) temporalCoord;
         Number value = timeCoord.getCoordinateValue();
         if (timeCoord.getFrame() instanceof TemporalCoordinateSystem) {
             DefaultTemporalCoordinateSystem coordSystem = (DefaultTemporalCoordinateSystem) timeCoord.getFrame();
@@ -359,18 +383,37 @@ public class Utils {
             throw new IllegalArgumentException("The frame of this TemporalCoordinate object must be an instance of TemporalCoordinateSystem");
         }
     }
-    
-    public static Date ordinalToDate(OrdinalPosition ordinalPosition) {
-        if (ordinalPosition == null)
+
+    public static Date ordinalToDate(final OrdinalPosition ordinalPosition) {
+        if (ordinalPosition == null) {
             return null;
-        Calendar calendar = Calendar.getInstance();
+        }
+        final Calendar calendar = Calendar.getInstance();
         if (ordinalPosition.getOrdinalPosition() != null) {
             Date beginEra = ordinalPosition.getOrdinalPosition().getBeginning();
             Date endEra = ordinalPosition.getOrdinalPosition().getEnd();
-            Long middle =((endEra.getTime() - beginEra.getTime()) / 2) + beginEra.getTime();
+            Long middle = ((endEra.getTime() - beginEra.getTime()) / 2) + beginEra.getTime();
             calendar.setTimeInMillis(middle);
             return calendar.getTime();
+        } else {
+            return null;
         }
-        else return null;
+    }
+
+    public static void main(String[] args) throws ParseException {
+
+        String s1 = "1985-04-12T10:15:30+04:00"; //timeZone = +04:00
+        String s2 = "2007-01-26T12:19:05Z"; //timeZone = Z
+        String s3 = "1985-04-12T10:15:30-04"; //timeZone = -04
+        String s4 = "1985-04-12T10:17:30+0400"; //timeZone = +0400
+        String s5 = "1985-04-12T10:15:30.546+0400"; // date with millisecond
+        String s6 = "1985-04-12"; //elementary format
+
+        System.out.println(">>>>>>> s1 = " + Utils.getDateFromString(s1));
+        System.out.println(">>>>>>> s2 = " + Utils.getDateFromString(s2));
+        System.out.println(">>>>>>> s3 = " + Utils.getDateFromString(s3));
+        System.out.println(">>>>>>> s4 = " + Utils.getDateFromString(s4));
+        System.out.println(">>>>>>> s5 = " + Utils.getDateFromString(s5).getTime());
+        System.out.println(">>>>>>> s6 = " + Utils.getDateFromString(s6));
     }
 }
