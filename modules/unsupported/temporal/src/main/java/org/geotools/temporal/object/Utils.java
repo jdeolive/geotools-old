@@ -399,21 +399,4 @@ public class Utils {
             return null;
         }
     }
-
-    public static void main(String[] args) throws ParseException {
-
-        String s1 = "1985-04-12T10:15:30+04:00"; //timeZone = +04:00
-        String s2 = "2007-01-26T12:19:05Z"; //timeZone = Z
-        String s3 = "1985-04-12T10:15:30-04"; //timeZone = -04
-        String s4 = "1985-04-12T10:17:30+0400"; //timeZone = +0400
-        String s5 = "1985-04-12T10:15:30.546+0400"; // date with millisecond
-        String s6 = "1985-04-12"; //elementary format
-
-        System.out.println(">>>>>>> s1 = " + Utils.getDateFromString(s1));
-        System.out.println(">>>>>>> s2 = " + Utils.getDateFromString(s2));
-        System.out.println(">>>>>>> s3 = " + Utils.getDateFromString(s3));
-        System.out.println(">>>>>>> s4 = " + Utils.getDateFromString(s4));
-        System.out.println(">>>>>>> s5 = " + Utils.getDateFromString(s5).getTime());
-        System.out.println(">>>>>>> s6 = " + Utils.getDateFromString(s6));
-    }
 }
