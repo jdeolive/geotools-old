@@ -97,12 +97,13 @@ final class PropertyMap extends AbstractMap<String,Object> {
      * Associates the specified value with the specified key in this map.
      *
      * @throws IllegalArgumentException if the specified property can't be set.
+     * @throws ClassCastException if the given value is not of the expected type.
      */
     @Override
-    public Object put(final String key, final Object value)
-            throws IllegalArgumentException
+   public Object put(final String key, final Object value)
+            throws IllegalArgumentException, ClassCastException
     {
-        return accessor.set(accessor.indexOf(key), metadata, value);
+        return accessor.set(accessor.requiredIndexOf(key), metadata, value);
     }
 
     /**
@@ -170,8 +171,10 @@ final class PropertyMap extends AbstractMap<String,Object> {
 
         /**
          * Replaces the value corresponding to this entry with the specified value.
+         *
+         * @throws ClassCastException if the given value is not of the expected type.
          */
-        public Object setValue(Object value) {
+        public Object setValue(Object value) throws ClassCastException {
             return accessor.set(index, metadata, value);
         }
 

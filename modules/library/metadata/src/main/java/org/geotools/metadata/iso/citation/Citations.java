@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -594,6 +594,9 @@ public final class Citations {
      * Returns the shortest identifier for the specified citation, or the title if there is
      * no identifier. This method is useful for extracting the namespace from an authority,
      * for example {@code "EPSG"}.
+     *
+     * @param citation The citation for which to get the identifier.
+     * @return The shortest identifier of the given citation.
      *
      * @since 2.4
      */

@@ -16,21 +16,33 @@
  */
 package org.geotools.metadata;
 
+import java.io.File;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.util.LinkedHashSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.opengis.annotation.UML;
+import org.opengis.util.InternationalString;
+
 import org.geotools.util.Utilities;
 import org.geotools.resources.XArray;
-import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.util.CheckedCollection;
+import org.geotools.util.SimpleInternationalString;
 
 
 /**
@@ -42,6 +54,11 @@ import org.geotools.resources.i18n.Errors;
  * @author Martin Desruisseaux
  */
 final class PropertyAccessor {
+    /**
+     * The locale to use for changing character case.
+     */
+    private static final Locale LOCALE = Locale.US;
+
     /**
      * The prefix for getters on boolean values.
      */
@@ -101,6 +118,13 @@ final class PropertyAccessor {
     private final Method[] setters;
 
     /**
+     * Index of getter or setter for a given name. The name must be all lower cases with
+     * conversion done using {@link #LOCALE}. This map must be considered as immutable
+     * after construction.
+     */
+    private final Map<String,Integer> mapping;
+
+    /**
      * Creates a new property reader for the specified metadata implementation.
      *
      * @param  metadata The metadata implementation to wrap.
@@ -112,15 +136,29 @@ final class PropertyAccessor {
         this.type = type;
         assert type.isAssignableFrom(implementation) : implementation;
         getters = getGetters(type);
+        mapping = new HashMap<String,Integer>(getters.length + (getters.length + 3) / 4);
         Method[] setters = null;
         final Class<?>[] arguments = new Class[1];
         for (int i=0; i<getters.length; i++) {
-            Method getter = getters[i];
-            Method setter; // To be determined later
+            /*
+             * Fetch the getter and remind its name. We do the same for
+             * the UML tag attached to the getter, if any.
+             */
+            final Integer index = i;
+            Method getter  = getters[i];
+            String name    = getter.getName();
+            final int base = prefix(name).length();
+            addMapping(name.substring(base), index);
+            final UML annotation = getter.getAnnotation(UML.class);
+            if (annotation != null) {
+                addMapping(annotation.identifier(), index);
+            }
+            /*
+             * Now try to infer the setter from the getter. We replace the "get" prefix by
+             * "set" and look for a parameter of the same type than the getter return type.
+             */
             Class<?> returnType = getter.getReturnType();
             arguments[0] = returnType;
-            String name  = getter.getName();
-            final int base = prefix(name).length();
             if (name.length() > base) {
                 final char lo = name.charAt(base);
                 final char up = Character.toUpperCase(lo);
@@ -130,6 +168,7 @@ final class PropertyAccessor {
                     name = SET + name.substring(base);
                 }
             }
+            Method setter;
             try {
                 setter = implementation.getMethod(name, arguments);
             } catch (NoSuchMethodException e) {
@@ -162,6 +201,22 @@ final class PropertyAccessor {
             setters[i] = setter;
         }
         this.setters = setters;
+    }
+
+    /**
+     * Adds the given (name, index) pair to {@link #mapping}, making sure we don't
+     * overwrite an existing entry with different value.
+     */
+    private void addMapping(String name, final Integer index) throws IllegalArgumentException {
+        name = name.trim();
+        if (name.length() != 0) {
+            final String lower = name.toLowerCase(LOCALE);
+            final Integer old = mapping.put(lower, index);
+            if (old != null && !old.equals(index)) {
+                throw new IllegalArgumentException(Errors.format(
+                        ErrorKeys.PARAMETER_NAME_CLASH_$4, name, index, lower, old));
+            }
+        }
     }
 
     /**
@@ -229,7 +284,7 @@ final class PropertyAccessor {
      * since it may be shared among many instances of {@code PropertyAccessor}.
      *
      * @param  type The metadata interface.
-     * @return The getters declared in the given interface.
+     * @return The getters declared in the given interface (never {@code null}).
      */
     private static Method[] getGetters(final Class<?> type) {
         synchronized (SHARED_GETTERS) {
@@ -309,18 +364,31 @@ final class PropertyAccessor {
     /**
      * Returns the index of the specified property, or -1 if none.
      * The search is case-insensitive.
+     *
+     * @param  key The property to search.
+     * @return The index of the given key, or -1 if none.
      */
     final int indexOf(String key) {
+        key = key.trim().toLowerCase(LOCALE);
+        final Integer index = mapping.get(key);
+        return (index != null) ? index.intValue() : -1;
+    }
+
+    /**
+     * Always returns the index of the specified property (never -1).
+     * The search is case-insensitive.
+     *
+     * @param  key The property to search.
+     * @return The index of the given key.
+     * @throws IllegalArgumentException if the given key is not found.
+     */
+    final int requiredIndexOf(String key) throws IllegalArgumentException {
         key = key.trim();
-        for (int i=0; i<getters.length; i++) {
-            final String name = getters[i].getName();
-            final int base    = prefix(name).length();
-            final int length  = key.length();
-            if (name.length() == base + length && name.regionMatches(true, base, key, 0, length)) {
-                return i;
-            }
+        final Integer index = mapping.get(key.toLowerCase(LOCALE));
+        if (index != null) {
+            return index;
         }
-        return -1;
+        throw new IllegalArgumentException(Errors.format(ErrorKeys.UNKNOW_PARAMETER_NAME_$1, key));
     }
 
     /**
@@ -372,7 +440,7 @@ final class PropertyAccessor {
     /**
      * Returns the type of the property at the given index.
      */
-    final Class type(final int index) {
+    final Class<?> type(final int index) {
         if (index >= 0 && index < getters.length) {
             return getters[index].getReturnType();
         }
@@ -420,16 +488,17 @@ final class PropertyAccessor {
     }
 
     /**
-     * Set a value for the specified metadata.
+     * Sets a value for the specified metadata.
      *
      * @param  index The index of the property to set.
      * @param  metadata The metadata object on which to set the value.
      * @param  value The new value.
      * @return The old value.
      * @throws IllegalArgumentException if the specified property can't be set.
+     * @throws ClassCastException if the given value is not of the expected type.
      */
     final Object set(final int index, final Object metadata, final Object value)
-            throws IllegalArgumentException
+            throws IllegalArgumentException, ClassCastException
     {
         String key;
         if (index >= 0 && index < getters.length && setters != null) {
@@ -437,7 +506,7 @@ final class PropertyAccessor {
             final Method setter = setters[index];
             if (setter != null) {
                 final Object old = get(getter, metadata);
-                set(setter, metadata, new Object[] {value});
+                set(getter, setter, metadata, new Object[] {value});
                 return old;
             } else {
                 key = getter.getName();
@@ -453,12 +522,118 @@ final class PropertyAccessor {
      * Sets a value for the specified metadata. We do not expect any checked exception to
      * be thrown.
      *
-     * @param method The method to use for the query.
+     * @param getter The method to use for fetching the previous value.
+     * @param setter The method to use for setting the new value.
      * @param metadata The metadata object to query.
+     * @param arguments The argument to give to the method to be invoked.
+     * @throws ClassCastException if at least one element of the {@code arguments} array
+     *         is not of the expected type.
      */
-    private static void set(final Method method, final Object metadata, final Object[] arguments) {
+    private static void set(final Method getter, final Method setter,
+                            final Object metadata, final Object[] arguments)
+            throws ClassCastException
+    {
+        final Class<?>[] paramTypes = setter.getParameterTypes();
+        for (int i=0; i<paramTypes.length; i++) {
+            final Object argument = arguments[i];
+            if (argument == null) {
+                continue; // Null argument (which is valid): nothing to do.
+            }
+            final Class<?> paramType = paramTypes[i];
+            if (paramType.isInstance(argument)) {
+                continue; // Argument is of the expected type: nothing to do.
+            }
+            /*
+             * If an argument is not of the expected type, tries to convert it.
+             * We handle two cases:
+             *
+             *   - Strings to be converted to Number, File, URL, etc.
+             *   - Singleton to be added into an existing collection.
+             *
+             * We check for the collection case first in order to extract the element
+             * type, which will be used for String conversions (if applicable) later.
+             * The collections are handled in one of the two ways below:
+             *
+             *   - If the user gives a collection, the user's collection replaces any
+             *     previous one. The content of the previous collection is discarted.
+             *
+             *   - If the user gives a singleton, the single value is added to existing
+             *     collection (if any). The previous values are not discarted. This
+             *     allow for incremental filling of an attribute.
+             */
+            final Collection<?> addTo;
+            final Class<?> elementType;
+            if (Collection.class.isAssignableFrom(paramType) && !(argument instanceof Collection)) {
+                // Expected a collection but got a singleton.
+                addTo = (Collection) get(getter, metadata);
+                if (addTo instanceof CheckedCollection) {
+                    elementType = ((CheckedCollection) addTo).getElementType();
+                } else {
+                    Class<?> c = Classes.boundOfParameterizedAttribute(setter);
+                    if (c == null) {
+                        c = Classes.boundOfParameterizedAttribute(getter);
+                    }
+                    elementType = (c != null) ? c : Object.class;
+                }
+            } else {
+                addTo = null;
+                elementType = paramType;
+            }
+            /*
+             * Handles the strings in a special way (converting to URI, URL, File,
+             * Number, etc.). If there is no known way to parse the string, or if
+             * the parsing failed, an exception is thrown.
+             */
+            Object parsed = null;
+            Exception failure = null;
+            if (argument instanceof CharSequence) {
+                final String text = argument.toString();
+                if (InternationalString.class.isAssignableFrom(elementType)) {
+                    parsed = new SimpleInternationalString(text);
+                } else if (File.class.isAssignableFrom(elementType)) {
+                    parsed = new File(text);
+                } else if (URL.class.isAssignableFrom(elementType)) try {
+                    parsed = new URL(text);
+                } catch (MalformedURLException e) {
+                    failure = e;
+                } else if (URI.class.isAssignableFrom(elementType)) try {
+                    parsed = new URI(text);
+                } catch (URISyntaxException e) {
+                    failure = e;
+                } else try {
+                    parsed = Classes.valueOf(elementType, text);
+                } catch (RuntimeException e) {
+                    // Include IllegalArgumentException and NumberFormatException
+                    failure = e;
+                }
+            }
+            /*
+             * Checks if there is no known conversion, or if the conversion failed. In the later
+             * case the parse failure is saved as the cause. We still throw a ClassCastException
+             * since we get here because the argument was not of the expected type.
+             */
+            if (parsed == null) {
+                final ClassCastException e = new ClassCastException(Errors.format(
+                        ErrorKeys.ILLEGAL_CLASS_$2, argument.getClass(), elementType));
+                e.initCause(failure);
+                throw e;
+            }
+            /*
+             * We now have an object of the appropriate type. If this is a singleton to be added in
+             * an existing collection, add it now and set the new value to the whole collection. In
+             * the later case, we rely on ModifiableMetadata.copyCollection(...) optimization for
+             * detecting that the new collection is the same instance than the old one so there is
+             * nothing to do. We could exit from the method, but let it goes in case the user define
+             * (or override) the 'setFoo(...)' method in an other way.
+             */
+            if (addTo != null) {
+                addUnsafe(addTo, parsed);
+                parsed = addTo;
+            }
+            arguments[i] = parsed;
+        }
         try {
-            method.invoke(metadata, arguments);
+            setter.invoke(metadata, arguments);
         } catch (IllegalAccessException e) {
             // Should never happen since 'setters' should contains only public methods.
             throw new AssertionError(e);
@@ -472,6 +647,16 @@ final class PropertyAccessor {
             }
             throw new UndeclaredThrowableException(cause);
         }
+    }
+
+    /**
+     * Unsafe addition into a collection. In GeoTools implementation, the collection is actually
+     * an instance of {@link CheckedCollection}, so the check will be performed at runtime.
+     * However other implementations could use unchecked collection. There is not much we can do.
+     */
+    @SuppressWarnings("unchecked")
+    private static void addUnsafe(final Collection<?> addTo, final Object element) {
+        ((Collection) addTo).add(element);
     }
 
     /**
@@ -528,14 +713,15 @@ final class PropertyAccessor {
         assert implementation.isInstance(target) : target;
         final Object[] arguments = new Object[1];
         for (int i=0; i<getters.length; i++) {
-            arguments[0] = get(getters[i], source);
+            final Method getter = getters[i];
+            arguments[0] = get(getter, source);
             if (!skipNulls || !isEmpty(arguments[0])) {
                 if (setters == null) {
                     return false;
                 }
                 final Method setter = setters[i];
                 if (setter != null) {
-                    set(setter, target, arguments);
+                    set(getter, setter, target, arguments);
                 } else {
                     success = false;
                 }
@@ -555,11 +741,12 @@ final class PropertyAccessor {
             for (int i=0; i<getters.length; i++) {
                 final Method setter = setters[i];
                 if (setter != null) {
-                    final Object source = get(getters[i], metadata);
+                    final Method getter = getters[i];
+                    final Object source = get(getter, metadata);
                     final Object target = ModifiableMetadata.unmodifiable(source);
                     if (source != target) {
                         arguments[0] = target;
-                        set(setter, metadata, arguments);
+                        set(getter, setter, metadata, arguments);
                     }
                 }
             }

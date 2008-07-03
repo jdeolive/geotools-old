@@ -129,6 +129,20 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
     }
 
     /**
+     * Checks if changes in this collection are allowed. This method is automatically invoked
+     * after this collection got the {@linkplain #getLock lock} and before any operation that
+     * may change the content. The default implementation does nothing (i.e. this collection
+     * is modifiable). Subclasses should override this method if they want to control write
+     * access.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
+     *
+     * @since 2.5
+     */
+    protected void checkWritePermission() throws UnsupportedOperationException {
+    }
+
+    /**
      * Returns the synchronization lock. The default implementation returns {@code this}.
      * Subclasses that override this method should be careful to update the lock reference
      * when this list is {@linkplain #clone cloned}.
@@ -227,11 +241,15 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @return the element previously at the specified position.
      * @throws IndexOutOfBoundsException if index out of range.
      * @throws IllegalArgumentException if the specified element is not of the expected type.
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public E set(final int index, final E element) throws IllegalArgumentException {
+    public E set(final int index, final E element)
+            throws IllegalArgumentException, UnsupportedOperationException
+    {
         ensureValidType(element);
         synchronized (getLock()) {
+            checkWritePermission();
             return super.set(index, element);
         }
     }
@@ -242,11 +260,15 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @param  element element to be appended to this list.
      * @return always {@code true}.
      * @throws IllegalArgumentException if the specified element is not of the expected type.
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean add(final E element) throws IllegalArgumentException {
+    public boolean add(final E element)
+            throws IllegalArgumentException, UnsupportedOperationException
+    {
         ensureValidType(element);
         synchronized (getLock()) {
+            checkWritePermission();
             return super.add(element);
         }
     }
@@ -258,11 +280,15 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @param  element element to be inserted.
      * @throws IndexOutOfBoundsException if index out of range.
      * @throws IllegalArgumentException if the specified element is not of the expected type.
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public void add(final int index, final E element) throws IllegalArgumentException {
+    public void add(final int index, final E element)
+            throws IllegalArgumentException, UnsupportedOperationException
+    {
         ensureValidType(element);
         synchronized (getLock()) {
+            checkWritePermission();
             super.add(index, element);
         }
     }
@@ -274,11 +300,15 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @param collection the elements to be inserted into this list.
      * @return {@code true} if this list changed as a result of the call.
      * @throws IllegalArgumentException if at least one element is not of the expected type.
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean addAll(final Collection<? extends E> collection) throws IllegalArgumentException {
+    public boolean addAll(final Collection<? extends E> collection)
+            throws IllegalArgumentException, UnsupportedOperationException
+    {
         ensureValid(collection);
         synchronized (getLock()) {
+            checkWritePermission();
             return super.addAll(collection);
         }
     }
@@ -291,53 +321,67 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
      * @param collection elements to be inserted into this list.
      * @return {@code true} if this list changed as a result of the call.
      * @throws IllegalArgumentException if at least one element is not of the expected type.
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
     public boolean addAll(final int index, final Collection<? extends E> collection)
-            throws IllegalArgumentException
+            throws IllegalArgumentException, UnsupportedOperationException
     {
         ensureValid(collection);
         synchronized (getLock()) {
+            checkWritePermission();
             return super.addAll(index, collection);
         }
     }
 
     /**
      * Removes the element at the specified position in this list.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public E remove(int index) {
+    public E remove(int index) throws UnsupportedOperationException {
         synchronized (getLock()) {
+            checkWritePermission();
             return super.remove(index);
         }
     }
 
     /**
      * Removes the first occurrence of the specified element from this list.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(Object o) throws UnsupportedOperationException {
         synchronized (getLock()) {
+            checkWritePermission();
             return super.remove(o);
         }
     }
 
     /**
      * Removes all of this list's elements that are also contained in the specified collection.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(Collection<?> c) throws UnsupportedOperationException {
         synchronized (getLock()) {
+            checkWritePermission();
             return super.removeAll(c);
         }
     }
 
     /**
      * Retains only the elements in this list that are contained in the specified collection.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(Collection<?> c) throws UnsupportedOperationException {
         synchronized (getLock()) {
+            checkWritePermission();
             return super.retainAll(c);
         }
     }
@@ -365,10 +409,13 @@ public class CheckedArrayList<E> extends ArrayList<E> implements CheckedCollecti
 
     /**
      * Removes all of the elements from this list.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public void clear() {
+    public void clear() throws UnsupportedOperationException {
         synchronized (getLock()) {
+            checkWritePermission();
             super.clear();
         }
     }

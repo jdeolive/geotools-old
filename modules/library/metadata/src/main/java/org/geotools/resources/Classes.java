@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -22,6 +22,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.lang.reflect.Type;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.WildcardType;
+import java.lang.reflect.ParameterizedType;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -67,8 +72,9 @@ public final class Classes {
     /**
      * Creates a mapping between a primitive type and its wrapper.
      */
-    private Classes(Class<?> primitive, Class<?> wrapper, boolean isFloat, boolean isInteger,
-                    byte size, byte ordinal)
+    private Classes(final Class<?> primitive, final Class<?> wrapper,
+                    final boolean  isFloat,   final boolean  isInteger,
+                    final byte     size,      final byte     ordinal)
     {
         this.primitive = primitive;
         this.wrapper   = wrapper;
@@ -82,6 +88,84 @@ public final class Classes {
     }
 
     /**
+     * Returns the upper bounds of the parameterized type of the given attribute.
+     * If the attribute does not have a parameterized type, returns {@code null}.
+     * <p>
+     * This method is typically used for fetching the type of elements in a collection.
+     * We do not provide a method working from a {@link Class} instance because of the
+     * way parameterized types are implemented in Java (by erasure).
+     * <p>
+     * <b>Examples:</b> When invoking this method for a field of the type below:
+     * <ul>
+     *   <li>{@code Set<Number>} returns {@code Number.class}.</li>
+     *
+     *   <li>{@code Set<? extends Number>} returns {@code Number.class} as well, since that
+     *       collection can not (in theory) contain instances of super-classes; {@code Number}
+     *       is the <cite>upper bound</cite>.</li>
+     *
+     *   <li>{@code Set<? super Number>} returns {@code Object.class}, because that collection
+     *       is allowed to contain such elements.</li>
+     *
+     *   <li>{@code Set} returns {@code null} because that collection is un-parameterized.</li>
+     * </ul>
+     *
+     * @param  field The field for which to obtain the parameterized type.
+     * @return The upper bound of parameterized type, or {@code null} if the given field
+     *         is not of a parameterized type.
+     */
+    public static Class<?> boundOfParameterizedAttribute(final Field field) {
+        return getActualTypeArgument(field.getGenericType());
+    }
+
+    /**
+     * If the given method is a getter or a setter for a parameterized attribute, returns the
+     * upper bounds of the parameterized type. Otherwise returns {@code null}. This method
+     * provides the same semantic than {@link #boundOfParameterizedAttribute(Field)}, but
+     * works on a getter or setter method rather then the field. See the javadoc of above
+     * methods for more details.
+     * <p>
+     * This method is typically used for fetching the type of elements in a collection.
+     * We do not provide a method working from a {@link Class} instance because of the
+     * way parameterized types are implemented in Java (by erasure).
+     *
+     * @param  method The getter or setter method for which to obtain the parameterized type.
+     * @return The upper bound of parameterized type, or {@code null} if the given method
+     *         do not opperate on an object of a parameterized type.
+     */
+    public static Class<?> boundOfParameterizedAttribute(final Method method) {
+        Class<?> c = getActualTypeArgument(method.getGenericReturnType());
+        if (c == null) {
+            final Type[] parameters = method.getGenericParameterTypes();
+            if (parameters != null && parameters.length == 1) {
+                c = getActualTypeArgument(parameters[0]);
+            }
+        }
+        return c;
+    }
+
+    /**
+     * Delegates to {@link ParameterizedType#getActualTypeArguments} and returns the result as a
+     * {@link Class}, provided that every objects are of the expected classes and the result was
+     * an array of length 1 (so there is no ambiguity). Otherwise returns {@code null}.
+     */
+    private static Class<?> getActualTypeArgument(Type type) {
+        if (type instanceof ParameterizedType) {
+            Type[] p = ((ParameterizedType) type).getActualTypeArguments();
+            while (p != null && p.length == 1) {
+                type = p[0];
+                if (type instanceof Class) {
+                    return (Class) type;
+                } else if (type instanceof WildcardType) {
+                    p = ((WildcardType) type).getUpperBounds();
+                } else {
+                    break; // Unknown type.
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns the class of the specified object, or {@code null} if {@code object} is null.
      * This method is also useful for fetching the class of an object known only by its bound
      * type. As of Java 6, the usual pattern:
@@ -91,7 +175,11 @@ public final class Classes {
      * Class<? extends Number> c = n.getClass();
      * </pre></blockquote>
      *
-     * doesn't seem to work if {@link Number} is replaced by a parametired type {@code T}.
+     * doesn't seem to work if {@link Number} is replaced by a parametirez type {@code T}.
+     *
+     * @param  <T> The type of the given object.
+     * @param  object The object for which to get the class, or {@code null}.
+     * @return The class of the given object, or {@code null} if the given object was null.
      */
     @SuppressWarnings("unchecked")
     public static <T> Class<? extends T> getClass(final T object) {
@@ -210,6 +298,13 @@ search: for (final Class<?> candidate : types) {
      * <blockquote><code>
      * if (sameInterfaces(cs1, cs2, {@linkplain org.opengis.referencing.cs.CoordinateSystem}.class))
      * </code></blockquote>
+     *
+     * @param <T>     A common parent for both objects.
+     * @param object1 The first object to check for interfaces.
+     * @param object2 The second object to check for interfaces.
+     * @param base    The parent of all interfaces to check.
+     * @return        {@code true} if both objects implement the same set of interfaces,
+     *                considering only sub-interfaces of {@code base}.
      */
     public static <T> boolean sameInterfaces(final Class<? extends T> object1,
                                              final Class<? extends T> object2,
@@ -317,6 +412,9 @@ compare:for (int i=0; i<c1.length; i++) {
      * Returns one of {@link #DOUBLE}, {@link #FLOAT}, {@link #LONG}, {@link #INTEGER},
      * {@link #SHORT}, {@link #BYTE}, {@link #CHARACTER}, {@link #BOOLEAN} or {@link #OTHER}
      * constants for the given type. This is a commodity for usage in {@code switch} statememnts.
+     *
+     * @param type A type (usually either a primitive type or its wrapper).
+     * @return The constant for the given type, or {@link #OTHER} if unknow.
      */
     public static byte getEnumConstant(final Class<?> type) {
         final Classes mapping = MAPPING.get(type);
@@ -324,24 +422,38 @@ compare:for (int i=0; i<c1.length; i++) {
     }
 
     /**
-     * Converts the specified string into a value object. The value object will be an instance
-     * of {@link Boolean}, {@link Integer}, {@link Double}, <cite>etc.</cite> according the
-     * specified type.
+     * Converts the specified string into a value object. The value object can be an instance
+     * of {@link Double}, {@link Float}, {@link Long}, {@link Integer}, {@link Short},
+     * {@link Byte}, {@link Character} or {@link Boolean} according the specified type.
+     * This method is restricted to primitive types. Other types like {@link java.io.File}
+     * are not the purpose of this method.
      *
+     * @param  <T> The requested type.
      * @param  type The requested type.
      * @param  value the value to parse.
      * @return The value object, or {@code null} if {@code value} was null.
      * @throws IllegalArgumentException if {@code type} is not a recognized type.
-     * @throws NumberFormatException if the string value is not parseable as a number
-     *         of the specified type.
+     * @throws NumberFormatException if {@code type} is a subclass of {@link Number} and the
+     *         string value is not parseable as a number of the specified type.
      */
     @SuppressWarnings("unchecked")
-    public static <T> T valueOf(final Class<T> type, final String value)
+    public static <T> T valueOf(final Class<T> type, String value)
             throws IllegalArgumentException, NumberFormatException
     {
         if (value == null) {
             return null;
         }
+        if (Character.class.equals(type)) {
+            /*
+             * If the string is empty, returns 0 which means "end of string" in C/C++
+             * and NULL in Unicode standard. If non-empty, take only the first char.
+             * This is somewhat consistent with Boolean.valueOf(...) which is quite
+             * lenient about the parsing as well, and throwing a NumberFormatException
+             * for those would not be appropriate.
+             */
+            return (T) Character.valueOf(value.length() != 0 ? value.charAt(0) : 0);
+        }
+        value = value.trim(); // Must be after the Character case.
         if (Double .class.equals(type)) return (T) Double .valueOf(value);
         if (Float  .class.equals(type)) return (T) Float  .valueOf(value);
         if (Long   .class.equals(type)) return (T) Long   .valueOf(value);

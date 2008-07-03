@@ -342,18 +342,25 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
             return unmodifiable;
         }
         checkWritePermission();
-        if (source == null) {
-            if (target != null) {
-                target.clear();
-            }
-        } else {
-            if (target != null) {
-                target.clear();
+        /*
+         * It is not worth to copy the content if the current and the new instance are the
+         * same. This is safe only using the != operator, not the equals(Object) method.
+         * This optimization is required for efficient working of PropertyAccessor.set(...).
+         */
+        if (source != target) {
+            if (source == null) {
+                if (target != null) {
+                    target.clear();
+                }
             } else {
-                int capacity = source.size();
-                target = new MutableList<E>(elementType, capacity);
+                if (target != null) {
+                    target.clear();
+                } else {
+                    int capacity = source.size();
+                    target = new MutableList<E>(elementType, capacity);
+                }
+                target.addAll(source);
             }
-            target.addAll(source);
         }
         return target;
     }
@@ -387,24 +394,31 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
             return unmodifiable;
         }
         checkWritePermission();
-        if (source == null) {
-            if (target != null) {
-                target.clear();
-            }
-        } else {
-            final boolean isList = (source instanceof List);
-            if (target != null && (target instanceof List) == isList) {
-                target.clear();
-            } else {
-                int capacity = source.size();
-                if (isList) {
-                    target = new MutableList<E>(elementType, capacity);
-                } else {
-                    capacity = Math.round(capacity / 0.75f) + 1;
-                    target = new MutableSet<E>(elementType, capacity);
+        /*
+         * It is not worth to copy the content if the current and the new instance are the
+         * same. This is safe only using the != operator, not the equals(Object) method.
+         * This optimization is required for efficient working of PropertyAccessor.set(...).
+         */
+        if (source != target) {
+            if (source == null) {
+                if (target != null) {
+                    target.clear();
                 }
+            } else {
+                final boolean isList = (source instanceof List);
+                if (target != null && (target instanceof List) == isList) {
+                    target.clear();
+                } else {
+                    int capacity = source.size();
+                    if (isList) {
+                        target = new MutableList<E>(elementType, capacity);
+                    } else {
+                        capacity = Math.round(capacity / 0.75f) + 1;
+                        target = new MutableSet<E>(elementType, capacity);
+                    }
+                }
+                target.addAll(source);
             }
-            target.addAll(source);
         }
         return target;
     }
@@ -496,6 +510,11 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
         protected Object getLock() {
             return ModifiableMetadata.this;
         }
+
+        @Override
+        protected void checkWritePermission() throws UnsupportedOperationException {
+            ModifiableMetadata.this.checkWritePermission();
+        }
     }
 
     /**
@@ -517,6 +536,11 @@ public abstract class ModifiableMetadata extends AbstractMetadata implements Clo
         @Override
         protected Object getLock() {
             return ModifiableMetadata.this;
+        }
+
+        @Override
+        protected void checkWritePermission() throws UnsupportedOperationException {
+            ModifiableMetadata.this.checkWritePermission();
         }
     }
 

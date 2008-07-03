@@ -129,6 +129,20 @@ public class CheckedHashSet<E> extends LinkedHashSet<E> implements CheckedCollec
     }
 
     /**
+     * Checks if changes in this collection are allowed. This method is automatically invoked
+     * after this collection got the {@linkplain #getLock lock} and before any operation that
+     * may change the content. The default implementation does nothing (i.e. this collection
+     * is modifiable). Subclasses should override this method if they want to control write
+     * access.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
+     *
+     * @since 2.5
+     */
+    protected void checkWritePermission() throws UnsupportedOperationException {
+    }
+
+    /**
      * Returns the synchronization lock. The default implementation returns {@code this}.
      * Subclasses that override this method should be careful to update the lock reference
      * when this set is {@linkplain #clone cloned}.
@@ -188,11 +202,15 @@ public class CheckedHashSet<E> extends LinkedHashSet<E> implements CheckedCollec
      * @param  element element to be added to this set.
      * @return {@code true} if the set did not already contain the specified element.
      * @throws IllegalArgumentException if the specified element is not of the expected type.
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean add(final E element) throws IllegalArgumentException {
+    public boolean add(final E element)
+            throws IllegalArgumentException, UnsupportedOperationException
+    {
         ensureValidType(element);
 	synchronized (getLock()) {
+            checkWritePermission();
             return super.add(element);
         }
     }
@@ -203,51 +221,67 @@ public class CheckedHashSet<E> extends LinkedHashSet<E> implements CheckedCollec
      * @param collection the elements to be inserted into this set.
      * @return {@code true} if this set changed as a result of the call.
      * @throws IllegalArgumentException if at least one element is not of the expected type.
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean addAll(final Collection<? extends E> collection) throws IllegalArgumentException {
+    public boolean addAll(final Collection<? extends E> collection)
+            throws IllegalArgumentException, UnsupportedOperationException
+    {
         ensureValid(collection);
         synchronized (getLock()) {
+            checkWritePermission();
             return super.addAll(collection);
         }
     }
 
     /**
      * Removes the pecified element from this set.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(Object o) throws UnsupportedOperationException {
         synchronized (getLock()) {
+            checkWritePermission();
             return super.remove(o);
         }
     }
 
     /**
      * Removes all of this set's elements that are also contained in the specified collection.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(Collection<?> c) throws UnsupportedOperationException {
         synchronized (getLock()) {
+            checkWritePermission();
             return super.removeAll(c);
         }
     }
 
     /**
      * Retains only the elements in this set that are contained in the specified collection.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(Collection<?> c) throws UnsupportedOperationException {
         synchronized (getLock()) {
+            checkWritePermission();
             return super.retainAll(c);
         }
     }
 
     /**
      * Removes all of the elements from this set.
+     *
+     * @throws UnsupportedOperationException if this collection is unmodifiable.
      */
     @Override
-    public void clear() {
+    public void clear() throws UnsupportedOperationException {
         synchronized (getLock()) {
+            checkWritePermission();
             super.clear();
         }
     }

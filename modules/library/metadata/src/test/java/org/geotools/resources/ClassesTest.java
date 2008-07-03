@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -71,4 +71,38 @@ public final class ClassesTest {
         assertFalse(Classes.sameInterfaces((Class)  File.class, String.class, CharSequence.class));
         assertTrue (Classes.sameInterfaces(         File.class, String.class, Serializable.class));
     }
+
+    /**
+     * Tests the {@link #boundOfParameterizedAttribute} method.
+     *
+     * @throws NoSuchFieldException  Should never occur.
+     * @throws NoSuchMethodException Should never occur.
+     */
+    @Test
+    public void testBoundOfParameterizedAttribute()
+            throws NoSuchFieldException, NoSuchMethodException
+    {
+        final Class<?>[] g = null;
+        final Class<?>[] s = new Class[] {Set.class};
+        final Class<ClassesTest> c = ClassesTest.class;
+        assertNull(Classes.boundOfParameterizedAttribute(c.getMethod("getter0", g)));
+        assertNull(Classes.boundOfParameterizedAttribute(c.getMethod("setter0", s)));
+        assertEquals(Long   .class, Classes.boundOfParameterizedAttribute(c.getField ("attrib2"   )));
+        assertEquals(Integer.class, Classes.boundOfParameterizedAttribute(c.getMethod("getter1", g)));
+        assertEquals(Byte   .class, Classes.boundOfParameterizedAttribute(c.getMethod("getter2", g)));
+        assertEquals(Object .class, Classes.boundOfParameterizedAttribute(c.getMethod("getter3", g)));
+        assertEquals(String .class, Classes.boundOfParameterizedAttribute(c.getMethod("setter1", s)));
+        assertEquals(Short  .class, Classes.boundOfParameterizedAttribute(c.getMethod("setter2", s)));
+        assertEquals(Object .class, Classes.boundOfParameterizedAttribute(c.getMethod("setter3", s)));
+    }
+
+    public Set<? extends Long> attrib2 = null;
+    public Set                 getter0() {return null;}
+    public Set<       Integer> getter1() {return null;}
+    public Set<? extends Byte> getter2() {return null;}
+    public Set<? super  Float> getter3() {return null;}
+    public void setter0(Set                  dummy) {}
+    public void setter1(Set<         String> dummy) {}
+    public void setter2(Set<? extends Short> dummy) {}
+    public void setter3(Set<? super  Double> dummy) {}
 }

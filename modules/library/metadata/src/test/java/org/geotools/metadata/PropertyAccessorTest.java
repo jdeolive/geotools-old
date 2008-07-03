@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -84,7 +84,7 @@ public final class PropertyAccessorTest {
         Citation citation = Citations.EPSG;
         final PropertyAccessor accessor = createPropertyAccessor(citation);
         final int index = accessor.indexOf("identifiers");
-        assertTrue(String.valueOf(index), index >= 0);
+        assertTrue(index >= 0);
         final Object identifiers = accessor.get(index, citation);
         assertNotNull(identifiers);
         assertTrue(containsEPSG(identifiers));
@@ -103,6 +103,48 @@ public final class PropertyAccessorTest {
             }
         }
         return false;
+    }
+
+    /**
+     * Tests the set method.
+     */
+    @Test
+    public void testSet() {
+        Citation citation = new CitationImpl();
+        final PropertyAccessor accessor = createPropertyAccessor(citation);
+
+        // Tries with ISBN, which expect a String.
+        Object value = "Random number";
+        int index = accessor.indexOf("ISBN");
+        assertTrue(index >= 0);
+        assertNull(accessor.set(index, citation, value));
+        assertSame(value, accessor.get(index, citation));
+        assertSame(value, citation.getISBN());
+
+        // Tries with the title. Automatic conversion from String to InternationalString expected.
+        index = accessor.indexOf("title");
+        assertTrue(index >= 0);
+        assertNull(accessor.set(index, citation, "A random title"));
+        value = accessor.get(index, citation);
+        assertTrue(value instanceof InternationalString);
+        assertEquals("A random title", value.toString());
+        assertSame(value, citation.getTitle());
+
+        // Tries with an element to be added in a collection.
+        index = accessor.indexOf("alternateTitle");
+        assertTrue(index >= 0);
+
+        value = accessor.get(index, citation);
+        assertTrue(value instanceof Collection);
+        assertTrue(((Collection) value).isEmpty());
+
+        value = accessor.set(index, citation, "An other title");
+        assertTrue(value instanceof Collection);
+        assertEquals(1, ((Collection) value).size());
+
+        value = accessor.set(index, citation, "Yet an other title");
+        assertTrue(value instanceof Collection);
+        assertEquals(2, ((Collection) value).size());
     }
 
     /**
