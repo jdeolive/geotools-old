@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/plugin/postgis/
+      scm:svn:http://svn.geotools.org/trunk/modules/plugin/postgis/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/plugin/postgis/</url>
+    <url>http://svn.geotools.org/trunk/modules/plugin/postgis/</url>
   </scm>
 
   <description>

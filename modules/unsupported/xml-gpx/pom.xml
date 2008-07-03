@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/xml-gpx/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/xml-gpx/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/xml-gpx/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/xml-gpx/</url>
   </scm>
 
   <licenses>

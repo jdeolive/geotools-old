@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/mif/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/mif/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/mif/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/mif/</url>
   </scm>
 
   <description>

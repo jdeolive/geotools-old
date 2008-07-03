@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/demo/introduction/
+      scm:svn:http://svn.geotools.org/trunk/demo/introduction/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/demo/introduction/</url>
+    <url>http://svn.geotools.org/trunk/demo/introduction/</url>
   </scm>
 
   <description>
@@ -44,7 +44,7 @@
     <license>
       <name>Public Domain</name>
       <url>
-        http://svn.geotools.org/geotools/trunk/gt/demo/introduction/LICENSE.txt
+        http://svn.geotools.org/trunk/demo/introduction/LICENSE.txt
       </url>
       <distribution>repo</distribution>
     </license>

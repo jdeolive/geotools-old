@@ -30,9 +30,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/mappane/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/mappane/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/mappane/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/mappane/</url>
   </scm>
 
   <description>

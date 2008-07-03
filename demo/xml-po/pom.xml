@@ -32,9 +32,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/demo/xml-po/
+      scm:svn:http://svn.geotools.org/trunk/demo/xml-po/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/demo/xml-po/</url>
+    <url>http://svn.geotools.org/trunk/demo/xml-po/</url>
   </scm>
 
 

@@ -64,9 +64,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/gpx/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/gpx/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/gpx/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/gpx/</url>
   </scm>
 
   <description>

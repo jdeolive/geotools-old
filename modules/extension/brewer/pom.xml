@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/brewer/
+      scm:svn:http://svn.geotools.org/trunk/modules/extension/brewer/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/brewer/</url>
+    <url>http://svn.geotools.org/trunk/modules/extension/brewer/</url>
   </scm>
 
   <description>

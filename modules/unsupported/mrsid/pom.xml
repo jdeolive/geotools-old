@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/mrsid/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/mrsid/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/mrsid/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/mrsid/</url>
   </scm>
 
   <description>

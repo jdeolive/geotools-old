@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/library/api/
+      scm:svn:http://svn.geotools.org/trunk/modules/library/api/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/library/api/</url>
+    <url>http://svn.geotools.org/trunk/modules/library/api/</url>
   </scm>
 
   <description>

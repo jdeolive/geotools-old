@@ -23,9 +23,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/ecw/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/ecw/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/ecw/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/ecw/</url>
   </scm>
 
   <description>

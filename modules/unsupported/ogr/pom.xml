@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/ogr/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/ogr/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/ogr/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/ogr/</url>
   </scm>
 
   <description>

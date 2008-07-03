@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/openoffice/
+      scm:svn:http://svn.geotools.org/trunk/modules/extension/openoffice/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/openoffice/</url>
+    <url>http://svn.geotools.org/trunk/modules/extension/openoffice/</url>
   </scm>
 
   <description>

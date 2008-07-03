@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/plugin/geometry/
+      scm:svn:http://svn.geotools.org/trunk/modules/plugin/geometry/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/plugin/geometry/</url>
+    <url>http://svn.geotools.org/trunk/modules/plugin/geometry/</url>
   </scm>
 
   <description>

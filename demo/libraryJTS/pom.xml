@@ -30,9 +30,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/demo/libraryJTS/
+      scm:svn:http://svn.geotools.org/trunk/demo/libraryJTS/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/demo/libraryJTS/</url>
+    <url>http://svn.geotools.org/trunk/demo/libraryJTS/</url>
   </scm>
 
   <description>
@@ -43,7 +43,7 @@
     <license>
       <name>Public Domain</name>
       <url>
-        http://svn.geotools.org/geotools/trunk/gt/demo/libraryJTS/LICENSE.txt
+        http://svn.geotools.org/trunk/demo/libraryJTS/LICENSE.txt
       </url>
       <distribution>repo</distribution>
     </license>

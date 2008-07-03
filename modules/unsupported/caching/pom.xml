@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/caching/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/caching/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/caching/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/caching/</url>
   </scm>
 
   <description>

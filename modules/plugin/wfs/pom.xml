@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/plugin/wfs/
+      scm:svn:http://svn.geotools.org/trunk/modules/plugin/wfs/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/plugin/wfs/</url>
+    <url>http://svn.geotools.org/trunk/modules/plugin/wfs/</url>
   </scm>
 
   <description>

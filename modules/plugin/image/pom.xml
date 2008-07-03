@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/plugin/image/
+      scm:svn:http://svn.geotools.org/trunk/modules/plugin/image/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/plugin/image/</url>
+    <url>http://svn.geotools.org/trunk/modules/plugin/image/</url>
   </scm>
 
   <description>

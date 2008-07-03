@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-core/
+      scm:svn:http://svn.geotools.org/trunk/modules/extension/xsd/xsd-core/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/xsd/xsd-core/</url>
+    <url>http://svn.geotools.org/trunk/modules/extension/xsd/xsd-core/</url>
   </scm>
 
   <description>

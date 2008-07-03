@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/demo/svgsupport/
+      scm:svn:http://svn.geotools.org/trunk/demo/svgsupport/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/demo/svgsupport/</url>
+    <url>http://svn.geotools.org/trunk/demo/svgsupport/</url>
   </scm>
 
   <description>

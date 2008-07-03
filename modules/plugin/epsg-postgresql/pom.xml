@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/plugin/epsg-postgresql/
+      scm:svn:http://svn.geotools.org/trunk/modules/plugin/epsg-postgresql/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/plugin/epsg-postgresql/</url>
+    <url>http://svn.geotools.org/trunk/modules/plugin/epsg-postgresql/</url>
   </scm>
 
   <description>
@@ -45,12 +45,12 @@
     <license>
       <name>Lesser General Public License (LGPL)</name>
       <!--url>http://www.gnu.org/copyleft/lesser.txt</url-->
-      <url>http://svn.geotools.org/geotools/trunk/gt/plugin/epsg-postgresql/LICENSE.html</url>
+      <url>http://svn.geotools.org/trunk/modules/plugin/epsg-postgresql/LICENSE.html</url>
       <distribution>repo</distribution>
     </license>
     <license>
       <name>BSD License for PostgreSQL JDBC driver</name>
-      <url>http://svn.geotools.org/geotools/trunk/gt/licenses/PostgreSQL.html</url>
+      <url>http://svn.geotools.org/trunk/licenses/PostgreSQL.html</url>
       <distribution>repo</distribution>
       <comments>
         This Geotools module requires the PostgreSQL JDBC driver, which is

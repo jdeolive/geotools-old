@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/plugin/imagemosaic/
+      scm:svn:http://svn.geotools.org/trunk/modules/plugin/imagemosaic/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/plugin/imagemosaic/</url>
+    <url>http://svn.geotools.org/trunk/modules/plugin/imagemosaic/</url>
   </scm>
 
   <description>

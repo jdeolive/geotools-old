@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/geometryless/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/geometryless/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/geometryless/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/geometryless/</url>
   </scm>
 
   <description>

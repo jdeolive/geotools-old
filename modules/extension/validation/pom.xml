@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/extension/validation/
+      scm:svn:http://svn.geotools.org/trunk/modules/extension/validation/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/extension/validation/</url>
+    <url>http://svn.geotools.org/trunk/modules/extension/validation/</url>
   </scm>
 
   <description>

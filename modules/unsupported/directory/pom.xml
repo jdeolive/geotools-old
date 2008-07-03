@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/directory/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/directory/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/directory/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/directory/</url>
   </scm>
 
   <description>

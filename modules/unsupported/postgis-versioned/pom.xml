@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/postgis-versioned/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/postgis-versioned/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/postgis-versioned/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/postgis-versioned/</url>
   </scm>
 
   <description>

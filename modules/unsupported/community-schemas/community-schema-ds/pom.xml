@@ -26,9 +26,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/community-schemas/community-schema-ds/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/community-schemas/community-schema-ds/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/</url>
   </scm>
 
   <description>

@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/plugin/referencing3D/
+      scm:svn:http://svn.geotools.org/trunk/modules/plugin/referencing3D/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/plugin/referencing3D/</url>
+    <url>http://svn.geotools.org/trunk/modules/plugin/referencing3D/</url>
   </scm>
 
   <description>

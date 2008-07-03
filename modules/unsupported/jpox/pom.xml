@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/jpox/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/jpox/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/jpox/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/jpox/</url>
   </scm>
 
   <description>

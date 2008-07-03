@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/coverageio/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/coverageio/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/coverageio/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/coverageio/</url>
   </scm>
 
   <description>

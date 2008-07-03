@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/tile/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/tile/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/tile/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/tile/</url>
   </scm>
 
   <description>

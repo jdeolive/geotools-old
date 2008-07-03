@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/go/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/go/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/go/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/go/</url>
   </scm>
 
   <description>
@@ -44,7 +44,7 @@
   <licenses>
     <license>
       <name>Lesser General Public License (LGPL)</name>
-      <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/go/LICENSE.html</url>
+      <url>http://svn.geotools.org/trunk/modules/unsupported/go/LICENSE.html</url>
       <distribution>repo</distribution>
     </license>
   </licenses>

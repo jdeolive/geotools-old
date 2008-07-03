@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/tiger/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/tiger/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/tiger/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/tiger/</url>
   </scm>
 
   <description>

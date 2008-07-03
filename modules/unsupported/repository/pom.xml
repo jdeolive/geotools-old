@@ -27,9 +27,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/repository/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/repository/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/repository/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/repository/</url>
   </scm>
 
   <description>

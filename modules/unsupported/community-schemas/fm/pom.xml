@@ -27,9 +27,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/community-schemas/fm/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/community-schemas/fm/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/community-schemas/fm/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/community-schemas/fm/</url>
   </scm>
 
   <description>
