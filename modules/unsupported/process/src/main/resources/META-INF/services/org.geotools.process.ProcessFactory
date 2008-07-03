@@ -1,3 +1,4 @@
 org.geotools.process.literal.BufferFactory
 org.geotools.process.literal.IntersectionFactory
 org.geotools.process.literal.UnionFactory
+org.geotools.process.literal.DoubleAdditionFactory
