@@ -68,6 +68,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
+ * Oracle XE warning: you might run out of connections and tests might start failing. If you
+ * are in that situation, login into the XE instance and run the following command as SYS:
+ * alter system set processes = 400 scope=spfile;
  * @author geoghegs
  *
  * To change the template for this generated type comment go to
@@ -114,11 +117,6 @@ public class OracleDataStoreOnlineTest extends TestCase {
             conn.close();
         if(dstore != null)
             dstore.dispose();
-        
-        // tests with oracle xe fail without these... it seems the oracle poolable connections
-        // are not closed right away even if I traced the dbcp code and it actually closes
-        // the connection...
-        System.gc(); System.gc(); System.gc();
     }
     static boolean first  = false;
     
