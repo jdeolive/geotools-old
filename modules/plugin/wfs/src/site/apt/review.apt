@@ -12,7 +12,48 @@ PLUGIN WFS
 
   STATUS: Clean
 
+  David Zwiers has retained copyright on the following classes for all work 
+  which he committed after his 2005-03-30 departure from Refractions
 
+  Date: 	Thu, 3 Jul 2008 09:07:33 -0700 (18:07 CEST)
+
+  Adrian,
+
+  Your asessment is correct, there is a mixture of paid and unpaid effort. There 
+  are changes  within the WFS plugin which should have shared copyrights; 
+  however without spending a bunch of effort I cant' track down the exact 
+  changes. The simplest method would be to look for SVN commits using my userid 
+  after March 31st 2005.
+
+  Regards,
+  David Zwiers
+  
+  Performing an SVN log on all the java files of the module gave us these 
+  files to modify:
+  
+      src/test/java/org/geotools/wfs/v_1_0_0/data/CubewerksOnlineTest.java
+      
+      src/test/java/org/geotools/wfs/v_1_0_0/data/WFSDataStoreReadTest.java
+      
+      src/test/java/org/geotools/wfs/v_1_0_0/data/GeoServerOnlineTest.java
+      
+      src/test/java/org/geotools/wfs/v_1_0_0/data/WFSDataStoreWriteOnlineTest.java
+      
+      src/main/java/org/geotools/wfs/v_1_0_0/data/WFSTransactionState.java
+      
+      src/main/java/org/geotools/wfs/v_1_0_0/data/WFS_1_0_0_DataStore.java
+      
+      src/main/java/org/geotools/wfs/v_1_0_0/data/WFSFeatureStore.java
+      
+      src/main/java/org/geotools/wfs/v_1_0_0/data/WFSFeatureSource.java
+      
+      src/main/java/org/geotools/xml/wfs/WFSCapabilitiesComplexTypes.java
+      
+      src/main/java/org/geotools/xml/wfs/WFSBasicComplexTypes.java
+      
+      src/main/java/org/geotools/data/ows/WFSCapabilities.java
+      
+  All have been updated according to the dates of commits.
 
 * org.geotools.catalog.wfs
   ~~~~~~~~~~~~~~~~~~~~~~~~
