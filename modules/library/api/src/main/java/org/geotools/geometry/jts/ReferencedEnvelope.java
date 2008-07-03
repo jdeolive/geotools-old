@@ -38,9 +38,6 @@ import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 
-import sun.net.www.content.audio.x_aiff;
-
-
 /**
  * A JTS envelope associated with a
  * {@linkplain CoordinateReferenceSystem coordinate reference system}. In
