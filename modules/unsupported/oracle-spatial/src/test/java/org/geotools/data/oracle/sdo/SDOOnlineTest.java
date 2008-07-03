@@ -22,8 +22,11 @@ package org.geotools.data.oracle.sdo;
 import java.sql.SQLException;
 
 import junit.framework.TestCase;
+import oracle.jdbc.OracleConnection;
 import oracle.sql.STRUCT;
 
+import org.geotools.data.jdbc.datasource.DataSourceFinder;
+import org.geotools.data.jdbc.datasource.UnWrapper;
 import org.geotools.data.oracle.OracleTestFixture;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -54,7 +57,9 @@ public class SDOOnlineTest extends TestCase {
         super.setUp();
         fixture = new GeometryFixture();
         oracle = new OracleTestFixture();        
-        converter = new GeometryConverter( oracle.connection );                
+        UnWrapper unwrapper = DataSourceFinder.getUnWrapper(oracle.connection);
+        OracleConnection oraConn = (OracleConnection) unwrapper.unwrap(oracle.connection);
+        converter = new GeometryConverter( oraConn );                
     }
     
     /*

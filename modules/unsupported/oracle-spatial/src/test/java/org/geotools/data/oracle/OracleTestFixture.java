@@ -16,6 +16,7 @@
  */
 package org.geotools.data.oracle;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -33,7 +34,7 @@ import org.geotools.data.jdbc.datasource.ManageableDataSource;
  * @source $URL$
  */
 public class OracleTestFixture {	
-	    public OracleConnection connection;
+	    public Connection connection;
 	    
 		private Properties properties;
 
@@ -70,16 +71,17 @@ public class OracleTestFixture {
 		       cPool = OracleDataStoreFactory.getDefaultDataSource(properties.getProperty("host"), 
 	                    properties.getProperty("user"), properties.getProperty("passwd"),
 	                    Integer.parseInt(properties.getProperty("port")), properties.getProperty("instance"),
-	                    10, 4, false);	       
+	                    10, 0, false);	       
 		       System.out.println( "Connect to"+ properties );
 	    	   
-	    	   connection = (OracleConnection) cPool.getConnection();
+	    	   connection = cPool.getConnection();
 	       
 	        	       
 	    	   // connection = (OracleConnection) DriverManager.getConnection  ("jdbc:oracle:thin:@hydra:1521:rrdev","dblasby","dave2000");
 	    	   // connection = (OracleConnection) DriverManager.getConnection  ("jdbc:oracle:thin:@hydra:1521:dev","egouge","emily2004");
 	       }
 	       catch( Throwable t ){
+	    	   t.printStackTrace();
 	    	   System.out.println("Warning: could not connect, configure "+getClass().getResource("test.properties"));
 	    	   return;
 	       }
