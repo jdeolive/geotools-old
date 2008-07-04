@@ -18,6 +18,7 @@ package org.geotools.filter.expression;
 
 import org.geotools.factory.Hints;
 import org.opengis.feature.Property;
+import org.opengis.feature.type.Name;
 
 /**
  * This class will *directly* access a Property with the name equal to xpath.
@@ -30,11 +31,7 @@ public class DirectPropertyAccessorFactory implements PropertyAccessorFactory {
 
     public PropertyAccessor createPropertyAccessor(Class type, String xpath,
             Class target, Hints hints) {
-        
-        if( Property.class.isAssignableFrom( type )){
             return DIRECT;
-        }
-        return null;
     }
 
     
@@ -54,10 +51,10 @@ public class DirectPropertyAccessorFactory implements PropertyAccessorFactory {
         public boolean canHandle(Object object, String xpath, Class target) {
             if( object instanceof Property ){
                 Property property = (Property) object;
-                if( property.getName() != null ){
-                    return property.getName().getLocalPart().equals( xpath );
-                }
-                else {
+                final Name name = property.getName();
+                if( name != null ){
+                    return name.getLocalPart().equals( xpath );
+                } else {
                     // A property with no name? this is probably a place holder
                     // or Null Object (such as TransactionStateDiff.NULL).
                     return false;
