@@ -148,7 +148,7 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
             if (oldFeature != null)
                 unversionedId = mapper.getUnversionedFid(liveFeature.getID());
             liveFeature = new MutableFIDFeature((List) liveFeature
-                    .getProperties(), featureType, unversionedId);
+                    .getAttributes(), featureType, unversionedId);
             return liveFeature;
         } catch (IllegalAttributeException e) {
             throw new DataSourceException("Error casting versioned feature to external one. "
