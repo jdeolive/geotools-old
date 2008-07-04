@@ -127,6 +127,7 @@
             <exclude>**/StreamingParserFeatureReaderTest.java</exclude>
             <!-- fails on gridlock but not on my machine! -->
             <exclude>**/WFS110ProtocolHandlerTest.java</exclude>
+            <exclude>**/EmfAppSchemaParserTest.java</exclude>
             
             <exclude>**/CubewerksOnlineTest.java</exclude>
             <exclude>**/DMSolutionOnlineTest.java</exclude>
