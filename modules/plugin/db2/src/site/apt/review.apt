@@ -10,7 +10,12 @@ Module DB2
     * Adrian Custer, June 2008
 
 
-  STATUS: see below. Also we need to document the source of the sample-data.
+  STATUS: DIRTY
+  
+    Code is a mess, see below. 
+      http://jira.codehaus.org/browse/GEOT-1879
+    Resource origin and license unknown.
+      http://jira.codehaus.org/browse/GEOT-1880
 
   This module is interesting in that it operatings against a comercial database, leaving us without the
   rights to distribute a jdbc driver in jar form. As with other modules in this situtation we need to
