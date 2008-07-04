@@ -490,6 +490,7 @@ public class AttributeTypeBuilder {
 	 * @see #buildDescriptor(String, AttributeType) 
 	 */
 	public AttributeDescriptor buildDescriptor( String name ) {
+	    setName(name);
 		if(binding == null)
 			throw new IllegalStateException("No binding has been provided for this attribute");
 		if ( crs != null || Geometry.class.isAssignableFrom(binding)) {
