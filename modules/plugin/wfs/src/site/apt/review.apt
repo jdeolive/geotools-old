@@ -10,8 +10,8 @@ PLUGIN WFS
     * Adrian Custer, June 2008
 
 
-  STATUS: Clean, 
-            with mixed copyright OSGeo and David Zwiers
+  STATUS: Clean, except for data source
+    http://jira.codehaus.org/browse/GEOT-1890
   
   
   
