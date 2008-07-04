@@ -9,3 +9,4 @@ Module ImageMosaic
 
   STATUS: Clean except from unknown test data (3.4M) whose origin needs to be
   documented.
+    http://jira.codehaus.org/browse/GEOT-1885
