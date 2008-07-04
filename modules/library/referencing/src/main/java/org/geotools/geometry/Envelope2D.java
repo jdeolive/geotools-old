@@ -78,7 +78,7 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
      */
     public Envelope2D(final Envelope envelope) {
         super(envelope.getMinimum(0), envelope.getMinimum(1),
-              envelope.getLength (0), envelope.getLength (1));
+              envelope.getSpan(0), envelope.getSpan(1));
 
         // TODO: check below should be first, if only Sun could fix RFE #4093999.
         final int dimension = envelope.getDimension();

@@ -77,7 +77,7 @@ public class HsqlDialectEpsgFactoryTest extends TestCase {
         assertTrue(authorityCodes.size() > 3000);
     }
 
-    public void XtestFindWSG84() throws FactoryException {
+    public void testFindWSG84() throws FactoryException {
         String wkt;
         wkt = "GEOGCS[\"WGS 84\",\n"                                    +
               "  DATUM[\"World Geodetic System 1984\",\n"               +

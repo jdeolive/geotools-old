@@ -242,5 +242,7 @@ public class SubFeatureCollection extends BaseFeatureCollection implements Featu
 	public Object[] toArray(Object[] a) {
 		return rc.toArray(a);
 	}
-
+	public boolean isValid() {
+	    return collection.isValid();
+	}
 }

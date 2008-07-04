@@ -59,7 +59,7 @@ public class GridProcessingTestBase extends GridCoverageTestBase {
         atr.concatenate(getAffineTransform(coverage));
         final MathTransform tr = ProjectiveTransform.create(atr);
         CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem();
-        crs = new DefaultDerivedCRS("Rotation " + angle + '°', crs, tr, crs.getCoordinateSystem());
+        crs = new DefaultDerivedCRS("Rotation " + angle + "°", crs, tr, crs.getCoordinateSystem());
         return project(coverage, crs, null, null, true);
     }
 

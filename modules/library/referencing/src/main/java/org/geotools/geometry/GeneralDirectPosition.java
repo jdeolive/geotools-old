@@ -149,7 +149,7 @@ public class GeneralDirectPosition extends AbstractDirectPosition implements Ser
      * @since 2.2
      */
     public GeneralDirectPosition(final DirectPosition point) {
-        ordinates = point.getCoordinates(); // Should already be cloned.
+        ordinates = point.getCoordinate(); // Should already be cloned.
         crs = point.getCoordinateReferenceSystem();
     }
 

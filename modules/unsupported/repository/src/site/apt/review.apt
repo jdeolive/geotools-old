@@ -23,3 +23,9 @@ Module API
 
   This code started out as part of the uDig project (LGPL) and has been ported for 
   GeoTools 2.2.x.
+
+
+  Adaptable code seems to be mostly new created by Justin in order to allow for the "extensible 
+  interface pattern" tipified by the Eclipse IAdaptable interace. Since he is 
+  following the uDig example the method names do not conflict with those of 
+  IResource and there should be no problem again eclipse.org codebase.

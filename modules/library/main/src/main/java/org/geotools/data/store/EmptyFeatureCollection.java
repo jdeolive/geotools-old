@@ -75,7 +75,9 @@ public class EmptyFeatureCollection extends DataFeatureCollection {
 	public boolean removeAll(Collection collection) {
 		return false;
 	}
-	
+	public boolean isValid() {
+	    return true;
+	}
 //	
 //	public FeatureIterator<SimpleFeature> features() {
 //		return new IteratorFeatureIterator( iterator() );

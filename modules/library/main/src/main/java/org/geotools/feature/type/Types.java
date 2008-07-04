@@ -480,6 +480,15 @@ public class Types {
 //        validate(attribute, attribute.getValue());
 //    }
 //
+    public static boolean isValid( Attribute attribute ){
+        try {
+            validate(attribute.getType(), attribute, attribute.getValue(), false );
+            return true;
+        }
+        catch (IllegalAttributeException invalid ){
+            return false;
+        }
+    }
     /**
      * Validates content against an attribute.
      * 

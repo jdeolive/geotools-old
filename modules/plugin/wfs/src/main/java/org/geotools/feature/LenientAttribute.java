@@ -108,6 +108,9 @@ public class LenientAttribute extends PropertyImpl implements Attribute {
 		return Utilities.equals( id, att.id );
 	}
 
+	public boolean isValid() {
+	    return true;
+	}
 	public String toString() {
 		return super.toString() + ":" + id; 
 	}

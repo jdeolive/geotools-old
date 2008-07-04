@@ -807,4 +807,7 @@ public class DefaultFeatureCollection extends BaseFeatureCollection implements F
 	public void purge() {
 		// no resources were harmed in the making of this FeatureCollection
 	}	
+    public boolean isValid() {
+        return true;
+    }
 }

@@ -16,6 +16,7 @@
  */
 package org.geotools.feature;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.GeometryAttribute;
+import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AssociationDescriptor;
@@ -120,6 +122,30 @@ public class FeatureFactoryImpl implements FeatureFactory {
 	    sb.addAll(value);
 	    return sb.buildFeature(id);
 	}
+
+    public SimpleFeature createSimpleFeature(Object[] array,
+            SimpleFeatureType type, String id) {
+        List<Attribute> attributes = new ArrayList<Attribute>();
+        for( int i=0; i<type.getAttributeCount(); i++){
+            AttributeDescriptor field = type.getAttribute(i);
+            Attribute attribute = createAttribute( array[i], field, null );
+            attributes.add( attribute );
+        }
+        return createSimpleFeature( attributes, type, id );
+    }
+
+    public SimpleFeature createSimpleFeautre(Object[] array,
+            AttributeDescriptor decsriptor, String id) {
+        SimpleFeatureType type = (SimpleFeatureType) decsriptor;
+        List<Attribute> attributes = new ArrayList<Attribute>();
+       
+        for( int i=0; i<type.getAttributeCount(); i++){
+            AttributeDescriptor field = type.getAttribute(i);
+            Attribute attribute = createAttribute( array[i], field, null );
+            attributes.add( attribute );
+        }
+        return createSimpleFeautre( attributes, decsriptor, id );
+    }
    
 }
 

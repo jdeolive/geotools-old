@@ -191,7 +191,6 @@ public class DirectPositionImpl implements Cloneable, DirectPosition, Position, 
     public double[] getCoordinate() {
         return ordinates;
     }
-
     @Deprecated
     public double[] getCoordinates() {
         return getCoordinate();

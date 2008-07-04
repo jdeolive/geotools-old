@@ -113,7 +113,9 @@ public class AttributeImpl extends PropertyImpl implements Attribute {
 		
 		return Utilities.equals( id, att.id );
 	}
-
+	public boolean isValid(){
+	    return Types.isValid(this);
+	}
 	public String toString() {
 		StringBuffer sb = new StringBuffer(getClass().getSimpleName()).append(":");
         sb.append(getDescriptor().getName().getLocalPart());

@@ -182,4 +182,8 @@ public class DecoratingFeature implements SimpleFeature {
     public String toString() {
         return "<"+getClass().getCanonicalName()+">"+delegate.toString();
     }
+
+    public boolean isValid() {
+        return delegate.isValid();
+    }
 }

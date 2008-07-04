@@ -517,6 +517,9 @@ public class SimpleFeatureBuilder {
         public void setValue(Object newValue) {
             throw new UnsupportedOperationException("This wrapper is read only");
         }
+        public boolean isValid() {
+            return true;
+        }
         
     }
 

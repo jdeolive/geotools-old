@@ -38,25 +38,6 @@ MODULE MAIN
   work of Martin.
 
 
-* org.geotools.catalog
-  ~~~~~~~~~~~~~~~~~~~~
-  Ported from uDig project (LGPL) w/ permission for (C) to PMC as part of 
-  GeoTools 2.2 (thanks Justin).
-
-
-* org.geotools.catalog.adaptable
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Seems to be mostly new created by Justin in order to allow for the "extensible 
-  interface pattern" tipified by the Eclipse IAdaptable interace. Since he is 
-  following the uDig example the method names do not conflict with those of 
-  IResource and there should be no problem again eclipse.org codebase.
- 
-
-* org.geotools.catalog.defauls
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Seems to be mostly ports of the default implementation from uDig.
-
-
 * org.geotools.data
   ~~~~~~~~~~~~~~~~~
   The contents of the data package were overhalled for the GeoTools 2.0 release, 
@@ -81,32 +62,6 @@ MODULE MAIN
   Initially created for GeoTools 2.0 to provide reader implementations for 
   reprojection / forceprojection, initial AuthorityFactory interface provided for 
   GeoTools 2.1 since deprecated and moved to referencing.
-
-
-* org.geotools.data.jdbc
-  ~~~~~~~~~~~~~~~~~~~~~~
-  ? DID JDBC STUFF MOVE TO ITS OWN MODULE?
-
-  Created to "save" previous data source implementations, and provide an abstract 
-  class for JDBC DataStore implementations. Warning scariest series of hacks we 
-  got ... code added for GeoTools 2.0, 2.1 and 2.2.
-
-
-* org.geotools.data.jdbc.attributeio
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Part of origional attribute reader based design for datastore.
-
-
-* org.geotools.data.jdbc.fidmapper
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Merged from an experimental branch in 2004, thanks andrea.
-
-
-* org.geotools.data.jdbc.referencing
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Seems to be added by jesse, probably a port of early access based EPSG 
-  authority?
-
 
 * org.geotools.data.memory
   ~~~~~~~~~~~~~~~~~~~~~~~~

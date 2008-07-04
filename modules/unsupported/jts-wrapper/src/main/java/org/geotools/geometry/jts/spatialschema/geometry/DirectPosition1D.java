@@ -137,7 +137,6 @@ public class DirectPosition1D implements DirectPosition, Serializable, Cloneable
     public double[] getCoordinate() {
         return new double[] {ordinate};
     }
-
     @Deprecated
     public double[] getCoordinates() {
         return getCoordinate();

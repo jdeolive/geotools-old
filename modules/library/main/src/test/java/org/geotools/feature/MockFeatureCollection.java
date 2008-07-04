@@ -264,6 +264,8 @@ public class MockFeatureCollection implements org.geotools.feature.FeatureCollec
 
     public void setValue(Object newValue) {
     }
-
+    public boolean isValid() {
+        return true;
+    }
    
 }

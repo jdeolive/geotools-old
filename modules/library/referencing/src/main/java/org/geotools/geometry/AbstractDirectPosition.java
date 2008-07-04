@@ -99,7 +99,6 @@ public abstract class AbstractDirectPosition implements DirectPosition {
         }
         return ordinates;
     }
-
     /**
      * @deprecated Renamed as {@link #getCoordinate} for consistency with ISO 19107.
      *

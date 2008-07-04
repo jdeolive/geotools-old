@@ -382,6 +382,10 @@ public class SimpleFeatureImpl implements SimpleFeature {
 
         return true;
     }
+    
+    public boolean isValid() {
+        return true;
+    }
 
     /**
      * Live collection backed directly on the value array
@@ -450,7 +454,11 @@ public class SimpleFeatureImpl implements SimpleFeature {
         public void setValue(Object newValue) {
             values[index] = newValue;
         }
+        public boolean isValid() {
+            return true;
+        }
         
     }
+    
     
 }

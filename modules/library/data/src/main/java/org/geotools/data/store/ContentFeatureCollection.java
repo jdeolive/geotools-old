@@ -501,5 +501,7 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
     public void setValue(Object value) {
         throw new UnsupportedOperationException();
     }
-    
+    public boolean isValid() {
+        return true;
+    }
 }

@@ -253,6 +253,9 @@ public class GazetteerNameValidationOnlineTest extends TestCase {
             public Collection<Property> getProperties() {
             	return null;
             }
+            public boolean isValid() {
+                return true;
+            }
 		}
 		SimpleFeature f = new TestFeature();
 		try{f.setAttribute("CityName","Vancouver");}catch(Exception e){}

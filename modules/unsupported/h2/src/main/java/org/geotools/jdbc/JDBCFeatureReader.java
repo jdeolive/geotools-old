@@ -860,6 +860,9 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         public void setValue(Object value) {
             throw new UnsupportedOperationException();
         }
+        public boolean isValid() {
+            return true;
+        }
     }
 
 }
