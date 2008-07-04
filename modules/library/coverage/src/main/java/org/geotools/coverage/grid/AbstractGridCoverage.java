@@ -218,7 +218,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
      * The default implementation throws an {@link UnsupportedOperationException}.
      * We don't know at this time if and when this method will be implemented, since
      * the API is going to change when we will shift to ISO 19123.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public byte[] getPackedDataBlock(final GridRange range) throws InvalidRangeException {
         throw new UnsupportedOperationException("Not yet implemented");
     }
@@ -228,7 +232,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
      * The default implementation throws an {@link UnsupportedOperationException}.
      * We don't know at this time if and when this method will be implemented, since
      * the API is going to change when we will shift to ISO 19123.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public boolean[] getDataBlock(final GridRange range, boolean[] destination)
             throws InvalidRangeException, ArrayIndexOutOfBoundsException
     {
@@ -240,7 +248,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
      * The default implementation throws an {@link UnsupportedOperationException}.
      * We don't know at this time if and when this method will be implemented, since
      * the API is going to change when we will shift to ISO 19123.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public byte[] getDataBlock(final GridRange range, byte[] destination)
             throws InvalidRangeException, ArrayIndexOutOfBoundsException
     {
@@ -252,7 +264,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
      * The default implementation throws an {@link UnsupportedOperationException}.
      * We don't know at this time if and when this method will be implemented, since
      * the API is going to change when we will shift to ISO 19123.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public short[] getDataBlock(final GridRange range, short[] destination)
             throws InvalidRangeException, ArrayIndexOutOfBoundsException
     {
@@ -264,7 +280,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
      * The default implementation throws an {@link UnsupportedOperationException}.
      * We don't know at this time if and when this method will be implemented, since
      * the API is going to change when we will shift to ISO 19123.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public int[] getDataBlock(final GridRange range, int[] destination)
             throws InvalidRangeException, ArrayIndexOutOfBoundsException
     {
@@ -276,7 +296,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
      * The default implementation throws an {@link UnsupportedOperationException}.
      * We don't know at this time if and when this method will be implemented, since
      * the API is going to change when we will shift to ISO 19123.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public float[] getDataBlock(final GridRange range, final float[] destination)
             throws InvalidRangeException, ArrayIndexOutOfBoundsException
     {
@@ -288,7 +312,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
      * The default implementation throws an {@link UnsupportedOperationException}.
      * We don't know at this time if and when this method will be implemented, since
      * the API is going to change when we will shift to ISO 19123.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public double[] getDataBlock(final GridRange range, final double[] destination)
             throws InvalidRangeException, ArrayIndexOutOfBoundsException
     {
@@ -298,7 +326,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
     /**
      * Set a block of values for all sample dimensions. The default implementation always throws
      * an exception, since this grid coverage is not editable by default.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public void setDataBlock(GridRange gridRange, boolean[] values)
             throws InvalidRangeException, GridNotEditableException, ArrayIndexOutOfBoundsException
     {
@@ -308,7 +340,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
     /**
      * Set a block of values for all sample dimensions. The default implementation always throws
      * an exception, since this grid coverage is not editable by default.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public void setDataBlock(GridRange gridRange, byte[] values)
             throws InvalidRangeException, GridNotEditableException, ArrayIndexOutOfBoundsException
     {
@@ -318,7 +354,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
     /**
      * Set a block of values for all sample dimensions. The default implementation always throws
      * an exception, since this grid coverage is not editable by default.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public void setDataBlock(GridRange gridRange, short[] values)
             throws InvalidRangeException, GridNotEditableException, ArrayIndexOutOfBoundsException
     {
@@ -328,7 +368,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
     /**
      * Set a block of values for all sample dimensions. The default implementation always throws
      * an exception, since this grid coverage is not editable by default.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public void setDataBlock(GridRange gridRange, int[] values)
             throws InvalidRangeException, GridNotEditableException, ArrayIndexOutOfBoundsException
     {
@@ -338,7 +382,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
     /**
      * Set a block of values for all sample dimensions. The default implementation always throws
      * an exception, since this grid coverage is not editable by default.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public void setDataBlock(GridRange gridRange, float[] values)
             throws InvalidRangeException, GridNotEditableException, ArrayIndexOutOfBoundsException
     {
@@ -348,7 +396,11 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
     /**
      * Set a block of values for all sample dimensions. The default implementation always throws
      * an exception, since this grid coverage is not editable by default.
+     *
+     * @deprecated We should use some higher level construct instead (multi-dimensional array
+     *             or something similar).
      */
+    @Deprecated
     public void setDataBlock(GridRange gridRange, double[] values)
             throws InvalidRangeException, GridNotEditableException, ArrayIndexOutOfBoundsException
     {
@@ -363,6 +415,7 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
      *             {@code byte[]} argument type, since we can't easily cast an array
      *             of {@code byte[]} to an array of arbitrary type.
      */
+    @Deprecated
     public void setPackedDataBlock(GridRange gridRange, byte[] values)
             throws InvalidRangeException, GridNotEditableException, ArrayIndexOutOfBoundsException
     {

@@ -25,7 +25,6 @@ import javax.imageio.stream.ImageOutputStream;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.util.logging.Logging;
-import org.opengis.coverage.MetadataNameNotFoundException;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageWriter;
@@ -116,8 +115,7 @@ public abstract class AbstractGridCoverageWriter implements GridCoverageWriter {
 	 * @see org.opengis.coverage.grid.GridCoverageWriter#setMetadataValue(java.lang.String,
 	 *      java.lang.String)
 	 */
-	public void setMetadataValue(String name, String value) throws IOException,
-			MetadataNameNotFoundException {
+	public void setMetadataValue(String name, String value) throws IOException {
 		throw new UnsupportedOperationException("Unsupported method");
 	}
 

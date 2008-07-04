@@ -53,7 +53,6 @@ import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.ColorInterpretation;
-import org.opengis.coverage.MetadataNameNotFoundException;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridRange;
@@ -780,8 +779,7 @@ public abstract class AbstractGridCoverage2DReader implements
 	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#getMetadataValue(java.lang.String)
 	 */
-	public String getMetadataValue(final String name)
-			throws MetadataNameNotFoundException {
+	public String getMetadataValue(final String name) {
 		throw new UnsupportedOperationException("Unsupported opertion.");
 	}
 
