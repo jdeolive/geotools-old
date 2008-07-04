@@ -32,9 +32,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 public class MutableFIDFeature extends SimpleFeatureImpl {
 
-  public MutableFIDFeature(List properties, SimpleFeatureType ft, String fid)
+  public MutableFIDFeature(List<Object> values, SimpleFeatureType ft, String fid)
     throws IllegalAttributeException {
-    super(properties, ft, fid == null ? SimpleFeatureBuilder.createDefaultFeatureId() : fid);
+    super(values, ft, fid == null ? SimpleFeatureBuilder.createDefaultFeatureId() : fid);
   }
 
   /**
