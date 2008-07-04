@@ -26,5 +26,10 @@ This file is derived from NGA/NASA software available for unlimited distribution
 See http://earth-info.nima.mil/GandG/wgs84/gravitymod/.
 ---------------------------------------------------------------------------------
 
-  * unsure on origion of EGM180.nor data file
-    see http://earth-info.nga.mil/GandG/wgs84/gravitymod/ for details
+  * The EGM180.nor data file is reformated but identical to 
+    http://earth-info.nga.mil/GandG/wgs84/gravitymod/wgs84_180/egm180.nor
+    See http://earth-info.nga.mil/GandG/wgs84/gravitymod/ for details
+    
+    The metadata file says:
+      NGA allows unlimited releasability and distribution of the 
+      WGS 84 Geopotential Model 
