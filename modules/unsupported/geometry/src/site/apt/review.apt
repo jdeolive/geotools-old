@@ -12,7 +12,12 @@ MODULE GEOMETRY
     * Adrian Custer June 12008
 
 
-  STATUS: CLEAN.
+  STATUS: CLEAN code, dirty data
+    The data are, possibly, taken from the JTS test suite. Needs confirmation.
+      http://jira.codehaus.org/browse/GEOT-1895
+  
+  
+  
     NB The date of the start of the OSGeo copyright is wrong for all files which 
     include Vivid as copyright holder: the script captured that earliest date 
     rather than the earliest of those lines it recoginized as assigning 
