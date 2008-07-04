@@ -86,6 +86,7 @@ public abstract class JDBCTestSupport extends TestCase {
                 Connection cx = dataSource.getConnection();
                 cx.close();
             } catch (Throwable t) {
+                System.out.println("Skipping tests " + getClass().getName() + " since data souce is not available: " + t.getMessage());
                 dataSourceAvailable.put( setup.getClass(), Boolean.FALSE );
                 return;
             }
