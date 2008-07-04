@@ -41,7 +41,7 @@ public final class Converters {
 	/**
 	 * Cached list of converter factories
 	 */
-	static Collection factories;
+	static ConverterFactory[] factories;
 
     /**
      * The service registry for this manager.
@@ -98,8 +98,7 @@ public final class Converters {
      */
     public static Set<ConverterFactory> getConverterFactories( Class source, Class target ) {
         HashSet factories = new HashSet();
-        for ( Iterator f = factories().iterator(); f.hasNext(); ) {
-            ConverterFactory factory = (ConverterFactory) f.next();
+        for (ConverterFactory factory : factories()) {
             if ( factory.createConverter( source, target, null ) != null ) {
                 factories.add( factory );
             }
@@ -114,7 +113,7 @@ public final class Converters {
 	 * @since 2.4
 	 */
 	public static <T> T convert( Object source, Class<T> target ) {
-	    return target.cast( convert( source, target, null ) );
+	    return convert( source, target, null );
 	}
 
 	/**
@@ -137,17 +136,16 @@ public final class Converters {
 		//can't convert null
         if ( source == null )
 			return null;
-
-        //handle case of source being a direct instance of target
-        // up front
-        if ( source.getClass().equals( target ) ) {
-            return target.cast( source );
+        
+        // handle case of source being an instance of target up front
+        final Class sourceClass = source.getClass();
+        if (sourceClass == target ||  sourceClass.equals( target ) 
+                || target.isAssignableFrom(sourceClass) ) {
+            return (T) source;
         }
 
-
-		for ( Iterator i = factories().iterator(); i.hasNext(); ) {
-			ConverterFactory factory = (ConverterFactory) i.next();
-			Converter converter = factory.createConverter( source.getClass(), target, hints );
+		for (ConverterFactory factory : factories()) {
+			Converter converter = factory.createConverter( sourceClass, target, hints );
 			if ( converter != null ) {
 				try {
 					T converted = converter.convert( source, target );
@@ -174,9 +172,11 @@ public final class Converters {
 	 * @return A collection of converter factories.
 	 * @since 2.4
 	 */
-	static Collection factories() {
-	    if(factories == null)
-		factories = getConverterFactories(GeoTools.getDefaultHints());
+	static ConverterFactory[] factories() {
+	    if(factories == null) {
+	        Collection factoryCollection = getConverterFactories(GeoTools.getDefaultHints());
+	        factories = (ConverterFactory[]) factoryCollection.toArray(new ConverterFactory[factoryCollection.size()]);
+	    }
 	    return factories;
 	}
 }
