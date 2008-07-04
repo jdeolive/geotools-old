@@ -9,3 +9,4 @@ Module ImagePyramid
 
 
   STATUS: Clean except for 1.5M of data from unknown origin.
+    http://jira.codehaus.org/browse/GEOT-1887
