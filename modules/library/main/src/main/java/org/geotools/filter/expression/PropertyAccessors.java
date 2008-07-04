@@ -30,23 +30,25 @@ import org.geotools.factory.Hints;
  * 
  */
 public class PropertyAccessors {
-    static final List FACTORY_CACHE;
+    static final PropertyAccessorFactory[] FACTORY_CACHE;
     
     static {
-        FACTORY_CACHE = new ArrayList();
+        List<PropertyAccessorFactory> cache = new ArrayList<PropertyAccessorFactory>();
 
         // add the simple feature property accessor factory first for performance
         // reasons
-        FACTORY_CACHE.add( new SimpleFeaturePropertyAccessorFactory());
-         Iterator factories = FactoryRegistry
+        cache.add( new SimpleFeaturePropertyAccessorFactory());
+        cache.add( new DirectPropertyAccessorFactory());
+        Iterator factories = FactoryRegistry
                  .lookupProviders(PropertyAccessorFactory.class);
          while (factories.hasNext()) {
             Object factory = factories.next();
-            if ( factory instanceof SimpleFeaturePropertyAccessorFactory )
+            if ( factory instanceof SimpleFeaturePropertyAccessorFactory || factory instanceof DirectPropertyAccessorFactory)
                 continue;
             
-            FACTORY_CACHE.add(factory);
+            cache.add((PropertyAccessorFactory) factory);
          }
+         FACTORY_CACHE = (PropertyAccessorFactory[]) cache.toArray(new PropertyAccessorFactory[cache.size()]);
     }
     
     /**
@@ -75,8 +77,7 @@ public class PropertyAccessors {
         if (object == null)
             return null;
 
-        for (Iterator it = FACTORY_CACHE.iterator(); it.hasNext();) {
-            PropertyAccessorFactory factory = (PropertyAccessorFactory) it.next();
+        for(PropertyAccessorFactory factory : FACTORY_CACHE) {
             PropertyAccessor accessor = factory.createPropertyAccessor(object.getClass(), xpath,
                     target, hints);
             if (accessor != null && accessor.canHandle(object, xpath, target)) {
