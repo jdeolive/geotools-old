@@ -830,7 +830,10 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
 
         try {
             Object literal = null;
-            if(target != null) 
+            // HACK: let expression figure out the right value for numbers,
+            // since the context is almost always improperly set and the
+            // numeric converters try to force floating points to integrals 
+            if(target != null && !(Number.class.isAssignableFrom(target))) 
                 // use the target type
                 literal = expression.evaluate(null, target);
             
