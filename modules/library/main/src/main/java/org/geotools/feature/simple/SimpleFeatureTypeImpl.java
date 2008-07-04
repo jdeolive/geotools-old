@@ -17,24 +17,19 @@
 package org.geotools.feature.simple;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-import org.geotools.feature.NameImpl;
-import org.geotools.feature.type.Descriptors;
 import org.geotools.feature.type.FeatureTypeImpl;
-import org.geotools.feature.type.Types;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.feature.type.GeometryType;
-import org.opengis.feature.type.Name;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 
 /**
@@ -44,75 +39,86 @@ import org.opengis.util.InternationalString;
  * @author Justin
  */
 public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
-		SimpleFeatureType {
+        SimpleFeatureType {
 
-	// list of types
-	List<AttributeType> types = null;
+    // list of types
+    List<AttributeType> types = null;
 
-	public SimpleFeatureTypeImpl(Name name, List<AttributeDescriptor> schema,
-			GeometryDescriptor defaultGeometry, boolean isAbstract, 
-			List<Filter> restrictions, AttributeType superType, InternationalString description) {
-		super(name, (List) schema, defaultGeometry, isAbstract, restrictions, superType,
-				description);
-	}
-	
-	
-	public List<AttributeDescriptor> getAttributes() {
-		return (List) getProperties();
-	}
-	
-	public List<AttributeType> getTypes() {
-      if (types == null) {
-          synchronized (this) {
-              if (types == null) {
-                  types = new ArrayList<AttributeType>();
-                  for (Iterator<AttributeDescriptor> itr = getAttributes().iterator(); itr.hasNext();) {
-                      AttributeDescriptor ad = itr.next();
-                      types.add(ad.getType());
-                  }
-              }
-          }
-      }
+    List<AttributeDescriptor> descriptors;
 
-      return types;
-	}
-	
-	public AttributeType getType(Name name) {
-	    AttributeDescriptor attribute = (AttributeDescriptor) getProperty(name);
-	    if ( attribute != null ) {
-	        return attribute.getType();
-	    }
-	    
-	    return null;
-	}
-	public AttributeType getType(String name) {
-	    AttributeDescriptor attribute = (AttributeDescriptor) getProperty(name);
-        if ( attribute != null ) {
+    Map<String, Integer> index;
+
+    public SimpleFeatureTypeImpl(Name name, List<AttributeDescriptor> schema,
+            GeometryDescriptor defaultGeometry, boolean isAbstract,
+            List<Filter> restrictions, AttributeType superType,
+            InternationalString description) {
+        super(name, (List) schema, defaultGeometry, isAbstract, restrictions,
+                superType, description);
+        descriptors = schema;
+        index = buildIndex(this);
+    }
+
+    public List<AttributeDescriptor> getAttributes() {
+        return Collections.unmodifiableList(descriptors);
+    }
+
+    public List<AttributeType> getTypes() {
+        if (types == null) {
+            synchronized (this) {
+                if (types == null) {
+                    types = new ArrayList<AttributeType>();
+                    for (Iterator<AttributeDescriptor> itr = descriptors
+                            .iterator(); itr.hasNext();) {
+                        AttributeDescriptor ad = itr.next();
+                        types.add(ad.getType());
+                    }
+                }
+            }
+        }
+
+        return types;
+    }
+
+    public AttributeType getType(Name name) {
+        AttributeDescriptor attribute = (AttributeDescriptor) getProperty(name);
+        if (attribute != null) {
             return attribute.getType();
         }
-        
+
         return null;
     }
-	
-	public AttributeType getType(int index) {
-        AttributeDescriptor attribute = getAttribute( index );
-        return attribute.getType();
+
+    public AttributeType getType(String name) {
+        AttributeDescriptor attribute = (AttributeDescriptor) getProperty(name);
+        if (attribute != null) {
+            return attribute.getType();
+        }
+
+        return null;
     }
-	
-	public AttributeDescriptor getAttribute(Name name) {
-		return (AttributeDescriptor) getProperty( name );
-	}
 
-	public AttributeDescriptor getAttribute(String name) {
-	    return (AttributeDescriptor) getProperty( name );
-	}
+    public AttributeType getType(int index) {
+        return getTypes().get(index);
+    }
 
-	public AttributeDescriptor getAttribute(int index) {
-		return getAttributes().get(index);
-	}
-	
-	public int indexOf(Name name) {
-	    int index = 0;
+    public AttributeDescriptor getAttribute(Name name) {
+        return (AttributeDescriptor) getProperty(name);
+    }
+
+    public AttributeDescriptor getAttribute(String name) {
+        return (AttributeDescriptor) getProperty(name);
+    }
+
+    public AttributeDescriptor getAttribute(int index) {
+        return descriptors.get(index);
+    }
+
+    public int indexOf(Name name) {
+        if(name.getNamespaceURI() == null)
+            return indexOf(name.getLocalPart());
+        
+        // otherwise do a full scan
+        int index = 0;
         for (Iterator<AttributeDescriptor> itr = getAttributes().iterator(); itr.hasNext(); index++) {
             AttributeDescriptor descriptor = (AttributeDescriptor) itr.next();
             if (descriptor.getName().equals(name)) {
@@ -120,19 +126,41 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
             }
         }
         return -1;
-	}
-	
-	public int indexOf(String name) {
-		return indexOf( new NameImpl(name));
-	}
+    }
 
-	public int getAttributeCount() {
-		return properties.size();
-	}
+    public int indexOf(String name) {
+        Integer idx = index.get(name);
+        if(idx != null)
+            return idx.intValue();
+        else
+            return -1;
+    }
 
+    public int getAttributeCount() {
+        return descriptors.size();
+    }
 
-	public String getTypeName() {
-		return getName().getLocalPart();
-	}
-	
+    public String getTypeName() {
+        return getName().getLocalPart();
+    }
+
+    /**
+     * Builds the name -> position index used by simple features for fast attribute lookup
+     * @param featureType
+     * @return
+     */
+    static Map<String, Integer> buildIndex(SimpleFeatureType featureType) {
+        // build an index of attribute name to index
+        Map<String, Integer> index = new HashMap<String, Integer>();
+        int i = 0;
+        for (AttributeDescriptor ad : featureType.getAttributes()) {
+            index.put(ad.getLocalName(), i++);
+        }
+        if (featureType.getDefaultGeometry() != null) {
+            index.put(null, index.get(featureType.getDefaultGeometry()
+                    .getLocalName()));
+        }
+        return index;
+    }
+
 }

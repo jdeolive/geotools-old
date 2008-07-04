@@ -19,6 +19,7 @@ package org.geotools.feature;
 import java.util.Collection;
 import java.util.List;
 
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureImpl;
 import org.opengis.feature.Association;
 import org.opengis.feature.Attribute;
@@ -108,13 +109,16 @@ public class FeatureFactoryImpl implements FeatureFactory {
 	}
 	
 	public SimpleFeature createSimpleFeautre(List<Attribute> value,
-	        AttributeDescriptor decsriptor, String id) {
-	    return new SimpleFeatureImpl(value,decsriptor,id);
+	        AttributeDescriptor descriptor, String id) {
+	    // return new SimpleFeatureImpl(value,descriptor,id);
+	    return null;
 	}
 	
 	public SimpleFeature createSimpleFeature(List<Attribute> value,
 	        SimpleFeatureType type, String id) {
-	    return new SimpleFeatureImpl(value,type,id);
+	    SimpleFeatureBuilder sb = new SimpleFeatureBuilder(type);
+	    sb.addAll(value);
+	    return sb.buildFeature(id);
 	}
    
 }

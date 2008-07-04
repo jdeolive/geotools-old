@@ -18,6 +18,7 @@ package org.geotools.feature.collection;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -73,7 +74,7 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
 	 * @param memberType The type of the members of the collection.
 	 */
     protected BaseFeatureCollection( String id, SimpleFeatureType memberType ){
-    	super( Collections.EMPTY_LIST, new BaseFeatureCollectionType(memberType), id != null ? id : "featureCollection" );
+    	super(new Object[0], new BaseFeatureCollectionType(memberType), id != null ? id : "featureCollection");
     }
     
 //    /**

@@ -16,149 +16,439 @@
  */
 package org.geotools.feature.simple;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.geotools.feature.FeatureImpl;
+import org.geotools.feature.GeometryAttributeImpl;
 import org.geotools.feature.IllegalAttributeException;
-import org.opengis.feature.Attribute;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.util.Converters;
 import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
-import org.opengis.feature.type.PropertyDescriptor;
+import org.opengis.geometry.BoundingBox;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * An implementation of the SimpleFeature convience methods ontop of
- * FeatureImpl.
+ * An implementation of {@link SimpleFeature} geared towards speed and backed by an Object[].
  * 
  * @author Justin
+ * @author Andrea Aime
  */
-public class SimpleFeatureImpl extends FeatureImpl implements SimpleFeature {
-
-    public SimpleFeatureImpl(List properties, AttributeDescriptor desc, String id) {
-        super(properties, desc, id);
-    }
-
-    public SimpleFeatureImpl(List properties, SimpleFeatureType type, String id) {
-        super(properties, type, id);
-    }
-
-    public SimpleFeatureType getType() {
-        return (SimpleFeatureType) super.getType();
+public class SimpleFeatureImpl implements SimpleFeature {
+    
+    protected String id;
+    protected SimpleFeatureType featureType;
+    /**
+     * The actual values held by this feature
+     */
+    protected Object[] values;
+    /**
+     * The attribute name -> position index
+     */
+    protected Map<String,Integer> index;
+    /**
+     * The set of user data attached to the feature (lazily created)
+     */
+    protected Map<Object, Object> userData;
+    /**
+     * The set of user data attached to each attribute (lazily created)
+     */
+    protected Map<Object, Object>[] attributeUserData;
+    
+    /**
+     * Builds a new feature reusing the specified index
+     * @param values
+     * @param featureType
+     * @param id
+     * @param index
+     */
+    SimpleFeatureImpl( Object[] values, SimpleFeatureType featureType, String id, Map<String,Integer> index ) {
+        this.id = id;
+        this.featureType = featureType;
+        this.values = values;
+        this.index = index;
     }
     
-    public SimpleFeatureType getFeatureType() {
-        return getType();
+    /**
+     * Builds a new feature reusing the specified index
+     * @param values
+     * @param featureType
+     * @param id
+     * @param index
+     */
+    SimpleFeatureImpl( Object[] values, Map<Object, Object>[] attributeUserData, SimpleFeatureType featureType, String id, Map<String,Integer> index ) {
+        this.id = id;
+        this.featureType = featureType;
+        this.attributeUserData = attributeUserData;
+        this.values = values;
+        this.index = index;
     }
     
-    public List<Attribute> getValue() {
-        return (List<Attribute>) super.getValue();
+    /**
+     * Builds a new feature based on the provided values and feature type
+     * @param values
+     * @param featureType
+     * @param id
+     */
+    public SimpleFeatureImpl( List<Object> values, SimpleFeatureType featureType, String id) {
+        this(values.toArray(), featureType, id);
     }
     
-    public Object getAttribute(Name name) {
-        return getAttribute(name.getLocalPart());
-    }
-    
-    public void setAttribute(Name name, Object value) {
-        setAttribute( name.getLocalPart(), value );
-    }
-    
-    public Object getAttribute(String name) {
-        for (Iterator<Attribute> itr = getValue().iterator(); itr.hasNext();) {
-            Attribute att = (Attribute) itr.next();
-            if ( att.getName().getLocalPart().equals( name )) {
-                return att.getValue();
-            }
-        }
-        return null;
-    }
-    
-    public void setAttribute(String name, Object value) {
-        Attribute attribute = (Attribute) getProperty(name);
-        if ( attribute == null ) {
-            throw new IllegalAttributeException("No such attribute: " + name);
-        }
+    /**
+     * Fast construction of a new feature. The object takes owneship of the provided value array,
+     * do not modify after calling the constructor
+     * @param values
+     * @param featureType
+     * @param id
+     */
+    public SimpleFeatureImpl(Object[] values, SimpleFeatureType featureType, String id) {
+        this.id = id;
+        this.featureType = featureType;
+        this.values = values;
         
-        attribute.setValue( value );
-    }
-    
-    public Object getAttribute(int index) throws IndexOutOfBoundsException {
-        return getValue().get(index).getValue();
-    }
-    
-    public void setAttribute(int index, Object value)
-            throws IndexOutOfBoundsException {
-        Attribute attribute = getValue().get( index );
-        attribute.setValue( value );
-    }
-    
-    public List<Object> getAttributes() {
-        List attributes = new ArrayList();
-        for ( Iterator<Attribute> a = getValue().iterator(); a.hasNext(); ) {
-            Attribute attribute = a.next();
-            attributes.add( attribute.getValue() );
-        }
-        
-        return attributes;
-    }
-    
-    public void setAttributes(List<Object> values) {
-        if ( values.size() != getValue().size() ) {
-            String msg = "Expected " + getValue().size() + " attributes but " 
-                + values.size() + " were specified";
-            throw new IllegalArgumentException( msg );
-        }
-        
-        for ( int i = 0; i < values.size(); i++ ) {
-            getValue().get(i).setValue( values.get(i) );
+        // in the most common case reuse the map cached in the feature type
+        if(featureType instanceof SimpleFeatureTypeImpl) {
+            index = ((SimpleFeatureTypeImpl) featureType).index;
+        } else {
+            // if we're not lucky, rebuild the index completely... 
+            // TODO: create a separate cache for this case?
+            this.index = SimpleFeatureTypeImpl.buildIndex(featureType);
         }
     }
     
-    public void setAttributes(Object[] values) {
-        setAttributes( Arrays.asList(values) );
-    }
-    
-    public int getAttributeCount() {
-        return getValue().size();
+    public String getID() {
+        return id;
     }
     
     public int getNumberOfAttributes() {
-        return getAttributeCount();
+        return values.length;
     }
     
+    public Object getAttribute(int index) throws IndexOutOfBoundsException {
+        return values[ index ];
+    }
+    
+    public Object getAttribute(String name) {
+        Integer idx = index.get(name);
+        if(idx != null)
+            return getAttribute(idx);
+        else
+            return null;
+    }
+
+    public Object getAttribute(Name name) {
+        return getAttribute( name.getLocalPart() );
+    }
+
+    public int getAttributeCount() {
+        return values.length;
+    }
+
+    public List<Object> getAttributes() {
+        return new ArrayList(Arrays.asList( values ));
+    }
+
     public Object getDefaultGeometry() {
-        //first try the default geometry as described by the type
-        if ( getDefaultGeometryProperty() != null ) {
-            Object defaultGeometry = getDefaultGeometryProperty().getValue();
-            if ( defaultGeometry != null ) {
-                return defaultGeometry;
-            }
+        // should be specified in the index as the default key (null)
+        Object defaultGeometry = 
+            index.get( null ) != null ? getAttribute( index.get( null ) ) : null;
             
-            //default was null, look for another geometry property that does 
-            // not have a null value
-            for ( Property p : getProperties() ) {
-                if ( p instanceof GeometryAttribute ) {
-                    GeometryAttribute ga = (GeometryAttribute) p;
-                    if ( ga.getValue() != null ) {
-                        return ga.getValue();
+        // not found? Ok, let's do a lookup then...
+        if ( defaultGeometry == null ) {
+            for ( Object o : values ) {
+                if ( o instanceof Geometry ) {
+                    defaultGeometry = o;
+                    break;
+                }
+            }
+        }
+        
+        return defaultGeometry;
+    }
+
+    public SimpleFeatureType getFeatureType() {
+        return featureType;
+    }
+
+    public SimpleFeatureType getType() {
+        return featureType;
+    }
+
+    public void setAttribute(int index, Object value)
+        throws IndexOutOfBoundsException {
+        // we don't do validation, but at least conversion is necessary to have the tests work
+        values[index] = Converters.convert(value, getFeatureType().getAttribute(index).getType().getBinding());
+    }
+    
+    public void setAttribute(String name, Object value) {
+        final Integer idx = index.get(name);
+        if(idx == null)
+            throw new IllegalAttributeException("Unknown attribute " + name);
+        setAttribute( idx.intValue(), value );
+    }
+
+    public void setAttribute(Name name, Object value) {
+        setAttribute( name.getLocalPart(), value );
+    }
+
+    public void setAttributes(List<Object> values) {
+        for (int i = 0; i < this.values.length; i++) {
+            this.values[i] = values.get(i);
+        }
+    }
+
+    public void setAttributes(Object[] values) {
+        setAttributes( Arrays.asList( values ) );
+    }
+
+    public void setDefaultGeometry(Object geometry) {
+        Integer geometryIndex = index.get( null );
+        if ( geometryIndex != null ) {
+            setAttribute( geometryIndex, geometry );
+        }
+    }
+
+    public BoundingBox getBounds() {
+        //TODO: cache this value
+        ReferencedEnvelope bounds = new ReferencedEnvelope( featureType.getCRS() );
+        for ( Object o : values ) {
+            if ( o instanceof Geometry ) {
+                Geometry g = (Geometry) o;
+                //TODO: check userData for crs... and ensure its of the same 
+                // crs as the feature type
+                if ( bounds.isNull() ) {
+                    bounds.init(g.getEnvelopeInternal());
+                }
+                else {
+                    bounds.expandToInclude(g.getEnvelopeInternal());
+                }
+            }
+        }
+        
+        return bounds;
+    }
+
+    public GeometryAttribute getDefaultGeometryProperty() {
+        return new GeometryAttributeImpl(getDefaultGeometry(), getFeatureType().getDefaultGeometry(), null);
+    }
+
+    public void setDefaultGeometryProperty(GeometryAttribute geometryAttribute) {
+        if(geometryAttribute != null)
+            setDefaultGeometry(geometryAttribute.getValue());
+        else
+            setDefaultGeometry(null);
+    }
+
+    public Collection<Property> getProperties() {
+        return new AttributeList();
+    }
+
+    public Collection<Property> getProperties(Name name) {
+        return getProperties( name.getLocalPart() );
+    }
+
+    public Collection<Property> getProperties(String name) {
+        // cast temporarily to a plain collection to avoid type problems with generics
+        Collection c = Collections.singleton( new Attribute( index.get(name) ) );
+        return c;
+    }
+
+    public Property getProperty(Name name) {
+        return getProperty( name.getLocalPart() );
+    }
+
+    public Property getProperty(String name) {
+        return new Attribute( index.get( name ) );
+    }
+
+    public Collection<? extends Property> getValue() {
+        return getProperties();
+    }
+
+    public void setValue(Collection<Property> values) {
+        int i = 0;
+        for ( Property p : values ) {
+            this.values[i] = p.getValue();
+        }
+    }
+
+    public void setValue(Object newValue) {
+        setValue( (Collection<Property>) newValue );
+    }
+    
+    public AttributeDescriptor getDescriptor() {
+        return null;
+    }
+
+    public Name getName() {
+        return null;
+    }
+
+    public boolean isNillable() {
+        return true;
+    }
+
+    public Map<Object, Object> getUserData() {
+        if(userData == null)
+            userData = new HashMap<Object, Object>();
+        return userData;
+    }
+    
+    /**
+     * returns a unique code for this feature
+     *
+     * @return A unique int
+     */
+    public int hashCode() {
+        return id.hashCode() * featureType.hashCode();
+    }
+
+    /**
+     * override of equals.  Returns if the passed in object is equal to this.
+     *
+     * @param obj the Object to test for equality.
+     *
+     * @return <code>true</code> if the object is equal, <code>false</code>
+     *         otherwise.
+     */
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof SimpleFeatureImpl)) {
+            return false;
+        }
+
+        SimpleFeatureImpl feat = (SimpleFeatureImpl) obj;
+        
+        // this check shouldn't exist, by contract, 
+        //all features should have an ID.
+        if (id == null) {
+            if (feat.getID() != null) {
+                return false;
+            }
+        }
+
+        if (!id.equals(feat.getID())) {
+            return false;
+        }
+
+        if (!feat.getFeatureType().equals(featureType)) {
+            return false;
+        }
+
+        for (int i = 0, ii = values.length; i < ii; i++) {
+            Object otherAtt = feat.getAttribute(i);
+
+            if (values[i] == null) {
+                if (otherAtt != null) {
+                    return false;
+                }
+            } else {
+                if (!values[i].equals(otherAtt)) {
+                    if (values[i] instanceof Geometry
+                            && otherAtt instanceof Geometry) {
+                        // we need to special case Geometry
+                        // as JTS is broken Geometry.equals( Object ) 
+                        // and Geometry.equals( Geometry ) are different 
+                        // (We should fold this knowledge into AttributeType...)
+                        if (!((Geometry) values[i]).equals(
+                                    (Geometry) otherAtt)) {
+                            return false;
+                        }
+                    } else {
+                        return false;
                     }
                 }
             }
         }
-        return null;
+
+        return true;
     }
-    
-    public void setDefaultGeometry(Object geometry) {
-        if ( getDefaultGeometryProperty() != null ) {
-            getDefaultGeometryProperty().setValue(geometry);
+
+    /**
+     * Live collection backed directly on the value array
+     */
+    class AttributeList extends AbstractList<Property> {
+
+        public Attribute get(int index) {
+            return new Attribute( index );
         }
-        else {
-            throw new IllegalAttributeException("Feature has no defaultGeometry property");    
+        
+        public Attribute set(int index, Property element) {
+            values[index] =  element.getValue();
+            return null;
+        }
+        
+        public int size() {
+            return values.length;
+        }
+    }
+
+    /**
+     * Attribute that delegates directly to the value array
+     */
+    class Attribute implements org.opengis.feature.Attribute {
+
+        int index;
+        
+        Attribute( int index ) {
+            this.index = index;
+        }
+        
+        public String getID() {
+            return null;
+        }
+
+        public AttributeDescriptor getDescriptor() {
+            return featureType.getAttribute(index);
+        }
+
+        public AttributeType getType() {
+            return featureType.getType(index);
+        }
+
+        public Name getName() {
+            return getDescriptor().getName();
+        }
+
+        public Map<Object, Object> getUserData() {
+            // lazily create the user data holder
+            if(attributeUserData == null)
+                attributeUserData = new HashMap[values.length];
+            // lazily create the attribute user data
+            if(attributeUserData[index] == null)
+                attributeUserData[index] = new HashMap<Object, Object>();
+            return attributeUserData[index];
+        }
+
+        public Object getValue() {
+            return values[index];
+        }
+
+        public boolean isNillable() {
+            return getDescriptor().isNillable();
+        }
+
+        public void setValue(Object newValue) {
+            values[index] = newValue;
         }
         
     }
