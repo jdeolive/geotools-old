@@ -16,7 +16,7 @@
  */
 package org.geotools.filter;
 
-import org.geotools.filter.expression.Value;
+import org.geotools.util.Converters;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.expression.Expression;
 
@@ -90,29 +90,29 @@ public abstract class BinaryComparisonAbstract extends AbstractFilter
 	 * @return
 	 */
 	protected Object[] eval( Object object ) {
-		Value v1 = new Value( eval( getExpression1(), object ) );
-		Value v2 = new Value( eval( getExpression2(), object ) );
+		Object v1 = eval( getExpression1(), object );
+		Object v2 = eval( getExpression2(), object );
 		
-		if ( v1.getValue() != null && v2.getValue() != null ) {
+		if ( v1 != null && v2 != null ) {
 			//try to convert so that values are of same type
-			if ( v1.getValue().getClass().equals( v2.getValue().getClass() ) ) {
+			if ( v1.getClass().equals( v2.getClass() ) ) {
 				//nothing to do
-				return new Object[] { v1.getValue(), v2.getValue() }; 
+				return new Object[] { v1, v2 }; 
 			}
 			
-			Object o = v2.value( v1.getValue().getClass() );
+			Object o =  Converters.convert(v2, v1.getClass());
 			if ( o != null ) {
-				return new Object[] { v1.getValue(), o }; 
+				return new Object[] { v1, o }; 
 			}
 			
 			//try the other way
-			o = v1.value( v2.getValue().getClass() );
+			o = Converters.convert(v1, v2.getClass() );
 			if ( o != null ) {
-				return new Object[] { o, v2.getValue() };
+				return new Object[] { o, v2 };
 			}
 		}
 		
-		return new Object[] { v1.getValue(), v2.getValue() };
+		return new Object[] { v1, v2 };
 	}
 	
 	/**
@@ -120,15 +120,12 @@ public abstract class BinaryComparisonAbstract extends AbstractFilter
 	 * @param value The original value.
 	 * @return A comparable
 	 */
-	protected Comparable comparable( Object value ){
+	protected final Comparable comparable( Object value ){
 		if ( value == null ) {
 			return null;
-		}
-		
-		if( value instanceof Comparable ){
+		} else if( value instanceof Comparable ){
 			return (Comparable) value;
-		}
-		else {
+		} else {
 			return String.valueOf( value );
 		}
 	}

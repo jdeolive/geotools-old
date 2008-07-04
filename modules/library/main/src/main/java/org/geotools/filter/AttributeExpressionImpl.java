@@ -23,7 +23,7 @@ import org.geotools.factory.Hints;
 import org.geotools.filter.expression.PropertyAccessor;
 import org.geotools.filter.expression.PropertyAccessorFactory;
 import org.geotools.filter.expression.PropertyAccessors;
-import org.geotools.filter.expression.Value;
+import org.geotools.util.Converters;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.expression.ExpressionVisitor;
@@ -160,8 +160,7 @@ public class AttributeExpressionImpl extends DefaultExpression
       * @param feature Feature from which to extract attribute value.
       */
     public Object evaluate(SimpleFeature feature) {
-    	PropertyAccessor accessor =
-    		PropertyAccessors.findPropertyAccessor( feature, attPath, null, null );
+    	PropertyAccessor accessor = getPropertyAccessor(feature, null);
     	if ( accessor == null ) {
     		//JD:not throwing exception to remain backwards compatabile, just returnign null
     		return null;
@@ -190,17 +189,17 @@ public class AttributeExpressionImpl extends DefaultExpression
        if ( accessor == null ) {
                return null; //JD:not throwing exception to remain backwards compatabile, just returnign null                
        }        
-       Object propertyValue = accessor.get( obj, attPath, target );
+       Object value = accessor.get( obj, attPath, target );
        if(target == null)
-           return propertyValue;
+           return value;
 
-       Value value = new Value( propertyValue );
-       return value.value( target ); // pull into the requested shape
+       return Converters.convert( value, target );
        
   } 
    
+   // accessor caching, scanning the registry every time is really very expensive
    private PropertyAccessor lastAccessor;
-   private PropertyAccessor getPropertyAccessor(Object obj, Class target) {
+   private synchronized PropertyAccessor getPropertyAccessor(Object obj, Class target) {
        if(lastAccessor == null)
            lastAccessor = PropertyAccessors.findPropertyAccessor( obj, attPath, target, hints );
        else if(!lastAccessor.canHandle(obj, attPath, target))

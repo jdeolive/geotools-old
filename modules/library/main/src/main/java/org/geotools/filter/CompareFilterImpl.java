@@ -18,7 +18,6 @@ package org.geotools.filter;
 
 
 // Geotools dependencies
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.factory.CommonFactoryFinder;
@@ -189,7 +188,7 @@ public abstract class CompareFilterImpl extends BinaryComparisonAbstract
     		if (!(leftObj.getClass() == rightObj.getClass()))  
     	    {
         		//differnt classes, if numbers lets try and match them up
-    	    	if ( (Number.class.isAssignableFrom( leftObj.getClass() )) && (rightObj.getClass() == String.class) )
+    	    	if ( leftObj instanceof Number && (rightObj.getClass() == String.class) )
     	    	{
     	    		try{
     	    			rightObj = new Double( Double.parseDouble( (String) rightObj ));
@@ -201,7 +200,7 @@ public abstract class CompareFilterImpl extends BinaryComparisonAbstract
     			    	rightObj = rightObj.toString();
     				}
     	    	}
-    	    	else if ( (leftObj.getClass() == String.class) && (Number.class.isAssignableFrom( rightObj.getClass() )) )
+    	    	else if ( (leftObj.getClass() == String.class) && rightObj instanceof Number )
     	    	{
     	    		try{
     	    			leftObj = new Double( Double.parseDouble( (String) leftObj ) );
@@ -219,14 +218,13 @@ public abstract class CompareFilterImpl extends BinaryComparisonAbstract
     	    		rightObj = rightObj.toString();
     	    	}
     	    }
-    	}
-    	else {
+    		return leftObj.compareTo(rightObj);
+    	} else {
     		//both numbers, make double
-    		leftObj = new Double(((Number)leftObj).doubleValue());
-    		rightObj = new Double(((Number)rightObj).doubleValue());
+    	    double left = ((Number) leftObj).doubleValue();
+    	    double right = ((Number) rightObj).doubleValue();
+    	    return left > right ? 1 : (left == right ? 0 : -1);  
     	}
-    	
-    	return leftObj.compareTo(rightObj);
     }
     
     /**

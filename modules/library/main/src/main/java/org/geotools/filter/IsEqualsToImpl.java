@@ -16,7 +16,7 @@
  */
 package org.geotools.filter;
 
-import org.geotools.filter.expression.Value;
+import org.geotools.util.Converters;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Expression;
@@ -79,11 +79,11 @@ public class IsEqualsToImpl extends CompareFilterImpl implements PropertyIsEqual
         
         // if we are doing delayed evaluation of a literal, try conversions to the actual type
         if(expression1 instanceof Literal && !(expression2 instanceof Literal)) {
-            Object v1 = new Value(value1).value(value2.getClass());
+            Object v1 = Converters.convert(value1, value2.getClass());
             if(v1 != null && value2.equals(v1))
                 return true;
         } else if (expression2 instanceof Literal && !(expression1 instanceof Literal)) {
-            Object v2 = new Value(value2).value(value1.getClass());
+            Object v2 = Converters.convert(value2, value1.getClass());
             if(v2 != null && value1.equals(v2))
                 return true;
         }
@@ -119,8 +119,8 @@ public class IsEqualsToImpl extends CompareFilterImpl implements PropertyIsEqual
             }
         } else if (!isMatchingCase()) {
             // fall back to string and check the case insensitive flag
-            String s1 = (String) new Value(value1).value(String.class);
-            String s2 = (String) new Value(value2).value(String.class);
+            String s1 = Converters.convert(value1, String.class);
+            String s2 = Converters.convert(value2, String.class);
 
             return s1.equalsIgnoreCase(s2);
         }

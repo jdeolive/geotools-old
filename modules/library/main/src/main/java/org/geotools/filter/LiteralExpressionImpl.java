@@ -18,7 +18,7 @@ package org.geotools.filter;
 
 import java.math.BigDecimal;
 
-import org.geotools.filter.expression.Value;
+import org.geotools.util.Converters;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Literal;
@@ -271,8 +271,7 @@ public class LiteralExpressionImpl extends DefaultExpression
     }
     
     public Object evaluate(Object feature, Class context) {
-        Value v = new Value( literal );
-        return v.value(context);
+        return Converters.convert(literal, context);
     }
 
     /**

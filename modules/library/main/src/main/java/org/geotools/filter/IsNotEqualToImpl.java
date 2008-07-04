@@ -16,7 +16,7 @@
  */
 package org.geotools.filter;
 
-import org.geotools.filter.expression.Value;
+import org.geotools.util.Converters;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.PropertyIsNotEqualTo;
 import org.opengis.filter.expression.Expression;
@@ -56,8 +56,8 @@ public class IsNotEqualToImpl extends CompareFilterImpl
 		//not equal, case insensitive?
 		if ( !isMatchingCase() && value1 != null && value2 != null ) {
 			//fall back to string and check the case insensitive flag
-			String s1 = (String) new Value( value1 ).value( String.class );
-			String s2 = (String) new Value( value2 ).value( String.class );
+			String s1 = Converters.convert(value1, String.class );
+			String s2 = Converters.convert(value2, String.class );
 			
 			return !s1.equalsIgnoreCase( s2 );
 		}

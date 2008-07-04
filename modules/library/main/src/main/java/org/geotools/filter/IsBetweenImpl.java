@@ -16,9 +16,8 @@
  */
 package org.geotools.filter;
 
-import org.geotools.filter.expression.Value;
+import org.geotools.util.Converters;
 import org.opengis.filter.FilterVisitor;
-import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.expression.Expression;
 
 /**
@@ -47,30 +46,30 @@ public class IsBetweenImpl extends CompareFilterImpl implements BetweenFilter {
 	
 	//@Override
 	public boolean evaluate(Object feature) {
-		Value value = new Value( eval( expression, feature ) );
-		if ( value.getValue() == null ) {
+		Object value = eval( expression, feature );
+		if ( value == null ) {
 			return false;
 		}
 		
 		//get the boundaries
-		Value lower = new Value( eval( getExpression1(), feature ) );
-		Value upper = new Value( eval( getExpression2(), feature ) );
+		Object lower = eval( getExpression1(), feature );
+		Object upper = eval( getExpression2(), feature );
 		
 		//first try to evaluate the bounds in terms of the middle
-		Object o = value.getValue();
-		Object l = lower.value( o.getClass() );
-		Object u = upper.value( o.getClass() );
+		Object o = value;
+		Object l = Converters.convert(lower, o.getClass());
+		Object u = Converters.convert(upper, o.getClass());
 		if ( l == null || u == null ) {
 			//that didn't work try converting all to same type as lower
-			l = lower.getValue();
-			o = value.value( l.getClass() );
-			u = upper.value( l.getClass() );
+			l = lower;
+			o = Converters.convert(value, l.getClass());
+			u = Converters.convert(upper, l.getClass());
 			
 			if ( o == null || u == null ) {
 				//ok last try, try evaluating all in terms of upper
-				u = upper.getValue();
-				o = value.value( u.getClass() );
-				l = lower.value( u.getClass() );
+				u = upper;
+				o = Converters.convert(value, u.getClass());
+				l = Converters.convert(lower, u.getClass());
 				
 				if ( o == null || l == null ) {
 					//no dice

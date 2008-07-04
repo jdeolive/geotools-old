@@ -16,6 +16,7 @@
  */
 package org.geotools.filter.expression;
 
+import org.geotools.util.Converters;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.ExpressionVisitor;
@@ -57,8 +58,7 @@ public abstract class ExpressionAbstract implements Expression {
      *  the Filter specification).
      */
 	public Object evaluate(Object object, Class context) {
-		Value value = new Value( evaluate( object ) );
-		return value.value( context );
+	    return Converters.convert(evaluate( object ), context);
 	}
 	
 	/** Subclass should override, default implementation just returns extraData */
