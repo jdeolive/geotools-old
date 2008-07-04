@@ -1,5 +1,5 @@
-Module data
-~~~~~~~~~~~
+Module xml
+~~~~~~~~~~
 
   Module Maintainer: Jody Garnett, Justin Deolivera
 
@@ -7,6 +7,9 @@ Module data
 
     * Adrian Custer, June 6, 2008
 
-  STATUS as of June 2008: CLEAN
+  STATUS as of June 2008: DIRTY
+    Code is CLEAN
+    Resource origin needs to be found and documented.
+      http://jira.codehaus.org/browse/GEOT-1877
 
   Package origins unknown, I'll leave it to Jody/Justin.
