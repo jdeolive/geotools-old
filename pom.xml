@@ -569,7 +569,7 @@
       <dependency>
         <groupId>com.vividsolutions</groupId>
         <artifactId>jts</artifactId>
-        <version>1.9</version>
+        <version>1.9.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.wkb4j</groupId>
@@ -820,12 +820,6 @@
         <groupId>com.mockrunner</groupId>
         <artifactId>mockrunner</artifactId>
         <version>0.3.6</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.mockejb</groupId>
-        <artifactId>mockejb</artifactId>
-        <version>0.6-beta2</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
