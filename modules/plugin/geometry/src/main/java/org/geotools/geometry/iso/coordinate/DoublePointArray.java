@@ -240,10 +240,15 @@ class DoubleDirectPosition implements DirectPosition, Serializable {
         in.defaultReadObject();
     }
     */
-    public double[] getCoordinates() {
+    public double[] getCoordinate() {
         double coords[] = new double[ crs.getCoordinateSystem().getDimension() ];
         System.arraycopy(array, index, coords, 0, crs.getCoordinateSystem().getDimension() );
         return coords;
+    }
+
+    @Deprecated
+    public double[] getCoordinates() {
+        return getCoordinate();
     }
 
     public int getDimension() {

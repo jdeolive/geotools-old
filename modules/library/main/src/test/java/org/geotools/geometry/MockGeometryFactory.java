@@ -147,10 +147,14 @@ public class MockGeometryFactory implements GeometryFactory, PrimitiveFactory {
         public CoordinateReferenceSystem getCoordinateReferenceSystem() {
             return crs;
         }
-        public double[] getCoordinates() {
+        public double[] getCoordinate() {
             double copy[] = new double[crs.getCoordinateSystem().getDimension()];
             System.arraycopy(coordinates, 0, copy, 0, getDimension());
             return copy;
+        }
+        @Deprecated
+        public double[] getCoordinates() {
+            return getCoordinate();
         }
         public int getDimension() {
             return crs.getCoordinateSystem().getDimension();

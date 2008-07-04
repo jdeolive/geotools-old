@@ -158,8 +158,13 @@ public class DirectPosition2D extends Point2D.Double implements DirectPosition, 
      *
      * @return The coordinates
      */
-    public double[] getCoordinates() {
+    public double[] getCoordinate() {
         return new double[] {x,y};
+    }
+
+    @Deprecated
+    public double[] getCoordinates() {
+        return getCoordinate();
     }
 
     /**

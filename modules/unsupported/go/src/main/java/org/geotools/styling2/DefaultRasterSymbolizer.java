@@ -118,4 +118,7 @@ class DefaultRasterSymbolizer implements RasterSymbolizer{
         visitor.visit(this);
     }
 
+    public OverlapBehavior getOverlapBehavior() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

@@ -16,12 +16,9 @@ MODULE METADATA
   STATUS as of June 2008: CLEAN
   
     We could use confirmation for (c) transfer by:
-
     * MassGIS (c) as employer of Saul Farber in org.geotools.logging but that's
       reaching the level of paranoia. Martin has rewritten all the code since 
       that time.
-
-
 
 
 * org.geotools.factory
@@ -30,8 +27,6 @@ MODULE METADATA
   core of the geotools plugin system. These constructs we revised for GeoTools 2.1 
   to make use of some JAI and provide a mechanism for "hinting" the lookup process 
   when needed by client applications.
-
-    * FactoryFinder file was based on SAXFactory and is credited
 
 
 * org.geotools.io
@@ -58,10 +53,13 @@ MODULE METADATA
    MetadataEntity for GeoTools 2.1. Some very interesting ideas here :-)
  
      * Credit given in header for the abstractions used:
-       This package contains documentation from OpenGIS specifications.
-       OpenGIS consortium's work is fully acknowledged here.
+
+----------------------------------------------------------------
+This package contains documentation from OpenGIS specifications.
+OpenGIS consortium's work is fully acknowledged here.
+----------------------------------------------------------------
  
- 
+
  * org.geotools.metadata.sql
    ~~~~~~~~~~~~~~~~~~~~~~~~~
    Appears to be low-level support for metadata wrapped over an SQL result set, 
@@ -94,8 +92,7 @@ MODULE METADATA
 * org.geotools.util.logging
   ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    * Saul Farber listed as author for most classes, under review with employer MassGIS
-      http://docs.codehaus.org/display/GEOTOOLS/GeoTools+Contributor+Status
+    * Saul Farber listed as author for most classes. He has signed the contribution agreement.
 
 
 * org.geotools.[factory|util|math] (test)

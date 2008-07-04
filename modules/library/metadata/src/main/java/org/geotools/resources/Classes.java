@@ -422,11 +422,12 @@ compare:for (int i=0; i<c1.length; i++) {
     }
 
     /**
-     * Converts the specified string into a value object. The value object can be an instance
-     * of {@link Double}, {@link Float}, {@link Long}, {@link Integer}, {@link Short},
-     * {@link Byte}, {@link Character} or {@link Boolean} according the specified type.
-     * This method is restricted to primitive types. Other types like {@link java.io.File}
-     * are not the purpose of this method.
+     * Converts the specified string into a value object. The value object can be an instance of
+     * {@link Double}, {@link Float}, {@link Long}, {@link Integer}, {@link Short}, {@link Byte},
+     * {@link Boolean}, {@link Character} or {@link String} according the specified type. This
+     * method is intentionnaly restricted to primitive types, with the addition of {@code String}
+     * which can be though as an identity operation. Other types like {@link java.io.File} are
+     * not the purpose of this method.
      *
      * @param  <T> The requested type.
      * @param  type The requested type.
@@ -437,12 +438,19 @@ compare:for (int i=0; i<c1.length; i++) {
      *         string value is not parseable as a number of the specified type.
      */
     @SuppressWarnings("unchecked")
-    public static <T> T valueOf(final Class<T> type, String value)
+    public static <T> T valueOf(final Class<T> type, final String value)
             throws IllegalArgumentException, NumberFormatException
     {
         if (value == null) {
             return null;
         }
+        if (Double .class.equals(type)) return (T) Double .valueOf(value);
+        if (Float  .class.equals(type)) return (T) Float  .valueOf(value);
+        if (Long   .class.equals(type)) return (T) Long   .valueOf(value);
+        if (Integer.class.equals(type)) return (T) Integer.valueOf(value);
+        if (Short  .class.equals(type)) return (T) Short  .valueOf(value);
+        if (Byte   .class.equals(type)) return (T) Byte   .valueOf(value);
+        if (Boolean.class.equals(type)) return (T) Boolean.valueOf(value);
         if (Character.class.equals(type)) {
             /*
              * If the string is empty, returns 0 which means "end of string" in C/C++
@@ -453,14 +461,9 @@ compare:for (int i=0; i<c1.length; i++) {
              */
             return (T) Character.valueOf(value.length() != 0 ? value.charAt(0) : 0);
         }
-        value = value.trim(); // Must be after the Character case.
-        if (Double .class.equals(type)) return (T) Double .valueOf(value);
-        if (Float  .class.equals(type)) return (T) Float  .valueOf(value);
-        if (Long   .class.equals(type)) return (T) Long   .valueOf(value);
-        if (Integer.class.equals(type)) return (T) Integer.valueOf(value);
-        if (Short  .class.equals(type)) return (T) Short  .valueOf(value);
-        if (Byte   .class.equals(type)) return (T) Byte   .valueOf(value);
-        if (Boolean.class.equals(type)) return (T) Boolean.valueOf(value);
+        if (String.class.equals(type)) {
+            return (T) value;
+        }
         throw new IllegalArgumentException(Errors.format(ErrorKeys.UNKNOW_TYPE_$1, type));
     }
 

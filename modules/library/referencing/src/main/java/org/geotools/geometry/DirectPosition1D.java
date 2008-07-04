@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -59,6 +59,8 @@ public class DirectPosition1D extends AbstractDirectPosition implements Serializ
 
     /**
      * Constructs a position with the specified coordinate reference system.
+     *
+     * @param crs The coordinate reference system.
      */
     public DirectPosition1D(final CoordinateReferenceSystem crs) {
         setCoordinateReferenceSystem(crs);
@@ -66,6 +68,8 @@ public class DirectPosition1D extends AbstractDirectPosition implements Serializ
 
     /**
      * Constructs a 1D position from the specified ordinate.
+     *
+     * @param ordinate The ordinate value.
      */
     public DirectPosition1D(final double ordinate) {
         this.ordinate = ordinate;
@@ -73,6 +77,8 @@ public class DirectPosition1D extends AbstractDirectPosition implements Serializ
 
     /**
      * Constructs a position initialized to the same values than the specified point.
+     *
+     * @param point The position to copy.
      */
     public DirectPosition1D(final DirectPosition point) {
         setLocation(point);
@@ -117,7 +123,7 @@ public class DirectPosition1D extends AbstractDirectPosition implements Serializ
      * @return The coordinates.
      */
     @Override
-    public double[] getCoordinates() {
+    public double[] getCoordinate() {
         return new double[] {ordinate};
     }
 

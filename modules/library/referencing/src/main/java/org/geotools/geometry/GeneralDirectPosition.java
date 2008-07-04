@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -75,6 +75,7 @@ public class GeneralDirectPosition extends AbstractDirectPosition implements Ser
      * Constructs a position using the specified coordinate reference system.
      * The number of dimensions is inferred from the coordinate reference system.
      *
+     * @param crs The coordinate reference system to be given to this position.
      * @since 2.2
      */
     public GeneralDirectPosition(final CoordinateReferenceSystem crs) {
@@ -95,6 +96,8 @@ public class GeneralDirectPosition extends AbstractDirectPosition implements Ser
     /**
      * Constructs a position with the specified ordinates.
      * The {@code ordinates} array will be copied.
+     *
+     * @param ordinates The ordinate values to copy.
      */
     public GeneralDirectPosition(final double[] ordinates) {
         this.ordinates = ordinates.clone();
@@ -106,6 +109,9 @@ public class GeneralDirectPosition extends AbstractDirectPosition implements Ser
      * ({@linkplain org.opengis.referencing.cs.AxisDirection#EAST  East},
      *  {@linkplain org.opengis.referencing.cs.AxisDirection#NORTH North}).
      * See the {@link DirectPosition2D} javadoc for details.
+     *
+     * @param x The first ordinate value.
+     * @param y The second ordinate value.
      */
     public GeneralDirectPosition(final double x, final double y) {
         ordinates = new double[] {x,y};
@@ -117,6 +123,10 @@ public class GeneralDirectPosition extends AbstractDirectPosition implements Ser
      * ({@linkplain org.opengis.referencing.cs.AxisDirection#EAST  East},
      *  {@linkplain org.opengis.referencing.cs.AxisDirection#NORTH North},
      *  {@linkplain org.opengis.referencing.cs.AxisDirection#UP    Up}).
+     *
+     * @param x The first ordinate value.
+     * @param y The second ordinate value.
+     * @param z The third ordinate value.
      */
     public GeneralDirectPosition(final double x, final double y, final double z) {
         ordinates = new double[] {x,y,z};
@@ -124,6 +134,8 @@ public class GeneralDirectPosition extends AbstractDirectPosition implements Ser
 
     /**
      * Constructs a position from the specified {@link Point2D}.
+     *
+     * @param point The position to copy.
      */
     public GeneralDirectPosition(final Point2D point) {
         this(point.getX(), point.getY());
@@ -131,6 +143,8 @@ public class GeneralDirectPosition extends AbstractDirectPosition implements Ser
 
     /**
      * Constructs a position initialized to the same values than the specified point.
+     *
+     * @param point The position to copy.
      *
      * @since 2.2
      */
@@ -183,7 +197,7 @@ public class GeneralDirectPosition extends AbstractDirectPosition implements Ser
      * @return A copy of the {@linkplain #ordinates coordinates}.
      */
     @Override
-    public final double[] getCoordinates() {
+    public final double[] getCoordinate() {
         return ordinates.clone();
     }
 
@@ -261,6 +275,7 @@ public class GeneralDirectPosition extends AbstractDirectPosition implements Ser
      * Returns a {@link Point2D} with the same coordinate as this direct position.
      * This is a convenience method for interoperability with Java2D.
      *
+     * @return This position as a two-dimensional point.
      * @throws IllegalStateException if this coordinate point is not two-dimensional.
      */
     public Point2D toPoint2D() throws IllegalStateException {

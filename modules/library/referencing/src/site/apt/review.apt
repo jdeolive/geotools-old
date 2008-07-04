@@ -13,14 +13,13 @@ MODULE REFERENCING
 
 
   STATUS: June 2008
-    CLEAN 
+    CLEAN
 
 
   Referencing is at one level a "pure" implementation of GeoAPI interfaces, up to 
   the level of coordinate reference systems. There is all kinds of fun 
   reprojection stuff happening here, some of which is ported from proj4 (with 
-  permission). There has been a lot of email on this subject, and I am going to 
-  let Martin update this file with anything appropriate.
+  permission).
   
   There are miscelaneous attributions to external resources where those were 
   inspirational to this effort.
@@ -248,5 +247,4 @@ OpenGIS consortium's work is fully acknowledged here.
 
      * WKT for CoordinateReferenceSystem.txt - they are mostly test scripts with comments, 
        source and target points trimmed out. So they are mostly Rueben's derivative work.
-       
-       
+

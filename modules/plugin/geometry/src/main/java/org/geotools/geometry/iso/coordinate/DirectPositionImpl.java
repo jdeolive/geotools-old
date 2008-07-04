@@ -85,14 +85,14 @@ public class DirectPositionImpl implements DirectPosition, Cloneable, Serializab
 		// VORSICHT: Die folgende Codezeile verursachte, dass das selbe Objekt
 		// (double Array) verwendet wurde; folglich wurde z.B. beim
 		// Envelope Min und Max Position auf die selben Koordinaten zugegriffen.
-		// this.coordinate=p.getCoordinates();
+		// this.coordinate=p.getCoordinate();
 		// Bitte um kenntnisnahme und berücksichtigung in sourcen: Arrays müssen
 		// explizit kopiert werden, nur elementare Datentypen werden automatisch
 		// von Java neu erzeugt, alles andere sind nur Referenzen
 		// TODO Das Klonen sollte in die Factory verlagert werden
         
         // the above seems to say that the array must be explicitly copied
-        // but the direct position javadocs say that getCoordinates produces
+        // but the direct position javadocs say that getCoordinate produces
         // a copy ... so we should be good without the clone.
 		this.coordinate = position.getCoordinates(); //.clone()
 	}
@@ -136,11 +136,16 @@ public class DirectPositionImpl implements DirectPosition, Cloneable, Serializab
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.opengis.geometry.coordinate.DirectPosition#getCoordinates()
+	 * @see org.opengis.geometry.coordinate.DirectPosition#getCoordinate()
 	 */
-	public double[] getCoordinates() {
+	public double[] getCoordinate() {
 		return (double[]) this.coordinate.clone(); // JG: modified to return clone each time
 	}
+
+        @Deprecated
+	public double[] getCoordinates() {
+            return getCoordinate();
+        }
 
 	/*
 	 * (non-Javadoc)
@@ -364,7 +369,7 @@ public class DirectPositionImpl implements DirectPosition, Cloneable, Serializab
 //	 */
 //	public DirectPositionImpl add(DirectPosition p) {
 //		return new DirectPositionImpl(this.factory, AlgoPointND.add(
-//				this.coordinate, p.getCoordinates()));
+//				this.coordinate, p.getCoordinate()));
 //	}
 
 	/**
@@ -635,7 +640,7 @@ public class DirectPositionImpl implements DirectPosition, Cloneable, Serializab
 	// */
 	// public double scalar(DirectPositionImpl p) {
 	// double result = 0.0;
-	// double pCoord[] = p.getCoordinates();
+	// double pCoord[] = p.getCoordinate();
 	// for (int i=0; i<this.getDimension(); ++i) {
 	// result += this.coordinate[i] * pCoord[i];
 	// }
@@ -646,8 +651,8 @@ public class DirectPositionImpl implements DirectPosition, Cloneable, Serializab
 	// int n = Math.min(p0.getDimension(),p1.getDimension());
 	// if (n==2) {
 	// // corresponds to the 2*area of two vectors
-	// double p0Coord[] = p0.getCoordinates();
-	// double p1Coord[] = p1.getCoordinates();
+	// double p0Coord[] = p0.getCoordinate();
+	// double p1Coord[] = p1.getCoordinate();
 	// return (Double)p0Coord[0] * p1Coord[1] - p0Coord[1] * p1Coord[0];
 	// } else if (n==3) {
 	// // TODO

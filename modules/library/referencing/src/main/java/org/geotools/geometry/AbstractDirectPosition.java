@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -92,12 +92,22 @@ public abstract class AbstractDirectPosition implements DirectPosition {
      *
      * @return The coordinates.
      */
-    public double[] getCoordinates() {
+    public double[] getCoordinate() {
         final double[] ordinates = new double[getDimension()];
         for (int i=0; i<ordinates.length; i++) {
             ordinates[i] = getOrdinate(i);
         }
         return ordinates;
+    }
+
+    /**
+     * @deprecated Renamed as {@link #getCoordinate} for consistency with ISO 19107.
+     *
+     * @return A copy of the coordinates.
+     */
+    @Deprecated
+    public double[] getCoordinates() {
+        return getCoordinate();
     }
 
     /**
@@ -195,7 +205,7 @@ public abstract class AbstractDirectPosition implements DirectPosition {
 
     /**
      * Returns {@code true} if the specified object is also a {@linkplain DirectPosition
-     * direct position} with equals {@linkplain #getCoordinates coordinates} and
+     * direct position} with equals {@linkplain #getCoordinate coordinate} and
      * {@linkplain #getCoordinateReferenceSystem CRS}.
      *
      * @param object The object to compare with this position.

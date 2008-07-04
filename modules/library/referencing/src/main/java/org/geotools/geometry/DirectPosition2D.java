@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -209,8 +209,18 @@ public class DirectPosition2D extends Point2D.Double implements DirectPosition, 
      *
      * @return The coordinates
      */
-    public double[] getCoordinates() {
+    public double[] getCoordinate() {
         return new double[] {x,y};
+    }
+
+    /**
+     * @deprecated Renamed as {@link #getCoordinate} for consistency with ISO 19107.
+     *
+     * @return A copy of the coordinates.
+     */
+    @Deprecated
+    public double[] getCoordinates() {
+        return getCoordinate();
     }
 
     /**

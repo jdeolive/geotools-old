@@ -188,8 +188,13 @@ public class DirectPositionImpl implements Cloneable, DirectPosition, Position, 
      * @inheritDoc
      * @see org.opengis.geometry.coordinate.DirectPosition#getCoordinates()
      */
-    public double[] getCoordinates() {
+    public double[] getCoordinate() {
         return ordinates;
+    }
+
+    @Deprecated
+    public double[] getCoordinates() {
+        return getCoordinate();
     }
 
     /**

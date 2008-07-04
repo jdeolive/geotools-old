@@ -113,7 +113,15 @@ public class InPlaceCoordinateSequenceTransformer implements CoordinateSequenceT
         /**
          * @see org.opengis.geometry.coordinate.DirectPosition#getCoordinates()
          */
+        @Deprecated
         public double[] getCoordinates() {
+            return getCoordinate();
+        }
+
+        /**
+         * @see org.opengis.geometry.coordinate.DirectPosition#getCoordinate()
+         */
+        public double[] getCoordinate() {
             return new double[]{ sequence.getX(offset), sequence.getY(offset), sequence.getOrdinate(offset, CoordinateSequence.Z)};
         }
 
