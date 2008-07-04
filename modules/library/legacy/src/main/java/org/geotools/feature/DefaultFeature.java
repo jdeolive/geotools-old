@@ -491,7 +491,7 @@ public class DefaultFeature extends SimpleFeatureImpl
         String retString = "Feature[ id=" + getID() + " , ";
         FeatureType featType = getFeatureType();
 
-        List attributes = getValue();
+        List attributes = getAttributes();
         for (int i = 0, n = attributes.size(); i < n; i++) {
             retString += (featType.getAttributeType(i).getLocalName() + "=");
             retString += attributes.get(i);
