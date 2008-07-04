@@ -59,6 +59,7 @@ public class FIDFeatureReader implements  FeatureReader<SimpleFeatureType, Simpl
     private final SimpleFeatureType schema;
     private final FIDReader fidReader;
     protected final Object[] attributes;
+    private SimpleFeatureBuilder builder;
 
     /**
      * Creates a new instance of AbstractFeatureReader
@@ -81,6 +82,7 @@ public class FIDFeatureReader implements  FeatureReader<SimpleFeatureType, Simpl
 
         this.schema = schema;
         this.attributes = new Object[attributeReader.getAttributeCount()];
+        this.builder = new SimpleFeatureBuilder(schema);
     }
 
     public FIDFeatureReader(AttributeReader attributeReader, FIDReader fidReader)
@@ -121,11 +123,11 @@ public class FIDFeatureReader implements  FeatureReader<SimpleFeatureType, Simpl
         //have default FIDAttributeReader.
         String fid = fidReader.next();
 
+        builder.reset();
         for (int i = 0, ii = atts.getAttributeCount(); i < ii; i++) {
-            attributes[i] = atts.read(i);
+            builder.add(atts.read(i));
         }
-
-        return SimpleFeatureBuilder.build(schema, attributes, fid);
+        return builder.buildFeature(fid);
     }
 
     public void close() throws IOException {
