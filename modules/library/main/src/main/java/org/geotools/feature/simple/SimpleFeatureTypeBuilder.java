@@ -27,14 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.geotools.data.DataUtilities;
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
-import org.geotools.filter.IllegalFilterException;
-import org.geotools.filter.LengthFunction;
 import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -45,8 +41,6 @@ import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.Schema;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.expression.Expression;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 
