@@ -533,22 +533,17 @@ public class Types {
             // dont.
             Class clazz = attributeContent.getClass();
             Class binding = type.getBinding();
-            if (binding != null && !binding.isAssignableFrom(clazz)) {
+            if (binding != null && binding != clazz && !binding.isAssignableFrom(clazz)) {
                 throw new IllegalAttributeException(clazz.getName()
                         + " is not an acceptable class for " + type.getName()
                         + " as it is not assignable from " + binding);
             }
         }
 
-        if (type.getRestrictions() != null && type.getRestrictions().size() > 0) {
-
-            final Attribute fatt = attribute;
-            Attribute fake = new ReadonlyAttributeDecorator(fatt);
-
-            for (Iterator itr = type.getRestrictions().iterator(); itr.hasNext();) {
-                Filter f = (Filter) itr.next();
-                if (!f.evaluate(fake)) {
-                    throw new IllegalAttributeException("Attribute instance (" + fake.getID() + ")"
+        if (type.getRestrictions() != null) {
+            for (Filter f : type.getRestrictions()) {
+                if (!f.evaluate(attribute)) {
+                    throw new IllegalAttributeException("Attribute instance (" + attribute.getID() + ")"
                             + "fails to pass filter: " + f);
                 }
             }
@@ -764,8 +759,9 @@ public class Types {
             if (!descriptor.isNillable()) {
                 throw new IllegalArgumentException(descriptor.getName() + " requires a non null value");
             }           
+        } else {
+            validate( descriptor.getType(), value, false );
         }
-        validate( descriptor.getType(), value, false );
     }
     
     /**
