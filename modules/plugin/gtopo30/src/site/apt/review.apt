@@ -12,6 +12,7 @@ PLUGIN GTOPO30
   STATUS: Clean except that the data provenance is unknown
 
   src/test/resources/org/geotools/gce/gtopo30/test-data/W002N52.zip ?
+  http://jira.codehaus.org/browse/GEOT-1884
 
   The dates of the files look like a mess. Jody already moved some of this to
   2003 or later, now it seems to have moved to 2002. Leaving as is.
