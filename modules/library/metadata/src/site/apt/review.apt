@@ -13,12 +13,14 @@ MODULE METADATA
     * Adrian Custer, May 2008
 
 
-  STATUS as of June 2008:
-  CLEAN but need confirmation for (c) transfer by:
+  STATUS as of June 2008: CLEAN
+  
+    We could use confirmation for (c) transfer by:
 
-    * Saul Farber in org.geotools.logging.
+    * MassGIS (c) as employer of Saul Farber in org.geotools.logging but that's
+      reaching the level of paranoia. Martin has rewritten all the code since 
+      that time.
 
-    * Touraivane  in org.geotools.metadata.
 
 
 
@@ -58,9 +60,6 @@ MODULE METADATA
      * Credit given in header for the abstractions used:
        This package contains documentation from OpenGIS specifications.
        OpenGIS consortium's work is fully acknowledged here.
- 
-     * Touraïvane listed as author on most of module, we need (c) assignment perhaps 
-       from IRD
  
  
  * org.geotools.metadata.sql
