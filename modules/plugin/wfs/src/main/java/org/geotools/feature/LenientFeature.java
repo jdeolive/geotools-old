@@ -54,8 +54,7 @@ public class LenientFeature extends SimpleFeatureImpl {
      */
     protected LenientFeature(List<Attribute> attributes, SimpleFeatureType schema, String featureID)
         throws IllegalAttributeException, NullPointerException {
-        super( preFix(attributes, schema),
-              checkSchema( schema),
+        super( preFix(attributes, schema), checkSchema( schema),
               checkId( featureID ));
         // superclass just punts the values in ... we are going to validate if needed
         constructing=true;
@@ -64,14 +63,19 @@ public class LenientFeature extends SimpleFeatureImpl {
         setAttributes(values);
         constructing=false;
     }
-    private static List<Attribute> preFix( List<Attribute> attributes, SimpleFeatureType schema ){
+    
+    private static List<Object> preFix( List<Attribute> attributes, SimpleFeatureType schema ){
+        List result = new ArrayList();
+        for (Attribute att : attributes) {
+            result.add(att.getValue());
+        }
         while( attributes.size() < schema.getAttributeCount() ){
             AttributeDescriptor required = schema.getAttribute(attributes.size()-1);
             // or use required.getDefaultValue()
-            Attribute newAttribute = new LenientAttribute( null, required, null );
-            attributes.add( newAttribute );
+            // Attribute newAttribute = new LenientAttribute( null, required, null );
+            attributes.add(null);
         }
-        return attributes;
+        return result;
     }
     private static SimpleFeatureType checkSchema(SimpleFeatureType schema) {
         if (schema == null) {
@@ -109,12 +113,13 @@ public class LenientFeature extends SimpleFeatureImpl {
         try {
             
             if ((val == null) && !type.isNillable()) {
-                value = type.getDefaultValue();
+                val = type.getDefaultValue();
             }
-            Object parsed = parse(val);
+            Object parsed = parse(type, val);
+            
             try {
                 Types.validate( type, parsed );
-            }catch (Throwable e) {
+            } catch (Throwable e) {
                 if( constructing ){
                     LOGGER.logp(Level.WARNING, "LenientFeature", "setAttribute", "Illegal Argument but ignored since we are being lenient",
                             e);
@@ -164,7 +169,10 @@ public class LenientFeature extends SimpleFeatureImpl {
     static List<Object> toValues( List<Attribute> properties ){
         List<Object> values = new ArrayList<Object>();
         for( Property property : properties ){
-            values.add( property.getValue() );
+            if(property != null)
+                values.add( property.getValue() );
+            else
+                values.add(property);
         }
         return values;
     }
