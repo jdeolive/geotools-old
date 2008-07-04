@@ -21,7 +21,9 @@ MODULE MAIN
   STATUS: CLEAN 
 
     Presumed acqusition of code (C) 2002, Centre for Computational Geography
-    geotools.feature.type has 2 wierd licenses.
+    
+    geotools.feature.type.DateUtil.java has (C) Denis Sosnoski with a second,
+     apparently compatible license.
 
 
 
