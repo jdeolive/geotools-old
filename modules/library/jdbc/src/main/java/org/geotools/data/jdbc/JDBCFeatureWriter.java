@@ -105,7 +105,7 @@ public class JDBCFeatureWriter implements FeatureWriter<SimpleFeatureType, Simpl
                  * of Feature in MutableFIDFeature at a later date.
                  *
                  */
-                current = new MutableFIDFeature((List) temp.getProperties(), featureType, null);
+                current = new MutableFIDFeature((List) temp.getAttributes(), featureType, null);
 
                 if (useQueryDataForInsert()) {
                     queryData.startInsert();
