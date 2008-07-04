@@ -81,20 +81,18 @@ public class DefaultCoordinateSequenceTransformer implements CoordinateSequenceT
         int it = 0; // Index in the target array.
 
         for (int i = 0; i < size; i++) {
-            final Coordinate c = sequence.getCoordinate(i);
-
             switch (sourceDim) {
             default:
                 throw new MismatchedDimensionException();
 
             case 3:
-                buffer[ib + 2] = c.z; // Fall through
+                buffer[ib + 2] = sequence.getOrdinate(i, 2); // Fall through
 
             case 2:
-                buffer[ib + 1] = c.y; // Fall through
+                buffer[ib + 1] = sequence.getY(i); // Fall through
 
             case 1:
-                buffer[ib] = c.x; // Fall through
+                buffer[ib] = sequence.getX(i); // Fall through
 
             case 0:
                 break;
