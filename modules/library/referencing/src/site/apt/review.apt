@@ -13,11 +13,7 @@ MODULE REFERENCING
 
 
   STATUS: June 2008
-    CLEAN except
-
-    * Rueben Shultz worked on this module but his name does not appear on the list 
-      of vetted contributors.
-      http://docs.codehaus.org/display/GEOTOOLS/GeoTools+Contributor+Status
+    CLEAN 
 
 
   Referencing is at one level a "pure" implementation of GeoAPI interfaces, up to 
@@ -25,14 +21,12 @@ MODULE REFERENCING
   reprojection stuff happening here, some of which is ported from proj4 (with 
   permission). There has been a lot of email on this subject, and I am going to 
   let Martin update this file with anything appropriate.
-
-  Note beyond the Java ("*\.java") files there are some text files with copyright 
-  headers:
-
-------------------------------
-cd modules/library/referencing
-find ./src -name "*\.txt"
-------------------------------
+  
+  There are miscelaneous attributions to external resources where those were 
+  inspirational to this effort.
+  
+  There are text resources to run tests. These are home created and copyright
+  OSGeo.
 
 
 
@@ -254,3 +248,5 @@ OpenGIS consortium's work is fully acknowledged here.
 
      * WKT for CoordinateReferenceSystem.txt - they are mostly test scripts with comments, 
        source and target points trimmed out. So they are mostly Rueben's derivative work.
+       
+       
