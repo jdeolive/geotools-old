@@ -9,7 +9,8 @@ PLUGIN WMS
 
     * Adrian Custer, June 2008
 
-  STATUS: clean
+  STATUS: clean, except for two icons in the code and test xml data
+    http://jira.codehaus.org/browse/GEOT-1891
 
 
 
