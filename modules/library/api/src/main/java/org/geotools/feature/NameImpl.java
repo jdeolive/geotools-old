@@ -16,7 +16,7 @@
  */
 package org.geotools.feature;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -106,27 +106,24 @@ public class NameImpl implements org.opengis.feature.type.Name {
         String uri = getURI();
 
         return (uri != null) ? uri.hashCode() : 0;
-
-        //		
-        //		final int PRIME = 1000003;
-        //        int result = 0;
-        //        
-        //        if (local != null) {
-        //            result = (PRIME * result) + local.hashCode();
-        //        }
-        //        
-        //        if (namespace != null) {
-        //        	result = (PRIME * result) + namespace.hashCode();
-        //        }
-        //        
-        //        return result;
     }
 
     /**
      * value object with equality based on name and namespace.
      */
     public boolean equals(Object obj) {
-        if (obj instanceof org.opengis.feature.type.Name) {
+        if(obj == this)
+            return true;
+        
+        if (obj instanceof NameImpl) {
+            NameImpl other = (NameImpl) obj;
+            if(!Utilities.equals(this.namespace, other.namespace))
+                return false;
+            if(!Utilities.equals(this.local, other.local))
+                return false;
+                
+            return true;
+        } else if (obj instanceof org.opengis.feature.type.Name) {
             org.opengis.feature.type.Name other = (org.opengis.feature.type.Name) obj;
 
             return Utilities.equals(getURI(), other.getURI());
