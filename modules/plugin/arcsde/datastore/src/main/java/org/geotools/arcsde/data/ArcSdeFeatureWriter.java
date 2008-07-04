@@ -235,7 +235,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         } else {
             final String newFid = newFid();
             final SimpleFeature newFeature = featureBuilder.buildFeature(newFid);
-            final List<Property> properties = (List<Property>) newFeature.getProperties();
+            final List properties = (List) newFeature.getAttributes();
             feature = new MutableFIDFeature(properties, featureType, newFid);
         }
         return feature;
