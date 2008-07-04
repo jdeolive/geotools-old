@@ -42,6 +42,7 @@ import org.opengis.util.InternationalString;
 public class FeatureTypeImpl extends ComplexTypeImpl implements FeatureType {
 	
 	protected GeometryDescriptor defaultGeometry;
+	protected CoordinateReferenceSystem crs;
 
 	public FeatureTypeImpl(
 		Name name, Collection<PropertyDescriptor> schema, GeometryDescriptor defaultGeometry, 
@@ -59,26 +60,29 @@ public class FeatureTypeImpl extends ComplexTypeImpl implements FeatureType {
 	}
 
 	public CoordinateReferenceSystem getCRS() {
-	    if ( defaultGeometry != null && defaultGeometry.getType().getCRS() != null) {
-	        return defaultGeometry.getType().getCRS();
+	    if(crs == null) {
+    	    if ( getDefaultGeometry() != null && getDefaultGeometry().getType().getCRS() != null) {
+                crs = defaultGeometry.getType().getCRS();
+            }
+    	    if(crs == null) {
+        	    for (PropertyDescriptor property : propertyMap.values()) {
+                    if ( property instanceof GeometryDescriptor ) {
+                        GeometryDescriptor geometry = (GeometryDescriptor) property;
+                        if ( geometry.getType().getCRS() != null ) {
+                            crs = geometry.getType().getCRS();
+                            break;
+                        }
+                    }
+                }
+    	    }
 	    }
-		for( Iterator<PropertyDescriptor> p = properties.iterator(); p.hasNext(); ) {
-		    PropertyDescriptor property = p.next();
-		    if ( property instanceof GeometryDescriptor ) {
-		        GeometryDescriptor geometry = (GeometryDescriptor) property;
-		        if ( geometry.getType().getCRS() != null ) {
-		            return geometry.getType().getCRS();
-		        }
-		    }
-		}
-		
-		return null;
+        
+        return crs;
 	}
 	
 	public GeometryDescriptor getDefaultGeometry() {
 	    if (defaultGeometry == null) {
-            for (Iterator<PropertyDescriptor> p = properties.iterator(); p.hasNext();) {
-                PropertyDescriptor property = p.next();
+            for (PropertyDescriptor property : propertyMap.values()) {
                 if (property instanceof GeometryDescriptor ) {
                     defaultGeometry = (GeometryDescriptor) property; 
                     break;
@@ -89,6 +93,9 @@ public class FeatureTypeImpl extends ComplexTypeImpl implements FeatureType {
 	}
 	
 	public boolean equals(Object o) {
+	    if(this == o)
+	        return true;
+	    
 		if(!(o instanceof FeatureType)){
     		return false;
     	}

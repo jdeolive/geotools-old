@@ -18,8 +18,10 @@ package org.geotools.feature.type;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.geotools.feature.FeatureImplUtils;
 import org.geotools.feature.NameImpl;
@@ -39,7 +41,7 @@ import org.opengis.util.InternationalString;
  */
 public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 
-	protected Collection<PropertyDescriptor> properties = null;
+	protected Map<Name, PropertyDescriptor> propertyMap = null;
 	
 	public ComplexTypeImpl(
 		Name name, Collection<PropertyDescriptor> properties, boolean identified, 
@@ -52,7 +54,15 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 			superType, description
 		);
 		
-		this.properties = properties != null ? properties : Collections.EMPTY_LIST;
+		if(properties == null)
+		    this.propertyMap = Collections.emptyMap();
+		else {
+		    this.propertyMap = new HashMap<Name, PropertyDescriptor>();
+		    for (PropertyDescriptor pd : properties) {
+                this.propertyMap.put(pd.getName(), pd);
+            }
+		}
+		
 		
 	}
 
@@ -61,18 +71,11 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 	}
 	
 	public Collection<PropertyDescriptor> getProperties() {
-		return FeatureImplUtils.unmodifiable(properties);
+		return FeatureImplUtils.unmodifiable(propertyMap.values());
 	}
 	
 	public PropertyDescriptor getProperty(Name name) {
-	    for ( Iterator<PropertyDescriptor> p = properties.iterator(); p.hasNext(); ) {
-	        PropertyDescriptor property = p.next();
-	        if ( property.getName().equals( name ) ) {
-	            return property;
-	        }
-	    }
-	    
-	    return null;
+	    return propertyMap.get(name);
 	}
 	
 	public PropertyDescriptor getProperty(String name) {
@@ -86,6 +89,9 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 	}
 	
 	public boolean equals(Object o){
+	    if(this == o)
+	        return true;
+	    
     	if(!(o instanceof ComplexTypeImpl)){
     		return false;
     	}
@@ -94,7 +100,7 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
     	}
     	
     	ComplexTypeImpl other = (ComplexTypeImpl)o;
-    	if ( !Utilities.equals( properties, other.properties ) ) {
+    	if ( !Utilities.equals( propertyMap, other.propertyMap ) ) {
     		return false;
     	}
     	
@@ -102,7 +108,7 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
     }
     
 	public int hashCode(){
-    	return super.hashCode() * properties.hashCode();
+    	return super.hashCode() * propertyMap.hashCode();
     }
     
 	public String toString() {
@@ -110,7 +116,7 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 		sb.append("[name=").append(getName()).append(", binding=").append(binding)
 				.append(", abstrsct= ").append(isAbstract()).append(", identified=")
 				.append(identified).append(", restrictions=").append(getRestrictions())
-				.append(", superType=").append(superType).append(", schema=").append(properties).append("]");
+				.append(", superType=").append(superType).append(", schema=").append(propertyMap).append("]");
 
 		return sb.toString();
 	}

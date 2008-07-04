@@ -16,6 +16,7 @@
  */
 package org.geotools.feature.type;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,8 @@ import org.opengis.filter.Filter;
 import org.opengis.util.InternationalString;
 
 public class PropertyTypeImpl implements PropertyType {
+    
+    private static final List<Filter> NO_RESTRICTIONS =  Collections.emptyList();
 
 	protected final Name name;
 	protected final Class<?> binding;
@@ -56,7 +59,7 @@ public class PropertyTypeImpl implements PropertyType {
 		this.isAbstract = isAbstract;
 		
 		if (restrictions == null) {
-			this.restrictions = restrictions;
+			this.restrictions = NO_RESTRICTIONS;
 		} else {
 			this.restrictions = Collections.unmodifiableList(restrictions);
 		}
@@ -79,8 +82,7 @@ public class PropertyTypeImpl implements PropertyType {
 	}
 
 	public List<Filter> getRestrictions() {
-		List<Filter> empty = Collections.emptyList();
-		return restrictions == null ? empty : restrictions;
+		return restrictions;
 	}
 
     public PropertyType getSuper() {
@@ -98,6 +100,9 @@ public class PropertyTypeImpl implements PropertyType {
 
 	
 	public boolean equals(Object other) {
+	    if(this == other)
+            return true;
+	    
 		if (!(other instanceof PropertyType)) {
 			return false;
 		}
