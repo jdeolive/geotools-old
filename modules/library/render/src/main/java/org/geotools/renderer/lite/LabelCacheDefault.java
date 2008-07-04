@@ -894,12 +894,12 @@ public final class LabelCacheDefault implements LabelCache {
 		Point centroid;
 
 		try {
-			centroid = (Point) RendererUtilities.getCentroid(geom); 
+			centroid = geom.getCentroid();
 		} catch (Exception e) // generalized polygons causes problems - this
 		// tries to hid them.
 		{
 			try {
-				centroid = (Point) RendererUtilities.getCentroid(geom.getExteriorRing());
+				centroid = geom.getExteriorRing().getCentroid();
 			} catch (Exception ee) {
 				try {
 					centroid = geom.getFactory().createPoint(
