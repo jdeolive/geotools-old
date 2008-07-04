@@ -691,7 +691,7 @@ public class FeatureTransformer extends TransformerBase {
                         //equals should get us better performance.  Albeit
                         //very slightly, but this method gets called millions
                             && (name.equals("boundedBy")
-                            && Geometry.class.isAssignableFrom(value.getClass()))) {
+                            && value instanceof Geometry)) {
 
                         Envelope envelopeInternal = ((Geometry) value).getEnvelopeInternal();
                         CoordinateReferenceSystem crs = null;
@@ -716,7 +716,7 @@ public class FeatureTransformer extends TransformerBase {
 
                         contentHandler.startElement("", "", name, NULL_ATTS);
 
-                        if (Geometry.class.isAssignableFrom(value.getClass())) {
+                        if (value instanceof Geometry) {
                             if( dimension == 0 ){
                                 // lets look at the CRS
                                 GeometryDescriptor geometryType = (GeometryDescriptor) descriptor;
