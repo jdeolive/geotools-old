@@ -85,7 +85,6 @@
     <module>epsg-postgresql</module>
     <module>epsg-wkt</module>
     <module>geotiff</module>
-    <module>geometry</module>
     <module>gtopo30</module>
     <module>image</module>
     <module>imagemosaic</module>

@@ -103,6 +103,7 @@
     <module>coveragetools</module>
     <module>directory</module>
     <module>epsg-oracle</module>
+    <module>geometry</module>
     <module>gml</module>    
     <module>gpx</module>
     <module>h2</module>

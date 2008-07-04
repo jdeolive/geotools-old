@@ -15,7 +15,7 @@
 
   <parent>
     <groupId>org.geotools</groupId>
-    <artifactId>plugin</artifactId>
+    <artifactId>unsupported</artifactId>
     <version>2.5-SNAPSHOT</version>
   </parent>
 
@@ -27,13 +27,13 @@
   <artifactId>gt-geometry</artifactId>
   <packaging>jar</packaging>
   <name>Geometries</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/geometry/</url>
+  <url>http://maven.geotools.fr/reports/modules/unsupported/geometry/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/geometry/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/geometry/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/geometry/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/geometry/</url>
   </scm>
 
   <description>
