@@ -10,7 +10,11 @@ EXTENTION VALIDATION
     * Adrian Custer, June 2008
 
 
-  STATUS: Clean.
+  STATUS: Code is clean, data dirty
+    http://jira.codehaus.org/browse/GEOT-1894
+  
+  
+  
   validation.dto shema "probably needs a note" (see below)
 
 
