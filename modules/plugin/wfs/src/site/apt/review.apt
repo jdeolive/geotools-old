@@ -10,8 +10,11 @@ PLUGIN WFS
     * Adrian Custer, June 2008
 
 
-  STATUS: Clean
-
+  STATUS: Clean, 
+            with mixed copyright OSGeo and David Zwiers
+  
+  
+  
   David Zwiers has retained copyright on the following classes for all work 
   which he committed after his 2005-03-30 departure from Refractions
 
@@ -53,8 +56,25 @@ PLUGIN WFS
       
       src/main/java/org/geotools/data/ows/WFSCapabilities.java
       
-  All have been updated according to the dates of commits.
-
+  All have been updated according to the dates of David's commits as his 
+  copyright for 2005 only or for both 2005 and 2006.
+  
+  
+  For future reference, we have David's permission to change to GPL+CLASSPATH 
+  some day, if we choose to do so:
+  
+    On Thu, 2008-07-03 at 10:34 -0700, David Zwiers wrote:
+    Thanks, the 'bunch of effort' was because I can't remember my svn 
+    password (so can't use the automated tools). 
+    
+    Re-licensing as GPL+CLASSPATH is fine with me. That said, I don't believe 
+    you require explicit permission to create a release with a more restrictive 
+    license ... but it may be hard to change the license for any previosuly 
+    released code.
+      
+    David
+  
+  
 * org.geotools.catalog.wfs
   ~~~~~~~~~~~~~~~~~~~~~~~~
 
