@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -124,27 +125,26 @@ class EmfAppSchemaParser {
     public static SimpleFeatureType toSimpleFeatureType(final FeatureType realType)
             throws DataSourceException {
         List<PropertyDescriptor> attributes;
-        attributes = new ArrayList<PropertyDescriptor>(realType.getDescriptors());
+        Collection<PropertyDescriptor> descriptors = realType.getDescriptors();
+        attributes = new ArrayList<PropertyDescriptor>(descriptors);
         List<String> simpleProperties = new ArrayList<String>();
 
         // HACK HACK!! the parser sets no namespace to the properties so we're
         // doing a hardcode property name black list
-        final List<String> ignoreList = Arrays.asList(new String[] { "location",
-                "metaDataProperty", "description", "name", "boundedBy" });
+        final List<String> ignoreList = Arrays.asList(new String[] { GML.location.getLocalPart(),
+                GML.metaDataProperty.getLocalPart(), GML.description.getLocalPart(),
+                GML.name.getLocalPart(), GML.boundedBy.getLocalPart() });
+
         for (Iterator<PropertyDescriptor> it = attributes.iterator(); it.hasNext();) {
             PropertyDescriptor property = it.next();
-            if(!(property instanceof AttributeDescriptor)){
+            if (!(property instanceof AttributeDescriptor)) {
                 continue;
             }
             AttributeDescriptor descriptor = (AttributeDescriptor) property;
             Name name = descriptor.getName();
-            String localName = name.getLocalPart();
-            if (ignoreList.contains(localName)) {
+
+            if (ignoreList.contains(name.getLocalPart())) {
                 it.remove();
-            } else {
-                // break at the first attribute that does not match the
-                // AbstractGMLType plus AbstractFeatureType ones
-                break;
             }
         }
         // / HACK END
@@ -160,15 +160,16 @@ class EmfAppSchemaParser {
                 continue;
             }
 
-            simpleProperties.add(((AttributeDescriptor)descriptor).getLocalName());
+            simpleProperties.add(((AttributeDescriptor) descriptor).getLocalName());
         }
 
         String[] properties = simpleProperties.toArray(new String[simpleProperties.size()]);
         SimpleFeatureType subsetType;
         try {
-            //TODO: will need to handle FeatureType instead of direct casting to SimpleFeatureType
+            // TODO: will need to handle FeatureType instead of direct casting
+            // to SimpleFeatureType
             // once FeatureType support lands on trunk
-            subsetType = DataUtilities.createSubType((SimpleFeatureType)realType, properties);
+            subsetType = DataUtilities.createSubType((SimpleFeatureType) realType, properties);
         } catch (SchemaException e) {
             throw new DataSourceException(e);
         }
