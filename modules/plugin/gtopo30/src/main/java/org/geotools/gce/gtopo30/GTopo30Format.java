@@ -15,12 +15,6 @@
  *    Lesser General Public License for more details.
  *
  */
-/*
- * Created on Apr 12, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package org.geotools.gce.gtopo30;
 
 import java.io.File;
@@ -43,7 +37,7 @@ import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterDescriptor;
 
 /**
- * Provides basic information about the GeoTIFF format IO.
+ * Provides basic information about the GTOPO30 format IO.
  * 
  * @author Simone Giannecchini
  * @author mkraemer

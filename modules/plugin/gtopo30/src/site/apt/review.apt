@@ -17,6 +17,8 @@ PLUGIN GTOPO30
   The dates of the files look like a mess. Jody already moved some of this to
   2003 or later, now it seems to have moved to 2002. Leaving as is.
 
+  - afabiani: W002N52.zip is a GTOPO30 sample data most probably coming from USGS.
+              I don't think it is reliable for distribution under LGPL.
 
 * org.geotools.gce.gtopo30
   ~~~~~~~~~~~~~~~~~~~~~~~~
