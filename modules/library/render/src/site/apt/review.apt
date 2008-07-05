@@ -18,7 +18,8 @@ MODULE RENDER
      Geosolutions needs to fix (see the last entry).
      http://jira.codehaus.org/browse/GEOT-1876
    
-   
+  - afabiani: apart usa.png the other test-data is safe. usa.png comes from GIDB client
+              it shouldn't be reliable to be distributed under LGPL license.
 
 * org.geotools.renderer
   ~~~~~~~~~~~~~~~~~~~~~
