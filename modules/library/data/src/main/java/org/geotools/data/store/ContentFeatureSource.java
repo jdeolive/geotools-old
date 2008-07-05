@@ -204,7 +204,7 @@ public abstract class ContentFeatureSource implements FeatureSource<SimpleFeatur
                 }
             }
             public CoordinateReferenceSystem getCRS() {
-                return ContentFeatureSource.this.getSchema().getCRS();
+                return ContentFeatureSource.this.getSchema().getCoordinateReferenceSystem();
             }
     
             public String getDescription() {

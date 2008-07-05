@@ -213,7 +213,7 @@ public class DataUtilities {
         String[] names = new String[featureType.getAttributeCount()];
         final int count = featureType.getAttributeCount();
         for (int i = 0; i < count; i++) {
-        	names[i] = featureType.getAttribute(i).getLocalName();
+        	names[i] = featureType.getDescriptor(i).getLocalName();
         }
         
         return names;
@@ -498,11 +498,11 @@ public class DataUtilities {
         int match = 0;
 
         for (int i = 0; i < countA; i++) {
-            a = typeA.getAttribute(i);
+            a = typeA.getDescriptor(i);
 
-            if (isMatch(a, typeB.getAttribute(i))) {
+            if (isMatch(a, typeB.getDescriptor(i))) {
                 match++;
-            } else if (isMatch(a, typeB.getAttribute(a.getLocalName()))) {
+            } else if (isMatch(a, typeB.getDescriptor(a.getLocalName()))) {
                 // match was found in a different position
             } else {
                 // cannot find any match for Attribute in typeA
@@ -587,7 +587,7 @@ public class DataUtilities {
         String xpath;
 
         for (int i = 0; i < numAtts; i++) {
-            AttributeDescriptor curAttType = featureType.getAttribute(i);
+            AttributeDescriptor curAttType = featureType.getDescriptor(i);
             xpath = curAttType.getLocalName();
             attributes[i] = duplicate(feature.getAttribute(xpath));
         }
@@ -806,7 +806,7 @@ public class DataUtilities {
         }
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            values[i] = defaultValue(featureType.getAttribute(i));
+            values[i] = defaultValue(featureType.getDescriptor(i));
         }
 
         return values;
@@ -1259,7 +1259,7 @@ public class DataUtilities {
         if(properties == null) {
           properties = new String[featureType.getAttributeCount()];
           for (int i = 0; i < properties.length; i++) {
-            properties[i] = featureType.getAttribute(i).getLocalName();
+            properties[i] = featureType.getDescriptor(i).getLocalName();
           }
         }
 
@@ -1270,11 +1270,11 @@ public class DataUtilities {
             
 
         for (int i = 0; (i < featureType.getAttributeCount()) && same; i++) {
-            AttributeDescriptor type = featureType.getAttribute(i);
+            AttributeDescriptor type = featureType.getDescriptor(i);
             same = type.getLocalName().equals(properties[i])
                 && (((override != null)
                 && type instanceof GeometryDescriptor)
-                ? assertEquals(override, ((GeometryDescriptor) type).getCRS())
+                ? assertEquals(override, ((GeometryDescriptor) type).getCoordinateReferenceSystem())
                 : true);
         }
 
@@ -1285,7 +1285,7 @@ public class DataUtilities {
         AttributeDescriptor[] types = new AttributeDescriptor[properties.length];
 
         for (int i = 0; i < properties.length; i++) {
-            types[i] = featureType.getAttribute(properties[i]);
+            types[i] = featureType.getDescriptor(properties[i]);
 
             if ((override != null) && types[i] instanceof GeometryDescriptor) {
                 AttributeTypeBuilder ab = new AttributeTypeBuilder();
@@ -1337,7 +1337,7 @@ public class DataUtilities {
         boolean same = featureType.getAttributeCount() == properties.length;
 
         for (int i = 0; (i < featureType.getAttributeCount()) && same; i++) {
-            same = featureType.getAttribute(i).getLocalName().equals(properties[i]);
+            same = featureType.getDescriptor(i).getLocalName().equals(properties[i]);
         }
 
         if (same) {
@@ -1348,7 +1348,7 @@ public class DataUtilities {
         tb.setName( featureType.getName() );
         
         for (int i = 0; i < properties.length; i++) {
-            tb.add( featureType.getAttribute(properties[i]) );
+            tb.add( featureType.getDescriptor(properties[i]) );
         }
         return tb.buildFeatureType();
     }
@@ -1432,7 +1432,7 @@ public class DataUtilities {
         Object[] attributes = new Object[text.length];
 
         for (int i = 0; i < text.length; i++) {
-            AttributeType attType = type.getAttribute(i).getType();
+            AttributeType attType = type.getDescriptor(i).getType();
             attributes[i] = Converters.convert(text[i], attType.getBinding());
         }
 
@@ -1449,7 +1449,7 @@ public class DataUtilities {
      * @return The string "specification" for the featureType
      */
     public static String spec(SimpleFeatureType featureType) {
-        List types = featureType.getAttributes();
+        List types = featureType.getAttributeDescriptors();
 
         StringBuffer buf = new StringBuffer();
 
@@ -1460,8 +1460,8 @@ public class DataUtilities {
             buf.append(typeMap(type.getType().getBinding()));
             if(type instanceof GeometryDescriptor) {
                 GeometryDescriptor gd = (GeometryDescriptor) type;
-                if(gd.getCRS() != null && gd.getCRS().getIdentifiers() != null) {                    
-                    for (Iterator<ReferenceIdentifier> it = gd.getCRS().getIdentifiers().iterator(); it.hasNext();) {
+                if(gd.getCoordinateReferenceSystem() != null && gd.getCoordinateReferenceSystem().getIdentifiers() != null) {                    
+                    for (Iterator<ReferenceIdentifier> it = gd.getCoordinateReferenceSystem().getIdentifiers().iterator(); it.hasNext();) {
                         ReferenceIdentifier id = (ReferenceIdentifier) it.next();
 
                         if ((id.getAuthority() != null)
@@ -2238,7 +2238,7 @@ public class DataUtilities {
 	public static Envelope bounds( FeatureCollection<? extends FeatureType, ? extends Feature> collection ) {
 		FeatureIterator<? extends Feature> i = collection.features();
 		try {
-			ReferencedEnvelope bounds = new ReferencedEnvelope(collection.getSchema().getCRS());
+			ReferencedEnvelope bounds = new ReferencedEnvelope(collection.getSchema().getCoordinateReferenceSystem());
 			if ( !i.hasNext() ) {
 				bounds.setToNull();
 				return bounds;

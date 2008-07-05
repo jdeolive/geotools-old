@@ -196,7 +196,7 @@ public class WFSGeoResource extends AbstractGeoResource {
             description = fsd.getAbstract();
 
             try {
-                crs = ft.getDefaultGeometry().getCRS();
+                crs = ft.getGeometryDescriptor().getCoordinateReferenceSystem();
             } catch (Exception e) {
                 crs = DefaultGeographicCRS.WGS84;
             }

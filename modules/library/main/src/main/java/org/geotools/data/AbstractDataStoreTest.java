@@ -261,7 +261,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         assertEquals("typename", "typename", type.getTypeName());
         assertEquals("attributes", 3, type.getAttributeCount());
 
-        AttributeDescriptor[] a = type.getAttributes().toArray( new AttributeDescriptor[type.getAttributeCount()]);
+        AttributeDescriptor[] a = type.getAttributeDescriptors().toArray( new AttributeDescriptor[type.getAttributeCount()]);
         assertEquals("a1", "name", a[0].getLocalName());
         assertEquals("a1", String.class, a[0].getType().getBinding());
 
@@ -1143,11 +1143,11 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
         assertEquals(type.getAttributeCount(), actual.getAttributeCount());
 
         for (int i = 0; i < type.getAttributeCount(); i++) {
-            assertEquals(type.getAttribute(i), actual.getAttribute(i));
+            assertEquals(type.getDescriptor(i), actual.getDescriptor(i));
         }
 
-        assertNull(type.getDefaultGeometry());
-        assertEquals(type.getDefaultGeometry(), actual.getDefaultGeometry());
+        assertNull(type.getGeometryDescriptor());
+        assertEquals(type.getGeometryDescriptor(), actual.getGeometryDescriptor());
         assertEquals(type, actual);
 
         BoundingBox b = half.getBounds();
@@ -1176,7 +1176,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
     //
     public void testGetFeatureStoreModifyFeatures1() throws IOException {
         FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
-        AttributeDescriptor name = roadType.getAttribute("NAME");
+        AttributeDescriptor name = roadType.getDescriptor("NAME");
         road.modifyFeatures(name, "changed", rd1Filter);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(rd1Filter);
@@ -1185,7 +1185,7 @@ public abstract class AbstractDataStoreTest extends DataTestCase {
 
     public void testGetFeatureStoreModifyFeatures2() throws IOException {
         FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("ROAD");
-        AttributeDescriptor name = roadType.getAttribute("NAME");
+        AttributeDescriptor name = roadType.getDescriptor("NAME");
         road.modifyFeatures(new AttributeDescriptor[] { name, },
             new Object[] { "changed", }, rd1Filter);
 

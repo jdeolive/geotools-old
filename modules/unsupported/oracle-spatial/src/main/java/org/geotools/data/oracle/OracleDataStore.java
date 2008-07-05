@@ -486,16 +486,16 @@ public class OracleDataStore extends JDBCDataStore {
             if (!query.retrieveAllProperties()) {
                 try {
                     schemaNew = DataUtilities.createSubType(schema, query.getPropertyNames());
-                    if (schemaNew.getDefaultGeometry() == null) // does the sub-schema have a
+                    if (schemaNew.getGeometryDescriptor() == null) // does the sub-schema have a
                                                                 // geometry in it?
                     {
                         // uh-oh better get one!
-                        if (schema.getDefaultGeometry() != null) // does the entire schema have a
+                        if (schema.getGeometryDescriptor() != null) // does the entire schema have a
                                                                     // geometry in it?
                         {
                             // buff-up the sub-schema so it has the default geometry in it.
                             ArrayList al = new ArrayList(Arrays.asList(query.getPropertyNames()));
-                            al.add(schema.getDefaultGeometry().getName());
+                            al.add(schema.getGeometryDescriptor().getName());
                             schemaNew = DataUtilities.createSubType(schema, (String[]) al
                                     .toArray(new String[1]));
                         }
@@ -508,7 +508,7 @@ public class OracleDataStore extends JDBCDataStore {
             // BUT, if there's no geometry in the table, then the query will not (obviously) have a
             // geometry in it.
 
-            List<AttributeDescriptor> attributeTypes = schemaNew.getAttributes();
+            List<AttributeDescriptor> attributeTypes = schemaNew.getAttributeDescriptors();
 
             for (int j = 0, n = schemaNew.getAttributeCount(); j < n; j++) {
                 if (Geometry.class.isAssignableFrom(attributeTypes.get(j).getType().getBinding())) // same as
@@ -530,9 +530,9 @@ public class OracleDataStore extends JDBCDataStore {
 
             LOGGER.finer("returning bounds " + retEnv);
 
-            if ((schemaNew != null) && (schemaNew.getDefaultGeometry() != null))
-                return new ReferencedEnvelope(retEnv, schemaNew.getDefaultGeometry()
-                        .getCRS());
+            if ((schemaNew != null) && (schemaNew.getGeometryDescriptor() != null))
+                return new ReferencedEnvelope(retEnv, schemaNew.getGeometryDescriptor()
+                        .getCoordinateReferenceSystem());
             if (query.getCoordinateSystem() != null)
                 return new ReferencedEnvelope(retEnv, query.getCoordinateSystem());
             return new ReferencedEnvelope(retEnv, null);
@@ -562,7 +562,7 @@ public class OracleDataStore extends JDBCDataStore {
         throws SQLException, SQLEncoderException, IOException, ParseException {
         
         StringBuffer sql = new StringBuffer();
-        GeometryDescriptor gat = (GeometryDescriptor) schema.getAttribute(geomName);
+        GeometryDescriptor gat = (GeometryDescriptor) schema.getDescriptor(geomName);
         // from the Oracle docs: "The SDO_TUNE.EXTENT_OF function has better performance than the
         // SDO_AGGR_MBR function if the data is non-geodetic and if a spatial index is defined
         // on the geometry column; however, the SDO_TUNE.EXTENT_OF function is limited to
@@ -573,7 +573,7 @@ public class OracleDataStore extends JDBCDataStore {
         // Long story short: under restrictive conditions SDO_TUNE.EXTENT_OF works, but we have
         // to be prepared to fall back on SDO_AGGR_MBR.
         List queries = new ArrayList();
-        if(Filter.INCLUDE.equals(filter) && !(gat.getCRS() instanceof GeodeticCRS)) {
+        if(Filter.INCLUDE.equals(filter) && !(gat.getCoordinateReferenceSystem() instanceof GeodeticCRS)) {
             sql.append("SELECT SDO_TUNE.EXTENT_OF('").append(schema.getTypeName()).append("', '");
             sql.append(geomName).append("') from dual");
             queries.add(sql.toString());

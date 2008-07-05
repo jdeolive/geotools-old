@@ -103,7 +103,7 @@ public class DefaultFeatureResults extends DataFeatureCollection {
             //((DefaultQuery) this.query).setCoordinateSystemReproject(query.getCoordinateSystemReproject());
         }
        
-        if( origionalType.getDefaultGeometry() == null ){
+        if( origionalType.getGeometryDescriptor() == null ){
             return; // no transform needed
         }
         
@@ -113,7 +113,7 @@ public class DefaultFeatureResults extends DataFeatureCollection {
         } else if (query.getCoordinateSystem() != null) {
             cs = query.getCoordinateSystem();
         }     
-        CoordinateReferenceSystem origionalCRS = origionalType.getDefaultGeometry().getCRS();
+        CoordinateReferenceSystem origionalCRS = origionalType.getGeometryDescriptor().getCoordinateReferenceSystem();
         if( query.getCoordinateSystem() != null ){
             origionalCRS = query.getCoordinateSystem();
         }
@@ -228,7 +228,7 @@ public class DefaultFeatureResults extends DataFeatureCollection {
         List attributes = new ArrayList();
         SimpleFeatureType schema = featureSource.getSchema();
         for (int i = 0; i < schema.getAttributeCount(); i++) {
-            AttributeDescriptor at = schema.getAttribute(i);
+            AttributeDescriptor at = schema.getDescriptor(i);
             if(at instanceof GeometryDescriptorImpl)
                 attributes.add(at.getLocalName());
         }

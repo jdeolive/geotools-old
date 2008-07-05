@@ -318,7 +318,7 @@ public class CrossesIntegrity extends RelationIntegrity
 	{
 		FilterFactory ff = FilterFactoryFinder.createFilterFactory();
 		BBoxExpression bboxExpr = ff.createBBoxExpression(bBox);
-		AttributeExpression geomExpr = ff.createAttributeExpression(ft, ft.getDefaultGeometry().getLocalName());
+		AttributeExpression geomExpr = ff.createAttributeExpression(ft, ft.getGeometryDescriptor().getLocalName());
 		GeometryFilter containsFilter = ff.createGeometryFilter(Filter.GEOMETRY_DISJOINT);
 		containsFilter.addLeftGeometry(bboxExpr);
 		containsFilter.addRightGeometry(geomExpr);

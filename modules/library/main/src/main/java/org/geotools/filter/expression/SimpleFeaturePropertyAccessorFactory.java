@@ -136,7 +136,7 @@ public class SimpleFeaturePropertyAccessorFactory implements
         		return ((SimpleFeature) object).getDefaultGeometry();
         	}
         	if ( object instanceof SimpleFeatureType ) {
-        		return ((SimpleFeatureType)object).getDefaultGeometry();
+        		return ((SimpleFeatureType)object).getGeometryDescriptor();
         	}
             
         	return null;
@@ -164,7 +164,7 @@ public class SimpleFeaturePropertyAccessorFactory implements
         	}
         	
         	if ( object instanceof SimpleFeatureType ) {
-        		return ((SimpleFeatureType) object).getAttribute( xpath ) != null;
+        		return ((SimpleFeatureType) object).getDescriptor( xpath ) != null;
         	}
         	
         	return false;
@@ -178,7 +178,7 @@ public class SimpleFeaturePropertyAccessorFactory implements
         	}
         	
         	if ( object instanceof SimpleFeatureType ) {
-        		return ((SimpleFeatureType) object).getAttribute( xpath );
+        		return ((SimpleFeatureType) object).getDescriptor( xpath );
         	}
         	
         	return null;

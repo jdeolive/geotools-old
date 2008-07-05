@@ -86,7 +86,7 @@ public class DB2FeatureWriter extends JDBCTextFeatureWriter {
     protected String makeInsertSql(SimpleFeature feature) throws IOException {
         FeatureTypeInfo ftInfo = queryData.getFeatureTypeInfo();
         SimpleFeatureType featureType = ftInfo.getSchema();
-        List<AttributeDescriptor> attributes = featureType.getAttributes();
+        List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 		String insertSQL  = this.sqlBuilder.makeInsertSql(attributes, feature);
         return (insertSQL);
     }
@@ -104,7 +104,7 @@ public class DB2FeatureWriter extends JDBCTextFeatureWriter {
 			throws IOException {
 		FeatureTypeInfo ftInfo = queryData.getFeatureTypeInfo();
 		SimpleFeatureType featureType = ftInfo.getSchema();
-		List<AttributeDescriptor> attributes = featureType.getAttributes();
+		List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 		
 		String updateSQL  = this.sqlBuilder.makeUpdateSql(attributes, live, current);
 

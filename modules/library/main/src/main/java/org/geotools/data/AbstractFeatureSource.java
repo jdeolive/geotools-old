@@ -126,7 +126,7 @@ public abstract class AbstractFeatureSource implements FeatureSource<SimpleFeatu
                 }
             }
             public CoordinateReferenceSystem getCRS() {
-                return AbstractFeatureSource.this.getSchema().getCRS();
+                return AbstractFeatureSource.this.getSchema().getCoordinateReferenceSystem();
             }
 
             public String getDescription() {
@@ -295,7 +295,7 @@ public abstract class AbstractFeatureSource implements FeatureSource<SimpleFeatu
      */
     public ReferencedEnvelope getBounds(Query query) throws IOException {
         if (query.getFilter() == Filter.EXCLUDE) {
-            return new ReferencedEnvelope(new Envelope(), getSchema().getCRS());
+            return new ReferencedEnvelope(new Envelope(), getSchema().getCoordinateReferenceSystem());
         }
         
         DataStore dataStore = getDataStore();

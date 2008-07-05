@@ -72,7 +72,7 @@ public class SimpleTypeBuilderTest extends TestCase {
 		assertNotNull( t );
 		assertEquals( Integer.class, t.getBinding() );
 		
-		t = type.getDefaultGeometry().getType();
+		t = type.getGeometryDescriptor().getType();
 		assertNotNull( t );
 		assertEquals( Point.class, t.getBinding() );
 	}
@@ -86,9 +86,9 @@ public class SimpleTypeBuilderTest extends TestCase {
 		builder.add( "point2", Point.class, DefaultGeographicCRS.WGS84 );
 		builder.setDefaultGeometry("point");
 		SimpleFeatureType type = builder.buildFeatureType();
-		assertEquals( DefaultGeographicCRS.WGS84, type.getCRS() );
+		assertEquals( DefaultGeographicCRS.WGS84, type.getCoordinateReferenceSystem() );
 		
-		assertNull( type.getDefaultGeometry().getType().getCRS() );
-		assertEquals( DefaultGeographicCRS.WGS84, ((GeometryType)type.getType("point2")).getCRS());
+		assertNull( type.getGeometryDescriptor().getType().getCoordinateReferenceSystem() );
+		assertEquals( DefaultGeographicCRS.WGS84, ((GeometryType)type.getType("point2")).getCoordinateReferenceSystem());
 	}
 }

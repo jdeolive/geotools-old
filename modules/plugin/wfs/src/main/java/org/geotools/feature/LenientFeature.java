@@ -70,7 +70,7 @@ public class LenientFeature extends SimpleFeatureImpl {
             result.add(att.getValue());
         }
         while( attributes.size() < schema.getAttributeCount() ){
-            AttributeDescriptor required = schema.getAttribute(attributes.size()-1);
+            AttributeDescriptor required = schema.getDescriptor(attributes.size()-1);
             // or use required.getDefaultValue()
             // Attribute newAttribute = new LenientAttribute( null, required, null );
             attributes.add(null);
@@ -109,7 +109,7 @@ public class LenientFeature extends SimpleFeatureImpl {
      */
     public void setAttribute(int position, Object val)
         throws IllegalAttributeException {
-        AttributeDescriptor type = getFeatureType().getAttribute(position);
+        AttributeDescriptor type = getFeatureType().getDescriptor(position);
         try {
             
             if ((val == null) && !type.isNillable()) {
@@ -188,7 +188,7 @@ public class LenientFeature extends SimpleFeatureImpl {
         List<Object> tmp = Arrays.asList(new Object[schema.getAttributeCount()]);
         for( int i = 0; i < newAtts.size() && i<schema.getAttributeCount(); i++ ) {
             Object object = newAtts.get(i);
-            AttributeDescriptor att = schema.getAttribute(i);
+            AttributeDescriptor att = schema.getDescriptor(i);
             if( object==null ){
                 continue;
             }
@@ -214,7 +214,7 @@ public class LenientFeature extends SimpleFeatureImpl {
                 continue;
             Class realClass = object.getClass();
             for( int j = 0; j < schema.getAttributeCount(); j++ ) {
-                AttributeDescriptor att = schema.getAttribute(j);
+                AttributeDescriptor att = schema.getDescriptor(j);
                 Class requiredClass = att.getType().getBinding();
                 if( relaxedAttrs.get(j)==null && requiredClass.isAssignableFrom(realClass) ){
                     relaxedAttrs.set(j,object);

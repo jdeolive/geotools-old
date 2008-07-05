@@ -340,7 +340,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
     protected  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(String typeName, Query query)
             throws IOException {
         String[] propertyNames = query.getPropertyNames();
-        String defaultGeomName = schema.getDefaultGeometry().getLocalName();
+        String defaultGeomName = schema.getGeometryDescriptor().getLocalName();
 
         // gather attributes needed by the query tool, they will be used by the
         // query filter
@@ -392,13 +392,13 @@ public class ShapefileDataStore extends AbstractFileDataStore {
             throws IOException {
 
         List<AttributeDescriptor> atts = (schema == null) ? readAttributes()
-                : schema.getAttributes();
+                : schema.getAttributeDescriptors();
 
         if (!readDbf) {
             LOGGER
                     .fine("The DBF file won't be opened since no attributes will be read from it");
             atts = new ArrayList(1);
-            atts.add(schema.getDefaultGeometry());
+            atts.add(schema.getGeometryDescriptor());
             return new ShapefileAttributeReader(atts, openShapeReader(), null);
         }
 
@@ -775,9 +775,9 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         shpFiles.delete();
         schema = featureType;
 
-        CoordinateReferenceSystem cs = featureType.getDefaultGeometry()
-                .getCRS();
-        Class geomType = featureType.getDefaultGeometry().getType()
+        CoordinateReferenceSystem cs = featureType.getGeometryDescriptor()
+                .getCoordinateReferenceSystem();
+        Class geomType = featureType.getGeometryDescriptor().getType()
                 .getBinding();
         ShapeType shapeType;
 
@@ -894,7 +894,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
                 header.read(buffer, true);
 
                 ReferencedEnvelope bounds = new ReferencedEnvelope(schema
-                        .getCRS());
+                        .getCoordinateReferenceSystem());
                 bounds.include(header.minX(), header.minY());
                 bounds.include(header.minX(), header.minY());
 
@@ -902,7 +902,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
                         header.minY(), header.maxY());
 
                 if (schema != null) {
-                    return new ReferencedEnvelope(env, schema.getCRS());
+                    return new ReferencedEnvelope(env, schema.getCoordinateReferenceSystem());
                 }
                 return new ReferencedEnvelope(env, null);
             } finally {
@@ -1005,7 +1005,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         DbaseFileHeader header = new DbaseFileHeader();
 
         for (int i = 0, ii = featureType.getAttributeCount(); i < ii; i++) {
-            AttributeDescriptor type = featureType.getAttribute(i);
+            AttributeDescriptor type = featureType.getDescriptor(i);
 
             Class<?> colType = type.getType().getBinding();
             String colName = type.getLocalName();

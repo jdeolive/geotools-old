@@ -66,7 +66,7 @@ public class MapServerWFSStrategy extends StrictWFSStrategy implements WFSStrate
                 FilterFactory fac=CommonFactoryFinder.getFilterFactory(null);
                 try {
                     SimpleFeatureType schema = store.getSchema(query.getTypeName());
-                    String attName = schema.getDefaultGeometry().getLocalName();
+                    String attName = schema.getGeometryDescriptor().getLocalName();
                     
                     List fts = store.capabilities.getFeatureTypes(); // FeatureSetDescription
                     Iterator i = fts.iterator();

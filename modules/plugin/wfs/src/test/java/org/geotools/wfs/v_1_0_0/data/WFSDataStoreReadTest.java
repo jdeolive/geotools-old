@@ -95,13 +95,13 @@ public class WFSDataStoreReadTest extends TestCase {
             // get
             SimpleFeatureType ft = wfs.getSchemaGet(typeName);
             assertNotNull("GET DescribeFeatureType for "+typeName+" was null",ft);
-            assertTrue("GET "+typeName+" must have 1 geom and atleast 1 other attribute -- fair assumption",ft.getDefaultGeometry()!=null && ft.getAttributes()!=null && ft.getAttributeCount()>0);
+            assertTrue("GET "+typeName+" must have 1 geom and atleast 1 other attribute -- fair assumption",ft.getGeometryDescriptor()!=null && ft.getAttributeDescriptors()!=null && ft.getAttributeCount()>0);
         }
         if(post){
             // post
             SimpleFeatureType ft = wfs.getSchemaPost(typeName);
             assertNotNull("POST DescribeFeatureType for "+typeName+" resulted in null",ft);
-            assertTrue("POST "+typeName+" must have 1 geom and atleast 1 other attribute -- fair assumption",ft.getDefaultGeometry()!=null && ft.getAttributes()!=null && ft.getAttributeCount()>0);
+            assertTrue("POST "+typeName+" must have 1 geom and atleast 1 other attribute -- fair assumption",ft.getGeometryDescriptor()!=null && ft.getAttributeDescriptors()!=null && ft.getAttributeCount()>0);
         }
         }catch(java.net.SocketException se){
             se.printStackTrace();
@@ -150,7 +150,7 @@ public class WFSDataStoreReadTest extends TestCase {
         // take atleast attributeType 3 to avoid the undeclared one .. inherited optional attrs
         
         String[] props;
-        props = new String[] {ft.getDefaultGeometry().getLocalName()};
+        props = new String[] {ft.getGeometryDescriptor().getLocalName()};
         
         DefaultQuery query = new DefaultQuery(ft.getTypeName());
         query.setPropertyNames(props);
@@ -251,7 +251,7 @@ public class WFSDataStoreReadTest extends TestCase {
         // take atleast attributeType 3 to avoid the undeclared one .. inherited optional attrs
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
         DefaultQuery query = new DefaultQuery(featureType.getTypeName());
-        PropertyName theGeom = ff.property( featureType.getDefaultGeometry().getName() );
+        PropertyName theGeom = ff.property( featureType.getGeometryDescriptor().getName() );
         Filter filter = ff.bbox( theGeom, bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY(), "EPSG:4326" );
                 
         query.setFilter( filter );

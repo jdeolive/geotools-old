@@ -175,8 +175,8 @@ public class ArcSDEDataStoreTest extends TestCase {
     public void _testAutoFillSRS() throws Throwable {
 
         ArcSDEDataStore ds = testData.getDataStore();
-        CoordinateReferenceSystem sdeCRS = ds.getSchema("GISDATA.TOWNS_POLY").getDefaultGeometry()
-                .getCRS();
+        CoordinateReferenceSystem sdeCRS = ds.getSchema("GISDATA.TOWNS_POLY").getGeometryDescriptor()
+                .getCoordinateReferenceSystem();
 
         LOGGER.info(sdeCRS.toWKT().replaceAll(" ", "").replaceAll("\n", "")
                 .replaceAll("\"", "\\\""));

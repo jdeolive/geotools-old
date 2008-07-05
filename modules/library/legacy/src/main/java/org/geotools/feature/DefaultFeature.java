@@ -119,7 +119,7 @@ public class DefaultFeature extends SimpleFeatureImpl
     	ArrayList atts = new ArrayList(values.length);
     	for ( int i = 0; i < values.length; i++ ) {
     		atts.add(
-				new AttributeImpl( values[i], schema.getAttribute(i),null) {
+				new AttributeImpl( values[i], schema.getDescriptor(i),null) {
 					public void set(Object newValue) throws IllegalArgumentException, IllegalStateException {
 						 newValue = parse(newValue);
 						 value = newValue;
@@ -754,7 +754,7 @@ public class DefaultFeature extends SimpleFeatureImpl
         	ArrayList atts = new ArrayList(values.length);
         	for ( int i = 0; i < values.length; i++ ) {
         		atts.add(
-    				new AttributeImpl( wrapInList(values[i]), schema.getAttribute(i),null) {
+    				new AttributeImpl( wrapInList(values[i]), schema.getDescriptor(i),null) {
     					public void setValue(Object newValue) throws IllegalArgumentException, IllegalStateException {
     						 newValue = parse(newValue);
     						 value = newValue;

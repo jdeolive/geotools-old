@@ -205,7 +205,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         Set names = new HashSet(Arrays.asList(filterPropertyNames(new DefaultQuery(typeName))));
         List filtered = new ArrayList();
         for (int i = 0; i < ft.getAttributeCount(); i++) {
-            AttributeDescriptor cat = ft.getAttribute(i);
+            AttributeDescriptor cat = ft.getDescriptor(i);
             String name = cat.getLocalName().toLowerCase();
             if (names.contains(name)) {
                 filtered.add(cat);
@@ -1040,9 +1040,9 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             // gather bbox, we need it for the first commit msg
             Envelope envelope = wrapped.getFeatureSource(typeName).getBounds();
             if (envelope != null) {
-                final GeometryDescriptor defaultGeometry = wrapped.getSchema(typeName).getDefaultGeometry();
+                final GeometryDescriptor defaultGeometry = wrapped.getSchema(typeName).getGeometryDescriptor();
                 if(defaultGeometry != null) {
-                    CoordinateReferenceSystem crs = defaultGeometry.getCRS();
+                    CoordinateReferenceSystem crs = defaultGeometry.getCoordinateReferenceSystem();
                     if (crs != null)
                         envelope = JTS.toGeographic(envelope, crs);
                     state.expandDirtyBounds(envelope);
@@ -1254,8 +1254,8 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             // gather bbox, we need it for the first commit msg
             Envelope envelope = wrapped.getFeatureSource(typeName).getBounds();
             if (envelope != null) {
-                CoordinateReferenceSystem crs = wrapped.getSchema(typeName).getDefaultGeometry()
-                        .getCRS();
+                CoordinateReferenceSystem crs = wrapped.getSchema(typeName).getGeometryDescriptor()
+                        .getCoordinateReferenceSystem();
                 if (crs != null)
                     envelope = JTS.toGeographic(envelope, crs);
                 state.expandDirtyBounds(envelope);

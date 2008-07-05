@@ -76,10 +76,10 @@ public class BetweenTest extends TestCase {
         a.addMiddleValue(new AttributeExpressionImpl(schema, "value"));
 
         //FlatFeatureFactory fFac = new FlatFeatureFactory(schema);
-        LOGGER.fine("geometry is " + schema.getAttribute("geometry"));
-        LOGGER.fine("value is " + schema.getAttribute("value"));
+        LOGGER.fine("geometry is " + schema.getDescriptor("geometry"));
+        LOGGER.fine("value is " + schema.getDescriptor("value"));
         LOGGER.fine("schema has value in it ? "
-            + (schema.getAttribute("value") != null));
+            + (schema.getDescriptor("value") != null));
 
         GeometryFactory gf = new GeometryFactory(new PrecisionModel());
         SimpleFeature f1 = SimpleFeatureBuilder.build(schema,new Object[] {

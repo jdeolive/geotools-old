@@ -139,7 +139,7 @@ public class MapViewer implements ActionListener{
         SLDParser stylereader = new SLDParser(factory,sld);
         org.geotools.styling.Style[] style = stylereader.readXML();
 
-        CoordinateReferenceSystem crs = fs.getSchema().getCRS();
+        CoordinateReferenceSystem crs = fs.getSchema().getCoordinateReferenceSystem();
         if(crs==null)crs=DefaultGeographicCRS.WGS84;
         MapContext context = new DefaultMapContext(crs);
         context.addLayer(fs,style[0]);

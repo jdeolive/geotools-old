@@ -79,7 +79,7 @@ public class FilterToSQLTest extends TestCase {
     public void testIntegerContext() throws Exception {
         
         Expression literal = filterFac.literal(5);
-        Expression prop = filterFac.property(integerFType.getAttributes().get(0).getLocalName());
+        Expression prop = filterFac.property(integerFType.getAttributeDescriptors().get(0).getLocalName());
         PropertyIsEqualTo filter = filterFac.equals(prop, literal);
         
         encoder.setFeatureType(integerFType);
@@ -91,7 +91,7 @@ public class FilterToSQLTest extends TestCase {
     
     public void testStringContext() throws Exception {
         Expression literal = filterFac.literal(5);
-        Expression prop = filterFac.property(stringFType.getAttributes().get(0).getLocalName());
+        Expression prop = filterFac.property(stringFType.getAttributeDescriptors().get(0).getLocalName());
         PropertyIsEqualTo filter = filterFac.equals(prop, literal);
         
 

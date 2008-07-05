@@ -256,7 +256,7 @@ public class DefaultView implements FeatureSource<SimpleFeatureType, SimpleFeatu
             propNames = new String[schema.getAttributeCount()];
 
             for (int i = 0; i < schema.getAttributeCount(); i++) {
-                propNames[i] = schema.getAttribute(i).getLocalName();
+                propNames[i] = schema.getDescriptor(i).getLocalName();
             }
         } else {
             String[] queriedAtts = query.getPropertyNames();
@@ -264,7 +264,7 @@ public class DefaultView implements FeatureSource<SimpleFeatureType, SimpleFeatu
             List allowedAtts = new LinkedList();
 
             for (int i = 0; i < queriedAttCount; i++) {
-                if (schema.getAttribute(queriedAtts[i]) != null) {
+                if (schema.getDescriptor(queriedAtts[i]) != null) {
                     allowedAtts.add(queriedAtts[i]);
                 } else {
                     LOGGER.info("queried a not allowed property: " + queriedAtts[i]
@@ -489,7 +489,7 @@ public class DefaultView implements FeatureSource<SimpleFeatureType, SimpleFeatu
                 }
             }
             public CoordinateReferenceSystem getCRS() {
-                return DefaultView.this.getSchema().getCRS();
+                return DefaultView.this.getSchema().getCoordinateReferenceSystem();
             }
 
             public String getDescription() {

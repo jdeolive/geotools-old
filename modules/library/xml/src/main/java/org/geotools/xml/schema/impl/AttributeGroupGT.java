@@ -67,7 +67,7 @@ public class AttributeGroupGT implements AttributeGroup {
     }
 
     /**
-     * @see org.geotools.xml.xsi.AttributeGroup#getAttributes()
+     * @see org.geotools.xml.xsi.AttributeGroup#getAttributeDescriptors()
      */
     public Attribute[] getAttributes() {
         return attributes;

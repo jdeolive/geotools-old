@@ -109,7 +109,7 @@ public class FacilitiesFactory {
     public Geometry projectGeometry(Geometry geom, MapContext context, MapLayer layer) {
 
         CoordinateReferenceSystem contextCRS = context.getCoordinateReferenceSystem();
-        CoordinateReferenceSystem layerCRS = layer.getFeatureSource().getSchema().getCRS();
+        CoordinateReferenceSystem layerCRS = layer.getFeatureSource().getSchema().getCoordinateReferenceSystem();
 
         if (layerCRS == null) {
             layerCRS = contextCRS;

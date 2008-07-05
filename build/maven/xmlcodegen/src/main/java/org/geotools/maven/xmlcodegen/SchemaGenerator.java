@@ -347,7 +347,7 @@ public class SchemaGenerator extends AbstractGenerator {
 				ComplexType cType = (ComplexType) type;
 				
 				//add an edge for each descriptor
-				Collection atts = cType.getProperties();
+				Collection atts = cType.getDescriptors();
 				for (Iterator aitr = atts.iterator(); aitr.hasNext();) {
 					PropertyDescriptor ad = (PropertyDescriptor) aitr.next();
 					gg.add(new Object[]{type,ad.getType()});

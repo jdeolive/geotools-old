@@ -569,7 +569,7 @@ public class MIFFile {
         header += ("Columns " + (numAttribs - 1) + "\n");
 
         for (int i = 1; i < numAttribs; i++) {
-            AttributeDescriptor at = featureType.getAttribute(i);
+            AttributeDescriptor at = featureType.getDescriptor(i);
             header += ("  " + at.getLocalName() + " " + getMapInfoAttrType(at)
             + "\n");
         }
@@ -1019,7 +1019,7 @@ public class MIFFile {
         featureDefaults = new Object[numAttribs];
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            AttributeDescriptor at = featureType.getAttribute(i);
+            AttributeDescriptor at = featureType.getDescriptor(i);
 
             Class atc = at.getType().getBinding();
 
@@ -1059,7 +1059,7 @@ public class MIFFile {
         MIFValueSetter[] fieldValueSetters = new MIFValueSetter[numAttribs];
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            AttributeDescriptor at = featureType.getAttribute(i);
+            AttributeDescriptor at = featureType.getDescriptor(i);
             Class atc = at.getType().getBinding();
 
             if (i == geomFieldIndex) {

@@ -119,7 +119,7 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
 
         for (int i = 0, ii = featureType.getAttributeCount(); i < ii; i++) {
             // if its a geometry, we don't want to write it to the dbf...
-            if (!(featureType.getAttribute(i) instanceof GeometryDescriptor)) {
+            if (!(featureType.getDescriptor(i) instanceof GeometryDescriptor)) {
                 cnt++;
                 writeFlags[i] = (byte) 1;
             }
@@ -157,7 +157,7 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
         // another problem.
         if ((records <= 0) && (shapeType == null)) {
             GeometryDescriptor geometryAttributeType = featureType
-                    .getDefaultGeometry();
+                    .getGeometryDescriptor();
 
             Class gat = geometryAttributeType.getType().getBinding();
             shapeType = JTSUtilities.getShapeType(gat);

@@ -567,7 +567,7 @@ public class TempMemoryDataStore extends AbstractDataStore {
             Filter filter = query.getFilter();
             SimpleFeature first = (SimpleFeature) iterator.next();
             Envelope env = ((Geometry) first.getDefaultGeometry()).getEnvelopeInternal();
-            envelope = new ReferencedEnvelope(env, first.getType().getCRS());
+            envelope = new ReferencedEnvelope(env, first.getType().getCoordinateReferenceSystem());
 
             while (iterator.hasNext() && (count < query.getMaxFeatures())) {
                 SimpleFeature feature = (SimpleFeature) iterator.next();

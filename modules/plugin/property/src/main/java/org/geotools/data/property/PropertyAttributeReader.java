@@ -171,7 +171,7 @@ public class PropertyAttributeReader implements AttributeReader {
      */
     public AttributeDescriptor getAttributeType(int index)
         throws ArrayIndexOutOfBoundsException {
-        return type.getAttribute( index );
+        return type.getDescriptor( index );
     }
 
     /**
@@ -255,7 +255,7 @@ public class PropertyAttributeReader implements AttributeReader {
                 "No content available - did you remeber to call next?");
         }
 
-        AttributeDescriptor attType = type.getAttribute(index);
+        AttributeDescriptor attType = type.getDescriptor(index);
 
         String stringValue = null;
 		try {

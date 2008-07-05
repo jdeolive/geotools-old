@@ -229,7 +229,7 @@ public class GeometryEncoderSDE implements FilterVisitor {
         // support it. I guess we should try stripping the prefix and seeing if
         // that
         // matches...
-        final String spatialCol = featureType.getDefaultGeometry().getLocalName();
+        final String spatialCol = featureType.getGeometryDescriptor().getLocalName();
         final String rawPropName = propertyExpr.getPropertyName();
         String localPropName = rawPropName;
         if (rawPropName.indexOf(":") != -1) {

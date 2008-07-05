@@ -60,7 +60,7 @@ public class MapServerWFSStrategyOnlineTest extends TestCase {
         
         GeometryFilter filter = fac.createGeometryFilter(FilterType.GEOMETRY_BBOX);
         
-        String attName = ds.getSchema(TYPE_NAME).getDefaultGeometry().getLocalName();
+        String attName = ds.getSchema(TYPE_NAME).getGeometryDescriptor().getLocalName();
         filter.addLeftGeometry(fac.createAttributeExpression(attName));
         
         filter.addRightGeometry(fac.createBBoxExpression(ds.getBounds(new DefaultQuery(TYPE_NAME))));

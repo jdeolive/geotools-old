@@ -93,7 +93,7 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
     public void testChangesetFeatureType() throws IOException {
         VersionedPostgisDataStore ds = getDataStore();
         SimpleFeatureType ft = ds.getSchema(VersionedPostgisDataStore.TBL_CHANGESETS);
-        assertNotNull(ft.getAttribute("revision"));
+        assertNotNull(ft.getDescriptor("revision"));
         assertFalse(ds.getFeatureSource(VersionedPostgisDataStore.TBL_CHANGESETS) instanceof FeatureStore);
     }
 
@@ -107,14 +107,14 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         assertTrue(ds.isVersioned("road"));
         assertEquals(ft, ds.getSchema("road"));
         if (ds.getFIDMapper("road").returnFIDColumnsAsAttributes())
-            assertNotNull(ds.wrapped.getSchema("road").getAttribute("revision"));
-        assertNotNull(ds.wrapped.getSchema("road").getAttribute("expired"));
+            assertNotNull(ds.wrapped.getSchema("road").getDescriptor("revision"));
+        assertNotNull(ds.wrapped.getSchema("road").getDescriptor("expired"));
         // check we don't see the versioned feature collection as a public type
         assertFalse(Arrays.asList(ds.getTypeNames()).contains("road_vfc_view"));
         
         // check the versioned feature collection view is there
         SimpleFeatureType view = ds.wrapped.getSchema("road_vfc_view");
-        AttributeDescriptor[] types = view.getAttributes().toArray(new AttributeDescriptor[view.getAttributes().size()]);
+        AttributeDescriptor[] types = view.getAttributeDescriptors().toArray(new AttributeDescriptor[view.getAttributeDescriptors().size()]);
         assertEquals(ft.getAttributeCount() + 12, view.getAttributeCount());
         assertEquals("creationVersion", types[0].getLocalName());
         assertEquals("createdBy", types[1].getLocalName());
@@ -137,8 +137,8 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         ds.setVersioned("road", false, "gimbo", "Versioning no more needed");
         assertFalse(ds.isVersioned("road"));
         assertEquals(ft, ds.getSchema("road"));
-        assertNull(ds.wrapped.getSchema("road").getAttribute("revision"));
-        assertNull(ds.wrapped.getSchema("road").getAttribute("expired"));
+        assertNull(ds.wrapped.getSchema("road").getDescriptor("revision"));
+        assertNull(ds.wrapped.getSchema("road").getDescriptor("expired"));
         try {
             ds.wrapped.getSchema("road_vfc_view");
             fail("The versioning view should not be there anymore");
@@ -583,8 +583,8 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         SimpleFeatureType treeSchema = ds.getSchema("tree");
         store.setTransaction(t);
         assertEquals(1, store.getFeatures(filter).size());
-        store.modifyFeatures(treeSchema.getAttribute("name"), "update1", filter);
-        store.modifyFeatures(treeSchema.getAttribute("name"), "update2", filter);
+        store.modifyFeatures(treeSchema.getDescriptor("name"), "update1", filter);
+        store.modifyFeatures(treeSchema.getDescriptor("name"), "update2", filter);
         t.commit();
 
         // make sure the second update is the one that went in
@@ -652,7 +652,7 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         Set ids = store.addFeatures(DataUtilities.collection(tree));
         Filter filter = ff.id(Collections.singleton(ff.featureId((String) ids.iterator().next())));
         assertEquals(1, store.getFeatures(filter).size());
-        store.modifyFeatures(treeSchema.getAttribute("name"), "update1", filter);
+        store.modifyFeatures(treeSchema.getDescriptor("name"), "update1", filter);
         t.commit();
         t.close();
     }
@@ -1149,14 +1149,14 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         assertEquals(vfc.size(), fc.size());
         final int vfcAttributesCount = vfc.getSchema().getAttributeCount();
         assertEquals(fc.getSchema().getAttributeCount() + 8, vfcAttributesCount);
-        assertEquals("creationVersion", vfc.getSchema().getAttribute(0).getLocalName());
-        assertEquals("createdBy", vfc.getSchema().getAttribute(1).getLocalName());
-        assertEquals("creationDate", vfc.getSchema().getAttribute(2).getLocalName());
-        assertEquals("creationMessage", vfc.getSchema().getAttribute(3).getLocalName());
-        assertEquals("lastUpdateVersion", vfc.getSchema().getAttribute(4).getLocalName());
-        assertEquals("lastUpdatedBy", vfc.getSchema().getAttribute(5).getLocalName());
-        assertEquals("lastUpdateDate", vfc.getSchema().getAttribute(6).getLocalName());
-        assertEquals("lastUpdateMessage", vfc.getSchema().getAttribute(7).getLocalName());
+        assertEquals("creationVersion", vfc.getSchema().getDescriptor(0).getLocalName());
+        assertEquals("createdBy", vfc.getSchema().getDescriptor(1).getLocalName());
+        assertEquals("creationDate", vfc.getSchema().getDescriptor(2).getLocalName());
+        assertEquals("creationMessage", vfc.getSchema().getDescriptor(3).getLocalName());
+        assertEquals("lastUpdateVersion", vfc.getSchema().getDescriptor(4).getLocalName());
+        assertEquals("lastUpdatedBy", vfc.getSchema().getDescriptor(5).getLocalName());
+        assertEquals("lastUpdateDate", vfc.getSchema().getDescriptor(6).getLocalName());
+        assertEquals("lastUpdateMessage", vfc.getSchema().getDescriptor(7).getLocalName());
         final FeatureIterator<SimpleFeature> vfr = vfc.features();
         final FeatureIterator<SimpleFeature> fr = fc.features();
         final SimpleFeature vf = vfr.next();
@@ -1181,7 +1181,7 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         final CoordinateReferenceSystem epsg3003 = CRS.decode("EPSG:3003");
         dq.setCoordinateSystemReproject(epsg3003);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fs.getVersionedFeatures(dq);
-        assertEquals(epsg3003, fc.getSchema().getDefaultGeometry().getCRS());
+        assertEquals(epsg3003, fc.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem());
     }
     
     public void testMissingVersionedCollection() throws Exception {
@@ -1205,7 +1205,7 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         FeatureCollection<SimpleFeatureType, SimpleFeature> vfc = fs.getVersionedFeatures();
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = fs.getFeatures();
         assertEquals(vfc.size(), fc.size());
-        assertEquals(vfc.getSchema().getDefaultGeometry(), fc.getSchema().getDefaultGeometry());
+        assertEquals(vfc.getSchema().getGeometryDescriptor(), fc.getSchema().getGeometryDescriptor());
     }
     
     public void testVersionedCollectionFidFilter() throws Exception {

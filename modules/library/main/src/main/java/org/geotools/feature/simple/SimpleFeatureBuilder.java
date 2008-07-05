@@ -269,7 +269,7 @@ public class SimpleFeatureBuilder {
         if(index >= values.length)
             throw new ArrayIndexOutOfBoundsException("Can handle " 
                     + values.length + " attributes only, index is " + index);
-        AttributeDescriptor descriptor = featureType.getAttribute(index);
+        AttributeDescriptor descriptor = featureType.getDescriptor(index);
         
         value = convert(value, descriptor);
         validate(value, descriptor);
@@ -445,7 +445,7 @@ public class SimpleFeatureBuilder {
      */
     public static SimpleFeature template(SimpleFeatureType featureType, String featureId) {
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
-        for (AttributeDescriptor ad : featureType.getAttributes()) {
+        for (AttributeDescriptor ad : featureType.getAttributeDescriptors()) {
             builder.add(ad.getDefaultValue());
         }
         return builder.buildFeature(featureId);
@@ -465,7 +465,7 @@ public class SimpleFeatureBuilder {
      */
     public static SimpleFeature retype(SimpleFeature feature, SimpleFeatureType featureType) {
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
-        for ( Iterator a = featureType.getAttributes().iterator(); a.hasNext(); ) {
+        for ( Iterator a = featureType.getAttributeDescriptors().iterator(); a.hasNext(); ) {
             AttributeDescriptor att = (AttributeDescriptor) a.next();
             Object value = feature.getAttribute( att.getName() );
             builder.set(att.getName(), value);

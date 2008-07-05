@@ -366,7 +366,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore<
                 	Object[] attributes = new Object[ newFeature.getAttributeCount() ];
                 	for ( int i = 0; i < attributes.length; i++) {
                 		AttributeDescriptor type = 
-                			newFeature.getFeatureType().getAttribute( i );
+                			newFeature.getFeatureType().getDescriptor( i );
                 		attributes[ i ] = feature.getAttribute( type.getLocalName() );
                 	}
                 	newFeature.setAttributes( attributes );

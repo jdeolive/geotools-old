@@ -126,7 +126,7 @@ public class QueryData implements AttributeReader, AttributeWriter {
         this.listenerManager = parentDataStore.listenerManager;
         this.hints = hints;
 
-        List<AttributeDescriptor> attributeTypes = featureTypeInfo.getSchema().getAttributes();
+        List<AttributeDescriptor> attributeTypes = featureTypeInfo.getSchema().getAttributeDescriptors();
 
         this.attributeHandlers = new AttributeIO[attributeTypes.size()];
 
@@ -356,7 +356,7 @@ public class QueryData implements AttributeReader, AttributeWriter {
      * @see org.geotools.data.AttributeReader#getAttributeType(int)
      */
     public AttributeDescriptor getAttributeType(int index) throws ArrayIndexOutOfBoundsException {
-        return featureTypeInfo.getSchema().getAttribute(index);
+        return featureTypeInfo.getSchema().getDescriptor(index);
     }
 
     public FeatureListenerManager getListenerManager() {

@@ -340,10 +340,10 @@ public class WFS110ProtocolHandler extends WFSProtocolHandler {
         builder.init(featureType);
         builder.setName(typeName);
         builder.setNamespaceURI(featureTypeInfo.getName().getNamespaceURI());
-        GeometryDescriptor defaultGeometry = featureType.getDefaultGeometry();
+        GeometryDescriptor defaultGeometry = featureType.getGeometryDescriptor();
         if (defaultGeometry != null) {
             builder.setDefaultGeometry(defaultGeometry.getLocalName());
-            builder.setCRS(defaultGeometry.getCRS());
+            builder.setCRS(defaultGeometry.getCoordinateReferenceSystem());
         }
         final SimpleFeatureType adaptedFeatureType = builder.buildFeatureType();
         return adaptedFeatureType;
@@ -779,7 +779,7 @@ public class WFS110ProtocolHandler extends WFSProtocolHandler {
             // original types
             SimpleFeatureType featureType = getFeatureType(typeName);
             properties = new ArrayList<String>(featureType.getAttributeCount());
-            for (AttributeDescriptor att : featureType.getAttributes()) {
+            for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
                 properties.add(att.getLocalName());
             }
         }

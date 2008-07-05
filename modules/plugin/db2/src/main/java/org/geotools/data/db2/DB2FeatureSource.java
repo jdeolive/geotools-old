@@ -112,7 +112,7 @@ public class DB2FeatureSource extends JDBCFeatureSource {
 
 		if (getSchema() != null) {
 			String typeName = getSchema().getTypeName();
-			GeometryDescriptor geomType = getSchema().getDefaultGeometry();
+			GeometryDescriptor geomType = getSchema().getGeometryDescriptor();
 
 			if (geomType != null) {
 				Filter filter = query.getFilter();
@@ -163,7 +163,7 @@ public class DB2FeatureSource extends JDBCFeatureSource {
 					closeAll(results, statement, conn, transaction, null);
 				}
 
-				crs = geomType.getCRS();
+				crs = geomType.getCoordinateReferenceSystem();
 				env = new ReferencedEnvelope(env, crs);
 			}
 		}
@@ -184,7 +184,7 @@ public class DB2FeatureSource extends JDBCFeatureSource {
 		double xmin = 0, ymin = 0, xmax = 0, ymax = 0;
 		if (operator.getExpression1() == null) {
 			String attName = null;
-			GeometryDescriptor dg = getSchema().getDefaultGeometry();
+			GeometryDescriptor dg = getSchema().getGeometryDescriptor();
 			if (dg != null)
 				attName = dg.getLocalName();
 			if (attName != null) {

@@ -301,7 +301,7 @@ public class GeoServerOnlineTest extends TestCase {
         MultiPolygon mp = gf.createMultiPolygon(new Polygon[]{gf.createPolygon(gf.createLinearRing(new Coordinate[]{new Coordinate(-88.071564,37.51099), new Coordinate(-88.467644,37.400757), new Coordinate(-90.638329,42.509361), new Coordinate(-89.834618,42.50346),new Coordinate(-88.071564,37.51099)}),new LinearRing[]{})});
         mp.setUserData("http://www.opengis.net/gml/srs/epsg.xml#"+EPSG_CODE);
       
-        PropertyName geometryAttributeExpression = filterFac.property(ft.getDefaultGeometry().getLocalName());
+        PropertyName geometryAttributeExpression = filterFac.property(ft.getGeometryDescriptor().getLocalName());
 		PropertyIsNull geomNullCheck = filterFac.isNull(geometryAttributeExpression);
 		Query query=new DefaultQuery(typename, filterFac.not(geomNullCheck), 1, Query.ALL_NAMES, null);
         FeatureIterator<SimpleFeature> inStore = fs.getFeatures(query).features();

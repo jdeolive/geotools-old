@@ -84,7 +84,7 @@ public class WFSExample {
 		System.out.println( "Metadata Bounds:"+ source.getBounds() );
 
 		// Step 5 - query
-		String geomName = schema.getDefaultGeometry().getLocalName();
+		String geomName = schema.getGeometryDescriptor().getLocalName();
 		Envelope bbox = new Envelope( -100.0, -70, 25, 40 );
 		
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2( GeoTools.getDefaultHints() );

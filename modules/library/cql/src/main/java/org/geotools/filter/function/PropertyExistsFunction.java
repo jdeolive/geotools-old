@@ -80,7 +80,7 @@ public class PropertyExistsFunction extends FunctionExpressionImpl {
      */
     public Object evaluate(SimpleFeature feature) {
         String propName = getPropertyName();
-        AttributeDescriptor attributeType = feature.getFeatureType().getAttribute(propName);
+        AttributeDescriptor attributeType = feature.getFeatureType().getDescriptor(propName);
 
         return Boolean.valueOf(attributeType != null);
     }

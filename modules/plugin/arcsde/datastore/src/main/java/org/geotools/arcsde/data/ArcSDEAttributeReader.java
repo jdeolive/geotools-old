@@ -118,7 +118,7 @@ final class ArcSDEAttributeReader implements AttributeReader {
         this.fidPrefix = new StringBuffer(typeName).append('.');
         this.fidPrefixLen = this.fidPrefix.length();
 
-        final GeometryDescriptor geomType = schema.getDefaultGeometry();
+        final GeometryDescriptor geomType = schema.getGeometryDescriptor();
 
         if (geomType != null) {
             this.schemaGeometryClass = (Class<? extends Geometry>) geomType.getType().getBinding();
@@ -140,7 +140,7 @@ final class ArcSDEAttributeReader implements AttributeReader {
      * 
      */
     public AttributeDescriptor getAttributeType(int index) throws ArrayIndexOutOfBoundsException {
-        return this.schema.getAttribute(index);
+        return this.schema.getDescriptor(index);
     }
 
     /**

@@ -83,7 +83,7 @@ public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <
     
     public ReprojectingFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> delegate,
             CoordinateReferenceSystem target) {
-        this( delegate, delegate.getSchema().getDefaultGeometry().getCRS(), target );
+        this( delegate, delegate.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem(), target );
     }
     
     public ReprojectingFeatureCollection(

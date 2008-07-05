@@ -1623,7 +1623,7 @@ public abstract class JDBC1DataStore implements DataStore {
 			names = new String[schema.getAttributeCount()];
 
 			for (int i = 0; i < schema.getAttributeCount(); i++) {
-				names[i] = schema.getAttribute(i).getLocalName();
+				names[i] = schema.getDescriptor(i).getLocalName();
 			}
 		}
 
@@ -1653,7 +1653,7 @@ public abstract class JDBC1DataStore implements DataStore {
 		AttributeDescriptor[] types = new AttributeDescriptor[propertyNames.length];
 
 		for (int i = 0; i < propertyNames.length; i++) {
-			types[i] = schema.getAttribute(propertyNames[i]);
+			types[i] = schema.getDescriptor(propertyNames[i]);
 
 			if (types[i] == null) {
 				throw new SchemaException(typeName
@@ -1726,7 +1726,7 @@ public abstract class JDBC1DataStore implements DataStore {
 		if (requestedNames.length != ft.getAttributeCount())
 			return false; // incorrect # of attribute
 		for (int t = 0; t < requestedNames.length; t++) {
-			if (!(requestedNames[t].equals(ft.getAttribute(t).getLocalName())))
+			if (!(requestedNames[t].equals(ft.getDescriptor(t).getLocalName())))
 				return false; // name doesnt match
 		}
 		return true;

@@ -109,13 +109,13 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         	//JD: check for a coordinate system, if present on the type, set on the geometry
         	// I know this is pretty loose, but its better then nothing
         	if ( attribute instanceof Geometry && 
-        			queryData.getFeatureType().getAttribute( i ) instanceof GeometryDescriptor ) {
+        			queryData.getFeatureType().getDescriptor( i ) instanceof GeometryDescriptor ) {
         		Geometry geometry = (Geometry) attribute;
         		GeometryDescriptor geometryType = 
-        			(GeometryDescriptor) queryData.getFeatureType().getAttribute( i );
+        			(GeometryDescriptor) queryData.getFeatureType().getDescriptor( i );
         		
-        		if ( geometryType.getCRS() != null ) {
-        			geometry.setUserData( geometryType.getCRS() );
+        		if ( geometryType.getCoordinateReferenceSystem() != null ) {
+        			geometry.setUserData( geometryType.getCoordinateReferenceSystem() );
         		}
         	}
         	

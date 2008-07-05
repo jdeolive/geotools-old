@@ -113,8 +113,8 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
     }
 
     private CoordinateReferenceSystem getCRS() {
-        GeometryDescriptor defaultGeometry = this.featureSource.getSchema().getDefaultGeometry();
-        return defaultGeometry == null ? null : defaultGeometry.getCRS();
+        GeometryDescriptor defaultGeometry = this.featureSource.getSchema().getGeometryDescriptor();
+        return defaultGeometry == null ? null : defaultGeometry.getCoordinateReferenceSystem();
     }
 
     @Override

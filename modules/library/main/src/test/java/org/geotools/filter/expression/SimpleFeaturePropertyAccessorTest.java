@@ -73,8 +73,8 @@ public class SimpleFeaturePropertyAccessorTest extends TestCase {
 	}
 	
 	public void testGetType() {
-		assertEquals( type.getAttribute( "foo" ), accessor.get( type, "foo", null ) );
-		assertEquals( type.getAttribute( "bar" ), accessor.get( type, "bar", null ) );
+		assertEquals( type.getDescriptor( "foo" ), accessor.get( type, "foo", null ) );
+		assertEquals( type.getDescriptor( "bar" ), accessor.get( type, "bar", null ) );
 		assertNull( accessor.get( type, "illegal", null ) );
 	}
 	

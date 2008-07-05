@@ -134,7 +134,7 @@ public class FeatureCollectionIteration {
         handler.handleFeature(feature);
 
         for (int i = 0; i < cnt; i++) {
-            AttributeDescriptor type = schema.getAttribute(i);
+            AttributeDescriptor type = schema.getDescriptor(i);
 
             // recurse if attribute type is another collection
             if (FeatureCollection.class.isAssignableFrom(type.getType().getBinding())) {

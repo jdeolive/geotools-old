@@ -376,7 +376,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 		FilterFactory ff = FilterFactoryFinder.createFilterFactory();
 		BBoxExpression bboxExpr = ff.createBBoxExpression(bBox);
 		//GeometryFilter bbFilter = ff.createGeometryFilter(Filter.GEOMETRY_BBOX);
-		AttributeExpression geomExpr = ff.createAttributeExpression(ft, ft.getDefaultGeometry().getLocalName());
+		AttributeExpression geomExpr = ff.createAttributeExpression(ft, ft.getGeometryDescriptor().getLocalName());
 		GeometryFilter disjointFilter = ff.createGeometryFilter(FilterType.GEOMETRY_DISJOINT);
 		disjointFilter.addLeftGeometry(geomExpr);
 		disjointFilter.addRightGeometry(bboxExpr);

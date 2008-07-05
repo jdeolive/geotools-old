@@ -219,8 +219,8 @@ public class FeatureSourceGeoResource extends AbstractGeoResource {
 				// like to avoid accessing the data, so check the type for 
 				// crs info
 				SimpleFeatureType schema = source.getSchema();
-				if ( schema.getDefaultGeometry() != null ) {
-					CoordinateReferenceSystem crs = schema.getCRS();					
+				if ( schema.getGeometryDescriptor() != null ) {
+					CoordinateReferenceSystem crs = schema.getCoordinateReferenceSystem();					
 					if ( crs != null ) {
 						rBounds = new ReferencedEnvelope( bounds, crs );
 					}
@@ -237,7 +237,7 @@ public class FeatureSourceGeoResource extends AbstractGeoResource {
 		else {
 		    
 			//manually calculate the bounds
-			bounds = new ReferencedEnvelope(source.getSchema().getCRS());
+			bounds = new ReferencedEnvelope(source.getSchema().getCoordinateReferenceSystem());
 			
 			FeatureIterator<SimpleFeature> itr = source.getFeatures().features();
 			while( itr.hasNext() ) {
@@ -248,8 +248,8 @@ public class FeatureSourceGeoResource extends AbstractGeoResource {
 			
 			SimpleFeatureType schema = source.getSchema();
 			CoordinateReferenceSystem crs = null;
-			if ( schema.getDefaultGeometry() != null ) {
-				crs = schema.getCRS();
+			if ( schema.getGeometryDescriptor() != null ) {
+				crs = schema.getCoordinateReferenceSystem();
 			}
 			
 			rBounds = new ReferencedEnvelope( bounds, crs );

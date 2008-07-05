@@ -127,7 +127,7 @@ public class FeatureFactoryImpl implements FeatureFactory {
             SimpleFeatureType type, String id) {
         List<Attribute> attributes = new ArrayList<Attribute>();
         for( int i=0; i<type.getAttributeCount(); i++){
-            AttributeDescriptor field = type.getAttribute(i);
+            AttributeDescriptor field = type.getDescriptor(i);
             Attribute attribute = createAttribute( array[i], field, null );
             attributes.add( attribute );
         }
@@ -140,7 +140,7 @@ public class FeatureFactoryImpl implements FeatureFactory {
         List<Attribute> attributes = new ArrayList<Attribute>();
        
         for( int i=0; i<type.getAttributeCount(); i++){
-            AttributeDescriptor field = type.getAttribute(i);
+            AttributeDescriptor field = type.getDescriptor(i);
             Attribute attribute = createAttribute( array[i], field, null );
             attributes.add( attribute );
         }

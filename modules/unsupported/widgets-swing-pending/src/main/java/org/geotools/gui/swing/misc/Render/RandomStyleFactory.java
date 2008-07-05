@@ -147,7 +147,7 @@ public class RandomStyleFactory {
 
         try {
             FeatureType typ = fs.getSchema();
-            AttributeDescriptor att = typ.getDefaultGeometry();
+            AttributeDescriptor att = typ.getGeometryDescriptor();
             AttributeType type = att.getType();
 
             Class cla = type.getBinding();
@@ -187,7 +187,7 @@ public class RandomStyleFactory {
 
 
                 FeatureTypeStyle[] fts = layer.getStyle().getFeatureTypeStyles();
-                Class val = layer.getFeatureSource().getSchema().getDefaultGeometry().getType().getBinding();
+                Class val = layer.getFeatureSource().getSchema().getGeometryDescriptor().getType().getBinding();
 
                 if (layer.getFeatureSource().getSchema().getName().getLocalPart().equals("GridCoverage")) {
                     bi = Glyph.grid(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW);

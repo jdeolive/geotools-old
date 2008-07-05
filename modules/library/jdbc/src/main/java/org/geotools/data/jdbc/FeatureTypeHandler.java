@@ -199,7 +199,7 @@ public class FeatureTypeHandler {
             info = new FeatureTypeInfo(featureTypeName, schema, mapper);
 
             // get srdid for each geometry
-            for (AttributeDescriptor ad : schema.getAttributes()) {
+            for (AttributeDescriptor ad : schema.getAttributeDescriptors()) {
                 if (ad instanceof GeometryDescriptor ) {
                     int srid = dataStore.determineSRID(featureTypeName, ad.getLocalName());
                     info.putSRID(ad.getLocalName(), srid);

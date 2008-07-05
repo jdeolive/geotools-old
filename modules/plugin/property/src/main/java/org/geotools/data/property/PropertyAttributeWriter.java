@@ -61,7 +61,7 @@ public class PropertyAttributeWriter implements AttributeWriter {
         return type.getAttributeCount();
     }
     public AttributeDescriptor getAttributeType(int index) throws ArrayIndexOutOfBoundsException {
-        return type.getAttribute(index);
+        return type.getDescriptor(index);
     }
     public boolean hasNext() throws IOException {
         return false;

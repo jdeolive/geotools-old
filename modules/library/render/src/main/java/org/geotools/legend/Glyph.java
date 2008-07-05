@@ -481,10 +481,10 @@ public class Glyph {
     }
  
     public static BufferedImage icon( SimpleFeatureType ft ) {
-        if( ft==null || ft.getDefaultGeometry()==null )
+        if( ft==null || ft.getGeometryDescriptor()==null )
             return null;
  
-        Class binding = ft.getDefaultGeometry().getType().getBinding();
+        Class binding = ft.getGeometryDescriptor().getType().getBinding();
 		if( Point.class.isAssignableFrom(binding)
         || MultiPoint.class.isAssignableFrom(binding) ){
             return point(DEFAULT_BORDER, DEFAULT_FILL);

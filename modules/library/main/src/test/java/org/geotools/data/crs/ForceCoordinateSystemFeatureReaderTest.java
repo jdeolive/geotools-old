@@ -106,9 +106,9 @@ public class ForceCoordinateSystemFeatureReaderTest extends TestCase {
         SimpleFeature f2=modified.next();
         
         assertEquals(((Geometry)f1.getDefaultGeometry()).getCoordinate(),((Geometry)f2.getDefaultGeometry()).getCoordinate());
-        assertFalse( f1.getFeatureType().getCRS().equals(f2.getFeatureType().getCRS()) );
-        assertEquals( srcCRS, f1.getFeatureType().getCRS());
-        assertEquals( destCRS, f2.getFeatureType().getCRS());
+        assertFalse( f1.getFeatureType().getCoordinateReferenceSystem().equals(f2.getFeatureType().getCoordinateReferenceSystem()) );
+        assertEquals( srcCRS, f1.getFeatureType().getCoordinateReferenceSystem());
+        assertEquals( destCRS, f2.getFeatureType().getCoordinateReferenceSystem());
         
         assertFalse( original.hasNext() );
         assertFalse( modified.hasNext() );
@@ -150,9 +150,9 @@ public class ForceCoordinateSystemFeatureReaderTest extends TestCase {
         SimpleFeature f2=modified.next();
         
         assertEquals(((Geometry)f1.getDefaultGeometry()).getCoordinate(),((Geometry)f2.getDefaultGeometry()).getCoordinate());
-        assertFalse( f2.getFeatureType().getCRS().equals(f1.getFeatureType().getCRS()) );
-        assertEquals( srcCRS, f1.getFeatureType().getCRS());
-        assertEquals( destCRS, f2.getFeatureType().getCRS());
+        assertFalse( f2.getFeatureType().getCoordinateReferenceSystem().equals(f1.getFeatureType().getCoordinateReferenceSystem()) );
+        assertEquals( srcCRS, f1.getFeatureType().getCoordinateReferenceSystem());
+        assertEquals( destCRS, f2.getFeatureType().getCoordinateReferenceSystem());
         
         assertFalse( original.hasNext() );
         assertFalse( modified.hasNext() );

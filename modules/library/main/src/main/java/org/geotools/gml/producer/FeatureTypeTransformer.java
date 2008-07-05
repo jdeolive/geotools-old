@@ -241,7 +241,7 @@ public class FeatureTypeTransformer extends TransformerBase {
          * @throws RuntimeException DOCUMENT ME!
          */
         protected void encode(SimpleFeatureType type) {
-            List attributes = type.getAttributes();
+            List attributes = type.getAttributeDescriptors();
 
             try {
                 startSchemaType(type.getTypeName(), type.getName().getNamespaceURI());

@@ -39,7 +39,7 @@ public abstract class JDBCForeignKeyTest extends JDBCTestSupport {
 
         assertNotNull(featureType);
 
-        AttributeDescriptor att = featureType.getAttribute("ft1");
+        AttributeDescriptor att = featureType.getDescriptor("ft1");
         assertNotNull(att);
 
         assertEquals(Association.class, att.getType().getBinding());

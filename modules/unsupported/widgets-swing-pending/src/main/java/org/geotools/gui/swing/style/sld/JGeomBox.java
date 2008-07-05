@@ -49,7 +49,7 @@ public class JGeomBox extends JComboBox {
         setEnabled(layer != null);
 
         if (layer != null) {
-            Collection<PropertyDescriptor> col = layer.getFeatureSource().getSchema().getProperties();
+            Collection<PropertyDescriptor> col = layer.getFeatureSource().getSchema().getDescriptors();
             Iterator<PropertyDescriptor> ite = col.iterator();
 
             List<String> geoms = new ArrayList<String>();

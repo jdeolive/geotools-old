@@ -94,13 +94,13 @@ class WFSFeatureCollection extends DataFeatureCollection {
             bounds = protocolHandler.getBounds(query);
             if (bounds == null) {
                 // bad luck, do a full scan
-                final Name defaultgeom = contentType.getDefaultGeometry().getName();
+                final Name defaultgeom = contentType.getGeometryDescriptor().getName();
                 final DefaultQuery geomQuery = new DefaultQuery(this.query);
                 geomQuery.setPropertyNames(new String[] { defaultgeom.getLocalPart() });
 
                  FeatureReader<SimpleFeatureType, SimpleFeature> reader;
                 reader = protocolHandler.getFeatureReader(geomQuery, Transaction.AUTO_COMMIT);
-                bounds = new ReferencedEnvelope(contentType.getCRS());
+                bounds = new ReferencedEnvelope(contentType.getCoordinateReferenceSystem());
                 try {
                     BoundingBox featureBounds;
                     // collect size to alleviate #getCount if needed
@@ -120,7 +120,7 @@ class WFSFeatureCollection extends DataFeatureCollection {
             }
         } catch (IOException e) {
             LOGGER.log(Level.FINE, "Error getting bounds for " + query);
-            bounds = new ReferencedEnvelope(getSchema().getCRS());
+            bounds = new ReferencedEnvelope(getSchema().getCoordinateReferenceSystem());
         }
         return bounds;
     }

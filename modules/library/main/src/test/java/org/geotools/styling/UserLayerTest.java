@@ -187,7 +187,7 @@ public class UserLayerTest extends TestCase {
         assertNotNull("Unmarshalled feature type MUST NOT be null", ft);
         final String fName = ft.getTypeName();
         assertEquals("Read feature type name MUST match", MY_FEATURE, fName);
-        assertEquals(CRS.decode("EPSG:4326"), ft.getDefaultGeometry().getCRS());
+        assertEquals(CRS.decode("EPSG:4326"), ft.getGeometryDescriptor().getCoordinateReferenceSystem());
     }
     
     public void testUserLayerWithRemoteOWS() throws Exception {

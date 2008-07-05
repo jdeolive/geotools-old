@@ -158,7 +158,7 @@ class JStreamSelectMap extends JStreamNavMap implements SelectableMap2D {
         geom = FACILITIES_FACTORY.projectGeometry(geom, renderingStrategy.getContext(), layer);
 
         try {
-            String name = layer.getFeatureSource().getSchema().getDefaultGeometry().getLocalName();
+            String name = layer.getFeatureSource().getSchema().getGeometryDescriptor().getLocalName();
             if (name.equals("")) {
                 name = "the_geom";
             }
@@ -197,7 +197,7 @@ class JStreamSelectMap extends JStreamNavMap implements SelectableMap2D {
 
     private Style createStyle(MapLayer layer) {
 
-        Class jtsClass = layer.getFeatureSource().getSchema().getDefaultGeometry().getType().getBinding();
+        Class jtsClass = layer.getFeatureSource().getSchema().getGeometryDescriptor().getType().getBinding();
 
         if (jtsClass.equals(Point.class) || jtsClass.equals(MultiPoint.class)) {
             Fill fill = STYLE_BUILDER.createFill(selectionStyleColor, 0.6f);

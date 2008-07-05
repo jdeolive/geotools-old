@@ -248,7 +248,7 @@ public class GML2ParsingUtils {
         Object[] attributes = new Object[fType.getAttributeCount()];
 
         for (int i = 0; i < fType.getAttributeCount(); i++) {
-            AttributeDescriptor att = fType.getAttribute(i);
+            AttributeDescriptor att = fType.getDescriptor(i);
             AttributeType attType = att.getType();
             Object attValue = node.getChildValue(att.getLocalName());
 

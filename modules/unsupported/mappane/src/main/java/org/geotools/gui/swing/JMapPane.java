@@ -511,7 +511,7 @@ public class JMapPane extends JPanel implements MouseListener,
             // paint selection
 
             String type = selectionLayer.getFeatureSource().getSchema()
-            .getDefaultGeometry().getType().getBinding().getName();
+            .getGeometryDescriptor().getType().getBinding().getName();
             /*String type = selection.getDefaultGeometry().getGeometryType();*/
             /*System.out.println(type);*/
             if (type == null)
@@ -549,7 +549,7 @@ public class JMapPane extends JPanel implements MouseListener,
              * System.out.println(type); if(type==null) type="polygon";
              */
             String type = highlightLayer.getFeatureSource().getSchema()
-            .getDefaultGeometry().getType().getBinding().getName();
+            .getGeometryDescriptor().getType().getBinding().getName();
             /*String type = selection.getDefaultGeometry().getGeometryType();*/
             //System.out.println(type);
             if (type == null)
@@ -644,7 +644,7 @@ public class JMapPane extends JPanel implements MouseListener,
 
         try {
             String name = layer.getFeatureSource().getSchema()
-                    .getDefaultGeometry().getLocalName();
+                    .getGeometryDescriptor().getLocalName();
 
             if (name == "") {
                 name = "the_geom";
@@ -838,7 +838,7 @@ public class JMapPane extends JPanel implements MouseListener,
 
 
             String name = selectionLayer.getFeatureSource().getSchema()
-                    .getDefaultGeometry().getLocalName();
+                    .getGeometryDescriptor().getLocalName();
 
             if (name == "") {
                 name = "the_geom";
@@ -947,7 +947,7 @@ public class JMapPane extends JPanel implements MouseListener,
 
 
             String name = selectionLayer.getFeatureSource().getSchema()
-                    .getDefaultGeometry().getLocalName();
+                    .getGeometryDescriptor().getLocalName();
 
             if (name == "") {
                 name = "the_geom";

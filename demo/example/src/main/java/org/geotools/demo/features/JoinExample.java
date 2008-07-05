@@ -80,11 +80,11 @@ public class JoinExample {
     private static void joinExample( FeatureSource<SimpleFeatureType, SimpleFeature> shapes, FeatureSource<SimpleFeatureType, SimpleFeature> shapes2 ) throws Exception {
         SimpleFeatureType schema = shapes.getSchema();
         String typeName = schema.getTypeName();
-        String geomName = schema.getDefaultGeometry().getLocalName();
+        String geomName = schema.getGeometryDescriptor().getLocalName();
         
         SimpleFeatureType schema2 = shapes2.getSchema();
         String typeName2 = schema2.getTypeName();
-        String geomName2 = schema2.getDefaultGeometry().getLocalName();
+        String geomName2 = schema2.getGeometryDescriptor().getLocalName();
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);        
         
         DefaultQuery outerGeometry = new DefaultQuery( typeName, Filter.INCLUDE, new String[]{ geomName } );        

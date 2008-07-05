@@ -64,10 +64,10 @@ public class GMLDataStoreTest extends AbstractGMLTestCase {
         assertNotNull(schema);
         assertEquals(3, schema.getAttributeCount());
         assertEquals(MultiLineString.class,
-            schema.getAttribute("the_geom").getType().getBinding());
-        assertEquals(String.class, schema.getAttribute("FID").getType().getBinding());
-        assertEquals(String.class, schema.getAttribute("NAME").getType().getBinding());
-        assertEquals(CRS.decode("EPSG:4326"), schema.getDefaultGeometry().getCRS());
+            schema.getDescriptor("the_geom").getType().getBinding());
+        assertEquals(String.class, schema.getDescriptor("FID").getType().getBinding());
+        assertEquals(String.class, schema.getDescriptor("NAME").getType().getBinding());
+        assertEquals(CRS.decode("EPSG:4326"), schema.getGeometryDescriptor().getCoordinateReferenceSystem());
     }
 
     /**

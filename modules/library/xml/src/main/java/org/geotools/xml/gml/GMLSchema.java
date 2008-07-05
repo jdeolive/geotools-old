@@ -97,7 +97,7 @@ public class GMLSchema implements Schema {
     }
 
     /**
-     * @see schema.Schema#getAttributes()
+     * @see schema.Schema#getAttributeDescriptors()
      */
     public Attribute[] getAttributes() {
         return attributes;
@@ -869,7 +869,7 @@ public class GMLSchema implements Schema {
         }
 
         /**
-         * @see schema.Schema#getAttributes()
+         * @see schema.Schema#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes1;

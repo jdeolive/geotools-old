@@ -103,7 +103,7 @@ public class Schema {
      * </p>
      */
     public List getNames( SimpleFeatureType featureType, List names ){
-        if( featureType == null || featureType.getAttributes() == null ){
+        if( featureType == null || featureType.getAttributeDescriptors() == null ){
             return names;
         }
         List ancestors = FeatureTypes.getAncestors(featureType);
@@ -113,7 +113,7 @@ public class Schema {
                 getNames( superType, names );	           
 	        }
         }
-        List attributes = featureType.getAttributes();
+        List attributes = featureType.getAttributeDescriptors();
         if( attributes != null && !attributes.isEmpty() ){
             for( int i=0, length = attributes.size(); i<length; i++ ){
                 AttributeDescriptor type = (AttributeDescriptor) attributes.get(i);
@@ -139,7 +139,7 @@ public class Schema {
      * </p>
      */
     public List getAttributes( SimpleFeatureType featureType, List list ){
-        if( featureType == null || featureType.getAttributes() == null ) {
+        if( featureType == null || featureType.getAttributeDescriptors() == null ) {
             return list;
         }
 
@@ -150,7 +150,7 @@ public class Schema {
                 getAttributes( (SimpleFeatureType) ancestors.get(i), list );	           
 	        }
         }
-        List attributes = featureType.getAttributes();
+        List attributes = featureType.getAttributeDescriptors();
         if( attributes != null && !attributes.isEmpty() ){
             for( int i=0, length = attributes.size(); i<length; i++ ){
                 AttributeDescriptor type = (AttributeDescriptor) attributes.get(i);
@@ -175,7 +175,7 @@ public class Schema {
      * @param name
      */
     public Filter getRestrictions( SimpleFeatureType featureType, String name ){
-        if( featureType == null || featureType.getAttributes() == null ) return Filter.EXCLUDE;
+        if( featureType == null || featureType.getAttributeDescriptors() == null ) return Filter.EXCLUDE;
         
         List restrictions = restriction( featureType, name, Collections.singletonList(Filter.INCLUDE) );
         return (Filter) restrictions.get(0);
@@ -269,7 +269,7 @@ public class Schema {
                 filters = restriction( superType, name, filters );                              
             }
         }
-        List attributes = featureType.getAttributes();
+        List attributes = featureType.getAttributeDescriptors();
         if( attributes != null && !attributes.isEmpty()){
             for( int i=0, length = attributes.size(); i<length; i++ ){
                 AttributeDescriptor type = (AttributeDescriptor) attributes.get(i);

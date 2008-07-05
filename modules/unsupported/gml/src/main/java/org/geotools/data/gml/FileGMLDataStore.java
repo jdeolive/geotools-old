@@ -181,7 +181,7 @@ public class FileGMLDataStore extends AbstractDataStore {
 		builder.setName(f.getFeatureType().getTypeName());
 		
 		for (int i = 0; i < f.getAttributeCount(); i++) {
-		    AttributeDescriptor att = f.getFeatureType().getAttribute(i);
+		    AttributeDescriptor att = f.getFeatureType().getDescriptor(i);
 			if( !Geometry.class.isAssignableFrom(att.getType().getBinding()) ){
 				builder.add(att);
 			}else{

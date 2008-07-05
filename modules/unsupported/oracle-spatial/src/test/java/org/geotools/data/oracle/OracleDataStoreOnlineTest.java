@@ -470,7 +470,7 @@ public class OracleDataStoreOnlineTest extends TestCase {
         fr.close();
         SimpleFeatureType ft = f.getFeatureType();
         assertEquals(1, ft.getAttributeCount());
-        assertEquals("NAME", ft.getAttribute(0).getLocalName());        
+        assertEquals("NAME", ft.getDescriptor(0).getLocalName());        
     }
     
     public void testBoundsWgs84() throws IOException {
@@ -533,13 +533,13 @@ public class OracleDataStoreOnlineTest extends TestCase {
     public void testGeometryType() throws IOException {
         if( conn == null ) return; 
         SimpleFeatureType ft = dstore.getSchema("ORA_TEST_POINTS");
-        assertEquals(Point.class, ft.getDefaultGeometry().getType().getBinding());
+        assertEquals(Point.class, ft.getGeometryDescriptor().getType().getBinding());
     }
     
     public void testGeometryType2() throws IOException {
         if( conn == null ) return; 
         // here we did not declare a type
         SimpleFeatureType ft = dstore.getSchema("ORA_TEST_LINES");
-        assertEquals(Geometry.class, ft.getDefaultGeometry().getType().getBinding());
+        assertEquals(Geometry.class, ft.getGeometryDescriptor().getType().getBinding());
     }
 }

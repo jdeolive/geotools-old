@@ -109,14 +109,14 @@ public class MemoryDataStoreTest extends DataTestCase {
         assertEquals("typename", "typename", type.getTypeName());
         assertEquals("attributes", 3, type.getAttributeCount());
 
-        assertEquals("a1", "name", type.getAttribute(0).getLocalName());
-        assertEquals("a1", String.class, type.getAttribute(0).getType().getBinding());
+        assertEquals("a1", "name", type.getDescriptor(0).getLocalName());
+        assertEquals("a1", String.class, type.getDescriptor(0).getType().getBinding());
 
-        assertEquals("a2", "id", type.getAttribute(1).getLocalName());
-        assertEquals("a2", Integer.class, type.getAttribute(1).getType().getBinding());
+        assertEquals("a2", "id", type.getDescriptor(1).getLocalName());
+        assertEquals("a2", Integer.class, type.getDescriptor(1).getType().getBinding());
 
-        assertEquals("a3", "geom", type.getAttribute(2).getLocalName());
-        assertEquals("a3", MultiLineString.class, type.getAttribute(2).getType().getBinding());
+        assertEquals("a3", "geom", type.getDescriptor(2).getLocalName());
+        assertEquals("a3", MultiLineString.class, type.getDescriptor(2).getType().getBinding());
     }
 
     public void testMemoryDataStore() throws Exception {
@@ -925,10 +925,10 @@ public class MemoryDataStoreTest extends DataTestCase {
         assertEquals(type.getName(), actual.getName());
         assertEquals(type.getAttributeCount(), actual.getAttributeCount());
         for( int i = 0; i < type.getAttributeCount(); i++ ) {
-            assertEquals(type.getAttribute(i), actual.getAttribute(i));
+            assertEquals(type.getDescriptor(i), actual.getDescriptor(i));
         }
-        assertNull(type.getDefaultGeometry());
-        assertEquals(type.getDefaultGeometry(), actual.getDefaultGeometry());
+        assertNull(type.getGeometryDescriptor());
+        assertEquals(type.getGeometryDescriptor(), actual.getGeometryDescriptor());
         assertEquals(type, actual);
         Envelope b = half.getBounds();
         assertEquals(new Envelope(1, 5, 0, 4), b);
@@ -956,7 +956,7 @@ public class MemoryDataStoreTest extends DataTestCase {
     //
     public void testGetFeatureStoreModifyFeatures1() throws IOException {
         FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
-        AttributeDescriptor name = roadType.getAttribute("name");
+        AttributeDescriptor name = roadType.getDescriptor("name");
         road.modifyFeatures(name, "changed", rd1Filter);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(rd1Filter);
@@ -965,7 +965,7 @@ public class MemoryDataStoreTest extends DataTestCase {
 
     public void testGetFeatureStoreModifyFeatures2() throws IOException {
         FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
-        AttributeDescriptor name = roadType.getAttribute("name");
+        AttributeDescriptor name = roadType.getDescriptor("name");
         road.modifyFeatures(new AttributeDescriptor[]{name}, new Object[]{"changed",}, rd1Filter);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(rd1Filter);

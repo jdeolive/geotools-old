@@ -81,7 +81,7 @@ public class DB2FeatureStore extends JDBCFeatureStore{
         if (getSchema() != null) {
             typeName = getSchema().getTypeName();
             GeometryDescriptor geomType = getSchema()
-                .getDefaultGeometry();
+                .getGeometryDescriptor();
 
             if (query.getFilter() != Filter.EXCLUDE) {
                 String sqlStmt = null;
@@ -125,7 +125,7 @@ public class DB2FeatureStore extends JDBCFeatureStore{
                 closeAll(results, statement, conn, transaction, null);
             }
 
-            crs = geomType.getCRS();
+            crs = geomType.getCoordinateReferenceSystem();
             env = new ReferencedEnvelope(env, crs);
         }
 
@@ -174,7 +174,7 @@ public class DB2FeatureStore extends JDBCFeatureStore{
 
 		if (getSchema() != null) {
 			typeName = getSchema().getTypeName();
-			GeometryDescriptor geomType = (GeometryDescriptor)getSchema().getDefaultGeometry();
+			GeometryDescriptor geomType = (GeometryDescriptor)getSchema().getGeometryDescriptor();
 
 			if (filter != Filter.EXCLUDE) {
 				DB2SQLBuilder builder = (DB2SQLBuilder) ((DB2DataStore) 

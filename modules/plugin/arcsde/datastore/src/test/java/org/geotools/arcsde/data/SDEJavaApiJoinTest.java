@@ -334,7 +334,7 @@ public class SDEJavaApiJoinTest extends TestCase {
         assertEquals(InProcessViewSupportTestData.typeName, type.getTypeName());
 
         assertEquals(4, type.getAttributeCount());
-        List atts = type.getAttributes();
+        List atts = type.getAttributeDescriptors();
         assertEquals(4, atts.size());
         AttributeDescriptor att1 = (AttributeDescriptor) atts.get(0);
         AttributeDescriptor att2 = (AttributeDescriptor) atts.get(1);

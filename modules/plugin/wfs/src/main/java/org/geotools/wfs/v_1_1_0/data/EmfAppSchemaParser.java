@@ -124,7 +124,7 @@ class EmfAppSchemaParser {
     public static SimpleFeatureType toSimpleFeatureType(final FeatureType realType)
             throws DataSourceException {
         List<PropertyDescriptor> attributes;
-        attributes = new ArrayList<PropertyDescriptor>(realType.getProperties());
+        attributes = new ArrayList<PropertyDescriptor>(realType.getDescriptors());
         List<String> simpleProperties = new ArrayList<String>();
 
         // HACK HACK!! the parser sets no namespace to the properties so we're
@@ -239,8 +239,8 @@ class EmfAppSchemaParser {
                 if (featureType.getSuper() instanceof SimpleFeatureType) {
                     builder.setSuperType((SimpleFeatureType) featureType.getSuper());
                 }
-                List<AttributeDescriptor> attributes = featureType.getAttributes();
-                final GeometryDescriptor defaultGeometry = featureType.getDefaultGeometry();
+                List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
+                final GeometryDescriptor defaultGeometry = featureType.getGeometryDescriptor();
                 for (AttributeDescriptor descriptor : attributes) {
                     if (descriptor instanceof GeometryDescriptor) {
                         String name = descriptor.getLocalName();

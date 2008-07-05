@@ -84,8 +84,8 @@ public class DB2SQLBuilderOnlineTest extends AbstractDB2OnlineTestCase {
 		AttributeDescriptor[] attrTypes = new AttributeDescriptor[ft.getAttributeCount()];
 
 		for (int i = 0; i < ft.getAttributeCount(); i++) {
-			attrNames[i] = ft.getAttribute(i).getLocalName();
-			attrTypes[i] = ft.getAttribute(i);
+			attrNames[i] = ft.getDescriptor(i).getLocalName();
+			attrTypes[i] = ft.getDescriptor(i);
 		}
 
 		String fidQuery = this.sqlBuilder.buildSQLQuery("Places",
@@ -124,8 +124,8 @@ public class DB2SQLBuilderOnlineTest extends AbstractDB2OnlineTestCase {
 		AttributeDescriptor[] attrTypes = new AttributeDescriptor[ft.getAttributeCount()];
 
 		for (int i = 0; i < ft.getAttributeCount(); i++) {
-			attrNames[i] = ft.getAttribute(i).getLocalName();
-			attrTypes[i] = ft.getAttribute(i);
+			attrNames[i] = ft.getDescriptor(i).getLocalName();
+			attrTypes[i] = ft.getDescriptor(i);
 		}
 		sqlBuilder = (DB2SQLBuilder) dataStore.getSqlBuilder("Places");
 		DefaultQuery query = new DefaultQuery("Places", filter);
@@ -174,8 +174,8 @@ public class DB2SQLBuilderOnlineTest extends AbstractDB2OnlineTestCase {
 		AttributeDescriptor[] attrTypes = new AttributeDescriptor[ft.getAttributeCount()];
 
 		for (int i = 0; i < ft.getAttributeCount(); i++) {
-			attrNames[i] = ft.getAttribute(i).getLocalName();
-			attrTypes[i] = ft.getAttribute(i);
+			attrNames[i] = ft.getDescriptor(i).getLocalName();
+			attrTypes[i] = ft.getDescriptor(i);
 		}
 
 		String likeQuery = this.sqlBuilder.buildSQLQuery("Places",

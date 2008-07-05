@@ -155,7 +155,7 @@ class NonStrictWFSStrategy implements WFSStrategy {
             CoordinateReferenceSystem dataCRS) {
          FeatureReader<SimpleFeatureType, SimpleFeature> tmp = reader;
         if (query.getCoordinateSystem() != null
-                && !query.getCoordinateSystem().equals(reader.getFeatureType().getCRS())) {
+                && !query.getCoordinateSystem().equals(reader.getFeatureType().getCoordinateReferenceSystem())) {
             try {
                 reader = new ForceCoordinateSystemFeatureReader(reader, query.getCoordinateSystem());
             } catch (SchemaException e) {
@@ -163,8 +163,8 @@ class NonStrictWFSStrategy implements WFSStrategy {
                 reader = tmp;
             }
         } else {
-            if (reader.getFeatureType().getDefaultGeometry() != null && dataCRS != null
-                    && reader.getFeatureType().getCRS() == null) {
+            if (reader.getFeatureType().getGeometryDescriptor() != null && dataCRS != null
+                    && reader.getFeatureType().getCoordinateReferenceSystem() == null) {
                 // set up crs
                 try {
                     reader = new ForceCoordinateSystemFeatureReader(reader, dataCRS);

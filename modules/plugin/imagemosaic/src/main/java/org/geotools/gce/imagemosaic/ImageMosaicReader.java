@@ -301,12 +301,12 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 		if(this.locationAttributeName==null)
 		{
 			//get the first string
-			for(AttributeDescriptor attribute: schema.getAttributes()){
+			for(AttributeDescriptor attribute: schema.getAttributeDescriptors()){
 				if(attribute.getType().getBinding().equals(String.class))
 					this.locationAttributeName=attribute.getName().toString();
 			}
 		}
-		if(schema.getAttribute(this.locationAttributeName)==null)
+		if(schema.getDescriptor(this.locationAttributeName)==null)
 			throw new DataSourceException("The provided name for the location attribute is invalid.");
 
 		// //
@@ -334,7 +334,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 					crs.toWKT()).toString());
 		} else {
 			final CoordinateReferenceSystem tempcrs = featureSource.getSchema()
-					.getDefaultGeometry().getCRS();
+					.getGeometryDescriptor().getCoordinateReferenceSystem();
 			if (tempcrs == null) {
 				// use the default crs
 				crs = AbstractGridFormat.getDefaultCRS();

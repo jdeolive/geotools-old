@@ -115,11 +115,11 @@ public class ReTypingIterator implements Iterator {
         AttributeDescriptor[] types = new AttributeDescriptor[target.getAttributeCount()];
 
         for (int i = 0; i < target.getAttributeCount(); i++) {
-            AttributeDescriptor attrib = target.getAttribute(i);
+            AttributeDescriptor attrib = target.getDescriptor(i);
             xpath = attrib.getLocalName();
             types[i] = attrib;
 
-            if (!attrib.equals(original.getAttribute(xpath))) {
+            if (!attrib.equals(original.getDescriptor(xpath))) {
                 throw new IllegalArgumentException(
                     "Unable to retype  FeatureReader<SimpleFeatureType, SimpleFeature> (origional does not cover "
                     + xpath + ")");

@@ -40,7 +40,7 @@ public class WFSFeatureTypeTransformer {
         
         GeometryDescriptor defaultGeometryType = null;
         for( int i = 0; i < schema.getAttributeCount(); i++ ) {
-            AttributeDescriptor attributeType = schema.getAttribute(i);
+            AttributeDescriptor attributeType = schema.getDescriptor(i);
             if( attributeType instanceof ChoiceGeometryType ){
                 defaultGeometryType = handleChoiceGeometryAttribute(schema, crs, build, defaultGeometryType, attributeType);
             }
@@ -73,7 +73,7 @@ public class WFSFeatureTypeTransformer {
 //                geometryType.getLocalName(), geometryType.getBinding(), geometryType.isNillable(),
 //                0, geometryType.createDefaultValue(), crs);
 
-        if (defaultGeometryType == null || geometryType == schema.getDefaultGeometry()) {
+        if (defaultGeometryType == null || geometryType == schema.getGeometryDescriptor()) {
             defaultGeometryType = geometry;
         }
         factory.add(geometry);
@@ -88,7 +88,7 @@ public class WFSFeatureTypeTransformer {
             geometryType.getName(), geometryType.getChoices(), geometryType.getBinding(), geometryType.isNillable(),
             geometryType.getMinOccurs(), geometryType.getMaxOccurs(), geometryType.createDefaultValue(), crs, geometryType.getRestrictions());
 
-        if (defaultGeometryType == null || geometryType == schema.getDefaultGeometry()) {
+        if (defaultGeometryType == null || geometryType == schema.getGeometryDescriptor()) {
             defaultGeometryType = geometry;
         }
         factory.add(geometry);

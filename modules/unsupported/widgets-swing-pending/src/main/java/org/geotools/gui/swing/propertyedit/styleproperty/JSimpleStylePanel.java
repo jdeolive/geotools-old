@@ -109,7 +109,7 @@ public class JSimpleStylePanel extends javax.swing.JPanel implements PropertyPan
             if (layer.getFeatureSource() != null) {
                 removeAll();
                 
-                Class val = layer.getFeatureSource().getSchema().getDefaultGeometry().getType().getBinding();
+                Class val = layer.getFeatureSource().getSchema().getGeometryDescriptor().getType().getBinding();
 
                 if (layer.getFeatureSource().getSchema().getName().getLocalPart().equals("GridCoverage")) {
                     detail = new JRasterSymbolizerPane();

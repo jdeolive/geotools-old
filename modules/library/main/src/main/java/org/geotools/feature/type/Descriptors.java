@@ -636,7 +636,7 @@ public class Descriptors {
         ArrayList list = new ArrayList();
 
         if (type instanceof ComplexType) {
-            list = new ArrayList(((ComplexType) type).getProperties());
+            list = new ArrayList(((ComplexType) type).getDescriptors());
         }
 
         return list;

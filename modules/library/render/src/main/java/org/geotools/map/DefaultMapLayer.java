@@ -400,7 +400,7 @@ public class DefaultMapLayer implements MapLayer {
 	}
 	public ReferencedEnvelope getBounds() {
 		
-		CoordinateReferenceSystem sourceCrs = featureSource.getSchema().getCRS();
+		CoordinateReferenceSystem sourceCrs = featureSource.getSchema().getCoordinateReferenceSystem();
 		ReferencedEnvelope env;
 		try {
 			env = new ReferencedEnvelope(featureSource.getBounds(), sourceCrs);

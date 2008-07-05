@@ -118,7 +118,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         fidMapper = postgisDataStore.getFIDMapper(tableName);
         sqlBuilder = (PostgisSQLBuilder) postgisDataStore.getSqlBuilder(tableName);
 
-        AttributeDescriptor geomType = featureType.getDefaultGeometry();
+        AttributeDescriptor geomType = featureType.getGeometryDescriptor();
         encoder = new SQLEncoderPostgis();
         encoder.setFeatureType( featureType );
         encoder.setFIDMapper(postgisDataStore.getFIDMapper(featureType.getTypeName()));
@@ -619,7 +619,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
      *         of this type's schema.
      */
     private AttributeDescriptor[] getAttTypes(Query query) throws IOException {
-        AttributeDescriptor[] schemaTypes = (AttributeDescriptor[]) getSchema().getAttributes().toArray(new AttributeDescriptor[getSchema().getAttributes().size()]);
+        AttributeDescriptor[] schemaTypes = (AttributeDescriptor[]) getSchema().getAttributeDescriptors().toArray(new AttributeDescriptor[getSchema().getAttributeDescriptors().size()]);
 
         if (query.retrieveAllProperties()) {
             return schemaTypes;
@@ -704,20 +704,20 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
 
             ReferencedEnvelope retEnv = new ReferencedEnvelope();
             Filter preFilter = sqlBuilder.getPreQueryFilter(query.getFilter());
-            AttributeDescriptor[] attributeTypes = (AttributeDescriptor[]) schema.getAttributes().toArray(new AttributeDescriptor[schema.getAttributes().size()]);
+            AttributeDescriptor[] attributeTypes = (AttributeDescriptor[]) schema.getAttributeDescriptors().toArray(new AttributeDescriptor[schema.getAttributeDescriptors().size()]);
             SimpleFeatureType schemaNew = schema;
             	//DJB: this should ensure that schema has a geometry in it or the bounds query has no chance of working
 			if(!query.retrieveAllProperties()) {
 				try {
                     schemaNew = DataUtilities.createSubType(schema, query.getPropertyNames());
-                    if (schemaNew.getDefaultGeometry() == null)  // does the sub-schema have a geometry in it?
+                    if (schemaNew.getGeometryDescriptor() == null)  // does the sub-schema have a geometry in it?
                     {
                     	//uh-oh better get one!
-                    	if (schema.getDefaultGeometry() != null)  // does the entire schema have a geometry in it? 
+                    	if (schema.getGeometryDescriptor() != null)  // does the entire schema have a geometry in it? 
                     	{
                     		//buff-up the sub-schema so it has the default geometry in it.
 	                    	ArrayList al = new ArrayList (Arrays.asList(query.getPropertyNames()));
-	                    	al.add(schema.getDefaultGeometry().getLocalName());
+	                    	al.add(schema.getGeometryDescriptor().getLocalName());
 	                    	schemaNew = DataUtilities.createSubType(schema, (String[]) al.toArray(new String[1]) );       
                     	}
                     }
@@ -728,7 +728,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
 			 // at this point, the query should have a geometry in it. 
 			 // BUT, if there's no geometry in the table, then the query will not (obviously) have a geometry in it.
 			 
-			 attributeTypes = (AttributeDescriptor[]) schemaNew.getAttributes().toArray(new AttributeDescriptor[schema.getAttributes().size()]);
+			 attributeTypes = (AttributeDescriptor[]) schemaNew.getAttributeDescriptors().toArray(new AttributeDescriptor[schema.getAttributeDescriptors().size()]);
 				 
             for (int j = 0, n = schemaNew.getAttributeCount(); j < n; j++) {
                 if (Geometry.class.isAssignableFrom(attributeTypes[j].getType().getBinding())) // same as .isgeometry() - see new featuretype javadoc
@@ -750,8 +750,8 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             CoordinateReferenceSystem base = null;
             if(query.getCoordinateSystem() != null)
                 base = query.getCoordinateSystem();
-            else if(schemaNew.getDefaultGeometry() != null)
-                base = schemaNew.getDefaultGeometry().getCRS();
+            else if(schemaNew.getGeometryDescriptor() != null)
+                base = schemaNew.getGeometryDescriptor().getCoordinateReferenceSystem();
             CoordinateReferenceSystem dest = query.getCoordinateSystemReproject();
             
             ReferencedEnvelope result = new ReferencedEnvelope(retEnv, base);

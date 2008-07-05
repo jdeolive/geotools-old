@@ -58,7 +58,7 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
         index = buildIndex(this);
     }
 
-    public List<AttributeDescriptor> getAttributes() {
+    public List<AttributeDescriptor> getAttributeDescriptors() {
         return Collections.unmodifiableList(descriptors);
     }
 
@@ -80,7 +80,7 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
     }
 
     public AttributeType getType(Name name) {
-        AttributeDescriptor attribute = (AttributeDescriptor) getProperty(name);
+        AttributeDescriptor attribute = (AttributeDescriptor) getDescriptor(name);
         if (attribute != null) {
             return attribute.getType();
         }
@@ -89,7 +89,7 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
     }
 
     public AttributeType getType(String name) {
-        AttributeDescriptor attribute = (AttributeDescriptor) getProperty(name);
+        AttributeDescriptor attribute = (AttributeDescriptor) getDescriptor(name);
         if (attribute != null) {
             return attribute.getType();
         }
@@ -101,15 +101,15 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
         return getTypes().get(index);
     }
 
-    public AttributeDescriptor getAttribute(Name name) {
-        return (AttributeDescriptor) getProperty(name);
+    public AttributeDescriptor getDescriptor(Name name) {
+        return (AttributeDescriptor) super.getDescriptor(name);
     }
 
-    public AttributeDescriptor getAttribute(String name) {
-        return (AttributeDescriptor) getProperty(name);
+    public AttributeDescriptor getDescriptor(String name) {
+        return (AttributeDescriptor) super.getDescriptor(name);
     }
 
-    public AttributeDescriptor getAttribute(int index) {
+    public AttributeDescriptor getDescriptor(int index) {
         return descriptors.get(index);
     }
 
@@ -119,7 +119,7 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
         
         // otherwise do a full scan
         int index = 0;
-        for (Iterator<AttributeDescriptor> itr = getAttributes().iterator(); itr.hasNext(); index++) {
+        for (Iterator<AttributeDescriptor> itr = getAttributeDescriptors().iterator(); itr.hasNext(); index++) {
             AttributeDescriptor descriptor = (AttributeDescriptor) itr.next();
             if (descriptor.getName().equals(name)) {
                 return index;
@@ -153,11 +153,11 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
         // build an index of attribute name to index
         Map<String, Integer> index = new HashMap<String, Integer>();
         int i = 0;
-        for (AttributeDescriptor ad : featureType.getAttributes()) {
+        for (AttributeDescriptor ad : featureType.getAttributeDescriptors()) {
             index.put(ad.getLocalName(), i++);
         }
-        if (featureType.getDefaultGeometry() != null) {
-            index.put(null, index.get(featureType.getDefaultGeometry()
+        if (featureType.getGeometryDescriptor() != null) {
+            index.put(null, index.get(featureType.getGeometryDescriptor()
                     .getLocalName()));
         }
         return index;

@@ -273,8 +273,8 @@ public class ArcSDEQueryTest extends TestCase {
                     typeName).getFeatures();
             FeatureIterator<SimpleFeature> reader = features.features();
             SimpleFeatureType featureType = features.getSchema();
-            GeometryDescriptor defaultGeometry = featureType.getDefaultGeometry();
-            ReferencedEnvelope real = new ReferencedEnvelope(defaultGeometry.getCRS());
+            GeometryDescriptor defaultGeometry = featureType.getGeometryDescriptor();
+            ReferencedEnvelope real = new ReferencedEnvelope(defaultGeometry.getCoordinateReferenceSystem());
             try {
                 while (reader.hasNext()) {
                     real.include(reader.next().getBounds());

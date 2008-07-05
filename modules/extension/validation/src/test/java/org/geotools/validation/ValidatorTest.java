@@ -99,9 +99,9 @@ public class ValidatorTest extends TestCase {
     	SimpleFeatureType LAKE = lakes.getSchema();
     	Object array[] = new Object[ LAKE.getAttributeCount() ];
     	for( int i=0; i<LAKE.getAttributeCount(); i++){
-    		AttributeDescriptor attr = LAKE.getAttribute( i );
+    		AttributeDescriptor attr = LAKE.getDescriptor( i );
     		// System.out.println( i+" "+attr.getType()+":"+attr.getName()+"="+feature.getAttribute( i )  );
-    		if( LAKE.getDefaultGeometry() == attr ){
+    		if( LAKE.getGeometryDescriptor() == attr ){
     			GeometryFactory factory = new GeometryFactory();
     			Coordinate coords[] = new Coordinate[]{
     					new Coordinate( 1, 1 ),new Coordinate( 2, 2 ),

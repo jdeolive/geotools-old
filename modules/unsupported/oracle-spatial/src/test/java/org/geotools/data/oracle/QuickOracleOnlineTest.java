@@ -230,9 +230,9 @@ public class QuickOracleOnlineTest extends DataTestCase {
     public void testGeometryCRS() throws Exception {
     	if( conn == null ) return;
     	FeatureType schema = data.getSchema("ORA_TEST_LINES");
-    	GeometryDescriptor geom = schema.getDefaultGeometry();
+    	GeometryDescriptor geom = schema.getGeometryDescriptor();
     	
-    	assertNotNull( geom.getCRS() );
+    	assertNotNull( geom.getCoordinateReferenceSystem() );
     	assertEquals( "SHAPE", geom.getLocalName() );
     }    
 }

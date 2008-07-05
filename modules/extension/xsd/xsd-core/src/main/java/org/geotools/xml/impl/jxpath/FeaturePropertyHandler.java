@@ -39,7 +39,7 @@ public class FeaturePropertyHandler implements DynamicPropertyHandler {
         String[] propertyNames = new String[featureType.getAttributeCount()];
 
         for (int i = 0; i < propertyNames.length; i++) {
-            propertyNames[i] = featureType.getAttribute(i).getLocalName();
+            propertyNames[i] = featureType.getDescriptor(i).getLocalName();
         }
 
         return propertyNames;

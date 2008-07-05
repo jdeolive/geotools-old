@@ -45,13 +45,13 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         SimpleFeatureType schema = featureSource.getSchema();
         assertEquals("ft1", schema.getTypeName());
         assertEquals(dataStore.getNamespaceURI(), schema.getName().getNamespaceURI());
-        assertEquals(CRS.decode("EPSG:4326"), schema.getCRS());
+        assertEquals(CRS.decode("EPSG:4326"), schema.getCoordinateReferenceSystem());
 
         assertEquals(4, schema.getAttributeCount());
-        assertNotNull(schema.getAttribute("geometry"));
-        assertNotNull(schema.getAttribute("intProperty"));
-        assertNotNull(schema.getAttribute("stringProperty"));
-        assertNotNull(schema.getAttribute("doubleProperty"));
+        assertNotNull(schema.getDescriptor("geometry"));
+        assertNotNull(schema.getDescriptor("intProperty"));
+        assertNotNull(schema.getDescriptor("stringProperty"));
+        assertNotNull(schema.getDescriptor("doubleProperty"));
     }
 
     public void testBounds() throws Exception {

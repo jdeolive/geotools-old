@@ -75,7 +75,7 @@ public class FeatureSourceModel implements TableModel {
 
         FeatureType ft = layer.getFeatureSource().getSchema();
 
-        Collection<PropertyDescriptor> cols = ft.getProperties();
+        Collection<PropertyDescriptor> cols = ft.getDescriptors();
         Iterator<PropertyDescriptor> ite = cols.iterator();
 
         while (ite.hasNext()) {
@@ -132,7 +132,7 @@ public class FeatureSourceModel implements TableModel {
             Filter filter = ff.id(Collections.singleton(ff.featureId(features.get(rowIndex).getID())));            
             FeatureType schema = store.getSchema();
             
-            AttributeDescriptor NAME = (AttributeDescriptor) schema.getProperty(getColumnName(columnIndex));
+            AttributeDescriptor NAME = (AttributeDescriptor) schema.getDescriptor(getColumnName(columnIndex));
                         
             try {
                 store.modifyFeatures(NAME, aValue, filter);

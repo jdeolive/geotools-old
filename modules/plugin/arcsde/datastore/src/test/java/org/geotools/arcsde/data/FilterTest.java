@@ -180,7 +180,7 @@ public class FilterTest extends TestCase {
             assertEquals("Feature[" + i + "] identifiers Equal", f1.getID(), f2.getID());
             if (!f1.equals(f2)) {
                 // go through properties and figure out differneces...
-                for (PropertyDescriptor property : f1.getType().getProperties()) {
+                for (PropertyDescriptor property : f1.getType().getDescriptors()) {
                     String name = property.getName().getLocalPart();
                     Object value1 = f1.getProperty(name).getValue();
                     Object value2 = f2.getProperty(name).getValue();
@@ -489,7 +489,7 @@ public class FilterTest extends TestCase {
 
     private String[] safePropertyNames(FeatureType ft) {
         ArrayList<String> names = new ArrayList<String>();
-        for (PropertyDescriptor descriptor : ft.getProperties()) {
+        for (PropertyDescriptor descriptor : ft.getDescriptors()) {
             Class<?> binding = descriptor.getType().getBinding();
             if (Calendar.class.equals(binding)) {
                 continue;

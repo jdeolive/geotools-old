@@ -99,7 +99,7 @@ public abstract class FIDReader {
         List<String> attNames = new ArrayList<String>(schema.getAttributeCount() + 1);
 
         // /List attDescriptors = Descriptors.nodes(schema.getDescriptor());
-        List<AttributeDescriptor> attDescriptors = schema.getAttributes();
+        List<AttributeDescriptor> attDescriptors = schema.getAttributeDescriptors();
 
         for (AttributeDescriptor property : attDescriptors) {
             attNames.add(property.getLocalName());
@@ -216,7 +216,7 @@ public abstract class FIDReader {
             List<String> attNames = new ArrayList<String>(schema.getAttributeCount() + 1);
 
             // /List attDescriptors = Descriptors.nodes(schema.getDescriptor());
-            List<AttributeDescriptor> attDescriptors = schema.getAttributes();
+            List<AttributeDescriptor> attDescriptors = schema.getAttributeDescriptors();
             for (AttributeDescriptor property : attDescriptors) {
                 attNames.add(property.getLocalName());
             }

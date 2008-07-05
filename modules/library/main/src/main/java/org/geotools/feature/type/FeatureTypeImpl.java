@@ -59,17 +59,17 @@ public class FeatureTypeImpl extends ComplexTypeImpl implements FeatureType {
         
 	}
 
-	public CoordinateReferenceSystem getCRS() {
+	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
 	    if(crs == null) {
-    	    if ( getDefaultGeometry() != null && getDefaultGeometry().getType().getCRS() != null) {
-                crs = defaultGeometry.getType().getCRS();
+    	    if ( getGeometryDescriptor() != null && getGeometryDescriptor().getType().getCoordinateReferenceSystem() != null) {
+                crs = defaultGeometry.getType().getCoordinateReferenceSystem();
             }
     	    if(crs == null) {
         	    for (PropertyDescriptor property : propertyMap.values()) {
                     if ( property instanceof GeometryDescriptor ) {
                         GeometryDescriptor geometry = (GeometryDescriptor) property;
-                        if ( geometry.getType().getCRS() != null ) {
-                            crs = geometry.getType().getCRS();
+                        if ( geometry.getType().getCoordinateReferenceSystem() != null ) {
+                            crs = geometry.getType().getCoordinateReferenceSystem();
                             break;
                         }
                     }
@@ -80,7 +80,7 @@ public class FeatureTypeImpl extends ComplexTypeImpl implements FeatureType {
         return crs;
 	}
 	
-	public GeometryDescriptor getDefaultGeometry() {
+	public GeometryDescriptor getGeometryDescriptor() {
 	    if (defaultGeometry == null) {
             for (PropertyDescriptor property : propertyMap.values()) {
                 if (property instanceof GeometryDescriptor ) {
@@ -104,7 +104,7 @@ public class FeatureTypeImpl extends ComplexTypeImpl implements FeatureType {
     	}
     	
     	FeatureType other = (FeatureType) o;
-    	if (!Utilities.equals( defaultGeometry, other.getDefaultGeometry())) {
+    	if (!Utilities.equals( defaultGeometry, other.getGeometryDescriptor())) {
     		return false;
     	}
     	

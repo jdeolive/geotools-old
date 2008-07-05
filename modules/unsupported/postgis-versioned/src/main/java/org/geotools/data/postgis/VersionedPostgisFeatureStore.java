@@ -152,7 +152,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
             autoCommit = true;
         }
         VersionedJdbcTransactionState state = store.wrapped.getVersionedJdbcTransactionState(t);
-        locking.modifyFeatures(locking.getSchema().getAttribute("expired"), new Long(state
+        locking.modifyFeatures(locking.getSchema().getDescriptor("expired"), new Long(state
                 .getRevision()), versionedFilter);
         if (autoCommit) {
             t.commit();
@@ -207,7 +207,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         // build a renamed feature type with the same attributes as the feature collection
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.init(ft);
-        builder.setAttributes(fc.getSchema().getAttributes());
+        builder.setAttributes(fc.getSchema().getAttributeDescriptors());
         SimpleFeatureType renamedFt = builder.buildFeatureType();
         return new ReTypingFeatureCollection(fc, renamedFt);
     }

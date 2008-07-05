@@ -189,7 +189,7 @@ public class WFSFeatureSourceTest extends DataTestSupport {
 
         SimpleFeatureType contentType = features.getSchema();
         final int expectedPropertyCount = propertyNames.length;
-        Collection<PropertyDescriptor> properties = contentType.getProperties();
+        Collection<PropertyDescriptor> properties = contentType.getDescriptors();
         assertEquals(expectedPropertyCount, properties.size());
 
         Iterator<SimpleFeature> iterator = features.iterator();

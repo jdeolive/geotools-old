@@ -994,7 +994,7 @@ public class ComplexTypeHandler extends XSIElementHandler {
         }
 
         /**
-         * @see org.geotools.xml.xsi.ComplexType#getAttributes()
+         * @see org.geotools.xml.xsi.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;

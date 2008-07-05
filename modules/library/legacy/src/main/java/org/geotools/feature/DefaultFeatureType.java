@@ -280,9 +280,9 @@ public class DefaultFeatureType extends SimpleFeatureTypeImpl implements Feature
      * @return The attribute type of the default geometry, which will contain
      *         the position.
      */
-    public GeometryAttributeType getDefaultGeometry() {
+    public GeometryAttributeType getGeometryDescriptor() {
 //    	return defaultGeom;
-    	return (GeometryAttributeType) super.getDefaultGeometry();
+    	return (GeometryAttributeType) super.getGeometryDescriptor();
     }
 
     /**
@@ -294,7 +294,7 @@ public class DefaultFeatureType extends SimpleFeatureTypeImpl implements Feature
      * @return True if attribute exists.
      */
     public AttributeType getAttributeType(String xPath) {
-    	return (AttributeType) getAttribute(xPath);
+    	return (AttributeType) getDescriptor(xPath);
 //        AttributeType attType = null;
 //        int idx = find(xPath);
 //        if (idx >= 0)
@@ -313,7 +313,7 @@ public class DefaultFeatureType extends SimpleFeatureTypeImpl implements Feature
     	
         if (type == null) return -1;
         int idx = find(type.getLocalName());
-        if (idx < 0 || !getAttributes().get(idx).equals(type))
+        if (idx < 0 || !getAttributeDescriptors().get(idx).equals(type))
             idx = -1;
         return idx;
     }
@@ -338,12 +338,12 @@ public class DefaultFeatureType extends SimpleFeatureTypeImpl implements Feature
      */
     public AttributeType getAttributeType(int position) {
 //        return types[position];
-        return (AttributeType) getAttributes().get(position);
+        return (AttributeType) getAttributeDescriptors().get(position);
     }
 
     public AttributeType[] getAttributeTypes() {
 //        return (AttributeType[]) types.clone();
-        return (AttributeType[]) getAttributes().toArray( new AttributeType[ getAttributes().size()]);
+        return (AttributeType[]) getAttributeDescriptors().toArray( new AttributeType[ getAttributeDescriptors().size()]);
     }
 
     /**
@@ -393,7 +393,7 @@ public class DefaultFeatureType extends SimpleFeatureTypeImpl implements Feature
      */
     public int getAttributeCount() {
 //        return types.length;
-        return getAttributes().size();
+        return getAttributeDescriptors().size();
     }
 
 //    public boolean equals(FeatureType other) {

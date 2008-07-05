@@ -545,7 +545,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
                     SimpleFeature addFeature = iterator.next();
                     SimpleFeature newFeature = writer.next();
                     for (int i = 0; i < ftype.getAttributeCount(); i++) {
-                        String localName = ftype.getAttribute(i).getLocalName();
+                        String localName = ftype.getDescriptor(i).getLocalName();
                         newFeature.setAttribute(localName, addFeature.getAttribute(localName));
                     }
                     writer.write();
@@ -779,7 +779,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             store.setTransaction(transaction);
 
             try {
-                final AttributeDescriptor propDescriptor = schema.getAttribute("INT32_COL");
+                final AttributeDescriptor propDescriptor = schema.getDescriptor("INT32_COL");
                 store.modifyFeatures(propDescriptor, Integer.valueOf(-1000), oldValueFilter);
                 transaction.commit();
             } catch (Exception e) {
@@ -838,7 +838,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         store = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
                 .getFeatureSource(typeName);
         final SimpleFeatureType schema = store.getSchema();
-        GeometryDescriptor defaultGeometry = schema.getDefaultGeometry();
+        GeometryDescriptor defaultGeometry = schema.getGeometryDescriptor();
         String fid1;
         String fid2;
         // insert polygons p1, p2 and grab the fids for later retrieval

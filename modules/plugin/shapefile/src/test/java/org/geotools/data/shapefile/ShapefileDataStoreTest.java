@@ -167,7 +167,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         ShapefileDataStore shapeDataStore = new ShapefileDataStore(url);
         String typeName = shapeDataStore.getTypeNames()[0];
         SimpleFeatureType schema = shapeDataStore.getSchema(typeName);
-        List<AttributeDescriptor> attributes = schema.getAttributes();
+        List<AttributeDescriptor> attributes = schema.getAttributeDescriptors();
         assertEquals("Number of Attributes", 253, attributes.size());
     }
 
@@ -203,7 +203,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
 
         SimpleFeature firstFeature = firstFeature(features);
         SimpleFeatureType schema = firstFeature.getFeatureType();
-        assertNotNull(schema.getDefaultGeometry());
+        assertNotNull(schema.getGeometryDescriptor());
         assertEquals("Number of Attributes", 253, schema.getAttributeCount());
         assertEquals("Value of statename is wrong", "Illinois", firstFeature
                 .getAttribute("STATE_NAME"));
@@ -253,14 +253,14 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         URL toURL = file.toURL();
         ShapefileDataStore ds = new ShapefileDataStore(toURL);
         SimpleFeatureType featureType = DataUtilities.createType("test", "geom:MultiPolygon:srid=32615");
-        CoordinateReferenceSystem crs = featureType.getDefaultGeometry().getCRS(); 
+        CoordinateReferenceSystem crs = featureType.getGeometryDescriptor().getCoordinateReferenceSystem(); 
         assertNotNull( crs );
         
         ds.createSchema(featureType);
         
         assertEquals("test", ds.getSchema().getTypeName());
 
-        CoordinateReferenceSystem crs2 = ds.getSchema().getDefaultGeometry().getCRS();
+        CoordinateReferenceSystem crs2 = ds.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
         assertNotNull( crs2 );
         assertEquals( crs.getName(), crs2.getName() );
         
@@ -297,8 +297,8 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         FeatureType after = ds.getSchema();
 
         assertNotSame(before, after);
-        assertNull("4326", before.getCRS());
-        assertEquals("NAD83 / BC Albers", after.getCRS().getName().getCode());
+        assertNull("4326", before.getCoordinateReferenceSystem());
+        assertEquals("NAD83 / BC Albers", after.getCoordinateReferenceSystem().getName().getCode());
 
         file.deleteOnExit();
         file = new File("test.dbf");
@@ -710,7 +710,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = s.getFeatureReader(s.getSchema().getTypeName(),
                 query);
         assertEquals(1, reader.getFeatureType().getAttributeCount());
-        assertEquals("the_geom", reader.getFeatureType().getAttribute(0)
+        assertEquals("the_geom", reader.getFeatureType().getDescriptor(0)
                 .getLocalName());
 
         // here too, the filter is using the geometry only
@@ -731,7 +731,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         reader.close();
         reader = s.getFeatureReader(s.getSchema().getTypeName(), query);
         assertEquals(1, reader.getFeatureType().getAttributeCount());
-        assertEquals("the_geom", reader.getFeatureType().getAttribute(0)
+        assertEquals("the_geom", reader.getFeatureType().getDescriptor(0)
                 .getLocalName());
 
         reader.close();

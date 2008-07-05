@@ -277,7 +277,7 @@ public class DiffFeatureReader<T extends FeatureType, F extends Feature> impleme
     }
     
     protected boolean isDefaultGeometry(AttributeExpression ae) {
-    	return reader.getFeatureType().getDefaultGeometry().getLocalName().equals(ae.getAttributePath());
+    	return reader.getFeatureType().getGeometryDescriptor().getLocalName().equals(ae.getAttributePath());
     }
     
     protected boolean isSubsetOfBboxFilter(Filter f) {

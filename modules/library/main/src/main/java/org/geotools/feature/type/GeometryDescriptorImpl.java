@@ -34,8 +34,8 @@ public class GeometryDescriptorImpl extends AttributeDescriptorImpl
         return (GeometryType) super.getType();
     }
 
-	public CoordinateReferenceSystem getCRS() {
-		return getType().getCRS();
+	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+		return getType().getCoordinateReferenceSystem();
 	}
 
 	public String getLocalName() {

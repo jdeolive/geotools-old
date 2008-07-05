@@ -173,7 +173,7 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
         final CoordinateReferenceSystem crs = protocolHandler.getFeatureTypeCRS(typeName);
         SimpleFeatureType ftype = protocolHandler.parseDescribeFeatureType(typeName);
         assertNotNull(ftype);
-        assertSame(crs, ftype.getDefaultGeometry().getCRS());
+        assertSame(crs, ftype.getGeometryDescriptor().getCoordinateReferenceSystem());
     }
 
     /**

@@ -120,7 +120,7 @@ public class XLinkSchema implements Schema {
     }
 
     /**
-     * @see schema.Schema#getAttributes()
+     * @see schema.Schema#getAttributeDescriptors()
      */
     public Attribute[] getAttributes() {
         return attributes;
@@ -1184,7 +1184,7 @@ public class XLinkSchema implements Schema {
             };
 
         /**
-         * @see schema.AttributeGroup#getAttributes()
+         * @see schema.AttributeGroup#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes1;
@@ -1226,7 +1226,7 @@ public class XLinkSchema implements Schema {
             };
 
         /**
-         * @see schema.AttributeGroup#getAttributes()
+         * @see schema.AttributeGroup#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes1;
@@ -1268,7 +1268,7 @@ public class XLinkSchema implements Schema {
             };
 
         /**
-         * @see schema.AttributeGroup#getAttributes()
+         * @see schema.AttributeGroup#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes1;
@@ -1310,7 +1310,7 @@ public class XLinkSchema implements Schema {
             };
 
         /**
-         * @see schema.AttributeGroup#getAttributes()
+         * @see schema.AttributeGroup#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes1;
@@ -1353,7 +1353,7 @@ public class XLinkSchema implements Schema {
             };
 
         /**
-         * @see schema.AttributeGroup#getAttributes()
+         * @see schema.AttributeGroup#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes1;
@@ -1392,7 +1392,7 @@ public class XLinkSchema implements Schema {
         static final Attribute[] attributes1 = { new Type("title"), };
 
         /**
-         * @see schema.AttributeGroup#getAttributes()
+         * @see schema.AttributeGroup#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes1;
@@ -1431,7 +1431,7 @@ public class XLinkSchema implements Schema {
         static final Attribute[] attributes1 = { new Type("empty"), };
 
         /**
-         * @see schema.AttributeGroup#getAttributes()
+         * @see schema.AttributeGroup#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes1;

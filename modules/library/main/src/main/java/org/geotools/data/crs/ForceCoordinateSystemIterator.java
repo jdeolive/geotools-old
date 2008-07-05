@@ -90,8 +90,8 @@ public class ForceCoordinateSystemIterator implements Iterator {
         if (cs == null) {
             throw new NullPointerException("CoordinateSystem required");
         }        
-        CoordinateReferenceSystem originalCs = type.getDefaultGeometry()
-                                                   .getCRS();
+        CoordinateReferenceSystem originalCs = type.getGeometryDescriptor()
+                                                   .getCoordinateReferenceSystem();
 
         if (cs.equals(originalCs)) {
             schema = FeatureTypes.transform(type, cs);

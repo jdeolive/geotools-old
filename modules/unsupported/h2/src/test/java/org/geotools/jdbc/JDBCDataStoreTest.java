@@ -52,16 +52,16 @@ public abstract class JDBCDataStoreTest extends JDBCTestSupport {
         SimpleFeatureType ft1 = dataStore.getSchema("ft1");
         assertNotNull(ft1);
 
-        assertNotNull(ft1.getAttribute("geometry"));
-        assertNotNull(ft1.getAttribute("intProperty"));
-        assertNotNull(ft1.getAttribute("doubleProperty"));
-        assertNotNull(ft1.getAttribute("stringProperty"));
+        assertNotNull(ft1.getDescriptor("geometry"));
+        assertNotNull(ft1.getDescriptor("intProperty"));
+        assertNotNull(ft1.getDescriptor("doubleProperty"));
+        assertNotNull(ft1.getDescriptor("stringProperty"));
 
-        assertTrue(Geometry.class.isAssignableFrom(ft1.getAttribute("geometry").getType()
+        assertTrue(Geometry.class.isAssignableFrom(ft1.getDescriptor("geometry").getType()
                                                       .getBinding()));
-        assertEquals(Integer.class, ft1.getAttribute("intProperty").getType().getBinding());
-        assertEquals(Double.class, ft1.getAttribute("doubleProperty").getType().getBinding());
-        assertEquals(String.class, ft1.getAttribute("stringProperty").getType().getBinding());
+        assertEquals(Integer.class, ft1.getDescriptor("intProperty").getType().getBinding());
+        assertEquals(Double.class, ft1.getDescriptor("doubleProperty").getType().getBinding());
+        assertEquals(String.class, ft1.getDescriptor("stringProperty").getType().getBinding());
     }
 
     public void testCreateSchema() throws Exception {

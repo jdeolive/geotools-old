@@ -109,7 +109,7 @@ public class OracleFeatureWriter extends JDBCTextFeatureWriter {
             int position = 1;
 
             for (int i = 0; i < current.getAttributeCount(); i++) {
-                AttributeDescriptor type = schema.getAttribute(i);
+                AttributeDescriptor type = schema.getDescriptor(i);
 
                 if (type instanceof GeometryDescriptor && !DataUtilities.attributesEqual(current.getAttribute(i), live.getAttribute(i))) {
                     Geometry geometry = (Geometry) current.getAttribute(i);
@@ -172,7 +172,7 @@ public class OracleFeatureWriter extends JDBCTextFeatureWriter {
             int position = 1;
             SimpleFeatureType schema = current.getFeatureType();
             for( int i=0; i<current.getNumberOfAttributes();i++){
-            	AttributeDescriptor type = schema.getAttribute( i );
+            	AttributeDescriptor type = schema.getDescriptor( i );
             	if( type instanceof GeometryDescriptor ){
             		Geometry geometry = (Geometry) current.getAttribute( i );
                     

@@ -233,7 +233,7 @@ public class PostGIS2Example {
 			buf.append( schema.getName().getNamespaceURI() );
 			buf.append("attributes = ([\n");
 			
-			for( PropertyDescriptor type : schema.getProperties() ){
+			for( PropertyDescriptor type : schema.getDescriptors() ){
 				buf.append( type.getName().getLocalPart() );
 				buf.append(" [\n");					
 				
@@ -256,11 +256,11 @@ public class PostGIS2Example {
 				if( type instanceof GeometryDescriptor ){
 				    GeometryDescriptor geomType = (GeometryDescriptor) type;
 					buf.append("\t crs=");
-					if( geomType.getCRS() == null ){
+					if( geomType.getCoordinateReferenceSystem() == null ){
 						buf.append("null");						
 					}
 					else {
-						buf.append( geomType.getCRS().getName() );	
+						buf.append( geomType.getCoordinateReferenceSystem().getName() );	
 					}					
 					buf.append("\n");						
 				}
@@ -292,7 +292,7 @@ public class PostGIS2Example {
 				public void visit(Feature feature) {
 					buf.append( feature.getID() );
 					buf.append(" [\n");
-					for( AttributeDescriptor type : schema.getAttributes() ){
+					for( AttributeDescriptor type : schema.getAttributeDescriptors() ){
 						String name = type.getLocalName();
 						buf.append("\t");
 						buf.append( name );

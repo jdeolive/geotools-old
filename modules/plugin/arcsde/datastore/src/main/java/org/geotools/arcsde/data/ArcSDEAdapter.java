@@ -875,7 +875,7 @@ public class ArcSDEAdapter {
             throw new NullPointerException("You have to provide a FeatureType instance");
         }
 
-        if (featureType.getDefaultGeometry() == null) {
+        if (featureType.getGeometryDescriptor() == null) {
             throw new IllegalArgumentException(
                     "FeatureType must have at least one geometry attribute");
         }
@@ -947,7 +947,7 @@ public class ArcSDEAdapter {
                     table = createSeTable(connection, qualifiedName, HACK_COL_NAME, configKeyword);
                     tableCreated = true;
 
-                    final List<AttributeDescriptor> atts = featureType.getAttributes();
+                    final List<AttributeDescriptor> atts = featureType.getAttributeDescriptors();
                     AttributeDescriptor currAtt;
 
                     for (Iterator<AttributeDescriptor> it = atts.iterator(); it.hasNext();) {
@@ -1061,7 +1061,7 @@ public class ArcSDEAdapter {
         layer.setDescription("Created with GeoTools");
 
         // Define the layer's Coordinate Reference
-        CoordinateReferenceSystem crs = geometryAtt.getCRS();
+        CoordinateReferenceSystem crs = geometryAtt.getCoordinateReferenceSystem();
         SeCoordinateReference coordref = getGenericCoordRef();
         String WKT = null;
 

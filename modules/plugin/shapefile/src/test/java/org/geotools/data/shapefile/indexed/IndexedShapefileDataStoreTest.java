@@ -149,9 +149,9 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         URL url = TestData.url(STATE_POP);
         IndexedShapefileDataStore s = new IndexedShapefileDataStore(url);
         SimpleFeatureType schema = s.getSchema(s.getTypeNames()[0]);
-        List<AttributeDescriptor> types = schema.getAttributes();
+        List<AttributeDescriptor> types = schema.getAttributeDescriptors();
         assertEquals("Number of Attributes", 253, types.size());
-        assertNotNull(schema.getCRS());
+        assertNotNull(schema.getCoordinateReferenceSystem());
     }
 
     public void testSpacesInPath() throws Exception {
@@ -229,7 +229,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         newBounds = new Envelope(newBounds.getMinX() + dx, newBounds.getMaxX()
                 - dx, newBounds.getMinY() + dy, newBounds.getMaxY() - dy);
 
-        CoordinateReferenceSystem crs = features.getSchema().getCRS();
+        CoordinateReferenceSystem crs = features.getSchema().getCoordinateReferenceSystem();
 
         performQueryComparison(ds, ds2, new ReferencedEnvelope(newBounds, crs));
         performQueryComparison(ds, ds2, new ReferencedEnvelope(smallestFeature
@@ -248,7 +248,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         FeatureCollection<SimpleFeatureType, SimpleFeature> features;
         FeatureIterator<SimpleFeature> indexIter;
         FilterFactory2 fac = CommonFactoryFinder.getFilterFactory2(null);
-        String geometryName = indexedDS.getSchema().getDefaultGeometry()
+        String geometryName = indexedDS.getSchema().getGeometryDescriptor()
                 .getLocalName();
 
         Filter filter = fac.bbox(fac.property(geometryName), newBounds);
@@ -313,7 +313,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         // assertEquals("Number of Features loaded", 3, count); // JAR WRONG
 
         SimpleFeatureType schema = firstFeature(features).getFeatureType();
-        assertNotNull(schema.getDefaultGeometry());
+        assertNotNull(schema.getGeometryDescriptor());
         assertEquals("Number of Attributes", 253, schema.getAttributeCount());
         assertEquals("Value of statename is wrong", firstFeature(features)
                 .getAttribute("STATE_NAME"), "Illinois");

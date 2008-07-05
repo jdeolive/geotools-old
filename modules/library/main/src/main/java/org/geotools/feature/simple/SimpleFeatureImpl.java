@@ -189,7 +189,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
     public void setAttribute(int index, Object value)
         throws IndexOutOfBoundsException {
         // we don't do validation, but at least conversion is necessary to have the tests work
-        values[index] = Converters.convert(value, getFeatureType().getAttribute(index).getType().getBinding());
+        values[index] = Converters.convert(value, getFeatureType().getDescriptor(index).getType().getBinding());
     }
     
     public void setAttribute(String name, Object value) {
@@ -222,7 +222,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
 
     public BoundingBox getBounds() {
         //TODO: cache this value
-        ReferencedEnvelope bounds = new ReferencedEnvelope( featureType.getCRS() );
+        ReferencedEnvelope bounds = new ReferencedEnvelope( featureType.getCoordinateReferenceSystem() );
         for ( Object o : values ) {
             if ( o instanceof Geometry ) {
                 Geometry g = (Geometry) o;
@@ -241,7 +241,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
     }
 
     public GeometryAttribute getDefaultGeometryProperty() {
-        return new GeometryAttributeImpl(getDefaultGeometry(), getFeatureType().getDefaultGeometry(), null);
+        return new GeometryAttributeImpl(getDefaultGeometry(), getFeatureType().getGeometryDescriptor(), null);
     }
 
     public void setDefaultGeometryProperty(GeometryAttribute geometryAttribute) {
@@ -422,7 +422,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
         }
 
         public AttributeDescriptor getDescriptor() {
-            return featureType.getAttribute(index);
+            return featureType.getDescriptor(index);
         }
 
         public AttributeType getType() {

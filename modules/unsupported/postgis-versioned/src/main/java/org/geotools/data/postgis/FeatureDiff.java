@@ -82,7 +82,7 @@ public class FeatureDiff {
             this.state = UPDATED;
             List changedAttributes = new ArrayList();
             for (int i = 0; i < oldFeature.getAttributeCount(); i++) {
-                String attName = oldFeature.getFeatureType().getAttribute(i).getLocalName();
+                String attName = oldFeature.getFeatureType().getDescriptor(i).getLocalName();
                 Object toAttribute = newFeature.getAttribute(attName);
                 Object fromAttribute = oldFeature.getAttribute(attName);
                 if (!DataUtilities.attributesEqual(fromAttribute, toAttribute)) {

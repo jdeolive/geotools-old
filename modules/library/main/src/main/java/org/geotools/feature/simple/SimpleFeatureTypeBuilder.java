@@ -220,7 +220,7 @@ public class SimpleFeatureTypeBuilder {
 		restrictions().addAll(type.getRestrictions());
 
 		attributes = null;
-		attributes().addAll(type.getAttributes());
+		attributes().addAll(type.getAttributeDescriptors());
 		
 		isAbstract = type.isAbstract();
 		superType = (SimpleFeatureType) type.getSuper();
@@ -601,7 +601,7 @@ public class SimpleFeatureTypeBuilder {
 	    defaultValue( descriptor.getDefaultValue() );
 	    
 	    if ( descriptor instanceof GeometryDescriptor ) {
-	        crs( ( (GeometryDescriptor) descriptor).getCRS() );
+	        crs( ( (GeometryDescriptor) descriptor).getCoordinateReferenceSystem() );
 	    }
 	    
 	    return this;
@@ -975,7 +975,7 @@ public class SimpleFeatureTypeBuilder {
 	    
 	    //add attributes in order
 	    for ( int i = 0; i < types.length; i++ ) {
-	        b.add( original.getAttribute( types[i] ) );
+	        b.add( original.getDescriptor( types[i] ) );
 	    }
 	    
 	    return b.buildFeatureType();

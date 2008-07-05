@@ -217,7 +217,7 @@ public class FeatureDiffReader {
             final SimpleFeature f = fr.next();
             final Object[] attributes = new Object[externalFeatureType.getAttributeCount()];
             for (int i = 0; i < externalFeatureType.getAttributeCount(); i++) {
-                attributes[i] = f.getAttribute(externalFeatureType.getAttribute(i).getLocalName());
+                attributes[i] = f.getAttribute(externalFeatureType.getDescriptor(i).getLocalName());
             }
             String id = mapper.getUnversionedFid(f.getID());
             return SimpleFeatureBuilder.build(externalFeatureType, attributes, id);

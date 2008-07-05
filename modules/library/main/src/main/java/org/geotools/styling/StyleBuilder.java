@@ -1721,7 +1721,7 @@ public class StyleBuilder {
         throws IllegalFilterException {
         //grab attribute col
         PropertyName value = ff.property(name);
-        String geomName = schema.getDefaultGeometry().getLocalName();
+        String geomName = schema.getGeometryDescriptor().getLocalName();
 
         double[] values = new double[fc.size()];
         Iterator it = fc.iterator();

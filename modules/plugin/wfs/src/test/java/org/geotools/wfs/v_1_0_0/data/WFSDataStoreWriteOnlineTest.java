@@ -199,7 +199,7 @@ public class WFSDataStoreWriteOnlineTest extends TestCase {
     	FeatureStore<SimpleFeatureType, SimpleFeature> fs = (FeatureStore<SimpleFeatureType, SimpleFeature>)ds.getFeatureSource(ft.getTypeName());
     	fs.setTransaction(t);
     	
-    	AttributeDescriptor at = ft.getAttribute(attributeToChange);
+    	AttributeDescriptor at = ft.getDescriptor(attributeToChange);
     	assertNotNull("Attribute "+attributeToChange+" does not exist",at);
     	
     	FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);

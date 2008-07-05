@@ -111,11 +111,11 @@ public class ReTypeFeatureReader implements  FeatureReader<SimpleFeatureType, Si
         AttributeDescriptor[] types = new AttributeDescriptor[target.getAttributeCount()];
 
         for (int i = 0; i < target.getAttributeCount(); i++) {
-            AttributeDescriptor attrib = target.getAttribute(i);
+            AttributeDescriptor attrib = target.getDescriptor(i);
             xpath = attrib.getLocalName();
             types[i] = attrib;
 
-            if (!attrib.equals(origional.getAttribute(xpath))) {
+            if (!attrib.equals(origional.getDescriptor(xpath))) {
                 throw new IllegalArgumentException(
                     "Unable to retype  FeatureReader<SimpleFeatureType, SimpleFeature> (origional does not cover "
                     + xpath + ")");

@@ -193,7 +193,7 @@ public class VPFFeatureReader
         VPFFile secondFile = null;
         VPFColumn column = null;
         Map rows = generateFileRowMap(file, row);
-        List<AttributeDescriptor> attributes = featureType.getFeatureClass().getAttributes();
+        List<AttributeDescriptor> attributes = featureType.getFeatureClass().getAttributeDescriptors();
         Object[] values = new Object[featureType.getAttributeCount()];
         Object value = null;
         String featureId = null;

@@ -120,7 +120,7 @@ public class GMLAbstractFeatureTypeBinding extends AbstractComplexBinding {
             return feature.getBounds();
         }
 
-        if (feature.getFeatureType().getAttribute(name.getLocalPart()) != null) {
+        if (feature.getFeatureType().getDescriptor(name.getLocalPart()) != null) {
             return feature.getAttribute(name.getLocalPart());
         }
 

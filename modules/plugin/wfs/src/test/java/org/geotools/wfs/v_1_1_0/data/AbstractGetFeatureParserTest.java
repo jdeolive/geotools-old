@@ -115,7 +115,7 @@ public abstract class AbstractGetFeatureParserTest extends TestCase {
         public void visit(final Feature feature) {
             assertNotNull(feature);
             assertNotNull(feature.getID());
-            for (AttributeDescriptor descriptor : featureType.getAttributes()) {
+            for (AttributeDescriptor descriptor : featureType.getAttributeDescriptors()) {
                 final String name = descriptor.getLocalName();
                 Property property = feature.getProperty(name);
                 assertNotNull(name + " property was not parsed", property);

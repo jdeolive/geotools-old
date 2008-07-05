@@ -881,7 +881,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return new Attribute[0];
@@ -1024,7 +1024,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return new Attribute[0];
@@ -1198,7 +1198,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;
@@ -1376,7 +1376,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;
@@ -1557,7 +1557,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;
@@ -1737,7 +1737,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;
@@ -1920,7 +1920,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;
@@ -2081,7 +2081,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryType.attributes;
@@ -2263,7 +2263,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryType.attributes;
@@ -2459,7 +2459,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryType.attributes;
@@ -2650,7 +2650,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryType.attributes;
@@ -2922,7 +2922,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryType.attributes;
@@ -3101,7 +3101,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryCollectionBaseType.attributes;
@@ -3263,7 +3263,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryCollectionBaseType.attributes;
@@ -3432,7 +3432,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryCollectionBaseType.attributes;
@@ -3601,7 +3601,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryCollectionBaseType.attributes;
@@ -3769,7 +3769,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractGeometryCollectionBaseType.attributes;
@@ -3954,7 +3954,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
 //            return AbstractGeometryCollectionBaseType.attributes;
@@ -4193,7 +4193,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;
@@ -4290,7 +4290,7 @@ public class GMLComplexTypes {
 		private void setAttribute(ElementValue[] value, SimpleFeatureType ft, Object[] values, int i, int j) {
 			j = searchByName(value, ft, i, j);
 			if(j!=-1){
-                assignValue(value, values, ft.getAttribute(j), i, j);
+                assignValue(value, values, ft.getDescriptor(j), i, j);
 			}else{
 			    searchByType(value, ft, values, i);
 			}
@@ -4308,13 +4308,13 @@ public class GMLComplexTypes {
 			if(value[i].getValue()!=null){
 				// first check same index since it is supposed to be the same...
 				if( isMatch(value, ft, i, i) ){
-					assignValue(value, values, ft.getAttribute(i), i, i);
+					assignValue(value, values, ft.getDescriptor(i), i, i);
 					return;
 				}
 				for(int k=0;k<ft.getAttributeCount();k++){
 				    if(isMatch(value, ft, i, k)){
 				    	if( values[i]==null)
-				    		assignValue(value, values, ft.getAttribute(k), i, k);
+				    		assignValue(value, values, ft.getDescriptor(k), i, k);
 				    }
 				}
 			}
@@ -4329,7 +4329,7 @@ public class GMLComplexTypes {
 		}
 
 		private boolean isMatch(ElementValue[] value, SimpleFeatureType ft, int i, int k) {
-			AttributeDescriptor AttributeDescriptor = ft.getAttribute(k);
+			AttributeDescriptor AttributeDescriptor = ft.getDescriptor(k);
 			String typeName = ft.getTypeName();
 			
 			if( !AttributeDescriptor.getLocalName().equals(typeName) )
@@ -4351,8 +4351,8 @@ public class GMLComplexTypes {
 		private int searchByName(ElementValue[] value, SimpleFeatureType ft, int i, int j) {
 			for (int k=0;k<ft.getAttributeCount() && j==-1;k++){
 			    // TODO use equals
-			    if((ft.getAttribute(k).getLocalName()==null && value[i].getElement().getName()==null) ||
-			            ft.getAttribute(k).getLocalName().equals(value[i].getElement().getName()))
+			    if((ft.getDescriptor(k).getLocalName()==null && value[i].getElement().getName()==null) ||
+			            ft.getDescriptor(k).getLocalName().equals(value[i].getElement().getName()))
 			        j = k;
 			}
 			return j;
@@ -4484,7 +4484,7 @@ public class GMLComplexTypes {
             ph.startElement(e.getNamespace(), e.getName(), ai);
 
             SimpleFeatureType ft = f.getFeatureType();
-            List<AttributeDescriptor> ats = ft.getAttributes();
+            List<AttributeDescriptor> ats = ft.getAttributeDescriptors();
             if (ats != null) {
                 for (int i = 0; i < ats.size(); i++) {
                     Element e2 = e.findChildElement(ats.get(i).getLocalName());
@@ -4508,7 +4508,7 @@ public class GMLComplexTypes {
             ph.startElement(GMLSchema.NAMESPACE, "_Feature", ai);
 
             SimpleFeatureType ft = f.getFeatureType();
-            List<AttributeDescriptor> ats = ft.getAttributes();
+            List<AttributeDescriptor> ats = ft.getAttributeDescriptors();
 
             if (ats != null) {
                 for (int i = 0; i < ats.size(); i++) {
@@ -4574,7 +4574,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return AbstractFeatureType.attributes;
@@ -4676,7 +4676,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return null;
@@ -4941,7 +4941,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;
@@ -5118,7 +5118,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;
@@ -5288,7 +5288,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return null;
@@ -5458,7 +5458,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return FeatureAssociationType.attributes;
@@ -5616,7 +5616,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return FeatureAssociationType.attributes;
@@ -5774,7 +5774,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return FeatureAssociationType.attributes;
@@ -5933,7 +5933,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return FeatureAssociationType.attributes;
@@ -6101,7 +6101,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return FeatureAssociationType.attributes;
@@ -6270,7 +6270,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return FeatureAssociationType.attributes;
@@ -6440,7 +6440,7 @@ public class GMLComplexTypes {
         }
 
         /**
-         * @see schema.ComplexType#getAttributes()
+         * @see schema.ComplexType#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return FeatureAssociationType.attributes;

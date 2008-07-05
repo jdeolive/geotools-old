@@ -207,7 +207,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
             final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
             final SimpleFeatureType schema = featureSource.getSchema();
             // looking for the location attribute
-            if (schema.getAttribute("location") == null)
+            if (schema.getDescriptor("location") == null)
                 return false;
 
             // /////////////////////////////////////////////////////////////////////

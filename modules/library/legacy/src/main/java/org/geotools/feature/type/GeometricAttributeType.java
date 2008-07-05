@@ -101,10 +101,10 @@ public class GeometricAttributeType extends DefaultAttributeType implements org.
     }
     
 	public CoordinateReferenceSystem getCoordinateSystem() {
-        return ((GeometryType)getType()).getCRS();
+        return ((GeometryType)getType()).getCoordinateReferenceSystem();
     }
 	
-	public CoordinateReferenceSystem getCRS() {
+	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
 		return getCoordinateSystem();
 	}
 

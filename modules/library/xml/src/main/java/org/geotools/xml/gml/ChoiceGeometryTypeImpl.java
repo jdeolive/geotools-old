@@ -75,7 +75,7 @@ class ChoiceGeometryTypeImpl extends ChoiceAttributeTypeImpl implements
     public GeometryType getType() {
         return this;
     }
-    public CoordinateReferenceSystem getCRS() {
+    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
         return crs;
     }
 }

@@ -306,14 +306,14 @@ public interface FeatureType extends SimpleFeatureType {
      * multiple geometries.
      * </p>
      * <p>
-     * This method is a replacement for {@link #getDefaultGeometry()} in order
+     * This method is a replacement for {@link #getGeometryDescriptor()} in order
      * to resolve a naming conflict with the geoapi feature model.
      * </p>
      *
      * @return The attribute type of the default geometry, which will contain the position.
      * @since 2.4
      */
-    GeometryAttributeType getDefaultGeometry();
+    GeometryAttributeType getGeometryDescriptor();
 
     /**
      * The number of attribues defined by this schema.

@@ -356,7 +356,7 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
                 //calculate manually, dont use datastore optimization
                 getDataStore().getLogger().fine("Calculating bounds manually");
 
-                ReferencedEnvelope bounds = new ReferencedEnvelope(getSchema().getCRS());
+                ReferencedEnvelope bounds = new ReferencedEnvelope(getSchema().getCoordinateReferenceSystem());
 
                 //grab a reader
                  FeatureReader<SimpleFeatureType, SimpleFeature> i = getReader(postFilter);

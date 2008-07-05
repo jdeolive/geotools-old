@@ -106,7 +106,7 @@ public class FeaturePropertyExtractor implements PropertyExtractor {
             }
 
             //make sure the feature type has an element
-            if (featureType.getAttribute(attribute.getName()) == null) {
+            if (featureType.getDescriptor(attribute.getName()) == null) {
                 continue;
             }
 

@@ -262,7 +262,7 @@ public class AttributeTypeBuilder {
 		superType = type.getSuper();
 		
 		if ( type instanceof GeometryType ) {
-			crs = ((GeometryType)type).getCRS();
+			crs = ((GeometryType)type).getCoordinateReferenceSystem();
 		}
 		return this;
 	}

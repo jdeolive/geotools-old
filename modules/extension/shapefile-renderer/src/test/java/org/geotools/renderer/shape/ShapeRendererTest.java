@@ -183,7 +183,7 @@ public class ShapeRendererTest extends TestCase {
         renderer.dbfheader = reader.getHeader();
         SimpleFeatureType type = renderer.createFeatureType(null, style, ds);
         assertEquals(2, type.getAttributeCount());
-        assertEquals("NAME", type.getAttribute(0).getLocalName());
+        assertEquals("NAME", type.getDescriptor(0).getLocalName());
         Envelope bounds = ds.getFeatureSource().getBounds();
         ShapefileReader shpReader = ShapefileRendererUtil
                         .getShpReader(ds, bounds, 
@@ -292,7 +292,7 @@ public class ShapeRendererTest extends TestCase {
         FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource();
         Transaction t = new DefaultTransaction();
         store.setTransaction(t);
-        store.modifyFeatures(ds.getSchema().getAttribute("NAME"), "bleep",
+        store.modifyFeatures(ds.getSchema().getDescriptor("NAME"), "bleep",
                 Filter.NONE);
 
         MapContext context = new DefaultMapContext();

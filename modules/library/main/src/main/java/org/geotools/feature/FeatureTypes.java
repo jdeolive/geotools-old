@@ -186,13 +186,13 @@ public class FeatureTypes {
 
         GeometryDescriptor defaultGeometryType = null;
         for( int i = 0; i < schema.getAttributeCount(); i++ ) {
-            AttributeDescriptor attributeType = schema.getAttribute(i);
+            AttributeDescriptor attributeType = schema.getDescriptor(i);
             if (attributeType instanceof GeometryDescriptor) {
                 GeometryDescriptor geometryType = (GeometryDescriptor) attributeType;
                 AttributeDescriptor forced;
 
                 tb.descriptor( geometryType );
-                if ( !forceOnlyMissing || geometryType.getCRS() == null ) {
+                if ( !forceOnlyMissing || geometryType.getCoordinateReferenceSystem() == null ) {
                     tb.crs( crs );
                 }
 
@@ -201,8 +201,8 @@ public class FeatureTypes {
                 tb.add(attributeType);
             }
         }
-        if (schema.getDefaultGeometry() != null) {
-            tb.setDefaultGeometry(schema.getDefaultGeometry().getLocalName());
+        if (schema.getGeometryDescriptor() != null) {
+            tb.setDefaultGeometry(schema.getGeometryDescriptor().getLocalName());
         }
 
         tb.setSuperType((SimpleFeatureType) schema.getSuper());
@@ -225,7 +225,7 @@ public class FeatureTypes {
             throws MismatchedDimensionException, TransformException, IllegalAttributeException {
         feature = SimpleFeatureBuilder.copy(feature);
 
-        GeometryDescriptor geomType = schema.getDefaultGeometry();
+        GeometryDescriptor geomType = schema.getGeometryDescriptor();
         Geometry geom = (Geometry) feature.getAttribute(geomType.getLocalName());
 
         geom = JTS.transform(geom, transform);
@@ -451,7 +451,7 @@ public class FeatureTypes {
             return false;
         }
         return equalsId(typeA, typeB)
-                && equals(typeA.getAttributes(), typeB.getAttributes()) &&
+                && equals(typeA.getAttributeDescriptors(), typeB.getAttributeDescriptors()) &&
                 equalsAncestors( typeA, typeB );
     }
 

@@ -51,13 +51,13 @@ public class UniqueVisitor implements FeatureCalc {
     public UniqueVisitor(int attributeTypeIndex, SimpleFeatureType type)
         throws IllegalFilterException {
         FilterFactory factory = CommonFactoryFinder.getFilterFactory(null);
-        expr = factory.property(type.getAttribute(attributeTypeIndex).getLocalName());
+        expr = factory.property(type.getDescriptor(attributeTypeIndex).getLocalName());
     }
 
     public UniqueVisitor(String attrName, SimpleFeatureType type)
         throws IllegalFilterException {
         FilterFactory factory = CommonFactoryFinder.getFilterFactory(null);
-        expr = factory.property(type.getAttribute(attrName).getLocalName());
+        expr = factory.property(type.getDescriptor(attrName).getLocalName());
     }
 
     public UniqueVisitor(Expression expr) {

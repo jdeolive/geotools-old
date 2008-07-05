@@ -103,7 +103,7 @@ public class XmlSimpleFeatureParser implements GetFeatureParser {
         }
 
         expectedProperties = new HashSet<String>();
-        for (AttributeDescriptor desc : targetType.getAttributes()) {
+        for (AttributeDescriptor desc : targetType.getAttributeDescriptors()) {
             expectedProperties.add(desc.getLocalName());
         }
     }
@@ -172,7 +172,7 @@ public class XmlSimpleFeatureParser implements GetFeatureParser {
     @SuppressWarnings("unchecked")
     private Object parseAttributeValue() throws XmlPullParserException, IOException {
         final String name = parser.getName();
-        final AttributeDescriptor attribute = this.targetType.getAttribute(name);
+        final AttributeDescriptor attribute = this.targetType.getDescriptor(name);
         final AttributeType type = attribute.getType();
         Object parsedValue;
         if (type instanceof GeometryType) {

@@ -86,7 +86,7 @@ public class FeaturePropertyPointer extends NodePointer {
      */
     public QName getName() {
         return (index != -1)
-        ? new QName(null, feature.getFeatureType().getAttribute(index).getLocalName())
+        ? new QName(null, feature.getFeatureType().getDescriptor(index).getLocalName())
         : new QName(null, "fid");
     }
 

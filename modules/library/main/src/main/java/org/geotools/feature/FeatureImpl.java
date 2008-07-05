@@ -88,7 +88,7 @@ public class FeatureImpl extends ComplexAttributeImpl implements Feature {
 	 */
 	public BoundingBox getBounds() {
 
-		ReferencedEnvelope bounds = new ReferencedEnvelope(getType().getCRS());
+		ReferencedEnvelope bounds = new ReferencedEnvelope(getType().getCoordinateReferenceSystem());
 		for (Iterator itr = getValue().iterator(); itr.hasNext();) {
 			Property property = (Property) itr.next();
 			if (property instanceof GeometryAttribute) {
@@ -107,12 +107,12 @@ public class FeatureImpl extends ComplexAttributeImpl implements Feature {
 		synchronized ( this ) {
 			if ( defaultGeometry == null ) {
 				//look it up from the type
-				if (((FeatureType)getType()).getDefaultGeometry() == null ) {
+				if (((FeatureType)getType()).getGeometryDescriptor() == null ) {
 					return null;
 				}
 				
 				GeometryType geometryType = 
-				 	(GeometryType) getType().getDefaultGeometry().getType();
+				 	(GeometryType) getType().getGeometryDescriptor().getType();
 				
 				 if (geometryType != null) {
 					 for (Iterator itr = getValue().iterator(); itr.hasNext();) {

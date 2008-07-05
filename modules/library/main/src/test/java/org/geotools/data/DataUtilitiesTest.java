@@ -512,9 +512,9 @@ public class DataUtilitiesTest extends DataTestCase {
     }
 
     public void testDefaultValue() throws IllegalAttributeException {
-        assertNull(DataUtilities.defaultValue(roadType.getAttribute("name")));
-        assertNull(DataUtilities.defaultValue(roadType.getAttribute("id")));
-        assertNull(DataUtilities.defaultValue(roadType.getAttribute("geom")));
+        assertNull(DataUtilities.defaultValue(roadType.getDescriptor("name")));
+        assertNull(DataUtilities.defaultValue(roadType.getDescriptor("id")));
+        assertNull(DataUtilities.defaultValue(roadType.getDescriptor("geom")));
     }
 
     

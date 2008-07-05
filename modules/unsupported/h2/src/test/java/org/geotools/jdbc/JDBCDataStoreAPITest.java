@@ -102,14 +102,14 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         assertEquals("attributeCount", expected.getAttributeCount(), actual.getAttributeCount());
 
         for (int i = 0; i < expected.getAttributeCount(); i++) {
-            AttributeDescriptor expectedAttribute = expected.getAttribute(i);
-            AttributeDescriptor actualAttribute = actual.getAttribute(i);
+            AttributeDescriptor expectedAttribute = expected.getDescriptor(i);
+            AttributeDescriptor actualAttribute = actual.getDescriptor(i);
 
             assertAttributesEqual(actualAttribute, expectedAttribute);
         }
 
         // make sure the geometry is nillable and has minOccurrs to 0
-        AttributeDescriptor dg = actual.getDefaultGeometry();
+        AttributeDescriptor dg = actual.getGeometryDescriptor();
         assertTrue(dg.isNillable());
         assertEquals(0, dg.getMinOccurs());
 
@@ -887,11 +887,11 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         assertEquals(type.getAttributeCount(), actual.getAttributeCount());
 
         for (int i = 0; i < type.getAttributeCount(); i++) {
-            assertEquals(type.getAttribute(i), actual.getAttribute(i));
+            assertEquals(type.getDescriptor(i), actual.getDescriptor(i));
         }
 
-        assertNull(type.getDefaultGeometry()); // geometry is null, therefore no bounds
-        assertEquals(type.getDefaultGeometry(), actual.getDefaultGeometry());
+        assertNull(type.getGeometryDescriptor()); // geometry is null, therefore no bounds
+        assertEquals(type.getGeometryDescriptor(), actual.getGeometryDescriptor());
         assertEquals(type, actual);
 
         ReferencedEnvelope b = half.getBounds();
@@ -925,7 +925,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         // FilterFactory factory = FilterFactoryFinder.createFilterFactory();
         // rd1Filter = factory.createFidFilter( roadFeatures[0].getID() );
         Object changed = new Integer(5);
-        AttributeDescriptor name = td.roadType.getAttribute("id");
+        AttributeDescriptor name = td.roadType.getDescriptor("id");
         road.modifyFeatures(name, changed, td.rd1Filter);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(td.rd1Filter);
@@ -944,7 +944,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         Filter rd1Filter = factory.id(Collections.singleton(factory.featureId(
                         td.roadFeatures[0].getID())));
 
-        AttributeDescriptor name = td.roadType.getAttribute("name");
+        AttributeDescriptor name = td.roadType.getDescriptor("name");
         road.modifyFeatures(new AttributeDescriptor[] { name, }, new Object[] { "changed", },
             rd1Filter);
 
@@ -967,7 +967,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
         PropertyIsEqualTo filter = ff.equals(ff.property("name"), ff.literal("r1"));
 
-        AttributeDescriptor name = td.roadType.getAttribute("name");
+        AttributeDescriptor name = td.roadType.getDescriptor("name");
         road.modifyFeatures(new AttributeDescriptor[] { name, }, new Object[] { "changed", }, filter);
     }
 
@@ -1222,14 +1222,14 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
 
     void assertFeatureTypesEqual(SimpleFeatureType expected, SimpleFeatureType actual) {
         for (int i = 0; i < expected.getAttributeCount(); i++) {
-            AttributeDescriptor expectedAttribute = expected.getAttribute(i);
-            AttributeDescriptor actualAttribute = actual.getAttribute(i);
+            AttributeDescriptor expectedAttribute = expected.getDescriptor(i);
+            AttributeDescriptor actualAttribute = actual.getDescriptor(i);
 
             assertAttributesEqual(actualAttribute, expectedAttribute);
         }
 
         // make sure the geometry is nillable and has minOccurrs to 0
-        AttributeDescriptor dg = actual.getDefaultGeometry();
+        AttributeDescriptor dg = actual.getGeometryDescriptor();
         assertTrue(dg.isNillable());
         assertEquals(0, dg.getMinOccurs());
     }

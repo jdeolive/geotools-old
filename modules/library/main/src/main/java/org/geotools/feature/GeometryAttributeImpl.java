@@ -100,7 +100,7 @@ public class GeometryAttributeImpl extends AttributeImpl implements
 	 */
 	public synchronized BoundingBox getBounds() {
 		if( bounds == null ){
-			ReferencedEnvelope bbox = new ReferencedEnvelope(getType().getCRS());
+			ReferencedEnvelope bbox = new ReferencedEnvelope(getType().getCoordinateReferenceSystem());
 			Geometry geom = (Geometry) getValue();
 			if (geom != null) {
 				bbox.expandToInclude(geom.getEnvelopeInternal());
@@ -191,7 +191,7 @@ public class GeometryAttributeImpl extends AttributeImpl implements
 	   public String toString() {
 	        StringBuffer sb = new StringBuffer(getClass().getSimpleName()).append(":");
 	        sb.append(getDescriptor().getName().getLocalPart());
-	        CoordinateReferenceSystem crs = getDescriptor().getType().getCRS();
+	        CoordinateReferenceSystem crs = getDescriptor().getType().getCoordinateReferenceSystem();
 	        if(!getDescriptor().getName().getLocalPart().equals(getDescriptor().getType().getName().getLocalPart()) ||
 	                id != null || crs != null){
 	            sb.append("<");

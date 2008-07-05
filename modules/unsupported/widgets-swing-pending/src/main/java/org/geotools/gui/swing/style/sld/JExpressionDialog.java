@@ -102,7 +102,7 @@ public class JExpressionDialog extends javax.swing.JDialog {
 
             lst_field.removeAll();
 
-            Collection<PropertyDescriptor> col = layer.getFeatureSource().getSchema().getProperties();
+            Collection<PropertyDescriptor> col = layer.getFeatureSource().getSchema().getDescriptors();
             Iterator<PropertyDescriptor> it = col.iterator();
 
             PropertyDescriptor desc;

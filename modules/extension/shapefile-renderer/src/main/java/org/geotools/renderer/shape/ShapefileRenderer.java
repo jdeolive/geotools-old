@@ -517,7 +517,7 @@ public class ShapefileRenderer implements GTRenderer {
         }
 
         OpacityFinder opacityFinder = new OpacityFinder(getAcceptableSymbolizers(type
-                .getDefaultGeometry()));
+                .getGeometryDescriptor()));
 
         for( Iterator iter = ruleList.iterator(); iter.hasNext(); ) {
             Rule rule = (Rule) iter.next();
@@ -700,7 +700,7 @@ public class ShapefileRenderer implements GTRenderer {
     SimpleFeature createFeature( SimpleFeatureType type, Record record, DbaseFileReader dbfreader, String id )
             throws Exception {
         if (type.getAttributeCount() == 1) {
-            return SimpleFeatureBuilder.build(type,new Object[]{getGeom(record.shape(), type.getDefaultGeometry())}, id);
+            return SimpleFeatureBuilder.build(type,new Object[]{getGeom(record.shape(), type.getGeometryDescriptor())}, id);
         } else {
             Object[] all = dbfreader.readEntry();
             Object[] values = new Object[type.getAttributeCount()];
@@ -708,7 +708,7 @@ public class ShapefileRenderer implements GTRenderer {
             for( int i = 0; i < (values.length - 1); i++ ) {
                 values[i] = all[attributeIndexing[i]];
             }
-            values[values.length - 1] = getGeom(record.shape(), type.getDefaultGeometry());
+            values[values.length - 1] = getGeom(record.shape(), type.getGeometryDescriptor());
 
             return SimpleFeatureBuilder.build(type,values, id);
         }
@@ -770,12 +770,12 @@ public class ShapefileRenderer implements GTRenderer {
         AttributeDescriptor[] types = new AttributeDescriptor[attributes.length];
         attributeIndexing = new int[attributes.length];
         
-        if(attributes.length == 1 && attributes[0].equals(schema.getDefaultGeometry().getLocalName())) {
-            types[0] = schema.getAttribute(attributes[0]);
+        if(attributes.length == 1 && attributes[0].equals(schema.getGeometryDescriptor().getLocalName())) {
+            types[0] = schema.getDescriptor(attributes[0]);
         } else {
             dbfheader = getDBFHeader(ds);
             for( int i = 0; i < types.length; i++ ) {
-                types[i] = schema.getAttribute(attributes[i]);
+                types[i] = schema.getDescriptor(attributes[i]);
     
                 for( int j = 0; j < dbfheader.getNumFields(); j++ ) {
                     if (dbfheader.getFieldName(j).equals(attributes[i])) {
@@ -790,7 +790,7 @@ public class ShapefileRenderer implements GTRenderer {
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         tb.setName( schema.getName() );
         tb.addAll( types );
-        tb.setDefaultGeometry( schema.getDefaultGeometry().getLocalName() );
+        tb.setDefaultGeometry( schema.getGeometryDescriptor().getLocalName() );
         
         return tb.buildFeatureType();
     }
@@ -824,13 +824,13 @@ public class ShapefileRenderer implements GTRenderer {
         Set ftsAttributes = new LinkedHashSet(sae.getAttributeNameSet());
         ftsAttributes.addAll(qae.getAttributeNameSet());
         if (sae.getDefaultGeometryUsed()
-				&& (!ftsAttributes.contains(schema.getDefaultGeometry().getLocalName()))) {
-        	ftsAttributes.add(schema.getDefaultGeometry().getLocalName());
+				&& (!ftsAttributes.contains(schema.getGeometryDescriptor().getLocalName()))) {
+        	ftsAttributes.add(schema.getGeometryDescriptor().getLocalName());
 		} else {
 	        // the code following assumes the geometry column is the last one
 		    // make sure it's the last for good
-	        ftsAttributes.remove(schema.getDefaultGeometry().getLocalName());
-	        ftsAttributes.add(schema.getDefaultGeometry().getLocalName());
+	        ftsAttributes.remove(schema.getGeometryDescriptor().getLocalName());
+	        ftsAttributes.add(schema.getGeometryDescriptor().getLocalName());
 		}
         return (String[]) ftsAttributes.toArray(new String[0]);
     }
@@ -1348,11 +1348,11 @@ public class ShapefileRenderer implements GTRenderer {
             ReferencedEnvelope bbox = envelope;
 
             try {
-                GeometryDescriptor geom = currLayer.getFeatureSource().getSchema().getDefaultGeometry();
+                GeometryDescriptor geom = currLayer.getFeatureSource().getSchema().getGeometryDescriptor();
                 
                 CoordinateReferenceSystem dataCRS;
                 if( getForceCRSHint()==null )
-                	dataCRS = geom.getCRS();
+                	dataCRS = geom.getCoordinateReferenceSystem();
                 else
                 	dataCRS=getForceCRSHint();
                 

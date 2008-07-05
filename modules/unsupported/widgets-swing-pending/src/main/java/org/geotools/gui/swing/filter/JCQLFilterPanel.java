@@ -113,7 +113,7 @@ public class JCQLFilterPanel extends javax.swing.JPanel implements FilterPanel{
     private void parse(MapLayer layer) {
         lst_field.removeAll();
 
-        Collection<PropertyDescriptor> col = layer.getFeatureSource().getSchema().getProperties();
+        Collection<PropertyDescriptor> col = layer.getFeatureSource().getSchema().getDescriptors();
         Iterator<PropertyDescriptor> it = col.iterator();
 
         PropertyDescriptor desc;

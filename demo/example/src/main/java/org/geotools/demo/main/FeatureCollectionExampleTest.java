@@ -134,7 +134,7 @@ public class FeatureCollectionExampleTest extends TestCase {
     
     /** The easiest way to work with data */
     public void testFeatureVisitor(){
-        CoordinateReferenceSystem crs = features.getSchema().getCRS();
+        CoordinateReferenceSystem crs = features.getSchema().getCoordinateReferenceSystem();
         final BoundingBox bounds = new ReferencedEnvelope( crs );
         
         try {
@@ -152,7 +152,7 @@ public class FeatureCollectionExampleTest extends TestCase {
     
     /** IMPORTANT - You must close your iterator */
     public void testIterator(){
-        CoordinateReferenceSystem crs = features.getSchema().getCRS();
+        CoordinateReferenceSystem crs = features.getSchema().getCoordinateReferenceSystem();
         BoundingBox bounds = new ReferencedEnvelope( crs );
         
         Iterator<SimpleFeature> iterator = features.iterator();

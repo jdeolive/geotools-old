@@ -59,7 +59,7 @@ public class FirstProject {
         DefaultQuery query = new DefaultQuery();
         query.setTypeName(typeName);
 
-        CoordinateReferenceSystem prj = simpleFeatureType.getCRS();
+        CoordinateReferenceSystem prj = simpleFeatureType.getCoordinateReferenceSystem();
         if (prj == null) {
             prj = getCoordinateReferenceSystem("No projection fround for "
                     + file + " please choose one:");

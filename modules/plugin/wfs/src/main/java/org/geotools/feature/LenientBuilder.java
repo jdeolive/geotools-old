@@ -48,7 +48,7 @@ public class LenientBuilder {
         List<Attribute> properties = new ArrayList<Attribute>();
         for( int i=0; i<atts.length;i++){
             Object value = atts[i];
-            Attribute property = featureFactory.createAttribute(value, ft.getAttribute(i), null);
+            Attribute property = featureFactory.createAttribute(value, ft.getDescriptor(i), null);
             properties.add(property);            
         }
         return featureFactory.createSimpleFeature(properties, ft, fid );
@@ -63,7 +63,7 @@ public class LenientBuilder {
         properties = new ArrayList<Attribute>();
         for( int i=0; i<values.length;i++){
             Object value = values[i];
-            Attribute property = factory.createAttribute(value, schema.getAttribute(i), null);
+            Attribute property = factory.createAttribute(value, schema.getDescriptor(i), null);
             properties.add(property);
         }
     }

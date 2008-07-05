@@ -224,10 +224,10 @@ public class LayerCRSPropertyPanel extends javax.swing.JPanel implements Propert
 
         if (layer != null) {
             try {
-                String epsg = layer.getFeatureSource().getSchema().getCRS().getName().toString();
+                String epsg = layer.getFeatureSource().getSchema().getCoordinateReferenceSystem().getName().toString();
                 gui_jtf_crs.setText(epsg);
-                liste.setCRS(layer.getFeatureSource().getSchema().getCRS());
-                setIdentifiedObject(layer.getFeatureSource().getSchema().getCRS());
+                liste.setCRS(layer.getFeatureSource().getSchema().getCoordinateReferenceSystem());
+                setIdentifiedObject(layer.getFeatureSource().getSchema().getCoordinateReferenceSystem());
             } catch (Exception e) {
             }
         }

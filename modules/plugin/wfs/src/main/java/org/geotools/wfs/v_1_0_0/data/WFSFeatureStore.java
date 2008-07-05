@@ -113,7 +113,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
             build.setFeatureFactory( new LenientFeatureFactory());
         }
         
-        List<AttributeDescriptor> atrs = schema.getAttributes();
+        List<AttributeDescriptor> atrs = schema.getAttributeDescriptors();
         FeatureIterator<SimpleFeature> iter=collection.features();
         try{
             ReferencedEnvelope bounds=null;
@@ -139,13 +139,13 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
                     AttributeDescriptor att = atrs.get(i);
                     if(att instanceof GeometryDescriptor){
                         Geometry g = (Geometry) newFeature.getAttribute(i);
-                        CoordinateReferenceSystem cs = ((GeometryDescriptor)att).getCRS();
+                        CoordinateReferenceSystem cs = ((GeometryDescriptor)att).getCoordinateReferenceSystem();
                         if( g==null )
                             continue;
                         if( cs!=null && !cs.getIdentifiers().isEmpty() )
                             g.setUserData(cs.getIdentifiers().iterator().next().toString());
                         if( bounds==null ){
-                            bounds=new ReferencedEnvelope(g.getEnvelopeInternal(), schema.getCRS() );
+                            bounds=new ReferencedEnvelope(g.getEnvelopeInternal(), schema.getCoordinateReferenceSystem() );
                         }else{
                             bounds.expandToInclude(g.getEnvelopeInternal());
                         }
@@ -166,7 +166,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
         if( bounds==null){
             // if bounds are null then send an envelope to say that features were added but
             // at an unknown location.
-            bounds = new ReferencedEnvelope( getSchema().getCRS() );
+            bounds = new ReferencedEnvelope( getSchema().getCoordinateReferenceSystem() );
             ((WFS_1_0_0_DataStore)getDataStore()).listenerManager.fireFeaturesRemoved(schema.getTypeName(),
                     getTransaction(), bounds, false);
         }else{
@@ -237,7 +237,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
         for (int i = 0; i < type.length; i++) {
         	if(type[i] instanceof GeometryDescriptor){
         		Geometry g = (Geometry)value[i];
-        		CoordinateReferenceSystem cs = ((GeometryDescriptor)type[i]).getCRS();
+        		CoordinateReferenceSystem cs = ((GeometryDescriptor)type[i]).getCoordinateReferenceSystem();
 
                 if( cs!=null && !cs.getIdentifiers().isEmpty() )
                     g.setUserData(cs.getIdentifiers().iterator().next().toString());
@@ -263,7 +263,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
         if( bounds==null ){
             // if bounds are null then send an envelope to say that features were modified but
             // at an unknown location.
-            bounds = new ReferencedEnvelope(getSchema().getCRS());
+            bounds = new ReferencedEnvelope(getSchema().getCoordinateReferenceSystem());
             ((WFS_1_0_0_DataStore)getDataStore()).listenerManager.fireFeaturesRemoved(getSchema().getTypeName(),
                     getTransaction(), bounds, false);
         }else{
@@ -305,11 +305,11 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
 
             try {
             	SimpleFeature f = reader.next();
-            	List<AttributeDescriptor> atrs = f.getFeatureType().getAttributes();
+            	List<AttributeDescriptor> atrs = f.getFeatureType().getAttributeDescriptors();
             	for(int i=0;i<atrs.size();i++){
             		if(atrs.get(i) instanceof GeometryDescriptor){
             			Geometry g = (Geometry)f.getAttribute(i);
-                		CoordinateReferenceSystem cs = ((GeometryDescriptor)atrs.get(i)).getCRS();
+                		CoordinateReferenceSystem cs = ((GeometryDescriptor)atrs.get(i)).getCoordinateReferenceSystem();
                         if( cs!=null && !cs.getIdentifiers().isEmpty() )
                             g.setUserData(cs.getIdentifiers().iterator().next().toString());
                         if( g==null )
@@ -334,7 +334,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
         if( bounds==null){
             // if bounds are null then send an envelope to say that features were added but
             // at an unknown location.
-            bounds = new ReferencedEnvelope( getSchema().getCRS() );
+            bounds = new ReferencedEnvelope( getSchema().getCoordinateReferenceSystem() );
             ((WFS_1_0_0_DataStore)getDataStore()).listenerManager.fireFeaturesRemoved(getSchema().getTypeName(),
                     getTransaction(), bounds, false);
         }else{

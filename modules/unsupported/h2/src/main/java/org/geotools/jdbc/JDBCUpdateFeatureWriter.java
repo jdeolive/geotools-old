@@ -82,7 +82,7 @@ public class JDBCUpdateFeatureWriter extends JDBCFeatureReader implements
             List<AttributeDescriptor> changed = new ArrayList<AttributeDescriptor>();
             List<Object> values = new ArrayList<Object>();
 
-            for (AttributeDescriptor att : featureType.getAttributes()) {
+            for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
                 if (last.isDirrty(att.getLocalName())) {
                     changed.add(att);
                     values.add(last.getAttribute(att.getLocalName()));

@@ -105,8 +105,8 @@ public class PropertyDataStoreTest extends TestCase {
         assertEquals( "propertyTestData", type.getName().getNamespaceURI().toString() );
         assertEquals( 2, type.getAttributeCount() );
         
-        AttributeDescriptor id = type.getAttribute(0);        
-        AttributeDescriptor name = type.getAttribute(1);
+        AttributeDescriptor id = type.getDescriptor(0);        
+        AttributeDescriptor name = type.getDescriptor(1);
         
         assertEquals( "id", id.getLocalName() );
         assertEquals( "class java.lang.Integer", id.getType().getBinding().toString() );

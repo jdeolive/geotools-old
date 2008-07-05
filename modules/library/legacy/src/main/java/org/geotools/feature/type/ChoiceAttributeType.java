@@ -426,7 +426,7 @@ public class ChoiceAttributeType extends AttributeDescriptorImpl implements Attr
             return first.getCoordinateSystem();
         }
         
-        public CoordinateReferenceSystem getCRS() {
+        public CoordinateReferenceSystem getCoordinateReferenceSystem() {
         	return getCoordinateSystem();
         }
 

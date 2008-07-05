@@ -115,8 +115,8 @@ public class PropertyDataStore2Test extends TestCase {
         assertNotNull( resultType );
         assertNotSame( resultType, origionalType );
 
-        assertEquals( world, resultType.getCRS() );
+        assertEquals( world, resultType.getCoordinateReferenceSystem() );
 
-        GeometryDescriptor geometryDescriptor = resultType.getDefaultGeometry();        
+        GeometryDescriptor geometryDescriptor = resultType.getGeometryDescriptor();        
     }
 }

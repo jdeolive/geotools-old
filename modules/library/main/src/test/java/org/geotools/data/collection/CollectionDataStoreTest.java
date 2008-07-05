@@ -446,11 +446,11 @@ public class CollectionDataStoreTest extends DataTestCase {
         assertEquals(type.getAttributeCount(), actual.getAttributeCount());
 
         for (int i = 0; i < type.getAttributeCount(); i++) {
-            assertEquals(type.getAttribute(i), actual.getAttribute(i));
+            assertEquals(type.getDescriptor(i), actual.getDescriptor(i));
         }
 
-        assertNull(type.getDefaultGeometry());
-        assertEquals(type.getDefaultGeometry(), actual.getDefaultGeometry());
+        assertNull(type.getGeometryDescriptor());
+        assertEquals(type.getGeometryDescriptor(), actual.getGeometryDescriptor());
         assertEquals(type, actual);
 
         Envelope b = half.getBounds();

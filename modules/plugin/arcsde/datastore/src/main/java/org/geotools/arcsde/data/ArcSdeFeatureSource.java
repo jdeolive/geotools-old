@@ -71,7 +71,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
                         return false;
                     }
                     String attName = sortBy.getPropertyName().getPropertyName();
-                    if (featureType.getAttribute(attName) == null) {
+                    if (featureType.getDescriptor(attName) == null) {
                         return false;
                     }
                 }
@@ -167,11 +167,11 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
                 LOGGER.finer("ArcSDE optimized getBounds call returned: " + ev);
             }
             final ReferencedEnvelope envelope;
-            final GeometryDescriptor defaultGeometry = getSchema().getDefaultGeometry();
+            final GeometryDescriptor defaultGeometry = getSchema().getGeometryDescriptor();
             if (defaultGeometry == null) {
                 envelope = ReferencedEnvelope.reference(ev);
             } else {
-                envelope = new ReferencedEnvelope(ev, defaultGeometry.getCRS());
+                envelope = new ReferencedEnvelope(ev, defaultGeometry.getCoordinateReferenceSystem());
             }
             return envelope;
         }

@@ -217,14 +217,14 @@ public class VPFFeatureClass implements DataTypesDefinition, FileConstants,
             addFileToTable(vpfFile1);
 
             VPFFile vpfFile2 = null;
-            AttributeDescriptor joinColumn1 = (VPFColumn) vpfFile1.getAttribute(table1Key);
+            AttributeDescriptor joinColumn1 = (VPFColumn) vpfFile1.getDescriptor(table1Key);
             AttributeDescriptor joinColumn2;
 
             try {
                 vpfFile2 = VPFFileFactory.getInstance().getFile(directoryName.concat(
                             File.separator).concat(table2));
                 addFileToTable(vpfFile2);
-                joinColumn2 = (VPFColumn) vpfFile2.getAttribute(table2Key);
+                joinColumn2 = (VPFColumn) vpfFile2.getDescriptor(table2Key);
             } catch (IOException exc) {
                 fileList.add(null);
 
@@ -312,7 +312,7 @@ public class VPFFeatureClass implements DataTypesDefinition, FileConstants,
             // Except for the first file, ignore the first column since it is a join column
             for (int inx = addPrimaryKey ? 0 : 1;
                     inx < vpfFile.getAttributeCount(); inx++) {
-                columns.add(vpfFile.getAttribute(inx));
+                columns.add(vpfFile.getDescriptor(inx));
             }
         }
     }
@@ -389,28 +389,20 @@ public class VPFFeatureClass implements DataTypesDefinition, FileConstants,
         return featureType.hashCode();
     }
     
-    public AttributeDescriptor getAttribute(Name name) {
-		return featureType.getAttribute(name);
+    public AttributeDescriptor getDescriptor(Name name) {
+		return featureType.getDescriptor(name);
 	}
 
-	public AttributeDescriptor getAttribute(String name) {
-		return featureType.getAttribute(name);
+	public AttributeDescriptor getDescriptor(String name) {
+		return featureType.getDescriptor(name);
 	}
 
-	public AttributeDescriptor getAttribute(int index) {
-		return featureType.getAttribute(index);
-	}
-
-	public PropertyDescriptor getProperty(Name name) {
-	    return featureType.getProperty(name);
+	public AttributeDescriptor getDescriptor(int index) {
+		return featureType.getDescriptor(index);
 	}
 	
-	public PropertyDescriptor getProperty(String name) {
-	    return featureType.getProperty(name);
-	}
-	
-	public List getAttributes() {
-		return featureType.getAttributes();
+	public List getAttributeDescriptors() {
+		return featureType.getAttributeDescriptors();
 	}
 
 	public org.opengis.feature.type.AttributeType getType(Name name) {
@@ -429,20 +421,20 @@ public class VPFFeatureClass implements DataTypesDefinition, FileConstants,
 		return featureType.getTypes();
 	}
 
-	public CoordinateReferenceSystem getCRS() {
-		return featureType.getCRS();
+	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+		return featureType.getCoordinateReferenceSystem();
 	}
 
-	public GeometryDescriptor getDefaultGeometry() {
-	    return featureType.getDefaultGeometry();
+	public GeometryDescriptor getGeometryDescriptor() {
+	    return featureType.getGeometryDescriptor();
 	}
 
 	public Class getBinding() {
 		return featureType.getBinding();
 	}
 
-	public Collection getProperties() {
-		return featureType.getProperties();
+	public Collection getDescriptors() {
+		return featureType.getDescriptors();
 	}
 
 	public boolean isInline() {

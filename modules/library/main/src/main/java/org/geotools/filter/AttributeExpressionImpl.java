@@ -140,7 +140,7 @@ public class AttributeExpressionImpl extends DefaultExpression
 	       LOGGER.finest("schema: " + schema + "\n\nattribute: " + attPath);
 
        if (schema != null) {
-           if (schema.getAttribute(attPath) != null) {
+           if (schema.getDescriptor(attPath) != null) {
                this.attPath = attPath;
            } else {
         	   

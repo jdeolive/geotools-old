@@ -47,7 +47,7 @@ public class FeatureExampleTest extends TestCase {
         
         Object defaultValues[] = new Object[ type.getAttributeCount() ];
         for( int i = 0 ; i < type.getAttributeCount(); i++) {
-           AttributeDescriptor attributeType = type.getAttribute( i );
+           AttributeDescriptor attributeType = type.getDescriptor( i );
            defaultValues[ i ] = attributeType.getDefaultValue();
         }
 

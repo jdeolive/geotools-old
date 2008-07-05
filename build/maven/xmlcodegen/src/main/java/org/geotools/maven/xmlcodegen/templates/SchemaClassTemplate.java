@@ -176,13 +176,13 @@ public class SchemaClassTemplate
         if (type instanceof ComplexType) {
             ComplexType cType = (ComplexType)type;
 
-            if (!cType.getProperties().isEmpty()) {
+            if (!cType.getDescriptors().isEmpty()) {
 
     stringBuffer.append(TEXT_10);
     stringBuffer.append(local.toUpperCase());
     stringBuffer.append(TEXT_11);
     
-                for (Iterator adItr = cType.getProperties().iterator(); adItr.hasNext();) {
+                for (Iterator adItr = cType.getDescriptors().iterator(); adItr.hasNext();) {
                     PropertyDescriptor pd = (PropertyDescriptor) adItr.next();
                     if ( !(pd instanceof AttributeDescriptor) ) {
                         continue;

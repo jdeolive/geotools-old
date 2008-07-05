@@ -168,10 +168,10 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
             Envelope result = new Envelope();
             SimpleFeatureType ft = feature.getFeatureType();
             for (int i = 0; i < ft.getAttributeCount(); i++) {
-                AttributeDescriptor at = ft.getAttribute(i);
+                AttributeDescriptor at = ft.getDescriptor(i);
                 if (at instanceof GeometryDescriptor) {
                 	GeometryDescriptor gat = (GeometryDescriptor) at;
-                    CoordinateReferenceSystem crs = gat.getCRS();
+                    CoordinateReferenceSystem crs = gat.getCoordinateReferenceSystem();
 
                     Geometry geom = (Geometry) feature.getAttribute(i);
                     if (geom != null) {
@@ -239,7 +239,7 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
                 // feauture was modified
                 boolean dirty = false;
                 for (int i = 0; i < liveFeature.getAttributeCount(); i++) {
-                    AttributeDescriptor at = liveFeature.getFeatureType().getAttribute(i);
+                    AttributeDescriptor at = liveFeature.getFeatureType().getDescriptor(i);
                     Object newValue = liveFeature.getAttribute(at.getLocalName());
                     Object oldValue = oldFeature.getAttribute(at.getLocalName());
                     newFeature.setAttribute(at.getLocalName(), newValue);
@@ -265,7 +265,7 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
                 
                 // copy attributes from live to new
                 for (int i = 0; i < liveFeature.getAttributeCount(); i++) {
-                    AttributeDescriptor at = liveFeature.getFeatureType().getAttribute(i);
+                    AttributeDescriptor at = liveFeature.getFeatureType().getDescriptor(i);
                     oldFeature.setAttribute(at.getLocalName(), liveFeature.getAttribute(at.getLocalName()));
                 }
                 
@@ -280,7 +280,7 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
                 
                 // copy attributes from live to new
                 for (int i = 0; i < liveFeature.getAttributeCount(); i++) {
-                    AttributeDescriptor at = liveFeature.getFeatureType().getAttribute(i);
+                    AttributeDescriptor at = liveFeature.getFeatureType().getDescriptor(i);
                     newFeature.setAttribute(at.getLocalName(), liveFeature.getAttribute(at.getLocalName()));
                 }
     

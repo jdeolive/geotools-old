@@ -137,7 +137,7 @@ public class CollectionDataStore extends AbstractDataStore {
      */
     protected ReferencedEnvelope getBoundsInternal(Query query) {
         FeatureIterator<SimpleFeature> iterator = collection.features();
-        ReferencedEnvelope envelope = new ReferencedEnvelope( featureType.getCRS() );
+        ReferencedEnvelope envelope = new ReferencedEnvelope( featureType.getCoordinateReferenceSystem() );
 
         if (iterator.hasNext()) {
             int count = 1;

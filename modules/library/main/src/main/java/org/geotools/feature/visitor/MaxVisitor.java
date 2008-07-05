@@ -48,13 +48,13 @@ public class MaxVisitor implements FeatureCalc {
     public MaxVisitor(int attributeTypeIndex, SimpleFeatureType type)
         throws IllegalFilterException {
         FilterFactory factory = CommonFactoryFinder.getFilterFactory(null);
-        expr = factory.property(type.getAttribute(attributeTypeIndex).getLocalName());
+        expr = factory.property(type.getDescriptor(attributeTypeIndex).getLocalName());
     }
 
     public MaxVisitor(String attrName, SimpleFeatureType type)
         throws IllegalFilterException {
         FilterFactory factory = CommonFactoryFinder.getFilterFactory(null);
-        expr = factory.property(type.getAttribute(attrName).getLocalName());
+        expr = factory.property(type.getDescriptor(attrName).getLocalName());
     }
 
     public MaxVisitor(Expression expr) throws IllegalFilterException {

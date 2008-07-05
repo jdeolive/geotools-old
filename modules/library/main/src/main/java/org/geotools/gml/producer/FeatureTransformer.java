@@ -534,7 +534,7 @@ public class FeatureTransformer extends TransformerBase {
     
                     for (int i = 0, ii = f.getAttributeCount(); i < ii;
                             i++) {
-                        AttributeDescriptor descriptor = t.getAttribute(i);
+                        AttributeDescriptor descriptor = t.getDescriptor(i);
                         Object value = f.getAttribute(i);
                         handleAttribute( descriptor, value );
                     }
@@ -560,7 +560,7 @@ public class FeatureTransformer extends TransformerBase {
                     SimpleFeatureType t = f.getFeatureType();
 
                     for (int i = 0, ii = f.getAttributeCount(); i < ii; i++) {
-                        AttributeDescriptor descriptor = t.getAttribute(i);
+                        AttributeDescriptor descriptor = t.getDescriptor(i);
                         Object value = f.getAttribute(i);
                         handleAttribute( descriptor, value );
                     }
@@ -697,7 +697,7 @@ public class FeatureTransformer extends TransformerBase {
                         CoordinateReferenceSystem crs = null;
                         if( descriptor instanceof GeometryDescriptor ){
                             GeometryDescriptor geometryDescriptor = (GeometryDescriptor) descriptor;
-                            crs = geometryDescriptor.getCRS();
+                            crs = geometryDescriptor.getCoordinateReferenceSystem();
                         }                     
                         ReferencedEnvelope
                             bounds = new ReferencedEnvelope( envelopeInternal, crs );
@@ -720,7 +720,7 @@ public class FeatureTransformer extends TransformerBase {
                             if( dimension == 0 ){
                                 // lets look at the CRS
                                 GeometryDescriptor geometryType = (GeometryDescriptor) descriptor;
-                                CoordinateReferenceSystem crs = geometryType.getCRS();
+                                CoordinateReferenceSystem crs = geometryType.getCoordinateReferenceSystem();
                                 if( crs == null ){
                                     // I won't even bother people with a warning
                                     // (until DataStore quality has improved

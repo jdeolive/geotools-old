@@ -181,7 +181,7 @@ public class PostgisSQLBuilder extends DefaultSQLBuilder {
 
                 if (attribute instanceof GeometryDescriptor) {   
                     GeometryDescriptor geometryAttribute = (GeometryDescriptor) attribute;
-                    CoordinateReferenceSystem crs = geometryAttribute.getCRS();
+                    CoordinateReferenceSystem crs = geometryAttribute.getCoordinateReferenceSystem();
                     final int D = crs == null ? 2 : crs.getCoordinateSystem().getDimension();
                     
                     if (WKBEnabled) {

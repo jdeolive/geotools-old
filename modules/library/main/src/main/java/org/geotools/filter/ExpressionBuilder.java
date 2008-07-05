@@ -309,7 +309,7 @@ public class ExpressionBuilder {
                     try {
                         String attName = token();
                         if(schema != null){
-                            if(null == schema.getAttribute(attName)){
+                            if(null == schema.getDescriptor(attName)){
                                 throw new IllegalArgumentException(attName + " not found in schema");
                             }
                         }

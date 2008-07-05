@@ -1416,7 +1416,7 @@ public class SchemaHandler extends XSIElementHandler {
         }
 
         /**
-         * @see org.geotools.xml.xsi.Schema#getAttributes()
+         * @see org.geotools.xml.xsi.Schema#getAttributeDescriptors()
          */
         public Attribute[] getAttributes() {
             return attributes;

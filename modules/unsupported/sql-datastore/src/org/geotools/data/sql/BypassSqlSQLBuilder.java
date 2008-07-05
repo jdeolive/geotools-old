@@ -204,7 +204,7 @@ public class BypassSqlSQLBuilder extends GeoAPISQLBuilder {
 	 */
 	private String getSelect(String sqlQueryDefinition, SimpleFeatureType fType)
 			throws SQLEncoderException {
-		AttributeDescriptor firstAtt = fType.getAttribute(0);
+		AttributeDescriptor firstAtt = fType.getDescriptor(0);
 		String firstAttName = firstAtt.getLocalName().toLowerCase();
 
 		int index = sqlQueryDefinition.indexOf(firstAttName);

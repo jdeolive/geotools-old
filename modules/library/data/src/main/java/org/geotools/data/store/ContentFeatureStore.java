@@ -197,7 +197,7 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
                 // schema of the features we are inserting
                 SimpleFeature toWrite = writer.next();
                 for ( int i = 0; i < toWrite.getAttributeCount(); i++ ) {
-                    String name = toWrite.getType().getAttribute(i).getLocalName();
+                    String name = toWrite.getType().getDescriptor(i).getLocalName();
                     toWrite.setAttribute( name, feature.getAttribute(name));
                 }
                 
@@ -251,7 +251,7 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
                 // schema of the features we are inserting
                 SimpleFeature toWrite = writer.next();
                 for ( int i = 0; i < toWrite.getAttributeCount(); i++ ) {
-                    String name = toWrite.getType().getAttribute(i).getLocalName();
+                    String name = toWrite.getType().getDescriptor(i).getLocalName();
                     toWrite.setAttribute( name, feature.getAttribute(name));
                 }
                 

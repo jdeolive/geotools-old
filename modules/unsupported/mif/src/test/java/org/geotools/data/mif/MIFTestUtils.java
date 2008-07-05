@@ -167,7 +167,7 @@ public class MIFTestUtils {
     public static void printSchema(SimpleFeatureType ft, Logger logger) {
         print(ft.getTypeName(), logger);
 
-        List<AttributeDescriptor> attrs = ft.getAttributes();
+        List<AttributeDescriptor> attrs = ft.getAttributeDescriptors();
 
         for (int i = 0; i < attrs.size(); i++) {
             print("   " + attrs.get(i).getLocalName() + " - "
@@ -237,7 +237,7 @@ public class MIFTestUtils {
         builder.setName(typeName);
 
         for (int i = 0; i < inFeatureType.getAttributeCount(); i++) {
-            builder.add(inFeatureType.getAttribute(i));
+            builder.add(inFeatureType.getDescriptor(i));
         }
 
         return builder.buildFeatureType();

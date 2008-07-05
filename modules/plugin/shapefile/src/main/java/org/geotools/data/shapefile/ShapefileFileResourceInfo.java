@@ -49,7 +49,7 @@ public class ShapefileFileResourceInfo implements ResourceInfo {
     }
 
     public CoordinateReferenceSystem getCRS() {
-        return shapefile.schema.getCRS();
+        return shapefile.schema.getCoordinateReferenceSystem();
     }
 
     public String getDescription() {

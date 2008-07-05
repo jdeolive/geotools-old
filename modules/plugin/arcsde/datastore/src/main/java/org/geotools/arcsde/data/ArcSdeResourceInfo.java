@@ -68,7 +68,7 @@ public final class ArcSdeResourceInfo implements ResourceInfo {
         try {
             bounds = source.getBounds();
         } catch (IOException e) {
-            CoordinateReferenceSystem crs = info.getFeatureType().getCRS();
+            CoordinateReferenceSystem crs = info.getFeatureType().getCoordinateReferenceSystem();
             bounds = new ReferencedEnvelope(crs);
         }
         return bounds;
@@ -78,7 +78,7 @@ public final class ArcSdeResourceInfo implements ResourceInfo {
      * @see org.geotools.data.ResourceInfo#getCRS()
      */
     public CoordinateReferenceSystem getCRS() {
-        return info.getFeatureType().getCRS();
+        return info.getFeatureType().getCoordinateReferenceSystem();
     }
 
     /**

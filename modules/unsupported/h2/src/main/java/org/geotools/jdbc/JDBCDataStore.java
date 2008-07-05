@@ -763,7 +763,7 @@ public final class JDBCDataStore extends ContentDataStore
                     bounds = (ReferencedEnvelope) e;
                 } else {
                     //set the crs to be the crs of the feature type
-                    bounds = new ReferencedEnvelope(e, featureType.getCRS());
+                    bounds = new ReferencedEnvelope(e, featureType.getCoordinateReferenceSystem());
                 }
 
                 //keep going to handle case where envelope is not calculated
@@ -1010,7 +1010,7 @@ public final class JDBCDataStore extends ContentDataStore
         Class[] classes = new Class[featureType.getAttributeCount()];
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            AttributeDescriptor attributeType = featureType.getAttribute(i);
+            AttributeDescriptor attributeType = featureType.getDescriptor(i);
 
             //column name
             columnNames[i] = attributeType.getLocalName();
@@ -1622,7 +1622,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(",");
 
         //other columns
-        for (AttributeDescriptor att : featureType.getAttributes()) {
+        for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
             if (att instanceof GeometryDescriptor) {
                 //encode as geometry
                 dialect.encodeGeometryColumn((GeometryDescriptor) att, sql);
@@ -1705,13 +1705,13 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append("SELECT ");
 
         //walk through all geometry attributes and build the query
-        for (Iterator a = featureType.getAttributes().iterator(); a.hasNext();) {
+        for (Iterator a = featureType.getAttributeDescriptors().iterator(); a.hasNext();) {
             AttributeDescriptor attribute = (AttributeDescriptor) a.next();
             //if (types != null && !types.contains( attribute.getLocalName() ) ) {
             //    continue;
             //}
             if (attribute instanceof GeometryDescriptor) {
-                String geometryColumn = featureType.getDefaultGeometry().getLocalName();
+                String geometryColumn = featureType.getGeometryDescriptor().getLocalName();
                 dialect.encodeGeometryEnvelope(geometryColumn, sql);
                 sql.append(",");
             }
@@ -1791,7 +1791,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(" ( ");
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            dialect.encodeColumnName(featureType.getAttribute(i).getLocalName(), sql);
+            dialect.encodeColumnName(featureType.getDescriptor(i).getLocalName(), sql);
             sql.append(",");
         }
 
@@ -1807,7 +1807,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(" ) VALUES ( ");
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            AttributeDescriptor att = featureType.getAttribute(i);
+            AttributeDescriptor att = featureType.getDescriptor(i);
             Class binding = att.getType().getBinding();
 
             Object value = feature.getAttribute(att.getLocalName());

@@ -118,7 +118,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
 
     public void testModifyFeatures() throws IOException {
         SimpleFeatureType t = featureStore.getSchema();
-        featureStore.modifyFeatures(new AttributeDescriptor[] { t.getAttribute("intProperty") },
+        featureStore.modifyFeatures(new AttributeDescriptor[] { t.getDescriptor("intProperty") },
             new Object[] { new Integer(100) }, Filter.INCLUDE);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();

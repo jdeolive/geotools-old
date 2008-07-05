@@ -449,7 +449,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             Envelope envelope = null;
     		    	
         	SimpleFeatureType schema = getSchema(typeName);
-        	String geomName = schema.getDefaultGeometry().getLocalName();
+        	String geomName = schema.getGeometryDescriptor().getLocalName();
         	
 	    	// optimization, postgis version >= 1.0 contains estimated_extent
             // function to query the stats of the table to determine the bbox,
@@ -789,8 +789,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         encoder.setSupportsGEOS(useGeos);
         encoder.setFIDMapper(typeHandler.getFIDMapper(typeName));
 
-        if (info.getSchema().getDefaultGeometry() != null) {
-            String geom = info.getSchema().getDefaultGeometry().getLocalName();
+        if (info.getSchema().getGeometryDescriptor() != null) {
+            String geom = info.getSchema().getGeometryDescriptor().getLocalName();
             srid = info.getSRID(geom);
             encoder.setDefaultGeometry(geom);
         }
@@ -1190,7 +1190,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     	
     	String lcTableName = tableName.toLowerCase();
         
-        AttributeDescriptor[] attributeType = (AttributeDescriptor[]) featureType.getAttributes().toArray(new AttributeDescriptor[featureType.getAttributes().size()]);
+        AttributeDescriptor[] attributeType = (AttributeDescriptor[]) featureType.getAttributeDescriptors().toArray(new AttributeDescriptor[featureType.getAttributeDescriptors().size()]);
         String dbSchema = config.getDatabaseSchemaName();
         
         PostgisSQLBuilder sqlb = createSQLBuilder();
@@ -1280,7 +1280,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 GeometryDescriptor geomAttribute = (GeometryDescriptor) attributeType[i];
                 String columnName = attributeType[i].getLocalName();
                 
-                CoordinateReferenceSystem refSys = geomAttribute.getCRS();
+                CoordinateReferenceSystem refSys = geomAttribute.getCoordinateReferenceSystem();
                 int SRID;
 
                 if (refSys != null) {
@@ -1797,7 +1797,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         GeometryDescriptor geometryType = (GeometryDescriptor) type;
         CoordinateReferenceSystem crs = null;
         if(geometryType != null)
-            crs = geometryType.getCRS();
+            crs = geometryType.getCoordinateReferenceSystem();
         
         Hints hints = queryData != null ? queryData.getHints() : GeoTools.getDefaultHints();            
         int D = (crs == null || Boolean.TRUE.equals( queryData.getHints().get( Hints.FEATURE_2D )))

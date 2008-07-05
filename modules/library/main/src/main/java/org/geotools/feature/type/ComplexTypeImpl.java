@@ -70,16 +70,16 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 	    return (Class<Collection<Property>>) super.getBinding();
 	}
 	
-	public Collection<PropertyDescriptor> getProperties() {
+	public Collection<PropertyDescriptor> getDescriptors() {
 		return FeatureImplUtils.unmodifiable(propertyMap.values());
 	}
 	
-	public PropertyDescriptor getProperty(Name name) {
+	public PropertyDescriptor getDescriptor(Name name) {
 	    return propertyMap.get(name);
 	}
 	
-	public PropertyDescriptor getProperty(String name) {
-	    return getProperty(new NameImpl( name ) );
+	public PropertyDescriptor getDescriptor(String name) {
+	    return getDescriptor(new NameImpl( name ) );
 	}
 	
 	public boolean isInline() {

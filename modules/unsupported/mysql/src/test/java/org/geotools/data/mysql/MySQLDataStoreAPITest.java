@@ -559,8 +559,8 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         assertEquals("attributeCount", expected.getAttributeCount(), actual.getAttributeCount());
 
         for (int i = 0; i < expected.getAttributeCount(); i++) {
-            AttributeDescriptor expectedAttribute = expected.getAttribute(i);
-            AttributeDescriptor actualAttribute = actual.getAttribute(i);
+            AttributeDescriptor expectedAttribute = expected.getDescriptor(i);
+            AttributeDescriptor actualAttribute = actual.getDescriptor(i);
             assertEquals("attribute " + expectedAttribute.getLocalName(), expectedAttribute,
                 actualAttribute);
         }
@@ -578,8 +578,8 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         assertEquals("attributeCount", expected.getAttributeCount(), actual.getAttributeCount());
 
         for (int i = 0; i < expected.getAttributeCount(); i++) {
-            AttributeDescriptor expectedAttribute = expected.getAttribute(i);
-            AttributeDescriptor actualAttribute = actual.getAttribute(i);
+            AttributeDescriptor expectedAttribute = expected.getDescriptor(i);
+            AttributeDescriptor actualAttribute = actual.getDescriptor(i);
             assertEquals("attribute " + expectedAttribute.getLocalName(), expectedAttribute,
                 actualAttribute);
         }
@@ -1395,11 +1395,11 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         assertEquals(type.getAttributeCount(), actual.getAttributeCount());
 
         for (int i = 0; i < type.getAttributeCount(); i++) {
-            assertEquals(type.getAttribute(i), actual.getAttribute(i));
+            assertEquals(type.getDescriptor(i), actual.getDescriptor(i));
         }
 
-        assertNull(type.getDefaultGeometry());
-        assertEquals(type.getDefaultGeometry(), actual.getDefaultGeometry());
+        assertNull(type.getGeometryDescriptor());
+        assertEquals(type.getGeometryDescriptor(), actual.getGeometryDescriptor());
         assertEquals(type, actual);
 
         Envelope b = half.getBounds();
@@ -1432,7 +1432,7 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         //FilterFactory factory = FilterFactoryFinder.createFilterFactory();
         //rd1Filter = factory.createFidFilter( roadFeatures[0].getID() );
         Object changed = new Integer(5);
-        AttributeDescriptor name = roadType.getAttribute("id");
+        AttributeDescriptor name = roadType.getDescriptor("id");
         road.modifyFeatures(name, changed, rd1Filter);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(rd1Filter);
@@ -1445,7 +1445,7 @@ public class MySQLDataStoreAPITest extends DataTestCase {
         FilterFactory factory = FilterFactoryFinder.createFilterFactory();
         rd1Filter = factory.createFidFilter(roadFeatures[0].getID());
 
-        AttributeDescriptor name = roadType.getAttribute("name");
+        AttributeDescriptor name = roadType.getDescriptor("name");
         road.modifyFeatures(new AttributeDescriptor[] { name, }, new Object[] { "changed", }, rd1Filter);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(rd1Filter);

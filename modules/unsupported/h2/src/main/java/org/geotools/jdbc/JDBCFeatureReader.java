@@ -222,7 +222,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         // round up attributes
         // List attributes = new ArrayList();
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            AttributeDescriptor type = featureType.getAttribute(i);
+            AttributeDescriptor type = featureType.getDescriptor(i);
 
             //figure out if any referenced attributes should be resolved
             boolean resolve = depth.intValue() > 0;
@@ -718,7 +718,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
                         // in which its a geometry, this case the dialect needs
                         // to read it
                         try {
-                            AttributeDescriptor att = featureType.getAttribute(index);
+                            AttributeDescriptor att = featureType.getDescriptor(index);
                             if ( att instanceof GeometryDescriptor ) {
                                 GeometryDescriptor gatt = (GeometryDescriptor) att;
                                 values[index] = dataStore.getSQLDialect()

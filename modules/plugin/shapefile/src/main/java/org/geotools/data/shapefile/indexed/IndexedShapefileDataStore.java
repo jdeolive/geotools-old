@@ -299,7 +299,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
         String[] propertyNames = query.getPropertyNames() == null ? new String[0]
                 : query.getPropertyNames();
-        String defaultGeomName = schema.getDefaultGeometry().getLocalName();
+        String defaultGeomName = schema.getGeometryDescriptor().getLocalName();
 
         FilterAttributeExtractor fae = new FilterAttributeExtractor();
         query.getFilter().accept(fae, null);
@@ -408,7 +408,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             }
         }
         List<AttributeDescriptor> atts = (schema == null) ? readAttributes()
-                : schema.getAttributes();
+                : schema.getAttributeDescriptors();
 
         IndexedDbaseFileReader dbfR = null;
 
@@ -416,7 +416,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             LOGGER.fine("The DBF file won't be opened since no attributes "
                     + "will be read from it");
             atts = new ArrayList<AttributeDescriptor>(1);
-            atts.add(schema.getDefaultGeometry());
+            atts.add(schema.getGeometryDescriptor());
 
             if (!readGeometry) {
                 atts = new ArrayList<AttributeDescriptor>(1);
@@ -789,7 +789,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
         ShapefileReader reader = new ShapefileReader(shpFiles, false, false);
         try {
-            ret = new ReferencedEnvelope(getSchema().getCRS());
+            ret = new ReferencedEnvelope(getSchema().getCoordinateReferenceSystem());
             for (Iterator iter = records.iterator(); iter.hasNext();) {
                 Data data = (Data) iter.next();
                 reader.goTo(((Long) data.getValue(1)).intValue());

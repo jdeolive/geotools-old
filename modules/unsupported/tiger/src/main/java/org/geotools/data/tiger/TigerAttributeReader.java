@@ -173,7 +173,7 @@ public class TigerAttributeReader implements AttributeReader {
      * @throws ArrayIndexOutOfBoundsException
      */
     public AttributeDescriptor getAttributeType(int index) throws ArrayIndexOutOfBoundsException {
-        return featureType.getAttribute(index);
+        return featureType.getDescriptor(index);
     }
 
     /**

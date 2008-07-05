@@ -66,8 +66,8 @@ public class EmfAppSchemaParserTest extends TestCase {
         SimpleFeatureType ftype = testParseDescribeSimpleFeatureType(featureTypeName,
                 schemaLocation, expectedAttributeCount);
         assertNotNull(ftype);
-        assertNotNull(ftype.getDefaultGeometry());
-        assertEquals("the_geom", ftype.getDefaultGeometry().getLocalName());
+        assertNotNull(ftype.getGeometryDescriptor());
+        assertEquals("the_geom", ftype.getGeometryDescriptor().getLocalName());
     }
 
     public void testParseCubeWerx_GML_Level1_FeatureType() throws IOException {
@@ -88,7 +88,7 @@ public class EmfAppSchemaParserTest extends TestCase {
 
         SimpleFeatureType ftype = testParseDescribeSimpleFeatureType(featureTypeName,
                 schemaLocation, expectedAttributeCount);
-        for (AttributeDescriptor descriptor : ftype.getAttributes()) {
+        for (AttributeDescriptor descriptor : ftype.getAttributeDescriptors()) {
             System.out.print(descriptor.getName().getNamespaceURI());
             System.out.print("#");
             System.out.print(descriptor.getName().getLocalPart());
@@ -120,9 +120,9 @@ public class EmfAppSchemaParserTest extends TestCase {
                 schemaLocation, crs);
 
         assertNotNull(featureType);
-        assertSame(crs, featureType.getCRS());
+        assertSame(crs, featureType.getCoordinateReferenceSystem());
 
-        List<AttributeDescriptor> attributes = featureType.getAttributes();
+        List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
         List<String> names = new ArrayList<String>(attributes.size());
         for (AttributeDescriptor desc : attributes) {
             names.add(desc.getLocalName());

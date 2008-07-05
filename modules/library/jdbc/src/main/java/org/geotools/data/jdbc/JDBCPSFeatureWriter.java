@@ -144,7 +144,7 @@ public abstract class JDBCPSFeatureWriter extends JDBCFeatureWriter {
             throws IOException, SQLException {
 
         final Object[] attributes = feature.getAttributes().toArray();
-        final List<AttributeDescriptor> attributeTypes = feature.getFeatureType().getAttributes();
+        final List<AttributeDescriptor> attributeTypes = feature.getFeatureType().getAttributeDescriptors();
         final AttributeIO[] aios = queryData.getAttributeHandlers();
 
         assert attributes.length == attributeTypes.size();
@@ -170,7 +170,7 @@ public abstract class JDBCPSFeatureWriter extends JDBCFeatureWriter {
      */
     protected PreparedStatement createInsertStatement(Connection conn, SimpleFeatureType featureType)
             throws SQLException {
-        final List<AttributeDescriptor> attributeTypes = featureType.getAttributes();
+        final List<AttributeDescriptor> attributeTypes = featureType.getAttributeDescriptors();
         final String tableName = featureType.getTypeName();
 
         final StringBuffer statementSQL = new StringBuffer("INSERT INTO ");
@@ -377,7 +377,7 @@ public abstract class JDBCPSFeatureWriter extends JDBCFeatureWriter {
             SimpleFeature current,
             SimpleFeature live) throws IOException, SQLException {
         List<Object> attributes = current.getAttributes();
-        List<AttributeDescriptor> attributeTypes = current.getFeatureType().getAttributes();
+        List<AttributeDescriptor> attributeTypes = current.getFeatureType().getAttributeDescriptors();
         AttributeIO[] aios = queryData.getAttributeHandlers();
         FeatureTypeInfo ftInfo = queryData.getFeatureTypeInfo();
 
@@ -406,7 +406,7 @@ public abstract class JDBCPSFeatureWriter extends JDBCFeatureWriter {
      */
     protected PreparedStatement createUpdateStatement(Connection conn, SimpleFeatureType featureType)
             throws SQLException {
-        List<AttributeDescriptor> attributeTypes = featureType.getAttributes();
+        List<AttributeDescriptor> attributeTypes = featureType.getAttributeDescriptors();
         String tableName = featureType.getTypeName();
 
         // create statement piecewise on a string buffer

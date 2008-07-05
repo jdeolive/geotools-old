@@ -187,7 +187,7 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
                 return true;
             }
             String attName = propertyName.getPropertyName();
-            AttributeDescriptor attribute = featureType.getAttribute(attName);
+            AttributeDescriptor attribute = featureType.getDescriptor(attName);
             return attribute != null;
         }
     }
@@ -247,7 +247,7 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
                 }
             }
             public CoordinateReferenceSystem getCRS() {
-                return JDBCFeatureSource.this.getSchema().getCRS();
+                return JDBCFeatureSource.this.getSchema().getCoordinateReferenceSystem();
             }
     
             public String getDescription() {
@@ -439,7 +439,7 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
     public ReferencedEnvelope getBounds(Query query) throws IOException {
         if (query.getFilter() == Filter.EXCLUDE) {
             if(featureType!=null)
-                return new ReferencedEnvelope(new Envelope(),featureType.getDefaultGeometry().getCRS());
+                return new ReferencedEnvelope(new Envelope(),featureType.getGeometryDescriptor().getCoordinateReferenceSystem());
             return new ReferencedEnvelope();
         }               
         return null; // too expensive right now :-)

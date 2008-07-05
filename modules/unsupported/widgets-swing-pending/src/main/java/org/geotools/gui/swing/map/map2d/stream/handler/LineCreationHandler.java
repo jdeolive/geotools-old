@@ -86,7 +86,7 @@ public class LineCreationHandler extends AbstractEditionHandler {
                 if (editionLayer.getFeatureSource() instanceof FeatureStore) {
 
                     Class jtsClass = null;
-                    jtsClass = editionLayer.getFeatureSource().getSchema().getDefaultGeometry().getType().getBinding();
+                    jtsClass = editionLayer.getFeatureSource().getSchema().getGeometryDescriptor().getType().getBinding();
 
                     if (jtsClass != null && jtsClass.equals(LineString.class)) {
                         return (true);
@@ -160,7 +160,7 @@ public class LineCreationHandler extends AbstractEditionHandler {
                     if (obj instanceof Geometry) {
                         hasEditionGeometry = true;
                         Geometry geom = (Geometry) obj;
-                        geom = FACILITIES_FACTORY.projectGeometry(geom, map2D.getEditedMapLayer().getFeatureSource().getSchema().getCRS(), map2D.getRenderingStrategy().getContext().getCoordinateReferenceSystem());
+                        geom = FACILITIES_FACTORY.projectGeometry(geom, map2D.getEditedMapLayer().getFeatureSource().getSchema().getCoordinateReferenceSystem(), map2D.getRenderingStrategy().getContext().getCoordinateReferenceSystem());
                         geoms.add((Geometry) geom.clone());
                         editedFeatureID = sf.getID();
                         System.out.println(editedFeatureID);

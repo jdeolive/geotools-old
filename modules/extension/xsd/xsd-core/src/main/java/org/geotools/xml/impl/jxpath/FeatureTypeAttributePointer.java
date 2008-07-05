@@ -81,7 +81,7 @@ public class FeatureTypeAttributePointer extends NodePointer {
      * feature attribute.
      */
     public QName getName() {
-        return new QName(null, featureType.getAttribute(index).getLocalName());
+        return new QName(null, featureType.getDescriptor(index).getLocalName());
     }
 
     public Object getBaseValue() {
@@ -89,7 +89,7 @@ public class FeatureTypeAttributePointer extends NodePointer {
     }
 
     public Object getImmediateNode() {
-        return featureType.getAttribute(index);
+        return featureType.getDescriptor(index);
     }
 
     public void setValue(Object value) {

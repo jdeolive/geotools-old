@@ -186,29 +186,20 @@ public class VPFFeatureType implements SimpleFeatureType {
         return featureClass.hashCode();
     }
 
-    
-    public AttributeDescriptor getAttribute(Name name) {
-		return featureClass.getAttribute(name);
+	public AttributeDescriptor getDescriptor(int index) {
+		return featureClass.getDescriptor(index);
 	}
 
-	public AttributeDescriptor getAttribute(String name) {
-		return featureClass.getAttribute(name);
+	public List getAttributeDescriptors() {
+		return featureClass.getAttributeDescriptors();
 	}
 
-	public AttributeDescriptor getAttribute(int index) {
-		return featureClass.getAttribute(index);
-	}
-
-	public List getAttributes() {
-		return featureClass.getAttributes();
-	}
-
-	public PropertyDescriptor getProperty(Name name) {
-	    return featureClass.getProperty(name);
+	public AttributeDescriptor getDescriptor(Name name) {
+	    return featureClass.getDescriptor(name);
 	}
 	
-	public PropertyDescriptor getProperty(String name) {
-	    return featureClass.getProperty(name);
+	public AttributeDescriptor getDescriptor(String name) {
+	    return featureClass.getDescriptor(name);
 	}
 	
 	public org.opengis.feature.type.AttributeType getType(Name name) {
@@ -227,20 +218,20 @@ public class VPFFeatureType implements SimpleFeatureType {
 		return featureClass.getTypes();
 	}
 
-	public CoordinateReferenceSystem getCRS() {
-		return featureClass.getCRS();
+	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+		return featureClass.getCoordinateReferenceSystem();
 	}
 
-	public GeometryDescriptor getDefaultGeometry() {
-	    return featureClass.getDefaultGeometry();
+	public GeometryDescriptor getGeometryDescriptor() {
+	    return featureClass.getGeometryDescriptor();
 	}
 	
 	public Class getBinding() {
 		return featureClass.getBinding();
 	}
 
-	public Collection getProperties() {
-		return featureClass.getProperties();
+	public Collection getDescriptors() {
+		return featureClass.getDescriptors();
 	}
 
 	public boolean isInline() {

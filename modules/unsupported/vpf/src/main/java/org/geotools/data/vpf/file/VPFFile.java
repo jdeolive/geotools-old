@@ -960,28 +960,20 @@ public class VPFFile implements SimpleFeatureType, FileConstants, DataTypesDefin
         return result;
     }
 
-	public List<AttributeDescriptor> getAttributes() {
-	    return featureType.getAttributes();
+	public List<AttributeDescriptor> getAttributeDescriptors() {
+	    return featureType.getAttributeDescriptors();
 	}
 	
-	public AttributeDescriptor getAttribute(String name) {
-		return featureType.getAttribute(name);
+	public AttributeDescriptor getDescriptor(String name) {
+		return featureType.getDescriptor(name);
 	}
 	
-	public AttributeDescriptor getAttribute(Name name) {
-	    return featureType.getAttribute(name);
+	public AttributeDescriptor getDescriptor(Name name) {
+	    return featureType.getDescriptor(name);
 	}
 
-	public AttributeDescriptor getAttribute(int index) {
-		return featureType.getAttribute(index);
-	}
-
-	public PropertyDescriptor getProperty(Name name) {
-	    return featureType.getProperty(name);
-	}
-	
-	public PropertyDescriptor getProperty(String name) {
-	    return featureType.getProperty(name);
+	public AttributeDescriptor getDescriptor(int index) {
+		return featureType.getDescriptor(index);
 	}
 	
 	public org.opengis.feature.type.AttributeType getType(Name name) {
@@ -1001,20 +993,20 @@ public class VPFFile implements SimpleFeatureType, FileConstants, DataTypesDefin
 		return featureType.getTypes();
 	}
 
-	public CoordinateReferenceSystem getCRS() {
-		return featureType.getCRS();
+	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+		return featureType.getCoordinateReferenceSystem();
 	}
 
-	public GeometryDescriptor getDefaultGeometry() {
-		return featureType.getDefaultGeometry();
+	public GeometryDescriptor getGeometryDescriptor() {
+		return featureType.getGeometryDescriptor();
 	}
 
 	public Class getBinding() {
 		return featureType.getBinding();
 	}
 
-	public Collection getProperties() {
-		return featureType.getProperties();
+	public Collection getDescriptors() {
+		return featureType.getDescriptors();
 	}
 
 	public boolean isInline() {

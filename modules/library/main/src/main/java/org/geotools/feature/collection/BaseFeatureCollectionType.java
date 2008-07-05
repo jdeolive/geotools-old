@@ -87,11 +87,11 @@ public class BaseFeatureCollectionType extends SimpleFeatureTypeImpl  {
 	}
 
 	public AttributeDescriptor getAttributeType(String xPath) {
-		return (AttributeDescriptor) getAttribute(name);
+		return (AttributeDescriptor) getDescriptor(name);
 	}
 
 	public AttributeDescriptor getAttributeType(int position) {
-		return (AttributeDescriptor) getAttribute(position);
+		return (AttributeDescriptor) getDescriptor(position);
 	}
 
 	public AttributeDescriptor[] getAttributeTypes() {
@@ -109,7 +109,7 @@ public class BaseFeatureCollectionType extends SimpleFeatureTypeImpl  {
 	}
 
 	public GeometryDescriptor getDefaultGeometry() {
-		return (GeometryDescriptor) super.getDefaultGeometry();
+		return (GeometryDescriptor) super.getGeometryDescriptor();
 	}
 
 	public String getTypeName() {

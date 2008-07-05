@@ -92,8 +92,8 @@ public class ReprojectFeatureReader implements  FeatureReader<SimpleFeatureType,
         }
 
         SimpleFeatureType type = reader.getFeatureType();
-        CoordinateReferenceSystem original = type.getDefaultGeometry()
-                                                 .getCRS();
+        CoordinateReferenceSystem original = type.getGeometryDescriptor()
+                                                 .getCoordinateReferenceSystem();
 
         if (cs.equals(original)) {
             throw new IllegalArgumentException("CoordinateSystem " + cs

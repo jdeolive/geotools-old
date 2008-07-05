@@ -583,7 +583,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         final long id = startId.longValue();
         final Long newId = Long.valueOf(id);
 
-        final AttributeDescriptor rowIdAtt = featureType.getAttribute(fidReader.getFidColumn());
+        final AttributeDescriptor rowIdAtt = featureType.getDescriptor(fidReader.getFidColumn());
         final Class<?> binding = rowIdAtt.getType().getBinding();
         final Number userFidValue;
         if (Long.class == binding) {

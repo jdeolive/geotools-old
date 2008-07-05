@@ -299,11 +299,11 @@ abstract class AbstractEditionHandler implements EditionHandler {
                 FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
                 Object[] values = new Object[featureType.getAttributeCount()];
 
-                AttributeDescriptor geomAttribut = featureType.getDefaultGeometry();
+                AttributeDescriptor geomAttribut = featureType.getGeometryDescriptor();
 
                 geom = FACILITIES_FACTORY.projectGeometry(geom, map2D.getRenderingStrategy().getContext(), editionLayer);
 
-                List<AttributeDescriptor> lst = featureType.getAttributes();
+                List<AttributeDescriptor> lst = featureType.getAttributeDescriptors();
                 for (int i = 0,  n = lst.size(); i < n; i++) {
                     AttributeDescriptor desc = lst.get(i);
 
@@ -396,7 +396,7 @@ abstract class AbstractEditionHandler implements EditionHandler {
 
 
             SimpleFeatureType featureType = (SimpleFeatureType) editionLayer.getFeatureSource().getSchema();
-            AttributeDescriptor geomAttribut = featureType.getDefaultGeometry();
+            AttributeDescriptor geomAttribut = featureType.getGeometryDescriptor();
 
             Geometry geom = FACILITIES_FACTORY.projectGeometry(geo, map2D.getRenderingStrategy().getContext(), editionLayer);
 
@@ -434,8 +434,8 @@ abstract class AbstractEditionHandler implements EditionHandler {
                 //geom = projectGeometry(geom, memoryLayer);
                 SimpleFeatureType featureType = (SimpleFeatureType) memoryLayer.getFeatureSource().getSchema();
                 Object[] values = new Object[featureType.getAttributeCount()];
-                AttributeDescriptor geomAttribut = featureType.getDefaultGeometry();
-                List<AttributeDescriptor> lst = featureType.getAttributes();
+                AttributeDescriptor geomAttribut = featureType.getGeometryDescriptor();
+                List<AttributeDescriptor> lst = featureType.getAttributeDescriptors();
 
                 for (int i = 0,  n = lst.size(); i < n; i++) {
                     AttributeDescriptor desc = lst.get(i);
@@ -466,9 +466,9 @@ abstract class AbstractEditionHandler implements EditionHandler {
                     //geom = projectGeometry(geom, memoryLayer);
                     SimpleFeatureType featureType = (SimpleFeatureType) edgesLayer.getFeatureSource().getSchema();
                     Object[] values = new Object[featureType.getAttributeCount()];
-                    AttributeDescriptor geomAttribut = featureType.getDefaultGeometry();
+                    AttributeDescriptor geomAttribut = featureType.getGeometryDescriptor();
 
-                    List<AttributeDescriptor> lst = featureType.getAttributes();
+                    List<AttributeDescriptor> lst = featureType.getAttributeDescriptors();
                     for (int i = 0,  n = lst.size(); i < n; i++) {
                         AttributeDescriptor desc = lst.get(i);
 

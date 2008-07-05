@@ -157,7 +157,7 @@ public abstract class JDBCTextFeatureWriter extends JDBCFeatureWriter {
         SimpleFeatureType featureType = ftInfo.getSchema();
 
         String tableName = encodeName(featureType.getTypeName());
-        List<AttributeDescriptor> attributeTypes = featureType.getAttributes();
+        List<AttributeDescriptor> attributeTypes = featureType.getAttributeDescriptors();
 
         String attrValue;
 
@@ -448,7 +448,7 @@ public abstract class JDBCTextFeatureWriter extends JDBCFeatureWriter {
         throws IOException {
         FeatureTypeInfo ftInfo = queryData.getFeatureTypeInfo();
         SimpleFeatureType featureType = ftInfo.getSchema();
-        AttributeDescriptor[] attributes = (AttributeDescriptor[]) featureType.getAttributes().toArray(new AttributeDescriptor[featureType.getAttributes().size()]);
+        AttributeDescriptor[] attributes = (AttributeDescriptor[]) featureType.getAttributeDescriptors().toArray(new AttributeDescriptor[featureType.getAttributeDescriptors().size()]);
 
         String tableName = encodeName(featureType.getTypeName());
 

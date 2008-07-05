@@ -255,7 +255,7 @@ class ArcSDEQuery {
         final String[] queryColumns = query.getPropertyNames();
 
         if ((queryColumns == null) || (queryColumns.length == 0)) {
-            final List<AttributeDescriptor> attNames = fullSchema.getAttributes();
+            final List<AttributeDescriptor> attNames = fullSchema.getAttributeDescriptors();
             for (Iterator<AttributeDescriptor> it = attNames.iterator(); it.hasNext();) {
                 AttributeDescriptor att = it.next();
                 String attName = att.getLocalName();
@@ -544,7 +544,7 @@ class ArcSDEQuery {
             final ArcSdeVersionHandler versioningHandler) throws IOException {
 
         final SimpleFeatureType fullSchema = typeInfo.getFeatureType();
-        final String defaultGeomAttName = fullSchema.getDefaultGeometry().getLocalName();
+        final String defaultGeomAttName = fullSchema.getGeometryDescriptor().getLocalName();
 
         // we're calculating the bounds, so we'd better be sure and add the
         // spatial column to the query's propertynames
@@ -658,7 +658,7 @@ class ArcSDEQuery {
 
         final SeQuery extentQuery = createSeQueryForQueryInfo(false);
         try {
-            final String[] spatialCol = { schema.getDefaultGeometry().getLocalName() };
+            final String[] spatialCol = { schema.getGeometryDescriptor().getLocalName() };
             final SeQueryInfo sdeQueryInfo = filters.getQueryInfo(spatialCol);
             envelope = session.issue(new Command<Envelope>() {
                 @Override
