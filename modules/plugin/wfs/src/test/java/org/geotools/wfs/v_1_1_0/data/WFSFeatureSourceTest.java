@@ -56,13 +56,13 @@ public class WFSFeatureSourceTest extends DataTestSupport {
 
     protected void setUp() throws Exception {
         super.setUp();
-        protocolHandler = createTestProtocolHandler(GEOS_CAPABILITIES);
+        protocolHandler = createTestProtocolHandler(GEOS_STATES.CAPABILITIES);
         geosStore = new WFS_1_1_0_DataStore(protocolHandler);
-        statesSource = geosStore.getFeatureSource(GEOS_STATES_FEATURETYPENAME);
+        statesSource = geosStore.getFeatureSource(GEOS_STATES.FEATURETYPENAME);
 
-        WFS110ProtocolHandler cubewerxProtocolHandler = createTestProtocolHandler(CUBEWERX_CAPABILITIES);
+        WFS110ProtocolHandler cubewerxProtocolHandler = createTestProtocolHandler(CUBEWERX_GOVUNITCE.CAPABILITIES);
         cubewerxStore = new WFS_1_1_0_DataStore(cubewerxProtocolHandler);
-        govUnitsSource = cubewerxStore.getFeatureSource(CUBEWERX_GOVUNITCE_FEATURETYPENAME);
+        govUnitsSource = cubewerxStore.getFeatureSource(CUBEWERX_GOVUNITCE.FEATURETYPENAME);
     }
 
     private WFS110ProtocolHandler createTestProtocolHandler(final String capabilitiesFileName)
@@ -76,10 +76,10 @@ public class WFSFeatureSourceTest extends DataTestSupport {
             public URL getDescribeFeatureTypeURLGet(final String typeName)
                     throws MalformedURLException {
                 String schemaLocation;
-                if (GEOS_STATES_FEATURETYPENAME.equals(typeName)) {
-                    schemaLocation = GEOS_STATES_SCHEMA;
-                } else if (CUBEWERX_GOVUNITCE_FEATURETYPENAME.equals(typeName)) {
-                    schemaLocation = CUBEWERX_GOVUNITCE_SCHEMA;
+                if (GEOS_STATES.FEATURETYPENAME.equals(typeName)) {
+                    schemaLocation = GEOS_STATES.SCHEMA;
+                } else if (CUBEWERX_GOVUNITCE.FEATURETYPENAME.equals(typeName)) {
+                    schemaLocation = CUBEWERX_GOVUNITCE.SCHEMA;
                 } else {
                     throw new IllegalArgumentException("unknown typename: " + typeName);
                 }
@@ -172,10 +172,10 @@ public class WFSFeatureSourceTest extends DataTestSupport {
     @SuppressWarnings("unchecked")
     public void testGetFeaturesQueryProperties() throws IOException {
         String[] properties = { "the_geom" };
-        testGetFeaturesQueryProperties(statesSource, GEOS_STATES_FEATURETYPENAME, properties);
+        testGetFeaturesQueryProperties(statesSource, GEOS_STATES.FEATURETYPENAME, properties);
 
         properties = new String[] { "geometry" };
-        testGetFeaturesQueryProperties(govUnitsSource, CUBEWERX_GOVUNITCE_FEATURETYPENAME,
+        testGetFeaturesQueryProperties(govUnitsSource, CUBEWERX_GOVUNITCE.FEATURETYPENAME,
                 properties);
     }
 

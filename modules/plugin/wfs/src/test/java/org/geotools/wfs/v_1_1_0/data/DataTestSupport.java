@@ -16,6 +16,7 @@
  */
 package org.geotools.wfs.v_1_1_0.data;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,103 +31,89 @@ import org.geotools.wfs.protocol.DefaultConnectionFactory;
 public abstract class DataTestSupport extends TestCase {
 
     /**
-     * Location of a test data capabilities from geoserver
+     * A class holding the type name and test data location for a feature type
      */
-    public static final String GEOS_CAPABILITIES = "geoserver/geoserver_capabilities_1_1_0.xml";
+    public static class TestDataType {
+        /**
+         * Location of a test data capabilities file
+         */
+        final String CAPABILITIES;
 
-    /**
-     * Location of a test DescribeFeatureType response from a geoserver
-     * {@code topp:states} FeatureType
-     */
-    protected static final String GEOS_STATES_SCHEMA = "geoserver/DescribeFeatureType_States.xsd";
+        /**
+         * Location of a test DescribeFeatureType response for the given feature
+         * type
+         */
+        final String SCHEMA;
 
-    /**
-     * Type name for the sample geoserver states featuretype
-     */
-    public static final QName GEOS_STATES_TYPENAME = new QName("http://www.openplans.org/topp",
-            "states");
+        /**
+         * The type name, including namespace
+         */
+        final QName TYPENAME;
 
-    /**
-     * Prefixed type name for the sample geoserver states featuretype as used in
-     * the capabilities document (and thus as presented by the
-     * WFSDataStore.getTypeNames() method)
-     */
-    public static final String GEOS_STATES_FEATURETYPENAME = "topp:states";
+        /**
+         * The type name as referred in the capabilities (ej, "topp:states")
+         */
+        final String FEATURETYPENAME;
 
-    /**
-     * Type name for the sample geoserver archsites featuretype
-     */
-    public static final QName GEOS_ARCHSITES_TYPENAME = new QName(
-            "http://www.openplans.org/spearfish", "archsites");
+        /**
+         * The FeatureType CRS as declared in the capabilities
+         */
+        final String CRS;
 
-    /**
-     * Prefixed type name for the sample geoserver archsites featuretype as used
-     * in the capabilities document (and thus as presented by the
-     * WFSDataStore.getTypeNames() method)
-     */
-    public static final String GEOS_ARCHSITES_FEATURETYPENAME = "sf:archsites";
+        /**
+         * Location of a sample GetFeature response for this feature type
+         */
+        final String DATA;
 
-    /**
-     * The CRS id for the geoserver archsites test data
-     */
-    public static final String GEOS_ARCHSITES_CRS = "EPSG:26713";
+        /**
+         * 
+         * @param folder
+         *            the folder name under {@code test-data} where the test
+         *            files for this feature type are stored
+         * @param qName
+         *            the qualified type name (ns + local name)
+         * @param featureTypeName
+         *            the name as stated in the capabilities
+         * @param crs
+         *            the default feature type CRS as stated in the capabilities
+         */
+        TestDataType(final String folder, final QName qName, final String featureTypeName,
+                final String crs) {
+            TYPENAME = qName;
+            FEATURETYPENAME = featureTypeName;
+            CRS = crs;
+            CAPABILITIES = folder + "/GetCapabilities_1_1_0.xml";
+            SCHEMA = folder + "/DescribeFeatureType_" + qName.getLocalPart() + ".xsd";
+            DATA = folder + "/GetFeature_" + qName.getLocalPart() + ".xml";
 
-    /**
-     * Location of the file containing a sample GeoServer GetFeature response
-     * for the {@code archsites} feature type
-     */
-    public static final String GEOS_ARCHSITES_DATA = "geoserver/geoserver_archsites_features.xml";
+            checkResource(CAPABILITIES);
+            checkResource(SCHEMA);
+            checkResource(DATA);
+        }
 
-    /**
-     * Location of a test DescribeFeatureType response from a geoserver
-     * {@code sf:archsites} FeatureType
-     */
-    public static final String GEOS_ARCHSITES_SCHEMA = "geoserver/geoserver_archsites_describeFeatureType.xsd";
+        private void checkResource(String resource) {
+            try {
+                TestData.url(this, resource);
+            } catch (FileNotFoundException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
 
-    /**
-     * Type name for the sample CubeWerx GovernmentalUnitCE featuretype
-     */
-    public static final QName CUBEWERX_GOVUNITCE_TYPENAME = new QName(
-            "http://www.fgdc.gov/framework/073004/gubs", "GovernmentalUnitCE");
+    }
 
-    /**
-     * Prefixed type name for the sample CubeWerx GovernmentalUnitCE featuretype
-     * as used in capabilities
-     */
-    public static final String CUBEWERX_GOVUNITCE_FEATURETYPENAME = "gubs:GovernmentalUnitCE";
+    public static final TestDataType GEOS_STATES = new TestDataType("geoserver", new QName(
+            "http://www.openplans.org/topp", "states"), "topp:states", "EPSG:4326");
 
-    /**
-     * Location of the sample GetFeature response from a CubeWerx server for the
-     * GovernmentalUnitCE feature type
-     */
-    public static final String CUBEWERX_GOVUNITCE_DATA = "CubeWerx_nsdi/CubeWerx_nsdi_GovernmentalUnitCE.xml";
+    public static final TestDataType GEOS_ARCHSITES = new TestDataType("geoserver", new QName(
+            "http://www.openplans.org/spearfish", "archsites"), "sf:archsites", "EPSG:26713");
 
-    /**
-     * EPSG id for the sample GovUnitCE data
-     */
-    public static final String CUBEWERX_GOVUNITCE_CRS = "EPSG:4269";
+    public static final TestDataType CUBEWERX_GOVUNITCE = new TestDataType("CubeWerx_nsdi",
+            new QName("http://www.fgdc.gov/framework/073004/gubs", "GovernmentalUnitCE"),
+            "gubs:GovernmentalUnitCE", "EPSG:4269");
 
-    /**
-     * Location of a test DescribeFeatureType response from a CubeWerx
-     * {@code GovernmentalUnitCE} FeatureType
-     */
-    public static final String CUBEWERX_GOVUNITCE_SCHEMA = "CubeWerx_nsdi/CubeWerx_nsdi_GovernmentalUnitCE_DescribeFeatureType.xsd";
-
-    /**
-     * Location of a test data capabilities from CubeWerx
-     */
-    public static final String CUBEWERX_CAPABILITIES = "CubeWerx_nsdi/CubeWerx_nsdi_GetCapabilities.xml";
-
-    public static final QName CUBEWERX_ROADSEG_TYPENAME = new QName(
-            "http://www.fgdc.gov/framework/073004/transportation", "RoadSeg");
-
-    public static final String CUBEWERX_ROADSEG_FEATURETYPENAME = "trans:RoadSeg";
-
-    public static final String CUBEWERX_ROADSEG_SCHEMA = "CubeWerx_nsdi/CubeWerx_nsdi_RoadSeg_DescribeFeatureType.xsd";
-
-    public static final String CUBEWERX_ROADSEG_CRS = "EPSG:4269";
-
-    public static final String CUBEWERX_ROADSEG_DATA = "CubeWerx_nsdi/CubeWerx_nsdi_RoadSeg.xml";
+    public static final TestDataType CUBEWERX_ROADSEG = new TestDataType("CubeWerx_nsdi",
+            new QName("http://www.fgdc.gov/framework/073004/transportation", "RoadSeg"),
+            "trans:RoadSeg", "EPSG:4269");
 
     protected WFS110ProtocolHandler protocolHandler;
 

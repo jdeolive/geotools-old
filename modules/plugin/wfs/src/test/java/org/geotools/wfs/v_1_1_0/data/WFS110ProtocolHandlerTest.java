@@ -87,7 +87,7 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      */
     public void testWFS110ProtocolHandler() throws IOException {
         try {
-            createProtocolHandler(DataTestSupport.GEOS_STATES_SCHEMA);
+            createProtocolHandler(DataTestSupport.GEOS_STATES.SCHEMA);
             fail("Excpected DataSourceException as a capabilities document was not provided");
         } catch (DataSourceException e) {
             assertTrue(true);
@@ -101,7 +101,7 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
             assertTrue(true);
         }
 
-        createProtocolHandler(DataTestSupport.GEOS_CAPABILITIES);
+        createProtocolHandler(DataTestSupport.GEOS_ARCHSITES.CAPABILITIES);
         assertNotNull(protocolHandler);
 
         assertEquals("My GeoServer WFS", protocolHandler.getServiceTitle());
@@ -118,7 +118,7 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      * @throws IOException
      */
     public void testSupports() throws IOException {
-        createProtocolHandler(DataTestSupport.GEOS_CAPABILITIES);
+        createProtocolHandler(DataTestSupport.GEOS_ARCHSITES.CAPABILITIES);
         assertTrue(protocolHandler.supports(DESCRIBE_FEATURETYPE, GET));
         // post was deliberately left off on the test capabilities file
         assertFalse(protocolHandler.supports(DESCRIBE_FEATURETYPE, POST));
@@ -129,7 +129,7 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      * {@link WFS110ProtocolHandler#getOperationURL(org.geotools.wfs.protocol.WFSOperationType, org.geotools.wfs.protocol.HttpMethod)}.
      */
     public void testGetOperationURL() throws IOException {
-        createProtocolHandler(DataTestSupport.GEOS_CAPABILITIES);
+        createProtocolHandler(DataTestSupport.GEOS_ARCHSITES.CAPABILITIES);
         final URL expectedGet = new URL("http://localhost:8080/geoserver/wfs/get?");
         final URL expectedPost = new URL("http://localhost:8080/geoserver/wfs/post?");
         assertEquals(expectedGet, protocolHandler.getOperationURL(GET_CAPABILITIES, GET));
@@ -142,7 +142,7 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      * @throws IOException
      */
     public void testGetCapabilitiesTypeNames() throws IOException {
-        createProtocolHandler(DataTestSupport.GEOS_CAPABILITIES);
+        createProtocolHandler(DataTestSupport.GEOS_STATES.CAPABILITIES);
         String[] names = protocolHandler.getCapabilitiesTypeNames();
         assertNotNull(names);
         assertEquals(3, names.length);
@@ -159,17 +159,17 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      * @throws IOException
      */
     public void testParseDescribeFeatureType_GeoServer() throws Exception {
-        InputStream stream = TestData.openStream(this, DataTestSupport.GEOS_CAPABILITIES);
+        InputStream stream = TestData.openStream(this, DataTestSupport.GEOS_STATES.CAPABILITIES);
         ConnectionFactory connFac = new DefaultConnectionFactory();
         protocolHandler = new WFS110ProtocolHandler(stream, connFac, Integer.valueOf(0)) {
             @Override
             public URL getDescribeFeatureTypeURLGet(final String typeName)
                     throws MalformedURLException {
-                return TestData.getResource(this, DataTestSupport.GEOS_STATES_SCHEMA);
+                return TestData.getResource(this, DataTestSupport.GEOS_STATES.SCHEMA);
             }
         };
 
-        String typeName = DataTestSupport.GEOS_STATES_FEATURETYPENAME;
+        String typeName = DataTestSupport.GEOS_STATES.FEATURETYPENAME;
         final CoordinateReferenceSystem crs = protocolHandler.getFeatureTypeCRS(typeName);
         SimpleFeatureType ftype = protocolHandler.parseDescribeFeatureType(typeName);
         assertNotNull(ftype);
@@ -189,18 +189,18 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
         String typeName;
         String crs;
 
-        capabilitiesFileName = DataTestSupport.GEOS_CAPABILITIES;
-        typeName = DataTestSupport.GEOS_STATES_FEATURETYPENAME;
+        capabilitiesFileName = DataTestSupport.GEOS_STATES.CAPABILITIES;
+        typeName = DataTestSupport.GEOS_STATES.FEATURETYPENAME;
         crs = "EPSG:4326";
         assertFeatureTypeCrs(capabilitiesFileName, typeName, crs);
 
-        capabilitiesFileName = DataTestSupport.GEOS_CAPABILITIES;
-        typeName = DataTestSupport.GEOS_ARCHSITES_FEATURETYPENAME;
+        capabilitiesFileName = DataTestSupport.GEOS_ARCHSITES.CAPABILITIES;
+        typeName = DataTestSupport.GEOS_ARCHSITES.FEATURETYPENAME;
         crs = "EPSG:26713";
         assertFeatureTypeCrs(capabilitiesFileName, typeName, crs);
 
-        capabilitiesFileName = DataTestSupport.CUBEWERX_CAPABILITIES;
-        typeName = DataTestSupport.CUBEWERX_GOVUNITCE_FEATURETYPENAME;
+        capabilitiesFileName = DataTestSupport.CUBEWERX_GOVUNITCE.CAPABILITIES;
+        typeName = DataTestSupport.CUBEWERX_GOVUNITCE.FEATURETYPENAME;
         crs = "EPSG:4269";
         assertFeatureTypeCrs(capabilitiesFileName, typeName, crs);
     }
@@ -227,18 +227,18 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
         String typeName;
         String expectedCrs;
 
-        capabilitiesFileName = DataTestSupport.GEOS_CAPABILITIES;
-        typeName = DataTestSupport.GEOS_STATES_FEATURETYPENAME;
+        capabilitiesFileName = DataTestSupport.GEOS_STATES.CAPABILITIES;
+        typeName = DataTestSupport.GEOS_STATES.FEATURETYPENAME;
         expectedCrs = "EPSG:4326";
         testGetFeatureTypeBounds(capabilitiesFileName, typeName, expectedCrs);
 
-        capabilitiesFileName = DataTestSupport.GEOS_CAPABILITIES;
-        typeName = DataTestSupport.GEOS_ARCHSITES_FEATURETYPENAME;
+        capabilitiesFileName = DataTestSupport.GEOS_ARCHSITES.CAPABILITIES;
+        typeName = DataTestSupport.GEOS_ARCHSITES.FEATURETYPENAME;
         expectedCrs = "EPSG:26713";
         testGetFeatureTypeBounds(capabilitiesFileName, typeName, expectedCrs);
 
-        capabilitiesFileName = DataTestSupport.CUBEWERX_CAPABILITIES;
-        typeName = DataTestSupport.CUBEWERX_GOVUNITCE_FEATURETYPENAME;
+        capabilitiesFileName = DataTestSupport.CUBEWERX_GOVUNITCE.CAPABILITIES;
+        typeName = DataTestSupport.CUBEWERX_GOVUNITCE.FEATURETYPENAME;
         expectedCrs = "EPSG:4269";
         testGetFeatureTypeBounds(capabilitiesFileName, typeName, expectedCrs);
 
@@ -280,8 +280,8 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      * @throws IOException
      */
     public void testGetBoundsIllegalState() throws IOException {
-        final String capabilitiesFileName = DataTestSupport.CUBEWERX_CAPABILITIES;
-        final String typeName = DataTestSupport.CUBEWERX_GOVUNITCE_FEATURETYPENAME;
+        final String capabilitiesFileName = DataTestSupport.CUBEWERX_GOVUNITCE.CAPABILITIES;
+        final String typeName = DataTestSupport.CUBEWERX_GOVUNITCE.FEATURETYPENAME;
         createProtocolHandler(capabilitiesFileName);
         final DefaultQuery query = new DefaultQuery(typeName);
 
@@ -311,8 +311,8 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      * @throws IOException
      */
     public void testGetBoundsFilter() throws IOException {
-        final String capabilitiesFileName = DataTestSupport.CUBEWERX_CAPABILITIES;
-        final String typeName = DataTestSupport.CUBEWERX_GOVUNITCE_FEATURETYPENAME;
+        final String capabilitiesFileName = DataTestSupport.CUBEWERX_GOVUNITCE.CAPABILITIES;
+        final String typeName = DataTestSupport.CUBEWERX_GOVUNITCE.FEATURETYPENAME;
         createProtocolHandler(capabilitiesFileName);
         DefaultQuery query;
         {
@@ -337,8 +337,8 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      * @throws NoSuchAuthorityCodeException
      */
     public void testGetBounds() throws IOException, NoSuchAuthorityCodeException, FactoryException {
-        final String capabilitiesFileName = DataTestSupport.CUBEWERX_CAPABILITIES;
-        final String typeName = DataTestSupport.CUBEWERX_GOVUNITCE_FEATURETYPENAME;
+        final String capabilitiesFileName = DataTestSupport.CUBEWERX_GOVUNITCE.CAPABILITIES;
+        final String typeName = DataTestSupport.CUBEWERX_GOVUNITCE.FEATURETYPENAME;
         createProtocolHandler(capabilitiesFileName);
 
         DefaultQuery query;
@@ -369,13 +369,13 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      * @throws IOException
      */
     public void testGetCount() throws IOException {
-        String capabilitiesFileName = DataTestSupport.GEOS_CAPABILITIES;
-        String typeName = DataTestSupport.GEOS_ARCHSITES_FEATURETYPENAME;
+        String capabilitiesFileName = DataTestSupport.GEOS_ARCHSITES.CAPABILITIES;
+        String typeName = DataTestSupport.GEOS_ARCHSITES.FEATURETYPENAME;
 
         ConnectionFactory connFac = new DefaultConnectionFactory() {
             @Override
             public InputStream getInputStream(URL query, HttpMethod method) throws IOException {
-                return TestData.openStream(this, DataTestSupport.GEOS_ARCHSITES_DATA);
+                return TestData.openStream(this, DataTestSupport.GEOS_ARCHSITES.DATA);
             }
         };
         createProtocolHandler(capabilitiesFileName, connFac);
@@ -383,12 +383,12 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
         assertEquals(3, count);
 
         // this one does not specify numberOfFeatures
-        capabilitiesFileName = DataTestSupport.CUBEWERX_CAPABILITIES;
-        typeName = DataTestSupport.CUBEWERX_GOVUNITCE_FEATURETYPENAME;
+        capabilitiesFileName = DataTestSupport.CUBEWERX_GOVUNITCE.CAPABILITIES;
+        typeName = DataTestSupport.CUBEWERX_GOVUNITCE.FEATURETYPENAME;
         connFac = new DefaultConnectionFactory() {
             @Override
             public InputStream getInputStream(URL query, HttpMethod method) throws IOException {
-                return TestData.openStream(this, DataTestSupport.CUBEWERX_GOVUNITCE_DATA);
+                return TestData.openStream(this, DataTestSupport.CUBEWERX_GOVUNITCE.DATA);
             }
         };
 
@@ -431,11 +431,11 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
      */
     public List<Feature> testGetFeatureReader(final int maxFeatures, final int queryMaxFeatures)
             throws IOException {
-        final String capabilitiesFileName = DataTestSupport.GEOS_CAPABILITIES;
-        final String typeName = DataTestSupport.GEOS_ARCHSITES_FEATURETYPENAME;
-        final String featuresFileName = DataTestSupport.GEOS_ARCHSITES_DATA;
-        final String featureNameSpace = DataTestSupport.GEOS_ARCHSITES_TYPENAME.getNamespaceURI();
-        final String schemaFile = DataTestSupport.GEOS_ARCHSITES_SCHEMA;
+        final String capabilitiesFileName = DataTestSupport.GEOS_ARCHSITES.CAPABILITIES;
+        final String typeName = DataTestSupport.GEOS_ARCHSITES.FEATURETYPENAME;
+        final String featuresFileName = DataTestSupport.GEOS_ARCHSITES.DATA;
+        final String featureNameSpace = DataTestSupport.GEOS_ARCHSITES.TYPENAME.getNamespaceURI();
+        final String schemaFile = DataTestSupport.GEOS_ARCHSITES.SCHEMA;
         final URL schemaLocation = TestData.getResource(this, schemaFile);
         final Configuration testConfiguration = new TestWFSConfiguration(featureNameSpace,
                 schemaLocation.toExternalForm());

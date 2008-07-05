@@ -58,8 +58,8 @@ public class EmfAppSchemaParserTest extends TestCase {
      * @throws IOException
      */
     public void testParseGeoServerSimpleFeatureType() throws IOException {
-        final QName featureTypeName = DataTestSupport.GEOS_STATES_TYPENAME;
-        final String schemaFileName = DataTestSupport.GEOS_STATES_SCHEMA;
+        final QName featureTypeName = DataTestSupport.GEOS_STATES.TYPENAME;
+        final String schemaFileName = DataTestSupport.GEOS_STATES.SCHEMA;
         final URL schemaLocation = TestData.getResource(this, schemaFileName);
         final int expectedAttributeCount = 23;
 
@@ -71,8 +71,8 @@ public class EmfAppSchemaParserTest extends TestCase {
     }
 
     public void testParseCubeWerx_GML_Level1_FeatureType() throws IOException {
-        final QName featureTypeName = DataTestSupport.CUBEWERX_GOVUNITCE_TYPENAME;
-        final String schemaFileName = DataTestSupport.CUBEWERX_GOVUNITCE_SCHEMA;
+        final QName featureTypeName = DataTestSupport.CUBEWERX_GOVUNITCE.TYPENAME;
+        final String schemaFileName = DataTestSupport.CUBEWERX_GOVUNITCE.SCHEMA;
         final URL schemaLocation = TestData.getResource(this, schemaFileName);
         // Expect only the subset of simple attributes:
         // {typeAbbreviation:String,instanceName:String,officialDescription:String,

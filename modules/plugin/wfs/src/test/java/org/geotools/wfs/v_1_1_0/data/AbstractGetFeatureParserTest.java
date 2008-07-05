@@ -16,18 +16,7 @@
  */
 package org.geotools.wfs.v_1_1_0.data;
 
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.CUBEWERX_GOVUNITCE_CRS;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.CUBEWERX_GOVUNITCE_DATA;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.CUBEWERX_GOVUNITCE_SCHEMA;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.CUBEWERX_GOVUNITCE_TYPENAME;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.CUBEWERX_ROADSEG_CRS;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.CUBEWERX_ROADSEG_DATA;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.CUBEWERX_ROADSEG_SCHEMA;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.CUBEWERX_ROADSEG_TYPENAME;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.GEOS_ARCHSITES_CRS;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.GEOS_ARCHSITES_DATA;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.GEOS_ARCHSITES_SCHEMA;
-import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.GEOS_ARCHSITES_TYPENAME;
+import static org.geotools.wfs.v_1_1_0.data.DataTestSupport.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -225,17 +214,17 @@ public abstract class AbstractGetFeatureParserTest extends TestCase {
      * @throws Exception
      */
     public void testParseGeoServer_ArchSites() throws Exception {
-        final QName featureName = GEOS_ARCHSITES_TYPENAME;
+        final QName featureName = GEOS_ARCHSITES.TYPENAME;
         final int expectedCount = 3;
-        final String schemaLocation = GEOS_ARCHSITES_SCHEMA;
+        final String schemaLocation = GEOS_ARCHSITES.SCHEMA;
 
         final String[] properties = { "cat", "str1", "the_geom" };
         final SimpleFeatureType featureType;
-        featureType = getTypeView(featureName, schemaLocation, GEOS_ARCHSITES_CRS, properties);
+        featureType = getTypeView(featureName, schemaLocation, GEOS_ARCHSITES.CRS, properties);
 
         final FeatureVisitor assertor = new FeatureAssertor(featureType);
 
-        URL url = TestData.getResource(this, GEOS_ARCHSITES_DATA);
+        URL url = TestData.getResource(this, GEOS_ARCHSITES.DATA);
         GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
         testParseGetFeatures(featureName, featureType, parser, assertor, expectedCount);
     }
@@ -247,31 +236,31 @@ public abstract class AbstractGetFeatureParserTest extends TestCase {
      * @throws Exception
      */
     public void testParseCubeWerx_GovernmentalUnitCE() throws Exception {
-        final QName featureName = CUBEWERX_GOVUNITCE_TYPENAME;
-        final String schemaLocation = CUBEWERX_GOVUNITCE_SCHEMA;
+        final QName featureName = CUBEWERX_GOVUNITCE.TYPENAME;
+        final String schemaLocation = CUBEWERX_GOVUNITCE.SCHEMA;
         final int expectedCount = 3;
 
         final String[] properties = { "geometry", "instanceName", "instanceCode",
                 "governmentalUnitType" };
 
         final SimpleFeatureType featureType = getTypeView(featureName, schemaLocation,
-                CUBEWERX_GOVUNITCE_CRS, properties);
+                CUBEWERX_GOVUNITCE.CRS, properties);
 
         final FeatureVisitor assertor = new FeatureAssertor(featureType);
 
-        URL url = TestData.getResource(this, CUBEWERX_GOVUNITCE_DATA);
+        URL url = TestData.getResource(this, CUBEWERX_GOVUNITCE.DATA);
         GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
         testParseGetFeatures(featureName, featureType, parser, assertor, expectedCount);
     }
 
     public void testParseCubeWerx_RoadSeg() throws Exception {
         final String[] properties = { "lastUpdateDate", "geometry", "status", "isAnchorSection" };
-        final QName featureName = CUBEWERX_ROADSEG_TYPENAME;
-        final String schemaLocation = CUBEWERX_ROADSEG_SCHEMA;
+        final QName featureName = CUBEWERX_ROADSEG.TYPENAME;
+        final String schemaLocation = CUBEWERX_ROADSEG.SCHEMA;
         final SimpleFeatureType featureType = getTypeView(featureName, schemaLocation,
-                CUBEWERX_ROADSEG_CRS, properties);
+                CUBEWERX_ROADSEG.CRS, properties);
 
-        URL url = TestData.getResource(this, CUBEWERX_ROADSEG_DATA);
+        URL url = TestData.getResource(this, CUBEWERX_ROADSEG.DATA);
         final GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
         FeatureVisitor assertor = new FeatureAssertor(featureType);
         testParseGetFeatures(featureName, featureType, parser, assertor, 3);
@@ -289,11 +278,11 @@ public abstract class AbstractGetFeatureParserTest extends TestCase {
                             + "PROPERTYNAME=geometry,instanceName,instanceCode,governmentalUnitType&maxFeatures=100");
 
             // create a subtype with only the required properties
-            final SimpleFeatureType featureType = getTypeView(CUBEWERX_GOVUNITCE_TYPENAME,
-                    CUBEWERX_GOVUNITCE_SCHEMA, CUBEWERX_GOVUNITCE_CRS, properties);
+            final SimpleFeatureType featureType = getTypeView(CUBEWERX_GOVUNITCE.TYPENAME,
+                    CUBEWERX_GOVUNITCE.SCHEMA, CUBEWERX_GOVUNITCE.CRS, properties);
 
             System.out.println("Getting parser for " + getFeatures.toExternalForm());
-            reader = getParser(CUBEWERX_GOVUNITCE_TYPENAME, CUBEWERX_GOVUNITCE_SCHEMA, featureType,
+            reader = getParser(CUBEWERX_GOVUNITCE.TYPENAME, CUBEWERX_GOVUNITCE.SCHEMA, featureType,
                     getFeatures);
 
             System.out.println("Got " + reader.getClass().getSimpleName());
