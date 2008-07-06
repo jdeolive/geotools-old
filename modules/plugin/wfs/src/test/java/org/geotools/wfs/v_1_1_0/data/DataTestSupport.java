@@ -101,12 +101,21 @@ public abstract class DataTestSupport extends TestCase {
 
     }
 
-    public static final TestDataType GEOS_STATES = new TestDataType("geoserver", new QName(
-            "http://www.openplans.org/topp", "states"), "topp:states", "EPSG:4326");
-
     public static final TestDataType GEOS_ARCHSITES = new TestDataType("geoserver", new QName(
             "http://www.openplans.org/spearfish", "archsites"), "sf:archsites", "EPSG:26713");
 
+    public static final TestDataType GEOS_POI = new TestDataType("geoserver", new QName(
+            "http://www.census.gov", "poi"), "tiger:poi", "EPSG:4326");
+
+    public static final TestDataType GEOS_ROADS = new TestDataType("geoserver", new QName(
+            "http://www.openplans.org/spearfish", "roads"), "sf:roads", "EPSG:26713");
+    
+    public static final TestDataType GEOS_STATES = new TestDataType("geoserver", new QName(
+            "http://www.openplans.org/topp", "states"), "topp:states", "EPSG:4326");
+
+    public static final TestDataType GEOS_TASMANIA_CITIES = new TestDataType("geoserver", new QName(
+            "http://www.openplans.org/topp", "tasmania_cities"), "topp:tasmania_cities", "EPSG:4326");
+    
     public static final TestDataType CUBEWERX_GOVUNITCE = new TestDataType("CubeWerx_nsdi",
             new QName("http://www.fgdc.gov/framework/073004/gubs", "GovernmentalUnitCE"),
             "gubs:GovernmentalUnitCE", "EPSG:4269");

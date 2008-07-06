@@ -18,7 +18,9 @@ package org.geotools.wfs.v_1_1_0.data;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -46,6 +48,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * A {@link GetFeatureParser} implementation that uses plain xml pull to parse a
@@ -54,8 +57,10 @@ import com.vividsolutions.jts.geom.LinearRing;
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
  * @since 2.5.x
- * @source $URL$
- * @deprecated should be removed as long as {@link StreamingParserFeatureReader} works well
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/plugin/wfs/src/main/java/org/geotools/wfs/v_1_1_0/data/XmlSimpleFeatureParser.java $
+ * @deprecated should be removed as long as {@link StreamingParserFeatureReader}
+ *             works well
  */
 public class XmlSimpleFeatureParser implements GetFeatureParser {
 
@@ -193,8 +198,14 @@ public class XmlSimpleFeatureParser implements GetFeatureParser {
     }
 
     /**
-     * Prerequisite: parser cursor positioned on a geometry property (ej,
+     * <p>
+     * Precondition: parser cursor positioned on a geometry property (ej,
      * {@code gml:Point}, etc)
+     * </p>
+     * <p>
+     * Postcondition: parser gets positioned at the end tag of the element it
+     * started parsing the geometry at
+     * </p>
      * 
      * @return
      * @throws FactoryException
@@ -204,48 +215,177 @@ public class XmlSimpleFeatureParser implements GetFeatureParser {
      */
     private Geometry parseGeom() throws NoSuchAuthorityCodeException, FactoryException,
             XmlPullParserException, IOException {
-        final QName tag = new QName(parser.getNamespace(), parser.getName());
+        final QName startingGeometryTagName = new QName(parser.getNamespace(), parser.getName());
         int dimension = crsDimension(2);
         CoordinateReferenceSystem crs = crs(DefaultGeographicCRS.WGS84);
 
         Geometry geom;
-        if (GML.Point.equals(tag)) {
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.pos.getLocalPart());
-            crs = crs(crs);
-            Coordinate[] coords = parseCoordList(dimension);
-            geom = geomFac.createPoint(coords[0]);
-            geom.setUserData(crs);
-        } else if (GML.LineString.equals(tag)) {
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.posList.getLocalPart());
-            crs = crs(crs);
-            Coordinate[] coords = parseCoordList(dimension);
-            geom = geomFac.createLineString(coords);
-            geom.setUserData(crs);
-        } else if (GML.Polygon.equals(tag)) {
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.exterior.getLocalPart());
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.LinearRing.getLocalPart());
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.posList.getLocalPart());
-            crs = crs(crs);
-            Coordinate[] shellCoords = parseCoordList(dimension);
-            LinearRing shell;
-            LinearRing[] holes = null;
-            shell = geomFac.createLinearRing(shellCoords);
-            geom = geomFac.createPolygon(shell, holes);
-            geom.setUserData(crs);
-        } else if (GML.MultiPoint.equals(tag)) {
+        if (GML.Point.equals(startingGeometryTagName)) {
+            geom = parsePoint(dimension, crs);
+        } else if (GML.LineString.equals(startingGeometryTagName)) {
+            geom = parseLineString(dimension, crs);
+        } else if (GML.Polygon.equals(startingGeometryTagName)) {
+            geom = parsePolygon(dimension, crs);
+        } else if (GML.MultiPoint.equals(startingGeometryTagName)) {
             throw new UnsupportedOperationException("MultiPoint parsing not yet implemented");
-        } else if (GML.MultiLineString.equals(tag)) {
+        } else if (GML.MultiLineString.equals(startingGeometryTagName)) {
             throw new UnsupportedOperationException("MultiLineString parsing not yet implemented");
-        } else if (GML.MultiPolygon.equals(tag)) {
-            throw new UnsupportedOperationException("MultiPolygon parsing not yet implemented");
+        } else if (GML.MultiSurface.equals(startingGeometryTagName)) {
+            parser.nextTag();
+            final QName memberTag = new QName(parser.getNamespace(), parser.getName());
+            List<Polygon> polygons = new ArrayList<Polygon>(2);
+            if (GML.surfaceMembers.equals(memberTag)) {
+                while (true) {
+                    parser.nextTag();
+                    if (XmlPullParser.END_TAG == parser.getEventType()
+                            && GML.surfaceMembers.getLocalPart().equals(parser.getName())) {
+                        // we're done
+                        break;
+                    }
+                    Polygon p = parsePolygon(dimension, crs);
+                    polygons.add(p);
+                }
+                parser.nextTag();
+            } else if (GML.surfaceMember.equals(memberTag)) {
+                while (true) {
+                    parser.nextTag();
+                    Polygon p = parsePolygon(dimension, crs);
+                    polygons.add(p);
+                    parser.nextTag();
+                    parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.surfaceMember
+                            .getLocalPart());
+                    parser.nextTag();
+                    if (XmlPullParser.END_TAG == parser.getEventType()
+                            && GML.MultiSurface.getLocalPart().equals(parser.getName())) {
+                        // we're done
+                        break;
+                    }
+                }
+            }
+            parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.MultiSurface.getLocalPart());
+
+            geom = geomFac.createMultiPolygon(polygons.toArray(new Polygon[polygons.size()]));
+
         } else {
-            throw new IllegalStateException("Unrecognized geometry element " + tag);
+            throw new IllegalStateException("Unrecognized geometry element "
+                    + startingGeometryTagName);
         }
+
+        parser.require(XmlPullParser.END_TAG, startingGeometryTagName.getNamespaceURI(),
+                startingGeometryTagName.getLocalPart());
+
+        return geom;
+    }
+
+    /**
+     * Parses a polygon.
+     * <p>
+     * Precondition: parser positioned at a {@link GML#Polygon Polygon} start
+     * tag
+     * </p>
+     * <p>
+     * Postcondition: parser positioned at the {@link GML#Polygon Polygon} end
+     * tag of the starting tag
+     * </p>
+     * 
+     * @param dimension
+     * @param crs
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     * @throws NoSuchAuthorityCodeException
+     * @throws FactoryException
+     */
+    private Polygon parsePolygon(int dimension, CoordinateReferenceSystem crs)
+            throws XmlPullParserException, IOException, NoSuchAuthorityCodeException,
+            FactoryException {
+        Polygon geom;
+        LinearRing shell;
+        List<LinearRing> holes = null;
+
+        parser.nextTag();
+        parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.exterior.getLocalPart());
+        parser.nextTag();
+        shell = parseLinearRing(dimension, crs);
+        parser.nextTag();
+        parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.exterior.getLocalPart());
+        parser.nextTag();
+
+        if (GML.NAMESPACE.equals(parser.getNamespace())
+                && GML.interior.getLocalPart().equals(parser.getName())) {
+            // parse interior rings
+            holes = new ArrayList<LinearRing>(2);
+            while (true) {
+                parser.nextTag();
+                LinearRing hole = parseLinearRing(dimension, crs);
+                holes.add(hole);
+                parser.nextTag();
+                parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.interior.getLocalPart());
+                parser.nextTag();
+                if (XmlPullParser.END_TAG == parser.getEventType()) {
+                    // we're done
+                    parser
+                            .require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.Polygon
+                                    .getLocalPart());
+                    break;
+                }
+            }
+        }
+
+        parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.Polygon.getLocalPart());
+
+        LinearRing[] holesArray = null;
+        if (holes != null) {
+            holesArray = holes.toArray(new LinearRing[holes.size()]);
+        }
+        geom = geomFac.createPolygon(shell, holesArray);
+        geom.setUserData(crs);
+        return geom;
+    }
+
+    private LinearRing parseLinearRing(final int dimension, CoordinateReferenceSystem crs)
+            throws XmlPullParserException, IOException, NoSuchAuthorityCodeException,
+            FactoryException {
+        parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.LinearRing.getLocalPart());
+        parser.nextTag();
+        parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.posList.getLocalPart());
+        crs = crs(crs);
+        Coordinate[] shellCoords = parseCoordList(dimension);
+        parser.nextTag();
+        parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.LinearRing.getLocalPart());
+
+        LinearRing linearRing = geomFac.createLinearRing(shellCoords);
+        linearRing.setUserData(crs);
+        return linearRing;
+    }
+
+    private Geometry parseLineString(int dimension, CoordinateReferenceSystem crs)
+            throws XmlPullParserException, IOException, NoSuchAuthorityCodeException,
+            FactoryException {
+        Geometry geom;
+        parser.nextTag();
+        parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.posList.getLocalPart());
+        crs = crs(crs);
+        Coordinate[] coords = parseCoordList(dimension);
+        geom = geomFac.createLineString(coords);
+        geom.setUserData(crs);
+        parser.nextTag();
+        parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.LineString.getLocalPart());
+        return geom;
+    }
+
+    private Geometry parsePoint(int dimension, CoordinateReferenceSystem crs)
+            throws XmlPullParserException, IOException, NoSuchAuthorityCodeException,
+            FactoryException {
+        Geometry geom;
+        parser.nextTag();
+        parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.pos.getLocalPart());
+        crs = crs(crs);
+        Coordinate[] coords = parseCoordList(dimension);
+        geom = geomFac.createPoint(coords[0]);
+        geom.setUserData(crs);
+        parser.nextTag();
+        parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.Point.getLocalPart());
         return geom;
     }
 

@@ -32,11 +32,15 @@ import org.geotools.wfs.WFSConfiguration;
 import org.geotools.xml.Configuration;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
+import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * This abstract class comprises a sort of compliance tests for
@@ -225,6 +229,60 @@ public abstract class AbstractGetFeatureParserTest extends TestCase {
         final FeatureVisitor assertor = new FeatureAssertor(featureType);
 
         URL url = TestData.getResource(this, GEOS_ARCHSITES.DATA);
+        GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
+        testParseGetFeatures(featureName, featureType, parser, assertor, expectedCount);
+    }
+
+    /**
+     * Verifies correctness on parsing a normal geoserver WFS 1.1.0 GetFeature
+     * response for the usual topp:states feature type (multipolygon).
+     * 
+     * Test method for {@link StreamingParserFeatureReader#parse()}.
+     * 
+     * @throws Exception
+     */
+    public void testParseGeoServer_States_polygon_with_hole() throws Exception {
+        final QName featureName = GEOS_STATES.TYPENAME;
+        final int expectedCount = 2;
+        final String schemaLocation = GEOS_STATES.SCHEMA;
+
+        final String[] properties = { "the_geom", "STATE_NAME", "STATE_FIPS", "SUB_REGION",
+                "SAMP_POP" };
+        final SimpleFeatureType featureType;
+        featureType = getTypeView(featureName, schemaLocation, GEOS_STATES.CRS, properties);
+
+        final FeatureVisitor assertor = new FeatureAssertor(featureType) {
+            @Override
+            public void visit(final Feature feature) {
+                super.visit(feature);
+                final String fid = feature.getID();
+                final int numPolygons;
+                final int expectedHoles;
+                if ("states.1".equals(fid)) {
+                    numPolygons = 2;
+                    expectedHoles = 1;
+                } else if ("states.2".equals(fid)) {
+                    numPolygons = 1;
+                    expectedHoles = 2;
+                } else {
+                    throw new IllegalArgumentException("Expected states.1 or states.2, got " + fid);
+                }
+                GeometryAttribute defaultGeometryProperty = feature.getDefaultGeometryProperty();
+                assertNotNull(defaultGeometryProperty);
+                final Object value = defaultGeometryProperty.getValue();
+                assertNotNull(value);
+                assertTrue("value: " + value, value instanceof MultiPolygon);
+                MultiPolygon mp = (MultiPolygon) value;
+
+                assertEquals(numPolygons, mp.getNumGeometries());
+                for (int i = 0; i < numPolygons; i++) {
+                    Polygon p = (Polygon) mp.getGeometryN(i);
+                    assertEquals(expectedHoles, p.getNumInteriorRing());
+                }
+            }
+        };
+
+        URL url = TestData.getResource(this, GEOS_STATES.DATA);
         GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
         testParseGetFeatures(featureName, featureType, parser, assertor, expectedCount);
     }
