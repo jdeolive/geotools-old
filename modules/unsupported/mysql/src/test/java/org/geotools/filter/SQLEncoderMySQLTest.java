@@ -220,7 +220,7 @@ public class SQLEncoderMySQLTest extends TestCase {
         String out = encoder.encodeToString(compFilter);
         LOGGER.fine("Resulting SQL filter is \n" + out);
 
-        assertEquals("WHERE testInteger = 5", out);
+        assertEquals("WHERE testInteger = 5.0", out);
     }
 
     public void testException() throws Exception {
