@@ -128,13 +128,7 @@
             <!-- fails on gridlock but not on my machine! -->
             <exclude>**/WFS110ProtocolHandlerTest.java</exclude>
             
-            <exclude>**/CubewerksOnlineTest.java</exclude>
-            <exclude>**/DMSolutionOnlineTest.java</exclude>
-            <exclude>**/GeoServerOnlineTest.java</exclude>
-            <exclude>**/IonicOnlineTest.java</exclude>
-            <exclude>**/MapServerOnlineTest.java</exclude>
-            <exclude>**/MapServerWFSStrategyOnlineTest.java</exclude>
-            <exclude>**/WFSDataStoreWriteOnlineTest.java</exclude>
+            <exclude>**/*OnlineTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
