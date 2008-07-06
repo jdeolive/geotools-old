@@ -64,10 +64,13 @@ public class MySQLDataStoreFactory extends AbstractDataStoreFactory {
 
     /** Param, package visibiity for JUnit tests */
     public static final Param PASSWD = new Param("passwd", String.class, "password used to login", false);
+    
     public static final Param MAXCONN = new Param("max connections", Integer.class,
             "maximum number of open connections", false, new Integer(10));
+    
     public static final Param MINCONN = new Param("min connections", Integer.class,
             "minimum number of pooled connection", false, new Integer(4));
+    
     public static final Param VALIDATECONN = new Param("validate connections", Boolean.class,
             "check connection is alive before using it", false, Boolean.FALSE);
 
@@ -83,13 +86,13 @@ public class MySQLDataStoreFactory extends AbstractDataStoreFactory {
     static final Param[] arrayParameters = { DBTYPE, HOST, PORT, DATABASE, USER, PASSWD,  NAMESPACE, WKBENABLED };
 
     /**
-     * Creates a new instance of PostgisDataStoreFactory
+     * Creates a new instance of MysqlDataStoreFactory
      */
     public MySQLDataStoreFactory() {
     }
 
     /**
-     * Checks to see if all the postgis params are there.
+     * Checks to see if all the mysql params are there.
      *
      * <p>
      * Should have:
@@ -97,7 +100,7 @@ public class MySQLDataStoreFactory extends AbstractDataStoreFactory {
      *
      * <ul>
      * <li>
-     * dbtype: equal to postgis
+     * dbtype: equal to mysql
      * </li>
      * <li>
      * host
@@ -114,9 +117,9 @@ public class MySQLDataStoreFactory extends AbstractDataStoreFactory {
      * </ul>
      *
      *
-     * @param params Set of parameters needed for a postgis data store.
+     * @param params Set of parameters needed for a mysql data store.
      *
-     * @return <code>true</code> if dbtype equals postgis, and contains keys
+     * @return <code>true</code> if dbtype equals mysql, and contains keys
      *         for host, user, passwd, and database.
      */
     public boolean canProcess(Map params) {
@@ -128,10 +131,10 @@ public class MySQLDataStoreFactory extends AbstractDataStoreFactory {
     }
 
     /**
-     * Construct a postgis data store using the params.
+     * Construct a mysql data store using the params.
      *
      * @param params The full set of information needed to construct a live
-     *        data source.  Should have  dbtype equal to postgis, as well as
+     *        data source.  Should have  dbtype equal to mysql, as well as
      *        host, user, passwd, database, and table.
      *
      * @return The created DataSource, this may be null if the required
@@ -192,7 +195,7 @@ public class MySQLDataStoreFactory extends AbstractDataStoreFactory {
     }
 
     /**
-     * Postgis cannot create a new database.
+     * Mysql cannot create a new database.
      *
      * @param params
      *
