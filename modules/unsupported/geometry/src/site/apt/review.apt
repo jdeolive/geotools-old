@@ -12,9 +12,10 @@ MODULE GEOMETRY
     * Adrian Custer June 12008
 
 
-  STATUS: CLEAN code, dirty data
+  STATUS: CLEAN code, data LGPL
+  
     The data are, possibly, taken from the JTS test suite. Needs confirmation.
-      http://jira.codehaus.org/browse/GEOT-1895
+      http://jira.codehaus.org/browse/GEOT-1895, CONFIRMED.
   
   
   
