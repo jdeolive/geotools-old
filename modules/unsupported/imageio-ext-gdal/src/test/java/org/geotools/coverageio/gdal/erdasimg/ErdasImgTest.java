@@ -80,7 +80,7 @@ public final class ErdasImgTest extends AbstractErdasImgTestCase {
         // get a reader
         File file = null;
         try{
-            TestData.file(this, fileName);
+            file = TestData.file(this, fileName);
         }catch (FileNotFoundException fnfe){
             LOGGER.warning("test-data not found: " + fileName + "\nTests are skipped");
             return;
