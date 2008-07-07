@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -186,10 +186,8 @@ public class FactoryUsingWKT extends DeferredAuthorityFactory implements CRSAuth
                 case 1: authority = authorities[0]; break;
                 default: {
                     final CitationImpl c = new CitationImpl(authorities[0]);
-                    final Collection<String> types = c.getIdentifierTypes();
                     final Collection<Identifier> identifiers = c.getIdentifiers();
                     for (int i=1; i<authorities.length; i++) {
-                        types.add("Authority name");
                         identifiers.addAll(authorities[i].getIdentifiers());
                     }
                     c.freeze();

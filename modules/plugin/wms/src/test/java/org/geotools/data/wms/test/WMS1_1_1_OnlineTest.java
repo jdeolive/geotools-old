@@ -73,8 +73,8 @@ public class WMS1_1_1_OnlineTest extends WMS1_1_0_OnlineTest {
             assertEquals(capabilities.getService().getContactInformation().getIndividualName(), "Some guy");
             assertEquals(capabilities.getService().getContactInformation().getOrganisationName().toString(), "Some company");
             assertEquals(capabilities.getService().getContactInformation().getPositionName().toString(), "Researcher");
-            assertEquals(capabilities.getService().getContactInformation().getContactInfo().getPhone().getVoice(), "+1 555 555 5555");
-            assertEquals(capabilities.getService().getContactInformation().getContactInfo().getPhone().getFacsimile(), "+1 555 555 5556");
+            assertEquals(capabilities.getService().getContactInformation().getContactInfo().getPhone().getVoices().iterator().next(), "+1 555 555 5555");
+            assertEquals(capabilities.getService().getContactInformation().getContactInfo().getPhone().getFacsimiles().iterator().next(), "+1 555 555 5556");
             assertEquals(capabilities.getService().getContactInformation().getContactInfo().getAddress().getPostalCode(), "11111");
             assertEquals(capabilities.getService().getContactInformation().getContactInfo().getAddress().getAdministrativeArea().toString(), "CA");
             assertEquals(capabilities.getService().getContactInformation().getContactInfo().getAddress().getCity().toString(), "San Francisco");
