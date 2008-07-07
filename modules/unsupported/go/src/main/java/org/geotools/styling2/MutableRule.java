@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opengis.filter.Filter;
 import org.opengis.style.Description;
-import org.opengis.style.LegendGraphic;
+import org.opengis.style.GraphicLegend;
 import org.opengis.style.Rule;
 import org.opengis.style.StyleVisitor;
 import org.opengis.style.Symbolizer;
@@ -33,14 +33,14 @@ public class MutableRule implements Rule{
 
     private final String name;
     private Description desc;
-    private LegendGraphic legend;
+    private GraphicLegend legend;
     private Filter filter;
     private boolean isElse;
     private double minscale;
     private double maxScale;
     private final List<Symbolizer> symbols;
     
-    public MutableRule(String name, Description desc, LegendGraphic legend, Filter filter, boolean isElse, double minScale, double maxScale, List<Symbolizer> symbols){
+    public MutableRule(String name, Description desc, GraphicLegend legend, Filter filter, boolean isElse, double minScale, double maxScale, List<Symbolizer> symbols){
         
         if(name == null){
             throw new NullPointerException("name can't be null");
@@ -79,11 +79,11 @@ public class MutableRule implements Rule{
         //TODO fire event
     }
     
-    public LegendGraphic getLegendGraphic() {
+    public GraphicLegend getLegend() {
         return legend;
     }
 
-    public void setLegendGraphic(LegendGraphic legend){
+    public void setLegendGraphic(GraphicLegend legend){
         this.legend = legend;
         //TODO fire event
     }

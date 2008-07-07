@@ -16,28 +16,28 @@
  */
 package org.geotools.styling2;
 
-import org.opengis.style.Graphic;
+import java.util.Set;
+import org.opengis.filter.expression.Expression;
+import org.opengis.style.AnchorPoint;
+import org.opengis.style.Displacement;
 import org.opengis.style.GraphicFill;
+import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.StyleVisitor;
 
 /**
  *
  * @author Johann Sorel
  */
-class DefaultGraphicFill implements GraphicFill{
+class DefaultGraphicFill extends DefaultGraphic implements GraphicFill{
 
-    private final Graphic graphic;
     
-    DefaultGraphicFill(Graphic graphic){
-        this.graphic = graphic;
-    }
-    
-    public Graphic getGraphic() {
-        return graphic;
+    DefaultGraphicFill(Set<GraphicalSymbol> symbols, Expression opacity, Expression size, Expression rotation, AnchorPoint anchor, Displacement disp){
+        super(symbols,opacity,size,rotation,anchor,disp);
     }
 
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
+
 
 }

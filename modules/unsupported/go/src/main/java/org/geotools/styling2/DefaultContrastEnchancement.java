@@ -16,7 +16,9 @@
  */
 package org.geotools.styling2;
 
+import org.opengis.filter.expression.Expression;
 import org.opengis.style.ContrastEnhancement;
+import org.opengis.style.ContrastMethod;
 import org.opengis.style.StyleVisitor;
 
 /**
@@ -25,30 +27,24 @@ import org.opengis.style.StyleVisitor;
  */
 class DefaultContrastEnchancement implements ContrastEnhancement{
 
-    private final boolean normalize;
-    private final boolean histogram;
-    private final double gamma;
+    private final Expression gamma;
+    private final ContrastMethod type;
     
-    DefaultContrastEnchancement(boolean normalize, boolean histogram, double gamma){
-        this.normalize = normalize;
-        this.histogram = histogram;
+    DefaultContrastEnchancement(ContrastMethod type, Expression gamma){
+        this.type = type;
         this.gamma = gamma;
-    }
-    
-    public boolean usesNormalization() {
-        return normalize;
-    }
-
-    public boolean usesHistogram() {
-        return histogram;
-    }
-
-    public double getGammaValue() {
-        return gamma;
     }
 
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public ContrastMethod getMethod() {
+        return type;
+    }
+
+    public Expression getGammaValue() {
+        return gamma;
     }
 
 }

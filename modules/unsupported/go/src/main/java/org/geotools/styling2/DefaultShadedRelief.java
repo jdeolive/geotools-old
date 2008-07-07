@@ -16,6 +16,7 @@
  */
 package org.geotools.styling2;
 
+import org.opengis.filter.expression.Expression;
 import org.opengis.style.ShadedRelief;
 import org.opengis.style.StyleVisitor;
 
@@ -26,9 +27,9 @@ import org.opengis.style.StyleVisitor;
 class DefaultShadedRelief implements ShadedRelief{
 
     private final boolean bright;
-    private final double relief;
+    private final Expression relief;
     
-    DefaultShadedRelief(boolean bright, double relief){
+    DefaultShadedRelief(boolean bright, Expression relief){
         this.bright = bright;
         this.relief = relief;
     }
@@ -37,7 +38,7 @@ class DefaultShadedRelief implements ShadedRelief{
         return bright;
     }
 
-    public double getReliefFactor() {
+    public Expression getReliefFactor() {
         return relief;
     }
 

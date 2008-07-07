@@ -18,7 +18,11 @@ package org.geotools.styling2;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import org.opengis.feature.type.Name;
+import org.opengis.filter.Id;
 import org.opengis.style.Description;
 import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.Rule;
@@ -33,13 +37,13 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
 
     private final String name;
     private Description desc;
-    private final Collection<Object> ids;
-    private final Collection<String> names;
-    private final List<SemanticType> semantics;
+    private Id ids;
+    private final Set<Name> names;
+    private final Set<SemanticType> semantics;
     private final List<Rule> rules;
     
     
-    public MutableFeatureTypeStyle(String name, Description desc, Collection<Object> ids, Collection<String> names, Collection<SemanticType> semantics, List<Rule> rules){
+    public MutableFeatureTypeStyle(String name, Description desc, Id ids, Set<Name> names, Set<SemanticType> semantics, List<Rule> rules){
         if(name == null){
             throw new NullPointerException("name can't be null");
         }
@@ -51,11 +55,11 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
         }
         
         //TODO fix this list to listen to changes and fire events if necessary
-        this.ids = new ArrayList<Object>();
-        this.names = new ArrayList<String>();
-        this.semantics = new ArrayList<SemanticType>();
+        this.ids = null;
+        this.names = new LinkedHashSet<Name>();
+        this.semantics = new LinkedHashSet<SemanticType>();
         this.rules = new ArrayList<Rule>();
-        if(ids != null) this.ids.addAll(ids);
+        if(ids != null) this.ids = ids;
         if(names != null) this.names.addAll(names);
         if(semantics != null) this.semantics.addAll(semantics);
         if(rules != null) this.rules.addAll(rules);
@@ -82,7 +86,7 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
      * 
      * @return live list
      */
-    public Collection<Object> featureInstanceIDs() {
+    public Id featureInstanceIDs() {
         return ids;
     }
 
@@ -90,7 +94,7 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
      * 
      * @return live list
      */
-    public Collection<String> featureTypeNames() {
+    public Set<Name> featureTypeNames() {
         return names;
     }
 
@@ -98,7 +102,7 @@ public class MutableFeatureTypeStyle implements FeatureTypeStyle{
      * 
      * @return live list
      */
-    public Collection<SemanticType> semanticTypeIdentifiers() {
+    public Set<SemanticType> semanticTypeIdentifiers() {
         return semantics;
     }
 

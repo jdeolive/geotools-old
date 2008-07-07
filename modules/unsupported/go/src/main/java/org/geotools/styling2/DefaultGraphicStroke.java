@@ -16,37 +16,42 @@
  */
 package org.geotools.styling2;
 
+import java.util.Set;
 import org.opengis.filter.expression.Expression;
-import org.opengis.style.Graphic;
+import org.opengis.style.AnchorPoint;
+import org.opengis.style.Displacement;
 import org.opengis.style.GraphicStroke;
+import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.StyleVisitor;
 
 /**
  *
  * @author Johann Sorel
  */
-class DefaultGraphicStroke implements GraphicStroke{
+class DefaultGraphicStroke extends DefaultGraphic implements GraphicStroke{
 
-    private final Graphic graphic;
     private final Expression initial;
     private final Expression gap;
     
-    DefaultGraphicStroke(Graphic graphic, Expression initial, Expression gap){
-        this.graphic = graphic;
+    DefaultGraphicStroke(Set<GraphicalSymbol> symbols, 
+            Expression opacity, 
+            Expression size, 
+            Expression rotation, 
+            AnchorPoint anchor, 
+            Displacement disp, 
+            Expression initial, 
+            Expression gap){
+        super(symbols,opacity,size,rotation,anchor,disp);
         this.gap = gap;
         this.initial = initial;
     }
-    
-    public Graphic getGraphic() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
     public Expression getInitialGap() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return initial;
     }
 
     public Expression getGap() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return gap;
     }
 
     public void accept(StyleVisitor visitor) {

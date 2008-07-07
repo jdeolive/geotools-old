@@ -78,7 +78,7 @@ class DefaultRasterSymbolizer implements RasterSymbolizer{
         return selection;
     }
 
-    public OverlapBehavior getOverlap() {
+    public OverlapBehavior getOverlapBehavior() {
         return overlap;
     }
 
@@ -117,8 +117,5 @@ class DefaultRasterSymbolizer implements RasterSymbolizer{
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
-
-    public OverlapBehavior getOverlapBehavior() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    
 }

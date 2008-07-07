@@ -20,7 +20,9 @@ import java.awt.Color;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 import javax.swing.Icon;
@@ -33,6 +35,7 @@ import org.opengis.style.ChannelSelection;
 import org.opengis.style.ColorMap;
 import org.opengis.style.ColorReplacement;
 import org.opengis.style.ContrastEnhancement;
+import org.opengis.style.ContrastMethod;
 import org.opengis.style.Description;
 import org.opengis.style.Displacement;
 import org.opengis.style.ExternalGraphic;
@@ -42,7 +45,7 @@ import org.opengis.style.Font;
 import org.opengis.style.Graphic;
 import org.opengis.style.GraphicFill;
 import org.opengis.style.GraphicStroke;
-import org.opengis.style.GraphicSymbol;
+import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.Halo;
 import org.opengis.style.LabelPlacement;
 import org.opengis.style.LinePlacement;
@@ -125,8 +128,8 @@ public class SymbolizerBuilder {
         
         DEFAULT_RASTER_OVERLAP = OverlapBehavior.LATEST_ON_TOP;
         DEFAULT_RASTER_COLORMAP = new DefaultColorMap(null);
-        DEFAULT_RASTER_CONTRAST_ENCHANCEMENT = new DefaultContrastEnchancement(false,false,1d);
-        DEFAULT_RASTER_SHADED_RELIEF = new DefaultShadedRelief(false, 1d);
+        DEFAULT_RASTER_CONTRAST_ENCHANCEMENT = new DefaultContrastEnchancement(ContrastMethod.NONE,SB.literalExpression(1d));
+        DEFAULT_RASTER_SHADED_RELIEF = new DefaultShadedRelief(false, SB.literalExpression(1d));
         DEFAULT_RASTER_OUTLINE = null;
     }
     
@@ -199,7 +202,7 @@ public class SymbolizerBuilder {
     }
     
     public Graphic createDefaultGraphic(){
-        List<GraphicSymbol> mark = new ArrayList<GraphicSymbol>();
+        Set<GraphicalSymbol> mark = new LinkedHashSet<GraphicalSymbol>();
         mark.add(createDefaultMark());
         Graphic graphic = new DefaultGraphic(
                 mark, 
@@ -316,8 +319,8 @@ public class SymbolizerBuilder {
         return cr;
     }
     
-    public ContrastEnhancement createContrastEnhancement(boolean normalize, boolean histogram, double gamma){
-        ContrastEnhancement ce = new DefaultContrastEnchancement(normalize, histogram, gamma);
+    public ContrastEnhancement createContrastEnhancement(ContrastMethod type, Expression gamma){
+        ContrastEnhancement ce = new DefaultContrastEnchancement(type, gamma);
         return ce; 
     }
     
@@ -351,7 +354,7 @@ public class SymbolizerBuilder {
         return f;
     }
     
-    public Graphic createGraphic(List<GraphicSymbol> symbols, 
+    public Graphic createGraphic(Set<GraphicalSymbol> symbols, 
             Expression opacity, 
             Expression size, 
             Expression rotation, 
@@ -361,13 +364,25 @@ public class SymbolizerBuilder {
         return g; 
     }
     
-    public GraphicFill createGraphicFill(Graphic graphic){
-        GraphicFill fill = new DefaultGraphicFill(graphic);
+    public GraphicFill createGraphicFill(Set<GraphicalSymbol> symbols, 
+            Expression opacity, 
+            Expression size, 
+            Expression rotation, 
+            AnchorPoint anchor, 
+            Displacement disp){
+        GraphicFill fill = new DefaultGraphicFill(symbols, opacity, size, rotation, anchor, disp);
         return fill;
     }
     
-    public GraphicStroke createGraphicStroke(Graphic graphic, Expression initial, Expression gap){
-        GraphicStroke stroke = new DefaultGraphicStroke(graphic, initial, gap);
+    public GraphicStroke createGraphicStroke(Set<GraphicalSymbol> symbols, 
+            Expression opacity, 
+            Expression size, 
+            Expression rotation, 
+            AnchorPoint anchor, 
+            Displacement disp,
+            Expression initial, 
+            Expression gap){
+        GraphicStroke stroke = new DefaultGraphicStroke(symbols, opacity, size, rotation, anchor, disp, initial, gap);
         return stroke;
     }
     
@@ -443,7 +458,7 @@ public class SymbolizerBuilder {
         return sct;
     }
     
-    public ShadedRelief createShadedRelief(boolean bright, double relief){
+    public ShadedRelief createShadedRelief(boolean bright, Expression relief){
         ShadedRelief sr = new DefaultShadedRelief(bright, relief);
         return sr;
     }

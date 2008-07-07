@@ -18,7 +18,9 @@ package org.geotools.styling2;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.LineSymbolizer;
 import org.opengis.style.PointSymbolizer;
@@ -112,7 +114,7 @@ public class StyleBuilder {
         symbols.add(symbol);
         Rule rule = new MutableRule("fakename", SymbolizerBuilder.DEFAULT_DESCRIPTION, null, null, false, 0, Double.MAX_VALUE, symbols);
 
-        Collection<SemanticType> semantics = new ArrayList<SemanticType>();
+        Set<SemanticType> semantics = new LinkedHashSet<SemanticType>();
         semantics.add(semantic);
         List<Rule> rules = new ArrayList<Rule>();
         rules.add(rule);
@@ -130,7 +132,7 @@ public class StyleBuilder {
         }
         Rule rule = new MutableRule("fakename", SymbolizerBuilder.DEFAULT_DESCRIPTION, null, null, false, 0, Double.MAX_VALUE, symbols);
 
-        Collection<SemanticType> semantics = new ArrayList<SemanticType>();
+        Set<SemanticType> semantics = new LinkedHashSet<SemanticType>();
         semantics.add(semantic);
         List<Rule> rules = new ArrayList<Rule>();
         rules.add(rule);
