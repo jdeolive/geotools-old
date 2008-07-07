@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux
- * @author Saul Farber
+ * @author Saul Farber (MassGIS)
  *
  * @see CommonsLoggerFactory
  * @see Logging
