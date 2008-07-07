@@ -21,18 +21,13 @@ IMAGEIO-EXT-GDAL
 * Data Credits
   ~~~~~~~~~~~~
 
-** MrSID data credit
-
+** MrSID data [Free data]:
    Office of Geographic and Environmental Information (MassGIS), Commonwealth of Massachusetts Executive Office of Environmental Affairs
    (http://www.mass.gov/mgis/download.htm)
 
-** DTED data credit
+** DTED data
+   Freely available at: http://download.osgeo.org/gdal/data/dted/
 
-   NGA (National Geospatial-Intelligence Agency) Raster Roam.
-   Raster Roam is an Internet resource that provides public access to view and download imagery, maps, digital elevation data and other geographic information produced by the U.S. Government and commercial vendors.
-   (http://geoengine.nga.mil/geospatial/SW_TOOLS/NIMAMUSE/webinter/rast_roam.html)
-
-** JP2K data credit
-
-    image generated from bogota.tif available at MapTools.org:
+** JP2 data credit / ECW data credit  
+    image generated with gdal_translate utility, from bogota.tif available at MapTools.org:
     http://dl.maptools.org/dl/geotiff/samples/made_up/

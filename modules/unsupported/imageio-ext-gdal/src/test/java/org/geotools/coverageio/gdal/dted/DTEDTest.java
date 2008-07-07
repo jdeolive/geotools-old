@@ -35,7 +35,6 @@ import org.geotools.test.TestData;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 
-
 /**
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
@@ -46,7 +45,7 @@ public final class DTEDTest extends AbstractDTEDTestCase {
     /**
      * file name of a valid DTED sample data to be used for tests. 
      */
-    private final static String fileName = "n40.dt0";
+    private final static String fileName = "n43.dt0";
 
     /**
      * Creates a new instance of {@code DTEDTest}

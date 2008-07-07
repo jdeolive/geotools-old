@@ -20,6 +20,8 @@ package org.geotools.coverageio.gdal.erdasimg;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.logging.Logger;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -35,7 +37,6 @@ import org.geotools.test.TestData;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 
-
 /**
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
@@ -43,6 +44,9 @@ import org.opengis.parameter.ParameterValue;
  * Testing {@link ErdasImgReader}
  */
 public final class ErdasImgTest extends AbstractErdasImgTestCase {
+    protected final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
+    "org.geotools.coverageio.gdal.erdasimg");
+    
     /**
      * file name of a valid Erdas Imagine sample data to be used for tests. 
      */
@@ -74,7 +78,14 @@ public final class ErdasImgTest extends AbstractErdasImgTestCase {
         hints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, l));
 
         // get a reader
-        final File file = TestData.file(this, fileName);
+        File file = null;
+        try{
+            TestData.file(this, fileName);
+        }catch (FileNotFoundException fnfe){
+            LOGGER.warning("test-data not found: " + fileName + "\nTests are skipped");
+            return;
+        }
+        
         final BaseGDALGridCoverage2DReader reader = new ErdasImgReader(file, hints);
 
         // /////////////////////////////////////////////////////////////////////

@@ -49,15 +49,8 @@ import org.opengis.parameter.ParameterValue;
 public final class ECWTest extends AbstractECWTestCase {
 	/**
 	 * file name of a valid ECW sample data to be used for tests.
-	 * 
-	 * We suggest to download a valid ECW sample file from this site:
-	 * ftp://www.sjrwmd.com/2004_DOQQs/rgb_ecw/
-	 * 
-	 * Any zipped file contains a .ECW file as well as a HTML file containing a
-	 * "Spatial Reference Information" paragraph where to find useful
-	 * information about Projection, in order to build a valid .prj file.
 	 */
-	private final static String fileName = "sampledata.ecw";
+	private final static String fileName = "bogota.ecw";
 
 	/**
 	 * Creates a new instance of {@code ECWTest}
