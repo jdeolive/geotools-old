@@ -100,7 +100,7 @@ public class WebProcessingService extends AbstractWPS<WPSCapabilitiesType,Object
                 description = ((Service)capabilities.getService()).get_abstract();
             }
             if( description == null && serverURL != null) {
-                description = "Web Map Server "+serverURL;
+                description = "Web Processing Service "+serverURL;
             }
             return description;
         }

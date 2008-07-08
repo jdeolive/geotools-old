@@ -73,7 +73,7 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     }
     
     protected void initRequest() {
-        setProperty(REQUEST, "ExecuteProcess");
+        setProperty(REQUEST, "Execute");
 	}
 
 	/**

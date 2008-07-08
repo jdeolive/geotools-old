@@ -57,7 +57,7 @@ public class OnlineWPSTest extends TestCase {
 	public void setUp() throws ServiceException, IOException {
 		
 		// set to true for local server test, false for 52N server test
-		useLocalServer = false;
+		useLocalServer = true;
 		
 		// local server
 		URL urlLocal = new URL("http://192.168.50.77:8080/geoserver/ows?service=WPS&request=GetCapabilities&language=ko");
