@@ -19,6 +19,7 @@ package org.geotools.xml.impl;
 import org.eclipse.xsd.XSDComplexTypeDefinition;
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDFeature;
+import org.eclipse.xsd.XSDNamedComponent;
 import org.eclipse.xsd.XSDParticle;
 import org.eclipse.xsd.XSDSimpleTypeDefinition;
 import org.eclipse.xsd.XSDTypeDefinition;
@@ -73,6 +74,21 @@ public class BindingWalker implements TypeWalker.Visitor {
             if (bindingName == null) {
                 //do we have a containing type?
                 if (container != null) {
+                    XSDNamedComponent base = container;
+                    
+                    //the container itself could be an anonymous type, check for 
+                    // a named containing element
+                    if ( container.getName() == null ) {
+                        if ( container.getContainer() instanceof XSDElementDeclaration ) {
+                            XSDElementDeclaration e = (XSDElementDeclaration) container.getContainer();
+                            
+                            //only do this if the containing element is global
+                            if ( e.isGlobal() ) {
+                                base = e;
+                            }
+                        }
+                    }
+                    
                     //get the anonymous element, and look it up in the container type
                     if (type.getContainer() instanceof XSDElementDeclaration) {
                         XSDElementDeclaration anonymous = (XSDElementDeclaration) type.getContainer();
@@ -80,8 +96,8 @@ public class BindingWalker implements TypeWalker.Visitor {
                                 anonymous.getName(), true);
 
                         if (particle != null) {
-                            bindingName = new QName(container.getTargetNamespace(),
-                                    container.getName() + "_" + anonymous.getName());
+                            bindingName = new QName(base.getTargetNamespace(),
+                                    base.getName() + "_" + anonymous.getName());
                         }
                     }
                 }

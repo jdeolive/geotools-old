@@ -627,7 +627,7 @@ public class Encoder {
             throw new IllegalArgumentException(msg);
         }
 
-        encoded.add(new EncodingEntry(object, root));
+        encoded.add(new EncodingEntry(object, root, null));
 
         while (!encoded.isEmpty()) {
             EncodingEntry entry = (EncodingEntry) encoded.peek();
@@ -646,7 +646,7 @@ public class Encoder {
                         }
                         
                         //add the next object to be encoded to the stack
-                        encoded.push(new EncodingEntry(next, element));
+                        encoded.push(new EncodingEntry(next, element,entry));
                     } else {
                         //this child is done, remove from child list
                         entry.children.remove(0);
@@ -655,6 +655,13 @@ public class Encoder {
                     // no more children, finish the element
                     end(entry.encoding);
                     encoded.pop();
+                    
+                    //clean up the entry
+                    entry.object = null;
+                    entry.element = null;
+                    entry.encoding = null;
+                    entry.children = null;
+                    entry.parent = null;
                 }
             } else {
                 //start the encoding of the entry
@@ -774,7 +781,9 @@ public class Encoder {
                     logger.fine(entry.element.getName() + " is abstract");
                 }
 
-                entry.encoding = (Element) encode(entry.object, entry.element);
+                entry.encoding = entry.parent != null ? 
+                        (Element) encode(entry.object, entry.element, entry.parent.element.getType()) :
+                        (Element) encode(entry.object, entry.element);
 
                 //add any more attributes
                 List attributes = index.getAttributes(entry.element);
@@ -956,14 +965,18 @@ O:
     }
 
     protected Node encode(Object object, XSDNamedComponent component) {
+        return encode( object, component, null );
+    }
+    
+    protected Node encode(Object object, XSDNamedComponent component, XSDTypeDefinition container ) {
         if (component instanceof XSDElementDeclaration) {
             XSDElementDeclaration element = (XSDElementDeclaration) component;
 
-            return encoder.encode(object, element, doc);
+            return encoder.encode(object, element, doc, container );
         } else if (component instanceof XSDAttributeDeclaration) {
             XSDAttributeDeclaration attribute = (XSDAttributeDeclaration) component;
 
-            return encoder.encode(object, attribute, doc);
+            return encoder.encode(object, attribute, doc, container);
         }
 
         return null;
@@ -1091,11 +1104,13 @@ O:
         public XSDElementDeclaration element;
         public Element encoding;
         public List children; //list of (element,iterator) tuples
-
-        public EncodingEntry(Object object, XSDElementDeclaration element) {
+        public EncodingEntry parent;
+        
+        public EncodingEntry(Object object, XSDElementDeclaration element, EncodingEntry parent) {
             this.object = object;
             this.element = element;
-
+            this.parent = parent;
+            
             children = new ArrayList();
         }
     }

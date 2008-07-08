@@ -18,6 +18,7 @@ package org.geotools.xml.impl;
 
 import org.eclipse.xsd.XSDAttributeDeclaration;
 import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.XSDTypeDefinition;
 import org.picocontainer.MutablePicoContainer;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -62,6 +63,10 @@ public class ElementEncoder {
         this.logger = logger;
     }
 
+    public Element encode(Object value,XSDElementDeclaration element, Document document) {
+        return encode( value, element, document, null);
+    }
+    
     /**
      * Encodes a value corresponding to an element in a schema.
      *
@@ -71,18 +76,18 @@ public class ElementEncoder {
      *
      * @return The encoded value as an element.
      */
-    public Element encode(Object value, XSDElementDeclaration element, Document document) {
+    public Element encode(Object value, XSDElementDeclaration element,Document document, XSDTypeDefinition container) {
         ElementEncodeExecutor executor = new ElementEncodeExecutor(value, element, document, logger);
-        bindingWalker.walk(element, executor, context);
+        bindingWalker.walk(element, executor, container, context);
 
         return executor.getEncodedElement();
     }
 
-    public Attr encode(Object value, XSDAttributeDeclaration attribute, Document document) {
+    public Attr encode(Object value, XSDAttributeDeclaration attribute, Document document, XSDTypeDefinition container) {
         AttributeEncodeExecutor executor = new AttributeEncodeExecutor(value, attribute, document,
                 logger);
 
-        bindingWalker.walk(attribute, executor, context);
+        bindingWalker.walk(attribute, executor, container, context);
 
         return executor.getEncodedAttribute();
     }
