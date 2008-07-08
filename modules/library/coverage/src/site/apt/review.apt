@@ -8,14 +8,11 @@ Module Coverage
     * Jody Garnett August 10th, 2006
 
     * Adrian Custer June 6, 2008
-
-  STATUS: DIRTY
-  
-    Found a sun (c) header in:
-    org/geotools/image/palette/CustomPaletteBuilder.java
     
-  rest is CLEAN
+    * Alessio Fabiani July 8, 2008
 
+  STATUS: CLEAN
+  
     * Presume appropriation of 2ie Technology to IRD and thereby to OSGeo
 
     * Presume use of some text from the OGC specs can be considered fair use for 
