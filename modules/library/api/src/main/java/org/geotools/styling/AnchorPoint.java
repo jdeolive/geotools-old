@@ -40,7 +40,10 @@ public interface AnchorPoint {
      * set the X coordinate for the anchor point
      *
      * @param x an expression which represents the X coordinate
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x .
      */
+    @Deprecated
     void setAnchorPointX(Expression x);
 
     /**
@@ -54,7 +57,10 @@ public interface AnchorPoint {
      * set the Y coordinate for the anchor point
      *
      * @param y an expression which represents the Y coordinate
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x .
      */
+    @Deprecated
     void setAnchorPointY(Expression y);
 
     /**

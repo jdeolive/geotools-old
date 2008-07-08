@@ -33,6 +33,7 @@ import org.opengis.filter.expression.Expression;
  *  </pre>
  * @source $URL$
  */
+@Deprecated
 public interface ColorMapEntry {
     String getLabel();
 

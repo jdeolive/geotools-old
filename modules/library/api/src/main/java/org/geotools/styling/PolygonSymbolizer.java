@@ -96,7 +96,10 @@ public interface PolygonSymbolizer extends Symbolizer {
      * outline  is rendered.
      *
      * @param fill The Fill style to use when rendering the area.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setFill(Fill fill);
 
     /**
@@ -112,7 +115,10 @@ public interface PolygonSymbolizer extends Symbolizer {
      * the Polygon.
      *
      * @param stroke The Stroke style to use when rendering lines.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setStroke(Stroke stroke);
 
     /**
@@ -148,6 +154,9 @@ public interface PolygonSymbolizer extends Symbolizer {
      * @param geometryPropertyName The name of the attribute in the feature
      *        being styled  that should be used.  If null then the default
      *        geometry should be used.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGeometryPropertyName(String geometryPropertyName);
 }

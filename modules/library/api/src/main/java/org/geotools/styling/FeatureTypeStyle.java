@@ -63,19 +63,32 @@ public interface FeatureTypeStyle {
 
     void setName(String name);
 
+    /**
+     * @deprecated this method will be replaced by getDescription.getTitle() in 2.6.x
+     */
+    @Deprecated
     public String getTitle();
 
+    @Deprecated
     void setTitle(String title);
 
+    /**
+     * @deprecated this method will be replaced by getDescription.getAbstract() in 2.6.x
+     */
+    @Deprecated
     public String getAbstract();
 
+    @Deprecated
     void setAbstract(String abstractStr);
 
     /**
      * Only features with the type name returned by this method should
      * be styled by this feature type styler.
      * @return The name of types that this styler applies to
+     * 
+     * @deprecated this method will be replaced by a live set featureTypeNames() in 2.6.x
      */
+    @Deprecated
     String getFeatureTypeName();
 
     /**
@@ -83,7 +96,10 @@ public interface FeatureTypeStyle {
      * applied to.
      * @task REVISIT: should a set method be declared in this interface at all?
      * @param name The TypeName of the features to be styled by this instance.
+     * 
+     * @deprecated this method will be replaced by a live set featureTypeNames() in 2.6.x
      */
+    @Deprecated
     void setFeatureTypeName(String name);
 
     /**
@@ -102,7 +118,10 @@ public interface FeatureTypeStyle {
      *
      * @return An array of strings representing systematic types which
      *         could be styled by this instance.
-     **/
+     * 
+     * @deprecated this method will be replaced by a live set semanticIdentifiers() in 2.6.x
+     */
+    @Deprecated
     String[] getSemanticTypeIdentifiers();
 
     /**
@@ -121,7 +140,10 @@ public interface FeatureTypeStyle {
      *
      * @param types An array of strings representing systematic types which
      *         could be styled by this instance.
-     **/
+     * 
+     * @deprecated this method will be replaced by a live set semanticIdentifiers() in 2.6.x
+     */
+    @Deprecated
     void setSemanticTypeIdentifiers(String[] types);
 
     /**
@@ -133,7 +155,10 @@ public interface FeatureTypeStyle {
      * @version SLD 1.0
      * @version SLD 1.0.20 TODO: GeoAPI getRules(): List<Rule>
      * @return The full set of rules contained in this styler.
+     * 
+     * @deprecated this method will be replaced by a live list rules() in 2.6.x
      */
+    @Deprecated
     Rule[] getRules();
 
     /**
@@ -143,9 +168,16 @@ public interface FeatureTypeStyle {
      * which should be applied when the rule holds true.
      *
      * @param rules The set of rules to be set for this styler.
+     * 
+     * @deprecated this method will be replaced by a live list rules() in 2.6.x
      */
+    @Deprecated
     void setRules(Rule[] rules);
 
+    /**
+     * @deprecated this method will be replaced by a live list rules() in 2.6.x
+     */
+    @Deprecated
     void addRule(Rule rule);
 
     /**
@@ -155,7 +187,10 @@ public interface FeatureTypeStyle {
      * This is *the* list being used to mange the rules!
      * </p>
      * @since GeoTools 2.2.M3, GeoAPI 2.0
+     * 
+     * @deprecated this method will be replaced by a live list rules() in 2.6.x
      */
+    @Deprecated
     List<Rule> rules();
 
     void accept(StyleVisitor visitor);

@@ -67,8 +67,9 @@ public interface PointPlacement extends LabelPlacement {
      * sets the AnchorPoint which identifies the location inside a textlabel to
      * use as an "anchor" for positioning it relative to a point geometry.
      *
-     * @param anchorPoint DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setAnchorPoint(AnchorPoint anchorPoint);
 
     /**
@@ -83,8 +84,9 @@ public interface PointPlacement extends LabelPlacement {
      * sets the Displacement which gives X and Y offset displacements to use
      * for rendering a text label near a point.
      *
-     * @param displacement DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setDisplacement(Displacement displacement);
 
     /**
@@ -97,7 +99,8 @@ public interface PointPlacement extends LabelPlacement {
     /**
      * sets the rotation of the label.
      *
-     * @param rotation DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setRotation(Expression rotation);
 }

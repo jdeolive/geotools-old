@@ -66,7 +66,8 @@ public interface LinePlacement extends LabelPlacement {
      * Sets the expression that is used to compute how far from the lines the
      * text will be drawn. See {@link #getPerpendicularOffset} for details.
      *
-     * @param offset DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setPerpendicularOffset(Expression offset);
 }

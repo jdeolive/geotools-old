@@ -54,14 +54,26 @@ public interface Style {
 
     void setName(String name);
 
-    /* Style Title (human readable name for user interfaces) */
+    /**
+     * Style Title (human readable name for user interfaces) 
+     * 
+     * @deprecated replaced by getDescription().getTitle in 2.6.x
+     */
+    @Deprecated
     String getTitle();
 
+    @Deprecated
     void setTitle(String title);
 
-    /** Description of this style */
+    /** 
+     * Description of this style 
+     * 
+     * @deprecated replaced by getDesciption().getAbstract() in 2.6.x
+     */
+    @Deprecated
     String getAbstract();
 
+    @Deprecated
     void setAbstract(String abstractStr);
 
     /**
@@ -90,11 +102,22 @@ public interface Style {
      * <p>
      * <i>Note: We are using a Array here to continue with Java 1.4 deployment.</i>
      * </p>
+     * 
+     * @deprecated replaced by a live list in 2.6.x
      */
+    @Deprecated
     FeatureTypeStyle[] getFeatureTypeStyles();
 
+    /**
+     * @deprecated replaced by a live list in 2.6.x
+     */
+    @Deprecated
     void setFeatureTypeStyles(FeatureTypeStyle[] types);
 
+    /**
+     * @deprecated replaced by a live list in 2.6.x
+     */
+    @Deprecated
     void addFeatureTypeStyle(FeatureTypeStyle type);
 
     /**

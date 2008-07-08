@@ -81,8 +81,9 @@ public interface Halo {
      * Expression that represents the the distance the halo extends from the
      * text
      *
-     * @param radius DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setRadius(Expression radius);
 
     /**
@@ -95,8 +96,9 @@ public interface Halo {
     /**
      * The fill (color) of the halo
      *
-     * @param fill DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setFill(Fill fill);
 
     void accept(StyleVisitor visitor);

@@ -92,7 +92,10 @@ public interface LineSymbolizer extends Symbolizer {
      * geometry.
      *
      * @param stroke The Stroke style to use when rendering lines.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setStroke(Stroke stroke);
 
     /**
@@ -115,5 +118,9 @@ public interface LineSymbolizer extends Symbolizer {
      */
     String getGeometryPropertyName();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setGeometryPropertyName(String geometryPropertyName);
 }

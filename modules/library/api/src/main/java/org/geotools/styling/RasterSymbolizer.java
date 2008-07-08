@@ -127,7 +127,10 @@ public interface RasterSymbolizer extends Symbolizer {
      * capability will be little used.
      *
      * @param geometryPropertyName the name of the Geometry
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGeometryPropertyName(String geometryPropertyName);
 
     /**
@@ -145,7 +148,10 @@ public interface RasterSymbolizer extends Symbolizer {
      * sets the opacity for the coverage, it has the usual meaning.
      *
      * @param opacity An expression which evaluates to the the opacity (0-1)
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setOpacity(Expression opacity);
 
     /**
@@ -167,7 +173,10 @@ public interface RasterSymbolizer extends Symbolizer {
      * identifier.  Commonly, channels will be labelled as ?1?, ?2?, etc.
      *
      * @param channel the channel selected
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setChannelSelection(ChannelSelection channel);
 
     /**
@@ -199,7 +208,10 @@ public interface RasterSymbolizer extends Symbolizer {
      *
      * @param overlap the expression which evaluates to LATEST_ON_TOP,
      *        EARLIEST_ON_TOP, AVERAGE or RANDOM
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setOverlap(Expression overlap);
 
     /**
@@ -216,7 +228,10 @@ public interface RasterSymbolizer extends Symbolizer {
      *
      * @return The expression which evaluates to LATEST_ON_TOP,
      *         EARLIEST_ON_TOP, AVERAGE or RANDOM
+     * 
+     * @deprecated replaced by method getOverlapBehavior in 2.6.x
      */
+    @Deprecated
     Expression getOverlap();
 
     /**
@@ -234,7 +249,10 @@ public interface RasterSymbolizer extends Symbolizer {
      * system-dependent.
      *
      * @param colorMap the ColorMap for the raster
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setColorMap(ColorMap colorMap);
 
     /**
@@ -272,7 +290,10 @@ public interface RasterSymbolizer extends Symbolizer {
      * ContrastEnhancement, then no enhancement is performed.
      *
      * @param ce the contrastEnhancement
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setContrastEnhancement(ContrastEnhancement ce);
 
     /**
@@ -310,7 +331,10 @@ public interface RasterSymbolizer extends Symbolizer {
      * Earth-based DEMs. The default value is system-dependent.
      *
      * @param relief the shadedrelief object
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setShadedRelief(ShadedRelief relief);
 
     /**
@@ -354,7 +378,10 @@ public interface RasterSymbolizer extends Symbolizer {
      * @param symbolizer the symbolizer to be used. If this is <B>not</B> a
      *        polygon or a line symbolizer an unexpected argument exception
      *        may be thrown by an implementing class.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setImageOutline(Symbolizer symbolizer);
 
     /**

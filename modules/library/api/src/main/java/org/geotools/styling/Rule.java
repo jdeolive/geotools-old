@@ -97,6 +97,7 @@ public interface Rule {
      * @return The title of the rule.  This is a brief, human readable,
      *         description of the rule.
      */
+    @Deprecated
     String getTitle();
 
     /**
@@ -105,6 +106,7 @@ public interface Rule {
      * @param title The title of the rule.  This is a brief, human readable,
      *        description of the rule.
      */
+    @Deprecated
     void setTitle(String title);
 
     /**
@@ -112,6 +114,7 @@ public interface Rule {
      *
      * @return The abstract text, a more detailed description of the rule.
      */
+    @Deprecated
     String getAbstract();
 
     /**
@@ -120,6 +123,7 @@ public interface Rule {
      * @param abstractStr The abstract text, a more detailed description of the
      *        rule.
      */
+    @Deprecated
     void setAbstract(String abstractStr);
 
     /**
@@ -162,6 +166,10 @@ public interface Rule {
 
     void setFilter(Filter filter);
 
+    /**
+     * @deprecated renamed in isElseFilter in 2.6.x
+     */
+    @Deprecated
     boolean hasElseFilter();
 
     void setIsElseFilter(boolean defaultb);
@@ -172,7 +180,10 @@ public interface Rule {
      *
      * @return An array of Graphic objects, any of which can be used as the
      *         legend.
+     * 
+     * @deprecated there will be only one legend graphic in 2.6.x
      */
+    @Deprecated
     Graphic[] getLegendGraphic();
 
     /**
@@ -181,7 +192,10 @@ public interface Rule {
      *
      * @param graphics An array of Graphic objects, any of which can be used as
      *        the legend.
+     * 
+     * @deprecated there will be only one graphic legend in 2.6.x
      */
+    @Deprecated
     void setLegendGraphic(Graphic[] graphics);
 
     /**
@@ -200,7 +214,10 @@ public interface Rule {
      * @return An array of symbolizers to be applied, in sequence, to all of
      *         the features addressed by the FeatureTypeStyler which contains
      *         this rule.
+     * 
+     * @deprecated replaced by a live list symbolizers() in 2.6.x
      */
+    @Deprecated    
     Symbolizer[] getSymbolizers();
 
     /**
@@ -219,7 +236,10 @@ public interface Rule {
      * @param symbolizers An array of symbolizers to be applied, in sequence,
      *        to all of the features addressed by the FeatureTypeStyler which
      *        contains this rule.
+     * 
+     * @deprecated replaced by a live list in 2.6.x
      */
+    @Deprecated
     void setSymbolizers(Symbolizer[] symbolizers);
 
     void accept(StyleVisitor visitor);

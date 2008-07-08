@@ -59,20 +59,49 @@ import org.opengis.filter.expression.Expression;
  * @source $URL$
  */
 public interface ContrastEnhancement {
+    
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void setType(Expression type);
 
+    /**
+     * @deprecated this method will be replaced by getMethod in 2.6.x
+     */
+    @Deprecated
     public Expression getType();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void setGammaValue(Expression gamma);
 
     public Expression getGammaValue();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void setNormalize();
 
+     /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void setHistogram();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void setLogarithmic();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void setExponential();
 
     public void accept(StyleVisitor visitor);

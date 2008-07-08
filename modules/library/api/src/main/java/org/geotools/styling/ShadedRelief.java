@@ -53,7 +53,10 @@ public interface ShadedRelief {
      * turns brightnessOnly on or off depending on value of flag.
      *
      * @param flag boolean
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     public void setBrightnessOnly(boolean flag);
 
     /**
@@ -69,7 +72,10 @@ public interface ShadedRelief {
      * for Earth-based DEMs. The default value is system-dependent.
      *
      * @param reliefFactor an expression which evaluates to a double.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     public void setReliefFactor(Expression reliefFactor);
 
     /**

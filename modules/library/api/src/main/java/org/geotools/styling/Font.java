@@ -32,20 +32,52 @@ public interface Font {
     /** default font-size value **/
     static final int DEFAULT_FONTSIZE = 10;
 
+    /**
+     * @deprecated this method will be replaced by getFamily in 2.6.x
+     */
+    @Deprecated
     Expression getFontFamily();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setFontFamily(Expression family);
 
+    /**
+     * @deprecated this method will be replaced by getStyle in 2.6.x
+     */
+    @Deprecated
     Expression getFontStyle();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setFontStyle(Expression style);
 
+    /**
+     * @deprecated this method will be replaced by getWeight in 2.6.x
+     */
+    @Deprecated
     Expression getFontWeight();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setFontWeight(Expression weight);
 
+    /**
+     * @deprecated this method will be replaced by getSize in 2.6.x
+     */
+    @Deprecated
     Expression getFontSize();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setFontSize(Expression size);
 
     /**

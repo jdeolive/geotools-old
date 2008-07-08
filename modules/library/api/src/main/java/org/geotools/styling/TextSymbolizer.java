@@ -99,24 +99,27 @@ public interface TextSymbolizer extends Symbolizer {
      * Sets the expression that will be evaluated to determine what text is
      * displayed. See {@link #getLabel} for details.
      *
-     * @param label DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setLabel(Expression label);
 
     /**
      * Returns a device independent Font object that is to be used to render
      * the label.
      *
-     * @return DOCUMENT ME!
+     * @deprecated this method will return a single Font in 2.6.x
      */
+    @Deprecated
     Font[] getFonts();
 
     /**
      * sets a list of device independent Font objects to be used to render the
      * label.
      *
-     * @param fonts DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setFonts(Font[] fonts);
 
     /**
@@ -137,24 +140,25 @@ public interface TextSymbolizer extends Symbolizer {
      *
      * @deprecated use getPlacement()
      */
+    @Deprecated
     LabelPlacement getLabelPlacement();
 
     /**
      * A LabelPlacement specifies how a text element should be rendered
      * relative to its geometric point or line.
      *
-     * @param labelPlacement DOCUMENT ME!
-     *
      * @deprecated use setPlacement(LabelPlacement)
      */
+    @Deprecated
     void setLabelPlacement(LabelPlacement labelPlacement);
 
     /**
      * A LabelPlacement specifies how a text element should be rendered
      * relative to its geometric point or line.
      *
-     * @param labelPlacement DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setPlacement(LabelPlacement labelPlacement);
 
     /**
@@ -169,8 +173,9 @@ public interface TextSymbolizer extends Symbolizer {
      * A halo fills an extended area outside the glyphs of a rendered text
      * label to make the label easier to read over a background.
      *
-     * @param halo DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setHalo(Halo halo);
 
     /**
@@ -184,8 +189,9 @@ public interface TextSymbolizer extends Symbolizer {
      * Sets the object that indicates how the text will be filled. See {@link
      * #getFill} for details.
      *
-     * @param fill DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setFill(Fill fill);
 
     /**
@@ -219,7 +225,10 @@ public interface TextSymbolizer extends Symbolizer {
      * @param name The name of the attribute in the feature being styled  that
      *        should be used.  If null then the default geometry should be
      *        used.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGeometryPropertyName(String name);
 
     /**
@@ -227,8 +236,9 @@ public interface TextSymbolizer extends Symbolizer {
      * an expression that evaluates to a number (ie. Integer, Long, Double...)
      * Larger = more likely to be rendered
      *
-     * @param e
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setPriority(Expression e);
 
     /**
@@ -243,9 +253,9 @@ public interface TextSymbolizer extends Symbolizer {
     /**
      * adds a parameter value to the options map
      *
-     * @param key
-     * @param value
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void addToOptions(String key, String value);
 
     /**

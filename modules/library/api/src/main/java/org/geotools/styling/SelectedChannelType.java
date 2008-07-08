@@ -35,6 +35,11 @@ import org.opengis.filter.expression.Expression;
  * @source $URL$
  */
 public interface SelectedChannelType {
+    
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void setChannelName(String name);
 
     public String getChannelName();
@@ -42,13 +47,17 @@ public interface SelectedChannelType {
     /**
      * @deprecated Use {@link #setContrastEnhancement(ContrastEnhancement))} instead.
      */
+    @Deprecated
     public void setContrastEnhancement(Expression gammaValue);
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void setContrastEnhancement(ContrastEnhancement enhancement);
 
     public ContrastEnhancement getContrastEnhancement();
 
     public void accept(StyleVisitor visitor);
-
-    // public Expression getContrastEnhancement();
+    
 }

@@ -216,7 +216,10 @@ public interface Stroke {
      * "#ff0000" (with no quotation marks).
      *
      * Note: in CSS this parameter is just called Stroke and not Color.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setColor(Expression color);
 
     /**
@@ -235,7 +238,10 @@ public interface Stroke {
      * pixels encoded as a float.
      * Fractional numbers are allowed but negative
      * numbers are not.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setWidth(Expression width);
 
     /**
@@ -261,7 +267,10 @@ public interface Stroke {
      * totally opaque.  A linear scale of translucency is used for intermediate
      * values.<br>
      * For example, "0.65" would represent 65% opacity.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setOpacity(Expression opacity);
 
     /**
@@ -274,7 +283,10 @@ public interface Stroke {
 
     /**
      * This parameter controls how line strings should be joined together.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setLineJoin(Expression lineJoin);
 
     /**
@@ -287,7 +299,10 @@ public interface Stroke {
 
     /**
      * This parameter controls how line strings should be capped.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setLineCap(Expression lineCap);
 
     /**
@@ -317,7 +332,10 @@ public interface Stroke {
      * For example, "2 1 3 2" would produce:<br>
      * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;
      * --&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setDashArray(float[] dashArray);
 
     /**
@@ -331,7 +349,10 @@ public interface Stroke {
     /**
      * A dash array need not start from the beginning.  This method allows for
      * an offset into the dash array before starting it.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setDashOffset(Expression dashOffset);
 
     /**
@@ -346,7 +367,10 @@ public interface Stroke {
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be
      * used and specifies the fill graphic to use.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGraphicFill(Graphic graphicFill);
 
     /**
@@ -375,7 +399,10 @@ public interface Stroke {
      * In the case of raster images with no special mark-up, this line will
      * be assumed to be the middle pixel row of the image, starting from the
      * first pixel column and ending at the last pixel column.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGraphicStroke(Graphic graphicStroke);
 
     void accept(StyleVisitor visitor);

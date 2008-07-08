@@ -58,14 +58,20 @@ public interface ChannelSelection {
      * @param red the red channel
      * @param green the green channel
      * @param blue the blue channel
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setRGBChannels(SelectedChannelType red, SelectedChannelType green, SelectedChannelType blue);
 
     /**
      * set the RGB channels to be used
      *
      * @param channels array of channels in RGB order
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setRGBChannels(SelectedChannelType[] channels);
 
     /**
@@ -79,7 +85,10 @@ public interface ChannelSelection {
      * Set the gray channel to be used
      *
      * @param gray the gray channel
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGrayChannel(SelectedChannelType gray);
 
     /**
@@ -93,14 +102,19 @@ public interface ChannelSelection {
      * set the channels to be used
      *
      * @param channels array of channels
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setSelectedChannels(SelectedChannelType[] channels);
 
     /**
      * get the channels to be used
      *
      * @return array of channels
+     * 
      */
+    @Deprecated
     SelectedChannelType[] getSelectedChannels();
 
     public void accept(StyleVisitor visitor);

@@ -71,8 +71,9 @@ public interface Displacement {
      * Sets the expression that computes a pixel offset from the geometry
      * point.
      *
-     * @param x DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setDisplacementX(Expression x);
 
     /**
@@ -89,8 +90,9 @@ public interface Displacement {
      * Sets the expression that computes a pixel offset from the geometry
      * point.
      *
-     * @param y DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setDisplacementY(Expression y);
 
     void accept(StyleVisitor visitor);

@@ -88,7 +88,10 @@ public interface Mark extends Symbol {
      *
      * @param wellKnownName The well-known name of a shape.  The default value
      *        is "square".
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setWellKnownName(Expression wellKnownName);
 
     /**
@@ -104,7 +107,10 @@ public interface Mark extends Symbol {
      * the Mark.
      *
      * @param stroke The Stroke definition to use when rendering the Mark.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setStroke(Stroke stroke);
 
     /**
@@ -118,15 +124,34 @@ public interface Mark extends Symbol {
      * This parameter defines which fill style to use when rendering the Mark.
      *
      * @param fill the Fill definition to use when rendering the Mark.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setFill(Fill fill);
 
+    /**
+     * @deprecated this method is already defined in the parent class.
+     */
+    @Deprecated
     Expression getSize();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setSize(Expression size);
 
+    /**
+     * @deprecated this method is already defined in the parent class.
+     */
+    @Deprecated
     Expression getRotation();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setRotation(Expression rotation);
 
     void accept(StyleVisitor visitor);

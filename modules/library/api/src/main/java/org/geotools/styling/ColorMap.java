@@ -46,14 +46,29 @@ public interface ColorMap {
     public static final int TYPE_INTERVALS = 2;
     public static final int TYPE_VALUES = 3;
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void addColorMapEntry(ColorMapEntry entry);
 
+    /**
+     * 
+     * @deprecated colormap parameters will be replaced by a Filter Function in 2.6.x
+     */
+    @Deprecated
     public ColorMapEntry[] getColorMapEntries();
 
+    @Deprecated
     public ColorMapEntry getColorMapEntry(int i);
 
+    @Deprecated
     public int getType();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     public void setType(int type);
 
     void accept(StyleVisitor visitor);
@@ -64,7 +79,10 @@ public interface ColorMap {
      * @param extended
      *            <code>true</code> for using 65536 colors, <code>false</code>
      *            for using 256.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     public void setExtendedColors(boolean extended);
 
     public boolean getExtendedColors();

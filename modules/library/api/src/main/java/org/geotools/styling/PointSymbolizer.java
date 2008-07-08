@@ -92,8 +92,9 @@ public interface PointSymbolizer extends Symbolizer {
      * Provides the graphical-symbolization parameter to use for the  point
      * geometry.
      *
-     * @param graphic DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGraphic(Graphic graphic);
 
     /**
@@ -124,7 +125,8 @@ public interface PointSymbolizer extends Symbolizer {
      * spec which provides an XPath reference to a Geometry object, but does
      * follow it in spirit.
      *
-     * @param geometryPropertyName DOCUMENT ME!
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGeometryPropertyName(String geometryPropertyName);
 }

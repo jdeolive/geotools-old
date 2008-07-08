@@ -50,6 +50,7 @@ import org.geotools.filter.ConstantExpression;
  *
  * @source $URL$
  */
+@Deprecated
 public class OverlapBehavior extends ConstantExpression {
     public final static String AVERAGE_RESCTRICTION= "AVERAGE";
     public final static String RANDOM_RESCTRICTION= "RANDOM";

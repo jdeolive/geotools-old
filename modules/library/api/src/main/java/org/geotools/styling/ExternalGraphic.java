@@ -81,7 +81,10 @@ public interface ExternalGraphic extends Symbol {
      * converts a URI in a string to the location URL
      *
      * @param uri the uri of the external graphic
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     public void setURI(String uri);
 
     /**
@@ -91,14 +94,20 @@ public interface ExternalGraphic extends Symbol {
      *
      * @throws MalformedURLException If the url held in the ExternalGraphic is
      *         malformed.
+     * 
+     * @deprecated this method will be replaced by get getOnlineResource in 2.6.x
      */
+    @Deprecated
     URL getLocation() throws MalformedURLException;
 
     /**
      * Provides the URL for where the external graphic resource can be located.
      *
      * @param url The URL of the ExternalGraphic
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setLocation(URL url);
 
     /**
@@ -114,7 +123,10 @@ public interface ExternalGraphic extends Symbol {
      *
      * @param format The format of the external graphic.  Reported as its MIME
      *        type in a String object.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setFormat(String format);
 
     /**

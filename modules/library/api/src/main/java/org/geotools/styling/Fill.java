@@ -140,7 +140,10 @@ public interface Fill {
      * "#ff0000" (with no quotation marks).
      *
      * @param color solid color that will be used for a Fill
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setColor(Expression color);
 
     /**
@@ -155,7 +158,10 @@ public interface Fill {
      *
      * @return The background color of the Fill encoded as a hexidecimal RGB
      *         value.
+     * 
+     * 
      */
+    @Deprecated
     Expression getBackgroundColor();
 
     /**
@@ -168,7 +174,10 @@ public interface Fill {
      * "#ff0000" (with no quotation marks).
      *
      * @param backgroundColor solid color that will be used as a background
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setBackgroundColor(Expression backgroundColor);
 
     /**
@@ -190,9 +199,10 @@ public interface Fill {
      * 0.0 representing totally transparent and 1.0 representing totally
      * opaque, with a linear scale of translucency for intermediate values.<br>
      * For example, "0.65" would represent 65% opacity.
-     *
-     * @param opacity DOCUMENT ME!
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setOpacity(Expression opacity);
 
     /**
@@ -207,9 +217,10 @@ public interface Fill {
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be
      * used and specifies the fill graphic to use.
-     *
-     * @param graphicFill DOCUMENT ME!
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGraphicFill(Graphic graphicFill);
 
     void accept(StyleVisitor visitor);

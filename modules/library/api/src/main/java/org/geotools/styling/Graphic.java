@@ -188,11 +188,22 @@ public interface Graphic {
      *       interface. public ExternalGraphic getExternalGraphic(String
      *       formats); return the first external graphic to match one of the
      *       given formats
+     * 
+     * @deprecated this method will be replaced by a set : graphicalSymbols in 2.6.x
      */
+    @Deprecated
     ExternalGraphic[] getExternalGraphics();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setExternalGraphics(ExternalGraphic[] externalGraphics);
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void addExternalGraphic(ExternalGraphic externalGraphic);
 
     /**
@@ -203,11 +214,22 @@ public interface Graphic {
      * @return An array of marks to use when displaying this Graphic.  By
      *         default, a "square" with 50% gray fill and black outline with a
      *         size of 6 pixels (unless a size is specified) is provided.
+     * 
+     * @deprecated this method will be replaced by a set : graphicalSymbols in 2.6.x
      */
+    @Deprecated
     Mark[] getMarks();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setMarks(Mark[] marks);
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void addMark(Mark mark);
 
     /**
@@ -219,11 +241,22 @@ public interface Graphic {
      * @return An array of symbols to use when displaying this Graphic.  By
      *         default, a "square" with 50% gray fill and black outline with a
      *         size of 6 pixels (unless a size is specified) is provided.
+     * 
+     * @deprecated this method will be replaced by a set : graphicalSymbols in 2.6.x
      */
+    @Deprecated
     Symbol[] getSymbols();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setSymbols(Symbol[] symbols);
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void addSymbol(Symbol symbol);
 
     /**
@@ -239,6 +272,10 @@ public interface Graphic {
      */
     Expression getOpacity();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setOpacity(Expression opacity);
 
     /**
@@ -259,10 +296,18 @@ public interface Graphic {
      */
     Expression getSize();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setSize(Expression size);
 
     Displacement getDisplacement();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setDisplacement(Displacement offset);
 
     /**
@@ -276,6 +321,10 @@ public interface Graphic {
      */
     Expression getRotation();
 
+    /**
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     */
+    @Deprecated
     void setRotation(Expression rotation);
 
     /**
@@ -283,13 +332,17 @@ public interface Graphic {
      *
      * @return Value of property geometryPropertyName.
      */
+    @Deprecated
     java.lang.String getGeometryPropertyName();
 
     /**
      * Setter for property geometryPropertyName.
      *
      * @param geometryPropertyName New value of property geometryPropertyName.
+     * 
+     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
+    @Deprecated
     void setGeometryPropertyName(java.lang.String geometryPropertyName);
 
     /**
