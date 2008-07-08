@@ -29,6 +29,7 @@ import org.geotools.ows.v1_1.OWSConfiguration;
 import org.geotools.wps.bindings.LanguagesBinding;
 import org.geotools.xml.ComplexEMFBinding;
 import org.geotools.xml.Configuration;
+import org.geotools.xml.SimpleContentComplexEMFBinding;
 import org.picocontainer.MutablePicoContainer;
 
 import org.geotools.wps.bindings.InputReferenceTypeBinding;
@@ -69,7 +70,7 @@ public class WPSConfiguration extends Configuration {
         bindings.put(WPS.InputDescriptionType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.InputDescriptionType));
         bindings.put(WPS.InputType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.InputType));
         bindings.put(WPS.LanguagesType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.LanguagesType));
-        bindings.put(WPS.LiteralDataType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.LiteralDataType));
+        bindings.put(WPS.LiteralDataType, new SimpleContentComplexEMFBinding(WpsFactory.eINSTANCE,WPS.LiteralDataType));
         bindings.put(WPS.LiteralInputType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.LiteralInputType));
         bindings.put(WPS.LiteralOutputType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.LiteralOutputType));
         bindings.put(WPS.OutputDataType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.OutputDataType));
