@@ -17,6 +17,10 @@
  */
 package org.geotools.coverageio.gdal.jp2kak;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.logging.Logger;
+
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -33,10 +37,13 @@ import org.opengis.parameter.ParameterValue;
  * Testing {@link JP2KReader}
  */
 public final class JP2KTest extends AbstractJP2KTestCase {
+    protected final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
+    "org.geotools.coverageio.gdal.jp2kak");
+    
     /**
      * file name of a valid JP2K sample data to be used for tests.
      */
-    private final static String fileName = "bogota.jp2";
+    private final static String fileName = "sample.jp2";
 
     /**
      * Creates a new instance of JP2KTest
@@ -65,8 +72,15 @@ public final class JP2KTest extends AbstractJP2KTestCase {
 
             return;
         }
+        File file = null;
+        try{
+            file = TestData.file(this, fileName);
+        }catch (FileNotFoundException fnfe){
+            LOGGER.warning("test-data not found: " + fileName + "\nTests are skipped");
+            return;
+        }
 
-        final BaseGDALGridCoverage2DReader reader = new JP2KReader(TestData.file(this, fileName));
+        final BaseGDALGridCoverage2DReader reader = new JP2KReader(file);
         final ParameterValue gg = (ParameterValue) ((AbstractGridFormat) reader.getFormat()).READ_GRIDGEOMETRY2D
             .createValue();
         final GeneralEnvelope oldEnvelope = reader.getOriginalEnvelope();

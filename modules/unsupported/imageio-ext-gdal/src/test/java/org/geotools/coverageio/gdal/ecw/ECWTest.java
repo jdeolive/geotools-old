@@ -50,7 +50,7 @@ public final class ECWTest extends AbstractECWTestCase {
 	/**
 	 * file name of a valid ECW sample data to be used for tests.
 	 */
-	private final static String fileName = "bogota.ecw";
+	private final static String fileName = "sample.ecw";
 
 	/**
 	 * Creates a new instance of {@code ECWTest}

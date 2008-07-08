@@ -77,7 +77,6 @@ public final class ErdasImgTest extends AbstractErdasImgTestCase {
         Hints hints = new Hints();
         hints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, l));
 
-        // get a reader
         File file = null;
         try{
             file = TestData.file(this, fileName);

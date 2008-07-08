@@ -25,13 +25,15 @@ IMAGEIO-EXT-GDAL
 * Data Credits
   ~~~~~~~~~~~~
 
-** MrSID data [Free data]:
+** MrSID data credit:
+   n13250i.sid: MassGIS sample data available at http://www.mass.gov/mgis/download.htm
    Office of Geographic and Environmental Information (MassGIS), Commonwealth of Massachusetts Executive Office of Environmental Affairs
-   (http://www.mass.gov/mgis/download.htm)
 
-** DTED data
+** DTED data credit:
+   n43.dt0:
    Freely available at: http://download.osgeo.org/gdal/data/dted/
 
-** JP2 data credit / ECW data credit  
-    image generated with gdal_translate utility, from bogota.tif available at MapTools.org:
-    http://dl.maptools.org/dl/geotiff/samples/made_up/
+** JP2 data credit / ECW data credit
+   sample.jp2 / sample.ecw: 
+   data generated with gdal_translate utility, from small_world.tif, freely available at:
+   http://download.osgeo.org/gdal/data/gtiff/

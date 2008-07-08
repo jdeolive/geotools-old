@@ -37,7 +37,7 @@ public final class JP2MrSIDTest extends AbstractJP2MrSIDTestCase {
     /**
      * file name of a valid JP2K sample data to be used for tests.
      */
-    private final static String fileName = "bogota.jp2";
+    private final static String fileName = "sample.jp2";
 
     /**
      * Creates a new instance of JP2KTest
