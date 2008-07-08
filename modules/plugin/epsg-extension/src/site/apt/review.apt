@@ -10,8 +10,10 @@ Plugin EPSG-EXT
     * Adrian Custer, July 2008
 
 
-  STATUS: CLEAN pending resolution of epsg.properties
-    http://jira.codehaus.org/browse/GEOT-1882
+  STATUS: DIRTY
+      Code is CLEAN 
+      Resources pending resolution of epsg.properties
+        http://jira.codehaus.org/browse/GEOT-1882
 
   The EPSG-EXT module is derived from the EPSG-WKT module. The "esri.properties"
   and "extra.properties" files in EPST-EXT are derived from "epsg.properties" in

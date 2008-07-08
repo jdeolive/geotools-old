@@ -6,7 +6,10 @@
  
     * Adrian Custer, June 2008
 
-  STATUS: Code clean, data unknown, JIRA task: TODO
+  STATUS: DIRTY
+      Code clean
+      Data unknown, JIRA task: http://jira.codehaus.org/browse/GEOT-1897
+      Library re-distributed unmodified
 
 
 * Data

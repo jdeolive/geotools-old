@@ -13,7 +13,7 @@ MODULE METADATA
     * Adrian Custer, May 2008
 
 
-  STATUS as of June 2008: CLEAN
+  STATUS: CLEAN
   
     We could use confirmation for (c) transfer by:
     * MassGIS (c) as employer of Saul Farber in org.geotools.logging but that's

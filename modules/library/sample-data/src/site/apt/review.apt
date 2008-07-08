@@ -10,7 +10,9 @@ MODULE SAMPLE DATA
     * Adrian Custer, June 6th 2008
 
 
-  STATUS: DATA NEEDS REVIEW
+  STATUS: DIRTY
+      Code is Clean
+      Data NEEDS REVIEW  http://jira.codehaus.org/browse/GEOT-1898
 
   James Macgill is listed as a java developer on this
   one, but there is no official module maintainer. This

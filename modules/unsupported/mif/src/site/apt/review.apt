@@ -11,7 +11,9 @@ PLUGIN MIF
 
     * Adrian Custer, June 2008
 
-  STATUS: Clean except for test data
+  STATUS: DIRTY
+      Code is CLEAN
+      Data are UNKNOWN
 
 
 

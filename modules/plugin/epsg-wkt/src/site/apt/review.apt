@@ -10,7 +10,10 @@ Plugin EPSG-WKT
     * Adrian Custer, June 2008
 
 
-  STATUS: CLEAN pending questions below.
+  STATUS: DIRTY
+      Code is clean
+      Properties files have pending questions below.
+        http://jira.codehaus.org/browse/GEOT-1883
 
   The (re) distribution of epsg.properties requires clairfication, asked Paul 
   Ramsey for advice via email.

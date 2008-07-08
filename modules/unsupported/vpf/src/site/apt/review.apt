@@ -9,8 +9,11 @@ PLUGIN VPF
 
     * Adrian Custer, June 2008
 
-  STATUS:
-    Clean (we can toss the unit tests at some point if we want).
+  STATUS: DIRTY
+    Core code is CLEAN
+    Test code is CLEAN but has own copyright, we could toss these.
+    Data origin UNKNOWN
+      http://jira.codehaus.org/browse/GEOT-1900
 
 
   Email from Module Maintainer:

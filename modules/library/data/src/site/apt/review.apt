@@ -12,15 +12,9 @@ Module data
     * Martin, Feb 1st, 2006
 
 
-  STATUS as of June 2008: CLEAN
+  STATUS: CLEAN
   
-  The purpose and initial origin (uDig? GeoServer? GeoTools?) of this code is 
-  not yet docummented here, I'll leave that to Jody/Justin.
-
-  STATUS as of Feb 1st, 2006
-
-  This package was split from main for GeoTools 2.4.x; as such the following 
-  information was origionally in main/review.txt
+  The purpose and initial authors of this code not known, left to Jody/Justin.
 
 
 * org.geotools.data.store

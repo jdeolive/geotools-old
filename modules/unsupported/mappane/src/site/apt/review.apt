@@ -10,8 +10,10 @@ EXT MAPPANE
     * Adrian Custer, June 2008
 
 
-  STATUS: Clean.
-  Still the issue with the swing icons: to be resolved.
+  STATUS: DIRTY
+      Code is CLEAN
+      Still the issue with the swing icons: to be resolved.
+        http://jira.codehaus.org/browse/GEOT-1904
 
 
   This package is a "rescue" for the origional JStyledMapPane demo code used by 

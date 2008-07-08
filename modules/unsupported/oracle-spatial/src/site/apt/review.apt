@@ -9,8 +9,9 @@ PLUGIN ORACLE SPATIAL
     * Adrian Custer, June 2008
 
 
-    STATUS: Clean
-    needs clarification on testData.sql
+    STATUS: DIRTY
+        Code is CLEAN except needs clarification on testData.sql
+          http://jira.codehaus.org/browse/GEOT-1905
 
     * module depends on a stubbed oracle jdbc driver. This allows builds to continue
       without having permission to distribute the oracle jdbc driver directly.

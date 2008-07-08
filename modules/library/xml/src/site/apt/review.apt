@@ -7,9 +7,9 @@ Module xml
 
     * Adrian Custer, June 6, 2008
 
-  STATUS as of June 2008: DIRTY
+  STATUS: DIRTY
     Code is CLEAN
     Resource origin needs to be found and documented.
       http://jira.codehaus.org/browse/GEOT-1877
 
-  Package origins unknown, I'll leave it to Jody/Justin.
+  Original purpose and authors not known, left to Jody/Justin.

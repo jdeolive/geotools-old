@@ -9,8 +9,9 @@ EXTENTION GRAPH
 
     * Adrian Custer June 2008
 
-  STATUS: Clean, with one(two?) confused (C)
-    http://jira.codehaus.org/browse/GEOT-1892
+  STATUS: DIRTY
+      Code is Clean, with one(two?) confused (C)
+        http://jira.codehaus.org/browse/GEOT-1892
 
 
   The Graph module was started as part of the Java Confulation Project, this 

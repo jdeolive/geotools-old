@@ -9,8 +9,10 @@ PLUGIN IMAGE
 
     * Adrian Custer, June 2008
 
-  STATUS: Clean appart from data provenance which is unknown.
-    http://jira.codehaus.org/browse/GEOT-1886
+  STATUS: DIRTY
+      Code is CLEAN
+      Data origins unknown 
+        http://jira.codehaus.org/browse/GEOT-1886
 
   - afabiani:
   	   * etopo.tif don't remeber where it come from. It should be safe

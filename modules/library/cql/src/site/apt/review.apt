@@ -10,7 +10,7 @@ MODULE CQL
     * Adrian Custer, June 6, 2008.
 
 
-  STATUS as of June 2008: CLEAN
+  STATUS: CLEAN
 
   This module was created by Axios Engineering as an extension of the
   existing org.geotools.filter.ExpressionBuilder class, which used to

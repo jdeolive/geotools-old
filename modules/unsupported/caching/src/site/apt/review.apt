@@ -5,11 +5,12 @@ Unsupported CACHING
  
     * Adrian Custer, June 2008
 
-  STATUS: 
-  NEEDS REVIEW: 
-    License is okay but we may need to give copyright to Marios 
-    Hadjieleftheriou on most of these files. Certainly, the files which are 
-    fully under his copyright can only be licensed under the LGPL.
+  STATUS: DIRTY
+      Code NEEDS REVIEW
+        License is okay but we may need to give copyright to Marios 
+        Hadjieleftheriou on most of these files. Certainly, the files which are 
+        fully under his copyright can only be licensed under the LGPL.
+        http://jira.codehaus.org/browse/GEOT-1901
     
     Email sent for clarification.
 

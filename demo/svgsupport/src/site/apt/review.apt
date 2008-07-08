@@ -6,7 +6,8 @@ MODULE SVG SUPPORT
   IP Review:
 
     * Jody Garnett, August 7th, 2006
-
+    
+  STATUS: CLEAN
 
 
 * org.geotools.svg

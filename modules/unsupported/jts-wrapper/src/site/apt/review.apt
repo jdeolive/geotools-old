@@ -5,8 +5,10 @@
  
     * Adrian Custer, June 2008
 
-    STATUS: Mixed. No Data to be worried about. Code has a mix of headers, standard 
-    and as follows:
+    STATUS: DIRTY 
+        No Data to be worried about. 
+        Code has a mix of headers, standard and as follows.
+          http://jira.codehaus.org/browse/GEOT-1899
 
 ----------------------------------------------------------------------------------------------------
 /*$************************************************************************************************

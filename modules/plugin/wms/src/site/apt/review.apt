@@ -9,8 +9,10 @@ PLUGIN WMS
 
     * Adrian Custer, June 2008
 
-  STATUS: clean, except for two icons in the code and test xml data
-    http://jira.codehaus.org/browse/GEOT-1891
+  STATUS: DIRTY
+    Code is clean
+    Two icons of unknown origin
+    Test xml data origin unknown: http://jira.codehaus.org/browse/GEOT-1891
 
 
 

@@ -12,8 +12,7 @@ MODULE REFERENCING
     * Adrian Custer, June 5th, 2008
 
 
-  STATUS: June 2008
-    CLEAN
+  STATUS: CLEAN
 
 
   Referencing is at one level a "pure" implementation of GeoAPI interfaces, up to 

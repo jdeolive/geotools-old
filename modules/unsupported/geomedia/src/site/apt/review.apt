@@ -10,7 +10,9 @@ Plugin GeoMedia
     * Adrian Custer, June 2008
 
 
-  STATUS: problems remain
+  STATUS: CLEAN, lgpl only due to mixed headers
+    Code has mixed headers
+    No Data
 
   The headers indicate that this code is not copyright the GeoTools PMC,
   as such I do not feel I have permission to change anything, and am not sure

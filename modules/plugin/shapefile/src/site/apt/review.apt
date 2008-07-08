@@ -14,9 +14,10 @@ PLUGIN SHAPEFILE
     * Adrian Custer, June 2008
  
 
-  STATUS: Clean except for two issues below
+  STATUS: DIRTY
+    Two code issues below
       http://jira.codehaus.org/browse/GEOT-1888
-    and the data provenance
+    Data provenance
       http://jira.codehaus.org/browse/GEOT-1889
 
 

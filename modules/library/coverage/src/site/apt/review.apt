@@ -9,8 +9,8 @@ Module Coverage
 
     * Adrian Custer June 6, 2008
 
-  STATUS June 2008:
-  DIRTY
+  STATUS: DIRTY
+  
     Found a sun (c) header in:
     org/geotools/image/palette/CustomPaletteBuilder.java
     

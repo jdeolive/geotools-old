@@ -6,9 +6,10 @@
 
     * Adrian Custer, June 2008
 
-  STATUS: Clean except for 18M (!?excuse me?) of test data for which we need
-  a provenance review.
-    http://jira.codehaus.org/browse/GEOT-1878
+  STATUS: DIRTY
+      Code is CLEAN
+      Data 18M (!?excuse me?) need a provenance review.
+        http://jira.codehaus.org/browse/GEOT-1878
 
 
 

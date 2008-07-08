@@ -8,9 +8,11 @@ Community-Schemas
  
     * Adrian Custer, June 2008
 
-  STATUS: Code is clean; data sources unknown.
-  There's also the infamous DateUtil with a double Copyright.
-
+  STATUS: DIRTY
+      Code is CLEAN, DateUtil with a double Copyright.
+      Data origin UNKNOWN
+        http://jira.codehaus.org/browse/GEOT-1902
+      
   There are a bunch of xml/.xsd data/schema file pairs, 
   which were presumably generated for this project but 
   their licensing needs to be documented.

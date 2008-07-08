@@ -10,8 +10,10 @@ PLUGIN WFS
     * Adrian Custer, June 2008
 
 
-  STATUS: Clean, except for data source
-    http://jira.codehaus.org/browse/GEOT-1890
+  STATUS: DIRTY
+      CODE is CLEAN, with mixed copyright
+      DATA source needs clarification:
+          http://jira.codehaus.org/browse/GEOT-1890
   
   
   

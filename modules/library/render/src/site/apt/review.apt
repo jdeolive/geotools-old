@@ -9,14 +9,12 @@ MODULE RENDER
     * Adrian Custer, June 6th 2008
 
 
-  STATUS: INCOMPLETE due to miscelaneous resources
-  
-   The code is CLEAN with one minor issue, we presume copyright transfer from 
-     (C) 2002, Centre for Computational Geography
-
-   There are many test resources in this module with unclear provenance which 
-     Geosolutions needs to fix (see the last entry).
-     http://jira.codehaus.org/browse/GEOT-1876
+  STATUS: DIRTY
+      Code is CLEAN
+        -- we presume copyright transfer from (C) 2002, Centre for Computational Geography
+        
+      Data are UNKNOWN: Geosolutions needs to fix (see the last entry).
+        http://jira.codehaus.org/browse/GEOT-1876
    
   - afabiani: apart usa.png the other test-data is safe. usa.png comes from GIDB client
               it shouldn't be reliable to be distributed under LGPL license.

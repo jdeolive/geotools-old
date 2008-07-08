@@ -5,9 +5,13 @@ IMAGEIO-EXT-GDAL
 
   * Daniele Romagnoli June 2008
 
-  STATUS: waiting for checks.
+  STATUS: DIRTY
+      Code is clean.
+      Data is waiting for checks.
+        http://jira.codehaus.org/browse/GEOT-1905
 
-  This module is the set of geotools plugins leveraging on imageio-ext project which provides access to several raster data formats leveraging on GDAL.
+  This module is the set of geotools plugins leveraging on imageio-ext project 
+  which provides access to several raster data formats leveraging on GDAL.
 
 
 * Important Note

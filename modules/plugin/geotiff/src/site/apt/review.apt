@@ -6,7 +6,11 @@ GeoTIFF Module
   IP Review:
  
     * Jody Garnett, July 10th, 2006
-
+  
+  STATUS: DIRTY
+      Code is CLEAN, with 5 notices of Public Domain, one happy fun ball
+      Data of unknown origin
+        http://jira.codehaus.org/browse/GEOT-1908
 
 * org.geotools.gce.geotiff
   ~~~~~~~~~~~~~~~~~~~~~~~~

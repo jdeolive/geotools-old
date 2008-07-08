@@ -7,9 +7,10 @@ Module ImageMosaic
 
     * Adrian Custer, July 2008
 
-  STATUS: Clean except from unknown test data (3.4M) whose origin needs to be
-  documented.
-    http://jira.codehaus.org/browse/GEOT-1885
+  STATUS: DIRTY
+      Code is CLEAN
+      Data origins unknown.(3.4M) 
+          http://jira.codehaus.org/browse/GEOT-1885
 
   - afabiani:
   	   * D220*.gif data comes from Slovenia and it may be reliable for distributing under LGPL license, but we should ask for that to be sure
