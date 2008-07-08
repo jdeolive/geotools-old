@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -54,9 +54,11 @@ public class RepresentativeFractionImpl extends Number implements Representative
      */
     public RepresentativeFractionImpl() {
     }
-    
+
     /**
      * Creates a new representative fraction from the specified denominator.
+     *
+     * @param denominator The denominator.
      */
     public RepresentativeFractionImpl(final long denominator) {
         this.denominator = denominator;
@@ -66,8 +68,8 @@ public class RepresentativeFractionImpl extends Number implements Representative
      * Creates a representative fraction from a scale as a {@code double} value.
      * The {@linkplain #getDenominator denominator} will be set to {@code 1/scale}.
      *
-     * @param scale The scale as a number between 0 and 1.
-     *
+     * @param  scale The scale as a number between 0 and 1.
+     * @return The representative fraction created from the given scale.
      * @throws IllegalArgumentException if the condition {@code abs(scale) <= 1} is not meet.
      */
     public static RepresentativeFraction fromScale(final double scale)
@@ -83,8 +85,9 @@ public class RepresentativeFractionImpl extends Number implements Representative
     }
 
     /**
-     * Returns the scale. This is equivalent to {@link #doubleValue}.
+     * @deprecated This is equivalent to {@link #doubleValue}.
      */
+    @Deprecated
     public double toScale(){
         return doubleValue();
     }
@@ -106,33 +109,45 @@ public class RepresentativeFractionImpl extends Number implements Representative
     }
 
     /**
-     * Returns 0 since the scale is a fraction between 0 and 1. Such value can not
-     * be represented as an integer.
+     * Returns the scale as an integer. This method returns 0, 1 or throws an exception
+     * as specified in {@link #intValue}.
+     *
+     * @throws ArithmeticException if the {@linkplain #getDenominator denominator} is 0.
      */
-    public long longValue() {
-        return 0;
+    public long longValue() throws ArithmeticException {
+        return intValue();
     }
 
     /**
-     * Returns 0 since the scale is a fraction between 0 and 1. Such value can not
-     * be represented as an integer.
+     * Returns the scale as an integer. If the denominator is 0, then this method throws an
+     * {@link ArithmeticException} since infinities can not be represented by an integer.
+     * Otherwise if the denominator is 1, then this method returns 1. Otherwise returns 0
+     * 0 since the scale is a fraction between 0 and 1, and such value can not be represented
+     * as an integer.
+     *
+     * @throws ArithmeticException if the {@linkplain #getDenominator denominator} is 0.
      */
-    public int intValue() {
-        return 0;
+    public int intValue() throws ArithmeticException {
+        if (denominator == 1) {
+            return 1;
+        } else if (denominator != 0) {
+            return 0;
+        } else {
+            throw new ArithmeticException();
+        }
     }
 
     /**
      * Returns the number below the line in a vulgar fraction.
      */
-    public int getDenominator() {
-        if (denominator < Integer.MIN_VALUE || denominator > Integer.MAX_VALUE) {
-            throw new IllegalStateException(); // API change required.
-        }
-        return (int) denominator;
+    public long getDenominator() {
+        return denominator;
     }
-    
+
     /**
      * Sets the denominator value.
+     *
+     * @param denominator The new denominator value.
      */
     public void setDenominator(final long denominator) {
         this.denominator = denominator;
@@ -140,6 +155,9 @@ public class RepresentativeFractionImpl extends Number implements Representative
 
     /**
      * Compares this object with the specified value for equality.
+     *
+     * @param object The object to compare with.
+     * @return {@code true} if both objects are equal.
      */
     @Override
     public boolean equals(final Object object) {

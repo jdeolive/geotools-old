@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -173,6 +173,8 @@ public class VerticalExtentImpl extends MetadataEntity implements VerticalExtent
      * <p>
      * This convenience method get the unit from the {@linkplain #getVerticalCRS vertical CRS},
      * if any.
+     *
+     * @deprecated removed from ISO_19115:2003/Cor.1:2006
      */
     //@XmlElement(name = "unitOfMeasure", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public Unit getUnit()  {
@@ -192,7 +194,7 @@ public class VerticalExtentImpl extends MetadataEntity implements VerticalExtent
     /**
      * Provides information about the origin from which the
      * maximum and minimum elevation values are measured.
-     * <p>
+     *
      * @deprecated Use {@link #getVerticalCRS} instead.
      */
     public VerticalDatum getVerticalDatum()  {
