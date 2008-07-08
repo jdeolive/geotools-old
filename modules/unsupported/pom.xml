@@ -88,7 +88,6 @@
        <modules>
          <module>community-schemas</module>
          <module>hsql</module>
-         <module>jpox</module>
          <module>geomedia</module>
          <module>ogr</module>
          <module>gml3</module>
