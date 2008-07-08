@@ -24,7 +24,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.geotools.factory.Hints;
+
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
 import junit.framework.TestCase;
 
@@ -155,6 +159,20 @@ public class TemporalConverterFactoryTest extends TestCase {
 		assertEquals( timeStamp, new Timestamp( calendar.getTime().getTime() ) );
 	}
 	
-	
+	public void testXMLGregorianCalendarToCalendar() throws Exception {
+	    XMLGregorianCalendar gc = XMLGregorianCalendarImpl.parse( "1981-06-20T12:00:00");
+	    assertNotNull( factory.createConverter( XMLGregorianCalendar.class, Calendar.class, null));
+	    
+	    Calendar calendar = (Calendar) factory.createConverter( XMLGregorianCalendar.class, Calendar.class, null)
+	        .convert( gc, Calendar.class );
+	    assertNotNull(calendar);
+	    
+	    assertEquals( 1981, calendar.get( Calendar.YEAR ) );
+	    assertEquals( 5, calendar.get( Calendar.MONTH ) );
+	    assertEquals( 20, calendar.get( Calendar.DATE ) );
+	    assertEquals( 12, calendar.get( Calendar.HOUR_OF_DAY ) );
+	    assertEquals( 0, calendar.get( Calendar.MINUTE ) );
+	    assertEquals( 0, calendar.get( Calendar.SECOND ) );
+	}
 	
 }

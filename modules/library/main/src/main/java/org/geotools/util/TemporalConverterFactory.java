@@ -21,6 +21,8 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.geotools.factory.Hints;
 
 /**
@@ -37,6 +39,7 @@ import org.geotools.factory.Hints;
  *  <li>{@link java.util.Calendar} to {@link java.util.Date}
  *  <li>{@link java.util.Calendar} to {@link java.sql.Timestamp}
  *  <li>{@link java.util.Calendar} to {@link java.sql.Time}
+ *  <li>{@link XMLGregorianCalendar} to {@link Calendar}
  * </ul>
  * </p>
  * <p>
@@ -128,6 +131,17 @@ public class TemporalConverterFactory implements ConverterFactory {
 //			}
 		}
 		
+		if ( XMLGregorianCalendar.class.isAssignableFrom( source ) ) {
+		    if ( Calendar.class.isAssignableFrom( target ) ) {
+		        return new Converter() {
+                            public <T> T convert(Object source, Class<T> target)
+                                    throws Exception {
+                                XMLGregorianCalendar calendar = (XMLGregorianCalendar) source;
+                                return (T) calendar.toGregorianCalendar();
+                            }
+		        };
+		    }
+		}
 		return null;
 	}
 
