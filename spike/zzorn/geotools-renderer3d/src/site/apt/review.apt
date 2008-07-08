@@ -12,12 +12,21 @@
 * Data
   ~~~~
 
+  Shapefiles : 
+  - World countries : free (looks like it's esri free samples shapefiles)
+  - US states : free (looks like it's esri free samples shapefiles)
+
   The files in example-data should be dropped in favour of the 
   library/sample-data file, except for 3D .sld's.
 
 * External Library
   ~~~~~~~~~~~~~~~~
+
+  This spike uses :
+  - LWJGL : Lightweight Java Game Library, under BSD license
+  - JME : Java Monkey Engine, under BSD License
   
+
   The code includes a full copy of the  Lightweight Java Game Library Project
   version 1.0, distributed unmodified under the terms of its license (doc/LICENSE)
 
