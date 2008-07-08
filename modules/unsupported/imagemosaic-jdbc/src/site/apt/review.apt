@@ -1,0 +1,11 @@
+Imagemosaic Jdbc  Implementation for Geotools
+---------------------------------------------
+
+STATUS: Check code and sample data
+
+** Sample Data **
+resources.zip		:	a zip file containing image material needed for the tests
+						The sample data is downloaded from www.openstreemap.com
+						WGS84 Coordinates (lon/lat)
+						lower left:		9/46
+						upper right:	17/49
