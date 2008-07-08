@@ -239,6 +239,9 @@ public final class WPS extends XSD {
     /** @generated */
     public static final QName ExecuteResponse = 
         new QName("http://www.opengis.net/wps/1.0.0","ExecuteResponse");
+    /** generated NOT */
+    public static final QName ExecuteResponse_ProcessOutputs = 
+        new QName("http://www.opengis.net/wps/1.0.0","ExecuteResponse_ProcessOutputs");
     /** @generated */
     public static final QName GetCapabilities = 
         new QName("http://www.opengis.net/wps/1.0.0","GetCapabilities");

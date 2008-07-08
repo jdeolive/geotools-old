@@ -26,12 +26,16 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.opengis.ows11.CodeType;
+import net.opengis.ows11.LanguageStringType;
 import net.opengis.ows11.Ows11Factory;
 import net.opengis.wps.ComplexDataType;
 import net.opengis.wps.DataInputsType1;
 import net.opengis.wps.DataType;
+import net.opengis.wps.ExecuteResponseType;
 import net.opengis.wps.ExecuteType;
 import net.opengis.wps.InputType;
+import net.opengis.wps.OutputDataType;
+import net.opengis.wps.ProcessOutputsType1;
 import net.opengis.wps.WpsFactory;
 
 import org.geotools.xml.Encoder;
@@ -81,5 +85,31 @@ public class ExecuteTest extends TestCase {
             Encoder e = new Encoder( new WPSConfiguration() );
             e.setIndenting( true );
             e.encode( ex, WPS.Execute, System.out );
+        }
+        
+        public void testExecuteResponse() throws Exception {
+            WpsFactory f = WpsFactory.eINSTANCE;
+            ExecuteResponseType response = f.createExecuteResponseType();
+            
+            ProcessOutputsType1 outputs = f.createProcessOutputsType1();
+            response.setProcessOutputs( outputs );
+            
+            OutputDataType output = f.createOutputDataType();
+            outputs.getOutput().add( output );
+            
+            LanguageStringType title = Ows11Factory.eINSTANCE.createLanguageStringType();
+            output.setTitle( title );
+            title.setValue( "foo" );
+            
+            DataType data = f.createDataType();
+            output.setData( data );
+            
+            ComplexDataType cdata = f.createComplexDataType();
+            data.setComplexData( cdata );
+            cdata.getData().add( new GeometryFactory().createPoint( new Coordinate( 1, 1 )));
+            
+            Encoder e = new Encoder( new WPSConfiguration() );
+            e.setIndenting( true );
+            e.encode( response, WPS.ExecuteResponse, System.out);
         }
 }

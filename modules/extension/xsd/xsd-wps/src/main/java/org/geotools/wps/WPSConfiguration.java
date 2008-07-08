@@ -19,6 +19,7 @@ package org.geotools.wps;
 import java.util.Map;
 
 import net.opengis.wps.DefaultType1;
+import net.opengis.wps.ProcessOutputsType1;
 import net.opengis.wps.WpsFactory;
 
 import net.opengis.wps.DataInputsType1;
@@ -64,6 +65,7 @@ public class WPSConfiguration extends Configuration {
         bindings.put(WPS.DataType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DataType));
         bindings.put(WPS.DescriptionType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DescriptionType));
         bindings.put(WPS.DocumentOutputDefinitionType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.DocumentOutputDefinitionType));
+        bindings.put(WPS.ExecuteResponse_ProcessOutputs, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.ExecuteResponse_ProcessOutputs, ProcessOutputsType1.class));
         bindings.put(WPS.InputDescriptionType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.InputDescriptionType));
         bindings.put(WPS.InputType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.InputType));
         bindings.put(WPS.LanguagesType, new ComplexEMFBinding(WpsFactory.eINSTANCE,WPS.LanguagesType));
