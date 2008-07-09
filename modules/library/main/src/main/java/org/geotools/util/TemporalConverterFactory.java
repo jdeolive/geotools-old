@@ -16,14 +16,18 @@
  */
 package org.geotools.util;
 
+import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geotools.factory.Hints;
+
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
 /**
  * Converter factory which created converting between the various temporal types.
@@ -40,6 +44,7 @@ import org.geotools.factory.Hints;
  *  <li>{@link java.util.Calendar} to {@link java.sql.Timestamp}
  *  <li>{@link java.util.Calendar} to {@link java.sql.Time}
  *  <li>{@link XMLGregorianCalendar} to {@link Calendar}
+ *  <li>{@link Calendar} to {@link XMLGregorianCalendar}
  * </ul>
  * </p>
  * <p>
@@ -111,6 +116,18 @@ public class TemporalConverterFactory implements ConverterFactory {
 						);
 					}
 				};
+			}
+			if ( XMLGregorianCalendar.class.isAssignableFrom( target ) ) {
+			    return new Converter() {
+			        public <T> T convert(Object source, Class<T> target)
+                                        throws Exception {
+			            if( source instanceof GregorianCalendar ) {
+			                return (T) new XMLGregorianCalendarImpl( (GregorianCalendar) source );
+			            }
+			            
+			            return null;
+                                }
+			    };
 			}
 //			if ( String.class.equals( target ) ) {
 //				final DateFormat fFormat;
