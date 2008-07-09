@@ -36,6 +36,20 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 
+/**
+ * Simple implementation of FeatureSource for a WFS 1.1 server.
+ * <p>
+ * This implementation is really simple in the sense that it delegates all the
+ * hard work to the {@link WFS110ProtocolHandler} provided.
+ * </p>
+ * 
+ * @author Gabriel Roldan (TOPP)
+ * @version $Id$
+ * @since 2.5.x
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/plugin/wfs/src/main/java/org/geotools/wfs/v_1_1_0/data/XmlSimpleFeatureParser.java $
+ */
+
 public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature>,
         org.geotools.data.wfs.WFSFeatureSource<SimpleFeatureType, SimpleFeature> {
 
@@ -49,9 +63,8 @@ public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, Simple
 
     private QueryCapabilities queryCapabilities;
 
-    public WFSFeatureSource(final WFS_1_1_0_DataStore dataStore,
-                            final String typeName,
-                            final WFS110ProtocolHandler protocolHandler) throws IOException {
+    public WFSFeatureSource(final WFS_1_1_0_DataStore dataStore, final String typeName,
+            final WFS110ProtocolHandler protocolHandler) throws IOException {
         this.typeName = typeName;
         this.dataStore = dataStore;
         this.protocolHandler = protocolHandler;

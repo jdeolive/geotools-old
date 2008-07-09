@@ -26,6 +26,7 @@ import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.store.DataFeatureCollection;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureReaderIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.logging.Logging;
@@ -33,6 +34,17 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.geometry.BoundingBox;
+
+/**
+ * A {@link FeatureCollection} whose iterators are based on the FeatureReaders
+ * returned by a {@link WFS110ProtocolHandler}.
+ * 
+ * @author Gabriel Roldan (TOPP)
+ * @version $Id$
+ * @since 2.5.x
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/plugin/wfs/src/main/java/org/geotools/wfs/v_1_1_0/data/XmlSimpleFeatureParser.java $
+ */
 
 class WFSFeatureCollection extends DataFeatureCollection {
 
@@ -98,7 +110,7 @@ class WFSFeatureCollection extends DataFeatureCollection {
                 final DefaultQuery geomQuery = new DefaultQuery(this.query);
                 geomQuery.setPropertyNames(new String[] { defaultgeom.getLocalPart() });
 
-                 FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+                FeatureReader<SimpleFeatureType, SimpleFeature> reader;
                 reader = protocolHandler.getFeatureReader(geomQuery, Transaction.AUTO_COMMIT);
                 bounds = new ReferencedEnvelope(contentType.getCoordinateReferenceSystem());
                 try {
@@ -144,7 +156,7 @@ class WFSFeatureCollection extends DataFeatureCollection {
         }
         cachedSize = protocolHandler.getCount(query);
         if (cachedSize == -1) {
-            //no luck, cache both bounds and count with a full scan
+            // no luck, cache both bounds and count with a full scan
             getBounds();
         }
         return cachedSize;
@@ -153,7 +165,7 @@ class WFSFeatureCollection extends DataFeatureCollection {
     @SuppressWarnings("unchecked")
     @Override
     protected Iterator<SimpleFeature> openIterator() throws IOException {
-         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader;
         reader = protocolHandler.getFeatureReader(query, Transaction.AUTO_COMMIT);
         return new FeatureReaderIterator<SimpleFeature>(reader);
     }

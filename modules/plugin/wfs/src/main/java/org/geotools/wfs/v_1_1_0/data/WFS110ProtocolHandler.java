@@ -113,6 +113,16 @@ import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+/**
+ * Handles the interaction with a WFS 1.1 server by constructing the WFS 1.1
+ * protocol specific requests.
+ * 
+ * @author Gabriel Roldan (TOPP)
+ * @version $Id$
+ * @since 2.5.x
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/plugin/wfs/src/main/java/org/geotools/wfs/v_1_1_0/data/XmlSimpleFeatureParser.java $
+ */
 public class WFS110ProtocolHandler extends WFSProtocolHandler {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.data.wfs");

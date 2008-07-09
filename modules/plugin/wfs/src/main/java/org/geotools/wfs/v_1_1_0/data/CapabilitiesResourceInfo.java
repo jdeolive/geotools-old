@@ -22,12 +22,20 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Set;
 
-import javax.swing.Icon;
-
 import org.geotools.data.ResourceInfo;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+/**
+ * A {@link ResourceInfo} adapter for the GetCapabilities information provided
+ * by {@link WFS110ProtocolHandler}.
+ * 
+ * @author Gabriel Roldan (TOPP)
+ * @version $Id$
+ * @since 2.5.x
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/plugin/wfs/src/main/java/org/geotools/wfs/v_1_1_0/data/XmlSimpleFeatureParser.java $
+ */
 final class CapabilitiesResourceInfo implements ResourceInfo {
     private WFS110ProtocolHandler protocolHandler;
 
