@@ -67,7 +67,6 @@ import net.opengis.wfs.ResultTypeType;
 import net.opengis.wfs.WFSCapabilitiesType;
 import net.opengis.wfs.WfsFactory;
 
-import org.apache.xml.serialize.OutputFormat;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.EmptyFeatureReader;
@@ -599,15 +598,27 @@ public class WFS110ProtocolHandler extends WFSProtocolHandler {
         Filter unsupportedFilter;
         {
             Filter filter = query.getFilter();
+            if (null == filter) {
+                // what do we have the null objects for if query can return
+                // null?
+                filter = Filter.INCLUDE;
+            }
             if (Filter.EXCLUDE.equals(filter)) {
                 return new EmptyFeatureReader<SimpleFeatureType, SimpleFeature>(contentType);
             }
             // TODO: split filters!!
+            // We need to create a geotools FilterCapabilities out of the
+            // GetCapabilities response's FitlerCapabilities element and use it
+            // with a PostPreProcessFilterSplittingVisitor in order to split the
+            // filter in the supported and unsupported parts
             if (filter instanceof BBOX || filter instanceof Id) {
                 supportedFilter = filter;
                 unsupportedFilter = Filter.EXCLUDE;
             } else {
                 supportedFilter = Filter.INCLUDE;
+                // HACK: by now just sent the whole filter to the WFS
+                // supportedFilter = filter;
+
                 unsupportedFilter = filter;
             }
         }
@@ -819,35 +830,7 @@ public class WFS110ProtocolHandler extends WFSProtocolHandler {
         }
 
         if (Filter.INCLUDE != filter) {
-            if (filter instanceof BBOX) {
-                final BBOX bbox = (BBOX) filter;
-                // int dimension = 2;
-                // try {
-                // CoordinateReferenceSystem crs = CRS.decode(srs);
-                // dimension = crs.getCoordinateSystem().getDimension();
-                // } catch (Exception e) {
-                // e.printStackTrace();
-                // }
-
-                StringBuffer sb = new StringBuffer();
-                sb.append(bbox.getMinX()).append(',');
-                sb.append(bbox.getMinY()).append(',');
-                // for (int extraDim = 2; extraDim < dimension; extraDim++) {
-                // sb.append("0,");
-                // }
-
-                sb.append(bbox.getMaxX()).append(',');
-                sb.append(bbox.getMaxY());// .append(',');
-                // for (int extraDim = 2; extraDim < dimension; extraDim++) {
-                // sb.append("0,");
-                // }
-
-                if (epsgCode != null) {
-                    sb.append(",");
-                    sb.append(epsgCode);
-                }
-                kvpMap.put("BBOX", sb.toString());
-            } else if (filter instanceof Id) {
+            if (filter instanceof Id) {
                 final Set<Identifier> identifiers = ((Id) filter).getIdentifiers();
                 StringBuffer idValues = new StringBuffer();
                 for (Iterator<Identifier> it = identifiers.iterator(); it.hasNext();) {
@@ -867,11 +850,7 @@ public class WFS110ProtocolHandler extends WFSProtocolHandler {
                 } catch (UnsupportedEncodingException e) {
                     throw new RuntimeException(e);
                 }
-                StringBuffer wfsParamDelimitedFilter = new StringBuffer();
-                // wfsParamDelimitedFilter.append("(");
-                wfsParamDelimitedFilter.append(urlEncodedFilter);
-                // wfsParamDelimitedFilter.append(")");
-                kvpMap.put("FILTER", wfsParamDelimitedFilter.toString());
+                kvpMap.put("FILTER", urlEncodedFilter);
             }
         }
 
@@ -913,14 +892,12 @@ public class WFS110ProtocolHandler extends WFSProtocolHandler {
         return getFeatureRequest;
     }
 
-    private String encodeGetFeatureGetFilter(final Filter filter) throws IOException {
+    public static String encodeGetFeatureGetFilter(final Filter filter) throws IOException {
 
         OGCConfiguration filterConfig = new OGCConfiguration();
         Encoder encoder = new Encoder(filterConfig);
         // do not write the xml declaration
-        OutputFormat format = new OutputFormat();
-        format.setOmitXMLDeclaration(true);
-        encoder.setOutputFormat(format);
+        encoder.setOmitXMLDeclaration(true);
 
         OutputStream out = new ByteArrayOutputStream();
         encoder.encode(filter, OGC.Filter, out);
@@ -944,13 +921,8 @@ public class WFS110ProtocolHandler extends WFSProtocolHandler {
             throws IOException {
         Encoder encoder = new Encoder(configuration);
         encoder.setNamespaceAware(true);
-
-        // TODO: outputformat should be somehow hidden as its xerces specific
-        // API
-        OutputFormat outputFormat = new OutputFormat();
-        outputFormat.setIndenting(true);
-        outputFormat.setIndent(2);
-        encoder.setOutputFormat(outputFormat);
+        encoder.setIndenting(true);
+        encoder.setIndentSize(2);
 
         HttpURLConnection connection = connectionFac.getConnection(destination, POST);
         OutputStream outputStream = connection.getOutputStream();
