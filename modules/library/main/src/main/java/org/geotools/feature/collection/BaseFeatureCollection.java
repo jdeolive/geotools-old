@@ -137,8 +137,7 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
 	public ReferencedEnvelope getBounds() {
 		throw new UnsupportedOperationException("subclasses should override");
 	}
-	public boolean isValid() {
-	    return true;
+	public void validate() {
 	}
 	
 }

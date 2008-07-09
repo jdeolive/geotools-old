@@ -22,25 +22,16 @@ import org.opengis.feature.type.AttributeDescriptor;
 /**
  * Indicates client class has attempted to create an invalid feature.
  * @source $URL$
+ * @deprecated Please use org.opengis.feature.IllegalAttributeException
  */
-public class IllegalAttributeException extends IllegalArgumentException {
-    private static final long serialVersionUID = -4964013824521988182L;
-
-    /** The expected attribute type. */
-    private final AttributeDescriptor expected;
-
-    /** The object that does not match the expected type. */
-    private final Object invalid;
-
+public class IllegalAttributeException extends org.opengis.feature.IllegalAttributeException {
     /**
      * Constructor with message argument.
      *
      * @param message Reason for the exception being thrown
      */
     public IllegalAttributeException(String message) {
-        super(message);
-        expected = null;
-        invalid = null;
+        super(null,null,message);
     }
 
     /**
@@ -50,7 +41,7 @@ public class IllegalAttributeException extends IllegalArgumentException {
      * @param invalid the attribute that does not validate against expected.
      */
     public IllegalAttributeException(AttributeDescriptor expected, Object invalid) {
-        this(expected, invalid, null);
+        super(expected, invalid );
     }
 
     /**
@@ -62,37 +53,7 @@ public class IllegalAttributeException extends IllegalArgumentException {
      * @param cause the root cause of the error.
      */
     public IllegalAttributeException(AttributeDescriptor expected, Object invalid, Throwable cause) {
-        super(errorMessage(expected, invalid), cause);
-        this.expected = expected;
-        this.invalid = invalid;
+        super( expected, invalid, cause );
     }
 
-    public String toString() {
-        if ((expected == null) && (invalid == null)) {
-            return super.toString();
-        }
-
-        String message = "IllegalAttribute: "
-            + ((expected == null) ? "null" : expected.getType().getBinding().getName());
-
-        message += (" , but got " + ((invalid == null) ? "null" : invalid.getClass().getName()));
-
-        return message;
-    }
-
-    /**
-     * Constructs an error message based on expected and invalid.
-     *
-     * @param expected the expected AttributeType.
-     * @param invalid the attribute that does not validate against expected.
-     *
-     * @return an error message reporting the problem.
-     */
-    static String errorMessage(AttributeDescriptor expected, Object invalid) {
-        String message = "expected "
-            + ((expected == null) ? "null" : expected.getType().getBinding().getName());
-        message += (" , but got " + ((invalid == null) ? "null" : invalid.getClass().getName()));
-
-        return message;
-    }
 }

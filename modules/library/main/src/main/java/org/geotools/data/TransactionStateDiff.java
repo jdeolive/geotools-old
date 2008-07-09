@@ -496,8 +496,7 @@ public class TransactionStateDiff implements State {
 		public boolean equals( Object arg0 ) {
 		    return arg0 == this;
 		}
-		public boolean isValid() {
-		    return true;
+		public void validate() {
 		}
     };
 

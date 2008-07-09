@@ -67,7 +67,7 @@ public final class ReadonlyAttributeDecorator implements Attribute {
     public boolean isNillable() {
         return delegate.isNillable();
     }
-    public boolean isValid() {
-        return delegate.isValid();
+    public void validate() {
+        delegate.validate();
     }
 }

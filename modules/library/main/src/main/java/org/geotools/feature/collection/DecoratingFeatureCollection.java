@@ -304,7 +304,7 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
 	public Object getDefaultGeometry() {
 	    return delegate.getDefaultGeometry();
 	}
-	public boolean isValid() {
-	    return delegate.isValid();
+	public void validate() {
+	    delegate.validate();
 	}
 }
