@@ -74,7 +74,7 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
 	 * @param memberType The type of the members of the collection.
 	 */
     protected BaseFeatureCollection( String id, SimpleFeatureType memberType ){
-    	super(new Object[0], new BaseFeatureCollectionType(memberType), id != null ? id : "featureCollection");
+    	super(new Object[0], new BaseFeatureCollectionType(memberType), id != null ? id : "featureCollection", false);
     }
     
 //    /**

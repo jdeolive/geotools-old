@@ -186,7 +186,7 @@ public class AttributeTypeBuilder {
 	 * Constructs the builder.
 	 *
 	 */
-	public AttributeTypeBuilder() {
+    public AttributeTypeBuilder() {
 		this( new FeatureTypeFactoryImpl() );
 		init();
 		
@@ -442,7 +442,7 @@ public class AttributeTypeBuilder {
 	 */
 	public AttributeType buildType() {
 	    if(length != null){
-	        Filter lengthRestriction = length(name, length);
+	        Filter lengthRestriction = lengthRestriction(length);
 	        restrictions().add( lengthRestriction );
 	    }
 	    
@@ -591,18 +591,17 @@ public class AttributeTypeBuilder {
     /**
      * Helper method to create a "length" filter.
      */
-    protected Filter length(String xpath, int length ){
+    protected Filter lengthRestriction(int length ){
         if ( length < 0 ) {
             return null;
         }
         LengthFunction lengthFunction = (LengthFunction)ff.function("LengthFunction", 
-                new Expression[]{ff.property(xpath)});
+                new Expression[]{ff.property(".")});
         if( lengthFunction == null ) {
-            return null; // TODO: Help Richard! ff.createFunctionExpression cannot find Length!
+            return null; 
         }        
         Filter cf = null;
         try {
-            //cf = ff.equals(length, ff.literal(fieldLength));
             cf = ff.lessOrEqual(lengthFunction, ff.literal(length));
         } catch (IllegalFilterException e) {
             // TODO something

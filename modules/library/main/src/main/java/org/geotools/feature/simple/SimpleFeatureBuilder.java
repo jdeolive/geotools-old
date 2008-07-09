@@ -25,15 +25,15 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataUtilities;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.type.Types;
 import org.geotools.util.Converters;
-import org.opengis.feature.Attribute;
+import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -131,7 +131,10 @@ public class SimpleFeatureBuilder {
     
     /** the feature type */
     SimpleFeatureType featureType;
-
+    
+    /** the feature factory */
+    FeatureFactory factory;
+    
     /** the attribute name to index index */
     Map<String, Integer> index;
 
@@ -144,10 +147,15 @@ public class SimpleFeatureBuilder {
     
     Map<Object, Object>[] userData;
     
-    AttributeValueWrapper validationWrapper = new AttributeValueWrapper();
+    boolean validating;
     
     public SimpleFeatureBuilder(SimpleFeatureType featureType) {
+        this(featureType, CommonFactoryFinder.getFeatureFactory(null));
+    }
+    
+    public SimpleFeatureBuilder(SimpleFeatureType featureType, FeatureFactory factory) {
         this.featureType = featureType;
+        this.factory = factory;
 
         if(featureType instanceof SimpleFeatureTypeImpl) {
             index = ((SimpleFeatureTypeImpl) featureType).index;
@@ -269,17 +277,11 @@ public class SimpleFeatureBuilder {
         if(index >= values.length)
             throw new ArrayIndexOutOfBoundsException("Can handle " 
                     + values.length + " attributes only, index is " + index);
+        
         AttributeDescriptor descriptor = featureType.getDescriptor(index);
-        
-        value = convert(value, descriptor);
-        validate(value, descriptor);
-        
-        values[index] = value;
-    }
-
-    private void validate(Object value, AttributeDescriptor descriptor) {
-        validationWrapper.init(descriptor, value);
-        Types.validate(validationWrapper, value);
+        values[index] = convert(value, descriptor);
+        if(validating)
+            Types.validate(descriptor, values[index]);
     }
 
     private Object convert(Object value, AttributeDescriptor descriptor) {
@@ -327,7 +329,18 @@ public class SimpleFeatureBuilder {
         Object[] values = this.values;
         Map<Object,Object>[] userData = this.userData;
         reset();
-        return new SimpleFeatureImpl(values, userData, featureType, id, index);
+        SimpleFeature sf = factory.createSimpleFeature(values, featureType, id);
+        
+        // handle the user data
+        if(userData != null) {
+            for (int i = 0; i < userData.length; i++) {
+                if(userData[i] != null) {
+                    sf.getProperty(featureType.getDescriptor(i).getName()).getUserData().putAll(userData[i]);
+                }
+            }
+        }
+        
+        return sf;
     }
     
     /**
@@ -473,55 +486,6 @@ public class SimpleFeatureBuilder {
         return builder.buildFeature(feature.getID());
     }
     
-    private static final class AttributeValueWrapper implements Attribute {
-        
-        AttributeDescriptor descriptor;
-        Object value;
-        AttributeType type;
-        
-        void init(AttributeDescriptor descriptor, Object value) {
-            this.descriptor = descriptor;
-            this.value = value;
-            // getType() will be called a massive amount of times
-            this.type = descriptor.getType();
-        }
-
-        public AttributeDescriptor getDescriptor() {
-            return descriptor;
-        }
-
-        public String getID() {
-            return null;
-        }
-
-        public AttributeType getType() {
-            return type;
-        }
-
-        public Name getName() {
-            return descriptor.getName();
-        }
-
-        public Map<Object, Object> getUserData() {
-            return null;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public boolean isNillable() {
-            return descriptor.isNillable();
-        }
-
-        public void setValue(Object newValue) {
-            throw new UnsupportedOperationException("This wrapper is read only");
-        }
-        public void  validate() {
-        }
-        
-    }
-
     /**
      * Adds some user data to the next attributed added to the feature.
      * <p>
@@ -541,5 +505,13 @@ public class SimpleFeatureBuilder {
             userData[index] = new HashMap<Object, Object>();
         userData[index].put( key, value );
         return this;
+    }
+    
+    public boolean isValidating() {
+        return validating;
+    }
+
+    public void setValidating(boolean validating) {
+        this.validating = validating;
     }
 }

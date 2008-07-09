@@ -43,6 +43,7 @@ public class SimpleFeatureBuilderTest extends TestCase {
 		SimpleFeatureType featureType = typeBuilder.buildFeatureType();
 		
 		builder = new SimpleFeatureBuilder(featureType);
+		builder.setValidating(true);
 	}
 	
 	public void testSanity() throws Exception {
@@ -145,6 +146,7 @@ public class SimpleFeatureBuilderTest extends TestCase {
         
         try{
             feature = SimpleFeatureBuilder.build( featureType, new Object[]{"Longer Than 5"}, "ID" );
+            feature.validate();
             fail("this should fail because the value is longer than 5 characters");
         }catch (Exception e) {
             // good
@@ -155,7 +157,7 @@ public class SimpleFeatureBuilderTest extends TestCase {
 	    FilterFactory fac = CommonFactoryFinder.getFilterFactory(null);
 
 	    String attributeName = "string";
-	    PropertyIsEqualTo filter = fac.equals(fac.property(attributeName), fac.literal("Value"));
+	    PropertyIsEqualTo filter = fac.equals(fac.property("."), fac.literal("Value"));
 
 	    SimpleFeatureTypeBuilder builder=new SimpleFeatureTypeBuilder(); //$NON-NLS-1$
 	    builder.setName("test");
@@ -167,7 +169,8 @@ public class SimpleFeatureBuilderTest extends TestCase {
 	    assertNotNull(feature);
 	    
 	    try {
-	        SimpleFeatureBuilder.build( featureType, new Object[]{"NotValue"}, "ID" );
+	        SimpleFeature sf = SimpleFeatureBuilder.build( featureType, new Object[]{"NotValue"}, "ID" );
+	        sf.validate();
 	       fail( "PropertyIsEqualTo filter should have failed");
 	    }
 	    catch( Exception e ) {

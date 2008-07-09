@@ -125,7 +125,7 @@ public class DOMParserTestSuite extends TestSuite {
             
             File tests[] = dir.listFiles( new FileFilter(){
                 public boolean accept(File pathname) {
-                    return pathname.toString().endsWith(".xml");
+                    return pathname.toString().endsWith("test20.xml");
                 }                
             });
             for( int i=0; i<tests.length; i++){

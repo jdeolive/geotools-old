@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.geotools.feature.GeometryAttributeImpl;
 import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.type.Types;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Converters;
 import org.opengis.feature.GeometryAttribute;
@@ -68,33 +69,9 @@ public class SimpleFeatureImpl implements SimpleFeature {
     protected Map<Object, Object>[] attributeUserData;
     
     /**
-     * Builds a new feature reusing the specified index
-     * @param values
-     * @param featureType
-     * @param id
-     * @param index
+     * Wheter this feature is self validating or not
      */
-    SimpleFeatureImpl( Object[] values, SimpleFeatureType featureType, String id, Map<String,Integer> index ) {
-        this.id = id;
-        this.featureType = featureType;
-        this.values = values;
-        this.index = index;
-    }
-    
-    /**
-     * Builds a new feature reusing the specified index
-     * @param values
-     * @param featureType
-     * @param id
-     * @param index
-     */
-    SimpleFeatureImpl( Object[] values, Map<Object, Object>[] attributeUserData, SimpleFeatureType featureType, String id, Map<String,Integer> index ) {
-        this.id = id;
-        this.featureType = featureType;
-        this.attributeUserData = attributeUserData;
-        this.values = values;
-        this.index = index;
-    }
+    protected  boolean validating;
     
     /**
      * Builds a new feature based on the provided values and feature type
@@ -103,7 +80,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
      * @param id
      */
     public SimpleFeatureImpl( List<Object> values, SimpleFeatureType featureType, String id) {
-        this(values.toArray(), featureType, id);
+        this(values.toArray(), featureType, id, false);
     }
     
     /**
@@ -112,11 +89,13 @@ public class SimpleFeatureImpl implements SimpleFeature {
      * @param values
      * @param featureType
      * @param id
+     * @param validating
      */
-    public SimpleFeatureImpl(Object[] values, SimpleFeatureType featureType, String id) {
+    public SimpleFeatureImpl(Object[] values, SimpleFeatureType featureType, String id, boolean validating) {
         this.id = id;
         this.featureType = featureType;
         this.values = values;
+        this.validating = validating;
         
         // in the most common case reuse the map cached in the feature type
         if(featureType instanceof SimpleFeatureTypeImpl) {
@@ -126,6 +105,10 @@ public class SimpleFeatureImpl implements SimpleFeature {
             // TODO: create a separate cache for this case?
             this.index = SimpleFeatureTypeImpl.buildIndex(featureType);
         }
+        
+        // if we're self validating, do validation right now
+        if(validating)
+            validate();
     }
     
     public String getID() {
@@ -188,8 +171,13 @@ public class SimpleFeatureImpl implements SimpleFeature {
 
     public void setAttribute(int index, Object value)
         throws IndexOutOfBoundsException {
-        // we don't do validation, but at least conversion is necessary to have the tests work
-        values[index] = Converters.convert(value, getFeatureType().getDescriptor(index).getType().getBinding());
+        // first do conversion
+        Object converted = Converters.convert(value, getFeatureType().getDescriptor(index).getType().getBinding());
+        // if necessary, validation too
+        if(validating)
+            Types.validate(featureType.getDescriptor(index), converted);
+        // finally set the value into the feature
+        values[index] = converted;
     }
     
     public void setAttribute(String name, Object value) {
@@ -384,6 +372,10 @@ public class SimpleFeatureImpl implements SimpleFeature {
     }
     
     public void validate() {
+        for (int i = 0; i < values.length; i++) {
+            AttributeDescriptor descriptor = getType().getDescriptor(i);
+            Types.validate(descriptor, values[i]);
+        }
     }
 
     /**
@@ -453,7 +445,9 @@ public class SimpleFeatureImpl implements SimpleFeature {
         public void setValue(Object newValue) {
             values[index] = newValue;
         }
+        
         public void validate() {
+            Types.validate(getDescriptor(), values[index]);
         }
         
     }

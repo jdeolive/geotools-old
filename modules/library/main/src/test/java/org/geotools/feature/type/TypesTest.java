@@ -54,7 +54,7 @@ public class TypesTest extends TestCase {
                 .getDefaultHints());
 
         String attributeName = "string";
-        PropertyIsEqualTo filter = fac.equals(fac.property(attributeName), fac
+        PropertyIsEqualTo filter = fac.equals(fac.property("."), fac
                 .literal("Value"));
 
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder(); //$NON-NLS-1$

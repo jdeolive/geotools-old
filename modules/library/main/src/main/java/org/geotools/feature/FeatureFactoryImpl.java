@@ -60,6 +60,12 @@ public class FeatureFactoryImpl implements FeatureFactory {
      */
     GeometryFactory  geometryFactory;
     
+    /**
+     * Whether the features to be built should be self validating on construction and value setting, or not.
+     * But default, not, subclasses do override this value
+     */
+    boolean validating;
+    
     public CRSFactory getCRSFactory() {
         return crsFactory;
     }
@@ -110,41 +116,14 @@ public class FeatureFactoryImpl implements FeatureFactory {
 		return new FeatureImpl(value,type,id);
 	}
 	
-	public SimpleFeature createSimpleFeautre(List<Attribute> value,
-	        AttributeDescriptor descriptor, String id) {
-	    // return new SimpleFeatureImpl(value,descriptor,id);
-	    return null;
-	}
-	
-	public SimpleFeature createSimpleFeature(List<Attribute> value,
-	        SimpleFeatureType type, String id) {
-	    SimpleFeatureBuilder sb = new SimpleFeatureBuilder(type);
-	    sb.addAll(value);
-	    return sb.buildFeature(id);
-	}
-
     public SimpleFeature createSimpleFeature(Object[] array,
             SimpleFeatureType type, String id) {
-        List<Attribute> attributes = new ArrayList<Attribute>();
-        for( int i=0; i<type.getAttributeCount(); i++){
-            AttributeDescriptor field = type.getDescriptor(i);
-            Attribute attribute = createAttribute( array[i], field, null );
-            attributes.add( attribute );
-        }
-        return createSimpleFeature( attributes, type, id );
+        return new SimpleFeatureImpl(array, type, id, validating);
     }
 
     public SimpleFeature createSimpleFeautre(Object[] array,
-            AttributeDescriptor decsriptor, String id) {
-        SimpleFeatureType type = (SimpleFeatureType) decsriptor;
-        List<Attribute> attributes = new ArrayList<Attribute>();
-       
-        for( int i=0; i<type.getAttributeCount(); i++){
-            AttributeDescriptor field = type.getDescriptor(i);
-            Attribute attribute = createAttribute( array[i], field, null );
-            attributes.add( attribute );
-        }
-        return createSimpleFeautre( attributes, decsriptor, id );
+            AttributeDescriptor descriptor, String id) {
+        return createSimpleFeature( array, (SimpleFeatureType) descriptor, id );
     }
    
 }

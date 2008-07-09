@@ -16,6 +16,10 @@
  */
 package org.geotools.factory;
 
+import org.geotools.feature.FeatureFactoryImpl;
+import org.geotools.feature.ValidatingFeatureFactoryImpl;
+import org.opengis.feature.FeatureFactory;
+
 import junit.framework.TestCase;
 
 public class CommonFactoryFinderTest extends TestCase {
@@ -26,6 +30,19 @@ public class CommonFactoryFinderTest extends TestCase {
 
     public void testGetFilterFactory() {
         assertNotNull( CommonFactoryFinder.getFilterFactory( null ));
+    }
+    
+    public void testGetDefaultFeatureFactory() {
+        FeatureFactory featureFactory = CommonFactoryFinder.getFeatureFactory( null );
+        assertNotNull(featureFactory);
+        assertTrue(featureFactory instanceof FeatureFactoryImpl);
+    }
+    
+    public void testGetValidatingFeatureFactory() {
+        Hints hints = new Hints(Hints.FEATURE_FACTORY, ValidatingFeatureFactoryImpl.class);
+        FeatureFactory featureFactory = CommonFactoryFinder.getFeatureFactory( hints );
+        assertNotNull(featureFactory);
+        assertTrue(featureFactory instanceof ValidatingFeatureFactoryImpl);
     }
 
 }

@@ -1,0 +1,2 @@
+org.geotools.feature.FeatureFactoryImpl
+org.geotools.feature.ValidatingFeatureFactoryImpl
