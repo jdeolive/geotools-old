@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.geotools.metadata.iso.quality;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -211,23 +212,6 @@ public class ElementImpl extends MetadataEntity implements Element {
     }
 
     /**
-     * Date that the metadata was created.
-     * The array length is 1 for a single date, or 2 for a range.
-     * Returns {@code null} if this information is not available.
-     *
-     * @deprecated Replaced by {@link #getDates}.
-     */
-    public Date[] getDate() {
-        if (date1 == Long.MIN_VALUE) {
-            return null;
-        }
-        if (date2 == Long.MIN_VALUE) {
-            return new Date[] {new Date(date1)};
-        }
-        return new Date[] {new Date(date1), new Date(date2)};
-    }
-
-    /**
      * Returns the date or range of dates on which a data quality measure was applied.
      * The array length is 1 for a single date, or 2 for a range. Returns
      * an empty list if this information is not available.
@@ -248,56 +232,24 @@ public class ElementImpl extends MetadataEntity implements Element {
 
     /**
      * Set the date or range of dates on which a data quality measure was applied.
-     * The array length is 1 for a single date, or 2 for a range.
-     *
-     * @deprecated Use {@link #setDates(Collection)} instead.
-     */
-    @SuppressWarnings("fallthrough")
-    public synchronized void setDate(final Date[] newValue) {
-        checkWritePermission();
-        date1 = date2 = Long.MIN_VALUE;
-        if (newValue != null) {
-            switch (newValue.length) {
-                default: throw new IllegalArgumentException(
-                        Errors.format(ErrorKeys.MISMATCHED_ARRAY_LENGTH));
-                case  2: date2 = newValue[1].getTime(); // Fall through
-                case  1: date1 = newValue[0].getTime(); // Fall through
-                case  0: break;
-            }
-        }
-    }
-
-    /**
-     * Set the date or range of dates on which a data quality measure was applied.
      * The collection size is 1 for a single date, or 2 for a range.
      *
      * @since 2.4
      */
     public void setDates(final Collection<Date> newValues) {
-        setDate(newValues.toArray(new Date[newValues.size()]));
-    }
-
-    /**
-     * Returns the value (or set of values) obtained from applying a data quality measure or
-     * the out come of evaluating the obtained value (or set of values) against a specified
-     * acceptable conformance quality level.
-     *
-     * @deprecated Use {@link #getResults} instead.
-     */
-    public Result getResult() {
-        final Collection results = getResults();
-        return results.isEmpty() ? null : (Result) results.iterator().next();
-    }
-
-    /**
-     * Set the value (or set of values) obtained from applying a data quality measure or
-     * the out come of evaluating the obtained value (or set of values) against a specified
-     * acceptable conformance quality level.
-     *
-     * @deprecated Use {@link #setResults} instead.
-     */
-    public void setResult(final Result newValue) {
-        setResults(Collections.singleton(newValue));
+        checkWritePermission();
+        date1 = date2 = Long.MIN_VALUE;
+        final Iterator<Date> it = newValues.iterator();
+        if (it.hasNext()) {
+            date1 = it.next().getTime();
+            if (it.hasNext()) {
+                date2 = it.next().getTime();
+                if (it.hasNext()) {
+                    throw new IllegalArgumentException(
+                            Errors.format(ErrorKeys.MISMATCHED_ARRAY_LENGTH));
+                }
+            }
+        }
     }
 
     /**

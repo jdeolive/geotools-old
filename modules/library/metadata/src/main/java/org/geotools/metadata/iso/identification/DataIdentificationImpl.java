@@ -85,24 +85,6 @@ public class DataIdentificationImpl extends IdentificationImpl implements DataId
     private Collection<TopicCategory> topicCategories;
 
     /**
-     * Minimum bounding rectangle within which data is available.
-     * Only one of {@code getGeographicBox()} and {@link #getGeographicDescription()}
-     * should be provided.
-     *
-     * @deprecated not in ISO 19115:2003
-     */
-    private Collection<GeographicBoundingBox> geographicBox;
-
-    /**
-     * Description of the geographic area within which data is available.
-     * Only one of {@link #getGeographicBox()} and {@code getGeographicDescription()}
-     * should be provided.
-     *
-     * @deprecated not in ISO 19115:2003
-     */
-    private Collection<GeographicDescription> geographicDescription;
-
-    /**
      * Description of the dataset in the producers processing environment, including items
      * such as the software, the computer operating system, file name, and the dataset size
      */
@@ -202,29 +184,10 @@ public class DataIdentificationImpl extends IdentificationImpl implements DataId
 
     /**
      * Full name of the character coding standard used for the dataset.
-     *
-     * @deprecated Use {@link #getCharacterSets} instead.
-     */
-    public Charset getCharacterSet() {
-        final Collection<CharacterSet> characterSet = getCharacterSets();
-        return characterSet.isEmpty() ? null : characterSet.iterator().next().toCharset();
-    }
-
-    /**
-     * Full name of the character coding standard used for the dataset.
      */
     @XmlElement(name = "characterSet", required = false)
     public synchronized Collection<CharacterSet> getCharacterSets() {
         return xmlOptional(characterSets = nonNullCollection(characterSets, CharacterSet.class));
-    }
-
-    /**
-     * Set the full name of the character coding standard used for the dataset.
-     *
-     * @deprecated Use {@link #setCharacterSets} instead.
-     */
-    public synchronized void setCharacterSet(final Charset newValue) {
-        throw new UnsupportedOperationException();
     }
 
     /**
@@ -249,52 +212,6 @@ public class DataIdentificationImpl extends IdentificationImpl implements DataId
             final Collection<? extends TopicCategory> newValues)
     {
         topicCategories = copyCollection(newValues, topicCategories, TopicCategory.class);
-    }
-
-    /**
-     * Minimum bounding rectangle within which data is available.
-     * Only one of {@code getGeographicBox()} and {@link #getGeographicDescription()}
-     * should be provided.
-     *
-     * @deprecated not in ISO 19115:2003
-     */
-    public synchronized Collection<GeographicBoundingBox> getGeographicBox() {
-        return geographicBox = nonNullCollection(geographicBox, GeographicBoundingBox.class);
-    }
-
-    /**
-     * Set the minimum bounding rectangle within which data is available.
-     *
-     * @deprecated not in ISO 19115:2003
-     */
-    public synchronized void setGeographicBox(
-            final Collection<? extends GeographicBoundingBox> newValues)
-    {
-        geographicBox = copyCollection(newValues, geographicBox, GeographicBoundingBox.class);
-    }
-
-    /**
-     * Description of the geographic area within which data is available.
-     * Only one of {@link #getGeographicBox()} and {@code getGeographicDescription()}
-     * should be provided.
-     *
-     * @deprecated not in ISO 19115:2003
-     */
-    public synchronized Collection<GeographicDescription> getGeographicDescription() {
-        return geographicDescription = nonNullCollection(geographicDescription,
-                                                         GeographicDescription.class);
-    }
-
-    /**
-     * Set the description of the geographic area within which data is available.
-     *
-     * @deprecated not in ISO 19115:2003
-     */
-    public synchronized void setGeographicDescription(
-            final Collection<? extends GeographicDescription> newValues)
-    {
-        geographicDescription = copyCollection(newValues, geographicDescription,
-                                               GeographicDescription.class);
     }
 
     /**

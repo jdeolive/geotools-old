@@ -134,15 +134,6 @@ public class SourceImpl extends MetadataEntity implements Source {
     /**
      * Set the denominator of the representative fraction on a source map.
      *
-     * @deprecated Use {@link #setScaleDenominator(RepresentativeFraction)}.
-     */
-    public void setScaleDenominator(final long newValue)  {
-        setScaleDenominator(new RepresentativeFractionImpl(newValue));
-    }
-
-    /**
-     * Set the denominator of the representative fraction on a source map.
-     *
      * @since 2.4
      */
     public synchronized void setScaleDenominator(final RepresentativeFraction newValue)  {

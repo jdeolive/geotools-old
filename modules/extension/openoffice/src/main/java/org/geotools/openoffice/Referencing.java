@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -618,11 +618,11 @@ public final class Referencing extends Formulas implements XReferencing {
     {
         Extent validArea;
         try {
-            validArea = crsFactory().createCoordinateReferenceSystem(authorityCode).getValidArea();
+            validArea = crsFactory().createCoordinateReferenceSystem(authorityCode).getDomainOfValidity();
         } catch (Exception exception) {
             try {
                 validArea = ReferencingFactoryFinder.getCoordinateOperationAuthorityFactory(AUTHORITY, null)
-                                         .createCoordinateOperation(authorityCode).getValidArea();
+                                         .createCoordinateOperation(authorityCode).getDomainOfValidity();
             } catch (Exception ignore) {
                 return getLocalizedMessage(exception);
             }
@@ -648,11 +648,11 @@ public final class Referencing extends Formulas implements XReferencing {
     {
         Extent validArea;
         try {
-            validArea = crsFactory().createCoordinateReferenceSystem(authorityCode).getValidArea();
+            validArea = crsFactory().createCoordinateReferenceSystem(authorityCode).getDomainOfValidity();
         } catch (Exception exception) {
             try {
                 validArea = ReferencingFactoryFinder.getCoordinateOperationAuthorityFactory(AUTHORITY, null)
-                                         .createCoordinateOperation(authorityCode).getValidArea();
+                                         .createCoordinateOperation(authorityCode).getDomainOfValidity();
             } catch (Exception ignore) {
                 reportException("getBoundingBox", exception);
                 return getFailure(4,4);

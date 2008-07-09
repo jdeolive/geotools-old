@@ -80,16 +80,6 @@ public class DefaultTemporalReferenceSystemTest {
     }
 
     /**
-     * Test of getValidArea method, of class DefaultTemporalReferenceSystem.
-     */
-    @Test
-    @Deprecated
-    public void testGetValidArea() {
-        Extent result = temporalReferenceSystem1.getValidArea();
-        assertEquals(temporalReferenceSystem2.getValidArea(), result);
-    }
-
-    /**
      * Test of getScope method, of class DefaultTemporalReferenceSystem.
      */
     @Test

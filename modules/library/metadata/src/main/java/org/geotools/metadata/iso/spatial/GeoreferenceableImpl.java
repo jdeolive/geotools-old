@@ -162,29 +162,11 @@ public class GeoreferenceableImpl extends GridSpatialRepresentationImpl implemen
     /**
      * Terms which support grid data georeferencing.
      *
-     * @deprecated please use {@link #getGeoreferencedParameters}.
-     */
-    public Object getParameters() {
-        return getGeoreferencedParameters();
-    }
-
-    /**
-     * Terms which support grid data georeferencing.
-     *
      * @since 2.4
      */
     //@XmlElement(name = "georeferencedParameters", required = true)
     public Record getGeoreferencedParameters() {
         return georeferencedParameters;
-    }
-
-    /**
-     * Set terms which support grid data georeferencing.
-     *
-     * @deprecated please use {@link #setGeoreferencedParameters}.
-     */
-    public void setParameters(final Object newValue) {
-        setGeoreferencedParameters((Record) newValue);
     }
 
     /**

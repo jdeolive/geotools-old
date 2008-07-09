@@ -318,30 +318,11 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     }
 
     /**
-     * Returns the party responsible for the metadata information.
-     *
-     * @deprecated use {@link #getContacts}.
-     */
-    public ResponsibleParty getContact() {
-        final Collection contacts = getContacts();
-        return contacts.isEmpty() ? null : (ResponsibleParty) contacts.iterator().next();
-    }
-
-    /**
      * Returns the parties responsible for the metadata information.
      */
     @XmlElement(name = "contact", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<ResponsibleParty> getContacts() {
         return contacts = nonNullCollection(contacts, ResponsibleParty.class);
-    }
-
-    /**
-     * Set the party responsible for the metadata information.
-     *
-     * @deprecated use {@link #setContacts}.
-     */
-    public synchronized void setContact(final ResponsibleParty newValue) {
-        setContacts(Collections.singleton(newValue));
     }
 
     /**

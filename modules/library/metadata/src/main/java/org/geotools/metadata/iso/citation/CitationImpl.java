@@ -92,14 +92,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
     private Collection<Identifier> identifiers;
 
     /**
-     * Reference form of the unique identifier (ID). Example: Universal Product Code (UPC),
-     * National Stock Number (NSN).
-     *
-     * @deprecated
-     */
-    private Collection<String> identifierTypes;
-
-    /**
      * Name and position information for an individual or organization that is responsible
      * for the resource. Returns an empty string if there is none.
      */
@@ -202,7 +194,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
         if (asTitle) {
             getAlternateTitles().add(new SimpleInternationalString(identifier));
         }
-        getIdentifierTypes().add("Authority name");
         getIdentifiers().add(new IdentifierImpl(identifier));
     }
 
@@ -304,26 +295,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
      */
     public synchronized void setIdentifiers(final Collection<? extends Identifier> newValues) {
         identifiers = copyCollection(newValues, identifiers, Identifier.class);
-    }
-
-    /**
-     * Returns the reference form of the unique identifier (ID).
-     * Example: Universal Product Code (UPC), National Stock Number (NSN).
-     *
-     * @deprecated IdentifierType removed from ISO 19115
-     */
-    public synchronized Collection<String> getIdentifierTypes() {
-        return identifierTypes = nonNullCollection(identifierTypes, String.class);
-    }
-
-    /**
-     * Set the reference form of the unique identifier (ID).
-     * Example: Universal Product Code (UPC), National Stock Number (NSN).
-     *
-     * @deprecated IdentifierType removed from ISO 19115
-     */
-    public synchronized void setIdentifierTypes(final Collection<? extends String> newValues) {
-        identifierTypes = copyCollection(newValues, identifierTypes, String.class);
     }
 
     /**

@@ -174,25 +174,6 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
     }
 
     /**
-     * Scope of data to which maintenance is applied.
-     *
-     * @deprecated Replaced by {@link #getUpdateScopes}.
-     */
-    public ScopeCode getUpdateScope() {
-        final Collection updateScopes = getUpdateScopes();
-        return updateScopes.isEmpty() ? null : (ScopeCode) updateScopes.iterator().next();
-    }
-
-    /**
-     * Scope of data to which maintenance is applied.
-     *
-     * @deprecated Replaced by {@link #setUpdateScopes}.
-     */
-    public void setUpdateScope(final ScopeCode newValue) {
-        setUpdateScopes(Collections.singleton(newValue));
-    }
-
-    /**
      * Returns the scope of data to which maintenance is applied.
      *
      * @since 2.4
@@ -209,25 +190,6 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
      */
     public synchronized void setUpdateScopes(final Collection<? extends ScopeCode> newValues) {
         updateScopes = copyCollection(newValues, updateScopes, ScopeCode.class);
-    }
-
-    /**
-     * Additional information about the range or extent of the resource.
-     *
-     * @deprecated Replaced by {@link #getUpdateScopeDescriptions}.
-     */
-    public ScopeDescription getUpdateScopeDescription() {
-        final Collection<ScopeDescription> updateScopeDescriptions = getUpdateScopeDescriptions();
-        return updateScopeDescriptions.isEmpty() ? null : updateScopeDescriptions.iterator().next();
-    }
-
-    /**
-     * Additional information about the range or extent of the resource.
-     *
-     * @deprecated Replaced by {@link #setUpdateScopeDescriptions}.
-     */
-    public void setUpdateScopeDescription(final ScopeDescription newValue) {
-        setUpdateScopeDescriptions(Collections.singleton(newValue));
     }
 
     /**
@@ -249,25 +211,6 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
             final Collection<? extends ScopeDescription> newValues)
     {
         updateScopeDescriptions = copyCollection(newValues, updateScopeDescriptions, ScopeDescription.class);
-    }
-
-    /**
-     * Information regarding specific requirements for maintaining the resource.
-     *
-     * @deprecated Replaced by {@link #getMaintenanceNotes}.
-     */
-    public InternationalString getMaintenanceNote() {
-        final Collection<InternationalString> maintenanceNotes = getMaintenanceNotes();
-        return maintenanceNotes.isEmpty() ? null : maintenanceNotes.iterator().next();
-    }
-
-    /**
-     * Information regarding specific requirements for maintaining the resource.
-     *
-     * @deprecated Replaced by {@link #setMaintenanceNotes}.
-     */
-    public void setMaintenanceNote(final InternationalString newValue) {
-        setMaintenanceNotes(Collections.singleton(newValue));
     }
 
     /**

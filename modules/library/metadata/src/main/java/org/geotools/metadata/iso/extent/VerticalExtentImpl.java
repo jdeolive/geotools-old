@@ -96,22 +96,6 @@ public class VerticalExtentImpl extends MetadataEntity implements VerticalExtent
     }
 
     /**
-     * Creates a vertical extent initialized to the specified values.
-     *
-     * @deprecated Use {@link #VerticalExtentImpl(Double,Double,VerticalCRS)} instead.
-     */
-    public VerticalExtentImpl(final double minimumValue,
-                              final double maximumValue,
-                              final Unit   unit,
-                              final VerticalDatum verticalDatum)
-    {
-        setMinimumValue (minimumValue);
-        setMaximumValue (maximumValue);
-        setUnit         (unit);
-        setVerticalDatum(verticalDatum);
-    }
-
-    /**
      * Returns the lowest vertical extent contained in the dataset.
      */
     @XmlElement(name = "minimumValue", required = true, namespace = "http://www.isotc211.org/2005/gmd")
@@ -165,49 +149,5 @@ public class VerticalExtentImpl extends MetadataEntity implements VerticalExtent
     public synchronized void setVerticalCRS(final VerticalCRS newValue) {
         checkWritePermission();
         verticalCRS = newValue;
-    }
-
-    /**
-     * Returns the vertical units used for vertical extent information.
-     * Examples: metres, feet, millimetres, hectopascals.
-     * <p>
-     * This convenience method get the unit from the {@linkplain #getVerticalCRS vertical CRS},
-     * if any.
-     *
-     * @deprecated removed from ISO_19115:2003/Cor.1:2006
-     */
-    //@XmlElement(name = "unitOfMeasure", required = true, namespace = "http://www.isotc211.org/2005/gmd")
-    public Unit getUnit()  {
-        return (verticalCRS != null) ? verticalCRS.getCoordinateSystem().getAxis(0).getUnit() : null;
-    }
-
-    /**
-     * Set the vertical units used for vertical extent information.
-     * Examples: metres, feet, millimetres, hectopascals.
-     *
-     * @deprecated Use {@link #setVerticalCRS} instead.
-     */
-    public void setUnit(final Unit newValue) {
-        throw new UnsupportedOperationException("Use setVerticalCRS instead.");
-    }
-
-    /**
-     * Provides information about the origin from which the
-     * maximum and minimum elevation values are measured.
-     *
-     * @deprecated Use {@link #getVerticalCRS} instead.
-     */
-    public VerticalDatum getVerticalDatum()  {
-        return (verticalCRS != null) ? (VerticalDatum) verticalCRS.getDatum() : null;
-    }
-
-    /**
-     * Set information about the origin from which the
-     * maximum and minimum elevation values are measured.
-     *
-     * @deprecated Use {@link #setVerticalCRS} instead.
-     */
-    public void setVerticalDatum(final VerticalDatum newValue) {
-        throw new UnsupportedOperationException("Use setVerticalCRS instead.");
     }
 }

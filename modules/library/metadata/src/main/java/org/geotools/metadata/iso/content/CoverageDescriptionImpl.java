@@ -117,25 +117,6 @@ public class CoverageDescriptionImpl extends ContentInformationImpl implements C
     /**
      * Returns the information on the dimensions of the cell measurement value.
      *
-     * @deprecated use {@link #getDimensions}
-     */
-    public RangeDimension getDimension() {
-        final Collection dimensions = getDimensions();
-        return dimensions.isEmpty() ? null : (RangeDimension) dimensions.iterator().next();
-    }
-
-    /**
-     * Set the information on the dimensions of the cell measurement value.
-     *
-     * @deprecated use {@link #setDimensions}
-     */
-    public synchronized void setDimension(final RangeDimension newValue) {
-        setDimensions(java.util.Collections.singleton(newValue));
-    }
-
-    /**
-     * Returns the information on the dimensions of the cell measurement value.
-     *
      * @since 2.4
      */
     @XmlElement(name = "dimension", required = false,

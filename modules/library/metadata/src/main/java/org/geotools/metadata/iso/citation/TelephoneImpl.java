@@ -74,16 +74,6 @@ public class TelephoneImpl extends MetadataEntity implements Telephone {
     }
 
     /**
-     * Returns the telephone number by which individuals can speak to the responsible
-     * organization or individual.
-     *
-     * @deprecated Replaced by {@link #getVoices}.
-     */
-    public synchronized String getVoice() {
-        return voices == null || voices.isEmpty() ? null : (String) voices.iterator().next();
-    }
-
-    /**
      * Returns the telephone numbers by which individuals can speak to the responsible
      * organization or individual.
      *
@@ -92,16 +82,6 @@ public class TelephoneImpl extends MetadataEntity implements Telephone {
     @XmlElement(name = "voice", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<String> getVoices() {
         return xmlOptional(voices = nonNullCollection(voices, String.class));
-    }
-
-    /**
-     * Set the telephone number by which individuals can speak to the responsible
-     * organization or individual.
-     *
-     * @deprecated Replaced by {@link #setVoices}.
-     */
-    public void setVoice(final String newValue) {
-        setVoices(java.util.Collections.singleton(newValue));
     }
 
     /**
@@ -115,17 +95,6 @@ public class TelephoneImpl extends MetadataEntity implements Telephone {
     }
 
     /**
-     * Returns the telephone number of a facsimile machine for the responsible organization
-     * or individual.
-     *
-     * @deprecated Replaced by {@link #getFacsimiles}.
-     */
-    public synchronized String getFacsimile() {
-        return facsimiles == null || facsimiles.isEmpty() ? null :
-            (String) facsimiles.iterator().next();
-    }
-
-    /**
      * Returns the telephone numbers of a facsimile machine for the responsible organization
      * or individual.
      *
@@ -134,16 +103,6 @@ public class TelephoneImpl extends MetadataEntity implements Telephone {
     @XmlElement(name = "facsimile", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<String> getFacsimiles() {
         return xmlOptional(facsimiles = nonNullCollection(facsimiles, String.class));
-    }
-
-    /**
-     * Set the telephone number of a facsimile machine for the responsible organization
-     * or individual.
-     *
-     * @deprecated Replaced by {@link #setFacsimiles}.
-     */
-    public void setFacsimile(final String newValue) {
-        setFacsimiles(java.util.Collections.singleton(newValue));
     }
 
     /**
