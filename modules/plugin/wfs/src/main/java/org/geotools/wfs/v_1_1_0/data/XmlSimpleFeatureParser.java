@@ -47,7 +47,10 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -227,45 +230,11 @@ public class XmlSimpleFeatureParser implements GetFeatureParser {
         } else if (GML.Polygon.equals(startingGeometryTagName)) {
             geom = parsePolygon(dimension, crs);
         } else if (GML.MultiPoint.equals(startingGeometryTagName)) {
-            throw new UnsupportedOperationException("MultiPoint parsing not yet implemented");
+            geom = parseMultiPoint(dimension, crs);
         } else if (GML.MultiLineString.equals(startingGeometryTagName)) {
-            throw new UnsupportedOperationException("MultiLineString parsing not yet implemented");
+            geom = parseMultiLineString(dimension, crs);
         } else if (GML.MultiSurface.equals(startingGeometryTagName)) {
-            parser.nextTag();
-            final QName memberTag = new QName(parser.getNamespace(), parser.getName());
-            List<Polygon> polygons = new ArrayList<Polygon>(2);
-            if (GML.surfaceMembers.equals(memberTag)) {
-                while (true) {
-                    parser.nextTag();
-                    if (XmlPullParser.END_TAG == parser.getEventType()
-                            && GML.surfaceMembers.getLocalPart().equals(parser.getName())) {
-                        // we're done
-                        break;
-                    }
-                    Polygon p = parsePolygon(dimension, crs);
-                    polygons.add(p);
-                }
-                parser.nextTag();
-            } else if (GML.surfaceMember.equals(memberTag)) {
-                while (true) {
-                    parser.nextTag();
-                    Polygon p = parsePolygon(dimension, crs);
-                    polygons.add(p);
-                    parser.nextTag();
-                    parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.surfaceMember
-                            .getLocalPart());
-                    parser.nextTag();
-                    if (XmlPullParser.END_TAG == parser.getEventType()
-                            && GML.MultiSurface.getLocalPart().equals(parser.getName())) {
-                        // we're done
-                        break;
-                    }
-                }
-            }
-            parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.MultiSurface.getLocalPart());
-
-            geom = geomFac.createMultiPolygon(polygons.toArray(new Polygon[polygons.size()]));
-
+            geom = parseMultiSurface(dimension, crs);
         } else {
             throw new IllegalStateException("Unrecognized geometry element "
                     + startingGeometryTagName);
@@ -274,6 +243,177 @@ public class XmlSimpleFeatureParser implements GetFeatureParser {
         parser.require(XmlPullParser.END_TAG, startingGeometryTagName.getNamespaceURI(),
                 startingGeometryTagName.getLocalPart());
 
+        return geom;
+    }
+
+    /**
+     * Parses a MultiPoint.
+     * <p>
+     * Precondition: parser positioned at a {@link GML#MultiPoint MultiPoint}
+     * start tag
+     * </p>
+     * <p>
+     * Postcondition: parser positioned at the {@link GML#MultiPoint MultiPoint}
+     * end tag of the starting tag
+     * </p>
+     * 
+     * @throws IOException
+     * @throws XmlPullParserException
+     * 
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws FactoryException
+     * @throws NoSuchAuthorityCodeException
+     * @throws FactoryException
+     * @throws NoSuchAuthorityCodeException
+     * 
+     */
+    private Geometry parseMultiPoint(int dimension, CoordinateReferenceSystem crs)
+            throws XmlPullParserException, IOException, NoSuchAuthorityCodeException,
+            FactoryException {
+        Geometry geom;
+        parser.nextTag();
+        final QName memberTag = new QName(parser.getNamespace(), parser.getName());
+        List<Point> points = new ArrayList<Point>(4);
+        if (GML.pointMembers.equals(memberTag)) {
+            while (true) {
+                parser.nextTag();
+                if (XmlPullParser.END_TAG == parser.getEventType()
+                        && GML.pointMembers.getLocalPart().equals(parser.getName())) {
+                    // we're done
+                    break;
+                }
+                Point p = parsePoint(dimension, crs);
+                points.add(p);
+            }
+            parser.nextTag();
+        } else if (GML.pointMember.equals(memberTag)) {
+            while (true) {
+                parser.nextTag();
+                parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.Point.getLocalPart());
+
+                Point p = parsePoint(dimension, crs);
+                points.add(p);
+                parser.nextTag();
+                parser
+                        .require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.pointMember
+                                .getLocalPart());
+                parser.nextTag();
+                if (XmlPullParser.END_TAG == parser.getEventType()
+                        && GML.MultiPoint.getLocalPart().equals(parser.getName())) {
+                    // we're done
+                    break;
+                }
+            }
+        }
+        parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.MultiPoint.getLocalPart());
+
+        geom = geomFac.createMultiPoint(points.toArray(new Point[points.size()]));
+        return geom;
+    }
+
+    /**
+     * Parses a MultiLineString.
+     * <p>
+     * Precondition: parser positioned at a
+     * {@link GML#MultiLineString MultiLineString} start tag
+     * </p>
+     * <p>
+     * Postcondition: parser positioned at the
+     * {@link GML#MultiLineString MultiLineString} end tag of the starting tag
+     * </p>
+     * 
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws FactoryException
+     * @throws NoSuchAuthorityCodeException
+     * 
+     */
+    private MultiLineString parseMultiLineString(int dimension, CoordinateReferenceSystem crs)
+            throws XmlPullParserException, IOException, NoSuchAuthorityCodeException,
+            FactoryException {
+        MultiLineString geom;
+
+        parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.MultiLineString.getLocalPart());
+
+        List<LineString> lines = new ArrayList<LineString>(2);
+
+        while (true) {
+            parser.nextTag();
+            if (XmlPullParser.END_TAG == parser.getEventType()
+                    && GML.MultiLineString.getLocalPart().equals(parser.getName())) {
+                // we're done
+                break;
+            }
+            parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.lineStringMember
+                    .getLocalPart());
+            parser.nextTag();
+            parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.LineString.getLocalPart());
+
+            LineString line = parseLineString(dimension, crs);
+            lines.add(line);
+            parser.nextTag();
+            parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.lineStringMember
+                    .getLocalPart());
+        }
+
+        parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.MultiLineString.getLocalPart());
+
+        geom = geomFac.createMultiLineString(lines.toArray(new LineString[lines.size()]));
+        return geom;
+    }
+
+    /**
+     * Parses a MultiPolygon out of a MultiSurface element (because our geometry
+     * model only supports MultiPolygon).
+     * <p>
+     * Precondition: parser positioned at a
+     * {@link GML#MultiSurface MultiSurface} start tag
+     * </p>
+     * <p>
+     * Postcondition: parser positioned at the
+     * {@link GML#MultiSurface MultiSurface} end tag of the starting tag
+     * </p>
+     * 
+     */
+    private Geometry parseMultiSurface(int dimension, CoordinateReferenceSystem crs)
+            throws XmlPullParserException, IOException, NoSuchAuthorityCodeException,
+            FactoryException {
+        Geometry geom;
+        parser.nextTag();
+        final QName memberTag = new QName(parser.getNamespace(), parser.getName());
+        List<Polygon> polygons = new ArrayList<Polygon>(2);
+        if (GML.surfaceMembers.equals(memberTag)) {
+            while (true) {
+                parser.nextTag();
+                if (XmlPullParser.END_TAG == parser.getEventType()
+                        && GML.surfaceMembers.getLocalPart().equals(parser.getName())) {
+                    // we're done
+                    break;
+                }
+                Polygon p = parsePolygon(dimension, crs);
+                polygons.add(p);
+            }
+            parser.nextTag();
+        } else if (GML.surfaceMember.equals(memberTag)) {
+            while (true) {
+                parser.nextTag();
+                Polygon p = parsePolygon(dimension, crs);
+                polygons.add(p);
+                parser.nextTag();
+                parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.surfaceMember
+                        .getLocalPart());
+                parser.nextTag();
+                if (XmlPullParser.END_TAG == parser.getEventType()
+                        && GML.MultiSurface.getLocalPart().equals(parser.getName())) {
+                    // we're done
+                    break;
+                }
+            }
+        }
+        parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.MultiSurface.getLocalPart());
+
+        geom = geomFac.createMultiPolygon(polygons.toArray(new Polygon[polygons.size()]));
         return geom;
     }
 
@@ -359,10 +499,10 @@ public class XmlSimpleFeatureParser implements GetFeatureParser {
         return linearRing;
     }
 
-    private Geometry parseLineString(int dimension, CoordinateReferenceSystem crs)
+    private LineString parseLineString(int dimension, CoordinateReferenceSystem crs)
             throws XmlPullParserException, IOException, NoSuchAuthorityCodeException,
             FactoryException {
-        Geometry geom;
+        LineString geom;
         parser.nextTag();
         parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.posList.getLocalPart());
         crs = crs(crs);
@@ -374,10 +514,13 @@ public class XmlSimpleFeatureParser implements GetFeatureParser {
         return geom;
     }
 
-    private Geometry parsePoint(int dimension, CoordinateReferenceSystem crs)
+    private Point parsePoint(int dimension, CoordinateReferenceSystem crs)
             throws XmlPullParserException, IOException, NoSuchAuthorityCodeException,
             FactoryException {
-        Geometry geom;
+
+        parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.Point.getLocalPart());
+
+        Point geom;
         parser.nextTag();
         parser.require(XmlPullParser.START_TAG, GML.NAMESPACE, GML.pos.getLocalPart());
         crs = crs(crs);
@@ -385,6 +528,7 @@ public class XmlSimpleFeatureParser implements GetFeatureParser {
         geom = geomFac.createPoint(coords[0]);
         geom.setUserData(crs);
         parser.nextTag();
+
         parser.require(XmlPullParser.END_TAG, GML.NAMESPACE, GML.Point.getLocalPart());
         return geom;
     }
