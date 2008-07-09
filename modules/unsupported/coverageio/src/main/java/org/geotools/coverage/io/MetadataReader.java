@@ -38,7 +38,6 @@ import org.geotools.image.io.metadata.Parameter;
 import org.geotools.image.io.text.TextMetadataParser;
 import org.geotools.io.TableWriter;
 import org.geotools.metadata.iso.extent.GeographicBoundingBoxImpl;
-import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
 import org.geotools.referencing.cs.DefaultEllipsoidalCS;
@@ -47,11 +46,9 @@ import org.geotools.referencing.datum.DefaultGeodeticDatum;
 import org.geotools.referencing.datum.DefaultPrimeMeridian;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
 import org.geotools.referencing.operation.DefiningConversion;
-import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.OptionalDependencies;
 import org.geotools.util.NumberRange;
 
-import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
 import org.opengis.metadata.extent.GeographicBoundingBox;
@@ -67,7 +64,6 @@ import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.cs.CSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.cs.EllipsoidalCS;
 import org.opengis.referencing.datum.Datum;
 import org.opengis.referencing.datum.DatumFactory;
@@ -76,7 +72,6 @@ import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.datum.PrimeMeridian;
 import org.opengis.referencing.operation.Conversion;
 import org.opengis.referencing.operation.MathTransformFactory;
-import org.opengis.referencing.operation.Projection;
 import org.opengis.referencing.operation.TransformException;
 
 
@@ -195,7 +190,7 @@ public class MetadataReader {
                 case 2: axisName  = (projectionName == null) ? "depth"              : "z";
                         direction = (direction      == null) ? AxisDirection.UP     : direction; break;
                 case 3: axisName  = (projectionName == null) ? "time"               : "t";
-                        direction = (direction      == null) ? AxisDirection.FUTURE : direction; break;        
+                        direction = (direction      == null) ? AxisDirection.FUTURE : direction; break;
             }
         }
         final DefaultCoordinateSystemAxis axisFound =
@@ -214,32 +209,6 @@ public class MetadataReader {
         } catch (FactoryException e) {
             throw new MetadataException(e.getLocalizedMessage());
         }
-    }
-
-    public static String getOperationMethod(final GridCoverage coverage) {
-        final Projection projection = getProjection(coverage);
-        return (projection != null) ? projection.getName().getCode() : null;
-    }
-
-    public static Unit getUnit(final GridCoverage coverage) {
-        Unit unit = null;
-        final CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem();
-        if (crs != null) {
-            final CoordinateSystem cs = crs.getCoordinateSystem();
-            if (cs != null) {
-                for (int i = cs.getDimension(); --i >= 0;) {
-                    final Unit<?> candidate = cs.getAxis(i).getUnit();
-                    if (candidate != null) {
-                        if (unit == null) {
-                            unit = candidate;
-                        } else if (!unit.equals(candidate)) {
-                            return null;
-                        }
-                    }
-                }
-            }
-        }
-        return unit;
     }
 
     /**
@@ -335,10 +304,6 @@ public class MetadataReader {
         return new DefaultGeodeticDatum(name, getEllipsoid(), primeMeridian);
     }
 
-    public static Datum getDatum(final GridCoverage coverage) {
-        return CRSUtilities.getDatum(coverage.getCoordinateReferenceSystem());
-    }
-
     /**
      * Returns the ellipsoid. Depending on whether {@link ImageReferencing#semiMinorAxis}
      * or {@link ImageReferencing#inverseFlattening} has been defined, the default
@@ -383,10 +348,6 @@ public class MetadataReader {
         } catch (FactoryException e) {
             throw new MetadataException(e.getLocalizedMessage());
         }
-    }
-
-    public static Ellipsoid getEllipsoid(final GridCoverage coverage) {
-        return CRS.getEllipsoid(coverage.getCoordinateReferenceSystem());
     }
 
     /**
@@ -461,11 +422,6 @@ public class MetadataReader {
         return new DefiningConversion(projectionName, paramValueGroup);
     }
 
-    public static Projection getProjection(final GridCoverage coverage) {
-        final ProjectedCRS crs = CRS.getProjectedCRS(coverage.getCoordinateReferenceSystem());
-        return (crs != null) ? crs.getConversionFromBase() : null;
-    }
-
     /**
      * Returns the {@linkplain CoordinateReferenceSystem coordinate reference system}.
      * The default implementation builds a coordinate reference system using the
@@ -512,10 +468,6 @@ public class MetadataReader {
         }
     }
 
-    public static CoordinateReferenceSystem getCoordinateReferenceSystem(final GridCoverage coverage) {
-        return coverage.getCoordinateReferenceSystem();
-    }
-
     /**
      * Returns the {@linkplain CoordinateSystem coordinate system}. The default implementation
      * builds a coordinate system using the {@linkplain #getAxis axes} defined in the
@@ -539,7 +491,7 @@ public class MetadataReader {
         }
         String type = cs.type;
         if (type == null) {
-            type = (referencing.getProjectionName() == null) ? 
+            type = (referencing.getProjectionName() == null) ?
                 GeographicMetadataFormat.ELLIPSOIDAL :
                 GeographicMetadataFormat.CARTESIAN;
         }
