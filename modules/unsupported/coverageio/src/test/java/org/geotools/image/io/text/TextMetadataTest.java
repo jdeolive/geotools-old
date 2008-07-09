@@ -52,6 +52,7 @@ public class TextMetadataTest {
      * @throws IOException If an I/O operation was required and failed.
      */
     @Test
+    @Ignore
     public void testAlias() throws IOException {
         final DefaultTextMetadataParser parser = new DefaultTextMetadataParser();
         parser.setGeographicMetadata(new GeographicMetadata());
