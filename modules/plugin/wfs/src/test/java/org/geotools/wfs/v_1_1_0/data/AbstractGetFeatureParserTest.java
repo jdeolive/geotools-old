@@ -217,7 +217,7 @@ public abstract class AbstractGetFeatureParserTest extends TestCase {
      * 
      * @throws Exception
      */
-    public void testParseGeoServer_ArchSites() throws Exception {
+    public void testParseGeoServer_ArchSites_Point() throws Exception {
         final QName featureName = GEOS_ARCHSITES.TYPENAME;
         final int expectedCount = 3;
         final String schemaLocation = GEOS_ARCHSITES.SCHEMA;
@@ -283,6 +283,38 @@ public abstract class AbstractGetFeatureParserTest extends TestCase {
         };
 
         URL url = TestData.getResource(this, GEOS_STATES.DATA);
+        GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
+        testParseGetFeatures(featureName, featureType, parser, assertor, expectedCount);
+    }
+
+    public void testParseGeoServer_roads_MultiLineString() throws Exception {
+        final QName featureName = GEOS_ROADS.TYPENAME;
+        final int expectedCount = 1;
+        final String schemaLocation = GEOS_ROADS.SCHEMA;
+
+        final String[] properties = { "the_geom", "label" };
+        final SimpleFeatureType featureType;
+        featureType = getTypeView(featureName, schemaLocation, GEOS_ROADS.CRS, properties);
+
+        final FeatureVisitor assertor = new FeatureAssertor(featureType);
+
+        URL url = TestData.getResource(this, GEOS_ROADS.DATA);
+        GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
+        testParseGetFeatures(featureName, featureType, parser, assertor, expectedCount);
+    }
+
+    public void testParseGeoServer_tasmania_cities_MultiPoint() throws Exception {
+        final QName featureName = GEOS_TASMANIA_CITIES.TYPENAME;
+        final int expectedCount = 1;
+        final String schemaLocation = GEOS_TASMANIA_CITIES.SCHEMA;
+
+        final String[] properties = { "the_geom", "CNTRY_NAME", "POP_CLASS" };
+        final SimpleFeatureType featureType;
+        featureType = getTypeView(featureName, schemaLocation, GEOS_TASMANIA_CITIES.CRS, properties);
+
+        final FeatureVisitor assertor = new FeatureAssertor(featureType);
+
+        URL url = TestData.getResource(this, GEOS_TASMANIA_CITIES.DATA);
         GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
         testParseGetFeatures(featureName, featureType, parser, assertor, expectedCount);
     }

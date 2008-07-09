@@ -51,6 +51,8 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.spatial.BBOX;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -106,7 +108,7 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
 
         assertEquals("My GeoServer WFS", protocolHandler.getServiceTitle());
         assertEquals("This is a description of your Web Feature Server.", protocolHandler
-                .getServiceAbstract());
+                .getServiceAbstract().trim());
         assertNotNull(protocolHandler.getServiceProviderUri());
         assertEquals("http://www.geoserver.org", protocolHandler.getServiceProviderUri().toString());
     }
@@ -145,11 +147,14 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
         createProtocolHandler(DataTestSupport.GEOS_STATES.CAPABILITIES);
         String[] names = protocolHandler.getCapabilitiesTypeNames();
         assertNotNull(names);
-        assertEquals(3, names.length);
+        assertEquals(6, names.length);
         Set<String> typeNames = new HashSet<String>(Arrays.asList(names));
         assertTrue(typeNames.contains("topp:states"));
         assertTrue(typeNames.contains("sf:archsites"));
         assertTrue(typeNames.contains("tiger:tiger_roads"));
+        assertTrue(typeNames.contains("sf:roads"));
+        assertTrue(typeNames.contains("tiger:poi"));
+        assertTrue(typeNames.contains("topp:tasmania_cities"));
     }
 
     /**
@@ -479,4 +484,14 @@ public class WFS110ProtocolHandlerTest extends DataTestSupport {
         return features;
     }
 
+    public void testEncodeFilterGet() throws IOException{
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        BBOX bbox = ff.bbox("the_geom", -180, -90, 180, 90, "EPSG:4326");
+        String encoded = WFS110ProtocolHandler.encodeGetFeatureGetFilter(bbox);
+        System.err.println(encoded);
+        assertTrue(encoded, encoded.contains("PropertyName"));
+        assertTrue(encoded, encoded.contains("Envelope"));
+        assertTrue(encoded, encoded.contains("lowerCorner"));
+        assertTrue(encoded, encoded.contains("upperCorner"));
+    }
 }

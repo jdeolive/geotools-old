@@ -43,6 +43,7 @@ import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.geotools.data.wfs.WFSFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml2.bindings.GML2EncodingUtils;
@@ -69,16 +70,16 @@ public abstract class AbstractWfsDataStoreOnlineTest extends TestCase {
 
     private final String SERVER_URL;
 
-    private static Boolean serviceAvailable = null;
+    protected static Boolean serviceAvailable = null;
 
     /**
      * The DataStore under test, static so we create it only once
      */
-    private static WFSDataStore wfs = null;
+    protected static WFSDataStore wfs = null;
 
-    private final DataTestSupport.TestDataType testType;
+    protected final DataTestSupport.TestDataType testType;
 
-    private final String defaultGeometryName;
+    protected final String defaultGeometryName;
 
     private final int featureCount;
 
@@ -245,5 +246,38 @@ public abstract class AbstractWfsDataStoreOnlineTest extends TestCase {
         query.setFilter(fidFilter);
 
         assertEquals(1, featureSource.getCount(query));
+    }
+
+    public void testFeatureSourceGetFeatures() throws IOException {
+        if (Boolean.FALSE.equals(serviceAvailable)) {
+            return;
+        }
+        if (fidFilter == null) {
+            LOGGER.info("Ignoring testFeatureSourceGetCountFilter "
+                    + "since the subclass didn't provide a fid filter");
+            return;
+        }
+
+        WFSFeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        featureSource = wfs.getFeatureSource(testType.FEATURETYPENAME);
+        assertNotNull(featureSource);
+
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+        features = featureSource.getFeatures();
+        assertNotNull(features);
+
+        SimpleFeatureType schema = features.getSchema();
+        assertNotNull(schema);
+
+        FeatureIterator<SimpleFeature> iterator = features.features();
+        assertNotNull(iterator);
+        try {
+            assertTrue(iterator.hasNext());
+            SimpleFeature next = iterator.next();
+            assertNotNull(next);
+            assertNotNull(next.getDefaultGeometry());
+        } finally {
+            iterator.close();
+        }
     }
 }
