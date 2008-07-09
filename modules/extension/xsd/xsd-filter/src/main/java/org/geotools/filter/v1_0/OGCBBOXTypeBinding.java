@@ -136,10 +136,4 @@ public class OGCBBOXTypeBinding extends AbstractComplexBinding {
 
         return null;
     }
-    
-    public Element encode(Object object, Document document, Element value)
-    throws Exception {
-    	return value;
-    }
-
 }
