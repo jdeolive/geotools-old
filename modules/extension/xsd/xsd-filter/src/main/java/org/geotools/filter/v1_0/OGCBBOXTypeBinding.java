@@ -17,6 +17,9 @@
 package org.geotools.filter.v1_0;
 
 import org.picocontainer.MutablePicoContainer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import javax.xml.namespace.QName;
 import com.vividsolutions.jts.geom.Envelope;
 import org.opengis.filter.FilterFactory;
@@ -127,10 +130,16 @@ public class OGCBBOXTypeBinding extends AbstractComplexBinding {
         }
 
         //&lt;xsd:element ref="gml:Box"/&gt;
-        if (GML.Box.equals(name)) {
+        if (GML.Box.equals(name) || org.geotools.gml3.GML.Envelope.equals(name)) {
             return new Envelope(box.getMinX(), box.getMaxX(), box.getMinY(), box.getMaxY());
         }
 
         return null;
     }
+    
+    public Element encode(Object object, Document document, Element value)
+    throws Exception {
+    	return value;
+    }
+
 }
