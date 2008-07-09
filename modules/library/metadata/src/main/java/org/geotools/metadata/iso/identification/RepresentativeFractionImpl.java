@@ -46,7 +46,6 @@ public class RepresentativeFractionImpl extends Number implements Representative
     /**
      * The number below the line in a vulgar fraction.
      */
-    @XmlElement(name = "denominator")
     private long denominator;
 
     /**
@@ -140,6 +139,7 @@ public class RepresentativeFractionImpl extends Number implements Representative
     /**
      * Returns the number below the line in a vulgar fraction.
      */
+    @XmlElement(name = "denominator")
     public long getDenominator() {
         return denominator;
     }
