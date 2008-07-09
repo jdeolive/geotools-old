@@ -361,8 +361,8 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
 
             // ///////////////////////////////////
             // this is a meanwhile hack to test the StreamingParser vs pull parser approaches //
-            String pullParserParam = String.valueOf(params.get("USE_PULL_PARSER"));
-            Boolean usePullParser = Boolean.valueOf(pullParserParam);
+            Object pullParserParam = params.get("USE_PULL_PARSER");
+            Boolean usePullParser = pullParserParam == null? Boolean.TRUE : Boolean.valueOf(pullParserParam.toString());
             protocolHandler.setUsePullParser(usePullParser.booleanValue());
             // ///////////////////////////////////
 
