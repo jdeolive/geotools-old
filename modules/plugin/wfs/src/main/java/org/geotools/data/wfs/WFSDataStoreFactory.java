@@ -52,9 +52,7 @@ import org.geotools.wfs.v_1_1_0.data.WFS110ProtocolHandler;
 import org.geotools.wfs.v_1_1_0.data.WFS_1_1_0_DataStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -522,8 +520,8 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
         queryString = queryString == null || "".equals(queryString.trim()) ? "" : queryString
                 .toUpperCase();
 
-        //final Version defaultVersion = Version.highest();
-        final Version defaultVersion = Version.v1_0_0;
+        final Version defaultVersion = Version.highest();
+        //final Version defaultVersion = Version.v1_0_0;
         // which version to use
         Version requestVersion = defaultVersion;
 
