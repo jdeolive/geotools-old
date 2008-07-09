@@ -205,6 +205,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      */
     protected synchronized Graphic add(Graphic graphic) throws IllegalArgumentException {
         
+        
         if (graphic instanceof AbstractGraphic) {
             AbstractGraphic candidate = (AbstractGraphic) graphic;
             synchronized (candidate.getTreeLock()) {
@@ -273,10 +274,21 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
         if (graphic instanceof AbstractGraphic) {
             final AbstractGraphic candidate = (AbstractGraphic) graphic;
             final Canvas canvas = candidate.getCanvas();
+
+            if(graphics.containsKey(candidate)){
+                candidate.removePropertyChangeListener(graphicListener);
+                graphics.remove(candidate);
+                candidate.clearCache();
+                candidate.setCanvas(null);
+                return;
+            }
+
+
             if (canvas == null) {
                 assert !graphics.containsKey(candidate) : candidate;
                 return;
             }
+            
             if (canvas != this) {
                 assert !graphics.containsKey(candidate) : candidate;
                 throw new IllegalArgumentException(Errors.format(

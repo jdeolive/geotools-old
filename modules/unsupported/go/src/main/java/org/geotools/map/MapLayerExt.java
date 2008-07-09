@@ -18,6 +18,8 @@ package org.geotools.map;
 
 import java.util.Collection;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.memory.CollectionSource;
@@ -37,6 +39,9 @@ import org.opengis.referencing.operation.TransformException;
  */
 public class MapLayerExt extends DefaultMapLayer {
 
+    private final Map<Class,GraphicBuilder> builders = new HashMap<Class,GraphicBuilder>();
+    
+    
     public MapLayerExt(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Style style,String title) {
         super(featureSource, style, title);
     }
@@ -98,6 +103,28 @@ public class MapLayerExt extends DefaultMapLayer {
     
     public org.opengis.style.Style getSEStyle(){
         return catalog;
+    }
+    
+    
+    public void addGraphicBuilder(Class c, GraphicBuilder builder){
+        builders.put(c, builder);
+    }
+    
+    /**
+     * A layer may provide a graphic builder, this enable
+     * special representations, like wind arrows for coverages.
+     * 
+     * @param <T>
+     * @param classe
+     * @return
+     */
+    public GraphicBuilder getGraphicBuilder(Class classe){
+        
+        if(builders.containsKey(classe)){
+            return builders.get(classe);
+        }
+        
+        return null;
     }
     
     
