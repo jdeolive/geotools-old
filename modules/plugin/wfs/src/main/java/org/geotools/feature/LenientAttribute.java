@@ -20,6 +20,7 @@ import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.resources.Utilities;
 import org.geotools.util.Converters;
 import org.opengis.feature.Attribute;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 
@@ -40,8 +41,6 @@ public class LenientAttribute extends PropertyImpl implements Attribute {
 			String id) {
 	    super( content, descriptor );
 	    this.id = id;
-	    
-	    //Types.validate(this, getValue());
 	}
 
 	public LenientAttribute(Object content, AttributeType type, String id) {
@@ -146,4 +145,8 @@ public class LenientAttribute extends PropertyImpl implements Attribute {
     	
     	return value;
     }
+	
+	public void validate() throws IllegalAttributeException {
+	    // we're lenient, no validation
+	}
 }

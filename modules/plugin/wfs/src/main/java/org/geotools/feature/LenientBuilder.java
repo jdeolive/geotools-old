@@ -17,6 +17,7 @@
 package org.geotools.feature;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.opengis.feature.Attribute;
@@ -35,7 +36,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 public class LenientBuilder {
     private SimpleFeatureType schema;
     private FeatureFactory factory;
-    private List<Attribute> properties;
+    private Object[] properties;
     
     public LenientBuilder(SimpleFeatureType schmea ){
         this.schema = schmea;
@@ -60,12 +61,7 @@ public class LenientBuilder {
     }
 
     public void addAll(Object[] values) {
-        properties = new ArrayList<Attribute>();
-        for( int i=0; i<values.length;i++){
-            Object value = values[i];
-            Attribute property = factory.createAttribute(value, schema.getDescriptor(i), null);
-            properties.add(property);
-        }
+        System.arraycopy(values, 0, properties, 0, properties.length);
     }
 
     public SimpleFeature buildFeature(String fid) {
@@ -73,7 +69,7 @@ public class LenientBuilder {
     }
 
     public void reset(){
-        properties = new ArrayList<Attribute>();
+        properties = new Object[schema.getAttributeCount()];
     }
 
     public static SimpleFeature copy(SimpleFeature f) {
