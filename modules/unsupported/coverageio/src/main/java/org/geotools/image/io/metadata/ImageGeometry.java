@@ -65,11 +65,6 @@ public class ImageGeometry extends MetadataAccessor {
     private MetadataAccessor cells;
 
     /**
-     * The {@code "rectifiedGridDomain/crs/cs"} node.
-     */
-    private ChildList<Axis> cs;
-
-    /**
      * The {@code "rectifiedGridDomain/limits/low"} node.
      */
     private MetadataAccessor low;
@@ -100,14 +95,14 @@ public class ImageGeometry extends MetadataAccessor {
     }
 
     /**
-     * Returns the number of dimensions. If the {@linkplain CoordinateSystem coordinate system}
+     * Returns the number of dimensions. If the {@link #low} array
      * and the cells don't have the same dimension, then a warning is logged and
      * the smallest dimension is returned.
      * If one of them is empty, the dimension of the oter one is then returned.
      */
     public int getDimension() {
-        final int dim1 = (cs != null) ? getCoordinateSystemAccessor().childCount() : 0;
-        final int dim2 = (cells != null) ? getCellsAccessor().childCount() : 0;
+        final int dim1 = (low != null) ? low.getUserObject(int[].class).length : 0;
+        final int dim2 = (cells != null) ? cells.childCount() : 0;
         if (dim2 == 0) {
             return dim1;
         }
@@ -128,13 +123,12 @@ public class ImageGeometry extends MetadataAccessor {
      * {@code "low"} or {@code "high"} attribute were found for the
      * {@code "rectifiedGridDomain/limits"} element.
      *
-     * @param dimension The dimension index, from 0 inclusive to {@link #getDimension} exclusive.
+     * @param dimension The dimension index, from 0 inclusive to {@link #getDimension}
+     *                  exclusive.
      */
     public NumberRange<Integer> getGridRange(final int dimension) {
-        final int minimum = (low  != null) ?
-            getLowAccessor(). getUserObject(int[].class)[dimension] : 0;
-        final int maximum = (high != null) ?
-            getHighAccessor().getUserObject(int[].class)[dimension] : 0;
+        final int minimum = (low  != null) ? low. getUserObject(int[].class)[dimension] : 0;
+        final int maximum = (high != null) ? high.getUserObject(int[].class)[dimension] : 0;
         return NumberRange.create(minimum, true, maximum, true);
     }
 
@@ -183,9 +177,9 @@ public class ImageGeometry extends MetadataAccessor {
      */
     public NumberRange getOrdinateRange(final int dimension) {
         final double lower = (lowerCorner != null) ?
-            getLowerCornerAccessor().getUserObject(double[].class)[dimension] : Double.NaN;
+            lowerCorner.getUserObject(double[].class)[dimension] : Double.NaN;
         final double upper = (upperCorner != null) ?
-            getUpperCornerAccessor().getUserObject(double[].class)[dimension] : Double.NaN;
+            upperCorner.getUserObject(double[].class)[dimension] : Double.NaN;
         return new NumberRange(Double.class, lower, true, upper, true);
     }
 
@@ -238,7 +232,7 @@ public class ImageGeometry extends MetadataAccessor {
         if (localizationGrid == null) {
             return new double[0];
         }
-        getLocalizationGridAccessor().selectChild(dimension);
+        localizationGrid.selectChild(dimension);
         return (double[]) getLocalizationGridAccessor().getUserObject();
     }
 
@@ -312,7 +306,7 @@ public class ImageGeometry extends MetadataAccessor {
         if (cells == null) {
             return new double[0];
         }
-        getCellsAccessor().selectChild(dimension);
+        cells.selectChild(dimension);
         return (double[]) getCellsAccessor().getUserObject();
     }
 
@@ -352,7 +346,7 @@ public class ImageGeometry extends MetadataAccessor {
      */
     public String getPixelOrientation() {
         return (pixelOrientation != null) ?
-            getPixelOrientationAccessor().getUserObject(String.class) : null;
+            pixelOrientation.getUserObject(String.class) : null;
     }
 
     /**
@@ -385,17 +379,6 @@ public class ImageGeometry extends MetadataAccessor {
             cells = new MetadataAccessor(metadata, "rectifiedGridDomain/cells", "offsetVector");
         }
         return cells;
-    }
-
-    /**
-     * Builds a {@linkplain MetadataAccessor coordinate system accessor} if it is
-     * not already instanciated, and returns it, or return the current one if defined.
-     */
-    private ChildList<Axis> getCoordinateSystemAccessor() {
-        if (cs == null) {
-            cs = new ChildList.Axes(metadata);
-        }
-        return cs;
     }
 
     /**

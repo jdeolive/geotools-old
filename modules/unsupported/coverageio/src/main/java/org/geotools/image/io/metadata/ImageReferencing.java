@@ -93,6 +93,14 @@ public class ImageReferencing extends MetadataAccessor {
     }
 
     /**
+     * Returns the number of dimensions, which is the number of {@linkplain Axis axes}
+     * of the {@linkplain CoordinateSystem coordinate system}.
+     */
+    public int getDimension() {
+        return getCoordinateSystemAccessor().childCount();
+    }
+
+    /**
      * Returns the {@linkplain Identification#name name} and {@linkplain Identification#type type}
      * of the {@linkplain CoordinateReferenceSystem coordinate reference system}.
      *
@@ -127,8 +135,7 @@ public class ImageReferencing extends MetadataAccessor {
      * @see CoordinateSystem
      */
     public Identification getCoordinateSystem() {
-        return (cs != null) ?
-            new Identification(getCoordinateSystemAccessor()) : null;
+        return (cs != null) ? new Identification(cs) : null;
     }
 
     /**
@@ -155,7 +162,7 @@ public class ImageReferencing extends MetadataAccessor {
      * @see Datum
      */
     public Identification getDatum() {
-        return (datum != null) ? new Identification(getDatumAccessor()) : null;
+        return (datum != null) ? new Identification(datum) : null;
     }
 
     /**
@@ -181,8 +188,7 @@ public class ImageReferencing extends MetadataAccessor {
      * @see Ellipsoid
      */
     public String getEllipsoidName() {
-        return (ellipsoid != null) ?
-            getEllipsoidAccessor().getAttributeAsString("name") : null;
+        return (ellipsoid != null) ? ellipsoid.getAttributeAsString("name") : null;
     }
 
     /**
@@ -203,8 +209,7 @@ public class ImageReferencing extends MetadataAccessor {
      * @see Ellipsoid
      */
     public String getEllipsoidUnit() {
-        return (ellipsoid != null) ?
-            getEllipsoidAccessor().getAttributeAsString("unit") : null;
+        return (ellipsoid != null) ? ellipsoid.getAttributeAsString("unit") : null;
     }
 
     /**
@@ -226,7 +231,7 @@ public class ImageReferencing extends MetadataAccessor {
      */
     public double getSemiMajorAxis() {
         final Double semiMajor = (semiMajorAxis != null) ?
-            getSemiMajorAxisAccessor().getUserObject(Double.class) : null;
+            semiMajorAxis.getUserObject(Double.class) : null;
         return (semiMajor == null) ? Double.NaN : semiMajor;
     }
 
@@ -249,7 +254,7 @@ public class ImageReferencing extends MetadataAccessor {
      */
     public double getSemiMinorAxis() {
         final Double semiMinor = (semiMinorAxis != null) ?
-            getSemiMinorAxisAccessor().getUserObject(Double.class) : null;
+            semiMinorAxis.getUserObject(Double.class) : null;
         return (semiMinor == null) ? Double.NaN : semiMinor;
     }
 
@@ -274,7 +279,7 @@ public class ImageReferencing extends MetadataAccessor {
      */
     public double getInverseFlattening() {
         return (inverseFlattening != null) ?
-            getInverseFlatteningAccessor().getUserObject(Double.class) : null;
+            inverseFlattening.getUserObject(Double.class) : null;
     }
 
     /**
@@ -288,13 +293,6 @@ public class ImageReferencing extends MetadataAccessor {
      */
     public void setInverseFlattening(final double value) {
         getInverseFlatteningAccessor().setUserObject(value);
-    }
-
-    /**
-     * Returns the number of dimensions.
-     */
-    public int getDimension() {
-        return getCoordinateSystemAccessor().childCount();
     }
 
     /**
@@ -337,7 +335,7 @@ public class ImageReferencing extends MetadataAccessor {
      * @throws IndexOutOfBoundsException if the index is out of bounds.
      */
     public Parameter getParameter(final int index) throws IndexOutOfBoundsException {
-        return (projection != null) ? getProjectionAccessor().getChild(index) : null;
+        return (projection != null) ? projection.getChild(index) : null;
     }
 
     /**
@@ -345,7 +343,7 @@ public class ImageReferencing extends MetadataAccessor {
      * array, or an empty array if no parameters have been defined, but never {@code null}.
      */
     public Parameter[] getParameters() {
-        final int size = (projection != null) ? getProjectionAccessor().childCount() : 0;
+        final int size = (projection != null) ? projection.childCount() : 0;
         final Parameter[] params = new Parameter[size];
         for (int i=0; i<size; i++) {
             params[i] = getProjectionAccessor().getChild(i);
@@ -373,8 +371,7 @@ public class ImageReferencing extends MetadataAccessor {
      * Returns the prime meridian name, or {@code null} if not defined.
      */
     public String getPrimeMeridianName() {
-        return (primeMeridian != null) ?
-            getPrimeMeridianAccessor().getAttributeAsString("name") : null;
+        return (primeMeridian != null) ? primeMeridian.getAttributeAsString("name") : null;
     }
 
     /**
@@ -392,7 +389,7 @@ public class ImageReferencing extends MetadataAccessor {
      */
     public double getPrimeMeridianGreenwichLongitude() {
         final Double green = (primeMeridian != null) ?
-            getPrimeMeridianAccessor().getAttributeAsDouble("greenwichLongitude") : null;
+            primeMeridian.getAttributeAsDouble("greenwichLongitude") : null;
         return (green == null) ? Double.NaN : green;
     }
 
@@ -412,8 +409,7 @@ public class ImageReferencing extends MetadataAccessor {
      * defined.
      */
     public String getProjectionName() {
-        return (projection != null) ?
-            getProjectionAccessor().getAttributeAsString("name") : null;
+        return (projection != null) ? projection.getAttributeAsString("name") : null;
     }
 
     /**

@@ -138,7 +138,7 @@ public class DefaultTextMetadataParser extends TextMetadataParser {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected void put(final Key key, final Object value) {
         final ImageGeometry    geometry    = metadata.getGeometry();
@@ -308,7 +308,7 @@ public class DefaultTextMetadataParser extends TextMetadataParser {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected void putDone() {
         final ImageGeometry    geometry    = metadata.getGeometry();
