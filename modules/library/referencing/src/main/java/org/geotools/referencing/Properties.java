@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.opengis.referencing.datum.Datum;
+import org.opengis.referencing.ReferenceSystem;
 import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.operation.CoordinateOperation;
 
@@ -90,17 +92,45 @@ final class Properties extends AbstractMap<String,Object> {
      */
     private Object get(final int key) {
         switch (key) {
-            case  0: return info.getName();
-            case  1: return info.getIdentifiers().toArray(AbstractIdentifiedObject.EMPTY_IDENTIFIER_ARRAY);
-            case  2: return info.getAlias()      .toArray(AbstractIdentifiedObject.EMPTY_ALIAS_ARRAY);
-            case  3: return info.getRemarks();
-            case  4: return (info instanceof CoordinateOperation) ? ((CoordinateOperation) info).getScope()              : null;
-            case  5: return (info instanceof CoordinateOperation) ? ((CoordinateOperation) info).getValidArea()          : null;
-            case  6: return (info instanceof CoordinateOperation) ? ((CoordinateOperation) info).getOperationVersion()   : null;
-            case  7: return (info instanceof CoordinateOperation) ? ((CoordinateOperation) info).getPositionalAccuracy()
-                                .toArray(AbstractCoordinateOperation.EMPTY_ACCURACY_ARRAY): null;
-            default: return null;
+            case 0: return info.getName();
+            case 1: return info.getIdentifiers().toArray(AbstractIdentifiedObject.EMPTY_IDENTIFIER_ARRAY);
+            case 2: return info.getAlias().toArray(AbstractIdentifiedObject.EMPTY_ALIAS_ARRAY);
+            case 3: return info.getRemarks();
+            case 4: {
+                if (info instanceof ReferenceSystem) {
+                    return ((ReferenceSystem) info).getScope();
+                } else if (info instanceof Datum) {
+                    return ((Datum) info).getScope();
+                } else if (info instanceof CoordinateOperation) {
+                    return ((CoordinateOperation) info).getScope();
+                }
+                break;
+            }
+            case 5: {
+                if (info instanceof ReferenceSystem) {
+                    return ((ReferenceSystem) info).getDomainOfValidity();
+                } else if (info instanceof Datum) {
+                    return ((Datum) info).getDomainOfValidity();
+                } else if (info instanceof CoordinateOperation) {
+                    return ((CoordinateOperation) info).getDomainOfValidity();
+                }
+                break;
+            }
+            case 6: {
+                if (info instanceof CoordinateOperation) {
+                    return ((CoordinateOperation) info).getOperationVersion();
+                }
+                break;
+            }
+            case 7: {
+                if (info instanceof CoordinateOperation) {
+                    return ((CoordinateOperation) info).getCoordinateOperationAccuracy()
+                            .toArray(AbstractCoordinateOperation.EMPTY_ACCURACY_ARRAY);
+                }
+                break;
+            }
         }
+        return null;
     }
 
     /**
@@ -114,8 +144,8 @@ final class Properties extends AbstractMap<String,Object> {
         /*[1]*/IdentifiedObject    .IDENTIFIERS_KEY,
         /*[2]*/IdentifiedObject    .ALIAS_KEY,
         /*[3]*/IdentifiedObject    .REMARKS_KEY,
-        /*[4]*/CoordinateOperation .SCOPE_KEY,
-        /*[5]*/CoordinateOperation .DOMAIN_OF_VALIDITY_KEY,
+        /*[4]*/CoordinateOperation .SCOPE_KEY,              // same in Datum and ReferenceSystem
+        /*[5]*/CoordinateOperation .DOMAIN_OF_VALIDITY_KEY, // same in Datum and ReferenceSystem
         /*[6]*/CoordinateOperation .OPERATION_VERSION_KEY,
         /*[7]*/CoordinateOperation .COORDINATE_OPERATION_ACCURACY_KEY
     };
