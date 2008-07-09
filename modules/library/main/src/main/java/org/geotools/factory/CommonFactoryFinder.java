@@ -26,6 +26,8 @@ import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.FunctionImpl;
 import org.geotools.resources.LazySet;
 import org.geotools.styling.StyleFactory;
+import org.opengis.feature.FeatureFactory;
+import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Function;
@@ -77,6 +79,8 @@ public final class CommonFactoryFinder extends FactoryFinder {
                     FunctionImpl.class,
                     FunctionExpression.class,//TODO: remove
                     Function.class,
+                    FeatureFactory.class,
+                    FeatureTypeFactory.class,
                     FeatureCollections.class}));
         }
         return registry;
@@ -180,7 +184,37 @@ public final class CommonFactoryFinder extends FactoryFinder {
         return new LazySet(getServiceRegistry().getServiceProviders(
                 FileDataStoreFactorySpi.class, null, hints));
     }
-
+    
+    /** Return the first implementation of {@link FeatureFactory} matching the specified hints.
+     * <p>
+     * If no implementation matches, a new one is created if possible or an exception is thrown.
+     * 
+     * @param hints An optional map of hints; or {@code null} if none
+     * @return Instance of FeatureFactory matching the supplied hints
+     * @throws FactoryRegistryException if no implementation could be provided
+     * @see Hints#FEATURE_FACTORY
+     */
+    public static synchronized FeatureFactory getFeatureFactory(Hints hints) {
+        hints = mergeSystemHints(hints);
+        return (FeatureFactory) getServiceRegistry().getServiceProvider(
+                FeatureFactory.class, null, hints, Hints.FEATURE_FACTORY);
+    }
+    
+    /** Return the first implementation of {@link FeatureTypeFactory} matching the specified hints.
+     * <p>
+     * If no implementation matches, a new one is created if possible or an exception is thrown.
+     * 
+     * @param hints An optional map of hints; or {@code null} if none
+     * @return Instance of FeatureTypeFactory matching the supplied hints
+     * @throws FactoryRegistryException if no implementation could be provided
+     * @see Hints#FEATURE_TYPE_FACTORY
+     */
+    public static synchronized FeatureTypeFactory getFeatureTypeFactory(Hints hints) {
+        hints = mergeSystemHints(hints);
+        return (FeatureTypeFactory) getServiceRegistry().getServiceProvider(
+                FeatureTypeFactory.class, null, hints, Hints.FEATURE_TYPE_FACTORY);
+    }
+    
     /**
      * Returns the first implementation of {@link FeatureCollections} matching the specified hints.
      * If no implementation matches, a new one is created if possible or an exception is thrown

@@ -487,6 +487,23 @@ public class Hints extends RenderingHints {
     ////////////////////////////////////////////////////////////////////////
 
     /**
+     * The {@link org.opengis.feature.FeatureFactory} instance to use.
+     * 
+     * @see CommonFactoryFinder.getFeatureFactory()
+     * @since 2.5
+     */
+    public static ClassKey FEATURE_FACTORY = new ClassKey( "org.opengis.feature.FeatureFactory");
+    
+    /**
+     * The {@link org.opengis.feature.type.FeatureTypeFactory} instance to use.
+     * 
+     * @see CommonFactoryFinder.getFeatureTypeFactory()
+     * @since 2.4
+     */
+    public static ClassKey FEATURE_TYPE_FACTORY = new ClassKey( "org.opengis.feature.type.FeatureTypeFactory");
+
+    
+    /**
      * The {@link org.geotools.data.FeatureLockFactory} instance to use.
      *
      * @see CommonFactoryFinder#getFeatureLockFactory
@@ -507,20 +524,10 @@ public class Hints extends RenderingHints {
             "org.geotools.feature.FeatureCollections");
 
     /**
-     * The {@link org.geotools.feature.FeatureTypeFactory} instance to use.
-     *
-     * @see CommonFactoryFinder#getFeatureTypeFactory
-     *
-     * @since 2.4
-     */
-    public static final ClassKey FEATURE_TYPE_FACTORY = new ClassKey(
-            "org.geotools.feature.FeatureTypeFactory");
-
-    /**
      * Used to provide the <cite>type name</cite> for the returned
      * {@link org.geotools.feature.FeatureTypeFactory}. Values should
      * be instances of {@link String}.
-     *
+     * @deprecated This hint controls FeatureTypeBuilder which is now deprecated
      * @since 2.4
      */
     public static final Key FEATURE_TYPE_FACTORY_NAME = new Key(String.class);
