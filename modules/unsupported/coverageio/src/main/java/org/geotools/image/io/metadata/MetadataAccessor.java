@@ -96,7 +96,7 @@ public class MetadataAccessor {
     /**
      * The owner of this accessor.
      */
-    private final GeographicMetadata metadata;
+    final GeographicMetadata metadata;
 
     /**
      * The parent of child {@linkplain Element elements}.

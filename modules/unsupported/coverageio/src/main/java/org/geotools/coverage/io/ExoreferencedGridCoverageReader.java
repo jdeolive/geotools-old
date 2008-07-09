@@ -34,27 +34,31 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.factory.Hints;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.coverage.GridSampleDimension;
+import org.geotools.image.io.text.TextMetadataParser;
 
 
 /**
  * An implementation of {@link AbstractGridCoverageReader} using informations parsed by a
- * {@link MetadataBuilder} object. This reader is typically used for format that
+ * {@link TextMetadataParser} object. This reader is typically used for format that
  * stores pixel values and geographic metadata in separated files. For example,
  * pixel values may be stored as a PNG images ou a RAW binary file, and geographic
  * metadata (coordinate system, geographic location, etc.) may be stored in a separated
- * text file. The text file is parsed by a {@link MetadataBuilder} object, while the pixel
+ * text file. The text file is parsed by a {@link TextMetadataParser} object, while the pixel
  * values are read by a {@link ImageReader} object.
  *
  * @since 2.2
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
+ * @author Cédric Briançon
+ *
+ * @deprecated To be refactored (work in progress).
  */
 public class ExoreferencedGridCoverageReader extends AbstractGridCoverageReader {
     /**
      * The object to use for parsing the meta-data.
      */
-    protected final MetadataBuilder metadata;
+    protected final TextMetadataParser metadata;
 
     /**
      * File extension (by default the same than format name).
@@ -63,17 +67,17 @@ public class ExoreferencedGridCoverageReader extends AbstractGridCoverageReader 
 
     /**
      * Constructs a new {@code ExoreferencedGridCoverageReader}
-     * using the specified {@link MetadataBuilder}.
+     * using the specified {@link TextMetadataParser}.
      *
      * @param hints The factory hints to use.
      * @param formatName The name for this format. This format name should be
      *        understood by {@link ImageIO#getImageReadersByFormatName(String)},
      *        unless {@link #getImageReaders} is overridden.
-     * @param parser The {@link MetadataBuilder} to use for reading geographic metadata.
+     * @param parser The {@link TextMetadataParser} to use for reading geographic metadata.
      */
     public ExoreferencedGridCoverageReader(final Hints hints,
                                            final String formatName,
-                                           final MetadataBuilder parser)
+                                           final TextMetadataParser parser)
     {
         this(hints, formatName, formatName, parser);
     }
@@ -87,12 +91,12 @@ public class ExoreferencedGridCoverageReader extends AbstractGridCoverageReader 
      *        understood by {@link ImageIO#getImageReadersByFormatName(String)},
      *        unless {@link #getImageReaders} is overridden.
      * @param extension Filename's extensions for file of this format.
-     * @param parser The {@link MetadataBuilder} to use for reading geographic metadata.
+     * @param parser The {@link TextMetadataParser} to use for reading geographic metadata.
      */
     public ExoreferencedGridCoverageReader(final Hints hints,
                                            final String formatName,
                                            final String extension,
-                                           final MetadataBuilder parser)
+                                           final TextMetadataParser parser)
     {
         super(hints, formatName);
         metadata = parser;
@@ -121,7 +125,6 @@ public class ExoreferencedGridCoverageReader extends AbstractGridCoverageReader 
     @Override
     public synchronized void setLocale(final Locale locale) {
         super.setLocale(locale);
-        metadata.setUserLocale(locale);
     }
 
     /**
@@ -193,7 +196,8 @@ public class ExoreferencedGridCoverageReader extends AbstractGridCoverageReader 
             throws IOException
     {
         checkImageIndex(index);
-        return metadata.getCoordinateReferenceSystem();
+        //return metadata.getCoordinateReferenceSystem();
+        return null;
     }
 
     /**
@@ -210,7 +214,7 @@ public class ExoreferencedGridCoverageReader extends AbstractGridCoverageReader 
      */
     public synchronized Envelope getEnvelope(final int index) throws IOException {
         checkImageIndex(index);
-        return metadata.getEnvelope();
+        return null;
     }
 
     /**
@@ -228,7 +232,7 @@ public class ExoreferencedGridCoverageReader extends AbstractGridCoverageReader 
     @Override
     public synchronized GridRange getGridRange(final int index) throws IOException {
         checkImageIndex(index);
-        return metadata.getGridRange();
+        return null;
     }
 
     /**
@@ -249,6 +253,6 @@ public class ExoreferencedGridCoverageReader extends AbstractGridCoverageReader 
     @Override
     public synchronized GridSampleDimension[] getSampleDimensions(final int index) throws IOException {
         checkImageIndex(index);
-        return metadata.getSampleDimensions();
+        return null;
     }
 }

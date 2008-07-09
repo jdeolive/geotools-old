@@ -298,8 +298,10 @@ public class TextRecordImageReader extends TextImageReader {
         final double ymin        = records.getMinimum(yColumn);
         final double xmax        = records.getMaximum(xColumn);
         final double ymax        = records.getMaximum(yColumn);
-        geometry.addCoordinateRange(0, width-1,  xmin, xmax);
-        geometry.addCoordinateRange(0, height-1, ymin, ymax);
+        geometry.setOrdinateRange(0, xmin, xmax);
+        geometry.setGridRange(0, 0, width-1);
+        geometry.setOrdinateRange(1, ymin, ymax);
+        geometry.setGridRange(1, 0, height-1);
         geometry.setPixelOrientation("center");
         /*
          * Now adds the valid range of sample values for each band.

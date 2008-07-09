@@ -30,6 +30,7 @@ import org.geotools.resources.i18n.ErrorKeys;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux
+ * @author Cédric Briançon
  */
 abstract class ChildList<T extends MetadataAccessor> extends MetadataAccessor {
     /**
@@ -130,6 +131,21 @@ abstract class ChildList<T extends MetadataAccessor> extends MetadataAccessor {
         /** Create a new band. */
         protected Axis newChild(final int index) {
             return new Axis(this, index);
+        }
+    }
+
+    /**
+     * A list of {@linkplain Parameter parameters}.
+     */
+    static final class Parameters extends ChildList<Parameter> {
+        /** Creates a parser for parameters. */
+        public Parameters(final GeographicMetadata metadata) {
+            super(metadata, "rectifiedGridDomain/crs/projection", "parameter");
+        }
+
+        /** Create a new band. */
+        protected Parameter newChild(final int index) {
+            return new Parameter(this, index);
         }
     }
 }

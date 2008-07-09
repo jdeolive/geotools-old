@@ -17,6 +17,7 @@
 package org.geotools.coverage.io;
 
 import javax.imageio.IIOException;
+import org.geotools.image.io.text.DefaultTextMetadataParser;
 
 
 /**
@@ -38,7 +39,7 @@ public class MetadataException extends IIOException {
     /**
      * The key for the faulty metadata, or {@code null} if none.
      */
-    private final MetadataBuilder.Key<?> key;
+    private final DefaultTextMetadataParser.Key key;
 
     /**
      * The alias used for the metadata, or {@code null} if none.
@@ -74,11 +75,11 @@ public class MetadataException extends IIOException {
      *
      * @param message The message, or {@code null} if none.
      * @param key     The metadata key which was the cause for this exception, or {@code null} if
-     *                none. This is a format neutral key, for example {@link MetadataBuilder#DATUM}.
+     *                none. This is a format neutral key, for example {@link DefaultTextMetadataParser#DATUM}.
      * @param alias   The alias used for for the key {@code key}, or {@code null} if none. This is
      *                usually the name used in the external file parsed.
      */
-    public MetadataException(final String message, final MetadataBuilder.Key<?> key,
+    public MetadataException(final String message, final DefaultTextMetadataParser.Key key,
                              final String alias)
     {
         super(message);
@@ -91,11 +92,11 @@ public class MetadataException extends IIOException {
      *
      * @param cause   The cause for this exception.
      * @param key     The metadata key which was the cause for this exception, or {@code null} if
-     *                none. This is a format neutral key, for example {@link MetadataBuilder#DATUM}.
+     *                none. This is a format neutral key, for example {@link DefaultTextMetadataParser#DATUM}.
      * @param alias   The alias used for for the key {@code key}, or {@code null} if none. This is
      *                usually the name used in the external file parsed.
      */
-    public MetadataException(final Exception cause, final MetadataBuilder.Key<?> key,
+    public MetadataException(final Exception cause, final DefaultTextMetadataParser.Key key,
                              final String alias)
     {
         super(cause.getLocalizedMessage(), cause);
@@ -109,7 +110,7 @@ public class MetadataException extends IIOException {
      *
      * @return The metadata key, or {@code null} if none.
      */
-    public MetadataBuilder.Key<?> getMetadataKey() {
+    public DefaultTextMetadataParser.Key getMetadataKey() {
         return key;
     }
 
@@ -137,7 +138,7 @@ public class MetadataException extends IIOException {
      */
     @Override
     public String toString() {
-        final MetadataBuilder.Key<?> key = getMetadataKey();
+        final DefaultTextMetadataParser.Key key = getMetadataKey();
         final String alias = getMetadataAlias();
         if (key == null && alias == null) {
             return super.toString();

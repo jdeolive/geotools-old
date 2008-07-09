@@ -17,16 +17,22 @@
 package org.geotools.coverage.io;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.geotools.referencing.CRS;
+import java.net.URL;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+
+import org.geotools.image.io.metadata.GeographicMetadata;
+import org.geotools.image.io.text.DefaultTextMetadataParser;
+import org.geotools.image.io.text.TextMetadataParser;
+import org.geotools.image.io.text.TextMetadataTest;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.AxisDirection;
+import org.opengis.referencing.cs.CoordinateSystemAxis;
+import org.opengis.referencing.datum.Datum;
 
 
 /**
@@ -35,103 +41,13 @@ import static org.junit.Assert.*;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
+ * @author Cédric Briançon
  */
 public final class MetadataBuilderTest {
     /**
-     * Set to a non-null value for printing some diagnostic message to the standard output.
+     * The input resource. It should be an xml file which contains metadata declaration.
      */
-    private static PrintWriter out;
-
-    /**
-     * Tests the addition of alias.
-     *
-     * @throws IOException If an I/O operation was required and failed.
-     */
-    @Test
-    public void testAlias() throws IOException {
-        final MetadataBuilder parser = new MetadataBuilder();
-        /*
-         * Tests "add" operations.
-         */
-        parser.add("Alias 1", "Value 1");
-        parser.add("Alias 2", "Value 2");
-        try {
-            parser.add("  alias  1", "Value X");
-            fail(); // We should not get there.
-        } catch (AmbiguousMetadataException exception) {
-            // This is the expected exception.
-            if (out != null) {
-                out.println(exception);
-            }
-        }
-        parser.add("Alias 1", "Value 1"); // Already defined
-        parser.add("Alias 3", "Value 3");
-        /*
-         * Tests "addAlias" operations.
-         */
-        parser.addAlias(MetadataBuilder.X_RESOLUTION, "Alias 1");
-        parser.addAlias(MetadataBuilder.Y_RESOLUTION, "Alias 2");
-        parser.addAlias(MetadataBuilder.Y_RESOLUTION, "Alias 2bis");
-        parser.addAlias(MetadataBuilder.X_RESOLUTION, "Alias 1bis");
-        parser.addAlias(MetadataBuilder.X_RESOLUTION, "Alias 1"); // Already defined
-        try {
-            parser.addAlias(MetadataBuilder.X_RESOLUTION, "Alias 2");
-            fail(); // We should not get there.
-        } catch (AmbiguousMetadataException exception) {
-            // This is the expected exception.
-            if (out != null) {
-                out.println(exception);
-            }
-        }
-        parser.add("Alias 2bis", "Value 2");
-        try {
-            parser.add("Alias 1bis", "Value 2");
-            fail(); // We should not get there.
-        } catch (AmbiguousMetadataException exception) {
-            // This is the expected exception.
-            if (out != null) {
-                out.println(exception);
-            }
-        }
-        /*
-         * Tests "get" operations.
-         */
-        assertEquals("Value 1", parser.get(MetadataBuilder.X_RESOLUTION));
-        assertEquals("Value 2", parser.get(MetadataBuilder.Y_RESOLUTION));
-        try {
-            parser.get(MetadataBuilder.DATUM);
-            fail(); // We should not get there.
-        } catch (MissingMetadataException exception) {
-            // This is the expected exception.
-            if (out != null) {
-                out.println(exception);
-            }
-        }
-        /*
-         * Tests "getAsDouble" and "getAsInt" operations.
-         */
-        parser.add("ULX", "40");
-        parser.add("ULY", "12.5");
-        parser.addAlias(MetadataBuilder.X_MINIMUM, "ULX");
-        parser.addAlias(MetadataBuilder.Y_MAXIMUM, "ULY");
-        assertEquals(40,   parser.getAsDouble(MetadataBuilder.X_MINIMUM), 0);
-        assertEquals(12.5, parser.getAsDouble(MetadataBuilder.Y_MAXIMUM), 0);
-        assertEquals(40,   parser.getAsInt   (MetadataBuilder.X_MINIMUM));
-        try {
-            parser.getAsInt(MetadataBuilder.Y_MAXIMUM);
-            fail(); // We should not get there.
-        } catch (MetadataException exception) {
-            // This is the expected exception.
-            if (out != null) {
-                out.println(exception);
-            }
-        }
-        if (out != null) {
-            out.println();
-            parser.listMetadata(out);
-            out.flush();
-        }
-    }
+    private final URL in = TextMetadataTest.class.getResource("metadata.txt");
 
     /**
      * Tests the formatting.
@@ -140,47 +56,48 @@ public final class MetadataBuilderTest {
      */
     @Test
     public void testFormat() throws IOException {
+        final GeographicMetadata metadata = new GeographicMetadata();
         final MetadataBuilder parser = new MetadataBuilder();
+        final DefaultTextMetadataParser textMetadata = new DefaultTextMetadataParser();
+        textMetadata.setGeographicMetadata(metadata);
         /*
          * Do not add a COORDINATE_REFERENCE_SYSTEM property, because we want
          * to test the MetadataBuilder capability to create it from scratch.
          */
-        parser.addAlias(MetadataBuilder.PROJECTION,    "Projection"  );
-        parser.addAlias(MetadataBuilder.DATUM,         "Datum"       );
-        parser.addAlias(MetadataBuilder.UNITS,         "Units"       );
-        parser.addAlias(MetadataBuilder.X_MINIMUM,     "Upper left X");
-        parser.addAlias(MetadataBuilder.Y_MAXIMUM,     "Upper left Y");
-        parser.addAlias(MetadataBuilder.X_RESOLUTION,  "Resolution X");
-        parser.addAlias(MetadataBuilder.Y_RESOLUTION,  "Resolution Y");
-        parser.addAlias(MetadataBuilder.WIDTH,         "Width"       );
-        parser.addAlias(MetadataBuilder.HEIGHT,        "Height"      );
-
-        final GridCoverage coverage = GridCoverageExamples.getExample(0);
-        parser.add(coverage);
-        if (out != null) {
-            out.println(parser);
-            out.flush();
-        }
-        assertEquals(35.0, parser.getAsDouble(MetadataBuilder.X_MINIMUM),    1E-8);
-        assertEquals( 5.0, parser.getAsDouble(MetadataBuilder.Y_MAXIMUM),    1E-8);
-        assertEquals( 0.1, parser.getAsDouble(MetadataBuilder.X_RESOLUTION), 1E-8);
-        assertEquals( 0.1, parser.getAsDouble(MetadataBuilder.Y_RESOLUTION), 1E-8);
-        assertEquals( 450, parser.getAsInt   (MetadataBuilder.WIDTH));
-        assertEquals( 460, parser.getAsInt   (MetadataBuilder.HEIGHT));
+        textMetadata.addAlias(TextMetadataParser.X_MINIMUM,          "XMinimum");
+        textMetadata.addAlias(TextMetadataParser.X_MAXIMUM,          "XMaximum");
+        textMetadata.addAlias(TextMetadataParser.Y_MINIMUM,          "YMinimum");
+        textMetadata.addAlias(TextMetadataParser.Y_MAXIMUM,          "YMaximum");
+        textMetadata.addAlias(TextMetadataParser.X_RESOLUTION,       "XResolution");
+        textMetadata.addAlias(TextMetadataParser.Y_RESOLUTION,       "YResolution");
+        textMetadata.addAlias(TextMetadataParser.UNIT,               "Unit");
+        textMetadata.addAlias(TextMetadataParser.PROJECTION,         "Projection");
+        textMetadata.addAlias(TextMetadataParser.CENTRAL_MERIDIAN,   "Central meridian");
+        textMetadata.addAlias(TextMetadataParser.LATITUDE_OF_ORIGIN, "Latitude of origin");
+        textMetadata.addAlias(TextMetadataParser.FALSE_EASTING,      "False easting");
+        textMetadata.addAlias(TextMetadataParser.FALSE_NORTHING,     "False northing");
+        textMetadata.addAlias(TextMetadataParser.ELLIPSOID,          "Ellipsoid");
+        textMetadata.addAlias(TextMetadataParser.DATUM,              "Datum");
+        textMetadata.addAlias(TextMetadataParser.WIDTH,              "Width");
+        textMetadata.addAlias(TextMetadataParser.HEIGHT,             "Height");
+        textMetadata.addAlias(TextMetadataParser.COORDINATE_REFERENCE_SYSTEM, "Coordinate Reference System");
+        textMetadata.addAlias(TextMetadataParser.COORDINATE_SYSTEM,  "Coordinate System");
+        textMetadata.load(in);
+        parser.setGeographicMetadata(metadata);
 
         final GridEnvelope range = parser.getGridRange();
-        assertEquals("Width",  450, range.getSpan(0));
-        assertEquals("Height", 460, range.getSpan(1));
+        assertEquals("Width",  800, range.getHigh(0));
+        assertEquals("Height", 600, range.getHigh(1));
 
-        final CoordinateReferenceSystem expectedCRS = coverage.getCoordinateReferenceSystem();
-        final CoordinateReferenceSystem  createdCRS =   parser.getCoordinateReferenceSystem();
-        assertTrue   ("The test data changed!", expectedCRS instanceof GeographicCRS);
-        assertTrue   ("Created wrong CRS type.", createdCRS instanceof GeographicCRS);
-        assertNotSame("Not testing creation.",  expectedCRS, createdCRS);
-        assertTrue   ("Created incompatible CRS.", CRS.equalsIgnoreMetadata(expectedCRS, createdCRS));
+        final CoordinateSystemAxis axisOne = parser.getAxis(0);
+        assertTrue(axisOne.getDirection() == AxisDirection.valueOf("east"));
+        assertTrue(axisOne.getName().getCode().equalsIgnoreCase("x"));
 
-        parser.addAlias(MetadataBuilder.COORDINATE_REFERENCE_SYSTEM, "CRS");
-        parser.add(coverage);
-        assertSame("Should not create CRS anymore.", expectedCRS, parser.getCoordinateReferenceSystem());
+        final Datum datum = parser.getDatum();
+        assertTrue(datum.getName().getCode().equals("Clarke 1866"));
+
+        final CoordinateReferenceSystem notExpectedCRS = DefaultGeographicCRS.WGS84;
+        final CoordinateReferenceSystem     createdCRS = parser.getCoordinateReferenceSystem();
+        assertFalse(notExpectedCRS == createdCRS);
     }
 }

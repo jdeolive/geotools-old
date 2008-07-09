@@ -16,6 +16,7 @@
  */
 package org.geotools.coverage.io;
 
+import org.geotools.image.io.text.TextMetadataParser;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -43,11 +44,11 @@ public class MissingMetadataException extends MetadataException {
      *
      * @param message The message. If {@code null}, a message will be constructed from the alias.
      * @param key     The metadata key which was the cause for this exception, or {@code null} if
-     *                none. This is a format neutral key, for example {@link MetadataBuilder#DATUM}.
+     *                none. This is a format neutral key, for example {@link TextMetadataParser#DATUM}.
      * @param alias   The alias used for for the key {@code key}, or {@code null} if none. This is
      *                usually the name used in the external file parsed.
      */
-    public MissingMetadataException(final String message, final MetadataBuilder.Key<?> key,
+    public MissingMetadataException(final String message, final TextMetadataParser.Key key,
                                     final String alias)
     {
         super((message!=null) ? message :  Errors.format(

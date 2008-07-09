@@ -61,12 +61,12 @@ public final class GeographicMetadataTest {
         referencing.addAxis("latitude",  "north", "degrees");
         referencing.addAxis("longitude", "east",  "degrees");
         referencing.setCoordinateSystem("WGS84", "geographic");
-        referencing.setDatum("WGS84");
+        referencing.setDatum("WGS84", "geodetic");
 
         final ImageGeometry geometry = metadata.getGeometry();
         geometry.setPixelOrientation(PixelOrientation.CENTER.identifier());
-        geometry.setCoordinateRange(0, -90.0,  90.0);
-        geometry.setCoordinateRange(1, -180.0, 180.0);
+        geometry.setOrdinateRange(0, -90.0,  90.0);
+        geometry.setOrdinateRange(1, -180.0, 180.0);
         geometry.setGridRange(0, 0, 800);
         geometry.setGridRange(1, 0, 600);
         geometry.addOffsetVector(new double[]{12.5, 0.0});

@@ -20,13 +20,17 @@ import java.util.List;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.metadata.IIOMetadataFormatImpl;
 
-import org.opengis.geometry.Envelope;
+import org.geotools.resources.UnmodifiableArrayList;
 import org.opengis.coverage.SampleDimension;
+import org.opengis.geometry.Envelope;
+import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.datum.Datum;
-import org.geotools.resources.UnmodifiableArrayList;
+import org.opengis.referencing.datum.Ellipsoid;
+import org.opengis.referencing.datum.PrimeMeridian;
+import org.opengis.referencing.operation.Projection;
 
 
 /**
@@ -71,6 +75,11 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
      * the image stream. The number of bands actually read is usually much smaller.
      */
     private static final int MAXIMUM_BANDS = Short.MAX_VALUE;
+
+    /**
+     * The maximum number of parameters for the projection.
+     */
+    private static final int MAXIMUM_PARAMETERS = 10;
 
     /**
      * The geographic {@linkplain CoordinateReferenceSystem coordinate reference system} type.
@@ -161,6 +170,31 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
     public static final String PACKED = "packed";
 
     /**
+     * The engineering {@linkplain Datum datum} type.
+     */
+    public static final String ENGINEERING = "engineering";
+
+    /**
+     * The geodetic {@linkplain Datum datum} type.
+     */
+    public static final String GEODETIC = "geodetic";
+
+    /**
+     * The image {@linkplain Datum datum} type.
+     */
+    public static final String IMAGE = "image";
+
+    /**
+     * The temporal {@linkplain Datum datum} type.
+     */
+    public static final String TEMPORAL = "temporal";
+
+    /**
+     * The vertical {@linkplain Datum datum} type.
+     */
+    public static final String VERTICAL = "vertical";
+
+    /**
      * Enumeration of valid coordinate reference system types.
      */
     static final List<String> CRS_TYPES = UnmodifiableArrayList.wrap(new String[] {
@@ -172,6 +206,13 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
      */
     static final List<String> CS_TYPES = UnmodifiableArrayList.wrap(new String[] {
         ELLIPSOIDAL, CARTESIAN
+    });
+
+    /**
+     * Enumeration of valid datum types.
+     */
+    static final List<String> DATUM_TYPES = UnmodifiableArrayList.wrap(new String[] {
+        ENGINEERING, GEODETIC, IMAGE, TEMPORAL, VERTICAL
     });
 
     /**
@@ -232,6 +273,8 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
          *
          * Legend: (*)  Mandatory element or attribute.
          *         (!)  Element or attribute that is not from the OGC specification.
+         *
+         * In this tree, the index {@code n} is the number of dimensions.
          */
         super(rootName, CHILD_POLICY_SOME);
         /*
@@ -247,94 +290,123 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
         addObjectValue("upperCorner", Double.TYPE, 1, MAXIMUM_DIMENSIONS);
         /*
          * root : RectifiedGridCoverage
-         * +-- rectifiedGridDomain (dimension, srsName) : RectifiedGrid    (*)
-         *     +-- crs (name, type) : CoordinateReferenceSystem            (!)
-         *     |   +-- datum (name) : Datum                                (!)
-         *     |   +-- cs (name, type) : CoordinateSystem                  (!)
-         *     |       +-- axis[0] (name, direction, units, origin) : Axis (!)
-         *     |       +-- axis[1] (name, direction, units, origin) : Axis (!)
-         *     |       +-- ...
-         *     +-- limits : GridEnvelope                                   (*)
-         *     |   +-- low  : int[]                                        (*)
-         *     |   +-- high : int[]                                        (*)
-         *     +-- origin : Point                                          (*)
-         *     |   +-- coordinates                                         (*)
-         *     +-- cells                                                   (!)
-         *     |   +-- offsetVector[0]                                     (!)
-         *     |   +-- ...                                                 (!)
-         *     |   +-- offsetVector[n]                                     (!)
-         *     +-- localizationGrid                                        (!) 
-         *     |   +-- ordinates[0] : double[]                             (!)
-         *     |   +-- ...                                                 (!)
-         *     |   +-- ordinates[n] : double[]                             (!)
-         *     +-- pixelOrientation                                        (!)
-         *     +-- rangeSet : File                                         (*)
+         * +-- rectifiedGridDomain (dimension, srsName) : RectifiedGrid             (*)
+         *     +-- crs (name, type) : CoordinateReferenceSystem                     (!)
+         *     |   +-- datum (name, type) : Datum                                   (!)
+         *     |   |   +-- ellipsoid (name, unit) : Ellipsoid                       (!)
+         *     |   |   |   +-- semiMajorAxis : double                               (!)
+         *     |   |   |   +-- secondDefiningParameter                              (!)
+         *     |   |   |       +-- semiMinorAxis : double                           (!)
+         *     |   |   |       +-- inverseFlattening : double                       (!)
+         *     |   |   +-- primeMeridian (name, greenwichLongitude) : PrimeMeridian (!)
+         *     |   +-- cs (name, type) : CoordinateSystem                           (!)
+         *     |   |   +-- axis[0] (name, direction, units, origin) : Axis          (!)
+         *     |   |   +-- ...                                                      (!)
+         *     |   |   +-- axis[n-1] (name, direction, units, origin) : Axis        (!)
+         *     |   +-- projection (name) : Projection                               (!)
+         *     |       +-- parameter[0] (name, value) : ParameterValue              (!)
+         *     |       +-- parameter[1] (name, value) : ParameterValue              (!)
+         *     |       +-- ...                                                      (!)
+         *     +-- limits : GridEnvelope                                            (*)
+         *     |   +-- low  : int[]                                                 (*)
+         *     |   +-- high : int[]                                                 (*)
+         *     +-- origin : Point                                                   (*)
+         *     |   +-- coordinates                                                  (*)
+         *     +-- cells                                                            (!)
+         *     |   +-- offsetVector[0]                                              (!)
+         *     |   +-- ...                                                          (!)
+         *     |   +-- offsetVector[n-1]                                            (!)
+         *     +-- localizationGrid                                                 (!)
+         *     |   +-- ordinates[0] : double[]                                      (!)
+         *     |   +-- ...                                                          (!)
+         *     |   +-- ordinates[n-1] : double[]                                    (!)
+         *     +-- pixelOrientation                                                 (!)
+         *     +-- rangeSet : File                                                  (*)
          *         +-- rangeParameters
          *         |   +-- TBD
-         *         +-- fileName                                            (*)
-         *         +-- fileStructure                                       (*)
+         *         +-- fileName                                                     (*)
+         *         +-- fileStructure                                                (*)
          *         +-- fileDate
          *         +-- fileFormat
          *         +-- spatialResolution (uom)
          *         +-- spectrum
          *         +-- bandRange (uom)
-         *         +-- bands (type)                                        (!)
+         *         +-- bands (type)                                                 (!)
          *         |   +-- band[0] (name, scale, offset, minValue, maxValue, fillValues) : Band
          *         |   +-- band[1] (name, scale, offset, minValue, maxValue, fillValues) : Band
          *         |   +-- ...
          *         +-- mimeType
          *         +-- compression
          */
-        addElement    ("rectifiedGridDomain", rootName,    CHILD_POLICY_SOME);
-        addAttribute  ("rectifiedGridDomain", "dimension", DATATYPE_INTEGER, true,  null);
-        addAttribute  ("rectifiedGridDomain", "srsName",   DATATYPE_STRING);
+        addElement    ("rectifiedGridDomain",     rootName,                  CHILD_POLICY_SOME);
+        addAttribute  ("rectifiedGridDomain",     "dimension",               DATATYPE_INTEGER, true, null);
+        addAttribute  ("rectifiedGridDomain",     "srsName",                 DATATYPE_STRING);
 
-        addElement    ("crs",    "rectifiedGridDomain",    CHILD_POLICY_SOME);
-        addAttribute  ("crs",    "name",                   DATATYPE_STRING);
-        addAttribute  ("crs",    "type",                   DATATYPE_STRING,  false, null, CRS_TYPES);
-        addElement    ("datum",  "crs",                    CHILD_POLICY_ALL);
-        addAttribute  ("datum",  "name",                   DATATYPE_STRING);
-        addElement    ("cs",     "crs",                    2, maximumDimensions);
-        addAttribute  ("cs",     "name",                   DATATYPE_STRING);
-        addAttribute  ("cs",     "type",                   DATATYPE_STRING,  false, null, CS_TYPES);
-        addElement    ("axis",   "cs",                     CHILD_POLICY_EMPTY);
-        addAttribute  ("axis",   "name",                   DATATYPE_STRING);
-        addAttribute  ("axis",   "direction",              DATATYPE_STRING,  true,  null, DIRECTIONS);
-        addAttribute  ("axis",   "units",                  DATATYPE_STRING);
-        addAttribute  ("axis",   "origin",                 DATATYPE_STRING);
+        addElement    ("crs",                     "rectifiedGridDomain",     CHILD_POLICY_SOME);
+        addAttribute  ("crs",                     "name",                    DATATYPE_STRING);
+        addAttribute  ("crs",                     "type",                    DATATYPE_STRING, false, null, CRS_TYPES);
+        addElement    ("datum",                   "crs",                     CHILD_POLICY_SOME);
+        addAttribute  ("datum",                   "name",                    DATATYPE_STRING);
+        addAttribute  ("datum",                   "type",                    DATATYPE_STRING, false, null, DATUM_TYPES);
+        addElement    ("ellipsoid",               "datum",                   CHILD_POLICY_ALL);
+        addAttribute  ("ellipsoid",               "name",                    DATATYPE_STRING);
+        addAttribute  ("ellipsoid",               "unit",                    DATATYPE_STRING);
+        addElement    ("primeMeridian",           "datum",                   CHILD_POLICY_EMPTY);
+        addAttribute  ("primeMeridian",           "name",                    DATATYPE_STRING);
+        addAttribute  ("primeMeridian",           "greenwichLongitude",      DATATYPE_DOUBLE);
+        addElement    ("semiMajorAxis",           "ellipsoid",               CHILD_POLICY_EMPTY);
+        addObjectValue("semiMajorAxis",           Double.class);
+        addElement    ("secondDefiningParameter", "ellipsoid",               CHILD_POLICY_CHOICE);
+        addElement    ("semiMinorAxis",           "secondDefiningParameter", CHILD_POLICY_EMPTY);
+        addObjectValue("semiMinorAxis",           Double.class);
+        addElement    ("inverseFlattening",       "secondDefiningParameter", CHILD_POLICY_EMPTY);
+        addObjectValue("inverseFlattening",       Double.class);
+        addElement    ("cs",                      "crs",                     2, maximumDimensions);
+        addAttribute  ("cs",                      "name",                    DATATYPE_STRING);
+        addAttribute  ("cs",                      "type",                    DATATYPE_STRING, false, null, CS_TYPES);
+        addElement    ("axis",                    "cs",                      CHILD_POLICY_EMPTY);
+        addAttribute  ("axis",                    "name",                    DATATYPE_STRING);
+        addAttribute  ("axis",                    "direction",               DATATYPE_STRING, true,  null, DIRECTIONS);
+        addAttribute  ("axis",                    "units",                   DATATYPE_STRING);
+        addAttribute  ("axis",                    "origin",                  DATATYPE_STRING);
+        addElement    ("projection",              "crs",                     0, MAXIMUM_PARAMETERS);
+        addAttribute  ("projection",              "name",                    DATATYPE_STRING);
+        addElement    ("parameter",               "projection",              CHILD_POLICY_EMPTY);
+        addAttribute  ("parameter",               "name",                    DATATYPE_STRING);
+        addAttribute  ("parameter",               "value",                   DATATYPE_DOUBLE);
 
-        addElement    ("limits",              "rectifiedGridDomain",   CHILD_POLICY_ALL);
-        addElement    ("low",                 "limits",                CHILD_POLICY_EMPTY);
-        addElement    ("high",                "limits",                CHILD_POLICY_EMPTY);
-        addObjectValue("low",                 Integer.class);
-        addObjectValue("high",                Integer.class);
-        addElement    ("origin",              "rectifiedGridDomain",   CHILD_POLICY_ALL);
-        addElement    ("coordinates",         "origin",                CHILD_POLICY_EMPTY);
-        addElement    ("cells",               "rectifiedGridDomain",   1, MAXIMUM_DIMENSIONS);
-        addElement    ("offsetVector",        "cells",                 CHILD_POLICY_EMPTY);
-        addElement    ("localizationGrid",    "rectifiedGridDomain",   1, MAXIMUM_DIMENSIONS);
-        addElement    ("ordinates",           "localizationGrid",      CHILD_POLICY_EMPTY);
-        addElement    ("pixelOrientation",    "rectifiedGridDomain",   CHILD_POLICY_EMPTY);
-        addObjectValue("pixelOrientation",    String.class,            1, PIXEL_ORIENTATIONS.size());
+        addElement    ("limits",                  "rectifiedGridDomain",     CHILD_POLICY_ALL);
+        addElement    ("low",                     "limits",                  CHILD_POLICY_EMPTY);
+        addElement    ("high",                    "limits",                  CHILD_POLICY_EMPTY);
+        addObjectValue("low",                     Integer.class);
+        addObjectValue("high",                    Integer.class);
+        addElement    ("origin",                  "rectifiedGridDomain",     CHILD_POLICY_ALL);
+        addElement    ("coordinates",             "origin",                  CHILD_POLICY_EMPTY);
+        addElement    ("cells",                   "rectifiedGridDomain",     1, MAXIMUM_DIMENSIONS);
+        addElement    ("offsetVector",            "cells",                   CHILD_POLICY_EMPTY);
+        addElement    ("localizationGrid",        "rectifiedGridDomain",     1, MAXIMUM_DIMENSIONS);
+        addElement    ("ordinates",               "localizationGrid",        CHILD_POLICY_EMPTY);
+        addElement    ("pixelOrientation",        "rectifiedGridDomain",     CHILD_POLICY_EMPTY);
+        addObjectValue("pixelOrientation",        String.class,              1, PIXEL_ORIENTATIONS.size());
 
-        addElement    ("rangeSet",            "rectifiedGridDomain",   CHILD_POLICY_SOME);
-        addElement    ("rangeParameters",     "rangeSet",              CHILD_POLICY_EMPTY);
+        addElement    ("rangeSet",                "rectifiedGridDomain",     CHILD_POLICY_SOME  );
+        addElement    ("rangeParameters",         "rangeSet",                CHILD_POLICY_EMPTY);
         // todo: handle rangeParameters' children; for the moment it is considered
         //as a leaf of the tree.
-        addElement    ("fileName",            "rangeSet",              CHILD_POLICY_EMPTY);
-        addElement    ("fileStructure",       "rangeSet",              CHILD_POLICY_EMPTY);
-        addElement    ("fileDate",            "rangeSet",              CHILD_POLICY_EMPTY);
-        addElement    ("fileFormat",          "rangeSet",              CHILD_POLICY_EMPTY);
-        addElement    ("spatialResolution",   "rangeSet",              CHILD_POLICY_EMPTY);
-        addAttribute  ("spatialResolution",   "uom",                   DATATYPE_STRING);
-        addElement    ("spectrum",            "rangeSet",              CHILD_POLICY_EMPTY);
-        addElement    ("bandRange",           "rangeSet",              0, MAXIMUM_BANDS);
-        addAttribute  ("bandRange",           "uom",                   DATATYPE_STRING);
-        addElement    ("bands",               "rangeSet",              0, MAXIMUM_BANDS);
-        addAttribute  ("bands",               "type",                  DATATYPE_STRING, false, null, SAMPLE_TYPES);
-        addElement    ("band",                "bands",                 CHILD_POLICY_EMPTY);
-        addElement    ("mimeType",            "rangeSet",              CHILD_POLICY_EMPTY);
-        addElement    ("compression",         "rangeSet",              CHILD_POLICY_EMPTY);
+        addElement    ("fileName",                "rangeSet",                CHILD_POLICY_EMPTY);
+        addElement    ("fileStructure",           "rangeSet",                CHILD_POLICY_EMPTY);
+        addElement    ("fileDate",                "rangeSet",                CHILD_POLICY_EMPTY);
+        addElement    ("fileFormat",              "rangeSet",                CHILD_POLICY_EMPTY);
+        addElement    ("spatialResolution",       "rangeSet",                CHILD_POLICY_EMPTY);
+        addAttribute  ("spatialResolution",       "uom",                     DATATYPE_STRING);
+        addElement    ("spectrum",                "rangeSet",                CHILD_POLICY_EMPTY);
+        addElement    ("bandRange",               "rangeSet",                0, MAXIMUM_BANDS);
+        addAttribute  ("bandRange",               "uom",                     DATATYPE_STRING);
+        addElement    ("bands",                   "rangeSet",                0, MAXIMUM_BANDS);
+        addAttribute  ("bands",                   "type",                    DATATYPE_STRING, false, null, SAMPLE_TYPES);
+        addElement    ("band",                    "bands",                   CHILD_POLICY_EMPTY);
+        addElement    ("mimeType",                "rangeSet",                CHILD_POLICY_EMPTY);
+        addElement    ("compression",             "rangeSet",                CHILD_POLICY_EMPTY);
         /*
          * root : RectifiedGridCoverage
          *   +-- rectifiedGridDomain (dimension, srsName) : RectifiedGrid (*)
@@ -353,11 +425,15 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
         /*
          * Allow users to specify fully-constructed GeoAPI objects.
          */
-        addObjectValue("crs",        CoordinateReferenceSystem.class);
-        addObjectValue("datum",      Datum.class);
-        addObjectValue("cs",         CoordinateSystem.class);
-        addObjectValue("axis",       CoordinateSystemAxis.class);
-        addObjectValue("boundedBy",  Envelope.class);
+        addObjectValue("crs",           CoordinateReferenceSystem.class);
+        addObjectValue("datum",         Datum.class);
+        addObjectValue("ellipsoid",     Ellipsoid.class);
+        addObjectValue("cs",            CoordinateSystem.class);
+        addObjectValue("axis",          CoordinateSystemAxis.class);
+        addObjectValue("projection",    Projection.class);
+        addObjectValue("parameter",     ParameterValue.class);
+        addObjectValue("boundedBy",     Envelope.class);
+        addObjectValue("primeMeridian", PrimeMeridian.class);
     }
 
     /**
