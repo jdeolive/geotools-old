@@ -36,14 +36,14 @@ import org.opengis.referencing.datum.Datum;
 
 
 /**
- * Tests the {@link MetadataBuilder} implementation.
+ * Tests the {@link MetadataReader} implementation.
  *
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  * @author Cédric Briançon
  */
-public final class MetadataBuilderTest {
+public final class MetadataReaderTest {
     /**
      * The input resource. It should be an xml file which contains metadata declaration.
      */
@@ -57,12 +57,12 @@ public final class MetadataBuilderTest {
     @Test
     public void testFormat() throws IOException {
         final GeographicMetadata metadata = new GeographicMetadata();
-        final MetadataBuilder parser = new MetadataBuilder();
+        final MetadataReader parser = new MetadataReader();
         final DefaultTextMetadataParser textMetadata = new DefaultTextMetadataParser();
         textMetadata.setGeographicMetadata(metadata);
         /*
          * Do not add a COORDINATE_REFERENCE_SYSTEM property, because we want
-         * to test the MetadataBuilder capability to create it from scratch.
+         * to test the MetadataReader capability to create it from scratch.
          */
         textMetadata.addAlias(TextMetadataParser.X_MINIMUM,          "XMinimum");
         textMetadata.addAlias(TextMetadataParser.X_MAXIMUM,          "XMaximum");

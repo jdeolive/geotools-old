@@ -97,7 +97,7 @@ import org.opengis.referencing.operation.TransformException;
  *
  * @since 2.2
  */
-public class MetadataBuilder {
+public class MetadataReader {
     /**
      * Set of commonly used symbols for "metres".
      *
@@ -143,22 +143,22 @@ public class MetadataBuilder {
     private UnitFormat unitFormat;
 
     /**
-     * Constructs a new {@code MetadataBuilder} using default factories and geographic
+     * Constructs a new {@code MetadataReader} using default factories and geographic
      * metadata. Do not forget to call {@link #setGeographicMetadata(GeographicMetadata)}
      * in order to fix the metadata value.
      */
-    public MetadataBuilder() {
+    public MetadataReader() {
         factories = ReferencingFactoryContainer.instance(null);
     }
 
     /**
-     * Constructs a new {@code MetadataBuilder} using the specified factories. Do not
+     * Constructs a new {@code MetadataReader} using the specified factories. Do not
      * forget to call {@link #setGeographicMetadata(GeographicMetadata)} in order to
      * fix the metadata value.
      *
      * @param factories The specified factories. Should not be {@code null}.
      */
-    public MetadataBuilder(final ReferencingFactoryContainer factories) {
+    public MetadataReader(final ReferencingFactoryContainer factories) {
         this.factories = factories;
     }
 
@@ -397,7 +397,7 @@ public class MetadataBuilder {
      *       {@link MathTransformFactory}</li>
      *
      *   <li>Gets the metadata values for each parameters in the above step. If a parameter is not
-     *       defined in this {@code MetadataBuilder}, then it will be left to its (projection
+     *       defined in this {@code MetadataReader}, then it will be left to its (projection
      *       dependent) default value. Parameters are projection dependent, but will typically
      *       include
      *

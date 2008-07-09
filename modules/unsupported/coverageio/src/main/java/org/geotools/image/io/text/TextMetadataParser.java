@@ -39,7 +39,7 @@ import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
 import org.geotools.coverage.io.AmbiguousMetadataException;
-import org.geotools.coverage.io.MetadataBuilder;
+import org.geotools.coverage.io.MetadataReader;
 import org.geotools.coverage.io.MetadataException;
 import org.geotools.image.io.metadata.GeographicMetadata;
 import org.geotools.image.io.metadata.GeographicMetadataFormat;
@@ -62,7 +62,7 @@ import org.opengis.referencing.operation.Projection;
  * Helper class for creating OpenGIS's object from a set of metadata. Metadata are
  * <cite>key-value</cite> pairs, for example {@code "Units=meters"}. There is a wide
  * variety of ways to contruct OpenGIS's objects from <cite>key-value</cite> pairs, and
- * supporting them is not always straightforward. The {@code MetadataBuilder} class
+ * supporting them is not always straightforward. The {@code MetadataReader} class
  * tries to make the work easier. It defines a set of format-neutral keys (i.e. keys not
  * related to any specific file format). Before parsing a file, the mapping between
  * format-neutral keys and "real" keys used in a particuler file format <strong>must</strong>
@@ -84,7 +84,7 @@ import org.opengis.referencing.operation.Projection;
  * Datum              = Clarke 1866
  * </pre></blockquote>
  *
- * Before to be used for parsing such informations, a {@code MetadataBuilder} object
+ * Before to be used for parsing such informations, a {@code MetadataReader} object
  * must be setup using the following code:
  *
  * <blockquote><pre>
@@ -110,7 +110,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the {@linkplain CoordinateReferenceSystem coordinate reference system}.
-     * The {@link MetadataBuilder#getCoordinateReferenceSystem} method looks for this
+     * The {@link MetadataReader#getCoordinateReferenceSystem} method looks for this
      * metadata.
      *
      * @see #UNIT
@@ -133,7 +133,7 @@ public abstract class TextMetadataParser {
     
     /**
      * Key for the {@linkplain CoordinateSystem coordinate system}.
-     * The {@link MetadataBuilder#getCoordinateSystem} method looks for this
+     * The {@link MetadataReader#getCoordinateSystem} method looks for this
      * metadata.
      *
      * @see #UNIT
@@ -153,7 +153,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the {@linkplain CoordinateSystemAxis coordinate system axis} units.
-     * The {@link MetadataBuilder#getUnit} method looks for this metadata. The following
+     * The {@link MetadataReader#getUnit} method looks for this metadata. The following
      * heuristic rule may be applied in order to infer the CRS from the units:
      * <p>
      * <ul>
@@ -172,7 +172,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the coordinate reference system's {@linkplain Datum datum}.
-     * The {@link MetadataBuilder#getDatum} method looks for this metadata.
+     * The {@link MetadataReader#getDatum} method looks for this metadata.
      *
      * @see #UNIT
      * @see #ELLIPSOID
@@ -185,7 +185,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the coordinate reference system {@linkplain Ellipsoid ellipsoid}.
-     * The {@link MetadataBuilder#getEllipsoid} method looks for this metadata.
+     * The {@link MetadataReader#getEllipsoid} method looks for this metadata.
      *
      * @see #UNIT
      * @see #DATUM
@@ -201,7 +201,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the {@linkplain OperationMethod operation method}. The
-     * {@link MetadataBuilder#getProjection} method looks for this metadata. The operation
+     * {@link MetadataReader#getProjection} method looks for this metadata. The operation
      * method name determines the {@linkplain MathTransformFactory#getDefaultParameters
      * math transform implementation and its list of parameters}. This name is the
      * projection <cite>classification</cite>.
@@ -216,7 +216,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the {@linkplain Projection projection}. The
-     * {@link MetadataBuilder#getProjection} method looks for this metadata. If the
+     * {@link MetadataReader#getProjection} method looks for this metadata. If the
      * metadata is not defined, then the projection name is assumed the same than the
      * {@linkplain #OPERATION_METHOD operation method} name.
      *
@@ -242,7 +242,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the {@code "semi_major"} ellipsoid parameter. There is no specific method
      * for this key. However, this key may be queried indirectly by
-     * {@link MetadataBuilder#getEllipsoid}.
+     * {@link MetadataReader#getEllipsoid}.
      *
      * @see #SEMI_MINOR
      * @see #INVERSE_FLATTENING
@@ -257,7 +257,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the {@code "semi_minor"} ellipsoid parameter. There is no specific method
      * for this key. However, this key may be queried indirectly by
-     * {@link MetadataBuilder#getEllipsoid}.
+     * {@link MetadataReader#getEllipsoid}.
      *
      * @see #INVERSE_FLATTENING
      * @see #SEMI_MAJOR
@@ -272,7 +272,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the {@code "inverse_flattening"} ellipsoid parameter. There is no specific
      * method for this key. However, this key may be queried indirectly by
-     * {@link MetadataBuilder#getEllipsoid}.
+     * {@link MetadataReader#getEllipsoid}.
      *
      * @see #SEMI_MINOR
      * @see #SEMI_MAJOR
@@ -287,7 +287,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the {@code "latitude_of_origin"} projection parameter. There is no specific
      * method for this key. However, this key may be queried indirectly by
-     * {@link MetadataBuilder#getProjection}.
+     * {@link MetadataReader#getProjection}.
      *
      * @see #SEMI_MAJOR
      * @see #SEMI_MINOR
@@ -301,7 +301,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the {@code "central_meridian"} projection parameter. There is no specific
      * method for this key. However, this key may be queried indirectly by
-     * {@link MetadataBuilder#getProjection}.
+     * {@link MetadataReader#getProjection}.
      *
      * @see #SEMI_MAJOR
      * @see #SEMI_MINOR
@@ -315,7 +315,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the {@code "false_easting"} projection parameter. There is no specific
      * method for this key. However, this key may be queried indirectly by
-     * {@link MetadataBuilder#getProjection}.
+     * {@link MetadataReader#getProjection}.
      *
      * @see #SEMI_MAJOR
      * @see #SEMI_MINOR
@@ -329,7 +329,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the {@code "false_northing"} projection parameter. There is no specific
      * method for this key. However, this key may be queried indirectly by
-     * {@link MetadataBuilder#getProjection}.
+     * {@link MetadataReader#getProjection}.
      *
      * @see #SEMI_MAJOR
      * @see #SEMI_MINOR
@@ -343,7 +343,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the minimal <var>x</var> value (western limit).
      * This is usually the longitude coordinate of the <em>upper left</em> corner.
-     * The {@link MetadataBuilder#getEnvelope} method looks for this metadata in order
+     * The {@link MetadataReader#getEnvelope} method looks for this metadata in order
      * to set the {@linkplain Envelope#getMinimum minimal coordinate} for dimension
      * <strong>0</strong>.
      *
@@ -358,7 +358,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the minimal <var>y</var> value (southern limit).
      * This is usually the latitude coordinate of the <em>bottom right</em> corner.
-     * The {@link MetadataBuilder#getEnvelope} method looks for this metadata. in order
+     * The {@link MetadataReader#getEnvelope} method looks for this metadata. in order
      * to set the {@linkplain Envelope#getMinimum minimal coordinate} for dimension
      * <strong>1</strong>.
      *
@@ -372,7 +372,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the minimal <var>z</var> value. This is usually the minimal altitude.
-     * The {@link MetadataBuilder#getEnvelope} method looks for this metadata in order
+     * The {@link MetadataReader#getEnvelope} method looks for this metadata in order
      * to set the {@linkplain Envelope#getMinimum minimal coordinate} for dimension
      * <strong>2</strong>.
      *
@@ -385,7 +385,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the maximal <var>x</var> value (eastern limit).
      * This is usually the longitude coordinate of the <em>bottom right</em> corner.
-     * The {@link MetadataBuilder#getEnvelope} method looks for this metadata in order
+     * The {@link MetadataReader#getEnvelope} method looks for this metadata in order
      * to set the {@linkplain Envelope#getMaximum maximal coordinate} for dimension
      * <strong>0</strong>.
      *
@@ -400,7 +400,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the maximal <var>y</var> value (northern limit).
      * This is usually the latitude coordinate of the <em>upper left</em> corner.
-     * The {@link MetadataBuilder#getEnvelope} method looks for this metadata in order
+     * The {@link MetadataReader#getEnvelope} method looks for this metadata in order
      * to set the {@linkplain Envelope#getMaximum maximal coordinate} for dimension
      * <strong>1</strong>.
      *
@@ -414,7 +414,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the maximal <var>z</var> value. This is usually the maximal altitude.
-     * The {@link MetadataBuilder#getEnvelope} method looks for this metadata in order
+     * The {@link MetadataReader#getEnvelope} method looks for this metadata in order
      * to set the {@linkplain Envelope#getMaximum maximal coordinate} for dimension
      * <strong>2</strong>.
      *
@@ -426,7 +426,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the resolution among the <var>x</var> axis. The
-     * {@link MetadataBuilder#getEnvelope} method looks for this metadata in order
+     * {@link MetadataReader#getEnvelope} method looks for this metadata in order
      * to infer the coordinates for dimension <strong>0</strong>.
      *
      * @see #X_MINIMUM
@@ -439,7 +439,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the resolution among the <var>y</var> axis. The
-     * {@link MetadataBuilder#getEnvelope} method looks for this metadata in order
+     * {@link MetadataReader#getEnvelope} method looks for this metadata in order
      * to infer the coordinates for dimension <strong>1</strong>.
      *
      * @see #X_MINIMUM
@@ -454,7 +454,7 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the resolution among the <var>z</var> axis. The
-     * {@link MetadataBuilder#getEnvelope} method looks for this metadata in order to
+     * {@link MetadataReader#getEnvelope} method looks for this metadata in order to
      * infer the coordinates for dimension <strong>2</strong>.
      *
      * @see #Z_MINIMUM
@@ -465,27 +465,27 @@ public abstract class TextMetadataParser {
 
     /**
      * Key for the direction among the <var>x</var> axis. The
-     * {@link MetadataBuilder#getAxis} method looks for this metadata in order to
+     * {@link MetadataReader#getAxis} method looks for this metadata in order to
      * set its direction.
      */
     public static final Key X_DIRECTION = new Key("XDirection");
 
     /**
      * Key for the direction among the <var>y</var> axis. The
-     * {@link MetadataBuilder#getAxis} method looks for this metadata in order to
+     * {@link MetadataReader#getAxis} method looks for this metadata in order to
      * set its direction.
      */
     public static final Key Y_DIRECTION = new Key("YDirection");
 
     /**
      * Key for the direction among the <var>z</var> axis. The
-     * {@link MetadataBuilder#getAxis} method looks for this metadata in order to
+     * {@link MetadataReader#getAxis} method looks for this metadata in order to
      * set its direction.
      */
     public static final Key Z_DIRECTION = new Key("ZDirection");
 
     /**
-     * Key for the image's width in pixels. The {@link MetadataBuilder#getGridRange}
+     * Key for the image's width in pixels. The {@link MetadataReader#getGridRange}
      * method looks for this metadata in order to infer the
      * {@linkplain GridEnvelope#getSpan grid size} along the dimension <strong>0</strong>.
      *
@@ -496,7 +496,7 @@ public abstract class TextMetadataParser {
     public static final Key WIDTH = new Key("Width");
 
     /**
-     * Key for the image's height in pixels. The {@link MetadataBuilder#getGridRange}
+     * Key for the image's height in pixels. The {@link MetadataReader#getGridRange}
      * method looks for this metadata in order to infer the
      * {@linkplain GridEnvelope#getSpan grid size} along the dimension <strong>1</strong>.
      *
@@ -509,7 +509,7 @@ public abstract class TextMetadataParser {
     /**
      * Key for the image's "depth" in pixels. This metadata may exists for 3D images,
      * but some implementations accept at most 1 pixel depth among the third dimension.
-     * The {@link MetadataBuilder#getGridRange} method looks for this metadata in order
+     * The {@link MetadataReader#getGridRange} method looks for this metadata in order
      * to infer the {@linkplain GridEnvelope#getSpan grid size} along the dimension
      * <strong>2</strong>.
      *
@@ -573,14 +573,14 @@ public abstract class TextMetadataParser {
     private Locale userLocale;
 
     /**
-     * Constructs a new {@code MetadataBuilder} using default factories.
+     * Constructs a new {@code MetadataReader} using default factories.
      */
     public TextMetadataParser() {
         this(ReferencingFactoryContainer.instance(null));
     }
 
     /**
-     * Constructs a new {@code MetadataBuilder} using the specified factories.
+     * Constructs a new {@code MetadataReader} using the specified factories.
      */
     public TextMetadataParser(final ReferencingFactoryContainer factories) {
         this.factories = factories;
@@ -665,10 +665,10 @@ public abstract class TextMetadataParser {
     }
 
     /**
-     * Clears this metadata set. If the same {@code MetadataBuilder} object is used
+     * Clears this metadata set. If the same {@code MetadataReader} object is used
      * for parsing many files, then {@code clear()} should be invoked prior any
      * {@code load(...)} method.
-     * Note that {@code clear()} do not remove any alias, so this {@code MetadataBuilder}
+     * Note that {@code clear()} do not remove any alias, so this {@code MetadataReader}
      * can be immediately reused for parsing new files of the same kind.
      */
     public synchronized void clear() {
@@ -786,7 +786,7 @@ public abstract class TextMetadataParser {
      * line is not consumed (i.e. this method returns {@code false}) if
      * {@code parseLine(...)} don't know what to do with it. Non-consumed line will
      * typically go up in a chain of {@code parseLine(...)} methods (if
-     * {@code MetadataBuilder} has been subclassed) until someone consume it.
+     * {@code MetadataReader} has been subclassed) until someone consume it.
      *
      * @param  line The line to parse.
      * @return {@code true} if this method has consumed the line.
@@ -810,7 +810,7 @@ public abstract class TextMetadataParser {
     /**
      * Add all metadata from the specified image.
      *
-     * @param  image The image with metadata to add to this {@code MetadataBuilder}.
+     * @param  image The image with metadata to add to this {@code MetadataReader}.
      * @throws AmbiguousMetadataException if a metadata is defined twice.
      *
      * @see #add(GridCoverage)
@@ -1074,7 +1074,7 @@ public abstract class TextMetadataParser {
     }
 
     /**
-     * Sets the current {@link Locale} of this {@code MetadataBuilder}
+     * Sets the current {@link Locale} of this {@code MetadataReader}
      * to the given value. A value of {@code null} removes any previous
      * setting, and indicates that the parser should localize as it sees fit.
      * <p>
@@ -1183,7 +1183,7 @@ public abstract class TextMetadataParser {
      * A key for fetching metadata in a format independent way. For example, the northern
      * limit of an image way be named <code>"Limit North"</code> is some metadata files,
      * and <code>"ULY"</code> (as <cite>Upper Left Y</cite>) in other metadata files. The
-     * {@link MetadataBuilder#Y_MAXIMUM} allows to fetch this metadata without knowledge of
+     * {@link MetadataReader#Y_MAXIMUM} allows to fetch this metadata without knowledge of
      * the actual name used in the underlying metadata file.
      * <p>
      * Keys are case-insensitive. Furthermore, trailing and leading spaces are ignored.
