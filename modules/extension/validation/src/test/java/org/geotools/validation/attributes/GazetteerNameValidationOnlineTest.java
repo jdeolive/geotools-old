@@ -253,8 +253,7 @@ public class GazetteerNameValidationOnlineTest extends TestCase {
             public Collection<Property> getProperties() {
             	return null;
             }
-            public boolean isValid() {
-                return true;
+            public void validate() {
             }
 		}
 		SimpleFeature f = new TestFeature();
