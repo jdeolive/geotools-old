@@ -57,8 +57,8 @@
     <developer>
       <name>Rob Atkinson</name>
       <id>roba</id>
-      <email>rob@socialchange.net.au</email>
-      <organization>Social Change Online</organization>
+      <email>rob.atkinson@csiro.au</email>
+      <organization>CSIRO</organization>
       <roles>
         <role>Module Maintainer</role>
         <role>Java Developer</role>
