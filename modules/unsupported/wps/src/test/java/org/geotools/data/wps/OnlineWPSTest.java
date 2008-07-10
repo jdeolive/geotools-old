@@ -26,7 +26,10 @@ import net.opengis.ows11.ExceptionReportType;
 import net.opengis.wps.ComplexDataCombinationsType;
 import net.opengis.wps.ComplexDataDescriptionType;
 import net.opengis.wps.DataType;
+import net.opengis.wps.ExecuteResponseType;
 import net.opengis.wps.InputDescriptionType;
+import net.opengis.wps.LiteralDataType;
+import net.opengis.wps.OutputDataType;
 import net.opengis.wps.ProcessBriefType;
 import net.opengis.wps.ProcessDescriptionType;
 import net.opengis.wps.ProcessDescriptionsType;
@@ -55,8 +58,13 @@ public class OnlineWPSTest extends TestCase {
 	private WebProcessingService wps;
 	private URL url;
 	private String processIden;
+	private boolean runTests;
 	
 	public void setUp() throws ServiceException, IOException {
+		
+		// these tests require a specific WPS server to be up and running, so
+		// turn them off by default to avoid connection errors
+		runTests = false;
 		
 		// set to true for local server test, false for 52N server test
 		useLocalServer = true;
@@ -80,6 +88,9 @@ public class OnlineWPSTest extends TestCase {
 	}
 	
 	public void testGetCaps() throws ServiceException, IOException {
+		
+		// don't run the test if the server is not up
+		if (!runTests) return;
 
 		WPSCapabilitiesType capabilities = wps.getCapabilities();
 		assertNotNull("capabilities shouldn't be null", capabilities);
@@ -96,6 +107,9 @@ public class OnlineWPSTest extends TestCase {
 	}
 	
 	public void testDescribeProcess() throws ServiceException, IOException {
+		
+		// don't run the test if the server is not up
+		if (!runTests) return;
 		
 		WPSCapabilitiesType capabilities = wps.getCapabilities();
 		
@@ -114,6 +128,9 @@ public class OnlineWPSTest extends TestCase {
 	}
 	
 	public void testExecuteProcess1() throws ServiceException, IOException, ParseException {
+		
+		// don't run the test if the server is not up
+		if (!runTests) return;		
 		
 		WPSCapabilitiesType capabilities = wps.getCapabilities();
 		
@@ -235,6 +252,9 @@ public class OnlineWPSTest extends TestCase {
 	 */
 	public void testExecuteLocalUnion() throws ServiceException, IOException, ParseException {
 		
+		// don't run the test if the server is not up
+		if (!runTests) return;		
+		
 		if (!useLocalServer) return;
 		
 		String processIdenLocal = "Union";
@@ -316,5 +336,100 @@ public class OnlineWPSTest extends TestCase {
 
 	}	
 	
+	/**
+	 * Do some more local process tests, such as double addtion
+	 * @throws ServiceException
+	 * @throws IOException
+	 * @throws ParseException
+	 */
+	public void testExecuteLocalAdd() throws ServiceException, IOException, ParseException {
+		
+		// don't run the test if the server is not up
+		if (!runTests) return;		
+		
+		if (!useLocalServer) return;
+		
+		String processIdenLocal = "DoubleAddition";
+		
+		WPSCapabilitiesType capabilities = wps.getCapabilities();
+		
+		// get the first process and execute it
+		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
+		EList processes = processOfferings.getProcess();
+		//ProcessBriefType process = (ProcessBriefType) processes.get(0);
 
+		// does the server contain the specific process I want
+		boolean found = false;
+		Iterator iterator = processes.iterator();
+		while (iterator.hasNext()) {
+			ProcessBriefType process = (ProcessBriefType) iterator.next();
+			if (process.getIdentifier().getValue().equalsIgnoreCase(processIdenLocal)) {
+				found =true;
+				break;
+			}
+		}
+		
+		// exit test if my process doesn't exist on server
+		if (!found) {
+			return;
+		}
+		
+		// do a full describeprocess on my process
+		DescribeProcessRequest descRequest = wps.createDescribeProcessRequest();
+		descRequest.setIdentifier(processIdenLocal);
+		DescribeProcessResponse descResponse = wps.issueRequest(descRequest);
+		
+		// based on the describeprocess, setup the execute
+		ProcessDescriptionsType processDesc = descResponse.getProcessDesc();
+		ExecuteProcessRequest exeRequest = wps.createExecuteProcessRequest();
+		exeRequest.setIdentifier(processIdenLocal);
+		
+		setLocalInputDataAdd(exeRequest, processDesc);
+		
+		// send the request
+		ExecuteProcessResponse response = wps.issueRequest(exeRequest);
+		
+		// response should not be null and no exception should occur.
+		assertNotNull(response);
+		ExecuteResponseType executeResponse = response.getExecuteResponse();
+		assertNotNull(executeResponse);
+		ExceptionReportType exceptionResponse = response.getExceptionResponse();
+		assertNull(exceptionResponse);
+		
+		// check result correctness
+		EList outputs = executeResponse.getProcessOutputs().getOutput();
+		assertTrue(!outputs.isEmpty());
+		OutputDataType output = (OutputDataType) outputs.get(0);
+		LiteralDataType literalData = output.getData().getLiteralData();
+		String value = literalData.getValue();
+		Double result = new Double(value);
+		Double expected = 77.84 + 40039.229;
+		assertEquals(result, expected);
+		
+	}
+	
+	private void setLocalInputDataAdd(ExecuteProcessRequest exeRequest, 
+			ProcessDescriptionsType processDesc) throws ParseException {
+
+		// this process takes 2 inputs, two double to add together.
+		ProcessDescriptionType pdt = (ProcessDescriptionType) processDesc.getProcessDescription().get(0);
+		InputDescriptionType idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(0);
+		
+		// create doubles for the input
+        Double d1 = 77.84;
+        Double d2 = 40039.229;
+        
+        // create and set the input on the exe request
+        List<DataType> list = new ArrayList<DataType>();
+        DataType input = WPSUtils.createInput(d1, idt);
+        list.add(input);
+    	exeRequest.addInput(idt.getIdentifier().getValue(), list);	
+    	
+    	InputDescriptionType idt2 = (InputDescriptionType) pdt.getDataInputs().getInput().get(1);
+        List<DataType> list2 = new ArrayList<DataType>();
+        DataType input2 = WPSUtils.createInput(d2, idt2);
+        list2.add(input2);
+    	exeRequest.addInput(idt2.getIdentifier().getValue(), list2);    	
+
+	}	
 }
