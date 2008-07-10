@@ -61,7 +61,7 @@ public final class GeographicMetadataTest {
         referencing.addAxis("latitude",  "north", "degrees");
         referencing.addAxis("longitude", "east",  "degrees");
         referencing.setCoordinateSystem("WGS84", "geographic");
-        referencing.setDatum("WGS84", "geodetic");
+        referencing.setDatum("WGS84", "geodetic");        
 
         final ImageGeometry geometry = metadata.getGeometry();
         geometry.setPixelOrientation(PixelOrientation.CENTER.identifier());
@@ -72,8 +72,10 @@ public final class GeographicMetadataTest {
         geometry.addOffsetVector(new double[]{12.5, 0.0});
         geometry.addOffsetVector(new double[]{ 0.0, 7.5});
 
-        metadata.addBand("temperature");
-        assertTrue(metadata.getNumBands() > 0);
+        final String bandName = "temperature";
+        metadata.addBand(bandName);
+        assertTrue(metadata.getNumBands() == 1);
+        assertTrue(metadata.getBand(0).getName().equals(bandName));
         final String text = metadata.toString();
         assertTrue(text.indexOf("name=\"latitude\"" ) >= 0);
         assertTrue(text.indexOf("name=\"longitude\"") >= 0);

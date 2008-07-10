@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.w3c.dom.Element;
 
 
 /**
@@ -48,7 +49,9 @@ abstract class ChildList<T extends MetadataAccessor> extends MetadataAccessor {
      * @param  childPath  The path (relative to {@code parentPath}) to the child
      *                    {@linkplain Element elements}, or {@code null} if none.
      */
-    protected ChildList(final GeographicMetadata metadata, final String parentPath, final String childPath) {
+    protected ChildList(final GeographicMetadata metadata, final String parentPath,
+                                                           final String childPath)
+    {
         super(metadata, parentPath, childPath);
         final int count = childCount();
         childs = new ArrayList<T>(count != 0 ? count : 4);

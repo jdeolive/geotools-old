@@ -261,13 +261,13 @@ public class ImageGeometry extends MetadataAccessor {
     /**
      * Adds ordinate values for an envelope along a dimension. Invoking this method
      * will increase the envelope {@linkplain #getDimension dimension} by one. This method
-     * may be invoked in replacement of {@link #addCoordinateRange} when every cell
+     * may be invoked in replacement of {@link #addOffsetVector} when every cell
      * coordinates need to be specified explicitly.
      *
      * @param minIndex The minimal index value, inclusive. This is usually 0.
      * @param values The coordinate values.
      *
-     * @see #addCoordinateRange
+     * @see #addOffsetVector
      */
     public void addOrdinates(final int minIndex, final double[] values) {
         int[] lows  = getLowAccessor(). getUserObject(int[].class);

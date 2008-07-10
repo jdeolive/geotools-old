@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -274,8 +274,7 @@ public class GeographicMetadata extends IIOMetadata {
      * @param formatName the desired metadata format.
      * @return The node forming the root of metadata tree.
      * @throws IllegalArgumentException if the format name is {@code null} or is not
-     *         one of the names returned by {@link #getMetadataFormatNames()
-     *         getMetadataFormatNames()}.
+     *         one of the names returned by {@link #getMetadataFormatNames}.
      */
     public Node getAsTree(final String formatName) throws IllegalArgumentException {
         checkFormatName(formatName);

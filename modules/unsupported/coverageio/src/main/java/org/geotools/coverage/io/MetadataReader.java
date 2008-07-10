@@ -148,7 +148,7 @@ public class MetadataReader {
 
     /**
      * Constructs a new {@code MetadataReader} using the specified factories. Do not
-     * forget to call {@link #setGeographicMetadata(GeographicMetadata)} in order to
+     * forget to call {@link #setGeographicMetadata} in order to
      * fix the metadata value.
      *
      * @param factories The specified factories. Should not be {@code null}.
@@ -587,14 +587,14 @@ public class MetadataReader {
 
     /**
      * Returns the grid range. Default implementation fetchs the metadata values
-     * for keys {@link #WIDTH} and {@link #HEIGHT}, and transform the resulting
-     * strings into a {@linkplain GridEnvelope grid range} object.
+     * for nodes {@link ImageGeometry#low} and {@link ImageGeometry#high}, and
+     * transform the resulting strings into a {@linkplain GridEnvelope grid range}
+     * object.
      *
      * @throws MissingMetadataException if a required value is missing.
      * @throws MetadataException if the operation failed for some other reason.
      *
-     * @see #getEnvelope
-     * @see #getGeographicBoundingBox
+     * @see ImageGeometry#getGridRange
      */
     public synchronized GridEnvelope getGridRange() throws MetadataException {
         final ImageGeometry geometry = metadata.getGeometry();
@@ -615,7 +615,7 @@ public class MetadataReader {
      * Returns a string representation of this metadata set. The default implementation
      * write the class name and the envelope in geographic coordinates, as returned by
      * {@link #getGeographicBoundingBox}. Then, it append the list of all metadata as
-     * formatted by {@link #listMetadata}.
+     * formatted by {@link GeographicMetadata#getAsTree}.
      */
     @Override
     public String toString() {

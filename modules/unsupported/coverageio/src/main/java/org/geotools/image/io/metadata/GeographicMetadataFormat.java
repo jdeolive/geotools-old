@@ -16,15 +16,22 @@
  */
 package org.geotools.image.io.metadata;
 
+import java.awt.image.RenderedImage;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.metadata.IIOMetadataFormatImpl;
 
 import org.geotools.resources.UnmodifiableArrayList;
 import org.opengis.coverage.SampleDimension;
 import org.opengis.geometry.Envelope;
+import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.parameter.ParameterValue;
+import org.opengis.referencing.crs.CompoundCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.datum.Datum;
@@ -62,17 +69,18 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
     public static final String FORMAT_NAME = "geotools_coverage_1.0";
 
     /**
-     * The maximum number of dimension allowed for the image coordinate system. Images must be
-     * at least two-dimensional. Some plugins consider the set of bands as the third dimension
-     * (for example slices at different depths). An additional "1 pixel large" temporal dimension
-     * is sometime used for storing the image timestamp.
+     * The maximum number of dimension allowed for the image coordinate system. Images
+     * must be at least two-dimensional. Some plugins consider the set of bands as the
+     * third dimension (for example slices at different depths). An additional "1 pixel
+     * large" temporal dimension is sometime used for storing the image timestamp.
      */
     private static final int MAXIMUM_DIMENSIONS = 4;
 
     /**
-     * The maximum number of bands allowed. This is a somewhat arbitrary value since there is
-     * no reason (except memory or disk space constraints) to restrict the number of bands in
-     * the image stream. The number of bands actually read is usually much smaller.
+     * The maximum number of bands allowed. This is a somewhat arbitrary value since
+     * there is no reason (except memory or disk space constraints) to restrict the
+     * number of bands in the image stream. The number of bands actually read is
+     * usually much smaller.
      */
     private static final int MAXIMUM_BANDS = Short.MAX_VALUE;
 
@@ -82,90 +90,78 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
     private static final int MAXIMUM_PARAMETERS = 10;
 
     /**
-     * The geographic {@linkplain CoordinateReferenceSystem coordinate reference system} type.
-     * This is often used together with the {@linkplain #ELLIPSOIDAL ellipsoidal} coordinate
-     * system type.
-     *
-     * @see #setCoordinateReferenceSystem
+     * The geographic {@linkplain CoordinateReferenceSystem coordinate reference system}
+     * type. This is often used together with the {@linkplain #ELLIPSOIDAL ellipsoidal}
+     * coordinate system type.
      */
     public static final String GEOGRAPHIC = "geographic";
 
     /**
-     * The geographic {@linkplain CoordinateReferenceSystem coordinate reference system} type
-     * with a vertical axis. This is often used together with a three-dimensional {@linkplain
-     * #ELLIPSOIDAL ellipsoidal} coordinate system type.
+     * The geographic {@linkplain CoordinateReferenceSystem coordinate reference system}
+     * type with a vertical axis. This is often used together with a three-dimensional
+     * {@linkplain #ELLIPSOIDAL ellipsoidal} coordinate system type.
      * <p>
-     * If the coordinate reference system has no vertical axis, or has additional axis of
-     * other kind than vertical (for example only a temporal axis), then the type should be
-     * the plain {@value #GEOGRAPHIC}. This is because such CRS are usually constructed as
-     * {@linkplain org.opengis.referencing.crs.CompoundCRS compound CRS} rather than a CRS
-     * with a three-dimensional coordinate system.
+     * If the coordinate reference system has no vertical axis, or has additional axis
+     * of other kind than vertical (for example only a temporal axis), then the type
+     * should be the plain {@value #GEOGRAPHIC}. This is because such CRS are usually
+     * constructed as {@linkplain CompoundCRS compound CRS} rather than a CRS with a
+     * three-dimensional coordinate system.
      * <p>
      * To be strict, a 3D CRS should be allowed only if the vertical axis is of the kind
      * "height above the ellipsoid" (as opposed to "height above the geoid" for example),
      * otherwise we have a compound CRS. But many datafile don't make this distinction.
-     *
-     * @see #setCoordinateReferenceSystem
      */
     public static final String GEOGRAPHIC_3D = "geographic3D";
 
     /**
-     * The projected {@linkplain CoordinateReferenceSystem coordinate reference system} type.
-     * This is often used together with the {@linkplain #CARTESIAN cartesian} coordinate
-     * system type.
-     *
-     * @see #setCoordinateReferenceSystem
+     * The projected {@linkplain CoordinateReferenceSystem coordinate reference system}
+     * type. This is often used together with the {@linkplain #CARTESIAN cartesian}
+     * coordinate system type.
      */
     public static final String PROJECTED = "projected";
 
     /**
-     * The projected {@linkplain CoordinateReferenceSystem coordinate reference system} type
-     * with a vertical axis. This is often used together with a three-dimensional {@linkplain
-     * #CARTESIAN cartesian} coordinate system type.
+     * The projected {@linkplain CoordinateReferenceSystem coordinate reference system}
+     * type with a vertical axis. This is often used together with a three-dimensional
+     * {@linkplain #CARTESIAN cartesian} coordinate system type.
      * <p>
-     * If the coordinate reference system has no vertical axis, or has additional axis of
-     * other kind than vertical (for example only a temporal axis), then the type should be
-     * the plain {@value #PROJECTED}. This is because such CRS are usually constructed as
-     * {@linkplain org.opengis.referencing.crs.CompoundCRS compound CRS} rather than a CRS
-     * with a three-dimensional coordinate system.
+     * If the coordinate reference system has no vertical axis, or has additional axis
+     * of other kind than vertical (for example only a temporal axis), then the type
+     * should be the plain {@value #PROJECTED}. This is because such CRS are usually
+     * constructed as {@linkplain CompoundCRS compound CRS} rather than a CRS with a
+     * three-dimensional coordinate system.
      * <p>
      * To be strict, a 3D CRS should be allowed only if the vertical axis is of the kind
      * "height above the ellipsoid" (as opposed to "height above the geoid" for example),
      * otherwise we have a compound CRS. But many datafile don't make this distinction.
-     *
-     * @see #setCoordinateReferenceSystem
      */
     public static final String PROJECTED_3D = "projected3D";
 
     /**
      * The ellipsoidal {@linkplain CoordinateSystem coordinate system} type.
-     *
-     * @see #setCoordinateSystem
      */
     public static final String ELLIPSOIDAL = "ellipsoidal";
 
     /**
      * The cartesian {@linkplain CoordinateSystem coordinate system} type.
-     *
-     * @see #setCoordinateSystem
      */
     public static final String CARTESIAN = "cartesian";
 
     /**
      * The geophysics {@linkplain SampleDimension sample dimension} type.
-     * Pixels in the {@linkplain java.awt.image.RenderedImage rendered image} produced by
-     * the image reader contain directly geophysics values like temperature or elevation.
-     * Sample type is typically {@code float} or {@code double} and missing value, if any,
-     * <strong>must</strong> be one of {@linkplain Float#isNaN NaN values}.
+     * Pixels in the {@linkplain RenderedImage rendered image} produced by the image
+     * reader contain directly geophysics values like temperature or elevation.
+     * Sample type is typically {@code float} or {@code double} and missing value, if
+     * any, <strong>must</strong> be one of {@linkplain Float#isNaN NaN values}.
      */
     public static final String GEOPHYSICS = "geophysics";
 
     /**
      * The packed {@linkplain SampleDimension sample dimension} type.
-     * Pixels in the {@linkplain java.awt.image.RenderedImage rendered image} produced by
-     * the image reader contain packed data, typically as {@code byte} or {@code short}
-     * integer type. Conversions to geophysics values are performed by the application of
-     * a scale and offset. Some special values are typically used for missing values.
+     * Pixels in the {@linkplain RenderedImage rendered image} produced by the image
+     * reader contain packed data, typically as {@code byte} or {@code short}
+     * integer type. Conversions to geophysics values are performed by the application
+     * of a scale and offset. Some special values are typically used for missing values.
      */
     public static final String PACKED = "packed";
 
@@ -216,8 +212,8 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
     });
 
     /**
-     * Enumeration of valid axis directions. We do not declare {@link String} constants for them
-     * since they are already available as {@linkplain org.opengis.referencing.cs.AxisDirection
+     * Enumeration of valid axis directions. We do not declare {@link String} constants
+     * for them since they are already available as {@linkplain AxisDirection
      * axis direction} code list.
      */
     static final List<String> DIRECTIONS = UnmodifiableArrayList.wrap(new String[] {
@@ -225,9 +221,8 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
     });
 
     /**
-     * Enumeration of valid pixel orientation. We do not declare {@link String} constants for them
-     * since they are already available as {@linkplain org.opengis.metadata.spatial.PixelOrientation
-     * pixel orientation} code list.
+     * Enumeration of valid pixel orientation. We do not declare {@link String} constants
+     * for them since they are already available as {@linkplain PixelOrientation pixel orientation} code list.
      */
     static final List<String> PIXEL_ORIENTATIONS = UnmodifiableArrayList.wrap(new String[] {
         "center", "lower left", "lower right", "upper right", "upper left"
@@ -256,11 +251,13 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
 
     /**
      * Creates a metadata format of the given name. Subclasses should invoke the various
-     * {@link #addElement(String,String,int) addElement} or {@link #addAttribute addAttribute}
-     * methods for adding new elements compared to the {@linkplain #getInstance default instance}.
+     * {@link #addElement(String,String,int) addElement} or {@link #addAttribute
+     * addAttribute} methods for adding new elements compared to the {@linkplain
+     * #getInstance default instance}.
      *
      * @param rootName the name of the root element.
-     * @param maximumDimensions The maximum number of dimensions allowed for coordinate systems.
+     * @param maximumDimensions The maximum number of dimensions allowed for coordinate
+     *                          systems.
      * @param maximumBands The maximum number of sample dimensions allowed for images.
      */
     protected GeographicMetadataFormat(final String rootName,
@@ -439,7 +436,9 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
     /**
      * Adds an optional attribute of the specified data type.
      */
-    private void addAttribute(final String elementName, final String attrName, final int dataType) {
+    private void addAttribute(final String elementName, final String attrName,
+                                                        final int dataType)
+    {
         addAttribute(elementName, attrName, dataType, false, null);
     }
 
@@ -455,7 +454,9 @@ public class GeographicMetadataFormat extends IIOMetadataFormatImpl {
      * in a metadata document for an image of the given type. The default implementation
      * always returns {@code true}.
      */
-    public boolean canNodeAppear(final String elementName, final ImageTypeSpecifier imageType) {
+    public boolean canNodeAppear(final String elementName,
+                                 final ImageTypeSpecifier imageType)
+    {
         return true;
     }
 

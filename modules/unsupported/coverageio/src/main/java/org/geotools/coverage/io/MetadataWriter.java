@@ -72,7 +72,7 @@ public class MetadataWriter {
     }
 
     /**
-     * Returns the {@linkplain Ellispoid ellipsoid} from a
+     * Returns the {@linkplain Ellipsoid ellipsoid} from a
      * {@linkplain GridCoverage grid coverage}, or {@code null} if not defined.
      *
      * @param coverage A {@linkplain GridCoverage grid coverage}. Should not be

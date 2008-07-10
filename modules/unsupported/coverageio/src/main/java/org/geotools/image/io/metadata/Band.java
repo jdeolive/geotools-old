@@ -18,6 +18,7 @@ package org.geotools.image.io.metadata;
 
 import java.awt.image.DataBuffer;
 import org.geotools.util.NumberRange;
+import org.opengis.coverage.SampleDimension;
 
 
 /**
@@ -29,7 +30,7 @@ import org.geotools.util.NumberRange;
  * @version $Id$
  * @author Martin Desruisseaux
  *
- * @see org.opengis.coverage.SampleDimension
+ * @see SampleDimension
  */
 public class Band extends MetadataAccessor {
     /**
