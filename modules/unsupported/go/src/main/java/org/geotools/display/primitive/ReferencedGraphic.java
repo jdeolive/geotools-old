@@ -17,6 +17,10 @@
 package org.geotools.display.primitive;
 
 
+import java.beans.PropertyChangeEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.geotools.display.canvas.AbstractCanvas;
 import org.opengis.display.canvas.Canvas;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.DirectPosition;
@@ -102,12 +106,29 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
     }
 
     /**
-     * Returns the objective coordinate reference system.
+     * {@inheritDoc }
+     * <p>
+     * The referenced graphic listen to objective crs changes to update
+     * the envelope and fire an event if needed.
+     * </p>
      */
-    public final CoordinateReferenceSystem getObjectiveCRS() {
-        return envelope.getCoordinateReferenceSystem();
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        super.propertyChange(evt);
+        
+        if(evt.getPropertyName().equals(AbstractCanvas.OBJECTIVE_CRS_PROPERTY)){
+            final CoordinateReferenceSystem newCRS = (CoordinateReferenceSystem) evt.getNewValue();
+            final CoordinateReferenceSystem oldCRS = (CoordinateReferenceSystem) evt.getOldValue();
+            try {
+                setObjectiveCRS(newCRS, oldCRS);
+            } catch (TransformException ex) {
+                ex.printStackTrace();
+                Logger.getLogger(ReferencedGraphic.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
     }
-
+    
     /**
      * Sets the objective coordinate refernece system for this graphic. This method is usually
      * invoked in any of the following cases:
@@ -129,66 +150,64 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
      * @throws TransformException If this method do not accept the new CRS. In such case,
      *         this method should keep the old CRS and leaves this graphic in a consistent state.
      */
-    public void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException {
-        if (crs == null) {
-            throw new IllegalArgumentException(Errors.getResources(getLocale())
-                      .getString(ErrorKeys.ILLEGAL_ARGUMENT_$2, "crs", crs));
-        }
-        final CoordinateReferenceSystem oldCRS;
-        synchronized (getTreeLock()) {
-            oldCRS = getObjectiveCRS();
-            if (CRS.equalsIgnoreMetadata(oldCRS, crs)) {
-                /*
-                 * If the new CRS is equivalent to the old one (except for metadata), then there
-                 * is no need to apply any transformation. Just set the new CRS.  Note that this
-                 * step may throws an IllegalArgumentException if the given CRS doesn't have the
-                 * expected number of dimensions (actually it should never happen, since we just
-                 * said that this CRS is equivalent to the previous one).
-                 */
-                envelope.setCoordinateReferenceSystem(crs);
-            } else {
-                /*
-                 * If a coordinate transformation is required, gets the math transform preferably
-                 * from the Canvas that own this graphic (in order to use any user supplied hints).
-                 */
-                final MathTransform transform;
-                transform = getMathTransform(oldCRS, crs, "setObjectiveCRS");
-                if (!transform.isIdentity()) {
-                    /*
-                     * Transforms the envelope, but do not modify yet the 'envelope' field.
-                     * This change will be commited only after all computations have been successful.
-                     */
-                    final GeneralEnvelope newEnvelope;
-                    final DirectPosition origin;
-                    if (envelope.isNull() || envelope.isInfinite()) {
-                        origin = new GeneralDirectPosition(oldCRS);
-                        newEnvelope = new GeneralEnvelope(envelope);
+    protected void setObjectiveCRS(final CoordinateReferenceSystem newCRS, final CoordinateReferenceSystem oldCRS) throws TransformException {
+                if (newCRS == null) {
+                    throw new IllegalArgumentException(Errors.getResources(getLocale())
+                              .getString(ErrorKeys.ILLEGAL_ARGUMENT_$2, "crs", newCRS));
+                }
+                synchronized (getTreeLock()) {
+                    if (CRS.equalsIgnoreMetadata(oldCRS, newCRS)) {
+                        /*
+                         * If the new CRS is equivalent to the old one (except for metadata), then there
+                         * is no need to apply any transformation. Just set the new CRS.  Note that this
+                         * step may throws an IllegalArgumentException if the given CRS doesn't have the
+                         * expected number of dimensions (actually it should never happen, since we just
+                         * said that this CRS is equivalent to the previous one).
+                         */
+                        envelope.setCoordinateReferenceSystem(newCRS);
                     } else {
-                        origin = envelope.getCenter();
-                        newEnvelope = CRS.transform(transform, envelope);
-                    }
-                    newEnvelope.setCoordinateReferenceSystem(crs);
-                    /*
-                     * Transforms the cell dimension. Only after all computations are successful,
-                     * commit the changes to the 'envelope' and typicalCellDimension' class fields.
-                     */
-                    double[] cellDimension = typicalCellDimension;
-                    if (cellDimension != null) {
-                        DirectPosition vector = new GeneralDirectPosition(cellDimension);
-                        vector = CRSUtilities.deltaTransform(transform, origin, vector);
-                        cellDimension = vector.getCoordinates();
-                        for (int i=0; i<cellDimension.length; i++) {
-                            cellDimension[i] = Math.abs(cellDimension[i]);
+                        /*
+                         * If a coordinate transformation is required, gets the math transform preferably
+                         * from the Canvas that own this graphic (in order to use any user supplied hints).
+                         */
+                        final MathTransform transform;
+                        transform = getMathTransform(oldCRS, newCRS, "setObjectiveCRS");
+                        if (!transform.isIdentity()) {
+                            /*
+                             * Transforms the envelope, but do not modify yet the 'envelope' field.
+                             * This change will be commited only after all computations have been successful.
+                             */
+                            final GeneralEnvelope newEnvelope;
+                            final DirectPosition origin;
+                            if (envelope.isNull() || envelope.isInfinite()) {
+                                origin = new GeneralDirectPosition(oldCRS);
+                                newEnvelope = new GeneralEnvelope(envelope);
+                            } else {
+                                origin = envelope.getCenter();
+                                newEnvelope = CRS.transform(transform, envelope);
+                            }
+                            newEnvelope.setCoordinateReferenceSystem(newCRS);
+                            /*
+                             * Transforms the cell dimension. Only after all computations are successful,
+                             * commit the changes to the 'envelope' and typicalCellDimension' class fields.
+                             */
+                            double[] cellDimension = typicalCellDimension;
+                            if (cellDimension != null) {
+                                DirectPosition vector = new GeneralDirectPosition(cellDimension);
+                                vector = CRSUtilities.deltaTransform(transform, origin, vector);
+                                cellDimension = vector.getCoordinates();
+                                for (int i=0; i<cellDimension.length; i++) {
+                                    cellDimension[i] = Math.abs(cellDimension[i]);
+                                }
+                            }
+                            transform(transform);
+                            envelope.setEnvelope(newEnvelope);
+                            typicalCellDimension = cellDimension;
                         }
                     }
-                    transform(transform);
-                    envelope.setEnvelope(newEnvelope);
-                    typicalCellDimension = cellDimension;
+                    propertyListeners.firePropertyChange(OBJECTIVE_CRS_PROPERTY, oldCRS, newCRS);
                 }
             }
-            propertyListeners.firePropertyChange(OBJECTIVE_CRS_PROPERTY, oldCRS, crs);
-        }
-    }
 
     /**
      * Constructs a transform between two coordinate reference systems.
@@ -265,7 +284,7 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
     protected void setEnvelope(final Envelope newEnvelope) throws TransformException {
         final GeneralEnvelope old;
         synchronized (getTreeLock()) {
-            CoordinateReferenceSystem sourceCRS = getObjectiveCRS();
+            CoordinateReferenceSystem sourceCRS = canvas.getState().getObjectiveCRS();
             CoordinateReferenceSystem targetCRS = newEnvelope.getCoordinateReferenceSystem();
             if (targetCRS == null) {
                 targetCRS = sourceCRS;

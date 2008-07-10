@@ -69,7 +69,6 @@ import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.display.event.ReferencedEvent;
 import org.geotools.display.primitive.ReferencedGraphic;
-import org.geotools.display.renderer.AbstractRenderer;
 
 
 /**
@@ -283,7 +282,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
 
         //TODO : correct this method to return an immutable object
         InternationalString title = getTitle();
-        DirectPosition center = new GeneralDirectPosition(displayPosition);
+        //TODO : calcultate the correct objective center
+        DirectPosition center = null;
         CoordinateReferenceSystem objCRS = graphicsEnvelope.getCoordinateReferenceSystem();
         MathTransform objToDisp = getObjectiveToDisplayTransform();
         MathTransform dispToObj = getDisplayToObjectiveTransform();
@@ -351,7 +351,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                  * Checks the graphic CRS, which should be the same than the objective CRS
                  * in most case.
                  */
-                final CoordinateReferenceSystem graphicCRS = graphic.getObjectiveCRS();
+                //TODO : objectiveCRS and graphicCRS are always the same, fix underneath test
+                final CoordinateReferenceSystem graphicCRS = objectiveCRS; //graphic.getObjectiveCRS();
                 final MathTransform transform;
                 try {
                     transform = getMathTransform(graphicCRS, objectiveCRS,
@@ -578,7 +579,9 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
 
             if (graphic instanceof ReferencedGraphic) {
                 final ReferencedGraphic   referenced   = (ReferencedGraphic) graphic;
-                CoordinateReferenceSystem graphicCRS   = referenced.getObjectiveCRS();
+                
+                //TODO fix this : graphicCRS always the same as objectiveCRS
+                CoordinateReferenceSystem graphicCRS   = getObjectiveCRS(); //referenced.getObjectiveCRS();
                 CoordinateReferenceSystem objectiveCRS = getObjectiveCRS();
 
                 //canvas will have a CRS selected by the user or we should set this value  when importing datas
@@ -601,7 +604,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                 if (hasEnvelopeListeners) {
                     oldEnvelope = new GeneralEnvelope(getGraphicsEnvelope());
                 }
-                graphicCRS = referenced.getObjectiveCRS(); // May have changed.
+                //TODO fix this : graphicCRS always the same as objectiveCRS
+                graphicCRS = getObjectiveCRS() ; // referenced.getObjectiveCRS(); // May have changed.
                 final Envelope graphicEnvelope = referenced.getEnvelope();
                 graphicEnvelopeChanged(null, graphicEnvelope, graphicCRS,ReferencedCanvas.class, "add");
             }
@@ -635,7 +639,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
                     if (hasEnvelopeListeners) {
                         oldEnvelope = new GeneralEnvelope(graphicsEnvelope);
                     }
-                    final CoordinateReferenceSystem graphicCRS = referenced.getObjectiveCRS();
+                    //TODO fix this : graphicCRS always the same as objectiveCRS
+                    final CoordinateReferenceSystem graphicCRS = getObjectiveCRS(); //referenced.getObjectiveCRS();
                     final Envelope graphicEnvelope = referenced.getEnvelope();
                     graphicEnvelopeChanged(graphicEnvelope, null, graphicCRS,
                                            ReferencedCanvas.class, "remove");
@@ -833,7 +838,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
              * In theory, the Graphic should use the same CRS than this Canvas.
              * However, as a safety, we will check for coordinate transformations anyway.
              */
-            final CoordinateReferenceSystem crs = graphic.getObjectiveCRS();
+            //TODO fix this : graphicCRS always the same as objectiveCRS
+            final CoordinateReferenceSystem crs = getObjectiveCRS(); //graphic.getObjectiveCRS();
             try {
                 if (!CRS.equalsIgnoreMetadata(crs, lastCRS)) {
                     transform = getMathTransform(crs, getObjectiveCRS(),

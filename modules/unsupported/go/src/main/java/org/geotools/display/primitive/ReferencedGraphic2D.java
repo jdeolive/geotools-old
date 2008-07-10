@@ -170,8 +170,8 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      * @throws TransformException 
      */
     @Override
-    public void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException {
-        super.setObjectiveCRS(CRSUtilities.getCRS2D(crs));
+    protected void setObjectiveCRS(final CoordinateReferenceSystem newCRS, final CoordinateReferenceSystem oldCRS) throws TransformException {
+        super.setObjectiveCRS(CRSUtilities.getCRS2D(newCRS), oldCRS);
     }
 
     /**
