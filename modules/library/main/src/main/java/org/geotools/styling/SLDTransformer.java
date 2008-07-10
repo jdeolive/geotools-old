@@ -154,6 +154,8 @@ public class SLDTransformer extends TransformerBase {
         }
 
         void element(String element, Expression e) {
+            if( e == null || e == Expression.NIL ) return;
+            
             start(element);
             filterTranslator.encode(e);
             end(element);
