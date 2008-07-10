@@ -396,7 +396,7 @@ public abstract class AbstractWPS<C extends WPSCapabilitiesType, R extends Objec
         			stream.println(input);
         		}
         		LOGGER.fine(postText);
-        		System.out.println(postText);
+        		//System.out.println(postText);
         		
         		out.close();
         		in.close();

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -101,7 +102,7 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
     	//http://schemas.opengis.net/wps/1.0.0/wpsExecute_request.xsd
     	ExecuteType request = createExecuteType();
     	encoder.encode(request, WPS.Execute, outputStream);
-    	System.out.println(outputStream.toString());
+    	//System.out.println(outputStream.toString());
 	}   
     
     @SuppressWarnings("unchecked")
@@ -126,15 +127,20 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
 	    	Iterator<Object> iterator = keyset.iterator();
 	    	while (iterator.hasNext()) {
 	    		Object key = iterator.next();
-	    		Object object = this.inputs.get(key);
+	    		List<DataType> objects = (List<DataType>) this.inputs.get(key);
 	    		
-	    		// identifier
-	    		InputType input = WpsFactory.eINSTANCE.createInputType();
-	    		CodeType ct = Ows11Factory.eINSTANCE.createCodeType();
-	    		ct.setValue((String)key);
-	    		input.setIdentifier(ct);
-	    		input.setData((DataType)object);
-	    		inputtypes.getInput().add(input);
+	    		// go through the list and create on input for each datatype in the list
+	    		Iterator<DataType> iterator2 = objects.iterator();
+	    		while (iterator2.hasNext()) {
+		    		// identifier
+	    			DataType dt = (DataType) iterator2.next();
+		    		InputType input = WpsFactory.eINSTANCE.createInputType();
+		    		CodeType ct = Ows11Factory.eINSTANCE.createCodeType();
+		    		ct.setValue((String)key);
+		    		input.setIdentifier(ct);
+		    		input.setData((DataType)dt);
+		    		inputtypes.getInput().add(input);	
+	    		}
 	    	}        
 	
 	        request.setDataInputs(inputtypes);
@@ -152,9 +158,9 @@ public abstract class AbstractExecuteProcessRequest extends AbstractWPSRequest i
      * Add an input to the input properties.  
      * If null is passed as the value, remove any current input with the given name.
      * @param name input name
-     * @param value the datatype input object
+     * @param value the list of datatype input objects
      */
-    public void addInput(String name, DataType value) {
+    public void addInput(String name, List<DataType> value) {
     	if (value == null) {
     		inputs.remove(name);
     	} else {

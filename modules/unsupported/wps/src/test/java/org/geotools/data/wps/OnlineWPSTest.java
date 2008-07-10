@@ -18,7 +18,9 @@ package org.geotools.data.wps;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import net.opengis.ows11.ExceptionReportType;
 import net.opengis.wps.ComplexDataCombinationsType;
@@ -111,7 +113,7 @@ public class OnlineWPSTest extends TestCase {
 		assertNotNull(response.getProcessDesc());
 	}
 	
-	public void testExecuteProcess() throws ServiceException, IOException, ParseException {
+	public void testExecuteProcess1() throws ServiceException, IOException, ParseException {
 		
 		WPSCapabilitiesType capabilities = wps.getCapabilities();
 		
@@ -149,7 +151,7 @@ public class OnlineWPSTest extends TestCase {
 		
 		// set input data
 		if (useLocalServer) {
-			setLocalInputData(exeRequest, processDesc);
+			setLocalInputData1(exeRequest, processDesc);
 		}
 		else {
 			set52NInputData(exeRequest, processDesc);
@@ -166,7 +168,7 @@ public class OnlineWPSTest extends TestCase {
 		
 	}
 	
-	private void setLocalInputData(ExecuteProcessRequest exeRequest, 
+	private void setLocalInputData1(ExecuteProcessRequest exeRequest, 
 			ProcessDescriptionsType processDesc) throws ParseException {
 
 		// this process takes 2 input, a geometry and a buffer amount.
@@ -182,20 +184,28 @@ public class OnlineWPSTest extends TestCase {
         if (idt.getIdentifier().getValue().equalsIgnoreCase("buffer")) {
     		// set buffer input
         	DataType input = WPSUtils.createInput(bufferAmnt, idt);
-    		exeRequest.addInput(idt.getIdentifier().getValue(), input);	
+        	List<DataType> list = new ArrayList<DataType>();
+        	list.add(input);
+    		exeRequest.addInput(idt.getIdentifier().getValue(), list);	
     		// set geom input
     		idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(1);
         	DataType input2 = WPSUtils.createInput(geom1, idt);
-    		exeRequest.addInput(idt.getIdentifier().getValue(), input2);
+        	List<DataType> list2 = new ArrayList<DataType>();
+        	list2.add(input2);        	
+    		exeRequest.addInput(idt.getIdentifier().getValue(), list2);
         }
         else {
     		// set geom input
         	DataType input2 = WPSUtils.createInput(geom1, idt);
-    		exeRequest.addInput(idt.getIdentifier().getValue(), input2);        	
+        	List<DataType> list2 = new ArrayList<DataType>();
+        	list2.add(input2);
+    		exeRequest.addInput(idt.getIdentifier().getValue(), list2);        	
     		// set buffer input
     		idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(1);
         	DataType input = WPSUtils.createInput(bufferAmnt, idt);
-    		exeRequest.addInput(idt.getIdentifier().getValue(), input);	
+        	List<DataType> list = new ArrayList<DataType>();
+        	list.add(input);        	
+    		exeRequest.addInput(idt.getIdentifier().getValue(), list);	
         }
 	}	
 
@@ -212,7 +222,98 @@ public class OnlineWPSTest extends TestCase {
 
         // create and set the input on the exe request
 		DataType input = WPSUtils.createInput(geom1, idt);
-		exeRequest.addInput(idt.getIdentifier().getValue(), input);
+    	List<DataType> list = new ArrayList<DataType>();
+    	list.add(input);
+		exeRequest.addInput(idt.getIdentifier().getValue(), list);
+	}	
+	
+	/**
+	 * Do some more local process tests, such as union
+	 * @throws ServiceException
+	 * @throws IOException
+	 * @throws ParseException
+	 */
+	public void testExecuteLocalUnion() throws ServiceException, IOException, ParseException {
+		
+		if (!useLocalServer) return;
+		
+		String processIdenLocal = "Union";
+		
+		WPSCapabilitiesType capabilities = wps.getCapabilities();
+		
+		// get the first process and execute it
+		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
+		EList processes = processOfferings.getProcess();
+		//ProcessBriefType process = (ProcessBriefType) processes.get(0);
+
+		// does the server contain the specific process I want
+		boolean found = false;
+		Iterator iterator = processes.iterator();
+		while (iterator.hasNext()) {
+			ProcessBriefType process = (ProcessBriefType) iterator.next();
+			if (process.getIdentifier().getValue().equalsIgnoreCase(processIdenLocal)) {
+				found =true;
+				break;
+			}
+		}
+		
+		// exit test if my process doesn't exist on server
+		if (!found) {
+			return;
+		}
+		
+		// do a full describeprocess on my process
+		DescribeProcessRequest descRequest = wps.createDescribeProcessRequest();
+		descRequest.setIdentifier(processIdenLocal);
+		DescribeProcessResponse descResponse = wps.issueRequest(descRequest);
+		
+		// based on the describeprocess, setup the execute
+		ProcessDescriptionsType processDesc = descResponse.getProcessDesc();
+		ExecuteProcessRequest exeRequest = wps.createExecuteProcessRequest();
+		exeRequest.setIdentifier(processIdenLocal);
+		
+		setLocalInputDataUnion(exeRequest, processDesc);
+		
+		// send the request
+		ExecuteProcessResponse response = wps.issueRequest(exeRequest);
+		
+		// response should not be null and no exception should occur.
+		assertNotNull(response);
+		assertNotNull(response.getExecuteResponse());
+		ExceptionReportType exceptionResponse = response.getExceptionResponse();
+		assertNull(exceptionResponse);
+		
+	}
+	
+	private void setLocalInputDataUnion(ExecuteProcessRequest exeRequest, 
+			ProcessDescriptionsType processDesc) throws ParseException {
+
+		// this process takes 2+ inputs, all geometries to union together.
+		ProcessDescriptionType pdt = (ProcessDescriptionType) processDesc.getProcessDescription().get(0);
+		InputDescriptionType idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(0);
+		
+		// create polygons for the input
+        WKTReader reader = new WKTReader( new GeometryFactory() );
+        Geometry geom1 = (Polygon) reader.read("POLYGON((20 10, 30 0, 40 10, 30 20, 20 10))");
+        Geometry geom2 = (Polygon) reader.read("POLYGON((20 30, 30 0, 20 20, 80 20, 20 30))");
+        Geometry geom3 = (Polygon) reader.read("POLYGON((177 10, 30 88, 40 70, 46 20, 177 10))");
+        Geometry geom4 = (Polygon) reader.read("POLYGON((5 10, 5 0, 13 10, 5 20, 5 10))");
+        
+        // create and set the input on the exe request
+        if (idt.getIdentifier().getValue().equalsIgnoreCase("geom")) {
+    		// set geom inputs
+        	List<DataType> list = new ArrayList<DataType>();
+        	DataType input = WPSUtils.createInput(geom1, idt);
+        	DataType input2 = WPSUtils.createInput(geom2, idt);
+        	DataType input3 = WPSUtils.createInput(geom3, idt);
+        	DataType input4 = WPSUtils.createInput(geom4, idt);
+        	list.add(input);
+        	list.add(input2);
+        	list.add(input3);
+        	list.add(input4);
+    		exeRequest.addInput(idt.getIdentifier().getValue(), list);	
+        }
+
 	}	
 	
 

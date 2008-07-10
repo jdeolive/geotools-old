@@ -16,6 +16,8 @@
  */
 package org.geotools.data.wps.request;
 
+import java.util.List;
+
 import net.opengis.wps.DataType;
 
 import org.geotools.data.ows.Request;
@@ -40,8 +42,8 @@ public interface ExecuteProcessRequest extends Request {
      * Sets an input for the process to execute
      * 
      * @param name the input name
-     * @param value the input datatype object 
+     * @param value the list of input datatype objects 
      */    
-    public void addInput(String name, DataType value);
+    public void addInput(String name, List<DataType> value);
     
 }
