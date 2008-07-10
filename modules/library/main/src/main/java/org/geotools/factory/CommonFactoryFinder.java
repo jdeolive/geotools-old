@@ -22,6 +22,7 @@ import java.util.Set;
 import org.geotools.data.FeatureLockFactory;
 import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.LenientFeatureFactoryImpl;
 import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.FunctionImpl;
 import org.geotools.resources.LazySet;
@@ -196,6 +197,8 @@ public final class CommonFactoryFinder extends FactoryFinder {
      */
     public static synchronized FeatureFactory getFeatureFactory(Hints hints) {
         hints = mergeSystemHints(hints);
+        if(hints.get(Hints.FEATURE_FACTORY) == null)
+            hints.put(Hints.FEATURE_FACTORY, LenientFeatureFactoryImpl.class);
         return (FeatureFactory) getServiceRegistry().getServiceProvider(
                 FeatureFactory.class, null, hints, Hints.FEATURE_FACTORY);
     }

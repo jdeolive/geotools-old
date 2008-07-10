@@ -49,7 +49,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * 
  * @version $Id$
  */
-public class FeatureFactoryImpl implements FeatureFactory {
+public abstract class AbstractFeatureFactoryImpl implements FeatureFactory {
  
 	/**
 	 * Factory used to create CRS objects
@@ -64,7 +64,7 @@ public class FeatureFactoryImpl implements FeatureFactory {
      * Whether the features to be built should be self validating on construction and value setting, or not.
      * But default, not, subclasses do override this value
      */
-    boolean validating;
+    boolean validating = false;
     
     public CRSFactory getCRSFactory() {
         return crsFactory;

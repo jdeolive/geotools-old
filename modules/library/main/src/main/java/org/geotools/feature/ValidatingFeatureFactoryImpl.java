@@ -24,7 +24,7 @@ package org.geotools.feature;
  * 
  * @version $Id$
  */
-public class ValidatingFeatureFactoryImpl extends FeatureFactoryImpl {
+public class ValidatingFeatureFactoryImpl extends AbstractFeatureFactoryImpl {
     
     public ValidatingFeatureFactoryImpl() {
         validating = true;

@@ -16,7 +16,7 @@
  */
 package org.geotools.factory;
 
-import org.geotools.feature.FeatureFactoryImpl;
+import org.geotools.feature.AbstractFeatureFactoryImpl;
 import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.opengis.feature.FeatureFactory;
 
@@ -35,7 +35,7 @@ public class CommonFactoryFinderTest extends TestCase {
     public void testGetDefaultFeatureFactory() {
         FeatureFactory featureFactory = CommonFactoryFinder.getFeatureFactory( null );
         assertNotNull(featureFactory);
-        assertTrue(featureFactory instanceof FeatureFactoryImpl);
+        assertTrue(featureFactory instanceof AbstractFeatureFactoryImpl);
     }
     
     public void testGetValidatingFeatureFactory() {
