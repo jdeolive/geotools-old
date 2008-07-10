@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -125,7 +125,7 @@ public class DefaultVerticalCRS extends AbstractSingleCRS implements VerticalCRS
      * Constructs a vertical CRS from a set of properties. The properties are given unchanged to
      * the {@linkplain AbstractReferenceSystem#AbstractReferenceSystem(Map) super-class constructor}.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param datum The datum.
      * @param cs The coordinate system.
      */

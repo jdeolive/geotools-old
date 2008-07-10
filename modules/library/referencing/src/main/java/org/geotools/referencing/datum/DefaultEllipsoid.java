@@ -155,7 +155,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * given unchanged to the {@linkplain AbstractIdentifiedObject#AbstractIdentifiedObject(Map)
      * super-class constructor}.
      *
-     * @param properties        Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties        Set of properties. Should contains at least {@code "name"}.
      * @param semiMajorAxis     The equatorial radius.
      * @param semiMinorAxis     The polar radius.
      * @param inverseFlattening The inverse of the flattening value.
@@ -205,7 +205,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * given unchanged to the {@linkplain AbstractIdentifiedObject#AbstractIdentifiedObject(Map)
      * super-class constructor}.
      *
-     * @param properties    Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties    Set of properties. Should contains at least {@code "name"}.
      * @param semiMajorAxis The equatorial radius.
      * @param semiMinorAxis The polar radius.
      * @param unit          The units of the semi-major and semi-minor axis values.
@@ -248,7 +248,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * inverse flattening value. The properties map is given unchanged to the
      * {@linkplain AbstractIdentifiedObject#AbstractIdentifiedObject(Map) super-class constructor}.
      *
-     * @param properties        Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties        Set of properties. Should contains at least {@code "name"}.
      * @param semiMajorAxis     The equatorial radius.
      * @param inverseFlattening The inverse flattening value.
      * @param unit              The units of the semi-major and semi-minor axis

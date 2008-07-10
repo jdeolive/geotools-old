@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -69,7 +69,7 @@ public class DefaultPlanarProjection extends DefaultProjection implements Planar
      * Constructs a projection from a set of properties. The properties given in argument
      * follow the same rules than for the {@link AbstractCoordinateOperation} constructor.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param sourceCRS The source CRS, or {@code null} if not available.
      * @param targetCRS The target CRS, or {@code null} if not available.
      * @param transform Transform from positions in the {@linkplain #getSourceCRS source coordinate

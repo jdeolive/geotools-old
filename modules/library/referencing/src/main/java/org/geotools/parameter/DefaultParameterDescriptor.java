@@ -359,7 +359,7 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * given unchanged to the {@linkplain AbstractIdentifiedObject#AbstractIdentifiedObject(Map)
      * super-class constructor}.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param valueClass The class that describe the type of the parameter.
      * @param validValues A finite set of valid values (usually from a
      *        {linkplain org.opengis.util.CodeList code list}) or {@code null}
@@ -390,7 +390,7 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * This constructor assumes that minimum, maximum and default values are
      * already replaced by their cached values, if available.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param required {@code true} if this parameter is required, or {@code false}
      *        if it is optional.
      * @param valueClass The class that describe the type of the parameter.

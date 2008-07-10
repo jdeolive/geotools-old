@@ -111,7 +111,7 @@ public class DefaultPrimeMeridian extends AbstractIdentifiedObject implements Pr
      * unchanged to the {@linkplain AbstractIdentifiedObject#AbstractIdentifiedObject(Map)
      * super-class constructor}.
      *
-     * @param properties          Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties          Set of properties. Should contains at least {@code "name"}.
      * @param greenwichLongitude  The longitude value relative to the Greenwich Meridian.
      * @param angularUnit         The angular unit of the longitude.
      */

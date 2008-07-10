@@ -137,7 +137,7 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
      * unchanged to the {@linkplain AbstractIdentifiedObject#AbstractIdentifiedObject(Map)
      * super-class constructor}.
      *
-     * @param properties   Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties   Set of properties. Should contains at least {@code "name"}.
      * @param axis         The set of axis.
      */
     public AbstractCS(final Map<String,?> properties, final CoordinateSystemAxis[] axis) {
@@ -299,11 +299,10 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
      * ({@linkplain AxisDirection#NORTH NORTH},{@linkplain AxisDirection#WEST WEST}) to
      * ({@linkplain AxisDirection#EAST EAST},{@linkplain AxisDirection#NORTH NORTH}
      * are taken in account.
-     *
-     * <P><STRONG>Example:</STRONG> If coordinates in {@code sourceCS} are
-     * (<var>x</var>,<var>y</var>) pairs in metres and coordinates in {@code targetCS}
-     * are (-<var>y</var>,<var>x</var>) pairs in centimetres, then the transformation
-     * can be performed as below:</P>
+     * <p>
+     * <b>Example:</b> If coordinates in {@code sourceCS} are (<var>x</var>,<var>y</var>) pairs
+     * in metres and coordinates in {@code targetCS} are (-<var>y</var>,<var>x</var>) pairs in
+     * centimetres, then the transformation can be performed as below:
      *
      * <pre><blockquote>
      *          [-y(cm)]   [ 0  -100    0 ] [x(m)]

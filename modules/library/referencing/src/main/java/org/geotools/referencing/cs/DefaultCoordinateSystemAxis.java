@@ -659,7 +659,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      * Constructs an axis from a set of properties. The properties map is given unchanged to the
      * {@linkplain AbstractIdentifiedObject#AbstractIdentifiedObject(Map) super-class constructor}.
      *
-     * @param properties   Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties   Set of properties. Should contains at least {@code "name"}.
      * @param abbreviation The {@linkplain #getAbbreviation abbreviation} used for this
      *                     coordinate system axes.
      * @param direction    The {@linkplain #getDirection direction} of this coordinate system axis.
@@ -703,7 +703,7 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      * {@linkplain #getMaximumValue maximum} values are inferred from the axis unit and
      * direction.
      *
-     * @param properties   Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties   Set of properties. Should contains at least {@code "name"}.
      * @param abbreviation The {@linkplain #getAbbreviation abbreviation} used for this
      *                     coordinate system axes.
      * @param direction    The {@linkplain #getDirection direction} of this coordinate system axis.

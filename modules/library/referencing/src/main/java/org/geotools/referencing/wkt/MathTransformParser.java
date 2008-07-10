@@ -23,6 +23,7 @@ import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchIdentifierException;
+import org.opengis.referencing.operation.Operation;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
@@ -30,10 +31,8 @@ import org.opengis.referencing.operation.OperationMethod;
 
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.AbstractIdentifiedObject;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.opengis.referencing.operation.Operation;
 
 
 /**
@@ -201,9 +200,7 @@ public class MathTransformParser extends AbstractParser {
         } catch (FactoryException exception) {
             throw element.parseFailed(exception, null);
         }
-        if (mtFactory instanceof DefaultMathTransformFactory) {
-            lastMethod = ((DefaultMathTransformFactory) mtFactory).getLastMethodUsed();
-        }
+        lastMethod = mtFactory.getLastMethodUsed();
         return transform;
     }
 
@@ -285,14 +282,10 @@ public class MathTransformParser extends AbstractParser {
      * {@link Parser} in order to built {@link org.opengis.referencing.crs.DerivedCRS}.
      */
     final OperationMethod getOperationMethod() {
-        /*
-         * Information available if the math transform used was a Geotools implementation.
-         */
         if (lastMethod == null) {
             /*
-             * Not a Geotools implementation. Unfortunatly, there is no obvious way to get this
-             * information using GeoAPI interfaces at this time. Performs a slower and less robust
-             * check.
+             * Safety in case come MathTransformFactory implementation do not support
+             * getLastMethod(). Performs a slower and less robust check as a fallback.
              */
             if (classification != null) {
                 for (final OperationMethod method : mtFactory.getAvailableMethods(Operation.class)) {

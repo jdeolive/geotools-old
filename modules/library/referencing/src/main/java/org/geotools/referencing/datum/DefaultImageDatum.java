@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -82,7 +82,7 @@ public class DefaultImageDatum extends AbstractDatum implements ImageDatum {
      * Constructs an image datum from a set of properties. The properties map is given
      * unchanged to the {@linkplain AbstractDatum#AbstractDatum(Map) super-class constructor}.
      *
-     * @param properties  Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties  Set of properties. Should contains at least {@code "name"}.
      * @param pixelInCell the way the image grid is associated with the image data attributes.
      */
     public DefaultImageDatum(final Map<String,?> properties, final PixelInCell pixelInCell) {

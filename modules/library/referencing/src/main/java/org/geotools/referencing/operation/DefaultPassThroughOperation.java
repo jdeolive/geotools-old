@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ public class DefaultPassThroughOperation extends DefaultSingleOperation implemen
      * Affected ordinates will range from {@code firstAffectedOrdinate}
      * inclusive to {@code dimTarget-numTrailingOrdinates} exclusive.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param sourceCRS The source CRS.
      * @param targetCRS The target CRS.
      * @param operation The operation to apply on the subset of a coordinate tuple.
@@ -84,7 +84,7 @@ public class DefaultPassThroughOperation extends DefaultSingleOperation implemen
      * The properties given in argument follow the same rules than for the
      * {@link AbstractCoordinateOperation} constructor.
      *
-     * @param  properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param  properties Set of properties. Should contains at least {@code "name"}.
      * @param  sourceCRS The source CRS.
      * @param  targetCRS The target CRS.
      * @param  operation The operation to apply on the subset of a coordinate tuple.

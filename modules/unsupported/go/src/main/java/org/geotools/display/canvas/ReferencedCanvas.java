@@ -65,6 +65,7 @@ import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
 import org.geotools.referencing.operation.LinearTransform;
+import org.geotools.referencing.operation.DefiningConversion;
 import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.display.event.ReferencedEvent;
@@ -138,13 +139,13 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * Properties for the {@linkplain #displayCRS display CRS}. They are saved here because
      * {@link #displayCRS} will be recreated often (everytime the zoom change).
      */
-    private Map displayProperties;
+    private Map<String,?> displayProperties;
 
     /**
      * Properties for the {@linkplain #deviceCRS device CRS}. They are saved here because
      * {@link #deviceCRS} may be recreated often (everytime the zoom change).
      */
-    private Map deviceProperties;
+    private Map<String,?> deviceProperties;
 
     /**
      * A temporary position used for coordinate transformations from an arbitrary CRS to the
@@ -974,6 +975,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
             final ReferencingFactoryContainer crsFactories;
             final CoordinateReferenceSystem objectiveCRS;
             final CoordinateSystem displayCS;
+            final Conversion conversion;
             final int sourceDim, targetDim;
             final Matrix identity;
             final MathTransform mt;
@@ -986,8 +988,10 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
             identity          = MatrixFactory.create(targetDim+1, sourceDim+1);
             mt                = crsFactories.getMathTransformFactory().createAffineTransform(identity);
             displayProperties = AbstractIdentifiedObject.getProperties(displayCS, null);
+            conversion        = new DefiningConversion(displayProperties, affineMethod, mt);
             displayCRS        = crsFactories.getCRSFactory().createDerivedCRS(
-                                    displayProperties, affineMethod, objectiveCRS, mt, displayCS);
+                                    displayProperties, objectiveCRS, conversion, displayCS);
+            // TODO: above call is heavy; maybe we should use direct instantiation.
         } catch (FactoryException exception) {
             /*
              * Should never happen, because the CRS that we tried to create is somewhat basic
@@ -1054,6 +1058,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         if (deviceCRS == null) try {
             final ReferencingFactoryContainer crsFactories;
             final CoordinateSystem deviceCS;
+            final Conversion conversion;
             final Matrix identity;
             final MathTransform mt;
 
@@ -1062,8 +1067,10 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
             identity         = MatrixFactory.create(deviceCS.getDimension()+1);
             mt               = crsFactories.getMathTransformFactory().createAffineTransform(identity);
             deviceProperties = AbstractIdentifiedObject.getProperties(deviceCS, null);
+            conversion       = new DefiningConversion(deviceProperties, affineMethod, mt);
             deviceCRS        = crsFactories.getCRSFactory().createDerivedCRS(
-                                   deviceProperties, affineMethod, displayCRS, mt, deviceCS);
+                                   deviceProperties, displayCRS, conversion, deviceCS);
+            // TODO: above call is heavy; maybe we should use direct instantiation.
         } catch (FactoryException exception) {
             /*
              * Should never happen, because the CRS that we tried to create is somewhat basic
@@ -1188,7 +1195,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     {
         assert Thread.holdsLock(this);
         DerivedCRS crs;
-        Map properties;
+        Map<String,?> properties;
         if (device) {
             crs = getDeviceCRS();
             properties = deviceProperties;
@@ -1198,8 +1205,10 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         }
         final ReferencingFactoryContainer crsFactories = getFactoryGroup();
         final MathTransform mt = crsFactories.getMathTransformFactory().createAffineTransform(transform);
-        crs = crsFactories.getCRSFactory().createDerivedCRS(properties, affineMethod,
-                crs.getBaseCRS(), mt, crs.getCoordinateSystem());
+        final Conversion conversion = new DefiningConversion(properties, affineMethod, mt);
+        crs = crsFactories.getCRSFactory().createDerivedCRS(properties,
+                crs.getBaseCRS(), conversion, crs.getCoordinateSystem());
+        // TODO: above call is heavy; maybe we should use direct instantiation.
         return crs;
     }
 

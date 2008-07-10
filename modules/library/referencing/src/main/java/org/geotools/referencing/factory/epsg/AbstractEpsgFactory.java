@@ -1720,7 +1720,7 @@ public abstract class AbstractEpsgFactory extends AbstractCachedAuthorityFactory
                     final CoordinateOperation op = createCoordinateOperation(opCode);
                     if (op instanceof Conversion) {
                         final Map<String,Object> properties = generateProperties(name, epsg, area, scope, remarks);
-                        crs = factories.createProjectedCRS(properties, baseCRS, (Conversion)op, cs);
+                        crs = factory.createProjectedCRS(properties, baseCRS, (Conversion)op, cs);
                     } else {
                          throw noSuchAuthorityCode(Projection.class, opCode);
                     }
@@ -2416,8 +2416,8 @@ public abstract class AbstractEpsgFactory extends AbstractCachedAuthorityFactory
                         result.close();
                         throw new FactoryException(Errors.format(ErrorKeys.UNKNOW_TYPE_$1, type));
                     }
-                    final MathTransform mt = factories.createBaseToDerived(sourceCRS, parameters,
-                            targetCRS.getCoordinateSystem());
+                    final MathTransform mt = factories.getMathTransformFactory().createBaseToDerived(
+                            sourceCRS, parameters, targetCRS.getCoordinateSystem());
                     // TODO: uses GeoAPI factory method once available.
                     operation = DefaultOperation.create(properties, sourceCRS, targetCRS,
                                                         mt, method, expected);

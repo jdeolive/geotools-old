@@ -82,7 +82,7 @@ public abstract class AbstractCRS extends AbstractReferenceSystem implements Coo
      * unchanged to the {@linkplain AbstractReferenceSystem#AbstractReferenceSystem(Map) super-class
      * constructor}.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param cs The coordinate system.
      */
     public AbstractCRS(final Map<String,?> properties, final CoordinateSystem cs) {

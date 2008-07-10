@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -116,6 +116,8 @@ public class AbstractDerivedCRS extends AbstractSingleCRS implements GeneralDeri
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
      *
+     * @param crs The coordinate reference system to copy.
+     *
      * @since 2.2
      */
     protected AbstractDerivedCRS(final GeneralDerivedCRS crs) {
@@ -155,11 +157,9 @@ public class AbstractDerivedCRS extends AbstractSingleCRS implements GeneralDeri
         checkDimensions(base, baseToDerived, derivedCS);
         DefaultOperationMethod.checkDimensions(conversionFromBase.getMethod(), baseToDerived);
         final Class<?> c = (Class<?>) properties.get(CONVERSION_TYPE_KEY);
-        final Class<? extends Conversion> typeHint;
+        Class<? extends Conversion> typeHint = getConversionType();
         if (c != null) {
-            typeHint = c.asSubclass(Conversion.class);
-        } else {
-            typeHint = null;
+            typeHint = c.asSubclass(typeHint);
         }
         this.conversionFromBase = DefaultConversion.create(
             /* definition */ conversionFromBase,
@@ -200,8 +200,6 @@ public class AbstractDerivedCRS extends AbstractSingleCRS implements GeneralDeri
      *
      * @param  properties Name and other properties to give to the new derived CRS object and to
      *         the underlying {@linkplain DefaultConversion conversion}.
-     * @param  method A description of the {@linkplain Conversion#getMethod method for the
-     *         conversion}.
      * @param  base Coordinate reference system to base the derived CRS on.
      * @param  baseToDerived The transform from the base CRS to returned CRS.
      * @param  derivedCS The coordinate system for the derived CRS. The number
@@ -228,11 +226,11 @@ public class AbstractDerivedCRS extends AbstractSingleCRS implements GeneralDeri
      * @todo Move the implementation in the previous constructor after we removed the deprecated
      *       signature.
      */
-    protected AbstractDerivedCRS(final Map<String,?>       properties,
-                                 final OperationMethod         method,
-                                 final CoordinateReferenceSystem base,
-                                 final MathTransform    baseToDerived,
-                                 final CoordinateSystem     derivedCS)
+    AbstractDerivedCRS(final Map<String,?>       properties,
+                       final OperationMethod         method,
+                       final CoordinateReferenceSystem base,
+                       final MathTransform    baseToDerived,
+                       final CoordinateSystem     derivedCS)
             throws MismatchedDimensionException
     {
         super(properties, getDatum(base), derivedCS);
@@ -303,6 +301,14 @@ public class AbstractDerivedCRS extends AbstractSingleCRS implements GeneralDeri
      */
     public Conversion getConversionFromBase() {
         return conversionFromBase;
+    }
+
+    /**
+     * Returns the expected type of conversion.
+     * {@link DefaultProjectedCRS} will override this type with {@link Projection}.
+     */
+    Class<? extends Conversion> getConversionType() {
+        return Conversion.class;
     }
 
     /**

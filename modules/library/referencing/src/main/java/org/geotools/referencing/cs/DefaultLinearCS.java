@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -78,8 +78,8 @@ public class DefaultLinearCS extends AbstractCS implements LinearCS {
      * The properties map is given unchanged to the
      * {@linkplain AbstractCS#AbstractCS(Map,CoordinateSystemAxis[]) super-class constructor}.
      *
-     * @param properties   Set of properties. Should contains at least <code>"name"</code>.
-     * @param axis         The axis.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
+     * @param axis       The axis.
      */
     public DefaultLinearCS(final Map<String,?> properties, final CoordinateSystemAxis axis) {
         super(properties, new CoordinateSystemAxis[] {axis});

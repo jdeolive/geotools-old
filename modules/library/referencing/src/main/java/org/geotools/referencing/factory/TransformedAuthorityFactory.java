@@ -312,14 +312,14 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
             if (sameCS && Utilities.equals(baseCRS, oldBaseCRS)) {
                 return crs;
             }
-            final Map properties = getProperties(crs);
+            final Map<String,?> properties = getProperties(crs);
             final ReferencingFactoryContainer factories = getFactoryContainer(true);
             final CRSFactory crsFactory = factories.getCRSFactory();
             Conversion fromBase = derivedCRS.getConversionFromBase();
             fromBase = new DefiningConversion(getProperties(fromBase),
                     fromBase.getMethod(), fromBase.getParameterValues());
             if (crs instanceof ProjectedCRS) {
-                modified = factories.createProjectedCRS(properties,
+                modified = crsFactory.createProjectedCRS(properties,
                         (GeographicCRS) baseCRS, fromBase, (CartesianCS) cs);
             } else {
                 // TODO: Need a createDerivedCRS method.
@@ -476,7 +476,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * @return The properties to be given to the object created as a substitute
      *         of {@code object}.
      */
-    private Map getProperties(final IdentifiedObject object) {
+    private Map<String,?> getProperties(final IdentifiedObject object) {
         final Citation authority = getAuthority();
         if (!Utilities.equals(authority, object.getName().getAuthority())) {
             return AbstractIdentifiedObject.getProperties(object, authority);
@@ -492,7 +492,7 @@ public class TransformedAuthorityFactory extends AuthorityFactoryAdapter {
      * invokes {@link #replace(CoordinateOperation) replace} for each
      * operations.
      */
-    public Set/* <CoordinateOperation> */createFromCoordinateReferenceSystemCodes(
+    public Set<CoordinateOperation> createFromCoordinateReferenceSystemCodes(
             final String sourceCode, final String targetCode)
             throws FactoryException
     {

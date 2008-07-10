@@ -237,14 +237,30 @@ public class AbstractCoordinateOperation extends AbstractIdentifiedObject
         this.sourceCRS = sourceCRS;
         this.targetCRS = targetCRS;
         this.transform = transform;
-        if (!(this instanceof Conversion && transform==null && sourceCRS==null && targetCRS==null)) {
-            // Null values authorized only for conversions, and all of them must be null together.
-            ensureNonNull("sourceCRS", transform);
-            ensureNonNull("targetCRS", transform);
-            ensureNonNull("transform", transform);
-            checkDimension("sourceCRS", sourceCRS, transform.getSourceDimensions());
-            checkDimension("targetCRS", targetCRS, transform.getTargetDimensions());
-        }
+        validate();
+    }
+
+    /**
+     * Checks the validity of this operation. This method is invoked by the constructor after
+     * every fields have been assigned. It can be overriden by subclasses if different rules
+     * should be applied.
+     * <p>
+     * {@link DefaultConversion} overrides this method in order to allow null values, providing
+     * that all of {@code transform}, {@code sourceCRS} and {@code targetCRS} are null together.
+     * Note that null values are not allowed for transformations, so {@link DefaultTransformation}
+     * does not override this method.
+     *
+     * @throws IllegalArgumentException if at least one of {@code transform}, {@code sourceCRS}
+     *         or {@code targetCRS} is invalid. We throw this kind of exception rather than
+     *         {@link IllegalStateException} because this method is invoked by the constructor
+     *         for checking argument validity.
+     */
+    void validate() throws IllegalArgumentException {
+        ensureNonNull ("sourceCRS", transform);
+        ensureNonNull ("targetCRS", transform);
+        ensureNonNull ("transform", transform);
+        checkDimension("sourceCRS", sourceCRS, transform.getSourceDimensions());
+        checkDimension("targetCRS", targetCRS, transform.getTargetDimensions());
     }
 
     /**
@@ -508,7 +524,8 @@ public class AbstractCoordinateOperation extends AbstractIdentifiedObject
     /**
      * Compares this coordinate operation with the specified object for equality.
      * If {@code compareMetadata} is {@code true}, then all available properties are
-     * compared including {@linkplain #getValidArea valid area} and {@linkplain #getScope scope}.
+     * compared including {@linkplain #getDomainOfValidity domain of validity} and
+     * {@linkplain #getScope scope}.
      *
      * @param  object The object to compare to {@code this}.
      * @param  compareMetadata {@code true} for performing a strict comparaison, or

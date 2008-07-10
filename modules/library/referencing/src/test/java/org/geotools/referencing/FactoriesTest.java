@@ -20,7 +20,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
@@ -57,7 +56,7 @@ import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.datum.DefaultEllipsoid;
 import org.geotools.referencing.datum.DefaultPrimeMeridian;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.crs.DefaultProjectedCRS;
+import org.geotools.referencing.operation.DefiningConversion;
 import org.geotools.referencing.operation.projection.MapProjection;
 
 import org.junit.*;
@@ -174,8 +173,9 @@ public final class FactoriesTest {
         assertSame(crsFactory,   container.getCRSFactory());
         assertSame(mtFactory,    container.getMathTransformFactory());
 
-        final ProjectedCRS projCRS = container.createProjectedCRS(
-                name("Great_Britian_National_Grid"), geogCRS, null, param, cartCS);
+        final Conversion conversion = new DefiningConversion("GBN grid", param);
+        final ProjectedCRS projCRS = crsFactory.createProjectedCRS(
+                name("Great_Britian_National_Grid"), geogCRS, conversion, cartCS);
         out.println();
         out.println("create Coodinate System....9: ");
         out.println(projCRS.toWKT());
@@ -183,17 +183,20 @@ public final class FactoriesTest {
 
     /**
      * Tests all map projection creation.
+     *
+     * @throws FactoryException If a CRS can not be created.
      */
     @Test
     public void testMapProjections() throws FactoryException {
         out.println();
         out.println("Testing classification names");
         out.println("----------------------------");
+        final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
         final MathTransformFactory mtFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
-        final Collection methods = mtFactory.getAvailableMethods(Projection.class);
-        for (final Iterator it=methods.iterator(); it.hasNext();) {
-            final OperationMethod    method = (OperationMethod) it.next();
-            final String     classification = method.getName().getCode();
+        final Collection<OperationMethod> methods = mtFactory.getAvailableMethods(Projection.class);
+        final Map<String,?> dummyName = Collections.singletonMap("name", "Test");
+        for (final OperationMethod method : methods) {
+            final String classification = method.getName().getCode();
             final ParameterValueGroup param = mtFactory.getDefaultParameters(classification);
             try {
                 param.parameter("semi_major").setValue(6377563.396);
@@ -223,9 +226,10 @@ public final class FactoriesTest {
                 if (!skip) {
                     assertEquals(classification, ((MapProjection) mt).getParameterDescriptors().getName().getCode());
                 }
-                final ProjectedCRS projCRS =
-                        new DefaultProjectedCRS("Test", method,
-                            DefaultGeographicCRS.WGS84, mt, DefaultCartesianCS.PROJECTED);
+                final ProjectedCRS projCRS = crsFactory.createProjectedCRS(dummyName,
+                        DefaultGeographicCRS.WGS84,
+                        new DefiningConversion(dummyName, method, mt),
+                        DefaultCartesianCS.PROJECTED);
                 final Conversion conversion = projCRS.getConversionFromBase();
                 assertSame(mt, conversion.getMathTransform());
                 final OperationMethod projMethod = conversion.getMethod();
@@ -237,6 +241,8 @@ public final class FactoriesTest {
     /**
      * Tests datum aliases. Note: ellipsoid and prime meridian are dummy values just
      * (not conform to the usage in real world) just for testing purpose.
+     *
+     * @throws FactoryException If a CRS can not be created.
      */
     @Test
     public void testDatumAliases() throws FactoryException {

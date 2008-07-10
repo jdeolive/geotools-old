@@ -43,7 +43,7 @@ final class Spheroid extends DefaultEllipsoid {
     /**
      * Constructs a new sphere using the specified radius.
      *
-     * @param properties    Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties    Set of properties. Should contains at least {@code "name"}.
      * @param radius        The equatorial and polar radius.
      * @param ivfDefinitive {@code true} if the inverse flattening is definitive.
      * @param unit          The units of the radius value.

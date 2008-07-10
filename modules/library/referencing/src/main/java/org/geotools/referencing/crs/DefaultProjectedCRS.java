@@ -42,8 +42,8 @@ import org.opengis.referencing.operation.OperationMethod;
 import org.opengis.geometry.MismatchedDimensionException;
 
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.referencing.operation.DefiningConversion;      // For javadoc
-import org.geotools.referencing.operation.DefaultOperationMethod;  // For javadoc
+import org.geotools.referencing.operation.DefiningConversion;
+import org.geotools.referencing.operation.DefaultOperationMethod;
 
 
 /**
@@ -152,33 +152,6 @@ public class DefaultProjectedCRS extends AbstractDerivedCRS implements Projected
     }
 
     /**
-     * Constructs a projected CRS from a name.
-     *
-     * @param  name The name.
-     * @param  method A description of the {@linkplain Conversion#getMethod method for the
-     *         conversion}.
-     * @param  base Coordinate reference system to base the derived CRS on.
-     * @param  baseToDerived The transform from the base CRS to returned CRS.
-     * @param  derivedCS The coordinate system for the derived CRS. The number
-     *         of axes must match the target dimension of the transform
-     *         {@code baseToDerived}.
-     * @throws MismatchedDimensionException if the source and target dimension of
-     *         {@code baseToDeviced} don't match the dimension of {@code base}
-     *         and {@code derivedCS} respectively.
-     *
-     * @deprecated Create explicitly a {@link DefiningConversion} instead.
-     */
-    public DefaultProjectedCRS(final String                 name,
-                               final OperationMethod      method,
-                               final GeographicCRS          base,
-                               final MathTransform baseToDerived,
-                               final CartesianCS       derivedCS)
-            throws MismatchedDimensionException
-    {
-        this(Collections.singletonMap(NAME_KEY, name), method, base, baseToDerived, derivedCS);
-    }
-
-    /**
      * Constructs a projected CRS from a set of properties. The properties are given unchanged
      * to the {@linkplain AbstractDerivedCRS#AbstractDerivedCRS(Map, OperationMethod,
      * CoordinateReferenceSystem, MathTransform, CoordinateSystem) super-class constructor}.
@@ -269,6 +242,14 @@ public class DefaultProjectedCRS extends AbstractDerivedCRS implements Projected
     @Override
     public Projection getConversionFromBase() {
         return (Projection) super.getConversionFromBase();
+    }
+
+    /**
+     * Returns the expected type of conversion.
+     */
+    @Override
+    Class<? extends Projection> getConversionType() {
+        return Projection.class;
     }
 
     /**

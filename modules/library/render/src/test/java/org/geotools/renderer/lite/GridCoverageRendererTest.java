@@ -143,7 +143,8 @@ public class GridCoverageRendererTest extends TestCase {
 				fail(exception.getLocalizedMessage());
 				return null;
 			}
-			return new DefaultProjectedCRS("Stereographic",
+			return new DefaultProjectedCRS(
+                                        java.util.Collections.singletonMap("name", "Stereographic"),
 					new DefaultOperationMethod(mt), base, mt,
 					DefaultCartesianCS.PROJECTED);
 		} catch (NoSuchIdentifierException exception) {

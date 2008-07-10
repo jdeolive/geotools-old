@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -151,7 +151,7 @@ public class DefaultGeodeticDatum extends AbstractDatum implements GeodeticDatum
      *   </tr>
      * </table>
      *
-     * @param properties    Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties    Set of properties. Should contains at least {@code "name"}.
      * @param ellipsoid     The ellipsoid.
      * @param primeMeridian The prime meridian.
      */

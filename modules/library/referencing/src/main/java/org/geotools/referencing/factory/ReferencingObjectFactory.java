@@ -44,6 +44,7 @@ import org.geotools.referencing.cs.*;
 import org.geotools.referencing.crs.*;
 import org.geotools.referencing.datum.*;
 import org.geotools.referencing.operation.MathTransformProvider;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.util.CanonicalSet;
 
 
@@ -918,10 +919,24 @@ public class ReferencingObjectFactory extends ReferencingFactory
                                        Conversion     conversionFromBase,
                                        CoordinateSystem        derivedCS) throws FactoryException
     {
-        DerivedCRS crs;
-        final ParameterValueGroup parameters = conversionFromBase.getParameterValues();
+        /*
+         * Following code is the same than createProjectedCRS(...) but a little bit simplier
+         * since we don't need to handle the Projection subtypes. See the createProjectedCRS
+         * method for comments.
+         */
+        MathTransform mt;
+        final MathTransform existing = conversionFromBase.getMathTransform();
         final MathTransformFactory mtFactory = getMathTransformFactory();
-        final MathTransform mt = mtFactory.createBaseToDerived(baseCRS, parameters, derivedCS);
+        if (existing != null && mtFactory instanceof DefaultMathTransformFactory) {
+            mt = ((DefaultMathTransformFactory) mtFactory).createBaseToDerived(baseCRS, existing, derivedCS);
+        } else {
+            final ParameterValueGroup parameters = conversionFromBase.getParameterValues();
+            mt = mtFactory.createBaseToDerived(baseCRS, parameters, derivedCS);
+            if (existing != null && existing.equals(mt)) {
+                mt = existing;
+            }
+        }
+        DerivedCRS crs;
         try {
             crs = new DefaultDerivedCRS(properties, conversionFromBase, baseCRS, mt, derivedCS);
         } catch (IllegalArgumentException exception) {
@@ -983,29 +998,59 @@ public class ReferencingObjectFactory extends ReferencingFactory
                                            Conversion    conversionFromBase,
                                            CartesianCS   derivedCS) throws FactoryException
     {
-        ProjectedCRS crs;
-        final ParameterValueGroup parameters = conversionFromBase.getParameterValues();
+        MathTransform mt;
+        final MathTransform existing = conversionFromBase.getMathTransform();
         final MathTransformFactory mtFactory = getMathTransformFactory();
-        final MathTransform mt = mtFactory.createBaseToDerived(baseCRS, parameters, derivedCS);
-        OperationMethod method = conversionFromBase.getMethod();
-        if (!(method instanceof MathTransformProvider)) {
+        if (existing != null && mtFactory instanceof DefaultMathTransformFactory) {
             /*
-             * Our Geotools implementation of DefaultProjectedCRS may not be able to detect
-             * the conversion type (PlanarProjection, CylindricalProjection, etc.)  because
-             * we rely on the Geotools-specific MathTransformProvider for that. We will try
-             * to help it with the optional "conversionType" hint,  providing that the user
-             * do not already provides this hint.
+             * In the particular case of GeoTools implementation, we use a shortcut which avoid
+             * the cost of creating a new parameterized transform; we use directly the existing
+             * transform instance instead. It also avoid slight rounding errors as a side-effect.
+             * This is because when a MapProjection is created, the angular parameters given to
+             * the construtor are converted from degrees to radians. When the parameters are asked
+             * back with 'conversionFromBase.getParameterValues()', they are converted back from
+             * radians to degrees resulting in values slightly different than the original ones.
+             * Those slight differences are enough for getting a math transform which is different
+             * in the sense of MapProjection.equals(Object), with the usual consequences on cached
+             * instances.
              */
-            if (!properties.containsKey(DefaultProjectedCRS.CONVERSION_TYPE_KEY)) {
-                method = mtFactory.getLastMethodUsed();
-                if (method instanceof MathTransformProvider) {
-                    final Map<String,Object> copy = new HashMap<String,Object>(properties);
-                    copy.put(DefaultProjectedCRS.CONVERSION_TYPE_KEY,
-                            ((MathTransformProvider) method).getOperationType());
-                    properties = copy;
+            mt = ((DefaultMathTransformFactory) mtFactory).createBaseToDerived(baseCRS, existing, derivedCS);
+        } else {
+            /*
+             * Non-GeoTools implementation, or no existing MathTransform instance.
+             * Creates the transform from the parameters.
+             */
+            final ParameterValueGroup parameters = conversionFromBase.getParameterValues();
+            mt = mtFactory.createBaseToDerived(baseCRS, parameters, derivedCS);
+            OperationMethod method = conversionFromBase.getMethod();
+            if (!(method instanceof MathTransformProvider)) {
+                /*
+                 * Our Geotools implementation of DefaultProjectedCRS may not be able to detect
+                 * the conversion type (PlanarProjection, CylindricalProjection, etc.)  because
+                 * we rely on the Geotools-specific MathTransformProvider for that. We will try
+                 * to help it with the optional "conversionType" hint,  providing that the user
+                 * do not already provides this hint.
+                 */
+                if (!properties.containsKey(DefaultProjectedCRS.CONVERSION_TYPE_KEY)) {
+                    method = mtFactory.getLastMethodUsed();
+                    if (method instanceof MathTransformProvider) {
+                        final Map<String,Object> copy = new HashMap<String,Object>(properties);
+                        copy.put(DefaultProjectedCRS.CONVERSION_TYPE_KEY,
+                                ((MathTransformProvider) method).getOperationType());
+                        properties = copy;
+                    }
                 }
             }
+            /*
+             * If the user gave an explicit conversion, checks if it is suitable.
+             * It may not be suitable is unit conversion, axis switch, etc. have
+             * been inserted in the operation chain by 'createBaseToDerived'.
+             */
+            if (existing != null && existing.equals(mt)) {
+                mt = existing;
+            }
         }
+        ProjectedCRS crs;
         try {
             crs = new DefaultProjectedCRS(properties, conversionFromBase, baseCRS, mt, derivedCS);
         } catch (IllegalArgumentException exception) {

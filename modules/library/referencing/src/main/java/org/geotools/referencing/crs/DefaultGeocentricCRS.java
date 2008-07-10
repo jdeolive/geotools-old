@@ -127,7 +127,7 @@ public class DefaultGeocentricCRS extends AbstractSingleCRS implements Geocentri
      * Constructs a geographic CRS from a set of properties. The properties are given unchanged to
      * the {@linkplain AbstractReferenceSystem#AbstractReferenceSystem(Map) super-class constructor}.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param datum The datum.
      * @param cs The coordinate system.
      */
@@ -143,7 +143,7 @@ public class DefaultGeocentricCRS extends AbstractSingleCRS implements Geocentri
      * The properties are given unchanged to the
      * {@linkplain AbstractReferenceSystem#AbstractReferenceSystem(Map) super-class constructor}.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param datum The datum.
      * @param cs The coordinate system.
      */

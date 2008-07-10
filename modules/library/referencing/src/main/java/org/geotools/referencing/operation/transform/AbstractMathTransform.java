@@ -225,7 +225,7 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
              */
             final double[] array;
             if (dimSource >= dimTarget) {
-                array = ptSrc.getCoordinates();
+                array = ptSrc.getCoordinate();
             } else {
                 array = new double[dimTarget];
                 for (int i=dimSource; --i>=0;) {
@@ -251,7 +251,7 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
                     source[i] = ptSrc.getOrdinate(i);
                 }
             } else {
-                source = ptSrc.getCoordinates();
+                source = ptSrc.getCoordinate();
             }
             transform(source, 0, destination.ordinates, 0, 1);
         }
@@ -596,7 +596,7 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
         if (object!=null && getClass().equals(object.getClass())) {
             final AbstractMathTransform that = (AbstractMathTransform) object;
             return Utilities.equals(this.getParameterDescriptors(),
-                                           that.getParameterDescriptors());
+                                    that.getParameterDescriptors());
         }
         return false;
     }

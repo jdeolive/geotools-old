@@ -116,7 +116,7 @@ public class MatrixParameterDescriptors extends DefaultParameterDescriptorGroup 
      * <cite><A HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html">Well
      * Known Text</A></cite> usages.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      */
     public MatrixParameterDescriptors(final Map<String,?> properties) {
         /*
@@ -139,8 +139,8 @@ public class MatrixParameterDescriptors extends DefaultParameterDescriptorGroup 
      * than matrix elements. The first parameter is assumed to be the number of rows, and
      * the second parameter the number of columns. All extra parameters are ignored.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
-     * @param parameters The <code>"num_row"</code> and <code>"num_col"</code> parameters.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
+     * @param parameters The {@code "num_row"} and {@code "num_col"} parameters.
      * @param prefix     The prefix to insert in front of parameter name for each matrix elements.
      * @param separator  The separator between the row and the column index in parameter names.
      */

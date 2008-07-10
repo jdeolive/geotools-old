@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,6 +31,7 @@ import javax.measure.unit.Unit;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Quantity;
+import static java.util.Collections.singletonMap;
 
 import org.opengis.metadata.citation.Citation;
 import org.opengis.parameter.ParameterNotFoundException;
@@ -40,31 +40,13 @@ import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.NoSuchIdentifierException;
-import org.opengis.referencing.crs.CRSFactory;
-import org.opengis.referencing.crs.CompoundCRS;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.DerivedCRS;
-import org.opengis.referencing.crs.EngineeringCRS;
-import org.opengis.referencing.crs.GeocentricCRS;
-import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.crs.VerticalCRS;
-import org.opengis.referencing.cs.AxisDirection;
-import org.opengis.referencing.cs.CSFactory;
-import org.opengis.referencing.cs.CoordinateSystem;
-import org.opengis.referencing.cs.CoordinateSystemAxis;
-import org.opengis.referencing.datum.Datum;  // For javadoc
-import org.opengis.referencing.datum.DatumFactory;
-import org.opengis.referencing.datum.Ellipsoid;
-import org.opengis.referencing.datum.EngineeringDatum;
-import org.opengis.referencing.datum.GeodeticDatum;
-import org.opengis.referencing.datum.PrimeMeridian;
-import org.opengis.referencing.datum.VerticalDatum;
-import org.opengis.referencing.datum.VerticalDatumType;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransformFactory;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
-import org.opengis.referencing.operation.OperationMethod;
+
+// While start import is usually a deprecated practice, we use such a large amount
+// of interfaces in those packages that it we choose to exceptionnaly use * here.
+import org.opengis.referencing.cs.*;
+import org.opengis.referencing.crs.*;
+import org.opengis.referencing.datum.*;
+import org.opengis.referencing.operation.*;
 
 import org.geotools.factory.Hints;
 import org.geotools.metadata.iso.citation.Citations;
@@ -77,6 +59,7 @@ import org.geotools.referencing.datum.DefaultVerticalDatum;
 import org.geotools.referencing.cs.AbstractCS;
 import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
+import org.geotools.referencing.operation.DefiningConversion;
 import org.geotools.resources.Arguments;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
@@ -134,15 +117,6 @@ public class Parser extends MathTransformParser {
     protected final CRSFactory crsFactory;
 
     /**
-     * Set of helper methods working on factories. Will be constructed
-     * only the first time it is needed.
-     *
-     * @todo This field is a workaround for a limitation in current {@link CRSFactory}
-     *       interface. We should remove this field if the limitation is fixed in GeoAPI.
-     */
-    private transient ReferencingFactoryContainer factories;
-
-    /**
      * The list of {@linkplain AxisDirection axis directions} from their name.
      */
     private final Map<String,AxisDirection> directions;
@@ -181,7 +155,6 @@ public class Parser extends MathTransformParser {
              factories.getCSFactory(),
              factories.getCRSFactory(),
              factories.getMathTransformFactory());
-        this.factories = factories;
     }
 
     /**
@@ -358,7 +331,7 @@ public class Parser extends MathTransformParser {
                 properties = new HashMap<String,Object>(4);
                 properties.put(IdentifiedObject.NAME_KEY, name);
             } else {
-                properties = Collections.singletonMap(IdentifiedObject.NAME_KEY, (Object) name);
+                properties = singletonMap(IdentifiedObject.NAME_KEY, (Object) name);
             }
         } else {
             final String auth = element.pullString("name");
@@ -476,7 +449,7 @@ public class Parser extends MathTransformParser {
             return candidate;
         }
         if (properties == null) {
-            properties = Collections.singletonMap(IdentifiedObject.NAME_KEY, abbreviation);
+            properties = singletonMap(IdentifiedObject.NAME_KEY, abbreviation);
         }
         return csFactory.createCoordinateSystemAxis(properties, abbreviation, direction, unit);
     }
@@ -772,7 +745,7 @@ public class Parser extends MathTransformParser {
         final Map<String,?> properties = parseAuthority(element, name);
         element.close();
         final CoordinateSystem cs;
-        cs = new AbstractCS(Collections.singletonMap("name", name),
+        cs = new AbstractCS(singletonMap("name", name),
                 list.toArray(new CoordinateSystemAxis[list.size()]));
         try {
             return crsFactory.createEngineeringCRS(properties, datum, cs);
@@ -849,7 +822,7 @@ public class Parser extends MathTransformParser {
                 axis = createAxis(null, "Z", AxisDirection.UP, linearUnit);
             }
             return crsFactory.createVerticalCRS(properties, datum,
-                    csFactory.createVerticalCS(Collections.singletonMap("name", name), axis));
+                    csFactory.createVerticalCS(singletonMap("name", name), axis));
         } catch (FactoryException exception) {
             throw element.parseFailed(exception, null);
         }
@@ -924,15 +897,8 @@ public class Parser extends MathTransformParser {
                 axis1 = createAxis(null, "Y", AxisDirection.NORTH, linearUnit);
             }
             element.close();
-            if (factories == null) {
-                final Hints hints = new Hints();
-                hints.put(Hints.DATUM_FACTORY,          datumFactory);
-                hints.put(Hints.CS_FACTORY,             csFactory);
-                hints.put(Hints.CRS_FACTORY,            crsFactory);
-                hints.put(Hints.MATH_TRANSFORM_FACTORY, mtFactory);
-                factories = ReferencingFactoryContainer.instance(hints);
-            }
-            return factories.createProjectedCRS(properties, geoCRS, null, projection,
+            final Conversion conversion = new DefiningConversion(name, projection);
+            return crsFactory.createProjectedCRS(properties, geoCRS, conversion,
                     csFactory.createCartesianCS(properties, axis0, axis1));
         } catch (FactoryException exception) {
             throw element.parseFailed(exception, null);
@@ -1002,11 +968,14 @@ public class Parser extends MathTransformParser {
                 buffer.setLength(start);
                 buffer.append(number);
                 axis[i] = csFactory.createCoordinateSystemAxis(
-                    Collections.singletonMap(IdentifiedObject.NAME_KEY, buffer.toString()),
+                    singletonMap(IdentifiedObject.NAME_KEY, buffer.toString()),
                     number, AxisDirection.OTHER, Unit.ONE);
             }
-            return crsFactory.createDerivedCRS(properties, method, base, toBase.inverse(),
-                                               new AbstractCS(properties, axis));
+            final Conversion conversion = new DefiningConversion(
+                    singletonMap(IdentifiedObject.NAME_KEY, method.getName().getCode()),
+                    method, toBase.inverse());
+            final CoordinateSystem cs = new AbstractCS(properties, axis);
+            return crsFactory.createDerivedCRS(properties, base, conversion, cs);
         } catch (FactoryException exception) {
             throw element.parseFailed(exception, null);
         } catch (NoninvertibleTransformException exception) {

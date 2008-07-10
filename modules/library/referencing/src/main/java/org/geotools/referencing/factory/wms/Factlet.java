@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -29,6 +29,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.operation.DefiningConversion;
 
 
 /**
@@ -70,9 +71,11 @@ abstract class Factlet {
         final ParameterValueGroup parameters;
         parameters = factories.getMathTransformFactory().getDefaultParameters(classification);
         setProjectionParameters(parameters, code);
-        return factories.createProjectedCRS(
-                Collections.singletonMap(IdentifiedObject.NAME_KEY, getName()),
-                DefaultGeographicCRS.WGS84, null, parameters, DefaultCartesianCS.PROJECTED);
+        final String name = getName();
+        final DefiningConversion conversion = new DefiningConversion(name, parameters);
+        return factories.getCRSFactory().createProjectedCRS(
+                Collections.singletonMap(IdentifiedObject.NAME_KEY, name),
+                DefaultGeographicCRS.WGS84, conversion, DefaultCartesianCS.PROJECTED);
     }
 
     /**

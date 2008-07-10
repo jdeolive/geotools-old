@@ -95,7 +95,7 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
      * {@linkplain DefaultOperationMethod#DefaultOperationMethod(Map,int,int,ParameterDescriptorGroup)
      * super-class constructor}.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param sourceDimensions Number of dimensions in the source CRS of this operation method.
      * @param targetDimensions Number of dimensions in the target CRS of this operation method.
      * @param parameters The set of parameters (never {@code null}).

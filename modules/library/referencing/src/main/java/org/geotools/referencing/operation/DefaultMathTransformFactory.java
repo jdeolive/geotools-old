@@ -348,6 +348,34 @@ public class DefaultMathTransformFactory extends ReferencingFactory implements M
             Parameters.ensureSet(parameters, "semi_major", ellipsoid.getSemiMajorAxis(), axisUnit, false);
             Parameters.ensureSet(parameters, "semi_minor", ellipsoid.getSemiMinorAxis(), axisUnit, false);
         }
+        MathTransform baseToDerived = createParameterizedTransform(parameters);
+        final OperationMethod method = lastMethod.get();
+        baseToDerived = createBaseToDerived(baseCRS, baseToDerived, derivedCS);
+        lastMethod.set(method);
+        return baseToDerived;
+    }
+
+    /**
+     * Creates a transform from a base CRS to a derived CS. This method expects a "raw"
+     * transform without unit conversion or axis switch, typically a map projection
+     * working on (<cite>longitude</cite>, <cite>latitude</cite>) axes in degrees and
+     * (<cite>x</cite>, <cite>y</cite>) axes in metres. This method inspects the coordinate
+     * systems and prepend or append the unit conversions and axis switchs automatically.
+     *
+     * @param  baseCRS The source coordinate reference system.
+     * @param  projection The "raw" <cite>base to derived</cite> transform.
+     * @param  derivedCS the target coordinate system.
+     * @return The parameterized transform.
+     * @throws FactoryException if the object creation failed. This exception is thrown
+     *         if some required parameter has not been supplied, or has illegal value.
+     *
+     * @since 2.5
+     */
+    public MathTransform createBaseToDerived(final CoordinateReferenceSystem baseCRS,
+                                             final MathTransform          projection,
+                                             final CoordinateSystem        derivedCS)
+            throws FactoryException
+    {
         /*
          * Computes matrix for swapping axis and performing units conversion.
          * There is one matrix to apply before projection on (longitude,latitude)
@@ -374,10 +402,7 @@ public class DefaultMathTransformFactory extends ReferencingFactory implements M
          */
         MathTransform step1 = createAffineTransform(swap1);
         MathTransform step3 = createAffineTransform(swap3);
-        MathTransform step2 = createParameterizedTransform(parameters);
-        // IMPORTANT: From this point, 'createParameterizedTransform' should not be invoked
-        //            anymore, directly or indirectly, in order to preserve the 'lastMethod'
-        //            value. It will be checked by the last assert before return.
+        MathTransform step2 = projection;
         /*
          * If the target coordinate system has a height, instructs the projection to pass
          * the height unchanged from the base CRS to the target CRS. After this block, the
@@ -398,10 +423,7 @@ public class DefaultMathTransformFactory extends ReferencingFactory implements M
             drop.setElement(targetDim, sourceDim, 1);
             step1 = createConcatenatedTransform(createAffineTransform(drop), step1);
         }
-        final MathTransform transform = createConcatenatedTransform(
-                createConcatenatedTransform(step1, step2), step3);
-        assert AbstractIdentifiedObject.nameMatches(parameters.getDescriptor(), getLastMethodUsed());
-        return transform;
+        return createConcatenatedTransform(createConcatenatedTransform(step1, step2), step3);
     }
 
     /**

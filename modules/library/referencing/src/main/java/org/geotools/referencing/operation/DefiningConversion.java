@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import java.util.Collections;
 
 import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.OperationMethod;
 import org.geotools.referencing.wkt.Formatter;
 
@@ -61,9 +62,7 @@ public class DefiningConversion extends DefaultConversion {
      *
      * @since 2.2
      */
-    public DefiningConversion(final String              name,
-                              final ParameterValueGroup parameters)
-    {
+    public DefiningConversion(final String name, final ParameterValueGroup parameters) {
         this(Collections.singletonMap(NAME_KEY, name), getOperationMethod(parameters), parameters);
     }
 
@@ -78,11 +77,11 @@ public class DefiningConversion extends DefaultConversion {
     }
 
     /**
-     * Constructs a conversion from a set of properties. The properties given in argument
+     * Constructs a conversion from a set of parameters. The properties given in argument
      * follow the same rules than for the {@link AbstractCoordinateOperation} constructor.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
-     * @param method The operation method.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
+     * @param method     The operation method.
      * @param parameters The parameter values.
      */
     public DefiningConversion(final Map<String,?>       properties,
@@ -95,11 +94,42 @@ public class DefiningConversion extends DefaultConversion {
     }
 
     /**
+     * Constructs a conversion from a math transform. The properties given in argument
+     * follow the same rules than for the {@link AbstractCoordinateOperation} constructor.
+     *
+     * @param properties Set of properties. Should contains at least {@code "name"}.
+     * @param method     The operation method.
+     * @param transform  Transform from positions in the {@linkplain #getSourceCRS source CRS}
+     *                   to positions in the {@linkplain #getTargetCRS target CRS}.
+     *
+     * @since 2.5
+     */
+    public DefiningConversion(final Map<String,?>   properties,
+                              final OperationMethod method,
+                              final MathTransform   transform)
+    {
+        super(properties, null, null, transform, method);
+        parameters = null;
+    }
+
+    /**
+     * Invoked by the super-class constructor for checking argument validity. This special
+     * kind of conversion accepts non-null {@code transform} even if {@code sourceCRS} and
+     * {@code targetCRS} are non-null.
+     */
+    @Override
+    void validate() throws IllegalArgumentException {
+        if (transform == null) {
+            super.validate();
+        }
+    }
+
+    /**
      * Returns the parameter values.
      */
     @Override
     public ParameterValueGroup getParameterValues() {
-        return parameters.clone();
+        return (parameters != null) ? parameters.clone() : super.getParameterValues();
     }
 
     /**

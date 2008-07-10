@@ -33,19 +33,14 @@ import org.geotools.factory.Hints;
 import org.geotools.factory.Factory;
 import org.geotools.factory.FactoryCreator;
 import org.geotools.factory.FactoryRegistry;
-import org.geotools.parameter.Parameters;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.operation.DefiningConversion;
-import org.geotools.referencing.operation.MathTransformProvider;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.geotools.referencing.operation.matrix.MatrixFactory;
-import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.crs.DefaultCompoundCRS;
 import org.geotools.referencing.cs.AbstractCS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.XArray;
 
 
@@ -442,7 +437,8 @@ public class ReferencingFactoryContainer extends ReferencingFactory {
         if (method == null) {
             method = getLastUsedMethod();
         }
-        return getCRSFactory().createProjectedCRS(properties, method, baseCRS, mt, derivedCS);
+        return ((ReferencingObjectFactory) getCRSFactory())
+                .createProjectedCRS(properties, method, baseCRS, mt, derivedCS);
     }
 
     /**
@@ -495,13 +491,13 @@ public class ReferencingFactoryContainer extends ReferencingFactory {
              * consecutives. Constructs the new 3D CS. If the two above-cited components are the
              * only ones, the result is returned directly. Otherwise, a new compound CRS is created.
              */
-            final boolean classic = (hi < vi);
+            final boolean xyFirst = (hi < vi);
             final SingleCRS single =
-                    toGeodetic3D(count == 2 ? crs : null, horizontal, vertical, classic);
+                    toGeodetic3D(count == 2 ? crs : null, horizontal, vertical, xyFirst);
             if (count == 2) {
                 return single;
             }
-            final int i = classic ? hi : vi;
+            final int i = xyFirst ? hi : vi;
             components = new ArrayList<SingleCRS>(components);
             components.remove(i);
             components.set(i, single);
@@ -520,21 +516,25 @@ public class ReferencingFactoryContainer extends ReferencingFactory {
      *                    Used only in order to infer the name properties of objects to create.
      * @param  horizontal The horizontal component of {@code crs}.
      * @param  vertical   The vertical   component of {@code crs}.
-     * @param  classic    {@code true} if the horizontal component appears before the vertical
+     * @param  xyFirst    {@code true} if the horizontal component appears before the vertical
      *                    component, or {@code false} for the converse.
      * @return The 3D geographic or projected CRS.
      * @throws FactoryException if the object creation failed.
      */
-    private SingleCRS toGeodetic3D(final CompoundCRS crs,
-                                   final SingleCRS   horizontal,
-                                   final VerticalCRS vertical,
-                                   final boolean     classic) throws FactoryException
+    private SingleCRS toGeodetic3D(final CompoundCRS crs, final SingleCRS horizontal,
+                                   final VerticalCRS vertical, final boolean xyFirst)
+            throws FactoryException
     {
+        /*
+         * Creates the set of axis in an order which depends of the xyFirst argument.
+         * Then creates the property maps to be given to the object to be created.
+         * They are common to whatever CRS type this method will create.
+         */
         final CoordinateSystemAxis[] axis = new CoordinateSystemAxis[3];
         final CoordinateSystem cs = horizontal.getCoordinateSystem();
-        axis[classic ? 0 : 1] = cs.getAxis(0);
-        axis[classic ? 1 : 2] = cs.getAxis(1);
-        axis[classic ? 2 : 0] = vertical.getCoordinateSystem().getAxis(0);
+        axis[xyFirst ? 0 : 1] = cs.getAxis(0);
+        axis[xyFirst ? 1 : 2] = cs.getAxis(1);
+        axis[xyFirst ? 2 : 0] = vertical.getCoordinateSystem().getAxis(0);
         final Map<String,?> csName, crsName;
         if (crs != null) {
             csName  = AbstractIdentifiedObject.getProperties(crs.getCoordinateSystem());
@@ -545,28 +545,55 @@ public class ReferencingFactoryContainer extends ReferencingFactory {
         }
         final  CSFactory  csFactory = getCSFactory();
         final CRSFactory crsFactory = getCRSFactory();
-        final SingleCRS single;
         if (horizontal instanceof GeographicCRS) {
             /*
-             * Merges a 2D geographic CRS with the vertical CRS.
+             * Merges a 2D geographic CRS with the vertical CRS. This is the easiest
+             * part - we just give the 3 axis all together to a new GeographicCRS.
              */
-            single = crsFactory.createGeographicCRS(crsName, (GeodeticDatum) horizontal.getDatum(),
-                      csFactory.createEllipsoidalCS(csName, axis[0], axis[1], axis[2]));
-        } else if (horizontal instanceof ProjectedCRS) {
-            /*
-             * Merges a 2D projected CRS with the vertical CRS.
-             */
-            final ProjectedCRS projected = (ProjectedCRS) horizontal;
-            GeographicCRS baseCRS = projected.getBaseCRS();
-            baseCRS = (GeographicCRS) toGeodetic3D(null, baseCRS, vertical, classic);
-            final Conversion projection  = projected.getConversionFromBase();
-            single = createProjectedCRS(crsName, baseCRS, projection,
-                     csFactory.createCartesianCS(csName, axis[0], axis[1], axis[2]));
-        } else {
-            // Should never happen.
-            throw new AssertionError(horizontal);
+            final GeographicCRS sourceCRS = (GeographicCRS) horizontal;
+            final EllipsoidalCS targetCS  = csFactory.createEllipsoidalCS(csName, axis[0], axis[1], axis[2]);
+            return crsFactory.createGeographicCRS(crsName, sourceCRS.getDatum(), targetCS);
         }
-        return single;
+        if (horizontal instanceof ProjectedCRS) {
+            /*
+             * Merges a 2D projected CRS with the vertical CRS. This part is more tricky,
+             * since we need a defining conversion which does not include axis swapping or
+             * unit conversions. We revert them with concatenation of "CS to standardCS"
+             * transform. The axis swapping will be added back by createProjectedCRS(...)
+             * but not in the same place (they will be performed sooner than they would be
+             * otherwise).
+             */
+            final ProjectedCRS  sourceCRS = (ProjectedCRS) horizontal;
+            final CartesianCS   targetCS  = csFactory.createCartesianCS(csName, axis[0], axis[1], axis[2]);
+            final GeographicCRS base2D    = sourceCRS.getBaseCRS();
+            final GeographicCRS base3D    = (GeographicCRS) toGeodetic3D(null, base2D, vertical, xyFirst);
+            final Matrix        prepend   = toStandard(base2D, false);
+            final Matrix        append    = toStandard(sourceCRS, true);
+            Conversion projection = sourceCRS.getConversionFromBase();
+            if (!prepend.isIdentity() || !append.isIdentity()) {
+                final MathTransformFactory mtFactory = getMathTransformFactory();
+                MathTransform mt = projection.getMathTransform();
+                mt = mtFactory.createConcatenatedTransform(
+                     mtFactory.createConcatenatedTransform(
+                     mtFactory.createAffineTransform(prepend), mt),
+                     mtFactory.createAffineTransform(append));
+                projection = new DefiningConversion(AbstractCS.getProperties(projection),
+                                                    projection.getMethod(), mt);
+            }
+            return crsFactory.createProjectedCRS(crsName, base3D, projection, targetCS);
+        }
+        // Should never happen.
+        throw new AssertionError(horizontal);
+    }
+
+    private static Matrix toStandard(final CoordinateReferenceSystem crs, final boolean inverse) {
+        final CoordinateSystem sourceCS = crs.getCoordinateSystem();
+        final CoordinateSystem targetCS = AbstractCS.standard(sourceCS);
+        if (inverse) {
+            return AbstractCS.swapAndScaleAxis(targetCS, sourceCS);
+        } else {
+            return AbstractCS.swapAndScaleAxis(sourceCS, targetCS);
+        }
     }
 
     /**

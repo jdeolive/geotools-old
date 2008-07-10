@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -84,6 +84,19 @@ public class DefaultConversion extends DefaultOperation implements Conversion {
     }
 
     /**
+     * Invoked by the super-class constructor for checking argument validity. At the opposite of
+     * {@link DefaultOperation}, a conversion accepts null {@code transform}, {@code sourceCRS}
+     * and {@code targetCRS} providing that all of them are null together. If only one or two of
+     * them is {@code null}, we will rely on the default validation which will throw an exception.
+     */
+    @Override
+    void validate() throws IllegalArgumentException {
+        if (transform != null || sourceCRS != null || targetCRS != null) {
+            super.validate();
+        }
+    }
+
+    /**
      * Returns a conversion from the specified {@linkplain DefiningConversion defining conversion}.
      * The new conversion will be a more specific type like a {@linkplain PlanarProjection planar},
      * {@linkplain CylindricalProjection cylindrical} or {@linkplain ConicProjection conic
@@ -101,6 +114,7 @@ public class DefaultConversion extends DefaultOperation implements Conversion {
      * @param typeHint   One of <code>{@linkplain PlanarProjection}.class</code>,
      *                   <code>{@linkplain CylindricalProjection}.class</code> or
      *                   <code>{@linkplain ConicProjection}.class</code>, or {@code null}.
+     * @return The conversion of the given type if possible.
      *
      * @see DefaultOperation#create
      *

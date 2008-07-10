@@ -31,7 +31,6 @@ import org.opengis.parameter.ParameterValueGroup;
 
 import org.geotools.factory.Hints;
 import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.referencing.factory.ReferencingFactoryContainer;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -57,6 +56,9 @@ public final class Transform3DTest {
 
     /**
      * Tests a 3D projected to geocentric transform.
+     *
+     * @throws FactoryException If an object can't be created.
+     * @throws TransformException If a coordinate transformation failed.
      */
     @Test
     public void testProjectedToGeocentric() throws FactoryException, TransformException {
@@ -69,14 +71,6 @@ public final class Transform3DTest {
         final DatumFactory            datumFactory = ReferencingFactoryFinder.getDatumFactory              (hints);
         final MathTransformFactory       mtFactory = ReferencingFactoryFinder.getMathTransformFactory      (hints);
         final CoordinateOperationFactory opFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(hints);
-        final ReferencingFactoryContainer helper;
-
-        hints.clear();
-        hints.put(Hints.DATUM_FACTORY,          datumFactory);
-        hints.put(Hints.CS_FACTORY,             csFactory);
-        hints.put(Hints.CRS_FACTORY,            crsFactory);
-        hints.put(Hints.MATH_TRANSFORM_FACTORY, mtFactory);
-        helper = new ReferencingFactoryContainer(hints);
 
         // ----------------------------------------------------------
         // Creates datum
@@ -161,8 +155,9 @@ public final class Transform3DTest {
         // From here we create a 2D projected system and combine
         // it with a height-only CRS to give it a full 3D transform
         // ----------------------------------------------------------
-        final ProjectedCRS proj_2d = helper.createProjectedCRS(
-                name("WGS 84 / UTM Zone 12/ 2D"), geographic_2d_crs, null, parameters, utm_cartesian_2d_cs);
+        final ProjectedCRS proj_2d = crsFactory.createProjectedCRS(
+                name("WGS 84 / UTM Zone 12/ 2D"), geographic_2d_crs,
+                new DefiningConversion("Transverse_Mercator", parameters), utm_cartesian_2d_cs);
         final CompoundCRS compound_3d = crsFactory.createCompoundCRS(
                 name("3D Compound WGS 84 / UTM Zone 12"), new CoordinateReferenceSystem[] { proj_2d, height_crs });
         final double[] out1 = checkTransformation(opFactory.createOperation(compound_3d, output_crs));
@@ -170,8 +165,9 @@ public final class Transform3DTest {
         // ----------------------------------------------------------
         // From here we create a 3D projected system directly
         // ----------------------------------------------------------
-        final ProjectedCRS proj_3d = helper.createProjectedCRS(
-                name("WGS 84 / UTM Zone 12/ 3D"), geographic_3d_crs, null, parameters, utm_cartesian_3d_cs);
+        final ProjectedCRS proj_3d = crsFactory.createProjectedCRS(
+                name("WGS 84 / UTM Zone 12/ 3D"), geographic_3d_crs,
+                new DefiningConversion("Transverse_Mercator", parameters), utm_cartesian_3d_cs);
         final double[] out2 = checkTransformation(opFactory.createOperation(proj_3d, output_crs));
 
         // ----------------------------------------------------------
@@ -201,7 +197,7 @@ public final class Transform3DTest {
         final MathTransform mt = operation.getMathTransform();
 
         // Now a couple of transforms to show it working or not working...
-        final double[] input  = {4145173, 572227, 0};
+        final double[] input  = {41451.73, 572227, 0};
         final double[] output = new double[input.length * 2];
 
         mt.transform(input, 0, output, 0, 1);

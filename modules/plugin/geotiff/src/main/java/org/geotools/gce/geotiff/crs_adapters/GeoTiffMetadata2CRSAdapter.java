@@ -327,8 +327,10 @@ public final class GeoTiffMetadata2CRSAdapter {
 			// Creating anew projected CRS
 			//
 			// //
-			return new DefaultProjectedCRS(DefaultEllipsoidalCS.getName(pcrs,
-					new CitationImpl("EPSG")), pcrs.getConversionFromBase()
+			return new DefaultProjectedCRS(
+                                        java.util.Collections.singletonMap("name",
+                                        DefaultEllipsoidalCS.getName(pcrs,
+					new CitationImpl("EPSG"))), pcrs.getConversionFromBase()
 					.getMethod(), (GeographicCRS) pcrs.getBaseCRS(), pcrs
 					.getConversionFromBase().getMathTransform(),
 					createProjectedCS(linearUnit));

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@ import org.geotools.util.DerivedMap;
  * A map without the <code>"conversion."</code> prefix in front of property keys. This
  * implementation performs a special processing for the <code>{@linkplain #prefix}.name</code>
  * key: if it doesn't exists, then the plain {@code name} key is used. In other words,
- * this map inherits the <code>"name"</code> property from the {@linkplain #base} map.
+ * this map inherits the {@code "name"} property from the {@linkplain #base} map.
  *
  * @source $URL$
  * @version $Id$
@@ -109,9 +109,9 @@ final class UnprefixedMap extends DerivedMap<String,String,Object> {
     }
 
     /**
-     * Returns {@code true} if the specified candidate is <code>"name"</code>
-     * or <code>"alias"</code> without prefix. Key starting with <code>"name_"</code>
-     * or <code>"alias_"</code> are accepted as well.
+     * Returns {@code true} if the specified candidate is {@code "name"}
+     * or {@code "alias"} without prefix. Key starting with {@code "name_"}
+     * or {@code "alias_"} are accepted as well.
      */
     private boolean isPlainKey(final String key) {
         return (!hasName  && keyMatches(IdentifiedObject.NAME_KEY,  key)) ||

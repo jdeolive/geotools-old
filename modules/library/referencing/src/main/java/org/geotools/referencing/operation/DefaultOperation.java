@@ -47,10 +47,10 @@ import org.geotools.util.UnsupportedImplementationException;
  * A parameterized mathematical operation on coordinates that transforms or converts
  * coordinates to another coordinate reference system. This coordinate operation thus
  * uses an operation method, usually with associated parameter values.
- *
- * <P>In the Geotools implementation, the {@linkplain #getParameterValues parameter values}
+ * <P>
+ * In the Geotools implementation, the {@linkplain #getParameterValues parameter values}
  * are inferred from the {@linkplain #transform transform}. Other implementations may have
- * to overrides the {@link #getParameterValues} method.</P>
+ * to overrides the {@link #getParameterValues} method.
  *
  * @since 2.1
  * @source $URL$
@@ -73,7 +73,7 @@ public class DefaultOperation extends DefaultSingleOperation implements Operatio
     /**
      * Constructs a new operation with the same values than the specified defining
      * conversion, together with the specified source and target CRS. This constructor
-     * is used by {@link ConversionImpl} only.
+     * is used by {@link DefaultConversion} only.
      */
     DefaultOperation(final Conversion               definition,
                      final CoordinateReferenceSystem sourceCRS,
@@ -88,7 +88,7 @@ public class DefaultOperation extends DefaultSingleOperation implements Operatio
      * Constructs an operation from a set of properties. The properties given in argument
      * follow the same rules than for the {@link AbstractCoordinateOperation} constructor.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param sourceCRS The source CRS.
      * @param targetCRS The target CRS.
      * @param transform Transform from positions in the {@linkplain #getSourceCRS source CRS}
@@ -111,7 +111,7 @@ public class DefaultOperation extends DefaultSingleOperation implements Operatio
      * Returns a coordinate operation of the specified class. This method may constructs instance of
      * {@link Conversion} or {@link Transformation} among others.
      *
-     * @param properties Set of properties. Should contains at least <code>"name"</code>.
+     * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param sourceCRS The source CRS.
      * @param targetCRS The target CRS.
      * @param transform Transform from positions in the {@linkplain #getSourceCRS source CRS}
