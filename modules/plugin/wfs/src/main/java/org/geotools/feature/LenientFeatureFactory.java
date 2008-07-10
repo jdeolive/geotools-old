@@ -23,7 +23,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
-public class LenientFeatureFactory extends FeatureFactoryImpl {
+public class LenientFeatureFactory extends AbstractFeatureFactoryImpl {
 
     @Override
     public Attribute createAttribute(Object value,
