@@ -25,7 +25,8 @@ import javax.sql.DataSource;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 
-import org.geotools.feature.FeatureFactoryImpl;
+import org.geotools.feature.AbstractFeatureFactoryImpl;
+import org.geotools.feature.LenientFeatureFactoryImpl;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.FilterFactoryImpl;
@@ -130,7 +131,7 @@ public abstract class JDBCTestSupport extends TestCase {
         dataStore.setDatabaseSchema("geotools");
         dataStore.setFilterFactory(new FilterFactoryImpl());
         dataStore.setGeometryFactory(new GeometryFactory());
-        dataStore.setFeatureFactory(new FeatureFactoryImpl());
+        dataStore.setFeatureFactory(new LenientFeatureFactoryImpl());
         dataStore.setFeatureTypeFactory(new FeatureTypeFactoryImpl());
         dataStore.setFilterCapabilities(filterCapabilities);
 

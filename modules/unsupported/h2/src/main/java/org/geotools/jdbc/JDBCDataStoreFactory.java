@@ -25,7 +25,8 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.geotools.data.AbstractDataStoreFactory;
 import org.geotools.data.DataStore;
-import org.geotools.feature.FeatureFactoryImpl;
+import org.geotools.feature.AbstractFeatureFactoryImpl;
+import org.geotools.feature.LenientFeatureFactoryImpl;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.FilterFactoryImpl;
@@ -122,7 +123,7 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
         dataStore.setFilterFactory(new FilterFactoryImpl());
         dataStore.setGeometryFactory(new GeometryFactory());
         dataStore.setFeatureTypeFactory(new FeatureTypeFactoryImpl());
-        dataStore.setFeatureFactory(new FeatureFactoryImpl());
+        dataStore.setFeatureFactory(new LenientFeatureFactoryImpl());
 
         //filter capabilities
         dataStore.setFilterCapabilities(createFilterCapabilities());
