@@ -35,7 +35,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @since 2.5
  *
  */
-public class DefaultFeatureFactory extends FeatureFactoryImpl {
+public class DefaultFeatureFactory extends AbstractFeatureFactoryImpl {
 
 	public SimpleFeature createSimpleFeature(List properties, SimpleFeatureType type, String id) {
 		return new DefaultFeature( properties, (DefaultFeatureType) type, id );
