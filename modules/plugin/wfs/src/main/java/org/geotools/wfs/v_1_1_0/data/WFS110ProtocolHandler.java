@@ -625,10 +625,13 @@ public class WFS110ProtocolHandler extends WFSProtocolHandler {
                 supportedFilter = filter;
                 unsupportedFilter = Filter.EXCLUDE;
             } else {
-                supportedFilter = Filter.INCLUDE;
                 // HACK: by now just sent the whole filter to the WFS
-                // supportedFilter = filter;
+                //supportedFilter = filter;
 
+                //Double HACK: cubewerx does not seem to understand the geometry filters
+                //we send other than bbox. By now grab all the features and apply the filter
+                //at runtime. This needs to be fixed/worked around asap though.
+                supportedFilter = Filter.INCLUDE;
                 unsupportedFilter = filter;
             }
         }
