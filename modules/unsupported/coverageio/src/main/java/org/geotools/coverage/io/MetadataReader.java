@@ -536,9 +536,9 @@ public class MetadataReader {
         final int dimension            = geometry.getDimension();
         final GeneralEnvelope envelope = new GeneralEnvelope(dimension);
         for (int i=0; i<dimension; i++) {
-            final NumberRange range = geometry.getOrdinateRange(i);
-            final double      min   = range   .getMinimum();
-            final double      max   = range   .getMaximum();
+            final NumberRange<Double> range = geometry.getOrdinateRange(i);
+            final double              min   = range   .getMinimum();
+            final double              max   = range   .getMaximum();
             try {
                 envelope.setRange(i, min, max);
             } catch (IndexOutOfBoundsException e) {

@@ -18,6 +18,7 @@ package org.geotools.coverage.io;
 
 import javax.measure.unit.Unit;
 import org.geotools.image.io.metadata.GeographicMetadata;
+import org.geotools.image.io.metadata.ImageReferencing;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.CRSUtilities;
 import org.opengis.coverage.grid.GridCoverage;
@@ -26,7 +27,6 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.datum.Datum;
 import org.opengis.referencing.datum.Ellipsoid;
-import org.opengis.referencing.operation.OperationMethod;
 import org.opengis.referencing.operation.Projection;
 
 
@@ -46,7 +46,40 @@ import org.opengis.referencing.operation.Projection;
  *
  * @since 2.5
  */
-public class MetadataWriter {
+class MetadataWriter {
+    /**
+     * The {@linkplain GeographicMetadata geographic metadata} in which different
+     * values will be written.
+     */
+    private final GeographicMetadata metadata;
+
+    /**
+     *
+     * @param metadata A {@linkplain GeographicMetadata geographic metadata}. Can be
+     *                 {@code null} in this case a default metadata will be instanciated.
+     */
+    public MetadataWriter(final GeographicMetadata metadata) {
+        this.metadata = (metadata != null) ? metadata : new GeographicMetadata();
+    }
+
+    /**
+     * Fills the {@linkplain GeographicMetadata metadata tree} with information found
+     * from a {@linkplain GridCoverage grid coverage}.
+     *
+     * @param coverage A {@linkplain GridCoverage grid coverage}. Should not be {@code null}.
+     */
+    public void fillMetadataTree(final GridCoverage coverage) {
+        final ImageReferencing referencing = metadata.getReferencing();
+        final CoordinateReferenceSystem crs = getCoordinateReferenceSystem(coverage);
+        final Datum datum = getDatum(coverage);
+        final Ellipsoid ellipsoid = getEllipsoid(coverage);
+        final Projection projection = getProjection(coverage);
+        referencing.setCoordinateReferenceSystem(crs.getName().getCode(), null);
+        referencing.setDatum(datum.getName().getCode(), null);
+        referencing.setEllipsoidName(ellipsoid.getName().getCode());
+        referencing.setProjectionName(projection.getName().getCode());
+    }
+
     /**
      * Returns the {@linkplain CoordinateReferenceSystem coordinate reference system}
      * from a {@linkplain GridCoverage grid coverage}.

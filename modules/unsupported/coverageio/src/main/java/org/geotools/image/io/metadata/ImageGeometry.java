@@ -175,7 +175,7 @@ public class ImageGeometry extends MetadataAccessor {
      *
      * @param dimension The dimension index, from 0 inclusive to {@link #getDimension} exclusive.
      */
-    public NumberRange getOrdinateRange(final int dimension) {
+    public NumberRange<Double> getOrdinateRange(final int dimension) {
         final double lower = (lowerCorner != null) ?
             lowerCorner.getUserObject(double[].class)[dimension] : Double.NaN;
         final double upper = (upperCorner != null) ?
