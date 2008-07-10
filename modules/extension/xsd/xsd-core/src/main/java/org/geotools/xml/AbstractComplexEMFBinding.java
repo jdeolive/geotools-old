@@ -236,16 +236,29 @@ public abstract class AbstractComplexEMFBinding extends AbstractComplexBinding {
                     EStructuralFeature feature = EMFUtils.feature(eObject, property);
                     Class target = feature.getEType().getInstanceClass();
 
-                    if ((value != null) && !value.getClass().isAssignableFrom(target)) {
-                        //TODO: log this
-                        value = Converters.convert(value, target);
+                    Object converted = convert( value, target, e );
+                    try {
+                        EMFUtils.set(eObject, property, converted);
                     }
-
-                    if (value == null) {
-                        //just throw the oringinal exception
-                        throw e;
+                    catch( ClassCastException e1 ) {
+                        //try to convert based on method return type
+                        //JD: this is a hack
+                        try {
+                            Method g = eObject.getClass().getMethod( "get" +  
+                                property.substring(0,1).toUpperCase() + property.substring(1), null);
+                            if ( g == null ) {
+                                throw e;
+                            }
+                            
+                            target = g.getReturnType();
+                            converted = convert( value, target, e );
+                            
+                            EMFUtils.set( eObject, property, converted );   
+                        } 
+                        catch (Exception e2) {
+                            throw e;
+                        }
                     }
-                    EMFUtils.set(eObject, property, value);
                 }
             } 
             else {
@@ -273,6 +286,26 @@ public abstract class AbstractComplexEMFBinding extends AbstractComplexBinding {
        
     }
 
+    /**
+     * Helper method to convert a value, throwing an exception when it cant be 
+     * converted. 
+     *
+     */
+    private Object convert( Object value, Class target, RuntimeException toThrow ) throws RuntimeException {
+        Object converted = value;
+        if ((converted != null) && !converted.getClass().isAssignableFrom(target)) {
+            //TODO: log this
+            converted = Converters.convert(value, target);
+        }
+
+        if (converted == null) {
+            //just throw the oringinal exception
+            throw toThrow;
+        }
+        
+        return converted;
+    }
+    
     /**
      * Uses EMF reflection dynamically return the property with the specified
      * name.
