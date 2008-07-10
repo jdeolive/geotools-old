@@ -141,7 +141,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     /**
      * Renderer used by this canvas
      */
-    private final AbstractRenderer renderer;
+    private AbstractRenderer renderer = null;
 
     /**
      * The title assigned to this canvas, or {@code null} if none. It may be either an instance
@@ -156,12 +156,9 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * @param renderer the renderer for this canvas
      * @param hints   The initial set of hints, or {@code null} if none.
      */
-    protected AbstractCanvas(final AbstractRenderer renderer, final Hints hints) {
+    protected AbstractCanvas(final Hints hints) {
         this.canvasListeners = new EventListenerList();
         this.hints = new Hints(hints);
-        this.renderer = renderer;
-        this.renderer.setCanvas(this);
-        this.renderer.addRendererListener(rendererListener);
     }
 
     /**
@@ -194,11 +191,24 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     }
 
     
+    public void setRenderer(AbstractRenderer renderer){
+        
+        if(this.renderer != null){
+            this.renderer.removeRendererListener(rendererListener);
+        }
+        
+        this.renderer = renderer;
+        
+        if(this.renderer != null){
+            this.renderer.addRendererListener(rendererListener);
+        }
+        
+    }
+    
     public AbstractRenderer getRenderer() {
         return renderer;
     }
 
-    
     /**
      * Clears all cached data. Invoking this method may help to release some resources for other
      * applications. It should be invoked when we know that the map is not going to be rendered
@@ -210,7 +220,9 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      */
     @Override
     public void clearCache() {
-        renderer.clearCache();
+        
+        if(renderer != null) renderer.clearCache();
+        
         super.clearCache();
     }
 
@@ -228,7 +240,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      */
     @Override
     public synchronized void dispose() {
-        renderer.dispose();
+        if(renderer != null) renderer.dispose();
         super.dispose();
     }
 

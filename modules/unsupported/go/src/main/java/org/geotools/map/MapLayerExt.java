@@ -16,10 +16,11 @@
  */
 package org.geotools.map;
 
+import java.util.ArrayList;
+import org.geotools.display.renderer.GraphicBuilder;
 import java.util.Collection;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.memory.CollectionSource;
@@ -29,17 +30,20 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.styling.Style;
 import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.display.primitive.Graphic;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.operation.TransformException;
 
 /**
- *
- * @author Johann Sorel
+ * TODO : remove this class in 2.6.x, merge "graphicbuilders" with 
+ * the MapLayer interface in render module DefaultMapLayer class.
+ * 
+ * @author Johann Sorel (Geomatys)
  */
 public class MapLayerExt extends DefaultMapLayer {
 
-    private final Map<Class,GraphicBuilder> builders = new HashMap<Class,GraphicBuilder>();
+    private final List<GraphicBuilder> builders = new ArrayList<GraphicBuilder>();
     
     
     public MapLayerExt(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Style style,String title) {
@@ -105,23 +109,32 @@ public class MapLayerExt extends DefaultMapLayer {
         return catalog;
     }
     
-    
-    public void addGraphicBuilder(Class c, GraphicBuilder builder){
-        builders.put(c, builder);
+    /**
+     * Returns the living list of all graphic builders linked to this 
+     * map layer.
+     * 
+     * @return living list of graphic builders
+     */
+    public List<GraphicBuilder> graphicbuilders(){
+        return builders;
     }
     
     /**
      * A layer may provide a graphic builder, this enable
      * special representations, like wind arrows for coverages.
+     * A layer may have different builder for each kind of Graphic implementation.
+     * This enable the possibility to have custom made graphic representation
+     * and several builder, for 2D,3D or else...
      * 
-     * @param <T>
-     * @param classe
-     * @return
+     * @param type : the graphic type wanted
+     * @return graphicBuilder<? extends type> or null
      */
-    public GraphicBuilder getGraphicBuilder(Class classe){
+    public <T extends Graphic> GraphicBuilder<? extends T> getGraphicBuilder( Class<T> type ){
         
-        if(builders.containsKey(classe)){
-            return builders.get(classe);
+        for(GraphicBuilder builder : builders){
+            if(type.isAssignableFrom(builder.getGraphicType())){
+                return builder;
+            }
         }
         
         return null;

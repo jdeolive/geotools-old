@@ -128,8 +128,8 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      * @see #setTypicalCellDimension
      * @see #setZOrderHint
      */
-    protected ReferencedGraphic2D() {
-        super(DefaultEngineeringCRS.GENERIC_2D);
+    protected ReferencedGraphic2D(final Canvas canvas) {
+        this(canvas,DefaultEngineeringCRS.GENERIC_2D);
     }
 
     /**
@@ -144,10 +144,10 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      * @see #setTypicalCellDimension
      * @see #setZOrderHint
      */
-    protected ReferencedGraphic2D(final CoordinateReferenceSystem crs)
+    protected ReferencedGraphic2D(final Canvas canvas, final CoordinateReferenceSystem crs)
             throws IllegalArgumentException
     {
-        super(to2D(crs));
+        super(canvas,to2D(crs));
     }
 
     /**

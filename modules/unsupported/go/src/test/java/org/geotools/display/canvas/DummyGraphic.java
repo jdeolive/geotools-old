@@ -33,7 +33,7 @@ final class DummyGraphic extends ReferencedGraphic implements Cloneable {
      * Creates a dummy graphic.
      */
     DummyGraphic() {
-        super(DefaultEngineeringCRS.CARTESIAN_2D);
+        super(null,DefaultEngineeringCRS.CARTESIAN_2D);
     }
 
     

@@ -26,6 +26,7 @@ import org.geotools.display.primitive.ReferencedGraphic2D;
 import org.geotools.factory.Hints;
 import org.geotools.resources.UnmodifiableArrayList;
 
+import org.opengis.display.canvas.Canvas;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.display.renderer.Renderer;
 import org.opengis.display.renderer.RendererEvent;
@@ -66,8 +67,8 @@ public abstract class AbstractRenderer2D extends AbstractRenderer implements Ren
     /**
      * Create a Default Abstract 2D renderer with no particular hints.
      */
-    protected AbstractRenderer2D(){
-        super(null);
+    protected AbstractRenderer2D(Canvas canvas){
+        this(canvas,null);
     }
 
     /**
@@ -76,12 +77,16 @@ public abstract class AbstractRenderer2D extends AbstractRenderer implements Ren
      * @param hints Hints object or null, if null the renderer will create
      * an empty Hints object.
      */
-    protected AbstractRenderer2D(Hints hints){
-        super(hints);
+    protected AbstractRenderer2D(Canvas canvas, Hints hints){
+        super(canvas,hints);
     }
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Prepare the sorted graphic list if event is a Z order change.
+     * or fire events if it's a visibility or display bounds event.
+     * </p>
      */
     @Override
     protected void graphicPropertyChanged(final Graphic graphic, final PropertyChangeEvent event){
@@ -135,7 +140,7 @@ public abstract class AbstractRenderer2D extends AbstractRenderer implements Ren
         final List<Graphic> oldGraphics = sortedGraphics; // May be null.
         graphic = super.add(graphic);
         sortedGraphics = null;
-        assert oldGraphics == null || getGraphics().containsAll(oldGraphics) : oldGraphics;
+        assert oldGraphics == null || graphics().containsAll(oldGraphics) : oldGraphics;
         return graphic;
     }
 
@@ -151,7 +156,7 @@ public abstract class AbstractRenderer2D extends AbstractRenderer implements Ren
         final List<Graphic> oldGraphics = sortedGraphics; // May be null.
         super.remove(graphic);
         sortedGraphics = null;
-        assert oldGraphics==null || oldGraphics.containsAll(getGraphics()) : oldGraphics;
+        assert oldGraphics==null || oldGraphics.containsAll(graphics()) : oldGraphics;
     }
 
     /**
@@ -167,6 +172,5 @@ public abstract class AbstractRenderer2D extends AbstractRenderer implements Ren
         sortedGraphics = null;
         clearCache();
     }
-
 
 }

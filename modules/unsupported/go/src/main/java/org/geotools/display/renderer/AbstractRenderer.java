@@ -30,6 +30,7 @@ import javax.swing.event.EventListenerList;
 import org.geotools.display.canvas.AbstractCanvas;
 import org.geotools.display.canvas.DisplayObject;
 import org.geotools.display.primitive.AbstractGraphic;
+import org.geotools.display.primitive.ReferencedGraphic;
 import org.geotools.factory.Hints;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
@@ -106,13 +107,14 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      */
     protected final EventListenerList rendererListeners = new EventListenerList(); 
     
+    protected final Canvas canvas;
     
     
     /**
      * Create a Default Abstract renderer with no particular hints.
      */
-    protected AbstractRenderer(){
-        this(null);
+    protected AbstractRenderer(Canvas canvas){
+        this(canvas,null);
     }
 
     /**
@@ -121,7 +123,10 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * @param hints Hints object or null, if null the renderer will create
      * an empty Hints object.
      */
-    protected AbstractRenderer(Hints hints){
+    protected AbstractRenderer(Canvas canvas, Hints hints){
+        if(canvas == null) throw new NullPointerException("Canvas can not be null");
+        
+        this.canvas = canvas;
         this.hints = (hints != null) ? hints : new Hints() ;
     }
                 
@@ -129,11 +134,21 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * Invoked automatically when a graphic registered in this renderer changed. Subclasses can
      * override this method if they need to react to some graphic change events, but should
      * always invoke {@code super.graphicPropertyChanged(graphic, event)}.
-     *
+     * <p>
+     * Fire a graphic changed event if it's a graphic visibility property event.
+     * </p>
+     * 
      * @param graphic The graphic that changed.
      * @param event   The property change event.
      */
     protected void graphicPropertyChanged(final Graphic graphic, final PropertyChangeEvent event){
+        final String propertyName = event.getPropertyName();
+        
+        if(propertyName.equals(AbstractGraphic.VISIBLE_PROPERTY)){
+            RendererEvent rendererEvent = new DefaultRendererEvent(this, graphic);
+            fireGraphicChanged(rendererEvent);
+        }
+        
     }
         
     /**
@@ -142,7 +157,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     @Override
     public void clearCache() {
         assert Thread.holdsLock(this);
-        final Collection<Graphic> graphics = getGraphics();
+        final Collection<Graphic> graphics = graphics();
         for (final Graphic graphic : graphics) {
             if (graphic instanceof DisplayObject) {
                 ((DisplayObject) graphic).clearCache();
@@ -156,7 +171,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      */
     @Override
     public void dispose() {
-        final Collection<Graphic> graphics = getGraphics();
+        final Collection<Graphic> graphics = graphics();
         removeAll();
         for (final Graphic graphic : graphics) {
             graphic.dispose();
@@ -164,13 +179,19 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
         super.dispose();
     }
     
-    
-    
-    //------------ graphic methods ---------------------------------------------/**
     /**
      * {@inheritDoc}
      */
-    public synchronized Collection<Graphic> getGraphics() {
+    public Canvas getCanvas(){
+        return canvas;
+    }
+    
+    
+    //------------ graphic methods ---------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized Collection<Graphic> graphics() {
         return userGraphics;
     }
     
@@ -225,7 +246,6 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
 //                        }
 
                     }
-                    candidate.setCanvas(getCanvas());
                     candidate.addPropertyChangeListener(graphicListener);
                 }
             }
@@ -279,7 +299,6 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
                 candidate.removePropertyChangeListener(graphicListener);
                 graphics.remove(candidate);
                 candidate.clearCache();
-                candidate.setCanvas(null);
                 return;
             }
 
@@ -297,7 +316,6 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
             assert Thread.holdsLock(candidate.getTreeLock());
             candidate.removePropertyChangeListener(graphicListener);
             candidate.clearCache();
-            candidate.setCanvas(null);
         } else {
             if (!graphics.containsKey(graphic)) {
                 return;
@@ -332,7 +350,6 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
                 assert Thread.holdsLock(candidate.getTreeLock());
                 candidate.removePropertyChangeListener(graphicListener);
                 candidate.clearCache();
-                candidate.setCanvas(null);
             }
         }
                 

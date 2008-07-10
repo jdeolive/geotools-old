@@ -55,17 +55,11 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * {@linkplain AbstractGraphic#getVisible graphic visibility} changed.
      */
     public static final String VISIBLE_PROPERTY = "visible";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AbstractGraphic#getCanvas graphic canvas} changed.
-     */
-    public static final String CANVAS_PROPERTY = "canvas";
     
     /**
      * The canvas that own this graphic, or {@code null} if none.
      */
-    protected Canvas canvas;
+    protected final Canvas canvas;
 
     /**
      * The name assigned to this graphic.
@@ -90,7 +84,9 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * (i.e. this graphic is drawn on top of everything else). Subclasses should invokes setters
      * methods in order to define properly this graphic properties.
      */
-    protected AbstractGraphic() {
+    protected AbstractGraphic(final Canvas canvas) {
+        if(canvas == null) throw new NullPointerException("Canvas can not be null");
+        this.canvas = canvas;
     }
 
     /**
@@ -101,20 +97,6 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      */
     public Canvas getCanvas() {
         return canvas;
-    }
-
-    /**
-     * Set the canvas to the specified value.
-     *
-     * @param canvas The new canvas that this graphic listen to.
-     */
-    public void setCanvas(final Canvas canvas) {
-        final Canvas old;
-        synchronized (this) {
-            old = this.canvas;
-            this.canvas = canvas;
-        }
-        propertyListeners.firePropertyChange(CANVAS_PROPERTY, old, canvas);
     }
 
     /**
@@ -226,7 +208,6 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
     public AbstractGraphic clone() throws CloneNotSupportedException {
         assert Thread.holdsLock(getTreeLock());
         final AbstractGraphic clone = (AbstractGraphic) super.clone();
-        clone.canvas = null;
         clone.parent = null;
         return clone;
     }

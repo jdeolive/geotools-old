@@ -16,6 +16,7 @@
  */
 package org.geotools.display.renderer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import org.opengis.display.primitive.Graphic;
@@ -32,7 +33,7 @@ class DefaultRendererEvent extends RendererEvent{
     /**
      * graphics concerned by the renderer event.
      */
-    private Collection<Graphic> graphics = null;
+    private final Collection<Graphic> graphics;
     
     /**
      * Create a Renderer Event with a collection of graphic objects.
@@ -40,9 +41,9 @@ class DefaultRendererEvent extends RendererEvent{
      * @param renderer : the renderer who generate this event
      * @param graphics : graphics concerned by this event
      */
-    DefaultRendererEvent(Renderer renderer, Collection<Graphic> graphics){
+    DefaultRendererEvent(final Renderer renderer, final Collection<Graphic> graphics){
         super(renderer);
-        this.graphics = graphics;
+        this.graphics = new ArrayList<Graphic>(graphics);
     }
     
     /**
@@ -51,7 +52,7 @@ class DefaultRendererEvent extends RendererEvent{
      * @param renderer : the renderer who generate this event
      * @param graphic : graphics concerned by this event
      */
-    DefaultRendererEvent(Renderer renderer, Graphic graphic){
+    DefaultRendererEvent(final Renderer renderer, final Graphic graphic){
         super(renderer);
         this.graphics = Collections.singleton(graphic);
     }

@@ -143,8 +143,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      *
      * @param renderer Renderer to use with this canvas
      */
-    protected ReferencedCanvas2D(final AbstractRenderer renderer) {
-        super(renderer,2);
+    protected ReferencedCanvas2D() {
+        super(2);
         // The following must be invoked here instead than in super-class because
         // 'normalizeToDots' is not yet assigned when the super-class constructor
         // is run.

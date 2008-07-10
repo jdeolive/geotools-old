@@ -90,9 +90,9 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
      * @see #setTypicalCellDimension
      * @see #setZOrderHint
      */
-    protected ReferencedGraphic(final CoordinateReferenceSystem crs)
-            throws IllegalArgumentException
-    {
+    protected ReferencedGraphic(final Canvas canvas, final CoordinateReferenceSystem crs)
+            throws IllegalArgumentException {
+        super(canvas);
         if (crs == null) {
             throw new IllegalArgumentException(Errors.getResources(getLocale())
                       .getString(ErrorKeys.ILLEGAL_ARGUMENT_$2, "crs", crs));

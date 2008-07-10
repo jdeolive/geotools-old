@@ -37,7 +37,7 @@ final class DummyCanvas extends ReferencedCanvas2D {
      * Creates a new canvas.
      */
     DummyCanvas() {
-        super(null);
+        super();
 //        super(null); ----------------ADDED TO COMPILE -----------------------------------------
     }
 

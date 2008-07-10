@@ -25,6 +25,7 @@ import java.util.logging.LogRecord;
 import java.beans.PropertyChangeEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
+import java.util.Collections;
 import javax.swing.Action;
 
 import org.opengis.display.primitive.Graphic;
@@ -220,28 +221,25 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     /**
      * Creates an initially empty canvas with a default CRS of the specified number of dimensions.
      *
-     * @param renderer
      * @param  dimension The number of dimensions, which must be 2 or 3.
      * @throws IllegalArgumentException if the specified number of dimensions is not supported.
      */
-    protected ReferencedCanvas(final AbstractRenderer renderer, final int dimension)
+    protected ReferencedCanvas(final int dimension)
             throws IllegalArgumentException
     {
-        this(renderer,getDefaultCRS(dimension), null);
+        this(getDefaultCRS(dimension), null);
     }
 
     /**
      * Creates an initially empty canvas with the specified objective CRS.
      *
-     * @param renderer
      * @param objectiveCRS The initial objective CRS.
      * @param hints        The initial set of hints, or {@code null} if none.
      */
-    protected ReferencedCanvas(final AbstractRenderer renderer,
-                               final CoordinateReferenceSystem objectiveCRS,
+    protected ReferencedCanvas(final CoordinateReferenceSystem objectiveCRS,
                                final Hints hints)
     {
-        super(renderer, hints);
+        super(hints);
         this.graphicsEnvelope = new GeneralEnvelope(objectiveCRS);
         this.graphicsEnvelope.setToNull();
     }
@@ -338,65 +336,67 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
          * will be processed. Other kind of graphics will be ignored, since we don't know how to
          * handle them.
          */
-        final Collection<Graphic> graphics = getRenderer().getGraphics();
-        for (final Graphic candidate : graphics) {
-            if (!(candidate instanceof ReferencedGraphic)) {
-                continue;
-            }
-            final ReferencedGraphic graphic = (ReferencedGraphic) candidate;
-            final double[] cellSize = graphic.getTypicalCellDimension(position);
-            if (cellSize == null) {
-                continue;
-            }
-            /*
-             * Checks the graphic CRS, which should be the same than the objective CRS
-             * in most case.
-             */
-            final CoordinateReferenceSystem graphicCRS = graphic.getObjectiveCRS();
-            final MathTransform transform;
-            try {
-                transform = getMathTransform(graphicCRS, objectiveCRS,
-                        ReferencedCanvas.class, "getTypicalCellDimension");
-            } catch (FactoryException exception) {
-                handleException("getTypicalCellDimension", exception);
-                continue;  // Ignores this graphic and continue...
-            }
-            if (!transform.isIdentity()) try {
+        if(getRenderer() != null){
+            final Collection<Graphic> graphics = getRenderer().graphics();
+            for (final Graphic candidate : graphics) {
+                if (!(candidate instanceof ReferencedGraphic)) {
+                    continue;
+                }
+                final ReferencedGraphic graphic = (ReferencedGraphic) candidate;
+                final double[] cellSize = graphic.getTypicalCellDimension(position);
+                if (cellSize == null) {
+                    continue;
+                }
                 /*
-                 * In theory, the Graphic should use the same CRS than this Canvas. However as
-                 * a safety, we will check for coordinate transformations anyway.  We create a
-                 * cell at the position specified in argument and transform it to this CRS.
+                 * Checks the graphic CRS, which should be the same than the objective CRS
+                 * in most case.
                  */
-                GeneralEnvelope cellPrototype = new GeneralEnvelope(graphicCRS);
-                position = objectivePosition.inverseTransform(graphicCRS);
-                for (int j=position.getDimension(); --j>=0;) {
-                    final double center = position.getOrdinate(j);
-                    final double width  = (j<cellSize.length) ? cellSize[j] : 0;
-                    cellPrototype.setRange(j, center-width, center+width);
+                final CoordinateReferenceSystem graphicCRS = graphic.getObjectiveCRS();
+                final MathTransform transform;
+                try {
+                    transform = getMathTransform(graphicCRS, objectiveCRS,
+                            ReferencedCanvas.class, "getTypicalCellDimension");
+                } catch (FactoryException exception) {
+                    handleException("getTypicalCellDimension", exception);
+                    continue;  // Ignores this graphic and continue...
                 }
-                cellPrototype = CRS.transform(transform, cellPrototype);
-                for (int j=Math.min(cellSize.length, cellPrototype.getDimension()); --j>=0;) {
-                    cellSize[j] = cellPrototype.getLength(j);
+                if (!transform.isIdentity()) try {
+                    /*
+                     * In theory, the Graphic should use the same CRS than this Canvas. However as
+                     * a safety, we will check for coordinate transformations anyway.  We create a
+                     * cell at the position specified in argument and transform it to this CRS.
+                     */
+                    GeneralEnvelope cellPrototype = new GeneralEnvelope(graphicCRS);
+                    position = objectivePosition.inverseTransform(graphicCRS);
+                    for (int j=position.getDimension(); --j>=0;) {
+                        final double center = position.getOrdinate(j);
+                        final double width  = (j<cellSize.length) ? cellSize[j] : 0;
+                        cellPrototype.setRange(j, center-width, center+width);
+                    }
+                    cellPrototype = CRS.transform(transform, cellPrototype);
+                    for (int j=Math.min(cellSize.length, cellPrototype.getDimension()); --j>=0;) {
+                        cellSize[j] = cellPrototype.getLength(j);
+                    }
+                } catch (TransformException exception) {
+                    handleException("getTypicalCellDimension", exception);
+                    continue;  // Ignores this graphic and continue...
                 }
-            } catch (TransformException exception) {
-                handleException("getTypicalCellDimension", exception);
-                continue;  // Ignores this graphic and continue...
+                /*
+                 * Cell size is now in terms of Canvas objective CRS.
+                 * Search the smallest values along each dimension.
+                 */
+                for (int j=Math.min(size.length, cellSize.length); --j>=0;) {
+                    final double c = cellSize[j];
+                    if (c>0 && c<size[j]) {
+                        size[j] = c;
+                    }
+                }
             }
-            /*
-             * Cell size is now in terms of Canvas objective CRS.
-             * Search the smallest values along each dimension.
-             */
-            for (int j=Math.min(size.length, cellSize.length); --j>=0;) {
-                final double c = cellSize[j];
-                if (c>0 && c<size[j]) {
-                    size[j] = c;
+            for (int i=size.length; --i>=0;) {
+                final double c = size[i];
+                if (Double.isInfinite(c)) {
+                    return null;
                 }
-            }
-        }
-        for (int i=size.length; --i>=0;) {
-            final double c = size[i];
-            if (Double.isInfinite(c)) {
-                return null;
             }
         }
         return size;
@@ -818,7 +818,10 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         graphicsEnvelope.setToNull();
         CoordinateReferenceSystem lastCRS = null;
         MathTransform           transform = null;
-        final Collection<Graphic>  graphics = getRenderer().getGraphics();
+        
+        final Collection<Graphic>  graphics;
+        if(getRenderer() != null) graphics = getRenderer().graphics();
+        else graphics = Collections.EMPTY_LIST;
 
         for (final Graphic candidate : graphics) {
             if (!(candidate instanceof ReferencedGraphic)) {
