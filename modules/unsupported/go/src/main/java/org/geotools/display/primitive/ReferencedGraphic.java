@@ -221,17 +221,21 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
     private MathTransform getMathTransform(final CoordinateReferenceSystem sourceCRS,
                                            final CoordinateReferenceSystem targetCRS,
                                            final String sourceMethodName)
-            throws TransformException
-    {
+            throws TransformException{
+
         try {
-            final Canvas owner = getCanvas();
-            if (owner instanceof ReferencedCanvas) {
-                return ((ReferencedCanvas) owner).getMathTransform(sourceCRS, targetCRS,
-                       ReferencedGraphic.class, sourceMethodName);
-            } else {
-                return ReferencingFactoryFinder.getCoordinateOperationFactory(null)
-                       .createOperation(sourceCRS, targetCRS).getMathTransform();
-            }
+
+
+            return CRS.findMathTransform(sourceCRS, targetCRS, true);
+
+//            final Canvas owner = getCanvas();
+//            if (owner instanceof ReferencedCanvas) {
+//                return ((ReferencedCanvas) owner).getMathTransform(sourceCRS, targetCRS,
+//                       ReferencedGraphic.class, sourceMethodName);
+//            } else {
+//                return ReferencingFactoryFinder.getCoordinateOperationFactory(null)
+//                       .createOperation(sourceCRS, targetCRS).getMathTransform();
+//            }
         } catch (FactoryException exception) {
             throw new TransformException(Errors.getResources(getLocale()).getString(
                         ErrorKeys.ILLEGAL_COORDINATE_REFERENCE_SYSTEM), exception);
@@ -284,11 +288,16 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
     protected void setEnvelope(final Envelope newEnvelope) throws TransformException {
         final GeneralEnvelope old;
         synchronized (getTreeLock()) {
+            
+            
             CoordinateReferenceSystem sourceCRS = canvas.getState().getObjectiveCRS();
             CoordinateReferenceSystem targetCRS = newEnvelope.getCoordinateReferenceSystem();
             if (targetCRS == null) {
                 targetCRS = sourceCRS;
             }
+            
+            //-------------------------------- strange behavior
+            
             final MathTransform mt;
             mt = getMathTransform(sourceCRS, targetCRS, "setEnvelope");
             old = new GeneralEnvelope(envelope);

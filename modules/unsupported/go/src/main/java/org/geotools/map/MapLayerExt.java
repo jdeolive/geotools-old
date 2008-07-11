@@ -29,6 +29,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.styling.Style;
+import org.geotools.styling.StyleBuilder;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.feature.simple.SimpleFeature;
@@ -95,7 +96,12 @@ public class MapLayerExt extends DefaultMapLayer {
             throws TransformException, FactoryRegistryException, SchemaException, IllegalAttributeException {
         super(coverage,style,title);
     }
-    
+
+
+    public MapLayerExt(GridCoverage coverage) throws TransformException, FactoryRegistryException, SchemaException, IllegalAttributeException{
+        this(coverage, new StyleBuilder().createStyle());
+    }
+
     
     //---------------------NEW OGC SE Styles------------------------------------------------------------------------
     
