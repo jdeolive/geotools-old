@@ -46,6 +46,11 @@ import org.geotools.ows.ServiceException;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -127,10 +132,36 @@ public class OnlineWPSTest extends TestCase {
 		assertNotNull(response.getProcessDesc());
 	}
 	
-	public void testExecuteProcess1() throws ServiceException, IOException, ParseException {
+	/**
+	 * run multiple buffer tests with various geometry types
+	 * @throws ParseException 
+	 * @throws IOException 
+	 * @throws ServiceException 
+	 */
+	public void testExecuteProcessBufferLocal() throws ParseException, ServiceException, IOException {
 		
-		// don't run the test if the server is not up
-		if (!runTests) return;		
+		// don't run the test if the server is not up or we aren't doing local tests
+		if (!runTests || !useLocalServer) return;
+		
+		// create the geometries to use for input
+        WKTReader reader = new WKTReader( new GeometryFactory() );
+        Geometry geom1 = (Polygon) reader.read("POLYGON((20 10, 30 0, 40 10, 30 20, 20 10))");
+        Geometry geom2 = (Point) reader.read("POINT (160 200)");
+        Geometry geom3 = (LineString) reader.read("LINESTRING (100 240, 220 140, 380 240, 480 220)");
+        Geometry geom4 = (MultiLineString) reader.read("MULTILINESTRING ((140 280, 180 180, 400 260), (340 120, 160 100, 80 200))");
+        Geometry geom5 = (MultiPoint) reader.read("MULTIPOINT (180 180, 260 280, 340 200)");
+        Geometry geom6 = (MultiPolygon) reader.read("MULTIPOLYGON (((160 320, 120 140, 360 140, 320 340, 160 320), (440 260, 580 140, 580 240, 440 260)))");
+        
+        // run the local buffer execute test for each geom input
+        runExecuteProcessBufferLocal(geom1);
+        runExecuteProcessBufferLocal(geom2);
+        runExecuteProcessBufferLocal(geom3);
+        runExecuteProcessBufferLocal(geom4);
+        runExecuteProcessBufferLocal(geom5);
+        runExecuteProcessBufferLocal(geom6);
+	}
+	
+	private void runExecuteProcessBufferLocal(Geometry geom1) throws ServiceException, IOException, ParseException {
 		
 		WPSCapabilitiesType capabilities = wps.getCapabilities();
 		
@@ -167,34 +198,37 @@ public class OnlineWPSTest extends TestCase {
 		exeRequest.setIdentifier(processIden);
 		
 		// set input data
-		if (useLocalServer) {
-			setLocalInputData1(exeRequest, processDesc);
-		}
-		else {
-			set52NInputData(exeRequest, processDesc);
-		}
+		setLocalInputDataBufferPoly(exeRequest, processDesc, geom1);
 		
 		// send the request
 		ExecuteProcessResponse response = wps.issueRequest(exeRequest);
 		
 		// response should not be null and no exception should occur.
 		assertNotNull(response);
-		assertNotNull(response.getExecuteResponse());
+		ExecuteResponseType executeResponse = response.getExecuteResponse();
+		assertNotNull(executeResponse);
 		ExceptionReportType exceptionResponse = response.getExceptionResponse();
 		assertNull(exceptionResponse);
 		
+		// check that the result is expected
+		Geometry expected = geom1.buffer(350);
+		EList outputs = executeResponse.getProcessOutputs().getOutput();
+		OutputDataType output = (OutputDataType) outputs.get(0);
+		Geometry result = (Geometry) output.getData().getComplexData().getData().get(0);
+//		System.out.println(expected);
+//		System.out.println(result);
+//		assertTrue(expected.equals(result));
+		
 	}
 	
-	private void setLocalInputData1(ExecuteProcessRequest exeRequest, 
-			ProcessDescriptionsType processDesc) throws ParseException {
+	private void setLocalInputDataBufferPoly(ExecuteProcessRequest exeRequest, 
+			ProcessDescriptionsType processDesc, Geometry geom1) throws ParseException {
 
 		// this process takes 2 input, a geometry and a buffer amount.
 		ProcessDescriptionType pdt = (ProcessDescriptionType) processDesc.getProcessDescription().get(0);
 		InputDescriptionType idt = (InputDescriptionType) pdt.getDataInputs().getInput().get(0);
 		
-		// create a polygon for the input
-        WKTReader reader = new WKTReader( new GeometryFactory() );
-        Geometry geom1 = (Polygon) reader.read("POLYGON((20 10, 30 0, 40 10, 30 20, 20 10))");
+		// create input buffer
         int bufferAmnt = 350;
         
         // create and set the input on the exe request
@@ -224,6 +258,59 @@ public class OnlineWPSTest extends TestCase {
         	list.add(input);        	
     		exeRequest.addInput(idt.getIdentifier().getValue(), list);	
         }
+	}	
+	
+	public void testExecuteProcessBuffer52N() throws ServiceException, IOException, ParseException {
+		
+		// don't run the test if the server is not up or if we are doing local tests
+		if (!runTests || useLocalServer) return;		
+		
+		WPSCapabilitiesType capabilities = wps.getCapabilities();
+		
+		// get the first process and execute it
+		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
+		EList processes = processOfferings.getProcess();
+		//ProcessBriefType process = (ProcessBriefType) processes.get(0);
+
+		// does the server contain the specific process I want
+		boolean found = false;
+		Iterator iterator = processes.iterator();
+		while (iterator.hasNext()) {
+			ProcessBriefType process = (ProcessBriefType) iterator.next();
+			if (process.getIdentifier().getValue().equalsIgnoreCase(processIden)) {
+				found =true;
+				break;
+			}
+		}
+		
+		// exit test if my process doesn't exist on server
+		if (!found) {
+			return;
+		}
+		
+		// do a full describeprocess on my process
+		// http://geoserver.itc.nl:8080/wps100/WebProcessingService?REQUEST=DescribeProcess&IDENTIFIER=org.n52.wps.server.algorithm.collapse.SimplePolygon2PointCollapse&VERSION=1.0.0&SERVICE=WPS
+		DescribeProcessRequest descRequest = wps.createDescribeProcessRequest();
+		descRequest.setIdentifier(processIden);
+		DescribeProcessResponse descResponse = wps.issueRequest(descRequest);
+		
+		// based on the describeprocess, setup the execute
+		ProcessDescriptionsType processDesc = descResponse.getProcessDesc();
+		ExecuteProcessRequest exeRequest = wps.createExecuteProcessRequest();
+		exeRequest.setIdentifier(processIden);
+		
+		// set input data
+		set52NInputData(exeRequest, processDesc);
+		
+		// send the request
+		ExecuteProcessResponse response = wps.issueRequest(exeRequest);
+		
+		// response should not be null and no exception should occur.
+		assertNotNull(response);
+		assertNotNull(response.getExecuteResponse());
+		ExceptionReportType exceptionResponse = response.getExceptionResponse();
+		assertNull(exceptionResponse);
+		
 	}	
 
 	private void set52NInputData(ExecuteProcessRequest exeRequest, 
