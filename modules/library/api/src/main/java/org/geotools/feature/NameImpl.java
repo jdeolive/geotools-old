@@ -96,6 +96,10 @@ public class NameImpl implements org.opengis.feature.type.Name {
         }
 
         //return new StringBuffer(namespace).append(':').append(local).toString();
+        // you may expect a seperator? I am afriad not - different
+        // domains have different customs for seperators; plesae
+        // include the seperator (if you actually need one) as part
+        // of your namespace.
         return new StringBuffer(namespace).append(local).toString();
     }
 

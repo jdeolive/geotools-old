@@ -39,6 +39,7 @@ import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
+import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.Schema;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -134,12 +135,12 @@ public class SimpleFeatureTypeBuilder {
 	/**
 	 * List of attributes.
 	 */
-	protected List attributes;
+	protected List<AttributeDescriptor> attributes;
 
 	/**
 	 * Additional restrictions on the type.
 	 */
-	protected List restrictions;
+	protected List<Filter> restrictions;
 
 	/** 
 	 * Name of the default geometry to use 
@@ -417,7 +418,7 @@ public class SimpleFeatureTypeBuilder {
 	 * 
 	 * @return AttributeType The bound attribute type.
 	 */
-	public AttributeType getBinding(Class binding) {
+	public AttributeType getBinding(Class<?> binding) {
 		return (AttributeType) bindings().get(binding);
 	}
 	
@@ -782,7 +783,7 @@ public class SimpleFeatureTypeBuilder {
 	 * @param attributes the new list of attributes, or null to reset the list
 	 */
 	public void setAttributes(List<AttributeDescriptor> attributes) {
-		List atts = attributes();
+		List<AttributeDescriptor> atts = attributes();
 		atts.clear();
 		if(attributes != null)
 			atts.addAll(attributes);
@@ -793,7 +794,7 @@ public class SimpleFeatureTypeBuilder {
 	 * @param attributes the new list of attributes, or null to reset the list
 	 */
 	public void setAttributes(AttributeDescriptor[] attributes) {
-		List atts = attributes();
+		List<AttributeDescriptor> atts = attributes();
 		atts.clear();
 		if(attributes != null)
 			atts.addAll(Arrays.asList(attributes));
@@ -812,7 +813,7 @@ public class SimpleFeatureTypeBuilder {
 		
 		//was a default geometry set?
 		if ( this.defaultGeometry != null ) {
-			List atts = attributes();
+			List<AttributeDescriptor> atts = attributes();
 			for ( int i = 0; i < atts.size(); i++) {
 				AttributeDescriptor att = (AttributeDescriptor) atts.get(i);
 				if ( this.defaultGeometry.equals( att.getName().getLocalPart() ) ) {
@@ -820,8 +821,7 @@ public class SimpleFeatureTypeBuilder {
 					if ( !(att instanceof GeometryDescriptor ) ) {
 						attributeBuilder.init( att );
 						attributeBuilder.setCRS(crs);
-						GeometryType type = attributeBuilder.buildGeometryType();
-						
+						GeometryType type = attributeBuilder.buildGeometryType();						
 						att = attributeBuilder.buildDescriptor(att.getName(),type);
 						atts.set( i, att );
 					}
@@ -839,8 +839,7 @@ public class SimpleFeatureTypeBuilder {
 		
 		if ( defaultGeometry == null ) {
 			//none was set by name, look for first geometric type
-			for ( Iterator a = attributes().iterator(); a.hasNext(); ) {
-				AttributeDescriptor att = (AttributeDescriptor) a.next();
+			for ( AttributeDescriptor att : attributes() ) {
 				if ( att instanceof GeometryDescriptor ) {
 					defaultGeometry = (GeometryDescriptor) att;
 					break;
@@ -921,7 +920,7 @@ public class SimpleFeatureTypeBuilder {
 	/**
 	 * Accessor for attributes.
 	 */
-	protected List attributes() {
+	protected List<AttributeDescriptor> attributes() {
 		if (attributes == null) {
 			attributes = newList();
 		}
@@ -930,7 +929,7 @@ public class SimpleFeatureTypeBuilder {
 	/**
 	 * Accessor for restrictions.
 	 */
-	protected List restrictions(){
+	protected List<Filter> restrictions(){
 		if (restrictions == null) {
 			restrictions = newList();
 		}

@@ -60,7 +60,10 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
 	
 	/**
 	 * Constructs the collection with an id.
-	 * 
+	 * <p>
+	 * The getSchema() value will need to be aquired
+	 * from the first feature added.
+	 * </p>
 	 * @param id The identifier of the feature collection.
 	 */
     protected BaseFeatureCollection( String id ){

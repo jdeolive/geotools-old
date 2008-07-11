@@ -27,6 +27,7 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.LengthFunction;
+import org.geotools.resources.Classes;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
@@ -447,13 +448,19 @@ public class AttributeTypeBuilder {
 	    }
 	    
 		AttributeType type = factory.createAttributeType(
-			new NameImpl(namespaceURI,name), binding, isIdentifiable, isAbstract, 
+			new NameImpl(namespaceURI,typeName()), binding, isIdentifiable, isAbstract, 
 			restrictions(), superType, description());
 		resetTypeState();
 		
 		return type;
 	}
 
+	protected String typeName(){
+		if( name == null ){
+			return Classes.getShortName( binding );
+		}
+		return name;
+	}
     private InternationalString description() {
         return description != null ? new SimpleInternationalString(description) : null;
     }
@@ -466,7 +473,7 @@ public class AttributeTypeBuilder {
 	 */
 	public GeometryType buildGeometryType() {
 		GeometryType type = factory.createGeometryType(
-			new NameImpl(namespaceURI,name), binding, crs, isIdentifiable, isAbstract, 
+			new NameImpl(namespaceURI,typeName()), binding, crs, isIdentifiable, isAbstract, 
 			restrictions(), superType, description());
 		
 		resetTypeState();

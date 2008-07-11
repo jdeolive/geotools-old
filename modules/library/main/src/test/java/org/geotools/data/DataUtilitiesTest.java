@@ -281,137 +281,6 @@ public class DataUtilitiesTest extends DataTestCase {
         assertTrue(namesList.contains("name"));
     }
 
-    /*
-     * Test for void traverse(Filter, FilterVisitor)
-     */
-    public void testTraverseFilterFilterVisitor() {
-        FilterFactory factory = CommonFactoryFinder.getFilterFactory(null);
-
-        final Literal exp1 = factory.literal(1);
-        final PropertyName exp2 = factory.property("ammount");
-        final PropertyIsEqualTo filter1 = factory.equals(exp1, exp2);
-
-        final Not testFilter = factory.not(filter1);
-
-        class TestVisitor extends DefaultFilterVisitor {
-            boolean exp1Called = false;
-
-            boolean exp2Called = false;
-
-            boolean filter1Called = false;
-
-            boolean filter2Called = false;
-
-            public Object visit(Literal exp, Object data) {
-                exp1Called = exp1 == exp;
-                return data;
-            }
-
-            public Object visit(PropertyName exp, Object data) {
-                exp2Called = exp2 == exp;
-                return data;
-            }
-
-            public Object visit(PropertyIsEqualTo filter, Object data) {
-                filter1Called = filter1 == filter;
-                return data;
-            }
-
-            public Object visit(Not filter, Object data) {
-                filter2Called = testFilter == filter;
-                return data;
-            }
-        }
-        ;
-
-        TestVisitor visitor = new TestVisitor();
-        DataUtilities.traverse(testFilter, visitor);
-
-        assertTrue(visitor.exp1Called);
-        assertTrue(visitor.exp2Called);
-        assertTrue(visitor.filter1Called);
-        assertTrue(visitor.filter2Called);        
-    }
-
-    /*
-     * Test for void traverse(Set, FilterVisitor)
-     */
-    public void testTraverseSetFilterVisitor() {
-        FilterFactory factory = CommonFactoryFinder.getFilterFactory(null);
-        
-        final Literal exp1 = factory.literal(1);
-        final PropertyName exp2 = factory.property("ammount");
-        // the filters are unrelated to the above expressions to avoid
-        // the expressions being called as a side effect of the filters
-        // being called and thus not being sure if traverse(Set, FilterVisitor)
-        // actually called them directly
-        final PropertyIsEqualTo filter1 = factory.equals(factory.property("p1"), factory
-                .property("p2"));
-        final Not filter2 = factory
-                .not(factory.id(Collections.singleton(factory.featureId("id1"))));
-
-        Set set = new HashSet();
-        set.add(exp1);
-        set.add(exp2);
-        set.add(filter1);
-        set.add(filter2);
-        
-        class TestVisitor extends DefaultFilterVisitor {
-            boolean exp1Called = false;
-            boolean exp2Called = false;
-            boolean filter1Called = false;
-            boolean filter2Called = false;
-            
-            public Object visit(Literal exp, Object data){
-                exp1Called = exp1 == exp;
-                return data;
-            }
-            
-            public Object visit(PropertyName exp, Object data){
-                exp2Called = exp2 == exp;
-                return data;
-            }
-            
-            public Object visit(PropertyIsEqualTo filter, Object data){
-                filter1Called = filter1 == filter;
-                return data;
-            }
-            
-            public Object visit(Not filter, Object data){
-                filter2Called = filter2 == filter;
-                return data;
-            }
-        };
-        
-        TestVisitor visitor = new TestVisitor();
-        DataUtilities.traverse(set, visitor);
-        
-        assertTrue(visitor.exp1Called);
-        assertTrue(visitor.exp2Called);
-        assertTrue(visitor.filter1Called);
-        assertTrue(visitor.filter2Called);        
-    }
-
-    public void testTraverseDepth() {
-        FilterFactory factory = CommonFactoryFinder.getFilterFactory(null);
-
-        Expression exp1 = factory.literal(1);
-        Expression exp2 = factory.property("ammount");
-        Expression exp3 = factory.literal(4);
-        Expression exp4 = factory.add(exp1, exp2);
-        
-        Filter filter1 = factory.equals(exp4, exp3);
-        Filter filter2 = factory.not(filter1);
-        
-        Set set = DataUtilities.traverseDepth(filter2);
-        assertTrue(set.contains(exp1));
-        assertTrue(set.contains(exp2));
-        assertTrue(set.contains(exp3));
-        assertTrue(set.contains(exp4));
-        assertTrue(set.contains(filter1));
-        assertTrue(set.contains(filter2));
-    }
-
     public void testCompare() throws SchemaException {
         assertEquals(0, DataUtilities.compare(null, null));
         assertEquals(-1, DataUtilities.compare(roadType, null));
@@ -535,17 +404,13 @@ public class DataUtilitiesTest extends DataTestCase {
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = DataUtilities.reader( collection );
         assertEquals( roadFeatures.length,  count( reader ) );
     }    
-    public void testCreateType() {
-        //      TODO impelment test
+    public void testCreateSubType() throws Exception {
+    	SimpleFeatureType before =
+    		DataUtilities.createType("cities","the_geom:Point:srid=4326,name:String");
+    	SimpleFeatureType after = DataUtilities.createSubType(before, new String[]{"the_geom"} );
+    	assertEquals( 1, after.getAttributeCount() );
     }
 
-    public void testType() {
-        //      TODO impelment test
-    }
-
-    public void testCreateAttribute() {
-        //      TODO impelment test
-    }
     public void testSource() throws Exception {
         FeatureSource<SimpleFeatureType, SimpleFeature> s = DataUtilities.source( roadFeatures );
         assertEquals( -1, s.getCount( Query.ALL ) );
@@ -563,11 +428,12 @@ public class DataUtilitiesTest extends DataTestCase {
      */
     public void testMixQueries() throws Exception
 	{
-    	Query firstQuery;
-    	Query secondQuery;
+    	DefaultQuery firstQuery;
+    	DefaultQuery secondQuery;
 
-    	firstQuery = new DefaultQuery("typeName", Filter.EXCLUDE, 100, new String[]{"att1", "att2", "att3"}, "handle");
+    	firstQuery = new DefaultQuery("typeName", Filter.EXCLUDE, 100, new String[]{"att1", "att2", "att3"}, "handle");    	
     	secondQuery = new DefaultQuery("typeName", Filter.EXCLUDE, 20, new String[]{"att1", "att2", "att4"}, "handle2");
+    	secondQuery.setStartIndex( 4 );
     	
     	Query mixed = DataUtilities.mixQueries(firstQuery, secondQuery, "newhandle");
     	
@@ -577,7 +443,8 @@ public class DataUtilitiesTest extends DataTestCase {
     	assertEquals(20, mixed.getMaxFeatures());
     	//att1, 2, 3 and 4
     	assertEquals(4, mixed.getPropertyNames().length);
-
+    	assertEquals(4, (int) mixed.getStartIndex() );
+    	
     	//now use some filters
     	Filter filter1 = null;
     	Filter filter2 = null;

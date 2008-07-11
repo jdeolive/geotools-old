@@ -687,17 +687,23 @@ public class DefaultFeatureCollection extends BaseFeatureCollection implements F
     }
 
     public FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> copy = new DefaultFeatureCollection( null, getFeatureType() );
-        List list = new ArrayList( contents.size() );
-        for( FeatureIterator<SimpleFeature> iterator = features(); iterator.hasNext(); ){
-            SimpleFeature feature = iterator.next();
-            SimpleFeature duplicate;
-            try {                
-                duplicate = SimpleFeatureBuilder.copy(feature);
-            } catch (IllegalAttributeException e) {
-                throw new DataSourceException( "Unable to copy "+feature.getID(), e );
-            }
-            list.add( duplicate );
+        FeatureCollection<SimpleFeatureType, SimpleFeature> copy = new DefaultFeatureCollection( null, getSchema() );
+        List<SimpleFeature> list = new ArrayList<SimpleFeature>( contents.size() );
+        FeatureIterator<SimpleFeature> iterator = features();
+        try {
+	        while( iterator.hasNext() ){
+	            SimpleFeature feature = iterator.next();
+	            SimpleFeature duplicate;
+	            try {                
+	                duplicate = SimpleFeatureBuilder.copy(feature);
+	            } catch (IllegalAttributeException e) {
+	                throw new DataSourceException( "Unable to copy "+feature.getID(), e );
+	            }
+	            list.add( duplicate );
+	        }
+        }
+        finally {
+        	iterator.close();
         }
         copy.addAll( list );
         return copy;

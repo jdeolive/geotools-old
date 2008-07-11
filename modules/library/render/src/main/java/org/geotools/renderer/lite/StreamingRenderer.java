@@ -885,11 +885,6 @@ public final class StreamingRenderer implements GTRenderer {
 		query.setCoordinateSystem(featCrs);
 		query.setHints(new Hints(Hints.JTS_COORDINATE_SEQUENCE_FACTORY, new LiteCoordinateSequenceFactory()));
 
-		// handle startIndex coming from user's request
-		if(definitionQuery.getStartIndex() != null){
-		    query.setStartIndex(definitionQuery.getStartIndex());
-		}
-		
 		if (isMemoryPreloadingEnabled()) {
 			// TODO: attache a feature listener, we must erase the memory cache
 			// if

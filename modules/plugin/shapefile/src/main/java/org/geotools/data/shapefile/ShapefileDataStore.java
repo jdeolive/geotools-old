@@ -74,9 +74,11 @@ import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.resources.Classes;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.FactoryException;
@@ -604,19 +606,21 @@ public class ShapefileDataStore extends AbstractFileDataStore {
             List<AttributeDescriptor> types = readAttributes();
 
             SimpleFeatureType parent = null;
-            Class<?> geomType = types.get(0).getType().getBinding();
+            GeometryDescriptor geomDescriptor = (GeometryDescriptor) types.get(0);            
+			Class<?> geomBinding = geomDescriptor.getType().getBinding();
 
-            if ((geomType == Point.class) || (geomType == MultiPoint.class)) {
+            if ((geomBinding == Point.class) || (geomBinding == MultiPoint.class)) {
                 parent = BasicFeatureTypes.POINT;
-            } else if ((geomType == Polygon.class)
-                    || (geomType == MultiPolygon.class)) {
+            } else if ((geomBinding == Polygon.class)
+                    || (geomBinding == MultiPolygon.class)) {
                 parent = BasicFeatureTypes.POLYGON;
-            } else if ((geomType == LineString.class)
-                    || (geomType == MultiLineString.class)) {
+            } else if ((geomBinding == LineString.class)
+                    || (geomBinding == MultiLineString.class)) {
                 parent = BasicFeatureTypes.LINE;
             }
 
             SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+            builder.setDefaultGeometry( geomDescriptor.getLocalName() );
             builder.addAll(types);
             builder.setName(createFeatureTypeName());
             if (namespace != null) {
@@ -661,6 +665,7 @@ public class ShapefileDataStore extends AbstractFileDataStore {
         try {
             Class<?> geometryClass = JTSUtilities.findBestGeometryClass(shp
                     .getHeader().getShapeType());
+            build.setName(Classes.getShortName( geometryClass ));
             build.setNillable(true);
             build.setCRS(crs);
             build.setBinding(geometryClass);

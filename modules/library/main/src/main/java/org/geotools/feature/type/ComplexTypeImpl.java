@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.geotools.feature.FeatureImplUtils;
 import org.geotools.feature.NameImpl;
+import org.geotools.resources.Classes;
 import org.geotools.resources.Utilities;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.AttributeType;
@@ -62,8 +63,6 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
                 this.propertyMap.put(pd.getName(), pd);
             }
 		}
-		
-		
 	}
 
 	public Class<Collection<Property>> getBinding() {
@@ -112,12 +111,42 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
     }
     
 	public String toString() {
-		StringBuffer sb = new StringBuffer(Utilities.getShortClassName(this));
-		sb.append("[name=").append(getName()).append(", binding=").append(binding)
-				.append(", abstrsct= ").append(isAbstract()).append(", identified=")
-				.append(identified).append(", restrictions=").append(getRestrictions())
-				.append(", superType=").append(superType).append(", schema=").append(propertyMap).append("]");
-
+		StringBuffer sb = new StringBuffer(Classes.getShortClassName(this.getClass()));
+		sb.append(" ");
+		sb.append( getName() );
+		if( isAbstract() ){
+			sb.append( " abstract" );			
+		}
+		if( isIdentified() ){
+			sb.append( " identified" );
+		}
+		if( superType != null ){
+			sb.append( superType.getName() );
+		}
+		if( List.class.isAssignableFrom( binding )){
+			sb.append( "[" );
+		}
+		else {
+			sb.append( "(" );
+		}
+		boolean first = true;
+		for( Map.Entry<Name, PropertyDescriptor> entry : propertyMap.entrySet() ){
+			if( first ){
+				first = false;				
+			}
+			else {
+				sb.append( ",");
+			}
+			sb.append( entry.getKey().getLocalPart() );
+			sb.append( ":" );
+			sb.append( entry.getValue().getName().getLocalPart() );			
+		}
+		if( List.class.isAssignableFrom( binding )){
+			sb.append( "]" );
+		}
+		else {
+			sb.append( ")" );
+		}
 		return sb.toString();
 	}
 }
