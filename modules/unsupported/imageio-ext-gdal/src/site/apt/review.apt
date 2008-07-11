@@ -26,7 +26,8 @@ IMAGEIO-EXT-GDAL
   ~~~~~~~~~~~~
 
 ** MrSID data credit:
-   n13250i.sid: MassGIS sample data available at http://www.mass.gov/mgis/download.htm
+   ftp://data.massgis.state.ma.us/pub/wave/noaasid/n13250i.sid.
+   MassGIS sample data available at http://www.mass.gov/mgis/download.htm
    Office of Geographic and Environmental Information (MassGIS), Commonwealth of Massachusetts Executive Office of Environmental Affairs
 
 ** DTED data credit:
