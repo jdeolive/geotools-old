@@ -870,7 +870,7 @@ public class ReferencingObjectFactory extends ReferencingFactory
      * affected axes are in decimal degrees. But you should not rotate this coordinate
      * system in any other plane.
      * <p>
-     * <strong>NOTE:</strong>
+     * <b>NOTE:</b>
      * It is the user's responsability to ensure that the {@code baseToDerived} transform performs
      * all required steps, including {@linkplain AbstractCS#swapAndScaleAxis unit conversions and
      * change of axis order}, if needed. The {@link ReferencingFactoryContainer} class provides
@@ -905,6 +905,9 @@ public class ReferencingObjectFactory extends ReferencingFactory
 
     /**
      * Creates a derived coordinate reference system from a conversion.
+     * It is the user's responsability to ensure that the conversion performs all required steps,
+     * including {@linkplain AbstractCS#swapAndScaleAxis unit conversions and change of axis order},
+     * if needed.
      *
      * @param  properties Name and other properties to give to the new object.
      * @param  baseCRS Coordinate reference system to base projection on.
@@ -919,22 +922,11 @@ public class ReferencingObjectFactory extends ReferencingFactory
                                        Conversion     conversionFromBase,
                                        CoordinateSystem        derivedCS) throws FactoryException
     {
-        /*
-         * Following code is the same than createProjectedCRS(...) but a little bit simplier
-         * since we don't need to handle the Projection subtypes. See the createProjectedCRS
-         * method for comments.
-         */
-        MathTransform mt;
-        final MathTransform existing = conversionFromBase.getMathTransform();
-        final MathTransformFactory mtFactory = getMathTransformFactory();
-        if (existing != null && mtFactory instanceof DefaultMathTransformFactory) {
-            mt = ((DefaultMathTransformFactory) mtFactory).createBaseToDerived(baseCRS, existing, derivedCS);
-        } else {
+        MathTransform mt = conversionFromBase.getMathTransform();
+        if (mt == null) {
             final ParameterValueGroup parameters = conversionFromBase.getParameterValues();
-            mt = mtFactory.createBaseToDerived(baseCRS, parameters, derivedCS);
-            if (existing != null && existing.equals(mt)) {
-                mt = existing;
-            }
+            final MathTransformFactory mtFactory = getMathTransformFactory();
+            mt = mtFactory.createParameterizedTransform(parameters);
         }
         DerivedCRS crs;
         try {
@@ -949,7 +941,7 @@ public class ReferencingObjectFactory extends ReferencingFactory
     /**
      * Creates a projected coordinate reference system from a transform.
      * <p>
-     * <strong>NOTE:</strong>
+     * <b>NOTE:</b>
      * It is the user's responsability to ensure that the {@code baseToDerived} transform performs
      * all required steps, including {@linkplain AbstractCS#swapAndScaleAxis unit conversions and
      * change of axis order}, if needed. The {@link ReferencingFactoryContainer} class provides
@@ -983,7 +975,10 @@ public class ReferencingObjectFactory extends ReferencingFactory
     }
 
     /**
-     * Creates a projected coordinate reference system from a conversion.
+     * Creates a projected coordinate reference system from a conversion. The supplied
+     * conversion should <strong>not</strong> includes the operation steps for performing
+     * {@linkplain AbstractCS#swapAndScaleAxis unit conversions and change of axis order}
+     * since those operations will be inferred by this constructor
      *
      * @param  properties Name and other properties to give to the new object.
      * @param  baseCRS Geographic coordinate reference system to base projection on.

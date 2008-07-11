@@ -590,11 +590,7 @@ public class Tile implements Comparable<Tile>, Serializable {
                     }
                 }
                 if (stream == null) {
-                    stream = ImageIO.createImageInputStream(input);
-                    if (stream == null) {
-                        throw new FileNotFoundException(Errors.format(
-                                ErrorKeys.FILE_DOES_NOT_EXIST_$1, input));
-                    }
+                    stream = getInputStream();
                 }
                 actualInput = stream;
             }
@@ -664,6 +660,41 @@ public class Tile implements Comparable<Tile>, Serializable {
             }
         }
         return provider;
+    }
+
+    /**
+     * Creates an image input stream from the input. If no suitable input stream can be created,
+     * then this method throws an exception. This method never returns {@code null}.
+     *
+     * @return The image input stream.
+     * @throws IOException if an error occured while creating the input stream.
+     */
+    private ImageInputStream getInputStream() throws IOException {
+        final Object input = getInput();
+        ImageInputStream stream = ImageIO.createImageInputStream(input);
+        if (stream != null) {
+            return stream;
+        }
+        /*
+         * We tried the input directly in case the user provided some SPI for String
+         * objects. If we have not been able to create a stream from a plain string,
+         * create a URL or a File object from the string and try again.
+         */
+        if (input instanceof CharSequence) {
+            final String path = input.toString();
+            final Object url;
+            if (path.indexOf("://") > 0) {
+                url = new URL(path);
+            } else {
+                url = new File(path);
+            }
+            stream = ImageIO.createImageInputStream(url);
+            if (stream != null) {
+                return stream;
+            }
+        }
+        throw new FileNotFoundException(Errors.format(
+                ErrorKeys.FILE_DOES_NOT_EXIST_$1, input));
     }
 
     /**

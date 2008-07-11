@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -25,5 +25,5 @@ package org.geotools.resources.i18n;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class Vocabulary_sp extends Vocabulary {
+public class Vocabulary_es extends Vocabulary {
 }

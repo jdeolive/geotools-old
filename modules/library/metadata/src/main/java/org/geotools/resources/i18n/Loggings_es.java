@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,12 +18,12 @@ package org.geotools.resources.i18n;
 
 
 /**
- * Spanich language resource.
+ * Spanish language resource.
  *
  * @since 2.2
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class Errors_sp extends Errors {
+public class Loggings_es extends Loggings {
 }
