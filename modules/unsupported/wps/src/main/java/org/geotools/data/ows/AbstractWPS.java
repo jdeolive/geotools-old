@@ -131,7 +131,7 @@ public abstract class AbstractWPS<C extends WPSCapabilitiesType, R extends Objec
      */
     public ServiceInfo getInfo(){
         synchronized ( capabilities ){
-            if( info == null && capabilities != null){
+            if( info == null ){
                 info = createInfo();
             }
             return info;
@@ -388,16 +388,17 @@ public abstract class AbstractWPS<C extends WPSCapabilitiesType, R extends Objec
 
         		PrintStream stream = new PrintStream(outputStream);
         		
-        		String postText = "";
+        		StringBuffer postText = new StringBuffer();
         		
         		while (reader.ready()) {
         			String input = reader.readLine();
-        			postText = postText + input;
+        			postText = postText.append(input);
         			stream.println(input);
         		}
-        		LOGGER.fine(postText);
+        		LOGGER.fine(postText.toString());
         		//System.out.println(postText);
         		
+        		stream.close();
         		out.close();
         		in.close();
         	} else {
