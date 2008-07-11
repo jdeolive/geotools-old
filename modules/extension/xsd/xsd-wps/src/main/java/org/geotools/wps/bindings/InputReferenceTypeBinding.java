@@ -17,45 +17,41 @@
 
 package org.geotools.wps.bindings;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
-import net.opengis.wps.InputReferenceType;
 import net.opengis.wps.MethodType;
 import net.opengis.wps.WpsFactory;
+import net.opengis.wps.InputReferenceType;
 
 import org.geotools.wps.WPS;
-import org.geotools.xml.ComplexEMFBinding;
-import org.geotools.xml.ElementInstance;
 import org.geotools.xml.Node;
+import org.geotools.xml.ElementInstance;
+import org.geotools.xml.ComplexEMFBinding;
 
-public class InputReferenceTypeBinding extends ComplexEMFBinding
-{
-    private WpsFactory factory;
-
-    public InputReferenceTypeBinding(WpsFactory factory)
-    {
+/**
+ * Binding for inputReference attribute of Method element
+ * @author Lucas Reed, Refractions Research Inc
+ */
+public class InputReferenceTypeBinding extends ComplexEMFBinding {
+    public InputReferenceTypeBinding(WpsFactory factory) {
         super(factory, WPS.InputReferenceType);
-        this.factory = factory;
     }
 
-    public QName getTarget()
-    {
+    @Override
+    public QName getTarget() {
         return WPS.InputReferenceType;
     }
 
-    public Class getType()
-    {
+    @Override
+    public Class<?> getType() {
         return InputReferenceType.class;
     }
 
-    public Object parse(ElementInstance instance, Node node, Object value) throws Exception
-    {
+    @Override
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         Node attr = node.getAttribute("method");
 
-        if (null != attr)
-        {
+        if (null != attr) {
             attr.setValue(MethodType.get((String)attr.getValue()));
         }
 
