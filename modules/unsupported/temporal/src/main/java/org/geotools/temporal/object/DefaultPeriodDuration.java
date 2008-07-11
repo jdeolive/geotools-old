@@ -32,6 +32,7 @@ public class DefaultPeriodDuration extends DefaultDuration implements PeriodDura
     private static final InternationalString DESIGNATOR = new SimpleInternationalString("P");
     private InternationalString years;
     private InternationalString months;
+    private InternationalString weeks;
     private InternationalString days;
     private static final InternationalString TIME_INDICATOR = new SimpleInternationalString("T");
     private InternationalString hours;
@@ -42,15 +43,17 @@ public class DefaultPeriodDuration extends DefaultDuration implements PeriodDura
      * Creates a new instances of PeriodDuration.
      * @param years
      * @param months
+     * @param weeks
      * @param days
      * @param hours
      * @param minutes
      * @param seconds
      */
-    public DefaultPeriodDuration(InternationalString years, InternationalString months, InternationalString days,
+    public DefaultPeriodDuration(InternationalString years, InternationalString months, InternationalString week, InternationalString days,
             InternationalString hours, InternationalString minutes, InternationalString seconds) {
         this.years = years;
         this.months = months;
+        this.weeks = week;
         this.days = days;
         this.hours = hours;
         this.minutes = minutes;
@@ -65,13 +68,15 @@ public class DefaultPeriodDuration extends DefaultDuration implements PeriodDura
     public DefaultPeriodDuration(long durationInMilliSeconds) {
         long yearMS = 31536000000L;
         long monthMS = 2628000000L;
+        long weekMS = 604800000L;
         long dayMS = 86400000L;
         long hourMS = 3600000L;
-        long minMS = 60000;
-        long secondMS = 1000;
+        long minMS = 60000L;
+        long secondMS = 1000L;
 
         InternationalString _years = null;
         InternationalString _months = null;
+        InternationalString _week = null;
         InternationalString _days = null;
         InternationalString _hours = null;
         InternationalString _minutes = null;
@@ -90,6 +95,13 @@ public class DefaultPeriodDuration extends DefaultDuration implements PeriodDura
             durationInMilliSeconds -= temp * monthMS;
         }
         this.months = _months;
+
+        temp = durationInMilliSeconds / weekMS;
+        if (temp >= 1) {
+            _week = new SimpleInternationalString(String.valueOf(temp));
+            durationInMilliSeconds -= temp * weekMS;
+        }
+        this.weeks = _week;
 
         //we look if the gap is more than one day (86400000 ms)
         temp = durationInMilliSeconds / dayMS;
@@ -213,6 +225,14 @@ public class DefaultPeriodDuration extends DefaultDuration implements PeriodDura
         this.seconds = seconds;
     }
 
+    public InternationalString getWeek() {
+        return weeks;
+    }
+
+    public void setWeek(InternationalString week) {
+        this.weeks = week;
+    }
+
     /**
      * Returns a duration in long. note there is no starting instant to accurate the returned value.
      * @return
@@ -238,7 +258,10 @@ public class DefaultPeriodDuration extends DefaultDuration implements PeriodDura
         }
 
         //if the period contains months (2628000000 ms)
-        if (periodDescription.indexOf('M') != -1) {
+        if ((periodDescription.indexOf('M') != -1 && (periodDescription.indexOf('T') == -1)) ||
+                ((periodDescription.indexOf('T') != -1) && 
+                (periodDescription.indexOf('M') < periodDescription.indexOf('T')) && 
+                ((periodDescription.indexOf('M') != -1)))) {
             int nbMonth = Integer.parseInt(periodDescription.substring(0, periodDescription.indexOf('M')));
             response += nbMonth * monthMS;
             periodDescription = periodDescription.substring(periodDescription.indexOf('M') + 1);
@@ -332,6 +355,9 @@ public class DefaultPeriodDuration extends DefaultDuration implements PeriodDura
         }
         if (months != null) {
             s.append(months).append("M");
+        }
+        if (weeks != null) {
+            s.append(weeks).append("W");
         }
         if (days != null) {
             s.append(days).append("D");

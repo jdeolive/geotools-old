@@ -22,12 +22,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Logger;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import org.geotools.temporal.reference.DefaultTemporalCoordinateSystem;
 import org.opengis.temporal.CalendarDate;
 import org.opengis.temporal.DateAndTime;
+import org.opengis.temporal.Duration;
 import org.opengis.temporal.JulianDate;
 import org.opengis.temporal.OrdinalPosition;
 import org.opengis.temporal.TemporalCoordinate;
@@ -69,21 +70,6 @@ public class Utils {
      * The number of millisecond in one second.
      */
     private final static long secondMS = 1000;
-
-    public Utils() {
-    }
-
-    /**
-     * Returns the length of the duration (PnYnMnDTnHnMnS Iso 8601) in milli-seconds.
-     * @param duration
-     * @param startInstant
-     * @return
-     */
-    public static long getTimeFromDuration(final String durationString, final Date startInstant) throws DatatypeConfigurationException {
-        final DatatypeFactory df = DatatypeFactory.newInstance();
-        final Duration duration = df.newDuration(durationString);
-        return duration.getTimeInMillis(startInstant);
-    }
 
     /**
      * Returns a Date object from an ISO-8601 representation string. (String defined with pattern yyyy-MM-dd'T'HH:mm:ss.SSSZ or yyyy-MM-dd).
@@ -398,5 +384,45 @@ public class Utils {
         } else {
             return null;
         }
+    }
+
+    /**
+     * This method returns the nearest Unit of a Duration.
+     */
+    public static Unit getUnitFromDuration(Duration duration) {
+        if (duration == null) {
+            return null;
+        }
+        DefaultDuration duration_ = (DefaultDuration) duration;
+        long mills = duration_.getTimeInMillis();
+        long temp = mills / yearMS;
+        if (temp >= 1) {
+            return NonSI.YEAR;
+        }
+        temp = mills / monthMS;
+        if (temp >= 1) {
+            return NonSI.MONTH;
+        }
+        temp = mills / weekMS;
+        if (temp >= 1) {
+            return NonSI.WEEK;
+        }
+        temp = mills / dayMS;
+        if (temp >= 1) {
+            return NonSI.DAY;
+        }
+        temp = mills / hourMS;
+        if (temp >= 1) {
+            return NonSI.HOUR;
+        }
+        temp = mills / minMS;
+        if (temp >= 1) {
+            return NonSI.MINUTE;
+        }
+        temp = mills / secondMS;
+        if (temp >= 1) {
+            return SI.SECOND;
+        }
+        return null;
     }
 }

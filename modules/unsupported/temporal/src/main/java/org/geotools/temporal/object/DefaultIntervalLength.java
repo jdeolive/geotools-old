@@ -85,6 +85,11 @@ public class DefaultIntervalLength extends DefaultDuration implements IntervalLe
     }
 
     @Override
+    public long getTimeInMillis() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public boolean equals(final Object object) {
         if (object == this) {
             return true;

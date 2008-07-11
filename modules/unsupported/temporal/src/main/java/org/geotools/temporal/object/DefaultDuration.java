@@ -23,5 +23,6 @@ import org.opengis.temporal.Duration;
  *
  * @author Mehdi Sidhoum (Geomatys)
  */
-public class DefaultDuration implements Duration {
+public abstract class DefaultDuration implements Duration {
+    public abstract long getTimeInMillis();
 }
