@@ -22,8 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.resources.Classes;
 import org.geotools.resources.Utilities;
 import org.opengis.feature.type.Name;
+import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.PropertyType;
 import org.opengis.filter.Filter;
 import org.opengis.util.InternationalString;
@@ -155,14 +157,38 @@ public class PropertyTypeImpl implements PropertyType {
 	}
 	
 	public String toString() {
-        StringBuffer sb = new StringBuffer(getClass().getName()).append(":");
-        sb.append("name=").append(name)
-            .append("; binding=").append(binding)
-            .append("; isAbstrsact=, ").append(isAbstract)
-            .append("; restrictions=").append(restrictions)
-            .append("; description=").append(description)
-            .append("; super=[").append(superType).append("]");
-            
+	    StringBuffer sb = new StringBuffer(Classes.getShortClassName(this));
+        sb.append(" ");
+        sb.append( getName() );
+        if( isAbstract() ){
+            sb.append( " abstract" );           
+        }
+        if( superType != null ){
+            sb.append( " extends ");
+            sb.append( superType.getName().getLocalPart() );
+        }
+        if( binding != null ){
+            sb.append( "<" );
+            sb.append( Classes.getShortName( binding ) );
+            sb.append( ">" );
+        }
+        if( description != null ){
+            sb.append("\n\tdescription=");
+            sb.append( description );            
+        }
+        if( restrictions != null && !restrictions.isEmpty() ){
+            sb.append("\nrestrictions=");
+            boolean first = true;
+            for( Filter filter : restrictions ){
+                if( first ){
+                    first = false;
+                }
+                else {
+                    sb.append( " AND " );
+                }
+                sb.append( filter );
+            }
+        }
         return sb.toString();
     }
 

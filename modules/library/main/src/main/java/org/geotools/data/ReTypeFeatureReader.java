@@ -18,8 +18,9 @@ package org.geotools.data;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.resources.Classes;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -47,14 +48,23 @@ import org.opengis.feature.type.AttributeDescriptor;
  *   reader.close(); // will close both
  * } 
  * </code></pre>
+ * <p>
+ * This Reader makes a simple <b>one to one</b> between the original schema and the target schema based
+ * on descriptor name.
  * 
- * @author Jody Garnett, Refractions Research
+ * @author Jody Garnett (Refractions Research)
  * @source $URL$
  */
 public class ReTypeFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
-     FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+    /** The original reader we are grabbing content from */
+    FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+    
+     /** This is the target feature type we are preparing data for */
     SimpleFeatureType featureType;
+    
+    /** The descriptors we are going to from the original reader */
     AttributeDescriptor[] types;
+    
     boolean clone;
 
     /**
@@ -70,8 +80,9 @@ public class ReTypeFeatureReader implements  FeatureReader<SimpleFeatureType, Si
     /**
      * Constructs a FetureReader that will ReType streaming content.
      *
-     * @param reader Origional FeatureReader
+     * @param reader Original FeatureReader
      * @param featureType Target FeatureType
+     * @param clone true to clone the content
      * @since 2.3
      */
     public ReTypeFeatureReader(FeatureReader <SimpleFeatureType, SimpleFeature> reader, SimpleFeatureType featureType, boolean clone) {
@@ -82,14 +93,15 @@ public class ReTypeFeatureReader implements  FeatureReader<SimpleFeatureType, Si
     }
 
     /**
-     * Supplies mapping from origional to target FeatureType.
+     * Supplies mapping from original to target FeatureType.
      * 
      * <p>
-     * Will also ensure that origional can cover target
+     * Will also ensure that mapping results in a valid selection of values
+     * from the original. Only the xpath expression and binding are checked.
      * </p>
      *
      * @param target Desired FeatureType
-     * @param origional Origional FeatureType
+     * @param origional Original FeatureType
      *
      * @return Mapping from originoal to target FeatureType
      *
@@ -113,12 +125,17 @@ public class ReTypeFeatureReader implements  FeatureReader<SimpleFeatureType, Si
         for (int i = 0; i < target.getAttributeCount(); i++) {
             AttributeDescriptor attrib = target.getDescriptor(i);
             xpath = attrib.getLocalName();
+            
             types[i] = attrib;
-
-            if (!attrib.equals(origional.getDescriptor(xpath))) {
+            
+            AttributeDescriptor check = origional.getDescriptor( xpath );
+            Class<?> targetBinding = attrib.getType().getBinding();
+            Class<?> checkBinding = check.getType().getBinding();
+            if( !targetBinding.isAssignableFrom( checkBinding )){
                 throw new IllegalArgumentException(
-                    "Unable to retype  FeatureReader<SimpleFeatureType, SimpleFeature> (origional does not cover "
-                    + xpath + ")");
+                    "Unable to retype FeatureReader for " + xpath +
+                    " as "+Classes.getShortName(checkBinding) + 
+                    " cannot be assigned to "+Classes.getShortName(targetBinding) );                
             }
         }
 

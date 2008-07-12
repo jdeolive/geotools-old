@@ -16,6 +16,9 @@
  */
 package org.geotools.feature.type;
 
+import java.util.Map;
+
+import org.geotools.resources.Classes;
 import org.geotools.resources.Utilities;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
@@ -57,8 +60,43 @@ public class AttributeDescriptorImpl extends PropertyDescriptorImpl
 	}	
 	
 	public String toString() {
-	    return new StringBuffer(super.toString()).append(";defaultValue=")
-	        .append(defaultValue).toString();
+	    StringBuffer sb = new StringBuffer(Classes.getShortClassName(this));
+        sb.append(" ");
+        sb.append( getName() );
+        if( type != null ){
+            sb.append( " <" );
+            sb.append( type.getName().getLocalPart()  );
+            sb.append(":");
+            sb.append( Classes.getShortName( type.getBinding() ));
+            sb.append( ">" );
+        }
+        if( isNillable  ){
+            sb.append( " nillable" );            
+        }
+        if( minOccurs == 1 && maxOccurs == 1 ){
+            // ignore the 1:1
+        }
+        else {
+            sb.append( " " );
+            sb.append( minOccurs );
+            sb.append(  ":" );
+            sb.append( maxOccurs );            
+        }
+        if( defaultValue != null ){
+            sb.append( "\ndefault= " );
+            sb.append( defaultValue );
+        }
+        if( userData != null && !userData.isEmpty() ){
+            sb.append("\nuserData=(");
+            for( Map.Entry entry : userData.entrySet() ){
+                sb.append("\n\t");
+                sb.append( entry.getKey() );
+                sb.append( " ==> " );
+                sb.append( entry.getValue() );
+            }
+            sb.append(")");
+        }
+        return sb.toString();
 	}
 
 	public String getLocalName() {

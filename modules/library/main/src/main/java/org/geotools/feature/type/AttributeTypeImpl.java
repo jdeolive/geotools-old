@@ -18,6 +18,7 @@ package org.geotools.feature.type;
 
 import java.util.List;
 
+import org.geotools.resources.Classes;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -113,8 +114,42 @@ public class AttributeTypeImpl extends PropertyTypeImpl implements AttributeType
 	}
 	
     public String toString() {
-       return new StringBuffer(super.toString()).append("; isIdentified=")
-           .append(identified).toString();
+        StringBuffer sb = new StringBuffer(Classes.getShortClassName(this));
+        sb.append(" ");
+        sb.append( getName() );
+        if( isAbstract() ){
+            sb.append( " abstract" );           
+        }
+        if( isIdentified() ){
+            sb.append( " identified" );
+        }
+        if( superType != null ){
+            sb.append( " extends ");
+            sb.append( superType.getName().getLocalPart() );
+        }
+        if( binding != null ){
+            sb.append( "<" );
+            sb.append( Classes.getShortName( binding ) );
+            sb.append( ">" );
+        }
+        if( description != null ){
+            sb.append("\n\tdescription=");
+            sb.append( description );            
+        }
+        if( restrictions != null && !restrictions.isEmpty() ){
+            sb.append("\nrestrictions=");
+            boolean first = true;
+            for( Filter filter : restrictions ){
+                if( first ){
+                    first = false;
+                }
+                else {
+                    sb.append( " AND " );
+                }
+                sb.append( filter );
+            }
+        }
+        return sb.toString();
     }
 
 }

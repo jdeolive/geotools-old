@@ -19,10 +19,12 @@ package org.geotools.feature.type;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.geotools.resources.Classes;
 import org.geotools.resources.Utilities;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.PropertyType;
+import org.opengis.filter.Filter;
 
 public class PropertyDescriptorImpl implements PropertyDescriptor {
 
@@ -98,13 +100,39 @@ public class PropertyDescriptorImpl implements PropertyDescriptor {
         return (37 * minOccurs + 37 * maxOccurs ) ^ type.hashCode() ^ name.hashCode();
     }
 
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append( getClass().getSimpleName()).append(":");
-        sb.append( "type=").append(type).append(";name=").append(name);
-        sb.append( ";minOccurs=").append(minOccurs).append(";maxOccurs=").append(maxOccurs);
-        sb.append( ";isNillable=").append(isNillable);
-        
+    public String toString() {        
+        StringBuffer sb = new StringBuffer(Classes.getShortClassName(this));
+        sb.append(" ");
+        sb.append( getName() );
+        if( type != null ){
+            sb.append( " <" );
+            sb.append( type.getName().getLocalPart()  );
+            sb.append(":");
+            sb.append( Classes.getShortName( type.getBinding() ));
+            sb.append( ">" );
+        }
+        if( isNillable  ){
+            sb.append( " nillable" );            
+        }
+        if( minOccurs == 1 && maxOccurs == 1 ){
+            // ignore the 1:1
+        }
+        else {
+            sb.append( " " );
+            sb.append( minOccurs );
+            sb.append(  ":" );
+            sb.append( maxOccurs );
+        }
+        if( userData != null && !userData.isEmpty() ){
+            sb.append("\nuserData=(");
+            for( Map.Entry entry : userData.entrySet() ){
+                sb.append("\n\t");
+                sb.append( entry.getKey() );
+                sb.append( " ==> " );
+                sb.append( entry.getValue() );
+            }
+            sb.append(")");
+        }
         return sb.toString();
     }
     

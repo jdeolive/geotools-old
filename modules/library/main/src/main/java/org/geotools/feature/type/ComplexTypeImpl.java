@@ -111,7 +111,7 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
     }
     
 	public String toString() {
-		StringBuffer sb = new StringBuffer(Classes.getShortClassName(this.getClass()));
+		StringBuffer sb = new StringBuffer(Classes.getShortClassName(this));
 		sb.append(" ");
 		sb.append( getName() );
 		if( isAbstract() ){
@@ -121,7 +121,8 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 			sb.append( " identified" );
 		}
 		if( superType != null ){
-			sb.append( superType.getName() );
+		    sb.append( " extends ");
+			sb.append( superType.getName().getLocalPart() );
 		}
 		if( List.class.isAssignableFrom( binding )){
 			sb.append( "[" );
@@ -130,16 +131,16 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 			sb.append( "(" );
 		}
 		boolean first = true;
-		for( Map.Entry<Name, PropertyDescriptor> entry : propertyMap.entrySet() ){
+		for( PropertyDescriptor property : getDescriptors() ){
 			if( first ){
 				first = false;				
 			}
 			else {
 				sb.append( ",");
 			}
-			sb.append( entry.getKey().getLocalPart() );
+			sb.append( property.getName().getLocalPart() );
 			sb.append( ":" );
-			sb.append( entry.getValue().getName().getLocalPart() );			
+			sb.append( property.getType().getName().getLocalPart() );			
 		}
 		if( List.class.isAssignableFrom( binding )){
 			sb.append( "]" );
@@ -147,6 +148,23 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 		else {
 			sb.append( ")" );
 		}
+		if( description != null ){
+            sb.append("\n\tdescription=");
+            sb.append( description );            
+        }
+        if( restrictions != null && !restrictions.isEmpty() ){
+            sb.append("\nrestrictions=");
+            first = true;
+            for( Filter filter : restrictions ){
+                if( first ){
+                    first = false;
+                }
+                else {
+                    sb.append( " AND " );
+                }
+                sb.append( filter );
+            }
+        }
 		return sb.toString();
 	}
 }

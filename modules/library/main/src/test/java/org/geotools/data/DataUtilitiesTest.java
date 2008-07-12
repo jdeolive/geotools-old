@@ -40,6 +40,7 @@ import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
 import org.opengis.filter.And;
 import org.opengis.filter.BinaryLogicOperator;
@@ -409,6 +410,16 @@ public class DataUtilitiesTest extends DataTestCase {
     		DataUtilities.createType("cities","the_geom:Point:srid=4326,name:String");
     	SimpleFeatureType after = DataUtilities.createSubType(before, new String[]{"the_geom"} );
     	assertEquals( 1, after.getAttributeCount() );
+    	
+    	before = DataUtilities.createType("cities","the_geom:Point:srid=4326,name:String,population:Integer");
+        URI here = new URI("http://localhost/");
+        after = DataUtilities.createSubType(before, new String[]{"the_geom"},DefaultGeographicCRS.WGS84, "now", here);
+        assertEquals( here.toString(), after.getName().getNamespaceURI());
+        assertEquals( "now", after.getName().getLocalPart());
+        assertEquals( DefaultGeographicCRS.WGS84, after.getCoordinateReferenceSystem() );
+        assertEquals( 1, after.getAttributeCount() );
+        assertEquals( "the_geom", after.getDescriptor(0).getLocalName() );
+        assertNotNull( after.getGeometryDescriptor() );
     }
 
     public void testSource() throws Exception {
