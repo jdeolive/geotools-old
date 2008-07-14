@@ -89,13 +89,13 @@ class GridParameters {
 			}
 			GeneralEnvelope transEnv = CRS.transform(trans, env);
 
-			int iDx = (new Double(Math.round(dx * trans.getScaleX())))
+			int iDx = Math.abs((new Double(Math.round(dx * trans.getScaleX())))
+					.intValue());
+			int iDy =  Math.abs((new Double(Math.round(dy * trans.getScaleY())))
+					.intValue());
+			int xNum = (new Double(Math.floor(transEnv.getSpan(0) / iDx)))
 					.intValue();
-			int iDy = (new Double(Math.round(dy * trans.getScaleY())))
-					.intValue();
-			int xNum = (new Double(Math.floor(transEnv.getLength(0) / iDx)))
-					.intValue();
-			int yNum = (new Double(Math.floor(transEnv.getLength(1) / iDy)))
+			int yNum = (new Double(Math.floor(transEnv.getSpan(1) / iDy)))
 					.intValue();
 			int xMin = (new Double(Math.floor(transEnv.getMinimum(0)))
 					.intValue());
@@ -105,9 +105,9 @@ class GridParameters {
 			return new GridParameters(iDx, iDy, xMin, yMin, xNum, yNum);
 		} else {
 			
-			int xNum = (new Double(Math.floor(env.getLength(0) / dx)))
+			int xNum = (new Double(Math.floor(env.getSpan(0) / dx)))
 					.intValue();
-			int yNum = (new Double(Math.floor(env.getLength(1) / dy)))
+			int yNum = (new Double(Math.floor(env.getSpan(1) / dy)))
 					.intValue();
 
 			return new GridParameters(dx, dy, env.getMinimum(0), env
