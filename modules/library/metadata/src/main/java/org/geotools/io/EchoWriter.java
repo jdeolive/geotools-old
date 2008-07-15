@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -124,14 +124,14 @@ public class EchoWriter extends FilterWriter {
      *
      * @param  string String to be written.
      * @param  offset Offset from which to start writing characters.
-     * @param  lenth  Number of characters to write.
+     * @param  length Number of characters to write.
      * @throws IOException If an I/O error occurs.
      */
     @Override
-    public void write(final String str, final int off, final int len) throws IOException {
+    public void write(final String string, final int offset, final int length) throws IOException {
         synchronized (lock) {
-            out .write(str, off, len);
-            echo.write(str, off, len);
+            out .write(string, offset, length);
+            echo.write(string, offset, length);
         }
     }
 
