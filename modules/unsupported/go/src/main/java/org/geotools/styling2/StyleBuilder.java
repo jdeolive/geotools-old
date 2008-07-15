@@ -17,10 +17,10 @@
 package org.geotools.styling2;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.LineSymbolizer;
 import org.opengis.style.PointSymbolizer;
@@ -40,7 +40,6 @@ import org.opengis.style.TextSymbolizer;
  */
 public class StyleBuilder {
 
-    private static final org.geotools.styling.StyleBuilder STYLE_BUILDER = new org.geotools.styling.StyleBuilder();
     private static final SymbolizerBuilder SYMBOL_BUILDER = new SymbolizerBuilder();
     private static final Symbolizer DEFAULT_FALLBACK_SYMBOLIZER = SYMBOL_BUILDER.createDefaultLineSymbolizer();
 
@@ -50,7 +49,7 @@ public class StyleBuilder {
 
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
+        Style catalog = new MutableStyle("name",SymbolizerBuilder.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
 
         return catalog;
     }
@@ -59,7 +58,7 @@ public class StyleBuilder {
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,SemanticType.POINT);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
+        Style catalog = new MutableStyle("name",SymbolizerBuilder.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
 
@@ -67,7 +66,7 @@ public class StyleBuilder {
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,SemanticType.LINE);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
+        Style catalog = new MutableStyle("name",SymbolizerBuilder.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
 
@@ -75,7 +74,7 @@ public class StyleBuilder {
         FeatureTypeStyle fts = createFeatureTypeStyle(symbols,SemanticType.ANY);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
+        Style catalog = new MutableStyle("name",SymbolizerBuilder.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
 
@@ -84,7 +83,7 @@ public class StyleBuilder {
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,SemanticType.POLYGON);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
+        Style catalog = new MutableStyle("name",SymbolizerBuilder.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
 
@@ -92,7 +91,7 @@ public class StyleBuilder {
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol, SemanticType.TEXT);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
+        Style catalog = new MutableStyle("name",SymbolizerBuilder.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
 
@@ -100,7 +99,7 @@ public class StyleBuilder {
         FeatureTypeStyle fts = createFeatureTypeStyle(symbol,SemanticType.RASTER);
         List<FeatureTypeStyle> ftss =new ArrayList<FeatureTypeStyle>();
         ftss.add(fts);
-        Style catalog = new MutableStyle("name",SYMBOL_BUILDER.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
+        Style catalog = new MutableStyle("name",SymbolizerBuilder.DEFAULT_DESCRIPTION,ftss, DEFAULT_FALLBACK_SYMBOLIZER,false);
         return catalog;
     }
 

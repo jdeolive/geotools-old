@@ -26,7 +26,13 @@ import java.util.Set;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 import javax.swing.Icon;
+
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.GeoTools;
+import org.geotools.filter.IllegalFilterException;
 import org.geotools.util.SimpleInternationalString;
+
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.metadata.citation.OnLineResource;
@@ -71,6 +77,9 @@ import org.opengis.util.InternationalString;
  */
 public class SymbolizerBuilder {
         
+    
+    private static final FilterFactory FF = CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints());
+    
     private static long id = 0;
     
     public static final ChannelSelection       DEFAULT_RASTER_CHANNEL_RGB;
@@ -96,20 +105,18 @@ public class SymbolizerBuilder {
     public static final Displacement           DEFAULT_DISPLACEMENT; 
     public static final AnchorPoint            DEFAULT_ANCHOR_POINT;
     public static final Expression             DEFAULT_ROTATION;
-    
-    private static final org.geotools.styling.StyleBuilder SB = new org.geotools.styling.StyleBuilder();
-    
+        
     static{
-        DEFAULT_OPACITY = SB.literalExpression(1f);
+        DEFAULT_OPACITY = FF.literal(1f);
         DEFAULT_UOM = NonSI.PIXEL;
         DEFAULT_GEOM = null;        
         DEFAULT_DESCRIPTION = new DefaultDescription(
                 new SimpleInternationalString("Title"), 
                 new SimpleInternationalString("Description"));
-        DEFAULT_DISPLACEMENT = new DefaultDisplacement(SB.literalExpression(0), SB.literalExpression(0));
-        DEFAULT_ANCHOR_POINT = new DefaultAnchorPoint(SB.literalExpression(0.5d), SB.literalExpression(0.5d));
-        DEFAULT_ROTATION = SB.literalExpression(0);
-        DEFAULT_GRAPHIC_SIZE = SB.literalExpression(16);
+        DEFAULT_DISPLACEMENT = new DefaultDisplacement(FF.literal(0), FF.literal(0));
+        DEFAULT_ANCHOR_POINT = new DefaultAnchorPoint(FF.literal(0.5d), FF.literal(0.5d));
+        DEFAULT_ROTATION = FF.literal(0);
+        DEFAULT_GRAPHIC_SIZE = FF.literal(16);
         
         DEFAULT_POINT_NAME = "PointSymbolizer ";
         DEFAULT_LINE_NAME = "LineSymbolizer ";
@@ -128,11 +135,126 @@ public class SymbolizerBuilder {
         
         DEFAULT_RASTER_OVERLAP = OverlapBehavior.LATEST_ON_TOP;
         DEFAULT_RASTER_COLORMAP = new DefaultColorMap(null);
-        DEFAULT_RASTER_CONTRAST_ENCHANCEMENT = new DefaultContrastEnchancement(ContrastMethod.NONE,SB.literalExpression(1d));
-        DEFAULT_RASTER_SHADED_RELIEF = new DefaultShadedRelief(false, SB.literalExpression(1d));
+        DEFAULT_RASTER_CONTRAST_ENCHANCEMENT = new DefaultContrastEnchancement(ContrastMethod.NONE,FF.literal(1d));
+        DEFAULT_RASTER_SHADED_RELIEF = new DefaultShadedRelief(false, FF.literal(1d));
         DEFAULT_RASTER_OUTLINE = null;
     }
     
+    
+    //-------------------------------------------------------------------------------------------
+    //Expression creation methods ---------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    
+    /**
+     * convert an awt color in to a literal expression representing the color
+     *
+     * @param color the color to encode
+     *
+     * @return the expression
+     */
+    public Expression colorExpression(Color color) {
+        if (color == null) {
+            return null;
+        }
+
+        String redCode = Integer.toHexString(color.getRed());
+        String greenCode = Integer.toHexString(color.getGreen());
+        String blueCode = Integer.toHexString(color.getBlue());
+
+        if (redCode.length() == 1) {
+            redCode = "0" + redCode;
+        }
+
+        if (greenCode.length() == 1) {
+            greenCode = "0" + greenCode;
+        }
+
+        if (blueCode.length() == 1) {
+            blueCode = "0" + blueCode;
+        }
+
+        String colorCode = "#" + redCode + greenCode + blueCode;
+
+        return FF.literal(colorCode.toUpperCase());
+    }
+
+    /**
+     * create a literal expression representing the value
+     *
+     * @param value the value to be encoded
+     *
+     * @return the expression
+     */
+    public Expression literalExpression(double value) {
+        return FF.literal(value);
+    }
+
+    /**
+     * create a literal expression representing the value
+     *
+     * @param value the value to be encoded
+     *
+     * @return the expression
+     */
+    public Expression literalExpression(int value) {
+        return FF.literal(value);
+    }
+
+    /**
+     * create a literal expression representing the value
+     *
+     * @param value the value to be encoded
+     *
+     * @return the expression
+     */
+    public Expression literalExpression(String value) {
+        Expression result = null;
+
+        if (value != null) {
+            result = FF.literal(value);
+        }
+
+        return result;
+    }
+
+    /**
+     * create a literal expression representing the value
+     *
+     * @param value the value to be encoded
+     *
+     * @return the expression
+     *
+     * @throws IllegalFilterException DOCUMENT ME!
+     */
+    public Expression literalExpression(Object value) throws IllegalFilterException {
+        Expression result = null;
+
+        if (value != null) {
+            result = FF.literal(value);
+        }
+
+        return result;
+    }
+
+    /**
+     * create an attribute expression
+     *
+     * @param attributeName the attribute to use
+     *
+     * @return the new expression
+     *
+     * @throws org.geotools.filter.IllegalFilterException if the attribute name does not exist
+     */
+    public Expression attributeExpression(String attributeName)
+        throws org.geotools.filter.IllegalFilterException {
+        return FF.property( attributeName );
+    }
+    
+    
+    
+    //-------------------------------------------------------------------------------------------
+    //simplified creation methods ---------------------------------------------------------------
+    //------------------------------------------------------------------------------------------- 
     
     public PointSymbolizer createDefaultPointSymbolizer(){
         PointSymbolizer symbol = new DefaultPointSymbolizer(
@@ -148,7 +270,7 @@ public class SymbolizerBuilder {
     public LineSymbolizer createDefaultLineSymbolizer(){
         LineSymbolizer symbol = new DefaultLineSymbolizer(
                 createStroke(Color.RED, 1), 
-                SB.literalExpression(0), 
+                literalExpression(0), 
                 DEFAULT_UOM, 
                 null, 
                 DEFAULT_LINE_NAME + id++, 
@@ -162,7 +284,7 @@ public class SymbolizerBuilder {
                 createStroke(Color.BLACK, 1), 
                 createFill(Color.BLUE), 
                 DEFAULT_DISPLACEMENT, 
-                SB.literalExpression(0), 
+                literalExpression(0), 
                 DEFAULT_UOM, 
                 null, 
                 DEFAULT_POLYGON_NAME + id++, 
@@ -172,7 +294,7 @@ public class SymbolizerBuilder {
     
     public TextSymbolizer createDefaultTextSymbolizer(){
         TextSymbolizer symbol = new DefaultTextSymbolizer(
-                SB.literalExpression("Label"), 
+                literalExpression("Label"), 
                 createFont(12), 
                 createLabelPlacement(), 
                 createHalo(Color.WHITE, 0), 
@@ -216,19 +338,18 @@ public class SymbolizerBuilder {
     }
     
     public Displacement createDisplacement(double x, double y){
-        Displacement disp = new DefaultDisplacement(SB.literalExpression(x), SB.literalExpression(y));
+        Displacement disp = new DefaultDisplacement(literalExpression(x), literalExpression(y));
         return disp;
     }
         
     public AnchorPoint createAnchorPoint(double x, double y){
-        AnchorPoint anchor = new DefaultAnchorPoint(SB.literalExpression(x), SB.literalExpression(y));
+        AnchorPoint anchor = new DefaultAnchorPoint(literalExpression(x), literalExpression(y));
         return anchor;
     }
     
-    
     public Mark createDefaultMark(){
         Mark mark = new DefaultMark(
-                SB.literalExpression("square"), 
+                literalExpression("square"), 
                 null, 
                 createFill(Color.GRAY), 
                 createStroke(Color.DARK_GRAY, 1f));
@@ -238,7 +359,7 @@ public class SymbolizerBuilder {
     public Fill createFill(Color color){
         Fill fill = new DefaultFill(
                 null, 
-                SB.colorExpression(color), 
+                colorExpression(color), 
                 DEFAULT_OPACITY);
         return fill;
     }
@@ -247,11 +368,11 @@ public class SymbolizerBuilder {
         Stroke stroke = new DefaultStroke(
                 null, 
                 null, 
-                SB.colorExpression(color), 
+                colorExpression(color), 
                 DEFAULT_OPACITY, 
-                SB.literalExpression(width), 
-                SB.literalExpression("bevel"), 
-                SB.literalExpression("butt"), 
+                literalExpression(width), 
+                literalExpression("bevel"), 
+                literalExpression("butt"), 
                 new float[0], 
                 DEFAULT_OPACITY);
         return stroke;
@@ -261,11 +382,11 @@ public class SymbolizerBuilder {
         Stroke stroke = new DefaultStroke(
                 null, 
                 null, 
-                SB.colorExpression(color), 
+                colorExpression(color), 
                 DEFAULT_OPACITY, 
-                SB.literalExpression(width), 
-                SB.literalExpression("bevel"), 
-                SB.literalExpression("butt"), 
+                literalExpression(width), 
+                literalExpression("bevel"), 
+                literalExpression("butt"), 
                 dashes, 
                 DEFAULT_OPACITY);
         return stroke;
@@ -274,7 +395,7 @@ public class SymbolizerBuilder {
     public Halo createHalo(Color color, double width){
         Halo halo = new DefaultHalo(
                 createFill(color), 
-                SB.literalExpression(width));
+                literalExpression(width));
         return halo;
     }
     
@@ -291,9 +412,10 @@ public class SymbolizerBuilder {
                 new ArrayList<Expression>(), 
                 null, 
                 null, 
-                SB.literalExpression(size));
+                literalExpression(size));
         return font;
     }
+    
     
     //-------------------------------------------------------------------------------------------
     //complete creation methods -----------------------------------------------------------------
@@ -436,6 +558,21 @@ public class SymbolizerBuilder {
             Description desc){
         PolygonSymbolizer ps = new DefaultPolygonSymbolizer(stroke, fill, disp, offset, uom, geom, name, desc);
         return ps;
+    }
+    
+    public RasterSymbolizer createRasterSymbolizer(){
+        RasterSymbolizer rs = new DefaultRasterSymbolizer(DEFAULT_OPACITY, 
+                DEFAULT_RASTER_CHANNEL_RGB, 
+                DEFAULT_RASTER_OVERLAP, 
+                DEFAULT_RASTER_COLORMAP, 
+                DEFAULT_RASTER_CONTRAST_ENCHANCEMENT, 
+                DEFAULT_RASTER_SHADED_RELIEF, 
+                DEFAULT_RASTER_OUTLINE, 
+                DEFAULT_UOM, 
+                DEFAULT_GEOM, 
+                "rasterSymbolizer", 
+                DEFAULT_DESCRIPTION);
+        return rs; 
     }
     
     public RasterSymbolizer createRasterSymbolizer(Expression opacity, 
