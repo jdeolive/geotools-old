@@ -22,9 +22,12 @@ import java.util.Random;
 
 import javax.vecmath.MismatchedSizeException;
 
+import junit.framework.Assert;
+
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -32,6 +35,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import org.junit.*;
+
 import static org.junit.Assert.*;
 
 
@@ -185,6 +189,19 @@ public final class MathTransformBuilderTest {
         assertTrue(ppc.getErrorStatistics().rms() < 0.00001);
     }
 
+    @Test    
+    public void testAdvancedAffineBuilder(){
+        try {
+			List<MappedPosition> pts = generateCoords(3, 1245);    
+			AdvancedAffineBuilder aab = new AdvancedAffineBuilder(pts);         		
+			aab.setConstrain(AdvancedAffineBuilder.SXY, 0);   			
+			AffineToGeometric a2g = new AffineToGeometric((AffineTransform2D)aab.getMathTransform());            
+			Assert.assertEquals(a2g.getSkew(), 0, 0.000000001);
+		
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}   
+    }
     /**
      * Test for MismatchedSizeException.
      * @throws TransformException
