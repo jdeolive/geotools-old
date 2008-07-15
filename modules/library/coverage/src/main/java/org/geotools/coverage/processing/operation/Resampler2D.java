@@ -21,6 +21,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.DataBuffer;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -587,29 +588,46 @@ final class Resampler2D extends GridCoverage2D {
                  *
                  * TODO: Move the check for AffineTransform into WarpTransform2D.
                  */
-                if (interpolation != null && !(interpolation instanceof InterpolationNearest)) {
-                    switch (sourceImage.getSampleModel().getTransferType()) {
-                        case java.awt.image.DataBuffer.TYPE_DOUBLE:
-                        case java.awt.image.DataBuffer.TYPE_FLOAT: {
-                            Envelope source = CRS.transform(sourceGG.getEnvelope(), targetCRS);
-                            Envelope target = CRS.transform(targetGG.getEnvelope(), targetCRS);
-                            source = targetGG.reduce(source);
-                            target = targetGG.reduce(target);
-                            if (!(new GeneralEnvelope(source).contains(target, true))) {
+                boolean forceAdapter = false;
+                switch (sourceImage.getSampleModel().getTransferType()) {
+                    case DataBuffer.TYPE_DOUBLE:
+                    case DataBuffer.TYPE_FLOAT: {
+                        Envelope source = CRS.transform(sourceGG.getEnvelope(), targetCRS);
+                        Envelope target = CRS.transform(targetGG.getEnvelope(), targetCRS);
+                        source = targetGG.reduce(source);
+                        target = targetGG.reduce(target);
+                        if (!(new GeneralEnvelope(source).contains(target, true))) {
+                            if (interpolation != null && !(interpolation instanceof InterpolationNearest)) {
                                 return reproject(sourceCoverage, targetCRS, targetGG, null, hints);
+                            } else {
+                                // If we were already using nearest-neighbor interpolation, force
+                                // usage of WarpAdapter2D instead of WarpAffine. The price will be
+                                // a slower reprojection.
+                                forceAdapter = true;
                             }
                         }
                     }
                 }
                 // -------- End of JAI bug workaround --------
+                final MathTransform2D transform = (MathTransform2D) allSteps2D;
+                final CharSequence name = sourceCoverage.getName();
                 operation = "Warp";
-                final boolean checkTarget =
-                        layout.getMinX  (sourceImage) == targetBB.x &&
+                final Warp warp;
+                if (forceAdapter) {
+                    warp = WarpTransform2D.getWarp(name, transform);
+                } else {
+                    final Rectangle imageBB;
+                    if (layout.getMinX  (sourceImage) == targetBB.x &&
                         layout.getMinY  (sourceImage) == targetBB.y &&
                         layout.getWidth (sourceImage) == targetBB.width &&
-                        layout.getHeight(sourceImage) == targetBB.height;
-                final Warp warp = createWarp(sourceCoverage.getName(), sourceBB,
-                        checkTarget ? targetBB : null, (MathTransform2D) allSteps2D, mtFactory);
+                        layout.getHeight(sourceImage) == targetBB.height)
+                    {
+                        imageBB = targetBB;
+                    } else {
+                        imageBB = null;
+                    }
+                    warp = createWarp(name, sourceBB, imageBB, transform, mtFactory);
+                }
                 paramBlk.add(warp).add(interpolation).add(background);
             }
         }

@@ -739,19 +739,15 @@ scan:       while (it.hasNext()) {
         }
         final int rank = variable.getRank();
         int bandDimension = rank - Z_DIMENSION;
-	// @todo handle properly NetcdfReadParam and the way to get the band dimension, since
-	// NetcdfReadParam is deprecated.
-        if (false) {
-            if (param instanceof NetcdfReadParam) {
-                final NetcdfReadParam p = (NetcdfReadParam) param;
-                if (p.isBandDimensionSet() && variable instanceof VariableEnhanced) {
-                    ensureMetadataLoaded(); // Build the CoordinateSystems
-                    bandDimension = p.getBandDimension((VariableEnhanced) variable);
-                    final int relative = rank - bandDimension;
-                    if (relative < 0 || relative == X_DIMENSION || relative == Y_DIMENSION) {
-                        throw new IllegalArgumentException(Errors.format(ErrorKeys.BAD_PARAMETER_$2,
-                                "bandDimension", bandDimension));
-                    }
+        if (false && param instanceof NetcdfReadParam) {
+            final NetcdfReadParam p = (NetcdfReadParam) param;
+            if (p.isBandDimensionSet() && variable instanceof VariableEnhanced) {
+                ensureMetadataLoaded(); // Build the CoordinateSystems
+                bandDimension = p.getBandDimension((VariableEnhanced) variable);
+                final int relative = rank - bandDimension;
+                if (relative < 0 || relative == X_DIMENSION || relative == Y_DIMENSION) {
+                    throw new IllegalArgumentException(Errors.format(ErrorKeys.BAD_PARAMETER_$2,
+                            "bandDimension", bandDimension));
                 }
             }
         }
