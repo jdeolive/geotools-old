@@ -71,6 +71,10 @@ public class ParsingTest extends TestCase {
 	    }
 	}
 	
+//	public void testExeResponseLiteralDataType() {
+//		
+//	}
+	
 //	public void testUOMsList() {
 //		UOMsTypeImpl uoMsType = new UOMsTypeImpl();
 //		Unit newValue = Unit.valueOf("m");
