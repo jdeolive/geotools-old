@@ -48,8 +48,7 @@
      <profile>
        <id>gdal</id>
        <modules>
-         <module>mrsid</module>
-         <module>ecw</module>
+         <module>imageio-ext-gdal</module>
        </modules>
      </profile>
 
