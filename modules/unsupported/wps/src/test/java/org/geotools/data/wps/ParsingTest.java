@@ -17,8 +17,10 @@
 package org.geotools.data.wps;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -72,7 +74,7 @@ public class ParsingTest extends TestCase {
 	}
 	
 //	public void testExeResponseLiteralDataType() {
-//		
+//		BufferedReader in = new BufferedReader(new FileReader("LiteralDataTypeTestFile.xml"));
 //	}
 	
 //	public void testUOMsList() {
