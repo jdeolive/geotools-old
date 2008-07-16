@@ -26,13 +26,15 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Accepts geometries and collapses all the vertices that will be rendered to
- * the same pixel.
+ * the same pixel. This class works only if the Geometries are based on 
+ * {@link LiteCoordinateSequence} instances.
  * 
  * @author jeichar
  * @since 2.1.x
@@ -162,7 +164,7 @@ public final class Decimator {
 			if (decimateOnEnvelope(line, seq)) {
 				return;
 			}
-			decimate(seq);
+			decimate(line, seq);
 		} else if (geom instanceof Polygon) {
 			Polygon line = (Polygon) geom;
 			decimate(line.getExteriorRing());
@@ -180,17 +182,46 @@ public final class Decimator {
 	private boolean decimateOnEnvelope(Geometry geom, LiteCoordinateSequence seq) {
 		Envelope env = geom.getEnvelopeInternal();
 		if (env.getWidth() <= spanx && env.getHeight() <= spany) {
-			double[] coords = seq.getArray();
-			int dim = seq.getDimension();
-			double[] newcoords = new double[dim * 2];
-			for (int i = 0; i < dim; i++) {
-				newcoords[i] = coords[i];
-				newcoords[dim + i] = coords[coords.length - dim + i];
-			}
-			seq.setArray(coords);
-			return true;
+		    if(geom instanceof LinearRing) {
+		        decimateRingFully(seq);
+		        return true;
+		    } else {
+    			double[] coords = seq.getArray();
+    			int dim = seq.getDimension();
+    			double[] newcoords = new double[dim * 2];
+    			for (int i = 0; i < dim; i++) {
+    				newcoords[i] = coords[i];
+    				newcoords[dim + i] = coords[coords.length - dim + i];
+    			}
+    			seq.setArray(newcoords);
+    			return true;
+		    }
 		}
 		return false;
+	}
+	
+	/**
+	 * Makes sure the ring is turned into a minimal 3 non equal points one
+	 * @param ring
+	 */
+	private void decimateRingFully(LiteCoordinateSequence seq) {
+	    double[] coords = seq.getArray();
+        int dim = seq.getDimension();
+        
+        // degenerate one, it's not even a triangle, or just a triangle
+        if(seq.size() <= 4)
+            return;
+        
+        double[] newcoords = new double[dim * 4];
+        // assuming the ring makes sense in the first place (i.e., it's at least a triangle),
+        // we copy the first two and the last two points
+        for (int i = 0; i < dim; i++) {
+            newcoords[i] = coords[i];
+            newcoords[dim + i] = coords[dim + i];
+            newcoords[dim * 2 + i] = coords[coords.length - dim * 2 + i];
+            newcoords[dim * 3 + i] = coords[coords.length - dim + i];
+        }
+        seq.setArray(newcoords);
 	}
 
 	/**
@@ -283,14 +314,14 @@ public final class Decimator {
 		}
 	}
 
-	private void decimate(LiteCoordinateSequence seq) {
+	private void decimate(Geometry g, LiteCoordinateSequence seq) {
 		double[] coords = seq.getXYArray();
 		int dim = seq.getDimension();
 		int numDoubles = coords.length;
 		int readDoubles = 0;
 		double prevx, currx, prevy, curry, diffx, diffy;
 		for (int currentDoubles = 0; currentDoubles < numDoubles; currentDoubles += dim) {
-			if (currentDoubles >= dim && currentDoubles < numDoubles - 1) {
+			if (currentDoubles >= dim && currentDoubles < numDoubles - dim) {
 				prevx = coords[readDoubles - dim];
 				currx = coords[currentDoubles];
 				diffx = Math.abs(prevx - currx);
@@ -306,10 +337,14 @@ public final class Decimator {
 						currentDoubles);
 			}
 		}
-		if(readDoubles < numDoubles) {
-		    double[] newCoords = new double[readDoubles];
-		    System.arraycopy(coords, 0, newCoords, 0, readDoubles);
-		    seq.setArray(newCoords);
+		if(g instanceof LinearRing && readDoubles < dim * 4) {
+		    decimateRingFully(seq);
+		} else {
+    		if(readDoubles < numDoubles) {
+    		    double[] newCoords = new double[readDoubles];
+    		    System.arraycopy(coords, 0, newCoords, 0, readDoubles);
+    		    seq.setArray(newCoords);
+    		}
 		}
 	}
 
