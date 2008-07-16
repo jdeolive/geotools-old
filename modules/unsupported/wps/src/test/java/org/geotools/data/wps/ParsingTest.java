@@ -17,26 +17,22 @@
 package org.geotools.data.wps;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.measure.unit.Unit;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.opengis.wps.ProcessDescriptionType;
+import net.opengis.wps.ExecuteResponseType;
+import net.opengis.wps.OutputDataType;
 import net.opengis.wps.ProcessDescriptionsType;
-import net.opengis.wps.WpsPackage;
-import net.opengis.wps.impl.UOMsTypeImpl;
 
-import org.eclipse.emf.ecore.EObject;
-import org.geotools.data.ows.ProcessDescription;
+import org.geotools.test.TestData;
 import org.geotools.wps.WPSConfiguration;
 import org.geotools.xml.Configuration;
-import org.geotools.xml.EMFUtils;
 import org.geotools.xml.Parser;
 import org.xml.sax.SAXException;
 
@@ -73,8 +69,26 @@ public class ParsingTest extends TestCase {
 	    }
 	}
 	
-//	public void testExeResponseLiteralDataType() {
-//		BufferedReader in = new BufferedReader(new FileReader("LiteralDataTypeTestFile.xml"));
+//	public void testExeResponseLiteralDataType() throws IOException, SAXException, ParserConfigurationException {
+//		File file = new File(TestData.file(this.getClass(), null), "LiteralDataTypeTestFile.xml");
+//		BufferedReader in = new BufferedReader(new FileReader(file));
+//    	Configuration config = new WPSConfiguration();
+//    	Parser parser = new Parser(config);
+//    	
+//    	Object object = parser.parse(in);
+//    	
+//		// try casting the response
+//    	ExecuteResponseType exeResponse = null;
+//		if (object instanceof ExecuteResponseType) {
+//			exeResponse = (ExecuteResponseType) object;
+//		}
+//		
+//		// try to get the output datatype
+//		OutputDataType odt = (OutputDataType) exeResponse.getProcessOutputs().getOutput().get(0);
+//		String dataType = odt.getData().getLiteralData().getDataType();
+//		
+//		assertNotNull(dataType);
+//		
 //	}
 	
 //	public void testUOMsList() {
