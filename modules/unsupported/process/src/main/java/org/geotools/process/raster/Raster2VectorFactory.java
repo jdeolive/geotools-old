@@ -80,7 +80,7 @@ public class Raster2VectorFactory implements ProcessFactory {
 					int band = (Integer) input.get("band");
 					double nodata = (Integer) input.get("nodata");
 					
-					RasterToVector engine = new RasterToVector();
+					Raster2Vector engine = new Raster2Vector();
 					FeatureCollection features = engine.convert(raster, band, nodata, monitor );
 					
 					Map<String,Object> results = new HashMap<String,Object>();
@@ -173,7 +173,7 @@ public class Raster2VectorFactory implements ProcessFactory {
  * 
  * @author Michael Bedward <michael.bedward@gmail.com>
  */
-class RasterToVector {
+class Raster2Vector {
 
     // the JTS object that does all the topological work for us
     private Polygonizer polygonizer;
@@ -215,7 +215,7 @@ class RasterToVector {
     private List<LineString> lines;
     
     
-    public RasterToVector() {
+    public Raster2Vector() {
     }
 
     /**
@@ -624,7 +624,7 @@ class RasterToVector {
             transformLR.transform(pixelStart, rwStart);
             transformLR.transform(pixelEnd, rwEnd);
         } catch (TransformException ex) {
-            Logger.getLogger(RasterToVector.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Raster2Vector.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         Coordinate[] coords = new Coordinate[]{
@@ -650,7 +650,7 @@ class RasterToVector {
             transformLR.transform(pixelStart, rwStart);
             transformLR.transform(pixelEnd, rwEnd);
         } catch (TransformException ex) {
-            Logger.getLogger(RasterToVector.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Raster2Vector.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         Coordinate[] coords = new Coordinate[]{
