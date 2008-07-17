@@ -30,12 +30,11 @@ import org.opengis.filter.expression.PropertyName;
 /**
  * Unit Test for Comparison Predicate
  * <p>
- * By default test execute the test parsing Comparison Predicate using
+ * By default test executes the test parsing Comparison Predicate using
  * the CQL compiler.
  * </p>
- * 
  * <p>
- * The subclass could instance the test case with different language.
+ * The subclass could use this as default and add more test cases with different language. 
  * </p>
  *
  * @author Mauricio Pazos (Axios Engineering)

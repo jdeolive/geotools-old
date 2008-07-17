@@ -75,6 +75,14 @@ public final class FilterTXTSample {
 
     public static final String           LITERAL_NOT_LIKE_TXT_PATTERN             = "'aabbcc' not like '%bb%'";
 
+    public static final String           LITERAL_BETWEEN_TWO_LITERALS             = "2 between 1 and 3";
+
+    public static final String           LITERAL_BETWEEN_TWO_EXPRESSIONS          = "2 BETWEEN (2-1) AND (2+1)";
+
+    public static final String           FUNCTION_BETWEEN_LITERALS                = "area( the_geom ) BETWEEN 10000 AND 30000";
+
+    public static final String           FUNCTION_BETWEEN_FUNCTIONS               = "area( the_geom ) BETWEEN abs(10000) AND abs(30000)";
+
     /** Maintains the TXT predicates (input) and the expected filters (output) */
     public static Map<String, Object> SAMPLES = new HashMap<String, Object>();
 
@@ -207,7 +215,46 @@ public final class FilterTXTSample {
 
         SAMPLES.put( LITERAL_NOT_LIKE_TXT_PATTERN, filter );
     
+        // ----------------------------------------------------
+        // Between samples
+        // ----------------------------------------------------
+        // 2 between 1 and 3
+        filter = 
+            FACTORY.between(FACTORY.literal(2), FACTORY.literal(1), FACTORY.literal(3));
+        
+        SAMPLES.put(LITERAL_BETWEEN_TWO_LITERALS, filter);
+
+        
+        // 2 BETWEEN (2-1) AND (2+1)
+        filter = FACTORY.between(
+                            FACTORY.literal(2), 
+                            FACTORY.subtract(FACTORY.literal(2), FACTORY.literal(1)), 
+                            FACTORY.add(FACTORY.literal(2), FACTORY.literal(1)));
+
+        SAMPLES.put(LITERAL_BETWEEN_TWO_EXPRESSIONS, filter);
+
+        // area( the_geom ) BETWEEN 10000 AND 30000
+        filter = FACTORY.between(
+                    area, 
+                    FACTORY.literal(10000),  FACTORY.literal(30000));
+
+        SAMPLES.put(FUNCTION_BETWEEN_LITERALS, filter);               
+        
+        // area( the_geom ) BETWEEN abs(10000) AND abs(30000)
+        Expression[] abs1Args = new Expression[1];
+        abs1Args[0] = FACTORY.literal(10000);
+        Function abs1 = FACTORY.function("abs", abs1Args);
+
+        Expression[] abs2Args = new Expression[1];
+        abs2Args[0] = FACTORY.literal(30000);
+
+        Function abs2 = FACTORY.function("abs", abs2Args);
+
+        filter= FACTORY.between(area, abs1, abs2);
+        
+        SAMPLES.put(FUNCTION_BETWEEN_FUNCTIONS, filter);
     }
+    
 
     /**
      * @param predcateRequested

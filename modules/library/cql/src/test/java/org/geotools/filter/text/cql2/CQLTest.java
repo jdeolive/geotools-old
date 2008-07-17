@@ -166,54 +166,6 @@ public class CQLTest extends TestCase {
     }
 
     /**
-     * Test Between Predicate.
-     * <p>
-     *
-     * <pre>
-     *  This cql clause is an extension for convenience.
-     *  &lt;between predicate &gt; ::=
-     *  &lt;attribute name &gt; [ NOT ] BETWEEN  &lt;literal&amp; #62; AND  &lt; literal  &gt;
-     * </pre>
-     *
-     * </p>
-     */
-    public void testBetweenPredicate() throws Exception {
-        Filter resultFilter;
-        Filter expected;
-
-        // between
-        resultFilter = CQL.toFilter(FilterCQLSample.BETWEEN_FILTER);
-
-        assertNotNull("Filter expected", resultFilter);
-
-        expected = FilterCQLSample.getSample(FilterCQLSample.BETWEEN_FILTER);
-
-        assertEquals("Between filter was expected", expected, resultFilter);
-
-        // not between
-        resultFilter = CQL.toFilter(FilterCQLSample.NOT_BETWEEN_FILTER);
-
-        assertNotNull("Filter expected", resultFilter);
-
-        expected = FilterCQLSample.getSample(FilterCQLSample.NOT_BETWEEN_FILTER);
-
-        assertEquals("Between filter was expected", expected, resultFilter);
-
-        // test compound attribute gmd:aa:bb.gmd:cc.gmd:dd
-        final String prop = "gmd:aa:bb.gmd:cc.gmd:dd";
-        final String propExpected = "gmd:aa:bb/gmd:cc/gmd:dd";
-        resultFilter = CQL.toFilter(prop + " BETWEEN 100 AND 200 ");
-
-        assertTrue("PropertyIsBetween filter was expected",
-            resultFilter instanceof PropertyIsBetween);
-
-        PropertyIsBetween filter = (PropertyIsBetween) resultFilter;
-        Expression property = filter.getExpression();
-
-        assertEquals(propExpected, property.toString());
-    }
-
-    /**
      * Test Attribute
      * <p>
      *
