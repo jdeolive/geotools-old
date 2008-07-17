@@ -18,6 +18,7 @@ package org.geotools.styling.visitor;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -75,7 +76,11 @@ import org.opengis.filter.expression.Expression;
  * rule.accepts( copyStyle );
  * Rule rule = (Rule) copyStyle.getCopy();
  * </code></pre>
- * 
+ * <p>
+ * This class is often used as a base for an anoymous subclass where
+ * a style transformation is needed (such as removing PointSymbolizers
+ * or changing the scale - see RescaleStyleVisitor for an example).
+ * </p>
  * @author Jesse Eichar
  */
 public class DuplicatingStyleVisitor implements StyleVisitor {
@@ -264,16 +269,22 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         }
 
         Symbolizer[] symbolizer = rule.getSymbolizers();
-        Symbolizer[] symbolizerCopy = new Symbolizer[symbolizer.length];
+        ArrayList<Symbolizer> symbolizerList = new ArrayList<Symbolizer>();
+        
 
         length=symbolizer.length;
         for (int i = 0; i < length; i++) {
-            if (symbolizer[i] != null) {
-                symbolizer[i].accept(this);
-                symbolizerCopy[i] = (Symbolizer) pages.pop();
-            }
+            if (symbolizer[i] == null) continue;
+            
+            symbolizer[i].accept(this);
+            Symbolizer symbolizerCopy = (Symbolizer) pages.pop();
+            
+            if( symbolizerCopy == null ) continue;
+            
+            symbolizerList.add( symbolizerCopy );
         }
-
+        Symbolizer[] symbolizerCopy = symbolizerList.toArray( new Symbolizer[0] );
+        
         copy = sf.createRule();
         copy.setAbstract(rule.getAbstract());
         copy.setFilter(filterCopy);
