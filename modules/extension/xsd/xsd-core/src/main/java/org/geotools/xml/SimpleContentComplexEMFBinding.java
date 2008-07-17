@@ -47,7 +47,11 @@ public class SimpleContentComplexEMFBinding extends ComplexEMFBinding {
     
         EObject object = createEObject(value);
         if ( object != null ) {
+            //set the "value" property to be the value passed in
             EMFUtils.set( object, "value", value );
+            
+            //set all the attribute values
+            setProperties(object, node, false);
             return object;
         }
         
