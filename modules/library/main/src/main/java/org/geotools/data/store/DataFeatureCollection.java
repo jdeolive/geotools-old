@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.collection.DelegateFeatureReader;
+import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
@@ -46,6 +47,7 @@ import org.geotools.filter.SortBy2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
 import org.geotools.util.ProgressListener;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -54,11 +56,9 @@ import org.opengis.filter.sort.SortBy;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * A starting point for implementing FeatureCollection's backed
- * by real data.
+ * A starting point for implementing FeatureCollection's backed onto a FeatureReader.
  * <p>
- * The API you are required to implement is *identical* the the barebones
- * FeatureResults interface:
+ * The API you are required to implement is *identical* the the barebones FeatureResults interface:
  * <ul>
  * <li>getSchema()
  * <li>reader()
@@ -69,7 +69,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * <p>
  * This class will implement the 'extra' methods required by FeatureCollection
  * for you (in simple terms based on the FeatureResults API). Anything that is
- * <i>often</i> customized is available to you as a constructor parameters.
+ * <i>often</i> customised is available to you as a constructor parameters.
  * <p>
  * Enjoy.
  * </p>
@@ -378,7 +378,31 @@ public abstract class DataFeatureCollection extends BaseFeatureCollection implem
         return false;
     }
 
-    public boolean containsAll( Collection arg0 ) {
+    public boolean containsAll( Collection<?> collection ) {
+        if( collection instanceof ResourceCollection ){
+            return containsAll( (ResourceCollection<?>) collection );
+        }
+        try {
+            FeatureReader reader = reader();
+            try {
+               while( reader.hasNext() ){
+                   Feature feature = reader.next();
+                   if( !collection.contains( reader )){
+                       return false;
+                   }
+               }
+            }
+            finally {
+                if( reader != null ) reader.close();
+            }
+        }
+        catch( IOException ignore ){
+        }
+        return true;
+    }
+    
+    public boolean containsAll(ResourceCollection<?> resource) {
+        // should do something smart with ID here
         return false;
     }
 
@@ -396,23 +420,28 @@ public abstract class DataFeatureCollection extends BaseFeatureCollection implem
     public boolean addAll(Collection arg0) {
     	return false;
     }
-
+    public boolean addAll(ResourceCollection<? extends SimpleFeature> resource) {
+        return false;
+    }
     public boolean removeAll( Collection arg0 ) {        
         return false;
     }
-
+    public boolean removeAll(ResourceCollection<?> c) {
+        return false;
+    }
     public boolean retainAll( Collection arg0 ) {
         return false;
     }
-
-    public void clear() {
-        
+    public boolean retainAll(ResourceCollection<?> c) {
+        return false;
+    }
+    public void clear() {        
     }
 
     //
     // Feature methods
     //
-    // Remember the FT model is baed on the idea of a single AttributeType
+    // Remember the FT mosdel is baed on the idea of a single AttributeType
     // of FeatureAttributeType with the value of getSchema
     //
     private FeatureCollection<SimpleFeatureType, SimpleFeature> parent;

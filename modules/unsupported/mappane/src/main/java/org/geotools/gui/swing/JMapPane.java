@@ -35,6 +35,7 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
+import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.gui.swing.event.HighlightChangeListener;
@@ -184,12 +185,12 @@ public class JMapPane extends JPanel implements MouseListener,
     /**
      * the collections of features to be selected or highlighted
      */
-    FeatureCollection<? extends FeatureType, ? extends Feature> selection;
+    FeatureCollection selection;
 
     /**
      * the collections of features to be selected or highlighted
      */
-    FeatureCollection<? extends FeatureType, ? extends Feature> highlightFeature;
+    FeatureCollection highlightFeature;
 
     private int state = ZoomIn;
 

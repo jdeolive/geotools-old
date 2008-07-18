@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.collection.DelegateFeatureReader;
+import org.geotools.data.collection.ResourceCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -212,9 +213,12 @@ public class SubFeatureCollection extends BaseFeatureCollection implements Featu
 	public boolean add(SimpleFeature o) {
 		return rc.add(o); 
 	}
-	public boolean addAll(Collection c) {
+    public boolean addAll(Collection c) {
 		return rc.addAll(c);
 	}
+    public boolean addAll(ResourceCollection c) {
+        return rc.addAll(c);
+    }
 	public void clear() {
 		rc.clear();
 	}

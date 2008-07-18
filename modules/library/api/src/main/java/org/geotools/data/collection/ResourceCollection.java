@@ -21,21 +21,21 @@ import java.util.Iterator;
 
 
 /**
- * Collection supporting close( Iterator ), used to grok resources.
+ * Resource Collection supporting use close( Iterator ) allowing us to work data streams.
  * <p>
- * This implementation is a port of java.util.Collection with support for
+ * This interface is method compatible with java.util.Collection with support for
  * the use of close( Iterator ). This will allow subclasses that make use of
- * resources during iterator() to be uses safely.
+ * resources during iterator() that must be closed after use.
  * </p>
- * @author Jody Garnett, Refractions Research, Inc.
+ * @author Jody Garnett (Refractions Research, Inc)
  * @since GeoTools 2.2
  * @source $URL$
  */
-public interface ResourceCollection<R> extends Collection<R> {
+public interface ResourceCollection<R> /* extends Collection<R> */ {
     /**
-     * An iterator over this collection, which must be closeed after use.
+     * An iterator over this collection, which must be closed after use.
      * <p>
-     * Collection is not guarneteed to be ordered in any manner.
+     * Collection is not guaranteed to be ordered in any manner.
      * </p>
      * <p>
      * The implementation of Collection must adhere to the rules of
@@ -93,6 +93,62 @@ public interface ResourceCollection<R> extends Collection<R> {
      * Collections.sort( collection );
      * collection.purge();
      * </code></pre>
+     * @deprecated No longer needed as iterator use by java for each construct not available
      */
     public void purge();
+    
+    /**
+     * Add object to this collection. 
+     * <p>
+     * This method is often not impelmented for collections produced as the result of a query.
+     * 
+     * @return true of the element was added
+     * @see java.util.Collection#add(Object)
+     */
+    boolean add(R obj);
+    
+    /**
+     * Add all the objects to the collection.
+     * <p>
+     * This method is often not implemented for collections produced as the results of a query.
+     * @see java.util.Collection#addAll(Collection)
+     */
+    boolean addAll(Collection<? extends R> collection);
+
+    /** @see #addAll(Collection) */
+    boolean addAll(ResourceCollection<? extends R> resource);
+    
+    /** @see java.util.Collection#clear() */
+    void clear();
+    
+    /**
+     * @see java.util.Collection#contains(Object)
+     */
+    boolean contains(Object o);
+    
+    /**
+     * @see java.util.Collection#containsAll(Collection)
+     */
+    boolean containsAll(Collection<?> o);
+
+    /** @see java.util.Collection#isEmpty() */
+    boolean isEmpty();
+    
+    /** @see java.util.Collection#remove(Object) */
+    boolean remove(Object o);
+    
+    /** @see java.util.Collection#removeAll(Collection) */
+    public boolean removeAll(Collection<?> c);
+    
+    /** @see java.util.Collection#retainAll(Collection) */   
+    public boolean retainAll(Collection<?> c);
+      
+    /** @see java.util.Collection#size() */
+    int size();
+    
+    /** @see java.util.Collection#toArray() */    
+    Object[] toArray();
+    
+    /** @see java.util.Collection#toArray(Object[]) */ 
+    <T> T[] toArray(T[] a);
 }

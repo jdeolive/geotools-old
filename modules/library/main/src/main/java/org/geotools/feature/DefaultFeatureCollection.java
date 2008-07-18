@@ -31,6 +31,7 @@ import java.util.TreeMap;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.collection.BaseFeatureCollection;
 import org.geotools.feature.collection.FeatureIteratorImpl;
 import org.geotools.feature.collection.FeatureState;
@@ -58,9 +59,8 @@ import org.opengis.geometry.BoundingBox;
  * @source $URL$
  * @version $Id$
  */
-public class DefaultFeatureCollection extends BaseFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
-    
-	
+public class DefaultFeatureCollection extends BaseFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature>{
+ 	
     /**
      * Contents of collection, referenced by FeatureID.
      * <p>
@@ -266,6 +266,32 @@ public class DefaultFeatureCollection extends BaseFeatureCollection implements F
             if( collection instanceof FeatureCollection ){
                 ((FeatureCollection<SimpleFeatureType, SimpleFeature>)collection).close( iterator );
             }
+        }
+    }
+
+    public boolean addAll(ResourceCollection collection) {
+        //TODO check inheritance with FeatureType here!!!
+        boolean changed = false;
+        
+        Iterator iterator = collection.iterator();
+        try {
+            List featuresAdded = new ArrayList(collection.size());
+            while (iterator.hasNext()) {
+                SimpleFeature f = (SimpleFeature) iterator.next();
+                boolean added = add(f,false);
+                changed |= added;
+                
+                if(added) featuresAdded.add(f);
+            }
+    
+            if (changed) {
+                fireChange(featuresAdded, CollectionEvent.FEATURES_ADDED);
+            }
+    
+            return changed;
+        }
+        finally {
+            collection.close( iterator );
         }
     }
 

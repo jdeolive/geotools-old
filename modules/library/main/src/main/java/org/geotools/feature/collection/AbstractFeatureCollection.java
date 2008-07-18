@@ -22,6 +22,7 @@ import java.util.Iterator;
 import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.util.NullProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -112,6 +113,10 @@ public abstract class AbstractFeatureCollection extends BaseFeatureCollection
 		return rc.addAll(c);
 	}
 
+    final public boolean addAll(ResourceCollection c) {
+        return rc.addAll(c);
+    }
+    
     final public void clear() {
     	rc.clear();
 	}
@@ -123,7 +128,7 @@ public abstract class AbstractFeatureCollection extends BaseFeatureCollection
     final public boolean containsAll(Collection c) {
 		return rc.containsAll(c);
 	}
-
+    
     final public boolean isEmpty() {
 		return rc.isEmpty();
 	}
@@ -140,6 +145,7 @@ public abstract class AbstractFeatureCollection extends BaseFeatureCollection
 		return rc.retainAll(c);
 	}
 
+    
     final public Object[] toArray() {
 		return rc.toArray();
 	}
@@ -150,7 +156,7 @@ public abstract class AbstractFeatureCollection extends BaseFeatureCollection
 
 	public void accepts(org.opengis.feature.FeatureVisitor visitor, org.opengis.util.ProgressListener progress) {
     	Iterator iterator = null;
-        // if( progress == null ) progress = new NullProgressListener();
+    	if( progress == null ) progress = new NullProgressListener();
         try{
             float size = size();
             float position = 0;            

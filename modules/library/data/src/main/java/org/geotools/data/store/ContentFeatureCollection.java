@@ -32,6 +32,7 @@ import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
+import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
@@ -321,7 +322,21 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
             throw new RuntimeException(e);
         }
     }
-    
+    public boolean addAll(ResourceCollection c) {
+        ContentFeatureStore featureStore = ensureFeatureStore();
+        try {
+            Set ids;
+            if( c instanceof FeatureCollection ){
+                ids = featureStore.addFeatures( (FeatureCollection) c );
+            }
+            else {
+                ids = featureStore.addFeatures( DataUtilities.list( c ));
+            }
+            return ids.size() == c.size();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public void clear() {
         ContentFeatureStore featureStore = ensureFeatureStore();
         

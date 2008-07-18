@@ -1422,10 +1422,6 @@ public final class StreamingRenderer implements GTRenderer {
 
 	private Collection prepCollection(Collection collection,
 			CoordinateReferenceSystem sourceCrs) throws IOException {
-        if( collection instanceof FeatureCollection){
-            // will force content into correct CRS if needed
-            return prepFeatureCollection( (FeatureCollection<SimpleFeatureType, SimpleFeature>) collection, sourceCrs );
-        }
         return collection;
 	}
 
@@ -1532,7 +1528,9 @@ public final class StreamingRenderer implements GTRenderer {
 		
         final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = (FeatureSource<SimpleFeatureType, SimpleFeature>) currLayer.getFeatureSource();
         
-        final Collection result;
+        Collection collection = null;
+        FeatureCollection features = null;
+        
         final CoordinateReferenceSystem sourceCrs;
         final NumberRange scaleRange = new NumberRange(scaleDenominator,scaleDenominator);
         final ArrayList lfts ;
@@ -1561,21 +1559,30 @@ public final class StreamingRenderer implements GTRenderer {
 			//
 			// /////////////////////////////////////////////////////////////////////
         
-        	result = queryLayer(currLayer, featureSource, schema,
+        	features = queryLayer(currLayer, featureSource, schema,
 				featureTypeStyleArray,
 				mapArea, destinationCrs, sourceCrs, screenSize,
 				geometryAttribute, at);
+        	
+        	features = prepFeatureCollection( features, sourceCrs );        	
         } else {
             CollectionSource source = currLayer.getSource();
-        	result = queryLayer( currLayer, currLayer.getSource() );
+        	collection = queryLayer( currLayer, currLayer.getSource() );
+            
         	sourceCrs = null;
         	lfts = createLiteFeatureTypeStyles( featureStylers, source.describe(), graphics );
+        	
+            collection = prepCollection( collection, sourceCrs);
         }
 
 		if (lfts.size() == 0) return; // nothing to do
 
-        final Collection collection = prepCollection(result, sourceCrs);
-		final Iterator iterator = collection.iterator();        
+		Iterator iterator = null;
+		if( collection != null ) iterator = collection.iterator();        
+		if( features != null ) iterator = features.iterator();
+		
+		if( iterator == null ) return; // nothing to do
+		
 		int n_lfts = lfts.size();
 		final LiteFeatureTypeStyle[] fts_array = (LiteFeatureTypeStyle[]) lfts
 				.toArray(new LiteFeatureTypeStyle[n_lfts]);

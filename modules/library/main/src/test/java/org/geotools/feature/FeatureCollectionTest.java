@@ -23,7 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
+import org.geotools.data.DataUtilities;
+import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -86,7 +89,23 @@ public class FeatureCollectionTest extends TestCase {
     }
     return next;
   }
-  
+  public Collection randomPiece(ResourceCollection original) {
+      LinkedList next = new LinkedList();
+      Iterator og = original.iterator();
+      try {
+          while (og.hasNext()) {
+            if (Math.random() > .5) {
+              next.add(og.next());
+            } else {
+              og.next();
+            }
+          }
+          return next;
+      }
+      finally {
+          original.close( og );
+      }
+    }  
   public void testBounds() throws Exception {
     PrecisionModel pm = new PrecisionModel();
     Geometry[] g = new Geometry[4];
@@ -123,7 +142,7 @@ public class FeatureCollectionTest extends TestCase {
   
   public void testAddRemoveAllAbilities() throws Exception {
     Collection half = randomPiece(features);
-    Collection otherHalf = new ArrayList(features);
+    Collection otherHalf = DataUtilities.list(features);
     otherHalf.removeAll(half);
     features.removeAll(half);
     assertTrue(features.containsAll(otherHalf));
@@ -159,7 +178,8 @@ public class FeatureCollectionTest extends TestCase {
     assertTrue(copy.isEmpty());
     copy.addAll(features);
     assertTrue(!copy.isEmpty());
-    ArrayList list = new ArrayList(features);
+    
+    List<SimpleFeature> list = DataUtilities.list(features);
     SimpleFeature[] f1 = (SimpleFeature[]) list.toArray(new SimpleFeature[list.size()]);
     SimpleFeature[] f2 = (SimpleFeature[]) features.toArray(new SimpleFeature[list.size()]);
     assertEquals(f1.length,f2.length);
@@ -178,7 +198,7 @@ public class FeatureCollectionTest extends TestCase {
     listen.addAll(features);
     assertEquals(1,counter.changeEvents);
     listen.removeListener(counter);
-    listen.removeAll(features);
+    listen.removeAll(DataUtilities.list(features));
     assertEquals(1,counter.changeEvents);
   }
   

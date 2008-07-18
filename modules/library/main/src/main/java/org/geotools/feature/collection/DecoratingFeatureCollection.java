@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -82,6 +83,10 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
         return delegate.addAll(c);
     }
 
+    public boolean addAll(ResourceCollection c) {
+        return delegate.addAll(c);
+    }
+    
     public void addListener(CollectionListener listener)
             throws NullPointerException {
         delegate.addListener(listener);

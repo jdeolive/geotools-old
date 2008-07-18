@@ -44,6 +44,7 @@ import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import org.geotools.data.collection.CollectionDataStore;
+import org.geotools.data.collection.ResourceCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -69,6 +70,7 @@ import org.geotools.resources.Utilities;
 import org.geotools.util.Converters;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -939,18 +941,30 @@ public class DataUtilities {
     }
 
     /**
-     * DOCUMENT ME!
+     * Adapt a collection to a reader for use with FeatureStore.setFeatures( reader ).
      *
-     * @param collection DOCUMENT ME!
+     * @param collection Collection of SimpleFeature
      *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @return FeatureRedaer over the provided contents
+     * @throws IOException IOException if there is any problem reading the content.
      */
-    public static  FeatureReader<SimpleFeatureType, SimpleFeature> reader(Collection collection)
+    public static  FeatureReader<SimpleFeatureType, SimpleFeature> reader(Collection<SimpleFeature> collection)
         throws IOException {
         return reader((SimpleFeature[]) collection.toArray(
                 new SimpleFeature[collection.size()]));
+    }
+    /**
+     * Adapt a collection to a reader for use with FeatureStore.setFeatures( reader ).
+     *
+     * @param collection Collection of SimpleFeature
+     *
+     * @return FeatureRedaer over the provided contents
+     * @throws IOException IOException if there is any problem reading the content.
+     */   
+    public static FeatureReader<SimpleFeatureType, SimpleFeature> reader(
+            ResourceCollection<SimpleFeature> collection) throws IOException {
+        return reader((SimpleFeature[]) collection
+                .toArray(new SimpleFeature[collection.size()]));
     }
 
     /**
@@ -979,10 +993,41 @@ public class DataUtilities {
      * @param FeatureCollection<SimpleFeatureType, SimpleFeature> the features to add to a new feature collection.
      * @return FeatureCollection
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> collection( FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection ){
+    public static DefaultFeatureCollection collection( FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection ){
         return new DefaultFeatureCollection( featureCollection );
     }
-
+    /**
+     * Copies the provided fetaures into a List.
+     * 
+     * @param featureCollection
+     * @return List of features copied into memory
+     */
+    public static List<SimpleFeature> list( FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection ){
+        final ArrayList<SimpleFeature> list = new ArrayList<SimpleFeature>();
+        try {
+            featureCollection.accepts( new FeatureVisitor(){
+                public void visit(Feature feature) {
+                    list.add( (SimpleFeature) feature );
+                }            
+            }, null );
+        }
+        catch( IOException ignore ){
+        }
+        return list;
+    }
+    public static <T> List<T> list( ResourceCollection<T> resourceCollection ){
+        final ArrayList<T> list = new ArrayList<T>();
+        Iterator<T> i = resourceCollection.iterator();
+        try {
+            while( i.hasNext() ){
+                list.add( i.next() );
+            }
+        }
+        finally {
+            resourceCollection.close( i );
+        }
+        return list;
+    }
     /**
      * Copies the provided features into a FeatureCollection.
      * <p>
@@ -999,6 +1044,7 @@ public class DataUtilities {
         return collection;
     }
 
+    
     /**
      * Copies the provided features into a FeatureCollection.
      * <p>

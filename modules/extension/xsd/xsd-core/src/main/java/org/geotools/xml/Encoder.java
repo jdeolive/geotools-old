@@ -47,6 +47,7 @@ import org.eclipse.xsd.XSDParticle;
 import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDTypeDefinition;
 import org.eclipse.xsd.util.XSDUtil;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.xml.impl.BindingFactoryImpl;
 import org.geotools.xml.impl.BindingLoader;
 import org.geotools.xml.impl.BindingPropertyExtractor;
@@ -943,6 +944,9 @@ O:
                                     iterator = Arrays.asList(array).iterator();
                                 } else if (obj instanceof Collection) {
                                     Collection collection = (Collection) obj;
+                                    iterator = collection.iterator();
+                                } else if (obj instanceof FeatureCollection) {
+                                    FeatureCollection collection = (FeatureCollection) obj;
                                     iterator = collection.iterator();
                                 } else {
                                     iterator = new SingleIterator(obj);

@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.visitor.FeatureVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.ProgressListener;
@@ -101,7 +102,9 @@ public class MockFeatureCollection implements org.geotools.feature.FeatureCollec
     public boolean addAll(Collection c) {
         return false;
     }
-
+    public boolean addAll(ResourceCollection c) {
+        return false;
+    }
     public void clear() {
     }
 

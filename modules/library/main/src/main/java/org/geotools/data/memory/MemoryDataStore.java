@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
 
 import org.geotools.data.AbstractDataStore;
 import org.geotools.data.DataAccess;
@@ -42,6 +43,8 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.feature.Feature;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
@@ -201,7 +204,23 @@ public class MemoryDataStore extends AbstractDataStore {
             }
         }
     }
-
+    public void addFeatures(FeatureCollection collection) {
+        if ((collection == null) ) {
+            throw new IllegalArgumentException("Provided FeatureCollection<SimpleFeatureType, SimpleFeature> is empty");
+        }
+        synchronized (memory) {
+            try {
+                collection.accepts( new FeatureVisitor(){
+                    public void visit(Feature feature) {
+                        addFeatureInternal( (SimpleFeature) feature );
+                    }                
+                }, null );
+            }
+            catch( IOException ignore){
+                LOGGER.log( Level.FINE, "Unable to add all features", ignore );
+            }
+        }
+    }
     /**
      * Configures MemoryDataStore with feature array.
      *

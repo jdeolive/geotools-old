@@ -258,7 +258,21 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
 		}
 		return modified;
     }
-
+    
+    public boolean addAll(ResourceCollection c) {
+        boolean modified = false;
+        Iterator e = c.iterator();
+        try {
+            while (e.hasNext()) {
+                if (add(e.next()))
+                modified = true;
+            }
+        }
+        finally {
+            c.close( e );
+        }
+        return modified;
+    }
     /**
      * Removes from this collection all of its elements that are contained in
      * the specified collection (optional operation). <p>
@@ -286,7 +300,10 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
 			return modified;
 		}
 		finally {
-			close( e );
+		    if( c instanceof ResourceCollection){
+                ResourceCollection other = (ResourceCollection) c;
+                other.close( e );
+            }
 		}
     }
 
@@ -317,7 +334,10 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
 			return modified;
 		}
 		finally {
-			close( e );
+		    if( c instanceof ResourceCollection){
+                ResourceCollection other = (ResourceCollection) c;
+                other.close( e );
+            }
 		}
     }
 
@@ -335,7 +355,7 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
 			    e.remove();
 			}
 		}finally {
-			close(e);
+		    close( e );            
 		}
     }
 

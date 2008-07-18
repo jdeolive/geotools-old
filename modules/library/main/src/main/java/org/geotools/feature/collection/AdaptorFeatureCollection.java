@@ -304,7 +304,20 @@ public abstract class AdaptorFeatureCollection extends BaseFeatureCollection imp
         }
         return modified;
     }
-
+    public boolean addAll(ResourceCollection c) {
+        boolean modified = false;
+        Iterator<SimpleFeature> e = c.iterator();
+        try {
+            while (e.hasNext()) {
+                if (add(e.next()))
+                modified = true;
+            }
+        }
+        finally {
+            c.close( e );            
+        }
+        return modified;
+    }
     /**
      * Removes from this collection all of its elements that are contained in
      * the specified collection (optional operation). <p>

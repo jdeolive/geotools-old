@@ -223,8 +223,37 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
      */
     public final Set<String> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
         throws IOException {
+      //gather up id's
+        Set<String> ids = new TreeSet<String>();
         
-       return addFeatures( (Collection) collection );
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = getWriter( Filter.INCLUDE, WRITER_ADD );
+        Iterator f = collection.iterator();
+        try {
+            while (f.hasNext()) {
+                SimpleFeature feature = (SimpleFeature) f.next();
+                
+                // grab next feature and populate it
+                // JD: worth a note on how we do this... we take a "pull" approach 
+                // because the raw schema we are inserting into may not match the 
+                // schema of the features we are inserting
+                SimpleFeature toWrite = writer.next();
+                for ( int i = 0; i < toWrite.getAttributeCount(); i++ ) {
+                    String name = toWrite.getType().getDescriptor(i).getLocalName();
+                    toWrite.setAttribute( name, feature.getAttribute(name));
+                }
+                
+                //perform the write
+                writer.write();
+                
+                //add the id to the set of inserted
+                ids.add( toWrite.getID() );
+            }
+        } 
+        finally {
+            writer.close();
+            collection.close( f );
+        }        
+        return ids;
     }
 
     /**
