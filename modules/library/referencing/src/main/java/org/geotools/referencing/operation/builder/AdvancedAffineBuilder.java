@@ -33,7 +33,9 @@ import org.geotools.referencing.operation.transform.ProjectiveTransform;
  * Builder for affine transformation with possibility to set several constrains
  * for affine parameters that will be respected during calculation. This is convenient
  * for example to use when you want affine transformation with skew parameter equal to zero.
- *
+ * Development carried out thanks to R&D grant DC08P02OUK006 - Old Maps Online
+ * (www.oldmapsonline.org) from Ministry of Culture of the Czech Republic
+ * 
  * @author jezekjan
  * @since
  * @source $URL: http://svn.geotools.org/trunk/modules/library/referencing/src/main/java/org/geotools/referencing/operation/builder/AdvancedAffineBuilder.java $
@@ -49,8 +51,11 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     /**mark for key to specify sxy - skew  constrain */
     public static final String SXY = "sxy";
 
-    /**mark for key to specify phi - rotation constrain */
-    public static final String PHI = "phi";
+    /**mark for key to specify phix - rotation constrain */
+    public static final String PHIX = "phix";
+    
+    /**mark for key to specify phix - rotation constrain */
+    public static final String PHIY = "phiy";
 
     /**mark for key to specify tx - translation in x constrain */
     public static final String TX = "tx";
@@ -70,21 +75,25 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     /** scale in y */
     private double sy;
 
-    /** rotation in radians */
-    private double phi;
-
-    /** skew */
-    private double sxy;
+    /** x rotation in radians */
+    private double phix;
     
+    /** x rotation in radians */
+    private double phiy;
+
     /** max difference for iteration */
     private double dif = 0.0000001;
     
     /** max number of steps for iteration */
     private int steps = 100;
-
+    
     /** Map of constrains - parameter name as key and its required value*/
     private Map<String, Double> valueConstrain = new HashMap<String, Double>();
-       
+    
+    /** Map of constrains - parameters (represented by string) are equal to each other*/
+    private Map<String, String> equalConstrain = new HashMap<String, String>();
+
+
     /**Affine transformation for approximate values*/
     private final AffineTransform2D affineTrans;
 
@@ -125,10 +134,12 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
 
         sx = a2g.getXScale();
         sy = a2g.getYScale();
-        sxy = a2g.getSkew();
-        phi = a2g.getRotation();
+        
+        phix = a2g.getXRotation();
+        phiy = a2g.getYRotation();
         tx = a2g.getXTranslate();
         ty = a2g.getYTranslate();
+
     }
 
     /**
@@ -141,7 +152,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     public void setConstrain(String param, double value) {
         valueConstrain.put(param, value);
     }
-
+    
     /**
      * Clears all constrains
      */
@@ -158,8 +169,11 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     protected GeneralMatrix getA() {
         GeneralMatrix A = new GeneralMatrix(2 * this.getMappedPositions().size(), 6);
 
-        double cosphi = Math.cos(phi);
-        double sinphi = Math.sin(phi);
+        double cosphix = Math.cos(phix);
+        double sinphix = Math.sin(phix);
+        
+        double cosphiy = Math.cos(phiy);
+        double sinphiy = Math.sin(phiy);
 
         /**
          * Each row is calculated with values of proper GCPs
@@ -167,24 +181,43 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
         for (int j = 0; j < (A.getNumRow() / 2); j++) {
             double x = getSourcePoints()[j].getOrdinate(0);
             double y = getSourcePoints()[j].getOrdinate(1);
-            /** derivation of fx by sx */
-            double dxsx = (cosphi * x) - (sinphi * y);
 
-            /** derivation of fy by sy */
-            double dysy = (sinphi * x) + (cosphi * y);
+            /*************************
+             * 
+             * Derivation X
+             * 
+             **************************/
+            double dxsx = cosphix*x;
+                       
+            double dxsy = - sinphiy * y;
+                 
+            double dxphix = -sx*sinphix* x;
+            
+            double dxphiy = -sy*cosphiy* y ;
+            
+            double dxtx = 1;
+            
+            double dxty = 0;
 
-            /** derivation fx by phi */
-            double dxphi = (sxy * cosphi * x) - (sx * sinphi * x) - (sxy * sinphi * y)
-                - (sx * cosphi * y);
-
-            /** derivation fy by phi */
-            double dyphi = (sy * cosphi * x) - (sy * sinphi * y);
-
-            /** derivation fx by sxy */
-            double dxsxy = (sinphi * x) + (cosphi * y);
+            /*************************
+             * 
+             * Derivation Y
+             * 
+             ***********************/
+            double dysx = sinphix * x;
+                       
+            double dysy = cosphiy * y;
+                 
+            double dyphix =  sx*cosphix*x;
+            
+            double dyphiy = -sy*sinphiy* y ;
+            
+            double dytx = 0;
+            
+            double dyty = 1;
          
-            A.setRow(j, new double[] { dxsx, 0, dxsxy, dxphi, 1, 0 });
-            A.setRow(A.getNumRow()/2 + j, new double[] { 0, dysy, 0, dyphi, 0, 1 });
+            A.setRow(j,                   new double[] { dxsx, dxsy, dxphix, dxphiy, dxtx, dxty });
+            A.setRow(A.getNumRow()/2 + j, new double[] { dysx, dysy, dyphix, dyphiy, dytx, dyty });
         }
 
         return A;
@@ -198,20 +231,20 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
     protected GeneralMatrix getL() {
         GeneralMatrix l = new GeneralMatrix(2 * this.getMappedPositions().size(), 1);
 
-        double cosphi = Math.cos(phi);
-        double sinphi = Math.sin(phi);
+        double cosphix = Math.cos(phix);
+        double sinphix = Math.sin(phix);
+        double cosphiy = Math.cos(phiy);
+        double sinphiy = Math.sin(phiy);
 
         for (int j = 0; j < (l.getNumRow() / 2); j++) {
             double x = getSourcePoints()[j].getOrdinate(0);
             double y = getSourcePoints()[j].getOrdinate(1);
 
-            /* a1 is target value - transformed value*/
+            /* a1 is target value - transfomed value*/
             double dx = getTargetPoints()[j].getOrdinate(0)
-                - (((sxy * sinphi * x) + (sx * cosphi * x) + (sxy * cosphi * y))
-                - (sx * sinphi * y) + tx);
+                - (sx*cosphix*x -  sy*sinphiy*y + tx);                
             double dy = getTargetPoints()[j].getOrdinate(1)
-                - ((sy * sinphi * getSourcePoints()[j].getOrdinate(0))
-                + (sy * cosphi * getSourcePoints()[j].getOrdinate(1)) + ty);
+                - (sx*sinphix*x + sy*cosphiy*y + ty);            
         
             l.setElement(j, 0, dx);
             l.setElement((l.getNumRow() / 2) + j, 0, dy);
@@ -226,7 +259,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
      * @throws FactoryException
      */
     private GeneralMatrix getDxMatrix() throws FactoryException {
-        return getDxMatrix(dif, steps);
+         return getDxMatrix(dif, steps);
     }
 
     /**
@@ -269,7 +302,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
 
         // iteration
         do {
-            xOld.set(new double[] { sx, sy, sxy, phi, tx, ty });
+            xOld.set(new double[] { sx, sy, phix, phiy, tx, ty });
 
             GeneralMatrix A = getA();
             GeneralMatrix l = getL();
@@ -302,8 +335,8 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
             // New values are setup for another iteration
             sx = xNew.getElement(0, 0);
             sy = xNew.getElement(1, 0);
-            sxy = xNew.getElement(2, 0);
-            phi = xNew.getElement(3, 0);
+            phix = xNew.getElement(2, 0);
+            phiy = xNew.getElement(3, 0);
             tx = xNew.getElement(4, 0);
             ty = xNew.getElement(5, 0);
 
@@ -342,12 +375,12 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
             i++;
         }
 
-        if (valueConstrain.containsKey(SXY)) {
+        if (valueConstrain.containsKey(PHIX)) {
             B.setRow(i, new double[] { 0, 0, 1, 0, 0, 0 });
             i++;
         }
 
-        if (valueConstrain.containsKey(PHI)) {
+        if (valueConstrain.containsKey(PHIY)) {
             B.setRow(i, new double[] { 0, 0, 0, 1, 0, 0 });
             i++;
         }
@@ -359,6 +392,10 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
 
         if (valueConstrain.containsKey(TY)) {
             B.setRow(i, new double[] { 0, 0, 0, 0, 0, 1 });
+            i++;
+        }
+        if (valueConstrain.containsKey(SXY)) {
+            B.setRow(i, new double[] { 0, 0, -1, 1, 0, 0 });
             i++;
         }
 
@@ -383,19 +420,23 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
             i++;
         }
 
-        if (valueConstrain.containsKey(SXY)) {
-            U.setRow(i, new double[] { -sxy + valueConstrain.get(SXY) });
+        if (valueConstrain.containsKey(PHIX)) {
+            U.setRow(i, new double[] { -phix + valueConstrain.get(PHIX)});
             i++;
         }
 
-        if (valueConstrain.containsKey(PHI)) {
-            U.setRow(i, new double[] { -phi + valueConstrain.get(PHI) });
+        if (valueConstrain.containsKey(PHIY)) {
+            U.setRow(i, new double[] { -phiy + valueConstrain.get(PHIY) });
             i++;
         }
 
         if (valueConstrain.containsKey(TX)) {
             U.setRow(i, new double[] { -tx + valueConstrain.get(TX) });
             i++;
+        }
+        if (valueConstrain.containsKey(SXY)) {
+                U.setRow(i, new double[] { (phix-phiy) +  valueConstrain.get(SXY) });
+                i++;                
         } else if (valueConstrain.containsKey(TY)) {
             U.setRow(i, new double[] { -ty + valueConstrain.get(TY) });
             i++;
@@ -465,10 +506,10 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
         /**
          * calcuates matrix coefficients form geometric coefficients
          */
-        double a11 = (sxy * Math.sin(phi)) + (sx * Math.cos(phi));
-        double a12 = (sxy * Math.cos(phi)) - (sx * Math.sin(phi));
-        double a21 = sy * Math.sin(phi);
-        double a22 = sy * Math.cos(phi);
+        double a11 =  sx * Math.cos(phix);
+        double a12 = -sy * Math.sin(phiy); 
+        double a21 =  sx*  Math.sin(phix);
+        double a22 =  sy * Math.cos(phiy);
               
         /**
          * Fill the metrix
@@ -491,7 +532,7 @@ public class AdvancedAffineBuilder extends MathTransformBuilder {
 
         return ProjectiveTransform.create(getProjectiveMatrix());
     }
-
+    
     /**
      * Returns difference that is required between steps in iteration
      * @return max difference that is required for iteration steps 

@@ -20,6 +20,9 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
 
 /**
  * Helper class for converting values from affine transformation matrix to its geometric form.
+ * Development carried out thanks to R&D grant DC08P02OUK006 - Old Maps Online
+ * (www.oldmapsonline.org) from Ministry of Culture of the Czech Republic
+ * 
  * @see http://groups.csail.mit.edu/graphics/classes/6.837/F98/Notes/lecture10.ps
  * @author jezekjan
  * @source $URL: http://svn.geotools.org/trunk/modules/library/referencing/src/main/java/org/geotools/referencing/operation/builder/AffineToGeometric.java $
@@ -38,8 +41,11 @@ public class AffineToGeometric {
     /** scale in y */
     private double sy;
 
-    /** rotation in radians */
-    private double phi;
+    /** x rotation in radians */
+    private double phix;
+    
+    /** y rotation in radians */
+    private double phiy;
 
     /** skew */
     private double sxy;   
@@ -48,17 +54,16 @@ public class AffineToGeometric {
      * Constructs AffineToGeometric from AffineTransform2D
      * @param trans Affine transformation from which we want to get geometric coefficients.
      */
-    public AffineToGeometric(AffineTransform2D trans) {       
-
-        sy = Math.pow(Math.pow(trans.getScaleY(), 2) + Math.pow(trans.getShearY(), 2), 0.5);
-
-        phi = (Math.signum(trans.getShearY())) * Math.asin(trans.getShearY() / sy);
-
-        sx = ((Math.cos(phi) * trans.getScaleX()) - (Math.sin(phi) * trans.getShearX()));
-
-        sxy = (trans.getScaleX() - (sx * Math.cos(phi))) / Math.sin(phi);
+    public AffineToGeometric(AffineTransform2D trans) {           
+        
+    	sx = Math.pow(Math.pow(trans.getShearY(), 2) + Math.pow(trans.getScaleX(), 2), 0.5);
+    	sy = Math.pow(Math.pow(trans.getScaleY(), 2) + Math.pow(trans.getShearX(), 2), 0.5);       
+        phix =  Math.acos(Math.signum(trans.getShearY())*trans.getScaleX() / sx);        
+        phiy = Math.acos( Math.signum(-trans.getShearX())*trans.getScaleY() / sy);     
+        sxy = phix - phiy;
         tx = trans.getTranslateX();
         ty = trans.getTranslateY();
+
     }
 
     /**
@@ -105,7 +110,11 @@ public class AffineToGeometric {
      * Returns rotation in radians
      * @return rotation in radians
      */
-    public double getRotation() {
-        return phi;
+    public double getXRotation() {
+        return phix;
+    }
+    
+    public double getYRotation() {
+        return phiy;
     }
 }
