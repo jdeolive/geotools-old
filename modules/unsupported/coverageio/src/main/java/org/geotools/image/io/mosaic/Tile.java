@@ -23,15 +23,7 @@ import java.awt.geom.AffineTransform;
 import java.net.URL;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.InvalidClassException;
-import java.io.Writer;
+import java.io.*; // We use a lot of those imports.
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Collection;
@@ -40,6 +32,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.FileImageInputStream;
 
 import org.geotools.io.TableWriter;
 import org.geotools.util.Utilities;
@@ -492,6 +485,32 @@ public class Tile implements Comparable<Tile>, Serializable {
     }
 
     /**
+     * Closes the specified stream, if it is closeable.
+     *
+     * @param  input The stream to close.
+     * @throws IOException if an error occured while closing the input stream.
+     */
+    static void close(final Object input) throws IOException {
+        if (input instanceof ImageInputStream) {
+            ((ImageInputStream) input).close();
+        } else if (input instanceof Closeable) {
+            ((Closeable) input).close();
+        }
+    }
+
+    /**
+     * Dispose the given reader after closing its {@linkplain ImageReader#getInput input stream}.
+     *
+     * @param  reader The reader to dispose.
+     * @throws IOException if an error occured while closing the input stream.
+     */
+    static void dispose(final ImageReader reader) throws IOException {
+        final Object input = reader.getInput();
+        reader.dispose();
+        close(input);
+    }
+
+    /**
      * Returns {@code true} if the specified input is valid for the given array of input types.
      */
     private static boolean isValidInput(final Class<?>[] types, final Object input) {
@@ -570,6 +589,7 @@ public class Tile implements Comparable<Tile>, Serializable {
                 // as a paranoiac safety (it should not be opened anyway).
                 if (stream != null) {
                     stream.close();
+                    stream = null;
                 }
                 actualInput = input;
             } else {
@@ -581,7 +601,7 @@ public class Tile implements Comparable<Tile>, Serializable {
                     } catch (IndexOutOfBoundsException e) {
                         // We tried to reuse the same stream in order to preserve cached data, but it was
                         // not possible to seek to the begining. Closes it; we will open a new one later.
-                        Logging.recoverableException(Tile.class, "getPreparedReader", e);
+                        Logging.recoverableException(Tile.class, "getImageReader", e);
                         stream.close();
                         stream = null;
                     } else {
@@ -606,6 +626,9 @@ public class Tile implements Comparable<Tile>, Serializable {
      * Returns a new reader created by the {@linkplain #getImageReaderSpi provider} and setup for
      * reading the image from the {@linkplain #getInput input}. This method returns a new reader
      * on each invocation.
+     * <p>
+     * It is the user's responsability to close the {@linkplain ImageReader#getInput reader input}
+     * after usage.
      *
      * @return An image reader with its {@linkplain ImageReader#getInput input} set.
      * @throws IOException if the image reader can't be initialized.
@@ -692,6 +715,18 @@ public class Tile implements Comparable<Tile>, Serializable {
             if (stream != null) {
                 return stream;
             }
+        }
+        /*
+         * In theory ImageIO.createImageInputStream(Object) should have accepted a File input,
+         * so the following check is useless. However if ImageIO.createImageInputStream(Object)
+         * failed, it just returns null; we have no idea why it failed. One possible cause is
+         * "Too many open files", in which case throwing a FileNotFoundException is misleading.
+         * So we try here to create a FileImageInputStream directly, which is likely to fail as
+         * well but this time with a more accurate error message.
+         */
+        if (input instanceof File) {
+            stream = new FileImageInputStream((File) input);
+            return stream;
         }
         throw new FileNotFoundException(Errors.format(
                 ErrorKeys.FILE_DOES_NOT_EXIST_$1, input));
@@ -971,9 +1006,9 @@ public class Tile implements Comparable<Tile>, Serializable {
         checkGeometryValidity();
         if (width == 0 && height == 0) {
             final int imageIndex = getImageIndex();
-            final ImageReader reader = getImageReader(null, true, true);
+            final ImageReader reader = getImageReader();
             setSize(reader.getWidth(imageIndex), reader.getHeight(imageIndex));
-            reader.dispose();
+            dispose(reader);
         }
         return new Rectangle(x, y, width & MASK, height & MASK);
     }

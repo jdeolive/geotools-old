@@ -358,12 +358,14 @@ public abstract class TileManager implements Serializable {
             String message = null;
             try {
                 final Rectangle region = tile.getRegion();
-                reader = tile.getImageReader(null, true, true);
+                reader = tile.getImageReader();
                 final int width  = reader.getWidth (imageIndex);
                 final int height = reader.getHeight(imageIndex);
                 if (width != region.width || height != region.height) {
                     message = Errors.format(ErrorKeys.UNEXPECTED_IMAGE_SIZE);
                 }
+                Tile.dispose(reader);
+                reader = null;
             } catch (IOException exception) {
                 message = exception.toString();
             } catch (RuntimeException exception) {
@@ -374,6 +376,7 @@ public abstract class TileManager implements Serializable {
                 out.print("    ");
                 out.println(message);
             }
+            // In case an exception was thrown before Tile.dispose(reader).
             if (reader != null) {
                 reader.dispose();
             }

@@ -24,7 +24,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.File;
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.*; // Lot of imports used in this class.
 import java.util.logging.Level;
@@ -236,7 +235,7 @@ public class MosaicImageReader extends ImageReader {
              * is that we will dispose more readers than necessary, which means that we will need
              * to recreate them later. Note that the set of providers may be partially filled.
              */
-            Logging.recoverableException(MosaicImageReader.class, "setInput", e);
+            Logging.unexpectedException(MosaicImageReader.class, "setInput", e);
         }
         final Iterator<Map.Entry<ImageReaderSpi,ImageReader>> it = readers.entrySet().iterator();
         while (it.hasNext()) {
@@ -252,9 +251,9 @@ public class MosaicImageReader extends ImageReader {
                     final Object rawInput = readerInputs.remove(reader);
                     final Object tileInput = reader.getInput();
                     if (rawInput != tileInput) try {
-                        close(tileInput);
+                        Tile.close(tileInput);
                     } catch (IOException exception) {
-                        Logging.recoverableException(MosaicImageReader.class, "setInput", exception);
+                        Logging.unexpectedException(MosaicImageReader.class, "setInput", exception);
                     }
                     reader.dispose();
                 }
@@ -1420,19 +1419,8 @@ public class MosaicImageReader extends ImageReader {
             entry .setValue(null);
             reader.setInput(null);
             if (input != rawInput) {
-                close(input);
+                Tile.close(input);
             }
-        }
-    }
-
-    /**
-     * Closes the specified stream, if it is closeable.
-     */
-    private static void close(final Object input) throws IOException {
-        if (input instanceof ImageInputStream) {
-            ((ImageInputStream) input).close();
-        } else if (input instanceof Closeable) {
-            ((Closeable) input).close();
         }
     }
 
@@ -1447,7 +1435,7 @@ public class MosaicImageReader extends ImageReader {
         try {
             close();
         } catch (IOException e) {
-            Logging.recoverableException(MosaicImageReader.class, "dispose", e);
+            Logging.unexpectedException(MosaicImageReader.class, "dispose", e);
         }
         readerInputs.clear();
         for (final ImageReader reader : readers.values()) {
