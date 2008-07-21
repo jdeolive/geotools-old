@@ -456,8 +456,7 @@ public final class GridCoverageRenderer {
 
             }
         } else
-            destinationEnvelopeInSourceCRS = new GeneralEnvelope(
-                    destinationEnvelope);
+            destinationEnvelopeInSourceCRS = new GeneralEnvelope(destinationEnvelope);
         // /////////////////////////////////////////////////////////////////////
         //
         // NOW CHECKING THE INTERSECTION IN WGS84
@@ -479,11 +478,9 @@ public final class GridCoverageRenderer {
         }
 
 
-        final Interpolation interpolation = (Interpolation) hints
-                .get(JAI.KEY_INTERPOLATION);
+        final Interpolation interpolation = (Interpolation) hints.get(JAI.KEY_INTERPOLATION);
         if (LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine(new StringBuilder("Using interpolation ").append(
-                    interpolation).toString());
+            LOGGER.fine(new StringBuilder("Using interpolation ").append(interpolation).toString());
 
 
         // /////////////////////////////////////////////////////////////////////
@@ -494,14 +491,28 @@ public final class GridCoverageRenderer {
         GridCoverage2D preResample=gridCoverage;
         if(simpleG2WTransform)
         {
-            preResample = getCroppedCoverage(gridCoverage, intersectionEnvelope, sourceCoverageCRS);
-            if (preResample == null) {
-                // nothing to render, the AOI does not overlap
+        	try{
+	            preResample = getCroppedCoverage(gridCoverage, intersectionEnvelope, sourceCoverageCRS);
+	            if (preResample == null) {
+	                // nothing to render, the AOI does not overlap
+	                if (LOGGER.isLoggable(Level.FINE))
+	                    LOGGER.fine(
+	                            new StringBuilder("Skipping current coverage because cropped to an empty area").toString());
+	                return;
+	            }
+        	}catch (Throwable t) {
+        		////
+        		//
+        		// It might happen that the crop fails due to the fact that in the integer space the width and/or height
+        		// of the cropped area are 0 (this especially happens when we are zooming in a lot). 
+        		//
+        		// In such a case the 
+        		//
+        		////
                 if (LOGGER.isLoggable(Level.FINE))
-                    LOGGER.fine(
-                            new StringBuilder("Skipping current coverage because cropped to an empty area").toString());
-                return;
-            }
+                    LOGGER.fine(new StringBuilder("Crop Failed for reason: ").append(t.getLocalizedMessage()).toString());
+                preResample=gridCoverage;
+			}
             if (DEBUG) {
                 try {
                     ImageIO.write(
@@ -564,8 +575,7 @@ public final class GridCoverageRenderer {
         //
         // ///////////////////////////////////////////////////////////////////
         final AffineTransform finalGCgridToWorld = new AffineTransform(
-                (AffineTransform) ((GridGeometry2D) recoloredGridCoverage
-                        .getGridGeometry()).getGridToCRS2D());
+        		(AffineTransform) ((GridGeometry2D) recoloredGridCoverage.getGridGeometry()).getGridToCRS2D());
         if (!(finalGCgridToWorld instanceof AffineTransform)) {
             throw new UnsupportedOperationException(
                     "Non-affine transformations not yet implemented"); // TODO
@@ -589,8 +599,7 @@ public final class GridCoverageRenderer {
         // area of interest for the device.
         //
         // //
-        final AffineTransform clonedFinalWorldToGrid = (AffineTransform) finalWorldToGrid
-                .clone();
+        final AffineTransform clonedFinalWorldToGrid = (AffineTransform) finalWorldToGrid.clone();
         clonedFinalWorldToGrid.concatenate(finalGCgridToWorld);
         if (LOGGER.isLoggable(Level.FINE))
             LOGGER.fine(new StringBuilder("clonedFinalWorldToGrid ").append(clonedFinalWorldToGrid.toString()).toString());
