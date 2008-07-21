@@ -92,182 +92,6 @@ public class GeoTiffWriterTest extends TestCase {
 
 	}
 
-	/**
-	 * Testing {@link GeoTiffWriter} capapbilities.
-	 * 
-	 * @throws IllegalArgumentException
-	 * @throws IOException
-	 * @throws UnsupportedOperationException
-	 * @throws ParseException
-	 * @throws FactoryException
-	 */
-	public void testWriter() throws IllegalArgumentException, IOException,
-			UnsupportedOperationException, ParseException, FactoryException {
-
-		// /////////////////////////////////////////////////////////////////////
-		//
-		//
-		// PREPARATION
-		//
-		//
-		// /////////////////////////////////////////////////////////////////////
-		final File readdir = TestData.file(GeoTiffWriterTest.class, "");
-		final File writedir = new File(new StringBuffer(readdir
-				.getAbsolutePath()).append("/testWriter/").toString());
-		writedir.mkdir();
-		final File files[] = readdir.listFiles(new FilenameFilter() {
-
-			public boolean accept(File dir, String name) {
-				// are they tiff?
-				if (!name.endsWith("tif") && !name.endsWith("tiff"))
-					return false;
-
-				// are they geotiff?
-				return new GeoTiffFormat().accepts(new File(new StringBuffer(
-						dir.getAbsolutePath()).append(File.separatorChar)
-						.append(name).toString()));
-
-			}
-		});
-		final int numFiles = files.length;
-
-		// /////////////////////////////////////////////////////////////////////
-		//
-		//
-		// FORMAT AND READER
-		//
-		// Creatin format and other objects we need in the further steps of this
-		// test.
-		//
-		//
-		// /////////////////////////////////////////////////////////////////////
-		final GeoTiffFormat format = new GeoTiffFormat();
-		final GeoTiffWriteParams wp = new GeoTiffWriteParams();
-//		wp.setCompressionMode(GeoTiffWriteParams.MODE_EXPLICIT);
-//		wp.setCompressionType("ZLib");
-//		wp.setCompressionQuality(0.75F);
-		wp.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
-		wp.setTiling(256, 256);
-		final ParameterValueGroup params = format.getWriteParameters();
-		params.parameter(
-				AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString())
-				.setValue(wp);
-		for (int i = 0; i < numFiles; i++) {
-
-			// /////////////////////////////////////////////////////////////////////
-			//
-			//
-			// READER
-			//
-			//
-			// /////////////////////////////////////////////////////////////////////
-			if (TestData.isInteractiveTest())
-				logger.info(files[i].getAbsolutePath());
-
-			// getting a reader
-			GeoTiffReader reader = new GeoTiffReader(files[i], null);
-			// dumping metadata
-			IIOMetadataDumper metadataDumper = new IIOMetadataDumper(
-					((GeoTiffReader) reader).getMetadata().getRootNode());
-			if (TestData.isInteractiveTest()) {
-				logger.info(metadataDumper.getMetadata());
-			} else
-				metadataDumper.getMetadata();
-
-			if (reader != null) {
-
-				// /////////////////////////////////////////////////////////////////////
-				//
-				//
-				// COVERAGE
-				//
-				//
-				// /////////////////////////////////////////////////////////////////////
-				GridCoverage2D gc = (GridCoverage2D) reader.read(null);
-				if (TestData.isInteractiveTest()) {
-					logger.info(new StringBuffer("Coverage before: ").append(
-							"\n").append(
-							gc.getCoordinateReferenceSystem().toWKT()).append(
-							gc.getEnvelope().toString()).toString());
-				}
-				if (gc != null) {
-					// /////////////////////////////////////////////////////////////////////
-					//
-					//
-					// WRITING
-					//
-					//
-					// /////////////////////////////////////////////////////////////////////
-					GeneralEnvelope sourceEnv = (GeneralEnvelope) gc.getEnvelope();
-					CoordinateReferenceSystem sourceCRS = gc.getCoordinateReferenceSystem2D();
-					final File writeFile = new File(new StringBuffer(writedir
-							.getAbsolutePath()).append(File.separatorChar)
-							.append(gc.getName().toString()).append(".tiff")
-							.toString());
-					GridCoverageWriter writer = format.getWriter(writeFile);
-					writer.write(gc, (GeneralParameterValue[]) params.values()
-							.toArray(new GeneralParameterValue[1]));
-
-					// /////////////////////////////////////////////////////////////////////
-					//
-					//
-					// READING BACK
-					//
-					//
-					// /////////////////////////////////////////////////////////////////////
-					reader = new GeoTiffReader(writeFile, null);
-					metadataDumper = new IIOMetadataDumper(
-							((GeoTiffReader) reader).getMetadata()
-									.getRootNode());
-					if (TestData.isInteractiveTest()) {
-						logger.info(metadataDumper.getMetadata());
-					} else
-						metadataDumper.getMetadata();
-					gc = (GridCoverage2D) reader.read(null);
-					CoordinateReferenceSystem targetCRS = gc.getCoordinateReferenceSystem2D();
-					GeneralEnvelope targetEnv = (GeneralEnvelope) gc.getEnvelope();
-					MathTransform tr = CRS.findMathTransform(targetCRS, sourceCRS, true);
-
-					// TODO: THE TEST BELOW IS TEMPORARILY DISABLED.
-					//       The sourceCRS is constructed in a strange way.
-					//       It declares "m" units, but the map projection
-					//       is concatenated with a conversion from metres
-					//       to feet.
-					if (false) assertTrue(
-							"Source and Target coordinate reference systems do not match:" +
-							"\n\nSource CRS =\n" + sourceCRS +
-							"\n\nTarget CRS =\n" + targetCRS +
-							"\n\nSource projection =\n" + getConversionFromBase(sourceCRS) +
-							"\n\nTarget projection =\n" + getConversionFromBase(targetCRS) +
-							"\n\nInverse transform =\n" + tr,
-							CRS.equalsIgnoreMetadata(targetCRS, sourceCRS) || tr.isIdentity());
-					assertTrue("Source and Target envelopes do not match",
-							checkEnvelopes(sourceEnv,targetEnv,gc));
-
-					if (TestData.isInteractiveTest()) {
-						logger
-								.info(new StringBuffer("Coverage after: ")
-										.append("\n")
-										.append(
-												gc
-														.getCoordinateReferenceSystem()
-														.toWKT()).append(
-												gc.getEnvelope().toString())
-										.toString());
-						if (TestData.isInteractiveTest())
-							gc.show();
-						else
-							gc.getRenderedImage().getData();
-
-					}
-
-				}
-
-			}
-
-		}
-	}
-
 	private static MathTransform getConversionFromBase(CoordinateReferenceSystem crs) {
         return (crs instanceof ProjectedCRS) ? ((ProjectedCRS) crs).getConversionFromBase().getMathTransform() : null;
 	}
@@ -325,8 +149,7 @@ public class GeoTiffWriterTest extends TestCase {
 		//
 		// /////////////////////////////////////////////////////////////////////
 		final File readdir = TestData.file(GeoTiffWriterTest.class, "");
-		final File writedir = new File(new StringBuffer(readdir
-				.getAbsolutePath()).append("/testWriter/").toString());
+		final File writedir = new File(new StringBuffer(readdir.getAbsolutePath()).append("/testWriter/").toString());
 		writedir.mkdir();
 		final File tiff = new File(readdir, "latlon.tiff");
 		assert tiff.exists() && tiff.canRead() && tiff.isFile();
@@ -348,8 +171,7 @@ public class GeoTiffWriterTest extends TestCase {
 		// Play with metadata
 		//
 		// /////////////////////////////////////////////////////////////////////
-		IIOMetadataDumper metadataDumper = new IIOMetadataDumper(
-				((GeoTiffReader) reader).getMetadata().getRootNode());
+		IIOMetadataDumper metadataDumper = new IIOMetadataDumper(((GeoTiffReader) reader).getMetadata().getRootNode());
 		if (TestData.isInteractiveTest()) {
 			logger.info(metadataDumper.getMetadata());
 		} else
@@ -366,13 +188,10 @@ public class GeoTiffWriterTest extends TestCase {
 					.append(gc.getCoordinateReferenceSystem().toWKT()).append(
 							gc.getEnvelope().toString()).toString());
 		}
-		final CoordinateReferenceSystem sourceCRS = gc
-				.getCoordinateReferenceSystem2D();
-		final GeneralEnvelope sourceEnvelope = (GeneralEnvelope) gc
-				.getEnvelope();
+		final CoordinateReferenceSystem sourceCRS = gc.getCoordinateReferenceSystem2D();
+		final GeneralEnvelope sourceEnvelope = (GeneralEnvelope) gc.getEnvelope();
 		final GridGeometry2D sourcedGG = (GridGeometry2D) gc.getGridGeometry();
-		final MathTransform sourceG2W = sourcedGG
-				.getGridToCRS(PixelInCell.CELL_CENTER);
+		final MathTransform sourceG2W = sourcedGG.getGridToCRS(PixelInCell.CELL_CENTER);
 
 		// /////////////////////////////////////////////////////////////////////
 		//
@@ -411,11 +230,9 @@ public class GeoTiffWriterTest extends TestCase {
 		final GridGeometry2D croppedGG = (GridGeometry2D) cropped
 				.getGridGeometry();
 		final GridRange croppedGR = croppedGG.getGridRange();
-		final MathTransform croppedG2W = croppedGG
-				.getGridToCRS(PixelInCell.CELL_CENTER);
-		final GeneralEnvelope croppedEnvelope = (GeneralEnvelope) cropped
-				.getEnvelope();
-		assertTrue("min x do not match after crop", 30 == croppedGR.getLower(0));
+		final MathTransform croppedG2W = croppedGG.getGridToCRS(PixelInCell.CELL_CENTER);
+		final GeneralEnvelope croppedEnvelope = (GeneralEnvelope) cropped.getEnvelope();
+		assertTrue("min x do not match after crop", 29 == croppedGR.getLower(0));
 		assertTrue("min y do not match after crop", 30 == croppedGR.getLower(1));
 		assertTrue("max x do not match after crop", 90 == croppedGR.getUpper(0));
 		assertTrue("max y do not match after crop", 91 == croppedGR.getUpper(1));
@@ -424,13 +241,8 @@ public class GeoTiffWriterTest extends TestCase {
 				"The Grdi2World tranformations of the original and the cropped covearage do not match",
 				sourceG2W.equals(croppedG2W));
 		// check that the envelope is correct
-		final GeneralEnvelope expectedEnvelope = new GeneralEnvelope(croppedGR,
-				PixelInCell.CELL_CENTER, croppedG2W, cropped
-						.getCoordinateReferenceSystem2D());
-
-		assertTrue("Expected envelope is different from the computed one",
-				expectedEnvelope.equals(croppedEnvelope, XAffineTransform
-						.getScale((AffineTransform) croppedG2W) / 2.0, false));
+		final GeneralEnvelope expectedEnvelope = new GeneralEnvelope(croppedGR,PixelInCell.CELL_CENTER, croppedG2W, cropped.getCoordinateReferenceSystem2D());
+		assertTrue("Expected envelope is different from the computed one",expectedEnvelope.equals(croppedEnvelope, XAffineTransform.getScale((AffineTransform) croppedG2W) / 2.0, false));
 
 		// /////////////////////////////////////////////////////////////////////
 		//
@@ -439,30 +251,17 @@ public class GeoTiffWriterTest extends TestCase {
 		//
 		//
 		// /////////////////////////////////////////////////////////////////////
-		final File writeFile = new File(new StringBuffer(writedir
-				.getAbsolutePath()).append(File.separatorChar).append(
-				cropped.getName().toString()).append(".tiff").toString());
+		final File writeFile = new File(new StringBuffer(writedir.getAbsolutePath()).append(File.separatorChar).append(cropped.getName().toString()).append(".tiff").toString());
 		final GridCoverageWriter writer = format.getWriter(writeFile);
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Create the writing params
 		//
 		// /////////////////////////////////////////////////////////////////////
-		final GeoTiffWriteParams wp = new GeoTiffWriteParams();
-		wp.setCompressionMode(GeoTiffWriteParams.MODE_EXPLICIT);
-		wp.setCompressionType("LZW");
-		wp.setCompressionQuality(0.75F);
-		final ParameterValueGroup params = format.getWriteParameters();
-		params.parameter(
-				AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString())
-				.setValue(wp);
-		writer.write(cropped, (GeneralParameterValue[]) params.values()
-				.toArray(new GeneralParameterValue[1]));
-
+		writer.write(cropped, null);
 		reader = new GeoTiffReader(writeFile, null);
 		gc = (GridCoverage2D) reader.read(null);
-		final CoordinateReferenceSystem targetCRS = gc
-				.getCoordinateReferenceSystem2D();
+		final CoordinateReferenceSystem targetCRS = gc.getCoordinateReferenceSystem2D();
 		assertTrue(
 				"Source and Target coordinate reference systems do not match",
 				CRS.equalsIgnoreMetadata(sourceCRS, targetCRS));
