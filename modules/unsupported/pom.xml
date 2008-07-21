@@ -59,7 +59,6 @@
        <id>inwork</id>
        <modules>
          <module>imagemosaic-jdbc</module>
-         <module>go</module>
        </modules>
      </profile>
 
