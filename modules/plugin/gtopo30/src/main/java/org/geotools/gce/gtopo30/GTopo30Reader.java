@@ -69,6 +69,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
+import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.resources.image.ImageUtilities;
@@ -82,6 +83,7 @@ import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.CartesianCS;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.TransformException;
 
@@ -293,14 +295,16 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 		} else
 			crs = initCRS();
 		this.originalEnvelope = getBounds(crs);
+		final GridToEnvelopeMapper geMapper= new  GridToEnvelopeMapper(originalGridRange,originalEnvelope);
+		geMapper.setPixelAnchor(PixelInCell.CELL_CENTER);
+		this.raster2Model=geMapper.createTransform();
 
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Compute source Resolution
 		//
 		// /////////////////////////////////////////////////////////////////////
-		highestRes = getResolution(originalEnvelope, new Rectangle(0, 0, header
-				.getNCols(), header.getNRows()), crs);
+		highestRes = getResolution(originalEnvelope, new Rectangle(0, 0, header.getNCols(), header.getNRows()), crs);
 		numOverviews = 0;
 		overViewResolutions = null;
 	}
@@ -593,8 +597,7 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 					final Map<String,String> properties = Collections.singletonMap("name",
 							"WGS 84 / Antartic Polar Stereographic");
 
-					return factories.createProjectedCRS(properties, geoCRS,
-							null, parameters, cartCS);
+					return factories.createProjectedCRS(properties, geoCRS,null, parameters, cartCS);
 				}
 
 				if (crsDescription.endsWith("GEOGRAPHIC")) {

@@ -21,6 +21,7 @@ import java.awt.Rectangle;
 import java.net.URL;
 
 import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.RecyclingTileFactory;
 import javax.media.jai.TileCache;
 
@@ -60,6 +61,7 @@ public class GT30DecimationTest extends GT30TestBase {
 	 * 
 	 * @throws Exception
 	 */
+	@SuppressWarnings("deprecation")
 	public void test() throws Exception {
 
 		URL statURL = TestData.url(this, (new StringBuffer(this.fileName)
@@ -96,17 +98,11 @@ public class GT30DecimationTest extends GT30TestBase {
 					.getReader(statURL);
 
 			// get a grid coverage
-			final ParameterValueGroup params = reader.getFormat()
-					.getReadParameters();
-			params
-					.parameter(
-							AbstractGridFormat.READ_GRIDGEOMETRY2D.getName()
-									.toString()).setValue(
-							new GridGeometry2D(new GeneralGridRange(
-									new Rectangle(0, 0, 640, 480)), reader
-									.getOriginalEnvelope()));
-			gc = ((GridCoverage2D) reader.read((GeneralParameterValue[]) params
-					.values().toArray(new GeneralParameterValue[1])));
+			final ParameterValueGroup params = reader.getFormat().getReadParameters();
+			params.parameter(
+					AbstractGridFormat.READ_GRIDGEOMETRY2D.getName().toString()).setValue(
+							new GridGeometry2D(new GeneralGridRange(new Rectangle(0, 0, 640, 480)), reader.getOriginalEnvelope()));
+			gc = ((GridCoverage2D) reader.read((GeneralParameterValue[]) params.values().toArray(new GeneralParameterValue[1])));
 			assertTrue(CoverageUtilities.hasRenderingCategories(gc));
 			if(TestData.isInteractiveTest())
 			{
@@ -117,7 +113,7 @@ public class GT30DecimationTest extends GT30TestBase {
 			}
 			else
 			{
-				gc.getRenderedImage().getData();
+				PlanarImage.wrapRenderedImage(gc.getRenderedImage()).getTiles();
 			}
 
 			
