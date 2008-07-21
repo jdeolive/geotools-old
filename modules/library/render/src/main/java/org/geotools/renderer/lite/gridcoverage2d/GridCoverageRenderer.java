@@ -36,8 +36,8 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.processing.DefaultProcessor;
 import org.geotools.coverage.processing.operation.Crop;
@@ -49,19 +49,18 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
-import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.image.ImageUtilities;
 import org.geotools.styling.RasterSymbolizer;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.filter.expression.Expression;
-import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -129,8 +128,7 @@ public final class GridCoverageRenderer {
         // Caching parameters for performing the various operations.
         //	
         // ///////////////////////////////////////////////////////////////////
-        final DefaultProcessor processor = new DefaultProcessor(new Hints(
-                Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE));
+        final DefaultProcessor processor = new DefaultProcessor(new Hints(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE));
         resampleParams = processor.getOperation("Resample").getParameters();
         cropParams = processor.getOperation("CoverageCrop").getParameters();
     }
@@ -143,8 +141,6 @@ public final class GridCoverageRenderer {
 
     /** Size of the area we want to draw in pixels. */
     private final Rectangle destinationSize;
-
-    private final GridToEnvelopeMapper gridToEnvelopeMapper;
 
     private final AffineTransform finalGridToWorld;
 
@@ -214,12 +210,10 @@ public final class GridCoverageRenderer {
         if (this.destinationCRS == null)
             throw new TransformException(Errors.format(
                     ErrorKeys.CANT_SEPARATE_CRS_$1, destinationCRS));
-        gridToEnvelopeMapper = new GridToEnvelopeMapper();
+        final GridToEnvelopeMapper gridToEnvelopeMapper = new GridToEnvelopeMapper();
         gridToEnvelopeMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
-        gridToEnvelopeMapper
-                .setGridRange(new GeneralGridRange(destinationSize));
-        destinationEnvelope = new GeneralEnvelope(new ReferencedEnvelope(
-                envelope, destinationCRS));
+        gridToEnvelopeMapper.setGridRange(new GridEnvelope2D(destinationSize));
+        destinationEnvelope = new GeneralEnvelope(new ReferencedEnvelope(envelope, destinationCRS));
         // ///////////////////////////////////////////////////////////////////
         //
         // FINAL DRAWING DIMENSIONS AND RESOLUTION
@@ -230,8 +224,7 @@ public final class GridCoverageRenderer {
         //
         // ///////////////////////////////////////////////////////////////////
         gridToEnvelopeMapper.setEnvelope(destinationEnvelope);
-        finalGridToWorld = new AffineTransform(gridToEnvelopeMapper
-                .createAffineTransform());
+        finalGridToWorld = new AffineTransform(gridToEnvelopeMapper.createAffineTransform());
         finalWorldToGrid = finalGridToWorld.createInverse();
 
         // ///////////////////////////////////////////////////////////////////
@@ -241,7 +234,7 @@ public final class GridCoverageRenderer {
         // ///////////////////////////////////////////////////////////////////
         if (java2dHints != null)
             this.hints.add(java2dHints);
-        // this prevents users from overriding leninet hint
+        // this prevents users from overriding lenient hint
         this.hints.put(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE);
         this.hints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
 
@@ -256,9 +249,9 @@ public final class GridCoverageRenderer {
      * @return
      * @throws FactoryException
      */
-    private GridCoverage2D resample(final GridCoverage2D gc,
+    private static GridCoverage2D resample(final GridCoverage2D gc,
             CoordinateReferenceSystem crs, final Interpolation interpolation,
-            final GeneralEnvelope destinationEnvelope) throws FactoryException {
+            final GeneralEnvelope destinationEnvelope, final Hints hints) throws FactoryException {
         // paranoiac check
         assert CRS.equalsIgnoreMetadata(destinationEnvelope
                 .getCoordinateReferenceSystem(), crs)
@@ -272,9 +265,6 @@ public final class GridCoverageRenderer {
                 .clone();
         param.parameter("source").setValue(gc);
         param.parameter("CoordinateReferenceSystem").setValue(crs);
-        // param.parameter("GridGeometry").setValue(
-        // new GridGeometry2D(gc.getGridGeometry().getGridRange(),
-        // destinationEnvelope));
         param.parameter("InterpolationType").setValue(interpolation);
         return (GridCoverage2D) resampleFactory.doOperation(param, hints);
 
@@ -288,8 +278,8 @@ public final class GridCoverageRenderer {
      * @param crs
      * @return
      */
-    private GridCoverage2D getCroppedCoverage(GridCoverage2D gc,
-            GeneralEnvelope envelope, CoordinateReferenceSystem crs) {
+    private static GridCoverage2D getCroppedCoverage(GridCoverage2D gc,
+            GeneralEnvelope envelope, CoordinateReferenceSystem crs, final Hints hints) {
         final GeneralEnvelope oldEnvelope = (GeneralEnvelope) gc.getEnvelope();
         // intersect the envelopes in order to prepare for crooping the coverage
         // down to the neded resolution
@@ -307,7 +297,6 @@ public final class GridCoverageRenderer {
         final ParameterValueGroup param = (ParameterValueGroup) cropParams
                 .clone();
         param.parameter("source").setValue(gc);
-        param.parameter("ConserveEnvelope").setValue(Boolean.TRUE);
         param.parameter("Envelope").setValue(intersectionEnvelope);
         return (GridCoverage2D) coverageCropFactory.doOperation(param, hints);
 
@@ -345,8 +334,8 @@ public final class GridCoverageRenderer {
         // ///////////////////////////////////////////////////////////////////
         final CoordinateReferenceSystem sourceCoverageCRS = gridCoverage.getCoordinateReferenceSystem2D();
         final GeneralEnvelope sourceCoverageEnvelope = (GeneralEnvelope) gridCoverage.getEnvelope();
-        final GridGeometry2D sourceGridGeometry=gridCoverage.getGridGeometry();
-        final boolean simpleG2WTransform=CoverageUtilities.isSimpleGridToWorldTransform((AffineTransform) sourceGridGeometry.getGridToCRS2D(PixelOrientation.UPPER_LEFT),1E-3);
+//        final GridGeometry2D sourceGridGeometry=gridCoverage.getGridGeometry();
+//        final boolean simpleG2WTransform=CoverageUtilities.isSimpleGridToWorldTransform((AffineTransform) sourceGridGeometry.getGridToCRS2D(PixelOrientation.UPPER_LEFT),1E-3);
 
         // ///////////////////////////////////////////////////////////////////
         //
@@ -362,8 +351,7 @@ public final class GridCoverageRenderer {
         final boolean doReprojection = !sourceCRSToDestinationCRSTransformation.isIdentity();
         if (LOGGER.isLoggable(Level.FINE))
             LOGGER.fine(
-                    new StringBuilder("Transforming coverage envelope with transform ").
-                        append(destinationCRSToSourceCRSTransformation.toWKT()).toString());
+                    new StringBuilder("Transforming coverage envelope with transform ").append(destinationCRSToSourceCRSTransformation.toWKT()).toString());
         
         // //
         //
@@ -489,41 +477,39 @@ public final class GridCoverageRenderer {
         //
         // /////////////////////////////////////////////////////////////////////
         GridCoverage2D preResample=gridCoverage;
-        if(simpleG2WTransform)
-        {
-        	try{
-	            preResample = getCroppedCoverage(gridCoverage, intersectionEnvelope, sourceCoverageCRS);
-	            if (preResample == null) {
-	                // nothing to render, the AOI does not overlap
-	                if (LOGGER.isLoggable(Level.FINE))
-	                    LOGGER.fine(
-	                            new StringBuilder("Skipping current coverage because cropped to an empty area").toString());
-	                return;
-	            }
-        	}catch (Throwable t) {
-        		////
-        		//
-        		// It might happen that the crop fails due to the fact that in the integer space the width and/or height
-        		// of the cropped area are 0 (this especially happens when we are zooming in a lot). 
-        		//
-        		// In such a case the 
-        		//
-        		////
-                if (LOGGER.isLoggable(Level.FINE))
-                    LOGGER.fine(new StringBuilder("Crop Failed for reason: ").append(t.getLocalizedMessage()).toString());
-                preResample=gridCoverage;
-			}
-            if (DEBUG) {
-                try {
-                    ImageIO.write(
-                            preResample.geophysics(false).getRenderedImage(),
-                            "tiff",
-                            new File(debugDir,"cropped.tiff"));
-                } catch (IOException e) {
-                    LOGGER.info(e.getLocalizedMessage());
-                }
+//        if(simpleG2WTransform)
+//        {
+    	try{
+		    preResample = getCroppedCoverage(gridCoverage, intersectionEnvelope, sourceCoverageCRS,this.hints);
+		    if (preResample == null) {
+		        // nothing to render, the AOI does not overlap
+		        if (LOGGER.isLoggable(Level.FINE))
+		            LOGGER.fine(
+		                    new StringBuilder("Skipping current coverage because cropped to an empty area").toString());
+		        return;
+		    }
+    	}catch (Throwable t) {
+    		////
+    		//
+    		// If it happens that the crop fails we try to proceed since the crop does only an optimization. Things might
+    		// work out anyway.
+    		//
+    		////
+            if (LOGGER.isLoggable(Level.FINE))
+                LOGGER.fine(new StringBuilder("Crop Failed for reason: ").append(t.getLocalizedMessage()).toString());
+            preResample=gridCoverage;
+		}
+        if (DEBUG) {
+            try {
+                ImageIO.write(
+                        preResample.geophysics(false).getRenderedImage(),
+                        "tiff",
+                        new File(debugDir,"cropped.tiff"));
+            } catch (IOException e) {
+                LOGGER.info(e.getLocalizedMessage());
             }
         }
+//        }
             
         
         // /////////////////////////////////////////////////////////////////////
@@ -533,21 +519,16 @@ public final class GridCoverageRenderer {
         // /////////////////////////////////////////////////////////////////////
         GridCoverage2D preSymbolizer;
         if (doReprojection) {
-            preSymbolizer = resample(preResample, destinationCRS,
-                    interpolation == null ? new InterpolationNearest()
-                            : interpolation, destinationEnvelope);
+            preSymbolizer = resample(preResample, destinationCRS,interpolation == null ? new InterpolationNearest(): interpolation, destinationEnvelope,this.hints);
             if (LOGGER.isLoggable(Level.FINE))
-                LOGGER.fine(new StringBuilder("Reprojecting to crs ").append(
-                        destinationCRS.toWKT()).toString());
+                LOGGER.fine(new StringBuilder("Reprojecting to crs ").append( destinationCRS.toWKT()).toString());
         } else
             preSymbolizer = preResample;
 
         if (DEBUG) {
 
             try {
-                ImageIO.write(preSymbolizer.geophysics(false)
-                        .getRenderedImage(), "tiff", new File(debugDir,
-                        "preSymbolizer.tiff"));
+                ImageIO.write(preSymbolizer.geophysics(false).getRenderedImage(), "tiff", new File(debugDir,"preSymbolizer.tiff"));
             } catch (IOException e) {
                 LOGGER.info(e.getLocalizedMessage());
             }
@@ -574,12 +555,13 @@ public final class GridCoverageRenderer {
         // the display
         //
         // ///////////////////////////////////////////////////////////////////
-        final AffineTransform finalGCgridToWorld = new AffineTransform(
-        		(AffineTransform) ((GridGeometry2D) recoloredGridCoverage.getGridGeometry()).getGridToCRS2D());
-        if (!(finalGCgridToWorld instanceof AffineTransform)) {
+        final GridGeometry2D recoloredCoverageGridGeometry = ((GridGeometry2D) recoloredGridCoverage.getGridGeometry());
+        final MathTransform2D finalGCTransform=recoloredCoverageGridGeometry.getGridToCRS2D();
+        if (!(finalGCTransform instanceof AffineTransform)) {
             throw new UnsupportedOperationException(
                     "Non-affine transformations not yet implemented"); // TODO
         }
+        final AffineTransform finalGCgridToWorld = new AffineTransform((AffineTransform) finalGCTransform);
 
         // //
         //
@@ -613,8 +595,7 @@ public final class GridCoverageRenderer {
         // //
         final float alpha = getOpacity(symbolizer);
         final Composite oldAlphaComposite = graphics.getComposite();
-        graphics.setComposite(AlphaComposite.getInstance(
-                AlphaComposite.SRC_OVER, alpha));
+        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
         try {
             // //
             // Drawing the Image
@@ -646,12 +627,9 @@ public final class GridCoverageRenderer {
                 // RESOURCES BY PERFORMING AN ALLOCATION OF MEMORY AND A COPY ON
                 // LARGE IMAGES.
                 // /////////////////////////////////////////////////////////////
-                final BufferedImage buf = new BufferedImage((int) finalImage
-                        .getWidth(), (int) finalImage.getHeight(),
-                        BufferedImage.TYPE_4BYTE_ABGR);
+                final BufferedImage buf = new BufferedImage((int) finalImage.getWidth(), (int) finalImage.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
                 final Graphics2D g = (Graphics2D) buf.getGraphics();
-                g.drawRenderedImage(finalImage, AffineTransform
-                        .getScaleInstance(1, 1));
+                g.drawRenderedImage(finalImage, AffineTransform.getScaleInstance(1, 1));
                 g.dispose();
                 if (DEBUG) {
                     try {
