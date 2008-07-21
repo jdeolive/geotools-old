@@ -84,12 +84,7 @@ import org.opengis.referencing.operation.MathTransform;
  * 
  * <p>
  * <strong>Meaning of the CONSERVE_ENVELOPE parameter</strong> <br>
- * When we crop a coverage using a spatial envelope we may incur in a few issues
- * with approximations when applying the grid-to-world transform and its
- * inverse. Goal of this parameter is to suggest this operation to conserve the
- * input crop envelope, if possible, instead of conserving the original
- * grid-to-world transform. This would help when doing something like building a
- * mosaic from a single coverage.
+ * Deprecated.
  * 
  * <p>
  * <strong>NOTE</strong> that in case we will use the Mosaic operation with a
@@ -98,9 +93,8 @@ import org.opengis.referencing.operation.MathTransform;
  * {@link Polygon}.
  * 
  * @source $URL$
- * @todo make this operation work with a general polygon. instead of an
- *       envelope.
- * @todo make the tolerance for rotations parametric
+ * @todo make this operation work with a general polygon. instead of an envelope.
+ * @todo make this operation more t,z friendly
  * @version $Id$
  * @author Simone Giannecchini
  * @since 2.3
@@ -117,7 +111,7 @@ public class Crop extends Operation2D {
 	 * The parameter descriptor used to pass this operation the envelope to use
 	 * when doing the spatial crop.
 	 */
-	public static final ParameterDescriptor CROP_ENVELOPE = new DefaultParameterDescriptor(
+	public static final ParameterDescriptor<Envelope> CROP_ENVELOPE = new DefaultParameterDescriptor<Envelope>(
 			Citations.GEOTOOLS, "Envelope", 
 			Envelope.class, // Value class
 			null, // Array of valid values
@@ -132,7 +126,7 @@ public class Crop extends Operation2D {
 	 * using a Mosaic in where the area of the image we would not load is smaller
 	 * than ROI_OPTIMISATION_TOLERANCE*FULL_CROP.
 	 */
-	public static final ParameterDescriptor ROI_OPTIMISATION_TOLERANCE = new DefaultParameterDescriptor(
+	public static final ParameterDescriptor<Double> ROI_OPTIMISATION_TOLERANCE = new DefaultParameterDescriptor<Double>(
 			Citations.GEOTOOLS, "ROITolerance", 
 			Double.class, // Value class
 			null, // Array of valid values
@@ -148,14 +142,15 @@ public class Crop extends Operation2D {
          * 
          * <p>
          * <strong> Note that this might mean obtaining a coverage whose grid to
-         * world 2D has been slightly changed to account for the roundin which
+         * world 2D has been slightly changed to account for the rounding which
          * is applied in order to get integer coordinate for the raster to crop.
          * </strong>
          * <p>
          * 
          * See this class javadocs for an explanation.
+         * @deprecated
          */
-	public static final ParameterDescriptor CONSERVE_ENVELOPE = new DefaultParameterDescriptor(
+	public static final ParameterDescriptor<Boolean> CONSERVE_ENVELOPE = new DefaultParameterDescriptor<Boolean>(
 			Citations.GEOTOOLS, "ConserveEnvelope", Boolean.class, // Value
 			// class
 			new Boolean[]{Boolean.TRUE,Boolean.FALSE}, // Array of valid values
@@ -197,22 +192,13 @@ public class Crop extends Operation2D {
 							.toString()));
 		}
 		// crop envelope
-		final ParameterValue envelopeParameter = parameters
-				.parameter("Envelope");
-		if (envelopeParameter == null
-				|| !(envelopeParameter.getValue() instanceof Envelope))
-			throw new CannotCropException(Errors.format(
-					ErrorKeys.NULL_PARAMETER_$2, "Envelope",
-					GeneralEnvelope.class.toString()));
+		final ParameterValue envelopeParameter = parameters.parameter("Envelope");
+		if (envelopeParameter == null || !(envelopeParameter.getValue() instanceof Envelope))
+			throw new CannotCropException(Errors.format(ErrorKeys.NULL_PARAMETER_$2, "Envelope",GeneralEnvelope.class.toString()));
 		// should we conserve the crop envelope
-		final ParameterValue conserveEnvelopeParameter = parameters
-				.parameter("ConserveEnvelope");
-		if (conserveEnvelopeParameter == null
-				|| !(conserveEnvelopeParameter.getValue() instanceof Boolean))
-			throw new CannotCropException(Errors.format(
-					ErrorKeys.NULL_PARAMETER_$2, "ConserveEnvelope",
-					Double.class.toString()));
-
+		final ParameterValue conserveEnvelopeParameter = parameters.parameter("ConserveEnvelope");
+		if (conserveEnvelopeParameter == null|| !(conserveEnvelopeParameter.getValue() instanceof Boolean))
+			throw new CannotCropException(Errors.format(ErrorKeys.NULL_PARAMETER_$2, "ConserveEnvelope",Double.class.toString()));
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Initialization
@@ -245,24 +231,19 @@ public class Crop extends Operation2D {
 		//
 		// //
 		if (!CRS.equalsIgnoreMetadata(sourceCRS, destinationCRS)) {
-			throw new CannotCropException(Errors.format(
-					ErrorKeys.MISMATCHED_ENVELOPE_CRS_$2, sourceCRS.getName()
-							.getCode(), destinationCRS.getName().getCode()));
+			throw new CannotCropException(Errors.format(ErrorKeys.MISMATCHED_ENVELOPE_CRS_$2, sourceCRS.getName().getCode(), destinationCRS.getName().getCode()));
 		}
 		// //
 		//
 		// Check the intersection and, if needed, do the crop operation.
 		//
 		// //
-		final GeneralEnvelope intersectionEnvelope = new GeneralEnvelope(
-				(Envelope) destinationEnvelope);
-		intersectionEnvelope.setCoordinateReferenceSystem(source
-				.getCoordinateReferenceSystem());
+		final GeneralEnvelope intersectionEnvelope = new GeneralEnvelope((Envelope) destinationEnvelope);
+		intersectionEnvelope.setCoordinateReferenceSystem(source.getCoordinateReferenceSystem());
 		// intersect the envelopes
 		intersectionEnvelope.intersect(sourceEnvelope);
 		if (intersectionEnvelope.isEmpty())
-			throw new CannotCropException(Errors
-					.format(ErrorKeys.CANT_CROP));
+			throw new CannotCropException(Errors.format(ErrorKeys.CANT_CROP));
 		// //
 		//
 		// Get the grid-to-world transform by keeping into account translation
@@ -270,8 +251,7 @@ public class Crop extends Operation2D {
 		// ImageDatum assumption.
 		//
 		// //
-		final AffineTransform sourceGridToWorld = (AffineTransform) ((GridGeometry2D) source
-				.getGridGeometry()).getGridToCRS2D(PixelOrientation.UPPER_LEFT);
+		final AffineTransform sourceGridToWorld = (AffineTransform) ((GridGeometry2D) source.getGridGeometry()).getGridToCRS2D(PixelOrientation.UPPER_LEFT);
 		// //
 		//
 		// I set the tolerance as half the scale factor of the grid-to-world
@@ -281,14 +261,9 @@ public class Crop extends Operation2D {
 		//
 		// //
 		final double tolerance = XAffineTransform.getScale(sourceGridToWorld);
-		if (!intersectionEnvelope
-				.equals(sourceEnvelope, tolerance / 2.0, false)) {
+		if (!intersectionEnvelope.equals(sourceEnvelope, tolerance / 2.0, false)) {
 			envelopeParameter.setValue(intersectionEnvelope.clone());
-			return CroppedCoverage2D
-					.create(parameters,
-							(hints instanceof Hints) ? (Hints) hints
-									: new Hints(hints), source,
-							sourceGridToWorld, tolerance);
+			return CroppedCoverage2D.create(parameters,(hints instanceof Hints) ? (Hints) hints: new Hints(hints), source,sourceGridToWorld, tolerance);
 		} else {
 			// //
 			//
@@ -305,12 +280,6 @@ public class Crop extends Operation2D {
 			return source;
 		}
 	}
-
-    static boolean assertionsEnabled() {
-        boolean assertions=false;
-        assert assertions=true;
-        return assertions;
-    }
 
     /**
      * Function to calculate the area of a polygon, according to the algorithm
@@ -333,42 +302,42 @@ public class Crop extends Operation2D {
     	return (area);
     }
 
-    /**
-         * In order to conserve the original envelope we used for this request
-         * we have to slightly correct the original grid to world transform in
-         * order to take into account the fact that we snapped the underlying
-         * raster to the integer grid. This would involve a "scale and
-         * translate" transformation which we are here accounting for.
-         * 
-         * @param cornerGridToWorld
-         *                original grid to world transform referred to the
-         *                corner of the cells in raster space.
-         * @param minX minimum x coordinate for the cropped raster in integer raster space.
-         * @param minY minimum y coordinate for the cropped raster in integer raster space.
-         * @param width width for the cropped raster in integer raster space.
-         * @param height height for the cropped raster in integer raster space.
-         * @param floatingPointRange range of the cropped raster in floating point raster space.
-         * @return a {@link MathTransform} which conserves the original envelope.
-         */
-        static MathTransform createCorrectedTranform(
-            final AffineTransform cornerGridToWorld, 
-            final double minX, 
-            final double minY,
-            final double width,
-            final double height,
-            final Rectangle2D floatingPointRange) {
-            
-            // computing the factor for the corrections affine transform to map
-            // from the integer raster space to the floating point raster space.
-            final double scaleX=floatingPointRange.getWidth()/width;
-            final double scaleY=floatingPointRange.getHeight()/height;
-            final double tx=floatingPointRange.getMinX()-minX*scaleX;
-            final double ty=floatingPointRange.getMinY()-minY*scaleY;
-            final AffineTransform translationTransform= new AffineTransform(scaleX,0,0,scaleY,tx,ty);
-            
-            //now correct the original grid to world transform
-            translationTransform.preConcatenate(cornerGridToWorld);
-            return ProjectiveTransform.create(translationTransform);
-    
-    }
+//    /**
+//         * In order to conserve the original envelope we used for this request
+//         * we have to slightly correct the original grid to world transform in
+//         * order to take into account the fact that we snapped the underlying
+//         * raster to the integer grid. This would involve a "scale and
+//         * translate" transformation which we are here accounting for.
+//         * 
+//         * @param cornerGridToWorld
+//         *                original grid to world transform referred to the
+//         *                corner of the cells in raster space.
+//         * @param minX minimum x coordinate for the cropped raster in integer raster space.
+//         * @param minY minimum y coordinate for the cropped raster in integer raster space.
+//         * @param width width for the cropped raster in integer raster space.
+//         * @param height height for the cropped raster in integer raster space.
+//         * @param floatingPointRange range of the cropped raster in floating point raster space.
+//         * @return a {@link MathTransform} which conserves the original envelope.
+//         */
+//        static MathTransform createCorrectedTranform(
+//            final AffineTransform cornerGridToWorld, 
+//            final double minX, 
+//            final double minY,
+//            final double width,
+//            final double height,
+//            final Rectangle2D floatingPointRange) {
+//            
+//            // computing the factor for the corrections affine transform to map
+//            // from the integer raster space to the floating point raster space.
+//            final double scaleX=floatingPointRange.getWidth()/width;
+//            final double scaleY=floatingPointRange.getHeight()/height;
+//            final double tx=floatingPointRange.getMinX()-minX*scaleX;
+//            final double ty=floatingPointRange.getMinY()-minY*scaleY;
+//            final AffineTransform translationTransform= new AffineTransform(scaleX,0,0,scaleY,tx,ty);
+//            
+//            //now correct the original grid to world transform
+//            translationTransform.preConcatenate(cornerGridToWorld);
+//            return ProjectiveTransform.create(translationTransform);
+//    
+//    }
 }

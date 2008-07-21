@@ -99,36 +99,14 @@ public final class CropTest extends GridProcessingTestBase {
             assertNotNull(cropped.getRenderedImage().getData());
         }
         RenderedImage raster = cropped.getRenderedImage();
-        assertEquals(169, raster.getMinX());
-        assertEquals(173, raster.getMinY());
-        assertEquals(112, raster.getWidth());
-        assertEquals(115, raster.getHeight());
+        assertEquals(168, raster.getMinX());
+        assertEquals(172, raster.getMinY());
+        assertEquals(114, raster.getWidth());
+        assertEquals(116, raster.getHeight());
         assertEquals(source.getGridGeometry().getGridToCRS2D(),
                     cropped.getGridGeometry().getGridToCRS2D());
         assertFalse(cropEnvelope.equals(cropped.getEnvelope()));
-        /*
-         * Do the crop conserving the envelope.
-         */
-        param = processor.getOperation("CoverageCrop").getParameters();
-        param.parameter("Source").setValue(source);
-        param.parameter("ConserveEnvelope").setValue(Boolean.TRUE);
-        param.parameter("Envelope").setValue(cropEnvelope);
-        cropped = (GridCoverage2D) processor.doOperation(param);
-        if (SHOW) {
-            Viewer.show(coverage);
-            Viewer.show(cropped);
-        } else {
-            // Force computation
-            assertNotNull(PlanarImage.wrapRenderedImage(cropped.getRenderedImage()).getTiles());
-        }
-        raster = cropped.getRenderedImage();
-        assertEquals(169, raster.getMinX());
-        assertEquals(173, raster.getMinY());
-        assertEquals(112, raster.getWidth());
-        assertEquals(115, raster.getHeight());
-        assertEquals(cropped.getEnvelope(), cropEnvelope);
-        assertFalse(source.getGridGeometry().getGridToCRS2D().equals(
-                   cropped.getGridGeometry().getGridToCRS2D()));
+
     }
 
     /**
@@ -199,39 +177,6 @@ public final class CropTest extends GridProcessingTestBase {
         Polygon roi = (Polygon) property;
         assertEquals(new Rectangle(raster.getMinX(), raster.getMinY(),
                 raster.getWidth(), raster.getHeight()), roi.getBounds());
-        /*
-         * Do the crop trying to conserve the envelope. We will not manage
-         * to conserve it since we do not a simple scale and translate transform.
-         */
-        param = processor.getOperation("CoverageCrop").getParameters();
-        param.parameter("Source").setValue(rotated);
-        param.parameter("Envelope").setValue(cropEnvelope);
-        param.parameter("ConserveEnvelope").setValue(Boolean.TRUE);
-        cropped = (GridCoverage2D) processor.doOperation(param);
-        if (SHOW) {
-            Viewer.show(coverage);
-            Viewer.show(cropped);
-        } else {
-            // Force computation
-            assertNotNull(PlanarImage.wrapRenderedImage(cropped.getRenderedImage()).getTiles());
-            assertNotNull(PlanarImage.wrapRenderedImage(coverage.getRenderedImage()).getTiles());
-        }
-        raster = cropped.getRenderedImage();
-        assertEquals(111, raster.getMinX());
-        assertEquals(116, raster.getMinY());
-        assertEquals(228, raster.getWidth());
-        assertEquals(228, raster.getHeight());
-        assertEquals(rotated.getGridGeometry().getGridToCRS2D(),
-                     cropped.getGridGeometry().getGridToCRS2D());
-        assertNotSame(cropEnvelope,cropped.getEnvelope2D());
-        /*
-         * Get the roi and test it against the crop area.
-         */
-        property = cropped.getProperty("GC_ROI");
-        assertNotNull(property);
-        assertTrue(property instanceof Polygon);
-        roi = (Polygon) property;
-        assertEquals(new Rectangle(raster.getMinX(), raster.getMinY(),
-                raster.getWidth(), raster.getHeight()), roi.getBounds());
+ 
     }
 }
