@@ -36,6 +36,7 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -1213,10 +1214,11 @@ public class SLDParser {
     	NodeList children = root.getChildNodes();
     	for( int index=0; index<children.getLength(); index++){
     		Node child = children.item(index);
+    		if( child instanceof CharacterData ) continue;
     		expr = parser.expression( child );
     		if( expr != null ) return expr;
     	}
-    	return null;
+    	return null; // Expression.NIL;
     }
     private ColorMapEntry parseColorMapEntry(Node root) {
         ColorMapEntry symbol = factory.createColorMapEntry();
