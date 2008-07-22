@@ -1165,7 +1165,7 @@ public class SLDParser {
             if (childName.equalsIgnoreCase(opacityString)) {
                 try {
                     final String opacityString=child.getFirstChild().getNodeValue();
-                    Expression opacity = parseExpression( child );
+                    Expression opacity = parseParameterValueExpression( child, false );
                     symbol.setOpacity( opacity );
                 } catch (Throwable e) {
                     if(LOGGER.isLoggable(Level.WARNING))
@@ -1206,20 +1206,67 @@ public class SLDParser {
 
         return symbol;
     }
-    /** Return the first expression that can be used as an Expression */
-    Expression parseExpression( Node root ){
+    /**
+     * Many elements in an SLD extends ParameterValueType (allowing
+     * for the definition of Expressions) - this method will try
+     * and produce an expression for the provided node.
+     * <p>
+     * As an example:
+     * <ul>
+     * <li>"sld:Opacity" is defined as a parameter value type:<br>
+     *      &lt;sld:Opacity&gt;0.75&lt;\sld:Opacity&gt;
+     * <li>"sld:Label" is defined as a "mixed" parameter value type:<br>
+     *      &lt;sld:Label&gt;Hello &lt;sld:PropertyName&gt;name&lt;\sld:PropertyName&gt;&lt;\sld:Label&gt;
+     * </ul>
+     * From the SLD 1.0 spec:
+	 * "ParameterValueType" uses WFS-Filter expressions to give values for SLD
+	 * graphic parameters. A "mixed" element-content model is used with textual
+	 * substitution for values.
+	 */
+    Expression parseParameterValueExpression( Node root, boolean mixedText ){    	
     	ExpressionDOMParser parser = new ExpressionDOMParser( (FilterFactory2) ff );
-    	Expression expr = parser.expression( root ); // try the provided node first
+    	Expression expr = parser.expression( root ); // try the provided node first    	
     	if( expr != null ) return expr;
     	NodeList children = root.getChildNodes();
+    	// if there is only one CharacterData node - we can make a literal out of it
+    	if( children.getLength() == 1 && root.getFirstChild() instanceof CharacterData ){
+    		Node textNode = root.getFirstChild();
+    		String text = textNode.getNodeValue();
+    		return ff.literal( text.trim() );
+    	}
+    	List<Expression> expressionList = new ArrayList<Expression>();    	
     	for( int index=0; index<children.getLength(); index++){
     		Node child = children.item(index);
-    		if( child instanceof CharacterData ) continue;
-    		expr = parser.expression( child );
-    		if( expr != null ) return expr;
+    		if( child instanceof CharacterData ) {
+    			if( mixedText ){
+    				String text = child.getNodeValue();    				
+    				Expression childExpr = ff.literal( text );
+    				expressionList.add( childExpr );
+    			}
+    		}
+    		else {
+    			Expression childExpr = parser.expression( child );
+    			if( childExpr != null ){
+    				expressionList.add( childExpr );
+    			}
+    		}
     	}
-    	return null; // Expression.NIL;
+    	if( expressionList.isEmpty()){
+    		return Expression.NIL;
+    	}
+    	else if( expressionList.size() == 1){
+    		return expressionList.get(0);
+    	}
+    	else if( expressionList.size() == 2){
+    		Expression[] expressionArray = expressionList.toArray( new Expression[0]);
+    		return ff.function("strConcat", expressionArray );
+    	}		
+    	else {
+    		Expression[] expressionArray = expressionList.toArray( new Expression[0]);
+    		return ff.function("Concatenate", expressionArray );
+    	}
     }
+    
     private ColorMapEntry parseColorMapEntry(Node root) {
         ColorMapEntry symbol = factory.createColorMapEntry();
         NamedNodeMap atts = root.getAttributes();
