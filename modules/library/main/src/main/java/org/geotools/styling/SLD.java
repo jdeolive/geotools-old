@@ -1606,6 +1606,9 @@ SYMBOLIZER:
             }
         }
         //no default, so just grab the first one
+        if( style.length == 0 ){
+        	return null;
+        }
         return style[0];
     }
     

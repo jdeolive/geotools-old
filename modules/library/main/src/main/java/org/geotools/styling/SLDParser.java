@@ -28,11 +28,12 @@ import java.util.logging.Level;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.filter.ExpressionBuilder;
+import org.geotools.filter.ExpressionDOMParser;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.w3c.dom.Element;
@@ -1163,7 +1164,8 @@ public class SLDParser {
             if (childName.equalsIgnoreCase(opacityString)) {
                 try {
                     final String opacityString=child.getFirstChild().getNodeValue();
-                    symbol.setOpacity(ff.literal(Double.parseDouble(opacityString)));
+                    Expression opacity = parseExpression( child );
+                    symbol.setOpacity( opacity );
                 } catch (Throwable e) {
                     if(LOGGER.isLoggable(Level.WARNING))
                         LOGGER.log(Level.WARNING,e.getLocalizedMessage(),e);
@@ -1203,7 +1205,19 @@ public class SLDParser {
 
         return symbol;
     }
-
+    /** Return the first expression that can be used as an Expression */
+    Expression parseExpression( Node root ){
+    	ExpressionDOMParser parser = new ExpressionDOMParser( (FilterFactory2) ff );
+    	Expression expr = parser.expression( root ); // try the provided node first
+    	if( expr != null ) return expr;
+    	NodeList children = root.getChildNodes();
+    	for( int index=0; index<children.getLength(); index++){
+    		Node child = children.item(index);
+    		expr = parser.expression( child );
+    		if( expr != null ) return expr;
+    	}
+    	return null;
+    }
     private ColorMapEntry parseColorMapEntry(Node root) {
         ColorMapEntry symbol = factory.createColorMapEntry();
         NamedNodeMap atts = root.getAttributes();
@@ -1417,7 +1431,8 @@ public class SLDParser {
             if ("ReliefFactor".equalsIgnoreCase(childName)) {
                 try {
                     final String reliefString=child.getFirstChild().getNodeValue();
-                    symbol.setReliefFactor(ff.literal(Double.parseDouble(reliefString)));                    
+                    Expression relief = ExpressionDOMParser.parseExpression( child );
+                    symbol.setReliefFactor( relief );                    
                 } catch (Exception e) {
                     if(LOGGER.isLoggable(Level.WARNING))
                         LOGGER.log(Level.WARNING,e.getLocalizedMessage(),e);

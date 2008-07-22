@@ -497,6 +497,16 @@ public abstract class TransformerBase {
         protected void element(String element, String content) {
             element(element, content, NULL_ATTS);
         }
+        /**
+         * Will only issue the provided element if content is non empty
+         * @param element
+         * @param content
+         */
+        protected void elementSafe( String element, String content){
+        	if( content != null && content.length() != 0){
+        		element(element, content, NULL_ATTS);
+        	}
+        }
 
         protected void element(String element, String content, Attributes atts) {
             start(element, atts);
