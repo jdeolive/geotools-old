@@ -39,7 +39,7 @@ public class MySqlDialect extends DBDialect {
     }
 
     @Override
-    protected String getMulitPolygonSQLType() {
+    protected String getMultiPolygonSQLType() {
         return "MULTIPOLYGON";
     }
 

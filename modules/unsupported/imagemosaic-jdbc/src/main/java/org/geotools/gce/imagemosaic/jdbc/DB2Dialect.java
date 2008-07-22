@@ -55,7 +55,7 @@ public class DB2Dialect extends DBDialect {
     }
 
     @Override
-    protected String getMulitPolygonSQLType() {
+    protected String getMultiPolygonSQLType() {
         return "db2gse.st_multipolygon";
     }
 

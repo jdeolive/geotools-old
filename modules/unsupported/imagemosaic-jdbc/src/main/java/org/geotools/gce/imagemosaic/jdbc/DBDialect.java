@@ -56,7 +56,7 @@ public abstract class DBDialect {
 
     protected abstract String getBLOBSQLType();
 
-    protected abstract String getMulitPolygonSQLType();
+    protected abstract String getMultiPolygonSQLType();
 
     protected abstract String getDriverClassName();
 
@@ -155,7 +155,7 @@ public abstract class DBDialect {
         statement += (" ( " + getConfig().getKeyAttributeNameInSpatialTable() +
         " CHAR(64) NOT NULL, " +
         getConfig().getGeomAttributeNameInSpatialTable() + " " +
-        getMulitPolygonSQLType() + " NOT NULL ");
+        getMultiPolygonSQLType() + " NOT NULL ");
         statement += (",CONSTRAINT " + tableName + "_PK PRIMARY KEY(" +
         getConfig().getKeyAttributeNameInSpatialTable());
         statement += "))";
@@ -169,7 +169,7 @@ public abstract class DBDialect {
         statement += (" ( " + getConfig().getKeyAttributeNameInSpatialTable() +
         " CHAR(64) NOT NULL, " +
         getConfig().getGeomAttributeNameInSpatialTable() + " " +
-        getMulitPolygonSQLType() + " NOT NULL ");
+        getMultiPolygonSQLType() + " NOT NULL ");
         statement += ("," + getConfig().getBlobAttributeNameInTileTable() +
         " " + getBLOBSQLType());
         statement += (",CONSTRAINT " + tableName + "_PK PRIMARY KEY(" +

@@ -56,7 +56,7 @@ public class OracleDialect extends DBDialect {
     }
 
     @Override
-    protected String getMulitPolygonSQLType() {
+    protected String getMultiPolygonSQLType() {
         return "MDSYS.SDO_GEOMETRY";
     }
 

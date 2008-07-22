@@ -35,7 +35,7 @@ public class UniversalDialect extends DBDialect {
     }
 
     @Override
-    protected String getMulitPolygonSQLType() {
+    protected String getMultiPolygonSQLType() {
         // return "blob";
         return null;
     }
