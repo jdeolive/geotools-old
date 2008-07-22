@@ -42,6 +42,7 @@ import org.opengis.util.InternationalString;
 
 // Geotools dependencies
 import org.geotools.util.logging.Logging;
+import org.geotools.factory.AbstractFactory;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.ReferencingFactoryFinder;
 
@@ -58,7 +59,7 @@ import org.geotools.referencing.ReferencingFactoryFinder;
  * @deprecated Uses one of the other EPSG factories backed by a database instead.
  */
 //not quite sure how I am going to create a new factory (what should the geoapi method be)
-public class EPSGCRSAuthorityFactory implements CRSAuthorityFactory {
+public class EPSGCRSAuthorityFactory extends AbstractFactory implements CRSAuthorityFactory {
 	
 	private static final Logger LOGGER = Logging.getLogger("org.geotools.referencing.crs.EPSGCRSAuthorityFactory");
 	
@@ -98,6 +99,7 @@ public class EPSGCRSAuthorityFactory implements CRSAuthorityFactory {
      * exported from postgis and cubeworks.
      */
     protected EPSGCRSAuthorityFactory(final CRSFactory factory ) {
+        super(MINIMUM_PRIORITY); // Select EPSG-HSQL factory first.
         this.crsFactory = factory;
         try {
             loadDefault();

@@ -258,7 +258,7 @@ public class LineWriter extends FilterWriter {
                     case '\r': {
                         writeLine(cbuf, offset, upper-1);
                         writeEOL();
-                        if (length!=0 && cbuf[upper]=='\n') {
+                        if (length > 1 && cbuf[upper] == '\n') {
                             upper++;
                             length--;
                         }
@@ -273,7 +273,7 @@ public class LineWriter extends FilterWriter {
                     }
                 }
             }
-            skipCR = (cbuf[upper-1]=='\r');
+            skipCR = (cbuf[upper-1] == '\r');
             /*
              * Write the remainding characters and
              * put trailing blanks into the buffer.
@@ -321,7 +321,7 @@ public class LineWriter extends FilterWriter {
                     case '\r': {
                         writeLine(string, offset, upper-1);
                         writeEOL();
-                        if (length!=0 && string.charAt(upper)=='\n') {
+                        if (length > 1 && string.charAt(upper) == '\n') {
                             upper++;
                             length--;
                         }
