@@ -244,16 +244,6 @@ public abstract class AbstractTest extends TestCase {
                                                  .getDropIndexStatment(tn)))
                           .execute();
 
-                String stmt = getDBDialect().getUnregisterSpatialStatement((tn));
-
-                if (stmt != null) {
-                    executeUnRegister(stmt);
-                }
-
-                Connection.prepareStatement((getDBDialect()
-                                                 .getDropTableStatement(tn)))
-                          .execute();
-
                 try {
                     Connection.rollback();
                 } catch (SQLException ex) {
@@ -274,9 +264,6 @@ public abstract class AbstractTest extends TestCase {
 
         for (String tn : getSpatialTableNames()) {
             try {
-                Connection.prepareStatement((getDBDialect()
-                                                 .getDropIndexStatment(tn)))
-                          .execute();
 
                 String stmt = getDBDialect().getUnregisterSpatialStatement((tn));
 

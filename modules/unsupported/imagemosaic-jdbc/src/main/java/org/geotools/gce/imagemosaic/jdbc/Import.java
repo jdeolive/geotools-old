@@ -16,6 +16,10 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
+import com.sun.media.jai.codec.ByteArraySeekableStream;
+import com.sun.media.jai.codec.ImageCodec;
+import com.sun.media.jai.codec.ImageDecoder;
+import com.sun.media.jai.codec.SeekableStream;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -65,6 +69,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.PlanarImage;
 
 public class Import {
 	class ImageFilter extends Object implements FileFilter {
@@ -550,7 +555,20 @@ public class Import {
             URL imageUrl = calculateImageUrl();
             byte[] imageBytes = getImageBytes(imageUrl);
             if (typ==ImportTyp.DIR) {
-            	BufferedImage image =ImageIO.read(new ByteArrayInputStream(imageBytes));
+                SeekableStream stream = new ByteArraySeekableStream(imageBytes);
+                String decoderName = null;
+
+                for (String dn : ImageCodec.getDecoderNames(stream)) {
+                    decoderName = dn;
+                    break;
+                }
+
+            	//BufferedImage image =ImageIO.read(new ByteArrayInputStream(imageBytes));
+                ImageDecoder decoder = ImageCodec.createImageDecoder(decoderName,
+                		stream, null);
+                PlanarImage img = PlanarImage.wrapRenderedImage(decoder.decodeAsRenderedImage());
+                BufferedImage image = img.getAsBufferedImage();
+
             	currentGeom=getGeomFromWorldFile(imageFiles[currentPos-1], image.getWidth(),image.getHeight());
             }
 
