@@ -20,6 +20,7 @@ package org.geotools.wfs.v_1_0_0.data;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Level;
@@ -82,7 +83,7 @@ public class WFSDataStoreWriteOnlineTest extends TestCase {
     	}
         fr.close();
     	System.out.println("Insert Add Features");
-    	Set fids1 = fs.addFeatures(insert);
+    	List<FeatureId> fids1 = fs.addFeatures(insert);
 
     	System.out.println("Insert Read 2");
     	fr = fs.getFeatures().features();

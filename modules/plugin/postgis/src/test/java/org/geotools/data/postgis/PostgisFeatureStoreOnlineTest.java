@@ -16,6 +16,7 @@
  */
 package org.geotools.data.postgis;
 
+import java.util.List;
 import java.util.Set;
 
 import org.geotools.data.DefaultTransaction;
@@ -26,6 +27,7 @@ import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.identity.FeatureId;
 
 public class PostgisFeatureStoreOnlineTest extends AbstractPostgisOnlineTestCase {
 
@@ -54,7 +56,7 @@ public class PostgisFeatureStoreOnlineTest extends AbstractPostgisOnlineTestCase
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = FeatureCollections.newCollection();
         SimpleFeature feature = SimpleFeatureBuilder.build(ft, new Object[] {"test"}, null);
         fc.add(feature);
-        Set set = fs.addFeatures(fc);
+        List<FeatureId> set = fs.addFeatures(fc);
         String id = (String) set.toArray()[0];
         transaction.commit();
         

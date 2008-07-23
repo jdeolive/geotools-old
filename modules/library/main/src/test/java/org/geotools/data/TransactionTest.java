@@ -18,6 +18,7 @@ package org.geotools.data;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -31,6 +32,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.identity.FeatureId;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -77,10 +79,11 @@ public class TransactionTest extends TestCase {
         
         FeatureStore<SimpleFeatureType, SimpleFeature> store=(FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource("default");
         store.setTransaction(new DefaultTransaction());
-        Set fid=store.addFeatures( DataUtilities.collection(f1) );
+        List<FeatureId> fid=store.addFeatures( DataUtilities.collection(f1) );
 
         count(store, 2);
-        String next = (String) fid.iterator().next();
+        FeatureId identifier = fid.iterator().next();
+        String next = identifier.getID();
         FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
         Filter f = filterFactory.id(Collections.singleton(filterFactory.featureId(next)));
         store.removeFeatures(f);

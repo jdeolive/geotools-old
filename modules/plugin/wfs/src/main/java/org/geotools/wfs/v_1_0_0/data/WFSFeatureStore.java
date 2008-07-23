@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -36,6 +37,7 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.LenientBuilder;
 import org.geotools.feature.LenientFeatureFactory;
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.wfs.v_1_0_0.data.Action.DeleteAction;
 import org.geotools.wfs.v_1_0_0.data.Action.InsertAction;
@@ -45,6 +47,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -76,7 +79,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
         return trans;
     }
 
-    public Set addFeatures(final  FeatureReader<SimpleFeatureType, SimpleFeature> reader) throws IOException {
+    public List<FeatureId> addFeatures(final  FeatureReader<SimpleFeatureType, SimpleFeature> reader) throws IOException {
         List features=new ArrayList();
         while(reader.hasNext()){
             try {
@@ -89,7 +92,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
         return addFeatures(DataUtilities.collection((SimpleFeature[]) features.toArray(new SimpleFeature[0])));
     }
 
-	public Set addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
+	public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
         WFSTransactionState ts = null;
 
         if (trans == Transaction.AUTO_COMMIT) {
@@ -97,8 +100,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
         } else {
             ts = (WFSTransactionState) trans.getState(ds);
         }
-
-        HashSet r = new HashSet();
+        List<FeatureId> r = new LinkedList<FeatureId>();
         
         SimpleFeatureType schema = getSchema();
         
@@ -130,7 +132,7 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
                     build.addAll( values );
                     newFeature = build.buildFeature( nextFid );
                     
-                    r.add(newFeature.getID());
+                    r.add(newFeature.getIdentifier());
                 } catch (IllegalAttributeException e) {
                     throw (IOException) new IOException( e.getLocalizedMessage() );
                 }
@@ -151,8 +153,6 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
                         }
                     }
                 }
-                
-                
                 ts.addAction(schema.getTypeName(), new InsertAction(newFeature));
 
             } catch (NoSuchElementException e) {
@@ -181,11 +181,16 @@ public class WFSFeatureStore extends WFSFeatureSource implements FeatureStore<Si
             ts.commit();
 
             String[] fids = ts.getFids(schema.getTypeName());
-            r = new HashSet(Arrays.asList(fids));
-
+            int i=0;
+            for( String fid : fids ){
+            	FeatureId identifier = r.get(i);
+            	if( identifier instanceof FeatureIdImpl){
+            		((FeatureIdImpl)identifier).setID( fid );
+            	}
+            	i++;
+            }
             return r;
         }
-
         return r;
 	}
 

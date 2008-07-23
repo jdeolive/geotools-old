@@ -317,7 +317,7 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
         ContentFeatureStore featureStore = ensureFeatureStore();
         
         try {
-            Set ids = featureStore.addFeatures(c);
+            List<FeatureId> ids = featureStore.addFeatures(c);
             return ids.size() == c.size();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -326,7 +326,7 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
     public boolean addAll(ResourceCollection c) {
         ContentFeatureStore featureStore = ensureFeatureStore();
         try {
-            Set ids;
+            List<FeatureId> ids;
             if( c instanceof FeatureCollection ){
                 ids = featureStore.addFeatures( (FeatureCollection) c );
             }

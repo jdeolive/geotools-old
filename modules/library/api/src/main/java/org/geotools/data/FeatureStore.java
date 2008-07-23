@@ -17,12 +17,14 @@
 package org.geotools.data;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 import org.geotools.feature.FeatureCollection;
 
 
@@ -49,13 +51,17 @@ import org.geotools.feature.FeatureCollection;
 public interface FeatureStore<T extends FeatureType, F extends Feature> extends FeatureSource<T, F> {
     /**
      * Adds all features from the passed feature collection to the datasource.
-     *
+     * <p>
+     * A list of FeatureIds is returned; one for each Feature in the order created.
+     * Please note that these FeatureIds may not be assigned until after
+     * a commit has been performed.
+     * </p>
      * @param collection The collection of features to add.
      * @return the FeatureIds of the newly added features.
      *
      * @throws IOException if anything goes wrong.
      */
-    Set<String> addFeatures(FeatureCollection<T, F> collection) throws IOException;
+    List<FeatureId> addFeatures(FeatureCollection<T, F> collection) throws IOException;
 
     /**
      * Removes all of the features specificed by the passed filter from the

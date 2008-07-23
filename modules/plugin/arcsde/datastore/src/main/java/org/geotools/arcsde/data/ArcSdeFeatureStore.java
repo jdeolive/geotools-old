@@ -18,6 +18,8 @@ package org.geotools.arcsde.data;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -35,6 +37,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
@@ -89,7 +92,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
     /**
      * @see FeatureStore#addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature>)
      */
-    public Set<String> addFeatures(final FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
+    public List<FeatureId> addFeatures(final FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
             throws IOException {
         // System.err.println(">>addFeatures called at " +
         // Thread.currentThread().getName());
@@ -98,7 +101,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
         final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
         writer = dataStore.getFeatureWriterAppend(typeName, transaction);
         final FeatureIterator<SimpleFeature> iterator = collection.features();
-        Set<String> featureIds = new HashSet<String>();
+        List<FeatureId> featureIds = new LinkedList<FeatureId>();
         try {
             SimpleFeature toAdd;
             SimpleFeature newFeature;
@@ -107,7 +110,7 @@ public class ArcSdeFeatureStore extends ArcSdeFeatureSource implements
                 newFeature = writer.next();
                 newFeature.setAttributes(toAdd.getAttributes());
                 writer.write();
-                featureIds.add(newFeature.getID());
+                featureIds.add(newFeature.getIdentifier());
             }
         } finally {
             iterator.close();

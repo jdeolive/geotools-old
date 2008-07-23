@@ -19,6 +19,8 @@ package org.geotools.data.store;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -39,6 +41,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 
 /**
  * Abstract implementation of FeatureStore.
@@ -180,11 +183,11 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
      * is written its id is obtained and added to the returned set.
      * </p>
      */
-    public final Set<String> addFeatures(Collection collection)
+    public final List<FeatureId> addFeatures(Collection collection)
         throws IOException {
         
         //gather up id's
-        Set<String> ids = new TreeSet<String>();
+    	List<FeatureId> ids = new LinkedList<FeatureId>();
         
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer = getWriter( Filter.INCLUDE, WRITER_ADD );
         try {
@@ -205,7 +208,7 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
                 writer.write();
                 
                 //add the id to the set of inserted
-                ids.add( toWrite.getID() );
+                ids.add( toWrite.getIdentifier() );
             }
         } 
         finally {
@@ -221,10 +224,10 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
      * This method calls through to {@link #addFeatures(Collection)}.
      * </p>
      */
-    public final Set<String> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
+    public final List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
         throws IOException {
-      //gather up id's
-        Set<String> ids = new TreeSet<String>();
+        //gather up id's
+        List<FeatureId> ids = new LinkedList<FeatureId>();
         
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer = getWriter( Filter.INCLUDE, WRITER_ADD );
         Iterator f = collection.iterator();
@@ -246,7 +249,7 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
                 writer.write();
                 
                 //add the id to the set of inserted
-                ids.add( toWrite.getID() );
+                ids.add( toWrite.getIdentifier() );
             }
         } 
         finally {

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 import org.geotools.data.CollectionFeatureReader;
 import org.geotools.data.FeatureReader;
@@ -33,6 +33,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
+import org.opengis.filter.identity.FeatureId;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -58,7 +59,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
             collection.add(b.buildFeature(null));
         }
 
-        Set fids = featureStore.addFeatures(collection);
+        List<FeatureId> fids = featureStore.addFeatures(collection);
         assertEquals(3, fids.size());
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
@@ -67,8 +68,9 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         FilterFactory ff = dataStore.getFilterFactory();
 
         for (Iterator f = fids.iterator(); f.hasNext();) {
-            String fid = (String) f.next();
-            Id filter = ff.id(Collections.singleton(ff.featureId(fid)));
+            FeatureId identifier = (FeatureId) f.next();
+            String fid = identifier.getID();
+            Id filter = ff.id(Collections.singleton(identifier));
 
             features = featureStore.getFeatures(filter);
             assertEquals(1, features.size());

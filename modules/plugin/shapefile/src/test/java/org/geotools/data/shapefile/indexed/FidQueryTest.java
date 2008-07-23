@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -105,13 +106,14 @@ public class FidQueryTest extends FIDTestCase {
         FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
         collection.add(newFeature);
 
-        Set<String> newFids = featureStore.addFeatures(collection);
+        List<FeatureId> newFids = featureStore.addFeatures(collection);
         assertEquals(1, newFids.size());
         // this.assertFidsMatch();
 
-        DefaultQuery query = new DefaultQuery(schema.getTypeName());
-        String fid = (String) newFids.iterator().next();
-        FeatureId id = fac.featureId(fid);
+        DefaultQuery query = new DefaultQuery(schema.getTypeName());        
+        FeatureId id = newFids.iterator().next();
+        String fid = id.getID();
+        
         Filter filter = fac.id(Collections.singleton(id));
         query.setFilter(filter);
         FeatureIterator<SimpleFeature> features = featureStore.getFeatures(query).features();

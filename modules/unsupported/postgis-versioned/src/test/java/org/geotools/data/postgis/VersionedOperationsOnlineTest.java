@@ -618,8 +618,8 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         Transaction t = createTransaction("gimbo", "double update");
         FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource("tree");
         store.setTransaction(t);
-        Set ids = store.addFeatures(DataUtilities.collection(tree));
-        Filter filter = ff.id(Collections.singleton(ff.featureId((String) ids.iterator().next())));
+        List<FeatureId> ids = store.addFeatures(DataUtilities.collection(tree));
+        Filter filter = ff.id(new HashSet(ids));
         store.removeFeatures(filter);
         t.commit();
 
@@ -649,8 +649,8 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         SimpleFeatureType treeSchema = ds.getSchema("tree");
         FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds.getFeatureSource("tree");
         store.setTransaction(t);
-        Set ids = store.addFeatures(DataUtilities.collection(tree));
-        Filter filter = ff.id(Collections.singleton(ff.featureId((String) ids.iterator().next())));
+        List<FeatureId> ids = store.addFeatures(DataUtilities.collection(tree));
+        Filter filter = ff.id( new HashSet(ids));
         assertEquals(1, store.getFeatures(filter).size());
         store.modifyFeatures(treeSchema.getDescriptor("name"), "update1", filter);
         t.commit();

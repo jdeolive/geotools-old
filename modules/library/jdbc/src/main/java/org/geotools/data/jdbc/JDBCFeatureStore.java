@@ -19,6 +19,8 @@ package org.geotools.data.jdbc;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -40,6 +42,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 
 /**
  * This is a starting point for providing your own FeatureStore implementation.
@@ -338,8 +341,8 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore<
         return addedFids;
     }
 
-    public Set<String> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
-        Set<String> addedFids = new HashSet<String>();
+    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
+        List<FeatureId> addedFids= new LinkedList<FeatureId>();
         String typeName = getSchema().getTypeName();
         SimpleFeature feature = null;
         SimpleFeature newFeature;
@@ -378,7 +381,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore<
                 }
 
                 writer.write();
-                addedFids.add(newFeature.getID());
+                addedFids.add(newFeature.getIdentifier());
             }
         } finally {
             collection.close( iterator );

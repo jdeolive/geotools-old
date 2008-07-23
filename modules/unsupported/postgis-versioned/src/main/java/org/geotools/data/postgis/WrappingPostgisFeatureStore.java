@@ -17,7 +17,7 @@
 package org.geotools.data.postgis;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureStore;
@@ -27,6 +27,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 
 /**
  * Really delegates everything to a wrapped feature store, but allows to
@@ -47,7 +48,7 @@ class WrappingPostgisFeatureStore extends WrappingPostgisFeatureSource
         this.wrappedStore = wrapped;
     }
 
-    public Set addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
+    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) throws IOException {
         return wrappedStore.addFeatures(collection);
     }
 

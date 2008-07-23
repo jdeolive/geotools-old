@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.geotools.feature.FeatureCollection;
@@ -28,6 +30,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 
 
 /**
@@ -242,9 +245,9 @@ public abstract class AbstractFeatureStore extends AbstractFeatureSource
         return addedFids;
     }
 
-    public Set<String> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
+    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection)
             throws IOException {
-    	Set<String> addedFids = new HashSet<String>();
+    	List<FeatureId> addedFids = new LinkedList<FeatureId>();
         String typeName = getSchema().getTypeName();
         SimpleFeature feature = null;
         SimpleFeature newFeature;
@@ -266,7 +269,7 @@ public abstract class AbstractFeatureStore extends AbstractFeatureSource
                 }
 
                 writer.write();
-                addedFids.add(newFeature.getID());
+                addedFids.add(newFeature.getIdentifier());
             }
         } finally {
             collection.close( iterator );

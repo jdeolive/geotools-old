@@ -351,29 +351,28 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         SimpleFeature newFeature = build.buildFeature(null);
         FeatureCollection newFeatures = DataUtilities.collection( newFeature );
         
-        Set<String> newFids = featureStore1.addFeatures( newFeatures );
+        List<FeatureId> newFids = featureStore1.addFeatures( newFeatures );
         assertEquals(0, listener.list.size());
         assertEquals(1, listener1.list.size());        
         
         FeatureEvent e = listener1.list.get(0);
         Id id = (Id) e.getFilter();
-        assertTrue( id.getIDs().containsAll( newFids ));
+        assertTrue( id.getIdentifiers().containsAll( newFids ));
         // remember the FeatureId with a strong reference
         FeatureId tempFeatureId = (FeatureId) id.getIdentifiers().iterator().next();
-        String tempFid = tempFeatureId.getID();
-        assertTrue( newFids.contains( tempFid ) );
+        assertTrue( newFids.contains( tempFeatureId ) );
         
         t1.commit();
         assertEquals(1, listener.list.size());
         assertEquals(2, listener1.list.size());
         
         BatchFeatureEvent batch = (BatchFeatureEvent) listener1.list.get(2);
-        assertFalse( "confirm tempFid is not in the commit", id.getIDs().contains( tempFid ) );
+        assertFalse( "confirm tempFid is not in the commit", id.getIdentifiers().contains( tempFeatureId) );
         assertNotNull( batch.getFilter() );
         
         FeatureId featureId = (FeatureId) batch.getCreatedFeatureIds().iterator().next();
         String fid = featureId.getID();
-        assertSame( "confirm temp feature Id was updated", tempFeatureId.getID(), featureId.getID() );        
+        assertSame( "confirm temp feature Id was updated", tempFeatureId, featureId );        
     }
     
     public void testDeleteByFIDAutoCommit() throws Exception {
@@ -607,12 +606,12 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final Transaction transaction = new DefaultTransaction("testInsertTransactionAndQueryByFid");
         fStore.setTransaction(transaction);
         try {
-            final Set<String> addedFids = fStore.addFeatures(testFeatures);
+            final List<FeatureId> addedFids = fStore.addFeatures(testFeatures);
             final FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
             final Set<FeatureId> fids = new HashSet<FeatureId>();
-            for (String fid : addedFids) {
-                fids.add(ff.featureId(fid));
+            for (FeatureId fid : addedFids) {
+                fids.add(fid);
             }
             final Id newFidsFilter = ff.id(fids);
 
@@ -1424,13 +1423,13 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             public void run() {
                 try {
                     System.err.println("adding..");
-                    Set<String> addedFids = fStore.addFeatures(testFeatures);
+                    List<FeatureId> addedFids = fStore.addFeatures(testFeatures);
                     System.err.println("got " + addedFids);
                     final FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
                     final Set<FeatureId> fids = new HashSet<FeatureId>();
-                    for (String fid : addedFids) {
-                        fids.add(ff.featureId(fid));
+                    for (FeatureId fid : addedFids) {
+                        fids.add(fid);
                     }
                     final Id newFidsFilter = ff.id(fids);
 

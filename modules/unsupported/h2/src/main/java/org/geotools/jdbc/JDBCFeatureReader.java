@@ -653,7 +653,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
                 dirty[i] = false;
             }
 
-            this.fid = new FeatureIdImpl(fid);
+            this.fid = SimpleFeatureBuilder.createDefaultFeatureIdentifier(fid);
         }
 
         public void init() throws SQLException, IOException {
