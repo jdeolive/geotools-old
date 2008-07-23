@@ -15,39 +15,39 @@
  *    Lesser General Public License for more details.
  */
 
-/**
- * 	Adds two double precision floating point numbers and returns the sum as a double.
- *
- *	@author lreed@refractions.net
- */
-
 package org.geotools.process.literal;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.geotools.process.ProcessFactory;
 import org.geotools.process.impl.AbstractProcess;
 import org.geotools.text.Text;
 import org.geotools.util.NullProgressListener;
+import org.opengis.feature.Feature;
+import org.opengis.feature.Property;
 import org.opengis.util.ProgressListener;
 
-class DoubleAdditionProcess extends AbstractProcess
+import com.vividsolutions.jts.geom.Geometry;
+
+/**
+ * XXX Untested Buffer a Feature and return the result
+ *
+ * @author Lucas Reed, Refractions Research Inc
+ */
+public class FeatureBufferProcess extends AbstractProcess
 {
 	private boolean started = false;
 
-	public DoubleAdditionProcess(DoubleAdditionFactory factory)
+	public FeatureBufferProcess(FeatureBufferFactory factory)
 	{
-        super(factory);
-    }
-
-	public ProcessFactory getFactory()
-	{
-        return this.factory;
-    }
+		super(factory);
+	}
 
 	public Map<String, Object> execute(Map<String, Object> input, ProgressListener monitor)
 	{
+		Map<String,Object> result   = new HashMap<String, Object>();
+
 		if (this.started)
 		{
 			throw new IllegalStateException("Process can only be run once");
@@ -66,32 +66,47 @@ class DoubleAdditionProcess extends AbstractProcess
             monitor.setTask(Text.text("Fetching arguments"));
             monitor.progress(10.0f);
 
-            Double input_a = (Double)input.get(DoubleAdditionFactory.INPUT_A.key);          
-            Double input_b = (Double)input.get(DoubleAdditionFactory.INPUT_B.key);
+            Feature input_a = (Feature)input.get(FeatureBufferFactory.INPUT_A.key);          
+            Double  input_b = (Double)input.get( FeatureBufferFactory.INPUT_B.key);
 
-            monitor.setTask(Text.text("Adding values"));
+            monitor.setTask(Text.text("Buffering Feature"));
             monitor.progress(25.0f);
 
-            if (monitor.isCanceled())
+            // Buffer
+            for(Property prop : input_a.getProperties())
             {
-                return null; // user has cancelled this operation
-            }
+            	if (monitor.isCanceled())
+                {
+                    return null; // user has cancelled this operation
+                }
 
-            Double sum = input_a + input_b;
+            	if (false == Geometry.class.equals(prop.getType().getBinding()))
+            	{
+            		continue;
+            	}
+
+            	Geometry buffered = ((Geometry)prop.getValue()).buffer(input_b);
+
+            	prop.setValue(buffered);
+            }
 
             monitor.setTask(Text.text("Encoding result"));
             monitor.progress(90.0f);
 
-            Map<String,Object> result = new HashMap<String, Object>();
-            result.put(DoubleAdditionFactory.RESULT.key, sum);
+            result.put(FeatureBufferFactory.RESULT.key, input_a);
             monitor.complete(); // same as 100.0f
-
-            return result;
 		} catch(Exception e) {
 			monitor.exceptionOccurred(e);
             return null;
 		} finally {
             monitor.dispose();
         }
+
+		return result;
 	}
+
+	public ProcessFactory getFactory()
+	{
+        return this.factory;
+    }
 }
