@@ -129,7 +129,7 @@ public class FeatureSourceModel implements TableModel {
 
             store.setTransaction(transaction);
             FilterFactory ff = CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints());
-            Filter filter = ff.id(Collections.singleton(ff.featureId(features.get(rowIndex).getID())));            
+            Filter filter = ff.id(Collections.singleton(features.get(rowIndex).getIdentifier()));            
             FeatureType schema = store.getSchema();
             
             AttributeDescriptor NAME = (AttributeDescriptor) schema.getDescriptor(getColumnName(columnIndex));

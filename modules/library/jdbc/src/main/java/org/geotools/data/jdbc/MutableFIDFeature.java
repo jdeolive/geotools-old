@@ -21,6 +21,7 @@ import java.util.List;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureImpl;
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
@@ -34,7 +35,7 @@ public class MutableFIDFeature extends SimpleFeatureImpl {
 
   public MutableFIDFeature(List<Object> values, SimpleFeatureType ft, String fid)
     throws IllegalAttributeException {
-    super(values, ft, fid == null ? SimpleFeatureBuilder.createDefaultFeatureId() : fid);
+    super(values, ft, SimpleFeatureBuilder.createDefaultFeatureIdentifier(fid) );
   }
 
   /**
@@ -45,7 +46,7 @@ public class MutableFIDFeature extends SimpleFeatureImpl {
    * 
    * @param id The fid to set.
    */
-  public void setID(String id) {
-	  this.id = id;
+  public void setID(String fid) {
+	  ((FeatureIdImpl)id).setID( fid );
   }
 }

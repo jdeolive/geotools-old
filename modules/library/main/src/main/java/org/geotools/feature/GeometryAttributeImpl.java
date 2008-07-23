@@ -23,6 +23,7 @@ import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
+import org.opengis.filter.identity.Identifier;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -59,7 +60,7 @@ public class GeometryAttributeImpl extends AttributeImpl implements
 	 */
     protected BoundingBox bounds;
 
-	public GeometryAttributeImpl( Object content, GeometryDescriptor descriptor, String id ) {
+	public GeometryAttributeImpl( Object content, GeometryDescriptor descriptor, Identifier id ) {
 		super(content, descriptor, id);
 	}
 

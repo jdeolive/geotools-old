@@ -18,7 +18,6 @@ package org.geotools.filter.identity;
 
 import org.opengis.feature.Feature;
 import org.opengis.filter.identity.FeatureId;
-import org.opengis.filter.identity.Identifier;
 
 /**
  * Implementation of {@link org.opengis.filter.identity.FeatureId}
@@ -59,20 +58,15 @@ public class FeatureIdImpl implements FeatureId {
 		}
 	}
 	public boolean matches(Feature feature) {
-		return feature != null && fid.equals( feature.getID() );
+		return feature != null && fid.equals( feature.getIdentifier().getID() );
 	}
 
-//	public boolean matches(Object object) {
-//		if ( object instanceof Feature ) {
-//			return matches( (Feature) object );
-//		}
-//		
-//		if ( object instanceof org.geotools.feature.Feature ) {
-//			return fid.equals( ( (org.geotools.feature.Feature) object ).getID() );
-//		}
-//		
-//		return false;
-//	}
+	public boolean matches(Object object) {
+		if ( object instanceof Feature ) {
+			return matches( (Feature) object );
+		}	
+		return false;
+	}
 
 	public String toString() {
 		return fid;

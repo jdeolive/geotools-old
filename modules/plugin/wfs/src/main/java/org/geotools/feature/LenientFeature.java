@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureImpl;
 import org.geotools.feature.type.Types;
 import org.geotools.util.Converters;
@@ -55,7 +56,7 @@ public class LenientFeature extends SimpleFeatureImpl {
     protected LenientFeature(List<Attribute> attributes, SimpleFeatureType schema, String featureID)
         throws IllegalAttributeException, NullPointerException {
         super( preFix(attributes, schema), checkSchema( schema),
-              checkId( featureID ));
+              SimpleFeatureBuilder.createDefaultFeatureIdentifier(featureID ));
         // superclass just punts the values in ... we are going to validate if needed
         constructing=true;
         List<Object> values = toValues( attributes );
@@ -82,20 +83,6 @@ public class LenientFeature extends SimpleFeatureImpl {
             throw new NullPointerException("schema");
         }
         return schema;
-    }
-
-    /**
-     * Creates an ID from a hashcode.
-     *
-     * @return an id for the feature.
-     */
-    static String checkId(String featureID) {
-        if( featureID == null ){
-            return "fid-" + new UID().toString().replace(':', '_');
-        }
-        else {
-            return featureID;
-        }
     }
 
     /**

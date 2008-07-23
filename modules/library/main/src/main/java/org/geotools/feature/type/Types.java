@@ -528,7 +528,7 @@ public class Types {
             return;
         }
 
-        if (type.isIdentified() && attribute.getID() == null) {
+        if (type.isIdentified() && attribute.getIdentifier() == null) {
             throw new NullPointerException(type.getName() + " is identified, null id not accepted");
         }
 
@@ -552,7 +552,7 @@ public class Types {
         if (type.getRestrictions() != null) {
             for (Filter f : type.getRestrictions()) {
                 if (!f.evaluate(attribute)) {
-                    throw new IllegalAttributeException("Attribute instance (" + attribute.getID() + ")"
+                    throw new IllegalAttributeException("Attribute instance (" + attribute.getIdentifier() + ")"
                             + "fails to pass filter: " + f);
                 }
             }

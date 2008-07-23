@@ -28,6 +28,7 @@ import org.geotools.data.DataUtilities;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.type.Types;
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.util.Converters;
 import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.Property;
@@ -35,6 +36,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.identity.FeatureId;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -370,6 +372,17 @@ public class SimpleFeatureBuilder {
         // optimization, since the UID toString uses only ":" and converts long and integers
         // to strings for the rest, so the only non word character is really ":"
         return "fid-" + new UID().toString().replace(':', '_');
+    }
+    /**
+     * Internal method for a temporary FeatureId that can be assigned
+     * a real value after a commit.
+     * @param suggestedId suggsted id
+     */
+    public static FeatureIdImpl createDefaultFeatureIdentifier( String suggestedId ) {
+    	if( suggestedId != null ){
+    		return new FeatureIdImpl( suggestedId );	
+    	}
+    	return new FeatureIdImpl( createDefaultFeatureId() );
     }
     
     

@@ -72,7 +72,6 @@
          <module>sql-datastore</module>
          <module>geometryless</module>
          <module>notifying-collections</module>
-	 <module>wps</module>
        </modules>
      </profile>
 
@@ -112,6 +111,7 @@
     <module>oracle-spatial</module>
     <module>postgis-versioned</module>
     <module>process</module>
+    <module>wps</module>
     <module>repository</module>
     <module>temporal</module>
     <module>tiger</module>

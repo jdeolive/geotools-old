@@ -28,6 +28,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureImpl;
 import org.geotools.feature.visitor.FeatureVisitor;
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.ProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
@@ -77,7 +78,7 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
 	 * @param memberType The type of the members of the collection.
 	 */
     protected BaseFeatureCollection( String id, SimpleFeatureType memberType ){
-    	super(new Object[0], new BaseFeatureCollectionType(memberType), id != null ? id : "featureCollection", false);
+    	super(new Object[0], new BaseFeatureCollectionType(memberType), new FeatureIdImpl(id != null ? id : "featureCollection"), false);
     }
     
 //    /**

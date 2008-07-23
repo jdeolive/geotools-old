@@ -67,10 +67,7 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class FilterTest extends TestCase {
     private static final Comparator<SimpleFeature> FEATURE_COMPARATOR = new Comparator<SimpleFeature>() {
-        public int compare(SimpleFeature o1, SimpleFeature o2) {
-            Feature f1 = (Feature) o1;
-            Feature f2 = (Feature) o2;
-
+        public int compare(SimpleFeature f1, SimpleFeature f2) {
             return f1.getID().compareTo(f2.getID());
         }
     };
@@ -177,7 +174,7 @@ public class FilterTest extends TestCase {
             if (i == 0) {
                 assertEquals("Feature Type", f1.getType(), f2.getType());
             }
-            assertEquals("Feature[" + i + "] identifiers Equal", f1.getID(), f2.getID());
+            assertEquals("Feature[" + i + "] identifiers Equal", f1.getIdentifier().getID(), f2.getIdentifier().getID());
             if (!f1.equals(f2)) {
                 // go through properties and figure out differneces...
                 for (PropertyDescriptor property : f1.getType().getDescriptors()) {

@@ -39,6 +39,7 @@ import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 
@@ -390,7 +391,9 @@ public class TransactionStateDiff implements State {
         public String getID() {
             return null;
         }
-
+        public FeatureId getIdentifier() {
+        	return null;
+        }
         public int getNumberOfAttributes() {
             return 0;
         }

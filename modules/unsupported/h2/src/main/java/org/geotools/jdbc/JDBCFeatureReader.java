@@ -38,6 +38,7 @@ import org.geotools.factory.Hints;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.util.Converters;
 import org.opengis.feature.Association;
 import org.opengis.feature.FeatureFactory;
@@ -54,6 +55,7 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.geometry.BoundingBox;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -593,7 +595,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         /**
          * fid
          */
-        String fid;
+        FeatureId fid;
 
         /**
          * dirty flags
@@ -651,7 +653,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
                 dirty[i] = false;
             }
 
-            this.fid = fid;
+            this.fid = new FeatureIdImpl(fid);
         }
 
         public void init() throws SQLException, IOException {
@@ -670,12 +672,15 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
             return featureType;
         }
 
+        public FeatureId getIdentifier() {
+        	return fid;
+        }
         public String getID() {
-            return fid;
+            return fid.getID();
         }
 
-        public void setID( String fid ) {
-            this.fid = fid;
+        public void setID( String id ) {
+            ((FeatureIdImpl)fid).setID(id);
         }
         
         public Object getAttribute(String name) {

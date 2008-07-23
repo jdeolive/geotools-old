@@ -107,7 +107,7 @@ public abstract class AbstractGetFeatureParserTest extends TestCase {
 
         public void visit(final Feature feature) {
             assertNotNull(feature);
-            assertNotNull(feature.getID());
+            assertNotNull(feature.getIdentifier().getID());
             for (AttributeDescriptor descriptor : featureType.getAttributeDescriptors()) {
                 final String name = descriptor.getLocalName();
                 Property property = feature.getProperty(name);
@@ -255,7 +255,7 @@ public abstract class AbstractGetFeatureParserTest extends TestCase {
             @Override
             public void visit(final Feature feature) {
                 super.visit(feature);
-                final String fid = feature.getID();
+                final String fid = feature.getIdentifier().getID();
                 final int numPolygons;
                 final int expectedHoles;
                 if ("states.1".equals(fid)) {

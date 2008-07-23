@@ -40,6 +40,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -159,7 +160,9 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
     public SimpleFeatureType getFeatureType() {
         return delegate.getFeatureType();
     }
-
+	public FeatureId getIdentifier() {
+		return delegate.getIdentifier();
+	}
     public String getID() {
         return delegate.getID();
     }

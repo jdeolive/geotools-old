@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureImpl;
 import org.geotools.feature.type.DefaultFeatureTypeBuilder;
 import org.geotools.feature.type.GeometricAttributeType;
@@ -97,7 +98,7 @@ public class DefaultFeature extends SimpleFeatureImpl
     protected DefaultFeature(DefaultFeatureType schema, Object[] attributes,
         String featureID) throws IllegalAttributeException, NullPointerException {
     	//super( Arrays.asList(attributes), schema, featureID );
-    	super(wrapValues(attributes,schema), schema, featureID );
+    	super(wrapValues(attributes,schema), schema, SimpleFeatureBuilder.createDefaultFeatureIdentifier(featureID) );
     
         if (schema == null) {
             throw new NullPointerException("schema");
@@ -150,7 +151,7 @@ public class DefaultFeature extends SimpleFeatureImpl
     }
 
     public DefaultFeature(List/*<Attribute>*/ attributes,DefaultFeatureType schema, String id ) {
-    	super( attributes, schema, id );
+    	super( attributes, schema, SimpleFeatureBuilder.createDefaultFeatureIdentifier(id) );
     }
     /**
      * Creates an ID from a hashcode.

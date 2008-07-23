@@ -35,6 +35,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -167,7 +168,9 @@ public class MockFeatureCollection implements org.geotools.feature.FeatureCollec
     public SimpleFeatureType getFeatureType() {
         return null;
     }
-
+	public FeatureId getIdentifier() {
+		return null;
+	}
     public String getID() {
         return null;
     }

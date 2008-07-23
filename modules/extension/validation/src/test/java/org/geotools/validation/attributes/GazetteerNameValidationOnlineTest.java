@@ -42,6 +42,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
+import org.opengis.filter.identity.FeatureId;
+import org.opengis.filter.identity.Identifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -73,6 +75,7 @@ public class GazetteerNameValidationOnlineTest extends TestCase {
 			public void setParent(FeatureCollection<SimpleFeatureType, SimpleFeature> collection){}
 			public SimpleFeatureType getFeatureType(){return null;}
 			public String getID(){return "";}
+			public FeatureId getIdentifier(){return null;}
 			public Object[] getAttributes(Object[] attributes){return attrs.entrySet().toArray();}
 			//	used
 			public Object getAttribute(String xPath){return attrs.get(xPath);}

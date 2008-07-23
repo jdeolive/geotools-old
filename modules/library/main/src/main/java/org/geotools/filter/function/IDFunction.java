@@ -19,7 +19,9 @@ package org.geotools.filter.function;
 
 import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.FunctionExpressionImpl;
+import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
+import org.opengis.feature.simple.SimpleFeature;
 
 /**
  * Allow access to the value of Feature.getID() as an expression
@@ -42,9 +44,13 @@ public class IDFunction extends FunctionExpressionImpl {
 	}
 
 	public Object getValue(Object obj) {
-	    if( obj instanceof Feature){
-	        Feature feature = (Feature) obj;
+	    if( obj instanceof SimpleFeature){
+	        SimpleFeature feature = (SimpleFeature) obj;
 	        return feature.getID();
+	    }
+	    if( obj instanceof Attribute){
+	    	Attribute attribute = (Attribute) obj;
+	        return attribute.getIdentifier().getID();
 	    }
 		return ""; // no ID
 	}

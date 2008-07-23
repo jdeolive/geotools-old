@@ -161,7 +161,7 @@ public class DiffFeatureReader<T extends FeatureType, F extends Feature> impleme
                 throw new DataSourceException("Could not aquire the next Feature", e);
             }
 
-            String fid = peek.getID();
+            String fid = peek.getIdentifier().getID();
             encounteredFids.add(fid);
 
             if (diff.modified2.containsKey(fid)) {
@@ -212,7 +212,7 @@ public class DiffFeatureReader<T extends FeatureType, F extends Feature> impleme
 	protected void querySpatialIndex() {
 		while( spatialIndexIterator.hasNext() && next == null ){
 		    F f = (F) spatialIndexIterator.next();
-			if( encounteredFids.contains(f.getID()) || !filter.evaluate(f)){
+			if( encounteredFids.contains(f.getIdentifier().getID()) || !filter.evaluate(f)){
 				continue;
 			}
 			next = f;
@@ -222,7 +222,7 @@ public class DiffFeatureReader<T extends FeatureType, F extends Feature> impleme
 	protected void queryAdded() {
 		while( addedIterator.hasNext() && next == null ){
 			next = (F) addedIterator.next();
-			if( encounteredFids.contains(next.getID()) || !filter.evaluate(next)){
+			if( encounteredFids.contains(next.getIdentifier().getID()) || !filter.evaluate(next)){
 				next = null;
 			}
 		}
@@ -231,7 +231,7 @@ public class DiffFeatureReader<T extends FeatureType, F extends Feature> impleme
 	protected void queryModified() {
 		while( modifiedIterator.hasNext() && next == null ){
 			next = (F) modifiedIterator.next();
-			if( next==TransactionStateDiff.NULL || encounteredFids.contains(next.getID()) || !filter.evaluate(next) ){
+			if( next==TransactionStateDiff.NULL || encounteredFids.contains(next.getIdentifier().getID()) || !filter.evaluate(next) ){
 				next = null;
 			}
 		}

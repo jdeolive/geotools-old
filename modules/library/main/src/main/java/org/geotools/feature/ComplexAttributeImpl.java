@@ -27,14 +27,15 @@ import org.opengis.feature.Property;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.identity.Identifier;
 
 public class ComplexAttributeImpl extends AttributeImpl implements ComplexAttribute {
 
-    public ComplexAttributeImpl(Collection<Property> properties, AttributeDescriptor descriptor, String id) {
+    public ComplexAttributeImpl(Collection<Property> properties, AttributeDescriptor descriptor, Identifier id) {
         super(cloneProperties( properties ), descriptor, id );
     }
     
-    public ComplexAttributeImpl(Collection<Property> properties, ComplexType type, String id) {
+    public ComplexAttributeImpl(Collection<Property> properties, ComplexType type, Identifier id) {
         this(properties, new AttributeDescriptorImpl( type, type.getName(), 1, 1, true, null), id);
     }
     

@@ -37,6 +37,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.identity.FeatureId;
+import org.opengis.filter.identity.Identifier;
 import org.opengis.geometry.BoundingBox;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -49,7 +51,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class SimpleFeatureImpl implements SimpleFeature {
     
-    protected String id;
+    protected FeatureId id;
     protected SimpleFeatureType featureType;
     /**
      * The actual values held by this feature
@@ -79,7 +81,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
      * @param featureType
      * @param id
      */
-    public SimpleFeatureImpl( List<Object> values, SimpleFeatureType featureType, String id) {
+    public SimpleFeatureImpl( List<Object> values, SimpleFeatureType featureType, FeatureId id) {
         this(values.toArray(), featureType, id, false);
     }
     
@@ -91,7 +93,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
      * @param id
      * @param validating
      */
-    public SimpleFeatureImpl(Object[] values, SimpleFeatureType featureType, String id, boolean validating) {
+    public SimpleFeatureImpl(Object[] values, SimpleFeatureType featureType, FeatureId id, boolean validating) {
         this.id = id;
         this.featureType = featureType;
         this.values = values;
@@ -111,8 +113,11 @@ public class SimpleFeatureImpl implements SimpleFeature {
             validate();
     }
     
-    public String getID() {
+    public FeatureId getIdentifier() {
         return id;
+    }
+    public String getID() {
+    	return id.getID();
     }
     
     public int getNumberOfAttributes() {
@@ -329,12 +334,12 @@ public class SimpleFeatureImpl implements SimpleFeature {
         // this check shouldn't exist, by contract, 
         //all features should have an ID.
         if (id == null) {
-            if (feat.getID() != null) {
+            if (feat.getIdentifier() != null) {
                 return false;
             }
         }
 
-        if (!id.equals(feat.getID())) {
+        if (!id.equals(feat.getIdentifier())) {
             return false;
         }
 
@@ -408,7 +413,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
             this.index = index;
         }
         
-        public String getID() {
+        public Identifier getIdentifier() {
             return null;
         }
 

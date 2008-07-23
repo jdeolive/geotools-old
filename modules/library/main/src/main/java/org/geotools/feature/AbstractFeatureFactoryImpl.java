@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureImpl;
 import org.opengis.feature.Association;
@@ -36,6 +37,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.coordinate.GeometryFactory;
 import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -59,6 +61,8 @@ public abstract class AbstractFeatureFactoryImpl implements FeatureFactory {
      * Factory used to create geomtries
      */
     GeometryFactory  geometryFactory;
+    
+    FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
     
     /**
      * Whether the features to be built should be self validating on construction and value setting, or not.
@@ -87,38 +91,38 @@ public abstract class AbstractFeatureFactoryImpl implements FeatureFactory {
     }
 	
 	public Attribute createAttribute( Object value, AttributeDescriptor descriptor, String id ) {
-		return new AttributeImpl(value,descriptor,id);
+		return new AttributeImpl(value,descriptor,ff.gmlObjectId(id));
 	}
 	
 	public GeometryAttribute createGeometryAttribute(
 		Object value, GeometryDescriptor descriptor, String id, CoordinateReferenceSystem crs
 	) {
 	
-		return new GeometryAttributeImpl(value,descriptor,id);
+		return new GeometryAttributeImpl(value,descriptor,ff.gmlObjectId(id));
 	}
 	
 	public ComplexAttribute createComplexAttribute( 
 		Collection value, AttributeDescriptor descriptor, String id
 	) {
-		return new ComplexAttributeImpl(value, descriptor, id );
+		return new ComplexAttributeImpl(value, descriptor, ff.gmlObjectId(id) );
 	}
 
 	public ComplexAttribute createComplexAttribute( Collection value, ComplexType type, String id ) 
 	{
-		return new ComplexAttributeImpl(value, type, id );
+		return new ComplexAttributeImpl(value, type, ff.gmlObjectId(id) );
 	}
 	
 	public Feature createFeature(Collection value, AttributeDescriptor descriptor, String id) {
-		return new FeatureImpl(value,descriptor,id);
+		return new FeatureImpl(value,descriptor,ff.featureId(id));
 	}
 
 	public Feature createFeature(Collection value, FeatureType type, String id) {
-		return new FeatureImpl(value,type,id);
+		return new FeatureImpl(value,type,ff.featureId(id));
 	}
 	
     public SimpleFeature createSimpleFeature(Object[] array,
             SimpleFeatureType type, String id) {
-        return new SimpleFeatureImpl(array, type, id, validating);
+        return new SimpleFeatureImpl(array, type, ff.featureId(id), validating);
     }
 
     public SimpleFeature createSimpleFeautre(Object[] array,
@@ -127,4 +131,3 @@ public abstract class AbstractFeatureFactoryImpl implements FeatureFactory {
     }
    
 }
-

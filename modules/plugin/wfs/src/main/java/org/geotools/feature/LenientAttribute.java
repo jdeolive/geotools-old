@@ -17,12 +17,14 @@
 package org.geotools.feature;
 
 import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.filter.identity.GmlObjectIdImpl;
 import org.geotools.resources.Utilities;
 import org.geotools.util.Converters;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
+import org.opengis.filter.identity.Identifier;
 
 /**
  * Simple, mutable class to store attributes - that does not validate!
@@ -35,19 +37,24 @@ public class LenientAttribute extends PropertyImpl implements Attribute {
 	/**
 	 * id of the attribute.
 	 */
-	protected final String id;
+	protected final Identifier id;
 
 	public LenientAttribute(Object content, AttributeDescriptor descriptor,
 			String id) {
 	    super( content, descriptor );
-	    this.id = id;
+	    if( id != null ){
+	    	this.id = new GmlObjectIdImpl( id );
+	    }
+	    else {
+	    	this.id = null;
+	    }
 	}
 
 	public LenientAttribute(Object content, AttributeType type, String id) {
 	    this( content, new AttributeDescriptorImpl( type, type.getName(), 1, 1, true, null), id );
 	}
 
-	public String getID() {
+	public Identifier getIdentifier(){
 		return id;
 	}
 	

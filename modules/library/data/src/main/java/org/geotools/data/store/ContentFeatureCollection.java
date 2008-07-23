@@ -50,6 +50,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.opengis.filter.identity.FeatureId;
 
 public class ContentFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
     
@@ -460,7 +461,9 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
     public GeometryAttribute getDefaultGeometryProperty() {
         throw new UnsupportedOperationException();
     }
-
+	public FeatureId getIdentifier() {
+		throw new UnsupportedOperationException();
+	}
     public String getID() {
         throw new UnsupportedOperationException();
     }

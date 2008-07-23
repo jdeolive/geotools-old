@@ -227,7 +227,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         TestProgressListener progress = new TestProgressListener();
         collection.accepts(new FeatureVisitor() {
             public void visit(Feature feature) {
-                allFids.add(feature.getID());
+                allFids.add(feature.getIdentifier().getID());
             }
         }, progress);
         assertTrue("visitor completed", progress.completed);
@@ -265,7 +265,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final SortedSet<String> fids = new TreeSet<String>();
         collection.accepts(new FeatureVisitor() {
             public void visit(Feature feature) {
-                fids.add(feature.getID());
+                fids.add(feature.getIdentifier().getID());
             }
         }, progress);
         assertTrue("visitor completed", progress.completed);

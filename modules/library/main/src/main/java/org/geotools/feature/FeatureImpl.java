@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
@@ -32,6 +33,8 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryType;
+import org.opengis.filter.identity.FeatureId;
+import org.opengis.filter.identity.Identifier;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -57,8 +60,8 @@ public class FeatureImpl extends ComplexAttributeImpl implements Feature {
 	 * @param desc Nested descriptor
 	 * @param id Feature ID
 	 */
-	public FeatureImpl(Collection<Property> properties, AttributeDescriptor desc, String id) {
-		super(properties, desc, id);
+	public FeatureImpl(Collection<Property> properties, AttributeDescriptor desc, FeatureId id) {
+		super(properties, desc, id );
 	}
 	
 	/**
@@ -68,14 +71,16 @@ public class FeatureImpl extends ComplexAttributeImpl implements Feature {
 	 * @param type Type of feature to be created
 	 * @param id Feature ID
 	 */
-	public FeatureImpl(Collection<Property> properties, FeatureType type, String id) {
-		super(properties, type, id);
+	public FeatureImpl(Collection<Property> properties, FeatureType type, FeatureId id ) {
+		super(properties, type, id );
 	}
 
 	public FeatureType getType() {
 	    return (FeatureType) super.getType();
 	}
-	
+	public FeatureId getIdentifier() {
+		return (FeatureId) this.id;
+	}
 	/**
 	 * Get the total bounds of this feature which is calculated by doing a union
 	 * of the bounds of each geometry this feature is associated with.

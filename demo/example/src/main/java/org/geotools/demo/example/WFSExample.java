@@ -138,7 +138,7 @@ public class WFSExample {
 		Iterator<SimpleFeature> iterator = features.iterator();
 		try {
 			while( iterator.hasNext() ){
-				Feature feature = (Feature) iterator.next();
+				SimpleFeature feature = (SimpleFeature) iterator.next();
 				fid = feature.getID();
 			}
 		}

@@ -29,6 +29,7 @@ import org.opengis.feature.type.Name;
 
 import com.vividsolutions.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.geometry.BoundingBox;
 
 /**
@@ -88,7 +89,9 @@ public class DecoratingFeature implements SimpleFeature {
     public SimpleFeatureType getFeatureType() {
         return delegate.getFeatureType();
     }
-
+	public FeatureId getIdentifier() {
+		return delegate.getIdentifier();
+	}
     public String getID() {
         return delegate.getID();
     }

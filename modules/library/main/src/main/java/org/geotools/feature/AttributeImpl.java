@@ -18,11 +18,13 @@ package org.geotools.feature;
 
 import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.feature.type.Types;
+import org.geotools.filter.identity.GmlObjectIdImpl;
 import org.geotools.resources.Utilities;
 import org.geotools.util.Converters;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
+import org.opengis.filter.identity.Identifier;
 
 /**
  * Simple, mutable class to store attributes.
@@ -39,23 +41,22 @@ public class AttributeImpl extends PropertyImpl implements Attribute {
 	/**
 	 * id of the attribute.
 	 */
-	protected String id;
+	protected Identifier id = null;
 
 	public AttributeImpl(Object content, AttributeDescriptor descriptor,
-			String id) {
+			Identifier id) {
 	    super( content, descriptor );
 	    this.id = id;
-	    
 	    Types.validate(this, getValue());
 	}
 
-	public AttributeImpl(Object content, AttributeType type, String id) {
+	public AttributeImpl(Object content, AttributeType type, Identifier id) {
 	    this( content, new AttributeDescriptorImpl( type, type.getName(), 1, 1, true, null), id );
 	}
 
-	public String getID() {
-		return id;
-	}
+	public Identifier getIdentifier() {
+        return id;
+    }
 	
 	public AttributeDescriptor getDescriptor() {
 	    return (AttributeDescriptor) super.getDescriptor();

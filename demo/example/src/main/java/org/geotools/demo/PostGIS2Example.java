@@ -290,7 +290,7 @@ public class PostGIS2Example {
 			buf.append("\n");
 			features.accepts( new AbstractFeatureVisitor(){
 				public void visit(Feature feature) {
-					buf.append( feature.getID() );
+					buf.append( feature.getIdentifier() );
 					buf.append(" [\n");
 					for( AttributeDescriptor type : schema.getAttributeDescriptors() ){
 						String name = type.getLocalName();

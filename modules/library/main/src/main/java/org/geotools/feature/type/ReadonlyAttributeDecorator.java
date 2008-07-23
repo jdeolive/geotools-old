@@ -22,6 +22,7 @@ import org.opengis.feature.Attribute;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.identity.Identifier;
 
 /**
  * Readonly wrapper around the provided Attribute.
@@ -40,8 +41,8 @@ public final class ReadonlyAttributeDecorator implements Attribute {
         return delegate.getType();
     }
 
-    public String getID() {
-        return delegate.getID();
+    public Identifier getIdentifier() {
+        return delegate.getIdentifier();
     }
 
     public Object getValue() {
