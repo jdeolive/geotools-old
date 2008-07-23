@@ -96,7 +96,7 @@ public final class CropTest extends GridProcessingTestBase {
             Viewer.show(cropped);
         } else {
             // Force computation
-            assertNotNull(cropped.getRenderedImage().getData());
+            assertNotNull(PlanarImage.wrapRenderedImage(cropped.getRenderedImage()).getTiles());
         }
         RenderedImage raster = cropped.getRenderedImage();
         assertEquals(168, raster.getMinX());
