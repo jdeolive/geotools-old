@@ -209,7 +209,12 @@ final class BandSelector2D extends GridCoverage2D {
                 colors = targetBands[visibleTargetBand]
                       .getColorModel(visibleTargetBand, targetBands.length);
             }
-            layout.setColorModel(colors);
+            /*
+             * If we are not able to provide a color model because our sample dimensions
+             * are very simple, let's JAI do its magic and figure out the best one for us.
+             */
+            if(colors!=null)
+            	layout.setColorModel(colors);
             if (hints != null) {
                 hints = hints.clone();
                 hints.put(JAI.KEY_IMAGE_LAYOUT, layout);
