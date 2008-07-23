@@ -48,4 +48,8 @@ public enum OverviewPolicy {
      * with lower resolution than one used for rendering.
      */
     SPEED;
+    
+    public static OverviewPolicy getDefaultPolicy(){
+    	return NEAREST;
+    }
 }
