@@ -41,7 +41,7 @@ public abstract class AbstractFeatureCollection extends BaseFeatureCollection
 /* extends AbstractResourceCollection */implements
         FeatureCollection<SimpleFeatureType, SimpleFeature>, ResourceCollection<SimpleFeature> {
     
-	AbstractResourceCollection rc;
+	AbstractResourceCollection<SimpleFeature> rc;
 
 	protected AbstractFeatureCollection( SimpleFeatureType memberType ) {
 		super(null,memberType);
@@ -150,7 +150,7 @@ public abstract class AbstractFeatureCollection extends BaseFeatureCollection
 		return rc.toArray();
 	}
 
-    final public Object[] toArray(Object[] a) {
+    final public <T> T[] toArray(T[] a) {
 		return rc.toArray(a);
 	}
 

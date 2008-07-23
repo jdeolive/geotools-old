@@ -59,7 +59,7 @@ import org.geotools.data.collection.ResourceCollection;
  * @author Jody Garnett, Refractions Research, Inc.
  * @source $URL$
  */
-public abstract class AbstractResourceCollection implements ResourceCollection {
+public abstract class AbstractResourceCollection<T> implements ResourceCollection<T> {
 
 	protected AbstractResourceCollection() {
     }
@@ -121,11 +121,11 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
     	}
     }
 
-    public Object[] toArray(Object[] a) {
+    public <T> T[] toArray(T[] a){
         int size = size();
         if (a.length < size)
-            a = (Object[])java.lang.reflect.Array
-		.newInstance(a.getClass().getComponentType(), size);
+        	a = (T[])java.lang.reflect.Array
+    		.newInstance(a.getClass().getComponentType(), size);
 
         Iterator it = iterator();
         try {
@@ -216,8 +216,8 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
      * 
      * @see #contains(Object)
      */
-    public boolean containsAll(Collection c) {
-    	Iterator e = c.iterator();
+    public boolean containsAll(Collection<?> c) {
+    	Iterator<?> e = c.iterator();
     	try {
     		while (e.hasNext())
 			    if(!contains(e.next()))
@@ -241,7 +241,7 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
      * 
      * @see #add(Object)
      */
-    public boolean addAll(Collection c) {
+    public boolean addAll(Collection<? extends T> c) {
 		boolean modified = false;
 		Iterator e = c.iterator();
 		try {
@@ -258,8 +258,7 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
 		}
 		return modified;
     }
-    
-    public boolean addAll(ResourceCollection c) {
+    public boolean addAll(ResourceCollection<? extends T> c) {
         boolean modified = false;
         Iterator e = c.iterator();
         try {
@@ -287,7 +286,7 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
      * @see #remove(Object)
      * @see #contains(Object)
      */
-    public boolean removeAll(Collection c) {
+    public boolean removeAll(Collection<?> c) {
 		boolean modified = false;
 		Iterator e = iterator();
 		try {
@@ -321,7 +320,7 @@ public abstract class AbstractResourceCollection implements ResourceCollection {
      * @see #remove(Object)
      * @see #contains(Object)
      */
-    public boolean retainAll(Collection c) {
+    public boolean retainAll(Collection<?> c) {
 		boolean modified = false;
 		Iterator e = iterator();
 		try {
