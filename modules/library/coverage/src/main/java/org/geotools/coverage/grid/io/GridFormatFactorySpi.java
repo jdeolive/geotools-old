@@ -55,7 +55,8 @@ import org.opengis.coverage.grid.Format;
  * @author Simone Giannecchini, GeoSolutions
  * @source $URL$
  */
-public interface GridFormatFactorySpi extends Factory, OptionalFactory {
+@SuppressWarnings("deprecation")
+public interface GridFormatFactorySpi extends OptionalFactory {
     /**
      * Construct a live grid format.
      * 
@@ -64,7 +65,6 @@ public interface GridFormatFactorySpi extends Factory, OptionalFactory {
      *                     if there were any problems creating or connecting
      *                     the datasource.
      */
-    @SuppressWarnings("deprecation")
     Format createFormat();
 
 
