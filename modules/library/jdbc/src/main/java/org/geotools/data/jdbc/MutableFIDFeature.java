@@ -23,6 +23,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureImpl;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.identity.FeatureId;
 
 /**
  * @author Sean Geoghegan, Defence Science and Technology Organisation
@@ -35,7 +36,24 @@ public class MutableFIDFeature extends SimpleFeatureImpl {
 
   public MutableFIDFeature(List<Object> values, SimpleFeatureType ft, String fid)
     throws IllegalAttributeException {
-    super(values, ft, SimpleFeatureBuilder.createDefaultFeatureIdentifier(fid) );
+    super(values, ft, createDefaultFID(fid) );
+  }
+
+  private static FeatureIdImpl createDefaultFID(String id){
+      if( id == null ){
+    	  id = SimpleFeatureBuilder.createDefaultFeatureId();
+      }
+      return new FeatureIdImpl(id){
+    	  public void setID( String id ){
+    			if ( fid == null ) {
+    				throw new NullPointerException( "fid must not be null" );
+    			}		
+    			if( origionalFid == null ){
+    				origionalFid = fid;    						
+    			}
+    			fid = id;
+    		}
+      };
   }
 
   /**

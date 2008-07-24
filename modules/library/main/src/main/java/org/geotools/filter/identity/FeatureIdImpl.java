@@ -32,8 +32,8 @@ import org.opengis.filter.identity.FeatureId;
 public class FeatureIdImpl implements FeatureId {
 
 	/** underlying fid */
-	String fid;
-	String origionalFid;
+	protected String fid;
+	protected String origionalFid;
 	public FeatureIdImpl( String fid ) {
 		this.fid = fid;
 		if ( fid == null ) {
