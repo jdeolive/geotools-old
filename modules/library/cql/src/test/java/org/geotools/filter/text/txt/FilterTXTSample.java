@@ -23,6 +23,8 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.Not;
+import org.opengis.filter.PropertyIsNull;
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
@@ -82,6 +84,10 @@ public final class FilterTXTSample {
     public static final String           FUNCTION_BETWEEN_LITERALS                = "area( the_geom ) BETWEEN 10000 AND 30000";
 
     public static final String           FUNCTION_BETWEEN_FUNCTIONS               = "area( the_geom ) BETWEEN abs(10000) AND abs(30000)";
+
+    public static final String           FUNCTION_IS_NULL                         = "centroid( the_geom ) IS NULL";
+
+    public static final String           FUNCTION_IS_NOT_NULL                     = "centroid( the_geom ) IS NOT NULL";
 
     /** Maintains the TXT predicates (input) and the expected filters (output) */
     public static Map<String, Object> SAMPLES = new HashMap<String, Object>();
@@ -253,6 +259,25 @@ public final class FilterTXTSample {
         filter= FACTORY.between(area, abs1, abs2);
         
         SAMPLES.put(FUNCTION_BETWEEN_FUNCTIONS, filter);
+
+        // ----------------------------------------------------
+        // IS NULL      
+        // ----------------------------------------------------
+
+        //centroid( the_geom ) IS NULL
+        Expression[] centroidArgs = new Expression[1];
+        centroidArgs[0] = FACTORY.property("the_geom");
+
+        Function centroid = FACTORY.function("centroid", centroidArgs);
+        PropertyIsNull isNullFilter = FACTORY.isNull(centroid);
+
+        SAMPLES.put( FUNCTION_IS_NULL,isNullFilter);
+
+        //centroid( the_geom ) IS NOT NULL
+        Not notIsNullFilter = FACTORY.not(isNullFilter);
+        SAMPLES.put(FUNCTION_IS_NOT_NULL, notIsNullFilter);
+        
+        
     }
     
 

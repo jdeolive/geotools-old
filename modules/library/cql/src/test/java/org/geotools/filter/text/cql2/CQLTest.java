@@ -113,40 +113,6 @@ public class CQLTest extends TestCase {
 
     }
 
-    /**
-     * Test Null Predicate:
-     * <p>
-     *
-     * <pre>
-     * &lt;null predicate &gt; ::=  &lt;attribute name &gt; IS [ NOT ] NULL
-     * </pre>
-     *
-     * </p>
-     */
-    public void testNullPredicate() throws Exception {
-        Filter expected;
-        Filter resultFilter;
-        // -------------------------------------------------------------
-        // ATTR1 IS NULL
-        // -------------------------------------------------------------
-        expected = FilterCQLSample.getSample(FilterCQLSample.PROPERTY_IS_NULL);
-        resultFilter = CQL.toFilter(FilterCQLSample.PROPERTY_IS_NULL);
-
-        assertNotNull("Filter expected", resultFilter);
-
-        assertEquals("PropertyIsNull filter was expected", resultFilter, expected);
-
-        // -------------------------------------------------------------
-        // ATTR1 IS NOT NULL
-        // -------------------------------------------------------------
-        expected = FilterCQLSample.getSample(FilterCQLSample.PROPERTY_IS_NOT_NULL);
-        resultFilter = CQL.toFilter(FilterCQLSample.PROPERTY_IS_NOT_NULL);
-
-        assertNotNull("Filter expected", resultFilter);
-
-        assertEquals("Not PropertyIsNull filter was expected", resultFilter, expected);
-    }
-
     public void testParenRoundtripExpression() throws Exception {
         // ATTR1 > ((1 + 2) / 3)
         testEqualsExpressions(FilterCQLSample.FILTER_WITH_PAREN_ROUNDTRIP_EXPR);
