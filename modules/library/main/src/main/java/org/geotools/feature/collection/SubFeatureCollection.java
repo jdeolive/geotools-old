@@ -43,7 +43,7 @@ import org.opengis.filter.sort.SortBy;
  *
  * @source $URL$
  */
-public class SubFeatureCollection extends BaseFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public class SubFeatureCollection extends BaseFeatureCollection {
 	/** Filter */
     protected Filter filter;
     
@@ -246,7 +246,9 @@ public class SubFeatureCollection extends BaseFeatureCollection implements Featu
 	public Object[] toArray(Object[] a) {
 		return rc.toArray(a);
 	}
+	/*
 	public void validate() {
 	    collection.validate();
 	}
+	*/
 }

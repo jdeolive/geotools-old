@@ -64,7 +64,7 @@ public class DocumentTypeBinding extends AbstractComplexBinding {
         tb.setName("document");
 
         //&lt;element maxOccurs="unbounded" minOccurs="0" ref="kml:Feature"/&gt;
-        tb.add("Feature", Collection.class);
+        tb.add("Feature", FeatureCollection.class);
 
         featureType = tb.buildFeatureType();
     }
@@ -83,7 +83,7 @@ public class DocumentTypeBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return SimpleFeature.class;
+        return FeatureCollection.class;
     }
 
     public int getExecutionMode() {
@@ -115,6 +115,9 @@ public class DocumentTypeBinding extends AbstractComplexBinding {
         if ( object instanceof FeatureCollection ) {
             //TODO: this does not close the iterator!!
             prop[1] = ((FeatureCollection)object).iterator();
+        }
+        else if ( object instanceof Collection ) {
+            prop[1] = ((Collection)object).iterator();
         }
         else if ( object instanceof SimpleFeature ) {
             SimpleFeature feature = (SimpleFeature) object;

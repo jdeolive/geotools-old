@@ -207,7 +207,7 @@ public abstract class AbstractFeatureSource implements FeatureSource<SimpleFeatu
         }
         
         FeatureCollection<SimpleFeatureType, SimpleFeature> collection = new DefaultFeatureResults(this, query);
-        if( collection.getDefaultGeometry() == null ){
+        if( collection.getSchema().getGeometryDescriptor() == null ){
             return collection; // no geometry no reprojection needed
         }
         

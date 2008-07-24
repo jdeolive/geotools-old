@@ -91,14 +91,16 @@ public class SubFeatureState extends FeatureState {
 	//
 	// Feature Methods
     //
+    /*
     public SimpleFeatureType getFeatureType() {
         return collection.getFeatureType();
     }
+    */
     public SimpleFeatureType getChildFeatureType() {
         return collection.getSchema();
     }
     public String getId(){
         return collection.getID();
-    }
+    }    
     
 }

@@ -47,17 +47,24 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @since 2.5
  */
-public abstract class BaseFeatureCollection extends SimpleFeatureImpl 
-    implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public abstract class BaseFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
 
 	/**
 	 * logger
 	 */
 	protected static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.feature");
+	
 	/**
 	 * listeners
 	 */
 	protected List listeners = new ArrayList();
+	
+	/** 
+	 * id used when serialized to gml
+	 */
+	protected String id;
+	
+	protected SimpleFeatureType schema;
 	
 	/**
 	 * Constructs the collection with an id.
@@ -68,7 +75,7 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
 	 * @param id The identifier of the feature collection.
 	 */
     protected BaseFeatureCollection( String id ){
-    	this(id != null ? id : "featureCollection",(SimpleFeatureType)null);
+    	this(id, (SimpleFeatureType) null);
     }
     
     /**
@@ -78,7 +85,9 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
 	 * @param memberType The type of the members of the collection.
 	 */
     protected BaseFeatureCollection( String id, SimpleFeatureType memberType ){
-    	super(new Object[0], new BaseFeatureCollectionType(memberType), new FeatureIdImpl(id != null ? id : "featureCollection"), false);
+    	this.id = id == null ? "featureCollection" : id;
+    	this.schema = memberType;
+    	//super(new Object[0], new BaseFeatureCollectionType(memberType), new FeatureIdImpl(id != null ? id : "featureCollection"), false);
     }
     
 //    /**
@@ -94,6 +103,9 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
     //
     // FeatureCollection
     //
+    public String getID() {
+    	return id;
+    }
     final public void addListener(CollectionListener listener) throws NullPointerException {
     	listeners.add(listener);
     }
@@ -106,15 +118,17 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
             throws IOException {
         accepts( (org.opengis.feature.FeatureVisitor)visitor, (org.opengis.util.ProgressListener)progress);
     }
-    
+    /*
     public BaseFeatureCollectionType getType() {
         return (BaseFeatureCollectionType) super.getType();
     }
+    */
     
     public SimpleFeatureType getSchema() {
-    	return (SimpleFeatureType) getType().getMemberType();
+    	return schema;
     }
-    
+
+    /*
     public Object[] getAttributes(Object[] attributes) {
 		Object[] retArray;
 		
@@ -122,14 +136,14 @@ public abstract class BaseFeatureCollection extends SimpleFeatureImpl
 		return new Object[]{};
     }
 
-	public BaseFeatureCollectionType getFeatureType() {
+    public BaseFeatureCollectionType getFeatureType() {
 		return (BaseFeatureCollectionType) getType();
 	}
 
 	public Geometry getDefaultGeometry() {
 	    return (Geometry) super.getDefaultGeometry();
 	}
-	
+	*/
 	public void setDefaultGeometry(Geometry geometry)
 	        throws IllegalAttributeException {
 	    throw new UnsupportedOperationException();

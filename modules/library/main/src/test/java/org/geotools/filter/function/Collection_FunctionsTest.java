@@ -96,7 +96,7 @@ public class Collection_FunctionsTest extends FunctionTestSupport{
         Expression exp = (Expression) builder.parse(dataType, "foo");
 		FunctionExpression func = fac.createFunctionExpression(functionName);
 		func.setArgs(new Expression[] { exp });
-		Object obj = func.getValue(featureCollection);
+		Object obj = func.evaluate(featureCollection);
 		Number result = (Number) obj;
 		Number expected = (Number) expectedValue;
 		assertEquals(expected.doubleValue(), result.doubleValue(), 0);
@@ -106,7 +106,7 @@ public class Collection_FunctionsTest extends FunctionTestSupport{
         Expression exp = (Expression) builder.parse(dataType, "foo");
 		FunctionExpression func = fac.createFunctionExpression(functionName);
 		func.setArgs(new Expression[] { exp });
-		Object result = func.getValue(featureCollection);
+		Object result = func.evaluate(featureCollection);
 		assertEquals(expectedValue, result);
     }
     

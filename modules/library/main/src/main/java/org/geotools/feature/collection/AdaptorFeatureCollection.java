@@ -37,7 +37,7 @@ import org.opengis.util.ProgressListener;
  * Implement a feature collection just based on provision of iterator.
  * @author Jody Garnett, Refractions Research Inc
  */
-public abstract class AdaptorFeatureCollection extends BaseFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public abstract class AdaptorFeatureCollection extends BaseFeatureCollection {
  
     public AdaptorFeatureCollection( String id, SimpleFeatureType memberType ) {
         super( id, memberType );

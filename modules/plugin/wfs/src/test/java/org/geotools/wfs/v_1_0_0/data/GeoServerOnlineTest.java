@@ -132,7 +132,7 @@ public class GeoServerOnlineTest extends TestCase {
             FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures();
             features.getBounds();
             features.getSchema();
-            features.getFeatureType();
+            //features.getFeatureType();
             
             DefaultQuery query = new DefaultQuery( typeName, Filter.INCLUDE, 20, Query.ALL_NAMES, "work already" );
             features = source.getFeatures( query );
@@ -176,7 +176,7 @@ public class GeoServerOnlineTest extends TestCase {
             FeatureCollection<SimpleFeatureType, SimpleFeature> features = source.getFeatures();
             features.getBounds();
             features.getSchema();
-            features.getFeatureType();
+            //features.getFeatureType();
             
             DefaultQuery query = new DefaultQuery( typeName, Filter.INCLUDE, 20, Query.ALL_NAMES, "work already" );
             features = source.getFeatures( query );

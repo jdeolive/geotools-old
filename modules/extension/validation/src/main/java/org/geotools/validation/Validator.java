@@ -119,10 +119,6 @@ public class Validator
 			return;
 		}
 		
-		SimpleFeatureType type = features.getFeatureType();
-		
-		final Map failed = new TreeMap();
-		
 		/** Set up our validation results */
 		try {
 			validationProcessor.runFeatureTests(dsid, features, results);

@@ -18,6 +18,7 @@ package org.geotools.kml.bindings;
 
 import java.util.Collection;
 import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.kml.KML;
 import org.geotools.kml.KMLTestSupport;
 import org.geotools.xml.Binding;
@@ -25,7 +26,7 @@ import org.geotools.xml.Binding;
 
 public class DocumentTypeBindingTest extends KMLTestSupport {
     public void testType() throws Exception {
-        assertEquals(SimpleFeature.class, binding(KML.DocumentType).getType());
+        assertEquals(FeatureCollection.class, binding(KML.DocumentType).getType());
     }
 
     public void testExecutionMode() throws Exception {

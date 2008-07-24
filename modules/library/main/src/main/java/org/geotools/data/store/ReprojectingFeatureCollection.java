@@ -53,8 +53,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * @author Justin
  */
-public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <SimpleFeatureType, SimpleFeature>
-	implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <SimpleFeatureType, SimpleFeature> {
 
     /**
      * The transform to the target coordinate reference system
@@ -65,11 +64,6 @@ public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <
      * The schema of reprojected features
      */
     SimpleFeatureType schema;
-
-    /**
-     * The feature type of the feature collection
-     */
-    SimpleFeatureType featureType;
 
     /**
      * The target coordinate reference system
@@ -94,9 +88,6 @@ public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <
         SimpleFeatureType schema = delegate.getSchema();
         this.schema = reType(schema, target);
        
-        SimpleFeatureType featureType = delegate.getFeatureType();
-        this.featureType = reType(featureType, target);
-
         if (source == null) {
             throw new NullPointerException("source crs");
         }
@@ -155,10 +146,6 @@ public class ReprojectingFeatureCollection extends DecoratingFeatureCollection <
     public void close(Iterator close) {
         Iterator iterator = ((ReprojectingIterator) close).getDelegate();
         delegate.close(iterator);
-    }
-
-    public SimpleFeatureType getFeatureType() {
-        return this.featureType;
     }
 
     public SimpleFeatureType getSchema() {

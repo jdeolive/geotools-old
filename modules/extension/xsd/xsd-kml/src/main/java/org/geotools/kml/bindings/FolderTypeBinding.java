@@ -20,6 +20,7 @@ import java.util.Collection;
 import javax.xml.namespace.QName;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.kml.KML;
@@ -60,7 +61,7 @@ public class FolderTypeBinding extends AbstractComplexBinding {
         tb.setName("folder");
 
         //&lt;element maxOccurs="unbounded" minOccurs="0" ref="kml:Feature"/&gt;
-        tb.add("Feature", Collection.class);
+        tb.add("Feature", FeatureCollection.class);
 
         featureType = tb.buildFeatureType();
     }

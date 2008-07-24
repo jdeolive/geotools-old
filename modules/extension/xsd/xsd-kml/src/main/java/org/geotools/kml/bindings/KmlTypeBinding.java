@@ -61,7 +61,7 @@ public class KmlTypeBinding extends AbstractComplexBinding {
      * @generated modifiable
      */
     public Class getType() {
-        return SimpleFeature.class;
+        return FeatureCollection.class;
     }
 
     /**

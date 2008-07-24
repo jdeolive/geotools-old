@@ -121,94 +121,12 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
         return delegate.features();
     }
 
-    public Object getAttribute(int index) {
-        return delegate.getAttribute(index);
-    }
-
-    public Object getAttribute(Name name) {
-        return delegate.getAttribute(name);
-    }
-
-    public Object getAttribute(String path) {
-        return delegate.getAttribute(path);
-    }
-
-    public int getAttributeCount() {
-        return delegate.getAttributeCount();
-    }
-
-    public List<Object> getAttributes() {
-        return delegate.getAttributes();
-    }
-
-//    public Object[] getAttributes(Object[] attributes) {
-//        return delegate.getAttributes(attributes);
-//    }
-
     public ReferencedEnvelope getBounds() {
         return delegate.getBounds();
     }
 
-    public GeometryAttribute getDefaultGeometryProperty() {
-        return delegate.getDefaultGeometryProperty();
-    }
-
-    public AttributeDescriptor getDescriptor() {
-        return delegate.getDescriptor();
-    }
-
-    public SimpleFeatureType getFeatureType() {
-        return delegate.getFeatureType();
-    }
-	public FeatureId getIdentifier() {
-		return delegate.getIdentifier();
-	}
-    public String getID() {
-        return delegate.getID();
-    }
-
-    public Name getName() {
-        return delegate.getName();
-    }
-    
-    public Collection<Property> getProperties() {
-        return delegate.getProperties();
-    }
-
-    public int getNumberOfAttributes() {
-        return delegate.getAttributeCount();
-    }
-
-    public Collection<Property> getProperties(Name name) {
-        return delegate.getProperties(name);
-    }
-
-    public Collection<Property> getProperties(String name) {
-        return delegate.getProperties(name);
-    }
-
-    public Property getProperty(Name name) {
-        return delegate.getProperty(name);
-    }
-
-    public Property getProperty(String name) {
-        return delegate.getProperty(name);
-    }
-
     public T getSchema() {
         return delegate.getSchema();
-    }
-
-    public SimpleFeatureType getType() {
-        return delegate.getType();
-    }
-
-    public Map<Object, Object> getUserData() {
-        return delegate.getUserData();
-    }
-
-    public Collection<? extends Property> getValue() {
-        return delegate.getValue();
     }
 
     public int hashCode() {
@@ -217,10 +135,6 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
 
     public boolean isEmpty() {
         return delegate.isEmpty();
-    }
-
-    public boolean isNillable() {
-        return delegate.isNillable();
     }
 
     public Iterator iterator() {
@@ -248,47 +162,6 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
         return delegate.retainAll(c);
     }
 
-    public void setAttribute(int position, Object val) {
-        delegate.setAttribute(position, val);
-    }
-
-    public void setAttribute(Name name, Object value) {
-        delegate.setAttribute(name, value);
-    }
-
-    public void setAttribute(String path, Object attribute) {
-        delegate.setAttribute(path, attribute);
-    }
-
-    public void setAttributes(List<Object> values) {
-        delegate.setAttributes(values);
-    }
-
-    public void setAttributes(Object[] values) {
-        delegate.setAttributes(values);
-    }
-
-    public void setDefaultGeometry(Geometry geometry)
-            throws IllegalAttributeException {
-        delegate.setDefaultGeometry(geometry);
-    }
-
-    public void setDefaultGeometry(Object geometry) {
-        delegate.setDefaultGeometry(geometry);
-    }
-
-    public void setDefaultGeometryProperty(GeometryAttribute geometryAttribute) {
-        delegate.setDefaultGeometryProperty(geometryAttribute);
-    }
-
-    public void setValue(Collection<Property> values) {
-        delegate.setValue(values);
-    }
-
-    public void setValue(Object newValue) {
-        delegate.setValue(newValue);
-    }
-
     public int size() {
         return delegate.size();
     }
@@ -308,11 +181,7 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
     public Object[] toArray(Object[] a) {
         return delegate.toArray(a);
     }
-	
-	public Object getDefaultGeometry() {
-	    return delegate.getDefaultGeometry();
-	}
-	public void validate() {
-	    delegate.validate();
+	public String getID() {
+		return delegate.getID();
 	}
 }

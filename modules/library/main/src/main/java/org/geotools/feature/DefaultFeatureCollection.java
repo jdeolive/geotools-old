@@ -59,7 +59,7 @@ import org.opengis.geometry.BoundingBox;
  * @source $URL$
  * @version $Id$
  */
-public class DefaultFeatureCollection extends BaseFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature>{
+public class DefaultFeatureCollection extends BaseFeatureCollection {
  	
     /**
      * Contents of collection, referenced by FeatureID.
@@ -83,7 +83,7 @@ public class DefaultFeatureCollection extends BaseFeatureCollection implements F
      * @param collection FeatureCollection<SimpleFeatureType, SimpleFeature> to copy into memory
      */
     public DefaultFeatureCollection( FeatureCollection<SimpleFeatureType, SimpleFeature> collection ) {
-        this( collection.getID(), collection.getFeatureType() );
+        this( collection.getID(), collection.getSchema() );
         addAll(collection);
     }
     
@@ -592,90 +592,6 @@ public class DefaultFeatureCollection extends BaseFeatureCollection implements F
         return contents.values().toArray(a != null ? a : new Object[ contents.size() ]);
     }
 
-	private FeatureCollection<SimpleFeatureType, SimpleFeature> parent;
-	/* (non-Javadoc)
-	 * @see org.geotools.feature.Feature#getParent()
-	 */
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> getParent() {
-		// TODO deal with listeners?
-		return parent;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.geotools.feature.Feature#setParent(org.geotools.feature.FeatureCollection)
-	 */
-	public void setParent(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
-		parent = collection;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.geotools.feature.Feature#getAttributes(java.lang.Object[])
-	 */
-	public List getValues() {
-		return Arrays.asList(toArray(null));
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.geotools.feature.Feature#getAttribute(java.lang.String)
-	 */
-	public Object getValue(String xPath) {
-		if(xPath.indexOf(getFeatureType().getTypeName())>-1)
-			if(xPath.endsWith("]")){
-				return contents.values(); // TODO get index and grab it                
-			}
-            else{
-				return contents.values();
-			}
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.geotools.feature.Feature#getAttribute(int)
-	 */
-	public Object getValue(int index) {
-		if(index == 0){
-			return contents.values();
-        }
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.geotools.feature.Feature#setAttribute(int, java.lang.Object)
-	 */
-	public void setValue(int position, Object val)  {
-		if(position == 0 && val instanceof List){
-            List nw = (List)val;
-			if( !FeatureState.isFeatures( nw )) return;
-            
-            contents.clear();
-            for( Iterator i = nw.iterator(); i.hasNext(); ){
-                SimpleFeature feature = (SimpleFeature) i.next();    
-                contents.put( feature.getID(), feature );
-            }
-			fireChange(nw,0);
-		}
-	}
-    
-	/* (non-Javadoc)
-	 * @see org.geotools.feature.Feature#setAttribute(java.lang.String, java.lang.Object)
-	 */
-	public void setValue(String xPath, Object attribute) {
-		if(xPath.indexOf(getFeatureType().getTypeName())>-1){
-			if(xPath.endsWith("]")){
-				// TODO get index and grab it
-			}else{
-				setValue(0,attribute);
-			}
-        }
-	}
-
-	public Object getDefaultGeometryValue() {
-		return null;
-	}
-	
-	public void setDefaultGeometryValue(Object geometry) {
-		throw new UnsupportedOperationException("Not Supported");
-	}
 	
 	public void close( FeatureIterator<SimpleFeature> close ) {
         if( close instanceof FeatureIteratorImpl){

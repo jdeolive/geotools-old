@@ -126,7 +126,7 @@ public abstract class FeatureState {
         return bounds;
     }
 
-    public abstract SimpleFeatureType getFeatureType();
+    //public abstract SimpleFeatureType getFeatureType();
     public abstract SimpleFeatureType getChildFeatureType();
     
     public abstract String getId();
@@ -137,14 +137,11 @@ public abstract class FeatureState {
     public void setParent( FeatureCollection<SimpleFeatureType, SimpleFeature> parent ){
         throw new UnsupportedOperationException();
     }
+    /*
     public Object[] getAttributes( Object[] attributes ) {
         List list = (List) getAttribute( 0 );
         return list.toArray( attributes );
     }
-    
-    /**
-     * Not really interested yet .. 
-     */
     public Object getAttribute( String xPath ) {
         if(xPath.indexOf(getFeatureType().getTypeName())>-1)
             if(xPath.endsWith("]")){
@@ -217,7 +214,7 @@ public abstract class FeatureState {
     public void setDefaultGeometry( Geometry geometry ) throws IllegalAttributeException {
         throw new IllegalAttributeException( "DefaultGeometry not supported" );
     }
-    
+    */
     //
     // Utility Methods
     //

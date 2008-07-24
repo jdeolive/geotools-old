@@ -41,7 +41,7 @@ import org.opengis.filter.sort.SortBy;
  * @author Justin Deoliveira, The Open Planning Project
  *
  */
-public class FilteringFeatureCollection<T extends FeatureType, F extends Feature> extends DecoratingFeatureCollection<T, F> implements FeatureCollection<T, F> {
+public class FilteringFeatureCollection<T extends FeatureType, F extends Feature> extends DecoratingFeatureCollection<T, F>  {
 
 	/**
 	 * The original feature collection.

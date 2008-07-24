@@ -44,7 +44,7 @@ import org.opengis.filter.sort.SortBy;
  *
  */
 public class MaxFeaturesFeatureCollection<T extends FeatureType, F extends Feature> extends
-        DecoratingFeatureCollection<T, F> implements FeatureCollection<T, F> {
+        DecoratingFeatureCollection<T, F>  {
 
 	FeatureCollection<T, F> delegate;
 	long max;

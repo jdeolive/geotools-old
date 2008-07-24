@@ -112,7 +112,7 @@ public class FeatureCollectionAggregateVisitorTests extends AbstractPostgisDataT
     public void testSumExpression() throws Exception {
         ExpressionBuilder eb = new ExpressionBuilder();
         FunctionExpression expr = (FunctionExpression) eb.parser("Collection_Sum(id)");
-        int result = ((Number) expr.getValue(roads)).intValue();
+        int result = ((Number) expr.evaluate(roads)).intValue();
         assertTrue(roads.isOptimized);
         assertEquals(6, result);
     }

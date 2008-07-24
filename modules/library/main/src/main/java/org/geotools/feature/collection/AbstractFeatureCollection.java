@@ -37,9 +37,7 @@ import org.opengis.filter.sort.SortBy;
  * </p>
  * @author Jody Garnett, Refractions Research Inc.
  */
-public abstract class AbstractFeatureCollection extends BaseFeatureCollection
-/* extends AbstractResourceCollection */implements
-        FeatureCollection<SimpleFeatureType, SimpleFeature>, ResourceCollection<SimpleFeature> {
+public abstract class AbstractFeatureCollection extends BaseFeatureCollection {
     
 	AbstractResourceCollection<SimpleFeature> rc;
 

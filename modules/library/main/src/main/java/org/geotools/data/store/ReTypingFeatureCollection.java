@@ -35,8 +35,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @author Justin Deoliveira, The Open Planning Project
  *
  */
-public class ReTypingFeatureCollection extends DecoratingFeatureCollection<SimpleFeatureType, SimpleFeature>
-	implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public class ReTypingFeatureCollection extends DecoratingFeatureCollection<SimpleFeatureType, SimpleFeature> {
 
 	SimpleFeatureType featureType;
     

@@ -97,7 +97,7 @@ import org.opengis.filter.sort.SortBy;
  * @version $Id$
  *
  */
-public interface FeatureCollection<T extends FeatureType, F extends Feature> extends ResourceCollection<F>, SimpleFeature {
+public interface FeatureCollection<T extends FeatureType, F extends Feature> extends ResourceCollection<F> {
     /**
      * Obtain a FeatureIterator<SimpleFeature> of the Features within this collection.
      * <p>
@@ -268,6 +268,8 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> ext
      */
     T getSchema();
 
+    /** ID used when serializing to GML */
+    String getID();
     /**
      * Will visit the contents of the feature collection.
      * <p>
