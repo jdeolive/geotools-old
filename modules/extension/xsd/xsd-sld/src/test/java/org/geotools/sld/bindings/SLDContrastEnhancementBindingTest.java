@@ -35,6 +35,6 @@ public class SLDContrastEnhancementBindingTest extends SLDTestSupport {
         assertEquals(1.23, org.geotools.styling.SLD.doubleValue(ce.getGammaValue()), 0d);
 
         assertNotNull(ce.getType());
-        assertEquals("HISTOGRAM", org.geotools.styling.SLD.stringValue(ce.getType()));
+        assertEquals("Histogram", org.geotools.styling.SLD.stringValue(ce.getType()));
     }
 }
