@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 1998-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -237,8 +237,8 @@ public class Plane implements Cloneable, Serializable {
         if (object!=null && getClass().equals(object.getClass())) {
             final Plane that = (Plane) object;
             return Double.doubleToLongBits(this.c ) == Double.doubleToLongBits(that.c ) &&
-                   Double.doubleToLongBits(this.cy) == Double.doubleToLongBits(that.cx) &&
-                   Double.doubleToLongBits(this.cx) == Double.doubleToLongBits(that.cy);
+                   Double.doubleToLongBits(this.cx) == Double.doubleToLongBits(that.cx) &&
+                   Double.doubleToLongBits(this.cy) == Double.doubleToLongBits(that.cy);
         } else {
             return false;
         }
@@ -250,8 +250,8 @@ public class Plane implements Cloneable, Serializable {
     @Override
     public int hashCode() {
         final long code = Double.doubleToLongBits(c ) +
-                      37*(Double.doubleToLongBits(cy) +
-                      37*(Double.doubleToLongBits(cx)));
+                      37*(Double.doubleToLongBits(cx) +
+                      37*(Double.doubleToLongBits(cy)));
         return (int) code ^ (int) (code >>> 32);
     }
 

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -213,8 +213,9 @@ final class BandSelector2D extends GridCoverage2D {
              * If we are not able to provide a color model because our sample dimensions
              * are very simple, let's JAI do its magic and figure out the best one for us.
              */
-            if(colors!=null)
-            	layout.setColorModel(colors);
+            if (colors != null) {
+                layout.setColorModel(colors);
+            }
             if (hints != null) {
                 hints = hints.clone();
                 hints.put(JAI.KEY_IMAGE_LAYOUT, layout);
