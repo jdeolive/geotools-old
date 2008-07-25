@@ -17,7 +17,7 @@
 package org.geotools.styling;
 
 import org.opengis.filter.Filter;
-
+import org.opengis.style.Description;
 
 /**
  * A rule is used to attach a condition to, and group, the individual
@@ -92,10 +92,18 @@ public interface Rule {
     void setName(String name);
 
     /**
+     * Description for this style.
+     * @return Human readable description for use in user interfaces
+     * @since 2.5.x
+     */
+    Description getDescription();
+    
+    /**
      * Gets the title.
      *
      * @return The title of the rule.  This is a brief, human readable,
      *         description of the rule.
+     * @deprecated use getDescription().getTitle().getString()
      */
     @Deprecated
     String getTitle();
@@ -113,6 +121,7 @@ public interface Rule {
      * Gets the abstract text for the rule.
      *
      * @return The abstract text, a more detailed description of the rule.
+     * @deprecated use getDescription().getAbstract().getString()
      */
     @Deprecated
     String getAbstract();

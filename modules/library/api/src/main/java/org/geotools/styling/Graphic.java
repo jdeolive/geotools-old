@@ -16,8 +16,10 @@
  */
 package org.geotools.styling;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.geotools.filter.ConstantExpression;
-import org.geotools.filter.LiteralExpression;
 import org.opengis.filter.expression.Expression;
 
 
@@ -110,6 +112,9 @@ public interface Graphic {
                 return Symbol.SYMBOLS_EMPTY;
             }
 
+            public List<Symbol> graphicalSymbols() {
+	            return Collections.emptyList();
+            }
             public Expression getOpacity() {
                 return ConstantExpression.ONE;
             }
@@ -152,7 +157,9 @@ public interface Graphic {
             public Symbol[] getSymbols() {
                 return Symbol.SYMBOLS_EMPTY;
             }
-
+            public List<Symbol> graphicalSymbols() {
+	            return Collections.emptyList();
+            }
             public Expression getOpacity() {
                 return ConstantExpression.NULL;
             }
@@ -247,6 +254,12 @@ public interface Graphic {
     @Deprecated
     Symbol[] getSymbols();
 
+    /**
+     * List of all symbols used to represent this graphic. 
+     * @return List of ExternalGraphic or Mark in the order provided.
+     */
+    List<Symbol> graphicalSymbols();
+    
     /**
      * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */

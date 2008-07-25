@@ -30,7 +30,6 @@ import org.geotools.data.DataStore;
 import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.gml.producer.FeatureTransformer;
 import org.geotools.referencing.NamedIdentifier;
@@ -39,6 +38,7 @@ import org.geotools.xml.transform.Translator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
@@ -159,6 +159,25 @@ public class SLDTransformer extends TransformerBase {
             start(element);
             filterTranslator.encode(e);
             end(element);
+        }
+        
+        /**
+         * To be used when the expression is a single literal whose 
+         * value must be written out as element.
+         * <p>
+         * For Example OverlapBehaviour is represented as an expression but v 1.0.0
+         * specifications do not define it as an expression.  (&ltAVERAGE/&gt)
+         * </p>
+         * 
+         */
+        void elementLiteral(String element, Expression e){
+        	if (e == null || e == Expression.NIL) return;
+        	
+        	final String value = e.evaluate(null, String.class);
+        	start(element);
+        	start(value);
+        	end(value);
+        	end(element);
         }
 
         void element(String element, Filter f) {
@@ -299,27 +318,6 @@ public class SLDTransformer extends TransformerBase {
 				element("Opacity", raster.getOpacity());
 			}
 
-			if (raster.getOverlap() != null) {
-				Expression overlaps = raster.getOverlap();
-				if( overlaps instanceof PropertyName){
-				    final String pn = ((PropertyName)overlaps).getPropertyName();
-				    
-	                start("OverlapBehavior");				    
-	                start(pn);
-	                end(pn);
-	                end("OverlapBehavior");	                
-				}
-				else {
-				    element("OverlapBehavior", overlaps);
-				}
-			}
-
-			if (raster.getImageOutline() != null) {
-				start("ImageOutline");
-				raster.getImageOutline().accept(this);
-				end("ImageOutline");
-			}
-
 			if (raster.getChannelSelection() != null) {
 				final ChannelSelection cs = raster.getChannelSelection();				
 				if (cs.getGrayChannel() != null) {
@@ -353,15 +351,42 @@ public class SLDTransformer extends TransformerBase {
 				    // we have an invalid ChannelSelection ?
 				}
 			}
+			
+			if (raster.getOverlap() != null) {
+				Expression overlaps = raster.getOverlap();
+				if( overlaps instanceof PropertyName){
+				    final String pn = ((PropertyName)overlaps).getPropertyName();
+				    
+	                start("OverlapBehavior");				    
+	                start(pn);
+	                end(pn);
+	                end("OverlapBehavior");	                
+				}
+				else {
+					//this expression needs to be converted to a single string and then written
+					//1.0.0 specs don't allow it to be written as an expression
+					elementLiteral("OverlapBehavior",overlaps);
+				}
+			}
 
 			if (raster.getColorMap() != null) {
 				raster.getColorMap().accept(this);
 			}
-
+			
+			if (raster.getContrastEnhancement() != null){
+				raster.getContrastEnhancement().accept(this);
+			}
+			
 			if (raster.getShadedRelief() != null) {
 				raster.getShadedRelief().accept(this);
 			}
 			
+			if (raster.getImageOutline() != null) {
+				start("ImageOutline");
+				raster.getImageOutline().accept(this);
+				end("ImageOutline");
+			}
+
 			end("RasterSymbolizer");
 		}
 
@@ -821,10 +846,14 @@ public class SLDTransformer extends TransformerBase {
             if ((name == null) || (name.trim().length() == 0)) {
                 return;
             }
-
+            //create a property name out the name and encode it
+            FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+            Expression expression = ff.property(name);
+            
             start("Geometry");
-            element("PropertyName", name);
+            filterTranslator.encode(expression);
             end("Geometry");
+            
         }
 
         void encodeCssParam(String name, Expression expression) {
@@ -936,7 +965,9 @@ public class SLDTransformer extends TransformerBase {
 			//gamma
 			exp=(Literal)ce.getGammaValue();
 			if (exp != null) {
-				element("GammaValue", exp);
+				//gamma is a double so the actual value needs to be printed here
+				element("GammaValue",  ((Literal)exp).getValue().toString());
+//				element("GammaValue", exp);
 			}
 			end("ContrastEnhancement");
 
@@ -989,7 +1020,11 @@ public class SLDTransformer extends TransformerBase {
 			//relief factor
 			if(sr.getReliefFactor()!=null)
 			{
-				element("ReliefFactor",sr.getReliefFactor());
+//				element("ReliefFactor",sr.getReliefFactor());
+				//this expression needs to be converted to a single string and then written
+				//1.0.0 specs don't allow it to be written as an expression
+				Literal l = (Literal)sr.getReliefFactor();
+				element("ReliefFactor",  l.getValue().toString());
 			}
 			end("ShadedRelief");
 

@@ -159,7 +159,7 @@ public interface Fill {
      * @return The background color of the Fill encoded as a hexidecimal RGB
      *         value.
      * 
-     * 
+     * @deprecated value is not used, please use getColor() 
      */
     @Deprecated
     Expression getBackgroundColor();

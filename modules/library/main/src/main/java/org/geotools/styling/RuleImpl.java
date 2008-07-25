@@ -21,9 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.geotools.resources.Utilities;
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.filter.Filter;
 import org.opengis.util.Cloneable;
-
+import org.opengis.util.InternationalString;
+import org.opengis.style.Description;
 
 /**
  * Provides the default implementation of Rule.
@@ -95,6 +97,20 @@ public class RuleImpl implements Rule, Cloneable {
             .size()]);
     }
 
+    public Description getDescription() {
+    	return new Description(){
+			public InternationalString getAbstract() {
+				return new SimpleInternationalString(abstractStr);
+			}
+
+			public InternationalString getTitle() {
+				return new SimpleInternationalString(title);
+			}    	
+			public void accept(org.opengis.style.StyleVisitor visitor) {
+				visitor.visit(this);
+			}    		
+    	};
+    }
     /**
      * Getter for property abstractStr.
      *

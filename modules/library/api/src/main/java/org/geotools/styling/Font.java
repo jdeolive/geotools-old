@@ -16,6 +16,8 @@
  */
 package org.geotools.styling;
 
+import java.util.List;
+
 import org.opengis.filter.expression.Expression;
 
 
@@ -33,10 +35,16 @@ public interface Font {
     static final int DEFAULT_FONTSIZE = 10;
 
     /**
-     * @deprecated this method will be replaced by getFamily in 2.6.x
+     * @deprecated use getFamilly().get(0) for the preferred font
      */
     @Deprecated
     Expression getFontFamily();
+    
+    /**
+     * SVG font-family parameters in preferred order.
+     * @return live list of font-family parameters in preferred order
+     */
+    List<Expression> getFamily();
 
     /**
      * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
@@ -51,17 +59,29 @@ public interface Font {
     Expression getFontStyle();
 
     /**
+     * The "font-style" SVG parameter should be "normal", "italic", or "oblique".
+     * @return Expression or null
+     */
+    Expression getStyle();
+    
+    /**
      * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
     @Deprecated
     void setFontStyle(Expression style);
 
     /**
-     * @deprecated this method will be replaced by getWeight in 2.6.x
+     * @deprecated use getWeight
      */
     @Deprecated
     Expression getFontWeight();
 
+    /**
+     * The "font-weight" SVG parameter should be "normal" or "bold".
+     * @return font-weight SVG parameter
+     */
+    Expression getWeight();
+    
     /**
      * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
@@ -69,11 +89,17 @@ public interface Font {
     void setFontWeight(Expression weight);
 
     /**
-     * @deprecated this method will be replaced by getSize in 2.6.x
+     * @deprecated use getSize
      */
     @Deprecated
     Expression getFontSize();
 
+    /**
+     * Font size.
+     * @return font size
+     */
+    Expression getSize();
+    
     /**
      * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */

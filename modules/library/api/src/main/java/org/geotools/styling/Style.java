@@ -16,7 +16,7 @@
  */
 package org.geotools.styling;
 
-
+import org.opengis.style.Description;
 
 /**
  * Indicates how geographical content should be displayed (we call this a style for simplicity; in the spec it is called a UserStyle (user-defined style)).
@@ -55,9 +55,16 @@ public interface Style {
     void setName(String name);
 
     /**
+     * Description for this style.
+     * @return Human readable description for use in user interfaces
+     * @since 2.5.x
+     */
+    Description getDescription();
+    
+    /**
      * Style Title (human readable name for user interfaces) 
      * 
-     * @deprecated replaced by getDescription().getTitle in 2.6.x
+     * @deprecated use getDescription().getTitle().toString()
      */
     @Deprecated
     String getTitle();
@@ -68,7 +75,7 @@ public interface Style {
     /** 
      * Description of this style 
      * 
-     * @deprecated replaced by getDesciption().getAbstract() in 2.6.x
+     * @deprecated use getDesciption().getAbstract().toString()
      */
     @Deprecated
     String getAbstract();

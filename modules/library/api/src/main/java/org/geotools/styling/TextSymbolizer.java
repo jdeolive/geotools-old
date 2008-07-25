@@ -108,11 +108,17 @@ public interface TextSymbolizer extends Symbolizer {
      * Returns a device independent Font object that is to be used to render
      * the label.
      *
-     * @deprecated this method will return a single Font in 2.6.x
+     * @deprecated use getFont()
      */
     @Deprecated
     Font[] getFonts();
-
+    
+    /**
+     * Font to use when rendering this symbolizer.
+     * @return Font to use when rendering this symbolizer
+     */
+    Font getFont();
+    
     /**
      * sets a list of device independent Font objects to be used to render the
      * label.

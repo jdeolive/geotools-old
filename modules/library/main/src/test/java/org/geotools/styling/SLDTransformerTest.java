@@ -61,11 +61,11 @@ public class SLDTransformerTest extends TestCase {
 
 		xmlFragment = transformer.transform(opacityRasterSymbolizer);
 		assertNotNull(xmlFragment);
-		
-		SLDParser parser = new SLDParser(sf );
-		parser.setInput( new StringReader(xmlFragment));
+
+		SLDParser parser = new SLDParser(sf);
+		parser.setInput(new StringReader(xmlFragment));
 		Object out = parser.parseSLD();
-		assertNotNull( out );		
+		assertNotNull(out);
 	}
 
 	/**
@@ -73,34 +73,70 @@ public class SLDTransformerTest extends TestCase {
 	 * more exciting - a complete style object.
 	 */
 	public void testEncodingStyle() throws Exception {
+		
+		//simple default raster symbolizer
 		RasterSymbolizer defaultRasterSymbolizer = sf.createRasterSymbolizer();
-		String xmlFragment = transformer.transform(defaultRasterSymbolizer);	
+		String xmlFragment = transformer.transform(defaultRasterSymbolizer);
 		assertNotNull(xmlFragment);
 
+		//more complex raster symbolizer
 		StyleFactory styleFactory = CommonFactoryFinder
 				.getStyleFactory(GeoTools.getDefaultHints());
 		StyleBuilder styleBuilder = new StyleBuilder(styleFactory);
 
 		RasterSymbolizer rasterSymbolizer = styleFactory
 				.createRasterSymbolizer();
+		
+		//set opacity
 		rasterSymbolizer.setOpacity((Expression) CommonFactoryFinder
 				.getFilterFactory(GeoTools.getDefaultHints()).literal(0.25));
 
+		//set channel selection
+		ChannelSelectionImpl csi = new ChannelSelectionImpl();
+		//red
+		SelectedChannelTypeImpl redChannel = new SelectedChannelTypeImpl();
+		redChannel.setChannelName("1");
+		ContrastEnhancementImpl rcei = new ContrastEnhancementImpl();
+		rcei.setHistogram();
+		redChannel.setContrastEnhancement(rcei);
+		
+		//green
+		SelectedChannelTypeImpl greenChannel = new SelectedChannelTypeImpl();
+		greenChannel.setChannelName("4");
+		ContrastEnhancementImpl gcei = new ContrastEnhancementImpl();
+		gcei.setGammaValue(ff.literal(2.5));
+		greenChannel.setContrastEnhancement(gcei);
+		
+		//blue
+		SelectedChannelTypeImpl blueChannel = new SelectedChannelTypeImpl();
+		blueChannel.setChannelName("2");
+		ContrastEnhancementImpl bcei = new ContrastEnhancementImpl();
+		bcei.setNormalize();
+		blueChannel.setContrastEnhancement(bcei);
+		
+		csi.setRGBChannels(redChannel, greenChannel, blueChannel);
+		rasterSymbolizer.setChannelSelection(csi);
+		
+		
 		Style style = styleBuilder.createStyle(rasterSymbolizer);
 		style.setName("simpleStyle");
-		//style.setAbstract("Hello World");
-		
-		xmlFragment = transformer.transform(style);
+		// style.setAbstract("Hello World");
+
+		NamedLayer layer = styleFactory.createNamedLayer();
+		layer.addStyle(style);
+
+		StyledLayerDescriptor sld = styleFactory.createStyledLayerDescriptor();
+		sld.addStyledLayer(layer);
+
+		xmlFragment = transformer.transform(sld);
 		System.out.println(xmlFragment);
-		
-		
-		assertNotNull(xmlFragment);		
-		SLDParser parser = new SLDParser(sf );
-		parser.setInput( new StringReader(xmlFragment));
+
+		assertNotNull(xmlFragment);
+		SLDParser parser = new SLDParser(sf);
+		parser.setInput(new StringReader(xmlFragment));
 		Style[] stuff = parser.readXML();
 		Style out = stuff[0];
-		assertNotNull( out );
-		System.out.println( out );
-		assertEquals( 0.25, SLD.rasterOpacity( out ));
+		assertNotNull(out);
+		assertEquals(0.25, SLD.rasterOpacity(out));
 	}
 }

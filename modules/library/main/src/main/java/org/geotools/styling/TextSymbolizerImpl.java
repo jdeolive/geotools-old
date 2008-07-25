@@ -114,12 +114,18 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      * @return Device independent Font object to be used to render the label.
      */
     public Font[] getFonts() {
-        if (fonts.size() == 0) {
+        if (fonts.isEmpty()) {
             fonts.add( FontImpl.createDefault( filterFactory ) );
         }
         return (Font[]) fonts.toArray(new Font[ fonts.size()]);
     }
 
+    public Font getFont() {
+    	if( fonts.isEmpty() ){
+    		return null;
+    	}
+    	return fonts.get(0);
+    }
     /**
      * Setter for property font.
      *

@@ -23,8 +23,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.resources.Utilities;
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.util.Cloneable;
-
+import org.opengis.util.InternationalString;
+import org.opengis.style.Description;
 
 /**
  * DOCUMENT ME!
@@ -50,6 +52,20 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
     protected StyleImpl() {
     }
 
+    public Description getDescription() {
+    	return new Description(){
+			public InternationalString getAbstract() {
+				return new SimpleInternationalString(abstractText);
+			}
+
+			public InternationalString getTitle() {
+				return new SimpleInternationalString(title);
+			}    		
+			public void accept(org.opengis.style.StyleVisitor visitor) {
+				visitor.visit(this);
+			}    		
+    	};
+    }
     public String getAbstract() {
         return abstractText;
     }

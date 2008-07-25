@@ -18,6 +18,8 @@ package org.geotools.styling;
 
 import java.util.List;
 
+import org.opengis.style.Description;
+
 
 /**
  * How to style a feature type.  This is introduced as a convenient package
@@ -64,7 +66,7 @@ public interface FeatureTypeStyle {
     void setName(String name);
 
     /**
-     * @deprecated this method will be replaced by getDescription.getTitle() in 2.6.x
+     * @deprecated use getDescription.getTitle().toString()
      */
     @Deprecated
     public String getTitle();
@@ -73,7 +75,14 @@ public interface FeatureTypeStyle {
     void setTitle(String title);
 
     /**
-     * @deprecated this method will be replaced by getDescription.getAbstract() in 2.6.x
+     * Description for this style.
+     * @return Human readable description for use in user interfaces
+     * @since 2.5.x
+     */
+    Description getDescription();
+    
+    /**
+     * @deprecated use getDescription.getAbstract().toString()
      */
     @Deprecated
     public String getAbstract();
@@ -114,16 +123,16 @@ public interface FeatureTypeStyle {
      * that a FeatureTypeStyle may be used with any feature type
      * with the corresponding default geometry type (i.e., no feature
      * properties are referenced in the feature type style).
-     *
-     *
+     * <p>
+     * This method will be replaced by a live set semanticIdentifiers() in 2.6.x
+     * 
      * @return An array of strings representing systematic types which
      *         could be styled by this instance.
      * 
-     * @deprecated this method will be replaced by a live set semanticIdentifiers() in 2.6.x
+     * 
      */
-    @Deprecated
     String[] getSemanticTypeIdentifiers();
-
+    
     /**
      * The SemanticTypeIdentifiers is experimental and is intended to be used
      * to identify, using a community-controlled name(s), what the style is
@@ -156,7 +165,7 @@ public interface FeatureTypeStyle {
      * @version SLD 1.0.20 TODO: GeoAPI getRules(): List<Rule>
      * @return The full set of rules contained in this styler.
      * 
-     * @deprecated this method will be replaced by a live list rules() in 2.6.x
+     * @deprecated use rules(), this method will be removed in 2.6.
      */
     @Deprecated
     Rule[] getRules();
@@ -184,13 +193,10 @@ public interface FeatureTypeStyle {
      * Rules govern the appearance of any given feature to be styled by
      * this styler.
      * <p>
-     * This is *the* list being used to mange the rules!
+     * This is *the* list being used to manage the rules!
      * </p>
      * @since GeoTools 2.2.M3, GeoAPI 2.0
-     * 
-     * @deprecated this method will be replaced by a live list rules() in 2.6.x
      */
-    @Deprecated
     List<Rule> rules();
 
     void accept(StyleVisitor visitor);

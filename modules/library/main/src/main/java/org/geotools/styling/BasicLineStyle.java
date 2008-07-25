@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import org.opengis.style.Description;
 /**
  * A style object is quite hard to set up, involving fills, strokes,
  * symbolizers and rules.

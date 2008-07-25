@@ -89,15 +89,14 @@ public interface ExternalGraphic extends Symbol {
 
     /**
      * Provides the URL for where the external graphic resource can be located.
-     *
+     * <p>
+     * This method will be replaced by getOnlineResource().getLinkage() in 2.6.x
+     * 
      * @return The URL of the ExternalGraphic
      *
      * @throws MalformedURLException If the url held in the ExternalGraphic is
      *         malformed.
-     * 
-     * @deprecated this method will be replaced by get getOnlineResource in 2.6.x
      */
-    @Deprecated
     URL getLocation() throws MalformedURLException;
 
     /**

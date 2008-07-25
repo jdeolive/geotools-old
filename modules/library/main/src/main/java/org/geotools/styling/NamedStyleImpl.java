@@ -16,6 +16,9 @@
  */
 package org.geotools.styling;
 
+import org.geotools.util.SimpleInternationalString;
+import org.opengis.util.InternationalString;
+import org.opengis.style.Description;
 
 
 /**
@@ -51,13 +54,28 @@ public class NamedStyleImpl implements NamedStyle {
         this.name = name;
     }
 
+    public Description getDescription() {
+    	return new Description(){
+			public InternationalString getAbstract() {
+				return new SimpleInternationalString("");
+			}
+
+			public InternationalString getTitle() {
+				return new SimpleInternationalString("");
+			}   
+			public void accept(org.opengis.style.StyleVisitor visitor) {
+				visitor.visit(this);
+			}    		
+    	};
+    }
+    
     /**
      * Human readable title.
      *
      * @return Human readable title, or null
      */
     public String getTitle() {
-        return null;
+        return "";
     }
 
     /**
@@ -77,7 +95,7 @@ public class NamedStyleImpl implements NamedStyle {
      * @return DOCUMENT ME!
      */
     public String getAbstract() {
-        return null;
+        return "";
     }
 
     /**

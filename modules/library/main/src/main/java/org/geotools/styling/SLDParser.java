@@ -830,11 +830,11 @@ public class SLDParser {
                 // the DOM parser wasnt properly set to handle namespaces...
                 childName = childName.substring(childName.indexOf(':') + 1);
             }
-            else
+            
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("processing " + child.getLocalName());
             }
-            else
+            
             if (childName.equalsIgnoreCase("Name")) {
                 rule.setName(child.getFirstChild().getNodeValue());
             }
@@ -1179,7 +1179,7 @@ public class SLDParser {
             else
             if (childName.equalsIgnoreCase(overlapBehaviorString)) {
                 try {
-                    final String overlapString=child.getFirstChild().getNodeValue();
+                    final String overlapString = child.getFirstChild().getLocalName();
                     symbol.setOverlap(ff.literal(overlapString));
                 } catch (Throwable e) {
                     if(LOGGER.isLoggable(Level.WARNING))

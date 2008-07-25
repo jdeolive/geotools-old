@@ -154,6 +154,7 @@ public class DOMParserTestSuite extends TestSuite {
         }
 
         public void run( TestResult result ) {
+        	System.out.println(document);
             result.startTest( this );            
             Protectable p= new Protectable() {
                 public void protect() throws Throwable {

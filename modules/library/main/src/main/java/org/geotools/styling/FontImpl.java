@@ -20,6 +20,10 @@ package org.geotools.styling;
 // J2SE dependencies
 //import java.util.logging.Logger;
 // OpenGIS dependencies
+import java.awt.FontFormatException;
+import java.util.Collections;
+import java.util.List;
+
 import org.geotools.resources.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
@@ -56,7 +60,9 @@ public class FontImpl implements Font, Cloneable {
     public Expression getFontFamily() {
         return fontFamily;
     }
-
+	public List<Expression> getFamily() {
+		return Collections.singletonList(fontFamily);
+	}
     /**
      * Setter for property fontFamily.
      *
@@ -74,7 +80,9 @@ public class FontImpl implements Font, Cloneable {
     public Expression getFontSize() {
         return fontSize;
     }
-
+	public Expression getSize() {
+		return fontSize;
+	}
     /**
      * Setter for property fontSize.
      *
@@ -91,6 +99,9 @@ public class FontImpl implements Font, Cloneable {
      */
     public Expression getFontStyle() {
         return fontStyle;
+    }
+    public Expression getStyle() {
+    	return fontStyle;
     }
 
     /**
@@ -109,6 +120,9 @@ public class FontImpl implements Font, Cloneable {
      */
     public Expression getFontWeight() {
         return fontWeight;
+    }
+    public Expression getWeight() {
+    	return fontWeight;
     }
 
     /**

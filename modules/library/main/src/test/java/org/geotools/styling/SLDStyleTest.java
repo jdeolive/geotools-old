@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
@@ -30,6 +31,7 @@ import junit.framework.TestSuite;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
+import org.geotools.filter.LiteralExpression;
 import org.geotools.filter.function.math.FilterFunction_abs;
 import org.geotools.test.TestData;
 import org.opengis.filter.BinaryLogicOperator;
@@ -43,6 +45,7 @@ import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BinarySpatialOperator;
 import org.opengis.filter.spatial.Disjoint;
+import org.xml.sax.InputSource;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -443,5 +446,107 @@ public class SLDStyleTest extends TestCase {
         // other text -> target & literal
         assertEquals("extrude", ts.getOtherText().getTarget());
         assertTrue(ts.getOtherText().getText() instanceof Literal);
+    }
+    
+    /**
+     * Tests the parsing of a raster symbolizer sld
+     * @throws IOException
+     */
+    public void testParseRasterSymbolizer() throws IOException{
+    	 StyleFactory factory = CommonFactoryFinder.getStyleFactory(null);
+         java.net.URL surl = TestData.getResource(this, "rasterSymbolizer.sld");
+         SLDParser stylereader = new SLDParser(factory, surl);
+    	
+         Style[] styles = stylereader.readXML();
+         assertEquals(1, styles.length);
+         assertEquals(1, styles[0].getFeatureTypeStyles().length);
+         assertEquals(1, styles[0].getFeatureTypeStyles()[0].getRules().length);
+         
+         Rule r = styles[0].getFeatureTypeStyles()[0].getRules()[0];
+         assertEquals(1, r.getSymbolizers().length);
+         
+         RasterSymbolizer rs = (RasterSymbolizer)r.getSymbolizers()[0];
+         
+         //opacity
+         assertEquals(0.75, SLD.opacity(rs));
+         
+         //channels
+         ChannelSelection cs = rs.getChannelSelection();
+         SelectedChannelType redChannel = cs.getRGBChannels()[0];
+         SelectedChannelType greenChannel = cs.getRGBChannels()[1];
+         SelectedChannelType blueChannel = cs.getRGBChannels()[2];
+         
+         //channel names
+         assertEquals("1", redChannel.getChannelName());
+         assertEquals("2", greenChannel.getChannelName());
+         assertEquals("6", blueChannel.getChannelName());
+    	
+         //contrast enhancement
+         ContrastEnhancement rcs =  redChannel.getContrastEnhancement();
+         String type = (String)rcs.getType().evaluate(null);
+         assertEquals("Histogram", type);
+
+         ContrastEnhancement gcs = greenChannel.getContrastEnhancement();
+         Double ggamma = (Double)gcs.getGammaValue().evaluate(null);
+         assertEquals(2.8, ggamma.doubleValue());
+         
+         ContrastEnhancement bcs =  blueChannel.getContrastEnhancement();
+         type = (String)bcs.getType().evaluate(null);
+         assertEquals("Normalize", type);
+         
+         //overlap behaviour
+         Expression overlapExpr = rs.getOverlap();
+         type = (String)overlapExpr.evaluate(null);
+         assertEquals("LATEST_ON_TOP", type);
+         
+         //ContrastEnhancement
+         ContrastEnhancement ce =  rs.getContrastEnhancement();
+         Double v = (Double)ce.getGammaValue().evaluate(null);
+         assertEquals(1.0, v.doubleValue());
+    }
+    
+    /**
+     * Tests the parsing of a raster symbolizer sld with color Map
+     * @throws IOException
+     */
+    public void testParseRasterSymbolizerColorMap() throws IOException{
+    	 StyleFactory factory = CommonFactoryFinder.getStyleFactory(null);
+         java.net.URL surl = TestData.getResource(this, "rasterSymbolizerColorMap.sld");
+         SLDParser stylereader = new SLDParser(factory, surl);
+    	
+         Style[] styles = stylereader.readXML();
+         assertEquals(1, styles.length);
+         assertEquals(1, styles[0].getFeatureTypeStyles().length);
+         assertEquals(1, styles[0].getFeatureTypeStyles()[0].getRules().length);
+         
+         Rule r = styles[0].getFeatureTypeStyles()[0].getRules()[0];
+         assertEquals(1, r.getSymbolizers().length);
+         
+         RasterSymbolizer rs = (RasterSymbolizer)r.getSymbolizers()[0];
+         
+         //opacity         
+         Double d = (Double)rs.getOpacity().evaluate(null);
+         assertEquals(1.0, d.doubleValue());
+                
+         //overlap behaviour
+         Expression overlapExpr = rs.getOverlap();
+         String type = (String)overlapExpr.evaluate(null);
+         assertEquals("AVERAGE", type);
+         
+         //ColorMap
+         ColorMap cMap = rs.getColorMap();
+         assertEquals(20, cMap.getColorMapEntries().length);
+         ColorMapEntry[] centeries = cMap.getColorMapEntries();
+         String[] colors = new String[]{"#00ff00","#00fa00","#14f500","#28f502","#3cf505","#50f50a","#64f014","#7deb32","#78c818","#38840c","#2c4b04","#ffff00","#dcdc00","#b47800","#c85000","#be4100","#963000","#3c0200","#ffffff","#ffffff"};
+         int[] values = new int[]{-500,-417,-333,-250,-167,-83,-1,0,30,105,300,400,700,1200,1400,1600,2000,3000,5000,13000};
+         for (int i = 0; i < centeries.length; i++) {
+			ColorMapEntry entry = centeries[i];
+			String c = (String) entry.getColor().evaluate(null);
+			Integer q = (Integer) entry.getQuantity().evaluate(null);
+			assertEquals(colors[i], c);
+			assertEquals(values[i], q.intValue());
+		}
+         
+         
     }
 }

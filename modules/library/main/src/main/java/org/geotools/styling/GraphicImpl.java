@@ -19,6 +19,7 @@ package org.geotools.styling;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
@@ -185,7 +186,9 @@ public class GraphicImpl implements Graphic,
 
         return ret;
     }
-
+	public List<Symbol> graphicalSymbols() {
+		return symbols;
+	}
     public void setSymbols(Symbol[] symbols) {
         this.symbols.clear();
 

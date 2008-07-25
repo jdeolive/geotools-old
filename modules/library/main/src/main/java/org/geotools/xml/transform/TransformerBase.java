@@ -497,6 +497,7 @@ public abstract class TransformerBase {
         protected void element(String element, String content) {
             element(element, content, NULL_ATTS);
         }
+        
         /**
          * Will only issue the provided element if content is non empty
          * @param element
@@ -517,7 +518,7 @@ public abstract class TransformerBase {
 
             end(element);
         }
-
+        
         protected void start(String element) {
             start(element, NULL_ATTS);
         }

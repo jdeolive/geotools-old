@@ -20,7 +20,8 @@ import org.opengis.filter.expression.Expression;
 
 
 /**
- * Note: this isn't in the SLD spec
+ * Note: this isn't in the SLD specification.
+ * 
  * @source $URL$
  */
 public interface TextMark extends Mark {

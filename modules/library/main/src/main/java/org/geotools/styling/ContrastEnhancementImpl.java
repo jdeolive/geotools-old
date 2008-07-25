@@ -93,19 +93,19 @@ public class ContrastEnhancementImpl implements ContrastEnhancement {
     }
 
     public void setHistogram() {
-        type = filterFactory.literal("HISTOGRAM");
+        type = filterFactory.literal("Histogram");
     }
 
     public void setNormalize() {
-        type = filterFactory.literal("NORMALIZE");
+        type = filterFactory.literal("Normalize");
     }
 
     public void setLogarithmic() {
-        type = filterFactory.literal("LOGARITHMIC");
+        type = filterFactory.literal("Logarithmic");
     }
 
     public void setExponential() {
-        type = filterFactory.literal("EXPONENTIAL");
+        type = filterFactory.literal("Exponential");
     }
 
     public void setType(Expression type) {
