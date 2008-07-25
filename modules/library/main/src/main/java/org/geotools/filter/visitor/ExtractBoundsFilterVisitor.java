@@ -18,29 +18,10 @@ package org.geotools.filter.visitor;
 
 import java.util.logging.Logger;
 
-import org.geotools.filter.DefaultExpression;
-import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.filter.And;
 import org.opengis.filter.ExcludeFilter;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterVisitor;
-import org.opengis.filter.Id;
 import org.opengis.filter.IncludeFilter;
-import org.opengis.filter.Not;
-import org.opengis.filter.Or;
-import org.opengis.filter.PropertyIsBetween;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsGreaterThan;
-import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
-import org.opengis.filter.PropertyIsLessThan;
-import org.opengis.filter.PropertyIsLessThanOrEqualTo;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.PropertyIsNotEqualTo;
-import org.opengis.filter.PropertyIsNull;
-import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
 import org.opengis.filter.spatial.Beyond;
 import org.opengis.filter.spatial.Contains;
@@ -54,8 +35,6 @@ import org.opengis.filter.spatial.Touches;
 import org.opengis.filter.spatial.Within;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.sun.corba.se.spi.transport.CorbaAcceptor;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
