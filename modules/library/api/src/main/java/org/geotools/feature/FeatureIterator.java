@@ -19,11 +19,8 @@ package org.geotools.feature;
 import org.opengis.feature.Feature;
 
 /**
- * A drop in replacement for Iterator that does not require casting for Java 1.4 code.
- * <p>
- * We are sorry but this does not implement Iteartor<Feature>, although it should
- * be a drop in replacement when Geotools is able to upgrade to Java 5.
- * </p>
+ * A drop in replacement for Iterator<Feature> supporting a close method.
+ * 
  * @author Ian Schneider
  * @source $URL$
  */

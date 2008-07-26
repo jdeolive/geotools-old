@@ -19,6 +19,8 @@ package org.geotools.data.collection;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.geotools.feature.FeatureCollection;
+
 
 /**
  * Resource Collection supporting use close( Iterator ) allowing us to work data streams.
@@ -116,7 +118,7 @@ public interface ResourceCollection<R> /* extends Collection<R> */ {
     boolean addAll(Collection<? extends R> collection);
 
     /** @see #addAll(Collection) */
-    boolean addAll(ResourceCollection<? extends R> resource);
+    boolean addAll(FeatureCollection resource);
     
     /** @see java.util.Collection#clear() */
     void clear();

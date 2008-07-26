@@ -216,7 +216,7 @@ public class SubFeatureCollection extends BaseFeatureCollection {
     public boolean addAll(Collection c) {
 		return rc.addAll(c);
 	}
-    public boolean addAll(ResourceCollection c) {
+    public boolean addAll(FeatureCollection c) {
         return rc.addAll(c);
     }
 	public void clear() {

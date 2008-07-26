@@ -17,17 +17,16 @@
 package org.geotools.feature;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 
-import org.geotools.data.collection.ResourceCollection;
-import org.geotools.feature.visitor.FeatureVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.util.ProgressListener;
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+import org.opengis.util.ProgressListener;
 
 
 /**
@@ -97,7 +96,7 @@ import org.opengis.filter.sort.SortBy;
  * @version $Id$
  *
  */
-public interface FeatureCollection<T extends FeatureType, F extends Feature> extends ResourceCollection<F> {
+public interface FeatureCollection<T extends FeatureType, F extends Feature> {
     /**
      * Obtain a FeatureIterator<SimpleFeature> of the Features within this collection.
      * <p>
@@ -139,28 +138,27 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> ext
     FeatureIterator<F> features();
 
     /**
-     * Clean up any resources assocaited with this iterator in a manner similar to JDO collections.
-     * <p>
-     * You must be sure to allow null values, this is because in a try/finally
-     * block client code may not be sure if they have actualy succeed in
-     * assign a value to an iterator they wish to ensure is closed.
-     * By permiting null as an api we prevent a null check in lots of finally
-     * statements.
+     * Clean up after any resources associated with this FeatureIterator in a manner similar to JDO collections.
      * </p>
-     * <p>
-     * Note: Because of FeatureReader using an interator internally,
-     * there is only one implementation of this method that makes
-     * any sense:<pre><code>
-     * <b>public void</b> close( FeatureIterator<SimpleFeature> iterator) {
-     *     <b>if</b>( iterator != null ) iterator.close();
+     * Example (safe) use:<pre><code>
+     * Iterator iterator = collection.iterator();
+     * try {
+     *     for( Iterator i=collection.iterator(); i.hasNext();){
+     *          Feature feature = i.hasNext();
+     *          System.out.println( feature.getID() );
+     *     }
+     * }
+     * finally {
+     *     collection.close( iterator );
      * }
      * </code></pre>
      * </p>
+     * @param close
      */
     public void close(FeatureIterator<F> close);
-
+    
     /**
-     * Clean up after any resources assocaited with this itterator in a manner similar to JDO collections.
+     * Clean up after any resources associated with this itterator in a manner similar to JDO collections.
      * </p>
      * Example (safe) use:<pre><code>
      * Iterator iterator = collection.iterator();
@@ -178,7 +176,7 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> ext
      * @param close
      */
     public void close(Iterator<F> close);
-
+    
     /**
      * Adds a listener for collection events.
      * <p>
@@ -270,30 +268,21 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> ext
 
     /** ID used when serializing to GML */
     String getID();
+    
     /**
-     * Will visit the contents of the feature collection.
+     * Visit the contents of a feature collection.
      * <p>
-     * Note: When performing aggregate calculations please consider using
-     * the Filter/Expression/Function API as it may be optimized.
+     * The order of traversal is dependent on the FeatureCollection implementation; some
+     * collections are able to make efficient use of an internal index in order to quickly
+     * visit features located in the same region.
      * </p>
-     * @param visitor
-     * @throws IOException
-     *
-     * @deprecated use {@link #accepts(org.opengis.feature.FeatureVisitor, org.opengis.util.ProgressListener)}
-     */
-    void accepts(FeatureVisitor visitor, ProgressListener progress)
-        throws IOException;
-
-    /**
-     * Vists the contents of a feature collection.
-     *
-     * @param visitor The visitor.
-     * @param progress progress listener.
+     * 
+     * @param visitor Closure applied to each feature in turn.
+     * @param progress Used to report progress, may be used to interrupt the operation
      *
      * @since 2.5
      */
-    void accepts(org.opengis.feature.FeatureVisitor visitor,
-        org.opengis.util.ProgressListener progress) throws IOException;
+    void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException;
 
     /**
      * FeatureCollection<SimpleFeatureType, SimpleFeature> "view" indicated by provided filter.
@@ -342,4 +331,107 @@ public interface FeatureCollection<T extends FeatureType, F extends Feature> ext
      * @return An Envelope containing the total bounds of this collection.
      */
     ReferencedEnvelope getBounds();
+    
+    //
+    // ResourceCollection methods
+    //
+    /**
+     * An iterator over this collection, which must be closed after use.
+     * <p>
+     * Collection is not guaranteed to be ordered in any manner.
+     * </p>
+     * <p>
+     * The implementation of Collection must adhere to the rules of
+     * fail-fast concurrent modification. In addition (to allow for
+     * resource backed collections, the <code>close( Iterator )</code>
+     * method must be called.
+     * <p>
+     * </p>
+     * Example (safe) use:<pre><code>
+     * Iterator iterator = collection.iterator();
+     * try {
+     *     while( iterator.hasNext();){
+     *          Feature feature = (Feature) iterator.hasNext();
+     *          System.out.println( feature.getID() );
+     *     }
+     * }
+     * finally {
+     *     collection.close( iterator );
+     * }
+     * </code></pre>
+     * </p>
+     * @return Iterator
+     */
+    public Iterator<F> iterator();
+
+    /**
+     * Close any outstanding resources released by this resources.
+     * <p>
+     * This method should be used with great caution, it is however available
+     * to allow the use of the ResourceCollection with algorthims that are
+     * unaware of the need to close iterators after use.
+     * </p>
+     * <p>
+     * Example of using a normal Collections utility method:<pre><code>
+     * Collections.sort( collection );
+     * collection.purge();
+     * </code></pre>
+     * @deprecated No longer needed as iterator use by java for each construct not available
+     */
+    public void purge();
+    
+    /**
+     * Add object to this collection. 
+     * <p>
+     * This method is often not impelmented for collections produced as the result of a query.
+     * 
+     * @return true of the element was added
+     * @see java.util.Collection#add(Object)
+     */
+    boolean add(F obj);
+    
+    /**
+     * Add all the objects to the collection.
+     * <p>
+     * This method is often not implemented for collections produced as the results of a query.
+     * @see java.util.Collection#addAll(Collection)
+     */
+    boolean addAll(Collection<? extends F> collection);
+
+    /** @see #addAll(Collection) */
+    boolean addAll(FeatureCollection<? extends T,? extends F> resource);
+    
+    /** @see java.util.Collection#clear() */
+    void clear();
+    
+    /**
+     * @see java.util.Collection#contains(Object)
+     */
+    boolean contains(Object o);
+    
+    /**
+     * @see java.util.Collection#containsAll(Collection)
+     */
+    boolean containsAll(Collection<?> o);
+
+    /** @see java.util.Collection#isEmpty() */
+    boolean isEmpty();
+    
+    /** @see java.util.Collection#remove(Object) */
+    boolean remove(Object o);
+    
+    /** @see java.util.Collection#removeAll(Collection) */
+    public boolean removeAll(Collection<?> c);
+    
+    /** @see java.util.Collection#retainAll(Collection) */   
+    public boolean retainAll(Collection<?> c);
+      
+    /** @see java.util.Collection#size() */
+    int size();
+    
+    /** @see java.util.Collection#toArray() */    
+    Object[] toArray();
+    
+    /** @see java.util.Collection#toArray(Object[]) */ 
+    <O> O[] toArray(O[] a);    
 }

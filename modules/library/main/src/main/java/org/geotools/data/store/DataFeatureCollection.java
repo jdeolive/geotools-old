@@ -420,19 +420,13 @@ public abstract class DataFeatureCollection extends BaseFeatureCollection {
     public boolean addAll(Collection arg0) {
     	return false;
     }
-    public boolean addAll(ResourceCollection<? extends SimpleFeature> resource) {
+    public boolean addAll(FeatureCollection resource) {
         return false;
     }
     public boolean removeAll( Collection arg0 ) {        
         return false;
     }
-    public boolean removeAll(ResourceCollection<?> c) {
-        return false;
-    }
     public boolean retainAll( Collection arg0 ) {
-        return false;
-    }
-    public boolean retainAll(ResourceCollection<?> c) {
         return false;
     }
     public void clear() {        

@@ -103,8 +103,9 @@ public class MockFeatureCollection implements org.geotools.feature.FeatureCollec
     public boolean addAll(Collection c) {
         return false;
     }
-    public boolean addAll(ResourceCollection c) {
-        return false;
+    public boolean addAll(
+		FeatureCollection<? extends SimpleFeatureType, ? extends SimpleFeature> resource) {
+    	return false;
     }
     public void clear() {
     }

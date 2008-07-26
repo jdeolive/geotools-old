@@ -59,9 +59,9 @@ import com.vividsolutions.jts.geom.Geometry;
 public abstract class FeatureState {
 	    
     protected ReferencedEnvelope bounds = null;
-    protected ResourceCollection data;
+    protected FeatureCollection data;
 
-    protected FeatureState( ResourceCollection collection ){
+    protected FeatureState( FeatureCollection collection ){
         data = collection;
     }
 	//
@@ -130,13 +130,7 @@ public abstract class FeatureState {
     public abstract SimpleFeatureType getChildFeatureType();
     
     public abstract String getId();
-    
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getParent(){
-        return null;        
-    }
-    public void setParent( FeatureCollection<SimpleFeatureType, SimpleFeature> parent ){
-        throw new UnsupportedOperationException();
-    }
+
     /*
     public Object[] getAttributes( Object[] attributes ) {
         List list = (List) getAttribute( 0 );

@@ -81,10 +81,10 @@ public class BaseFeatureState extends FeatureState {
         return tb.buildFeatureType();
 	}
 
-	public BaseFeatureState( ResourceCollection collection, SimpleFeatureType schema ){
+	public BaseFeatureState( FeatureCollection collection, SimpleFeatureType schema ){
 		this( collection, featureType( schema ), schema );				
 	}
-	public BaseFeatureState( ResourceCollection collection, SimpleFeatureType featureType, SimpleFeatureType schema ){
+	public BaseFeatureState( FeatureCollection collection, SimpleFeatureType featureType, SimpleFeatureType schema ){
         super( collection );
 		//this.collection = collection;
 		this.featureType = featureType;

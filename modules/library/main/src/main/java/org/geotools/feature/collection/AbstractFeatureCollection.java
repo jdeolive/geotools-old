@@ -111,7 +111,7 @@ public abstract class AbstractFeatureCollection extends BaseFeatureCollection {
 		return rc.addAll(c);
 	}
 
-    final public boolean addAll(ResourceCollection c) {
+    final public boolean addAll(FeatureCollection c) {
         return rc.addAll(c);
     }
     

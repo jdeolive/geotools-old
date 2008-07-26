@@ -962,7 +962,7 @@ public class DataUtilities {
      * @throws IOException IOException if there is any problem reading the content.
      */   
     public static FeatureReader<SimpleFeatureType, SimpleFeature> reader(
-            ResourceCollection<SimpleFeature> collection) throws IOException {
+            FeatureCollection<SimpleFeatureType,SimpleFeature> collection) throws IOException {
         return reader((SimpleFeature[]) collection
                 .toArray(new SimpleFeature[collection.size()]));
     }

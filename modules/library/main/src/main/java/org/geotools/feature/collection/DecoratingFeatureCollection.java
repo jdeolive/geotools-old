@@ -84,7 +84,7 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
         return delegate.addAll(c);
     }
 
-    public boolean addAll(ResourceCollection c) {
+    public boolean addAll(FeatureCollection c) {
         return delegate.addAll(c);
     }
     

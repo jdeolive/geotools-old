@@ -89,7 +89,7 @@ public class FeatureCollectionTest extends TestCase {
     }
     return next;
   }
-  public Collection randomPiece(ResourceCollection original) {
+  public Collection randomPiece(FeatureCollection original) {
       LinkedList next = new LinkedList();
       Iterator og = original.iterator();
       try {

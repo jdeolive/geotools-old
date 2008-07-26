@@ -323,16 +323,11 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
             throw new RuntimeException(e);
         }
     }
-    public boolean addAll(ResourceCollection c) {
+    public boolean addAll(FeatureCollection c) {
         ContentFeatureStore featureStore = ensureFeatureStore();
         try {
             List<FeatureId> ids;
-            if( c instanceof FeatureCollection ){
-                ids = featureStore.addFeatures( (FeatureCollection) c );
-            }
-            else {
-                ids = featureStore.addFeatures( DataUtilities.list( c ));
-            }
+            ids = featureStore.addFeatures( c );
             return ids.size() == c.size();
         } catch (IOException e) {
             throw new RuntimeException(e);

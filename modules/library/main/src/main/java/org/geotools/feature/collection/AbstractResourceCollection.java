@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.geotools.data.collection.ResourceCollection;
+import org.geotools.feature.FeatureCollection;
 
 /**
  * Collection supporting close( Iterator ).
@@ -257,8 +258,8 @@ public abstract class AbstractResourceCollection<T> implements ResourceCollectio
 			}
 		}
 		return modified;
-    }
-    public boolean addAll(ResourceCollection<? extends T> c) {
+    }    
+    public boolean addAll(FeatureCollection c) {
         boolean modified = false;
         Iterator e = c.iterator();
         try {

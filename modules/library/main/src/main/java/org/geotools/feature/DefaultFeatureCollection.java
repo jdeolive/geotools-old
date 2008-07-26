@@ -269,7 +269,7 @@ public class DefaultFeatureCollection extends BaseFeatureCollection {
         }
     }
 
-    public boolean addAll(ResourceCollection collection) {
+    public boolean addAll(FeatureCollection collection) {
         //TODO check inheritance with FeatureType here!!!
         boolean changed = false;
         
