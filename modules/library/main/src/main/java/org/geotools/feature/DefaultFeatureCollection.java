@@ -28,17 +28,19 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
-import org.geotools.feature.collection.BaseFeatureCollection;
 import org.geotools.feature.collection.FeatureIteratorImpl;
 import org.geotools.feature.collection.SubFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
+import org.geotools.feature.visitor.FeatureVisitor;
 import org.geotools.filter.SortBy2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
+import org.geotools.util.ProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -57,8 +59,9 @@ import org.opengis.geometry.BoundingBox;
  * @source $URL$
  * @version $Id$
  */
-public class DefaultFeatureCollection extends BaseFeatureCollection {
- 	
+public class DefaultFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
+    protected static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.feature");
+    
     /**
      * Contents of collection, referenced by FeatureID.
      * <p>
@@ -97,29 +100,22 @@ public class DefaultFeatureCollection extends BaseFeatureCollection {
      * @param id may be null ... feature id
      * @param featureType optional, may be null
      */
-    public DefaultFeatureCollection(String id, SimpleFeatureType featureType) {
-    	super(id,featureType == null ? new SimpleFeatureTypeImpl(new NameImpl(FeatureTypes.DEFAULT_NAMESPACE.toString(),"AbstractFeatureType"), Collections.EMPTY_LIST, null, false, Collections.EMPTY_LIST,null,null ) : featureType );
-    	        
-    	
-//    	this.id = id;
-//    	if(featureType == null){
-//    		List ats = new LinkedList();
-//    		ats.add(new FeatureAttributeType("_Feature",new DefaultFeatureType("AbstractFeatureType",FeatureTypes.DEFAULT_NAMESPACE,new LinkedList(),new LinkedList(),null),false));
-//    		featureType = new DefaultFeatureType("AbstractFeatureCollectionType",FeatureTypes.DEFAULT_NAMESPACE,ats,new LinkedList(),null);
-//    	}
-//    	this.featureType = featureType;
-        this.childType = null; // no children yet
+    public DefaultFeatureCollection(String id, SimpleFeatureType memberType) {
+    	this.id = id == null ? "featureCollection" : id;
+        this.schema = memberType;    	
     }
-//    private FeatureType featureType;
-    private SimpleFeatureType childType;
 
-    public SimpleFeatureType getSchema() {
-        if ( childType != null ) {
-            return childType;
-        }
-    
-        return super.getSchema();
-    }
+    /**
+     * listeners
+     */
+    protected List listeners = new ArrayList();
+
+    /** 
+     * id used when serialized to gml
+     */
+    protected String id;
+
+    protected SimpleFeatureType schema;
     
     /**
      * Gets the bounding box for the features in this feature collection.
@@ -205,8 +201,8 @@ public class DefaultFeatureCollection extends BaseFeatureCollection {
         if( ID == null ) return false; // ID is required!
         if( contents.containsKey( ID ) ) return false; // feature all ready present
         
-        if( this.childType == null ) {
-        	this.childType = feature.getFeatureType(); 
+        if( this.schema == null ) {
+        	this.schema = feature.getFeatureType(); 
         }
         SimpleFeatureType childType = (SimpleFeatureType) getSchema();
 //        if ( childType==null ){
@@ -755,4 +751,26 @@ public class DefaultFeatureCollection extends BaseFeatureCollection {
 	}	
     public void validate() {        
     }
+
+    public String getID() {
+    	return id;
+    }
+
+    public final void addListener(CollectionListener listener) throws NullPointerException {
+    	listeners.add(listener);
+    }
+
+    public final void removeListener(CollectionListener listener)
+            throws NullPointerException {
+            	listeners.remove(listener);
+            }
+
+    public final void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
+        accepts( (org.opengis.feature.FeatureVisitor)visitor, (org.opengis.util.ProgressListener)progress);
+    }
+
+    public SimpleFeatureType getSchema() {
+    	return schema;
+    }
+
 }

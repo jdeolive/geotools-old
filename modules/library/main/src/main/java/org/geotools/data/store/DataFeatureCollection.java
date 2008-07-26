@@ -37,7 +37,6 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 
 import org.geotools.feature.IllegalAttributeException;
-import org.geotools.feature.collection.BaseFeatureCollection;
 import org.geotools.feature.collection.DelegateFeatureIterator;
 import org.geotools.feature.collection.SubFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -57,10 +56,11 @@ import com.vividsolutions.jts.geom.Geometry;
 /**
  * A starting point for implementing FeatureCollection's backed onto a FeatureReader.
  * <p>
- * The API you are required to implement is *identical* the the barebones FeatureResults interface:
+ * This implementation requires you to implement the following:
  * <ul>
- * <li>getSchema()
- * <li>reader()
+ * <li>getSchema() - this should match reader.getSchema()
+ * <li>reader()</br>
+ *     features() - override one of these two method to access content
  * <li>getBounds()
  * <li>getCount()
  * <li>collection()
@@ -76,7 +76,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @since 2.1.RC0
  * @source $URL$
  */
-public abstract class DataFeatureCollection extends BaseFeatureCollection {
+public abstract class DataFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
     
 	/** logger */
 	static Logger LOGGER = org.geotools.util.logging.Logging.getLogger( "org.geotools.data" );
@@ -98,7 +98,8 @@ public abstract class DataFeatureCollection extends BaseFeatureCollection {
     
     /** Subclass must think about what consitructors it needs. */
     protected DataFeatureCollection( String id, SimpleFeatureType memberType ){
-    	super(id,memberType);
+    	this.id = id == null ? "featureCollection" : id;
+        this.schema = memberType;
     }
     
     /**
@@ -129,9 +130,6 @@ public abstract class DataFeatureCollection extends BaseFeatureCollection {
     // 
     // To be implemented by subclass
     //    
-    public SimpleFeatureType getSchema() {
-    	return super.getSchema();
-    }
 
     public abstract ReferencedEnvelope getBounds();
 
@@ -166,6 +164,18 @@ public abstract class DataFeatureCollection extends BaseFeatureCollection {
     //
     /** Set of open resource iterators & featureIterators */
     private final Set open = new HashSet();
+
+    /**
+     * listeners
+     */
+    protected List listeners = new ArrayList();
+
+    /** 
+     * id used when serialized to gml
+     */
+    protected String id;
+
+    protected SimpleFeatureType schema;
     /**
      * FeatureIterator<SimpleFeature> is entirely based on iterator().
      * <p>
@@ -516,5 +526,22 @@ public abstract class DataFeatureCollection extends BaseFeatureCollection {
      */
     public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy2 order ){
     	return null;
-    }    
+    }
+    public String getID() {
+    	return id;
+    }
+    public final void addListener(CollectionListener listener) throws NullPointerException {
+    	listeners.add(listener);
+    }
+    public final void removeListener(CollectionListener listener)
+            throws NullPointerException {
+            	listeners.remove(listener);
+            }
+    public final void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
+        accepts( (org.opengis.feature.FeatureVisitor)visitor, (org.opengis.util.ProgressListener)progress);
+    }
+    public SimpleFeatureType getSchema() {
+    	return schema;
+    }
+ 
 }

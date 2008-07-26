@@ -17,14 +17,20 @@
 package org.geotools.feature.collection;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.collection.DelegateFeatureReader;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.visitor.FeatureVisitor;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.util.ProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -42,7 +48,7 @@ import org.opengis.filter.sort.SortBy;
  *
  * @source $URL$
  */
-public class SubFeatureCollection extends BaseFeatureCollection {
+public class SubFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
 	/** Filter */
     protected Filter filter;
     
@@ -51,14 +57,18 @@ public class SubFeatureCollection extends BaseFeatureCollection {
     //protected FeatureState state;
     protected FilterFactory ff = CommonFactoryFinder.getFilterFactory( null );
     
-    protected AbstractResourceCollection rc; 
+    protected AbstractResourceCollection rc;
+
+    /**
+     * listeners
+     */
+    protected List listeners = new ArrayList();
     
     public SubFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> collection ) {
         this( collection, Filter.INCLUDE );
     }
 	public SubFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> collection, Filter subfilter ){
-		super(null,collection.getSchema());
-		
+	    
 		if (subfilter == null ) subfilter = Filter.INCLUDE;		
 		if (subfilter.equals(Filter.EXCLUDE)) {
 			throw new IllegalArgumentException("A subcollection with Filter.EXCLUDE is a null operation");
@@ -250,4 +260,24 @@ public class SubFeatureCollection extends BaseFeatureCollection {
 	    collection.validate();
 	}
 	*/
+    public String getID() {
+    	return collection.getID();
+    }
+    public final void addListener(CollectionListener listener) throws NullPointerException {
+    	listeners.add(listener);
+    }
+    public final void removeListener(CollectionListener listener)
+            throws NullPointerException {
+            	listeners.remove(listener);
+            }
+    public final void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
+        accepts( (org.opengis.feature.FeatureVisitor)visitor, (org.opengis.util.ProgressListener)progress);
+    }
+    
+    /**
+     * Subclasses need to override this.
+     */
+    public ReferencedEnvelope getBounds() {
+    	throw new UnsupportedOperationException("subclasses should override");
+    }
 }

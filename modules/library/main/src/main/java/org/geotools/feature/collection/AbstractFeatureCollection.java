@@ -16,12 +16,19 @@
  */
 package org.geotools.feature.collection;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
+import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.visitor.FeatureVisitor;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
+import org.geotools.util.ProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -36,16 +43,27 @@ import org.opengis.filter.sort.SortBy;
  * </p>
  * @author Jody Garnett, Refractions Research Inc.
  */
-public abstract class AbstractFeatureCollection extends BaseFeatureCollection {
+public abstract class AbstractFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
     
 	AbstractResourceCollection<SimpleFeature> rc;
+    /**
+     * listeners
+     */
+    protected List listeners = new ArrayList();
+    /** 
+     * id used when serialized to gml
+     */
+    protected String id;
+    protected SimpleFeatureType schema;
 
 	protected AbstractFeatureCollection( SimpleFeatureType memberType ) {
-		super(null,memberType);
+	    this.id = id == null ? "featureCollection" : id;
+        this.schema = memberType;	      
 	}
 	
 	protected AbstractFeatureCollection( SimpleFeatureType memberType, AbstractResourceCollection rc ) {
-		super(null,memberType);
+		this.id = id == null ? "featureCollection" : id;
+        this.schema = memberType;
 		this.rc = rc;
 	}
 	
@@ -191,6 +209,34 @@ public abstract class AbstractFeatureCollection extends BaseFeatureCollection {
 
     public FeatureCollection<SimpleFeatureType, SimpleFeature> sort( SortBy order ) {
         return new SubFeatureList(this, order );
+    }
+
+    public String getID() {
+    	return id;
+    }
+
+    public final void addListener(CollectionListener listener) throws NullPointerException {
+    	listeners.add(listener);
+    }
+
+    public final void removeListener(CollectionListener listener)
+            throws NullPointerException {
+            	listeners.remove(listener);
+            }
+
+    public final void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
+        accepts( (org.opengis.feature.FeatureVisitor)visitor, (org.opengis.util.ProgressListener)progress);
+    }
+
+    public SimpleFeatureType getSchema() {
+    	return schema;
+    }
+
+    /**
+     * Subclasses need to override this.
+     */
+    public ReferencedEnvelope getBounds() {
+    	throw new UnsupportedOperationException("subclasses should override");
     }
     
 }

@@ -17,13 +17,17 @@
 package org.geotools.feature.collection;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
+import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
@@ -34,12 +38,14 @@ import org.opengis.util.ProgressListener;
 
 /**
  * Implement a feature collection just based on provision of iterator.
- * @author Jody Garnett, Refractions Research Inc
+ * 
+ * @author Jody Garnett (Refractions Research Inc)
  */
-public abstract class AdaptorFeatureCollection extends BaseFeatureCollection {
+public abstract class AdaptorFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
  
     public AdaptorFeatureCollection( String id, SimpleFeatureType memberType ) {
-        super( id, memberType );
+        this.id = id == null ? "featureCollection" : id;
+        this.schema = memberType;
     }
     
     //
@@ -431,6 +437,15 @@ public abstract class AdaptorFeatureCollection extends BaseFeatureCollection {
     //
     /** Set of open resource iterators */
     protected final Set open = new HashSet();
+    /**
+     * listeners
+     */
+    protected List listeners = new ArrayList();
+    /** 
+     * id used when serialized to gml
+     */
+    protected String id;
+    protected SimpleFeatureType schema;
 
     /**
      * Returns the set of open iterators.
@@ -559,5 +574,29 @@ public abstract class AdaptorFeatureCollection extends BaseFeatureCollection {
                 }
             }
         }
+    }
+
+    public String getID() {
+    	return id;
+    }
+
+    public final void addListener(CollectionListener listener) throws NullPointerException {
+    	listeners.add(listener);
+    }
+
+    public final void removeListener(CollectionListener listener) throws NullPointerException {
+    	listeners.remove(listener);
+    }
+
+
+    public SimpleFeatureType getSchema() {
+    	return schema;
+    }
+
+    /**
+     * Subclasses need to override this.
+     */
+    public ReferencedEnvelope getBounds() {
+    	throw new UnsupportedOperationException("subclasses should override");
     }
 }
