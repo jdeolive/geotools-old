@@ -23,7 +23,6 @@ import java.util.TreeMap;
 import org.geotools.feature.collection.AbstractFeatureCollection;
 import org.geotools.feature.collection.AbstractResourceCollection;
 
-import org.geotools.feature.collection.FeatureState;
 import org.geotools.feature.collection.RandomFeatureAccess;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;

@@ -33,7 +33,6 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
 import org.geotools.feature.collection.BaseFeatureCollection;
 import org.geotools.feature.collection.FeatureIteratorImpl;
-import org.geotools.feature.collection.FeatureState;
 import org.geotools.feature.collection.SubFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;

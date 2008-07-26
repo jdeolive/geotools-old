@@ -1014,6 +1014,13 @@ public class DataUtilities {
         }
         return list;
     }
+    /**
+     * Copies the feature ids from each and every feature into a set.
+     * <p>
+     * This method can be slurp an in memory record of the contents of a
+     * @param featureCollection
+     * @return
+     */
     public static Set<String> fidSet( FeatureCollection<?,?> featureCollection ){
         final HashSet<String> fids = new HashSet<String>();
         try {

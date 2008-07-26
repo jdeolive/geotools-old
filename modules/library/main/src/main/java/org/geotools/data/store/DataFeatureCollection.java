@@ -39,7 +39,6 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.collection.BaseFeatureCollection;
 import org.geotools.feature.collection.DelegateFeatureIterator;
-import org.geotools.feature.collection.FeatureState;
 import org.geotools.feature.collection.SubFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.visitor.FeatureVisitor;
