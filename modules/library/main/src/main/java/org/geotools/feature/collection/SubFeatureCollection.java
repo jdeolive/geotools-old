@@ -22,7 +22,6 @@ import java.util.Iterator;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.collection.DelegateFeatureReader;
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;

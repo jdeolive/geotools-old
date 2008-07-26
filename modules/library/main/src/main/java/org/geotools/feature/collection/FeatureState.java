@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -239,8 +238,8 @@ public abstract class FeatureState {
             }
         }
         finally {
-            if( stuff instanceof ResourceCollection){
-                ((ResourceCollection) stuff).close( iterator );
+            if( stuff instanceof AbstractResourceCollection){
+                ((AbstractResourceCollection) stuff).close( iterator );
             }
         }
         return fids;
@@ -258,8 +257,8 @@ public abstract class FeatureState {
 	        }
         }
         finally {
-            if( stuff instanceof ResourceCollection){
-                ((ResourceCollection) stuff).close( i );
+            if( stuff instanceof AbstractResourceCollection){
+                ((AbstractResourceCollection) stuff).close( i );
             }
         }
         return true;

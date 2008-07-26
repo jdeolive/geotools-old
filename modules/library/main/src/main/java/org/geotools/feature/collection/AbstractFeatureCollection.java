@@ -19,7 +19,6 @@ package org.geotools.feature.collection;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.util.NullProgressListener;

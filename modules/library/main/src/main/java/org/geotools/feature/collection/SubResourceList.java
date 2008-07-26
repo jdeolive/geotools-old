@@ -21,20 +21,16 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-import org.geotools.data.collection.ResourceCollection;
-import org.geotools.data.collection.ResourceList;
-
-
 /**
  * Simple SubList based on from, to index.
  * @source $URL$
  */
-public class SubResourceList extends AbstractResourceList implements ResourceCollection, List {
-	ResourceList collection;	
+public class SubResourceList extends AbstractResourceList implements List {
+    AbstractResourceList collection;	
 	int fromIndex;
 	int toIndex;
 	
-	public SubResourceList( ResourceList collection, int from, int to ){
+	public SubResourceList( AbstractResourceList collection, int from, int to ){
 		this.collection = collection;
 		this.fromIndex = from;
 		this.toIndex = to;

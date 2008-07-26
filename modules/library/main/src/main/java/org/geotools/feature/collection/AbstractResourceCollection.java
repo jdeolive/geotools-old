@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.FeatureCollection;
 
 /**
@@ -60,7 +59,7 @@ import org.geotools.feature.FeatureCollection;
  * @author Jody Garnett, Refractions Research, Inc.
  * @source $URL$
  */
-public abstract class AbstractResourceCollection<T> implements ResourceCollection<T> {
+public abstract class AbstractResourceCollection<T> {
 
 	protected AbstractResourceCollection() {
     }
@@ -252,8 +251,8 @@ public abstract class AbstractResourceCollection<T> implements ResourceCollectio
 			}
 		}
 		finally {
-			if( c instanceof ResourceCollection){
-				ResourceCollection other = (ResourceCollection) c;
+			if( c instanceof AbstractResourceCollection){
+			    AbstractResourceCollection other = (AbstractResourceCollection) c;
 				other.close( e );
 			}
 		}
@@ -300,8 +299,8 @@ public abstract class AbstractResourceCollection<T> implements ResourceCollectio
 			return modified;
 		}
 		finally {
-		    if( c instanceof ResourceCollection){
-                ResourceCollection other = (ResourceCollection) c;
+		    if( c instanceof AbstractResourceCollection){
+		        AbstractResourceCollection other = (AbstractResourceCollection) c;
                 other.close( e );
             }
 		}
@@ -334,8 +333,8 @@ public abstract class AbstractResourceCollection<T> implements ResourceCollectio
 			return modified;
 		}
 		finally {
-		    if( c instanceof ResourceCollection){
-                ResourceCollection other = (ResourceCollection) c;
+		    if( c instanceof AbstractResourceCollection){
+		        AbstractResourceCollection other = (AbstractResourceCollection) c;
                 other.close( e );
             }
 		}

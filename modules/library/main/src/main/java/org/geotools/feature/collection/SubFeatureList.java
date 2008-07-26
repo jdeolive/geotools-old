@@ -27,7 +27,6 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.geotools.data.collection.ResourceList;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
@@ -181,31 +180,31 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
 
     
     public void add(int index, Object element) {
-		((ResourceList)rc).add(index,element);
+		((AbstractResourceList)rc).add(index,element);
 	}
 	public boolean addAll(int index, Collection c) {
-		return ((ResourceList)rc).addAll(index,c);
+		return ((AbstractResourceList)rc).addAll(index,c);
 	}
 	public Object get(int index) {
-		return ((ResourceList)rc).get(index);
+		return ((AbstractResourceList)rc).get(index);
 	}
 	public int indexOf(Object o) {
-		return ((ResourceList)rc).indexOf(o);
+		return ((AbstractResourceList)rc).indexOf(o);
 	}
 	public int lastIndexOf(Object o) {
-		return ((ResourceList)rc).lastIndexOf(o);
+		return ((AbstractResourceList)rc).lastIndexOf(o);
 	}
 	public ListIterator listIterator() {
-		return ((ResourceList)rc).listIterator();
+		return ((AbstractResourceList)rc).listIterator();
 	}
 	public ListIterator listIterator(int index) {
-		return ((ResourceList)rc).listIterator(index);
+		return ((AbstractResourceList)rc).listIterator(index);
 	}
 	public Object remove(int index) {
-		return ((ResourceList)rc).remove(index);
+		return ((AbstractResourceList)rc).remove(index);
 	}
 	public Object set(int index, Object element) {
-		return ((ResourceList)rc).set(index, element);
+		return ((AbstractResourceList)rc).set(index, element);
 	}
 	//
     // Fature Collection methods

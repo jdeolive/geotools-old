@@ -44,7 +44,6 @@ import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import org.geotools.data.collection.CollectionDataStore;
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -1015,18 +1014,18 @@ public class DataUtilities {
         }
         return list;
     }
-    public static <T> List<T> list( ResourceCollection<T> resourceCollection ){
-        final ArrayList<T> list = new ArrayList<T>();
-        Iterator<T> i = resourceCollection.iterator();
+    public static Set<String> fidSet( FeatureCollection<?,?> featureCollection ){
+        final HashSet<String> fids = new HashSet<String>();
         try {
-            while( i.hasNext() ){
-                list.add( i.next() );
-            }
+            featureCollection.accepts( new FeatureVisitor(){
+                public void visit(Feature feature) {
+                    fids.add( feature.getIdentifier().getID() );
+                }            
+            }, null );
         }
-        finally {
-            resourceCollection.close( i );
+        catch( IOException ignore ){
         }
-        return list;
+        return fids;
     }
     /**
      * Copies the provided features into a FeatureCollection.

@@ -31,7 +31,6 @@ import java.util.TreeMap;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.collection.BaseFeatureCollection;
 import org.geotools.feature.collection.FeatureIteratorImpl;
 import org.geotools.feature.collection.FeatureState;

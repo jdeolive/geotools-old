@@ -26,7 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.geotools.data.DataUtilities;
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;

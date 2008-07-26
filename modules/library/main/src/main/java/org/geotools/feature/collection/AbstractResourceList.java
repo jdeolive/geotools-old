@@ -25,9 +25,6 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
-import org.geotools.data.collection.ResourceCollection;
-import org.geotools.data.collection.ResourceList;
-
 /**
  * Starter for resource based list implementations.
  * <p>
@@ -57,8 +54,7 @@ import org.geotools.data.collection.ResourceList;
  * @source $URL$
  */
 
-public abstract class AbstractResourceList extends AbstractResourceCollection
-        implements ResourceList {
+public abstract class AbstractResourceList extends AbstractResourceCollection implements List {
 
     protected AbstractResourceList() {
     }
@@ -309,8 +305,8 @@ public abstract class AbstractResourceList extends AbstractResourceCollection
             }
             return modified;
         } finally {
-            if (c instanceof ResourceCollection) {
-                ((ResourceCollection) c).close(e);
+            if (c instanceof AbstractResourceCollection) {
+                ((AbstractResourceCollection) c).close(e);
             }
         }
     }
@@ -526,8 +522,8 @@ public abstract class AbstractResourceList extends AbstractResourceCollection
             return !(e1.hasNext() || e2.hasNext());
         } finally {
             close(e1);
-            if (o instanceof ResourceCollection) {
-                ((ResourceCollection) o).close(e2);
+            if (o instanceof AbstractResourceCollection) {
+                ((AbstractResourceCollection) o).close(e2);
             }
         }
     }
@@ -583,7 +579,7 @@ public abstract class AbstractResourceList extends AbstractResourceCollection
 
 }
 
-class SubList extends AbstractResourceList implements ResourceList {
+class SubList extends AbstractResourceList {
 
     private final class SubListIterator implements ListIterator {
         private ListIterator i;

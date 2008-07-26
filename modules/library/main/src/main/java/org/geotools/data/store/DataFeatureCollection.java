@@ -24,13 +24,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.collection.DelegateFeatureReader;
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
@@ -379,8 +379,8 @@ public abstract class DataFeatureCollection extends BaseFeatureCollection {
     }
 
     public boolean containsAll( Collection<?> collection ) {
-        if( collection instanceof ResourceCollection ){
-            return containsAll( (ResourceCollection<?>) collection );
+        if( collection instanceof FeatureCollection ){
+            return containsAll( (FeatureCollection<?,?>) collection );
         }
         try {
             FeatureReader reader = reader();
@@ -401,7 +401,9 @@ public abstract class DataFeatureCollection extends BaseFeatureCollection {
         return true;
     }
     
-    public boolean containsAll(ResourceCollection<?> resource) {
+    public boolean containsAll(FeatureCollection<?,?> resource) {
+        Set<String> fids = new HashSet<String>();
+        
         // should do something smart with ID here
         return false;
     }

@@ -54,7 +54,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
 import org.geotools.data.memory.CollectionSource;
 import org.geotools.factory.CommonFactoryFinder;
@@ -62,6 +61,7 @@ import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.collection.AbstractResourceCollection;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.Decimator;
@@ -1607,8 +1607,8 @@ public final class StreamingRenderer implements GTRenderer {
 				}
 			}
 		} finally {
-            if( collection instanceof ResourceCollection ){
-                ResourceCollection resource = (ResourceCollection ) collection;
+            if( collection instanceof FeatureCollection ){
+                FeatureCollection resource = (FeatureCollection ) collection;
                 resource.close( iterator );
             }
 		}

@@ -32,7 +32,6 @@ import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;

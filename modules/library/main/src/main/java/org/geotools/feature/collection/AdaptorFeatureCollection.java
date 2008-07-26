@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.geotools.data.collection.ResourceCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.util.NullProgressListener;
@@ -297,14 +296,14 @@ public abstract class AdaptorFeatureCollection extends BaseFeatureCollection {
             }
         }
         finally {
-            if( c instanceof ResourceCollection){
-                ResourceCollection other = (ResourceCollection) c;
+            if( c instanceof AbstractResourceCollection){
+                AbstractResourceCollection other = (AbstractResourceCollection) c;
                 other.close( e );
             }
         }
         return modified;
     }
-    public boolean addAll(ResourceCollection c) {
+    public boolean addAll(AbstractResourceCollection c) {
         boolean modified = false;
         Iterator<SimpleFeature> e = c.iterator();
         try {
