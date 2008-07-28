@@ -61,7 +61,6 @@ import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
-import org.geotools.feature.collection.AbstractResourceCollection;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.Decimator;

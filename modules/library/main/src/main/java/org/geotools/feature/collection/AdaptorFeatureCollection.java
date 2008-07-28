@@ -302,14 +302,14 @@ public abstract class AdaptorFeatureCollection implements FeatureCollection<Simp
             }
         }
         finally {
-            if( c instanceof AbstractResourceCollection){
-                AbstractResourceCollection other = (AbstractResourceCollection) c;
+            if( c instanceof FeatureCollection){
+                FeatureCollection other = (FeatureCollection) c;
                 other.close( e );
             }
         }
         return modified;
     }
-    public boolean addAll(AbstractResourceCollection c) {
+    public boolean addAll(FeatureCollection c) {
         boolean modified = false;
         Iterator<SimpleFeature> e = c.iterator();
         try {

@@ -409,8 +409,8 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
             return modified;
         }
         finally {
-            if( c instanceof AbstractResourceCollection){
-                AbstractResourceCollection other = (AbstractResourceCollection) c;
+            if( c instanceof FeatureCollection){
+                FeatureCollection other = (FeatureCollection) c;
                 other.close( e );
             }
         }
@@ -443,8 +443,8 @@ public abstract class AbstractFeatureCollection implements FeatureCollection<Sim
             return modified;
         }
         finally {
-            if( c instanceof AbstractResourceCollection){
-                AbstractResourceCollection other = (AbstractResourceCollection) c;
+            if( c instanceof FeatureCollection){
+                FeatureCollection other = (FeatureCollection) c;
                 other.close( e );
             }
         }

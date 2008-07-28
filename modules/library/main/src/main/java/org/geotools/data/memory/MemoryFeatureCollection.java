@@ -21,7 +21,6 @@ import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 import org.geotools.feature.collection.AbstractFeatureCollection;
-import org.geotools.feature.collection.AbstractResourceCollection;
 
 import org.geotools.feature.collection.RandomFeatureAccess;
 import org.opengis.feature.simple.SimpleFeature;
