@@ -1024,24 +1024,6 @@
 
 
       <!-- ======================================================= -->
-      <!--     Checks compliance with GeoTools conventions.        -->
-      <!-- ======================================================= -->
-      <plugin>
-        <groupId>org.geotools.maven</groupId>
-        <artifactId>verifier</artifactId>
-        <version>${project.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-
-
-      <!-- ======================================================= -->
       <!--     JAR packaging.                                      -->
       <!-- ======================================================= -->
       <plugin>
