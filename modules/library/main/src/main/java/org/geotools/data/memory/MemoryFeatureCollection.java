@@ -47,33 +47,27 @@ public class MemoryFeatureCollection extends AbstractFeatureCollection implement
     
     public MemoryFeatureCollection( SimpleFeatureType schema ){
         super( schema );
-        setResourceCollection(
-    		new AbstractResourceCollection() {
-    			public boolean add( Object o ) {
-    		        SimpleFeature feature = (SimpleFeature) o;
-    		        contents.put( feature.getID(), feature );
-    		        return true;
-    			}
-    		    
-			  public int size() {
-			        return contents.size();
-			  }
-
-			  public Iterator openIterator() {
-			        return new MemoryIterator( contents.values().iterator() );
-			  }
-
-			  public void closeIterator( Iterator close ) {
-			        if( close == null ) return;
-			        
-			        MemoryIterator it = (MemoryIterator) close;
-			        it.close();
-			  }
-    	   }
-		);
     }
-    
-    
+    public boolean add(SimpleFeature o) {
+        SimpleFeature feature = (SimpleFeature) o;
+        contents.put( feature.getID(), feature );
+        return true;
+	}
+        
+      public int size() {
+            return contents.size();
+      }
+	  public Iterator openIterator() {
+	        return new MemoryIterator( contents.values().iterator() );
+	  }
+
+	  public void closeIterator( Iterator close ) {
+	        if( close == null ) return;
+	        
+	        MemoryIterator it = (MemoryIterator) close;
+	        it.close();
+	  }
+        
     class MemoryIterator implements Iterator {
         Iterator it;
         MemoryIterator( Iterator iterator ){

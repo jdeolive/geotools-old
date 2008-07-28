@@ -51,6 +51,11 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.identity.FeatureId;
 
+/**
+ * A FeatureCollection that completly delegates to a backing FetaureSource.
+ * 
+ * @author Jody Garnett (Refractions Research, Inc.)
+ */
 public class ContentFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
     
     /**

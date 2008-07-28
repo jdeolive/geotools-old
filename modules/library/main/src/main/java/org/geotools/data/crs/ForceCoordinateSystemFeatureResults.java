@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.collection.AbstractFeatureCollection;
@@ -61,8 +62,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @version $Id$
  */
 public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollection {
+    
     FeatureCollection<SimpleFeatureType, SimpleFeature> results;
-    //FeatureType schema;
     
     public ForceCoordinateSystemFeatureResults(FeatureCollection<SimpleFeatureType, SimpleFeature> results,
             CoordinateReferenceSystem forcedCS) throws IOException, SchemaException {
@@ -74,7 +75,6 @@ public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollecti
         super( forceType( origionalType( results ), forcedCS, forceOnlyMissing ));
         
         this.results = results;
-        setResourceCollection(createResourceCollection());
     }
     
     private static SimpleFeatureType origionalType( FeatureCollection<SimpleFeatureType, SimpleFeature> results ){
@@ -90,27 +90,20 @@ public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollecti
         return results.getSchema();
     }
     
-    private AbstractResourceCollection createResourceCollection() {
-    	return new AbstractResourceCollection() {
-
-    		 public Iterator openIterator() {
-			        return new ForceCoordinateSystemIterator( results.features(), getSchema() );
-			  }
-			  
-			  public void closeIterator( Iterator close ) {
-				  	if( close == null ) return;
-			        if( close instanceof ForceCoordinateSystemIterator){
-			            ForceCoordinateSystemIterator iterator = (ForceCoordinateSystemIterator) close;
-			            iterator.close();
-			        }
-			  }
-				
-			  public int size() {
-			        return results.size();
-			  }
-    		
-    	};
-    }
+	 public Iterator openIterator() {
+	        return new ForceCoordinateSystemIterator( results.features(), getSchema() );
+	  }
+	 public void closeIterator( Iterator close ) {
+		  	if( close == null ) return;
+	        if( close instanceof ForceCoordinateSystemIterator){
+	            ForceCoordinateSystemIterator iterator = (ForceCoordinateSystemIterator) close;
+	            iterator.close();
+	        }
+	  }
+		
+	  public int size() {
+	        return results.size();
+	  }
     
     private static SimpleFeatureType forceType( SimpleFeatureType startingType, CoordinateReferenceSystem forcedCS, boolean forceOnlyMissing ) throws SchemaException{
         if (forcedCS == null) {

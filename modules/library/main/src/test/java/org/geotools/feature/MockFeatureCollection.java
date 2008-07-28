@@ -44,7 +44,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/library/main/src/test/java/org/geotools/feature/MockFeatureCollection.java $
  */
-public class MockFeatureCollection implements org.geotools.feature.FeatureCollection<SimpleFeatureType, SimpleFeature> {
+public class MockFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
 
     /** Creates a new instance of MockFeatureCollection */
     public MockFeatureCollection() {

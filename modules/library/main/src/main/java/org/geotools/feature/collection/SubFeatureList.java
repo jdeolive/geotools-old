@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 
@@ -43,7 +45,7 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
     List<SortBy> sort; 
     
     /** List of FeatureIDs in sorted order */
-    List<String> index;
+    List<FeatureId> index;
     
     public SubFeatureList(FeatureCollection<SimpleFeatureType, SimpleFeature> list, Filter filter){
         this( list, filter, SortBy.NATURAL_ORDER );
@@ -80,44 +82,41 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
         filter = null;
     }
     
-    AbstractResourceCollection createResourceCollection() {
-    	return new DefaultResourceList(
-    		new DefaultResourceList.Strategy() {
-
-    			 public Object get( int index ) {
-    			        if( collection instanceof RandomFeatureAccess){
-    			            RandomFeatureAccess random = (RandomFeatureAccess) collection;
-    			            String id = (String) index().get( index );            
-    			            random.getFeatureMember( id );
-    			        }
-    			        Iterator it = iterator();
-    			        try {
-    			            for( int i=0; it.hasNext(); i++){
-    			                SimpleFeature feature = (SimpleFeature) it.next();
-    			                if( i == index ){
-    			                    return feature;
-    			                }
-    			            }
-    			            throw new IndexOutOfBoundsException();
-    			        }
-    			        finally {
-    			            close( it );
-    			        }
-    			    }
-    			 
-				public int size() {
-					return 0;
-				}
-    			
-    		}
-    	);
+    /**
+     * item at the specified index.
+     * 
+     * @param index
+     *            index of item
+     * @return the item at the specified index.
+     * @throws IndexOutOfBoundsException
+     *             if index is not between 0 and size
+     */
+    public SimpleFeature get( int position ) {
+        if( collection instanceof RandomFeatureAccess){
+            RandomFeatureAccess random = (RandomFeatureAccess) collection;
+            FeatureId fid = index().get( position);
+            return random.getFeatureMember( fid.getID() );
+        }
+        Iterator<SimpleFeature> it = iterator();
+        try {
+            for( int i=0; it.hasNext(); i++){
+                SimpleFeature feature = (SimpleFeature) it.next();
+                if( i == position ){
+                    return feature;
+                }
+            }
+            throw new IndexOutOfBoundsException();
+        }
+        finally {
+            close( it );
+        }
     }
-    
+    			 			    
     /** Lazy create a filter based on index */
     protected Filter createFilter() {
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
         Set featureIds = new HashSet();
-        for(Iterator it = index.iterator(); it.hasNext();){
+        for(Iterator it = index().iterator(); it.hasNext();){
            featureIds.add(ff.featureId((String) it.next())); 
         }
         Id fids = ff.id(featureIds);
@@ -125,7 +124,7 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
         return fids;
     }
     
-    protected List index(){
+    protected List<FeatureId> index(){
         if( index == null ){
             index = createIndex();
         }
@@ -133,22 +132,22 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
     }
 
     /** Put this SubFeatureList in touch with its inner index */
-    protected List<String> createIndex(){
-        List<String> fids = new ArrayList<String>();        
+    protected List<FeatureId> createIndex(){
+        List<FeatureId> fids = new ArrayList<FeatureId>();        
         Iterator<SimpleFeature> it = collection.iterator();
         try {            
             while( it.hasNext() ){
                 SimpleFeature feature = it.next();
                 if( filter.evaluate(feature ) ){
-                    fids.add( feature.getID() );
+                    fids.add( feature.getIdentifier() );
                 }
             }
             if( sort != null && !sort.isEmpty()){
                 final SortBy initialOrder = (SortBy) sort.get( sort.size() -1 );                
-                Collections.sort( fids, new Comparator<String>(){
-                    public int compare( String key1, String key2 ) {
-                        SimpleFeature feature1 = getFeatureMember( key1 );
-                        SimpleFeature feature2 = getFeatureMember( key2 );
+                Collections.sort( fids, new Comparator<FeatureId>(){
+                    public int compare( FeatureId key1, FeatureId key2 ) {
+                        SimpleFeature feature1 = getFeatureMember( key1.getID() );
+                        SimpleFeature feature2 = getFeatureMember( key2.getID() );
                         
                         int compare = compare( feature1, feature2, initialOrder );
                         if( compare == 0 && sort.size() > 1 ){
@@ -178,36 +177,45 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
         return fids;
     }
 
+    /**
+     * Appends element.
+     * <p>
+     * This implementation calls <tt>add(size(), o)</tt>.
+     * <p>
+     * Note that this implementation throws an
+     * <tt>UnsupportedOperationException</tt> unless <tt>add(int, Object)</tt>
+     * is overridden.
+     * 
+     * @param item
+     *            the Object element to be appended to this list.
+     * @return <tt>true</tt> (as per the general contract of
+     *         <tt>Collection.add</tt>).
+     * @throws UnsupportedOperationException
+     *             if the <tt>add</tt> method is not supported by this Set.
+     * @throws ClassCastException
+     *             if the class of the specified element prevents it from being
+     *             added to this set.
+     * @throws IllegalArgumentException
+     *             some aspect of this element prevents it from being added to
+     *             this collection.
+     */
+    public boolean add(SimpleFeature feature) {
+        boolean added = collection.add( feature );
+        if( added ){
+            index().add( feature.getIdentifier() );
+        }
+        return true;
+    }
     
-    public void add(int index, Object element) {
-		((AbstractResourceList)rc).add(index,element);
+	public int indexOf(SimpleFeature feature) {
+	    return index().indexOf( feature.getIdentifier() );
 	}
-	public boolean addAll(int index, Collection c) {
-		return ((AbstractResourceList)rc).addAll(index,c);
+	public int lastIndexOf(SimpleFeature feature) {
+	    return index().lastIndexOf( feature.getIdentifier() );
 	}
-	public Object get(int index) {
-		return ((AbstractResourceList)rc).get(index);
-	}
-	public int indexOf(Object o) {
-		return ((AbstractResourceList)rc).indexOf(o);
-	}
-	public int lastIndexOf(Object o) {
-		return ((AbstractResourceList)rc).lastIndexOf(o);
-	}
-	public ListIterator listIterator() {
-		return ((AbstractResourceList)rc).listIterator();
-	}
-	public ListIterator listIterator(int index) {
-		return ((AbstractResourceList)rc).listIterator(index);
-	}
-	public Object remove(int index) {
-		return ((AbstractResourceList)rc).remove(index);
-	}
-	public Object set(int index, Object element) {
-		return ((AbstractResourceList)rc).set(index, element);
-	}
+	
 	//
-    // Fature Collection methods
+    // Feature Collection methods
     //
     /**
      * Sublist of this sublist!
@@ -217,7 +225,13 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
      * </p>
      */
     public FeatureCollection<SimpleFeatureType, SimpleFeature> subList(Filter subfilter) {
-        return new SubFeatureCollection( this, subfilter );
+        if (filter.equals(Filter.INCLUDE)) {
+            return this;
+        }
+        if (filter.equals(Filter.EXCLUDE)) {
+            // TODO implement EmptyFeatureCollection( schema )
+        }        
+        return new SubFeatureList(collection, ff.and( filter, subfilter), sort.get(0) );
     }
     //
     // RandomFeatureAccess
@@ -235,15 +249,68 @@ public class SubFeatureList extends SubFeatureCollection implements RandomFeatur
         return (SimpleFeature) get( position );
     }
     public SimpleFeature removeFeatureMember( String id ) {
-        int position = index.indexOf( id );
+        int position = index.indexOf( ff.featureId(id) );
         if( position == -1){
             throw new NoSuchElementException(id);
         }        
         if( collection instanceof RandomFeatureAccess ){
             RandomFeatureAccess random = (RandomFeatureAccess) collection;
-            if( index != null ) index.remove( id );            
+            if( index != null ) index.remove( id );
             return random.removeFeatureMember( id );            
         }
         return (SimpleFeature) remove( position );
-    }   
+    }
+    public SimpleFeature remove( int position ){
+        if( collection instanceof RandomFeatureAccess){
+            RandomFeatureAccess random = (RandomFeatureAccess) collection;
+            FeatureId fid = index().get( position );
+            return random.removeFeatureMember( fid.getID() );
+        }
+        Iterator<SimpleFeature> it = iterator();
+        try {
+            for( int i=0; it.hasNext(); i++){
+                SimpleFeature feature = (SimpleFeature) it.next();
+                if( i == position ){
+                    collection.remove( feature );                    
+                    return feature;
+                }
+            }
+            throw new IndexOutOfBoundsException();
+        }
+        finally {
+            close( it );
+        }
+    }    
+    
+    /**
+     * Returns a quick iterator that uses get and size methods.
+     * <p>
+     * As with all resource collections it is assumed that the iterator will be
+     * closed after use.
+     * </p>
+     * 
+     * @return an iterator over the elements in this list in proper sequence.
+     * @see #modCount
+     */
+    public Iterator<SimpleFeature> openIterator() {
+        return new SortedIteratory();
+    }
+    
+    private class SortedIteratory implements Iterator<SimpleFeature> {
+        Iterator<FeatureId> iterator = index().iterator();
+        String id;
+        public boolean hasNext() {
+            return iterator != null && iterator.hasNext();
+        }
+        public SimpleFeature next() {
+            FeatureId fid = iterator.next();
+            id = fid.getID();
+            return getFeatureMember( id );
+        }
+        public void remove() {
+            removeFeatureMember(id);
+        }
+
+    }
+
 }

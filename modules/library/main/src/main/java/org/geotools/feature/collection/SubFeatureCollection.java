@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.collection.DelegateFeatureReader;
 import org.geotools.factory.CommonFactoryFinder;
@@ -48,32 +50,25 @@ import org.opengis.filter.sort.SortBy;
  *
  * @source $URL$
  */
-public class SubFeatureCollection implements FeatureCollection<SimpleFeatureType, SimpleFeature> {
-	/** Filter */
+public class SubFeatureCollection extends AbstractFeatureCollection {
+    
+    /** Filter */
     protected Filter filter;
     
-    /** Origional Collection */
-	protected FeatureCollection<SimpleFeatureType, SimpleFeature> collection;    
-    //protected FeatureState state;
+    /** Original Collection */
+	protected FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+	
     protected FilterFactory ff = CommonFactoryFinder.getFilterFactory( null );
-    
-    protected AbstractResourceCollection rc;
-
-    /**
-     * listeners
-     */
-    protected List listeners = new ArrayList();
-    
+        
     public SubFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> collection ) {
         this( collection, Filter.INCLUDE );
     }
 	public SubFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> collection, Filter subfilter ){
-	    
-		if (subfilter == null ) subfilter = Filter.INCLUDE;		
+	    super( collection.getSchema() );	    
+		if (subfilter == null ) subfilter = Filter.INCLUDE;
 		if (subfilter.equals(Filter.EXCLUDE)) {
-			throw new IllegalArgumentException("A subcollection with Filter.EXCLUDE is a null operation");
-		}
-		
+			throw new IllegalArgumentException("A subcollection with Filter.EXCLUDE would be empty");
+		}		
         if( collection instanceof SubFeatureCollection){
 			SubFeatureCollection filtered = (SubFeatureCollection) collection;
 			if( subfilter.equals(Filter.INCLUDE)){
@@ -88,38 +83,31 @@ public class SubFeatureCollection implements FeatureCollection<SimpleFeatureType
 			this.collection = collection;
 			this.filter = subfilter;
 		}
-        
-        rc = createResourceCollection();
     }
 	
-	AbstractResourceCollection createResourceCollection() {
-		return new AbstractResourceCollection() {
-			public Iterator openIterator() {
-    			return new FilteredIterator<SimpleFeature>( collection, filter() );
-    		}
+	public Iterator openIterator() {
+		return new FilteredIterator<SimpleFeature>( collection, filter() );
+	}
 
-    		public void closeIterator(Iterator iterator) {
-    			if( iterator == null ) return;
-    			
-    			if( iterator instanceof FilteredIterator){
-    				FilteredIterator filtered = (FilteredIterator) iterator;			
-    				filtered.close();
-    			}
-    		}
+	public void closeIterator(Iterator iterator) {
+		if( iterator == null ) return;
+		
+		if( iterator instanceof FilteredIterator){
+			FilteredIterator filtered = (FilteredIterator) iterator;			
+			filtered.close();
+		}
+	}
     		
-    		public int size() {
-    			int count = 0;
-    			Iterator i = null;		
-    			try {
-    				for( i = iterator(); i.hasNext(); count++) i.next();
-    			}
-    			finally {
-    				close( i );
-    			}
-    			return count;
-    		}
-			
-		};
+	public int size() {
+		int count = 0;
+		Iterator i = null;		
+		try {
+			for( i = iterator(); i.hasNext(); count++) i.next();
+		}
+		finally {
+			close( i );
+		}
+		return count;
 	}
     
 	protected Filter filter(){
@@ -128,6 +116,7 @@ public class SubFeatureCollection implements FeatureCollection<SimpleFeatureType
         }
         return filter;
     }
+	
     /** Override to implement subsetting */
     protected Filter createFilter(){
         return Filter.INCLUDE;
@@ -135,7 +124,7 @@ public class SubFeatureCollection implements FeatureCollection<SimpleFeatureType
     
 	public FeatureIterator<SimpleFeature> features() {
 		return new DelegateFeatureIterator<SimpleFeature>( this, iterator() );		
-	}	
+	}
 	
 	
 	public void close(FeatureIterator<SimpleFeature> close) {
@@ -166,11 +155,6 @@ public class SubFeatureCollection implements FeatureCollection<SimpleFeatureType
 		}
 	}
 	
-
-	public SimpleFeatureType getSchema() {
-        return collection.getSchema();
-	}
-
 	public void accepts(org.opengis.feature.FeatureVisitor visitor, org.opengis.util.ProgressListener progress) {
 		Iterator iterator = null;
         // if( progress == null ) progress = new NullProgressListener();
@@ -194,90 +178,38 @@ public class SubFeatureCollection implements FeatureCollection<SimpleFeatureType
         }
 	}	
 
-	public  FeatureReader<SimpleFeatureType, SimpleFeature> reader() throws IOException {
-		return new DelegateFeatureReader<SimpleFeatureType, SimpleFeature>( getSchema(), features() );
-	}
-
-	public int getCount() throws IOException {
-		return size();
-	}
-
-	public FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException {
-		return this;
-	}
-
 	public FeatureCollection<SimpleFeatureType, SimpleFeature> sort(SortBy order) {
-		return null;
+		return new SubFeatureList( collection, filter, order );
 	}
-
-	public void purge() {
-		collection.purge();
-	}
-	public void close(Iterator close) {
-		rc.close(close);
-	}
-	public Iterator iterator() {
-		return rc.iterator();
-	}
+	
 	public boolean add(SimpleFeature o) {
-		return rc.add(o); 
+		return collection.add(o); 
 	}
-    public boolean addAll(Collection c) {
-		return rc.addAll(c);
-	}
-    public boolean addAll(FeatureCollection c) {
-        return rc.addAll(c);
-    }
+	
 	public void clear() {
-		rc.clear();
+		List toDelete = DataUtilities.list( this );
+		removeAll( toDelete );
 	}
-	public boolean contains(Object o) {
-		return rc.contains(o);
-	}
-	public boolean containsAll(Collection c) {
-		return rc.containsAll(c);
-	}
+			
 	public boolean remove(Object o) {
-		return rc.remove(o);
+		return collection.remove( o );
 	}
-	public boolean removeAll(Collection c) {
-		return rc.removeAll(c);
-	}
-	public boolean retainAll(Collection c) {
-		return rc.retainAll(c);
-	}
-	public int size() {
-		return rc.size();
-	}
-	public Object[] toArray() {
-		return rc.toArray();
-	}
-	public Object[] toArray(Object[] a) {
-		return rc.toArray(a);
-	}
-	/*
-	public void validate() {
-	    collection.validate();
-	}
-	*/
+	
     public String getID() {
     	return collection.getID();
     }
-    public final void addListener(CollectionListener listener) throws NullPointerException {
-    	listeners.add(listener);
+
+    // extra methods
+    public FeatureReader<SimpleFeatureType, SimpleFeature> reader() throws IOException {
+        return new DelegateFeatureReader<SimpleFeatureType, SimpleFeature>( getSchema(), features() );
     }
-    public final void removeListener(CollectionListener listener)
-            throws NullPointerException {
-            	listeners.remove(listener);
-            }
-    public final void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
-        accepts( (org.opengis.feature.FeatureVisitor)visitor, (org.opengis.util.ProgressListener)progress);
+
+    public int getCount() throws IOException {
+        return size();
     }
-    
-    /**
-     * Subclasses need to override this.
-     */
-    public ReferencedEnvelope getBounds() {
-    	throw new UnsupportedOperationException("subclasses should override");
+
+    public FeatureCollection<SimpleFeatureType, SimpleFeature> collection() throws IOException {
+        return this;
     }
+
 }

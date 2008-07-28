@@ -94,9 +94,8 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
         CoordinateReferenceSystem destinationCS)
         throws IOException, SchemaException, TransformException, OperationNotFoundException, NoSuchElementException, FactoryException {
         
-        super( forceType( origionalType( results ), destinationCS ) );
-                        
-        this.results = origionalCollection( results );        
+        super( forceType( origionalType( results ), destinationCS ) );                        
+        this.results = origionalCollection( results );
         
         CoordinateReferenceSystem originalCs = null;
         if(results instanceof ForceCoordinateSystemFeatureResults)
@@ -104,28 +103,23 @@ public class ReprojectFeatureResults extends AbstractFeatureCollection {
         else
             originalCs = this.results.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
         this.transform = CRS.findMathTransform(originalCs,destinationCS, true);
-        setResourceCollection(createResourceCollection());
     }
     
-    private AbstractResourceCollection createResourceCollection() {
-    	return new AbstractResourceCollection() {
-    		public Iterator openIterator() {
-			        return new ReprojectFeatureIterator( results.features(), getSchema(), transform );
- 			 }
+	public Iterator openIterator() {
+	        return new ReprojectFeatureIterator( results.features(), getSchema(), transform );
+	 }
  			    
- 			 public void closeIterator( Iterator close ) {
-			        if( close == null ) return;
-			        if( close instanceof ReprojectFeatureIterator){
-			            ReprojectFeatureIterator iterator = (ReprojectFeatureIterator) close;
-			            iterator.close();
-			        }
-			    }
+	 public void closeIterator( Iterator close ) {
+	        if( close == null ) return;
+	        if( close instanceof ReprojectFeatureIterator){
+	            ReprojectFeatureIterator iterator = (ReprojectFeatureIterator) close;
+	            iterator.close();
+	        }
+	    }
  			 
-			    public int size() {
-			        return results.size();
-			    }
-    	};
-    }
+	    public int size() {
+	        return results.size();
+	    }
 
     private static FeatureCollection<SimpleFeatureType, SimpleFeature> origionalCollection( FeatureCollection<SimpleFeatureType, SimpleFeature> results ){
         while( true ){
