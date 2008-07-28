@@ -16,6 +16,7 @@
  */
 package org.geotools.gce.imagemosaic;
 
+import java.awt.RenderingHints;
 import java.util.Collections;
 import java.util.Map;
 
@@ -57,6 +58,7 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 	/**
 	 * @see GridFormatFactorySpi#createFormat().
 	 */
+	@SuppressWarnings("deprecation")
 	public Format createFormat() {
 		return new ImageMosaicFormat();
 	}
@@ -67,7 +69,7 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 	 * 
 	 * @return An empty map.
 	 */
-	public Map getImplementationHints() {
-		return Collections.EMPTY_MAP;
+	public Map<RenderingHints.Key, ?> getImplementationHints() {
+		return Collections.emptyMap();
 	}
 }

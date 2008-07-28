@@ -81,9 +81,10 @@ import org.opengis.parameter.ParameterDescriptor;
  * control the application of ROIs on the input images based on tresholding values. Basically using
  * the threshold you can ask the mosaic plugin to load or not certain pixels of the original images.</li>
  * 
- * @author Simone Giannecchini (simboss)
+ * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.3
  */
+@SuppressWarnings("deprecation")
 public final class ImageMosaicFormat extends AbstractGridFormat implements Format {
 
     /** Logger. */

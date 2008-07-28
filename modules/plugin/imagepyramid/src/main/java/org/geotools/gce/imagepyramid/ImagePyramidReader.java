@@ -48,6 +48,7 @@ import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.parameter.Parameter;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.util.SoftValueHashMap;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
@@ -57,6 +58,7 @@ import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -313,10 +315,15 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 			coverageName = properties.getProperty("Name");
 
 			// original gridrange (estimated)
-			originalGridRange = new GeneralGridRange(new Rectangle((int) Math
-					.round(originalEnvelope.getLength(0) / highestRes[0]),
-					(int) Math.round(originalEnvelope.getLength(1)
-							/ highestRes[1])));
+			originalGridRange = new GeneralGridRange(
+					new Rectangle(
+							(int) Math.round(originalEnvelope.getLength(0)/ highestRes[0]), 
+							(int) Math.round(originalEnvelope.getLength(1)/ highestRes[1])
+							)
+					);
+			final GridToEnvelopeMapper geMapper= new GridToEnvelopeMapper(originalGridRange,originalEnvelope);
+			geMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
+			raster2Model= geMapper.createTransform();			
 		} catch (IOException e) {
 			// close input stream
 			if (propertyStream != null)
