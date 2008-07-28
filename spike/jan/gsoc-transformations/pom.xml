@@ -100,7 +100,7 @@
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt2-metadata</artifactId>
-      <version>2.5-SNAPSHOT</version>
+      <version>2.6-SNAPSHOT</version>
     </dependency>
     <dependency>
 	    <groupId>junit</groupId>
@@ -113,38 +113,38 @@
      <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt2-image</artifactId>
-      <version>2.5-SNAPSHOT</version>
+      <version>2.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt2-coverage</artifactId>
-      <version>2.5-SNAPSHOT</version>
+      <version>2.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt2-api</artifactId>
-      <version>2.5-SNAPSHOT</version>
+      <version>2.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt2-main</artifactId>
-      <version>2.5-SNAPSHOT</version>
+      <version>2.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt2-sample-data</artifactId>
-      <version>2.5-SNAPSHOT</version>
+      <version>2.6-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
 	    <groupId>org.geotools</groupId>
 	    <artifactId>gt2-referencing</artifactId>
-	    <version>2.5-SNAPSHOT</version>	    
+	    <version>2.6-SNAPSHOT</version>	    
     </dependency>
     <dependency>
 	    <groupId>org.geotools</groupId>
 	    <artifactId>gt2-api</artifactId>
-	    <version>2.5-SNAPSHOT</version>
+	    <version>2.6-SNAPSHOT</version>
     </dependency>
 
     <dependency>

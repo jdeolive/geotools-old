@@ -178,23 +178,23 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
 		List artifacts = new ArrayList();
 		artifacts.add( 
 			artifactFactory.createArtifact( 
-				"org.geotools", "gt2-xml-gml2", "2.5-SNAPSHOT", "compile", "jar"
+				"org.geotools", "gt2-xml-gml2", "2.6-SNAPSHOT", "compile", "jar"
 
             )
 		);
 		artifacts.add( 
 			artifactFactory.createArtifact( 
-				"org.geotools", "gt2-xml-gml3", "2.5-SNAPSHOT", "compile", "jar"
+				"org.geotools", "gt2-xml-gml3", "2.6-SNAPSHOT", "compile", "jar"
 			) 
 		);
 		artifacts.add( 
 			artifactFactory.createArtifact( 
-				"org.geotools", "gt2-xml-filter", "2.5-SNAPSHOT", "compile", "jar"
+				"org.geotools", "gt2-xml-filter", "2.6-SNAPSHOT", "compile", "jar"
 			) 
 		);
 		artifacts.add( 
 			artifactFactory.createArtifact( 
-				"org.geotools", "gt2-xml-sld","2.5-SNAPSHOT", "compile", "jar"
+				"org.geotools", "gt2-xml-sld","2.6-SNAPSHOT", "compile", "jar"
 			) 
 		);
 	

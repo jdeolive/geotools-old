@@ -64,8 +64,8 @@ import org.geotools.console.Option;
  * <ol>
  *   <li>{@code cd root_of_checkout} (trunk/)</li>
  *   <li>{@code mvn clean install} (compile)</li>
- *   <li>{@code cp build/scm/cleanup/target/cleanup-2.5-SNAPSHOT.jar target/binaries/.}</li>
- *   <li>{@code java -jar target/binaries/cleanup-2.5-SNAPSHOT.jar -info -input "path/to/dir"}
+ *   <li>{@code cp build/scm/cleanup/target/cleanup-2.6-SNAPSHOT.jar target/binaries/.}</li>
+ *   <li>{@code java -jar target/binaries/cleanup-2.6-SNAPSHOT.jar -info -input "path/to/dir"}
  *        where the path must be in quotes. For example, use "modules/library/metadata"</li>
  * </ol>
  * </p><p>
