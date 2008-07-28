@@ -79,7 +79,7 @@ public class OnlineWPSFactoryTest extends TestCase {
 		
 		// these tests require a specific WPS server to be up and running, so
 		// turn them off by default to avoid connection errors
-		runTests = false;
+		runTests = true;
 		
 		// set to true for local server test, false for 52N server test
 		useLocalServer = true;
@@ -329,8 +329,8 @@ public class OnlineWPSFactoryTest extends TestCase {
 		Double result = (Double) results.get("result");
 		//Double result = new Double(value);
 		Double expected = 77.84 + 40039.229;
-		System.out.println(expected);
-		System.out.println(result);
+//		System.out.println(expected);
+//		System.out.println(result);
 		assertEquals(result, expected);
 		
 	}	
