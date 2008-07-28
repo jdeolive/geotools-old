@@ -79,7 +79,7 @@ public class OnlineWPSFactoryTest extends TestCase {
 		
 		// these tests require a specific WPS server to be up and running, so
 		// turn them off by default to avoid connection errors
-		runTests = true;
+		runTests = false;
 		
 		// set to true for local server test, false for 52N server test
 		useLocalServer = true;
