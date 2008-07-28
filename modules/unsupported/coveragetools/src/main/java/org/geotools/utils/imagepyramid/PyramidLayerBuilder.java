@@ -90,7 +90,7 @@ import org.opengis.parameter.ParameterValueGroup;
 public class PyramidLayerBuilder extends BaseArgumentsManager implements
 		Runnable, ProcessingEventListener {
 
-	/** Static immutable ap for scaling algorithms. */
+	/** Static immutable map for scaling algorithms. */
 	private static Set<String> scalingAlgorithms;
 	static {
 		scalingAlgorithms = new HashSet<String>();
@@ -652,8 +652,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 				//
 				// //
 				final GeneralGridRange newGridrange = new GeneralGridRange(new Rectangle2D.Double(0.0, 0.0, newRange[0],newRange[1]).getBounds());
-				final GridGeometry2D scaledGridGeometry = new GridGeometry2D(
-						newGridrange, cropEnvelope);
+				final GridGeometry2D scaledGridGeometry = new GridGeometry2D(newGridrange, cropEnvelope);
 				param = processor.getOperation("Resample").getParameters();
 				param.parameter("Source").setValue(cropped);
 				param.parameter("CoordinateReferenceSystem").setValue(inReader.getCrs());
@@ -675,7 +674,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 					param.parameter("xTrans").setValue(new Float(0));
 					param.parameter("yTrans").setValue(new Float(0));
 					param.parameter("Interpolation").setValue(Interpolation.getInstance(Interpolation.INTERP_BILINEAR));
-					gc = (GridCoverage2D) CoverageToolsConstants.SCALE_FACTORY.doOperation(param, null);
+					gc = (GridCoverage2D) CoverageToolsConstants.SCALE_FACTORY.doOperation(param, new Hints());
 				} else if (scaleAlgorithm.equalsIgnoreCase("filt")) {
 					// scaling
 					param =  CoverageToolsConstants.FILTERED_SUBSAMPLE_FACTORY.getParameters();
@@ -684,7 +683,7 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 					param.parameter("scaleY").setValue(new Integer((int) scaleFactor));
 					param.parameter("qsFilterArray").setValue(new float[] { 0.5F, 1.0F / 3.0F, 0.0F,-1.0F / 12.0F });
 					param.parameter("Interpolation").setValue(new InterpolationNearest());
-					gc = (GridCoverage2D) CoverageToolsConstants.FILTERED_SUBSAMPLE_FACTORY.doOperation(param, null);
+					gc = (GridCoverage2D) CoverageToolsConstants.FILTERED_SUBSAMPLE_FACTORY.doOperation(param, new Hints());
 				} else if (scaleAlgorithm.equalsIgnoreCase("bil")) {
 					param = processor.getOperation("Scale").getParameters();
 					param.parameter("Source").setValue(gc);
@@ -695,14 +694,14 @@ public class PyramidLayerBuilder extends BaseArgumentsManager implements
 					param.parameter("xTrans").setValue(new Float(0));
 					param.parameter("yTrans").setValue(new Float(0));
 					param.parameter("Interpolation").setValue(Interpolation.getInstance(Interpolation.INTERP_BILINEAR));
-					gc = (GridCoverage2D) CoverageToolsConstants.SCALE_FACTORY.doOperation(param, null);
+					gc = (GridCoverage2D) CoverageToolsConstants.SCALE_FACTORY.doOperation(param, new Hints());
 				} else if (scaleAlgorithm.equalsIgnoreCase("avg")) {
 					param = processor.getOperation("SubsampleAverage").getParameters();
 					param.parameter("Source").setValue(gc);
 					param.parameter("scaleX").setValue(new Double(1.0 / scaleFactor));
 					param.parameter("scaleY").setValue(new Double(1.0 / scaleFactor));
 					param.parameter("Interpolation").setValue(scaleFactor);
-					gc = (GridCoverage2D) CoverageToolsConstants.SUBSAMPLE_AVERAGE_FACTORY.doOperation(param, null);
+					gc = (GridCoverage2D) CoverageToolsConstants.SUBSAMPLE_AVERAGE_FACTORY.doOperation(param, new Hints());
 				} else 
 					throw new IllegalArgumentException(
 							"The provided scale algorithm is not availaible");
