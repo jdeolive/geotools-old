@@ -39,7 +39,7 @@ import org.opengis.filter.Filter;
  * <p>
  * This function expects:
  * <ol>
- * <li>PropertyName; use "Rasterdata" to indicate this is a colour map
+ * <li>PropertyName; use "Rasterdata" to indicate this is a color map
  * <li>Literal: lookup value
  * <li>Literal: threshold 1
  * <li>Literal: value 1
@@ -84,7 +84,7 @@ public class CategorizeFunction implements Function {
     public static class Name implements FunctionName {
 
         public int getArgumentCount() {
-            return -2; // indicating unbounded, 2 minimum
+            return 2; // indicating unbounded, 2 minimum
         }
 
         public List<String> getArgumentNames() {
@@ -112,7 +112,7 @@ public class CategorizeFunction implements Function {
     }
 
     public String getName() {
-        return "Categorize";
+        return NAME.getName();
     }
 
     public List<Expression> getParameters() {
