@@ -106,7 +106,7 @@ public abstract class AbstractTest extends TestCase {
             return false;
         }
 
-        String driverClassName = getDBDialect().getDriverClassName();
+        String driverClassName = getDriverClassName();
 
         try {
             Class.forName(driverClassName);
@@ -716,16 +716,15 @@ public abstract class AbstractTest extends TestCase {
             password = password.trim();
         }
 
-        PrintWriter w = new PrintWriter(new FileOutputStream(OUTPUTDIR_RESOURCES +
-                    getDBDialect().getXMLConnectFragmentName()));
+        PrintWriter w = new PrintWriter(new FileOutputStream(OUTPUTDIR_RESOURCES +getXMLConnectFragmentName()));
         w.println("<connect>");
         w.println("     <dstype value=\"DBCP\"/>");
         w.println("     <username value=\"" + user + "\"/>");
         w.println("     <password value=\"" + password + "\"/>");
         w.println("     <jdbcUrl value=\"" +
-            getDBDialect().getJDBCUrl(host, port, dbName) + "\"/>");
+            getJDBCUrl(host, port, dbName) + "\"/>");
         w.println("     <driverClassName value=\"" +
-            getDBDialect().getDriverClassName() + "\"/>");
+            getDriverClassName() + "\"/>");
         w.println("     <maxActive value=\"10\"/>");
         w.println("     <maxIdle value=\"0\"/>");
         w.println("</connect>");
@@ -761,4 +760,22 @@ public abstract class AbstractTest extends TestCase {
 
     void executeUnRegister(String stmt) throws SQLException {
     }
+    
+    protected abstract String getXMLConnectFragmentName();
+    
+    /**
+     * @return der full qulified java class name for the jdbc driver
+     */
+    protected abstract String getDriverClassName();
+
+    /**
+     * @param host	 	the host name/ip address
+     * @param port 		the tcpip port where the db is listening
+     * @param dbName	the name of the database
+     * @return			the db specific connect url
+     */
+    protected abstract String getJDBCUrl(String host, Integer port,
+        String dbName);
+
+
 }

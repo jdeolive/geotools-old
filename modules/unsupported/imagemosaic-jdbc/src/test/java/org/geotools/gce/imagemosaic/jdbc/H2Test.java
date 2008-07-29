@@ -28,10 +28,20 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 
 import java.net.URL;
 
 
+/**
+ * @author mcr
+ *
+ */
+/**
+ * @author mcr
+ *
+ */
+// 
 public class H2Test extends AbstractTest {
     public static String EPSG_31287_TOWGS84 = "PROJCS[\"MGI / Austria Lambert\",GEOGCS[\"MGI\", DATUM[\"Militar-Geographische Institut\"," +
         "SPHEROID[\"Bessel 1841\", 6377397.155, 299.1528128, AUTHORITY[\"EPSG\",\"7004\"]], " +
@@ -86,7 +96,7 @@ public class H2Test extends AbstractTest {
         suite.addTest(new H2Test("testVienna"));
         suite.addTest(new H2Test("testViennaEnv"));
         suite.addTest(new H2Test("testOutputTransparentColor"));
-        //suite.addTest(new H2Test("testReproject1"));
+//        suite.addTest(new H2Test("testReproject1"));
         suite.addTest(new H2Test("testDrop"));
         suite.addTest(new H2Test("testCreateJoined"));
         suite.addTest(new H2Test("testImage1Joined"));
@@ -130,7 +140,7 @@ public class H2Test extends AbstractTest {
         ImageLevelInfo li = access.getLevelInfo(access.getNumOverviews());
 
         GeneralEnvelope env = new GeneralEnvelope(new double[] {
-                    li.getExtentMaxX() - DELTA, li.getExtentMaxY() - DELTA
+                    li.getExtentMaxX() - DELTA, li.getExtentMaxY() - DELTA 
                 },
                 new double[] {
                     li.getExtentMaxX() + DELTA, li.getExtentMaxY() + DELTA
@@ -141,12 +151,18 @@ public class H2Test extends AbstractTest {
 
             MathTransform t = CRS.findMathTransform(SOURCE, TARGET);
             GeneralEnvelope tenv = CRS.transform(t, env);
+            //GeneralEnvelope tenv=new GeneralEnvelope(new Rectangle2D.Double(300000,300000,400000,400000));
+            //TARGET=CRS.decode("EPSG:31287");
             tenv.setCoordinateReferenceSystem(TARGET);
             imageMosaic("partialgreen_reprojected", getConfigUrl(), tenv, 400,
-                400, Color.GREEN, SOURCE);
+                400, Color.GREEN, null);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
+        
+         
+        
+        
     }
 
     public void testOutputTransparentColor() {
@@ -176,4 +192,15 @@ public class H2Test extends AbstractTest {
     String getFixtureId() {
         return null;
     }
+    protected String getXMLConnectFragmentName() {
+        return "connect.h2.xml.inc";
+    }
+    protected String getDriverClassName() {
+        return "org.h2.Driver";
+    }
+
+    protected String getJDBCUrl(String host, Integer port, String dbName) {
+        return "jdbc:h2:target/h2/testdata";
+    }
+
 }

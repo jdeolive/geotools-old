@@ -16,6 +16,12 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
+/**
+ * Enum for support spatial extension
+ * 
+ * @author mcr
+ *
+ */
 public enum SpatialExtension {DB2("DB2"),
     ORACLE("ORACLE"),
     POSTGIS("POSTGIS"),
@@ -31,6 +37,12 @@ public enum SpatialExtension {DB2("DB2"),
         return name;
     }
 
+    /**
+     * Factory method for obtaining a SpatialExtension object from a string
+     * 
+     * @param 	spatName	The string representation for teh SpatialExtension object
+     * @return	the 		corresponding SpatialExtension object, null if spatname is unknown
+     */
     static SpatialExtension fromString(String spatName) {
         if ("DB2".equalsIgnoreCase(spatName)) {
             return DB2;

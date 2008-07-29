@@ -40,7 +40,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -68,9 +67,21 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 
+/**
+ * Utility class for importing tiles and georeferencing info into the database. 
+ * 
+ * 
+ * Supported methods:
+ * 
+ * Importing images having the georeferencing information in a world file
+ * Importing images having the georeferencing information in a csv file
+ * Importing images having the georeferencing information in a shape file
+ * 
+ * @author mcr
+ *
+ */
 public class Import {
 	class ImageFilter extends Object implements FileFilter {
 		public ImageFilter(String extension) {

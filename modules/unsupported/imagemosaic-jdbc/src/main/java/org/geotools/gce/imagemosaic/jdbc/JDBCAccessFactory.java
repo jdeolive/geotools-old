@@ -19,9 +19,26 @@ package org.geotools.gce.imagemosaic.jdbc;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Factory for JDBCAccess Objects. 
+ * 
+ * The following rule applies:
+ * 
+ * For each Config object exists exactly one JDBCAccess object !
+ * 
+ * @author mcr
+ *
+ */
 class JDBCAccessFactory {
     static Map<String, JDBCAccess> JDBCAccessMap = new HashMap<String, JDBCAccess>();
 
+    /**
+     * Factory method
+     * 
+     * @param 	config	The Config object
+     * @return 			the corresponding JDBCAccess object 
+     * @throws Exception
+     */
     static synchronized JDBCAccess getJDBCAcess(Config config)
         throws Exception {
         JDBCAccess jdbcAccess = JDBCAccessMap.get(config.getXmlUrl());

@@ -16,33 +16,44 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
+/**
+ * This class implements the db dialect for mysql
+ * 
+ * @author mcr
+ * 
+ */
 public class MySqlDialect extends DBDialect {
     public MySqlDialect(Config config) {
         super(config);
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getDropIndexStatment(java.lang.String)
+     */
     String getDropIndexStatment(String tn) {
         return "drop index IX_" + tn + " on " + tn;
     }
 
-    protected String getDriverClassName() {
-        return "com.mysql.jdbc.Driver";
-    }
 
-    protected String getJDBCUrl(String host, Integer port, String dbName) {
-        return "jdbc:mysql://" + host + ":" + port + "/" + dbName;
-    }
-
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getBLOBSQLType()
+     */
     @Override
     protected String getBLOBSQLType() {
         return "LONGBLOB";
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getMultiPolygonSQLType()
+     */
     @Override
     protected String getMultiPolygonSQLType() {
         return "MULTIPOLYGON";
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getCreateIndexStatement(java.lang.String)
+     */
     @Override
     protected String getCreateIndexStatement(String tn)
         throws Exception {
@@ -54,7 +65,4 @@ public class MySqlDialect extends DBDialect {
         getConfig().getGeomAttributeNameInSpatialTable() + ") ";
     }
 
-    protected String getXMLConnectFragmentName() {
-        return "connect.mysql.xml.inc";
-    }
 }

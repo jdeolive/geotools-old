@@ -16,30 +16,38 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
+/**
+ * This class implements a common db dialect (no spatial extensions used)
+ * 
+ * @author mcr
+ *
+ */
 public class UniversalDialect extends DBDialect {
     public UniversalDialect(Config config) {
         super(config);
     }
 
-    protected String getDriverClassName() {
-        return "org.h2.Driver";
-    }
 
-    protected String getJDBCUrl(String host, Integer port, String dbName) {
-        return "jdbc:h2:target/h2/testdata";
-    }
-
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getBLOBSQLType()
+     */
     @Override
     protected String getBLOBSQLType() {
         return "BLOB";
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getMultiPolygonSQLType()
+     */
     @Override
     protected String getMultiPolygonSQLType() {
         // return "blob";
         return null;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getCreateSpatialTableStatement(java.lang.String)
+     */
     @Override
     protected String getCreateSpatialTableStatement(String tableName)
         throws Exception {
@@ -57,6 +65,9 @@ public class UniversalDialect extends DBDialect {
         return statement;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getCreateSpatialTableStatementJoined(java.lang.String)
+     */
     @Override
     protected String getCreateSpatialTableStatementJoined(String tableName)
         throws Exception {
@@ -76,6 +87,9 @@ public class UniversalDialect extends DBDialect {
         return statement;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getCreateIndexStatement(java.lang.String)
+     */
     @Override
     protected String getCreateIndexStatement(String tn)
         throws Exception {
@@ -84,7 +98,4 @@ public class UniversalDialect extends DBDialect {
         getConfig().getTileMinYAttribute() + ")";
     }
 
-    protected String getXMLConnectFragmentName() {
-        return "connect.h2.xml.inc";
-    }
 }

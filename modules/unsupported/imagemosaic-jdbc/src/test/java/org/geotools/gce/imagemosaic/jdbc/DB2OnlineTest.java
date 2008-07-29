@@ -133,4 +133,27 @@ public class DB2OnlineTest extends AbstractTest {
         ps.registerOutParameter(2, Types.CHAR);
         ps.executeUpdate();
     }
+    
+    protected String getXMLConnectFragmentName() {
+        return "connect.db2.xml.inc";
+    }
+
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.AbstractTest#getJDBCUrl(java.lang.String, java.lang.Integer, java.lang.String)
+     */
+    protected String getJDBCUrl(String host, Integer port, String dbName) {
+        if (host == null) {
+            return "jdbc:db2:" + dbName;
+        } else {
+            return "jdbc:db2://" + host + ":" + port + "/" + dbName;
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.AbstractTest#getDriverClassName()
+     */
+    protected String getDriverClassName() {
+        return "com.ibm.db2.jcc.DB2Driver";
+    }
+
 }

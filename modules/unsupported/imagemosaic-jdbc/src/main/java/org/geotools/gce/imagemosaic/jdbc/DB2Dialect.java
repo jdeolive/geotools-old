@@ -16,49 +16,58 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
+/**
+ * This class implements the db dialect for db2 spatial extender
+ * @author mcr
+ *
+ */
 public class DB2Dialect extends DBDialect {
     public DB2Dialect(Config config) {
         super(config);
     }
 
-    protected String getJDBCUrl(String host, Integer port, String dbName) {
-        if (host == null) {
-            return "jdbc:db2:" + dbName;
-        } else {
-            return "jdbc:db2://" + host + ":" + port + "/" + dbName;
-        }
-    }
 
-    protected String getDriverClassName() {
-        return "com.ibm.db2.jcc.DB2Driver";
-    }
 
-    protected String getXMLConnectFragmentName() {
-        return "connect.db2.xml.inc";
-    }
-
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getRegisterSpatialStatement(java.lang.String, java.lang.String)
+     */
     @Override
     protected String getRegisterSpatialStatement(String tn, String srs) {
         return "call db2gse.ST_register_spatial_column(null,'" + tn + "','" +
         config.getGeomAttributeNameInSpatialTable() + "','" + srs + "',?,?)";
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getUnregisterSpatialStatement(java.lang.String)
+     */
     @Override
     protected String getUnregisterSpatialStatement(String tn) {
         return "call db2gse.ST_unregister_spatial_column(null,'" + tn + "','" +
         config.getGeomAttributeNameInSpatialTable() + "',?,?)";
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getBLOBSQLType()
+     */
     @Override
     protected String getBLOBSQLType() {
         return "BLOB";
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getMultiPolygonSQLType()
+     */
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getMultiPolygonSQLType()
+     */
     @Override
     protected String getMultiPolygonSQLType() {
         return "db2gse.st_multipolygon";
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.DBDialect#getCreateIndexStatement(java.lang.String)
+     */
     @Override
     protected String getCreateIndexStatement(String tn)
         throws Exception {

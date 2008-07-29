@@ -97,13 +97,10 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
     private Config config;
 
     /**
-     * COnstructor.
-     *
-     * @param source
-     *            The source object.
+     * @param source	The source object.
+     * @param uHints
      * @throws IOException
-     * @throws UnsupportedEncodingException
-     *
+     * @throws MalformedURLException
      */
     public ImageMosaicJDBCReader(Object source, Hints uHints)
         throws IOException, MalformedURLException {
@@ -213,7 +210,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
         for (int i = 0; i < numOverviews; i++)
             overViewResolutions[i] = jdbcAccess.getLevelInfo(i + 1)
                                                .getResolution();
-
+        
         originalGridRange = new GeneralGridRange(new Rectangle(
                     (int) Math.round(
                         originalEnvelope.getSpan(0) / highestRes[0]),
@@ -313,6 +310,10 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
         return coverage;
     }
 
+    /**
+     * transforms (if neccessairy) the requested envelope into the CRS used by this reader.
+     * @throws DataSourceException
+     */
     private void transformRequestEnvelope() throws DataSourceException {
         if (CRS.equalsIgnoreMetadata(
                     requestedEnvelope.getCoordinateReferenceSystem(), this.crs)) {
@@ -351,27 +352,9 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
     }
 
     /**
-     * Loading the tiles which overlap with the requested envelope with control
-     * over the <code>inputImageThresholdValue</code>, the fading effect
-     * between different images, abd the <code>transparentColor</code> for the
-     * input images.
-     *
-     *
-     *
-     * @param transparentColor
-     *            should be used to control transparency on input images.
-     * @param outputTransparentColor
-     * @param inputImageThresholdValue
-     *            should be used to create ROIs on the input images
-     * @param pixelDimension
-     *            is the dimension in pixels of the requested coverage.
-     * @param fading
-     *            tells to ask for {@link MosaicDescriptor#MOSAIC_TYPE_BLEND}
-     *            instead of the classic
-     *            {@link MosaicDescriptor#MOSAIC_TYPE_OVERLAY}.
-     * @return a {@link GridCoverage2D} matching as close as possible the
-     *         requested {@link GeneralEnvelope} and <code>pixelDimension</code>,
-     *         or null in case nothing existed in the requested area.
+     * @param outputTransparentColor	the background color
+     * @param pixelDimension			
+     * @return	the gridcoverage as the final result
      * @throws IOException
      */
     private GridCoverage loadTiles(Color outputTransparentColor,

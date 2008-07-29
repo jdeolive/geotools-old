@@ -23,6 +23,10 @@ import java.net.URL;
 
 import java.sql.SQLException;
 
+/**
+ * @author mcr
+ *
+ */
 public class PostGisOnlineTest extends AbstractTest {
     static DBDialect dialect = null;
 
@@ -114,4 +118,19 @@ public class PostGisOnlineTest extends AbstractTest {
     void executeUnRegister(String stmt) throws SQLException {
         Connection.prepareStatement(stmt).executeQuery();
     }
+    protected String getXMLConnectFragmentName() {
+        return "connect.postgis.xml.inc";
+    }
+
+    protected String getDriverClassName() {
+        return "org.postgresql.Driver";
+    }
+
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.AbstractTest#getJDBCUrl(java.lang.String, java.lang.Integer, java.lang.String)
+     */
+    protected String getJDBCUrl(String host, Integer port, String dbName) {
+        return "jdbc:postgresql://" + host + ":" + port + "/" + dbName;
+    }
+
 }

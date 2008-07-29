@@ -37,6 +37,12 @@ import java.text.MessageFormat;
 
 import java.util.logging.Level;
 
+/**
+ * Implementation of JDBCAccess for MySql database 
+ * 
+ * @author mcr
+ *
+ */
 class JDBCAccessMySql extends JDBCAccessBase {
     private String extentSelect = null;
     private String allSelect = null;
@@ -49,6 +55,11 @@ class JDBCAccessMySql extends JDBCAccessBase {
         initStatementStrings(config);
     }
 
+    /**
+     * Initialze needed sql statement strings
+     * 
+     * @param config
+     */
     private void initStatementStrings(Config config) {
         String geomAttr = config.getGeomAttributeNameInSpatialTable();
         extentSelect = "select asbinary(envelope(" + geomAttr + ")) from {0}";
@@ -72,6 +83,9 @@ class JDBCAccessMySql extends JDBCAccessBase {
         gridSelectJoined = allSelectJoined + " AND " + whereClause;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#setGridSelectParams(java.sql.PreparedStatement, org.geotools.geometry.GeneralEnvelope, org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected void setGridSelectParams(PreparedStatement s,
         GeneralEnvelope envelope, ImageLevelInfo li) throws SQLException {
@@ -82,6 +96,9 @@ class JDBCAccessMySql extends JDBCAccessBase {
         // s.setInt(2, li.getSrsId()); not supported
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getRandomTileStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected String getRandomTileStatement(ImageLevelInfo li) {
         if (li.isImplementedAsTableSplit()) {
@@ -93,6 +110,9 @@ class JDBCAccessMySql extends JDBCAccessBase {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getGridSelectStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected String getGridSelectStatement(ImageLevelInfo li) {
         if (li.isImplementedAsTableSplit()) {
@@ -104,12 +124,18 @@ class JDBCAccessMySql extends JDBCAccessBase {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getExtentSelectStatment(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected String getExtentSelectStatment(ImageLevelInfo li) {
         return MessageFormat.format(extentSelect,
             new Object[] { li.getSpatialTableName() });
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getExtent(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo, java.sql.Connection)
+     */
     @Override
     protected Envelope getExtent(ImageLevelInfo li, Connection con)
         throws SQLException, IOException {
@@ -147,6 +173,9 @@ class JDBCAccessMySql extends JDBCAccessBase {
         return extent;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getEnvelopeFromResultSet(java.sql.ResultSet)
+     */
     @Override
     protected Envelope getEnvelopeFromResultSet(ResultSet r)
         throws SQLException {
@@ -164,6 +193,9 @@ class JDBCAccessMySql extends JDBCAccessBase {
         return bbox.getEnvelopeInternal();
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getCRS(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo, java.sql.Connection)
+     */
     @Override
     protected CoordinateReferenceSystem getCRS(ImageLevelInfo li, Connection con)
         throws IOException {

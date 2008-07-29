@@ -39,6 +39,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 
+/**
+ * Class for holding the config info read from the xml config file
+ * 
+ * @author mcr
+ *
+ */
 class Config {
     static private Map<String, Config> ConfigMap = new Hashtable<String, Config>(); // Hashtable
                                                                                     // is

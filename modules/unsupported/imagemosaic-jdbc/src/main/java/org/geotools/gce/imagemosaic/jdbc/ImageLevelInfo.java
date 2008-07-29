@@ -27,7 +27,8 @@ import java.io.PrintWriter;
 
 
 /**
- * Java Bean for Level Info
+ * Java Bean for pyramid level information. 
+ * For each pyramid and the original image, there is one ImageLevelInfo object    
  *
  * @author mcr
  *

@@ -33,6 +33,12 @@ import java.text.MessageFormat;
 
 import java.util.logging.Level;
 
+/**
+ * JDBCAccess implementation for Orace Locaction Based Services
+ * 
+ * @author mcr
+ *
+ */
 class JDBCAccessOracle extends JDBCAccessBase {
     static String SRSSelect = "select srid from ALL_SDO_GEOM_METADATA where owner = ? and table_name=? and column_name = ?";
     static String SRSSelectCurrentSchema = "select srid from USER_SDO_GEOM_METADATA where table_name=? and column_name = ?";
@@ -48,6 +54,11 @@ class JDBCAccessOracle extends JDBCAccessBase {
         initStatementStrings(config);
     }
 
+    /**
+     * Initialize needed sql statement strings
+     * 
+     * @param config
+     */
     private void initStatementStrings(Config config) {
         String geomAttr = config.getGeomAttributeNameInSpatialTable();
 
@@ -86,6 +97,9 @@ class JDBCAccessOracle extends JDBCAccessBase {
         gridSelectJoined = allSelectJoined + " AND " + whereClause;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getRandomTileStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected String getRandomTileStatement(ImageLevelInfo li) {
         if (li.isImplementedAsTableSplit()) {
@@ -97,6 +111,9 @@ class JDBCAccessOracle extends JDBCAccessBase {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getGridSelectStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected String getGridSelectStatement(ImageLevelInfo li) {
         String stmt = null;
@@ -117,12 +134,18 @@ class JDBCAccessOracle extends JDBCAccessBase {
         return stmt;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getExtentSelectStatment(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected String getExtentSelectStatment(ImageLevelInfo li) {
         return MessageFormat.format(extentSelect,
             new Object[] { li.getSpatialTableName() });
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getSRSID(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo, java.sql.Connection)
+     */
     @Override
     protected Integer getSRSID(ImageLevelInfo li, Connection con)
         throws IOException {
@@ -182,6 +205,9 @@ class JDBCAccessOracle extends JDBCAccessBase {
         return result.intValue();
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getCRS(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo, java.sql.Connection)
+     */
     @Override
     protected CoordinateReferenceSystem getCRS(ImageLevelInfo li, Connection con)
         throws IOException {
@@ -208,6 +234,9 @@ class JDBCAccessOracle extends JDBCAccessBase {
         return result;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#setGridSelectParams(java.sql.PreparedStatement, org.geotools.geometry.GeneralEnvelope, org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected void setGridSelectParams(PreparedStatement s,
         GeneralEnvelope envelope, ImageLevelInfo li) throws SQLException {

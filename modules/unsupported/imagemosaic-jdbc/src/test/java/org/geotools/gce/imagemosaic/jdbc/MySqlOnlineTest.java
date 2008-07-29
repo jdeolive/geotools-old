@@ -90,4 +90,22 @@ public class MySqlOnlineTest extends AbstractTest {
 
         return dialect;
     }
+    protected String getXMLConnectFragmentName() {
+        return "connect.mysql.xml.inc";
+    }
+
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.AbstractTest#getDriverClassName()
+     */
+    protected String getDriverClassName() {
+        return "com.mysql.jdbc.Driver";
+    }
+
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.AbstractTest#getJDBCUrl(java.lang.String, java.lang.Integer, java.lang.String)
+     */
+    protected String getJDBCUrl(String host, Integer port, String dbName) {
+        return "jdbc:mysql://" + host + ":" + port + "/" + dbName;
+    }
+
 }

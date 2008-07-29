@@ -25,6 +25,27 @@ import java.net.URL;
 import java.util.logging.Logger;
 
 
+/**
+ * Utility class for generating ddl scripts for a specific spatial extension.
+ * The generated scrips should be used as a base for db setup. Manual verification
+ * for performance issues is neccessairy.
+ * 
+ * The following scripts are generated
+ * 
+ * createmeta.sql		create meta table statement
+ * createtables.sql		create tile/spatial tables
+ * createindexes.sql	create spatial indexwes
+ * fillmeta.sql			insert statements to fill meta table
+ * register.sql			register spatial columns
+ * unregister.sql		unregister spatial columns
+ * dropmeta.sql			drop meta table
+ * droptables.sql		drop tile/spatial tables
+ * dropindexes.sql		drop spatial indexes
+ *  
+ * 
+ * @author mcr
+ *
+ */
 class DDLGenerator {
     private final static int DefaultPyramids = 0;
     private final static String FN_CREATEMETA = "createmeta.sql";
@@ -49,6 +70,17 @@ class DDLGenerator {
     private String srs;
     private String targetDir;
 
+    /**
+     * Constructor
+     * 
+     * @param config			the config object
+     * @param spatialTNPrefix	the prefix for spatial table names
+     * @param tileTNPrefix		the prefix for tile table names
+     * @param pyramids			number of pyramids
+     * @param statementDelim	statement delimiter used in the scripts
+     * @param srs				name of spatial reference system
+     * @param targetDir			the target directory for the scripts
+     */
     DDLGenerator(Config config, String spatialTNPrefix, String tileTNPrefix,
         int pyramids, String statementDelim, String srs, String targetDir) {
         this.config = config;
@@ -66,6 +98,10 @@ class DDLGenerator {
         	this.targetDir=targetDir+File.separator;
     	}
 
+    /**
+     * Entry point, called from Toolbox class
+     * @param args
+     */
     public static void start(String[] args) {
         Config config = null;
         String spatialTNPrefix = null;

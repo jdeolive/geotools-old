@@ -63,12 +63,15 @@ import javax.sql.DataSource;
 
 
 /**
- * This class provides the JCBC Access Methods for handling Tiles
+ * This class is an abstract Base Class for implementing
+ * the JDBCAccess interface. 
  *
- * <p>
+ * JDBCAccess classes for different spatial extensions extend
+ * this base class.
+ * 
  *
  * @author Christian Mueller
- * @since 2.4
+ * @since 2.5
  */
 abstract class JDBCAccessBase implements JDBCAccess {
     /** Logger. */
@@ -79,12 +82,24 @@ abstract class JDBCAccessBase implements JDBCAccess {
     protected Config config;
     protected DataSource dataSource = null;
 
+    /**
+     * Constructor
+     * @param config	the Config object
+     * @throws IOException
+     */
     JDBCAccessBase(Config config) throws IOException {
         super();
         this.config = config;
         this.dataSource = DataSourceFinder.getDataSource(config.getDataSourceParams());
     }
 
+    /**
+     * if the table name include a dot, the first part is assumed 
+     * to be the sql schema name.
+     *        
+     * @param tn	the sql table name
+     * @return		the schema name or null
+     */
     protected String getSchemaFromSpatialTable(String tn) {
         int index = tn.indexOf('.');
 
@@ -95,6 +110,9 @@ abstract class JDBCAccessBase implements JDBCAccess {
         return tn.substring(0, index);
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccess#initialize()
+     */
     public void initialize() throws IOException {
         Connection con = null;
 
@@ -140,6 +158,15 @@ abstract class JDBCAccessBase implements JDBCAccess {
         levelInfos.addAll(sortColl);
     }
 
+    /**
+     * Step 1 of the bootstrapping process.
+     * Read meta table and build the ImageLevelInfo objects
+     * 
+     * @param coverageName		the coverage name stored in the sql meta table
+     * @param con				jdbc connection
+     * @throws SQLException
+     * @throws IOException
+     */
     protected void initFromDB(String coverageName, Connection con)
         throws SQLException, IOException {
         PreparedStatement s = null;
@@ -264,16 +291,44 @@ abstract class JDBCAccessBase implements JDBCAccess {
         }
     }
 
+    /**
+     * Get the Coordinate Reference System from the database for this ImageLevelInfo
+     *  
+     * @param li	ImageLevelInfo object
+     * @param con	JDBC Connection
+     * @return		CoordinateReferenceSystem or null	
+     * @throws IOException
+     */
     protected abstract CoordinateReferenceSystem getCRS(ImageLevelInfo li,
         Connection con) throws IOException;
+
+    /**
+     * Get the Spatial Reference System identifier from the database for this ImageLevelInfo
+     *  
+     * @param li	ImageLevelInfo object
+     * @param con	JDBC Connection
+     * @return		Ineger or null
+     * @throws IOException
+     */
 
     protected Integer getSRSID(ImageLevelInfo li, Connection con)
         throws IOException {
         return null;
     }
 
+    /**
+     * @param li	ImageLevelInfo object
+     * @return		sql select statement for querying the extent for li
+     */
     protected abstract String getExtentSelectStatment(ImageLevelInfo li);
 
+    /**
+     * @param li	ImageLevelInfo object
+     * @param con	JDBC Connection
+     * @return		Envelope for the extent for li
+     * @throws SQLException
+     * @throws IOException
+     */
     protected Envelope getExtent(ImageLevelInfo li, Connection con)
         throws SQLException, IOException {
         String statementString = getExtentSelectStatment(li);
@@ -292,6 +347,19 @@ abstract class JDBCAccessBase implements JDBCAccess {
         return extent;
     }
 
+    /**
+     * Step 2 of the bootstrapping process.
+     * 
+     * Calculating the the extent for each image level (original + pyramids).
+     * This calculation is only done if the extent info in the master table is SQL NULL.
+     * After calculation the meta table is updated with the result to avoid this operation
+     * in the future. 
+     * 
+     * @param coverageName		The coverage name in the sql meta table
+     * @param con				JDBC connection
+     * @throws SQLException
+     * @throws IOException
+     */
     void calculateExtentsFromDB(String coverageName, Connection con)
         throws SQLException, IOException {
         PreparedStatement stmt = con.prepareStatement(config.getSqlUpdateMosaicStatement());
@@ -346,6 +414,20 @@ abstract class JDBCAccessBase implements JDBCAccess {
         }
     }
 
+    /**
+     * 
+     * Step 3 of the bootstrapping process.
+     * 
+     * Calculating the the resolution for each image level (original + pyramids).
+     * This calculation is only done if the resultion info in the master table is SQL NULL.
+     * After calculation the meta table is updated with the result to avoid this operation
+     * in the future. 
+     * 
+     * @param coverageName 	The coverage name in the sql meta table
+     * @param con			JDBC Connection
+     * @throws SQLException
+     * @throws IOException
+     */
     void calculateResolutionsFromDB(String coverageName, Connection con)
         throws SQLException, IOException {
         PreparedStatement stmt = null;
@@ -401,8 +483,22 @@ abstract class JDBCAccessBase implements JDBCAccess {
         }
     }
 
+    /**
+     * Sql statement to query the needed tiles for a request
+     * 
+     * @param levelInfo		ImageLevelInfo object
+     * @return
+     */
     protected abstract String getGridSelectStatement(ImageLevelInfo levelInfo);
 
+    /**
+     * Set envelope as sql parameters into the grid select statement. 
+     * 
+     * @param s				the grid select statement
+     * @param envelope		the requested envelope
+     * @param li			ImageLevelInfo object
+     * @throws SQLException
+     */
     protected abstract void setGridSelectParams(PreparedStatement s,
         GeneralEnvelope envelope, ImageLevelInfo li) throws SQLException;
 
@@ -412,6 +508,9 @@ abstract class JDBCAccessBase implements JDBCAccess {
         return li.getEnvelope();
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccess#startTileDecoders(java.awt.Rectangle, org.geotools.geometry.GeneralEnvelope, org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo, java.util.concurrent.LinkedBlockingQueue)
+     */
     public void startTileDecoders(Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo levelInfo,
         LinkedBlockingQueue<Object> tileQueue) throws IOException {
@@ -490,6 +589,11 @@ abstract class JDBCAccessBase implements JDBCAccess {
             " millisecs");
     }
 
+    /**
+     * @param resultSet		Sql Result Set
+     * @return	byte array containing image bytes from curren sql cursor location
+     * @throws SQLException
+     */
     protected byte[] getTileBytes(ResultSet resultSet)
         throws SQLException {
         byte[] buffer = new byte[16384];
@@ -513,6 +617,12 @@ abstract class JDBCAccessBase implements JDBCAccess {
         // tileBytes=resultSet.getBytes(columnindex);
     }
 
+    /**
+     * @param tableName		sql table name
+     * @param con			JDBC Connection
+     * @return				return number of rows in the table
+     * @throws SQLException
+     */
     private int getRowCount(String tableName, Connection con)
         throws SQLException {
         PreparedStatement s = con.prepareStatement("select count(*) from " +
@@ -527,14 +637,24 @@ abstract class JDBCAccessBase implements JDBCAccess {
         return count;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccess#getLevelInfo(int)
+     */
     public ImageLevelInfo getLevelInfo(int level) {
         return levelInfos.get(level);
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccess#getNumOverviews()
+     */
     public int getNumOverviews() {
         return levelInfos.size() - 1;
     }
 
+    /**
+     * @param env	GeneralEnvelope 
+     * @return	Polygon object with the same boundary as env
+     */
     protected Polygon polyFromEnvelope(GeneralEnvelope env) {
         GeometryFactory factory = new GeometryFactory();
 
@@ -550,6 +670,11 @@ abstract class JDBCAccessBase implements JDBCAccess {
             new LinearRing[0]);
     }
 
+    /**
+     * 
+     * @param li ImageLevelInfo object
+     * @return	the tile name of a random chosen tile for li
+     */
     protected abstract String getRandomTileStatement(ImageLevelInfo li);
 
     protected Envelope getEnvelopeFromResultSet(ResultSet r)
@@ -561,6 +686,13 @@ abstract class JDBCAccessBase implements JDBCAccess {
         return result;
     }
 
+    /**
+     * @param li	ImageLevelInfo object
+     * @param con	JDBC Connection
+     * @return		the resolution for li, based on a random chosen tile
+     * @throws SQLException
+     * @throws IOException
+     */
     protected double[] getPixelResolution(ImageLevelInfo li, Connection con)
         throws SQLException, IOException {
         double[] result = null;

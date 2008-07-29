@@ -105,4 +105,22 @@ public class OracleOnlineTest extends AbstractTest {
     void executeUnRegister(String stmt) throws SQLException {
         Connection.prepareStatement(stmt).execute();
     }
+    protected String getXMLConnectFragmentName() {
+        return "connect.oracle.xml.inc";
+    }
+
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.AbstractTest#getDriverClassName()
+     */
+    protected String getDriverClassName() {
+        return "oracle.jdbc.OracleDriver";
+    }
+
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.AbstractTest#getJDBCUrl(java.lang.String, java.lang.Integer, java.lang.String)
+     */
+    protected String getJDBCUrl(String host, Integer port, String dbName) {
+        return "jdbc:oracle:thin:@" + host + ":" + port + ":" + dbName;
+    }
+
 }

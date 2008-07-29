@@ -23,15 +23,34 @@ import java.sql.Connection;
 import javax.sql.DataSource;
 
 
+/**
+ * This class is the base class for the different sql dialects 
+ * used in spatial extensions form different vendors 
+ * 
+ * @author mcr
+ * @since 2.5
+ *
+ */
 public abstract class DBDialect {
     protected DataSource dataSource;
     protected Config config;
 
+    /**
+     * Constructor
+     * 
+     * @param config
+     */
     public DBDialect(Config config) {
         super();
         this.config = config;
     }
 
+    /**
+     * Factory method for obtaining a DBDialect object for a special spatial extension
+     *  
+     * @param config
+     * @return 
+     */
     static DBDialect getDBDialect(Config config) {
         SpatialExtension type = config.getSpatialExtension();
 
@@ -54,21 +73,29 @@ public abstract class DBDialect {
         }
     }
 
+    /**
+     * @return the sql type name for a blob (Binary Large Object) 
+     */
     protected abstract String getBLOBSQLType();
 
+    /**
+     * @return the sql type name for a Multipolygon
+     */
     protected abstract String getMultiPolygonSQLType();
 
-    protected abstract String getDriverClassName();
 
-    protected abstract String getJDBCUrl(String host, Integer port,
-        String dbName);
 
-    protected abstract String getXMLConnectFragmentName();
-
+    /**
+     * @return	the config object for this dialect
+     */
     protected Config getConfig() {
         return config;
     }
 
+    /**
+     * @return datasource for this dialect object
+     * @throws Exception
+     */
     private DataSource getDataSource() throws Exception {
         if (dataSource != null) {
             return dataSource;
@@ -80,6 +107,10 @@ public abstract class DBDialect {
         return dataSource;
     }
 
+    /**
+     * @return jdbc connection
+     * @throws Exception
+     */
     protected Connection getConnection() throws Exception {
         Connection con = getDataSource().getConnection();
         con.setAutoCommit(false);
@@ -87,29 +118,58 @@ public abstract class DBDialect {
         return con;
     }
 
+    /**
+     * @param tableName 
+     * @return sql drop table statement for tableName
+     */
     String getDropTableStatement(String tableName) {
         return "drop table " + tableName;
     }
 
+    /**
+     * @param tn	sql table name
+     * @return 		sql unregister spatial column statement for nt
+     */
     protected String getUnregisterSpatialStatement(String tn) {
         return null;
     }
 
+    /**
+     * @param tn	sql table name
+     * @param srs	name of spatial reference system to use
+     * @return 		sql unregister spatial column statement for nt
+     */
     protected String getRegisterSpatialStatement(String tn, String srs) {
         return null;
     }
 
+    /**
+     * @param tn	sql table name
+     * @return		sql create spatial index statement for tn
+     * @throws 	Exception
+     */
     protected abstract String getCreateIndexStatement(String tn)
         throws Exception;
 
+    /**
+     * @param tn
+     * @return	sql drop index statement
+     */
     String getDropIndexStatment(String tn) {
         return "drop index IX_" + tn;
     }
 
+    /**
+     * @return	sql datatype for 8 byte floating point
+     */
     protected String getDoubleSQLType() {
         return "DOUBLE";
     }
 
+    /**
+     * @return the create table statement for the master table
+     * @throws Exception
+     */
     String getCreateMasterStatement() throws Exception {
         Config config = getConfig();
         String doubleType = getDoubleSQLType();
@@ -135,6 +195,11 @@ public abstract class DBDialect {
         return statement;
     }
 
+    /**
+     * @param tableName
+     * @return	the create table statment for a tile table named tableName
+     * @throws Exception
+     */
     String getCreateTileTableStatement(String tableName)
         throws Exception {
         String statement = " CREATE TABLE " + tableName;
@@ -149,6 +214,11 @@ public abstract class DBDialect {
         return statement;
     }
 
+    /**
+     * @param tableName
+     * @return the sql create table statement for a spatial table
+     * @throws Exception
+     */
     protected String getCreateSpatialTableStatement(String tableName)
         throws Exception {
         String statement = " CREATE TABLE " + tableName;
@@ -163,6 +233,11 @@ public abstract class DBDialect {
         return statement;
     }
 
+    /**
+     * @param tableName
+     * @return	the sql create table statement for a combined spatial/tile table named tableName
+     * @throws Exception
+     */
     protected String getCreateSpatialTableStatementJoined(String tableName)
         throws Exception {
         String statement = " CREATE TABLE " + tableName;

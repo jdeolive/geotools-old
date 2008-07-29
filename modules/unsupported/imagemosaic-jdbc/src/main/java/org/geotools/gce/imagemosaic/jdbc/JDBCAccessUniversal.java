@@ -28,6 +28,12 @@ import java.sql.SQLException;
 
 import java.text.MessageFormat;
 
+/**
+ * JDBC Access implementation for a sql db without a spatial extension 
+ * 
+ * @author mcr
+ *
+ */
 class JDBCAccessUniversal extends JDBCAccessBase {
     private String extentSelect = null;
     private String allSelect = null;
@@ -40,6 +46,11 @@ class JDBCAccessUniversal extends JDBCAccessBase {
         initStatementStrings(config);
     }
 
+    /**
+     * Initalize needed sql statement strings
+     * 
+     * @param config
+     */
     private void initStatementStrings(Config config) {
         extentSelect = "SELECT ";
         extentSelect += ("min(" + config.getTileMinXAttribute() + "),");
@@ -86,12 +97,18 @@ class JDBCAccessUniversal extends JDBCAccessBase {
         gridSelectJoined = allSelectJoined + " AND " + whereClause;
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getExtentSelectStatment(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected String getExtentSelectStatment(ImageLevelInfo li) {
         return MessageFormat.format(extentSelect,
             new Object[] { li.getSpatialTableName() });
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getRandomTileStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected String getRandomTileStatement(ImageLevelInfo li) {
         if (li.isImplementedAsTableSplit()) {
@@ -103,6 +120,9 @@ class JDBCAccessUniversal extends JDBCAccessBase {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getGridSelectStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected String getGridSelectStatement(ImageLevelInfo li) {
         if (li.isImplementedAsTableSplit()) {
@@ -114,6 +134,9 @@ class JDBCAccessUniversal extends JDBCAccessBase {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#setGridSelectParams(java.sql.PreparedStatement, org.geotools.geometry.GeneralEnvelope, org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+     */
     @Override
     protected void setGridSelectParams(PreparedStatement s,
         GeneralEnvelope envelope, ImageLevelInfo li) throws SQLException {
@@ -123,6 +146,9 @@ class JDBCAccessUniversal extends JDBCAccessBase {
         s.setDouble(4, envelope.getMinimum(1));
     }
 
+    /* (non-Javadoc)
+     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getCRS(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo, java.sql.Connection)
+     */
     @Override
     protected CoordinateReferenceSystem getCRS(ImageLevelInfo li, Connection con)
         throws IOException {
