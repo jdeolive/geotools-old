@@ -129,27 +129,19 @@ public class ReprojectFeatureIterator implements Iterator {
         //grab the next feature
         SimpleFeature next = reader.next();
         
-        //copy  it since we are going to modify it
-        //retype since the resuling must have a different schemas
-        next = SimpleFeatureBuilder.retype( next, schema );
-        
+        Object[] attributes = next.getAttributes().toArray();
+
         try {
-            for (Iterator p = next.getProperties().iterator(); p.hasNext(); ) {
-                Property prop = (Property) p.next();
-                if ( prop.getValue() instanceof Geometry ) {
-                    Geometry geometry = (Geometry) prop.getValue();
-                    prop.setValue( transformer.transform( geometry ) );
+            for (int i = 0; i < attributes.length; i++) {
+                if (attributes[i] instanceof Geometry) {
+                    attributes[i] = transformer.transform((Geometry) attributes[i]);
                 }
             }
         } catch (TransformException e) {
             throw (IllegalStateException)new IllegalStateException("A transformation exception occurred while reprojecting data on the fly").initCause(e);
         }
 
-        try {
-            return next;
-        } catch (IllegalAttributeException e) {
-            throw (IllegalStateException) new IllegalStateException("Problem occured during reprojection").initCause(e);                    
-        }
+        return SimpleFeatureBuilder.build(schema, attributes, next.getID());
     }
 
     public void remove() {

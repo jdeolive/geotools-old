@@ -65,7 +65,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 public class ForceCoordinateSystemFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
     protected  FeatureReader<SimpleFeatureType, SimpleFeature> reader;
     protected SimpleFeatureType schema;
-    protected SimpleFeatureBuilder builder;
     
     /**
      * Shortcut constructor that can be used if the new schema has already been computed
@@ -113,9 +112,6 @@ public class ForceCoordinateSystemFeatureReader implements  FeatureReader<Simple
 
         if (!cs.equals(originalCs)) {
             schema = FeatureTypes.transform(type, cs, forceOnlyMissing);
-            
-            //create builder
-            builder = new SimpleFeatureBuilder(schema);
         }
 
         this.reader = reader;
@@ -148,8 +144,8 @@ public class ForceCoordinateSystemFeatureReader implements  FeatureReader<Simple
         if( schema==null )
             return next;
         
-        builder.init(next);
-        return builder.buildFeature(next.getID());
+        
+        return SimpleFeatureBuilder.retype(next, schema);
     }
 
     /**

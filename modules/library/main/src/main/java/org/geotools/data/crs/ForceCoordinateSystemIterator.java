@@ -61,7 +61,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @source $URL$
  * @version $Id$
  */
-public class ForceCoordinateSystemIterator implements Iterator {
+public class ForceCoordinateSystemIterator implements Iterator<SimpleFeature> {
     protected FeatureIterator<SimpleFeature> reader;
     protected SimpleFeatureType schema;
 
@@ -93,8 +93,10 @@ public class ForceCoordinateSystemIterator implements Iterator {
         CoordinateReferenceSystem originalCs = type.getGeometryDescriptor()
                                                    .getCoordinateReferenceSystem();
 
-        if (cs.equals(originalCs)) {
+        if (!cs.equals(originalCs)) {
             schema = FeatureTypes.transform(type, cs);
+        } else {
+            schema = type;
         }
 
         this.reader = reader;
@@ -113,7 +115,7 @@ public class ForceCoordinateSystemIterator implements Iterator {
     /**
      * @see org.geotools.data.FeatureReader#next()
      */
-    public Object next()
+    public SimpleFeature next()
         throws NoSuchElementException {
         if (reader == null) {
             throw new IllegalStateException("Reader has already been closed");
@@ -124,7 +126,7 @@ public class ForceCoordinateSystemIterator implements Iterator {
             return next;
         
         try {
-            return SimpleFeatureBuilder.copy(next);
+            return SimpleFeatureBuilder.retype(next, schema);
         }
         catch( IllegalAttributeException eep){
             throw (IllegalStateException) new IllegalStateException(eep.getMessage()).initCause(eep );
