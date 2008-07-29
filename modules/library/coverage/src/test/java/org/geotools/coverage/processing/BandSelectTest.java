@@ -44,7 +44,7 @@ import org.opengis.referencing.operation.TransformException;
 /**
  * Tests the SelectSampleDimension operation.
  *
- * @source $URL: http://svn.geotools.org/trunk/modules/library/coverage/src/test/java/org/geotools/coverage/processing/BandSelectTest.java $
+ * @source $URL$
  * @author Simone Giannecchini (GeoSolutions)
  *
  * @since 2.5

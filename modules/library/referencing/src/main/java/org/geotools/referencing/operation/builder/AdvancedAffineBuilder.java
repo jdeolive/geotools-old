@@ -38,8 +38,8 @@ import org.geotools.referencing.operation.transform.ProjectiveTransform;
  * 
  * @author jezekjan
  * @since
- * @source $URL: http://svn.geotools.org/trunk/modules/library/referencing/src/main/java/org/geotools/referencing/operation/builder/AdvancedAffineBuilder.java $
- * @version $Id: AdvancedAffineBuilder.java 30834 2008-06-30 20:42:50Z jezekjan $
+ * @source $URL$
+ * @version $Id$
  */
 public class AdvancedAffineBuilder extends MathTransformBuilder {
     /**mark for key to specify sx - scale in x constrain */
