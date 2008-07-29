@@ -24,6 +24,7 @@ import java.util.List;
 import org.geotools.filter.FunctionImpl;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.ExpressionVisitor;
 
 /**
  * The function concatenates strings.
@@ -91,4 +92,8 @@ public class ConcatenateFunction extends FunctionImpl {
         }
         return text.toString();
     }
+	/** Subclass should override, default implementation just returns extraData */
+	public Object accept(ExpressionVisitor visitor, Object extraData) {
+		return visitor.visit( this, extraData );
+	}
 }
