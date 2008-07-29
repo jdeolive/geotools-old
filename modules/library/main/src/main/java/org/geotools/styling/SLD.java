@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.geotools.filter.Filters;
+import org.geotools.styling.visitor.DuplicatingStyleVisitor;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.expression.Expression;
@@ -104,17 +105,47 @@ public class SLD {
     }
 
     /**
-     * Sets the colour for a line symbolizer
+     * Updates the color for line symbolizers in the current style.
+     * <p>
+     * This method will update the Style in place; some of the symbolizers
+     * will be replaced with modified copies.
+     * </p>
      *
-     * @param style
-     * @param colour
+     * @param style Will update the style in place
+     * @param colour Color to to use
      */
-    public static void setLineColour(Style style, Color colour) {
+    public static void setLineColour(Style style, final Color colour) {
         if (style == null) {
             return;
         }
-
-        setLineColour(lineSymbolizer(style), colour);
+        for( FeatureTypeStyle featureTypeStyle : style.getFeatureTypeStyles() ){
+        	for( int i =0; i<featureTypeStyle.rules().size(); i++){
+        		Rule rule = featureTypeStyle.rules().get( i );
+        		DuplicatingStyleVisitor update = new DuplicatingStyleVisitor(){
+        			public void visit(LineSymbolizer line) {
+        				String name = line.getGeometryPropertyName();
+        				Stroke stroke = update( line.getStroke());
+        				LineSymbolizer copy = sf.createLineSymbolizer( stroke, name );
+        		        pages.push(copy);
+        			}
+        			Stroke update( Stroke stroke ){
+        				Expression color = ff.literal( colour );
+						Expression width = copy(stroke.getWidth());
+						Expression opacity = copy( stroke.getOpacity() );
+						Expression lineJoin = copy( stroke.getLineJoin() );
+						Expression lineCap = copy( stroke.getLineCap() );
+						float[] dashArray = copy( stroke.getDashArray() );
+						Expression dashOffset = copy( stroke.getDashOffset() );
+						Graphic graphicStroke = copy( stroke.getGraphicStroke() );
+						Graphic graphicFill = copy( stroke.getGraphicFill() );
+						return sf.createStroke(color, width, opacity, lineJoin, lineCap, dashArray, dashOffset, graphicFill, graphicStroke);        			    
+        			}
+        		};
+        		rule.accept( update );
+        		Rule updatedRule = (Rule) update.getCopy();
+        		featureTypeStyle.rules().set(i, updatedRule);
+        	}
+        }
     }
 
     /**

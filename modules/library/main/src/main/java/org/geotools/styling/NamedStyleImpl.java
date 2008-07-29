@@ -64,7 +64,7 @@ public class NamedStyleImpl implements NamedStyle {
 				return new SimpleInternationalString("");
 			}   
 			public void accept(org.opengis.style.StyleVisitor visitor) {
-				visitor.visit(this);
+				visitor.visit(this, null);
 			}    		
     	};
     }

@@ -62,7 +62,7 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
 				return new SimpleInternationalString(title);
 			}    		
 			public void accept(org.opengis.style.StyleVisitor visitor) {
-				visitor.visit(this);
+				visitor.visit(this,null);
 			}    		
     	};
     }

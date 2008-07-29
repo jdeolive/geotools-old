@@ -122,7 +122,7 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
 			}
 
 			public void accept(org.opengis.style.StyleVisitor visitor) {
-				visitor.visit(this);
+				visitor.visit(this, null);
 			}    		
     	};
     }

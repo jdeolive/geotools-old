@@ -16,6 +16,8 @@
  */
 package org.geotools.styling;
 
+import java.util.List;
+
 import org.opengis.filter.Filter;
 import org.opengis.style.Description;
 
@@ -228,6 +230,8 @@ public interface Rule {
      */
     @Deprecated    
     Symbolizer[] getSymbolizers();
+    
+    List<Symbolizer> symbolizers();
 
     /**
      * The symbolizers contain the actual styling information for different

@@ -96,6 +96,10 @@ public class RuleImpl implements Rule, Cloneable {
         return (Symbolizer[]) symbolizers.toArray(new Symbolizer[symbolizers
             .size()]);
     }
+    
+    public List<Symbolizer> symbolizers(){
+    	return symbolizers;
+    }
 
     public Description getDescription() {
     	return new Description(){
@@ -107,7 +111,7 @@ public class RuleImpl implements Rule, Cloneable {
 				return new SimpleInternationalString(title);
 			}    	
 			public void accept(org.opengis.style.StyleVisitor visitor) {
-				visitor.visit(this);
+				visitor.visit(this, null);
 			}    		
     	};
     }
