@@ -266,6 +266,66 @@ public class OnlineWPSFactoryTest extends TestCase {
 	}
 	
 	/**
+	 * Do some more local union test that should return an exception
+	 * @throws ServiceException
+	 * @throws IOException
+	 * @throws ParseException
+	 */
+	public void testBADExecuteLocalUnion() throws ServiceException, IOException, ParseException {
+		
+		// don't run the test if the server is not up
+		if (!runTests) return;		
+		
+		if (!useLocalServer) return;
+		
+		String processIdenLocal = "Union";
+		
+		WPSCapabilitiesType capabilities = wps.getCapabilities();
+		
+		// get the first process and execute it
+		ProcessOfferingsType processOfferings = capabilities.getProcessOfferings();
+		EList processes = processOfferings.getProcess();
+		//ProcessBriefType process = (ProcessBriefType) processes.get(0);
+
+		// does the server contain the specific process I want
+		boolean found = false;
+		Iterator iterator = processes.iterator();
+		while (iterator.hasNext()) {
+			ProcessBriefType process = (ProcessBriefType) iterator.next();
+			if (process.getIdentifier().getValue().equalsIgnoreCase(processIdenLocal)) {
+				found =true;
+				break;
+			}
+		}
+		
+		// exit test if my process doesn't exist on server
+		if (!found) {
+			return;
+		}
+		
+		// do a full describeprocess on my process
+		DescribeProcessRequest descRequest = wps.createDescribeProcessRequest();
+		descRequest.setIdentifier(processIdenLocal);
+		DescribeProcessResponse descResponse = wps.issueRequest(descRequest);
+		
+		// based on the describeprocess, setup the execute
+		ProcessDescriptionsType processDesc = descResponse.getProcessDesc();
+		ProcessDescriptionType pdt = (ProcessDescriptionType) processDesc.getProcessDescription().get(0);
+		WPSFactory wpsfactory = new WPSFactory(pdt, this.url);
+		Process process = wpsfactory.create();
+		
+		// setup the inputs as empty (which should return an exception)
+		Map<String, Object> map = new TreeMap<String, Object>();
+
+		// execute/send-request for the process
+		Map<String, Object> results = process.execute(map, null);		
+		
+		// check that the result is expected (null)
+		assertNull(results);
+		
+	}	
+	
+	/**
 	 * Do some more local process tests, such as double addition
 	 * @throws ServiceException
 	 * @throws IOException
