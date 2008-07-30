@@ -64,6 +64,7 @@ public class WPSProcess extends AbstractProcess {
 	 * @param monitor currently this is not used for this process reprensentation but
 	 * it could be implemented in some form in the future.
 	 */
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> execute(Map<String, Object> input,
 			ProgressListener monitor) {
 
@@ -102,8 +103,12 @@ public class WPSProcess extends AbstractProcess {
 						DataType createdInput = WPSUtils.createInputDataType(inVal, idt);
 						list.add(createdInput);
 					}
-				}
-				else {
+				} else if (inputValue instanceof Collection) {
+					for (Object inVal : (Collection)inputValue) {
+						DataType createdInput = WPSUtils.createInputDataType(inVal, idt);
+						list.add(createdInput);
+					}
+				} else {
 					// our value is a single object so create a single datatype for it
 					DataType createdInput = WPSUtils.createInputDataType(inputValue, idt);
 					list.add(createdInput);
