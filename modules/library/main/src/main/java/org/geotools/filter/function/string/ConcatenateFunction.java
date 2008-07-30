@@ -92,8 +92,4 @@ public class ConcatenateFunction extends FunctionImpl {
         }
         return text.toString();
     }
-	/** Subclass should override, default implementation just returns extraData */
-	public Object accept(ExpressionVisitor visitor, Object extraData) {
-		return visitor.visit( this, extraData );
-	}
 }

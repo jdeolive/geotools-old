@@ -61,11 +61,6 @@ public abstract class ExpressionAbstract implements Expression {
 	    return Converters.convert(evaluate( object ), context);
 	}
 	
-	/** Subclass should override, default implementation just returns extraData */
-	public Object accept(ExpressionVisitor visitor, Object extraData) {
-		return extraData;
-	}
-
     /**
      * Helper method for subclasses to reduce null checks
      * @param expression

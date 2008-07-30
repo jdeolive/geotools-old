@@ -21,6 +21,7 @@ import java.util.List;
 import org.geotools.filter.expression.ExpressionAbstract;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.capability.FunctionName;
+import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.Expression;
@@ -93,5 +94,8 @@ public class FunctionImpl extends ExpressionAbstract implements Function {
     public Literal getFallbackValue() {
         return fallbackValue;
     }
-	
+    
+    public Object accept(ExpressionVisitor visitor, Object extraData) {
+    	return visitor.visit( this, extraData );
+    }	
 }
