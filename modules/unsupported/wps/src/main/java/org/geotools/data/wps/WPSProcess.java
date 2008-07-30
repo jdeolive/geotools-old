@@ -19,15 +19,11 @@ package org.geotools.data.wps;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import net.opengis.ows11.ExceptionReportType;
-import net.opengis.wps.DataInputsType;
 import net.opengis.wps.DataType;
 import net.opengis.wps.ExecuteResponseType;
 import net.opengis.wps.InputDescriptionType;
@@ -129,7 +125,7 @@ public class WPSProcess extends AbstractProcess {
 		
 		// if there is an exception in the response, return null
 		// TODO:  properly handle the exception?
-		if (response.getExceptionResponse() != null) {
+		if (response.getExceptionResponse() != null || response.getExecuteResponse() == null) {
 			return null;
 		}
 		
