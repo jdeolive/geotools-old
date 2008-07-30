@@ -59,7 +59,7 @@ public class UnionFactory extends AbstractProcessFactory {
     }
 
     static final Parameter<Geometry> RESULT = 
-        new Parameter<Geometry>("result", Geometry.class, Text.text("Result"), Text.text("Result Unioning given geometries )") );
+        new Parameter<Geometry>("result", Geometry.class, Text.text("Result"), Text.text("Result Unioning given geometries") );
         
     /**
      * Map used for getParameterInfo; used to describe operation requirements for user
