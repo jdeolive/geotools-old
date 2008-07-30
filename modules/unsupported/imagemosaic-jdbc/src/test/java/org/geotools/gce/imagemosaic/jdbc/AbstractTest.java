@@ -54,6 +54,8 @@ import java.sql.SQLException;
 
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -61,27 +63,23 @@ import javax.imageio.ImageIO;
 
 
 public abstract class AbstractTest extends TestCase {
-    //protected static String CRSNAME = "EPSG:31287";
+	
+	protected final static Logger LOGGER = Logger.getLogger(AbstractTest.class.getPackage()
+            .getName());
+	
     protected static String CRSNAME = "EPSG:4326";
     protected static Connection Connection = null;
 
-    //	protected static double DELTA = 200000;
     protected static double DELTA = 1;
 
-    //	protected static GeneralEnvelope ENV_1 = new GeneralEnvelope(new double[] { 500000, 480000 },
-    //           new double[] { 600000, 530000 });
     protected static GeneralEnvelope ENV_1 = new GeneralEnvelope(new double[] {
                 14, 47
             }, new double[] { 16, 48 });
 
-    //    protected static GeneralEnvelope ENV_VIENNA = new GeneralEnvelope(new double[] { 608000, 472000 },
-    //            new double[] { 642000, 496000 });
     protected static GeneralEnvelope ENV_VIENNA = new GeneralEnvelope(new double[] {
                 16.2533, 48.1371
             }, new double[] { 16.4909, 48.2798 });
 
-    //    protected static GeneralEnvelope  ENV_VIENNA2 = new GeneralEnvelope(new double[] { 568000, 432000 },
-    //            new double[] { 682000, 536000 });
     protected static GeneralEnvelope ENV_VIENNA2 = new GeneralEnvelope(new double[] {
                 15.7533, 47.6371
             }, new double[] { 15.9909, 47.7298 });
@@ -100,7 +98,8 @@ public abstract class AbstractTest extends TestCase {
             initOutputDir();
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Cannot init " + OUTPUTDIR_RESOURCES +
+            
+            LOGGER.severe("Cannot init " + OUTPUTDIR_RESOURCES +
                 ", skipping test");
 
             return false;
@@ -111,7 +110,7 @@ public abstract class AbstractTest extends TestCase {
         try {
             Class.forName(driverClassName);
         } catch (ClassNotFoundException ex) {
-            System.out.println(driverClassName + " not found, skipping test");
+        	LOGGER.log(Level.CONFIG,driverClassName + " not found, skipping test");
 
             return false;
         }
@@ -119,7 +118,7 @@ public abstract class AbstractTest extends TestCase {
         File file = getFixtureFile();
 
         if ((file != null) && (file.exists() == false)) {
-            System.out.println(file.getAbsolutePath() +
+        	LOGGER.log(Level.CONFIG,file.getAbsolutePath() +
                 " not found, skipping test");
 
             return false;
@@ -636,11 +635,11 @@ public abstract class AbstractTest extends TestCase {
 
         if (fixture == null) {
             String propertiesName = getSubDir() + ".properties";
-            System.out.println("Fixture not found - make sure " +
+            LOGGER.log(Level.CONFIG,"Fixture not found - make sure " +
                 propertiesName + " copied from build tree resources directory");
-            System.out.println(
+            LOGGER.log(Level.CONFIG,
                 "to Documents and Settings/userid/.geotools/imagemosaic  (Windows) ");
-            System.out.println("or   ~/.geotools/imagemosiac (Unix) ");
+            LOGGER.log(Level.CONFIG,"or   ~/.geotools/imagemosiac (Unix) ");
             throw new IOException("Fixture not found");
         }
     }

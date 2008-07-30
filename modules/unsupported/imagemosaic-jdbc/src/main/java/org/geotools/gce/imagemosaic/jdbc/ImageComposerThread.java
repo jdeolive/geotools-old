@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -44,12 +45,14 @@ class ImageComposerThread extends AbstractThread {
                                                                                      .getName());
     private GridCoverage2D gridCoverage2D;
     private Color outputTransparentColor;
+    private boolean xAxisSwitch;
 
     ImageComposerThread(Color outputTransparentColor, Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo levelInfo,
-        LinkedBlockingQueue<Object> tileQueue, Config config) {
+        LinkedBlockingQueue<Object> tileQueue, Config config, boolean xAxisSwitch) {
         super(pixelDimension, requestEnvelope, levelInfo, tileQueue, config);
         this.outputTransparentColor = outputTransparentColor;
+        this.xAxisSwitch=xAxisSwitch;
     }
 
     private Dimension getStartDimension() {
@@ -96,8 +99,20 @@ class ImageComposerThread extends AbstractThread {
             throw new RuntimeException(e);
         }
 
+        GeneralEnvelope resultEnvelope=null;
+        
+        if (xAxisSwitch) {
+        	Rectangle2D tmp = new Rectangle2D.Double(requestEnvelope.getMinimum(1),requestEnvelope.getMinimum(0),
+        			requestEnvelope.getSpan(1),requestEnvelope.getSpan(0));
+        	resultEnvelope = new GeneralEnvelope(tmp);
+        	resultEnvelope.setCoordinateReferenceSystem(requestEnvelope.getCoordinateReferenceSystem());
+        }
+        else  {
+        	resultEnvelope=requestEnvelope;
+        }
+        	
         gridCoverage2D = coverageFactory.create(config.getCoverageName(),
-                rescaleImage(image), requestEnvelope);
+                rescaleImage(image), resultEnvelope);
     }
 
     GridCoverage2D getGridCoverage2D() {

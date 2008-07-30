@@ -25,6 +25,7 @@ import java.net.URL;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.logging.Level;
 
 
 public class DB2OnlineTest extends AbstractTest {
@@ -111,7 +112,7 @@ public class DB2OnlineTest extends AbstractTest {
             s.registerOutParameter(3, Types.CHAR);
             s.setNull(1, Types.CHAR);
             s.executeUpdate();
-            System.out.println(s.getInt(2) + "|" + s.getString(3));
+            LOGGER.log(Level.INFO,s.getInt(2) + "|" + s.getString(3));
         } catch (SQLException e) {
             Assert.fail(e.getMessage());
             e.printStackTrace();

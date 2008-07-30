@@ -58,8 +58,6 @@ public class H2Test extends AbstractTest {
 
     {
         try {
-            //    		SOURCE = CRS.parseWKT(EPSG_31287_TOWGS84);
-            //    		TARGET = CRS.decode("EPSG:4326");
             TARGET = CRS.parseWKT(EPSG_31287_TOWGS84);
             SOURCE = CRS.decode("EPSG:4326");
         } catch (Exception e) {
@@ -96,7 +94,7 @@ public class H2Test extends AbstractTest {
         suite.addTest(new H2Test("testVienna"));
         suite.addTest(new H2Test("testViennaEnv"));
         suite.addTest(new H2Test("testOutputTransparentColor"));
-//        suite.addTest(new H2Test("testReproject1"));
+        suite.addTest(new H2Test("testReproject1"));
         suite.addTest(new H2Test("testDrop"));
         suite.addTest(new H2Test("testCreateJoined"));
         suite.addTest(new H2Test("testImage1Joined"));
@@ -149,9 +147,9 @@ public class H2Test extends AbstractTest {
         try {
             env.setCoordinateReferenceSystem(SOURCE);
 
-            MathTransform t = CRS.findMathTransform(SOURCE, TARGET);
-            GeneralEnvelope tenv = CRS.transform(t, env);
-            //GeneralEnvelope tenv=new GeneralEnvelope(new Rectangle2D.Double(300000,300000,400000,400000));
+            //MathTransform t = CRS.findMathTransform(SOURCE, TARGET);
+            //GeneralEnvelope tenv = CRS.transform(t, env);
+            GeneralEnvelope tenv=new GeneralEnvelope(new Rectangle2D.Double(300000,300000,400000,400000));
             //TARGET=CRS.decode("EPSG:31287");
             tenv.setCoordinateReferenceSystem(TARGET);
             imageMosaic("partialgreen_reprojected", getConfigUrl(), tenv, 400,

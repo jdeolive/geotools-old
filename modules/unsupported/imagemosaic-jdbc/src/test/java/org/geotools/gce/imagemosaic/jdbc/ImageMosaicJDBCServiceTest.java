@@ -45,9 +45,6 @@ public class ImageMosaicJDBCServiceTest extends TestCase {
     }
 
     public void testIsAvailable() {
-        // String[] f = ImageIO.getReaderFormatNames();
-        // for ( int i = 0; i < f.length;i++ )
-        // System.out.println("Format "+f[i]);
         Iterator<GridFormatFactorySpi> list = GridFormatFinder.getAvailableFormats()
                                                               .iterator();
         boolean found = false;

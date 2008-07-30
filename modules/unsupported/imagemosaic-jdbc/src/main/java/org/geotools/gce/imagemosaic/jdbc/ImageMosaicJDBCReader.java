@@ -30,6 +30,7 @@ import org.geotools.data.DataSourceException;
 
 import org.geotools.factory.Hints;
 
+import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.GeneralEnvelope;
 
 import org.geotools.parameter.Parameter;
@@ -39,10 +40,14 @@ import org.geotools.referencing.operation.BufferedCoordinateOperationFactory;
 
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.geometry.DirectPosition;
 
 import org.opengis.parameter.GeneralParameterValue;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.AxisDirection;
+import org.opengis.referencing.cs.CoordinateSystem;
+import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -60,6 +65,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -95,7 +102,28 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
     private GeneralEnvelope requestedEnvelope = null;
     private GeneralEnvelope requestEnvelopeTransformed = null;
     private Config config;
+    private boolean xAxisSwitch= false;
+    
+    private static Set<AxisDirection> UPDirections;
+    private static Set<AxisDirection> LEFTDirections;
 
+    // class initializer 
+    {
+    	LEFTDirections = new HashSet<AxisDirection>();
+    	LEFTDirections.add( AxisDirection.DISPLAY_LEFT );
+    	LEFTDirections.add( AxisDirection.EAST );
+    	LEFTDirections.add( AxisDirection.GEOCENTRIC_X );
+    	LEFTDirections.add( AxisDirection.COLUMN_POSITIVE );
+    	
+    	UPDirections = new HashSet<AxisDirection>();
+    	UPDirections.add( AxisDirection.DISPLAY_UP );
+    	UPDirections.add( AxisDirection.NORTH );
+    	UPDirections.add( AxisDirection.GEOCENTRIC_Y );
+    	UPDirections.add( AxisDirection.ROW_POSITIVE );
+    	
+    }
+    
+    
     /**
      * @param source	The source object.
      * @param uHints
@@ -160,7 +188,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
             String srsString = config.getCoordsys();
 
             try {
-                crs = CRS.decode(srsString);
+                crs = CRS.decode(srsString,false);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Could not find " + srsString, e);
 
@@ -328,17 +356,37 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
             // transforming the envelope back to the dataset crs in
             final MathTransform transform = operationFactory.createOperation(requestedEnvelope.getCoordinateReferenceSystem(),
                     crs).getMathTransform();
-
+            
             if (transform.isIdentity()) { // Identity Transform ?
                 requestEnvelopeTransformed = requestedEnvelope;
 
                 return; // and finish
             }
 
+            
             requestEnvelopeTransformed = CRS.transform(transform,
                     requestedEnvelope);
             requestEnvelopeTransformed.setCoordinateReferenceSystem(crs);
 
+            int indexX = indexOfX(crs);
+            int indexY = indexOfY(crs);
+            int indexRequestedX = indexOfX(requestedEnvelope.getCoordinateReferenceSystem());
+            int indexRequestedY = indexOfY(requestedEnvelope.getCoordinateReferenceSystem());
+            
+
+            // x Axis problem ???
+            if (indexX == indexRequestedY && indexY == indexRequestedX) {
+            	xAxisSwitch=true;
+            	Rectangle2D tmp = new Rectangle2D.Double(requestEnvelopeTransformed.getMinimum(1),requestEnvelopeTransformed.getMinimum(0),
+            			requestEnvelopeTransformed.getSpan(1),requestEnvelopeTransformed.getSpan(0));
+            	requestEnvelopeTransformed = new GeneralEnvelope(tmp);
+            	requestEnvelopeTransformed.setCoordinateReferenceSystem(crs);
+            } else if (indexX == indexRequestedX && indexY == indexRequestedY) {
+            	// everything is fine
+            } else {
+            	throw new DataSourceException("Unable to resolve the X Axis problem");
+            }
+            
             if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.fine(new StringBuffer("Reprojected envelope ").append(
                         requestedEnvelope.toString()).append(" crs ")
@@ -423,7 +471,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 
         ImageComposerThread imageComposerThread = new ImageComposerThread(outputTransparentColor,
                 pixelDimension, requestEnvelopeTransformed, info, tileQueue,
-                config);
+                config,xAxisSwitch);
         imageComposerThread.start();
 
         jdbcAccess.startTileDecoders(pixelDimension,
@@ -436,7 +484,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
         }
 
         GridCoverage2D result = imageComposerThread.getGridCoverage2D();
-
+        
         return transformResult(result, pixelDimension);
     }
 
@@ -448,24 +496,24 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 
         GridCoverage2D result = null;
         LOGGER.info("Image reprojection necessairy");
-        // coverage.show();
+        //coverage.show();
         result = (GridCoverage2D) Operations.DEFAULT.resample(coverage,
                 requestedEnvelope.getCoordinateReferenceSystem());
-        // result.show();
-        result = (GridCoverage2D) Operations.DEFAULT.crop(result,
-                requestedEnvelope);
-        // result.show();
-        result = (GridCoverage2D) Operations.DEFAULT.scale(result, 1, 1,
-                -result.getRenderedImage().getMinX(),
-                -result.getRenderedImage().getMinY());
-
-        // result.show();
-        double scalex = pixelDimension.getWidth() / result.getRenderedImage()
-                                                          .getWidth();
-        double scaley = pixelDimension.getHeight() / result.getRenderedImage()
-                                                           .getHeight();
-        result = (GridCoverage2D) Operations.DEFAULT.scale(result, scalex,
-                scaley, 0, 0);
+//        result.show();
+//        result = (GridCoverage2D) Operations.DEFAULT.crop(result,
+//               requestedEnvelope);
+//        result.show();
+//        result = (GridCoverage2D) Operations.DEFAULT.scale(result, 1, 1,
+//                -result.getRenderedImage().getMinX(),
+//                -result.getRenderedImage().getMinY());
+//
+//        result.show();
+//        double scalex = pixelDimension.getWidth() / result.getRenderedImage()
+//                                                          .getWidth();
+//        double scaley = pixelDimension.getHeight() / result.getRenderedImage()
+//                                                           .getHeight();
+//        result = (GridCoverage2D) Operations.DEFAULT.scale(result, scalex,
+//                scaley, 0, 0);
 
         // avoid lazy calculation
         RenderedImageAdapter adapter = new RenderedImageAdapter(result.getRenderedImage());
@@ -474,12 +522,6 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
         return coverageFactory.create(result.getName(), resultImage,
             result.getEnvelope());
 
-        // result.show();
-
-        // AffineTransform transform = (AffineTransform)
-        // result.getGridGeometry().getGridToCRS();
-
-        // return result;
     }
 
     /**
@@ -499,5 +541,32 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
         g2D.setColor(save);
 
         return emptyImage;
+    }
+    
+    
+    
+    /**
+     * @param crs  CoordinateReference System
+     * @return 	 	dimension index of y dir in crs
+     */
+    private int indexOfY( CoordinateReferenceSystem crs ){
+        return indexOf( crs, UPDirections );
+    }
+    
+    /**
+     * @param crs  CoordinateReference System
+     * @return 	 	dimension index of X dir in crs
+     */
+    private int indexOfX( CoordinateReferenceSystem crs ){
+        return indexOf( crs, LEFTDirections );
+    }
+    
+    private int indexOf( CoordinateReferenceSystem crs, Set<AxisDirection> direction ){
+       CoordinateSystem cs = crs.getCoordinateSystem();
+       for( int index=0; index<cs.getDimension(); index++){
+           CoordinateSystemAxis axis = cs.getAxis(index);
+           if( direction.contains( axis.getDirection())) return index;
+       }   
+       return -1;
     }
 }
