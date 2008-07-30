@@ -59,6 +59,7 @@
   <groupId>org.geotools</groupId>
   <artifactId>gt-wps</artifactId>
   <packaging>jar</packaging>
+  <name>Web Processing Service</name>
   <url>http://maven.geotools.fr/reports/modules/unsupported/wps/</url>
   <scm>
     <connection>
