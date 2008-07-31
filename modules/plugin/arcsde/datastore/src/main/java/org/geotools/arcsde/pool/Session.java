@@ -184,7 +184,7 @@ class Session implements ISession {
                     final Thread currentThread = Thread.currentThread();
 
                     if (commandThread != currentThread) {
-                        LOGGER.info("updating command thread from " + commandThread + " to "
+                        LOGGER.fine("updating command thread from " + commandThread + " to "
                                 + currentThread);
                         commandThread = currentThread;
 
@@ -238,7 +238,7 @@ class Session implements ISession {
             public Object call() throws Exception {
                 final Thread currentThread = Thread.currentThread();
                 if (currentThread != commandThread) {
-                    LOGGER.info("updating command thread from " + commandThread + " to "
+                    LOGGER.fine("updating command thread from " + commandThread + " to "
                             + currentThread);
                     commandThread = currentThread;
                 }

@@ -17,11 +17,13 @@
 package org.geotools.arcsde.data.versioning;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
-import org.geotools.data.DataSourceException;
+import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
@@ -42,6 +44,8 @@ import com.esri.sde.sdk.client.SeVersion;
  */
 public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
 
+    private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.data.versioning");
+
     private final ISession session;
 
     private final SeVersion defaultVersion;
@@ -57,6 +61,7 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
 
     public TransactionDefaultVersionHandler(final ISession session) throws IOException {
         this.session = session;
+        LOGGER.finest("Getting default version");
         defaultVersion = session.getDefaultVersion();
     }
 
@@ -73,17 +78,35 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
             public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
 
+                LOGGER.finest("setting up stream for transaction on a versioned table");
+
                 if (transactionState == null) {
+                    LOGGER.finer("no transaction state created yet, about "
+                            + "to create a new state for the transaction");
                     try {
+                        LOGGER.finest("Refreshing default version info");
                         defaultVersion.getInfo();
+
+                        LOGGER.finest("Getting default version state");
                         final SeState currentState = new SeState(connection, defaultVersion
                                 .getStateId());
                         final long currentStateId = currentState.getId().longValue();
+
+                        if (LOGGER.isLoggable(Level.FINER)) {
+                            LOGGER.finer("Default version state: " + currentStateId + ", open: "
+                                    + currentState.isOpen() + ", owner: " + currentState.getOwner()
+                                    + ", current user: " + connection.getUser());
+                        }
+
+                        LOGGER.finer("Creating new state for the transaction...");
                         transactionState = session.createChildState(currentStateId);
 
-                        // grab a lock on the state
-                        transactionState.lock();
+                        LOGGER.finer("New transaction state: " + transactionState.getId()
+                                + ", parent: " + transactionState.getParentId().longValue());
 
+                        LOGGER.finer("Locking the transaction state");
+                        transactionState.lock();
+                        LOGGER.finer("Transaction state locked");
                     } catch (SeException e) {
                         throw new ArcSdeException(e);
                     }
@@ -121,20 +144,28 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
      * @see ArcSdeVersionHandler#commitEditState()
      */
     public void commitEditState() throws IOException {
+        LOGGER.fine("Commiting versioned state");
         if (transactionState == null) {
+            LOGGER.fine("Already commited, ignoring operation");
             return;
         }
+
         session.issue(new Command<Void>() {
             @Override
             public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 SeObjectId transactionStateId = transactionState.getId();
+                LOGGER.finer("Refreshing default version info");
                 defaultVersion.getInfo();
+                LOGGER.finer("Chaning default version state to point to transaction state "
+                        + transactionStateId);
                 defaultVersion.changeState(transactionStateId);
 
+                // SeObjectId parentStateId = transactionState.getId();
+                // transactionState.trimTree(parentStateId, transactionStateId);
+                LOGGER.finer("Freeing transaction state lock");
                 transactionState.freeLock();
-                // transactionState.trimTree(initialStateId,
-                // transactionStateId);
+
                 transactionState = null;
                 return null;
             }
@@ -147,7 +178,9 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
      * @see ArcSdeVersionHandler#rollbackEditState()
      */
     public void rollbackEditState() throws IOException {
+        LOGGER.finer("Rolling back versioned transaction state");
         if (transactionState == null) {
+            LOGGER.finer("Already rolled back, ignoring operation");
             return;
         }
         session.issue(new Command<Void>() {
@@ -155,7 +188,14 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
             @Override
             public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
-                transactionState.freeLock();
+                try {
+                    LOGGER.finer("Releasing lock on transaction state "
+                            + transactionState.getId().longValue());
+                    transactionState.freeLock();
+                } catch (SeException e) {
+                    // no locked any more, ignore
+                }
+                LOGGER.finer("Deleting transaction state " + transactionState.getId().longValue());
                 transactionState.delete();
                 transactionState = null;
 

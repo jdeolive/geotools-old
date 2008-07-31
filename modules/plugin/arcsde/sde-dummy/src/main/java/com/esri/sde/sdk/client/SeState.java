@@ -47,4 +47,8 @@ public class SeState {
     public void merge(SeObjectId id, SeObjectId id2)throws SeException {
     }
 
+    public String getOwner() {
+        return null;
+    }
+
 }

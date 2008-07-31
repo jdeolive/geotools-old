@@ -124,7 +124,7 @@ public class SessionPool {
 
         this.pool = new GenericObjectPool(seConnectionFactory, maxConnections, exhaustedAction,
                 maxWait, true, true);
-        LOGGER.info("Created ArcSDE connection pool for " + config);
+        LOGGER.fine("Created ArcSDE connection pool for " + config);
 
         ISession[] preload = new ISession[minConnections];
 
@@ -138,7 +138,7 @@ public class SessionPool {
                     int minor = seRelease.getMinor();
                     int bugFix = seRelease.getBugFix();
                     String desc = "ArcSDE " + major + "." + minor + "." + bugFix + " " + sdeDesc;
-                    LOGGER.info("Connected to " + desc);
+                    LOGGER.fine("Connected to " + desc);
                 }
             }
 
