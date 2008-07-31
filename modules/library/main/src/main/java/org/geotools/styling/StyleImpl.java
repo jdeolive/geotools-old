@@ -61,9 +61,9 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
 			public InternationalString getTitle() {
 				return new SimpleInternationalString(title);
 			}    		
-			public void accept(org.opengis.style.StyleVisitor visitor) {
-				visitor.visit(this,null);
-			}    		
+			public Object accept(org.opengis.style.StyleVisitor visitor, Object data) {
+				return visitor.visit(this, data);
+			}     		
     	};
     }
     public String getAbstract() {

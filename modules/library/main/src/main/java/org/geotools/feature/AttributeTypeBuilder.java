@@ -100,11 +100,17 @@ public class AttributeTypeBuilder {
 	//AttributeType
 	//
 	/**
-	 * name
+	 * Local name used to name a descriptor; or combined with namespaceURI to name a type.
 	 */
 	protected String name;
+	
 	/**
-	 * namespace uri
+	 * Separator used to combine namespaceURI and name.
+	 */
+	private String separator = ":";
+
+	/**
+	 * namespace used to distingish between otherwise identical type names.
 	 */
 	protected String namespaceURI;
 	/**
@@ -182,7 +188,7 @@ public class AttributeTypeBuilder {
      * filter factory
      */
     protected FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-	
+
 	/**
 	 * Constructs the builder.
 	 *
@@ -250,6 +256,7 @@ public class AttributeTypeBuilder {
 	 */
 	public AttributeTypeBuilder init( AttributeType type ) {
 		name = type.getName().getLocalPart();
+		separator = type.getName().getSeparator();
 		namespaceURI = type.getName().getNamespaceURI();
 		isAbstract = type.isAbstract();
 		
@@ -448,7 +455,7 @@ public class AttributeTypeBuilder {
 	    }
 	    
 		AttributeType type = factory.createAttributeType(
-			new NameImpl(namespaceURI,typeName()), binding, isIdentifiable, isAbstract, 
+			name(), binding, isIdentifiable, isAbstract, 
 			restrictions(), superType, description());
 		resetTypeState();
 		
@@ -473,7 +480,7 @@ public class AttributeTypeBuilder {
 	 */
 	public GeometryType buildGeometryType() {
 		GeometryType type = factory.createGeometryType(
-			new NameImpl(namespaceURI,typeName()), binding, crs, isIdentifiable, isAbstract, 
+			name(), binding, crs, isIdentifiable, isAbstract, 
 			restrictions(), superType, description());
 		
 		resetTypeState();
@@ -575,6 +582,14 @@ public class AttributeTypeBuilder {
         return maxOccurs;
     }
 	
+    private Name name(){
+    	if( separator == null ){
+    		return new NameImpl( namespaceURI, typeName() );
+    	}
+    	else {
+    		return new NameImpl( namespaceURI, separator, typeName() );
+    	}
+    }
 	private Object defaultValue(){
 	    if( defaultValue == null && !isNillable && binding != null){
 	        defaultValue = DataUtilities.defaultValue( binding );

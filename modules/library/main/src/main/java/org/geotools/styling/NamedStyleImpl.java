@@ -63,8 +63,8 @@ public class NamedStyleImpl implements NamedStyle {
 			public InternationalString getTitle() {
 				return new SimpleInternationalString("");
 			}   
-			public void accept(org.opengis.style.StyleVisitor visitor) {
-				visitor.visit(this, null);
+			public Object accept(org.opengis.style.StyleVisitor visitor, Object data) {
+				return visitor.visit(this, data);
 			}    		
     	};
     }

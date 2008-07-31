@@ -17,6 +17,7 @@
 package org.geotools.feature;
 
 import org.geotools.util.Utilities;
+import org.opengis.feature.type.Name;
 
 
 /**
@@ -48,6 +49,8 @@ public class NameImpl implements org.opengis.feature.type.Name {
     /** local part */
     protected String local;
 
+	private String separator;
+
     /**
      * Constructs an instance with the local part set. Namespace / scope is
      * set to null.
@@ -66,14 +69,27 @@ public class NameImpl implements org.opengis.feature.type.Name {
      *
      */
     public NameImpl(String namespace, String local) {
+        this( namespace, ":", local );
+    }
+    /**
+     * Constructs an instance with the local part and namespace set.
+     *
+     * @param namespace The namespace or scope of the name.
+     * @param local The local part of the name.
+     *
+     */
+    public NameImpl(String namespace, String separator, String local) {
         this.namespace = namespace;
+        this.separator = separator;
         this.local = local;
     }
 
     public boolean isGlobal() {
         return getNamespaceURI() == null;
     }
-
+	public String getSeparator() {
+		return separator;
+	}
     public String getNamespaceURI() {
         return namespace;
     }
@@ -86,30 +102,22 @@ public class NameImpl implements org.opengis.feature.type.Name {
         if ((namespace == null) && (local == null)) {
             return null;
         }
-
         if (namespace == null) {
             return local;
         }
-
         if (local == null) {
             return namespace;
         }
-
-        //return new StringBuffer(namespace).append(':').append(local).toString();
-        // you may expect a seperator? I am afriad not - different
-        // domains have different customs for seperators; plesae
-        // include the seperator (if you actually need one) as part
-        // of your namespace.
-        return new StringBuffer(namespace).append(local).toString();
+        return new StringBuffer(namespace).append(separator).append(local).toString();
     }
 
     /**
-     * value object with equality based on name and namespace.
+     * Returns a hash code value for this operand.
      */
+    @Override
     public int hashCode() {
-        String uri = getURI();
-
-        return (uri != null) ? uri.hashCode() : 0;
+    	return (namespace== null ? 0 : namespace.hashCode()) +
+    	        37*(local== null ? 0 : local.hashCode());
     }
 
     /**
@@ -119,20 +127,16 @@ public class NameImpl implements org.opengis.feature.type.Name {
         if(obj == this)
             return true;
         
-        if (obj instanceof NameImpl) {
-            NameImpl other = (NameImpl) obj;
-            if(!Utilities.equals(this.namespace, other.namespace))
-                return false;
-            if(!Utilities.equals(this.local, other.local))
-                return false;
-                
+        if (obj instanceof Name) {
+            NameImpl other = (NameImpl) obj;            
+            if(!Utilities.equals(this.namespace, other.getNamespaceURI())){
+            	return false;
+            }
+            if(!Utilities.equals(this.local, other.getLocalPart())){
+                return false;                
+            }
             return true;
-        } else if (obj instanceof org.opengis.feature.type.Name) {
-            org.opengis.feature.type.Name other = (org.opengis.feature.type.Name) obj;
-
-            return Utilities.equals(getURI(), other.getURI());
         }
-
         return false;
     }
 
