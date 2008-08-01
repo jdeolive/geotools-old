@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 
 import java.net.URL;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -200,7 +201,7 @@ class DDLGenerator {
         }
 
         w.close();
-        logger.info(FN_FILLMETA + " generated");
+        if (logger.isLoggable(Level.INFO)) logger.info(FN_FILLMETA + " generated");
     }
 
     void writeCreateMeta() throws Exception {
@@ -208,7 +209,7 @@ class DDLGenerator {
         w.print(dbDialect.getCreateMasterStatement());
         w.println(statementDelim);
         w.close();
-        logger.info(FN_CREATEMETA + " generated");
+        if (logger.isLoggable(Level.INFO)) logger.info(FN_CREATEMETA + " generated");
     }
 
     void writeCreateTables() throws Exception {
@@ -230,7 +231,7 @@ class DDLGenerator {
         }
 
         w.close();
-        logger.info(FN_CREATETABLES + " generated");
+        if (logger.isLoggable(Level.INFO)) logger.info(FN_CREATETABLES + " generated");
     }
 
     void writeCreateIndexes() throws Exception {
@@ -243,7 +244,7 @@ class DDLGenerator {
         }
 
         w.close();
-        logger.info(FN_CREATEINDEXES + " generated");
+        if (logger.isLoggable(Level.INFO)) logger.info(FN_CREATEINDEXES + " generated");
     }
 
     void writeDropMeta() throws IOException {
@@ -251,7 +252,7 @@ class DDLGenerator {
         w.print(dbDialect.getDropTableStatement(config.getMasterTable()));
         w.println(statementDelim);
         w.close();
-        logger.info(FN_DROPMETA + " generated");
+        if (logger.isLoggable(Level.INFO)) logger.info(FN_DROPMETA + " generated");
     }
 
     void writeDropTables() throws IOException {
@@ -274,7 +275,7 @@ class DDLGenerator {
         }
 
         w.close();
-        logger.info(FN_DROPTABLES + " generated");
+        if (logger.isLoggable(Level.INFO))  logger.info(FN_DROPTABLES + " generated");
     }
 
     String getTabelName(String prefix, int level) {
@@ -291,7 +292,7 @@ class DDLGenerator {
         }
 
         w.close();
-        logger.info(FN_DROPINIDEXES + " generated");
+        if (logger.isLoggable(Level.INFO)) logger.info(FN_DROPINIDEXES + " generated");
     }
 
     static boolean needsSpatialRegistry(Config config) {
@@ -320,7 +321,7 @@ class DDLGenerator {
         }
 
         w.close();
-        logger.info(FN_REGISTER + " generated");
+        if (logger.isLoggable(Level.INFO)) logger.info(FN_REGISTER + " generated");
     }
 
     void writeUnRegister() throws IOException {
@@ -337,6 +338,6 @@ class DDLGenerator {
         }
 
         w.close();
-        logger.info(FN_UNREGISTER + " generated");
+        if (logger.isLoggable(Level.INFO)) logger.info(FN_UNREGISTER + " generated");
     }
 }

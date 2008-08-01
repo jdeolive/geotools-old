@@ -21,6 +21,7 @@ import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageDecoder;
 import com.sun.media.jai.codec.SeekableStream;
 
+import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.geometry.GeneralEnvelope;
 
 import java.awt.Graphics2D;
@@ -67,8 +68,8 @@ class ImageDecoderThread extends AbstractThread {
     ImageDecoderThread(byte[] bytes, String location,
         GeneralEnvelope tileEnvelope, Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo levelInfo,
-        LinkedBlockingQueue<Object> tileQueue, Config config) {
-        super(pixelDimension, requestEnvelope, levelInfo, tileQueue, config);
+        LinkedBlockingQueue<Object> tileQueue, Config config, GridCoverageFactory coverageFactory) {
+        super(pixelDimension, requestEnvelope, levelInfo, tileQueue, config,coverageFactory);
 
         this.imageBytes = bytes;
         this.location = location;
@@ -118,7 +119,7 @@ class ImageDecoderThread extends AbstractThread {
                             0) * tileEnvelope.getSpan(0)));
                 int height = (int) (Math.round(bufferedImage.getHeight() / savedTileEnvelope.getSpan(
                             1) * tileEnvelope.getSpan(1)));
-
+                
                 if ((width > 0) && (height > 0)) {
                     clippedImage = new BufferedImage(width, height,
                             BufferedImage.TYPE_INT_ARGB);
@@ -126,6 +127,11 @@ class ImageDecoderThread extends AbstractThread {
                     Graphics2D g2D = (Graphics2D) clippedImage.getGraphics();
                     g2D.drawImage(bufferedImage,
                         AffineTransform.getTranslateInstance(-x, -y), null);
+                	
+//                	int subX = x >= 0 ? x : 0;
+//                	int subY = y >=0 ? y : 0;
+//                	clippedImage=bufferedImage.getSubimage(subX, subY,width,height);
+                	
                     tileQueue.add(coverageFactory.create(location,
                             clippedImage, tileEnvelope));
                 }

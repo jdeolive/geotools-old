@@ -110,7 +110,8 @@ public abstract class AbstractTest extends TestCase {
         try {
             Class.forName(driverClassName);
         } catch (ClassNotFoundException ex) {
-        	LOGGER.log(Level.CONFIG,driverClassName + " not found, skipping test");
+        	if (LOGGER.isLoggable(Level.CONFIG))
+        		LOGGER.log(Level.CONFIG,driverClassName + " not found, skipping test");
 
             return false;
         }
@@ -118,8 +119,9 @@ public abstract class AbstractTest extends TestCase {
         File file = getFixtureFile();
 
         if ((file != null) && (file.exists() == false)) {
-        	LOGGER.log(Level.CONFIG,file.getAbsolutePath() +
-                " not found, skipping test");
+        	if (LOGGER.isLoggable(Level.CONFIG))
+        		LOGGER.log(Level.CONFIG,file.getAbsolutePath() +
+                	" not found, skipping test");
 
             return false;
         }
@@ -635,11 +637,13 @@ public abstract class AbstractTest extends TestCase {
 
         if (fixture == null) {
             String propertiesName = getSubDir() + ".properties";
-            LOGGER.log(Level.CONFIG,"Fixture not found - make sure " +
-                propertiesName + " copied from build tree resources directory");
-            LOGGER.log(Level.CONFIG,
-                "to Documents and Settings/userid/.geotools/imagemosaic  (Windows) ");
-            LOGGER.log(Level.CONFIG,"or   ~/.geotools/imagemosiac (Unix) ");
+        	if (LOGGER.isLoggable(Level.CONFIG)) {
+        		LOGGER.log(Level.CONFIG,"Fixture not found - make sure " +
+        				propertiesName + " copied from build tree resources directory");
+        		LOGGER.log(Level.CONFIG,
+        			"to Documents and Settings/userid/.geotools/imagemosaic  (Windows) ");
+        		LOGGER.log(Level.CONFIG,"or   ~/.geotools/imagemosiac (Unix) ");
+        	}
             throw new IOException("Fixture not found");
         }
     }

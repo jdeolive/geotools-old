@@ -17,6 +17,7 @@
 package org.geotools.gce.imagemosaic.jdbc;
 
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridCoverageFactory;
 
 import org.geotools.geometry.GeneralEnvelope;
 
@@ -49,8 +50,8 @@ class ImageComposerThread extends AbstractThread {
 
     ImageComposerThread(Color outputTransparentColor, Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo levelInfo,
-        LinkedBlockingQueue<Object> tileQueue, Config config, boolean xAxisSwitch) {
-        super(pixelDimension, requestEnvelope, levelInfo, tileQueue, config);
+        LinkedBlockingQueue<Object> tileQueue, Config config, boolean xAxisSwitch,GridCoverageFactory coverageFactory) {
+        super(pixelDimension, requestEnvelope, levelInfo, tileQueue, config,coverageFactory);
         this.outputTransparentColor = outputTransparentColor;
         this.xAxisSwitch=xAxisSwitch;
     }

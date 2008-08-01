@@ -16,6 +16,7 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
+import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.geometry.GeneralEnvelope;
 
 import java.awt.Rectangle;
@@ -43,11 +44,12 @@ interface JDBCAccess {
      * @param requestEnvelope		the needed envelope in world coordinates
      * @param info					the corresponding ImageLevelInfo object
      * @param tileQueue				a queue where to put the thread results
+     * @param coverageFactory  GridCoverageFactory 
      * @throws IOException			
      */
     public abstract void startTileDecoders(Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo info,
-        LinkedBlockingQueue<Object> tileQueue) throws IOException;
+        LinkedBlockingQueue<Object> tileQueue,GridCoverageFactory coverageFactory) throws IOException;
 
     /**
      * @param level		the level (0 is original, 1 is first pyramid,...)

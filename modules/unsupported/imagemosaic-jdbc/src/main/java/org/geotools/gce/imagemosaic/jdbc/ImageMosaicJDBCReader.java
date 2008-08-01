@@ -471,11 +471,11 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 
         ImageComposerThread imageComposerThread = new ImageComposerThread(outputTransparentColor,
                 pixelDimension, requestEnvelopeTransformed, info, tileQueue,
-                config,xAxisSwitch);
+                config,xAxisSwitch,coverageFactory);
         imageComposerThread.start();
 
         jdbcAccess.startTileDecoders(pixelDimension,
-            requestEnvelopeTransformed, info, tileQueue);
+            requestEnvelopeTransformed, info, tileQueue,coverageFactory);
 
         try {
             imageComposerThread.join();
@@ -516,10 +516,10 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 //                scaley, 0, 0);
 
         // avoid lazy calculation
-        RenderedImageAdapter adapter = new RenderedImageAdapter(result.getRenderedImage());
-        BufferedImage resultImage = adapter.getAsBufferedImage();
+        // RenderedImageAdapter adapter = new RenderedImageAdapter(result.getRenderedImage());
+        ///BufferedImage resultImage = adapter.getAsBufferedImage();
 
-        return coverageFactory.create(result.getName(), resultImage,
+        return coverageFactory.create(result.getName(), result.getRenderedImage(),
             result.getEnvelope());
 
     }

@@ -38,7 +38,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  */
 abstract class AbstractThread extends Thread {
-    final static GridCoverageFactory coverageFactory = new GridCoverageFactory();
+    protected GridCoverageFactory coverageFactory;
     LinkedBlockingQueue<Object> tileQueue;
     Config config;
     GeneralEnvelope requestEnvelope;
@@ -62,16 +62,20 @@ abstract class AbstractThread extends Thread {
      *            queue for thread synchronization
      * @param config
      *            the configuraton of the plugin
+     * @param coverageFactory
+     *            the needed GridCoverageFactory
+     *            
      */
     AbstractThread(Rectangle pixelDimenison, GeneralEnvelope requestEnvelope,
         ImageLevelInfo levelInfo, LinkedBlockingQueue<Object> tileQueue,
-        Config config) {
+        Config config,GridCoverageFactory coverageFactory) {
         super();
         this.config = config;
         this.tileQueue = tileQueue;
         this.requestEnvelope = requestEnvelope;
         this.levelInfo = levelInfo;
         this.pixelDimension = pixelDimenison;
+        this.coverageFactory=coverageFactory;
 
         resX = requestEnvelope.getSpan(0) / pixelDimenison.getWidth();
         resY = requestEnvelope.getSpan(1) / pixelDimenison.getHeight();

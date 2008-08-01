@@ -778,7 +778,7 @@ public class Import {
     }
 
     private void logInfo(String msg) {
-        logger.log(Level.INFO, msg);
+    	if (logger.isLoggable(Level.INFO)) logger.log(Level.INFO, msg);
     }
 
     private void sqlExecute(PreparedStatement ps) throws SQLException {

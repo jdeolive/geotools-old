@@ -77,7 +77,6 @@ abstract class JDBCAccessBase implements JDBCAccess {
     /** Logger. */
     protected final static Logger LOGGER = Logger.getLogger(JDBCAccessBase.class.getPackage()
                                                                                 .getName());
-    protected final static GridCoverageFactory coverageFactory = new GridCoverageFactory();
     private List<ImageLevelInfo> levelInfos = new ArrayList<ImageLevelInfo>();
     protected Config config;
     protected DataSource dataSource = null;
@@ -130,7 +129,7 @@ abstract class JDBCAccessBase implements JDBCAccess {
             con.close();
 
             for (ImageLevelInfo levelInfo : levelInfos) {
-                LOGGER.info(levelInfo.infoString());
+            	if (LOGGER.isLoggable(Level.INFO)) LOGGER.info(levelInfo.infoString());
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -211,14 +210,16 @@ abstract class JDBCAccessBase implements JDBCAccess {
                             " has no entries");
                     } else if (imageLevelInfo.getCountFeature().intValue() != imageLevelInfo.getCountTiles()
                                                                                                 .intValue()) {
-                        LOGGER.log(Level.WARNING,
+                        if (LOGGER.isLoggable(Level.WARNING)) 
+                        		LOGGER.log(Level.WARNING,
                             "Consistency warning: number of features: " +
                             imageLevelInfo.getCountFeature() +
                             " number tiles: " + imageLevelInfo.getCountTiles());
                     } else {
-                        LOGGER.fine("Number of features: " +
-                            imageLevelInfo.getCountFeature() +
-                            " number tiles: " + imageLevelInfo.getCountTiles());
+                    	if (LOGGER.isLoggable(Level.FINE))
+                    		LOGGER.fine("Number of features: " +
+                    				imageLevelInfo.getCountFeature() +
+                    				" number tiles: " + imageLevelInfo.getCountTiles());
                     }
                 }
 
@@ -376,12 +377,12 @@ abstract class JDBCAccessBase implements JDBCAccess {
             }
 
             Date start = new Date();
-            LOGGER.info("Calculate extent for " + li.toString());
+            if (LOGGER.isLoggable(Level.INFO)) LOGGER.info("Calculate extent for " + li.toString());
 
             Envelope env = getExtent(li, con);
 
             if (env == null) {
-                LOGGER.log(Level.WARNING, "No extent, removing this level");
+            	if (LOGGER.isLoggable(Level.WARNING)) LOGGER.log(Level.WARNING, "No extent, removing this level");
                 toBeRemoved.add(li);
 
                 continue;
@@ -403,8 +404,9 @@ abstract class JDBCAccessBase implements JDBCAccess {
 
             long msecs = (new Date()).getTime() - start.getTime();
 
-            LOGGER.info("Calculate extent for " + li.toString() +
-                " finished in " + msecs + " ms ");
+            if (LOGGER.isLoggable(Level.INFO)) 
+            	LOGGER.info("Calculate extent for " + li.toString() +
+            			" finished in " + msecs + " ms ");
         }
 
         levelInfos.removeAll(toBeRemoved);
@@ -446,12 +448,12 @@ abstract class JDBCAccessBase implements JDBCAccess {
             }
 
             Date start = new Date();
-            LOGGER.info("Calculate resolutions for " + li.toString());
+            if (LOGGER.isLoggable(Level.INFO)) LOGGER.info("Calculate resolutions for " + li.toString());
 
             double[] resolutions = getPixelResolution(li, con);
 
             if (resolutions == null) {
-                LOGGER.log(Level.WARNING,
+            	if (LOGGER.isLoggable(Level.WARNING)) LOGGER.log(Level.WARNING,
                     "No image found, removing " + li.toString());
                 toBeRemoved.add(li);
 
@@ -460,7 +462,7 @@ abstract class JDBCAccessBase implements JDBCAccess {
 
             li.setResX(resolutions[0]);
             li.setResY(resolutions[1]);
-            LOGGER.info("ResX: " + li.getResX() + " ResY: " + li.getResY());
+            if (LOGGER.isLoggable(Level.INFO)) LOGGER.info("ResX: " + li.getResX() + " ResY: " + li.getResY());
 
             // li.setColorModel(loadedImage.getColorModel());
             stmt.setDouble(1, li.getResX().doubleValue());
@@ -472,7 +474,7 @@ abstract class JDBCAccessBase implements JDBCAccess {
 
             long msecs = (new Date()).getTime() - start.getTime();
 
-            LOGGER.info("Calculate resolutions for " + li.toString() +
+            if (LOGGER.isLoggable(Level.INFO)) LOGGER.info("Calculate resolutions for " + li.toString() +
                 " finished in " + msecs + " ms ");
         }
 
@@ -513,7 +515,7 @@ abstract class JDBCAccessBase implements JDBCAccess {
      */
     public void startTileDecoders(Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo levelInfo,
-        LinkedBlockingQueue<Object> tileQueue) throws IOException {
+        LinkedBlockingQueue<Object> tileQueue,GridCoverageFactory coverageFactory) throws IOException {
         Date start = new Date();
         Connection con = null;
         List<ImageDecoderThread> threads = new ArrayList<ImageDecoderThread>();
@@ -541,7 +543,7 @@ abstract class JDBCAccessBase implements JDBCAccess {
 
                 ImageDecoderThread thread = new ImageDecoderThread(tileBytes,
                         location, tileGeneralEnvelope, pixelDimension,
-                        requestEnvelope, levelInfo, tileQueue, config);
+                        requestEnvelope, levelInfo, tileQueue, config,coverageFactory);
                 thread.start();
                 threads.add(thread);
             }
@@ -570,7 +572,8 @@ abstract class JDBCAccessBase implements JDBCAccess {
             throw new IOException(e.getMessage());
         }
 
-        LOGGER.info("Getting " + threads.size() + " Tiles needs " +
+        if (LOGGER.isLoggable(Level.INFO)) 
+        	LOGGER.info("Getting " + threads.size() + " Tiles needs " +
             ((new Date()).getTime() - start.getTime()) + " millisecs");
 
         // wait for all threas dto finish and write end marker
@@ -584,7 +587,8 @@ abstract class JDBCAccessBase implements JDBCAccess {
 
         tileQueue.add(ImageMosaicJDBCReader.QUEUE_END);
 
-        LOGGER.info("Getting and decoding  " + threads.size() +
+        if (LOGGER.isLoggable(Level.INFO)) 
+        	LOGGER.info("Getting and decoding  " + threads.size() +
             " Tiles needs " + ((new Date()).getTime() - start.getTime()) +
             " millisecs");
     }
