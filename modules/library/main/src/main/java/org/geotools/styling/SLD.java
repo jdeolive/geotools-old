@@ -876,6 +876,123 @@ public class SLD {
     }
 
     /**
+     * Updates the raster opacity in the current style
+     * 
+     * <p>
+     * This method will update the Style in place; some of the rules &
+     * symbolizers will be replace with modified copies.
+     * 
+     *  All symbolizers associated with all rules are modified.
+     * </p>
+     * 
+     * @param style
+     * @param opacity - new opacity value between 0 and 1
+     */
+    public static void setRasterOpacity(Style style, final double opacity){
+    	if (style == null){
+    		return;
+    	}
+    	for (FeatureTypeStyle featureTypeStyle : style.getFeatureTypeStyles()) {
+			for (int i = 0; i < featureTypeStyle.rules().size(); i++) {
+				Rule rule = featureTypeStyle.rules().get(i);
+				
+				DuplicatingStyleVisitor update = new DuplicatingStyleVisitor() {
+					public void visit(RasterSymbolizer raster) {
+						
+						ChannelSelection channelSelection = copy(raster.getChannelSelection());
+						ColorMap colorMap = copy(raster.getColorMap());
+						ContrastEnhancement ce = copy(raster.getContrastEnhancement());
+						String geometryProperty = raster.getGeometryPropertyName();
+						Symbolizer outline = copy(raster.getImageOutline());			
+						Expression overlap = copy(raster.getOverlap());
+						ShadedRelief shadedRelief = copy(raster.getShadedRelief());
+						
+						Expression newOpacity = ff.literal(opacity);
+						
+						RasterSymbolizer copy = sf.createRasterSymbolizer(geometryProperty, newOpacity, channelSelection, 
+								overlap, colorMap, ce, shadedRelief, outline);
+						
+				        if( STRICT && !copy.equals( raster )){
+				            throw new IllegalStateException("Was unable to duplicate provided raster:"+raster );
+				        }
+				        pages.push(copy);
+					}
+				};
+				
+				rule.accept(update);
+				Rule updatedRule = (Rule) update.getCopy();
+				featureTypeStyle.rules().set(i, updatedRule);
+			}
+		} 
+    }
+    
+    /**
+     * Updates the raster channel selection in the current style
+     * 
+     * <p>
+     * This method will update the Style in place; some of the rules &
+     * symbolizers will be replace with modified copies.
+     * 
+     *  All symbolizes associated with all rules are updated.
+     * </p>
+     * 
+     * @param rasterSymbolizer
+     * @param rgb - an array of the new red, green, blue channels
+     * @param gray - the new gray channel
+     * 
+     * Only one of rgb or gray should be provided.
+     */
+    public static void setChannelSelection(Style style, final SelectedChannelType[] rgb, final SelectedChannelType gray){
+    	if (style == null){
+    		return;
+    	}
+    	for (FeatureTypeStyle featureTypeStyle : style.getFeatureTypeStyles()) {
+			for (int i = 0; i < featureTypeStyle.rules().size(); i++) {
+				Rule rule = featureTypeStyle.rules().get(i);
+
+				DuplicatingStyleVisitor update = new DuplicatingStyleVisitor() {
+					public void visit(RasterSymbolizer raster) {
+
+						ChannelSelection channelSelection = createChannelSelection();
+						
+						ColorMap colorMap = copy(raster.getColorMap());
+						ContrastEnhancement ce = copy(raster
+								.getContrastEnhancement());
+						String geometryProperty = raster
+								.getGeometryPropertyName();
+						Symbolizer outline = copy(raster.getImageOutline());
+						Expression overlap = copy(raster.getOverlap());
+						ShadedRelief shadedRelief = copy(raster
+								.getShadedRelief());
+
+						Expression opacity = copy(raster.getOpacity());
+
+						RasterSymbolizer copy = sf.createRasterSymbolizer(geometryProperty, opacity,
+								channelSelection, overlap, colorMap, ce,
+								shadedRelief, outline);
+				        if( STRICT && !copy.equals( raster )){
+				            throw new IllegalStateException("Was unable to duplicate provided raster:"+raster );
+				        }
+				        pages.push(copy);
+					}
+					
+					private ChannelSelection createChannelSelection(){
+						if (rgb == null){
+							return sf.createChannelSelection(new SelectedChannelType[] {gray});
+						}else{
+						  	return sf.createChannelSelection(rgb);
+						}
+					}
+				};
+
+				rule.accept(update);
+				Rule updatedRule = (Rule) update.getCopy();
+				featureTypeStyle.rules().set(i, updatedRule);
+			}
+		}
+    }
+    
+    /**
      * Sets the colour for a polygon symbolizer
      *
      * @param style

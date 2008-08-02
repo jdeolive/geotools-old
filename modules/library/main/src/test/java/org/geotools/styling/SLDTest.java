@@ -31,6 +31,7 @@ import junit.framework.TestCase;
 public class SLDTest extends TestCase {
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
     FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+    StyleBuilder sb = new StyleBuilder(ff);
     
     protected void setUp() throws Exception {
         super.setUp();
@@ -54,5 +55,48 @@ public class SLDTest extends TestCase {
         
         stroke = sf.createStroke( ff.literal("#FF0000"), ff.literal("3.0") );
         assertEquals( "width", 3, SLD.width( stroke ));
+    }
+    
+    
+    /**
+     * Test that setting the raster opacity correct duplicates the
+     * raster symbolizer as a different object and correctly
+     * sets the opacity.
+     */
+    public void testSetRasterOpacity(){
+    	RasterSymbolizer rs = sb.createRasterSymbolizer();
+    	Style s = sb.createStyle(rs);
+    	
+    	assertEquals(1.0, SLD.opacity(SLD.rasterSymbolizer(s)));
+    	
+    	SLD.setRasterOpacity(s, 0.25);
+    	assertEquals(0.25, SLD.opacity(SLD.rasterSymbolizer(s)));
+    	assertNotSame(SLD.rasterSymbolizer(s), rs);
+    }
+    
+    /**
+     * Test to ensure that updating the channels duplicates
+     * the raster sybmolizer with the new rgb channels
+     */
+    public void testSetRasterRGBChannels(){
+    	RasterSymbolizer rs = sb.createRasterSymbolizer();
+    	Style s = sb.createStyle(rs);
+    	
+    	SelectedChannelType red =  sf.createSelectedChannelType("red", sf.createContrastEnhancement(ff.literal(0.2)));
+    	SelectedChannelType green =  sf.createSelectedChannelType("green", sf.createContrastEnhancement(ff.literal(0.4)));
+    	SelectedChannelType blue =  sf.createSelectedChannelType("blue", sf.createContrastEnhancement(ff.literal(0.7)));
+    	
+    	SLD.setChannelSelection(s, new SelectedChannelType[]{red, green, blue}, null);
+    	
+    	assertNull(SLD.rasterSymbolizer(s).getChannelSelection().getGrayChannel());
+    	assertNotNull(SLD.rasterSymbolizer(s).getChannelSelection().getRGBChannels());
+    	SelectedChannelType[] selectedChannels = SLD.rasterSymbolizer(s).getChannelSelection().getRGBChannels();
+    	
+    	assertEquals("red", selectedChannels[0].getChannelName());
+    	assertEquals("green", selectedChannels[1].getChannelName());
+    	assertEquals("blue", selectedChannels[2].getChannelName());
+    	
+    	assertNotSame(SLD.rasterSymbolizer(s), rs);
+    	
     }
 }
