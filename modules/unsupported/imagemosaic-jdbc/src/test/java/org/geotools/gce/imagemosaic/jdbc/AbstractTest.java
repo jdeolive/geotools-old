@@ -110,8 +110,8 @@ public abstract class AbstractTest extends TestCase {
         try {
             Class.forName(driverClassName);
         } catch (ClassNotFoundException ex) {
-        	if (LOGGER.isLoggable(Level.CONFIG))
-        		LOGGER.log(Level.CONFIG,driverClassName + " not found, skipping test");
+        	if (LOGGER.isLoggable(Level.WARNING))
+        		LOGGER.log(Level.WARNING,driverClassName + " not found, skipping test");
 
             return false;
         }

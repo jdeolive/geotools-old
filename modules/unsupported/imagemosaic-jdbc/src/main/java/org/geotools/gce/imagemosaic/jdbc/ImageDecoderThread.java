@@ -29,12 +29,14 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 
 
@@ -49,6 +51,10 @@ import javax.media.jai.PlanarImage;
  * <p>
  *
  * @author mcr
+ *
+ */
+/**
+ * @author christian
  *
  */
 class ImageDecoderThread extends AbstractThread {
@@ -88,22 +94,14 @@ class ImageDecoderThread extends AbstractThread {
         }
 
         try {
-            SeekableStream stream = new ByteArraySeekableStream(imageBytes);
-            String decoderName = null;
-
-            for (String dn : ImageCodec.getDecoderNames(stream)) {
-                decoderName = dn;
-
-                break;
-            }
 
             BufferedImage bufferedImage = null;
             BufferedImage clippedImage = null;
-
-            ImageDecoder decoder = ImageCodec.createImageDecoder(decoderName,
-                    stream, null);
-            PlanarImage img = PlanarImage.wrapRenderedImage(decoder.decodeAsRenderedImage());
-            bufferedImage = img.getAsBufferedImage();
+            
+            bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            if (bufferedImage==null) {
+            	bufferedImage = readImage2(imageBytes);
+            }
 
             if (requestEnvelope.contains(tileEnvelope, true) == false) {
                 GeneralEnvelope savedTileEnvelope = new GeneralEnvelope(tileEnvelope);
@@ -144,4 +142,28 @@ class ImageDecoderThread extends AbstractThread {
             LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         }
     }
+    /**
+     * Fallback Method, in some jre implementations,   ImageIO.read(InputStream in) returns  null.
+     * If this happens, this method is called, which is not so efficient but it works
+     * 
+     * @param imageBytes
+     * @return
+     * @throws IOException
+     */
+    private BufferedImage readImage2(byte[] imageBytes) throws IOException{
+    	
+        SeekableStream stream = new ByteArraySeekableStream(imageBytes);
+        String decoderName = null;
+
+        for (String dn : ImageCodec.getDecoderNames(stream)) {
+            decoderName = dn;
+            break;
+        }
+
+        ImageDecoder decoder = ImageCodec.createImageDecoder(decoderName,
+        		stream, null);
+        PlanarImage img = PlanarImage.wrapRenderedImage(decoder.decodeAsRenderedImage());                
+        return img.getAsBufferedImage();    
+    }
+
 }

@@ -40,6 +40,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -67,6 +68,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 
 /**
@@ -557,6 +559,22 @@ public class Import {
         }
     }
 
+    private BufferedImage readImage2(byte[] imageBytes) throws IOException{
+    	
+        SeekableStream stream = new ByteArraySeekableStream(imageBytes);
+        String decoderName = null;
+
+        for (String dn : ImageCodec.getDecoderNames(stream)) {
+            decoderName = dn;
+            break;
+        }
+
+        ImageDecoder decoder = ImageCodec.createImageDecoder(decoderName,
+        		stream, null);
+        PlanarImage img = PlanarImage.wrapRenderedImage(decoder.decodeAsRenderedImage());                
+        return img.getAsBufferedImage();    
+    }
+    
     void fillSpatialTable() throws Exception {
         truncateTables();
 
@@ -566,20 +584,16 @@ public class Import {
             URL imageUrl = calculateImageUrl();
             byte[] imageBytes = getImageBytes(imageUrl);
             if (typ==ImportTyp.DIR) {
-                SeekableStream stream = new ByteArraySeekableStream(imageBytes);
-                String decoderName = null;
-
-                for (String dn : ImageCodec.getDecoderNames(stream)) {
-                    decoderName = dn;
-                    break;
-                }
-
-            	//BufferedImage image =ImageIO.read(new ByteArrayInputStream(imageBytes));
-                ImageDecoder decoder = ImageCodec.createImageDecoder(decoderName,
-                		stream, null);
-                PlanarImage img = PlanarImage.wrapRenderedImage(decoder.decodeAsRenderedImage());
-                BufferedImage image = img.getAsBufferedImage();
-
+            	
+            	BufferedImage image = null;
+            	try {
+            		 image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            	}	catch (IOException e) {
+            		image=readImage2(imageBytes);
+            	}
+                if (image==null) 
+                	image=readImage2(imageBytes);
+                
             	currentGeom=getGeomFromWorldFile(imageFiles[currentPos-1], image.getWidth(),image.getHeight());
             }
 

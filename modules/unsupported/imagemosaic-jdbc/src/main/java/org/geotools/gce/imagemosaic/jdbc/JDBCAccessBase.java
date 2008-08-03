@@ -39,6 +39,7 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +58,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 
 import javax.sql.DataSource;
@@ -711,21 +713,28 @@ abstract class JDBCAccessBase implements JDBCAccess {
                 continue;
             }
 
-            SeekableStream stream = new ByteArraySeekableStream(tileBytes);
-            String decoderName = null;
+            BufferedImage buffImage = ImageIO.read(new ByteArrayInputStream(tileBytes));
+            if (buffImage==null) {
+            	if (LOGGER.isLoggable(Level.WARNING)) {
+            		LOGGER.warning("Image IO cannot read from ByteInputStream,use less efficient jai methods");
+            	}
+            	SeekableStream stream = new ByteArraySeekableStream(tileBytes);
+            	String decoderName = null;
 
-            for (String dn : ImageCodec.getDecoderNames(stream)) {
-                decoderName = dn;
+            	for (String dn : ImageCodec.getDecoderNames(stream)) {
+            		decoderName = dn;
+            		break;
+            	}
 
-                break;
+            	ImageDecoder decoder = ImageCodec.createImageDecoder(decoderName,
+            			stream, null);
+            	PlanarImage img = PlanarImage.wrapRenderedImage(decoder.decodeAsRenderedImage());
+            	buffImage = img.getAsBufferedImage();
             }
-
-            ImageDecoder decoder = ImageCodec.createImageDecoder(decoderName,
-                    stream, null);
-            PlanarImage img = PlanarImage.wrapRenderedImage(decoder.decodeAsRenderedImage());
+                        
 
             Envelope env = getEnvelopeFromResultSet(r);
-            BufferedImage buffImage = img.getAsBufferedImage();
+            
             result = new double[] {
                     env.getWidth() / buffImage.getWidth(),
                     env.getHeight() / buffImage.getHeight()

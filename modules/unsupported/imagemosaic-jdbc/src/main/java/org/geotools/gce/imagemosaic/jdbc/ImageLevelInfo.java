@@ -20,7 +20,6 @@ import com.vividsolutions.jts.geom.Envelope;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.image.ColorModel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -34,21 +33,65 @@ import java.io.PrintWriter;
  *
  */
 class ImageLevelInfo implements Comparable<ImageLevelInfo> {
-    private ColorModel colorModel;
+    /**
+     * 	The Coordinate Reference System stored in the sql database (if supported)
+     */
     private CoordinateReferenceSystem crs;
+    /**
+     * The Spatial Reference System Id if the used database supports it
+     */
     private Integer srsId;
+    /**
+     * The name of the coverage, stored in the master table
+     */
     private String coverageName;
+    /**
+     * minimum X value of the covered extent
+     */
     private Double extentMinX;
+    /**
+     * minimum Y value of the covered extent
+     */
     private Double extentMinY;
+    /**
+     * maximum X value of the covered extent
+     */
     private Double extentMaxX;
+    /**
+     * maximu Y value  of the covered extent
+     */
     private Double extentMaxY;
+    /**
+     * resolution of the x axis
+     */
     private Double resX;
+    /**
+     * resolution of the y axis
+     */
     private Double resY;
+    /**
+     * table name where to find the images
+     */
     private String tileTableName;
+    /**
+     * table name where to find georeferencing information
+     */
     private String spatialTableName;
+    /**
+     * the number of entries in the spatial table
+     */
     private Integer countFeature;
+    /**
+     * the number of entries in the tiles table
+     */
     private Integer countTiles;
+    /**
+     * storing resolutionX and resolution Y as array, for convinience
+     */
     private double[] resolution = null;
+    /**
+     * storing the extent as envelope, for convinience
+     */
     private Envelope envelope = null;
 
     String getCoverageName() {
@@ -212,14 +255,6 @@ class ImageLevelInfo implements Comparable<ImageLevelInfo> {
         this.crs = crs;
     }
 
-    ColorModel getColorModel() {
-        return colorModel;
-    }
-
-    void setColorModel(ColorModel colorModel) {
-        this.colorModel = colorModel;
-    }
-
     boolean calculateResolutionNeeded() {
         return (getResX() == null) || (getResY() == null);
     }
@@ -244,9 +279,6 @@ class ImageLevelInfo implements Comparable<ImageLevelInfo> {
             w.print("SRS_ID: ");
             w.println(getSrsId());
         }
-
-        w.print("Colormodel: ");
-        w.println(getColorModel());
 
         w.print("Envelope: ");
         w.println(getEnvelope());

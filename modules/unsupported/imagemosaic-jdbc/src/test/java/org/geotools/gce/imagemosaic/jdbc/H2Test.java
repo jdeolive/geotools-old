@@ -137,19 +137,25 @@ public class H2Test extends AbstractTest {
         JDBCAccess access = getJDBCAccess();
         ImageLevelInfo li = access.getLevelInfo(access.getNumOverviews());
 
-        GeneralEnvelope env = new GeneralEnvelope(new double[] {
-                    li.getExtentMaxX() - DELTA, li.getExtentMaxY() - DELTA 
-                },
-                new double[] {
-                    li.getExtentMaxX() + DELTA, li.getExtentMaxY() + DELTA
-                });
+//        GeneralEnvelope env = new GeneralEnvelope(new double[] {
+//                    li.getExtentMaxX() - DELTA, li.getExtentMaxY() - DELTA 
+//                },
+//                new double[] {
+//                    li.getExtentMaxX() + DELTA, li.getExtentMaxY() + DELTA
+//                });
 
+      GeneralEnvelope env = new GeneralEnvelope(new double[] {
+    		  	li.getExtentMaxY() - DELTA, li.getExtentMaxX() - DELTA },
+    		  new double[] {
+    		  	li.getExtentMaxY() + DELTA, li.getExtentMaxX() + DELTA});
+        
+        
         try {
             env.setCoordinateReferenceSystem(SOURCE);
 
-            //MathTransform t = CRS.findMathTransform(SOURCE, TARGET);
-            //GeneralEnvelope tenv = CRS.transform(t, env);
-            GeneralEnvelope tenv=new GeneralEnvelope(new Rectangle2D.Double(300000,300000,400000,400000));
+            MathTransform t = CRS.findMathTransform(SOURCE, TARGET);
+            GeneralEnvelope tenv = CRS.transform(t, env);
+            //GeneralEnvelope tenv=new GeneralEnvelope(new Rectangle2D.Double(300000,300000,400000,400000));
             //TARGET=CRS.decode("EPSG:31287");
             tenv.setCoordinateReferenceSystem(TARGET);
             imageMosaic("partialgreen_reprojected", getConfigUrl(), tenv, 400,
