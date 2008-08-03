@@ -49,7 +49,7 @@ interface JDBCAccess {
      */
     public abstract void startTileDecoders(Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo info,
-        LinkedBlockingQueue<Object> tileQueue,GridCoverageFactory coverageFactory) throws IOException;
+        LinkedBlockingQueue<TileQueueElement> tileQueue,GridCoverageFactory coverageFactory) throws IOException;
 
     /**
      * @param level		the level (0 is original, 1 is first pyramid,...)

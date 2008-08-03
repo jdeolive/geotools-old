@@ -33,6 +33,11 @@ import java.io.PrintWriter;
  *
  */
 class ImageLevelInfo implements Comparable<ImageLevelInfo> {
+	
+	/**
+	 * Flag if ImageIO.read(InputStream in) does not return a null pointer
+	 */
+	private boolean canImageIOReadFromInputStream;
     /**
      * 	The Coordinate Reference System stored in the sql database (if supported)
      */
@@ -321,4 +326,13 @@ class ImageLevelInfo implements Comparable<ImageLevelInfo> {
     boolean isImplementedAsTableSplit() {
         return getSpatialTableName().equals(getTileTableName()) == false;
     }
+
+	public boolean getCanImageIOReadFromInputStream() {
+		return canImageIOReadFromInputStream;
+	}
+
+	public void setCanImageIOReadFromInputStream(
+			boolean canImageIOReadFromInputStream) {
+		this.canImageIOReadFromInputStream = canImageIOReadFromInputStream;
+	}
 }

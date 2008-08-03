@@ -44,16 +44,18 @@ class ImageComposerThread extends AbstractThread {
     /** Logger. */
     protected final static Logger LOGGER = Logger.getLogger(ImageComposerThread.class.getPackage()
                                                                                      .getName());
+    protected GridCoverageFactory coverageFactory;
     private GridCoverage2D gridCoverage2D;
     private Color outputTransparentColor;
     private boolean xAxisSwitch;
 
     ImageComposerThread(Color outputTransparentColor, Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo levelInfo,
-        LinkedBlockingQueue<Object> tileQueue, Config config, boolean xAxisSwitch,GridCoverageFactory coverageFactory) {
-        super(pixelDimension, requestEnvelope, levelInfo, tileQueue, config,coverageFactory);
+        LinkedBlockingQueue<TileQueueElement> tileQueue, Config config, boolean xAxisSwitch,GridCoverageFactory coverageFactory) {
+        super(pixelDimension, requestEnvelope, levelInfo, tileQueue, config);
         this.outputTransparentColor = outputTransparentColor;
         this.xAxisSwitch=xAxisSwitch;
+        this.coverageFactory=coverageFactory;
     }
 
     private Dimension getStartDimension() {
@@ -84,17 +86,19 @@ class ImageComposerThread extends AbstractThread {
         BufferedImage image = getStartImage();
 
         Graphics2D g2D = (Graphics2D) image.getGraphics();
-        Object queueObject = null;
+        TileQueueElement queueObject = null;
 
         try {
-            while ((queueObject = tileQueue.take()) != ImageMosaicJDBCReader.QUEUE_END) {
-                GridCoverage2D tileCoverage = (GridCoverage2D) queueObject;
-                int posx = (int) ((tileCoverage.getEnvelope().getMinimum(0) -
-                    requestEnvelope.getMinimum(0)) / levelInfo.getResX());
+            while ((queueObject = tileQueue.take()).isEndElement()==false) {
+            	
+                int posx = (int) ((queueObject.getEnvelope().getMinimum(0) -
+                        requestEnvelope.getMinimum(0)) / levelInfo.getResX());
                 int posy = (int) ((requestEnvelope.getMaximum(1) -
-                    tileCoverage.getEnvelope().getMaximum(1)) / levelInfo.getResY());
-                g2D.drawRenderedImage(tileCoverage.getRenderedImage(),
-                    AffineTransform.getTranslateInstance(posx, posy));
+                        queueObject.getEnvelope().getMaximum(1)) / levelInfo.getResY());
+                g2D.drawImage(queueObject.getTileImage(),
+                        AffineTransform.getTranslateInstance(posx, posy),null);
+                            	
+            	
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

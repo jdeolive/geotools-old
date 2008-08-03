@@ -16,7 +16,6 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
-import org.geotools.coverage.grid.GridCoverageFactory;
 
 import org.geotools.geometry.GeneralEnvelope;
 
@@ -38,8 +37,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  */
 abstract class AbstractThread extends Thread {
-    protected GridCoverageFactory coverageFactory;
-    LinkedBlockingQueue<Object> tileQueue;
+    LinkedBlockingQueue<TileQueueElement> tileQueue;
     Config config;
     GeneralEnvelope requestEnvelope;
     Rectangle pixelDimension;
@@ -62,20 +60,17 @@ abstract class AbstractThread extends Thread {
      *            queue for thread synchronization
      * @param config
      *            the configuraton of the plugin
-     * @param coverageFactory
-     *            the needed GridCoverageFactory
      *            
      */
     AbstractThread(Rectangle pixelDimenison, GeneralEnvelope requestEnvelope,
-        ImageLevelInfo levelInfo, LinkedBlockingQueue<Object> tileQueue,
-        Config config,GridCoverageFactory coverageFactory) {
+        ImageLevelInfo levelInfo, LinkedBlockingQueue<TileQueueElement> tileQueue,
+        Config config) {
         super();
         this.config = config;
         this.tileQueue = tileQueue;
         this.requestEnvelope = requestEnvelope;
         this.levelInfo = levelInfo;
-        this.pixelDimension = pixelDimenison;
-        this.coverageFactory=coverageFactory;
+        this.pixelDimension = pixelDimenison;        
 
         resX = requestEnvelope.getSpan(0) / pixelDimenison.getWidth();
         resY = requestEnvelope.getSpan(1) / pixelDimenison.getHeight();

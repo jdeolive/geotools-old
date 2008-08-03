@@ -96,9 +96,8 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
                                                                                      .getName());
     protected final static CoordinateOperationFactory operationFactory = new BufferedCoordinateOperationFactory(new Hints(
                 Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE));
-    public final static String QUEUE_END = "QueueEnd";
     private final JDBCAccess jdbcAccess;
-    private final LinkedBlockingQueue<Object> tileQueue;
+    private final LinkedBlockingQueue<TileQueueElement> tileQueue;
     private GeneralEnvelope requestedEnvelope = null;
     private GeneralEnvelope requestEnvelopeTransformed = null;
     private Config config;
@@ -174,7 +173,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
             throw new IOException(e1.getLocalizedMessage());
         }
 
-        tileQueue = new LinkedBlockingQueue<Object>();
+        tileQueue = new LinkedBlockingQueue<TileQueueElement>();
 
         // get the crs if able to
         final Object tempCRS = this.hints.get(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM);

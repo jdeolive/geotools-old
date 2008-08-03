@@ -21,12 +21,9 @@ import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageDecoder;
 import com.sun.media.jai.codec.SeekableStream;
 
-import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.geometry.GeneralEnvelope;
 
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import java.io.ByteArrayInputStream;
@@ -66,16 +63,21 @@ class ImageDecoderThread extends AbstractThread {
     private GeneralEnvelope tileEnvelope;
 
     /**
-     * @param bytes
-     *            the bytes to decode
-     * @param location
-     *            the location name of the tile
+     * @param bytes			the image bytes
+     * @param location			the tile name
+     * @param tileEnvelope		the georeferencing information for the tile
+     * @param pixelDimension	the pixel dimension required
+     * @param requestEnvelope	the requested envelope
+     * @param levelInfo		the proper levelInfo
+     * @param tileQueue		the queue where to put the result
+     * @param config			the reader config
      */
+    
     ImageDecoderThread(byte[] bytes, String location,
         GeneralEnvelope tileEnvelope, Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo levelInfo,
-        LinkedBlockingQueue<Object> tileQueue, Config config, GridCoverageFactory coverageFactory) {
-        super(pixelDimension, requestEnvelope, levelInfo, tileQueue, config,coverageFactory);
+        LinkedBlockingQueue<TileQueueElement> tileQueue, Config config ) {
+        super(pixelDimension, requestEnvelope, levelInfo, tileQueue, config);
 
         this.imageBytes = bytes;
         this.location = location;
@@ -88,20 +90,18 @@ class ImageDecoderThread extends AbstractThread {
     @Override
     public void run() {
         if ((imageBytes == null) || (imageBytes.length == 0)) { // nothing to do
-                                                                // ?
-
             return;
         }
 
         try {
 
             BufferedImage bufferedImage = null;
-            BufferedImage clippedImage = null;
             
-            bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
-            if (bufferedImage==null) {
+            if (levelInfo.getCanImageIOReadFromInputStream())
+            	bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            else           
             	bufferedImage = readImage2(imageBytes);
-            }
+            
 
             if (requestEnvelope.contains(tileEnvelope, true) == false) {
                 GeneralEnvelope savedTileEnvelope = new GeneralEnvelope(tileEnvelope);
@@ -119,23 +119,15 @@ class ImageDecoderThread extends AbstractThread {
                             1) * tileEnvelope.getSpan(1)));
                 
                 if ((width > 0) && (height > 0)) {
-                    clippedImage = new BufferedImage(width, height,
-                            BufferedImage.TYPE_INT_ARGB);
+                	                    
+                	BufferedImage clippedImage=bufferedImage.getSubimage(x, y,width,height);
 
-                    Graphics2D g2D = (Graphics2D) clippedImage.getGraphics();
-                    g2D.drawImage(bufferedImage,
-                        AffineTransform.getTranslateInstance(-x, -y), null);
-                	
-//                	int subX = x >= 0 ? x : 0;
-//                	int subY = y >=0 ? y : 0;
-//                	clippedImage=bufferedImage.getSubimage(subX, subY,width,height);
-                	
-                    tileQueue.add(coverageFactory.create(location,
+                    tileQueue.add(new TileQueueElement(location,
                             clippedImage, tileEnvelope));
+  
                 }
             } else {
-                tileQueue.add(coverageFactory.create(location, bufferedImage,
-                        tileEnvelope));
+            	tileQueue.add(new TileQueueElement(location,bufferedImage,tileEnvelope));
             }
         } catch (IOException ex) {
             LOGGER.severe("Decorde error for tile " + location);

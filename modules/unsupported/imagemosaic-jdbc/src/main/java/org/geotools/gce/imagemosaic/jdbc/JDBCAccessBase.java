@@ -517,7 +517,7 @@ abstract class JDBCAccessBase implements JDBCAccess {
      */
     public void startTileDecoders(Rectangle pixelDimension,
         GeneralEnvelope requestEnvelope, ImageLevelInfo levelInfo,
-        LinkedBlockingQueue<Object> tileQueue,GridCoverageFactory coverageFactory) throws IOException {
+        LinkedBlockingQueue<TileQueueElement> tileQueue,GridCoverageFactory coverageFactory) throws IOException {
         Date start = new Date();
         Connection con = null;
         List<ImageDecoderThread> threads = new ArrayList<ImageDecoderThread>();
@@ -545,7 +545,7 @@ abstract class JDBCAccessBase implements JDBCAccess {
 
                 ImageDecoderThread thread = new ImageDecoderThread(tileBytes,
                         location, tileGeneralEnvelope, pixelDimension,
-                        requestEnvelope, levelInfo, tileQueue, config,coverageFactory);
+                        requestEnvelope, levelInfo, tileQueue, config);
                 thread.start();
                 threads.add(thread);
             }
@@ -587,7 +587,7 @@ abstract class JDBCAccessBase implements JDBCAccess {
             }
         }
 
-        tileQueue.add(ImageMosaicJDBCReader.QUEUE_END);
+        tileQueue.add(TileQueueElement.ENDELEMENT);
 
         if (LOGGER.isLoggable(Level.INFO)) 
         	LOGGER.info("Getting and decoding  " + threads.size() +
@@ -713,11 +713,17 @@ abstract class JDBCAccessBase implements JDBCAccess {
                 continue;
             }
 
-            BufferedImage buffImage = ImageIO.read(new ByteArrayInputStream(tileBytes));
+            BufferedImage buffImage = null;
+            li.setCanImageIOReadFromInputStream(true);
+            try {
+            	buffImage = ImageIO.read(new ByteArrayInputStream(tileBytes));
+            } catch (IOException e) {}
+            
             if (buffImage==null) {
             	if (LOGGER.isLoggable(Level.WARNING)) {
             		LOGGER.warning("Image IO cannot read from ByteInputStream,use less efficient jai methods");
             	}
+            	li.setCanImageIOReadFromInputStream(true);
             	SeekableStream stream = new ByteArraySeekableStream(tileBytes);
             	String decoderName = null;
 

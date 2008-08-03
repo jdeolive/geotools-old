@@ -28,7 +28,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Color;
-import java.awt.geom.Rectangle2D;
 
 import java.net.URL;
 
@@ -94,6 +93,7 @@ public class H2Test extends AbstractTest {
         suite.addTest(new H2Test("testVienna"));
         suite.addTest(new H2Test("testViennaEnv"));
         suite.addTest(new H2Test("testOutputTransparentColor"));
+        suite.addTest(new H2Test("testOutputTransparentColor2"));
         suite.addTest(new H2Test("testReproject1"));
         suite.addTest(new H2Test("testDrop"));
         suite.addTest(new H2Test("testCreateJoined"));
@@ -137,12 +137,6 @@ public class H2Test extends AbstractTest {
         JDBCAccess access = getJDBCAccess();
         ImageLevelInfo li = access.getLevelInfo(access.getNumOverviews());
 
-//        GeneralEnvelope env = new GeneralEnvelope(new double[] {
-//                    li.getExtentMaxX() - DELTA, li.getExtentMaxY() - DELTA 
-//                },
-//                new double[] {
-//                    li.getExtentMaxX() + DELTA, li.getExtentMaxY() + DELTA
-//                });
 
       GeneralEnvelope env = new GeneralEnvelope(new double[] {
     		  	li.getExtentMaxY() - DELTA, li.getExtentMaxX() - DELTA },
@@ -189,6 +183,27 @@ public class H2Test extends AbstractTest {
         }
     }
 
+    
+    public void testOutputTransparentColor2() {
+        JDBCAccess access = getJDBCAccess();
+        ImageLevelInfo li = access.getLevelInfo(access.getNumOverviews());
+
+        GeneralEnvelope env = new GeneralEnvelope(new double[] {
+                    li.getExtentMinX() - DELTA, li.getExtentMinY() - DELTA
+                },
+                new double[] {
+                    li.getExtentMinX() + DELTA, li.getExtentMinY() + DELTA
+                });
+
+        try {
+            env.setCoordinateReferenceSystem(CRS.decode(CRSNAME));
+            imageMosaic("partialgreen2", getConfigUrl(), env, 400, 400,
+                Color.GREEN, null);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+    
     public void setUp() throws Exception {
         // No fixture check needed
     }
