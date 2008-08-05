@@ -619,7 +619,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
 
     public Graphic createDefaultGraphic() {
         Graphic graphic = new GraphicImpl();
-
+        graphic.addMark( createMark() ); // a default graphic is assumed to have a single Mark
         graphic.setSize(Expression.NIL);
         graphic.setOpacity(filterFactory.literal(1.0));
         graphic.setRotation(filterFactory.literal(0.0));

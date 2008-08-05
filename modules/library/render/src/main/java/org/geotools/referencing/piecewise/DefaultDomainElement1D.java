@@ -108,7 +108,7 @@ public class DefaultDomainElement1D implements DomainElement1D {
 	 * @see DomainElement1D#contains(NumberRange)
 	 */
 	public boolean contains(NumberRange<? extends Number> range) {
-		return range.contains(range);
+		return this.range.contains(range);
 	}
 
 	/**

@@ -111,18 +111,14 @@ public class ReprojectionTest extends TestCase {
 		StreamingRenderer sr = new StreamingRenderer();
 		sr.setContext(mapContext);
 		sr.addRenderListener(new RenderListener() {
-
 			public void featureRenderer(SimpleFeature feature) {
 			}
-
 			public void errorOccurred(Exception e) {
 				errors++;
 			}
-
 		});
 		errors = 0;
-		sr.paint((Graphics2D) image.getGraphics(), new Rectangle(200, 200),
-				reUtm);
+		sr.paint((Graphics2D) image.getGraphics(), new Rectangle(200, 200),reUtm);
 		// we should get two errors since there are two features that cannot be
 		// projected but the renderer itself should not throw exceptions
 		assertEquals(2, errors);

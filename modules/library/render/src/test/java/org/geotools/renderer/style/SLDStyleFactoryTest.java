@@ -30,13 +30,19 @@ import junit.framework.TestCase;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.filter.IllegalFilterException;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.renderer.style.SLDStyleFactory.SymbolizerKey;
 import org.geotools.styling.ExternalGraphic;
+import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.Rule;
+import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
+import org.geotools.styling.StyleFactoryFinder;
+import org.geotools.styling.Symbolizer;
 import org.geotools.util.NumberRange;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -78,6 +84,17 @@ public class SLDStyleFactoryTest extends TestCase {
         feature = fb.buildFeature(null);
     }
     
+    /** This test created from Render2DTest.testSimplePointRender */
+    public void testCreatePointStyle(){
+        // The following is complex, and should be built from
+        // an SLD document and not by hand
+        PointSymbolizer pointsym = sf.createPointSymbolizer();
+        pointsym.setGraphic(sf.getDefaultGraphic());
+        NumberRange<Double> scaleRange = NumberRange.create( 1.0,50000.0);
+        Style2D style = sld.createPointStyle(null, pointsym, scaleRange);
+        assertNotNull( style );
+    }
+
     /**
      * Test of createPolygonStyle method, of class org.geotools.renderer.style.SLDStyleFactory.
      */

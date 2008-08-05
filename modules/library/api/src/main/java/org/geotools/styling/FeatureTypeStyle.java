@@ -71,6 +71,10 @@ public interface FeatureTypeStyle extends org.opengis.style.FeatureTypeStyle{
     @Deprecated
     public String getTitle();
 
+    /**
+     * @deprecated Must use a style visitor to make a copy 
+     * @param title
+     */
     @Deprecated
     void setTitle(String title);
 
@@ -106,7 +110,7 @@ public interface FeatureTypeStyle extends org.opengis.style.FeatureTypeStyle{
      * @task REVISIT: should a set method be declared in this interface at all?
      * @param name The TypeName of the features to be styled by this instance.
      * 
-     * @deprecated this method is replaced by a live set featureTypeNames()
+     * @deprecated Use featureTypeNames().clear() and featureTypeNames.add( new NameImpl( name ))
      */
     @Deprecated
     void setFeatureTypeName(String name);

@@ -170,7 +170,7 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
         if(!featureTypeNames.isEmpty()){
             return featureTypeNames.iterator().next().getLocalPart();
         }else{
-            return null;
+            return "Feature"; // this is the deafault value - matches to any feature
         }
     }
         

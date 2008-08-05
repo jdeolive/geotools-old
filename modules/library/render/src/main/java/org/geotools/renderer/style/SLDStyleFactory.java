@@ -76,6 +76,7 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.style.GraphicalSymbol;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -369,7 +370,9 @@ public class SLDStyleFactory {
 
         // by spec size is optional, and the default value is context dependend,
         // the natural size of the image for an external graphic is the size of the raster,
-        // whilst if the size cannot be evaluated, it shall be 16
+        // while:
+        // - for a external graphic the default size shall be 16x16
+        // - for a mark such as star or square the default size shall be 6x6 
         try {
             if(sldGraphic.getSize() != null && !Expression.NIL.equals(sldGraphic.getSize()))
                 size = (int) evalToDouble(sldGraphic.getSize(),feature,0);
@@ -381,8 +384,14 @@ public class SLDStyleFactory {
 
         // Extract the sequence of external graphics and symbols and process them in order
         // to recognize which one will be used for rendering
-		Symbol[] symbols = sldGraphic.getSymbols();
-		final int length = symbols.length;
+        Symbol symbolsArray[] =  sldGraphic.getSymbols();
+        List<GraphicalSymbol> symbols = sldGraphic.graphicalSymbols();
+        if( symbols.isEmpty()){
+            symbols = new ArrayList<GraphicalSymbol>();
+            Mark square = StyleFactoryFinder.createStyleFactory().createMark();
+            symbols.add( square );
+        }
+		final int length = symbols.size();
 		ExternalGraphic eg;
 		GlyphRenderer r;
 		BufferedImage img = null;
@@ -393,18 +402,16 @@ public class SLDStyleFactory {
 		Mark mark;
 		Shape shape;
 		MarkStyle2D ms2d;
-		for (int i = 0; i < length; i++) {
+		for( GraphicalSymbol symbol : symbols ){
             if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("trying to render symbol " + i);
+                LOGGER.finer("trying to render symbol " + symbol);
             }
-
             // try loading external graphic and creating a GraphicsStyle2D
-            if (symbols[i] instanceof ExternalGraphic) {
+            if (symbol instanceof ExternalGraphic) {
                 if (LOGGER.isLoggable(Level.FINER)) {
                     LOGGER.finer("rendering External graphic");
                 }
-
-				eg = (ExternalGraphic) symbols[i];
+				eg = (ExternalGraphic) symbol;
 				img = null;
 
                 // first see if any glyph renderers can handle this, for backwards compatibility
@@ -432,13 +439,12 @@ public class SLDStyleFactory {
                     break;
                 }
             }
-
-            if (symbols[i] instanceof Mark) {
+            if (symbol instanceof Mark) {
                 if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("rendering mark @ PointRenderer " + symbols[i].toString());
+                    LOGGER.finer("rendering mark @ PointRenderer " + symbol.toString());
                 }
 
-				mark = (Mark) symbols[i];
+				mark = (Mark) symbol;
 				shape = getShape(mark, feature);
 				
 				if(shape == null)
@@ -462,7 +468,7 @@ public class SLDStyleFactory {
                 break;
             }
 
-            if (symbols[i] instanceof TextMark) {
+            if (symbol instanceof TextMark) {
                 // for the moment don't support TextMarks since they are not part
                 // of the SLD specification
                 continue;
