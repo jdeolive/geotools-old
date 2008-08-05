@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -410,7 +410,7 @@ public class PropertyAuthorityFactory extends DirectAuthorityFactory
     protected String trimAuthority(String code) {
         code = code.trim();
         final GenericName name  = NameFactory.create(code);
-        final GenericName scope = name.getScope();
+        final GenericName scope = name.scope().name();
         if (scope == null) {
             return code;
         }

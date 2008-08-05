@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -43,7 +43,7 @@ import org.opengis.util.InternationalString;
  * @since 2.1
  */
 @XmlType(propOrder={
-    "name", "shortName", "domainCode", "definition", "condition", "dataType", 
+    "name", "shortName", "domainCode", "definition", "condition", "dataType",
     "maximumOccurrence", "domainValue", "parentEntity", "rule", "rationales", "sources"
 })
 @XmlRootElement(name = "MD_ExtendedElementInformation")
@@ -54,7 +54,7 @@ public class ExtendedElementInformationImpl extends MetadataEntity
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = -935396252908733907L;
-    
+
     /**
      * Name of the extended metadata element.
      */
@@ -132,7 +132,7 @@ public class ExtendedElementInformationImpl extends MetadataEntity
      * Name of the person or organization creating the extended element.
      */
     private Collection<ResponsibleParty> sources;
-    
+
     /**
      * Construct an initially empty extended element information.
      */
@@ -151,11 +151,11 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     /**
      * Create an extended element information initialized to the given values.
      */
-    public ExtendedElementInformationImpl(final String              name, 
-                                          final InternationalString definition, 
-                                          final InternationalString condition, 
-                                          final Datatype            datatype, 
-                                          final Collection<String>  parentEntity, 
+    public ExtendedElementInformationImpl(final String              name,
+                                          final InternationalString definition,
+                                          final InternationalString condition,
+                                          final Datatype            dataType,
+                                          final Collection<String>  parentEntity,
                                           final InternationalString rule,
                                           final Collection<? extends ResponsibleParty> sources)
     {
@@ -228,7 +228,7 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     public InternationalString getDefinition()  {
         return definition;
     }
-    
+
     /**
      * Set the definition of the extended element.
      */
@@ -244,7 +244,7 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     public Obligation getObligation()  {
         return obligation;
     }
-    
+
     /**
      * Set the obligation of the extended element.
      */
@@ -385,7 +385,7 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     public synchronized Collection<ResponsibleParty> getSources() {
         return sources = nonNullCollection(sources, ResponsibleParty.class);
     }
-        
+
     /**
      * Set the name of the person or organization creating the extended element.
      */
@@ -394,12 +394,12 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     {
         sources = copyCollection(newValues, sources, ResponsibleParty.class);
     }
-    
+
     /**
      * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
      * process is going to be done.
      * This method is automatically called by JAXB, when the marshalling begins.
-     * 
+     *
      * @param marshaller Not used in this implementation.
      */
 ///    private void beforeMarshal(Marshaller marshaller) {
@@ -410,7 +410,7 @@ public class ExtendedElementInformationImpl extends MetadataEntity
      * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
      * process is finished.
      * This method is automatically called by JAXB, when the marshalling ends.
-     * 
+     *
      * @param marshaller Not used in this implementation
      */
 ///    private void afterMarshal(Marshaller marshaller) {

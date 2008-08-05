@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -123,6 +123,7 @@ public class LocalName extends org.geotools.util.GenericName implements org.open
      *
      * @deprecated Replaced by {@link #scope}.
      */
+    @Deprecated
     public GenericName getScope() {
         return getInternalScope();
     }
@@ -136,10 +137,13 @@ public class LocalName extends org.geotools.util.GenericName implements org.open
      *
      * @since 2.3
      *
-     * @todo Need to be revisited once GeoAPI 2.1 is seetle down.
+     * @todo To be strict, maybe we should returns {@code null} if there is no namespace.
+     *       Current implementation returns a namespace instance whith a null name. This
+     *       behavior is for transition from legacy API to later ISO 19103 revision and
+     *       may change in future GeoTools version.
      */
     public NameSpace scope() {
-        return (asScopedName!=null) ? asScopedName.scope() : null;
+        return (asScopedName!=null) ? asScopedName.scope() : super.scope();
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ import org.opengis.metadata.citation.Citation;
  *
  * @since 2.1
  */
-@XmlType(propOrder = {"name", "schemaLanguage", "constraintLanguage", "schemaAscii", "graphicsFile", 
+@XmlType(propOrder = {"name", "schemaLanguage", "constraintLanguage", "schemaAscii", "graphicsFile",
                       "softwareDevelopmentFile", "softwareDevelopmentFileFormat"})
 @XmlRootElement(name = "MD_ApplicationSchemaInformation")
 public class ApplicationSchemaInformationImpl extends MetadataEntity
@@ -231,14 +231,20 @@ public class ApplicationSchemaInformationImpl extends MetadataEntity
 
     /**
      * Information about the spatial attributes in the application schema for the feature types.
+     *
+     * @deprecated removed from ISO 19115
      */
+    @Deprecated
     public SpatialAttributeSupplement getFeatureCatalogueSupplement() {
         return featureCatalogueSupplement;
     }
 
     /**
      * Set information about the spatial attributes in the application schema for the feature types.
+     *
+     * @deprecated removed from ISO 19115
      */
+    @Deprecated
     public synchronized void setFeatureCatalogueSupplement(final SpatialAttributeSupplement newValue) {
         checkWritePermission();
         featureCatalogueSupplement = newValue;

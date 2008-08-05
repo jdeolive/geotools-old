@@ -752,7 +752,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
                             }
                         }
                     } else {
-                        final GenericName scope = alias.getScope();
+                        final GenericName scope = alias.scope().name();
                         if (scope != null) {
                             if (Citations.identifierMatches(authority, scope.toString())) {
                                 name = alias.asLocalName().toString();

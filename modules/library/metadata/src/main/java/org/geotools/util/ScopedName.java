@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -171,26 +171,11 @@ public class ScopedName extends org.geotools.util.GenericName
     }
 
     /**
-     * Returns the scope (name space) in which this name is local. The scope is set on creation
-     * and is not modifiable. The scope of a name determines where a name "starts". For instance,
-     * if a name has a {@linkplain #depth depth} of two ({@code "util.GenericName"}) and is
-     * associated with a {@linkplain NameSpace name space} having the name {@code "org.opengis"},
-     * then the fully qualified name would be {@code "org.opengis.util.GenericName"}.
-     *
-     * @since 2.3
-     *
-     * @todo Not yet implemented.
-     */
-    public NameSpace scope() {
-        return null;
-        // throw new UnsupportedOperationException("Not yet implemented.");
-    }
-
-    /**
      * Returns the scope of this name.
      *
      * @deprecated Replaced by {@link #scope()}.
      */
+    @Deprecated
     public GenericName getScope() {
         return scope;
     }

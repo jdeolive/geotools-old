@@ -753,7 +753,7 @@ public class Formatter {
                 // The "null" locale argument is required for getting the unlocalized version.
                 final String title = authority.getTitle().toString(null);
                 for (final GenericName alias : aliases) {
-                    final GenericName scope = alias.getScope();
+                    final GenericName scope = alias.scope().name();
                     if (scope != null) {
                         if (title.equalsIgnoreCase(scope.toString())) {
                             return alias.asLocalName().toString();

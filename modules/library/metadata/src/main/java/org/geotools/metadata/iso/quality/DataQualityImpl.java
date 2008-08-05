@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -55,7 +55,7 @@ public class DataQualityImpl extends MetadataEntity implements DataQuality {
      * Should be provided only if {@linkplain Scope#getLevel scope level} is
      * {@linkplain org.opengis.metadata.maintenance.ScopeCode#DATASET dataset}.
      */
-    private Collection reports;
+    private Collection<Element> reports;
 
     /**
      * Non-quantitative quality information about the lineage of the data specified by the scope.
@@ -107,7 +107,7 @@ public class DataQualityImpl extends MetadataEntity implements DataQuality {
      * Should be provided only if {@linkplain Scope#getLevel scope level} is
      * {@linkplain org.opengis.metadata.maintenance.ScopeCode#DATASET dataset}.
      */
-    public synchronized Collection getReports() {
+    public synchronized Collection<Element> getReports() {
         return reports = nonNullCollection(reports, Element.class);
     }
 
@@ -116,7 +116,7 @@ public class DataQualityImpl extends MetadataEntity implements DataQuality {
      * Should be provided only if {@linkplain Scope#getLevel scope level} is
      * {@linkplain org.opengis.metadata.maintenance.ScopeCode#DATASET dataset}.
      */
-    public synchronized void setReports(final Collection newValues) {
+    public synchronized void setReports(final Collection<? extends Element> newValues) {
         reports = copyCollection(newValues, reports, Element.class);
     }
 

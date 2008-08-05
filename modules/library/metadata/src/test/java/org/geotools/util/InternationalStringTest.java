@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -91,8 +91,8 @@ public final class InternationalStringTest {
         final GenericName name = NameFactory.create("codespace:subspace:name");
         basicTests(name);
         assertEquals("toString:", "codespace:subspace:name", name.toString());
-        assertEquals("toString:", "codespace:subspace",      name.getScope().toString());
-        assertEquals("toString:", "codespace",               name.getScope().getScope().toString());
+        assertEquals("toString:", "codespace:subspace",      name.scope().name().toString());
+        assertEquals("toString:", "codespace",               name.scope().name().scope().name().toString());
         assertSame("asScopedName", name, name.asScopedName());
         assertSame("asLocalName",  name, name.asLocalName().asScopedName());
     }

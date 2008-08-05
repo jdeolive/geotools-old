@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -400,7 +400,7 @@ public class ParameterWriter extends FilterWriter {
                  */
                 int count = 0;
                 for (final GenericName alias : aliases) {
-                    final GenericName scope = alias.getScope();
+                    final GenericName scope = alias.scope().name();
                     final GenericName name  = alias.asLocalName();
                     final Object title;
                     if (scope != null) {

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -65,9 +65,9 @@ public final class ImagingParametersTest {
          */
         assertEquals   ("Name",  "AddConst", parameters.getName().getCode());
         assertEquals   ("Authority", author, parameters.getName().getAuthority().getTitle().toString());
-        assertEquals   ("Vendor",    vendor, alias     .getScope().toString());
+        assertEquals   ("Vendor",    vendor, alias     .scope().name().toString());
         assertNotNull  ("Version",           parameters.getName().getVersion());
-        assertLocalized("Vendor",            alias     .getScope().toInternationalString());
+        assertLocalized("Vendor",            alias     .scope().name().toInternationalString());
         assertLocalized("Remarks",           parameters.getRemarks());
         assertTrue     ("Remarks",           parameters.getRemarks().toString().trim().length() > 0);
         /*

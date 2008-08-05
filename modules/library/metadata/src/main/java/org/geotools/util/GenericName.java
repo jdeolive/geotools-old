@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import org.opengis.util.NameSpace;
@@ -49,9 +50,7 @@ import org.opengis.util.InternationalString;
  * @see NameFactory
  */
 @XmlType(name = "GenericName")
-public abstract class GenericName implements org.opengis.util.GenericName, Serializable,
-        Comparable<org.opengis.util.GenericName> // TODO: remove after we updated GeoAPI.jar
-{
+public abstract class GenericName implements org.opengis.util.GenericName, Serializable {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -61,6 +60,12 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * The default separator character.
      */
     public static final char DEFAULT_SEPARATOR = ':';
+
+    /**
+     * The name space, created on the fly when needed. This is a temporary
+     * approach until we replace this class by a better implementation.
+     */
+    private transient NameSpace namespace;
 
     /**
      * Creates a new instance of generic name.
@@ -86,8 +91,40 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * @return The name space.
      *
      * @since 2.3
+     *
+     * @todo To be strict, maybe we should returns {@code null} if there is no namespace.
+     *       Current implementation returns a namespace instance whith a null name. This
+     *       behavior is for transition from legacy API to later ISO 19103 revision and
+     *       may change in future GeoTools version.
      */
-    public abstract NameSpace scope();
+    public NameSpace scope() {
+        if (namespace == null) {
+            namespace = new NameSpace() {
+                public boolean isGlobal() {
+                    return false;
+                }
+
+                public org.opengis.util.GenericName name() {
+                    return getScope();
+                }
+
+                @Deprecated public Set<org.opengis.util.GenericName> getNames() {
+                    throw new UnsupportedOperationException();
+                }
+            };
+        }
+        return namespace;
+    }
+
+    /**
+     * Returns the scope (name space) of this generic name. If this name has no scope
+     * (e.g. is the root), then this method returns {@code null}.
+     *
+     * @return The name space of this name.
+     * @deprecated Replaced by {@link #scope}.
+     */
+    @Deprecated
+    public abstract org.opengis.util.GenericName getScope();
 
     /**
      * Returns the depth of this name within the namespace hierarchy.  This indicates the number

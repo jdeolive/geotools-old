@@ -194,7 +194,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
          */
         code = code.trim();
         final GenericName name  = NameFactory.create(code);
-        final GenericName scope = name.getScope();
+        final GenericName scope = name.scope().name();
         if (scope == null) {
             return code;
         }

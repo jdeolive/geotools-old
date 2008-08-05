@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -33,7 +33,7 @@ import org.opengis.util.GenericName;
  *   <li>The ability to turn a "code" into a good "key" for use with an ObjectCache.</li>
  *   <li>A Pair data object (think of C STRUCT) for use as a key when storing a value against two objects.</li>
  * </ul>
- * 
+ *
  * @since 2.5
  * @author Jody Garnett
  * @author Cory Horner
@@ -55,14 +55,14 @@ public final class ObjectCaches {
      * </ul>
      *
      * A Pair is considered ordered:
-     * 
+     *
      * <blockquote><pre>
      * Pair pair1 = new Pair("a","b");
      * Pair pair2 = new Pair("b","a");
-     * 
+     *
      * System.out.println( pair1.equals( pair2 ) ); // prints false
      * </pre></blockquote>
-     * 
+     *
      * {@link #createFromCoordinateReferenceSystemCodes}.
      */
     private static final class Pair {
@@ -107,14 +107,14 @@ public final class ObjectCaches {
      * </ul>
      * In this manner the find operation does not upset normal cache. It will not create any
      * objects already present in the cache.
-     * 
+     *
      * @param level1
      * @param level2
      * @return ObjectCache
      */
     public static ObjectCache chain( final ObjectCache level1, final ObjectCache level2 ){
         if ( level1 == level2 ) {
-            return level1;        
+            return level1;
         }
         if( level1 == null ) return level2;
         if( level2 == null ) return level1;
@@ -143,8 +143,8 @@ public final class ObjectCaches {
                 return value;
             }
 
-            public Object peek( Object key ) {  
-                return level1.peek(key);                
+            public Object peek( Object key ) {
+                return level1.peek(key);
             }
 
             public void put( Object key, Object object ) {
@@ -156,8 +156,8 @@ public final class ObjectCaches {
             }
 
             public void writeUnLock( Object key ) {
-                level1.writeLock(key);                
-            }            
+                level1.writeLock(key);
+            }
         };
     }
     /**
@@ -172,9 +172,9 @@ public final class ObjectCaches {
     }
     /**
      * Utility method used to produce an ObjectCache.
-     * 
+     *
      * @param policy One of "weak", "all", "none"
-     * @param size Used to indicate requested size, exact use depends on policy 
+     * @param size Used to indicate requested size, exact use depends on policy
      * @return A new ObjectCache
      * @see Hints.BUFFER_POLICY
      */
@@ -195,14 +195,14 @@ public final class ObjectCaches {
     /**
      * Produce a good key based on the privided citaiton and code.
      * You can think of the citation as being "here" and the code being the "what".
-     * 
+     *
      * @param code Code
      * @return A good key for use with ObjectCache
      */
     public static String toKey( Citation citation, String code ){
         code = code.trim();
         final GenericName name = NameFactory.create(code);
-        final GenericName scope = name.getScope();
+        final GenericName scope = name.scope().name();
         if (scope == null) {
             return code;
         }
@@ -214,7 +214,7 @@ public final class ObjectCaches {
 
     /**
      * Produce a good key based on a pair of codes.
-     * 
+     *
      * @param code1
      * @param code2
      * @return A object to use as a key
