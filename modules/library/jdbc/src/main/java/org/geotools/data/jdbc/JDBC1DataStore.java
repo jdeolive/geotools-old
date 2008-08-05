@@ -71,6 +71,7 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.SQLEncoder;
 import org.geotools.filter.SQLEncoderException;
+import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -574,6 +575,12 @@ public abstract class JDBC1DataStore implements DataStore {
 		
 		Filter preFilter = (Filter) sqlBuilder.getPreQueryFilter(query.getFilter()); //process in DB
 		Filter postFilter = (Filter) sqlBuilder.getPostQueryFilter(query.getFilter()); //process after DB
+		
+		// simplify the filters before using them, often they contain extra
+		// Filter.INCLUDE/Filter.EXCLUDE items
+		SimplifyingFilterVisitor simplifier = new SimplifyingFilterVisitor();
+		preFilter = (Filter) preFilter.accept(simplifier, null);
+		postFilter = (Filter) postFilter.accept(simplifier, null);
 		
 		//JD: This is bad, we should not assume we have the right to change the query object
 		Filter originalFilter = (Filter) query.getFilter();

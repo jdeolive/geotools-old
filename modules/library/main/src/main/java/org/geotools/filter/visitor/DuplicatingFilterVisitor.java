@@ -113,6 +113,18 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 	public Object visit(IncludeFilter filter, Object extraData) {
 		return filter;
 	}
+	
+	/**
+	 * Null safe expression cloning
+	 * @param expression
+	 * @param extraData
+	 * @return
+	 */
+	Expression visit(Expression expression, Object extraData) {
+	    if(expression == null)
+	        return null;
+	    return (Expression) expression.accept(this, extraData);
+	}
 
 	public Object visit(And filter, Object extraData) {
 		List children = filter.getChildren();
@@ -150,52 +162,52 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 	}
 
 	public Object visit(PropertyIsBetween filter, Object extraData) {
-		Expression expr=(Expression) filter.getExpression().accept(this, extraData);
-		Expression lower=(Expression) filter.getLowerBoundary().accept(this, extraData);
-		Expression upper=(Expression) filter.getUpperBoundary().accept(this, extraData);
+		Expression expr= visit(filter.getExpression(), extraData);
+		Expression lower= visit(filter.getLowerBoundary(), extraData);
+		Expression upper= visit(filter.getUpperBoundary(), extraData);
 		return getFactory(extraData).between(expr, lower, upper);
 	}
 
 	public Object visit(PropertyIsEqualTo filter, Object extraData) {
-		Expression expr1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) filter.getExpression2().accept(this, extraData);
+		Expression expr1= visit(filter.getExpression1(), extraData);
+		Expression expr2= visit(filter.getExpression2(), extraData);
 		boolean matchCase=filter.isMatchingCase();
 		return getFactory(extraData).equal(expr1, expr2, matchCase);
 	}
 
 	public Object visit(PropertyIsNotEqualTo filter, Object extraData) {
-		Expression expr1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression expr1= visit(filter.getExpression1(), extraData);
+        Expression expr2= visit(filter.getExpression2(), extraData);
 		boolean matchCase=filter.isMatchingCase();
 		return getFactory(extraData).notEqual(expr1, expr2, matchCase);
 	}
 
 	public Object visit(PropertyIsGreaterThan filter, Object extraData) {
-		Expression expr1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression expr1= visit(filter.getExpression1(), extraData);
+        Expression expr2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).greater(expr1, expr2);
 	}
 
 	public Object visit(PropertyIsGreaterThanOrEqualTo filter, Object extraData) {
-		Expression expr1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression expr1= visit(filter.getExpression1(), extraData);
+        Expression expr2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).greaterOrEqual(expr1, expr2);
 	}
 
 	public Object visit(PropertyIsLessThan filter, Object extraData) {
-		Expression expr1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression expr1= visit(filter.getExpression1(), extraData);
+        Expression expr2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).less(expr1, expr2);
 	}
 
 	public Object visit(PropertyIsLessThanOrEqualTo filter, Object extraData) {
-		Expression expr1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression expr1= visit(filter.getExpression1(), extraData);
+        Expression expr2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).lessOrEqual(expr1, expr2);
 	}
 
 	public Object visit(PropertyIsLike filter, Object extraData) {
-		Expression expr=(Expression) filter.getExpression().accept(this, extraData);
+		Expression expr= visit(filter.getExpression(), extraData);
 		String pattern=filter.getLiteral();
 		String wildcard=filter.getWildCard();
 		String singleChar=filter.getSingleChar();
@@ -204,7 +216,7 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 	}
 
 	public Object visit(PropertyIsNull filter, Object extraData) {
-		Expression expr=(Expression) filter.getExpression().accept(this, extraData);
+		Expression expr= visit(filter.getExpression(), extraData);
 		return getFactory(extraData).isNull(expr);
 	}
 
@@ -219,66 +231,66 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 	}
 
 	public Object visit(Beyond filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+		Expression geometry1= visit(filter.getExpression1(), extraData);
+		Expression geometry2= visit(filter.getExpression2(), extraData);
 		double distance=filter.getDistance();
 		String units=filter.getDistanceUnits();
 		return getFactory(extraData).beyond(geometry1, geometry2, distance, units);
 	}
 
 	public Object visit(Contains filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression geometry1= visit(filter.getExpression1(), extraData);
+        Expression geometry2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).contains(geometry1, geometry2);
 	}
 
 	public Object visit(Crosses filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression geometry1= visit(filter.getExpression1(), extraData);
+        Expression geometry2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).crosses(geometry1, geometry2);
 	}
 
 	public Object visit(Disjoint filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression geometry1= visit(filter.getExpression1(), extraData);
+        Expression geometry2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).disjoint(geometry1, geometry2);
 	}
 
 	public Object visit(DWithin filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression geometry1= visit(filter.getExpression1(), extraData);
+        Expression geometry2= visit(filter.getExpression2(), extraData);
 		double distance=filter.getDistance();
 		String units=filter.getDistanceUnits();
 		return getFactory(extraData).dwithin(geometry1, geometry2, distance, units);
 	}
 
 	public Object visit(Equals filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression geometry1= visit(filter.getExpression1(), extraData);
+        Expression geometry2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).equal(geometry1, geometry2);
 	}
 
 	public Object visit(Intersects filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression geometry1= visit(filter.getExpression1(), extraData);
+        Expression geometry2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).intersects(geometry1, geometry2);
 	}
 
 	public Object visit(Overlaps filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression geometry1= visit(filter.getExpression1(), extraData);
+        Expression geometry2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).overlaps(geometry1, geometry2);
 	}
 
 	public Object visit(Touches filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression geometry1= visit(filter.getExpression1(), extraData);
+        Expression geometry2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).touches(geometry1, geometry2);
 	}
 
 	public Object visit(Within filter, Object extraData) {
-		Expression geometry1=(Expression) filter.getExpression1().accept(this, extraData);
-		Expression geometry2=(Expression) filter.getExpression2().accept(this, extraData);
+	    Expression geometry1= visit(filter.getExpression1(), extraData);
+        Expression geometry2= visit(filter.getExpression2(), extraData);
 		return getFactory(extraData).within(geometry1, geometry2);
 	}
 
@@ -291,14 +303,14 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 	}
 
 	public Object visit(Add expression, Object extraData) {
-		Expression expr1=(Expression) expression.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) expression.getExpression2().accept(this, extraData);
+	    Expression expr1= visit(expression.getExpression1(), extraData);
+	    Expression expr2= visit(expression.getExpression2(), extraData);
 		return getFactory(extraData).add(expr1, expr2);
 	}
 
 	public Object visit(Divide expression, Object extraData) {
-		Expression expr1=(Expression) expression.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) expression.getExpression2().accept(this, extraData);
+	    Expression expr1= visit(expression.getExpression1(), extraData);
+        Expression expr2= visit(expression.getExpression2(), extraData);
 		return getFactory(extraData).divide(expr1, expr2);
 	}
 
@@ -308,7 +320,7 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 		int i = 0;
 		for (Iterator iter = old.iterator(); iter.hasNext(); i++) {
 			Expression exp = (Expression) iter.next();
-			args[i]=(Expression) exp.accept(this, extraData);
+			args[i]= visit(exp, extraData);
 		}
 		return getFactory(extraData).function(expression.getName(), args);
 	}
@@ -318,8 +330,8 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 	}
 
 	public Object visit(Multiply expression, Object extraData) {
-		Expression expr1=(Expression) expression.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) expression.getExpression2().accept(this, extraData);
+	    Expression expr1= visit(expression.getExpression1(), extraData);
+        Expression expr2= visit(expression.getExpression2(), extraData);
 		return getFactory(extraData).multiply(expr1, expr2);
 	}
 
@@ -328,8 +340,8 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 	}
 
 	public Object visit(Subtract expression, Object extraData) {
-		Expression expr1=(Expression) expression.getExpression1().accept(this, extraData);
-		Expression expr2=(Expression) expression.getExpression2().accept(this, extraData);
+	    Expression expr1= visit(expression.getExpression1(), extraData);
+        Expression expr2= visit(expression.getExpression2(), extraData);
 		return getFactory(extraData).subtract(expr1, expr2);
 	}
 

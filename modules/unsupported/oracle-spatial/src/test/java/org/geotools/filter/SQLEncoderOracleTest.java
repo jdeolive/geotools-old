@@ -128,6 +128,7 @@ public class SQLEncoderOracleTest extends TestCase {
         encoder = new SQLEncoderOracle("FID",new HashMap());
         assertTrue(encoder.getCapabilities().supports(org.opengis.filter.Filter.INCLUDE));
         
+        // nothing to filter, no WHERE clause
         assertEquals("WHERE 1 = 1", encoder.encode(org.opengis.filter.Filter.INCLUDE));
     }
     
