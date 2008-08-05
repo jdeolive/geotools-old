@@ -25,12 +25,12 @@ import org.opengis.util.InternationalString;
  *
  * @author Johann Sorel
  */
-class DescriptionImpl implements Description{
+public class DescriptionImpl implements Description{
 
     private InternationalString title;
     private InternationalString desc;
     
-    DescriptionImpl(InternationalString title, InternationalString desc){
+    public DescriptionImpl(InternationalString title, InternationalString desc){
         this.title = title;
         this.desc = desc;
     }
