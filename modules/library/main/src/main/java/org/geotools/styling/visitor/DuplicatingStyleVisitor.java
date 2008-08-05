@@ -29,6 +29,7 @@ import org.geotools.styling.ChannelSelection;
 import org.geotools.styling.ColorMap;
 import org.geotools.styling.ColorMapEntry;
 import org.geotools.styling.ContrastEnhancement;
+import org.geotools.styling.DescriptionImpl;
 import org.geotools.styling.Displacement;
 import org.geotools.styling.Extent;
 import org.geotools.styling.ExternalGraphic;
@@ -36,6 +37,7 @@ import org.geotools.styling.FeatureTypeConstraint;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.FeatureTypeStyleImpl;
 import org.geotools.styling.Fill;
+import org.geotools.styling.FillImpl;
 import org.geotools.styling.Font;
 import org.geotools.styling.Graphic;
 import org.geotools.styling.Halo;
@@ -67,6 +69,7 @@ import org.geotools.styling.UserLayer;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.Description;
 
 /**
  * Creates a deep copy of a Style, this class is *NOT THREAD SAFE*.
@@ -263,16 +266,28 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
             filterCopy = copy( filter );
         }
         
+        Symbolizer[] symsCopy = rule.getSymbolizers();
+        for (int i = 0; i < symsCopy.length; i++) {
+        	symsCopy[i] = copy(symsCopy[i]);
+		}
+        
+        Graphic[] legendCopy = rule.getLegendGraphic();
+        for (int i = 0; i < legendCopy.length; i++) {
+			legendCopy[i] = copy(legendCopy[i]);
+		}
+        
+        Description descCopy = rule.getDescription();
+        descCopy = copy(descCopy);
+        
         copy = new StyleFactoryImpl().createRule(
-                rule.getSymbolizers(), 
-                rule.getDescription(),
-                rule.getLegendGraphic(),
+        		symsCopy, 
+        		descCopy,
+                legendCopy,
                 rule.getName(), 
                 filterCopy, 
                 rule.isElseFilter(), 
                 rule.getMaxScaleDenominator(), 
                 rule.getMinScaleDenominator());
-        
 
 //        Graphic[] legendGraphic = rule.getLegendGraphic();
 //        Graphic[] legendGraphicCopy = new Graphic[legendGraphic.length];
@@ -479,6 +494,17 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         ShadedRelief copy = sf.createShadedRelief( reliefFactor );
         copy.setBrightnessOnly( shaded.isBrightnessOnly() );
         
+        return copy;
+    }
+    
+    /**
+     * Null safe copy of description
+     * @param shaded
+     * @return copy of shaded or null if not provided
+     */
+    protected Description copy(Description desc) {
+        if( desc == null ) return null;
+        DescriptionImpl copy = new DescriptionImpl(desc.getTitle(), desc.getAbstract());
         return copy;
     }
     
