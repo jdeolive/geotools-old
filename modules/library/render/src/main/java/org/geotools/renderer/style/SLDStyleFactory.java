@@ -1258,12 +1258,11 @@ public class SLDStyleFactory {
         if(exp == null){
             return fallback;
         }
-        try{
-            return Color.decode((String) exp.evaluate(f));
-        }
-        catch(NumberFormatException nfe){
+        Color color  = exp.evaluate( f, Color.class );
+        if( color != null ){
             return fallback;
         }
+        return color;
     }
 
     private float evalOpacity(Expression e, Object f){
