@@ -17,8 +17,13 @@
 package org.geotools.styling;
 
 
-// OpenGIS dependencies
-import org.geotools.resources.Utilities;
+import javax.measure.unit.Unit;
+
+import org.geotools.util.Utilities;
+
+import org.opengis.filter.expression.Expression;
+import org.opengis.style.Description;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -27,10 +32,17 @@ import org.opengis.util.Cloneable;
  * LineSymbolizer defines how a line geometry should be rendered.
  *
  * @author James Macgill
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
 public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
+    
+    private final Description description;
+    private final String name;
+    private final Expression offset;
+    private final Unit uom;
+    
     private Stroke stroke = null;
     private String geometryName = null;
 
@@ -38,8 +50,26 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
      * Creates a new instance of DefaultLineSymbolizer
      */
     protected LineSymbolizerImpl() {
+        this(null,null,null,null,null,null);
+    }
+    
+    protected LineSymbolizerImpl(Stroke stroke, Expression offset, Unit uom, String geom, String name, Description desc){
+        this.stroke = stroke;
+        this.offset = offset;
+        this.uom = uom;
+        this.geometryName = geom;
+        this.name = name;
+        this.description = desc;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public Description getDescription() {
+        return description;
+    }
+    
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
@@ -69,8 +99,17 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
      *
      * @see #LineSymbolizerImpl.geometryPropertyName()
      */
+    @Deprecated
     public void setGeometryPropertyName(String name) {
         geometryName = name;
+    }
+
+    public Unit getUnitOfMeasure() {
+        return uom;
+    }
+
+    public Expression getPerpendicularOffset() {
+        return offset;
     }
 
     /**
@@ -89,6 +128,7 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
      *
      * @param stroke The Stroke style to use when rendering lines.
      */
+    @Deprecated
     public void setStroke(Stroke stroke) {
         if (this.stroke == stroke) {
             return;
@@ -101,10 +141,14 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
      *
      * @param visitor The visitor to accept.
      */
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
     /**
      * Creates a deep copy clone.
      *
@@ -121,6 +165,7 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
             if (stroke != null && stroke instanceof Cloneable) {
                 clone.stroke = (Stroke) ((Cloneable)stroke).clone();
             }
+                        
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
@@ -137,6 +182,10 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         final int PRIME = 1000003;
         int result = 0;
 
+        if (name != null) {
+            result = (PRIME * result) + name.hashCode();
+        }
+        
         if (stroke != null) {
             result = (PRIME * result) + stroke.hashCode();
         }
@@ -145,6 +194,18 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
             result = (PRIME * result) + geometryName.hashCode();
         }
 
+        if(uom != null){
+            result = (PRIME * result) +  uom.hashCode();
+        }
+        
+        if(description != null){
+            result = (PRIME * result) +  description.hashCode();
+        }
+        
+        if(offset != null){
+            result = (PRIME * result) +  offset.hashCode();
+        }
+        
         return result;
     }
 
@@ -189,8 +250,21 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
             return false;
         }
         
+        if(!Utilities.equals( uom, other.uom)){
+            return false;
+        }
+        
+        if(!Utilities.equals( description, other.description)){
+            return false;
+        }
+        
+        if(!Utilities.equals( offset, other.offset)){
+            return false;
+        }
+        
         return true;
     }
+    
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("<LineSymbolizerImp property=");
@@ -200,4 +274,7 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         buf.append(">");
         return buf.toString();
     }
+
+ 
+
 }

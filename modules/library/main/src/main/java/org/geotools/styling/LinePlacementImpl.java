@@ -20,9 +20,11 @@ import java.util.logging.Logger;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
+
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -30,6 +32,7 @@ import org.opengis.util.Cloneable;
  * Default implementation of LinePlacement.
  *
  * @author Ian Turton, CCG
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
@@ -38,16 +41,32 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
     private FilterFactory filterFactory;
     private Expression perpendicularOffset = null;
+    
+    private final boolean generalized;
+    private final boolean aligned;
+    private final boolean repeated;
+    private final Expression gap;
+    private final Expression initialGap;
 
     public LinePlacementImpl() {
         this( CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
     }
 
     public LinePlacementImpl(FilterFactory factory) {
+        this(factory,false,false,false, null,null);
+    }
+    
+    public LinePlacementImpl(FilterFactory factory,boolean aligned, boolean repeated, boolean generalized, Expression gap, Expression initialGap) {
         filterFactory = factory;
+        this.gap = gap;
+        this.initialGap = initialGap;
+        this.generalized = generalized;
+        this.aligned = aligned;
+        this.repeated = repeated;
         init();
     }
 
+    @Deprecated
     public void setFilterFactory(FilterFactory factory) {
         filterFactory = factory;
         init();
@@ -78,14 +97,39 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
      *
      * @param perpendicularOffset New value of property perpendicularOffset.
      */
+    @Deprecated
     public void setPerpendicularOffset(Expression perpendicularOffset) {
         this.perpendicularOffset = perpendicularOffset;
     }
 
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Expression getInitialGap() {
+        return initialGap;
     }
 
+    public Expression getGap() {
+        return gap;
+    }
+
+    public boolean isRepeated() {
+        return repeated;
+    }
+
+    public boolean IsAligned() {
+        return aligned;
+    }
+
+    public boolean isGeneralizeLine() {
+        return generalized;
+    }
+
+    public Object accept(StyleVisitor visitor, Object data) {
+        return visitor.visit(this,data);
+    }
+
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
     /* (non-Javadoc)
      * @see Cloneable#clone()
      */
@@ -108,8 +152,13 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
         if (obj instanceof LinePlacementImpl) {
             LinePlacementImpl other = (LinePlacementImpl) obj;
 
-            return Utilities.equals(perpendicularOffset,
-                other.perpendicularOffset);
+            return 
+                Utilities.equals(perpendicularOffset,other.perpendicularOffset)
+                && Utilities.equals(repeated,other.repeated)
+                && Utilities.equals(generalized,other.generalized)
+                && Utilities.equals(aligned,other.aligned)
+                && Utilities.equals(initialGap,other.initialGap)
+                && Utilities.equals(gap,other.gap);
         }
 
         return false;
@@ -125,7 +174,22 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
         if (perpendicularOffset != null) {
             result = (result * PRIME) + perpendicularOffset.hashCode();
         }
-
+        
+        if (gap != null) {
+            result = (result * PRIME) + gap.hashCode();
+        }
+        
+        if (initialGap != null) {
+            result = (result * PRIME) + initialGap.hashCode();
+        }
+        
+        result = (result * PRIME) + new Boolean(generalized).hashCode();
+        result = (result * PRIME) + new Boolean(aligned).hashCode();
+        result = (result * PRIME) + new Boolean(repeated).hashCode();
+        
         return result;
     }
+
+
+    
 }

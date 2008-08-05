@@ -17,8 +17,14 @@
 package org.geotools.styling;
 
 
-// OpenGIS dependencies
-import org.geotools.resources.Utilities;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+
+import org.geotools.util.SimpleInternationalString;
+import org.geotools.util.Utilities;
+
+import org.opengis.style.Description;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -27,10 +33,15 @@ import org.opengis.util.Cloneable;
  * points are to be rendered.
  *
  * @author Ian Turton, CCG
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
 public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
+    
+    private final Description description;
+    private final String name;
+    private final Unit uom;
     private String geometryPropertyName = null;
     private Graphic graphic = new GraphicImpl();
 
@@ -38,19 +49,60 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
      * Creates a new instance of DefaultPointSymbolizer
      */
     protected PointSymbolizerImpl() {
+        this(new GraphicImpl(), 
+                NonSI.PIXEL,
+                null,
+                null,
+                new DescriptionImpl(
+                    new SimpleInternationalString("title"), 
+                    new SimpleInternationalString("abstract")));
     }
 
+    protected PointSymbolizerImpl(Graphic graphic, Unit uom, String geom, String name, Description desc){
+        this.graphic = graphic;
+        this.uom = uom;
+        this.geometryPropertyName = geom;
+        this.name = name;
+        this.description = desc;
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public Description getDescription() {
+        return description;
+    }
+    
+    /**
+     * This property defines the geometry to be used for styling.<br>
+     * The property is optional and if it is absent (null) then the "default"
+     * geometry property of the feature should be used.  Geometry types other
+     * than inherently linear types can be used.  If a point geometry is used,
+     * it should be interpreted as a line of zero length and two end caps.  If
+     * a polygon is used (or other "area" type) then its closed outline should
+     * be used as the line string (with no end caps). The geometryPropertyName
+     * is the name of a geometry property in the Feature being styled.
+     * Typically, features only have one geometry so, in general, the need to
+     * select one is not required. Note: this moves a little away from the SLD
+     * spec which provides an XPath reference to a Geometry object, but does
+     * follow it in spirit.
+     *
+     * @return The name of the attribute in the feature being styled  that
+     *         should be used.  If null then the default geometry should be
+     *         used.
+     */
     public String getGeometryPropertyName() {
         return geometryPropertyName;
     }
 
-    /**
-     * Sets the Geometry Property Name.
-     *
-     * @param name The Geometry Property Name.
-     */
+    @Deprecated
     public void setGeometryPropertyName(String name) {
         geometryPropertyName = name;
+    }
+
+    public Unit getUnitOfMeasure() {
+        return uom;
     }
 
     /**
@@ -68,6 +120,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
      *
      * @param graphic New value of property graphic.
      */
+    @Deprecated
     public void setGraphic(Graphic graphic) {
         if (this.graphic == graphic) {
             return;
@@ -80,7 +133,11 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
      *
      * @param visitor The StyleVisitor to accept.
      */
-    public void accept(StyleVisitor visitor) {
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
+    }
+    
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -96,7 +153,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
 
         try {
             clone = (PointSymbolizerImpl) super.clone();
-            clone.graphic = (Graphic) ((Cloneable) graphic).clone();
+            if(graphic != null) clone.graphic = (Graphic) ((Cloneable) graphic).clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
@@ -119,6 +176,18 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
 
         if (graphic != null) {
             result = (PRIME * result) + graphic.hashCode();
+        }
+        
+        if(name != null){
+            result = (PRIME * result) + name.hashCode();
+        }
+        
+        if(uom != null){
+            result = (PRIME * result) + uom.hashCode();
+        }
+        
+        if(description != null){
+            result = (PRIME * result) + description.hashCode();
         }
 
         return result;
@@ -150,11 +219,15 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         if (oth instanceof PointSymbolizerImpl) {
             PointSymbolizerImpl other = (PointSymbolizerImpl) oth;
 
-            return Utilities.equals(geometryPropertyName,
-                other.geometryPropertyName)
-            && Utilities.equals(graphic, other.graphic);
+            return Utilities.equals(geometryPropertyName,other.geometryPropertyName)
+            && Utilities.equals(graphic, other.graphic)
+            && Utilities.equals(uom, other.uom)
+            && Utilities.equals(description, other.description);
         }
 
         return false;
     }
+
+
+
 }

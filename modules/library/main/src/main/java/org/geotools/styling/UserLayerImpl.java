@@ -70,43 +70,39 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @author  jamesm
  * @source $URL$
  */
-public class UserLayerImpl extends StyledLayerImpl implements UserLayer 
-{
+public class UserLayerImpl extends StyledLayerImpl implements UserLayer {
+
     /**
      *  the (memory) datastore that will contain the inline features.
      *  The initial implementation has this as a MemoryDataStore with one FeatureType in it.
      *  You should ensure that you dont keep references to it around so it can be GCed.
      */
-	private DataStore   inlineFeatureDatastore = null;
-	private SimpleFeatureType inlineFeatureType = null;
-	
-	RemoteOWS remoteOWS;
+    private DataStore inlineFeatureDatastore = null;
+    private SimpleFeatureType inlineFeatureType = null;
+    RemoteOWS remoteOWS;
     List styles = new ArrayList<Style>();
     FeatureTypeConstraint[] constraints = new FeatureTypeConstraint[0];
-    
-    public RemoteOWS getRemoteOWS()
-    {
+
+    public RemoteOWS getRemoteOWS() {
         return remoteOWS;
     }
-    
-    public DataStore getInlineFeatureDatastore()
-    {
-    	return inlineFeatureDatastore;    
+
+    public DataStore getInlineFeatureDatastore() {
+        return inlineFeatureDatastore;
     }
-	public SimpleFeatureType getInlineFeatureType()
-	{
-		return inlineFeatureType;
-	}
-	
-	public void setInlineFeatureDatastore(DataStore store)
-    {
-    	inlineFeatureDatastore = store;
+
+    public SimpleFeatureType getInlineFeatureType() {
+        return inlineFeatureType;
     }
-	public void setInlineFeatureType(SimpleFeatureType ft)
-	{
-		inlineFeatureType = ft;
-	}
-	
+
+    public void setInlineFeatureDatastore(DataStore store) {
+        inlineFeatureDatastore = store;
+    }
+
+    public void setInlineFeatureType(SimpleFeatureType ft) {
+        inlineFeatureType = ft;
+    }
+
     public void setRemoteOWS(RemoteOWS service)
     {
     	this.remoteOWS = service;
@@ -137,31 +133,30 @@ public class UserLayerImpl extends StyledLayerImpl implements UserLayer
         visitor.visit(this);
     }
 
-	public boolean equals(Object oth) {
+    public boolean equals(Object oth) {
         if (this == oth) {
             return true;
         }
 
         if (oth instanceof UserLayerImpl) {
-        	UserLayerImpl other = (UserLayerImpl) oth;
-        	
-        	if (!(Utilities.equals(inlineFeatureDatastore, other.inlineFeatureDatastore)
-        	&& Utilities.equals(inlineFeatureType, other.inlineFeatureType)
-        	&& Utilities.equals(remoteOWS, other.remoteOWS)
-        	&& Utilities.equals(styles, other.styles))) {
-        		return false;
-        	}
+            UserLayerImpl other = (UserLayerImpl) oth;
 
-			final int length = constraints.length;
-			if (length != other.constraints.length)
-				return false;
-			for (int i = 0; i < length; i++) {
-				if (!Utilities.equals(constraints[i], other.constraints[i]))
-					return false;
-			}
-			return true;
+            if (!(Utilities.equals(inlineFeatureDatastore, other.inlineFeatureDatastore) && Utilities.equals(inlineFeatureType, other.inlineFeatureType) && Utilities.equals(remoteOWS, other.remoteOWS) && Utilities.equals(styles, other.styles))) {
+                return false;
+            }
+
+            final int length = constraints.length;
+            if (length != other.constraints.length) {
+                return false;
+            }
+            for (int i = 0; i < length; i++) {
+                if (!Utilities.equals(constraints[i], other.constraints[i])) {
+                    return false;
+                }
+            }
+            return true;
         }
-        
+
         return false;
-	}
+    }
 }

@@ -16,13 +16,18 @@
  */
 package org.geotools.styling;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
+
+import org.opengis.style.FeatureTypeStyle;
+import org.opengis.style.StyleVisitor;
+import org.opengis.style.Symbolizer;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.util.Cloneable;
 import org.opengis.util.InternationalString;
@@ -32,19 +37,24 @@ import org.opengis.style.Description;
  * DOCUMENT ME!
  *
  * @author James Macgill, CCG
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
 public class StyleImpl implements org.geotools.styling.Style, Cloneable {
-    /** The logger for the default core module. */
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
-            "org.geotools.styling");
     
-    private List<FeatureTypeStyle> featureTypeStyles = new ArrayList<FeatureTypeStyle>();
-    private String abstractText = "";
+    /** The logger for the default core module. */
+    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.styling");
+    
+    private final List<FeatureTypeStyle> featureTypeStyles = new ArrayList<FeatureTypeStyle>();
+    
+    private final DescriptionImpl description = new DescriptionImpl(
+            new SimpleInternationalString("Default Styler"), 
+            new SimpleInternationalString(""));
+    
     private String name = "Default Styler";
-    private String title = "Default Styler";
     private boolean defaultB = false;
+    private Symbolizer defaultSpecification = null;
 
     /**
      * Creates a new instance of StyleImpl
@@ -52,86 +62,95 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
     protected StyleImpl() {
     }
 
-    public Description getDescription() {
-    	return new Description(){
-			public InternationalString getAbstract() {
-				return new SimpleInternationalString(abstractText);
-			}
-
-			public InternationalString getTitle() {
-				return new SimpleInternationalString(title);
-			}    		
-			public Object accept(org.opengis.style.StyleVisitor visitor, Object data) {
-				return visitor.visit(this, data);
-			}     		
-    	};
+    public List<org.opengis.style.FeatureTypeStyle> featureTypeStyles() {
+        return featureTypeStyles;
     }
-    public String getAbstract() {
-        return abstractText;
-    }
+    
+    @Deprecated
+    public org.geotools.styling.FeatureTypeStyle[] getFeatureTypeStyles() {
+        final org.geotools.styling.FeatureTypeStyle[] ret;
 
-	public FeatureTypeStyle[] getFeatureTypeStyles() {
-		FeatureTypeStyle[] ret = new FeatureTypeStyleImpl[] { new FeatureTypeStyleImpl() };
-
-		if ((featureTypeStyles != null) && (featureTypeStyles.size() != 0)) {
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.fine("number of fts set " + featureTypeStyles.size());
-			
-			ret = (FeatureTypeStyle[]) featureTypeStyles
-					.toArray(new FeatureTypeStyle[] {
-
-					});
-		}
-
-		return ret;
+        if ( !featureTypeStyles.isEmpty() ) {
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("number of fts set " + featureTypeStyles.size());
+            }
+            ret = new org.geotools.styling.FeatureTypeStyle[featureTypeStyles.size()];
+            for(int i=0, n=featureTypeStyles.size(); i<n; i++){
+                ret[i] = (org.geotools.styling.FeatureTypeStyle) featureTypeStyles.get(i);
+            }
+            
+        }else{
+            //we return a single featureTypeStyle array
+            ret = new org.geotools.styling.FeatureTypeStyle[1];
+            ret[1] = new FeatureTypeStyleImpl();
+        }
+        
+        return ret;
     }
 
-    public void setFeatureTypeStyles(FeatureTypeStyle[] styles) {
-        List<FeatureTypeStyle> newStyles = Arrays.asList(styles);
+    @Deprecated
+    public void setFeatureTypeStyles(org.geotools.styling.FeatureTypeStyle[] styles) {
+        List<org.geotools.styling.FeatureTypeStyle> newStyles = Arrays.asList(styles);
 
         this.featureTypeStyles.clear();
         this.featureTypeStyles.addAll(newStyles);
 
-        LOGGER.fine("StyleImpl added " + featureTypeStyles.size()
-            + " feature types");
+        LOGGER.fine("StyleImpl added " + featureTypeStyles.size() + " feature types");
     }
 
-    public void addFeatureTypeStyle(FeatureTypeStyle type) {
+    @Deprecated
+    public void addFeatureTypeStyle(org.geotools.styling.FeatureTypeStyle type) {
         featureTypeStyles.add(type);
     }
 
+    public Description getDescription() {
+        return description;
+    }
+    
     public String getName() {
         return name;
     }
-
-    public String getTitle() {
-        return title;
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
+    @Deprecated
+    public String getAbstract() {
+        return description.getAbstract().toString();
+    }
+    
+    @Deprecated
+    public void setAbstract(String abstractStr) {
+        description.setAbstract(new SimpleInternationalString(abstractStr));
+    }
+    
+    @Deprecated
+    public String getTitle() {
+        return description.getTitle().toString();
+    }
+
+    @Deprecated
+    public void setTitle(String title) {
+        description.setTitle(new SimpleInternationalString(title));
+    }
+    
     public boolean isDefault() {
         return defaultB;
-    }
-
-    public void setAbstract(String abstractStr) {
-        abstractText = abstractStr;
     }
 
     public void setDefault(boolean isDefault) {
         defaultB = isDefault;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Object accept(StyleVisitor visitor, Object data) {
+        return visitor.visit(this,data);
     }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void accept(StyleVisitor visitor) {
+    
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
-
+    
     /**
      * Clones the Style.  Creates deep copy clone of the style.
      *
@@ -150,15 +169,15 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
             throw new RuntimeException(e); // this should never happen since we implement Cloneable
         }
 
-        FeatureTypeStyle[] ftsArray = new FeatureTypeStyle[featureTypeStyles
-            .size()];
-
-        for (int i = 0; i < ftsArray.length; i++) {
-            FeatureTypeStyle fts = (FeatureTypeStyle) featureTypeStyles.get(i);
-            ftsArray[i] = (FeatureTypeStyle) ((Cloneable) fts).clone();
+        final List<FeatureTypeStyle> ftsCopy = new ArrayList<FeatureTypeStyle>();
+        
+        
+        for(FeatureTypeStyle fts : featureTypeStyles){
+            ftsCopy.add( (FeatureTypeStyle) ((Cloneable) fts).clone() );
         }
-
-        clone.setFeatureTypeStyles(ftsArray);
+        
+        clone.featureTypeStyles().clear();
+        ((List<FeatureTypeStyle>)clone.featureTypeStyles()).addAll(ftsCopy);
 
         return clone;
     }
@@ -176,6 +195,7 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
             result = (PRIME * result) + featureTypeStyles.hashCode();
         }
 
+        final String abstractText = description.getAbstract().toString();
         if (abstractText != null) {
             result = (PRIME * result) + abstractText.hashCode();
         }
@@ -184,6 +204,7 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
             result = (PRIME * result) + name.hashCode();
         }
 
+        final String title = description.getTitle().toString();
         if (title != null) {
             result = (PRIME * result) + title.hashCode();
         }
@@ -214,13 +235,13 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
             StyleImpl other = (StyleImpl) oth;
 
             return Utilities.equals(name, other.name)
-            && Utilities.equals(title, other.title)
-            && Utilities.equals(abstractText, other.abstractText)
+            && Utilities.equals(description, other.description)
             && Utilities.equals(featureTypeStyles, other.featureTypeStyles);
         }
 
         return false;
     }
+    
     public String toString() {
     	StringBuffer buf = new StringBuffer();
     	buf.append( "StyleImpl");
@@ -235,11 +256,17 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
     	if( defaultB ) {
     		buf.append( ", DEFAULT");
     	}
-//    	if( title != null && title.length() != 0 ){
-//    		buf.append(", title=");
-//    		buf.append( title );
-//    	}
+        buf.append( ", "+description.toString());
     	buf.append("]");
     	return buf.toString();
     }
+
+    public Symbolizer getDefaultSpecification() {
+        return defaultSpecification;
+    }
+
+    public void setDefaultSpecification(Symbolizer symbolizer){
+        this.defaultSpecification = symbolizer;
+    }
+
 }

@@ -22,6 +22,8 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.ContrastMethod;
+import org.opengis.style.StyleVisitor;
 
 
 /**
@@ -67,13 +69,19 @@ public class ContrastEnhancementImpl implements ContrastEnhancement {
     private FilterFactory filterFactory;
     private Expression gamma;
     private Expression type;
+    private final ContrastMethod method;
 
     public ContrastEnhancementImpl() {
         this( CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
     }
 
     public ContrastEnhancementImpl(FilterFactory factory) {
+        this(factory,null);
+    }
+    
+    public ContrastEnhancementImpl(FilterFactory factory,ContrastMethod method) {
         filterFactory = factory;
+        this.method = method;
     }
 
     public void setFilterFactory(FilterFactory factory) {
@@ -112,8 +120,15 @@ public class ContrastEnhancementImpl implements ContrastEnhancement {
         this.type = type;
     }
 
-	public void accept(StyleVisitor visitor) {
-		visitor.visit(this);
-		
-	}
+    public ContrastMethod getMethod() {
+        return method;
+    }
+    
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
+    }
+
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -118,7 +118,7 @@ import org.opengis.filter.expression.Expression;
  * @author Ian Turton, CCG
  * @source $URL$
  */
-public interface RasterSymbolizer extends Symbolizer {
+public interface RasterSymbolizer extends org.opengis.style.RasterSymbolizer,Symbolizer {
     /**
      * The interpretation of Geometry is system-dependent, as raster data may
      * be organized differently from feature data, though omitting this
@@ -128,38 +128,20 @@ public interface RasterSymbolizer extends Symbolizer {
      *
      * @param geometryPropertyName the name of the Geometry
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setGeometryPropertyName(String geometryPropertyName);
-
-    /**
-     * The interpretation of Geometry is system-dependent, as raster data may
-     * be organized differently from feature data, though omitting this
-     * element selects the default raster-data source.  Geometry-type
-     * transformations are also system-dependent and it is assumed that this
-     * capability will be little used.
-     *
-     * @return the name of the geometry
-     */
-    String getGeometryPropertyName();
 
     /**
      * sets the opacity for the coverage, it has the usual meaning.
      *
      * @param opacity An expression which evaluates to the the opacity (0-1)
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setOpacity(Expression opacity);
-
-    /**
-     * fetch the expresion which evaluates to the opacity fo rthis coverage
-     *
-     * @return The expression
-     */
-    Expression getOpacity();
 
     /**
      * The ChannelSelection element specifies the false-color channel selection
@@ -174,7 +156,7 @@ public interface RasterSymbolizer extends Symbolizer {
      *
      * @param channel the channel selected
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setChannelSelection(ChannelSelection channel);
@@ -209,7 +191,7 @@ public interface RasterSymbolizer extends Symbolizer {
      * @param overlap the expression which evaluates to LATEST_ON_TOP,
      *        EARLIEST_ON_TOP, AVERAGE or RANDOM
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setOverlap(Expression overlap);
@@ -229,7 +211,7 @@ public interface RasterSymbolizer extends Symbolizer {
      * @return The expression which evaluates to LATEST_ON_TOP,
      *         EARLIEST_ON_TOP, AVERAGE or RANDOM
      * 
-     * @deprecated replaced by method getOverlapBehavior in 2.6.x
+     * @deprecated replaced by method getOverlapBehavior
      */
     @Deprecated
     Expression getOverlap();
@@ -250,7 +232,7 @@ public interface RasterSymbolizer extends Symbolizer {
      *
      * @param colorMap the ColorMap for the raster
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setColorMap(ColorMap colorMap);
@@ -291,7 +273,7 @@ public interface RasterSymbolizer extends Symbolizer {
      *
      * @param ce the contrastEnhancement
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setContrastEnhancement(ContrastEnhancement ce);
@@ -332,7 +314,7 @@ public interface RasterSymbolizer extends Symbolizer {
      *
      * @param relief the shadedrelief object
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setShadedRelief(ShadedRelief relief);
@@ -379,7 +361,7 @@ public interface RasterSymbolizer extends Symbolizer {
      *        polygon or a line symbolizer an unexpected argument exception
      *        may be thrown by an implementing class.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setImageOutline(Symbolizer symbolizer);

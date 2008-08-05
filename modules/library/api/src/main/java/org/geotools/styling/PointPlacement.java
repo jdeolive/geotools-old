@@ -54,7 +54,7 @@ import org.opengis.filter.expression.Expression;
  * @author Ian Turton
  * @source $URL$
  */
-public interface PointPlacement extends LabelPlacement {
+public interface PointPlacement extends org.opengis.style.PointPlacement,LabelPlacement {
     /**
      * Returns the AnchorPoint which identifies the location inside a textlabel
      * to use as an "anchor" for positioning it relative to a point geometry.
@@ -67,7 +67,7 @@ public interface PointPlacement extends LabelPlacement {
      * sets the AnchorPoint which identifies the location inside a textlabel to
      * use as an "anchor" for positioning it relative to a point geometry.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setAnchorPoint(AnchorPoint anchorPoint);
@@ -84,22 +84,15 @@ public interface PointPlacement extends LabelPlacement {
      * sets the Displacement which gives X and Y offset displacements to use
      * for rendering a text label near a point.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setDisplacement(Displacement displacement);
 
     /**
-     * Returns the rotation of the label.
-     *
-     * @return DOCUMENT ME!
-     */
-    Expression getRotation();
-
-    /**
      * sets the rotation of the label.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setRotation(Expression rotation);

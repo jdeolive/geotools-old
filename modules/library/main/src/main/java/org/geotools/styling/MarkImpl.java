@@ -17,11 +17,13 @@
 package org.geotools.styling;
 
 
-// OpenGIS dependencies
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
+
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.ExternalMark;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -29,19 +31,20 @@ import org.opengis.util.Cloneable;
  * Default implementation of Mark.
  *
  * @author Ian Turton, CCG
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
 public class MarkImpl implements Mark, Cloneable {
+    
     /** The logger for the default core module. */
     private static final java.util.logging.Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.styling");
 
-    //TODO: Make container ready
     private final FilterFactory filterFactory;
     private Fill fill;
     private Stroke stroke;
 
-    //Polygon shape;
+    private final ExternalMark external;
     private Expression wellKnownName = null;
     private Expression rotation = null;
     private Expression size = null;
@@ -50,16 +53,16 @@ public class MarkImpl implements Mark, Cloneable {
      * Creates a new instance of DefaultMark
      */
     public MarkImpl() {
-        this( CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));        
+        this( CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()), null);        
     }
 
     public MarkImpl(String name) {
-        this( CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
+        this( CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()), null);
         LOGGER.fine("creating " + name + " type mark");
         setWellKnownName(name);
     }
 
-    public MarkImpl( FilterFactory filterFactory ) {
+    public MarkImpl( FilterFactory filterFactory, ExternalMark exter ) {
         this.filterFactory = filterFactory;
         LOGGER.fine("creating defaultMark");
 
@@ -74,6 +77,7 @@ public class MarkImpl implements Mark, Cloneable {
         } catch (org.geotools.filter.IllegalFilterException ife) {
             severe("<init>", "Failed to build default mark: ", ife);
         }
+        this.external = exter;
     }
 
     /**
@@ -193,10 +197,14 @@ public class MarkImpl implements Mark, Cloneable {
         return wellKnownName.toString();
     }
 
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
     /**
      * Creates a deep copy of the Mark.
      * 
@@ -336,4 +344,9 @@ public class MarkImpl implements Mark, Cloneable {
 
         return true;
     }
+
+    public ExternalMark getExternalMark() {
+        return external;
+    }
+
 }

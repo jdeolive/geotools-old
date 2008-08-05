@@ -58,58 +58,61 @@ public abstract class RendererBaseTest {
 	 * @throws Exception
 	 *             DOCUMENT ME!
 	 */
-	protected static void showRender(String testName, Object renderer,
-			long timeOut, ReferencedEnvelope bounds) throws Exception {
-		int w = 300;
-		int h = 300;
-		final BufferedImage image = new BufferedImage(w, h,
-				BufferedImage.TYPE_INT_ARGB);
-		Graphics g = image.getGraphics();
-		g.setColor(Color.white);
-		g.fillRect(0, 0, w, h);
-		render(renderer, g, new Rectangle(w, h), bounds);
+    protected static void showRender(String testName, Object renderer,
+            long timeOut, ReferencedEnvelope bounds) throws Exception {
+        int w = 300;
+        int h = 300;
+        final BufferedImage image = new BufferedImage(w, h,
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics g = image.getGraphics();
+        g.setColor(Color.white);
+        g.fillRect(0, 0, w, h);
+        render(renderer, g, new Rectangle(w, h), bounds);
 
         final String headless = System.getProperty("java.awt.headless", "false");
-		if (!headless.equalsIgnoreCase("true") && TestData.isInteractiveTest()) try {
-			Frame frame = new Frame(testName);
-			frame.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					e.getWindow().dispose();
-				}
-			});
+        if (!headless.equalsIgnoreCase("true") && TestData.isInteractiveTest()) {
+            try {
+                Frame frame = new Frame(testName);
+                frame.addWindowListener(new WindowAdapter() {
 
-			Panel p = new Panel() {
-				/** <code>serialVersionUID</code> field */
-				private static final long serialVersionUID = 1L;
+                    public void windowClosing(WindowEvent e) {
+                        e.getWindow().dispose();
+                    }
+                });
 
-				public void paint(Graphics g) {
-					g.drawImage(image, 0, 0, this);
-				}
-			};
+                Panel p = new Panel() {
 
-			frame.add(p);
-			frame.setSize(w, h);
-			frame.setVisible(true);
+                    /** <code>serialVersionUID</code> field */
+                    private static final long serialVersionUID = 1L;
 
-			Thread.sleep(timeOut);
-			frame.dispose();
-		} catch (HeadlessException exception) {
-            // The test is running on a machine without X11 display. Ignore.
-            return;
+                    public void paint(Graphics g) {
+                        g.drawImage(image, 0, 0, this);
+                    }
+                };
+
+                frame.add(p);
+                frame.setSize(w, h);
+                frame.setVisible(true);
+
+                Thread.sleep(timeOut);
+                frame.dispose();
+            } catch (HeadlessException exception) {
+                // The test is running on a machine without X11 display. Ignore.
+                return;
+            }
+        }
+        boolean hasData = false; // All I can seem to check reliably.
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                if (image.getRGB(x, y) != -1) {
+                    hasData = true;
+                }
+            }
         }
 
-		boolean hasData = false; // All I can seem to check reliably.
-
-		for (int y = 0; y < h; y++) {
-			for (int x = 0; x < w; x++) {
-				if (image.getRGB(x, y) != -1) {
-					hasData = true;
-				}
-			}
-		}
-
-		assert( hasData);
-	}
+        assert (hasData);
+    }
 
 	/**
 	 * responsible for actually rendering.

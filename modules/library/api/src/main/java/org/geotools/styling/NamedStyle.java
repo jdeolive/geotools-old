@@ -131,5 +131,5 @@ public interface NamedStyle extends Style {
      */
     public void addFeatureTypeStyle(FeatureTypeStyle type);
 
-    public void accept(StyleVisitor visitor);
+    public void accept(org.geotools.styling.StyleVisitor visitor);
 }

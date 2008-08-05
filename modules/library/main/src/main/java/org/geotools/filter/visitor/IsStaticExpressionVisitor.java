@@ -16,7 +16,6 @@
  */
 package org.geotools.filter.visitor;
 
-import org.geotools.feature.visitor.IdCollectorFilterVisitor;
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Divide;
 import org.opengis.filter.expression.Expression;

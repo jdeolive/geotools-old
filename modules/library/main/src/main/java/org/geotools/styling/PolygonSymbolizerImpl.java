@@ -17,8 +17,14 @@
 package org.geotools.styling;
 
 
-// OpenGIS dependencies
-import org.geotools.resources.Utilities;
+import javax.measure.unit.Unit;
+
+import org.geotools.util.Utilities;
+
+import org.opengis.filter.expression.Expression;
+import org.opengis.style.Description;
+import org.opengis.style.Displacement;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -27,20 +33,55 @@ import org.opengis.util.Cloneable;
  * PolygonSymbolizer defines how a polygon geometry should be rendered.
  *
  * @author James Macgill, CCG
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
 public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
+    
+    private final Description description;
+    private final String name;
+    private final Expression offset;
+    private final Unit uom;
+    private final Displacement disp;
+    
     private Fill fill = new FillImpl();
     private Stroke stroke = new StrokeImpl();
-    private String geometryPropertyName = null;
+    private String geometryName = null;
 
     /**
      * Creates a new instance of DefaultPolygonStyler
      */
     protected PolygonSymbolizerImpl() {
+        this(null,null,null,null,null,null,null,null);
     }
 
+    protected PolygonSymbolizerImpl(Stroke stroke, 
+            Fill fill, 
+            Displacement disp, 
+            Expression offset, 
+            Unit uom, 
+            String geom, 
+            String name, 
+            Description desc){
+        this.stroke = stroke;
+        this.fill = fill;
+        this.disp = disp;
+        this.offset = offset;
+        this.uom = uom;
+        this.geometryName = geom;
+        this.name = name;
+        this.description = desc;
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public Description getDescription() {
+        return description;
+    }
+    
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
@@ -53,12 +94,12 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      * Note: this moves a little away from the SLD spec which provides an
      * XPath reference to a Geometry object, but does follow it in spirit.
      *
-     * @return String The name of the attribute in the feature being styled
-     *         that should be used.  If null then the default geometry should
-     *         be used.
+     * @return The name of the attribute in the feature being styled  that
+     *         should be used.  If null then the default geometry should be
+     *         used.
      */
     public String getGeometryPropertyName() {
-        return geometryPropertyName;
+        return geometryName;
     }
 
     /**
@@ -68,8 +109,21 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      *
      * @see #PolygonSymbolizerImpl.geometryPropertyName()
      */
+    @Deprecated
     public void setGeometryPropertyName(String name) {
-        geometryPropertyName = name;
+        geometryName = name;
+    }
+
+    public Unit getUnitOfMeasure() {
+        return uom;
+    }
+    
+    public Expression getPerpendicularOffset() {
+        return offset;
+    }
+    
+    public Displacement getDisplacement() {
+        return disp;
     }
 
     /**
@@ -88,6 +142,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      *
      * @param fill The Fill style to use when rendering the area.
      */
+    @Deprecated
     public void setFill(Fill fill) {
         if (this.fill == fill) {
             return;
@@ -111,6 +166,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      *
      * @param stroke The Stroke style to use when rendering lines.
      */
+    @Deprecated
     public void setStroke(Stroke stroke) {
         if (this.stroke == stroke) {
             return;
@@ -123,10 +179,14 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      *
      * @param visitor The visitor to accept.
      */
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
     /**
      * Creates a deep copy clone.   TODO: Need to complete the deep copy,
      * currently only shallow copy.
@@ -164,18 +224,34 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         final int PRIME = 1000003;
         int result = 0;
 
-        if (getFill() != null) {
-            result = (PRIME * result) + getFill().hashCode();
+        if (fill != null) {
+            result = (PRIME * result) + fill.hashCode();
         }
 
-        if (getStroke() != null) {
-            result = (PRIME * result) + getStroke().hashCode();
+        if (stroke != null) {
+            result = (PRIME * result) + stroke.hashCode();
         }
 
-        if (geometryPropertyName != null) {
-            result = (PRIME * result) + geometryPropertyName.hashCode();
+        if (geometryName != null) {
+            result = (PRIME * result) + geometryName.hashCode();
+        }
+        
+        if (description != null) {
+            result = (PRIME * result) + description.hashCode();
+        }
+        
+        if (uom != null) {
+            result = (PRIME * result) + uom.hashCode();
+        }
+        
+        if (offset != null) {
+            result = (PRIME * result) + offset.hashCode();
         }
 
+        if (disp != null) {
+            result = (PRIME * result) + disp.hashCode();
+        }
+        
         return result;
     }
 
@@ -199,12 +275,19 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         if (oth instanceof PolygonSymbolizerImpl) {
             PolygonSymbolizerImpl other = (PolygonSymbolizerImpl) oth;
 
-            return Utilities.equals(this.geometryPropertyName,
-                other.geometryPropertyName)
+            return Utilities.equals(this.geometryName,
+                other.geometryName)
             && Utilities.equals(fill, other.fill)
-            && Utilities.equals(stroke, other.stroke);
+            && Utilities.equals(stroke, other.stroke)
+            && Utilities.equals(description, other.description)
+            && Utilities.equals(disp, other.disp)
+            && Utilities.equals(offset, other.offset)
+            && Utilities.equals(uom, other.uom);
         }
 
         return false;
     }
+
+
+
 }

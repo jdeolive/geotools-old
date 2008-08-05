@@ -19,6 +19,7 @@ package org.geotools.styling;
 import java.util.List;
 
 import org.opengis.filter.Filter;
+import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.Description;
 
 /**
@@ -77,13 +78,7 @@ import org.opengis.style.Description;
  * </p>
  * @source $URL$
  */
-public interface Rule {
-    /**
-     * Gets the name of the rule.
-     *
-     * @return The name of the rule.  This provides a way to identify a rule.
-     */
-    String getName();
+public interface Rule extends org.opengis.style.Rule{
 
     /**
      * Sets the name of the rule.
@@ -141,28 +136,10 @@ public interface Rule {
      * The smallest value for scale denominator at which symbolizers contained
      * by this rule should be applied.
      *
-     * @return The smallest (inclusive) denominator value that this rule will
-     *         be active for.
-     */
-    double getMinScaleDenominator();
-
-    /**
-     * The smallest value for scale denominator at which symbolizers contained
-     * by this rule should be applied.
-     *
      * @param scale The smallest (inclusive) denominator value that this rule
      *        will be active for.
      */
     void setMinScaleDenominator(double scale);
-
-    /**
-     * The largest value for scale denominator at which symbolizers contained
-     * by this rule should be applied.
-     *
-     * @return The largest (exclusive) denominator value that this rule will be
-     *         active for.
-     */
-    double getMaxScaleDenominator();
 
     /**
      * The largest value for scale denominator at which symbolizers contained
@@ -173,12 +150,10 @@ public interface Rule {
      */
     void setMaxScaleDenominator(double scale);
 
-    Filter getFilter();
-
     void setFilter(Filter filter);
 
     /**
-     * @deprecated renamed in isElseFilter in 2.6.x
+     * @deprecated renamed in isElseFilter
      */
     @Deprecated
     boolean hasElseFilter();
@@ -192,7 +167,7 @@ public interface Rule {
      * @return An array of Graphic objects, any of which can be used as the
      *         legend.
      * 
-     * @deprecated there will be only one legend graphic in 2.6.x
+     * @deprecated there is only one legend graphic
      */
     @Deprecated
     Graphic[] getLegendGraphic();
@@ -204,7 +179,7 @@ public interface Rule {
      * @param graphics An array of Graphic objects, any of which can be used as
      *        the legend.
      * 
-     * @deprecated there will be only one graphic legend in 2.6.x
+     * @deprecated there wis only one graphic legend
      */
     @Deprecated
     void setLegendGraphic(Graphic[] graphics);
@@ -226,12 +201,12 @@ public interface Rule {
      *         the features addressed by the FeatureTypeStyler which contains
      *         this rule.
      * 
-     * @deprecated replaced by a live list symbolizers() in 2.6.x
+     * @deprecated replaced by a live list symbolizers()
      */
     @Deprecated    
     Symbolizer[] getSymbolizers();
     
-    List<Symbolizer> symbolizers();
+    List<org.geotools.styling.Symbolizer> symbolizers();
 
     /**
      * The symbolizers contain the actual styling information for different
@@ -250,10 +225,12 @@ public interface Rule {
      *        to all of the features addressed by the FeatureTypeStyler which
      *        contains this rule.
      * 
-     * @deprecated replaced by a live list in 2.6.x
+     * @deprecated replaced by a live list
      */
     @Deprecated
     void setSymbolizers(Symbolizer[] symbolizers);
 
-    void accept(StyleVisitor visitor);
+    void setOnlineResource(OnLineResource online);
+
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }

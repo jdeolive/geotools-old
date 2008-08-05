@@ -51,7 +51,7 @@ package org.geotools.styling;
  * @author iant
  * @source $URL$
  */
-public interface ChannelSelection {
+public interface ChannelSelection extends org.opengis.style.ChannelSelection{
     /**
      * set the RGB channels to be used
      *
@@ -59,7 +59,7 @@ public interface ChannelSelection {
      * @param green the green channel
      * @param blue the blue channel
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setRGBChannels(SelectedChannelType red, SelectedChannelType green, SelectedChannelType blue);
@@ -69,7 +69,7 @@ public interface ChannelSelection {
      *
      * @param channels array of channels in RGB order
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setRGBChannels(SelectedChannelType[] channels);
@@ -86,7 +86,7 @@ public interface ChannelSelection {
      *
      * @param gray the gray channel
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setGrayChannel(SelectedChannelType gray);
@@ -103,7 +103,7 @@ public interface ChannelSelection {
      *
      * @param channels array of channels
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setSelectedChannels(SelectedChannelType[] channels);
@@ -117,5 +117,5 @@ public interface ChannelSelection {
     @Deprecated
     SelectedChannelType[] getSelectedChannels();
 
-    public void accept(StyleVisitor visitor);
+    public void accept(org.geotools.styling.StyleVisitor visitor);
 }

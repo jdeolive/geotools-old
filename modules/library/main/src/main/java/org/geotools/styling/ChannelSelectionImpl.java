@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import org.opengis.style.StyleVisitor;
 
 
 /**
@@ -96,8 +97,12 @@ public class ChannelSelectionImpl
         }
     }
 
-	public void accept(StyleVisitor visitor) {
-	        visitor.visit(this);
-	
-	}
+    public Object accept(StyleVisitor visitor, Object data) {
+        return visitor.visit(this,data);
+
+    }
+
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
 }

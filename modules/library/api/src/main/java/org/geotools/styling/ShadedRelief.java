@@ -48,7 +48,8 @@ import org.opengis.filter.expression.Expression;
  * @author iant
  * @source $URL$
  */
-public interface ShadedRelief {
+public interface ShadedRelief extends org.opengis.style.ShadedRelief{
+    
     /**
      * turns brightnessOnly on or off depending on value of flag.
      *
@@ -58,13 +59,6 @@ public interface ShadedRelief {
      */
     @Deprecated
     public void setBrightnessOnly(boolean flag);
-
-    /**
-     * indicates if brightnessOnly is true or false. Default is false.
-     *
-     * @return boolean brightnessOn.
-     */
-    public boolean isBrightnessOnly();
 
     /**
      * The ReliefFactor gives the amount of exaggeration to use for the height
@@ -78,14 +72,5 @@ public interface ShadedRelief {
     @Deprecated
     public void setReliefFactor(Expression reliefFactor);
 
-    /**
-     * The ReliefFactor gives the amount of exaggeration to use for the height
-     * of the ?hills.?  A value of around 55 (times) gives reasonable results
-     * for Earth-based DEMs. The default value is system-dependent.
-     *
-     * @return an expression which evaluates to a double.
-     */
-    public Expression getReliefFactor();
-
-    public void accept(StyleVisitor visitor);
+    public void accept(org.geotools.styling.StyleVisitor visitor);
 }

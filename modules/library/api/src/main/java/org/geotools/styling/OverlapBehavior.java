@@ -67,7 +67,7 @@ public class OverlapBehavior extends ConstantExpression {
         super(value);
     }
     
-    public void accept(StyleVisitor visitor){
+    public void accept(org.geotools.styling.StyleVisitor visitor){
         visitor.visit(this);
     }
 }

@@ -78,7 +78,7 @@ package org.geotools.styling;
  * @source $URL$
  * @version $Id$
  */
-public interface LineSymbolizer extends Symbolizer {
+public interface LineSymbolizer extends org.opengis.style.LineSymbolizer, Symbolizer {
     /**
      * Provides the graphical-symbolization parameter to use for the  linear
      * geometry.
@@ -93,33 +93,13 @@ public interface LineSymbolizer extends Symbolizer {
      *
      * @param stroke The Stroke style to use when rendering lines.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setStroke(Stroke stroke);
 
     /**
-     * This property defines the geometry to be used for styling.<br>
-     * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used.  Geometry types other
-     * than inherently linear types can be used.  If a point geometry is used,
-     * it should be interpreted as a line of zero length and two end caps.  If
-     * a polygon is used (or other "area" type) then its closed outline should
-     * be used as the line string (with no end caps). The geometryPropertyName
-     * is the name of a geometry property in the Feature being styled.
-     * Typically, features only have one geometry so, in general, the need to
-     * select one is not required. Note: this moves a little away from the SLD
-     * spec which provides an XPath reference to a Geometry object, but does
-     * follow it in spirit.
-     *
-     * @return The name of the attribute in the feature being styled  that
-     *         should be used.  If null then the default geometry should be
-     *         used.
-     */
-    String getGeometryPropertyName();
-
-    /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setGeometryPropertyName(String geometryPropertyName);

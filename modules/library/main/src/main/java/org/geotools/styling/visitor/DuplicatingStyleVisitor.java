@@ -18,7 +18,6 @@ package org.geotools.styling.visitor;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -35,6 +34,7 @@ import org.geotools.styling.Extent;
 import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.FeatureTypeConstraint;
 import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.FeatureTypeStyleImpl;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Font;
 import org.geotools.styling.Graphic;
@@ -56,6 +56,7 @@ import org.geotools.styling.ShadedRelief;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
+import org.geotools.styling.StyleFactoryImpl;
 import org.geotools.styling.StyleVisitor;
 import org.geotools.styling.StyledLayer;
 import org.geotools.styling.StyledLayerDescriptor;
@@ -85,7 +86,7 @@ import org.opengis.filter.expression.Expression;
  */
 public class DuplicatingStyleVisitor implements StyleVisitor {
 	
-	protected final StyleFactory sf;
+    protected final StyleFactory sf;
     protected final FilterFactory2 ff;
     protected boolean STRICT;
 
@@ -102,24 +103,27 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
     public DuplicatingStyleVisitor() {
 		this( CommonFactoryFinder.getStyleFactory( null ) );
 	}	
-	public DuplicatingStyleVisitor(StyleFactory styleFactory) {
+
+    public DuplicatingStyleVisitor(StyleFactory styleFactory) {
 	    this( styleFactory, CommonFactoryFinder.getFilterFactory2( null ));
 	}
-	public DuplicatingStyleVisitor(StyleFactory styleFactory, FilterFactory2 filterFactory ) {
+
+    public DuplicatingStyleVisitor(StyleFactory styleFactory, FilterFactory2 filterFactory ) {
 		this.copyFilter = new DuplicatingFilterVisitor( filterFactory );
 		this.sf=styleFactory;
 		this.ff=filterFactory;
 		this.STRICT = false;
 	}
-	/**
+
+    /**
 	 * True if we should enforce equality after a copy.
 	 * @param strict
 	 */
-	public void setStrict(boolean strict) {
+    public void setStrict(boolean strict) {
         STRICT = strict;
     }
-	
-	public Object getCopy() {
+
+    public Object getCopy() {
 		return pages.peek();
 	}
 	
@@ -250,51 +254,94 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
     public void visit(Rule rule) {
         Rule copy = null;
 
+        
+        
         Filter filterCopy = null;
 
         if (rule.getFilter() != null) {
             Filter filter = rule.getFilter();
             filterCopy = copy( filter );
         }
-
-        Graphic[] legendGraphic = rule.getLegendGraphic();
-        Graphic[] legendGraphicCopy = new Graphic[legendGraphic.length];
-
-        int length=legendGraphic.length;
-        for (int i = 0; i < length; i++) {
-            if (legendGraphic[i] != null) {
-                legendGraphic[i].accept(this);
-                legendGraphicCopy[i] = (Graphic) pages.pop();
-            }
-        }
-
-        Symbolizer[] symbolizer = rule.getSymbolizers();
-        ArrayList<Symbolizer> symbolizerList = new ArrayList<Symbolizer>();
+        
+        copy = new StyleFactoryImpl().createRule(
+                rule.getSymbolizers(), 
+                rule.getDescription(),
+                rule.getLegendGraphic(),
+                rule.getName(), 
+                filterCopy, 
+                rule.isElseFilter(), 
+                rule.getMaxScaleDenominator(), 
+                rule.getMinScaleDenominator());
         
 
-        length=symbolizer.length;
-        for (int i = 0; i < length; i++) {
-            if (symbolizer[i] == null) continue;
-            
-            symbolizer[i].accept(this);
-            Symbolizer symbolizerCopy = (Symbolizer) pages.pop();
-            
-            if( symbolizerCopy == null ) continue;
-            
-            symbolizerList.add( symbolizerCopy );
-        }
-        Symbolizer[] symbolizerCopy = symbolizerList.toArray( new Symbolizer[0] );
-        
-        copy = sf.createRule();
-        copy.setAbstract(rule.getAbstract());
-        copy.setFilter(filterCopy);
-        copy.setIsElseFilter(rule.hasElseFilter());
-        copy.setLegendGraphic(legendGraphicCopy);
-        copy.setMinScaleDenominator(rule.getMinScaleDenominator());
-        copy.setMaxScaleDenominator(rule.getMaxScaleDenominator());
-        copy.setName(rule.getName());
-        copy.setTitle(rule.getTitle());
-        copy.setSymbolizers(symbolizerCopy);
+//        Graphic[] legendGraphic = rule.getLegendGraphic();
+//        Graphic[] legendGraphicCopy = new Graphic[legendGraphic.length];
+//
+//        int length=legendGraphic.length;
+//        for (int i = 0; i < length; i++) {
+//            if (legendGraphic[i] != null) {
+//                legendGraphic[i].accept(this);
+//                legendGraphicCopy[i] = (Graphic) pages.pop();
+//            }
+//        }
+//
+//        Symbolizer[] symbolizer = rule.getSymbolizers();
+//        Symbolizer[] symbolizerCopy = new Symbolizer[symbolizer.length];
+//
+//        length=symbolizer.length;
+//        for (int i = 0; i < length; i++) {
+//            if (symbolizer[i] != null) {
+//                symbolizer[i].accept(this);
+//                symbolizerCopy[i] = (Symbolizer) pages.pop();
+//            }
+//        }
+//
+//        copy = sf.createRule();
+//        copy.setAbstract(rule.getAbstract());
+//        copy.setFilter(filterCopy);
+//        copy.setIsElseFilter(rule.hasElseFilter());
+//        copy.setLegendGraphic(legendGraphicCopy);
+//        copy.setMinScaleDenominator(rule.getMinScaleDenominator());
+//        copy.setMaxScaleDenominator(rule.getMaxScaleDenominator());
+//        copy.setName(rule.getName());
+//        copy.setTitle(rule.getTitle());
+//        copy.setSymbolizers(symbolizerCopy);
+
+//        int length=legendGraphic.length;
+//        for (int i = 0; i < length; i++) {
+//            if (legendGraphic[i] != null) {
+//                legendGraphic[i].accept(this);
+//                legendGraphicCopy[i] = (Graphic) pages.pop();
+//            }
+//        }
+//
+//        Symbolizer[] symbolizer = rule.getSymbolizers();
+//        ArrayList<Symbolizer> symbolizerList = new ArrayList<Symbolizer>();
+//        
+//
+//        length=symbolizer.length;
+//        for (int i = 0; i < length; i++) {
+//            if (symbolizer[i] == null) continue;
+//            
+//            symbolizer[i].accept(this);
+//            Symbolizer symbolizerCopy = (Symbolizer) pages.pop();
+//            
+//            if( symbolizerCopy == null ) continue;
+//            
+//            symbolizerList.add( symbolizerCopy );
+//        }
+//        Symbolizer[] symbolizerCopy = symbolizerList.toArray( new Symbolizer[0] );
+//        
+//        copy = sf.createRule();
+//        copy.setAbstract(rule.getAbstract());
+//        copy.setFilter(filterCopy);
+//        copy.setIsElseFilter(rule.hasElseFilter());
+//        copy.setLegendGraphic(legendGraphicCopy);
+//        copy.setMinScaleDenominator(rule.getMinScaleDenominator());
+//        copy.setMaxScaleDenominator(rule.getMaxScaleDenominator());
+//        copy.setName(rule.getName());
+//        copy.setTitle(rule.getTitle());
+//        copy.setSymbolizers(symbolizerCopy);
 
         if( STRICT && !copy.equals( rule )){
             throw new IllegalStateException("Was unable to duplicate provided Rule:"+rule );
@@ -303,31 +350,43 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
     }
 
     public void visit(FeatureTypeStyle fts) {
-        FeatureTypeStyle copy = null;
+        
+        
+        FeatureTypeStyle copy = new FeatureTypeStyleImpl( (FeatureTypeStyleImpl)fts);
 
-        Rule[] rules = fts.getRules();
-        int length=rules.length;
-        Rule[] rulesCopy = new Rule[length];
-        for (int i = 0; i < length; i++) {
-            if (rules[i] != null) {
-                rules[i].accept(this);
-                rulesCopy[i] = (Rule) pages.pop();
-            }
-        }
-
-        copy = sf.createFeatureTypeStyle();
-        copy.setName(fts.getName());
-        copy.setTitle(fts.getTitle());
-        copy.setAbstract(fts.getAbstract());
-        copy.setFeatureTypeName(fts.getFeatureTypeName());
-        copy.setRules(rulesCopy);
-        copy.setSemanticTypeIdentifiers((String[]) fts.getSemanticTypeIdentifiers().clone());
+//        copy = new StyleFactoryImpl().createFeatureTypeStyle(
+//                fts.getRules(), 
+//                fts.getSemanticTypeIdentifiers(),
+//                fts.featureInstanceIDs(),
+//                fts.getFeatureTypeName(),
+//                fts.getDescription(),
+//                fts.getName());
+        
+        
+//        Rule[] rules = fts.getRules();
+//        int length=rules.length;
+//        Rule[] rulesCopy = new Rule[length];
+//        for (int i = 0; i < length; i++) {
+//            if (rules[i] != null) {
+//                rules[i].accept(this);
+//                rulesCopy[i] = (Rule) pages.pop();
+//            }
+//        }
+//
+//        copy = sf.createFeatureTypeStyle();
+//        copy.setName(fts.getName());
+//        copy.setTitle(fts.getTitle());
+//        copy.setAbstract(fts.getAbstract());
+//        copy.setFeatureTypeName(fts.getFeatureTypeName());
+//        copy.setRules(rulesCopy);
+//        copy.setSemanticTypeIdentifiers((String[]) fts.getSemanticTypeIdentifiers().clone());
         
         if( STRICT && !copy.equals( fts )){
             throw new IllegalStateException("Was unable to duplicate provided FeatureTypeStyle:"+fts );
         }
         pages.push(copy);
     }
+    
     /**
      * Null safe expression copy.
      * <p>
@@ -341,6 +400,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         if( expression == null  ) return null;
         return (Expression) expression.accept( copyFilter, ff );
     }
+    
     /**
      * Null safe copy of filter.
      */
@@ -360,6 +420,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         graphic.accept(this);
         return (Graphic) pages.pop();
     }
+    
     /**
      * Null safe fill copy
      * @param graphic
@@ -371,6 +432,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         fill.accept(this);
         return (Fill) pages.pop();
     }
+    
     /**
      * Null safe copy of float array.
      * @param array
@@ -383,6 +445,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         System.arraycopy( array, 0, copy, 0, array.length );
         return copy;
     }
+    
     /**
      * Null safe map copy, used for external graphic custom properties.
      * @param customProperties
@@ -404,6 +467,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         stroke.accept(this);
         return (Stroke) pages.pop();
     }
+    
     /**
      * Null safe copy of shaded relief.
      * @param shaded
@@ -417,16 +481,19 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         
         return copy;
     }
+    
     protected ExternalGraphic copy( ExternalGraphic externalGraphic){
         if( externalGraphic == null ) return null;
         externalGraphic.accept(this);
         return (ExternalGraphic) pages.pop();
     }
+    
     protected Mark copy( Mark mark){
         if( mark == null ) return null;
         mark.accept(this);
         return (Mark) pages.pop();
     }
+    
     protected ColorMapEntry copy(ColorMapEntry entry) {
         if( entry == null ) return null;
         
@@ -455,6 +522,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         copy.setGammaValue( copy( contrast.getGammaValue()));
         return copy;
     }
+    
     protected ColorMap copy(ColorMap colorMap) {
         if( colorMap == null ) return null;
         
@@ -507,6 +575,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         }
         return copy;
     }
+    
     /** Null safe copy of a single font */
     protected Font copy(Font font) {
         if( font == null) return font;
@@ -518,6 +587,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         Font copy = sf.createFont(fontFamily, fontStyle, fontWeight, fontSize);
         return copy;
     }
+    
     /**
      * Null safe copy of halo.
      * @param halo 
@@ -528,6 +598,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         halo.accept(this);
         return (Halo) getCopy();
     }
+    
     /**
      * Null safe copy of displacement.
      * @param displacement
@@ -538,6 +609,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         displacement.accept(this);
         return (Displacement) getCopy();
     }
+    
     protected LabelPlacement copy(LabelPlacement placement) {
         if( placement == null ) return null;
         placement.accept(this);
@@ -549,6 +621,7 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         symbol.accept(this);
         return (Symbol) getCopy();
     }
+    
     /**
      * Null safe copy of anchor point.
      * @param anchorPoint
@@ -817,38 +890,39 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
     }
 
     public void visit(Halo halo) {
-        Fill fill = copy( halo.getFill());
-        Expression radius = copy( halo.getRadius() );
+        Fill fill = copy(halo.getFill());
+        Expression radius = copy(halo.getRadius());
         Halo copy = sf.createHalo(fill, radius);
-        
-        if( STRICT && !copy.equals( halo )){
-            throw new IllegalStateException("Was unable to duplicate provided raster:"+halo );
+
+        if (STRICT && !copy.equals(halo)) {
+            throw new IllegalStateException("Was unable to duplicate provided raster:" + halo);
         }
         pages.push(copy);
     }
 
     public void visit(FeatureTypeConstraint ftc) {
         String typeName = ftc.getFeatureTypeName();
-        Filter filter = copy( ftc.getFilter() );
-        Extent[] extents = copy( ftc.getExtents() );
-        FeatureTypeConstraint copy = sf.createFeatureTypeConstraint( typeName, filter, extents);
-        
-        if( STRICT && !copy.equals( ftc )){
-            throw new IllegalStateException("Was unable to duplicate provided FeatureTypeConstraint:"+ftc );
+        Filter filter = copy(ftc.getFilter());
+        Extent[] extents = copy(ftc.getExtents());
+        FeatureTypeConstraint copy = sf.createFeatureTypeConstraint(typeName, filter, extents);
+
+        if (STRICT && !copy.equals(ftc)) {
+            throw new IllegalStateException("Was unable to duplicate provided FeatureTypeConstraint:" + ftc);
         }
         pages.push(copy);
     }
 
     protected Extent[] copy(Extent[] extents) {
-	    if( extents == null ) return null;
-	    
-	    Extent[] copy = new Extent[ extents.length ];
-	    for( int i=0; i<extents.length; i++){
-	        copy[i] = copy( extents[i] );
-	    }
-	    return copy;
-	}
-	
+        if (extents == null) {
+            return null;
+        }
+        Extent[] copy = new Extent[extents.length];
+        for (int i = 0; i < extents.length; i++) {
+            copy[i] = copy(extents[i]);
+        }
+        return copy;
+    }
+
     protected Extent copy(Extent extent) {
         String name = extent.getName();
         String value = extent.getValue();
@@ -856,101 +930,101 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
         return copy;
     }
     
-    public void visit(ColorMap colorMap) {	    
-	    ColorMap copy = sf.createColorMap();
-	    copy.setType( colorMap.getType() );	    
-	    ColorMapEntry[] entries = colorMap.getColorMapEntries();
-	    if( entries != null ){
-	        for( int i=0; i<entries.length;i++){
-	            ColorMapEntry entry = entries[i];
-                copy.addColorMapEntry( copy( entry ));
-	        }
-	    }
-	    if( STRICT && !copy.equals( colorMap )){
-            throw new IllegalStateException("Was unable to duplicate provided ColorMap:"+colorMap );
+    public void visit(ColorMap colorMap) {
+        ColorMap copy = sf.createColorMap();
+        copy.setType(colorMap.getType());
+        ColorMapEntry[] entries = colorMap.getColorMapEntries();
+        if (entries != null) {
+            for (int i = 0; i < entries.length; i++) {
+                ColorMapEntry entry = entries[i];
+                copy.addColorMapEntry(copy(entry));
+            }
         }
-	 	pages.push(copy);
-	}
-	
-    public void visit(ColorMapEntry colorMapEntry) {
-	    ColorMapEntry copy = sf.createColorMapEntry();
-	    copy.setColor( copy( colorMapEntry.getColor() ));
-	    copy.setLabel( colorMapEntry.getLabel() );
-	    copy.setOpacity( copy( colorMapEntry.getOpacity()));
-	    copy.setQuantity( copy.getQuantity());
+        if (STRICT && !copy.equals(colorMap)) {
+            throw new IllegalStateException("Was unable to duplicate provided ColorMap:" + colorMap);
+        }
+        pages.push(copy);
+    }
 
-	    if( STRICT && !copy.equals( colorMapEntry )){
-            throw new IllegalStateException("Was unable to duplicate provided ColorMapEntry:"+colorMapEntry );
+    public void visit(ColorMapEntry colorMapEntry) {
+        ColorMapEntry copy = sf.createColorMapEntry();
+        copy.setColor(copy(colorMapEntry.getColor()));
+        copy.setLabel(colorMapEntry.getLabel());
+        copy.setOpacity(copy(colorMapEntry.getOpacity()));
+        copy.setQuantity(copy.getQuantity());
+
+        if (STRICT && !copy.equals(colorMapEntry)) {
+            throw new IllegalStateException("Was unable to duplicate provided ColorMapEntry:" + colorMapEntry);
         }
-	    pages.push(copy);
+        pages.push(copy);
     }
     
-	public void visit(ContrastEnhancement contrastEnhancement) {
-		final ContrastEnhancement copy=sf.createContrastEnhancement();
-		copy.setType(contrastEnhancement.getType());
-		copy.setGammaValue(contrastEnhancement.getGammaValue());
-		if( STRICT && !copy.equals( contrastEnhancement )){
-	              throw new IllegalStateException("Was unable to duplicate provided contrastEnhancement:"+contrastEnhancement );
-	        }
-	        pages.push(copy);
-		
-	}
-	
-	public void visit(ImageOutline outline) {
-	    //copy the symbolizer
-	    final Symbolizer symb=outline.getSymbolizer();
-	    final Symbolizer copySymb=copy(symb);
-	    
-            final ImageOutline copy=sf.createImageOutline(copySymb);
-            copy.setSymbolizer(copySymb);
-            if( STRICT && !copy.equals( outline )){
-                  throw new IllegalStateException("Was unable to duplicate provided ImageOutline:"+outline );
-            }
-            pages.push(copy);
-		
-	}
-	public void visit(ChannelSelection cs) {
-	    //get the channels
-	    final SelectedChannelType sct[]=copy(cs.getSelectedChannels());
-            final ChannelSelection copy=sf.createChannelSelection(sct);
-            if( STRICT && !copy.equals( cs )){
-                  throw new IllegalStateException("Was unable to duplicate provided ChannelSelection:"+cs );
-            }
-            pages.push(copy);
-		
-	}
-	public void visit(OverlapBehavior ob) {
-		final String behavior= (String) ob.getValue();
-		if(behavior.equalsIgnoreCase(OverlapBehavior.AVERAGE_RESCTRICTION))
-		    pages.push(OverlapBehavior.AVERAGE_RESCTRICTION);
-		else
-		    if(behavior.equalsIgnoreCase(OverlapBehavior.EARLIEST_ON_TOP_RESCTRICTION))
-		        pages.push(OverlapBehavior.EARLIEST_ON_TOP_RESCTRICTION);
-	              else
-	                    if(behavior.equalsIgnoreCase(OverlapBehavior.LATEST_ON_TOP_RESCTRICTION))
-	                        pages.push(OverlapBehavior.LATEST_ON_TOP_RESCTRICTION);
-	                    else
-	                            if(behavior.equalsIgnoreCase(OverlapBehavior.RANDOM_RESCTRICTION))
-	                                pages.push(OverlapBehavior.RANDOM_RESCTRICTION);
-	                            else
-	                                throw new IllegalStateException("Was unable to duplicate provided OverlapBehavior:"+ob );
-		
-		
-	}
-	public void visit(SelectedChannelType sct) {
-		final SelectedChannelType copy= sf.createSelectedChannelType(sct.getChannelName(), copy(sct.getContrastEnhancement()));
-	        if( STRICT && !copy.equals( sct )){
-	            throw new IllegalStateException("Was unable to duplicate provided SelectedChannelType:"+sct );
-	            }
-	        pages.push(copy);
-	}
-	public void visit(ShadedRelief sr) {
-            final ShadedRelief copy= sf.createShadedRelief(copy(sr.getReliefFactor()));
-            copy.setBrightnessOnly(sr.isBrightnessOnly());
-            if( STRICT && !copy.equals( sr )){
-                throw new IllegalStateException("Was unable to duplicate provided ShadedRelief:"+sr );
-                }
-            pages.push(copy);
-		
-	}
+    public void visit(ContrastEnhancement contrastEnhancement) {
+        final ContrastEnhancement copy = sf.createContrastEnhancement();
+        copy.setType(contrastEnhancement.getType());
+        copy.setGammaValue(contrastEnhancement.getGammaValue());
+        if (STRICT && !copy.equals(contrastEnhancement)) {
+            throw new IllegalStateException("Was unable to duplicate provided contrastEnhancement:" + contrastEnhancement);
+        }
+        pages.push(copy);
+
+    }
+
+    public void visit(ImageOutline outline) {
+        //copy the symbolizer
+        final Symbolizer symb = outline.getSymbolizer();
+        final Symbolizer copySymb = copy(symb);
+
+        final ImageOutline copy = sf.createImageOutline(copySymb);
+        copy.setSymbolizer(copySymb);
+        if (STRICT && !copy.equals(outline)) {
+            throw new IllegalStateException("Was unable to duplicate provided ImageOutline:" + outline);
+        }
+        pages.push(copy);
+
+    }
+
+    public void visit(ChannelSelection cs) {
+        //get the channels
+        final SelectedChannelType sct[] = copy(cs.getSelectedChannels());
+        final ChannelSelection copy = sf.createChannelSelection(sct);
+        if (STRICT && !copy.equals(cs)) {
+            throw new IllegalStateException("Was unable to duplicate provided ChannelSelection:" + cs);
+        }
+        pages.push(copy);
+
+    }
+    
+    public void visit(OverlapBehavior ob) {
+        final String behavior = (String) ob.getValue();
+        if (behavior.equalsIgnoreCase(OverlapBehavior.AVERAGE_RESCTRICTION)) {
+            pages.push(OverlapBehavior.AVERAGE_RESCTRICTION);
+        } else if (behavior.equalsIgnoreCase(OverlapBehavior.EARLIEST_ON_TOP_RESCTRICTION)) {
+            pages.push(OverlapBehavior.EARLIEST_ON_TOP_RESCTRICTION);
+        } else if (behavior.equalsIgnoreCase(OverlapBehavior.LATEST_ON_TOP_RESCTRICTION)) {
+            pages.push(OverlapBehavior.LATEST_ON_TOP_RESCTRICTION);
+        } else if (behavior.equalsIgnoreCase(OverlapBehavior.RANDOM_RESCTRICTION)) {
+            pages.push(OverlapBehavior.RANDOM_RESCTRICTION);
+        } else {
+            throw new IllegalStateException("Was unable to duplicate provided OverlapBehavior:" + ob);
+        }
+    }
+
+    public void visit(SelectedChannelType sct) {
+        final SelectedChannelType copy = sf.createSelectedChannelType(sct.getChannelName(), copy(sct.getContrastEnhancement()));
+        if (STRICT && !copy.equals(sct)) {
+            throw new IllegalStateException("Was unable to duplicate provided SelectedChannelType:" + sct);
+        }
+        pages.push(copy);
+    }
+
+    public void visit(ShadedRelief sr) {
+        final ShadedRelief copy = sf.createShadedRelief(copy(sr.getReliefFactor()));
+        copy.setBrightnessOnly(sr.isBrightnessOnly());
+        if (STRICT && !copy.equals(sr)) {
+            throw new IllegalStateException("Was unable to duplicate provided ShadedRelief:" + sr);
+        }
+        pages.push(copy);
+
+    }
 }

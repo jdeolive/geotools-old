@@ -23,6 +23,7 @@ import org.geotools.factory.GeoTools;
 import org.geotools.resources.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -121,10 +122,14 @@ public class PointPlacementImpl implements PointPlacement, Cloneable {
         this.rotation = rotation;
     }
 
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
     /* (non-Javadoc)
      * @see Cloneable#clone()
      */
@@ -181,4 +186,6 @@ public class PointPlacementImpl implements PointPlacement, Cloneable {
 
         return result;
     }
+
+
 }

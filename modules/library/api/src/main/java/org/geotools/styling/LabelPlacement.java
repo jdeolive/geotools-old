@@ -50,8 +50,7 @@ package org.geotools.styling;
  * @author Ian Turton, CCG
  * @source $URL$
  */
-public interface LabelPlacement {
-    //TODO: check GeoAPI renaming of LabelPlacement to TextPlacement
-    //TODO: check GeoAPI use of accept(StyleVisitor, Object) instead of accept(StyleVisitor)
-    void accept(StyleVisitor visitor);
+public interface LabelPlacement extends org.opengis.style.LabelPlacement{
+    
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }

@@ -16,7 +16,9 @@
  */
 package org.geotools.styling;
 
+import org.geotools.filter.ConstantExpression;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 
 
 /**
@@ -27,38 +29,55 @@ import org.opengis.filter.expression.Expression;
  * @source $URL$
  * @version $Id$
  */
-public interface AnchorPoint {
-    //TODO: add AnchorPoint to GeoAPI
-    /**
-     * get the x coordinate of the anchor point
-     *
-     * @return the expression which represents the X coordinate
-     */
-    Expression getAnchorPointX();
+public interface AnchorPoint extends org.opengis.style.AnchorPoint{
 
+    static final AnchorPoint DEFAULT = new AnchorPoint() {
+        private void cannotModifyConstant() {
+            throw new UnsupportedOperationException("Constant Stroke may not be modified");
+        }
+        
+        public void setAnchorPointX(Expression x) {
+            cannotModifyConstant();
+        }
+
+        public void setAnchorPointY(Expression y) {
+            cannotModifyConstant();
+        }
+
+        public void accept(org.geotools.styling.StyleVisitor visitor) {
+            cannotModifyConstant();
+        }
+        
+        public Object accept(org.opengis.style.StyleVisitor visitor, Object data) {
+            cannotModifyConstant();
+            return null;
+        }
+
+        public Expression getAnchorPointX() {
+            return ConstantExpression.constant(0.5);
+        }
+
+        public Expression getAnchorPointY() {
+            return ConstantExpression.constant(0.5);
+        }
+    };
+    
     /**
      * set the X coordinate for the anchor point
      *
      * @param x an expression which represents the X coordinate
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x .
+     * @deprecated symbolizers and underneath classes are immutable .
      */
     @Deprecated
     void setAnchorPointX(Expression x);
-
-    /**
-     * get the y coordinate of the anchor point
-     *
-     * @return the expression which represents the Y coordinate
-     */
-    Expression getAnchorPointY();
 
     /**
      * set the Y coordinate for the anchor point
      *
      * @param y an expression which represents the Y coordinate
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x .
+     * @deprecated symbolizers and underneath classes are immutable .
      */
     @Deprecated
     void setAnchorPointY(Expression y);
@@ -68,5 +87,6 @@ public interface AnchorPoint {
      *
      * @param visitor the style visitor
      */
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
+
 }

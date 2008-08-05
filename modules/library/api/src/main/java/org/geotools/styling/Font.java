@@ -30,7 +30,7 @@ import org.opengis.filter.expression.Expression;
  * @source $URL$
  * @version $Id$
  */
-public interface Font {
+public interface Font extends org.opengis.style.Font{
     /** default font-size value **/
     static final int DEFAULT_FONTSIZE = 10;
 
@@ -47,13 +47,13 @@ public interface Font {
     List<Expression> getFamily();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setFontFamily(Expression family);
 
     /**
-     * @deprecated this method will be replaced by getStyle in 2.6.x
+     * @deprecated this method is replaced by getStyle
      */
     @Deprecated
     Expression getFontStyle();

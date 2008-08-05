@@ -41,20 +41,26 @@ package org.geotools.styling;
  * Defaults for quantity and label are system-dependent.
  * @source $URL$
  */
-public interface ColorMap {
+public interface ColorMap extends org.opengis.style.ColorMap{
+    
+    @Deprecated
     public static final int TYPE_RAMP = 1;
+    
+    @Deprecated
     public static final int TYPE_INTERVALS = 2;
+    
+    @Deprecated
     public static final int TYPE_VALUES = 3;
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable.
      */
     @Deprecated
     public void addColorMapEntry(ColorMapEntry entry);
 
     /**
      * 
-     * @deprecated colormap parameters will be replaced by a Filter Function in 2.6.x
+     * @deprecated colormap parameters will are replaced by a Filter Function
      */
     @Deprecated
     public ColorMapEntry[] getColorMapEntries();
@@ -66,12 +72,12 @@ public interface ColorMap {
     public int getType();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     public void setType(int type);
 
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 
     /**
      * Tells me to use 65536 colors even if 256 could suffice.
@@ -80,7 +86,7 @@ public interface ColorMap {
      *            <code>true</code> for using 65536 colors, <code>false</code>
      *            for using 256.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     public void setExtendedColors(boolean extended);

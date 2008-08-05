@@ -18,6 +18,7 @@ package org.geotools.styling;
 
 import java.util.List;
 
+import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.Description;
 
 
@@ -60,8 +61,7 @@ import org.opengis.style.Description;
  * @version $Id$
  * @author James Macgill, CCG
  */
-public interface FeatureTypeStyle {
-    public String getName();
+public interface FeatureTypeStyle extends org.opengis.style.FeatureTypeStyle{
 
     void setName(String name);
 
@@ -95,7 +95,7 @@ public interface FeatureTypeStyle {
      * be styled by this feature type styler.
      * @return The name of types that this styler applies to
      * 
-     * @deprecated this method will be replaced by a live set featureTypeNames() in 2.6.x
+     * @deprecated this method is replaced by a live set featureTypeNames()
      */
     @Deprecated
     String getFeatureTypeName();
@@ -106,7 +106,7 @@ public interface FeatureTypeStyle {
      * @task REVISIT: should a set method be declared in this interface at all?
      * @param name The TypeName of the features to be styled by this instance.
      * 
-     * @deprecated this method will be replaced by a live set featureTypeNames() in 2.6.x
+     * @deprecated this method is replaced by a live set featureTypeNames()
      */
     @Deprecated
     void setFeatureTypeName(String name);
@@ -129,7 +129,7 @@ public interface FeatureTypeStyle {
      * @return An array of strings representing systematic types which
      *         could be styled by this instance.
      * 
-     * 
+     * @deprecated this method is replaced by a live set semanticIdentifiers()
      */
     String[] getSemanticTypeIdentifiers();
     
@@ -150,7 +150,7 @@ public interface FeatureTypeStyle {
      * @param types An array of strings representing systematic types which
      *         could be styled by this instance.
      * 
-     * @deprecated this method will be replaced by a live set semanticIdentifiers() in 2.6.x
+     * @deprecated this method is replaced by a live set semanticIdentifiers()
      */
     @Deprecated
     void setSemanticTypeIdentifiers(String[] types);
@@ -178,13 +178,13 @@ public interface FeatureTypeStyle {
      *
      * @param rules The set of rules to be set for this styler.
      * 
-     * @deprecated this method will be replaced by a live list rules() in 2.6.x
+     * @deprecated this method is replaced by a live list rules()
      */
     @Deprecated
     void setRules(Rule[] rules);
 
     /**
-     * @deprecated this method will be replaced by a live list rules() in 2.6.x
+     * @deprecated this method is replaced by a live list rules()
      */
     @Deprecated
     void addRule(Rule rule);
@@ -199,5 +199,7 @@ public interface FeatureTypeStyle {
      */
     List<Rule> rules();
 
-    void accept(StyleVisitor visitor);
+    void setOnlineResource(OnLineResource online);
+
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }

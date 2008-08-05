@@ -20,7 +20,7 @@ package org.geotools.styling;
 // OpenGIS dependencies
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.util.Cloneable;
@@ -33,8 +33,8 @@ import org.opengis.util.Cloneable;
  * @source $URL$
  * @version $Id$
  */
-public class AnchorPointImpl implements AnchorPoint,
-    Cloneable {
+public class AnchorPointImpl implements AnchorPoint,Cloneable {
+    
     /** The logger for the default core module. */
     private static final java.util.logging.Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
     private FilterFactory filterFactory;
@@ -112,6 +112,10 @@ public class AnchorPointImpl implements AnchorPoint,
     
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
+    }
+    
+    public Object accept(org.opengis.style.StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
     /* (non-Javadoc)

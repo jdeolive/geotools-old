@@ -67,7 +67,7 @@ import org.opengis.filter.expression.Expression;
  * @source $URL$
  * @version $Id$
  */
-public interface Mark extends Symbol {
+public interface Mark extends org.opengis.style.Mark,Symbol {
     public static final Mark[] MARKS_EMPTY = new Mark[0];
 
     /**
@@ -89,7 +89,7 @@ public interface Mark extends Symbol {
      * @param wellKnownName The well-known name of a shape.  The default value
      *        is "square".
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setWellKnownName(Expression wellKnownName);
@@ -108,7 +108,7 @@ public interface Mark extends Symbol {
      *
      * @param stroke The Stroke definition to use when rendering the Mark.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setStroke(Stroke stroke);
@@ -125,7 +125,7 @@ public interface Mark extends Symbol {
      *
      * @param fill the Fill definition to use when rendering the Mark.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setFill(Fill fill);
@@ -137,7 +137,7 @@ public interface Mark extends Symbol {
     Expression getSize();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setSize(Expression size);
@@ -149,10 +149,10 @@ public interface Mark extends Symbol {
     Expression getRotation();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setRotation(Expression rotation);
 
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }

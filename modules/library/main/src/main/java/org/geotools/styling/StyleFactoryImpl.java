@@ -18,11 +18,17 @@
  */
 package org.geotools.styling;
 
+import java.util.List;
+import java.util.Set;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.Id;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.Description;
+import org.opengis.style.SemanticType;
 
 
 /**
@@ -162,9 +168,31 @@ public class StyleFactoryImpl extends AbstractStyleFactory
     public FeatureTypeStyle createFeatureTypeStyle(Rule[] rules) {
         return new FeatureTypeStyleImpl(rules);
     }
-
+    
     public Rule createRule() {
         return new RuleImpl();
+    }
+    
+    public Rule createRule(org.geotools.styling.Symbolizer[] symbolizers, 
+                        Description desc, 
+                        Graphic[] legends,
+                        String name,
+                        Filter filter,
+                        boolean isElseFilter,
+                        double maxScale,
+                        double minScale){
+        
+        Rule r = new RuleImpl(symbolizers, 
+                        desc, 
+                        legends,
+                        name,
+                        filter,
+                        isElseFilter,
+                        maxScale,
+                        minScale);
+                
+                
+        return r;
     }
 
     public ImageOutline createImageOutline(Symbolizer symbolizer) {

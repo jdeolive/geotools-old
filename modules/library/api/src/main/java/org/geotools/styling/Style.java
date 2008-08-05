@@ -48,9 +48,7 @@ import org.opengis.style.Description;
  * @version $Id$
  * @author James Macgill
  */
-public interface Style {
-    /** Style name (machine readable, don't show to users) */
-    String getName();
+public interface Style extends org.opengis.style.Style{
 
     void setName(String name);
 
@@ -85,11 +83,6 @@ public interface Style {
 
     /**
      * Indicates that this is the default style.
-     */
-    boolean isDefault();
-
-    /**
-     * Indicates that this is the default style.
      * <p>
      * Assume this is kept for GeoServer enabling a WMS to track
      * which style is considered the default. May consider providing a
@@ -110,19 +103,19 @@ public interface Style {
      * <i>Note: We are using a Array here to continue with Java 1.4 deployment.</i>
      * </p>
      * 
-     * @deprecated replaced by a live list in 2.6.x
+     * @deprecated replaced by a live list
      */
     @Deprecated
     FeatureTypeStyle[] getFeatureTypeStyles();
 
     /**
-     * @deprecated replaced by a live list in 2.6.x
+     * @deprecated replaced by a live list
      */
     @Deprecated
     void setFeatureTypeStyles(FeatureTypeStyle[] types);
 
     /**
-     * @deprecated replaced by a live list in 2.6.x
+     * @deprecated replaced by a live list
      */
     @Deprecated
     void addFeatureTypeStyle(FeatureTypeStyle type);
@@ -132,5 +125,5 @@ public interface Style {
      *
      * @param visitor
      */
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }

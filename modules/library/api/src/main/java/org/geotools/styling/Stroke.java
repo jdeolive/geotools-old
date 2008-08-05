@@ -21,6 +21,7 @@ import java.awt.Color;
 import org.geotools.filter.ConstantExpression;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 
 
 /**
@@ -77,7 +78,7 @@ import org.opengis.filter.expression.Expression;
  * @version $Id$
  * @author James Macgill
  */
-public interface Stroke {
+public interface Stroke extends org.opengis.style.Stroke{
     /**
      * Default Stroke capturing the defaults indicated by the standard.
      * <p>
@@ -182,21 +183,6 @@ public interface Stroke {
 
     /**
      * This parameter gives the solid color that will be used for a stroke.<br>
-     * The color value is RGB-encoded using two hexidecimal digits per
-     * primary-color component in the order Red, Green, Blue, prefixed wih
-     * the hash (#) sign.  The hexidecimal digits between A and F may be in
-     * either upper or lower case.  For example, full red is encoded as
-     * "#ff0000" (with no quotation marks).
-     * The default color is defined to be black ("#000000").
-     *
-     * Note: in CSS this parameter is just called Stroke and not Color.
-     *
-     * @return The color of the stroke encoded as a hexidecimal RGB value.
-     **/
-    Expression getColor();
-
-    /**
-     * This parameter gives the solid color that will be used for a stroke.<br>
      * The color value returned here as a Java Color object, this is a convinence method
      * that goes above
      * The default color is defined to be Color.BLACK
@@ -205,6 +191,7 @@ public interface Stroke {
      *
      * @return The color of the stroke as a Color object
      **/
+    @Deprecated
     Color getColor(SimpleFeature f);
 
     /**
@@ -217,7 +204,7 @@ public interface Stroke {
      *
      * Note: in CSS this parameter is just called Stroke and not Color.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setColor(Expression color);
@@ -225,21 +212,10 @@ public interface Stroke {
     /**
      * This parameter gives the absolute width (thickness) of a stroke in
      * pixels encoded as a float.
-     * The default is 1.0.  Fractional numbers are allowed but negative
-     * numbers are not.
-     *
-     * @return The width of the stroke in pixels.
-     *         This may be fractional but not negative.
-     **/
-    Expression getWidth();
-
-    /**
-     * This parameter gives the absolute width (thickness) of a stroke in
-     * pixels encoded as a float.
      * Fractional numbers are allowed but negative
      * numbers are not.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setWidth(Expression width);
@@ -251,56 +227,35 @@ public interface Stroke {
      * 1.0 with 0.0 representing totally transparent and 1.0 representing
      * totally opaque.  A linear scale of translucency is used for intermediate
      * values.<br>
-     * For example, "0.65" would represent 65% opacity.  The default value
-     * is 1.0 (opaque).
-     *
-     * @return The opacity of the stroke, where 0.0 is completely transparent
-     *         and 1.0 is completely opaque.
-     */
-    Expression getOpacity();
-
-    /**
-     * This specifies the level of translucency to use when rendering the
-     * stroke.<br>
-     * The value is encoded as a floating-point value between 0.0 and
-     * 1.0 with 0.0 representing totally transparent and 1.0 representing
-     * totally opaque.  A linear scale of translucency is used for intermediate
-     * values.<br>
      * For example, "0.65" would represent 65% opacity.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setOpacity(Expression opacity);
 
     /**
      * This parameter controls how line strings should be joined together.
-     *
-     * @return The join style.  This will be one of "mitre", "round" and
-     *         "bevel".  There is no defined default.
      */
     Expression getLineJoin();
 
     /**
      * This parameter controls how line strings should be joined together.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setLineJoin(Expression lineJoin);
 
     /**
      * This parameter controls how line strings should be capped.
-     *
-     * @return The cap style.  This will be one of "butt", "round" and
-     *         "square".  There is no defined default.
      */
     Expression getLineCap();
 
     /**
      * This parameter controls how line strings should be capped.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setLineCap(Expression lineCap);
@@ -311,14 +266,10 @@ public interface Stroke {
      * second gives the amount of space to leave, and this pattern repeats.<br>
      * If an odd number of values is given, then the pattern is expanded by
      * repeating it twice to give an even number of values.
-     * The default is to draw an unbroken line.<br>
      *
      * For example, "2 1 3 2" would produce:<br>
      * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;
      * --&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
-     *
-     * @return The dash pattern as an array of float values in the form
-     *         "dashlength gaplength ..."
      */
     float[] getDashArray();
 
@@ -333,7 +284,7 @@ public interface Stroke {
      * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;
      * --&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setDashArray(float[] dashArray);
@@ -341,8 +292,6 @@ public interface Stroke {
     /**
      * A dash array need not start from the beginning.  This method allows for
      * an offset into the dash array before starting it.
-     *
-     * @return The distance, in pixels, that any dash array should start from.
      */
     Expression getDashOffset();
 
@@ -350,7 +299,7 @@ public interface Stroke {
      * A dash array need not start from the beginning.  This method allows for
      * an offset into the dash array before starting it.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setDashOffset(Expression dashOffset);
@@ -368,7 +317,7 @@ public interface Stroke {
      * This parameter indicates that a stipple-fill repeated graphic will be
      * used and specifies the fill graphic to use.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setGraphicFill(Graphic graphicFill);
@@ -400,12 +349,12 @@ public interface Stroke {
      * be assumed to be the middle pixel row of the image, starting from the
      * first pixel column and ending at the last pixel column.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setGraphicStroke(Graphic graphicStroke);
 
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 
 }
 
@@ -452,9 +401,15 @@ abstract class ConstantStroke implements Stroke {
         cannotModifyConstant();
     }
 
-    public void accept(StyleVisitor visitor) {
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
         cannotModifyConstant();
     }
+    
+    public Object accept(org.opengis.style.StyleVisitor visitor, Object data) {
+        cannotModifyConstant();
+        return null;
+    }
+    
 }
 ;
 /*

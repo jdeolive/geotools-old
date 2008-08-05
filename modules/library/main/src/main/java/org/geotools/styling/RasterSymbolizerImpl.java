@@ -18,18 +18,31 @@
  */
 package org.geotools.styling;
 
+import javax.measure.unit.Unit;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
+
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.Description;
+import org.opengis.style.OverlapBehavior;
+import org.opengis.style.StyleVisitor;
 
 /**
  * Default implementation of RasterSymbolizer.
  *
  * @author iant
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  */
 public class RasterSymbolizerImpl implements RasterSymbolizer {
+    
+    private final Description description;
+    private final String name;
+    private final Unit uom;
+    private final OverlapBehavior behavior;
+    
     // TODO: make container ready
     private FilterFactory filterFactory;
     private ChannelSelection channelSelection = new ChannelSelectionImpl();
@@ -46,11 +59,32 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     }
 
     public RasterSymbolizerImpl(FilterFactory factory) {
-        filterFactory = factory;
-        opacity = filterFactory.literal(1.0);
-        overlap = filterFactory.literal(OverlapBehavior.RANDOM);
+        this(factory,null,null,null,null);   
+    }
+    
+    public RasterSymbolizerImpl(FilterFactory factory, Description desc, String name, Unit uom, OverlapBehavior behavior) {
+        this.filterFactory = factory;
+        this.opacity = filterFactory.literal(1.0);
+        this.overlap = filterFactory.literal(OverlapBehavior.RANDOM);
+        this.description = desc;
+        this.name = name;
+        this.uom = uom;
+        this.behavior = behavior;
+    }
+    
+
+    public String getName() {
+        return name;
     }
 
+    public Description getDescription() {
+        return description;
+    }
+    
+    public Unit getUnitOfMeasure() {
+        return uom;
+    }
+    
     public int hashcode() {
         int key = 0;
         key = channelSelection.hashCode();
@@ -186,8 +220,13 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      * @return The expression which evaluates to LATEST_ON_TOP,
      *         EARLIEST_ON_TOP, AVERAGE or RANDOM
      */
+    @Deprecated
     public Expression getOverlap() {
         return overlap;
+    }
+    
+    public OverlapBehavior getOverlapBehavior() {
+        return behavior;
     }
 
     /**
@@ -223,6 +262,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param channel the channel selected
      */
+    @Deprecated
     public void setChannelSelection(ChannelSelection channel) {
         if (this.channelSelection == channel) {
             return;
@@ -246,6 +286,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param colorMap the ColorMap for the raster
      */
+    @Deprecated
     public void setColorMap(ColorMap colorMap) {
         if (this.colorMap == colorMap) {
             return;
@@ -271,6 +312,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param contrastEnhancement the contrastEnhancement
      */
+    @Deprecated
     public void setContrastEnhancement(ContrastEnhancement contrastEnhancement) {
         if (this.contrastEnhancement == contrastEnhancement) {
             return;
@@ -287,6 +329,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param geometryName the name of the Geometry
      */
+    @Deprecated
     public void setGeometryPropertyName(String geometryName) {
         if (this.geometryName == geometryName) {
             return;
@@ -320,6 +363,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
+    @Deprecated
     public void setImageOutline(Symbolizer symbolizer) {
         if( symbolizer == null ){
             this.symbolizer = null;
@@ -341,6 +385,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param opacity An expression which evaluates to the the opacity (0-1)
      */
+    @Deprecated
     public void setOpacity(Expression opacity) {
         if (this.opacity == opacity) {
             return;
@@ -363,6 +408,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      * @param overlap the expression which evaluates to LATEST_ON_TOP,
      *        EARLIEST_ON_TOP, AVERAGE or RANDOM
      */
+    @Deprecated
     public void setOverlap(Expression overlap) {
         if (this.overlap == overlap) {
             return;
@@ -386,6 +432,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param shadedRelief the shadedrelief object
      */
+    @Deprecated
     public void setShadedRelief(ShadedRelief shadedRelief) {
         if (this.shadedRelief == shadedRelief) {
             return;
@@ -393,9 +440,14 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
         this.shadedRelief = shadedRelief;
     }
 
-    public void accept(StyleVisitor visitor) {
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
+    }
+        
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
+    
 
     /**
      * Creates a deep copy clone.   TODO: Need to complete the deep copy,
@@ -416,4 +468,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
 
         return clone;
     }
+
+
+
 }

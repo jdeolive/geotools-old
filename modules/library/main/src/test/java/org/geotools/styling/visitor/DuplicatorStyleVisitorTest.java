@@ -440,8 +440,7 @@ public class DuplicatorStyleVisitorTest extends TestCase {
         // assertHashcode equality
         int controlEqHash = controlEqual.hashCode();
         int testHash = test.hashCode();
-        assertTrue("Equal objects should return equal hashcodes",
-            controlEqHash == testHash);
+        assertTrue("Equal objects should return equal hashcodes",controlEqHash == testHash);
     }
     
 }

@@ -24,6 +24,7 @@ import org.geotools.resources.Utilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -381,10 +382,14 @@ public class StrokeImpl implements Stroke, Cloneable {
         return java.awt.Color.decode((String) this.getColor().evaluate(feature));
     }
 
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
     /**
      * Clone the StrokeImpl object.
      * 
@@ -541,4 +546,5 @@ public class StrokeImpl implements Stroke, Cloneable {
 
         return true;
     }
+
 }

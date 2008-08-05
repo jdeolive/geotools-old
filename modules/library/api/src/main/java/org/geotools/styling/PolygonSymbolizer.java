@@ -80,7 +80,7 @@ package org.geotools.styling;
  * @source $URL$
  * @version $Id$
  */
-public interface PolygonSymbolizer extends Symbolizer {
+public interface PolygonSymbolizer extends org.opengis.style.PolygonSymbolizer,Symbolizer {
     /**
      * Provides the graphical-symbolization parameter to use to fill the area
      * of the geometry. Note that the area should be filled first before the
@@ -97,7 +97,7 @@ public interface PolygonSymbolizer extends Symbolizer {
      *
      * @param fill The Fill style to use when rendering the area.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setFill(Fill fill);
@@ -116,28 +116,10 @@ public interface PolygonSymbolizer extends Symbolizer {
      *
      * @param stroke The Stroke style to use when rendering lines.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setStroke(Stroke stroke);
-
-    /**
-     * This property defines the geometry to be used for styling.<br>
-     * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used.  Geometry types other
-     * than inherently area types can be used.   If a line is used then the
-     * line string is closed for filling (only) by connecting its end point to
-     * its start point. The geometryPropertyName is the name of a geometry
-     * property in the Feature being styled.  Typically, features only have
-     * one geometry so, in general, the need to select one is not required.
-     * Note: this moves a little away from the SLD spec which provides an
-     * XPath reference to a Geometry object, but does follow it  in spirit.
-     *
-     * @return The name of the attribute in the feature being styled  that
-     *         should be used.  If null then the default geometry should be
-     *         used.
-     */
-    String getGeometryPropertyName();
 
     /**
      * This property defines the geometry to be used for styling.<br>
@@ -155,7 +137,7 @@ public interface PolygonSymbolizer extends Symbolizer {
      *        being styled  that should be used.  If null then the default
      *        geometry should be used.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setGeometryPropertyName(String geometryPropertyName);

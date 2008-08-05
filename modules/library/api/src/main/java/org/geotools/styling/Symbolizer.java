@@ -58,6 +58,6 @@ package org.geotools.styling;
  * @source $URL$
  * @version $Id$
  */
-public interface Symbolizer {
-    void accept(StyleVisitor visitor);
+public interface Symbolizer extends org.opengis.style.Symbolizer{
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }

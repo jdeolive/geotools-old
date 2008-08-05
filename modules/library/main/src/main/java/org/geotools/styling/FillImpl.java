@@ -16,7 +16,6 @@
  */
 package org.geotools.styling;
 
-// J2SE dependencies
 import java.util.logging.Logger;
 
 import org.geotools.factory.CommonFactoryFinder;
@@ -24,6 +23,7 @@ import org.geotools.factory.GeoTools;
 import org.geotools.resources.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -191,7 +191,11 @@ public class FillImpl implements Fill, Cloneable {
     	this.graphicFill = graphicFill;    	
     }
     
-    public void accept(StyleVisitor visitor) {
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
+    }
+    
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
     

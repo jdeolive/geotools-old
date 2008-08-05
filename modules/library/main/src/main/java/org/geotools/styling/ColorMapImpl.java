@@ -18,6 +18,8 @@ package org.geotools.styling;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.opengis.filter.expression.Function;
+import org.opengis.style.StyleVisitor;
 
 
 /**
@@ -28,10 +30,19 @@ import java.util.List;
  * @source $URL$
  */
 public class ColorMapImpl implements ColorMap {
+    private final Function function;
     private List<ColorMapEntry> list = new ArrayList<ColorMapEntry>();
     private int type = ColorMap.TYPE_RAMP;
-	private boolean extendedColors;
+    private boolean extendedColors;
 
+    public ColorMapImpl(){
+        function = null;
+    }
+    
+    public ColorMapImpl(Function function){
+        this.function = function;
+    }
+    
     public void addColorMapEntry(ColorMapEntry entry) {
         list.add(entry);
     }
@@ -61,16 +72,24 @@ public class ColorMapImpl implements ColorMap {
         this.type = type;
     }
     
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
-	public boolean getExtendedColors() {
-		return extendedColors;
-	}
+    public boolean getExtendedColors() {
+        return extendedColors;
+    }
 
-	public void setExtendedColors(boolean extended) {
-		extendedColors=extended;
-		
-	}
+    public void setExtendedColors(boolean extended) {
+	extendedColors=extended;	
+    }
+
+    public Function getFunction() {
+        return function;
+    }
+
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

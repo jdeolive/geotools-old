@@ -18,6 +18,7 @@ package org.geotools.styling;
 
 import org.geotools.filter.ConstantExpression;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 
 
 /**
@@ -29,11 +30,15 @@ import org.opengis.filter.expression.Expression;
  * @version $Id$
  * @source $URL$
  */
-public interface Displacement {
+public interface Displacement extends org.opengis.style.Displacement{
     /**
      * Default Displacment instance.
      */
     static final Displacement DEFAULT = new ConstantDisplacement() {
+            private void cannotModifyConstant() {
+                throw new UnsupportedOperationException("Constant Stroke may not be modified");
+            }
+
             public Expression getDisplacementX() {
                 return ConstantExpression.ZERO;
             }
@@ -41,12 +46,22 @@ public interface Displacement {
             public Expression getDisplacementY() {
                 return ConstantExpression.ZERO;
             }
+
+            public Object accept(StyleVisitor visitor, Object extraData) {
+                cannotModifyConstant();
+                return null;
+            }
+
         };
 
     /**
      * Null Displacement instance.
      */
     static final Displacement NULL = new ConstantDisplacement() {
+            private void cannotModifyConstant() {
+                throw new UnsupportedOperationException("Constant Stroke may not be modified");
+            }
+
             public Expression getDisplacementX() {
                 return ConstantExpression.NULL;
             }
@@ -54,48 +69,32 @@ public interface Displacement {
             public Expression getDisplacementY() {
                 return ConstantExpression.NULL;
             }
-        };
 
-    //TODO: add Displacement to GeoAPI
-    /**
-     * Returns an expression that computes a pixel offset from the geometry
-     * point.  This offset point is where the text's anchor point gets
-     * located. If this expression is null, the default offset of zero is
-     * used.
-     *
-     * @return DOCUMENT ME!
-     */
-    Expression getDisplacementX();
+            public Object accept(StyleVisitor visitor, Object extraData) {
+                cannotModifyConstant();
+                return null;
+            }
+        };
 
     /**
      * Sets the expression that computes a pixel offset from the geometry
      * point.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setDisplacementX(Expression x);
 
     /**
-     * Returns an expression that computes a pixel offset from the geometry
-     * point.  This offset point is where the text's anchor point gets
-     * located. If this expression is null, the default offset of zero is
-     * used.
-     *
-     * @return DOCUMENT ME!
-     */
-    Expression getDisplacementY();
-
-    /**
      * Sets the expression that computes a pixel offset from the geometry
      * point.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setDisplacementY(Expression y);
 
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }
 
 
@@ -112,6 +111,10 @@ abstract class ConstantDisplacement implements Displacement {
         cannotModifyConstant();
     }
 
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        cannotModifyConstant();
+    }
+    
     public void accept(StyleVisitor visitor) {
         cannotModifyConstant();
     }

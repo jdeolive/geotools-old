@@ -74,7 +74,7 @@ import java.util.Map;
  * @source $URL$
  * @version $Id$
  */
-public interface ExternalGraphic extends Symbol {
+public interface ExternalGraphic extends org.opengis.style.ExternalGraphic,Symbol {
     public static final ExternalGraphic[] EXTERNAL_GRAPHICS_EMPTY = new ExternalGraphic[0];
 
     /**
@@ -82,7 +82,7 @@ public interface ExternalGraphic extends Symbol {
      *
      * @param uri the uri of the external graphic
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     public void setURI(String uri);
@@ -104,7 +104,7 @@ public interface ExternalGraphic extends Symbol {
      *
      * @param url The URL of the ExternalGraphic
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setLocation(URL url);
@@ -112,18 +112,10 @@ public interface ExternalGraphic extends Symbol {
     /**
      * Provides the format of the external graphic.
      *
-     * @return The format of the external graphic.  Reported as its MIME type
-     *         in a String object.
-     */
-    String getFormat();
-
-    /**
-     * Provides the format of the external graphic.
-     *
      * @param format The format of the external graphic.  Reported as its MIME
      *        type in a String object.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setFormat(String format);

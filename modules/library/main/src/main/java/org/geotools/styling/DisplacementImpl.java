@@ -20,9 +20,10 @@ package org.geotools.styling;
 // OpenGIS dependencies
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -102,10 +103,14 @@ public class DisplacementImpl implements Displacement, Cloneable {
         return displacementY;
     }
 
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
     /* (non-Javadoc)
      * @see org.opengis.util.Cloneable#clone()
      */
@@ -152,4 +157,5 @@ public class DisplacementImpl implements Displacement, Cloneable {
 
         return result;
     }
+    
 }

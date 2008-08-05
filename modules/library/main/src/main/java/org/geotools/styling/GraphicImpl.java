@@ -18,14 +18,22 @@ package org.geotools.styling;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.List;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.resources.Utilities;
+import org.geotools.filter.ConstantExpression;
+import org.geotools.util.Utilities;
+
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.AnchorPoint;
+import org.opengis.style.GraphicalSymbol;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -33,18 +41,21 @@ import org.opengis.util.Cloneable;
  * Direct implementation of Graphic.
  *
  * @author Ian Turton, CCG
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
-public class GraphicImpl implements Graphic,
-    Cloneable {
+public class GraphicImpl implements Graphic, Cloneable {
     /** The logger for the default core module. */
     //private static final java.util.logging.Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
+    
+    private final List<GraphicalSymbol> graphics = new ArrayList<GraphicalSymbol>();
+    private final AnchorPoint anchor;
+    private final Expression gap;
+    private final Expression initialGap;
+    
     private FilterFactory filterFactory;
     private String geometryPropertyName = "";
-    private java.util.List<ExternalGraphic> externalGraphics = new java.util.ArrayList<ExternalGraphic> ();
-    private java.util.List<Mark> marks = new java.util.ArrayList<Mark>();
-    private java.util.List<Symbol> symbols = new java.util.ArrayList<Symbol>();
     private Expression rotation = null;
     private Expression size = null;
     private Displacement displacement = null;
@@ -58,11 +69,27 @@ public class GraphicImpl implements Graphic,
     }
 
     public GraphicImpl(FilterFactory factory) {
+        this(factory,null,null,null);
+    }
+    
+    public GraphicImpl(FilterFactory factory, AnchorPoint anchor,Expression gap, Expression initialGap) {
+        filterFactory = factory;
+        this.anchor = anchor;
+        
+        if(gap == null) this.gap = ConstantExpression.constant(0);
+        else this.gap = gap;
+        if(initialGap == null) this.initialGap = ConstantExpression.constant(0);
+        else this.initialGap = initialGap;
+        
+    }
+
+    @Deprecated
+    public void setFilterFactory(FilterFactory factory) {
         filterFactory = factory;
     }
 
-    public void setFilterFactory(FilterFactory factory) {
-        filterFactory = factory;
+    public List<GraphicalSymbol> graphicalSymbols() {
+        return Collections.unmodifiableList(graphics);
     }
 
     /**
@@ -75,39 +102,31 @@ public class GraphicImpl implements Graphic,
      *         but in different formats.  If null is returned use getMarks
      *         instead.
      */
-    public ExternalGraphic[] getExternalGraphics() {
-        ExternalGraphic[] ret = null;
-
-        if (externalGraphics.size() > 0) {
-            ret = externalGraphics.toArray(new ExternalGraphic[0]);
+    @Deprecated
+    public ExternalGraphic[] getExternalGraphics() {        
+        Collection<ExternalGraphic> exts = new ArrayList<ExternalGraphic>();
+        
+        for(GraphicalSymbol s : graphics){
+            if(s instanceof ExternalGraphic){
+                exts.add((ExternalGraphic) s);
+            }
         }
-
-        return ret;
+        
+        return exts.toArray(new ExternalGraphic[0]);
     }
 
+    @Deprecated
     public void setExternalGraphics(ExternalGraphic[] externalGraphics) {
-        this.externalGraphics.clear();
-
-        for (int i = 0; i < symbols.size();) {
-            Object symbol = symbols.get(i);
-
-            if (symbol instanceof ExternalGraphic) {
-                symbols.remove(i);
-            } else {
-                i++;
-            }
-        }
-
-        if (externalGraphics != null) {
-            for (int i = 0; i < externalGraphics.length; i++) {
-                addExternalGraphic(externalGraphics[i]);
-            }
+        graphics.clear();
+        
+        for(ExternalGraphic g : externalGraphics){
+            graphics.add(g);
         }
     }
 
+    @Deprecated
     public void addExternalGraphic(ExternalGraphic externalGraphic) {
-        externalGraphics.add(externalGraphic);
-        symbols.add(externalGraphic);
+        graphics.add(externalGraphic);
     }
 
     /**
@@ -119,43 +138,31 @@ public class GraphicImpl implements Graphic,
      *         default, a "square" with 50% gray fill and black outline with a
      *         size of 6 pixels (unless a size is specified) is provided.
      */
-    public Mark[] getMarks() {
-        Mark[] ret = new Mark[0];
-
-        if (marks.size() > 0) {
-            ret = marks.toArray(new Mark[0]);
-        }
-
-        return ret;
-    }
-
-    public void setMarks(Mark[] marks) {
-        this.marks.clear();
-
-        for (int i = 0; i < symbols.size();) {
-            Object symbol = symbols.get(i);
-
-            if (symbol instanceof Mark) {
-                symbols.remove(i);
-            } else {
-                i++;
+    @Deprecated
+    public Mark[] getMarks() {        
+        Collection<Mark> exts = new ArrayList<Mark>();
+        
+        for(GraphicalSymbol s : graphics){
+            if(s instanceof Mark){
+                exts.add((Mark) s);
             }
         }
+        
+        return exts.toArray(new Mark[0]);
+    }
 
-        for (int i = 0; i < marks.length; i++) {
-            addMark(marks[i]);
+    @Deprecated
+    public void setMarks(Mark[] marks) {
+        graphics.clear();
+        
+        for(Mark g : marks){
+            graphics.add(g);
         }
     }
 
+    @Deprecated
     public void addMark(Mark mark) {
-        if (mark == null) {
-            return;
-        }
-
-        marks.add(mark);
-        symbols.add(mark);
-        mark.setSize(size);
-        mark.setRotation(rotation);
+        graphics.add(mark);
     }
 
     /**
@@ -175,42 +182,31 @@ public class GraphicImpl implements Graphic,
      *         default, a "square" with 50% gray fill and black outline with a
      *         size of 6 pixels (unless a size is specified) is provided.
      */
+    @Deprecated
     public Symbol[] getSymbols() {
-        Symbol[] ret = null;
-
-        if (symbols.size() > 0) {
-            ret = symbols.toArray(new Symbol[symbols.size()]);
-        } else {
-            ret = new Symbol[] { new MarkImpl() };
-        }
-
-        return ret;
+        return graphics.toArray(new Symbol[0]);
     }
-	public List<Symbol> graphicalSymbols() {
-		return symbols;
-	}
+    
+//    public List<Symbol> graphicalSymbols() {
+//        return symbols;
+//    }
+
+    @Deprecated
     public void setSymbols(Symbol[] symbols) {
-        this.symbols.clear();
-
-        if (symbols != null) {
-            for (int i = 0; i < symbols.length; i++) {
-                addSymbol(symbols[i]);
-            }
+        graphics.clear();
+        
+        for(Symbol g : symbols){
+            graphics.add(g);
         }
     }
 
+    @Deprecated
     public void addSymbol(Symbol symbol) {
-        symbols.add(symbol);
-
-        if (symbol instanceof ExternalGraphic) {
-            addExternalGraphic((ExternalGraphic) symbol);
-        }
-
-        if (symbol instanceof Mark) {
-            addMark((Mark) symbol);
-        }
-
-        return;
+        graphics.add(symbol);
+    }
+    
+    public AnchorPoint getAnchorPoint() {
+        return anchor;
     }
 
     /**
@@ -265,6 +261,15 @@ public class GraphicImpl implements Graphic,
         return displacement;
     }
 
+    public Expression getInitialGap() {
+        return initialGap;
+    }
+
+    public Expression getGap() {
+        return gap;
+    }
+    
+    @Deprecated
     public void setDisplacement(Displacement offset) {
         this.displacement = offset;
     }
@@ -274,10 +279,12 @@ public class GraphicImpl implements Graphic,
      *
      * @param opacity New value of property opacity.
      */
+    @Deprecated
     public void setOpacity(Expression opacity) {
         this.opacity = opacity;
     }
 
+    @Deprecated
     public void setOpacity(double opacity) {
         setOpacity(filterFactory.literal(opacity));
     }
@@ -287,16 +294,12 @@ public class GraphicImpl implements Graphic,
      *
      * @param rotation New value of property rotation.
      */
+    @Deprecated
     public void setRotation(Expression rotation) {
         this.rotation = rotation;
-
-        java.util.Iterator<Mark> iter = marks.iterator();
-
-        while (iter.hasNext()) {
-            ((MarkImpl) iter.next()).setRotation(rotation);
-        }
     }
 
+    @Deprecated
     public void setRotation(double rotation) {
         setRotation(filterFactory.literal(rotation));
     }
@@ -306,20 +309,17 @@ public class GraphicImpl implements Graphic,
      *
      * @param size New value of property size.
      */
+    @Deprecated
     public void setSize(Expression size) {
         this.size = size;
-
-        java.util.Iterator<Mark> iter = marks.iterator();
-
-        while (iter.hasNext()) {
-            ((MarkImpl) iter.next()).setSize(size);
-        }
     }
 
+    @Deprecated
     public void setSize(int size) {
         setSize(filterFactory.literal(size));
     }
 
+    @Deprecated
     public void setGeometryPropertyName(String name) {
         geometryPropertyName = name;
     }
@@ -333,10 +333,15 @@ public class GraphicImpl implements Graphic,
         return geometryPropertyName;
     }
 
-    public void accept(StyleVisitor visitor) {
+    public Object accept(StyleVisitor visitor, Object data) {
+        return visitor.visit((org.opengis.style.GraphicStroke)this, data);
+    }
+
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
 
+    
     /**
      * Creates a deep copy clone.
      *
@@ -349,23 +354,9 @@ public class GraphicImpl implements Graphic,
 
         try {
             clone = (GraphicImpl) super.clone();
-            clone.marks = new ArrayList<Mark>();
-            clone.externalGraphics = new ArrayList<ExternalGraphic>();
-            clone.symbols = new ArrayList<Symbol>();
-
-            // Because ExternalGraphics and Marks are stored twice
-            // and we only want to clone them once, we should use
-            // the setter methods to place them in the proper lists
-            for (Iterator<ExternalGraphic> iter = externalGraphics.iterator(); iter.hasNext();) {
-                ExternalGraphic exGraphic = iter.next();
-                clone.addExternalGraphic((ExternalGraphic) ((Cloneable) exGraphic)
-                    .clone());
-            }
-
-            for (Iterator<Mark> iter = marks.iterator(); iter.hasNext();) {
-                Mark mark = iter.next();
-                clone.addMark((Mark) ((Cloneable) mark).clone());
-            }
+            clone.graphics.clear();
+            clone.graphics.addAll(graphics);
+            
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
@@ -386,8 +377,8 @@ public class GraphicImpl implements Graphic,
             result = (PRIME * result) + geometryPropertyName.hashCode();
         }
 
-        if (symbols != null) {
-            result = (PRIME * result) + symbols.hashCode();
+        if (graphics != null) {
+            result = (PRIME * result) + graphics.hashCode();
         }
 
         if (rotation != null) {
@@ -401,6 +392,14 @@ public class GraphicImpl implements Graphic,
         if (opacity != null) {
             result = (PRIME * result) + opacity.hashCode();
         }
+        
+//        if (gap != null) {
+//            result = (PRIME * result) + gap.hashCode();
+//        }
+//        
+//        if (initialGap != null) {
+//            result = (PRIME * result) + initialGap.hashCode();
+//        }
 
         return result;
     }
@@ -433,9 +432,24 @@ public class GraphicImpl implements Graphic,
             && Utilities.equals(this.opacity, other.opacity)
             &&    Arrays.equals(this.getMarks(), other.getMarks() )
             &&    Arrays.equals( this.getExternalGraphics(), other.getExternalGraphics() )
-            &&    Arrays.equals( this.getSymbols(), other.getSymbols() );                    
+            &&    Arrays.equals( this.getSymbols(), other.getSymbols() ); 
+            
+            
+//                        return 
+//            Utilities.equals(this.geometryPropertyName,other.geometryPropertyName)
+//            && Utilities.equals(this.size, other.size)
+//            && Utilities.equals(this.rotation, other.rotation)
+//            && Utilities.equals(this.opacity, other.opacity)
+//            && Utilities.equals(this.graphics, other.graphics )
+//            && Utilities.equals(this.anchor, other.anchor)
+//            && Utilities.equals(this.gap, other.gap)
+//            && Utilities.equals(this.initialGap, other.initialGap);       
+            
         }
 
         return false;
     }
+
+
+
 }

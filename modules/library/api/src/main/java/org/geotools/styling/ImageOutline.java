@@ -58,5 +58,5 @@ public interface ImageOutline {
     void setSymbolizer(Symbolizer symbolizer);
     
     
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }

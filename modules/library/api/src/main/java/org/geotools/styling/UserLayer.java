@@ -76,5 +76,5 @@ public interface UserLayer extends StyledLayer {
      *
      * @param visitor
      */
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }

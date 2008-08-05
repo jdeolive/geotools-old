@@ -21,6 +21,7 @@ import java.awt.Color;
 
 import org.geotools.filter.ConstantExpression;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 
 
 /**
@@ -76,8 +77,12 @@ import org.opengis.filter.expression.Expression;
  * @source $URL$
  * @version $Id$
  */
-public interface Fill {
+public interface Fill extends org.opengis.style.Fill{
     static final Fill DEFAULT = new ConstantFill() {
+            private void cannotModifyConstant() {
+                throw new UnsupportedOperationException("Constant Stroke may not be modified");
+            }
+
             final Expression COLOR = ConstantExpression.constant(new Color(128, 128, 128));
             final Expression BGCOLOR = ConstantExpression.constant(new Color(255, 255, 255, 0));
             final Expression OPACITY = ConstantExpression.ONE;
@@ -97,9 +102,18 @@ public interface Fill {
             public Graphic getGraphicFill() {
                 return Graphic.NULL;
             }
+
+            public Object accept(StyleVisitor visitor, Object extraData) {
+                cannotModifyConstant();
+                return null;
+            }
         };
 
     static final Fill NULL = new ConstantFill() {
+            private void cannotModifyConstant() {
+                throw new UnsupportedOperationException("Constant Stroke may not be modified");
+            }
+
             public Expression getColor() {
                 return ConstantExpression.NULL;
             }
@@ -114,6 +128,11 @@ public interface Fill {
 
             public Graphic getGraphicFill() {
                 return Graphic.NULL;
+            }
+
+            public Object accept(StyleVisitor visitor, Object extraData) {
+                cannotModifyConstant();
+                return null;
             }
         };
 
@@ -141,7 +160,7 @@ public interface Fill {
      *
      * @param color solid color that will be used for a Fill
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setColor(Expression color);
@@ -175,7 +194,7 @@ public interface Fill {
      *
      * @param backgroundColor solid color that will be used as a background
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setBackgroundColor(Expression backgroundColor);
@@ -200,7 +219,7 @@ public interface Fill {
      * opaque, with a linear scale of translucency for intermediate values.<br>
      * For example, "0.65" would represent 65% opacity.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setOpacity(Expression opacity);
@@ -218,12 +237,13 @@ public interface Fill {
      * This parameter indicates that a stipple-fill repeated graphic will be
      * used and specifies the fill graphic to use.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setGraphicFill(Graphic graphicFill);
 
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
+
 }
 
 
@@ -247,9 +267,14 @@ abstract class ConstantFill implements Fill {
     public void setGraphicFill(Graphic graphicFill) {
         cannotModifyConstant();
     }
-
-    public void accept(StyleVisitor visitor) {
+    
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
         cannotModifyConstant();
+    }
+
+    public Object accept(org.opengis.style.StyleVisitor visitor,Object data) {
+        cannotModifyConstant();
+        return null;
     }
 }
 ;

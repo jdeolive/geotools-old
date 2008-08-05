@@ -68,20 +68,13 @@ import org.opengis.filter.expression.Expression;
  * @author Ian Turton, CCG
  * @source $URL$
  */
-public interface Halo {
-    /**
-     * Expression that represents the the distance the halo extends from the
-     * text
-     *
-     * @return DOCUMENT ME!
-     */
-    Expression getRadius();
+public interface Halo extends org.opengis.style.Halo{
 
     /**
      * Expression that represents the the distance the halo extends from the
      * text
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setRadius(Expression radius);
@@ -96,10 +89,10 @@ public interface Halo {
     /**
      * The fill (color) of the halo
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setFill(Fill fill);
 
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }

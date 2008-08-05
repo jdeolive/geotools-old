@@ -86,20 +86,13 @@ import org.opengis.filter.expression.Expression;
  * @author Ian Turton, CCG
  * @source $URL$
  */
-public interface TextSymbolizer extends Symbolizer {
-    /**
-     * Returns the expression that will be evaluated to determine what text is
-     * displayed.
-     *
-     * @return DOCUMENT ME!
-     */
-    Expression getLabel();
+public interface TextSymbolizer extends org.opengis.style.TextSymbolizer,Symbolizer {
 
     /**
      * Sets the expression that will be evaluated to determine what text is
      * displayed. See {@link #getLabel} for details.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setLabel(Expression label);
@@ -123,7 +116,7 @@ public interface TextSymbolizer extends Symbolizer {
      * sets a list of device independent Font objects to be used to render the
      * label.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setFonts(Font[] fonts);
@@ -132,21 +125,15 @@ public interface TextSymbolizer extends Symbolizer {
      * A LabelPlacement specifies how a text element should be rendered
      * relative to its geometric point or line.
      *
-     * @return DOCUMENT ME!
-     *
      * @since Geotools 2.2 (GeoAPI 2.0)
      */
+    @Deprecated
     LabelPlacement getPlacement();
 
     /**
      * A LabelPlacement specifies how a text element should be rendered
      * relative to its geometric point or line.
-     *
-     * @return DOCUMENT ME!
-     *
-     * @deprecated use getPlacement()
      */
-    @Deprecated
     LabelPlacement getLabelPlacement();
 
     /**
@@ -162,7 +149,7 @@ public interface TextSymbolizer extends Symbolizer {
      * A LabelPlacement specifies how a text element should be rendered
      * relative to its geometric point or line.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setPlacement(LabelPlacement labelPlacement);
@@ -171,15 +158,14 @@ public interface TextSymbolizer extends Symbolizer {
      * A halo fills an extended area outside the glyphs of a rendered text
      * label to make the label easier to read over a background.
      *
-     * @return DOCUMENT ME!
      */
-    Halo getHalo();
+    org.geotools.styling.Halo getHalo();
 
     /**
      * A halo fills an extended area outside the glyphs of a rendered text
      * label to make the label easier to read over a background.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setHalo(Halo halo);
@@ -187,35 +173,17 @@ public interface TextSymbolizer extends Symbolizer {
     /**
      * Returns the object that indicates how the text will be filled.
      *
-     * @return DOCUMENT ME!
      */
-    Fill getFill();
+    org.geotools.styling.Fill getFill();
 
     /**
      * Sets the object that indicates how the text will be filled. See {@link
      * #getFill} for details.
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setFill(Fill fill);
-
-    /**
-     * This property defines the geometry to be used for styling.<br>
-     * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used.  Geometry types other
-     * than inherently point types can be used.  The geometryPropertyName is
-     * the name of a geometry property in the Feature being styled.
-     * Typically, features only have one geometry so, in general, the need to
-     * select one is not required. Note: this moves a little away from the SLD
-     * spec which provides an XPath reference to a Geometry object, but does
-     * follow it in spirit.
-     *
-     * @return The name of the attribute in the feature being styled  that
-     *         should be used.  If null then the default geometry should be
-     *         used.
-     */
-    String getGeometryPropertyName();
 
     /**
      * This property defines the geometry to be used for styling.<br>
@@ -232,7 +200,7 @@ public interface TextSymbolizer extends Symbolizer {
      *        should be used.  If null then the default geometry should be
      *        used.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setGeometryPropertyName(String name);
@@ -242,7 +210,7 @@ public interface TextSymbolizer extends Symbolizer {
      * an expression that evaluates to a number (ie. Integer, Long, Double...)
      * Larger = more likely to be rendered
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setPriority(Expression e);
@@ -252,14 +220,13 @@ public interface TextSymbolizer extends Symbolizer {
      * an expression that evaluates to a number (ie. Integer, Long, Double...)
      * Larger = more likely to be rendered
      *
-     * @return DOCUMENT ME!
      */
     Expression getPriority();
 
     /**
      * adds a parameter value to the options map
      *
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void addToOptions(String key, String value);

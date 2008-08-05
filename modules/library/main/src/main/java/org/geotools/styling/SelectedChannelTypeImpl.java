@@ -20,6 +20,7 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 
 /**
  * Default implementation of SelectedChannelType.
@@ -71,8 +72,12 @@ public class SelectedChannelTypeImpl implements SelectedChannelType {
         return enhancement;
     }
 
-	public void accept(StyleVisitor visitor) {
-		visitor.visit(this);
-		
-	}
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
+    }
+
+     public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }

@@ -20,9 +20,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.geotools.resources.Utilities;
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.visitor.DuplicatingFilterVisitor;
+import org.geotools.util.Utilities;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.filter.Filter;
+import org.opengis.metadata.citation.OnLineResource;
+import org.opengis.style.GraphicLegend;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 import org.opengis.util.InternationalString;
 import org.opengis.style.Description;
@@ -31,20 +36,26 @@ import org.opengis.style.Description;
  * Provides the default implementation of Rule.
  *
  * @author James Macgill
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
-public class RuleImpl implements Rule, Cloneable {
+public class RuleImpl implements org.geotools.styling.Rule, Cloneable {
     private List<Symbolizer> symbolizers = new ArrayList<Symbolizer>();
-    private List<Graphic> graphics = new ArrayList<Graphic>();
+    
+    private final DescriptionImpl description = new DescriptionImpl(
+            new SimpleInternationalString("title"), 
+            new SimpleInternationalString("abstract"));
+    
+    private List<org.geotools.styling.Graphic> legends = new ArrayList<org.geotools.styling.Graphic>();
+    
     private String name;
-    private String title;
-    private String abstractStr;
     private Filter filter = null;
     private boolean hasElseFilter = false;
     private double maxScaleDenominator = Double.POSITIVE_INFINITY;
     private double minScaleDenominator = 0.0;
-
+    private OnLineResource online = null;
+    
     /**
      * Creates a new instance of DefaultRule
      */
@@ -59,15 +70,37 @@ public class RuleImpl implements Rule, Cloneable {
     protected RuleImpl(Symbolizer[] symbolizers) {
         this.symbolizers.addAll(Arrays.asList(symbolizers));
     }
-
-    public Graphic[] getLegendGraphic() {
-        return (Graphic[]) graphics.toArray(new Graphic[0]);
+    
+    protected RuleImpl(org.geotools.styling.Symbolizer[] symbolizers, 
+                        Description desc, 
+                        org.geotools.styling.Graphic[] legends,
+                        String name,
+                        Filter filter,
+                        boolean isElseFilter,
+                        double maxScale,
+                        double minScale){
+        setSymbolizers(symbolizers);
+        description.setAbstract(desc.getAbstract());
+        description.setTitle(desc.getTitle());
+        setLegendGraphic(legends);
+        this.name = name;
+        this.filter = filter;
+        hasElseFilter = isElseFilter;
+        this.maxScaleDenominator = maxScale;
+        this.minScaleDenominator = minScale;
+        
     }
+    
 
-    public void addLegendGraphic(Graphic graphic) {
-        graphics.add(graphic);
+    public org.geotools.styling.Graphic[] getLegendGraphic() {
+        return legends.toArray(new org.geotools.styling.Graphic[0]);
     }
-
+    
+    @Deprecated
+    public void addLegendGraphic(org.geotools.styling.Graphic graphic) {
+        legends.add(graphic);
+    }
+    
     /**
      * A set of equivalent Graphics in different formats which can be used as a
      * legend against features stylized by the symbolizers in this rule.
@@ -75,98 +108,79 @@ public class RuleImpl implements Rule, Cloneable {
      * @param graphics An array of Graphic objects, any of which can be used as
      *        the legend.
      */
-    public void setLegendGraphic(Graphic[] graphics) {
-        List<Graphic> graphicList = Arrays.asList(graphics);
-    	
-        this.graphics.clear();
-        this.graphics.addAll(graphicList);
+    @Deprecated
+    public void setLegendGraphic(org.geotools.styling.Graphic[] graphics) {
+        List<org.geotools.styling.Graphic> graphicList = Arrays.asList(graphics);
+        this.legends = new ArrayList<Graphic>(graphicList);
+//        this.legends.clear();
+//        this.legends.addAll(graphicList);
+    }
+    
+    public GraphicLegend getLegend() {
+        if(legends.isEmpty()) return null;
+        else return legends.get(0);
     }
 
-    public void addSymbolizer(Symbolizer symb) {
+    public List<Symbolizer> symbolizers() {
+        return symbolizers;
+    }
+    
+    @Deprecated
+    public void addSymbolizer(org.geotools.styling.Symbolizer symb) {
         this.symbolizers.add(symb);
     }
 
-    public void setSymbolizers(Symbolizer[] syms) {
-        List<Symbolizer> symbols = Arrays.asList(syms);
-        this.symbolizers.clear();
-        this.symbolizers.addAll(symbols);
+    @Deprecated
+    public void setSymbolizers(org.geotools.styling.Symbolizer[] syms) {
+        List<org.geotools.styling.Symbolizer> symbols = Arrays.asList(syms);
+        this.symbolizers = new ArrayList<Symbolizer>(symbols);
+//        this.symbolizers.clear();
+//        this.symbolizers.addAll(symbols);
     }
 
-    public Symbolizer[] getSymbolizers() {
-        return (Symbolizer[]) symbolizers.toArray(new Symbolizer[symbolizers
-            .size()]);
+    @Deprecated
+    public org.geotools.styling.Symbolizer[] getSymbolizers() {
+        
+        final org.geotools.styling.Symbolizer[] ret;
+
+        ret = new org.geotools.styling.Symbolizer[symbolizers.size()];
+        for(int i=0, n=symbolizers.size(); i<n; i++){
+            ret[i] = (org.geotools.styling.Symbolizer) symbolizers.get(i);
+        }
+        
+        return ret;
     }
     
-    public List<Symbolizer> symbolizers(){
-    	return symbolizers;
-    }
-
     public Description getDescription() {
-    	return new Description(){
-			public InternationalString getAbstract() {
-				return new SimpleInternationalString(abstractStr);
-			}
-
-			public InternationalString getTitle() {
-				return new SimpleInternationalString(title);
-			}    	
-			public Object accept(org.opengis.style.StyleVisitor visitor, Object data) {
-				return visitor.visit(this, data);
-			}    		
-    	};
+        return description;
     }
-    /**
-     * Getter for property abstractStr.
-     *
-     * @return Value of property abstractStr.
-     */
-    public java.lang.String getAbstract() {
-        return abstractStr;
-    }
-
-    /**
-     * Setter for property abstractStr.
-     *
-     * @param abstractStr New value of property abstractStr.
-     */
-    public void setAbstract(java.lang.String abstractStr) {
-        this.abstractStr = abstractStr;
-    }
-
-    /**
-     * Getter for property name.
-     *
-     * @return Value of property name.
-     */
-    public java.lang.String getName() {
+    
+    public String getName() {
         return name;
     }
-
-    /**
-     * Setter for property name.
-     *
-     * @param name New value of property name.
-     */
-    public void setName(java.lang.String name) {
-        this.name = name;        
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
-    /**
-     * Getter for property title.
-     *
-     * @return Value of property title.
-     */
-    public java.lang.String getTitle() {
-        return title;
+    @Deprecated
+    public String getAbstract() {
+        return description.getAbstract().toString();
+    }
+    
+    @Deprecated
+    public void setAbstract(String abstractStr) {
+        description.setAbstract(new SimpleInternationalString(abstractStr));
+    }
+    
+    @Deprecated
+    public String getTitle() {
+        return description.getTitle().toString();
     }
 
-    /**
-     * Setter for property title.
-     *
-     * @param title New value of property title.
-     */
-    public void setTitle(java.lang.String title) {
-        this.title = title;        
+    @Deprecated
+    public void setTitle(String title) {
+        description.setTitle(new SimpleInternationalString(title));
     }
 
     public Filter getFilter() {
@@ -177,6 +191,14 @@ public class RuleImpl implements Rule, Cloneable {
         this.filter = filter;
     }
 
+    public boolean isElseFilter() {
+        return hasElseFilter;
+    }
+    
+    /**
+     * @deprecated use isElseFilter instead.
+     */
+    @Deprecated
     public boolean hasElseFilter() {
         return hasElseFilter;
     }
@@ -185,6 +207,11 @@ public class RuleImpl implements Rule, Cloneable {
         hasElseFilter = flag;        
     }
 
+    /**
+     * 
+     * @deprecated use setIsElseFilter(true)
+     */
+    @Deprecated
     public void setHasElseFilter() {
         hasElseFilter = true;        
     }
@@ -225,10 +252,14 @@ public class RuleImpl implements Rule, Cloneable {
         this.minScaleDenominator = minScaleDenominator;
     }
 
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
     /**
      * Creates a deep copy clone of the rule.
      *
@@ -237,28 +268,24 @@ public class RuleImpl implements Rule, Cloneable {
     public Object clone() {
         try {
             RuleImpl clone = (RuleImpl) super.clone();
-            clone.graphics = new ArrayList<Graphic>();
-            clone.symbolizers = new ArrayList<Symbolizer>();
-            clone.filter = filter; // TODO: we must duplicate!
-
-            Graphic[] legends = new Graphic[graphics.size()];
-
-            for (int i = 0; i < legends.length; i++) {
-                Graphic legend = (Graphic) graphics.get(i);
-                legends[i] = (Graphic) ((Cloneable) legend).clone();
+                        
+            clone.name = name;
+            clone.description.setAbstract(description.getAbstract());
+            clone.description.setTitle(description.getTitle());
+            if( filter == null ){
+                clone.filter = null;
+            }else{
+                DuplicatingFilterVisitor visitor = new DuplicatingFilterVisitor();
+                clone.filter = (Filter) filter.accept(visitor, CommonFactoryFinder.getFilterFactory2(null));
             }
+            clone.hasElseFilter = hasElseFilter;
+            clone.legends = new ArrayList<Graphic>(legends);
 
-            clone.setLegendGraphic(legends);
+            clone.symbolizers = new ArrayList<Symbolizer>(symbolizers);
 
-            Symbolizer[] symbArray = new Symbolizer[symbolizers.size()];
-
-            for (int i = 0; i < symbArray.length; i++) {
-                Symbolizer symb = (Symbolizer) symbolizers.get(i);
-                symbArray[i] = (Symbolizer) ((Cloneable) symb).clone();
-            }
-
-            clone.setSymbolizers(symbArray);
-
+            clone.maxScaleDenominator = maxScaleDenominator;
+            clone.minScaleDenominator = minScaleDenominator;
+            
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException("This will never happen", e);
@@ -281,22 +308,14 @@ public class RuleImpl implements Rule, Cloneable {
         int result = 0;
         result = (PRIME * result) + symbolizers.hashCode();
 
-        if (graphics != null) {
-            result = (PRIME * result) + graphics.hashCode();
-        }
+        result = (PRIME * result) + legends.hashCode();
 
         if (name != null) {
             result = (PRIME * result) + name.hashCode();
         }
 
-        if (title != null) {
-            result = (PRIME * result) + title.hashCode();
-        }
-
-        if (abstractStr != null) {
-            result = (PRIME * result) + abstractStr.hashCode();
-        }
-
+        result = (PRIME * result) + description.hashCode();
+        
         if (filter != null) {
             result = (PRIME * result) + filter.hashCode();
         }
@@ -338,11 +357,10 @@ public class RuleImpl implements Rule, Cloneable {
             RuleImpl other = (RuleImpl) oth;
 
             return Utilities.equals(name, other.name)
-            && Utilities.equals(title, other.title)
-            && Utilities.equals(abstractStr, other.abstractStr)
+            && Utilities.equals(description, other.description)
             && Utilities.equals(filter, other.filter)
             && (hasElseFilter == other.hasElseFilter)
-            && Utilities.equals(graphics, other.graphics)
+            && Utilities.equals(legends, other.legends)
             && Utilities.equals(symbolizers, other.symbolizers)
             && (Double.doubleToLongBits(maxScaleDenominator) == Double
             .doubleToLongBits(other.maxScaleDenominator))
@@ -372,4 +390,13 @@ public class RuleImpl implements Rule, Cloneable {
         }
         return buf.toString();
     }
+
+    public OnLineResource getOnlineResource() {
+        return online;
+    }
+
+    public void setOnlineResource(OnLineResource online) {
+        this.online = online;
+    }
+
 }

@@ -20,13 +20,14 @@ package org.geotools.styling;
 // J2SE dependencies
 //import java.util.logging.Logger;
 // OpenGIS dependencies
-import java.awt.FontFormatException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -41,7 +42,7 @@ public class FontImpl implements Font, Cloneable {
     /** The logger for the default core module. */
 
     //private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
-    private Expression fontFamily = null;
+    private final List<Expression> fontFamily = new ArrayList<Expression>();
     private Expression fontSize = null;
     private Expression fontStyle = null;
     private Expression fontWeight = null;
@@ -57,19 +58,28 @@ public class FontImpl implements Font, Cloneable {
      *
      * @return Value of property fontFamily.
      */
+    @Deprecated  
     public Expression getFontFamily() {
-        return fontFamily;
+        if (fontFamily.isEmpty()) {
+            return null;
+        } else {
+            return fontFamily.get(0);
+        }
     }
-	public List<Expression> getFamily() {
-		return Collections.singletonList(fontFamily);
-	}
+
+    public List<Expression> getFamily() {
+        return Collections.unmodifiableList(fontFamily);
+    }
+
     /**
      * Setter for property fontFamily.
      *
      * @param fontFamily New value of property fontFamily.
      */
+    @Deprecated
     public void setFontFamily(Expression fontFamily) {
-        this.fontFamily = fontFamily;
+        this.fontFamily.clear();
+        this.fontFamily.add(fontFamily);
     }
 
     /**
@@ -77,6 +87,7 @@ public class FontImpl implements Font, Cloneable {
      *
      * @return Value of property fontSize.
      */
+    @Deprecated
     public Expression getFontSize() {
         return fontSize;
     }
@@ -88,6 +99,7 @@ public class FontImpl implements Font, Cloneable {
      *
      * @param fontSize New value of property fontSize.
      */
+    @Deprecated
     public void setFontSize(Expression fontSize) {
         this.fontSize = fontSize;
     }
@@ -97,9 +109,11 @@ public class FontImpl implements Font, Cloneable {
      *
      * @return Value of property fontStyle.
      */
+    @Deprecated
     public Expression getFontStyle() {
         return fontStyle;
     }
+    
     public Expression getStyle() {
     	return fontStyle;
     }
@@ -109,6 +123,7 @@ public class FontImpl implements Font, Cloneable {
      *
      * @param fontStyle New value of property fontStyle.
      */
+    @Deprecated
     public void setFontStyle(Expression fontStyle) {
         this.fontStyle = fontStyle;
     }
@@ -118,9 +133,11 @@ public class FontImpl implements Font, Cloneable {
      *
      * @return Value of property fontWeight.
      */
+    @Deprecated
     public Expression getFontWeight() {
         return fontWeight;
     }
+    
     public Expression getWeight() {
     	return fontWeight;
     }
@@ -130,6 +147,7 @@ public class FontImpl implements Font, Cloneable {
      *
      * @param fontWeight New value of property fontWeight.
      */
+    @Deprecated
     public void setFontWeight(Expression fontWeight) {
         this.fontWeight = fontWeight;
     }
@@ -205,6 +223,7 @@ public class FontImpl implements Font, Cloneable {
 
         return false;
     }
+    
     /**
      * Utility method to capture the default font in one place.
      * @return
@@ -221,6 +240,10 @@ public class FontImpl implements Font, Cloneable {
             throw new RuntimeException("Error creating default", ife);
         }
         return font;
+    }
+
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
     
 }

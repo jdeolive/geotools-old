@@ -18,10 +18,23 @@ package org.geotools.styling;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
-import org.geotools.resources.Utilities;
+import org.geotools.feature.NameImpl;
+import org.geotools.util.SimpleInternationalString;
+import org.geotools.util.Utilities;
+
+import org.opengis.feature.type.Name;
+import org.opengis.filter.Id;
+import org.opengis.metadata.citation.OnLineResource;
+import org.opengis.style.Description;
+import org.opengis.style.FeatureTypeStyle;
+import org.opengis.style.SemanticType;
+import org.opengis.style.StyleVisitor;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.util.Cloneable;
 import org.opengis.util.InternationalString;
@@ -31,18 +44,24 @@ import org.opengis.style.Description;
  * DOCUMENT ME!
  *
  * @author James Macgill
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
-public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
-            "org.geotools.styling");
-    private java.util.List<Rule> ruleList;
-    private String featureTypeName = "Feature";
+public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeStyle, Cloneable {
+    
+    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.styling");
+    
+    private List<Rule> rules = new ArrayList<Rule>();
+    private Set<SemanticType> semantics = new LinkedHashSet<SemanticType>();
+    private Id featureInstances = null;
+    private Set<Name> featureTypeNames = new LinkedHashSet<Name>();
+    private final DescriptionImpl description = new DescriptionImpl(
+            new SimpleInternationalString("title"), 
+            new SimpleInternationalString("abstract"));
+    
     private String name = "name";
-    private String title = "title";
-    private String abstractStr = "abstract";
-    private String[] semanticTypeIdentifiers;
+    private OnLineResource online = null;
 
     /**
      * Creates a new instance of FeatureTypeStyleImpl
@@ -51,139 +70,168 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
      */
     protected FeatureTypeStyleImpl(Rule[] rules) {
         this(Arrays.asList(rules));
+        featureTypeNames.add(new NameImpl("Feature"));
     }
 
-    protected FeatureTypeStyleImpl(List<Rule> rules) {
-        ruleList = new ArrayList<Rule>();
-        ruleList.addAll(rules);
+    protected FeatureTypeStyleImpl(List<Rule> arules) {
+        rules = new ArrayList<Rule>();
+        rules.addAll(arules);
     }
 
     /**
      * Creates a new instance of FeatureTypeStyleImpl
      */
     protected FeatureTypeStyleImpl() {
-        ruleList = new ArrayList<Rule>();
+        rules = new ArrayList<Rule>();
     }
-
-    public String getFeatureTypeName() {
-        return featureTypeName;
+    
+    public FeatureTypeStyleImpl(FeatureTypeStyleImpl fts){
+        this.description.setAbstract( fts.description.getAbstract());
+        this.description.setTitle(fts.description.getTitle());
+        this.featureInstances = fts.featureInstances;
+        this.featureTypeNames = new LinkedHashSet<Name>(fts.featureTypeNames);
+        this.name = fts.name;
+        this.rules = new ArrayList<Rule>(fts.rules);
+        this.semantics = new LinkedHashSet<SemanticType>(fts.semantics);
     }
-
-    public Rule[] getRules() {
-        return (Rule[]) ruleList.toArray(new Rule[0]);
-    }
-
+    
     public List<Rule> rules() {
-        return ruleList;
+        return rules;
+    }
+    
+    @Deprecated
+    public org.geotools.styling.Rule[] getRules() {
+        final org.geotools.styling.Rule[] ret;
+
+        ret = new org.geotools.styling.Rule[rules.size()];
+        for(int i=0, n=rules.size(); i<n; i++){
+            ret[i] = (org.geotools.styling.Rule) rules.get(i);
+        }
+        
+        return ret;
     }
 
-    public String[] getSemanticTypeIdentifiers() {
-    	if (semanticTypeIdentifiers == null) {
-    		return new String[] { "generic:geometry" }; //HACK: - generic catch all identifier	
-    	} else {
-    		return semanticTypeIdentifiers;
-    	}
-    }
-
-    public void setSemanticTypeIdentifiers(String[] types) {
-    	semanticTypeIdentifiers = types;
-    }
-
-    public void setRules(Rule[] rules) {
-        ruleList.clear();
-        ruleList.addAll(Arrays.asList(rules));
+    @Deprecated
+    public void setRules(org.geotools.styling.Rule[] newRules) {
+        rules = new ArrayList<Rule>();
+        rules.addAll(Arrays.asList(newRules));
 
         // fireChanged();
     }
 
-    public void addRule(Rule rule) {
-        ruleList.add(rule);
+    @Deprecated
+    public void addRule(org.geotools.styling.Rule rule) {
+        rules.add(rule);
 
         // fireChildAdded(rule);
     }
 
+    public Set<SemanticType> semanticTypeIdentifiers() {
+        return semantics;
+    }
+    
+    @Deprecated
+    public String[] getSemanticTypeIdentifiers() {
+        String[] ids = new String[semantics.size()];
+        
+        Iterator<SemanticType> types = semantics.iterator();
+        int i=0;
+        while (types.hasNext()){
+            ids[i] = types.next().name();
+            i++;
+        }
+        
+        if(ids.length == 0){
+            ids = new String[]{SemanticType.ANY.toString()};
+        }
+        
+        return ids;
+    }
+
+    @Deprecated
+    public void setSemanticTypeIdentifiers(String[] types) {
+        semantics.clear();
+        
+        for(String id : types){
+            
+            SemanticType st = SemanticType.valueOf(id);
+            
+            if(st != null) semantics.add(st);
+        }
+        
+    }
+
+    public Set<Name> featureTypeNames() {
+        return featureTypeNames;
+    }
+    
+    @Deprecated
+    public String getFeatureTypeName() {
+        if(!featureTypeNames.isEmpty()){
+            return featureTypeNames.iterator().next().getLocalPart();
+        }else{
+            return null;
+        }
+    }
+        
+    @Deprecated
     public void setFeatureTypeName(String name) {
-        if (name.equals("feature")) {
-            LOGGER.warning(
-                "FeatureTypeStyle with typename 'feature' - you probably meant to say 'Feature' (capital F) for the 'generic' FeatureType");
+        featureTypeNames.clear();
+        
+        if (name.equals("Feature")) {
+            LOGGER.warning("FeatureTypeStyle with typename 'feature' - " +
+                    "ou probably meant to say 'Feature' (capital F) for the 'generic' FeatureType");
         }
 
-        featureTypeName = name;
+        Name featurename = new NameImpl(name);
+        
+        featureTypeNames.add(featurename);
     }
 
+    public Id getFeatureInstanceIDs() {
+        return featureInstances;
+    }
+    
     public Description getDescription() {
-    	return new Description(){
-			public InternationalString getAbstract() {
-				return new SimpleInternationalString(abstractStr);
-			}
-
-			public InternationalString getTitle() {
-				return new SimpleInternationalString(title);
-			}
-
-			public Object accept(org.opengis.style.StyleVisitor visitor, Object data) {
-				return visitor.visit(this, data);
-			}     		
-    	};
+        return description;
     }
-    /**
-     * Getter for property abstractStr.
-     *
-     * @return Value of property abstractStr.
-     */
-    public java.lang.String getAbstract() {
-        return abstractStr;
-    }
-
-    /**
-     * Setter for property abstractStr.
-     *
-     * @param abstractStr New value of property abstractStr.
-     */
-    public void setAbstract(java.lang.String abstractStr) {
-        this.abstractStr = abstractStr;
-    }
-
-    /**
-     * Getter for property name.
-     *
-     * @return Value of property name.
-     */
-    public java.lang.String getName() {
+    
+    public String getName() {
         return name;
     }
-
-    /**
-     * Setter for property name.
-     *
-     * @param name New value of property name.
-     */
-    public void setName(java.lang.String name) {
+    
+    public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * Getter for property title.
-     *
-     * @return Value of property title.
-     */
-    public java.lang.String getTitle() {
-        return title;
+    @Deprecated
+    public String getAbstract() {
+        return description.getAbstract().toString();
+    }
+    
+    @Deprecated
+    public void setAbstract(String abstractStr) {
+        description.setAbstract(new SimpleInternationalString(abstractStr));
+    }
+    
+    @Deprecated
+    public String getTitle() {
+        return description.getTitle().toString();
     }
 
-    /**
-     * Setter for property title.
-     *
-     * @param title New value of property title.
-     */
-    public void setTitle(java.lang.String title) {
-        this.title = title;
+    @Deprecated
+    public void setTitle(String title) {
+        description.setTitle(new SimpleInternationalString(title));
     }
 
-    public void accept(StyleVisitor visitor) {
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
+    }
+
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
-
+    
     /**
      * Creates a deep copy clone of the FeatureTypeStyle.
      *
@@ -198,15 +246,19 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
             throw new AssertionError(e); // this should never happen.
         }
 
-        Rule[] ruleArray = new Rule[ruleList.size()];
-
-        for (int i = 0; i < ruleArray.length; i++) {
-            Rule rule = (Rule) ruleList.get(i);
-            ruleArray[i] = (Rule) ((Cloneable) rule).clone();
+        final List<Rule> rulesCopy = new ArrayList<Rule>();
+        
+        for(Rule rl : rules){
+            rulesCopy.add( (Rule) ((Cloneable) rl).clone() );
         }
-
-        clone.setRules(ruleArray);
-
+        
+        clone.rules().clear();
+        ((List<Rule>)clone.rules()).addAll(rulesCopy);
+        clone.featureTypeNames().clear();
+        clone.featureTypeNames().addAll(featureTypeNames);
+        clone.semanticTypeIdentifiers().clear();
+        clone.semanticTypeIdentifiers().addAll(semantics);
+        
         return clone;
     }
 
@@ -219,22 +271,32 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
         final int PRIME = 1000003;
         int result = 0;
 
-        if (ruleList != null) {
-            result = (PRIME * result) + ruleList.hashCode();
+        if (rules != null) {
+            result = (PRIME * result) + rules.hashCode();
         }
-
-        if (featureTypeName != null) {
-            result = (PRIME * result) + featureTypeName.hashCode();
+        
+        if (featureInstances != null) {
+            result = (PRIME * result) + featureInstances.hashCode();
+        }
+        
+        if (semantics != null) {
+            result = (PRIME * result) + semantics.hashCode();
+        }
+        
+        if (featureTypeNames != null) {
+            result = (PRIME * result) + featureTypeNames.hashCode();
         }
 
         if (name != null) {
             result = (PRIME * result) + name.hashCode();
         }
 
+        final String title = description.getTitle().toString();
         if (title != null) {
             result = (PRIME * result) + title.hashCode();
         }
 
+        final String abstractStr = description.getAbstract().toString();
         if (abstractStr != null) {
             result = (PRIME * result) + abstractStr.hashCode();
         }
@@ -255,6 +317,7 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
      * @return True if this and oth are equal.
      */
     public boolean equals(Object oth) {
+                
         if (this == oth) {
             return true;
         }
@@ -263,14 +326,15 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
             FeatureTypeStyleImpl other = (FeatureTypeStyleImpl) oth;
 
             return Utilities.equals(name, other.name)
-            && Utilities.equals(title, other.title)
-            && Utilities.equals(abstractStr, other.abstractStr)
-            && Utilities.equals(featureTypeName, other.featureTypeName)
-            && Utilities.equals(ruleList, other.ruleList);
+            && Utilities.equals(description, other.description)
+            && Utilities.equals(rules, other.rules)
+            && Utilities.equals(featureTypeNames, other.featureTypeNames)
+            && Utilities.equals(semantics, other.semantics);
         }
 
         return false;
     }
+    
     public String toString() {
     	StringBuffer buf = new StringBuffer();
     	buf.append( "FeatureTypeStyleImpl");
@@ -283,19 +347,27 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
     		buf.append( " UNNAMED");
     	}
     	buf.append( ", ");
-    	buf.append( featureTypeName );
+    	buf.append( featureTypeNames );
     	buf.append( ", rules=<");
-    	buf.append( ruleList.size() );
+    	buf.append( rules.size() );
     	buf.append( ">" );
-    	if( ruleList.size() > 0 ){
+    	if( rules.size() > 0 ){
     		buf.append( "(" );
-    		buf.append( ruleList.get(0));
-    		if( ruleList.size() > 1 ){
+    		buf.append( rules.get(0));
+    		if( rules.size() > 1 ){
     			buf.append(",...");
     		}
     		buf.append( ")");
     	}    	
     	buf.append("]");
     	return buf.toString();
+    }
+
+    public void setOnlineResource(OnLineResource online) {
+        this.online = online;
+    }
+
+    public OnLineResource getOnlineResource() {
+        return online;
     }
 }

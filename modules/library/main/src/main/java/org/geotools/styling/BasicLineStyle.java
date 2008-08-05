@@ -39,11 +39,11 @@ public class BasicLineStyle extends StyleImpl
         linesym.setStroke(stroke);
 
         RuleImpl rule = new RuleImpl();
-        rule.setSymbolizers(new Symbolizer[] { linesym });
+        rule.setSymbolizers(new org.geotools.styling.Symbolizer[] { linesym });
 
         FeatureTypeStyleImpl fts = new FeatureTypeStyleImpl();
         fts.setRules(new Rule[] { rule });
-        this.setFeatureTypeStyles(new FeatureTypeStyle[] { fts });
+        this.setFeatureTypeStyles(new org.geotools.styling.FeatureTypeStyle[] { fts });
     }
 
     public String getAbstract() {

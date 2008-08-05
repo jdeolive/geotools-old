@@ -16,17 +16,18 @@
  */
 package org.geotools.styling;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import javax.measure.unit.Unit;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
+
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.Description;
+import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
 
@@ -35,13 +36,19 @@ import org.opengis.util.Cloneable;
  * text symbols should be rendered.
  *
  * @author Ian Turton, CCG
+ * @author Johann Sorel (Geomatys)
  * @source $URL$
  * @version $Id$
  */
 public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
+    
+    private final Description desc;
+    private final String name;
+    private final Unit uom;
+    private Font font;
+    
     private final FilterFactory filterFactory;
     private Fill fill;
-    private java.util.List<Font> fonts = new ArrayList<Font>();
     private Halo halo;
     private LabelPlacement placement;
     private String geometryPropertyName = null;
@@ -56,15 +63,35 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
     protected TextSymbolizerImpl() {
         this( CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()) );
     }
+    
     /**
      * Creates a new instance of DefaultTextSymbolizer
      */
     protected TextSymbolizerImpl( FilterFactory factory ) {
+        this(factory,null,null,null);
+    }
+    
+    protected TextSymbolizerImpl( FilterFactory factory, Description desc, String name, Unit uom ) {
         this.filterFactory = factory;
+        this.desc = desc;
+        this.uom = uom;
+        this.name = name;
         fill = new FillImpl();
         fill.setColor(filterFactory.literal("#000000")); // default text fill is black
         halo = null;
         placement = new PointPlacementImpl();
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public Description getDescription() {
+        return desc;
+    }
+    
+    public Unit getUnitOfMeasure() {
+        return uom;
     }
 
     /**
@@ -100,6 +127,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param fill New value of property fill.
      */
+    @Deprecated
     public void setFill(Fill fill) {
         if (this.fill == fill) {
             return;
@@ -107,32 +135,34 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         this.fill = fill;
     }
 
+    public Font getFont() {
+        return font;
+    }
+    
     /**
      * Returns a device independent Font object that is to be used to render
      * the label.
      *
      * @return Device independent Font object to be used to render the label.
      */
-    public Font[] getFonts() {
-        if (fonts.isEmpty()) {
-            fonts.add( FontImpl.createDefault( filterFactory ) );
+    @Deprecated
+    public  org.geotools.styling.Font[] getFonts() {
+        
+        if(font == null){
+            return new org.geotools.styling.Font[0];
+        }else{
+            return new org.geotools.styling.Font[]{(org.geotools.styling.Font)font} ;
         }
-        return (Font[]) fonts.toArray(new Font[ fonts.size()]);
     }
 
-    public Font getFont() {
-    	if( fonts.isEmpty() ){
-    		return null;
-    	}
-    	return fonts.get(0);
-    }
     /**
      * Setter for property font.
      *
      * @param font New value of property font.
      */
+    @Deprecated
     public void addFont(org.geotools.styling.Font font) {
-        this.fonts.add(font);
+        this.font = font;
     }
 
     /**
@@ -141,17 +171,20 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param fonts The array of fonts to use in the symbolizer.
      */
-    public void setFonts(Font[] fonts) {
-        List<Font> newFonts = Arrays.asList(fonts);
-        this.fonts.clear();
-        this.fonts.addAll(newFonts);
+    @Deprecated
+    public void setFonts(org.geotools.styling.Font[] fonts) {
+        
+        if(fonts != null && fonts.length >0){
+            this.font = fonts[0]; 
+        }else{
+            this.font = null;
+        }
     }
 
     /**
      * A halo fills an extended area outside the glyphs of a rendered text
      * label to make the label easier to read over a background.
      *
-     * @return DOCUMENT ME!
      */
     public Halo getHalo() {
         return halo;
@@ -162,6 +195,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param halo New value of property halo.
      */
+    @Deprecated
     public void setHalo(Halo halo) {
         if (this.halo == halo) {
             return;
@@ -183,6 +217,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param label New value of property label.
      */
+    @Deprecated
     public void setLabel(Expression label) {
         this.label = label;
     }
@@ -202,6 +237,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param labelPlacement New value of property labelPlacement.
      */
+    @Deprecated
     public void setPlacement(LabelPlacement labelPlacement) {
         if (this.placement == labelPlacement) {
             return;
@@ -215,7 +251,6 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @return Value of property labelPlacement.
      *
-     * @deprecated use getPlacement()
      */
     public LabelPlacement getLabelPlacement() {
         return getPlacement();
@@ -228,8 +263,8 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @deprecated use setPlacement(LabelPlacement)
      */
-    public void setLabelPlacement(
-        org.geotools.styling.LabelPlacement labelPlacement) {
+    @Deprecated
+    public void setLabelPlacement( org.geotools.styling.LabelPlacement labelPlacement) {
         setPlacement(labelPlacement);
     }
 
@@ -247,6 +282,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param geometryPropertyName New value of property geometryPropertyName.
      */
+    @Deprecated
     public void setGeometryPropertyName(java.lang.String geometryPropertyName) {
         this.geometryPropertyName = geometryPropertyName;
     }
@@ -256,10 +292,14 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param visitor The StyleVisitor to accept.
      */
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
+    public Object accept(StyleVisitor visitor,Object data) {
+        return visitor.visit(this,data);
     }
 
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
     /**
      * Creates a deep copy clone.   TODO: Need to complete the deep copy,
      * currently only shallow copy.
@@ -284,8 +324,20 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
             result = (PRIME * result) + fill.hashCode();
         }
 
-        if (fonts != null) {
-            result = (PRIME * result) + fonts.hashCode();
+        if (font != null) {
+            result = (PRIME * result) + font.hashCode();
+        }
+        
+        if (uom != null) {
+            result = (PRIME * result) + uom.hashCode();
+        }
+        
+        if (desc != null) {
+            result = (PRIME * result) + desc.hashCode();
+        }
+        
+        if (name != null) {
+            result = (PRIME * result) + name.hashCode();
         }
 
         if (halo != null) {
@@ -323,7 +375,9 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
                 other.geometryPropertyName)
             && Utilities.equals(this.label, other.label)
             && Utilities.equals(this.halo, other.halo)
-            && Utilities.equals(this.fonts, other.fonts)
+            && Utilities.equals(this.font, other.font)
+            && Utilities.equals(this.desc, other.desc)
+            && Utilities.equals(this.uom, other.uom)
             && Utilities.equals(this.placement, other.placement)
             && Utilities.equals(this.fill, other.fill);
         }
@@ -331,9 +385,8 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.geotools.styling.TextSymbolizer#setPriority(org.geotools.filter.Expression)
-     */
+    
+    
     public void setPriority(Expression priority) {
         if (this.priority == priority) {
             return;
@@ -341,18 +394,10 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         this.priority = priority;
     }
 
-    /* (non-Javadoc)
-     * @see org.geotools.styling.TextSymbolizer#getPriority()
-     *  null = "default"
-     *  should evaluate to a Number.
-     */
     public Expression getPriority() {
         return priority;
     }
 
-    /* (non-Javadoc)
-     * @see org.geotools.styling.TextSymbolizer#addToOptions(java.lang.String, java.lang.String)
-     */
     public void addToOptions(String key, String value) {
         if (optionsMap == null) {
             optionsMap = new HashMap<String,String>();
@@ -360,9 +405,6 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         optionsMap.put(key, value.trim());
     }
 
-    /* (non-Javadoc)
-     * @see org.geotools.styling.TextSymbolizer#getOption(java.lang.String)
-     */
     public String getOption(String key) {
         if (optionsMap == null) {
             return null;
@@ -371,9 +413,6 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         return (String) optionsMap.get(key);
     }
 
-    /* (non-Javadoc)
-     * @see org.geotools.styling.TextSymbolizer#getOptions()
-     */
     public Map<String,String> getOptions() {
         return optionsMap;
     }
@@ -388,6 +427,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         }
         this.graphic = graphic;
     }
+    
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("<TextSymbolizerImp property=");
@@ -395,26 +435,32 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         buf.append( " label=");
         buf.append( label );
         buf.append(">");
-        buf.append( this.fonts );
+        buf.append( this.font );
         return buf.toString();
     }
+    
     public Expression getSnippet() {
         return abxtract;
     }
+    
     public void setSnippet(Expression abxtract) {
         this.abxtract = abxtract;
     }
+    
     public Expression getFeatureDescription() {
         return description;
     }
+    
     public void setFeatureDescription(Expression description) {
         this.description = description;
     }
+    
     public OtherText getOtherText() {
         return otherText;
     }
+    
     public void setOtherText(OtherText otherText) {
         this.otherText = otherText;
     }
-    
+
 }

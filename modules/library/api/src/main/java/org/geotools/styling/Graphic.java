@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.geotools.filter.ConstantExpression;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.AnchorPoint;
+import org.opengis.style.GraphicalSymbol;
 
 
 /**
@@ -91,7 +93,10 @@ import org.opengis.filter.expression.Expression;
  *       problem?
  * @source $URL$
  */
-public interface Graphic {
+public interface Graphic extends org.opengis.style.Graphic,
+                                 org.opengis.style.GraphicFill, 
+                                 org.opengis.style.GraphicStroke,
+                                 org.opengis.style.GraphicLegend{
     /**
      * A default Graphic instance.
      * <p>
@@ -112,7 +117,7 @@ public interface Graphic {
                 return Symbol.SYMBOLS_EMPTY;
             }
 
-            public List<Symbol> graphicalSymbols() {
+            public List<GraphicalSymbol> graphicalSymbols() {
 	            return Collections.emptyList();
             }
             public Expression getOpacity() {
@@ -157,7 +162,7 @@ public interface Graphic {
             public Symbol[] getSymbols() {
                 return Symbol.SYMBOLS_EMPTY;
             }
-            public List<Symbol> graphicalSymbols() {
+            public List<GraphicalSymbol> graphicalSymbols() {
 	            return Collections.emptyList();
             }
             public Expression getOpacity() {
@@ -179,6 +184,7 @@ public interface Graphic {
             public String getGeometryPropertyName() {
                 return "";
             }
+
         };
 
     /**
@@ -196,19 +202,19 @@ public interface Graphic {
      *       formats); return the first external graphic to match one of the
      *       given formats
      * 
-     * @deprecated this method will be replaced by a set : graphicalSymbols in 2.6.x
+     * @deprecated this method is replaced by a set : graphicalSymbols
      */
     @Deprecated
     ExternalGraphic[] getExternalGraphics();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setExternalGraphics(ExternalGraphic[] externalGraphics);
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void addExternalGraphic(ExternalGraphic externalGraphic);
@@ -222,19 +228,19 @@ public interface Graphic {
      *         default, a "square" with 50% gray fill and black outline with a
      *         size of 6 pixels (unless a size is specified) is provided.
      * 
-     * @deprecated this method will be replaced by a set : graphicalSymbols in 2.6.x
+     * @deprecated this method is replaced by a set : graphicalSymbols
      */
     @Deprecated
     Mark[] getMarks();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setMarks(Mark[] marks);
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void addMark(Mark mark);
@@ -249,7 +255,7 @@ public interface Graphic {
      *         default, a "square" with 50% gray fill and black outline with a
      *         size of 6 pixels (unless a size is specified) is provided.
      * 
-     * @deprecated this method will be replaced by a set : graphicalSymbols in 2.6.x
+     * @deprecated this method is replaced by a set : graphicalSymbols
      */
     @Deprecated
     Symbol[] getSymbols();
@@ -258,7 +264,7 @@ public interface Graphic {
      * List of all symbols used to represent this graphic. 
      * @return List of ExternalGraphic or Mark in the order provided.
      */
-    List<Symbol> graphicalSymbols();
+    List<GraphicalSymbol> graphicalSymbols();
     
     /**
      * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
@@ -267,7 +273,7 @@ public interface Graphic {
     void setSymbols(Symbol[] symbols);
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void addSymbol(Symbol symbol);
@@ -286,7 +292,7 @@ public interface Graphic {
     Expression getOpacity();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setOpacity(Expression opacity);
@@ -310,7 +316,7 @@ public interface Graphic {
     Expression getSize();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setSize(Expression size);
@@ -318,7 +324,7 @@ public interface Graphic {
     Displacement getDisplacement();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setDisplacement(Displacement offset);
@@ -335,7 +341,7 @@ public interface Graphic {
     Expression getRotation();
 
     /**
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setRotation(Expression rotation);
@@ -353,7 +359,7 @@ public interface Graphic {
      *
      * @param geometryPropertyName New value of property geometryPropertyName.
      * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
+     * @deprecated symbolizers and underneath classes are immutable
      */
     @Deprecated
     void setGeometryPropertyName(java.lang.String geometryPropertyName);
@@ -364,7 +370,7 @@ public interface Graphic {
      *
      * @param visitor - the visitor object
      */
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }
 
 
@@ -417,7 +423,28 @@ abstract class ConstantGraphic implements Graphic {
         cannotModifyConstant();
     }
 
-    public void accept(StyleVisitor visitor) {
+    public Object accept(org.opengis.style.StyleVisitor visitor, Object data) {
+        return visitor.visit((org.opengis.style.GraphicStroke)this,data);
+    }
+    
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
+    
+    public List<GraphicalSymbol> graphicalSymbols() {
+        return Collections.emptyList();
+    }
+
+    public AnchorPoint getAnchorPoint() {
+        return org.geotools.styling.AnchorPoint.DEFAULT;
+    }
+    
+    public Expression getGap(){
+        return ConstantExpression.constant(0);
+    }
+    
+    public Expression getInitialGap(){
+        return ConstantExpression.constant(0);
+    }
+    
 }

@@ -51,5 +51,5 @@ public interface ColorMapEntry {
 
     Expression getQuantity();
 
-    void accept(StyleVisitor visitor);
+    void accept(org.geotools.styling.StyleVisitor visitor);
 }
