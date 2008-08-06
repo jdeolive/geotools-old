@@ -16,6 +16,7 @@
  */
 package org.geotools.gce.imagemosaic;
 
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,6 +51,9 @@ public final class MemorySpatialIndex {
 
 	/** The {@link STRtree} index. */
 	private final STRtree index;
+	
+	/** The time the index was created */
+	private final Date dateCreated;
 
 	/**
 	 * Constructs a {@link MemorySpatialIndex} out of a
@@ -58,6 +62,7 @@ public final class MemorySpatialIndex {
 	 * @param features
 	 */
 	public MemorySpatialIndex(FeatureCollection<SimpleFeatureType, SimpleFeature> features) {
+		dateCreated = new Date();
 		if (features == null) {
 			if (LOGGER.isLoggable(Level.WARNING))
 				LOGGER
@@ -67,23 +72,26 @@ public final class MemorySpatialIndex {
 
 		}
 		final FeatureIterator<SimpleFeature> it = features.features();
-		if (!it.hasNext()) {
-			if (LOGGER.isLoggable(Level.WARNING))
-				LOGGER
-						.warning("The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
-			throw new IllegalArgumentException(
-					"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
+		try {
+
+			if (!it.hasNext()) {
+				if (LOGGER.isLoggable(Level.WARNING))
+					LOGGER.warning("The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
+				throw new IllegalArgumentException(
+						"The provided FeatureCollection<SimpleFeatureType, SimpleFeature>  or empty, it's impossible to create an index!");
+			}
+			index = new com.vividsolutions.jts.index.strtree.STRtree();
+			while (it.hasNext()) {
+				final SimpleFeature f = it.next();
+				final Geometry g = (Geometry) f.getDefaultGeometry();
+				index.insert(g.getEnvelopeInternal(), f);
+			}
+		} finally {
+			// closing he iterator to free some resources.
+			features.close(it);
+			// force index construction --> STRTrees are build on first call to
+			// query
 		}
-		index = new com.vividsolutions.jts.index.strtree.STRtree();
-		while (it.hasNext()) {
-			final SimpleFeature f = it.next();
-			final Geometry g = (Geometry) f.getDefaultGeometry();
-			index.insert(g.getEnvelopeInternal(), f);
-		}
-		// closing he iterator to free some resources.
-		features.close(it);
-		// force index construction --> STRTrees are build on first call to
-		// query
 		index.build();
 
 	}
@@ -99,6 +107,14 @@ public final class MemorySpatialIndex {
 	public List<SimpleFeature> findFeatures(Envelope envelope) {
 		return index.query(envelope);
 
+	}
+	
+	/**
+	 * 
+	 * @return the date the index was created
+	 */
+	public Date getCreatedDate(){
+		return this.dateCreated;
 	}
 
 }

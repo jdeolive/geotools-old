@@ -21,6 +21,8 @@ import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.media.jai.JAI;
 import javax.media.jai.widget.ScrollingImagePanel;
@@ -40,9 +42,13 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.test.TestData;
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
@@ -66,6 +72,7 @@ public class ImageMosaicReaderTest extends TestCase {
 		suite.addTest(new ImageMosaicReaderTest("testInputImageROI"));
 		suite.addTest(new ImageMosaicReaderTest("testCrop"));
 		suite.addTest(new ImageMosaicReaderTest("testErrors"));
+		suite.addTest(new ImageMosaicReaderTest("testUpdateBand"));
 		
 
 		return suite;
@@ -83,6 +90,8 @@ public class ImageMosaicReaderTest extends TestCase {
 
 	private URL rgbAURL;
 
+	private URL bandsURL;
+	
 	// private URL morandini;
 
 	private boolean interactive;
@@ -347,6 +356,28 @@ public class ImageMosaicReaderTest extends TestCase {
 		 "testDefaultParameterValue", false);
 	}
 	
+	
+	//
+	//test reading the bands in a different order & updating the bands
+	public void testUpdateBand() {
+		final AbstractGridFormat format = getFormat(bandsURL);
+		final ImageMosaicReader reader = getReader(bandsURL, format);
+		
+		
+		FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+		Set<FeatureId> fids = new HashSet<FeatureId>();
+		
+        fids.add(ff.featureId("1"));
+        Filter filter = ff.id(fids);
+
+        reader.updateBandSelection(filter, new int[]{2, 0, 1}, new double[]{0,0,0});
+        try{
+        	AbstractCoverage coverage = (AbstractCoverage) reader.read(new GeneralParameterValue[]{});
+        	assertNotNull(coverage);
+        }catch (Throwable e){
+        	assertTrue(false);
+        }
+	}
 
 	public void testErrors() {
 		//error for location attribute
@@ -614,6 +645,7 @@ public class ImageMosaicReaderTest extends TestCase {
 		JAI.getDefaultInstance().getTileScheduler().setPrefetchParallelism(5);
 		JAI.getDefaultInstance().getTileScheduler().setPrefetchPriority(5);
 
+		bandsURL = TestData.url(this, "bands/mosaic.shp");
 		rgbURL = TestData.url(this, "rgb/mosaic.shp");
 		rgbAURL = TestData.url(this, "rgba/modis.shp");
 		indexURL = TestData.url(this, "index/modis.shp");

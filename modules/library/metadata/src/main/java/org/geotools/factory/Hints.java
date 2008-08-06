@@ -627,6 +627,22 @@ public class Hints extends RenderingHints {
     public static final Key MOSAIC_LOCATION_ATTRIBUTE = new Key(String.class);
 
     /**
+     * Key to control the name of the attribute that contains the red/green/blue channel
+     * selections of a particular mosaic tile index.
+     * 
+     * @since 2.6
+     */
+    public static final Key MOSAIC_BANDSELECTION_ATTRIBUTE = new Key(String.class);
+    
+    /**
+     * Key to control the name of the attribute that contains the red/green/blue channel
+     * color corrections of a particular mosaic tile index
+     * 
+     * @since 2.6
+     */
+    public static final Key MOSAIC_COLORCORRECTION_ATTRIBUTE = new Key(String.class);
+    
+    /**
      * Tells to the {@link org.opengis.coverage.grid.GridCoverageReader} instances to read
      * the image using the JAI ImageRead operation (leveraging on Deferred Execution Model,
      * Tile Caching,...) or the direct {@code ImageReader}'s read methods.
