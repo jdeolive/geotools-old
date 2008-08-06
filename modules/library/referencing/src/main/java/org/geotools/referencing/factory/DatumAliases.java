@@ -372,7 +372,7 @@ public class DatumAliases extends ReferencingFactory implements DatumFactory {
         }
         names = XArray.resize(names, count);
         for (int i=0; i<names.length; i++) {
-            final String alias = names[i].asLocalName().toString();
+            final String alias = names[i].name().toString();
             final Object[] previous = aliasMap.put(toCaseless(alias), names);
             assert previous==names || Arrays.equals(aliases, previous) : alias;
         }
@@ -442,8 +442,8 @@ public class DatumAliases extends ReferencingFactory implements DatumFactory {
         int ignored = 0;
         for (int i=0; i<names.length; i++) {
             final GenericName   name = names[i];
-            final GenericName scoped = name.asScopedName();
-            final String         key = toCaseless((scoped!=null ? scoped : name).toString());
+            final GenericName scoped = name.toFullyQualifiedName();
+            final String         key = toCaseless(scoped.toString());
             final GenericName    old = map.put(key, name);
             if (old instanceof ScopedName) {
                 map.put(key, old); // Preserves the user value, except if it was unscoped.

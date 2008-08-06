@@ -755,7 +755,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
                         final GenericName scope = alias.scope().name();
                         if (scope != null) {
                             if (Citations.identifierMatches(authority, scope.toString())) {
-                                name = alias.asLocalName().toString();
+                                name = alias.name().toString();
                                 break;
                             }
                         }
@@ -838,11 +838,11 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
         }
         if (alias != null) {
             for (final GenericName asName : alias) {
-                final ScopedName asScoped = asName.asScopedName();
-                if (asScoped!=null && name.equalsIgnoreCase(asScoped.toString().trim())) {
+                final GenericName asScoped = asName.toFullyQualifiedName();
+                if (asScoped!=asName && name.equalsIgnoreCase(asScoped.toString().trim())) {
                     return true;
                 }
-                if (name.equalsIgnoreCase(asName.asLocalName().toString().trim())) {
+                if (name.equalsIgnoreCase(asName.name().toString().trim())) {
                     return true;
                 }
             }

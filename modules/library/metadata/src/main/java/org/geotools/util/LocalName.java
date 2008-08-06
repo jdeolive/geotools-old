@@ -171,17 +171,6 @@ public class LocalName extends org.geotools.util.GenericName implements org.open
     /**
      * Returns a view of this object as a local name. Since this object is already
      * a local name, this method always returns {@code this}.
-     *
-     * @deprecated Renamed as {@link #name()}.
-     */
-    public org.opengis.util.LocalName asLocalName() {
-        return this;
-    }
-
-    /**
-     * Returns {@code this} since this object is already a local name.
-     *
-     * @since 2.3
      */
     public org.opengis.util.LocalName name() {
         return this;
@@ -193,6 +182,7 @@ public class LocalName extends org.geotools.util.GenericName implements org.open
      *
      * @deprecated Replaced by {@link #toFullyQualifiedName}.
      */
+    @Deprecated
     public ScopedName asScopedName() {
         return asScopedName;
     }
@@ -203,12 +193,10 @@ public class LocalName extends org.geotools.util.GenericName implements org.open
      * never returns {@code null}.
      *
      * @since 2.3
-     *
-     * @todo Need to be revisited once GeoAPI 2.1 is seetle down.
      */
     public GenericName toFullyQualifiedName() {
         if (asScopedName == null) {
-            throw new UnsupportedOperationException("Not yet implemented");
+            return this;
         }
         return asScopedName;
     }

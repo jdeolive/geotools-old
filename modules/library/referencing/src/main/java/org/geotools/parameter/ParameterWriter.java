@@ -280,7 +280,7 @@ public class ParameterWriter extends FilterWriter {
                 for (final GenericName a : alias) {
                     if (!identifier.equals(a)) {
                         table.write(lineSeparator);
-                        table.write(a.asLocalName().toInternationalString().toString(locale));
+                        table.write(a.name().toInternationalString().toString(locale));
                     }
                 }
             }
@@ -401,7 +401,7 @@ public class ParameterWriter extends FilterWriter {
                 int count = 0;
                 for (final GenericName alias : aliases) {
                     final GenericName scope = alias.scope().name();
-                    final GenericName name  = alias.asLocalName();
+                    final GenericName name  = alias.name();
                     final Object title;
                     if (scope != null) {
                         if (scopes!=null && !scopes.contains(scope.toString())) {

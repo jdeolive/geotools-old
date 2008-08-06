@@ -756,7 +756,7 @@ public class Formatter {
                     final GenericName scope = alias.scope().name();
                     if (scope != null) {
                         if (title.equalsIgnoreCase(scope.toString())) {
-                            return alias.asLocalName().toString();
+                            return alias.name().toString();
                         }
                     }
                 }

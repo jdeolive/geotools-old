@@ -927,7 +927,7 @@ public abstract class AbstractAuthorityFactory extends ReferencingFactory
             return code;
         }
         if (Citations.identifierMatches(getAuthority(), scope.toString())) {
-            return name.asLocalName().toString().trim();
+            return name.name().toString().trim();
         }
         return code;
     }

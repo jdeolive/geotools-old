@@ -562,7 +562,7 @@ public class NamedIdentifier implements ReferenceIdentifier, GenericName,
      * @deprecated Replaced by {@link #name()}.
      */
     public LocalName asLocalName() {
-        return getName().asLocalName();
+        return getName().name();
     }
 
     /**
@@ -627,8 +627,10 @@ public class NamedIdentifier implements ReferenceIdentifier, GenericName,
      *
      * @deprecated Replaced by {@link #toFullyQualifiedName()}.
      */
+    @Deprecated
     public ScopedName asScopedName() {
-        return getName().asScopedName();
+        final GenericName name = toFullyQualifiedName();
+        return (name instanceof ScopedName) ? (ScopedName) name : null;
     }
 
     /**

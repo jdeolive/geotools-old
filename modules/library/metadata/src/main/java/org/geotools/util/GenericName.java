@@ -139,7 +139,9 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * @since 2.3
      */
     @XmlElement(name = "depth", required = true)
-    public abstract int depth();
+    public int depth() {
+        return getParsedNames().size();
+    }
 
     /**
      * Returns the sequence of {@linkplain LocalName local names} making this generic name.
@@ -150,6 +152,17 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      */
     @XmlElement(name = "parsedName", required = true)
     public abstract List<LocalName> getParsedNames();
+
+    /**
+     * Returns a view of this object as a local name.
+     *
+     * @return The local part of this name.
+     * @deprecated Renamed as {@link #name()}.
+     */
+    @Deprecated
+    public LocalName asLocalName() {
+        return name();
+    }
 
     /**
      * Returns the last element in the sequence of {@linkplain #getParsedNames parsed names}.
@@ -163,6 +176,21 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * @since 2.3
      */
     public abstract LocalName name();
+
+    /**
+     * Returns a view of this name as a fully-qualified name, or {@code null} if none.
+     * The {@linkplain #scope scope} of a fully qualified name must be
+     * {@linkplain NameSpace#isGlobal global}.
+     * <p>
+     * If this name is a {@linkplain LocalName local name} and the {@linkplain #scope scope}
+     * is already {@linkplain NameSpace#isGlobal global}, returns {@code null} since it is not
+     * possible to derive a scoped name.
+     *
+     * @return The fully-qualified name.
+     * @deprecated Replaced by {@link #toFullyQualifiedName}.
+     */
+    @Deprecated
+    public abstract ScopedName asScopedName();
 
     /**
      * Returns the separator character. Default to <code>':'</code>.

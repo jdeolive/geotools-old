@@ -158,19 +158,6 @@ public class ScopedName extends org.geotools.util.GenericName
     }
 
     /**
-     * Returns the last element in the sequence of {@linkplain #getParsedNames parsed names}.
-     *
-     * @see java.io.File#getName
-     *
-     * @since 2.3
-     *
-     * @todo Not yet implemented.
-     */
-    public LocalName name() {
-        throw new UnsupportedOperationException("Not yet implemented.");
-    }
-
-    /**
      * Returns the scope of this name.
      *
      * @deprecated Replaced by {@link #scope()}.
@@ -178,22 +165,6 @@ public class ScopedName extends org.geotools.util.GenericName
     @Deprecated
     public GenericName getScope() {
         return scope;
-    }
-
-    /**
-     * Returns the depth of this name within the namespace hierarchy.  This indicates the number
-     * of levels specified by this name.  For any {@link LocalName}, it is always one.  For a
-     * {@link ScopedName} it is some number greater than or equal to 2.
-     * <p>
-     * The depth is the length of the list returned by the {@link #getParsedNames} method.
-     * As such it is a derived parameter.
-     *
-     * @since 2.3
-     *
-     * @todo Not yet implemented.
-     */
-    public int depth() {
-        throw new UnsupportedOperationException("Not yet implemented.");
     }
 
     /**
@@ -210,6 +181,7 @@ public class ScopedName extends org.geotools.util.GenericName
      *
      * @deprecated Replaced by {@link #toFullyQualifiedName}.
      */
+    @Deprecated
     public org.opengis.util.ScopedName asScopedName() {
         return this;
     }
@@ -223,7 +195,8 @@ public class ScopedName extends org.geotools.util.GenericName
      *
      * @deprecated Replaced by {@link #name}.
      */
-    public LocalName asLocalName() {
+    @Deprecated
+    public LocalName name() {
         return name;
     }
 
@@ -248,11 +221,9 @@ public class ScopedName extends org.geotools.util.GenericName
      * never returns {@code null}.
      *
      * @since 2.3
-     *
-     * @todo Not yet implemented.
      */
     public GenericName toFullyQualifiedName() {
-        throw new UnsupportedOperationException("Not yet implemented.");
+        return this;
     }
 
     /**
