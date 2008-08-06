@@ -80,9 +80,9 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
             }
             
         }else{
-            //we return a single featureTypeStyle array
+            // we return a single featureTypeStyle array
             ret = new org.geotools.styling.FeatureTypeStyle[1];
-            ret[1] = new FeatureTypeStyleImpl();
+            ret[0] = new FeatureTypeStyleImpl();
         }
         
         return ret;
