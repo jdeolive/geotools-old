@@ -60,7 +60,7 @@ class DDLGenerator {
     private final static String FN_DROPINIDEXES = "dropindexes.sql";
     private final static String UsageInfo = "Generating DDL scripts\n" +
         "-configUrl url -spatialTNPrefix spatialTNPrefix [-tileTNPrefix tileTNPrefix]\n" +
-        "  [-pyramids pyramids] -statementDelim statementDelim [-srs srs ] -targetDir";
+        "  [-pyramids pyramids] -statementDelim statementDelim [-srs srs ] -targetDir directory";
     private Config config;
     private String spatialTNPrefix;
     private String tileTNPrefix;
@@ -153,6 +153,11 @@ class DDLGenerator {
             System.exit(1);
         }
 
+        if (targetDir == null) { 
+        	System.out.println("Must specify -targetDir ");
+        	System.exit(1);
+    	}
+        
         if (needsSpatialRegistry(config) && (srs == null)) {
             System.out.println("Must specify -srs ");
             System.exit(1);

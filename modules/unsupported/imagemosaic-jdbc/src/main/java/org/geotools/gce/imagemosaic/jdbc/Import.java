@@ -281,7 +281,6 @@ public class Import {
         	typ=ImportTyp.DIR;
 
         
-        if (dir == null) countNull++;
         if (countNull != 2) {  // select exaclty one image source
             System.out.println(UsageInfo);
             System.exit(1);
