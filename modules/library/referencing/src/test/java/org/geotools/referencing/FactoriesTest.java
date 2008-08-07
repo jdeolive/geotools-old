@@ -267,9 +267,9 @@ public final class FactoriesTest {
             datum = factory.createGeodeticDatum(properties, ellipsoid, meridian);
             final GenericName[] aliases = datum.getAlias().toArray(new GenericName[0]);
             assertEquals(pass, 3, aliases.length);
-            assertEquals(pass, name0, aliases[0].name().toString());
-            assertEquals(pass, name1, aliases[1].name().toString());
-            assertEquals(pass, name2, aliases[2].name().toString());
+            assertEquals(pass, name0, aliases[0].tip().toString());
+            assertEquals(pass, name1, aliases[1].tip().toString());
+            assertEquals(pass, name2, aliases[2].tip().toString());
             assertTrue  (pass, aliases[0] instanceof ScopedName);
             assertTrue  (pass, aliases[1] instanceof ScopedName);
             assertTrue  (pass, aliases[2] instanceof ScopedName);

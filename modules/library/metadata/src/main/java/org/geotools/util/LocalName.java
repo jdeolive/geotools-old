@@ -169,10 +169,18 @@ public class LocalName extends org.geotools.util.GenericName implements org.open
     }
 
     /**
-     * Returns a view of this object as a local name. Since this object is already
-     * a local name, this method always returns {@code this}.
+     * Since this object is already a local name, this method always returns {@code this}.
      */
-    public org.opengis.util.LocalName name() {
+    @Override
+    public org.opengis.util.LocalName head() {
+        return this;
+    }
+
+    /**
+     * Since this object is already a local name, this method always returns {@code this}.
+     */
+    @Override
+    public org.opengis.util.LocalName tip() {
         return this;
     }
 

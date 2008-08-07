@@ -372,7 +372,7 @@ public class DatumAliases extends ReferencingFactory implements DatumFactory {
         }
         names = XArray.resize(names, count);
         for (int i=0; i<names.length; i++) {
-            final String alias = names[i].name().toString();
+            final String alias = names[i].tip().toString();
             final Object[] previous = aliasMap.put(toCaseless(alias), names);
             assert previous==names || Arrays.equals(aliases, previous) : alias;
         }

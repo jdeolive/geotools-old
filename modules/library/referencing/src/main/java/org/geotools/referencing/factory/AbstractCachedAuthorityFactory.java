@@ -199,7 +199,7 @@ public abstract class AbstractCachedAuthorityFactory extends AbstractAuthorityFa
             return code;
         }
         if (Citations.identifierMatches(getAuthority(), scope.toString())) {
-            return name.name().toString().trim();
+            return name.tip().toString().trim();
         }
         return code;
     }

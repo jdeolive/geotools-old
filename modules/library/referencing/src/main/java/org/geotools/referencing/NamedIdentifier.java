@@ -547,22 +547,40 @@ public class NamedIdentifier implements ReferenceIdentifier, GenericName,
     }
 
     /**
+     * Returns the first element in the sequence of {@linkplain #getParsedNames parsed names}.
+     *
+     * @since 2.6
+     */
+    public LocalName head() {
+        return getName().head();
+    }
+
+    /**
      * Returns the last element in the sequence of {@linkplain #getParsedNames parsed names}.
      *
      * @since 2.3
      */
+    public LocalName tip() {
+        return getName().tip();
+    }
+
+    /**
+     * @deprecated Replaced by {@link #tip()}.
+     */
+    @Deprecated
     public LocalName name() {
-        return getName().name();
+        return tip();
     }
 
     /**
      * Returns a view of this object as a local name. The local name returned by this method
      * will have the same {@linkplain LocalName#getScope scope} than this generic name.
      *
-     * @deprecated Replaced by {@link #name()}.
+     * @deprecated Replaced by {@link #tip()}.
      */
+    @Deprecated
     public LocalName asLocalName() {
-        return getName().name();
+        return tip();
     }
 
     /**

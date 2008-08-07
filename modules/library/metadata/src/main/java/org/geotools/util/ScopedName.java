@@ -118,6 +118,7 @@ public class ScopedName extends org.geotools.util.GenericName
      *
      * @todo Not yet implemented.
      */
+    @Override
     public LocalName head() {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
@@ -192,11 +193,9 @@ public class ScopedName extends org.geotools.util.GenericName
      * by this method will still have the same {@linkplain LocalName#getScope scope}
      * than this scoped name. Note however that the string returned by
      * {@link LocalName#toString} will differs.
-     *
-     * @deprecated Replaced by {@link #name}.
      */
-    @Deprecated
-    public LocalName name() {
+    @Override
+    public LocalName tip() {
         return name;
     }
 

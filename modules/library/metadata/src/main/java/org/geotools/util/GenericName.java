@@ -154,14 +154,16 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
     public abstract List<LocalName> getParsedNames();
 
     /**
-     * Returns a view of this object as a local name.
+     * Returns the first element in the sequence of {@linkplain #getParsedNames parsed names}.
+     * For any {@link LocalName}, this is always {@code this}.
      *
-     * @return The local part of this name.
-     * @deprecated Renamed as {@link #name()}.
+     * @return The first element of this name.
+     *
+     * @since 2.6
      */
-    @Deprecated
-    public LocalName asLocalName() {
-        return name();
+    public LocalName head() {
+        final List<LocalName> names = getParsedNames();
+        return names.get(0);
     }
 
     /**
@@ -170,12 +172,33 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      *
      * @return The last element of this name.
      *
-     * @see LocalName#name
-     * @see ScopedName#name
+     * @since 2.6
+     */
+    public LocalName tip() {
+        final List<LocalName> names = getParsedNames();
+        return names.get(names.size() - 1);
+    }
+
+    /**
+     * Returns a view of this object as a local name.
+     *
+     * @return The local part of this name.
+     * @deprecated Renamed as {@link #tip()}.
+     */
+    @Deprecated
+    public LocalName asLocalName() {
+        return tip();
+    }
+
+    /**
+     * @deprecated Renamed as {@link #tip()}.
      *
      * @since 2.3
      */
-    public abstract LocalName name();
+    @Deprecated
+    public LocalName name() {
+        return tip();
+    }
 
     /**
      * Returns a view of this name as a fully-qualified name, or {@code null} if none.

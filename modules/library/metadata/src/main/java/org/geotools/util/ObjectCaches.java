@@ -207,7 +207,7 @@ public final class ObjectCaches {
             return code;
         }
         if (citation != null && Citations.identifierMatches( citation, scope.toString())) {
-            return name.name().toString().trim();
+            return name.tip().toString().trim();
         }
         return code;
     }

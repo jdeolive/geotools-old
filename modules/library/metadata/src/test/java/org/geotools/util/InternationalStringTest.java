@@ -94,7 +94,7 @@ public final class InternationalStringTest {
         assertEquals("toString:", "codespace:subspace",      name.scope().name().toString());
         assertEquals("toString:", "codespace",               name.scope().name().scope().name().toString());
         assertSame("asScopedName", name, name.toFullyQualifiedName());
-        assertSame("asLocalName",  name, name.name().toFullyQualifiedName());
+        assertSame("asLocalName",  name, name.tip().toFullyQualifiedName());
     }
 
     /**
