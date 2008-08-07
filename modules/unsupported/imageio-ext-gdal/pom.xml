@@ -26,7 +26,7 @@
   <groupId>org.geotools</groupId>
   <artifactId>gt-imageio-ext-gdal</artifactId>
   <packaging>jar</packaging>
-  <name>Grid Coverage module leveraging on the ImageI/O-Ext project</name>
+  <name>ImageI/O-Ext based grid coverage readers</name>
   <url>http://maven.geotools.fr/reports/modules/unsupported/imageio-ext-gdal/</url>
 
   <scm>

@@ -43,16 +43,6 @@
 
   <profiles>
      <!-- ================================================== -->
-     <!--     Modules requiring GDAL DLLs be in your JDK     -->
-     <!-- ================================================== -->
-     <profile>
-       <id>gdal</id>
-       <modules>
-         <module>imageio-ext-gdal</module>
-       </modules>
-     </profile>
-
-     <!-- ================================================== -->
      <!--     Modules not yet included in the build          -->
      <!-- ================================================== -->
      <profile>
@@ -93,6 +83,7 @@
     <module>gml</module>    
     <module>gpx</module>
     <module>h2</module>
+    <module>imageio-ext-gdal</module>
     <module>imagemosaic-jdbc</module>
     <module>jts-wrapper</module>
     <module>mappane</module>
