@@ -23,12 +23,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geotools.factory.Hints;
-
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-
 /**
  * Converter factory which created converting between the various temporal types.
  * <p>
@@ -122,11 +120,11 @@ public class TemporalConverterFactory implements ConverterFactory {
 			        public <T> T convert(Object source, Class<T> target)
                                         throws Exception {
 			            if( source instanceof GregorianCalendar ) {
-			                return (T) new XMLGregorianCalendarImpl( (GregorianCalendar) source );
+			                return (T) DatatypeFactory.newInstance().newXMLGregorianCalendar( (GregorianCalendar) source );
 			            }
 			            
 			            return null;
-                                }
+			        }
 			    };
 			}
 //			if ( String.class.equals( target ) ) {
