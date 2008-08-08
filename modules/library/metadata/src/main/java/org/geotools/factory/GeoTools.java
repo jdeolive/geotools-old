@@ -67,7 +67,7 @@ public final class GeoTools {
     /**
      * The current GeoTools version. The separator character must be the dot.
      */
-    private static final Version VERSION = new Version("2.5.SNAPSHOT");
+    private static final Version VERSION = new Version("2.6.SNAPSHOT");
 
     /**
      * Object to inform about system-wide configuration changes.
