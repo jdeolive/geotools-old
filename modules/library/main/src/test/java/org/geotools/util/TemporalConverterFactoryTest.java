@@ -18,17 +18,12 @@ package org.geotools.util;
 
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.geotools.factory.Hints;
-
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
 import junit.framework.TestCase;
 
@@ -160,7 +155,7 @@ public class TemporalConverterFactoryTest extends TestCase {
 	}
 	
 	public void testXMLGregorianCalendarToCalendar() throws Exception {
-	    XMLGregorianCalendar gc = XMLGregorianCalendarImpl.parse( "1981-06-20T12:00:00");
+		XMLGregorianCalendar gc = DatatypeFactory.newInstance().newXMLGregorianCalendar("1981-06-20T12:00:00");
 	    assertNotNull( factory.createConverter( XMLGregorianCalendar.class, Calendar.class, null));
 	    
 	    Calendar calendar = (Calendar) factory.createConverter( XMLGregorianCalendar.class, Calendar.class, null)
