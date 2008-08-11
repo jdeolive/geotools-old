@@ -27,9 +27,11 @@ import org.opengis.coverage.grid.Format;
  * Implementation of the GridCoverageFormat service provider interface for
  * mosaic of georeferenced images.
  * 
- * @author Simone Giannecchini (simboss)
+ * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.3
  */
+
+@SuppressWarnings("deprecation")
 public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 	/**
 	 * Tells me if this plugin will work on not given the actual installation.
@@ -58,7 +60,6 @@ public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
 	/**
 	 * @see GridFormatFactorySpi#createFormat().
 	 */
-	@SuppressWarnings("deprecation")
 	public Format createFormat() {
 		return new ImageMosaicFormat();
 	}
