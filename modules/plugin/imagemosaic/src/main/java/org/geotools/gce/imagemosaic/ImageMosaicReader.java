@@ -190,6 +190,9 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	private String bandSelectAttributeName; 		//name of the shapefile attribute that contains the band selection (may be null)
 	private String colorCorrectionAttributeName;	//name of the shapefile attribute attribute that contains the color corrections (may be null)
 
+	private boolean hasBandSelectAttribute = false;			//cached version of if the shapefile has band select attribute (set on creating the shapefile index) 
+	private boolean hasColorCorrectionAttribute = false; 	//cached version of if the shapefile has band select attribute (set on creating the shapefile index)
+	
 	/**
 	 * COnstructor.
 	 * 
@@ -296,17 +299,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 		
 		// //
 		//
-		// Load all the features inside the index
-		//
-		// //
-		if (LOGGER.isLoggable(Level.FINE))
-			LOGGER.fine("About to create index");
-		index = new SoftReference<MemorySpatialIndex>(new MemorySpatialIndex(
-				featureSource.getFeatures()));
-		if (LOGGER.isLoggable(Level.FINE))
-			LOGGER.fine("Created index");
-		// //
-		//
 		// get the crs if able to
 		//
 		// //
@@ -357,6 +349,13 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 			throw new DataSourceException(
 					"The provided name for the location attribute is invalid.");
 
+		
+		// //
+		//
+		// Load all the features inside the index
+		//
+		// //
+		createIndex();
 	}
 
 	/**
@@ -920,7 +919,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 				final ReferencedEnvelope bound = ReferencedEnvelope.reference(feature.getBounds());
 
 				// Get the band order & add to read parameters if necessary
-				if (feature.getFeatureType().getDescriptor(this.bandSelectAttributeName) != null) {
+				if (hasBandSelectAttribute){
 					String bandSelect = (String) feature.getAttribute(this.bandSelectAttributeName);
 					// trim out the integers
 					String[] sbands = bandSelect.split(",");
@@ -1095,7 +1094,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 				// apply band color fixing; if application
 				//
 				////////////////////////////////////////////////////////////////
-				if (feature.getFeatureType().getDescriptor(this.colorCorrectionAttributeName) != null){
+				if (hasColorCorrectionAttribute){
 					String sbandFix = (String)feature.getAttribute(this.colorCorrectionAttributeName);
 					// trim out the doubles
 					String[] sfix = sbandFix.split(",");
@@ -1338,13 +1337,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 				//the date the shapefile was last modified
 				File f = new File(this.sourceURL.getFile());
 				if (((MemorySpatialIndex) o).getCreatedDate().before(new Date(f.lastModified()))) {
-					if (LOGGER.isLoggable(Level.FINE))
-						LOGGER.fine("About to create index");
-					// compare the created date of the index with the date on
-					// the shapefile
-					o = new MemorySpatialIndex(featureSource.getFeatures());
-					if (LOGGER.isLoggable(Level.FINE))
-						LOGGER.fine("Created index");
+					o = createIndex();
 				} else if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.fine("Index does not need to be created...");
 
@@ -1363,9 +1356,31 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 			return Collections.emptyList();
 	}
 
+	/*
+	 * Builds the shapefile index
+	 */
+	private Object createIndex() throws IOException {
+		MemorySpatialIndex o;
+		if (LOGGER.isLoggable(Level.FINE))
+			LOGGER.fine("About to create index");
+		// compare the created date of the index with the date on
+		// the shapefile
+		o = new MemorySpatialIndex(featureSource.getFeatures());
+
+		if (index == null){
+			index = new SoftReference<MemorySpatialIndex>(o);
+		}
+		hasBandSelectAttribute = featureSource.getSchema().getDescriptor(bandSelectAttributeName) != null;
+		hasColorCorrectionAttribute = featureSource.getSchema().getDescriptor(colorCorrectionAttributeName) != null;
+		
+		if (LOGGER.isLoggable(Level.FINE))
+			LOGGER.fine("Created index");
+		return o;
+	}
+
 	/**
 	 * Once we reach this method it means that we have loaded all the images
-	 * which were intersecting the requested nevelope. Next step is to create
+	 * which were intersecting the requested envelope. Next step is to create
 	 * the final mosaic image and cropping it to the exact requested envelope.
 	 * 
 	 * @param location
@@ -1382,7 +1397,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 * @param finalLayout
 	 * @param outputTransparentColor
 	 * @param singleImageROI
-	 * @return A {@link GridCoverage}, wewll actually a {@link GridCoverage2D}.
+	 * @return A {@link GridCoverage}, well actually a {@link GridCoverage2D}.
 	 * @throws IllegalArgumentException
 	 * @throws FactoryRegistryException
 	 * @throws DataSourceException
@@ -1784,8 +1799,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 		}
 		
 		// convert bands & color correction to a string
-		StringBuffer newb = new StringBuffer();
-		StringBuffer newcolor = new StringBuffer();
+		StringBuilder newb = new StringBuilder();
+		StringBuilder newcolor = new StringBuilder();
 		for (int i = 0; i < newbands.length - 1; i++) {
 			newb.append(newbands[i]);
 			newb.append(",");
