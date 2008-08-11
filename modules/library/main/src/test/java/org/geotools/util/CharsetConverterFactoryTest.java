@@ -57,7 +57,7 @@ public class CharsetConverterFactoryTest extends TestCase {
         
         Charset charset = c.convert( "UTF-8", Charset.class );
         assertNotNull( charset );
-        assertEquals( "UTF-8", charset.displayName() );
+        assertEquals( "UTF-8", charset.name() );
         
         assertNull( c.convert( "FOO", Charset.class ) );
     }
