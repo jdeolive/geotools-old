@@ -113,7 +113,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * All source images are assumed to have been geometrically mapped into a common
  * coordinate space. The origin (minX, minY) of each image is therefore taken to
  * represent the location of the respective image in the common coordinate
- * system of the sour ce images. This coordinate space will also be that of the
+ * system of the source images. This coordinate space will also be that of the
  * destination image.
  * 
  * All source images must have the same data type and sample size for all bands
@@ -702,8 +702,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 		
 		final List<SimpleFeature> features = getFeaturesFromIndex(intersectionJTSEnvelope);
 		if (features == null || features.size() == 0) {
-			return background(requestedOriginalEnvelope, pixelDimension,
-					outputTransparentColor);
+			return background(requestedOriginalEnvelope, pixelDimension,outputTransparentColor);
 		}
 		// do we have any feature to load
 		final Iterator<SimpleFeature> it = features.iterator();
@@ -859,13 +858,11 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 			// crop operation at the end of the mosaic creation.
 			//
 			////////////////////////////////////////////////////////////////////
-			// ///
 			final Envelope loadedDataSetBound = getLoadedDataSetBoud(features);
-			final Point2D ULC = new Point2D.Double(
-					loadedDataSetBound.getMinX(), loadedDataSetBound.getMaxY());
+			final Point2D ULC = new Point2D.Double(loadedDataSetBound.getMinX(), loadedDataSetBound.getMaxY());
 
 			////////////////////////////////////////////////////////////////////
-			// ///
+			// 
 			//
 			// CORE LOOP
 			//
@@ -875,7 +872,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 			// crop it as requested.
 			//
 			////////////////////////////////////////////////////////////////////
-			// ///
+
 			final File tempFile = new File(this.sourceURL.getFile());
 			final String parentLocation = tempFile.getParent();
 			final ROI[] rois = new ROI[numImages];
@@ -919,10 +916,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 				////////////////////////////////////////////////////////////////
 				// ///////
 				final SimpleFeature feature = (SimpleFeature) it.next();
-				location = (String) feature
-						.getAttribute(this.locationAttributeName);
-				final ReferencedEnvelope bound = ReferencedEnvelope
-						.reference(feature.getBounds());
+				location = (String) feature.getAttribute(this.locationAttributeName);
+				final ReferencedEnvelope bound = ReferencedEnvelope.reference(feature.getBounds());
 
 				// Get the band order & add to read parameters if necessary
 				if (feature.getFeatureType().getDescriptor(this.bandSelectAttributeName) != null) {
@@ -1297,7 +1292,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 * Retrieves the ULC of the BBOX composed by all the tiles we need to load.
 	 * 
 	 * @param double
-	 * @return A {@link Point2D} pointing to the ULC of the smalles area made by
+	 * @return A {@link Point2D} pointing to the ULC of the smallest area made by
 	 *         mosaicking all the tile that actually intersect the passed
 	 *         envelope.
 	 * @throws IOException
@@ -1717,10 +1712,10 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 		// Optimising scale and translate.
 		//
 		// In case the scale factors are very close to 1 we have two
-		// optimizarions: if fthe translation factors are close to zero we do
-		// thing, otherwise if thery are integers we do a simple translate.
+		// optimizations: if the translation factors are close to zero we do
+		// thing, otherwise if they are integers we do a simple translate.
 		//
-		// In the general case when wew have translation and scaling we do a
+		// In the general case when we have translation and scaling we do a
 		// warp affine which is the most precise operation we can perform.
 		//
 		// //
@@ -1828,9 +1823,13 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 * Returns the first file associated with the first feature that matched the
 	 * filter.
 	 * 
-	 * @param filter the filter to load the quries from 
+	 * @param filter the filter to load the queries from 
+	 * @return the first file associated with the first feature that matched the
+	 * filter or <code>null</code> if no file matches the provided criteria
 	 */
 	public File getImageFile(Filter filter) throws IOException {
+		if (filter==null)
+			throw new IllegalArgumentException("The provided filter argument is null");
 		
 		FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(filter);
 		
