@@ -100,8 +100,9 @@ public final class FormatTest {
         format.setTimeZone(TimeZone.getTimeZone("GMT+01:00"));
         final GeneralDirectPosition position = new GeneralDirectPosition(new double[] {
             23.78, -12.74, 127.9, 3.2
-        });
-        assertEquals("23°46,8'E 12°44,4'S 127,9\u00A0m 4 janv. 2003", format.format(position));
+        });        
+        format.setDatePattern("dd MM yyyy");        
+        assertEquals("23°46,8'E 12°44,4'S 127,9\u00A0m 04 01 2003", format.format(position));
         /*
          * Try a point with wrong dimension.
          */
@@ -126,6 +127,7 @@ public final class FormatTest {
         format.setCoordinateReferenceSystem(crs);
         format.setTimeZone(TimeZone.getTimeZone("GMT+01:00"));
         format.setSeparator("; ");
-        assertEquals("23°46,8'E; 12°44,4'S; 127,9\u00A0m; 4 janv. 2003", format.format(position));
+        format.setDatePattern("dd MM yyyy");        
+        assertEquals("23°46,8'E; 12°44,4'S; 127,9\u00A0m; 04 01 2003", format.format(position));
      }
 }
