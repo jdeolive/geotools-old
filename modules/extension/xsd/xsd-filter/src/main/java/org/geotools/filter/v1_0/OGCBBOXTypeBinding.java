@@ -116,7 +116,18 @@ public class OGCBBOXTypeBinding extends AbstractComplexBinding {
             srs = GML2EncodingUtils.crs(crs);
         }
 
-        return factory.bbox(propertyName.getPropertyName(), box.getMinX(), box.getMinY(),
+        String name = null;
+        if ( propertyName != null ) {
+            name = propertyName.getPropertyName();
+        }
+        //JD: this is a bit hackish, we know that "" means default geometry
+        // in SimpleFeaturePropertyAccessor, so instead of dying here set
+        // to empty string to mean defualt geometry
+        // TODO: come up with something a bit more concrete
+        if ( name == null ) {
+            name = "";
+        }
+        return factory.bbox(name, box.getMinX(), box.getMinY(),
             box.getMaxX(), box.getMaxY(), srs);
     }
 
