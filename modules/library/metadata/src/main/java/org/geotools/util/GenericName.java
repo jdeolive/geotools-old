@@ -162,7 +162,7 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * @since 2.6
      */
     public LocalName head() {
-        final List<LocalName> names = getParsedNames();
+        final List<? extends LocalName> names = getParsedNames();
         return names.get(0);
     }
 
@@ -175,7 +175,7 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * @since 2.6
      */
     public LocalName tip() {
-        final List<LocalName> names = getParsedNames();
+        final List<? extends LocalName> names = getParsedNames();
         return names.get(names.size() - 1);
     }
 
@@ -237,9 +237,9 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
     @Override
     public String toString() {
         final StringBuilder buffer = new StringBuilder();
-        final List     parsedNames = getParsedNames();
-        final char       separator = getSeparator();
-        for (final Iterator it=parsedNames.iterator(); it.hasNext();) {
+        final List<? extends LocalName> parsedNames = getParsedNames();
+        final char separator = getSeparator();
+        for (final Iterator<? extends LocalName> it=parsedNames.iterator(); it.hasNext();) {
             if (buffer.length() != 0) {
                 buffer.append(separator);
             }
@@ -279,7 +279,7 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
          * The sequence of {@linkplain LocalName local names} making this generic name.
          * This is the value returned by {@link GenericName#getParsedNames}.
          */
-        private final List<LocalName> parsedNames;
+        private final List<? extends LocalName> parsedNames;
 
         /**
          * The separator character. This is the value returned by {@link GenericName#getSeparator}.
@@ -292,7 +292,7 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
          * @param parsedNames The value returned by {@link GenericName#getParsedNames}.
          * @param separator   The value returned by {@link GenericName#getSeparator}.
          */
-        public International(final List<LocalName> parsedNames, final char separator) {
+        public International(final List<? extends LocalName> parsedNames, final char separator) {
             this.parsedNames = parsedNames;
             this.separator   = separator;
         }

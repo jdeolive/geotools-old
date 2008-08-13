@@ -616,7 +616,7 @@ public class NamedIdentifier implements ReferenceIdentifier, GenericName,
      * Each element in this list is like a directory name in a file path name.
      * The length of this sequence is the generic name depth.
      */
-    public List<LocalName> getParsedNames() {
+    public List<? extends LocalName> getParsedNames() {
         return getName().getParsedNames();
     }
 
