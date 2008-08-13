@@ -311,11 +311,11 @@ public class VisitorCalculationTest extends DataTestCase {
         assertEquals(anotherSet, uniqueResult1.toSet());
         //int + double --> ?
         uniqueResult3 = uniqueResult2.merge(uniqueResult1);
-        Object[] array = uniqueResult3.toArray();
-        assertEquals(3.0, ((Double)array[0]).doubleValue(), 0);
-        assertEquals(2, ((Integer)array[1]).intValue(), 0);
-        assertEquals(4, ((Integer)array[2]).intValue(), 0);
-        assertEquals(4.5, ((Double)array[3]).doubleValue(), 0);
+        List list = uniqueResult3.toList();
+        assertTrue(list.contains(3.0));
+        assertTrue(list.contains(2));
+        assertTrue(list.contains(4));
+        assertTrue(list.contains(4.5));
     }
 
     public void testBounds() throws IOException {
