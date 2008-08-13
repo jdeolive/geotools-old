@@ -204,7 +204,7 @@ public class ScopedName extends org.geotools.util.GenericName
      */
     public List<LocalName> getParsedNames() {
         if (parsedNames == null) {
-            final List<LocalName> parents = scope.getParsedNames();
+            final List<? extends LocalName> parents = scope.getParsedNames();
             final int size = parents.size();
             LocalName[] names = new LocalName[size + 1];
             names = parents.toArray(names);

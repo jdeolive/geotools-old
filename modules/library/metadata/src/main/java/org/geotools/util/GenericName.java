@@ -352,8 +352,8 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * @return -1 if this name precedes the given one, +1 if it follows, 0 if equals.
      */
     public int compareTo(final org.opengis.util.GenericName that) {
-        final Iterator<LocalName> thisNames = this.getParsedNames().iterator();
-        final Iterator<LocalName> thatNames = that.getParsedNames().iterator();
+        final Iterator<? extends LocalName> thisNames = this.getParsedNames().iterator();
+        final Iterator<? extends LocalName> thatNames = that.getParsedNames().iterator();
         while (thisNames.hasNext()) {
             if (!thatNames.hasNext()) {
                 return +1;
