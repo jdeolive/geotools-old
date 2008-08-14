@@ -104,9 +104,9 @@ public class ImageMosaicJDBCFormat extends AbstractGridFormat implements Format 
                     sourceURL = new URL(URLDecoder.decode((String) source,
                                 "UTF8"));
 
-                    if (sourceURL.getProtocol().equals("file") == false) {
-                        return null;
-                    }
+//                    if (sourceURL.getProtocol().equals("file") == false) {
+//                        return null;
+//                    }
                 }
             }
         } catch (Exception e) {
