@@ -317,18 +317,18 @@ public class GridCoverageFactory extends AbstractFactory {
      *
      * @since 2.2
      */
-    public GridCoverage2D create(final CharSequence              name,
-                                 final WritableRaster            raster,
-                                 final Envelope                  envelope,
-                                 final double[]                  minValues,
-                                 final double[]                  maxValues,
-                                 final Unit<?>                   units,
-                                 final Color[][]                 colors,
-                                 final RenderingHints            hints)
+    public GridCoverage2D create(final CharSequence   name,
+                                 final WritableRaster raster,
+                                 final Envelope       envelope,
+                                 final double[]       minValues,
+                                 final double[]       maxValues,
+                                 final Unit<?>        units,
+                                 final Color[][]      colors,
+                                 final RenderingHints hints)
     {
         final GridSampleDimension[] bands =
             RenderedSampleDimension.create(name, raster, minValues, maxValues, units, colors, hints);
-        final ColorModel    model = bands[0].getColorModel(0, bands.length);
+        final ColorModel    model = bands[0].getColorModel(0, bands.length, raster.getDataBuffer().getDataType());
         final RenderedImage image = new BufferedImage(model, raster, false, null);
         return create(name, image, envelope, bands, null, null);
     }
@@ -374,7 +374,7 @@ public class GridCoverageFactory extends AbstractFactory {
     {
         final GridSampleDimension[] bands =
             RenderedSampleDimension.create(name, raster, minValues, maxValues, units, colors, hints);
-        final ColorModel    model = bands[0].getColorModel(0, bands.length);
+        final ColorModel    model = bands[0].getColorModel(0, bands.length, raster.getDataBuffer().getDataType());
         final RenderedImage image = new BufferedImage(model, raster, false, null);
         return create(name, image, crs, gridToCRS, bands, null, null);
     }
@@ -405,7 +405,7 @@ public class GridCoverageFactory extends AbstractFactory {
                                  final Envelope                  envelope,
                                  final GridSampleDimension[]     bands)
     {
-        final ColorModel    model = bands[0].getColorModel(0, bands.length);
+        final ColorModel    model = bands[0].getColorModel(0, bands.length, raster.getDataBuffer().getDataType());
         final RenderedImage image = new BufferedImage(model, raster, false, null);
         return create(name, image, envelope, bands, null, null);
     }
@@ -434,7 +434,7 @@ public class GridCoverageFactory extends AbstractFactory {
                                  final MathTransform             gridToCRS,
                                  final GridSampleDimension[]     bands)
     {
-        final ColorModel    model = bands[0].getColorModel(0, bands.length);
+        final ColorModel    model = bands[0].getColorModel(0, bands.length, raster.getDataBuffer().getDataType());
         final RenderedImage image = new BufferedImage(model, raster, false, null);
         return create(name, image, crs, gridToCRS, bands, null, null);
     }
