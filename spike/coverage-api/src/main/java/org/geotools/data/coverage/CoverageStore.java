@@ -18,9 +18,14 @@ package org.geotools.data.coverage;
 
 /**
  * Provided write access to a coverage data product.
+ * 
+ * @author Simone Giannecchini, GeoSolusions
+ * @author Jody Garnett
  */
 public interface CoverageStore extends CoverageSource {
 	public CoverageResponse addCoverage(CoverageWriteRequest writeRequest);
+
 	public CoverageResponse modifyCoverage(CoverageWriteRequest writeRequest);
-	public CoverageResponse removeCoverage(CoverageWriteRequest writeRequest);	
+
+	public CoverageResponse removeCoverage(CoverageWriteRequest writeRequest);
 }

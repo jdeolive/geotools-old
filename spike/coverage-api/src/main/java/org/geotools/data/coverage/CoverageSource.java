@@ -25,6 +25,8 @@ import org.opengis.util.ProgressListener;
 
 /**
  * Allows access to a Coverage.
+ * @author Simone Giannecchini, GeoSolusions
+ * @author Jody Garnett 
  */
 public interface CoverageSource {
 
@@ -42,7 +44,7 @@ public interface CoverageSource {
      * <p>
      * Please note that for FeatureContent:
      * <ul>
-     * <li>name - unqiue with in the context of a Service
+     * <li>name - unique with in the context of a Service
      * <li>schema - used to identify the type of resource; usually the format or data product being represented
      * <ul>
      */

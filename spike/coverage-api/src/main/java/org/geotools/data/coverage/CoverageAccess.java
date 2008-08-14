@@ -25,13 +25,14 @@ import org.opengis.feature.type.Name;
 import org.opengis.util.ProgressListener;
 
 /**
- * Represents a Physical store of coverage data (that we have a connected to).
+ * Represents a Physical storage of coverage data (that we have a connection to).
  * <p>
  * Please note that this service may be remote (or otherwise slow). You are doing
  * IO here and should treat this class with respect - please do not access
  * these methods from a display thread.
  * </p>
  * @author Simone Giannecchini, GeoSolutions
+ * @author Jody Garnett
  */
 public interface CoverageAccess {
 	/**

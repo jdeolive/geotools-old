@@ -25,6 +25,10 @@ import java.util.Set;
  * A class containing static convenience methods for locating
  * <code>CoverageStore</code>s and specific <code>CoverageSource</code>s,
  * and performing simple encoding and decoding.
+ * 
+ * 
+ * @author Simone Giannecchini, GeoSolusions
+ * @author Jody Garnett
  */
 public class CoverageIO {
     

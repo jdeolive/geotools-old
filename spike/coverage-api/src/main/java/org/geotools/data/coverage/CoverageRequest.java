@@ -22,7 +22,8 @@ import org.geotools.factory.Hints;
 
 /**
  * 
- * @author     Administrator
+ * @author Simone Giannecchini, GeoSolusions
+ * @author Jody Garnett
  */
 public class CoverageRequest {
 

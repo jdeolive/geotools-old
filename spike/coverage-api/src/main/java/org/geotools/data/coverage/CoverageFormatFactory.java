@@ -2,9 +2,13 @@ package org.geotools.data.coverage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 /**
  * CoverageAccessFactory for working with formats based on a single URL.
+ * 
+ * @author Simone Giannecchini, GeoSolusions
+ * @author Jody Garnett
  */
 public interface CoverageFormatFactory extends CoverageAccessFactory {
     /**
@@ -13,22 +17,22 @@ public interface CoverageFormatFactory extends CoverageAccessFactory {
      * @return List of file extensions which can be read by this
      *         dataStore.
      */
-    public String[] getFileExtensions();
+    public List<String> getFileExtensions();
     
     /**
-     * True if the url can be handled by this factory.
+     * True if the {@link URL} can be handled by this factory.
      *
-     * @param f URL a url to a real file (may not be local)
+     * @param f URL a {@link URL} to a real file (may not be local)
      *
      * @return True when this dataStore can resolve and read the data specified
-     *         by the URL.
+     *         by the {@link URL}.
      */
-    public boolean canProcess(URL f);
+    public boolean canConnect(URL f);
     
     /**
-     * A DataStore attached to the provided URL, may be created if needed.
+     * A DataStore attached to the provided {@link URL}, may be created if needed.
      *
-     * @param url A URL to the data location for the single featureType of this
+     * @param url A {@link URL} to the data location for the single featureType of this
      *        DataStore
      *
      * @return Returns an AbstractFileDataStore created from the data source

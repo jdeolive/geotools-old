@@ -43,6 +43,7 @@ import org.opengis.util.InternationalString;
  * dependencies which can be jars as well as native libs or configuration files.
  * 
  * @author Simone Giannecchini, GeoSolutions.
+ * @author Jody Garnett
  * @since 2.5
  * 
  * @todo TODO {@link Name} vs {@link InternationalString}
@@ -56,9 +57,9 @@ public interface CoverageAccessFactory {
      * refer to this implementation.
      * <p>
      * While the Title and Description will change depending
-     * on the users locale; this name will be consistent.
+     * on the users local this name will be consistent.
      * </p>
-     * @retunr name of this coverage access
+     * @return name of this coverage access
      */
 	String getName();
 	
