@@ -23,19 +23,27 @@ import org.opengis.coverage.Coverage;
 /**
  * @author     Simone Giannecchini, GeoSolutions 	
  */
-public interface CoverageWriteRequest extends CoverageRequest{
-	
+public class CoverageWriteRequest extends CoverageRequest{
+	// do you have something specific you intend or this can be
+	// handled by getAdditionalParameters() ?
+	private Object metadata;
+	private Collection<? extends Coverage> data;
+
 	/**
 	 * @param  metadata
 	 * @uml.property  name="metadata"
 	 */
-	public void setAdditionalMetadata(Object metadata);
+	public void setAdditionalMetadata(Object metadata){
+		this.metadata = metadata;
+	}
 	
 	/**
 	 * @return
 	 * @uml.property  name="metadata"
 	 */
-	public Object getAdditionalMetadata();
+	public Object getAdditionalMetadata(){
+		return metadata;
+	}
 	
 	
 	
@@ -43,12 +51,16 @@ public interface CoverageWriteRequest extends CoverageRequest{
 	 * @param  metadata
 	 * @uml.property  name="metadata"
 	 */
-	public void setData(Collection<? extends Coverage> data);
+	public void setData(Collection<? extends Coverage> data){
+		this.data = data;
+	}
 	
 	/**
 	 * @return
 	 * @uml.property  name="metadata"
 	 */
-	public Collection<? extends Coverage> getData();
+	public Collection<? extends Coverage> getData(){
+		return data;
+	}
 	
 }

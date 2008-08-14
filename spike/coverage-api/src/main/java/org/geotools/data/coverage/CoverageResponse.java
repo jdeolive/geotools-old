@@ -23,10 +23,9 @@ import org.opengis.util.ProgressListener;
 
 
 /**
- * Encapsulates a data request.
+ * A coverage response; please check the status before assuming any data is available.
   */
 public interface CoverageResponse {
-
    
     /**
 	 * @author      Administrator
@@ -48,15 +47,16 @@ public interface CoverageResponse {
     
     Status getStatus();
 
-
 	Collection<? extends Exception> getExceptions();
-
+	// exceptions are fine for reporting problems
+	// but a more difficult fit for reporting warnings
 
 	/**
 	 * @param  handle
 	 * @uml.property  name="handle"
 	 */
 	public void setHandle(final String handle);
+	// consider making the CoverageRequest?
 	
 	Collection<? extends Coverage> getResults(final ProgressListener listener);
 	

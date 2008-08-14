@@ -21,6 +21,11 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A class containing static convenience methods for locating
+ * <code>CoverageStore</code>s and specific <code>CoverageSource</code>s,
+ * and performing simple encoding and decoding.
+ */
 public class CoverageIO {
     
 
@@ -53,15 +58,15 @@ public class CoverageIO {
 		return false;
     	
     }
-    public static CoverageDataStore createCoverageDataSet(Map<String, Serializable> params) throws IOException{
+    public static CoverageAccess createCoverageDataSet(Map<String, Serializable> params) throws IOException{
     	return null;
     }
 
-    public static CoverageDataStore openCoverageDataSet(Map<String, Serializable> params) throws IOException{
+    public static CoverageAccess openCoverageDataSet(Map<String, Serializable> params) throws IOException{
     	return null;
     }
     
-    public static Set<? extends CoverageService> getAvailableCoverageService(){
+    public static Set<? extends CoverageAccessFactory> getAvailableCoverageService(){
     	return null;
     }
     

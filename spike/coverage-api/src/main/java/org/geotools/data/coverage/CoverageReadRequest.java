@@ -21,32 +21,47 @@ import net.opengis.wcs11.RangeSubsetType;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-
 /**
- * Encapsulates a data read request.
+ * Request information from a CoverageSource.
  */
-public interface CoverageReadRequest extends CoverageRequest {
+public class CoverageReadRequest extends CoverageRequest {
+	private RangeSubsetType range;
+	private DomainSubsetType domain;
+	private CoordinateReferenceSystem targetCRS;
+	private CoordinateReferenceSystem dataCRS;
 
 
-    CoordinateReferenceSystem getRequestCoordinateSystem();
+	// 
+    public CoordinateReferenceSystem getRequestCoordinateSystem(){
+    	return dataCRS; // domain.getBoundingBox(); // this should be a ReferencedEnvelope
+    }
+    public void getRequestCoordinateSystem(CoordinateReferenceSystem dataCRS) {
+		this.dataCRS = dataCRS;
+	}
 
-
-    CoordinateReferenceSystem getResponseCoordinateSystem();
+    public CoordinateReferenceSystem getResponseCoordinateSystem(){
+    	return targetCRS;
+    }
+    public void getResponseCoordinateSystem(CoordinateReferenceSystem targetCRS) {
+		this.targetCRS = targetCRS;
+	}
 
 
 	/**
 	 * @return
 	 * @uml.property  name="domainSubset"
 	 */
-	DomainSubsetType getDomainSubset();
-
-
+	public DomainSubsetType getDomainSubset(){
+		return domain;		
+	}
 
 	/**
 	 * @return
 	 * @uml.property  name="rangeSubset"
 	 */
-	RangeSubsetType getRangeSubset();
+	RangeSubsetType getRangeSubset(){
+		return range;
+	}
 
 
 
@@ -54,12 +69,16 @@ public interface CoverageReadRequest extends CoverageRequest {
 	 * @param  value
 	 * @uml.property  name="domainSubset"
 	 */
-	void setDomainSubset(DomainSubsetType value);
+	void setDomainSubset(DomainSubsetType value){
+		domain = value;
+	}
 
 
 	/**
 	 * @param  value
 	 * @uml.property  name="rangeSubset"
 	 */
-	public abstract void setRangeSubset(RangeSubsetType value);
+	public void setRangeSubset(RangeSubsetType value) {
+		range = value;
+	}
 }
