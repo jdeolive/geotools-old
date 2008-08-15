@@ -55,7 +55,7 @@ public interface CoverageSource {
     // Could it be communicated with a subclass of ResourceInfo?
     // brief may be a reference to catalog record formats?
     //
-    public Object getCoverageOffering(final ProgressListener listener, final boolean brief) throws IOException;
+    public Object getCoverageOffering(final boolean brief, final ProgressListener listener) throws IOException;
 
     /**
      * Access to the DataStore implementing this FeatureStore.

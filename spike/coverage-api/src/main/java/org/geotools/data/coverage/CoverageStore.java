@@ -16,6 +16,8 @@
  */
 package org.geotools.data.coverage;
 
+import org.opengis.util.ProgressListener;
+
 /**
  * Provided write access to a coverage data product.
  * 
@@ -23,9 +25,9 @@ package org.geotools.data.coverage;
  * @author Jody Garnett
  */
 public interface CoverageStore extends CoverageSource {
-	public CoverageResponse addCoverage(CoverageWriteRequest writeRequest);
+	public CoverageResponse addCoverage(CoverageWriteRequest writeRequest, ProgressListener progress);
 
-	public CoverageResponse modifyCoverage(CoverageWriteRequest writeRequest);
+	public CoverageResponse modifyCoverage(CoverageWriteRequest writeRequest, ProgressListener progress);
 
-	public CoverageResponse removeCoverage(CoverageWriteRequest writeRequest);
+	public CoverageResponse removeCoverage(CoverageWriteRequest writeRequest, ProgressListener progress);
 }
