@@ -162,7 +162,7 @@ public abstract class FIDReader {
             fidReader.setColumnIndex(rowIdColumnIndex);
             return fidReader;
         } catch (SeException e) {
-            throw new DataSourceException("Obtaining FID strategy for " + tableName + ": "
+            throw new ArcSdeException("Obtaining FID strategy for " + tableName + ": "
                     + e.getMessage(), e);
         }
     }
