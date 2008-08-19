@@ -32,6 +32,7 @@ import junit.framework.TestCase;
 
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Divide;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
@@ -124,7 +125,7 @@ public class FunctionExpressionImplTest extends TestCase {
     public void testSetArgs() {
         final List expected = Collections
                 .singletonList(new LiteralExpressionImpl(10d));
-        Expression[] args = (Expression[]) expected.toArray(new Expression[1]);
+        org.geotools.filter.Expression[] args = (org.geotools.filter.Expression[]) expected.toArray(new org.geotools.filter.Expression[1]);
         function.setArgs(args);
         assertEquals(expected, function.params);
     }
@@ -208,6 +209,11 @@ public class FunctionExpressionImplTest extends TestCase {
         if (function instanceof FunctionExpression) {
             testDeprecatedMethods((FunctionExpression) function, errors);
         }
+        
+        List<Expression> parameters = function.getParameters();
+        if(parameters == null){
+            errors.add(functionClass + ".getParameters() returns null");
+        }
     }
 
     private void addExceptionError(List errors, final String functionClass,
@@ -228,9 +234,9 @@ public class FunctionExpressionImplTest extends TestCase {
         final String functionClass = function.getClass().getName();
         int argCount = function.getArgCount();
 
-        final Expression[] expected = new Expression[argCount];
+        final org.geotools.filter.Expression[] expected = new org.geotools.filter.Expression[argCount];
         for (int i = 0; i < argCount; i++) {
-            Expression ex = new AttributeExpressionImpl("attName");
+            org.geotools.filter.Expression ex = new AttributeExpressionImpl("attName");
             expected[i] = ex;
         }
 

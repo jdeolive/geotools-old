@@ -16,15 +16,15 @@
  */
 package org.geotools.filter;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.geotools.filter.expression.ExpressionAbstract;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.filter.capability.FunctionName;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.Expression;
 
 /**
  * Default implementation of a Function; you may extend this class to
@@ -40,7 +40,7 @@ public class FunctionImpl extends ExpressionAbstract implements Function {
     String name;
 
     /** function params **/
-    List<Expression> params;
+    List<Expression> params = Collections.emptyList();
     
     Literal fallbackValue;
     
@@ -65,7 +65,7 @@ public class FunctionImpl extends ExpressionAbstract implements Function {
      * Returns the function parameters.
      */
     public List<Expression> getParameters() {
-        return params;
+        return new ArrayList<Expression>(params);
     }
     
     /**
@@ -83,8 +83,9 @@ public class FunctionImpl extends ExpressionAbstract implements Function {
     /**
      * Sets the function parameters.
      */
+    @SuppressWarnings("unchecked")
     public void setParameters(List<Expression> params) {
-        this.params = params;
+        this.params = params == null? Collections.EMPTY_LIST : new ArrayList<Expression>(params);
     }
 
     public void setFallbackValue(Literal fallbackValue) {
