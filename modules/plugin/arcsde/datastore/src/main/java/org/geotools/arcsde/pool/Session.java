@@ -200,6 +200,9 @@ class Session implements ISession {
                     try {
                         return command.execute(Session.this, connection);
                     } catch (Exception e) {
+                        if (e instanceof SeException) {
+                            e = new ArcSdeException((SeException) e);
+                        }
                         LOGGER
                                 .log(Level.SEVERE, "Command execution failed for Session "
                                         + Session.this.sessionId + " in thread "
@@ -900,7 +903,7 @@ class Session implements ISession {
                             throw e;
                         }
                     }
-                }else{
+                } else {
                     realParent = parentState;
                 }
 
@@ -921,7 +924,8 @@ class Session implements ISession {
                     // When a row has been changed in both parent and second
                     // states, the row from the changes state is used.
                     // The parent and changes states must be open or owned by
-                    // the current user unless the current user is the ArcSDE DBA.
+                    // the current user unless the current user is the ArcSDE
+                    // DBA.
                     newState.merge(realParent.getId(), parentState.getId());
                 }
 

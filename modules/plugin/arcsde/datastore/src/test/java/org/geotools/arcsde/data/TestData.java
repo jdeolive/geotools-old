@@ -898,7 +898,7 @@ public class TestData {
         }
     }
 
-    private void createSimpleTestTables() throws IOException {
+    public void createSimpleTestTables() throws IOException {
         final SessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
 
@@ -957,7 +957,7 @@ public class TestData {
     private void createSimpleTestTable(final ISession session, final String tableName,
             final String rowIdColName, final int rowIdColumnType, final int shapeTypeMask)
             throws IOException {
-        System.out.println("Creating layer " + tableName);
+        LOGGER.fine("Creating layer " + tableName);
 
         final Command<Void> createCmd = new Command<Void>() {
 
@@ -970,7 +970,7 @@ public class TestData {
                 try {
                     table.delete();
                 } catch (SeException e) {
-                    System.out.println("table " + tableName + " does not already exist");
+                    LOGGER.fine("table " + tableName + " does not already exist");
                 }
                 layer.setTableName(tableName);
 
@@ -1062,7 +1062,7 @@ public class TestData {
             public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 // make the table multiversioned
-                System.err.println("Making " + tableName + " versioned...");
+                LOGGER.fine("Making " + tableName + " versioned...");
                 SeRegistration reg = new SeRegistration(connection, tableName);
                 reg.getInfo();
                 reg.setMultiVersion(true);

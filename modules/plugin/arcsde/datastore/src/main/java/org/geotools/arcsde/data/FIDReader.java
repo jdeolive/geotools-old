@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeRegistration;
@@ -35,14 +37,16 @@ import com.esri.sde.sdk.client.SeShape;
 import com.esri.sde.sdk.client.SeTable;
 
 /**
- * Strategy object used to manage the different ways an ArcSDE server handles row identity.
+ * Strategy object used to manage the different ways an ArcSDE server handles
+ * row identity.
  * <p>
  * The supported strategies are:
  * <ul>
- * <li>SDE managed mode: a column is assigned by the sde engine to be the feature id (it uses to be
- * called OBJECTID)
+ * <li>SDE managed mode: a column is assigned by the sde engine to be the
+ * feature id (it uses to be called OBJECTID)
  * <li>User managed: a user specified row is used as the fid column.
- * <li>Shape fid: if none of the above, the fid happens to be the identifier of the geometry column
+ * <li>Shape fid: if none of the above, the fid happens to be the identifier of
+ * the geometry column
  * </ul>
  * </p>
  * 
@@ -63,7 +67,8 @@ public abstract class FIDReader {
     /**
      * Creates a new FIDStrategy object.
      * 
-     * @param fidColumns DOCUMENT ME!
+     * @param fidColumns
+     * 
      */
     private FIDReader(String layerName, String fidColumn) {
         this.layerName = layerName;
@@ -90,9 +95,16 @@ public abstract class FIDReader {
     /**
      * Returns the attribute names of the FeatureType passed to the constructor.
      * 
-     * @return DOCUMENT ME!
-     * @throws IOException if the SeLayer can't be obtained (only if the geomety attribute was not
-     *             included in the request).
+     * @param the
+     *            feature type containing the properties the client code is
+     *            interested in. May well be a subset of the full set of
+     *            attributes in the SeLayer
+     * @return the list of property names to actually fetch for a given feature
+     *         type, taking into account the ones that possibly need to be
+     *         fetched to generate the feature id, even if they're not part of
+     *         the schema.
+     * @throws IOException
+     *             if an arcsde exception is thrown somehow.
      */
     public String[] getPropertiesToFetch(SimpleFeatureType schema) throws IOException {
 
@@ -118,16 +130,29 @@ public abstract class FIDReader {
     /**
      * Returns a FID strategy appropriate for the given SeLayer
      * 
-     * @param session DOCUMENT ME!
-     * @param tableName DOCUMENT ME!
-     * @return DOCUMENT ME!
-     * @throws IOException DOCUMENT ME!
-     * @throws DataSourceException DOCUMENT ME!
+     * @param session
+     * @param tableName
+     * @return
+     * @throws IOException
      */
-    public static FIDReader getFidReader(ISession session,
-            SeTable table,
-            SeLayer layer,
-            SeRegistration reg) throws IOException {
+    public static FIDReader getFidReader(final ISession session, final SeTable table,
+            final SeLayer layer, final SeRegistration reg) throws IOException {
+        return session.issue(new Command<FIDReader>() {
+            @Override
+            public FIDReader execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
+                return getFidReaderInternal(session, table, layer, reg);
+            }
+        });
+    }
+
+    /**
+     * Only to be called from inside a command
+     * 
+     * @see #getFidReader(ISession, SeTable, SeLayer, SeRegistration)
+     */
+    private static FIDReader getFidReaderInternal(ISession session, SeTable table, SeLayer layer,
+            SeRegistration reg) throws IOException, ArcSdeException {
         FIDReader fidReader = null;
         final String tableName = reg.getTableName();
         try {
@@ -162,26 +187,26 @@ public abstract class FIDReader {
             fidReader.setColumnIndex(rowIdColumnIndex);
             return fidReader;
         } catch (SeException e) {
-            throw new ArcSdeException("Obtaining FID strategy for " + tableName + ": "
-                    + e.getMessage(), e);
+            throw new ArcSdeException("Obtaining FID strategy for " + tableName, e);
         }
     }
 
     public static class ShapeFidReader extends FIDReader {
         /**
-         * Name of the Shape, populated as a side effect of getPropertiesToFetch()
+         * Name of the Shape, populated as a side effect of
+         * getPropertiesToFetch()
          */
 
         private final String shapeColName;
 
         /**
-         * Index of the Shape, populated as a side effect of getPropertiesToFetch()
+         * Index of the Shape, populated as a side effect of
+         * getPropertiesToFetch()
          */
         private int shapeIndex;
 
-        public ShapeFidReader(final String layerName,
-                              final String shapeColName,
-                              final String shapeIdColName) {
+        public ShapeFidReader(final String layerName, final String shapeColName,
+                final String shapeIdColName) {
             super(layerName, shapeIdColName);
             this.shapeColName = shapeColName;
             this.shapeIndex = -1;
@@ -211,6 +236,11 @@ public abstract class FIDReader {
             return longFid;
         }
 
+        /**
+         * Overrides to include the geometry column whether it is required by
+         * the {@code schema} or not, since we need to get the fid from the
+         * geometry id.
+         */
         @Override
         public String[] getPropertiesToFetch(SimpleFeatureType schema) throws IOException {
             List<String> attNames = new ArrayList<String>(schema.getAttributeCount() + 1);
