@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import org.geotools.factory.Hints;
+
 /**
  * CoverageAccessFactory for working with formats based on a single URL.
  * 
@@ -42,6 +44,6 @@ public interface CoverageFormatFactory extends CoverageAccessFactory {
      *
      * @see AbstractFileDataStore
      */
-    public CoverageAccess connect(URL url) throws IOException;
+    public CoverageAccess connect(URL url,Hints hints) throws IOException;
 
 }

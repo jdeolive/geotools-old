@@ -52,11 +52,9 @@ public interface CoverageResponse {
 	// but a more difficult fit for reporting warnings
 
 	/**
-	 * @param  handle
-	 * @uml.property  name="handle"
+	 *
 	 */
-	public void setHandle(final String handle);
-	// consider making the CoverageRequest?
+	public void getRequest();
 	
 	Collection<? extends Coverage> getResults(final ProgressListener listener);
 	

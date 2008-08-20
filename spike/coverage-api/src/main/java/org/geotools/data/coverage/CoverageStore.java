@@ -25,9 +25,8 @@ import org.opengis.util.ProgressListener;
  * @author Jody Garnett
  */
 public interface CoverageStore extends CoverageSource {
-	public CoverageResponse addCoverage(CoverageWriteRequest writeRequest, ProgressListener progress);
 
-	public CoverageResponse modifyCoverage(CoverageWriteRequest writeRequest, ProgressListener progress);
+	public CoverageResponse updateCoverage(CoverageUpdateRequest writeRequest, ProgressListener progress);
 
-	public CoverageResponse removeCoverage(CoverageWriteRequest writeRequest, ProgressListener progress);
+
 }

@@ -17,13 +17,15 @@
 package org.geotools.data.coverage;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Map;
 
 import org.geotools.data.Parameter;
 import org.geotools.data.DataAccessFactory.Param;
+import org.geotools.factory.Factory;
+import org.geotools.factory.Hints;
 import org.opengis.feature.type.Name;
 import org.opengis.util.InternationalString;
+import org.opengis.util.ProgressListener;
 
 /**
  * Constructs a live CoverageAccess from a set of connection parameters.
@@ -33,14 +35,14 @@ import org.opengis.util.InternationalString;
  * 
  * <p>
  * Purpose of this class is to provide basic information about a certain
- * coverage service as well as the parameters needed in order to connect to a
- * source as well as the default parameters to access/manipulate the single
- * coverage a source can serve.
+ * coverage service/format as well as about the parameters needed in order to connect to a
+ * source.
  * 
  * <p>
  * Notice that as part as the "factory" interface this class makes available an
  * {@link #isAvailable()} method which should check if all the needed
  * dependencies which can be jars as well as native libs or configuration files.
+
  * 
  * @author Simone Giannecchini, GeoSolutions.
  * @author Jody Garnett
@@ -50,7 +52,7 @@ import org.opengis.util.InternationalString;
  * @todo TODO {@link Param} array vs {@link Map}
  * 
  */
-public interface CoverageAccessFactory {
+public interface CoverageAccessFactory extends Factory {
 
 	 /**
      * Unique name (non human readable) that can be used to
@@ -100,9 +102,9 @@ public interface CoverageAccessFactory {
 	 * Describes the required (and optional) parameters that
 	 * can be used to open a CoverageAccess.
 	 * <p>
-	 * @return Param array describing the {@link Map} for {@link #connect(Map)}.
+	 * @return Param a {@link Map} describing the {@link Map} for {@link #connect(Map)}.
 	 */
-	Map<String, Parameter<?>> getParameterInfo();
+	Map<String, Parameter<?>> getConnectParameterInfo();
 
 	/**
 	 * Open up a connection to a {@link CoverageAccess}.
@@ -111,9 +113,9 @@ public interface CoverageAccessFactory {
 	 *            required {@link Param}s to connect to a certain
 	 *            {@link CoverageStore}
 	 * @return a {@link CoverageAccess} which
-	 * @throws IOException
+	 * @throws IOException in case something wrong happens during the connection.
 	 */
-	public CoverageAccess connect(Map<String, Serializable> params)
+	public CoverageAccess connect(Map<String, Parameter<?>> params,Hints hints,final ProgressListener listener)
 			throws IOException;
 
 	/**
@@ -137,5 +139,5 @@ public interface CoverageAccessFactory {
 	 *         indicated by the param set and all the required params are
 	 *         pressent.
 	 */
-	boolean canConnect(java.util.Map<String, Serializable> params);
+	boolean canConnect(Map<String, Parameter<?>> params);
 }

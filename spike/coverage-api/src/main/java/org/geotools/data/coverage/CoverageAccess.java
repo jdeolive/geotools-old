@@ -18,9 +18,12 @@ package org.geotools.data.coverage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
+import org.geotools.data.Parameter;
 import org.geotools.data.ServiceInfo;
 import org.geotools.factory.Hints;
+import org.geotools.geometry.GeneralEnvelope;
 import org.opengis.feature.type.Name;
 import org.opengis.util.ProgressListener;
 
@@ -42,8 +45,16 @@ public interface CoverageAccess {
 		/** Read-only access to coverage data */
 		READ_ONLY,
 		/** Read-write access to coverage data */
-		READ_WRITE;
+		UPDATE;
 	}
+	
+	/**
+	 * Retrieves a {@link List} containing the allowed access types for this {@link CoverageAccess}.
+	 * 
+	 * @return a {@link List} containing the allowed access types for this {@link CoverageAccess}.
+	 */
+	public List<CoverageAccess.AccessType> allowedAccessTypes();
+	
 	/**
 	 * Description of the CoverageAccess we are connected to here.
 	 * 
@@ -58,8 +69,10 @@ public interface CoverageAccess {
 	 * 
 	 * @param coverageIndex
 	 * @return
+	 * 
+	 * @todo conside geoapi extent
 	 */
-	Object getCoverageOfferingBrief(Name coverageName,final ProgressListener listener);
+	GeneralEnvelope getExtent(Name coverageName,final ProgressListener listener);
 	// It is nicer to make the getInfo( Name, listener ) method return a subclass
 	// of GeoResourceInfo that has additional information about what is going on?
 	
@@ -95,7 +108,21 @@ public interface CoverageAccess {
 	 * @param Name name of coverage to access
 	 * @return
 	 */
-	CoverageSource access(Name name, Hints hints, AccessType accessType );
+	CoverageSource access(Name name,Map<String, Parameter<?>> params,AccessType accessType,Hints hints, ProgressListener listener );
+	
+
+	/**
+	 * Describes the required (and optional) parameters that
+	 * can be used to open a {@link CoverageSource}.
+	 * <p>
+	 * @return Param a {@link Map} describing the {@link Map} for {@link #connect(Map)}.
+	 */
+	Map<String, Parameter<?>> getAccessParameterInfo(CoverageAccess.AccessType accessType);	
+	
+	/**
+
+	 */
+	Map<String, Parameter<?>> getConnectParameter();
 
 	/**
 	 * The factory/format that was used to connect to this CoverageAccess.
@@ -107,7 +134,7 @@ public interface CoverageAccess {
 	/**
 	 * This will free any cached info object or header information.
 	 * <p>
-	 * Often a GridAccess will keep a file channel open, this will clean that
+	 * Often a {@link CoverageAccess} will keep a file channel open, this will clean that
 	 * sort of thing up.
 	 */
 	void dispose();

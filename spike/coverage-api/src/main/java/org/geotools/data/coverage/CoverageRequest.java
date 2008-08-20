@@ -18,6 +18,7 @@ package org.geotools.data.coverage;
 
 import java.util.Map;
 
+import org.geotools.data.Parameter;
 import org.geotools.factory.Hints;
 
 /**
@@ -30,7 +31,7 @@ public class CoverageRequest {
 	private String identifier;
 	private String handle;
 	private Hints hints;
-	private Map<String, Object> additionalParameters;
+	private Map<String,Parameter<?>> additionalParameters;
 
 	/**
 	 * @return
@@ -88,7 +89,7 @@ public class CoverageRequest {
 	 * @param  additionalParameters
 	 * @uml.property  name="additionalParameters"
 	 */
-	public void setAdditionalParameters( Map<String,Object> additionalParameters){
+	public void setAdditionalParameters( Map<String,Parameter<?>> additionalParameters){
 		this.additionalParameters = additionalParameters;
 	}
 
@@ -96,13 +97,8 @@ public class CoverageRequest {
 	 * @uml.property  name="additionalParameters"
 	 * @uml.associationEnd  multiplicity="(0 -1)" container="org.geotools.data.coverage.Param"
 	 */
-	public Map<String,Object> getAdditionalParameters(){
+	public Map<String, Parameter<?>> getAdditionalParameters() {
 		return additionalParameters;
 	}
-	
-	// This is not generally how we use a listener
-	// public void setListener (final ProgressListener listener);
-	//
-	// public ProgressListener getListener();
 
 }
