@@ -157,10 +157,8 @@ public class PropertyDataStoreFactory implements DataStoreFactorySpi {
         	directoryLookup(params);
             return true;
         } catch (Exception erp) {
-        	if(LOGGER.isLoggable(Level.FINE)){
-        		LOGGER.log(Level.FINE, "can't process parameters", erp);
-        	}
-        	return false;
+            //can't process, just return false
+            return false;
         }
     }
     
