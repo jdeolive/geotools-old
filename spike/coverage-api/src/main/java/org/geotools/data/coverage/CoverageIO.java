@@ -38,7 +38,7 @@ public class CoverageIO {
      * to by the params map.
      *
      * <p>
-     * If this datasource requires a number of parameters then this mehtod
+     * If this datasource requires a number of parameters then this method
      * should check that they are all present and that they are all valid. If
      * the datasource is a file reading data source then the extentions or
      * mime types of any files specified should be checked. For example, a
@@ -51,7 +51,7 @@ public class CoverageIO {
      *
      * @return booean true if and only if this factory can process the resource
      *         indicated by the param set and all the required params are
-     *         pressent.
+     *         present.
      */
     public static boolean canCreateCoverageDataSetProcess(java.util.Map<String, Serializable> params){
 		return false;
