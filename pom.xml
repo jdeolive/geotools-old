@@ -916,6 +916,16 @@
 
 
     <plugins>
+        <plugin>
+          <!-- groupId org.apache.maven.plugins is the default -->
+          <artifactId>maven-assembly-plugin</artifactId>
+          <configuration>
+            <descriptors>
+              <descriptor>build/maven/assembly/binaryDist.xml</descriptor>
+              <descriptor>build/maven/assembly/sourceDist.xml</descriptor>
+            </descriptors>
+          </configuration>
+        </plugin>
       <!-- ======================================================= -->
       <!--     Source reformat                                     -->
       <!--       (activated only on request, jalopy:format)        -->
@@ -1219,7 +1229,5 @@
     <module>modules</module>
     <module>demo</module>
   </modules>
-
-
 </project>
 

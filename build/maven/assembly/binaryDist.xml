@@ -12,18 +12,17 @@
        $Id$
        $URL$
      ====================================================================== -->
-
 <assembly>
   <id>bin</id>
   <formats>
     <format>zip</format>
   </formats>
-
-  <!-- Specifies which groups of files to include in the assembly. -->
   <fileSets>
     <fileSet>
       <includes>
         <include>README*</include>
+        <include>LICENSE*</include>
+        <include>NOTICE*</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -34,12 +33,7 @@
       </includes>
     </fileSet>
     <fileSet>
-      <!-- The relative location from the module's directory. -->
       <directory>target/binaries</directory>
-
-      <!-- The output directory relative to the root target.
-           This is needed in order to prevent the assembly to store the
-           JARs in a "target/binaries" directory inside the ZIP file. -->
       <outputDirectory></outputDirectory>
       <includes>
         <include>*.jar</include>

@@ -81,34 +81,86 @@
          <module>tile</module>
        </modules>
      </profile>
+
+     <!-- ================================================== -->
+     <!--     Unsupported Modules                            -->
+     <!-- ================================================== -->
+     <!-- The following profiles can all be turned on by     -->
+     <!-- providing -Dall on the command line.               -->
+     <!--                                                    -->
+     <!-- These modules are included in the build and deploy -->
+     <!-- but have not passed our QA and Doc requirements    -->
+     <!-- so you may/should consider them risky              -->
+     <profile>
+       <id>raster</id>
+       <activation>
+         <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>coverageio</module>
+         <module>coverageio-netcdf</module>
+         <module>coveragetools</module>
+         <module>imageio-ext-gdal</module>
+         <module>imagemosaic-jdbc</module>
+       </modules>
+     </profile>
+     <profile>
+       <id>geometry</id>
+       <activation>
+         <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>jts-wrapper</module>
+         <module>geometry</module>
+       </modules>
+     </profile>
+     <profile>
+       <id>swing</id>
+       <activation>
+         <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>widgets-swing-pending</module>
+       </modules>
+     </profile>
+     <profile>
+       <id>workflow</id>
+       <activation>
+         <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>process</module>
+         <module>wps</module>
+       </modules>
+     </profile>
+
+     <profile>
+       <id>unsupported</id>
+       <activation>
+         <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>directory</module>
+         <module>epsg-oracle</module>
+         <module>gml</module>    
+         <module>gpx</module>
+         <module>h2</module>
+         <module>mappane</module>
+         <module>mif</module>
+         <module>mysql</module>
+         <module>oracle-spatial</module>
+         <module>postgis-versioned</module>
+         <module>repository</module>
+         <module>temporal</module>
+         <module>tiger</module>
+         <module>vpf</module>
+         <module>xml-gpx</module>
+       </modules>
+     </profile>
   </profiles>
 
   <modules>
-    <module>coverageio</module>
-    <module>coverageio-netcdf</module>
-    <module>coveragetools</module>
-    <module>directory</module>
-    <module>epsg-oracle</module>
-    <module>geometry</module>
-    <module>gml</module>    
-    <module>gpx</module>
-    <module>h2</module>
-    <module>imagemosaic-jdbc</module>
-    <module>jts-wrapper</module>
-    <module>mappane</module>
-    <module>mif</module>
-    <module>mysql</module>
     <module>ogc</module>
-    <module>oracle-spatial</module>
-    <module>postgis-versioned</module>
-    <module>process</module>
-    <module>wps</module>
-    <module>repository</module>
-    <module>temporal</module>
-    <module>tiger</module>
-    <module>vpf</module>
-    <module>widgets-swing-pending</module>
-    <module>xml-gpx</module>
   </modules>
 
 </project>
