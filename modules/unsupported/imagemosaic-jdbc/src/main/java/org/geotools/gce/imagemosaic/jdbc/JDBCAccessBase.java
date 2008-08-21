@@ -722,7 +722,7 @@ abstract class JDBCAccessBase implements JDBCAccess {
             	if (LOGGER.isLoggable(Level.WARNING)) {
             		LOGGER.warning("Image IO cannot read from ByteInputStream,use less efficient jai methods");
             	}
-            	li.setCanImageIOReadFromInputStream(true);
+            	li.setCanImageIOReadFromInputStream(false);
             	SeekableStream stream = new ByteArraySeekableStream(tileBytes);
             	String decoderName = null;
 
