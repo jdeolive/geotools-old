@@ -108,13 +108,14 @@ public interface CoverageAccess {
 	 * @param accessType
 	 * @param hints
 	 * @param listener
-	 * @param canCreate tells the {@link CoverageSource} whether or not the request should fail for a non-existent {@link CoverageAccess}.
+	 * @param createIfNotExists tells the {@link CoverageSource} whether or not the request should fail for a non-existent {@link CoverageAccess}.
 	 * @return
 	 * 
 	 * @todo TODO Should we use typename??
 	 */
-	CoverageSource access(Name name,Map<String, Parameter<?>> params,AccessType accessType,Hints hints, ProgressListener listener, boolean canCreate )throws IOException;
-	
+	CoverageSource access(Name name,Map<String, Parameter<?>> params,AccessType accessType,Hints hints, ProgressListener listener)throws IOException;
+
+	CoverageStore create(Name name,Map<String, Parameter<?>> params,AccessType accessType,Hints hints, ProgressListener listener)throws IOException;
 	
 	/**
 	 * Asks this {@link CoverageAccess} to entirely remove a certain Coverage from the available {@link CoverageSource}s.

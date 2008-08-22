@@ -25,6 +25,8 @@ import org.opengis.coverage.Coverage;
 /**
  * @author   Simone Giannecchini, GeoSolutions
  * @todo revisit and improve when feedback starts to flow in
+ * @todo inherit {@link CoverageReadRequest} and add a method to obtain the capabilities 
+ * for a {@link CoverageStore}
  */
 public class CoverageUpdateRequest extends CoverageRequest {
 

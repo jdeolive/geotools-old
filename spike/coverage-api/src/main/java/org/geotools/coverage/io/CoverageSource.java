@@ -26,7 +26,6 @@ import javax.media.jai.ImageLayout;
 
 import org.geotools.coverage.io.range.RangeType;
 import org.geotools.data.ResourceInfo;
-import org.geotools.factory.Hints;
 import org.geotools.referencing.CRS;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.feature.type.Name;
@@ -47,7 +46,7 @@ import org.opengis.util.ProgressListener;
  * 
  * @author Simone Giannecchini, GeoSolusions
  * @author Jody Garnett
- * @todo
+ * @todo add a method to obtain capabilities for this {@link CoverageSource}
  */
 public interface CoverageSource {
 
@@ -124,6 +123,8 @@ public interface CoverageSource {
 	 * @return
 	 * @throws IOException
 	 * @todo consider {@link TransfiniteSet} as an alternative to {@link SortedSet}
+	 * @todo allow using an interval as well as a direct position
+	 * @todo allow transfinite sets!
 	 */
 	public SortedSet<DirectPosition> getVerticalDomain(final boolean global,
 			final ProgressListener listener) throws IOException;
@@ -184,6 +185,7 @@ public interface CoverageSource {
 	 *       {@link TemporalPrimitive}? Should we consider GML TimeSequence
 	 * @param listener
 	 * @return an ordered {@link Set} of {@link TemporalPrimitive}s elements.
+	 * @todo allow transfinite sets!
 	 * @throws IOException
 	 */
 	public SortedSet<TemporalGeometricPrimitive> getTemporalDomain(
@@ -209,7 +211,7 @@ public interface CoverageSource {
 	 * @return
 	 * @throws IOException
 	 */
-	public CoverageResponse read(final CoverageRequest request,final Hints ints,final ProgressListener listener) throws IOException;
+	public CoverageResponse read(final CoverageRequest request,final ProgressListener listener) throws IOException;
 
 	/**
 	 * Retrieves a {@link RangeType} instance which can be used to describe the
