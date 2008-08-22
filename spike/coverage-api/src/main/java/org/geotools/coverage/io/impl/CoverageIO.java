@@ -26,7 +26,7 @@ import org.geotools.coverage.io.CoverageAccessFactory;
 
 /**
  * A class containing static convenience methods for locating
- * <code>CoverageStore</code>s and specific <code>CoverageSource</code>s,
+ * <code>CoverageAccess</code>s and specific <code>CoverageSource</code>s,
  * and performing simple encoding and decoding.
  * 
  * 
