@@ -3,8 +3,11 @@ package org.geotools.coverage.io;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
+import org.geotools.data.Parameter;
 import org.geotools.factory.Hints;
+import org.opengis.util.ProgressListener;
 
 /**
  * CoverageAccessFactory for working with formats based on a single URL.
@@ -12,7 +15,7 @@ import org.geotools.factory.Hints;
  * @author Simone Giannecchini, GeoSolusions
  * @author Jody Garnett
  */
-public interface CoverageFormatFactory extends CoverageAccessFactory {
+public interface FileBasedCoverageAccessFactory extends CoverageAccessFactory {
     /**
      * The list of filename extensions handled by this factory.
      *
@@ -30,7 +33,7 @@ public interface CoverageFormatFactory extends CoverageAccessFactory {
      * @return True when this dataStore can resolve and read the data specified
      *         by the {@link URL}.
      */
-    public boolean canConnect(URL f, boolean failIfNotExists);
+    public boolean canConnect(URL source,boolean failIfNotExists);
     
     /**
      * A DataStore attached to the provided {@link URL}, may be created if needed.
@@ -45,6 +48,6 @@ public interface CoverageFormatFactory extends CoverageAccessFactory {
      *
      * @see AbstractFileDataStore
      */
-    public CoverageAccess connect(URL url,Hints hints, boolean canCreate) throws IOException;
+    public CoverageAccess connect(URL source,Map<String, Parameter<?>> additionalParameters,Hints hints,final ProgressListener listener, boolean canCreate) throws IOException;
 
 }
