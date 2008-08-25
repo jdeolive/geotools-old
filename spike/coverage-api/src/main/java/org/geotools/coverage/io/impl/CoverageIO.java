@@ -30,7 +30,7 @@ import org.geotools.coverage.io.CoverageAccessFactory;
  * and performing simple encoding and decoding.
  * 
  * 
- * @author Simone Giannecchini, GeoSolusions
+ * @author Simone Giannecchini, GeoSolutions
  * @author Jody Garnett
  */
 public class CoverageIO {

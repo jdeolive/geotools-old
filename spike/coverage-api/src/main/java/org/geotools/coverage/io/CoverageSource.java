@@ -44,7 +44,7 @@ import org.opengis.util.ProgressListener;
 /**
  * Allows access to a Coverage.
  * 
- * @author Simone Giannecchini, GeoSolusions
+ * @author Simone Giannecchini, GeoSolutions
  * @author Jody Garnett
  * @todo add a method to obtain capabilities for this {@link CoverageSource}
  */
@@ -130,7 +130,7 @@ public interface CoverageSource {
 			final ProgressListener listener) throws IOException;
 
 	/**
-	 * The first {@link GridEnvelope} should describe the overall bidimensional
+	 * The first {@link Rectangle} should describe the overall bidimensional
 	 * raster range for the underlying coverage. However, by setting the
 	 * <code>overall</code> param to true we can request additional raster
 	 * ranges in case the area covered by the mentioned coverage is poorly
@@ -144,7 +144,7 @@ public interface CoverageSource {
 	 * 
 	 * @todo should we consider {@link GridEnvelope}?? or {@link ImageLayout} which also contains tiling information???
 	 */
-	public Rectangle getRasterDomain(final boolean overall,
+	public List<Rectangle> getRasterDomain(final boolean overall,
 			final ProgressListener listener) throws IOException;
 	/**
 	 * Optimal size to use for each dimension when accessing grid values. These
@@ -206,7 +206,6 @@ public interface CoverageSource {
 	/**
 	 * 
 	 * @param request
-	 * @param ints
 	 * @param listener
 	 * @return
 	 * @throws IOException

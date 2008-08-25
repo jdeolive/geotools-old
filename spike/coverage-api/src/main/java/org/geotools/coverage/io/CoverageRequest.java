@@ -23,7 +23,7 @@ import org.geotools.factory.Hints;
 import org.opengis.feature.type.Name;
 
 /**
- * @author   Simone Giannecchini, GeoSolusions
+ * @author   Simone Giannecchini, GeoSolutions
  * @author   Jody Garnett
  */
 public class CoverageRequest {

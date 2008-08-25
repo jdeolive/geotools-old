@@ -21,43 +21,41 @@ import java.util.Collection;
 import org.opengis.coverage.Coverage;
 import org.opengis.util.ProgressListener;
 
-
 /**
- * A coverage response; please check the status before assuming any data is available.
-  */
+ * A coverage response; please check the status before assuming any data is
+ * available.
+ */
 public interface CoverageResponse {
-   
+
     /**
-	 * @author      Administrator
-	 */
-    public enum Status{
-    	FAILURE,WARNING,SUCCESS,UNAVAILABLE
+     * @author Simone Giannecchini, GeoSolutions
+     */
+    public enum Status {
+        FAILURE, WARNING, SUCCESS, UNAVAILABLE
     }
-    
+
     /**
-     * The handle attribute is included to allow a client to associate  a
+     * The handle attribute is included to allow a client to associate a
      * mnemonic name to the Query request. The purpose of the handle attribute
-     * is to provide an error handling mechanism for locating  a statement
-     * that might fail.
-     *
+     * is to provide an error handling mechanism for locating a statement that
+     * might fail.
+     * 
      * @return the mnemonic name of the query request.
      */
     String getHandle();
-    
-    
+
     Status getStatus();
 
-	Collection<? extends Exception> getExceptions();
-	// exceptions are fine for reporting problems
-	// but a more difficult fit for reporting warnings
+    Collection<? extends Exception> getExceptions();
 
-	/**
-	 *
-	 */
-	public void getRequest();
-	
-	Collection<? extends Coverage> getResults(final ProgressListener listener);
-	
+    // exceptions are fine for reporting problems
+    // but a more difficult fit for reporting warnings
+
+    /**
+     * 
+     */
+    public void getRequest();
+
+    Collection<? extends Coverage> getResults(final ProgressListener listener);
+
 }
-
-   

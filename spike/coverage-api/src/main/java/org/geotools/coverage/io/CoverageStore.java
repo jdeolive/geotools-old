@@ -21,7 +21,7 @@ import org.opengis.util.ProgressListener;
 /**
  * Provided write access to a coverage data product.
  * 
- * @author Simone Giannecchini, GeoSolusions
+ * @author Simone Giannecchini, GeoSolutions
  * @author Jody Garnett
  * @todo revisit and improve when feedback starts to flow in
  */
