@@ -20,7 +20,6 @@ import java.awt.Rectangle;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.io.range.RangeType;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;

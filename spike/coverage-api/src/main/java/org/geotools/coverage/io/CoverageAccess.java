@@ -19,6 +19,7 @@ package org.geotools.coverage.io;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.geotools.data.Parameter;
 import org.geotools.data.ServiceInfo;
@@ -46,7 +47,7 @@ public interface CoverageAccess {
 		/** Read-only access to coverage data */
 		READ_ONLY,
 		/** Read-write access to coverage data */
-		UPDATE;
+		READ_WRITE;
 	}
 	
 	/**
@@ -54,7 +55,7 @@ public interface CoverageAccess {
 	 * 
 	 * @return a {@link List} containing the allowed access types for this {@link CoverageAccess}.
 	 */
-	public List<CoverageAccess.AccessType> allowedAccessTypes();
+	public Set<AccessType> allowedAccessTypes();
 	
 	/**
 	 * Description of the CoverageAccess we are connected to here.
@@ -115,7 +116,7 @@ public interface CoverageAccess {
 	 */
 	CoverageSource access(Name name,Map<String, Parameter<?>> params,AccessType accessType,Hints hints, ProgressListener listener)throws IOException;
 
-	CoverageStore create(Name name,Map<String, Parameter<?>> params,AccessType accessType,Hints hints, ProgressListener listener)throws IOException;
+	CoverageStore create(Name name,Map<String, Parameter<?>> params,Hints hints, ProgressListener listener)throws IOException;
 	
 	/**
 	 * Asks this {@link CoverageAccess} to entirely remove a certain Coverage from the available {@link CoverageSource}s.
