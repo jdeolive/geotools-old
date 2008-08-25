@@ -543,6 +543,8 @@ public class ShapefileRenderer implements GTRenderer {
             return;
         }
         
+        SimpleFeatureBuilder fbuilder = new SimpleFeatureBuilder(type);
+        
         try {
             while( true ) {
                 try {
@@ -593,7 +595,7 @@ public class ShapefileRenderer implements GTRenderer {
                         continue;
                     }
 
-                    SimpleFeature feature = createFeature(type, record, dbfreader, nextFid);
+                    SimpleFeature feature = createFeature(fbuilder, record, dbfreader, nextFid);
                     if (!query.getFilter().evaluate(feature))
                         continue;
 
@@ -697,20 +699,20 @@ public class ShapefileRenderer implements GTRenderer {
         return new Class[]{PointSymbolizer.class, LineSymbolizer.class};
     }
 
-    SimpleFeature createFeature( SimpleFeatureType type, Record record, DbaseFileReader dbfreader, String id )
+    SimpleFeature createFeature(SimpleFeatureBuilder builder, Record record, DbaseFileReader dbfreader, String id )
             throws Exception {
+        SimpleFeatureType type = builder.getFeatureType();
         if (type.getAttributeCount() == 1) {
-            return SimpleFeatureBuilder.build(type,new Object[]{getGeom(record.shape(), type.getGeometryDescriptor())}, id);
+            builder.add(getGeom(record.shape(), type.getGeometryDescriptor()));
+            return builder.buildFeature(id);
         } else {
             Object[] all = dbfreader.readEntry();
-            Object[] values = new Object[type.getAttributeCount()];
 
-            for( int i = 0; i < (values.length - 1); i++ ) {
-                values[i] = all[attributeIndexing[i]];
+            for( int i = 0; i < (type.getAttributeCount() - 1); i++ ) {
+                builder.add(all[attributeIndexing[i]]);
             }
-            values[values.length - 1] = getGeom(record.shape(), type.getGeometryDescriptor());
-
-            return SimpleFeatureBuilder.build(type,values, id);
+            builder.add(getGeom(record.shape(), type.getGeometryDescriptor()));
+            return builder.buildFeature(id);
         }
     }
 

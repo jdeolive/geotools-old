@@ -189,7 +189,8 @@ public class ShapeRendererTest extends TestCase {
                         .getShpReader(ds, bounds, 
                                 new Rectangle(0,0,(int)bounds.getWidth(), (int)bounds.getHeight()),
                                 IDENTITY, false, false);
-        SimpleFeature feature = renderer.createFeature(type, shpReader.nextRecord(), reader, "id");
+        SimpleFeatureBuilder builder = new SimpleFeatureBuilder(type);
+        SimpleFeature feature = renderer.createFeature(builder, shpReader.nextRecord(), reader, "id");
         shpReader.close();
         reader.close();
         

@@ -174,6 +174,14 @@ public class SimpleFeatureBuilder {
     }
     
     /**
+     * Returns the simple feature type used by this builder as a feature template
+     * @return
+     */
+    public SimpleFeatureType getFeatureType() {
+        return featureType;
+    }
+    
+    /**
      * Initialize the builder with the provided feature.
      * <p>
      * This method adds all the attributes from the provided feature. It is 
