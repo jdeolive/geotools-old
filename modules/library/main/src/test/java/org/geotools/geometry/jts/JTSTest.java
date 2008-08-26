@@ -19,28 +19,24 @@ package org.geotools.geometry.jts;
 // J2SE dependencies
 import java.awt.geom.AffineTransform;
 
-// JTS dependencies
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-
-// OpenGIS dependencies
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.MathTransform2D;
-import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-// Geotools dependencies
-import org.geotools.referencing.wkt.Parser;
-import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.referencing.crs.DefaultProjectedCRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.operation.matrix.GeneralMatrix;
-import org.geotools.referencing.operation.projection.PointOutsideEnvelopeException;
-
-// JUnit dependencies
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.crs.DefaultProjectedCRS;
+import org.geotools.referencing.operation.matrix.GeneralMatrix;
+import org.geotools.referencing.operation.projection.PointOutsideEnvelopeException;
+import org.geotools.referencing.wkt.Parser;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform2D;
+import org.opengis.referencing.operation.TransformException;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 
 /**
@@ -112,6 +108,10 @@ public class JTSTest extends TestCase {
         return new TestSuite(JTSTest.class);
     }
 
+    public void testJTSFactory(){
+        GeometryFactory gf= JTSFactoryFinder.getGeometryFactory( null );
+        assertNotNull( gf );
+    }
     /**
      * Tests the transformation of a single coordinate.
      */
