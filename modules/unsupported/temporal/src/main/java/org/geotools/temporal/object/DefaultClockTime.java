@@ -16,7 +16,7 @@
  */
 package org.geotools.temporal.object;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.temporal.ClockTime;
 import org.opengis.temporal.IndeterminateValue;
 import org.opengis.temporal.TemporalReferenceSystem;
@@ -60,7 +60,10 @@ public class DefaultClockTime extends DefaultTemporalPosition implements ClockTi
 
     @Override
     public boolean equals(final Object object) {
-        if (super.equals(object)) {
+        if (object == this) {
+            return true;
+        }
+        if (object instanceof DefaultClockTime && super.equals(object)) {
             final DefaultClockTime that = (DefaultClockTime) object;
 
             return Utilities.equals(this.clockTime, that.clockTime);

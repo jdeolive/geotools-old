@@ -20,7 +20,7 @@ import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.temporal.CalendarDate;
 import org.opengis.temporal.DateAndTime;

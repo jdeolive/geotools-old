@@ -18,7 +18,7 @@ package org.geotools.temporal.object;
 
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.NamedIdentifier;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.temporal.reference.DefaultTemporalReferenceSystem;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.temporal.IndeterminateValue;

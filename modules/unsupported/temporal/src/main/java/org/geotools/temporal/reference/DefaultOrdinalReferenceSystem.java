@@ -17,7 +17,7 @@
 package org.geotools.temporal.reference;
 
 import java.util.Collection;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.metadata.extent.Extent;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.temporal.OrdinalEra;
@@ -53,7 +53,7 @@ public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSyste
         if (object == this) {
             return true;
         }
-        if (super.equals(object)) {
+        if (object instanceof DefaultOrdinalReferenceSystem && super.equals(object)) {
             final DefaultOrdinalReferenceSystem that = (DefaultOrdinalReferenceSystem) object;
 
             return Utilities.equals(this.ordinalEraSequence, that.ordinalEraSequence);

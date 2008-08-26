@@ -18,7 +18,7 @@ package org.geotools.temporal.reference;
 
 import java.util.Collection;
 import java.util.Set;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.metadata.extent.Extent;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.temporal.TemporalReferenceSystem;

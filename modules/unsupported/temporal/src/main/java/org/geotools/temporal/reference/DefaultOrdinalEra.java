@@ -18,7 +18,7 @@ package org.geotools.temporal.reference;
 
 import java.util.Collection;
 import java.util.Date;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.temporal.OrdinalEra;
 import org.opengis.util.InternationalString;
 

@@ -16,7 +16,7 @@
  */
 package org.geotools.temporal.object;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.temporal.CalendarDate;
 import org.opengis.temporal.CalendarEra;
 import org.opengis.temporal.IndeterminateValue;
@@ -77,7 +77,10 @@ public class DefaultCalendarDate extends DefaultTemporalPosition implements Cale
 
     @Override
     public boolean equals(final Object object) {
-        if (super.equals(object)) {
+        if (object == this) {
+            return true;
+        }
+        if (object instanceof DefaultCalendarDate && super.equals(object)) {
             final DefaultCalendarDate that = (DefaultCalendarDate) object;
 
             return Utilities.equals(this.calendarDate, that.calendarDate) &&

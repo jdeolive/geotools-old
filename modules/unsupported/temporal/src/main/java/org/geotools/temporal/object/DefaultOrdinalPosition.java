@@ -16,7 +16,7 @@
  */
 package org.geotools.temporal.object;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.temporal.IndeterminateValue;
 import org.opengis.temporal.OrdinalEra;
 import org.opengis.temporal.OrdinalPosition;
@@ -55,7 +55,10 @@ public class DefaultOrdinalPosition extends DefaultTemporalPosition implements O
 
     @Override
     public boolean equals(final Object object) {
-        if (super.equals(object)) {
+        if (object == this) {
+            return true;
+        }
+        if (object instanceof DefaultOrdinalPosition && super.equals(object)) {
             final DefaultOrdinalPosition that = (DefaultOrdinalPosition) object;
 
             return Utilities.equals(this.ordinalPosition, that.ordinalPosition);

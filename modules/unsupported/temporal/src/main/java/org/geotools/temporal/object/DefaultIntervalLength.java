@@ -17,7 +17,7 @@
 package org.geotools.temporal.object;
 
 import javax.measure.unit.Unit;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.temporal.IntervalLength;
 
 /**

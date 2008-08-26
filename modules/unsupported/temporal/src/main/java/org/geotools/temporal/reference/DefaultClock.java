@@ -17,7 +17,7 @@
 package org.geotools.temporal.reference;
 
 import java.util.Collection;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.temporal.Calendar;
 import org.opengis.temporal.Clock;
 import org.opengis.temporal.ClockTime;

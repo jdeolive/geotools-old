@@ -16,8 +16,6 @@
  */
 package org.geotools.temporal.object;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opengis.temporal.Duration;
@@ -78,20 +76,20 @@ public abstract class DefaultTemporalGeometricPrimitive extends DefaultTemporalP
 
         if (this.relativePosition(other).equals(RelativePosition.BEFORE) || this.relativePosition(other).equals(RelativePosition.AFTER)) {
             if (this instanceof Instant && other instanceof Instant) {
-                diff = Math.min( Math.abs( ((Instant) other).getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime() ),
-                        Math.abs( ((Instant) this).getPosition().getDate().getTime() - ((Instant) other).getPosition().getDate().getTime() ) );
+                diff = Math.min(Math.abs(((Instant) other).getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime()),
+                        Math.abs(((Instant) this).getPosition().getDate().getTime() - ((Instant) other).getPosition().getDate().getTime()));
             } else {
                 if (this instanceof Instant && other instanceof Period) {
-                    diff = Math.min( Math.abs( ((Period) other).getBeginning().getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime() ), 
-                            Math.abs( ((Period) other).getEnding().getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime()));
+                    diff = Math.min(Math.abs(((Period) other).getBeginning().getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime()),
+                            Math.abs(((Period) other).getEnding().getPosition().getDate().getTime() - ((Instant) this).getPosition().getDate().getTime()));
                 } else {
                     if (this instanceof Period && other instanceof Instant) {
-                        diff = Math.min( Math.abs( ((Instant) other).getPosition().getDate().getTime() - ((Period) this).getEnding().getPosition().getDate().getTime() ),
-                                Math.abs( ((Instant) other).getPosition().getDate().getTime() - ((Period) this).getBeginning().getPosition().getDate().getTime()));
+                        diff = Math.min(Math.abs(((Instant) other).getPosition().getDate().getTime() - ((Period) this).getEnding().getPosition().getDate().getTime()),
+                                Math.abs(((Instant) other).getPosition().getDate().getTime() - ((Period) this).getBeginning().getPosition().getDate().getTime()));
                     } else {
                         if (this instanceof Period && other instanceof Period) {
-                            diff = Math.min( Math.abs( ((Period) other).getEnding().getPosition().getDate().getTime() - ((Period) this).getBeginning().getPosition().getDate().getTime() ),
-                                    Math.abs( ((Period) other).getBeginning().getPosition().getDate().getTime() - ((Period) this).getEnding().getPosition().getDate().getTime()));
+                            diff = Math.min(Math.abs(((Period) other).getEnding().getPosition().getDate().getTime() - ((Period) this).getBeginning().getPosition().getDate().getTime()),
+                                    Math.abs(((Period) other).getBeginning().getPosition().getDate().getTime() - ((Period) this).getEnding().getPosition().getDate().getTime()));
                         }
                     }
                 }

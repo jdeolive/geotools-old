@@ -17,7 +17,7 @@
 package org.geotools.temporal.reference;
 
 import java.util.Date;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.temporal.object.DefaultTemporalCoordinate;
 import org.opengis.metadata.extent.Extent;
 import org.opengis.referencing.ReferenceIdentifier;
@@ -152,7 +152,7 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
         if (object == this) {
             return true;
         }
-        if (super.equals(object)) {
+        if (object instanceof DefaultTemporalCoordinateSystem && super.equals(object)) {
             if (object instanceof DefaultTemporalCoordinateSystem) {
                 final DefaultTemporalCoordinateSystem that = (DefaultTemporalCoordinateSystem) object;
 

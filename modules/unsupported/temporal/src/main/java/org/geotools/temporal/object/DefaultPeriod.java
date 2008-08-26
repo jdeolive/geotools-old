@@ -17,7 +17,7 @@
 package org.geotools.temporal.object;
 
 import java.util.Date;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.opengis.temporal.RelativePosition;

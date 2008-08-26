@@ -16,7 +16,7 @@
  */
 package org.geotools.temporal.object;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.temporal.CalendarDate;
 import org.opengis.temporal.DateAndTime;
 import org.opengis.temporal.IndeterminateValue;
@@ -95,7 +95,10 @@ public class DefaultDateAndTime extends DefaultTemporalPosition implements DateA
 
     @Override
     public boolean equals(final Object object) {
-        if (super.equals(object)) {
+        if (object == this) {
+            return true;
+        }
+        if (object instanceof DefaultDateAndTime && super.equals(object)) {
             final DefaultDateAndTime that = (DefaultDateAndTime) object;
 
             return Utilities.equals(this.calendarDate, that.calendarDate) &&

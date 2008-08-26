@@ -16,7 +16,7 @@
  */
 package org.geotools.temporal.object;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.opengis.temporal.IndeterminateValue;
 import org.opengis.temporal.TemporalCoordinate;
 import org.opengis.temporal.TemporalReferenceSystem;
@@ -55,7 +55,10 @@ public class DefaultTemporalCoordinate extends DefaultTemporalPosition implement
 
     @Override
     public boolean equals(final Object object) {
-        if (super.equals(object)) {
+        if (object == this) {
+            return true;
+        }
+        if (object instanceof DefaultTemporalCoordinate && super.equals(object)) {
             final DefaultTemporalCoordinate that = (DefaultTemporalCoordinate) object;
 
             return Utilities.equals(this.coordinateValue, that.coordinateValue);

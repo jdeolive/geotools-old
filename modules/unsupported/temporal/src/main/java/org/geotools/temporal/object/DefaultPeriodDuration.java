@@ -16,7 +16,7 @@
  */
 package org.geotools.temporal.object;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.temporal.PeriodDuration;
 import org.opengis.util.InternationalString;

@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.GregorianCalendar;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.NamedIdentifier;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.temporal.object.DefaultCalendarDate;
 import org.geotools.temporal.object.DefaultDateAndTime;
 import org.geotools.temporal.object.DefaultJulianDate;
@@ -269,7 +269,7 @@ public class DefaultCalendar extends DefaultTemporalReferenceSystem implements C
         if (object == this) {
             return true;
         }
-        if (super.equals(object)) {
+        if (object instanceof DefaultCalendar && super.equals(object)) {
             final DefaultCalendar that = (DefaultCalendar) object;
 
             return Utilities.equals(this.basis, that.basis) &&
