@@ -344,7 +344,11 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
             } else {
                 //no post filter, we have a preFilter, or preFilter is null.. 
                 // either way we can use the datastore optimization
-                return dataStore.getCount(getSchema(), preFilter, dataStore.getConnection(getState()));
+                int count = dataStore.getCount(getSchema(), preFilter, dataStore.getConnection(getState()));
+                if(query.getMaxFeatures() > 0 && count > query.getMaxFeatures())
+                    return query.getMaxFeatures();
+                else
+                    return count;
             } 
         
     }

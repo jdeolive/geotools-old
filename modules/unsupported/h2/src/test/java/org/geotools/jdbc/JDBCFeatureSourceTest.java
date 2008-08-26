@@ -177,4 +177,22 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         f = (SimpleFeature) iterator.next();
         assertEquals("one", f.getAttribute("stringProperty"));
     }
+    
+    public void testGetFeaturesWithMax() throws Exception {
+        DefaultQuery q = new DefaultQuery(featureSource.getSchema().getTypeName());
+        q.setMaxFeatures(2);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(q);
+        
+        // check size
+        assertEquals(2, features.size());
+        
+        // check actual iteration
+        Iterator it = features.iterator();
+        int count = 0;
+        while(it.hasNext()) {
+            it.next();
+            count++;
+        }
+        assertEquals(2, count);
+    }
 }

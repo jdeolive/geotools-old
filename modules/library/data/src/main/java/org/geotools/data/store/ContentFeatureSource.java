@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.geotools.data.DataUtilities;
@@ -30,20 +31,25 @@ import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FilteringFeatureReader;
+import org.geotools.data.MaxFeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.Transaction;
+import org.geotools.data.crs.ReprojectFeatureReader;
 import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.OperationNotFoundException;
 
 
 /**
@@ -501,14 +507,21 @@ public abstract class ContentFeatureSource implements FeatureSource<SimpleFeatur
         // reprojection
         if ( !canReproject() ) {
             if (query.getCoordinateSystemReproject() != null) {
-                
+                try {
+                    reader = new ReprojectFeatureReader(reader, query.getCoordinateSystemReproject());
+                } catch (Exception e) {
+                    if(e instanceof IOException)
+                        throw (IOException) e;
+                    else
+                        throw (IOException) new IOException("Error occurred trying to reproject data").initCause(e);
+                }
             }    
         }
         
         //max feature limit
         if ( !canLimit() ) {
             if (query.getMaxFeatures() != -1 && query.getMaxFeatures() < Integer.MAX_VALUE ) {
-                
+                reader = new MaxFeatureReader<SimpleFeatureType, SimpleFeature>(reader, query.getMaxFeatures());
             }    
         }
         
