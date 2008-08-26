@@ -62,7 +62,8 @@ public class JTSFactoryFinder extends FactoryFinder {
     private static FactoryRegistry getServiceRegistry() {
         assert Thread.holdsLock(JTSFactoryFinder.class);
         if (registry == null) {
-            registry = new Registry();
+            registry = new FactoryCreator(Arrays.asList(new Class<?>[] { GeometryFactory.class } ));
+            registry.registerServiceProvider( new GeometryFactory(), GeometryFactory.class );
         }
         return registry;
     }
