@@ -1642,7 +1642,7 @@ public final class JDBCDataStore extends ContentDataStore
         encodeTableName(featureType.getTypeName(), sql);
 
         //filtering
-        if (filter != null) {
+        if (filter != null && !Filter.INCLUDE.equals(filter)) {
             //encode filter
             try {
                 FilterToSQL toSQL = createFilterToSQL(featureType);
@@ -1722,7 +1722,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(" FROM ");
         encodeTableName(featureType.getTypeName(), sql);
 
-        if (filter != null) {
+        if (filter != null  && !Filter.INCLUDE.equals(filter)) {
             //encode filter
             try {
                 FilterToSQL toSQL = createFilterToSQL(featureType);
@@ -1744,7 +1744,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append("SELECT count(*) FROM ");
         encodeTableName(featureType.getTypeName(), sql);
 
-        if (filter != null) {
+        if (filter != null && !Filter.INCLUDE.equals(filter)) {
             //encode filter
             try {
                 FilterToSQL toSQL = createFilterToSQL(featureType);
@@ -1766,7 +1766,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append("DELETE FROM ");
         encodeTableName(featureType.getTypeName(), sql);
 
-        if (filter != null) {
+        if (filter != null && !Filter.INCLUDE.equals(filter)) {
             //encode filter
             try {
                 FilterToSQL toSQL = createFilterToSQL(featureType);
@@ -1899,7 +1899,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.setLength(sql.length() - 1);
         sql.append(" ");
 
-        if (filter != null) {
+        if (filter != null  && !Filter.INCLUDE.equals(filter)) {
             //encode filter
             try {
                 FilterToSQL toSQL = createFilterToSQL(featureType);

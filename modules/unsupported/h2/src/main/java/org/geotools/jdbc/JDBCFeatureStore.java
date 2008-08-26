@@ -35,6 +35,7 @@ import org.geotools.data.store.ContentFeatureStore;
 import org.geotools.data.store.ContentState;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
+import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Association;
 import org.opengis.feature.simple.SimpleFeature;
@@ -302,6 +303,10 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
             split[1] = splitter.getFilterPost();
         }
         
+        SimplifyingFilterVisitor visitor = new SimplifyingFilterVisitor();
+        split[0] = (Filter) split[0].accept(visitor, null);
+        split[1] = (Filter) split[1].accept(visitor, null);
+        
         return split;
     }
 
@@ -313,33 +318,35 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
         Filter preFilter = split[0];
         Filter postFilter = split[1];
         
-        try {
+        
             if ((postFilter != null) && (postFilter != Filter.INCLUDE)) {
-                //calculate manually, dont use datastore optimization
-                getDataStore().getLogger().fine("Calculating size manually");
-
-                int count = 0;
-
-                //grab a reader
-                 FeatureReader<SimpleFeatureType, SimpleFeature> reader = getReader( query );
                 try {
-                    while (reader.hasNext()) {
-                        reader.next();
-                        count++;
+                    //calculate manually, dont use datastore optimization
+                    getDataStore().getLogger().fine("Calculating size manually");
+    
+                    int count = 0;
+    
+                    //grab a reader
+                     FeatureReader<SimpleFeatureType, SimpleFeature> reader = getReader( query );
+                    try {
+                        while (reader.hasNext()) {
+                            reader.next();
+                            count++;
+                        }
+                    } finally {
+                        reader.close();
                     }
-                } finally {
-                    reader.close();
+    
+                    return count;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-
-                return count;
             } else {
                 //no post filter, we have a preFilter, or preFilter is null.. 
                 // either way we can use the datastore optimization
                 return dataStore.getCount(getSchema(), preFilter, dataStore.getConnection(getState()));
             } 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        
     }
     
     protected ReferencedEnvelope getBoundsInternal(Query query)
