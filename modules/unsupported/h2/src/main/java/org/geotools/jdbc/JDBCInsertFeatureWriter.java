@@ -33,7 +33,7 @@ public class JDBCInsertFeatureWriter extends JDBCFeatureReader implements Featur
     public JDBCInsertFeatureWriter(String sql, Connection cx,
             JDBCFeatureStore featureStore, Hints hints) throws SQLException, IOException {
         super(sql, cx, featureStore, hints);
-        last = new ResultSetFeature( rs );
+        last = new ResultSetFeature( rs, cx );
     }
 
     
@@ -72,6 +72,10 @@ public class JDBCInsertFeatureWriter extends JDBCFeatureReader implements Featur
 
     public void close() throws IOException {
         super.close();
-        last = null;
+        
+        if ( last != null ) {
+            last.close();
+            last = null;
+        }
     }
 }

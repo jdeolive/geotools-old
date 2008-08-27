@@ -40,7 +40,7 @@ public class JDBCUpdateFeatureWriter extends JDBCFeatureReader implements
             JDBCFeatureStore featureStore, Hints hints) throws SQLException, IOException {
         
         super(sql, cx, featureStore, hints);
-        last = new ResultSetFeature( rs );
+        last = new ResultSetFeature( rs, cx );
     }
 
     public SimpleFeature next() throws IOException, IllegalArgumentException,
@@ -98,6 +98,9 @@ public class JDBCUpdateFeatureWriter extends JDBCFeatureReader implements
 
     public void close() throws IOException {
         super.close();
-        last = null;
+        if ( last != null ) {
+            last.close();
+            last = null;    
+        }
     }
 }
