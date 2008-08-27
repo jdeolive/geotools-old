@@ -16,6 +16,7 @@
  */
 package org.geotools.temporal.object;
 
+import java.util.Calendar;
 import java.util.Collection;
 import org.geotools.util.Utilities;
 import org.opengis.temporal.Instant;
@@ -94,7 +95,7 @@ public class DefaultInstant extends DefaultTemporalGeometricPrimitive implements
         if (object == this) {
             return true;
         }
-        if (object instanceof DefaultInstant && super.equals(object)) {
+        if (object instanceof DefaultInstant) {
             final DefaultInstant that = (DefaultInstant) object;
 
             return Utilities.equals(this.position, that.position) &&
