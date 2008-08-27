@@ -60,16 +60,21 @@ public abstract class JDBCTestSupport extends TestCase {
     static {
         //turn up logging
         /*
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.FINE);
-        org.geotools.util.logging.Logging.getLogger("org.geotools.data.jdbc").setLevel(Level.FINE);
+        java.util.logging.ConsoleHandler handler = new java.util.logging.ConsoleHandler();
+        handler.setLevel(java.util.logging.Level.FINE);
+        
+        org.geotools.util.logging.Logging.getLogger("org.geotools.data.jdbc").setLevel(java.util.logging.Level.FINE);
         org.geotools.util.logging.Logging.getLogger("org.geotools.data.jdbc").addHandler(handler);
+        
+        org.geotools.util.logging.Logging.getLogger("org.geotools.jdbc").setLevel(java.util.logging.Level.FINE);
+        org.geotools.util.logging.Logging.getLogger("org.geotools.jdbc").addHandler(handler);
         */
     }
 
     protected JDBCTestSetup setup;
     protected JDBCDataStore dataStore;
-
+    protected SQLDialect dialect;
+    
     /**
      * Override to check if a database connection can be obtained, if not
      * tests are ignored.
@@ -136,6 +141,8 @@ public abstract class JDBCTestSupport extends TestCase {
         dataStore.setFilterCapabilities(filterCapabilities);
 
         setup.setUpDataStore(dataStore);
+        
+        dialect = dataStore.getSQLDialect();
     }
 
     protected abstract JDBCTestSetup createTestSetup();
