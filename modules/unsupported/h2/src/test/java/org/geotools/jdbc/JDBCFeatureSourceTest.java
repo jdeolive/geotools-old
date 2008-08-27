@@ -109,8 +109,9 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         assertTrue(iterator.hasNext());
 
         SimpleFeature feature = (SimpleFeature) iterator.next();
-        assertEquals(new Integer(1), feature.getAttribute("intProperty"));
         assertEquals("one", feature.getAttribute("stringProperty"));
+        assertEquals( new Double(1.1), feature.getAttribute( "doubleProperty") );
+        
     }
 
     public void testGetFeaturesWithQuery() throws Exception {
@@ -131,7 +132,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         assertEquals(2, feature.getAttributeCount());
 
         assertEquals(new Double(1.1), feature.getAttribute(0));
-        assertEquals(new Integer(1), feature.getAttribute(1));
+        assertNotNull( feature.getAttribute(1));
     }
 
     public void testGetFeaturesWithSort() throws Exception {
