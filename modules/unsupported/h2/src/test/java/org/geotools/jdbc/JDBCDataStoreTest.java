@@ -59,7 +59,7 @@ public abstract class JDBCDataStoreTest extends JDBCTestSupport {
 
         assertTrue(Geometry.class.isAssignableFrom(ft1.getDescriptor("geometry").getType()
                                                       .getBinding()));
-        assertEquals(Integer.class, ft1.getDescriptor("intProperty").getType().getBinding());
+        assertTrue(Number.class.isAssignableFrom( ft1.getDescriptor("intProperty").getType().getBinding()) );
         assertEquals(Double.class, ft1.getDescriptor("doubleProperty").getType().getBinding());
         assertEquals(String.class, ft1.getDescriptor("stringProperty").getType().getBinding());
     }
@@ -120,7 +120,8 @@ public abstract class JDBCDataStoreTest extends JDBCTestSupport {
             Point p = gf.createPoint(new Coordinate(i, i));
             assertTrue(p.equals((Geometry) feature.getAttribute("geometry")));
 
-            assertEquals(new Integer(i), feature.getAttribute("intProperty"));
+            Number ip = (Number) feature.getAttribute("intProperty");
+            assertEquals(i, ip.intValue());
         }
 
         assertFalse(reader.hasNext());
@@ -160,7 +161,7 @@ public abstract class JDBCDataStoreTest extends JDBCTestSupport {
 
         while (writer.hasNext()) {
             SimpleFeature feature = writer.next();
-            feature.setAttribute("intProperty", new Integer(100));
+            feature.setAttribute("stringProperty", "foo");
             writer.write();
         }
 
@@ -172,7 +173,7 @@ public abstract class JDBCDataStoreTest extends JDBCTestSupport {
 
         while (reader.hasNext()) {
             SimpleFeature feature = reader.next();
-            assertEquals(new Integer(100), feature.getAttribute("intProperty"));
+            assertEquals("foo", feature.getAttribute("stringProperty"));
         }
 
         reader.close();
