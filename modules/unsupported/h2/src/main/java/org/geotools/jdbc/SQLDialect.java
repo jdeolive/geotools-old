@@ -417,8 +417,9 @@ public abstract class SQLDialect {
      * @param rs A result set
      * @param column Index into the result set which points at the spatial extent
      * value.
+     * @param The database connection.
      */
-    public abstract Envelope decodeGeometryEnvelope(ResultSet rs, int column)
+    public abstract Envelope decodeGeometryEnvelope(ResultSet rs, int column, Connection cx )
         throws SQLException, IOException;
 
     /**

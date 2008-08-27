@@ -122,8 +122,10 @@ public class H2Dialect extends SQLDialect {
         sql.append(")");
     }
 
-    public Envelope decodeGeometryEnvelope(ResultSet rs, int column)
-        throws SQLException, IOException {
+    @Override
+    public Envelope decodeGeometryEnvelope(ResultSet rs, int column,
+            Connection cx) throws SQLException, IOException {
+        
         //TODO: change spatialdb in a box to return ReferencedEnvelope
         return (Envelope) rs.getObject(column);
     }

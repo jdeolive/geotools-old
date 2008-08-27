@@ -156,8 +156,8 @@ public class MySQLDialect extends SQLDialect {
         sql.append("))");
     }
 
-    public Envelope decodeGeometryEnvelope(ResultSet rs, int column)
-        throws SQLException, IOException {
+    public Envelope decodeGeometryEnvelope(ResultSet rs, int column,
+                Connection cx) throws SQLException, IOException {
         //String wkb = rs.getString( column );
         byte[] wkb = rs.getBytes(column);
 
