@@ -53,6 +53,13 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
         this.baseDirectory = baseDirectory;
     }
 
+    /**
+     * The base location to store h2 database files.
+     */
+    public File getBaseDirectory() {
+        return baseDirectory;
+    }
+    
     protected void setupParameters(Map parameters) {
         super.setupParameters(parameters);
 
