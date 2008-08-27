@@ -180,7 +180,7 @@ public class MySQLDialect extends SQLDialect {
     }
 
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, String name,
-        GeometryFactory factory) throws IOException, SQLException {
+        GeometryFactory factory, Connection cx ) throws IOException, SQLException {
         byte[] bytes = rs.getBytes(name);
 
         try {

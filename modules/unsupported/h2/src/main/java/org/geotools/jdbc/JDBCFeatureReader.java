@@ -189,6 +189,15 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         ensureOpen();
         ensureNext();
         
+        //grab the connection
+        Connection cx;
+        try {
+            cx = st.getConnection();
+        } 
+        catch (SQLException e) {
+            throw (IOException) new IOException().initCause(e);
+        }
+        
         // find the primary key
         PrimaryKey pkey;
 
@@ -237,20 +246,23 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
             }
 
             try {
-                Object value = rs.getObject(type.getLocalName());
+                Object value = null;
 
                 // is this a geometry?
                 if (type instanceof GeometryDescriptor) {
                     GeometryDescriptor gatt = (GeometryDescriptor) type;
-
+                    
+                    //read the geometry
+                    try {
+                        value = dataStore.getSQLDialect()
+                                         .decodeGeometryValue(gatt, rs, type.getLocalName(),
+                                geometryFactory, cx);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    
                     if (value != null) {
-                        try {
-                            value = dataStore.getSQLDialect()
-                                             .decodeGeometryValue(gatt, rs, type.getLocalName(),
-                                    geometryFactory);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                    
                     } else {
                         // check case where this is an associated geometry
                         if (dataStore.isAssociations()) {
@@ -306,7 +318,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
                                                     //read the geometry
                                                     g = dataStore.getSQLDialect()
                                                                  .decodeGeometryValue(gatt, grs,
-                                                            "geometry", geometryFactory);
+                                                            "geometry", geometryFactory, cx);
                                                 } else {
                                                     //multi geometry?
                                                     String gtype = grs.getString("type");
@@ -346,7 +358,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
                                                                         member = dataStore.getSQLDialect()
                                                                                                    .decodeGeometryValue(gatt,
                                                                                 mgg, "geometry",
-                                                                                geometryFactory);
+                                                                                geometryFactory, cx );
     
                                                                         dataStore.setGmlProperties(member, mgid,
                                                                             mname, mdesc);
@@ -412,6 +424,9 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
                             }
                         }
                     }
+                }
+                else {
+                    value = rs.getObject(type.getLocalName());
                 }
 
                 // is this an association?
@@ -581,7 +596,10 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
          * result set
          */
         ResultSet rs;
-
+        /**
+         * connection
+         */
+        Connection cx;
         /**
          * primary key
          */
@@ -610,9 +628,10 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
          */
         HashMap<Object, Object> userData = new HashMap<Object, Object>();
 
-        ResultSetFeature(ResultSet rs) throws SQLException, IOException {
+        ResultSetFeature(ResultSet rs, Connection cx) throws SQLException, IOException {
             this.rs = rs;
-
+            this.cx = cx;
+            
             //get the result set metadata
             ResultSetMetaData md = rs.getMetaData();
 
@@ -727,7 +746,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
                             if ( att instanceof GeometryDescriptor ) {
                                 GeometryDescriptor gatt = (GeometryDescriptor) att;
                                 values[index] = dataStore.getSQLDialect()
-                                    .decodeGeometryValue( gatt, rs, rsindex, dataStore.getGeometryFactory() );
+                                    .decodeGeometryValue( gatt, rs, rsindex, dataStore.getGeometryFactory(), st.getConnection() );
                             }
                             else {
                                 values[index] = rs.getObject( rsindex );    
@@ -788,6 +807,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
 
         public void close() {
             rs = null;
+            cx = null;
         }
 
         public List<Object> getAttributes() {

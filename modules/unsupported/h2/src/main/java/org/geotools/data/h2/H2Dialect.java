@@ -138,7 +138,7 @@ public class H2Dialect extends SQLDialect {
     }
 
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, String column,
-        GeometryFactory factory) throws IOException, SQLException {
+        GeometryFactory factory, Connection cx ) throws IOException, SQLException {
         byte[] bytes = rs.getBytes(column);
 
         if (bytes == null) {

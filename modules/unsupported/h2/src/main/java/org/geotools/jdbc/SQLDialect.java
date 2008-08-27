@@ -24,6 +24,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -502,7 +503,7 @@ public abstract class SQLDialect {
      * </p>
      */
     public abstract Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs,
-        String column, GeometryFactory factory) throws IOException, SQLException;
+        String column, GeometryFactory factory, Connection cx ) throws IOException, SQLException;
     /**
      * Decodes a geometry value from the result of a query specifying the column 
      * as an index.
@@ -513,17 +514,17 @@ public abstract class SQLDialect {
      * @see {@link #decodeGeometryValue(GeometryDescriptor, ResultSet, String, GeometryFactory)}.
      */
     public final Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs,
-        int column, GeometryFactory factory) throws IOException, SQLException {
+        int column, GeometryFactory factory, Connection cx ) throws IOException, SQLException {
         
         String columnName = rs.getMetaData().getColumnName( column );
-        return decodeGeometryValue(descriptor, rs, columnName, factory);
+        return decodeGeometryValue(descriptor, rs, columnName, factory, cx);
     }
     
     /**
      * Encodes the primary key definition in a CREATE TABLE statement.
      * <p>
-     * Implementations should propery encode the column name, column type and
-     * any keywords that specify the column as a primary key. Example:
+     * Subclasses should override this method if need be, the default implementation does the 
+     * following:
      * <pre>
      *   <code>
      *   encodeColumnName( column, sql );
@@ -533,7 +534,10 @@ public abstract class SQLDialect {
      * </p>
      *
      */
-    public abstract void encodePrimaryKey(String column, StringBuffer sql);
+    public void encodePrimaryKey(String column, StringBuffer sql) {
+        encodeColumnName( column, sql );
+        sql.append( " INTEGER PRIMARY KEY" );
+    }
 
     /**
      * Encodes anything post a CREATE TABLE statement.
@@ -634,6 +638,43 @@ public abstract class SQLDialect {
      *
      * @return The next value of the primary key, or <code>null</code>.
      */
-    public abstract Object getNextPrimaryKeyValue(String schemaName, String tableName,
-        String columnName, Connection cx) throws SQLException;
+    public Object getNextPrimaryKeyValue(String schemaName, String tableName,
+        String columnName, Connection cx) throws SQLException {
+        Statement st = cx.createStatement();
+
+        //TODO: figure out if the primary key is a number
+        StringBuffer sql = new StringBuffer();
+        try {
+            sql.append( "SELECT max( ");
+            encodeColumnName(columnName , sql );
+            sql.append( ") + 1 FROM ");
+            encodeTableName( tableName, sql );
+            
+            String q = sql.toString();
+            dataStore.getLogger().fine(q);
+
+            ResultSet rs = st.executeQuery(q);
+
+            try {
+                rs.next();
+                return new Integer(rs.getInt(1));
+            } finally {
+                dataStore.closeSafe(rs);
+            }
+        } finally {
+            dataStore.closeSafe(st);
+        }
+    }
+    
+    /**
+     * Creates the filter encoder to be used by the datastore when encoding 
+     * query predicates.
+     * <p>
+     * Sublcasses can override this method to return a subclass of {@link FilterToSQL}
+     * if need be.
+     * </p>
+     */
+    public FilterToSQL createFilterToSQL() {
+        return new FilterToSQL();
+    }
 }
