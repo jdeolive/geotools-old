@@ -99,10 +99,6 @@ public abstract class JDBCFeatureCollectionTest extends JDBCTestSupport {
     }
 
     public void testAdd() throws IOException {
-        if ( setup.isReadOnly() ) {
-            return;
-        }
-        
         SimpleFeatureBuilder b = new SimpleFeatureBuilder(collection.getSchema());
         b.set("intProperty", new Integer(3));
         b.set("doubleProperty", new Double(3.3));
@@ -138,10 +134,6 @@ public abstract class JDBCFeatureCollectionTest extends JDBCTestSupport {
     }
 
     public void testClear() throws IOException {
-        if ( setup.isReadOnly() ) {
-            return;
-        }
-        
         collection.clear();
 
         Iterator i = collection.iterator();
