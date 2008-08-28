@@ -814,12 +814,14 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
 
         Transaction t1 = new DefaultTransaction();
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer1 = dataStore.getFeatureWriter("road", td.rd1Filter, t1);
+        assertTrue( writer1.hasNext() );
         SimpleFeature f1 = (SimpleFeature) writer1.next();
         f1.setAttribute("name", new String("r1_"));
         writer1.write();
 
         Transaction t2 = new DefaultTransaction();
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer2 = dataStore.getFeatureWriter("road", td.rd1Filter, t2);
+        assertTrue( writer2.hasNext() ); 
         SimpleFeature f2 = (SimpleFeature) writer2.next();
         f2.setAttribute("name", new String("r1__"));
 
@@ -931,7 +933,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         FeatureCollection<SimpleFeatureType, SimpleFeature> results = road.getFeatures(td.rd1Filter);
         FeatureIterator<SimpleFeature> features = results.features();
         assertTrue(features.hasNext());
-        assertEquals(changed, features.next().getAttribute("id"));
+        assertEquals(5, ((Number)features.next().getAttribute("id")).intValue());
         results.close(features);
     }
 
@@ -1244,7 +1246,13 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         AttributeType texpected = expected.getType();
         AttributeType tactual = actual.getType();
 
-        assertTrue(texpected.getBinding().isAssignableFrom(tactual.getBinding()));
+        if ( Number.class.isAssignableFrom( texpected.getBinding() ) ) {
+            assertTrue( Number.class.isAssignableFrom( tactual.getBinding() ) );
+        }
+        else {
+            assertTrue(texpected.getBinding().isAssignableFrom(tactual.getBinding()));    
+        }
+        
     }
 
     void assertContains(SimpleFeature[] array, SimpleFeature expected) {
