@@ -70,6 +70,17 @@ public abstract class JDBCTestSetup {
     }
 
     /**
+     * Flag to indicate the data store is read only.
+     * <p>
+     * Defaults to false, subclasses should override and 
+     * return true if read-only tests are desirable.
+     * </p>
+     */
+    public boolean isReadOnly() {
+        return false;
+    }
+    
+    /**
      * Runs an sql string aginst the database.
      *
      * @param input The sql.
