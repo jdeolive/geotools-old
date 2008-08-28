@@ -829,23 +829,8 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
         Class target = (Class) context;
 
         try {
-            Object literal = null;
-            // HACK: let expression figure out the right value for numbers,
-            // since the context is almost always improperly set and the
-            // numeric converters try to force floating points to integrals 
-            if(target != null && !(Number.class.isAssignableFrom(target))) 
-                // use the target type
-                literal = expression.evaluate(null, target);
-            
-            // if the target was not known, of the conversion failed, try the
-            // type guessing dance literal expression does only for the following
-            // method call
-            if(literal == null)
-                literal = expression.evaluate(null);
-            
-            // if that failed as well, grab the value as is
-            if(literal == null)
-                literal = expression.getValue();
+            //evaluate the expression
+            Object literal = evaluateLiteral( expression, target );
             
             // handle geometry case
             if (literal instanceof Geometry) {
@@ -861,6 +846,28 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
             throw new RuntimeException("IO problems writing literal", e);
         }
         return context;
+    }
+
+    protected Object evaluateLiteral(Literal expression, Class target ) {
+        Object literal = null;
+        // HACK: let expression figure out the right value for numbers,
+        // since the context is almost always improperly set and the
+        // numeric converters try to force floating points to integrals 
+        if(target != null && !(Number.class.isAssignableFrom(target))) 
+            // use the target type
+            literal = expression.evaluate(null, target);
+        
+        // if the target was not known, of the conversion failed, try the
+        // type guessing dance literal expression does only for the following
+        // method call
+        if(literal == null)
+            literal = expression.evaluate(null);
+        
+        // if that failed as well, grab the value as is
+        if(literal == null)
+            literal = expression.getValue();
+        
+        return literal;
     }
 
     /**
