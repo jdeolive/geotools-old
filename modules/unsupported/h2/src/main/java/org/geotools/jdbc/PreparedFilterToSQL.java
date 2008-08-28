@@ -26,9 +26,23 @@ public class PreparedFilterToSQL extends FilterToSQL {
      */
     List<Object> literalValues = new ArrayList();
     List<Class> literalTypes = new ArrayList();
+    boolean prepareEnabled = true;
     
     public PreparedFilterToSQL() {
         super();
+    }
+
+    /**
+     * If true (default) a sql statement with literal placemarks is created, otherwise
+     * a normal statement is created
+     * @return
+     */
+    public boolean isPrepareEnabled() {
+        return prepareEnabled;
+    }
+
+    public void setPrepareEnabled(boolean prepareEnabled) {
+        this.prepareEnabled = prepareEnabled;
     }
 
     public PreparedFilterToSQL(Writer out) {
@@ -37,6 +51,9 @@ public class PreparedFilterToSQL extends FilterToSQL {
 
     public Object visit(Literal expression, Object context)
             throws RuntimeException {
+        if(!prepareEnabled)
+            return super.visit(expression, context);
+        
         //evaluate the literal and store it for later
         literalTypes.add( (Class) context );
         literalValues.add( evaluateLiteral( expression, (Class) context ) );
