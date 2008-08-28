@@ -715,7 +715,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         // HACK: ?!? update ADD and FINAL with new FID from database
         //
         reader = dataStore.getFeatureReader(new DefaultQuery("road", Filter.INCLUDE), t2);
-        td.newRoad = findFeature(reader, "id", new Integer(4));
+        td.newRoad = findFeature(reader, "name", "r4");
         System.out.println("newRoad:" + td.newRoad);
         ADD[ADD.length - 1] = td.newRoad;
         FINAL[FINAL.length - 1] = td.newRoad;

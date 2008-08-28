@@ -117,7 +117,7 @@ public abstract class JDBCFeatureCollectionTest extends JDBCTestSupport {
         while (i.hasNext()) {
             SimpleFeature f = (SimpleFeature) i.next();
 
-            if (new Integer(3).equals(f.getAttribute("intProperty"))) {
+            if ("three".equals(f.getAttribute("stringProperty"))) {
                 assertEquals(feature.getAttribute("doubleProperty"),
                     f.getAttribute("doubleProperty"));
                 assertEquals(feature.getAttribute("stringProperty"),

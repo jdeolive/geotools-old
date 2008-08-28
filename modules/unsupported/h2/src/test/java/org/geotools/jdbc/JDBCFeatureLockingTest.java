@@ -111,10 +111,10 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         boolean failure = false;
         while( writer.hasNext() ) {
             SimpleFeature feature = (SimpleFeature) writer.next();
-            Integer old = (Integer) feature.getAttribute("intProperty");
+            Number old = (Number) feature.getAttribute("intProperty");
             
             feature.setAttribute("intProperty", new Integer(100));
-            if ( new Integer(1).equals( old ) ) {
+            if ( new Integer(1).equals( old.intValue() ) ) {
                 try {
                     writer.write();
                     fail( "writer should have thrown exception for locked feature");
