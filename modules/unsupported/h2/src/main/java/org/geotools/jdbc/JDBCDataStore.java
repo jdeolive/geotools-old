@@ -1482,7 +1482,15 @@ public final class JDBCDataStore extends ContentDataStore
             sql.append(" ");
 
             //sql type name
-            dialect.encodeColumnType(sqlTypeNames[i], sql);
+            //JD: some sql dialects require strings / varchars to have an 
+            // associated size with them
+            if ( sqlTypeNames[i].startsWith( "VARCHAR" ) ) {
+                dialect.encodeColumnType(sqlTypeNames[i] + "(255)", sql);
+            }
+            else {
+                dialect.encodeColumnType(sqlTypeNames[i], sql);    
+            }
+            
 
             //sql.append(sqlTypeNames[i]);
             if (i < (sqlTypeNames.length - 1)) {
