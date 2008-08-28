@@ -68,17 +68,6 @@ public abstract class JDBCTestSetup {
 
     public void tearDown() throws Exception {
     }
-
-    /**
-     * Flag to indicate the data store is read only.
-     * <p>
-     * Defaults to false, subclasses should override and 
-     * return true if read-only tests are desirable.
-     * </p>
-     */
-    public boolean isReadOnly() {
-        return false;
-    }
     
     /**
      * Runs an sql string aginst the database.
@@ -87,6 +76,16 @@ public abstract class JDBCTestSetup {
      */
     protected void run(String input) throws Exception {
         run(new ByteArrayInputStream(input.getBytes()));
+    }
+    
+    /**
+     * Executes {@link #run(String)} ignoring any exceptions.
+    */
+    protected void runSafe( String input ) { 
+        try {
+            run( input );
+        }
+        catch( Exception ignore ) {}
     }
 
     /**
