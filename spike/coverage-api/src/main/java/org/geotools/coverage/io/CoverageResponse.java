@@ -18,6 +18,7 @@ package org.geotools.coverage.io;
 
 import java.util.Collection;
 
+import org.geotools.coverage.io.impl.DefaultCoverageRequest;
 import org.opengis.coverage.Coverage;
 import org.opengis.util.ProgressListener;
 
@@ -42,20 +43,31 @@ public interface CoverageResponse {
      * 
      * @return the mnemonic name of the query request.
      */
-    String getHandle();
-
-    Status getStatus();
-
-    Collection<? extends Exception> getExceptions();
-
-    // exceptions are fine for reporting problems
-    // but a more difficult fit for reporting warnings
+    public String getHandle();
 
     /**
+     * Get the status of this coverage response. It should always be checked
+     * before assuming any data is available.
      * 
+     * @return the {@linkplain Status status} of this coverage response.
      */
-    public void getRequest();
+    public Status getStatus();
 
-    Collection<? extends Coverage> getResults(final ProgressListener listener);
+    public Collection<? extends Exception> getExceptions();
+
+    /**
+     * @return the {@link DefaultCoverageRequest} originating that
+     *         {@link CoverageResponse}.
+     */
+    public CoverageRequest getRequest();
+
+    /**
+     * Returns the Coverages available with this coverage response.
+     * 
+     * @param listener
+     * @return a collection of coverages.
+     */
+    public Collection<? extends Coverage> getResults(
+            final ProgressListener listener);
 
 }

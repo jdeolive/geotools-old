@@ -17,12 +17,12 @@
 package org.geotools.coverage.io.range;
 
 import java.util.List;
-import java.util.jar.Attributes.Name;
 
 import javax.measure.Measurable;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
+import org.opengis.feature.type.Name;
 import org.opengis.referencing.crs.SingleCRS;
 import org.opengis.util.InternationalString;
 
@@ -40,63 +40,62 @@ import org.opengis.util.InternationalString;
  * @author Simone Giannecchini, GeoSolutions
  */
 public interface Axis<QM extends Quantity, M extends Measurable<QM>> {
-	/**
-	 * Retrieves the {@link Axis} name
-	 * 
-	 * @return {@link org.opengis.feature.type.Name} of the {@link Axis}s
-	 */
-	public Name getName();
+    /**
+     * Retrieves the {@link Axis} name
+     * 
+     * @return {@link org.opengis.feature.type.Name} of the {@link Axis}s
+     */
+    public Name getName();
 
-	/**
-	 * Retrieves the description of the {@link Axis}
-	 * 
-	 * @return description of the {@link Axis}
-	 */
-	public InternationalString getDescription();
+    /**
+     * Retrieves the description of the {@link Axis}
+     * 
+     * @return description of the {@link Axis}
+     */
+    public InternationalString getDescription();
 
-	/**
-	 * Retrieves the list of keys for this {@link Axis}.
-	 * 
-	 * @return Retrieves the list of keys for this {@link Axis}.
-	 */
-	public List<M> getKeys();
+    /**
+     * Retrieves the list of keys for this {@link Axis}.
+     * 
+     * @return Retrieves the list of keys for this {@link Axis}.
+     */
+    public List<M> getKeys();
 
-	/**
-	 * Retrieves the number of keys for this {@link Axis}.
-	 * 
-	 * @return Retrieves the number of keys for this {@link Axis}.
-	 */
-	public int getNumKeys();
+    /**
+     * Retrieves the number of keys for this {@link Axis}.
+     * 
+     * @return Retrieves the number of keys for this {@link Axis}.
+     */
+    public int getNumKeys();
 
-	/**
-	 * Retrieves a specific key for this {@link Axis}.
-	 * 
-	 * @return Retrieves a specific key for this {@link Axis}.
-	 */
-	public M getKey(final int keyIndex);
+    /**
+     * Retrieves a specific key for this {@link Axis}.
+     * 
+     * @return Retrieves a specific key for this {@link Axis}.
+     */
+    public M getKey(final int keyIndex);
 
-	/**
-	 * Retrieves the Unit of measure for the various keys of this axis.
-	 * 
-	 * In case this {@link Axis} is not made of measurable quantities
-	 * 
-	 * @return the Unit of measure for the various keys of this axis.
-	 */
-	public Unit<QM> getUnitOfMeasure();
-	
-	
-	/**
-	 * Retrieves the coordinate reference system for this {@link Axis}.
-	 * 
-	 * <p>
-	 * In case the coordinate reference system is present the Unit of measure
-	 * for its single coordinate axis should conform to the global {@link Unit}
-	 * for this {@link Axis}.
-	 * 
-	 * @return the coordinate reference system for this {@link Axis} or
-	 *         <code>null</code>, if no coordinate reference system is know
-	 *         or applicable.
-	 */
-	public SingleCRS getCoordinateReferenceSystem();
+    /**
+     * Retrieves the Unit of measure for the various keys of this axis.
+     * 
+     * In case this {@link Axis} is not made of measurable quantities
+     * 
+     * @return the Unit of measure for the various keys of this axis.
+     */
+    public Unit<QM> getUnitOfMeasure();
+
+    /**
+     * Retrieves the coordinate reference system for this {@link Axis}.
+     * 
+     * <p>
+     * In case the coordinate reference system is present the Unit of measure
+     * for its single coordinate axis should conform to the global {@link Unit}
+     * for this {@link Axis}.
+     * 
+     * @return the coordinate reference system for this {@link Axis} or
+     *         <code>null</code>, if no coordinate reference system is know
+     *         or applicable.
+     */
+    public SingleCRS getCoordinateReferenceSystem();
 
 }

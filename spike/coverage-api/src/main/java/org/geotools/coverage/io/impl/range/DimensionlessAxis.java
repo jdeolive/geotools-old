@@ -19,13 +19,13 @@ package org.geotools.coverage.io.impl.range;
 import java.awt.image.SampleModel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.Attributes.Name;
 
 import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.Unit;
 
 import org.geotools.coverage.io.range.Axis;
 import org.opengis.coverage.SampleDimension;
+import org.opengis.feature.type.Name;
 import org.opengis.referencing.crs.SingleCRS;
 import org.opengis.util.InternationalString;
 
@@ -38,116 +38,106 @@ import org.opengis.util.InternationalString;
  * rather we have an axis that just represents an ordinal or a certain set of .
  * 
  * @author Simone Giannecchini, GeoSolutions
- * @todo add conveience constructor based on {@link SampleDimension} and or {@link SampleModel}
+ * @todo add convenience constructor based on {@link SampleDimension} and or
+ *       {@link SampleModel}
  */
-public class DimensionlessAxis implements
-		Axis<Dimensionless, BandIndexMeasure> {
+public class DimensionlessAxis implements Axis<Dimensionless, BandIndexMeasure> {
 
+    /**
+     * Textual representation for the various bands in this {@link Axis}.
+     */
+    private String[] bandsKeys = null;
 
-	/**
-	 * Textual representation for the various bands in this {@link Axis}.
-	 */
-	private String[] bandsKeys = null;
-	private Name name=null;
-	private InternationalString description;
+    private Name name = null;
 
-	/**
-	 * 
-	 */
-	public DimensionlessAxis(final int bandsNumber,final Name name, final InternationalString description) {
-		String []bandsKeys = new String[bandsNumber];
-		for (int i = 0; i < bandsNumber; i++)
-			bandsKeys[i] = Integer.toString(i);
-		
-		init(bandsKeys,name, description);
-	}
+    private InternationalString description;
 
-	private void init(String[] bandsKeys, final Name name, final InternationalString description) {
-		this.name=name;
-		this.description=description;
-		this.bandsKeys=bandsKeys;
-	}
-	
-	/**
-	 * 
-	 */
-	public DimensionlessAxis(final String []bands,final Name name, final InternationalString description) {
-		init(bands,name, description);
-		
-	}
-	
-	/**
-	 * 
-	 */
-	public DimensionlessAxis(final List<String> bandsKeys,final Name name, final InternationalString description) {		
-		init((String[]) bandsKeys.toArray(),name, description);
-	}
+    /**
+     * 
+     */
+    public DimensionlessAxis(final int bandsNumber, final Name name,
+            final InternationalString description) {
+        String[] bandsKeys = new String[bandsNumber];
+        for (int i = 0; i < bandsNumber; i++)
+            bandsKeys[i] = Integer.toString(i);
+        init(bandsKeys, name, description);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geotools.coverage.io.range.Axis#getCoordinateReferenceSystem()
-	 */
-	public SingleCRS getCoordinateReferenceSystem() {
-		return null;
-	}
+    /**
+     * 
+     */
+    public DimensionlessAxis(final String[] bands, final Name name,
+            final InternationalString description) {
+        init(bands, name, description);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geotools.coverage.io.range.Axis#getDescription()
-	 */
-	public InternationalString getDescription() {
-		return this.description;
-	}
+    /**
+     * 
+     */
+    public DimensionlessAxis(final List<String> bandsKeys, final Name name,
+            final InternationalString description) {
+        init((String[]) bandsKeys.toArray(), name, description);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geotools.coverage.io.range.Axis#getKey(int)
-	 */
-	public BandIndexMeasure getKey(int keyIndex) {
-		return new BandIndexMeasure(keyIndex,this.bandsKeys[keyIndex]);
-	}
+    private void init(String[] bandsKeys, final Name name,
+            final InternationalString description) {
+        this.name = name;
+        this.description = description;
+        this.bandsKeys = bandsKeys;
+    }
+    
+    /**
+     * @see org.geotools.coverage.io.range.Axis#getCoordinateReferenceSystem()
+     */
+    public SingleCRS getCoordinateReferenceSystem() {
+        return null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geotools.coverage.io.range.Axis#getKeys()
-	 */
-	public List<BandIndexMeasure> getKeys() {
-		List<BandIndexMeasure> list= new ArrayList<BandIndexMeasure>(this.bandsKeys.length);
-		int i=0;
-		for(String band: this.bandsKeys)
-			list.add(new BandIndexMeasure(i++,band));
-		return list;
-	}
+    /**
+     * @see org.geotools.coverage.io.range.Axis#getDescription()
+     */
+    public InternationalString getDescription() {
+        return this.description;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geotools.coverage.io.range.Axis#getName()
-	 */
-	public Name getName() {
-		return this.name;
-	}
+    /**
+     * @see org.geotools.coverage.io.range.Axis#getKey(int)
+     */
+    public BandIndexMeasure getKey(int keyIndex) {
+        return new BandIndexMeasure(keyIndex, this.bandsKeys[keyIndex]);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geotools.coverage.io.range.Axis#getNumKeys()
-	 */
-	public int getNumKeys() {
-		return bandsKeys.length;
-	}
+    /**
+     * @see org.geotools.coverage.io.range.Axis#getKeys()
+     */
+    public List<BandIndexMeasure> getKeys() {
+        List<BandIndexMeasure> list = new ArrayList<BandIndexMeasure>(
+                this.bandsKeys.length);
+        int i = 0;
+        for (String band : this.bandsKeys)
+            list.add(new BandIndexMeasure(i++, band));
+        return list;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geotools.coverage.io.range.Axis#getUnitOfMeasure()
-	 */
-	public Unit<Dimensionless> getUnitOfMeasure() {
-		return Unit.ONE;
-	}
+    /**
+     * @see org.geotools.coverage.io.range.Axis#getName()
+     */
+    public Name getName() {
+        return this.name;
+    }
+
+    /**
+     * @see org.geotools.coverage.io.range.Axis#getNumKeys()
+     */
+    public int getNumKeys() {
+        return bandsKeys.length;
+    }
+
+    /**
+     * @see org.geotools.coverage.io.range.Axis#getUnitOfMeasure()
+     */
+    public Unit<Dimensionless> getUnitOfMeasure() {
+        return Unit.ONE;
+    }
 
 }

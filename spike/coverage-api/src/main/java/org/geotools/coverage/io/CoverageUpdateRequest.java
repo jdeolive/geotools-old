@@ -17,70 +17,44 @@
 package org.geotools.coverage.io;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.opengis.coverage.Coverage;
 
-/**
- * @author   Simone Giannecchini, GeoSolutions
- * @todo revisit and improve when feedback starts to flow in
- * @todo inherit {@link CoverageReadRequest} and add a method to obtain the capabilities 
- * for a {@link CoverageStore}
- */
-public class CoverageUpdateRequest extends CoverageRequest {
+public interface CoverageUpdateRequest extends CoverageRequest{
 
-	private Collection<? extends Coverage> data;
-	
-	/**
-	 * @uml.property  name="metadata"
-	 */
-	private Map<String, String> metadata;
-	
-	
+	public abstract java.lang.String[] getMetadataNames()
+			throws java.io.IOException;
 
-	public java.lang.String[] getMetadataNames() throws java.io.IOException {
-		return null;
-	}
-
-	public java.lang.String getMetadataValue(java.lang.String arg0)
-			throws java.io.IOException {
-		return arg0;
-	}
+	public abstract java.lang.String getMetadataValue(java.lang.String arg0)
+			throws java.io.IOException;
 
 	/**
 	 * @param metadata
 	 * @throws java.io.IOException
 	 * @uml.property  name="metadata"
 	 */
-	public void setMetadata(Map<String, String> metadata)
-			throws java.io.IOException {
-		this.metadata=new HashMap<String, String>(metadata);
-	}
+	public abstract void setMetadata(Map<String, String> metadata)
+			throws java.io.IOException;
 
 	/**
 	 * @return
 	 * @throws java.io.IOException
 	 * @uml.property  name="metadata"
 	 */
-	public Map<String, String> getMetadata() throws java.io.IOException {
-		return new HashMap<String, String>(this.metadata);
-	}
-	
+	public abstract Map<String, String> getMetadata()
+			throws java.io.IOException;
+
 	/**
 	 * @param  metadata
 	 * @uml.property  name="data"
 	 */
-	public void setData(Collection<? extends Coverage> data) {
-		this.data = data;
-	}
+	public abstract void setData(Collection<? extends Coverage> data);
 
 	/**
 	 * @return
 	 * @uml.property  name="data"
 	 */
-	public Collection<? extends Coverage> getData() {
-		return data;
-	}
+	public abstract Collection<? extends Coverage> getData();
 
 }

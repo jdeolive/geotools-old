@@ -17,10 +17,10 @@
 package org.geotools.coverage.io.range;
 
 import java.util.Set;
-import java.util.jar.Attributes.Name;
 
 import javax.measure.quantity.Quantity;
 
+import org.opengis.feature.type.Name;
 import org.opengis.util.InternationalString;
 
 /**

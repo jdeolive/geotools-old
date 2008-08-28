@@ -16,6 +16,9 @@
  */
 package org.geotools.coverage.io;
 
+import java.util.Map;
+
+import org.geotools.data.Parameter;
 import org.opengis.util.ProgressListener;
 
 /**
@@ -27,7 +30,24 @@ import org.opengis.util.ProgressListener;
  */
 public interface CoverageStore extends CoverageSource {
 
-	public CoverageResponse updateCoverage(CoverageUpdateRequest writeRequest, ProgressListener progress);
+    public CoverageResponse update(CoverageUpdateRequest writeRequest,
+            ProgressListener progress);
 
+	/**
+	 * Retrieves a {@link CoverageStoreCapabilities} which can be used to discover
+	 * capabilities of a certain {@link CoverageSource}.
+	 * 
+	 * @return a {@link CoverageSourceCapabilities} which can be used to discover
+	 * capabilities of a certain {@link CoverageStoreCapabilities}.
+	 */
+	public CoverageStoreCapabilities getCapabilities();
+	
+	/**
+	 * Describes the required (and optional) parameters that
+	 * can be passed to the {@link #update(CoverageReadRequest, ProgressListener)} method.
+	 * <p>
+	 * @return Param a {@link Map} describing the {@link Map} for {@link #update(CoverageReadRequest, ProgressListener)}.
+	 */
+	public Map<String, Parameter<?>> getUpdateParameterInfo();	
 
 }

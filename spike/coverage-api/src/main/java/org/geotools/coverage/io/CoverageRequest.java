@@ -16,98 +16,33 @@
  */
 package org.geotools.coverage.io;
 
-import java.util.Map;
-
-import org.geotools.data.Parameter;
-import org.geotools.factory.Hints;
 import org.opengis.feature.type.Name;
 
-/**
- * @author   Simone Giannecchini, GeoSolutions
- * @author   Jody Garnett
- */
-public class CoverageRequest {
-
-	/**
-	 * @uml.property  name="name"
-	 */
-	private Name name;
-	/**
-	 * @uml.property  name="handle"
-	 */
-	private String handle;
-	/**
-	 * @uml.property  name="hints"
-	 */
-	private Hints hints;
-	/**
-	 * @uml.property  name="additionalParameters"
-	 */
-	private Map<String,Parameter<?>> additionalParameters;
+public interface CoverageRequest {
 
 	/**
 	 * The handle attribute is included to allow a client to associate  a mnemonic name to the Query request. The purpose of the handle attribute is to provide an error handling mechanism for locating  a statement that might fail.
 	 * @return      the mnemonic name of the query request.
 	 * @uml.property  name="handle"
 	 */
-	public String getHandle(){
-		return handle;
-	}
-	
+	public abstract String getHandle();
+
 	/**
 	 * @param  handle
 	 * @uml.property  name="handle"
 	 */
-	public void setHandle(String handle){
-		this.handle = handle;
-	}
-
-	/**
-	 * Specifies some hints to drive the query execution and results build-up. <p> Hints examples can be the GeometryFactory to be used, a generalization distance to be applied right in the data store, to data store specific things such as the fetch size to be used in JDBC queries. The set of hints supported can be fetched by calling   {@links    FeatureSource#getSupportedHints()}   . Depending on the actual values of the hints, the data store is free to ignore them. No mechanism is in place, at the moment, to figure out which hints where actually used during the query execution.
-	 * @return    the Hints the data store should try to use when executing the query  (eventually empty but never null).
-	 * @uml.property  name="hints"
-	 */
-	public Hints getHints(){
-		return hints;
-	}
-
-	/**
-	 * @param  hints
-	 * @uml.property  name="hints"
-	 */
-	public void setHints(Hints hints){
-		this.hints = hints;
-	}
-
-	/**
-	 * @param  additionalParameters
-	 * @uml.property  name="additionalParameters"
-	 */
-	public void setAdditionalParameters( Map<String,Parameter<?>> additionalParameters){
-		this.additionalParameters = additionalParameters;
-	}
-
-	/**
-	 * @uml.property  name="additionalParameters"
-	 */
-	public Map<String, Parameter<?>> getAdditionalParameters() {
-		return additionalParameters;
-	}
+	public abstract void setHandle(String handle);
 
 	/**
 	 * @return
 	 * @uml.property  name="name"
 	 */
-	public Name getName() {
-		return name;
-	}
+	public abstract Name getName();
 
 	/**
 	 * @param  name
 	 * @uml.property  name="name"
 	 */
-	public void setName(Name name) {
-		this.name = name;
-	}
+	public abstract void setName(Name name);
 
 }

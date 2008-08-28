@@ -18,13 +18,13 @@ package org.geotools.coverage.io.impl.range;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.jar.Attributes.Name;
 
 import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.Unit;
 
 import org.geotools.coverage.io.range.Axis;
 import org.geotools.coverage.io.range.FieldType;
+import org.opengis.feature.type.Name;
 import org.opengis.referencing.crs.SingleCRS;
 import org.opengis.util.InternationalString;
 
@@ -32,7 +32,7 @@ import org.opengis.util.InternationalString;
  * Implementation of a simple {@link Axis} which can be used when modeling scalar {@link FieldType}s like
  * temperature or pressure which do need extra {@link Axis} instances to describe their codomain.
  * 
- * @author Simone Giannecchini,GeoSolutions
+ * @author Simone Giannecchini, GeoSolutions
  *
  */
 public class SimpleScalarAxis implements Axis<Dimensionless, BandIndexMeasure> {
@@ -49,39 +49,32 @@ public class SimpleScalarAxis implements Axis<Dimensionless, BandIndexMeasure> {
 	public SimpleScalarAxis(final Name name, final InternationalString description){
 		wrappedAxis= new DimensionlessAxis(Collections.singletonList(DEFAUL_BAND_NAME), name, description);
 	}
+	
 	public SingleCRS getCoordinateReferenceSystem() {
 		return wrappedAxis.getCoordinateReferenceSystem();
 	}
 
 	public InternationalString getDescription() {
-		
 		return wrappedAxis.getDescription();
 	}
 
 	public BandIndexMeasure getKey(int keyIndex) {
-		
 		return wrappedAxis.getKey(keyIndex);
 	}
 
 	public List<BandIndexMeasure> getKeys() {
-		
 		return wrappedAxis.getKeys();
 	}
 
 	public Name getName() {
-		
 		return wrappedAxis.getName();
 	}
 
 	public int getNumKeys() {
-		
 		return wrappedAxis.getNumKeys();
 	}
 
 	public Unit<Dimensionless> getUnitOfMeasure() {
-		
 		return wrappedAxis.getUnitOfMeasure();
 	}
-	
-
 }
