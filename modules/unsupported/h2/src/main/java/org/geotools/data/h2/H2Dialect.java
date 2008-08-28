@@ -16,8 +16,10 @@
  */
 package org.geotools.data.h2;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -34,8 +36,10 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.OutputStreamOutStream;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTWriter;
 
 
@@ -137,6 +141,31 @@ public class H2Dialect extends SQLDialect {
         sql.append("',");
         sql.append(srid);
         sql.append(")");
+    }
+    
+    @Override
+    public void setGeometryValue(Geometry g, Class binding,
+            PreparedStatement ps, int column, Connection cx)
+            throws IOException, SQLException {
+        if ( g == null ) {
+            ps.setNull( column, Types.BLOB );
+            return;
+        }
+        
+        WKBWriter w = new WKBWriter();
+        
+        //write the geometry
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        w.write( g , new OutputStreamOutStream( bytes ) );
+   
+        //supplement it with the srid
+        int srid = g.getSRID();
+        bytes.write( (byte)(srid >>> 24) );
+        bytes.write( (byte)(srid >> 16 & 0xff) );
+        bytes.write( (byte)(srid >> 8 & 0xff) );
+        bytes.write( (byte)(srid & 0xff) );
+        
+        ps.setBytes( column, bytes.toByteArray() );
     }
 
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, String column,

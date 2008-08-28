@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -31,6 +32,7 @@ import java.sql.Types;
 import java.util.Map;
 
 import org.geotools.data.jdbc.FilterToSQL;
+import org.geotools.util.Converters;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.expression.Literal;
 
@@ -476,6 +478,9 @@ public abstract class SQLDialect {
     public abstract void encodeGeometryValue(Geometry value, int srid, StringBuffer sql)
         throws IOException;
 
+    public abstract void setGeometryValue(Geometry g, Class binding,
+            PreparedStatement ps, int column, Connection cx) throws IOException, SQLException;
+    
     /**
      * Decodes a geometry value from the result of a query.
      * <p>
@@ -614,6 +619,69 @@ public abstract class SQLDialect {
 //            sql.append(value);
 //        }
     }
+    
+    public void setValue(Object value, Class binding, PreparedStatement ps,
+            int column, Connection cx) throws SQLException {
+        
+        //get the sql type
+        Integer sqlType = dataStore.getMapping( binding );
+        
+        //handl null case
+        if ( value == null ) {
+            ps.setNull( column, sqlType );
+            return;
+        }
+        
+        //convert the value if necessary
+        if ( ! binding.isInstance( value ) ) {
+            Object converted = Converters.convert(value, binding);
+            if ( converted != null ) {
+                value = converted;
+            }
+            else {
+                dataStore.getLogger().warning( "Unable to convert " + value + " to " + binding.getName() );
+            }
+        }
+        
+        switch( sqlType ) {
+            case Types.VARCHAR:
+                ps.setString( column, (String) value );
+                break;
+            case Types.BOOLEAN:
+                ps.setBoolean( column, (Boolean) value );
+                break;
+            case Types.SMALLINT:
+                ps.setShort( column, (Short) value );
+                break;
+            case Types.INTEGER:
+                ps.setInt( column, (Integer) value );
+                break;
+            case Types.BIGINT:
+                ps.setLong( column, (Long) value );
+                break;
+            case Types.REAL:
+                ps.setFloat( column, (Float) value );
+                break;
+            case Types.DOUBLE:
+                ps.setDouble( column, (Double) value );
+                break;
+            case Types.NUMERIC:
+                ps.setBigDecimal( column, (BigDecimal) value );
+                break;
+            case Types.DATE:
+                ps.setDate( column, (Date) value );
+                break;
+            case Types.TIME:
+                ps.setTime( column, (Time) value );
+                break;
+            case Types.TIMESTAMP:
+                ps.setTimestamp( column, (Timestamp) value );
+                break;
+            default:
+                ps.setObject( column, value );
+        }
+        
+    }
 
     /**
      * Obtains the next value of the primary key of a column.
@@ -668,6 +736,13 @@ public abstract class SQLDialect {
     }
     
     /**
+     * Flag controlling wether prepared statements should be used.
+     */
+    public boolean isUsingPreparedStatements() {
+        return true;
+    }
+    
+    /**
      * Creates the filter encoder to be used by the datastore when encoding 
      * query predicates.
      * <p>
@@ -677,5 +752,8 @@ public abstract class SQLDialect {
      */
     public FilterToSQL createFilterToSQL() {
         return new FilterToSQL();
+    }
+    public PreparedFilterToSQL createPreparedFilterToSQL() {
+        return new PreparedFilterToSQL();
     }
 }

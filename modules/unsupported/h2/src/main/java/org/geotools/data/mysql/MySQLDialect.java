@@ -18,6 +18,7 @@ package org.geotools.data.mysql;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -178,6 +179,11 @@ public class MySQLDialect extends SQLDialect {
         sql.append(new WKTWriter().write(value));
         sql.append("')");
     }
+    
+    public void setGeometryValue(Geometry g, Class binding,
+            PreparedStatement ps, int column, Connection cx)
+            throws IOException, SQLException {
+    }
 
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, String name,
         GeometryFactory factory, Connection cx ) throws IOException, SQLException {
@@ -257,5 +263,9 @@ public class MySQLDialect extends SQLDialect {
         } finally {
             dataStore.closeSafe(st);
         }
+    }
+    
+    public boolean isUsingPreparedStatements() {
+        return false;
     }
 }
