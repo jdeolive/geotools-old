@@ -417,7 +417,7 @@ public final class JDBCDataStore extends ContentDataStore
                 closeSafe(st);
             }
 
-            dialect.postCreateTable(databaseSchema, featureType.getTypeName(), cx);
+            dialect.postCreateTable(databaseSchema, featureType, cx);
         } catch (Exception e) {
             String msg = "Error occurred creating table";
             throw (IOException) new IOException(msg).initCause(e);
@@ -1003,7 +1003,7 @@ public final class JDBCDataStore extends ContentDataStore
 
         return cx;
     }
-
+    
     /**
      * Creates a new connection.
      * <p>

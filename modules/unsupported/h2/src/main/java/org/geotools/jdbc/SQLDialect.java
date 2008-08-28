@@ -30,9 +30,12 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.util.Converters;
+import org.geotools.util.logging.Logging;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.expression.Literal;
 
@@ -93,6 +96,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *
  */
 public abstract class SQLDialect {
+    protected static final Logger LOGGER = Logging.getLogger(SQLDialect.class);
     
     /**
      * The datastore using the dialect
@@ -580,11 +584,11 @@ public abstract class SQLDialect {
      * instantiated from the connection must be closed.
      * </p>
      * @param schemaName The name of the schema, may be <code>null</code>.
-     * @param tableName The name of the table.
+     * @param featureType The feature type that has just been created on the database. 
      * @param cx Database connection.
      *
      */
-    public void postCreateTable(String schemaName, String tableName, Connection cx)
+    public void postCreateTable(String schemaName, SimpleFeatureType featureType, Connection cx)
         throws SQLException {
     }
 
