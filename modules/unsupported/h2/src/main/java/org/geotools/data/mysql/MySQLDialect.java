@@ -243,27 +243,27 @@ public class MySQLDialect extends SQLDialect {
         sql.append(" int AUTO_INCREMENT PRIMARY KEY");
     }
 
-    public Object getNextPrimaryKeyValue(String schemaName, String tableName, String columnName,
-        Connection cx) throws SQLException {
-        Statement st = cx.createStatement();
-
-        try {
-            String sql = "SELECT max( " + columnName + ")+1" + " FROM " + tableName;
-            dataStore.getLogger().fine(sql);
-
-            ResultSet rs = st.executeQuery(sql);
-
-            try {
-                rs.next();
-
-                return new Integer(rs.getInt(1));
-            } finally {
-                dataStore.closeSafe(rs);
-            }
-        } finally {
-            dataStore.closeSafe(st);
-        }
-    }
+    //public Object getNextPrimaryKeyValue(String schemaName, String tableName, String columnName,
+    //    Connection cx) throws SQLException {
+    //    Statement st = cx.createStatement();
+    //
+    //    try {
+    //        String sql = "SELECT max( " + columnName + ")+1" + " FROM " + tableName;
+    //        dataStore.getLogger().fine(sql);
+    //
+    //        ResultSet rs = st.executeQuery(sql);
+    //
+    //        try {
+    //            rs.next();
+    //
+    //            return new Integer(rs.getInt(1));
+    //        } finally {
+    //            dataStore.closeSafe(rs);
+    //        }
+    //    } finally {
+    //        dataStore.closeSafe(st);
+    //    }
+    //}
     
     public boolean isUsingPreparedStatements() {
         return false;

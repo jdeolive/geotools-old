@@ -16,9 +16,7 @@
  */
 package org.geotools.jdbc;
 
-import java.sql.Connection;
-
-import org.geotools.feature.simple.SimpleFeatureBuilder;
+import java.util.ArrayList;
 
 
 /**
@@ -30,12 +28,9 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
  *
  */
 public class NullPrimaryKey extends PrimaryKey {
-    protected NullPrimaryKey(String tableName, String columnName, Class type) {
-        super(tableName, columnName, type);
-    }
 
-    public String generate(Connection cx, SQLDialect dialect)
-        throws Exception {
-        return SimpleFeatureBuilder.createDefaultFeatureId();
+    public NullPrimaryKey(String tableName) {
+        super(tableName, new ArrayList());
+        
     }
 }

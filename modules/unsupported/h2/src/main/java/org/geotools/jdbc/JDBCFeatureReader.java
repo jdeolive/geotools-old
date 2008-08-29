@@ -211,7 +211,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         String fid;
 
         try {
-            fid = pkey.encode(rs);
+            fid = dataStore.encodeFID(pkey,rs);
 
             // wrap the fid in the type name
             fid = featureType.getTypeName() + "." + fid;
@@ -640,9 +640,13 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
             int count = md.getColumnCount();
 
             for (int i = 0; i < md.getColumnCount(); i++) {
-                if (key.getColumnName().equals(md.getColumnName(i + 1))) {
-                    count--;
+                for ( PrimaryKeyColumn col : key.getColumns() ) {
+                    if (col.getName().equals(md.getColumnName(i + 1))) {
+                        count--;
+                        break;
+                    }    
                 }
+                
             }
 
             //set up values
@@ -654,13 +658,14 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
 
             int offset = 0;
 
-            for (int i = 0; i < md.getColumnCount(); i++) {
-                if (key.getColumnName().equals(md.getColumnName(i + 1))) {
-                    offset = 1;
-
-                    continue;
+         O: for (int i = 0; i < md.getColumnCount(); i++) {
+                for( PrimaryKeyColumn col : key.getColumns() ) {
+                    if ( col.getName().equals( md.getColumnName(i+1))) {
+                        offset++;
+                        continue O;
+                    }
                 }
-
+                
                 index.put(md.getColumnName(i + 1), i - offset);
             }
         }
@@ -680,7 +685,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
             //PrimaryKey pkey = dataStore.getPrimaryKey(featureType);
 
             //TODO: factory fid prefixing out
-            init(featureType.getTypeName() + "." + key.encode(rs));
+            init(featureType.getTypeName() + "." + dataStore.encodeFID( key, rs ));
         }
 
         public SimpleFeatureType getFeatureType() {
@@ -720,9 +725,11 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
             try {
                 ResultSetMetaData md = rs.getMetaData();
                 for ( int i = 0; i <= index; i++ ) {
-                    if ( key.getColumnName().equals( md.getColumnName( i + 1) ) ) {
-                        rsindex = index + 1;
-                        break;
+                    for( PrimaryKeyColumn col : key.getColumns() ) {
+                        if ( col.getName().equals( md.getColumnName(i+1))) {
+                            rsindex++;
+                            break;
+                        }
                     }
                 }
             } 
