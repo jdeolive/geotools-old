@@ -42,6 +42,13 @@
 
 
   <profiles>
+     <profile>
+       <id>nd</id>
+       <modules>
+         <module>ndplugins</module>
+       </modules>
+     </profile>
+
      <!-- ================================================== -->
      <!--     Modules requiring GDAL DLLs be in your JDK     -->
      <!-- ================================================== -->

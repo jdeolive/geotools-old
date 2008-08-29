@@ -34,36 +34,10 @@ import org.opengis.util.InternationalString;
 
 
 /**
- * Constructs a live DataStore from a set of parameters.
- *
- * <p>
- * An instance of this interface should exist for all data stores which want to
- * take advantage of the dynamic plugin system. In addition to implementing
- * this interface datastores should have a services file:
- * </p>
- *
- * <p>
- * <code>META-INF/services/org.geotools.data.DataStoreFactorySpi</code>
- * </p>
- *
- * <p>
- * The file should contain a single line which gives the full name of the
- * implementing class.
- * </p>
- *
- * <p>
- * example:<br/><code>e.g.
- * org.geotools.data.mytype.MyTypeDataSourceFacotry</code>
- * </p>
- *
- * <p>
- * The factories are never called directly by client code, instead the
- * DataStoreFinder class is used.
- * </p>
- *
+ * Constructs a live DataAccess from a set of connection parameters.
  * <p>
  * The following example shows how a user might connect to a PostGIS database,
- * and maintain the resulting datastore in a registry:
+ * and maintain the resulting datastore in a Registry:
  * </p>
  *
  * <p>
@@ -84,36 +58,43 @@ import org.opengis.util.InternationalString;
  * FeatureSource<SimpleFeatureType, SimpleFeature> = postgis.getFeatureSource( "table" );
  * </code></pre>
  * </p>
- * <h2>
+ * The required parameters are described by the getParameterInfo() method. Client
+ * 
+ * <h2>Implementation Notes</h2>
+ * <p>
+ * An instance of this interface should exist for all DataAccess implementations
+ * that want to advantage of the dynamic plug-in system. In addition to implementing
+ * this interface a DataAccess implementation should provide a services file:
+ * </p>
  *
- * <ul>
- * <li>
- * Jody - can we please get something better then Param to describe what is
- * allowed? <br>
- * Jody - ISO19119 has something that looks okay, WSDL/SOAP could be used?
- * </li>
- * <li>
- * Jody - can we seperate out Identification of a Service from configration of
- * the service? <br>
- * Jody - this is mostly a problem when managing user supplied configurations
- * in GeoServer and uDig. <br>
- * Jody - the "Catalog API" has now been ported and contains a URI as
- * indentification, while still allowing configuration using a Map of
- * parameters
- * </li>
- * </ul>
+ * <p>
+ * <code>META-INF/services/org.geotools.data.DataAccessFactory</code>
+ * </p>
  *
+ * <p>
+ * The file should contain a single line which gives the full name of the
+ * implementing class.
+ * </p>
  *
- * @author Jody Garnett, Refractions Research
+ * <p>
+ * Example:<br/><code>e.g.
+ * org.geotools.data.mytype.MyTypeDataSourceFacotry</code>
+ * </p>
+ *
+ * <p>
+ * The factories are never called directly by client code, instead the
+ * DataStoreFinder class is used.
+ * </p>
+ * 
+ * @author Jody Garnett (Refractions Research)
  * @source $URL$
  */
 public interface DataAccessFactory extends Factory {
     /**
-     * Construct a live data source using the params specifed.
-     *
+     * Construct a live DataAccess using the connection parameters provided.
      * <p>
-     * You can think of this as setting up a connection to the back end data
-     * source.
+     * You can think of this class as setting up a connection to the back end data source. The
+     * required parameters are described by the getParameterInfo() method.
      * </p>
      *
      * <p>
@@ -232,14 +213,19 @@ public interface DataAccessFactory extends Factory {
     boolean canProcess(java.util.Map<String, Serializable> params);
 
     /**
-     * Test to see if this datastore is available, if it has all the
-     * appropriate libraries to construct a datastore.  Most datastores should
-     * return true, because geotools will distribute the appropriate
-     * libraries.  Though it's not a bad idea for DataStoreFactories to check
-     * to make sure that the  libraries are there.  OracleDataStoreFactory is
-     * an example of one that may generally return false, since geotools can
-     * not distribute the oracle jars, they must be added by the client.  One
-     * may ask how this is different than canProcess, and basically available
+     * Test to see if the implementation is available for use.
+     * This method ensures all the appropriate libraries to construct
+     * the DataAccess are available. 
+     * <p>
+     * Most factories will simply return <code>true</code> as GeoTools will
+     * distribute the appropriate libraries. Though it's not a bad idea for
+     * DataStoreFactories to check to make sure that the  libraries are there.
+     * <p>
+     * OracleDataStoreFactory is an example of one that may generally return
+     * <code>false</code>, since GeoTools can not distribute the oracle jars.
+     * (they must be added by the client.)
+     * <p>
+     * One may ask how this is different than canProcess, and basically available
      * is used by the DataStoreFinder getAvailableDataStore method, so that
      * DataStores that can not even be used do not show up as options in gui
      * applications.

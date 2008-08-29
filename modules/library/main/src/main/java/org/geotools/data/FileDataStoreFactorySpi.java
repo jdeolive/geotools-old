@@ -21,9 +21,10 @@ import java.net.URL;
 
 
 /**
+ * DataAccessFactory for working with formats based on a single URL.
  * <p>
- * This interface includes some new functionality, and acts as a method of
- * discovery for DataStoreFactories which support singular files.
+ * This interface provides a mechanism of discovery for DataAccessFactories
+ * which support singular files.
  * </p>
  *
  * @author dzwiers
@@ -33,26 +34,28 @@ public interface FileDataStoreFactorySpi extends DataStoreFactorySpi {
     /**
      * The list of filename extentions handled by this factory.
      *
-     * @return An ordered list of file extensions which can be read by this
+     * @return List of file extensions which can be read by this
      *         dataStore.
      */
     public String[] getFileExtensions();
 
     /**
-     * True if the url can be handled by this factory.
+     * Tests if the provided url can be handled by this factory.
      *
-     * @param f URL a url to a real file (may not be local)
+     * @param url URL to a real file (may not be local)
      *
-     * @return True when this dataStore can resolve and read the data specified
-     *         by the URL.
+     * @return <code>true</code> if this url can when this dataStore can resolve and read the data specified
      */
-    public boolean canProcess(URL f);
+    public boolean canProcess(URL url);
 
     /**
      * A DataStore attached to the provided url, may be created if needed.
-     *
-     * @param url A URL to the data location for the single featureType of this
-     *        DataStore
+     * <p>
+     * Please note that additional configuration options may be available
+     * via the traditional createDataStore( Map ) method provided by the
+     * superclass.
+     * <p>
+     * @param url The data location for the
      *
      * @return Returns an AbstractFileDataStore created from the data source
      *         provided.

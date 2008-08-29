@@ -19,6 +19,7 @@ package org.geotools.data;
 import java.util.Collections;
 import java.util.Map;
 
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.util.InternationalString;
 
 /**
@@ -119,6 +120,21 @@ public class Parameter<T> {
      * these keys - please communicate with your end-user.
      */
     public final Map<String, Object> metadata;
+
+    /**
+     * Mandatory parameter - quickly constructed with out a properly internationalized
+     * title and description.
+     * 
+     * @param key
+     * @param type
+     * @param title
+     * @param description
+     * @deprecated Please translate title and description into an InternationalString  
+     */
+     public Parameter(String key, Class<T> type, String title,
+     		String description ) {
+         this( key, type, new SimpleInternationalString(title), new SimpleInternationalString(description) );
+     }
 
    /**
     * Mandatory parameter

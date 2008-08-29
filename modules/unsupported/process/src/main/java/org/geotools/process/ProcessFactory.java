@@ -28,9 +28,16 @@ import org.opengis.util.InternationalString;
  */
 public interface ProcessFactory {
 	
-    /** Unique name
+    /**
+     * Unique name (non human readable) that can be used to
+     * refer to this implementation.
      * <p>
+     * This name is used to advertise the availability of a Process
+     * in a WPS; while the Title and Description will change depending
+     * on the users locale; this name will be consistent.
+     * </p>
      * It is up to the implementor to ensure this name is unique
+     * @return name of this process factory
      */
 	public String getName();	
 	
@@ -50,7 +57,7 @@ public interface ProcessFactory {
 	
 	/**
 	 * Description of the Map parameter to use when executing.
-	 * @return
+	 * @return Description of required parameters
 	 */
 	public Map<String,Parameter<?>> getParameterInfo();
 	
