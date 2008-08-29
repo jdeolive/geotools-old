@@ -411,7 +411,7 @@ public final class JDBCDataStore extends ContentDataStore
 
         try {
             String sql = createTableSQL(featureType, cx);
-            LOGGER.fine(sql);
+            LOGGER.log(Level.FINE, "Create schema: {0}", sql);
 
             Statement st = cx.createStatement();
 
@@ -447,7 +447,7 @@ public final class JDBCDataStore extends ContentDataStore
             Connection cx = createConnection();
             try {
                 String sql = selectGeometrySQL(id.getID());
-                LOGGER.fine( sql );
+                LOGGER.log(Level.FINE, "Get GML object: {0}", sql );
                 
                 try {
                     Statement st = cx.createStatement();
@@ -673,7 +673,7 @@ public final class JDBCDataStore extends ContentDataStore
 
                                     sql.append(" WHERE 0=1");
 
-                                    LOGGER.fine(sql.toString());
+                                    LOGGER.log(Level.FINE, "Grabbing table pk metadata: {0}", sql);
 
                                     ResultSet rs = st.executeQuery(sql.toString());
 
@@ -751,7 +751,7 @@ public final class JDBCDataStore extends ContentDataStore
     protected ReferencedEnvelope getBounds(SimpleFeatureType featureType, /*Set types,*/ Filter filter,
         Connection cx) throws IOException {
         String sql = selectBoundsSQL(featureType,/* types,*/ filter);
-        LOGGER.fine(sql);
+        LOGGER.log(Level.FINE, "Retriving bounding box: {0}", sql);
 
         try {
             Statement st = cx.createStatement();
@@ -794,7 +794,7 @@ public final class JDBCDataStore extends ContentDataStore
     protected int getCount(SimpleFeatureType featureType, Filter filter, Connection cx)
         throws IOException {
         String sql = selectCountSQL(featureType, filter);
-        LOGGER.fine(sql);
+        LOGGER.log(Level.FINE, "Counting features: {0}", sql);
 
         try {
             Statement st = cx.createStatement();
@@ -866,7 +866,7 @@ public final class JDBCDataStore extends ContentDataStore
                     }
                     else {
                         String sql = insertSQL(featureType, feature, cx);
-                        LOGGER.fine(sql);
+                        LOGGER.log(Level.FINE, "Inserting new feature: {0}", sql);
 
                         //TODO: execute in batch to improve performance?
                         st.execute(sql);
@@ -924,7 +924,7 @@ public final class JDBCDataStore extends ContentDataStore
         }
         else {
             String sql = updateSQL(featureType, attributes, values, filter);
-            LOGGER.fine(sql);
+            LOGGER.log(Level.FINE, "Updating feature: {0}", sql);
             
             try {
                 Statement st = cx.createStatement();
@@ -957,7 +957,7 @@ public final class JDBCDataStore extends ContentDataStore
     protected void delete(SimpleFeatureType featureType, Filter filter, Connection cx)
         throws IOException {
         String sql = deleteSQL(featureType, filter);
-        LOGGER.fine(sql);
+        LOGGER.log(Level.FINE, "Removing feature(s): {0}", sql);
 
         try {
             Statement st = cx.createStatement();
@@ -1070,7 +1070,7 @@ public final class JDBCDataStore extends ContentDataStore
                   dialect.encodeColumnName( col.getName() , sql );
                   sql.append( ") + 1 FROM ");
                   dialect.encodeTableName( pkey.getTableName(), sql);
-                  LOGGER.fine( sql.toString() );
+                  LOGGER.log(Level.FINE, "Getting next FID: {0}", sql);
                   
                   Statement st = cx.createStatement();
                   try {
@@ -1163,7 +1163,7 @@ public final class JDBCDataStore extends ContentDataStore
             if (!tables.next()) {
                 // does not exist, create it
                 String sql = createRelationshipTableSQL(cx);
-                LOGGER.fine(sql);
+                LOGGER.log(Level.FINE, "Creating relationship table: {0}", sql);
 
                 Statement st = cx.createStatement();
 
@@ -1184,7 +1184,7 @@ public final class JDBCDataStore extends ContentDataStore
             if (!tables.next()) {
                 // does not exist, create it
                 String sql = createAssociationTableSQL(cx);
-                LOGGER.fine(sql);
+                LOGGER.log(Level.FINE, "Creating association table: {0}", sql);
 
                 Statement st = cx.createStatement();
 
@@ -1205,7 +1205,7 @@ public final class JDBCDataStore extends ContentDataStore
             if (!tables.next()) {
                 // does not exist, create it
                 String sql = createGeometryTableSQL(cx);
-                LOGGER.fine(sql);
+                LOGGER.log(Level.FINE, "Creating geometry table: {0}", sql);
 
                 Statement st = cx.createStatement();
 
@@ -1226,7 +1226,7 @@ public final class JDBCDataStore extends ContentDataStore
             if (!tables.next()) {
                 // does not exist, create it
                 String sql = createMultiGeometryTableSQL(cx);
-                LOGGER.fine(sql);
+                LOGGER.log(Level.FINE, "Creating multi-geometry table: {0}", sql);
 
                 Statement st = cx.createStatement();
 
@@ -1247,7 +1247,7 @@ public final class JDBCDataStore extends ContentDataStore
             if (!tables.next()) {
                 // does not exist, create it
                 String sql = createGeometryAssociationTableSQL(cx);
-                LOGGER.fine(sql);
+                LOGGER.log(Level.FINE, "Creating geometry association table: {0}", sql);
 
                 Statement st = cx.createStatement();
 
@@ -1959,7 +1959,7 @@ public final class JDBCDataStore extends ContentDataStore
         
         sql.setLength(sql.length()-1);
         sql.append(")");
-        LOGGER.fine( sql.toString() );
+        LOGGER.log(Level.FINE, "Inserting new feature with ps: {0}", sql);
         
         //create the prepared statement
         PreparedStatement ps = cx.prepareStatement(sql.toString());
@@ -2184,7 +2184,7 @@ public final class JDBCDataStore extends ContentDataStore
         }
         
         PreparedStatement ps = cx.prepareStatement(sql.toString());
-        LOGGER.fine( sql.toString() );
+        LOGGER.log(Level.FINE, "Updating features with prepared statement: {0}", sql);
         
         int i =0;
         for (; i < attributes.length; i++) {
