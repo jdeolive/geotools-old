@@ -14,164 +14,120 @@ import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
-import org.geotools.data.Transaction;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.referencing.CRS;
+import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.vividsolutions.jts.geom.Geometry;
+
+/**
+ * The example code for the "FirstProject" in the GeoTools wiki.
+ * <p>
+ * This code matches these examples:
+ * <ul>
+ * <li><a href="http://docs.codehaus.org/display/GEOTDOC/03+First+Project">First Project</a>
+ * <li><a href="http://docs.codehaus.org/display/GEOTDOC/04+How+to+Read+a+Shapefile">How to Read a Shapefile</a>
+ * </ul>
+ * 
+ * @author Jody Garnett
+ */
 public class FirstProject {
-    public static void main(String[] args) throws Exception {
-        System.out.println("Welcome to GeoTools:" + GeoTools.getVersion());
-
-        File file = getShapeFile(args);
-
-        Map<String, Object> connect = new HashMap<String, Object>();
-        connect.put("url", file.toURI().toURL());
-
-        DataStore dataStore = DataStoreFinder.getDataStore(connect);
+	
+public static void main(String[] args) throws Exception {
+    System.out.println("Welcome to GeoTools:" + GeoTools.getVersion());
+    
+    File file = promptShapeFile(args);
+    try {
+    	// Connection parameters
+        Map<String,Serializable>
+        	connectParameters = new HashMap<String,Serializable>();
+        
+        connectParameters.put("url", file.toURI().toURL());
+        connectParameters.put("create spatial index", true );
+        DataStore dataStore = DataStoreFinder.getDataStore(connectParameters);
+        
+        // we are now connected
         String[] typeNames = dataStore.getTypeNames();
         String typeName = typeNames[0];
 
         System.out.println("Reading content " + typeName);
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore.getFeatureSource(typeName);
 
-        SimpleFeatureType simpleFeatureType = featureSource.getSchema();
-        System.out.println("Header: " + DataUtilities.spec( simpleFeatureType ));
-
-        DefaultQuery query = new DefaultQuery();
-        query.setTypeName(typeName);
-
-        CoordinateReferenceSystem prj = simpleFeatureType.getCoordinateReferenceSystem();
-        if (prj == null) {
-            prj = getCoordinateReferenceSystem("No projection fround for "
-                    + file + " please choose one:");
-            query.setCoordinateSystem(prj);
-        }
-
-        CoordinateReferenceSystem crs = getCoordinateReferenceSystem("Project "
-                + file + " to:");
-        query.setCoordinateSystemReproject(crs);
-
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = featureSource.getFeatures(query);
-        File newFile = getNewShapeFile(file);
-
-        DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
-
-        Map<String, Serializable> create = new HashMap<String,Serializable>();
-        create.put("url", newFile.toURI().toURL());
-        create.put("create spatial index", Boolean.TRUE);
-        DataStore newDataStore = factory.createNewDataStore(create);
-
-        newDataStore.createSchema(collection.getSchema());
-        Transaction transaction = new DefaultTransaction("Reproject");
-        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore;
-        featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) newDataStore
-                .getFeatureSource(typeName);
-        featureStore.setTransaction(transaction);
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+        FeatureIterator<SimpleFeature> iterator;
+        
+        featureSource = dataStore.getFeatureSource(typeName);
+        collection = featureSource.getFeatures();
+        iterator = collection.features();
+        
+        double totalLength=0.0;
         try {
-            featureStore.addFeatures(collection);
-            transaction.commit();
-        } catch (Exception problem) {
-            problem.printStackTrace();
-            transaction.rollback();
+            while (iterator.hasNext()) {
+                SimpleFeature feature = iterator.next();
+                
+                Geometry geometry = (Geometry) feature.getDefaultGeometry();
+                totalLength += geometry.getLength();
+            }
         }
         finally {
-            transaction.close();
+        	if( iterator != null ){
+        		// YOU MUST CLOSE THE ITERATOR!
+                iterator.close();	
+        	}                
         }
-        System.exit(0);
+        System.out.println("Total Length " + totalLength);
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        System.exit(1);
     }
+    System.exit(0);
+}
 
-    private static File getNewShapeFile(File file) {
-        String path = file.getAbsolutePath();
-        String newPath = path.substring(0, path.length() - 4) + "2.shp";
+/** 
+ * Prompt for File if not provided on the command line.
+ * Don't forget the quotes around your path if there are spaces!
+ * 
+ * @throws FileNotFoundException 
+ */
+private static File promptShapeFile(String[] args)
+		throws FileNotFoundException {
+	File file;
+	if (args.length == 0) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setDialogTitle("Open Shapefile for Reprojection");
+		chooser.setFileFilter(new FileFilter() {
+			public boolean accept(File f) {
+				return f.isDirectory() || f.getPath().endsWith("shp")
+						|| f.getPath().endsWith("SHP");
+			}
 
-        JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Save reprojected shapefile");
-        chooser.setSelectedFile(new File(newPath));
-        chooser.setFileFilter(new FileFilter() {
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getPath().endsWith("shp")
-                        || f.getPath().endsWith("SHP");
-            }
+			public String getDescription() {
+				return "Shapefiles";
+			}
+		});
+		int returnVal = chooser.showOpenDialog(null);
 
-            public String getDescription() {
-                return "Shapefiles";
-            }
-        });
-        int returnVal = chooser.showSaveDialog(null);
+		if (returnVal != JFileChooser.APPROVE_OPTION) {
+			System.exit(0);
+		}
+		file = chooser.getSelectedFile();
 
-        if (returnVal != JFileChooser.APPROVE_OPTION) {
-            System.exit(0);
-        }
-        File newFile = chooser.getSelectedFile();
-        if (newFile.equals(file)) {
-            System.out.println("Cannot replace " + file);
-            System.exit(0);
-        }
-        return newFile;
-    }
-
-    private static CoordinateReferenceSystem getCoordinateReferenceSystem(
-            String message) throws Exception {
-        Set codes = CRS.getSupportedCodes("EPSG");
-        String selected = (String) JOptionPane.showInputDialog(null, message,
-                "Choose a Projection", JOptionPane.QUESTION_MESSAGE, null,
-                codes.toArray(), "4326");
-        if (selected == null) {
-            System.exit(0);
-        }
-        return CRS.decode("EPSG:" + selected);
-    }
-
-    private static File getShapeFile(String[] args)
-            throws FileNotFoundException {
-        File file;
-        if (args.length == 0) {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setDialogTitle("Open Shapefile for Reprojection");
-            chooser.setFileFilter(new FileFilter() {
-                public boolean accept(File f) {
-                    return f.isDirectory() || f.getPath().endsWith("shp")
-                            || f.getPath().endsWith("SHP");
-                }
-
-                public String getDescription() {
-                    return "Shapefiles";
-                }
-            });
-            int returnVal = chooser.showOpenDialog(null);
-
-            if (returnVal != JFileChooser.APPROVE_OPTION) {
-                System.exit(0);
-            }
-            file = chooser.getSelectedFile();
-
-            System.out
-                    .println("You chose to open this file: " + file.getName());
-        } else {
-            file = new File(args[0]);
-        }
-        if (!file.exists()) {
-            throw new FileNotFoundException(file.getAbsolutePath());
-        }
-        return file;
-    }
+		System.out.println("You chose to open this file: " + file.getName());
+	} else {
+		file = new File(args[0]);
+	}
+	if (!file.exists()) {
+		throw new FileNotFoundException(file.getAbsolutePath());
+	}
+	return file;
+}
 }

@@ -31,7 +31,8 @@ import java.util.logging.Logger;
 
 
 /**
- * DOCUMENT ME!
+ * Capture the default values produce by the style factory in order to capture
+ * any regressions as we move forward to SE 1.1 interfaces.
  *
  * @author iant
  * @source $URL$
@@ -58,11 +59,7 @@ public class StyleFactoryImplTest extends TestCase {
         return suite;
     }
 
-    /**
-     * Test of createStyle method, of class
-     * org.geotools.styling.StyleFactoryImpl.
-     */
-    public void testCreateStyle() {
+    public void testCommonFactoryFinder() {
         LOGGER.finer("testCreateStyle");
 
         styleFactory = CommonFactoryFinder.getStyleFactory(null);

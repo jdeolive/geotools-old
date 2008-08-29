@@ -35,13 +35,19 @@ public abstract class Response {
     protected String contentType;
 
     public Response(String contentType, InputStream inputStream) throws ServiceException, IOException {
-        this.inputStream = inputStream;
+    	if( inputStream == null ){
+    		throw new NullPointerException("An inputStream is required for "+getClass().getName());
+        }
+    	this.inputStream = inputStream;
+    	if( contentType == null ){
+    		// should missing content type be fatal? Or could we make an assumption?
+        	throw new NullPointerException("Content type is required for "+getClass().getName());
+        }    	
         this.contentType = contentType;
-        
         /*
          * Intercept XML ServiceExceptions and throw them
          */
-        if (contentType.toLowerCase().equals("application/vnd.ogc.se_xml")) {
+        if (contentType != null && contentType.toLowerCase().equals("application/vnd.ogc.se_xml")) {
         	throw parseException(inputStream);
         }
     }
