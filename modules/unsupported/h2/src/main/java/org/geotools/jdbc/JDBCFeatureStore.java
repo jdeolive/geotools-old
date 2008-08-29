@@ -231,7 +231,7 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
                     //figure out the type mapping
 
                     //first ask the dialect
-                    Class binding = dialect.getMapping(cx, columns);
+                    Class binding = dialect.getMapping(columns, cx);
 
                     if (binding == null) {
                         //determine from type mappings

@@ -160,12 +160,11 @@ public abstract class SQLDialect {
      * The <tt>columnMetaData</tt> argument is provided from
      * {@link DatabaseMetaData#getColumns(String, String, String, String)}.
      * </p>
-     * @param The connection used to retrieve the metadata
      * @param columnMetaData The column metadata
-     *
+     * @param The connection used to retrieve the metadata
      * @return The class mapped to the to column, or <code>null</code>.
      */
-    public Class<?> getMapping(Connection cx, ResultSet columnMetaData)
+    public Class<?> getMapping(ResultSet columnMetaData, Connection cx)
         throws SQLException {
         return null;
     }
