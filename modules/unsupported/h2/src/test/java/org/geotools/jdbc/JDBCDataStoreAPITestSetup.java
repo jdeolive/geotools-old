@@ -27,31 +27,12 @@ import javax.sql.DataSource;
  * @author Justin Deoliveira, The Open Planning Project
  *
  */
-public abstract class JDBCDataStoreAPITestSetup extends JDBCTestSetup {
-    JDBCTestSetup delegate;
-
+public abstract class JDBCDataStoreAPITestSetup extends JDBCDelegatingTestSetup {
+   
     protected JDBCDataStoreAPITestSetup(JDBCTestSetup delegate) {
-        this.delegate = delegate;
+        super( delegate );
     }
     
-    public void setUp() throws Exception {
-        super.setUp();
-        
-        delegate.setUp();
-    }
-    
-    protected final void initializeDatabase() throws Exception {
-        delegate.initializeDatabase();
-    }
-
-    protected final DataSource createDataSource() {
-        return delegate.createDataSource();
-    }
-
-    protected final SQLDialect createSQLDialect(JDBCDataStore dataStore) {
-        return delegate.createSQLDialect(dataStore);
-    }
-
     protected final void setUpData() throws Exception {
         //kill all the data
         try {

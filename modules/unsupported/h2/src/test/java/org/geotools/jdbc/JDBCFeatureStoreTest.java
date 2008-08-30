@@ -45,7 +45,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
     protected void setUp() throws Exception {
         super.setUp();
 
-        featureStore = (JDBCFeatureStore) dataStore.getFeatureSource("ft1");
+        featureStore = (JDBCFeatureStore) dataStore.getFeatureSource(tname("ft1"));
     }
 
     public void testAddFeatures() throws IOException {
@@ -54,8 +54,8 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
                 featureStore.getSchema());
 
         for (int i = 3; i < 6; i++) {
-            b.set("intProperty", new Integer(i));
-            b.set("geometry", new GeometryFactory().createPoint(new Coordinate(i, i)));
+            b.set(aname("intProperty"), new Integer(i));
+            b.set(aname("geometry"), new GeometryFactory().createPoint(new Coordinate(i, i)));
             collection.add(b.buildFeature(null));
         }
 
@@ -92,8 +92,8 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
                 featureStore.getSchema());
 
         for (int i = 3; i < 6; i++) {
-            b.set("intProperty", new Integer(i));
-            b.set("geometry", new GeometryFactory().createPoint(new Coordinate(i, i)));
+            b.set(aname("intProperty"), new Integer(i));
+            b.set(aname("geometry"), new GeometryFactory().createPoint(new Coordinate(i, i)));
             collection.add(b.buildFeature(null));
         }
 
@@ -111,8 +111,8 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
 
         for (int i = 3; iterator.hasNext(); i++) {
             SimpleFeature feature = (SimpleFeature) iterator.next();
-            assertTrue(numbers.contains(((Number)feature.getAttribute("intProperty")).intValue()));
-            numbers.remove(feature.getAttribute("intProperty"));
+            assertTrue(numbers.contains(((Number)feature.getAttribute(aname("intProperty"))).intValue()));
+            numbers.remove(feature.getAttribute(aname("intProperty")));
         }
 
         features.close(iterator);
@@ -120,7 +120,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
 
     public void testModifyFeatures() throws IOException {
         SimpleFeatureType t = featureStore.getSchema();
-        featureStore.modifyFeatures(new AttributeDescriptor[] { t.getDescriptor("stringProperty") },
+        featureStore.modifyFeatures(new AttributeDescriptor[] { t.getDescriptor(aname("stringProperty")) },
             new Object[] { "foo" }, Filter.INCLUDE);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
@@ -130,7 +130,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
 
         while (i.hasNext()) {
             SimpleFeature feature = (SimpleFeature) i.next();
-            assertEquals("foo", feature.getAttribute("stringProperty"));
+            assertEquals("foo", feature.getAttribute(aname("stringProperty")));
         }
 
         features.close(i);
@@ -138,7 +138,7 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
 
     public void testRemoveFeatures() throws IOException {
         FilterFactory ff = dataStore.getFilterFactory();
-        Filter filter = ff.equals(ff.property("intProperty"), ff.literal(1));
+        Filter filter = ff.equals(ff.property(aname("intProperty")), ff.literal(1));
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
         assertEquals(3, features.size());

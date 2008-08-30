@@ -120,6 +120,33 @@ public abstract class JDBCTestSetup {
         }
     }
 
+    /**
+     * This method is used whenever referencing the name
+     * of a feature type / table name.
+     * <p>
+     * Subclasses should override this is in case where databases
+     * can not respect case properly and need to force either 
+     * upper or lower case. 
+     * </p>
+     *
+     */
+    protected String typeName( String raw ) {
+        return raw;
+    }
+    
+    /**
+     * This method is used whenever referencing the name
+     * of an attribute / column name.
+     * <p>
+     * Subclasses should override this is in case where databases
+     * can not respect case properly and need to force either 
+     * upper or lower case. 
+     * </p>
+     */
+    protected String attributeName( String raw ) {
+        return raw;
+    }
+    
     protected abstract DataSource createDataSource();
 
     protected abstract SQLDialect createSQLDialect(JDBCDataStore dataStore);

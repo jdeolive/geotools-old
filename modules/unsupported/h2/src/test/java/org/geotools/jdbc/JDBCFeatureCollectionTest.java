@@ -39,7 +39,7 @@ public abstract class JDBCFeatureCollectionTest extends JDBCTestSupport {
     protected void setUp() throws Exception {
         super.setUp();
 
-        JDBCFeatureStore source = (JDBCFeatureStore) dataStore.getFeatureSource("ft1");
+        JDBCFeatureStore source = (JDBCFeatureStore) dataStore.getFeatureSource(tname("ft1"));
         collection = source.getFeatures(); 
     }
 
@@ -63,7 +63,7 @@ public abstract class JDBCFeatureCollectionTest extends JDBCTestSupport {
             }
 
             assertEquals(base++, id);
-            assertEquals(x,((Number)feature.getAttribute("intProperty")).intValue() );
+            assertEquals(x,((Number)feature.getAttribute(aname("intProperty"))).intValue() );
         }
 
         assertFalse(i.hasNext());
@@ -86,7 +86,7 @@ public abstract class JDBCFeatureCollectionTest extends JDBCTestSupport {
 
     public void testSubCollection() throws Exception {
         FilterFactory ff = dataStore.getFilterFactory();
-        Filter f = ff.equals(ff.property("intProperty"), ff.literal(1));
+        Filter f = ff.equals(ff.property(aname("intProperty")), ff.literal(1));
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> sub = collection.subCollection(f);
         assertNotNull(sub);
@@ -100,10 +100,10 @@ public abstract class JDBCFeatureCollectionTest extends JDBCTestSupport {
 
     public void testAdd() throws IOException {
         SimpleFeatureBuilder b = new SimpleFeatureBuilder(collection.getSchema());
-        b.set("intProperty", new Integer(3));
-        b.set("doubleProperty", new Double(3.3));
-        b.set("stringProperty", "three");
-        b.set("geometry", new GeometryFactory().createPoint(new Coordinate(3, 3)));
+        b.set(aname("intProperty"), new Integer(3));
+        b.set(aname("doubleProperty"), new Double(3.3));
+        b.set(aname("stringProperty"), "three");
+        b.set(aname("geometry"), new GeometryFactory().createPoint(new Coordinate(3, 3)));
 
         SimpleFeature feature = b.buildFeature(null);
         assertEquals(3, collection.size());
@@ -117,13 +117,13 @@ public abstract class JDBCFeatureCollectionTest extends JDBCTestSupport {
         while (i.hasNext()) {
             SimpleFeature f = (SimpleFeature) i.next();
 
-            if ("three".equals(f.getAttribute("stringProperty"))) {
-                assertEquals(feature.getAttribute("doubleProperty"),
-                    f.getAttribute("doubleProperty"));
-                assertEquals(feature.getAttribute("stringProperty"),
-                    f.getAttribute("stringProperty"));
-                assertTrue(((Geometry) feature.getAttribute("geometry")).equals(
-                        (Geometry) f.getAttribute("geometry")));
+            if ("three".equals(f.getAttribute(aname("stringProperty")))) {
+                assertEquals(feature.getAttribute(aname("doubleProperty")),
+                    f.getAttribute(aname("doubleProperty")));
+                assertEquals(feature.getAttribute(aname("stringProperty")),
+                    f.getAttribute(aname("stringProperty")));
+                assertTrue(((Geometry) feature.getAttribute(aname("geometry"))).equals(
+                        (Geometry) f.getAttribute(aname("geometry"))));
                 found = true;
             }
         }

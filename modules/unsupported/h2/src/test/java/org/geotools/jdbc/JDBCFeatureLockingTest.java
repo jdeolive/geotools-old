@@ -36,14 +36,14 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
     protected void setUp() throws Exception {
         super.setUp();
     
-        store = (JDBCFeatureStore) dataStore.getFeatureSource("ft1");
+        store = (JDBCFeatureStore) dataStore.getFeatureSource(tname("ft1"));
         store.setFeatureLock(FeatureLock.TRANSACTION);
     }
     
     public void testLockFeatures() throws Exception {
         
         FeatureLock lock = 
-            FeatureLockFactory.generate("ft1", 60 * 60 * 1000);
+            FeatureLockFactory.generate(tname("ft1"), 60 * 60 * 1000);
         
         Transaction tx = new DefaultTransaction();
         store.setTransaction( tx );
@@ -54,7 +54,7 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         assertTrue( locked > 0 );
         
         //grabbing a reader should be no problem
-        DefaultQuery query = new DefaultQuery( "ft1" );
+        DefaultQuery query = new DefaultQuery( tname("ft1") );
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query,tx);
         
         int count = 0;
@@ -66,11 +66,11 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         reader.close();
         
         //grab a writer
-        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter("ft1", tx );
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter(tname("ft1"), tx );
         assertTrue( writer.hasNext() );
         SimpleFeature feature = writer.next();
         
-        feature.setAttribute("intProperty", new Integer(100) );
+        feature.setAttribute(aname("intProperty"), new Integer(100) );
         try {
             writer.write();  
             fail( "should have thrown feature lock exception" );
@@ -83,17 +83,17 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         }
         
         tx.addAuthorization(lock.getAuthorization());
-        writer = dataStore.getFeatureWriter("ft1", tx);
+        writer = dataStore.getFeatureWriter(tname("ft1"), tx);
         assertTrue( writer.hasNext() );
         feature = writer.next();
-        feature.setAttribute("intProperty", new Integer(100) );
+        feature.setAttribute(aname("intProperty"), new Integer(100) );
         writer.write();
     }
     
     public void testLockFeaturesWithFilter() throws Exception {
         
         FeatureLock lock = 
-            FeatureLockFactory.generate("ft1", 60 * 60 * 1000);
+            FeatureLockFactory.generate(tname("ft1"), 60 * 60 * 1000);
         
         Transaction tx = new DefaultTransaction();
         store.setTransaction( tx );
@@ -101,19 +101,19 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         
         //lock features
         FilterFactory ff = dataStore.getFilterFactory();
-        PropertyIsEqualTo f = ff.equals(ff.property("intProperty"), ff.literal(1));
+        PropertyIsEqualTo f = ff.equals(ff.property(aname("intProperty")), ff.literal(1));
         
         int locked = store.lockFeatures( f );
         assertEquals( 1, locked );
         
         //grabbing a reader should be no problem
-        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter("ft1", tx);
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter(tname("ft1"), tx);
         boolean failure = false;
         while( writer.hasNext() ) {
             SimpleFeature feature = (SimpleFeature) writer.next();
-            Number old = (Number) feature.getAttribute("intProperty");
+            Number old = (Number) feature.getAttribute(aname("intProperty"));
             
-            feature.setAttribute("intProperty", new Integer(100));
+            feature.setAttribute(aname("intProperty"), new Integer(100));
             if ( new Integer(1).equals( old.intValue() ) ) {
                 try {
                     writer.write();
@@ -133,7 +133,7 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
     
     public void testUnlockFeatures() throws Exception {
         FeatureLock lock = 
-            FeatureLockFactory.generate("ft1", 60 * 60 * 1000);
+            FeatureLockFactory.generate(tname("ft1"), 60 * 60 * 1000);
         
         Transaction tx = new DefaultTransaction();
         store.setTransaction( tx );
@@ -141,10 +141,10 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         
         store.lockFeatures();
         
-        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter("ft1", tx );
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter(tname("ft1"), tx );
         assertTrue( writer.hasNext() );
         SimpleFeature feature = writer.next();
-        feature.setAttribute( "intProperty", new Integer(100) );
+        feature.setAttribute( aname("intProperty"), new Integer(100) );
         try {
             writer.write();
             fail( "write should have thrown exception");
@@ -165,11 +165,11 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         tx.addAuthorization(lock.getAuthorization());
         store.unLockFeatures();
         
-        writer = dataStore.getFeatureWriter("ft1", tx );
+        writer = dataStore.getFeatureWriter(tname("ft1"), tx );
         assertTrue( writer.hasNext() );
         
         feature = writer.next();
-        feature.setAttribute( "intProperty", new Integer(100) );
+        feature.setAttribute( aname("intProperty"), new Integer(100) );
         
         writer.write();
         writer.close();

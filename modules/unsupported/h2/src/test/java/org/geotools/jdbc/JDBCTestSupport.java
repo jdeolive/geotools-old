@@ -68,7 +68,7 @@ public abstract class JDBCTestSupport extends TestCase {
         
         org.geotools.util.logging.Logging.getLogger("org.geotools.jdbc").setLevel(java.util.logging.Level.FINE);
         org.geotools.util.logging.Logging.getLogger("org.geotools.jdbc").addHandler(handler);
-        */
+        */ 
     }
 
     protected JDBCTestSetup setup;
@@ -99,6 +99,14 @@ public abstract class JDBCTestSupport extends TestCase {
             
             super.run(result);
         }
+    }
+    
+    protected String tname( String raw ) {
+        return setup.typeName( raw );
+    }
+    
+    protected String aname( String raw ) {
+        return setup.attributeName( raw );
     }
 
     protected void setUp() throws Exception {

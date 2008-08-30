@@ -38,20 +38,20 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
     protected void setUp() throws Exception {
         super.setUp();
 
-        featureSource = (JDBCFeatureStore) dataStore.getFeatureSource("ft1");
+        featureSource = (JDBCFeatureStore) dataStore.getFeatureSource(tname("ft1"));
     }
 
     public void testSchema() throws Exception {
         SimpleFeatureType schema = featureSource.getSchema();
-        assertEquals("ft1", schema.getTypeName());
+        assertEquals(tname("ft1"), schema.getTypeName());
         assertEquals(dataStore.getNamespaceURI(), schema.getName().getNamespaceURI());
         assertEquals(CRS.decode("EPSG:4326"), schema.getCoordinateReferenceSystem());
 
         assertEquals(4, schema.getAttributeCount());
-        assertNotNull(schema.getDescriptor("geometry"));
-        assertNotNull(schema.getDescriptor("intProperty"));
-        assertNotNull(schema.getDescriptor("stringProperty"));
-        assertNotNull(schema.getDescriptor("doubleProperty"));
+        assertNotNull(schema.getDescriptor(aname("geometry")));
+        assertNotNull(schema.getDescriptor(aname("intProperty")));
+        assertNotNull(schema.getDescriptor(aname("stringProperty")));
+        assertNotNull(schema.getDescriptor(aname("doubleProperty")));
     }
 
     public void testBounds() throws Exception {
@@ -66,7 +66,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
 
     public void testBoundsWithQuery() throws Exception {
         FilterFactory ff = dataStore.getFilterFactory();
-        PropertyIsEqualTo filter = ff.equals(ff.property("stringProperty"), ff.literal("one"));
+        PropertyIsEqualTo filter = ff.equals(ff.property(aname("stringProperty")), ff.literal("one"));
 
         DefaultQuery query = new DefaultQuery();
         query.setFilter(filter);
@@ -86,7 +86,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
 
     public void testCountWithFilter() throws Exception {
         FilterFactory ff = dataStore.getFilterFactory();
-        PropertyIsEqualTo filter = ff.equals(ff.property("stringProperty"), ff.literal("one"));
+        PropertyIsEqualTo filter = ff.equals(ff.property(aname("stringProperty")), ff.literal("one"));
 
         DefaultQuery query = new DefaultQuery();
         query.setFilter(filter);
@@ -100,7 +100,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
 
     public void testGetFeaturesWithFilter() throws Exception {
         FilterFactory ff = dataStore.getFilterFactory();
-        PropertyIsEqualTo filter = ff.equals(ff.property("stringProperty"), ff.literal("one"));
+        PropertyIsEqualTo filter = ff.equals(ff.property(aname("stringProperty")), ff.literal("one"));
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(filter);
         assertEquals(1, features.size());
@@ -109,17 +109,17 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         assertTrue(iterator.hasNext());
 
         SimpleFeature feature = (SimpleFeature) iterator.next();
-        assertEquals("one", feature.getAttribute("stringProperty"));
-        assertEquals( new Double(1.1), feature.getAttribute( "doubleProperty") );
+        assertEquals("one", feature.getAttribute(aname("stringProperty")));
+        assertEquals( new Double(1.1), feature.getAttribute( aname("doubleProperty")) );
         
     }
 
     public void testGetFeaturesWithQuery() throws Exception {
         FilterFactory ff = dataStore.getFilterFactory();
-        PropertyIsEqualTo filter = ff.equals(ff.property("stringProperty"), ff.literal("one"));
+        PropertyIsEqualTo filter = ff.equals(ff.property(aname("stringProperty")), ff.literal("one"));
 
         DefaultQuery query = new DefaultQuery();
-        query.setPropertyNames(new String[] { "doubleProperty", "intProperty" });
+        query.setPropertyNames(new String[] { aname("doubleProperty"), aname("intProperty") });
         query.setFilter(filter);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(query);
@@ -137,7 +137,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
 
     public void testGetFeaturesWithSort() throws Exception {
         FilterFactory ff = dataStore.getFilterFactory();
-        SortBy sort = ff.sort("stringProperty", SortOrder.ASCENDING);
+        SortBy sort = ff.sort(aname("stringProperty"), SortOrder.ASCENDING);
         DefaultQuery query = new DefaultQuery();
         query.setSortBy(new SortBy[] { sort });
 
@@ -148,19 +148,19 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         assertTrue(iterator.hasNext());
 
         SimpleFeature f = (SimpleFeature) iterator.next();
-        assertEquals("one", f.getAttribute("stringProperty"));
+        assertEquals("one", f.getAttribute(aname("stringProperty")));
 
         assertTrue(iterator.hasNext());
         f = (SimpleFeature) iterator.next();
-        assertEquals("two", f.getAttribute("stringProperty"));
+        assertEquals("two", f.getAttribute(aname("stringProperty")));
 
         assertTrue(iterator.hasNext());
         f = (SimpleFeature) iterator.next();
-        assertEquals("zero", f.getAttribute("stringProperty"));
+        assertEquals("zero", f.getAttribute(aname("stringProperty")));
 
         features.close(iterator);
 
-        sort = ff.sort("stringProperty", SortOrder.DESCENDING);
+        sort = ff.sort(aname("stringProperty"), SortOrder.DESCENDING);
         query.setSortBy(new SortBy[] { sort });
         features = featureSource.getFeatures(query);
 
@@ -168,15 +168,15 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         assertTrue(iterator.hasNext());
 
         f = (SimpleFeature) iterator.next();
-        assertEquals("zero", f.getAttribute("stringProperty"));
+        assertEquals("zero", f.getAttribute(aname("stringProperty")));
 
         assertTrue(iterator.hasNext());
         f = (SimpleFeature) iterator.next();
-        assertEquals("two", f.getAttribute("stringProperty"));
+        assertEquals("two", f.getAttribute(aname("stringProperty")));
 
         assertTrue(iterator.hasNext());
         f = (SimpleFeature) iterator.next();
-        assertEquals("one", f.getAttribute("stringProperty"));
+        assertEquals("one", f.getAttribute(aname("stringProperty")));
     }
     
     public void testGetFeaturesWithMax() throws Exception {
