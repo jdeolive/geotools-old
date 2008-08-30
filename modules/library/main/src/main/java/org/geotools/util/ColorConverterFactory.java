@@ -25,19 +25,16 @@ import org.geotools.factory.Hints;
  * <p>
  * Supported conversions:
  * <ul>
- * 	<li>"true" -> Boolean.TRUE
+ * 	<li>"#FF0000" (String) -> Color.RED
  * 	<li>"false" -> Boolean.FALSE
- * 	<li>"1" -> Boolean.TRUE
- *  <li>"0" -> Boolean.FALSE
- *  <li>1 -> Boolean.TRUE
- *  <li>0 -> Boolean.FALSE 
+ * 	<li>0xFF0000FF (Integer) -> RED with Alpha
  * </ul>
  * </p>
  * <p>
  * This code was previously part of the SLD utility class, it is being made
  * available as part of the Converters framework to allow for broader use.
  * </p>
- * @author Jody Garnett, Refractions Research
+ * @author Jody Garnett (Refractions Research)
  * @since 2.5
  */
 public class ColorConverterFactory implements ConverterFactory {

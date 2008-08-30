@@ -1260,9 +1260,9 @@ public class SLDStyleFactory {
         }
         Color color  = exp.evaluate( f, Color.class );
         if( color != null ){
-            return fallback;
+            return color;
         }
-        return color;
+        return fallback;
     }
 
     private float evalOpacity(Expression e, Object f){

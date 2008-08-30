@@ -45,4 +45,11 @@ public class ColorConverterFactoryTest extends TestCase {
         Converter converter = factory.createConverter( value.getClass(), Color.class, null );
         return (Color) converter.convert( value, Color.class );
     }
+    
+    public void testRegisteredWithConverters(){
+        Color color = Converters.convert("#189E77", Color.class );
+        Color expected = new Color(24,158,119);
+        assertNotNull( "converter not registered", color );
+        assertEquals( expected, color );
+    }
 }
