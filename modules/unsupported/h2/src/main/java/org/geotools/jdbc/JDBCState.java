@@ -17,6 +17,7 @@
 package org.geotools.jdbc;
 
 import java.sql.Connection;
+import java.util.logging.Logger;
 
 import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentState;
@@ -112,5 +113,12 @@ public final class JDBCState extends ContentState {
     public void close() {
         ((JDBCDataStore)entry.getDataStore()).closeSafe(connection);
         super.close();
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        if ( connection != null && !connection.isClosed()) {
+            Logger.getLogger( "org.geotools.jdbc").severe("State finalized with open connection.");
+        }
     }
 }

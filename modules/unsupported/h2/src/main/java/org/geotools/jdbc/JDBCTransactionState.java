@@ -19,6 +19,7 @@ package org.geotools.jdbc;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 import org.geotools.data.Transaction;
 import org.geotools.data.Transaction.State;
@@ -86,6 +87,13 @@ public final class JDBCTransactionState implements State {
         } catch (SQLException e) {
             String msg = "Error occured on rollback";
             throw (IOException) new IOException(msg).initCause(e);
+        }
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        if ( cx != null && !cx.isClosed()) {
+            Logger.getLogger( "org.geotools.jdbc").severe("State finalized with open connection.");
         }
     }
 }
