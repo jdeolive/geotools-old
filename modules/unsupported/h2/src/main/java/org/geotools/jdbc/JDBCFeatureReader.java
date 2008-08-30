@@ -18,6 +18,7 @@ package org.geotools.jdbc;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -112,6 +113,24 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
     
     public JDBCFeatureReader( String sql, Connection cx, JDBCFeatureStore featureStore, Hints hints ) 
         throws SQLException {
+        init( featureStore, hints );
+        
+        //create the result set
+        st = cx.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        rs = st.executeQuery(sql);
+    }
+    
+    public JDBCFeatureReader( PreparedStatement st, JDBCFeatureStore featureStore, Hints hints ) 
+        throws SQLException {
+            
+        init( featureStore, hints );
+        
+        //create the result set
+        this.st = st;
+        rs = st.executeQuery();
+    }
+    
+    protected void init( JDBCFeatureStore featureStore , Hints hints ) {
         //grab feature type of features
         this.featureType = featureStore.getSchema();
         this.dataStore = featureStore.getDataStore();
@@ -137,10 +156,6 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
 
         //create a feature builder
         builder = new SimpleFeatureBuilder(featureType);
-        
-        //create the statement
-        st = cx.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        rs = st.executeQuery(sql);
     }
     
     public JDBCFeatureReader( JDBCFeatureReader other ) {

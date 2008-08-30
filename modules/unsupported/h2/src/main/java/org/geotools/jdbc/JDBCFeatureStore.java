@@ -19,6 +19,7 @@ package org.geotools.jdbc;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -412,20 +413,35 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
         Filter preFilter = split[0];
         Filter postFilter = split[1];
         
-        //build up a statement for the content
-        String sql = getDataStore().selectSQL(getSchema(), preFilter, query.getSortBy());
-        getDataStore().getLogger().fine(sql);
-
         //grab connection
         Connection cx = getDataStore().getConnection(getState());
         
         //create the reader
-         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
-        try {
-            reader = new JDBCFeatureReader( sql, cx, this, query.getHints() );
-        } catch (SQLException e) {
-            throw (IOException) new IOException("error create reader").initCause( e );
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+        
+        SQLDialect dialect = getDataStore().getSQLDialect();
+        if ( dialect.isUsingPreparedStatements() ) {
+            try {
+                PreparedStatement ps = 
+                    getDataStore().selectSQLPS(getSchema(), preFilter, query. getSortBy(), cx);
+                reader = new JDBCFeatureReader( ps, this, query.getHints() );
+            } 
+            catch (SQLException e) {
+                throw (IOException) new IOException().initCause(e);
+            }
         }
+        else {
+            //build up a statement for the content
+            String sql = getDataStore().selectSQL(getSchema(), preFilter, query.getSortBy());
+            getDataStore().getLogger().fine(sql);
+
+            try {
+                reader = new JDBCFeatureReader( sql, cx, this, query.getHints() );
+            } catch (SQLException e) {
+                throw (IOException) new IOException("error create reader").initCause( e );
+            }
+        }
+        
 
         //if post filter, wrap it
         if (postFilter != null && postFilter != Filter.INCLUDE) {
@@ -451,12 +467,18 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
         try {
             //check for insert only
             if ( (flags | WRITER_ADD) == WRITER_ADD ) {
-                //build up a statement for the content, inserting only so we dont want
-                // the query to return any data ==> Filter.EXCLUDE
-                String sql = getDataStore().selectSQL(getSchema(), Filter.EXCLUDE, query.getSortBy());
-                getDataStore().getLogger().fine(sql);
-
-                return new JDBCInsertFeatureWriter( sql, cx, this, query.getHints() );
+                if ( getDataStore().getSQLDialect().isUsingPreparedStatements() ) {
+                    PreparedStatement ps = getDataStore().selectSQLPS(getSchema(), Filter.EXCLUDE, query.getSortBy(), cx);
+                    return new JDBCInsertFeatureWriter( ps, this, query.getHints() );
+                }
+                else {
+                    //build up a statement for the content, inserting only so we dont want
+                    // the query to return any data ==> Filter.EXCLUDE
+                    String sql = getDataStore().selectSQL(getSchema(), Filter.EXCLUDE, query.getSortBy());
+                    getDataStore().getLogger().fine(sql);
+    
+                    return new JDBCInsertFeatureWriter( sql, cx, this, query.getHints() );
+                }
             }
             
             //split the filter

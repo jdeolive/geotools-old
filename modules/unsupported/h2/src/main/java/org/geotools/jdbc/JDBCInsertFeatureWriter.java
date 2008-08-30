@@ -18,6 +18,7 @@ package org.geotools.jdbc;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.geotools.data.FeatureWriter;
@@ -36,6 +37,11 @@ public class JDBCInsertFeatureWriter extends JDBCFeatureReader implements Featur
         last = new ResultSetFeature( rs, cx );
     }
 
+    public JDBCInsertFeatureWriter(PreparedStatement ps, JDBCFeatureStore featureStore, Hints hints)
+        throws SQLException, IOException {
+        super( ps, featureStore, hints );
+        last = new ResultSetFeature( rs, ps.getConnection() );
+    }
     
     public JDBCInsertFeatureWriter(JDBCUpdateFeatureWriter other) {
         super(other);
