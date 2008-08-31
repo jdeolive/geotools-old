@@ -1830,23 +1830,25 @@ public class SLDParser {
                 }
                 else
                 if (res.equalsIgnoreCase("stroke")) {
-                    stroke.setColor(parseCssParameter(child));
+                    Expression color = parseParameterValueExpression( child, false );
+                    stroke.setColor( color );
                 }
                 else
                 if (res.equalsIgnoreCase("width")
                         || res.equalsIgnoreCase("stroke-width")) {
-                    stroke.setWidth(parseCssParameter(child));
+                    Expression width = parseParameterValueExpression( child, false );
+                    stroke.setWidth( width );
                 }
                 else
                 if (res.equalsIgnoreCase(opacityString)
                         || res.equalsIgnoreCase("stroke-opacity")) {
-                    stroke.setOpacity(parseCssParameter(child));
+                    Expression opacity = parseParameterValueExpression( child, false );
+                    stroke.setOpacity( opacity );
                 }
                 else
                 if (res.equalsIgnoreCase("linecap")
                         || res.equalsIgnoreCase("stroke-linecap")) {
-                    // since these are system-dependent just pass them through
-                    // and hope.
+                    // since these are system-dependent just pass them through and hope.
                     stroke.setLineCap(parseCssParameter(child));
                 }
                 else

@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import java.awt.Color;
 import java.io.StringReader;
 
 import junit.framework.TestCase;
@@ -24,6 +25,7 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.Rule;
 
 /**
  * This test case captures specific problems encountered with the SLDTransformer
@@ -46,6 +48,35 @@ public class SLDTransformerTest extends TestCase {
 		transformer.setIndentation(4);
 	}
 
+	/**
+	 * This is a problem reported from uDig 1.2; we are trying to save
+	 * a LineSymbolizer (and then restore it) and the stroke is comming 
+	 * back black and with width 1 all the time.
+	 * 
+	 * @throws Exception
+	 */
+	public void testStroke() throws Exception {
+	   String  xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><sld:UserStyle xmlns=\"http://www.opengis.net/sld\" xmlns:sld=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml\"><sld:Name>Default Styler</sld:Name><sld:Title>Default Styler</sld:Title><sld:FeatureTypeStyle><sld:Name>simple</sld:Name><sld:Title>title</sld:Title><sld:Abstract>abstract</sld:Abstract><sld:FeatureTypeName>Feature</sld:FeatureTypeName><sld:SemanticTypeIdentifier>generic:geometry</sld:SemanticTypeIdentifier><sld:SemanticTypeIdentifier>simple</sld:SemanticTypeIdentifier><sld:Rule><sld:Title>title</sld:Title><sld:Abstract>abstract</sld:Abstract><sld:MaxScaleDenominator>1.7976931348623157E308</sld:MaxScaleDenominator><sld:LineSymbolizer><sld:Stroke><sld:CssParameter name=\"stroke\"><ogc:Literal>#0000FF</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-linecap\"><ogc:Literal>butt</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-linejoin\"><ogc:Literal>miter</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-opacity\"><ogc:Literal>1.0</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-width\"><ogc:Literal>2.0</ogc:Literal></sld:CssParameter><sld:CssParameter name=\"stroke-dashoffset\"><ogc:Literal>0.0</ogc:Literal></sld:CssParameter></sld:Stroke></sld:LineSymbolizer></sld:Rule></sld:FeatureTypeStyle></sld:UserStyle>";
+	   StringReader reader = new StringReader(xml);
+       SLDParser sldParser = new SLDParser(sf, reader);
+
+       Style[] parsed = sldParser.readXML();
+       assertNotNull( "parsed xml", parsed );
+       assertTrue( "parsed xml into style", parsed.length > 0);
+       
+       Style style = parsed[0];
+       assertNotNull( style );
+       Rule rule = style.featureTypeStyles().get(0).rules().get(0);
+       LineSymbolizer lineSymbolize = (LineSymbolizer) rule.symbolizers().get(0);
+       Stroke stroke = lineSymbolize.getStroke();
+       
+       Expression color = stroke.getColor();
+       Color value = color.evaluate(null, Color.class);
+       assertNotNull( "color", value );
+       assertEquals( "blue", Color.BLUE, value );
+       assertEquals( "expected width", 2, (int) stroke.getWidth().evaluate(null, Integer.class) );
+       
+	}
 	/**
 	 * This problem is reported from uDig 1.2, we are trying to save a
 	 * RasterSymbolizer (used to record the opacity of a raster layer) out to an
