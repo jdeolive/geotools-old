@@ -40,7 +40,7 @@ import org.opengis.filter.PropertyIsLike;
  * </pre>
  * <p>
  * @author Mauricio Pazos (Axios Engineering)
- * @since 2.5
+ * @since 2.6
  */
 public class TXTLikePredicateTest extends CQLLikePredicateTest {
     

@@ -29,7 +29,7 @@ import org.junit.Test;
  * @author Mauricio Pazos (Axios Engineering)
  *
  * @version Revision: 1.9
- * @since 2.5 
+ * @since 2.6
  */
 public final class TXTTest  {
     
@@ -47,7 +47,7 @@ public final class TXTTest  {
         TXT.toFilterList("A=1; B<4");
 
         
-        TXT.toFilter("ID IN 'river.1', 'river.2'");
+        TXT.toFilter("ID IN ('river.1', 'river.2')");
     }
     
     /**
@@ -56,7 +56,7 @@ public final class TXTTest  {
      */
     @Test(expected = CQLException.class)
     public void filterIdSyntaxError() throws CQLException {
-        String strId = "ID 15521.3566"; // should be ID IN '15521.3566'
+        String strId = "ID 15521.3566"; // should be ID IN( '15521.3566' )
         TXT.toFilter(strId);
     }
     

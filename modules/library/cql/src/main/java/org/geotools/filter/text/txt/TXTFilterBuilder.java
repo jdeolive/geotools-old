@@ -26,9 +26,14 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CQLFilterBuilder;
 import org.geotools.filter.text.cql2.IToken;
 import org.geotools.filter.text.cql2.Result;
+import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
+import org.opengis.filter.Or;
+import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.FeatureId;
 
 /**
@@ -121,4 +126,52 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
         return signedNumber;
     }
 
+    /**
+     * builds the or filter for the in predicate. The method 
+     * retrieves the list of expressions and the property name 
+     * from stack to make the Or filter.
+     * <pre>
+     * Thus if the stack have the following predicate 
+     * propName in (expr1, expr2)
+     * this method will produce:
+     * (propName = expr1) or (propName = expr2)
+     * </pre>
+     *  
+     * @param nodeExpression
+     * @return
+     * @throws CQLException 
+     */
+    public Or buildInPredicate(final int nodeExpression) throws CQLException {
+        //retrieves the expressions from stack
+        List<Expression> exprList = new LinkedList<Expression>();
+        while (!getResultStack().empty()) {
+
+            Result result = getResultStack().peek();
+
+            int node = result.getNodeType();
+            if (node != nodeExpression) {
+                break;
+            }
+            getResultStack().popResult();
+
+            Expression expr = (Expression) getResultStack().popExpression();
+            exprList.add(expr);
+        }
+        
+        assert exprList.size() >= 1: "must have one or more FeatureIds";
+        
+        // retrieve the attribute from stack
+        final PropertyName property = getResultStack().popPropertyName();
+        
+        // makes one comparison for each expression in the expression list,
+        // associated by the Or filter.
+        List<Filter> filterList = new LinkedList<Filter>();
+        for (Expression expression : exprList) {
+            PropertyIsEqualTo eq = getFilterFactory().equals(property, expression);
+            filterList.add(eq);
+        }
+        Or orFilter = getFilterFactory().or(filterList);
+        
+        return orFilter;
+    }
 }

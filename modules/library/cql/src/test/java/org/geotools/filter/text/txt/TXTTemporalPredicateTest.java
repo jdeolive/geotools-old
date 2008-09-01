@@ -20,11 +20,12 @@ package org.geotools.filter.text.txt;
 import org.geotools.filter.text.cql2.CQLTemporalPredicateTest;
 import org.geotools.filter.text.cql2.CompilerFactory;
 
+
 /**
  * TXT Temporal predicate
  *
  * @author Mauricio Pazos (Axios Engineering)
- * @since 2.5
+ * @since 2.6
  */
 public class TXTTemporalPredicateTest extends CQLTemporalPredicateTest {
 
@@ -32,6 +33,5 @@ public class TXTTemporalPredicateTest extends CQLTemporalPredicateTest {
         // sets the TXT language used to execute this test case
         super(CompilerFactory.Language.TXT);
     }
-    
     
 }

@@ -37,7 +37,7 @@ import org.opengis.filter.expression.Subtract;
  * Filter Samples for TXT language
  *
  * @author Mauricio Pazos (Axios Engineering)
- * @since 2.5
+ * @since 2.6
  */
 public final class FilterTXTSample {
     protected static final FilterFactory FACTORY = CommonFactoryFinder.getFilterFactory((Hints) null);

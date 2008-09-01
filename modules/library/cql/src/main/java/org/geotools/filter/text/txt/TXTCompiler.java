@@ -34,6 +34,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
 import org.opengis.filter.Not;
+import org.opengis.filter.Or;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.spatial.BinarySpatialOperator;
 import org.opengis.filter.spatial.DistanceBufferOperator;
@@ -177,9 +178,7 @@ public class TXTCompiler extends TXTParser implements ICompiler{
         try {
             Object built = build(n);
 
-            assert built != null : "buit cannot be null";
-            
-            IToken tokenAdapter = TokenAdapter.newAdapterFor(token);
+            IToken tokenAdapter = TokenAdapter.newAdapterFor(this.token);
             Result r = new Result(built, tokenAdapter, n.getType());
             this.builder.pushResult(r );
         
@@ -278,16 +277,16 @@ public class TXTCompiler extends TXTParser implements ICompiler{
                 // ----------------------------------------
                 // Compare predicate actions
                 // ----------------------------------------
-            case JJTCOMPARISSONPREDICATE_EQ_NODE:
-            case JJTCOMPARISSONPREDICATE_GT_NODE:
-            case JJTCOMPARISSONPREDICATE_LT_NODE:
-            case JJTCOMPARISSONPREDICATE_GTE_NODE:
-            case JJTCOMPARISSONPREDICATE_LTE_NODE:
+            case JJTCOMPARISONPREDICATE_EQ_NODE:
+            case JJTCOMPARISONPREDICATE_GT_NODE:
+            case JJTCOMPARISONPREDICATE_LT_NODE:
+            case JJTCOMPARISONPREDICATE_GTE_NODE:
+            case JJTCOMPARISONPREDICATE_LTE_NODE:
                 return buildBinaryComparasionOperator(n.getType());
 
-            case JJTCOMPARISSONPREDICATE_NOT_EQUAL_NODE:
+            case JJTCOMPARISONPREDICATE_NOT_EQUAL_NODE:
 
-                Filter eq = buildBinaryComparasionOperator(JJTCOMPARISSONPREDICATE_EQ_NODE);
+                Filter eq = buildBinaryComparasionOperator(JJTCOMPARISONPREDICATE_EQ_NODE);
                 Not notFilter = this.builder.buildNotFilter(eq);
 
                 return notFilter;
@@ -418,10 +417,9 @@ public class TXTCompiler extends TXTParser implements ICompiler{
                 return this.builder.buildFalseLiteral();
 
                 // ----------------------------------------
-                //  id predicate
+                //  ID Predicate
                 // ----------------------------------------
             case JJTFEATURE_ID_NODE:
-                //return this.builder.buildLiteralString(getTokenInPosition(0).toString());
                 return this.builder.buildFeatureID(getTokenInPosition(0));
 
             case JJTID_PREDICATE_NODE:
@@ -433,6 +431,18 @@ public class TXTCompiler extends TXTParser implements ICompiler{
                 Not notIdFilter = this.builder.buildNotFilter(idFilter);
 
                 return notIdFilter;
+                
+                // ----------------------------------------
+                //  IN Predicate
+                // ----------------------------------------
+            case JJTIN_PREDICATE_NODE:
+                return this.builder.buildInPredicate(JJTEXPRESSION_IN_LIST_NODE);
+                
+            case JJTNOT_IN_PREDICATE_NODE: 
+                Or orFilter = this.builder.buildInPredicate(JJTEXPRESSION_IN_LIST_NODE);
+                Not notOrFilter = this.builder.buildNotFilter(orFilter);
+                    
+                return notOrFilter;
         }
 
         return null;
@@ -657,7 +667,7 @@ public class TXTCompiler extends TXTParser implements ICompiler{
 
         switch (node.getNodeType()) {
         case JJTDATETIME_NODE:
-            filter = buildBinaryComparasionOperator(JJTCOMPARISSONPREDICATE_LT_NODE);
+            filter = buildBinaryComparasionOperator(JJTCOMPARISONPREDICATE_LT_NODE);
 
             break;
 
@@ -722,7 +732,7 @@ public class TXTCompiler extends TXTParser implements ICompiler{
 
         switch (node.getNodeType()) {
         case JJTDATETIME_NODE:
-            filter = buildBinaryComparasionOperator(JJTCOMPARISSONPREDICATE_GT_NODE);
+            filter = buildBinaryComparasionOperator(JJTCOMPARISONPREDICATE_GT_NODE);
 
             break;
 
@@ -756,19 +766,19 @@ public class TXTCompiler extends TXTParser implements ICompiler{
             int filterType) throws CQLException {
 
         switch (filterType) {
-        case JJTCOMPARISSONPREDICATE_EQ_NODE:
+        case JJTCOMPARISONPREDICATE_EQ_NODE:
             return this.builder.buildEquals();
 
-        case JJTCOMPARISSONPREDICATE_GT_NODE:
+        case JJTCOMPARISONPREDICATE_GT_NODE:
             return this.builder.buildGreater();
 
-        case JJTCOMPARISSONPREDICATE_LT_NODE:
+        case JJTCOMPARISONPREDICATE_LT_NODE:
             return this.builder.buildLess();
 
-        case JJTCOMPARISSONPREDICATE_GTE_NODE:
+        case JJTCOMPARISONPREDICATE_GTE_NODE:
             return this.builder.buildGreaterOrEqual();
 
-        case JJTCOMPARISSONPREDICATE_LTE_NODE:
+        case JJTCOMPARISONPREDICATE_LTE_NODE:
             return this.builder.buildLessOrEqual();
 
         default:

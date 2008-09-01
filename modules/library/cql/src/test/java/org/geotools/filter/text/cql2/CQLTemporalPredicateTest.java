@@ -75,7 +75,7 @@ public class CQLTemporalPredicateTest {
      * </p>
      */
     @Test
-    public void testTemporalPredicateBefore() throws Exception {
+    public void before() throws Exception {
         Filter resultFilter;
         Filter expected;
         // -------------------------------------------------------------
@@ -134,10 +134,22 @@ public class CQLTemporalPredicateTest {
 
         Assert.assertEquals("greater filter", expected, resultFilter);
 
+    }
+    
+    /**
+     * before with compound attribute
+     * 
+     * sample: gmd:aa:bb.gmd:cc.gmd:dd BEFORE P10Y10M10DT5H5M5S/2006-11-30T01:30:00Z
+     * @throws CQLException
+     */
+    @Test
+    public void beforeCompundProperty() throws CQLException{
+        
         // test compound attribute gmd:aa:bb.gmd:cc.gmd:dd
         final String prop = "gmd:aa:bb.gmd:cc.gmd:dd";
         final String propExpected = "gmd:aa:bb/gmd:cc/gmd:dd";
-        resultFilter = CompilerUtil.parse(this.language,prop + " BEFORE P10Y10M10DT5H5M5S/2006-11-30T01:30:00Z ");
+        String predicate = prop + " BEFORE P10Y10M10DT5H5M5S/2006-11-30T01:30:00Z ";
+        Filter resultFilter = CompilerUtil.parse(this.language,predicate);
 
         Assert.assertTrue("PropertyIsLessThan filter was expected",
             resultFilter instanceof PropertyIsLessThan);
@@ -169,7 +181,7 @@ public class CQLTemporalPredicateTest {
      * </p>
      */
     @Test
-    public void testTemporalPredicateBeforeOrDuring() throws Exception {
+    public void beforeOrDuring() throws Exception {
         Filter resultFilter;
         Filter expected;
         // -------------------------------------------------------------
@@ -224,7 +236,7 @@ public class CQLTemporalPredicateTest {
      * </p>
      */
     @Test
-    public void testTemporalPredicateDuringOrAfter() throws Exception {
+    public void duringOrAfter() throws Exception {
         Filter resultFilter;
         Filter expected;
         // -------------------------------------------------------------
@@ -280,7 +292,7 @@ public class CQLTemporalPredicateTest {
      * </p>
      */
     @Test
-    public void testTemporalPredicateDuring() throws Exception {
+    public void during() throws Exception {
         Filter resultFilter;
         Filter expected;
 
@@ -333,7 +345,7 @@ public class CQLTemporalPredicateTest {
      * </p>
      */
     @Test
-    public void testTemporalPredicateAfter() throws Exception {
+    public void after() throws Exception {
         Filter resultFilter;
         Filter expected;
 

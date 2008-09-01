@@ -14,148 +14,184 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
+
 package org.geotools.filter.text.txt;
 
-import java.util.Set;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.geotools.filter.text.cql2.CQLException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.filter.Filter;
-import org.opengis.filter.Id;
-import org.opengis.filter.Not;
+import org.opengis.filter.Or;
+import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
 
 /**
  * Test for IN Predicate
  * <pre>
- * &lt id predicate &gt ::= ID IN &lt id &gt [ NOT ]{,&lt id &gt };
- * 
- * Sample: ID IN states.1, states.2, states.3
+ * &lt in predicate &gt         ::= &lt attribute-name &gt [  "NOT"  ]  "IN"  &lt in predicate value &gt
+ * &lt in predicate value &gt   ::= "(" &lt in value list &gt ")"
+ * &lt in value list &gt        ::= &lt expression &gt  {, &lt expression &gt}   
  * </pre>
- *
+ * 
  * @author Mauricio Pazos (Axios Engineering)
- * @since 2.5
+ * @since 2.6 
  */
 public class TXTINPredicateTest {
-    
-    
-    /**
-     * <pre>
-     * &lt id predicate &gt ::= ID IN &lt id &gt [ NOT ]{,&lt id &gt };
-     * 
-     * Sample: ID IN states.1, states.2, states.3
-     * </pre>
-     * @throws Exception
-     */
-    @Test
-    public void filterIdWithListOfIdValues() throws Exception {
-
-        final String strId1 = "states.1";
-        final String strId2 = "states.2";
-        final String strId3 = "states.3";
-        Filter filter = TXT.toFilter("ID IN '" + strId1 + "','" + strId2
-                + "', '" + strId3 + "'");
-        Assert.assertNotNull(filter);
-        Assert.assertTrue(filter instanceof Id);
-
-        Id filterId = (Id) filter;
-        Set<?> resultIdentifiers = filterId.getIDs();
-        Assert.assertTrue("one id in filter Id was expected",
-                resultIdentifiers.size() == 3);
-
-        Assert.assertTrue(strId1 + " was expected", resultIdentifiers.contains(strId1));
-
-        Assert.assertTrue(strId2 + " was expected", resultIdentifiers.contains(strId2));
-
-        Assert.assertTrue(strId3 + " was expected", resultIdentifiers.contains(strId3));
-    }
+ 
     
     /**
-     * <pre>
-     * &lt id predicate &gt ::= ID IN &lt id &gt [ NOT ]{,&lt id &gt };
-     * 
-     * Sample: ID NOT IN states.1, states.2, states.3
-     * </pre>
-     * @throws Exception
-     */
-    @Test
-    public void notFilterId() throws Exception {
-
-        Filter filter;
-        
-        final String strId1 = "states.1";
-        final String strId2 = "states.2";
-        final String strId3 = "states.3";
-        filter = TXT.toFilter("NOT ID IN '" + strId1 + "','" + strId2
-                + "', '" + strId3 + "'");
-        
-        Assert.assertNotNull(filter);
-        Assert.assertTrue("Not filter was expected",  filter instanceof Not);
-        
-        Not notFilter = (Not) filter;
-        filter = notFilter.getFilter();
-
-        Id filterId = (Id) filter;
-        Set<?> resultIdentifiers = filterId.getIDs();
-        Assert.assertTrue("one id in filter Id was expected",
-                resultIdentifiers.size() == 3);
-
-        Assert.assertTrue(strId1 + " was expected", resultIdentifiers.contains(strId1));
-
-        Assert.assertTrue(strId2 + " was expected", resultIdentifiers.contains(strId2));
-
-        Assert.assertTrue(strId3 + " was expected", resultIdentifiers.contains(strId3));
-    }
-
-    
-    /**
-     * <pre>
-     * &lt id predicate &gt ::= ID IN &lt id &gt {,&lt id &gt };
-     * 
-     * &lt id &gt ::= 'string'
-     * 
-     * Samples:
-     * <ul>
-     * <li>ID IN '15521.3566' </li>
-     * <li>ID IN 'fid-_df58120_11814e5d8b3__7ffb'</li>
-     * <li>ID IN 'states.1'</li>
-     * </ul> 
-     * </pre>
-     * @throws Exception
-     */
-    @Test 
-    public void filterIdSimple() throws Exception {
-        assertFilterId("15521.3566");
-        assertFilterId("fid-_df58120_11814e5d8b3__7ffb");
-        assertFilterId("states.1");
-    }
-
-    /**
-     * Test the id Predicate 
-     * @throws CQLException
-     */
-    private void assertFilterId(final String idValue) throws CQLException {
-
-        String strId = "'"+ idValue + "'";
-        Filter filter = TXT.toFilter("ID IN " + strId);
-        Assert.assertNotNull(filter);
-        Assert.assertTrue(filter instanceof Id);
-
-        Id filterId = (Id) filter;
-        Set<?>  idSet = filterId.getIDs();
-        Assert.assertTrue("one id in filter Id was expected", idSet.size() == 1);
-        Assert.assertTrue(idValue + "was expected", idSet.contains(idValue));
-    }
-    
-    /**
-     * Test for Syntax error exception
+     * sample: length IN (4100001)
      * @throws CQLException 
      */
-    @Test(expected = CQLException.class)
-    public void filterIdSyntaxError() throws CQLException {
-        String strId = "ID 15521.3566"; // should be ID IN '15521.3566'
-        TXT.toFilter(strId);
+    @Test
+    public void oneIntegerLiteralInList() throws CQLException{
+
+        List<String> intList = new LinkedList<String>();
+        intList.add("4100001");
+        String propName = "length";
+        final String txtPredicate = makeInPredicate(propName, intList);
+
+        Filter filter = TXT.toFilter( txtPredicate);
+        
+        commonAssertForInPredicate(filter);
+        
+        assertFilterHasProperty((Or)filter, propName);
+    }
+
+
+    /**
+     * sample: length IN (4100001,4100002, 4100003 )
+     * @throws CQLException 
+     */
+    @Test
+    public void manyIntegerLiteralInList() throws CQLException{
+        
+        List<String> intList = new LinkedList<String>();
+        String v1 = "4100001";
+        intList.add(v1);
+        String v2 = "4100002";
+        intList.add(v2);
+        String v3 = "4100003";
+        intList.add(v3);
+        String propName = "length";
+        final String txtPredicate = makeInPredicate(propName, intList);
+
+        Filter filter = TXT.toFilter( txtPredicate);
+        
+        commonAssertForInPredicate(filter);
+
+        assertFilterHasProperty((Or) filter, propName);
+    }
+
+    /**
+     * Sample: length in ((1+2), 3-4, [5*6])
+     * @throws CQLException
+     */
+    @Test
+    public void binaryExpression() throws CQLException{
+        
+        List<String> mathExptList = new LinkedList<String>();
+        mathExptList.add("(1+2)");
+        mathExptList.add("3-4");
+        mathExptList.add("[5*6]");
+        String propName = "length";
+        final String txtPredicate = makeInPredicate(propName, mathExptList);
+
+        Filter filter = TXT.toFilter( txtPredicate);
+        
+        commonAssertForInPredicate(filter);
+
+        assertFilterHasProperty((Or)filter, propName);
     }
     
+    /**
+     * sample: huc_8 IN (abs(-1),area(the_geom) )
+     * @throws CQLException 
+     */
+    @Test
+    public void functions() throws CQLException{
+        
+        List<String> intList = new LinkedList<String>();
+        intList.add("abs(-1)");
+        intList.add("area(the_geom)");
+        String propName = "length";
+        final String txtPredicate = makeInPredicate(propName, intList);
+
+        Filter filter = TXT.toFilter( txtPredicate);
+        
+        commonAssertForInPredicate(filter);
+        
+        assertFilterHasProperty((Or)filter, propName);
+
+    }
+
+    /**
+     * Test the IN Predicate with list of integers
+     * 
+     * @param propName property name
+     * @param exprList list of integer values
+     * @throws CQLException 
+     */
+    private void commonAssertForInPredicate(Filter filter) throws CQLException {
+        
+        Assert.assertNotNull(filter);
+        Assert.assertTrue(filter instanceof Or);
+
+        Or filterId = (Or) filter;
+        List<Filter>  filterList = filterId.getChildren();
+        Assert.assertTrue("one or more expressions in Or filter was expected", filterList.size() >= 1);
+        
+    }
+    /**
+     * This is successful if each PropertyIsEqual filter has on the left hand the
+     * same property name.
+     * 
+     * @param filter 
+     * @param expectedName
+     */
+    private void assertFilterHasProperty(final Or filter, final String expectedName){
+        
+        List<Filter> filterlist = filter.getChildren();
+        
+        for (Filter f : filterlist) {
+            
+            PropertyIsEqualTo eq = (PropertyIsEqualTo)f;
+            Expression expr = eq.getExpression1();
+            
+            Assert.assertTrue(expr instanceof PropertyName);
+            PropertyName actualName = (PropertyName) expr;
+            
+            Assert.assertEquals(expectedName, actualName.toString());
+        }
+    }
+
+
+    /**
+     * Makes an in predicate using the property name and the list of expressions
+     * @param propName
+     * @param exprList
+     * @return an In Predicate
+     */
+    private String makeInPredicate(final String propName,
+            final List<String> exprList) {
+        
+        StringBuffer  txtExprList = new StringBuffer();
+        Iterator<String> iterator = exprList.iterator();
+        while( iterator.hasNext() ) {
+            String literal = iterator.next();
+            txtExprList.append(literal);
+            if(iterator.hasNext()){
+                txtExprList.append(",");
+            }
+        }
+        String txtPredicate = propName + " IN (" + txtExprList  + ")";
+        return txtPredicate;
+    }
 
 }

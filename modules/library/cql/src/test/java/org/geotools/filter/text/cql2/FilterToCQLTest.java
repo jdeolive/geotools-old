@@ -16,13 +16,16 @@
  */
 package org.geotools.filter.text.cql2;
 
-import junit.framework.Assert;
+import java.lang.annotation.Annotation;
+
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 
+import org.junit.Test;
 import org.opengis.filter.Filter;
+
+import com.vividsolutions.jts.util.Assert;
 
 /** 
  * FilterToCQLTest
@@ -88,7 +91,7 @@ public class FilterToCQLTest extends TestCase {
         }
 
         public void run(TestResult result) {
-            result.startTest( this );
+            result.startTest( (junit.framework.Test) this );
             try {
                 Filter filter = CQL.toFilter( cql );    
                 
@@ -99,18 +102,27 @@ public class FilterToCQLTest extends TestCase {
             }
             catch (AssertionError fail){
                 result.addFailure(
-                        this, new AssertionFailedError( fail.getMessage() ));
+                        (junit.framework.Test) this, new AssertionFailedError( fail.getMessage() ));
             }
             catch (Throwable t ){
-                result.addError( this, t );
+                result.addError( (junit.framework.Test) this, t );
             }            
             finally {
-                result.endTest(this);
+                result.endTest((junit.framework.Test) this);
             }
         }
         @Override
         public String toString() {
             return cql;
+        }
+        public Class<? extends Throwable> expected() {
+            return null;
+        }
+        public long timeout() {
+            return 0;
+        }
+        public Class<? extends Annotation> annotationType() {
+            return null;
         }
         
     }

@@ -359,16 +359,18 @@ void BooleanPrimary() #void:
 void Predicate() #void:
 {}
 {
-		LOOKAHEAD(2) IdPredicate() 
-	|	Expression()  
+		LOOKAHEAD(3) Expression()  
 		(
-				LOOKAHEAD(3) TextPredicate()
-			| 	LOOKAHEAD(3) ExistencePredicate() 
-			|  	LOOKAHEAD(3) NullPredicate() 
-			| 	LOOKAHEAD(3) TemporalPredicate() 
-			|   LOOKAHEAD(3) BetweenPredicate()		
-			| 	ComparissonPredicate() 
+				LOOKAHEAD(2) TextPredicate()
+			| 	LOOKAHEAD(2) ExistencePredicate() 
+			|  	LOOKAHEAD(2) NullPredicate() 
+			|   LOOKAHEAD(2) BetweenPredicate()		
+			| 	LOOKAHEAD(2) TemporalPredicate() 
+			| 	ComparisonPredicate() 
 		)
+	|	LOOKAHEAD(3) IdPredicate()
+	|	InPredicate() 
+		 
 }
 
 /* ---------------------------------------- *
@@ -381,14 +383,14 @@ void Predicate() #void:
 void IdPredicate() #void:
 {}
 {
-  	 	LOOKAHEAD(3)  <ID> <NOT> <IN> IdList() 	#Not_Id_Predicate_Node
-  	|	              <ID> <IN> IdList() 		#Id_Predicate_Node
+  	 	 LOOKAHEAD(3) <ID> <NOT> <IN> IdList() 	#Not_Id_Predicate_Node
+  	|	  			  <ID> <IN> IdList() 		#Id_Predicate_Node
   	
 }
 void IdList() #void:
 {}
 {
-	IdValue()( <COMMA>  IdValue() )*
+	<LP> IdValue()( <COMMA>  IdValue() )* <RP> 
 	
 } 
 void IdValue() #FEATURE_ID_NODE:
@@ -396,6 +398,34 @@ void IdValue() #FEATURE_ID_NODE:
 {
 	<STRING_LITERAL>	
 }
+
+/* ---------------------------------------- *
+ *   	<in predicate>
+ * ---------------------------------------- *
+/*
+/* <in predicate>    	::=   <attribute-name> [  "NOT"  ]  "IN"  <in predicate value>
+ * <in predicate value>    ::=   "(" <in value list> ")"
+ * <in value list>         ::=   <expression> {"," <expression>} 
+ */
+void InPredicate() #void:
+{}
+{
+  	 	  LOOKAHEAD(4) 	Attribute() <NOT> <IN> InPredicateList() 	#Not_In_Predicate_Node
+  	|	   				Attribute() <IN> InPredicateList() 		#In_Predicate_Node
+  	
+}
+void InPredicateList() #void:
+{}
+{
+	<LP> ExpressionInList()( <COMMA>  ExpressionInList() )* <RP>	
+} 
+
+void ExpressionInList() #Expression_In_List_Node:
+{}
+{
+	Expression()
+}
+
 
 /* ---------------------------------------- *
  *   	<routine invocation>
@@ -578,15 +608,15 @@ void IncludeExcludePredicate() #void:
  * <comparison predicate> ::= 
  *		  <attribute name> <comp op> <literal>
  */
-void ComparissonPredicate() :
+void ComparisonPredicate() :
 {}
 {
-   	 <EQ> 	Expression() #ComparissonPredicate_EQ_Node
-   | <GT> 	Expression() #ComparissonPredicate_GT_Node
-   | <LT> 	Expression() #ComparissonPredicate_LT_Node
-   | <GTE> 	Expression() #ComparissonPredicate_GTE_Node
-   | <LTE>	Expression() #ComparissonPredicate_LTE_Node
-   | <NEQ> 	Expression() #ComparissonPredicate_Not_Equal_Node
+   	 <EQ> 	Expression() #ComparisonPredicate_EQ_Node
+   | <GT> 	Expression() #ComparisonPredicate_GT_Node
+   | <LT> 	Expression() #ComparisonPredicate_LT_Node
+   | <GTE> 	Expression() #ComparisonPredicate_GTE_Node
+   | <LTE>	Expression() #ComparisonPredicate_LTE_Node
+   | <NEQ> 	Expression() #ComparisonPredicate_Not_Equal_Node
 }
 
 /*
