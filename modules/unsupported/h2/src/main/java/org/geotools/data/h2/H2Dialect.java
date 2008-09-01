@@ -146,7 +146,7 @@ public class H2Dialect extends SQLDialect {
     @Override
     public void setGeometryValue(Geometry g, Class binding,
             PreparedStatement ps, int column, Connection cx)
-            throws IOException, SQLException {
+            throws SQLException {
         if ( g == null ) {
             ps.setNull( column, Types.BLOB );
             return;
@@ -154,18 +154,23 @@ public class H2Dialect extends SQLDialect {
         
         WKBWriter w = new WKBWriter();
         
-        //write the geometry
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        w.write( g , new OutputStreamOutStream( bytes ) );
-   
-        //supplement it with the srid
-        int srid = g.getSRID();
-        bytes.write( (byte)(srid >>> 24) );
-        bytes.write( (byte)(srid >> 16 & 0xff) );
-        bytes.write( (byte)(srid >> 8 & 0xff) );
-        bytes.write( (byte)(srid & 0xff) );
-        
-        ps.setBytes( column, bytes.toByteArray() );
+        // write the geometry
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            w.write( g , new OutputStreamOutStream( bytes ) );
+       
+            //supplement it with the srid
+            int srid = g.getSRID();
+            bytes.write( (byte)(srid >>> 24) );
+            bytes.write( (byte)(srid >> 16 & 0xff) );
+            bytes.write( (byte)(srid >> 8 & 0xff) );
+            bytes.write( (byte)(srid & 0xff) );
+            
+            ps.setBytes( column, bytes.toByteArray() );
+        } catch(IOException e) {
+            throw (SQLException) new SQLException("A problem occurred " +
+            		"while serializing the geometry").initCause(e);
+        }
     }
 
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, String column,

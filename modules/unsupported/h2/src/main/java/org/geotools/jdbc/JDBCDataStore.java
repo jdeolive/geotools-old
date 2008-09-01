@@ -172,11 +172,6 @@ public final class JDBCDataStore extends ContentDataStore
     protected HashMap<Class<?>, Integer> classToSqlTypeMappings;
 
     /**
-     * filter capabilities of the datastore
-     */
-    protected FilterCapabilities filterCapabilities;
-
-    /**
      * flag controlling if the datastore is supporting feature and geometry
      * relationships with associations
      */
@@ -255,17 +250,10 @@ public final class JDBCDataStore extends ContentDataStore
      * @return The filter capabilities, never <code>null</code>.
      */
     public FilterCapabilities getFilterCapabilities() {
-        return filterCapabilities;
-    }
-
-    /**
-     * Sets the filter capabilities which reports which spatial operations the
-     * underlying database can handle natively.
-     *
-     * @param filterCapabilities The filter capabilities.
-     */
-    public void setFilterCapabilities(FilterCapabilities filterCapabilities) {
-        this.filterCapabilities = filterCapabilities;
+        if(dialect.isUsingPreparedStatements())
+            return dialect.createPreparedFilterToSQL().getCapabilities();
+        else
+            return dialect.createFilterToSQL().getCapabilities();
     }
 
     /**
@@ -1933,7 +1921,10 @@ public final class JDBCDataStore extends ContentDataStore
             Object value = toSQL.getLiteralValues().get(i);
             Class binding = toSQL.getLiteralTypes().get(i);
             
-            dialect.setValue( value, binding, ps, offset + i+1, cx );
+            if(binding != null && Geometry.class.isAssignableFrom(binding))
+                dialect.setGeometryValue((Geometry) value, binding, ps, offset + i+1, cx);
+            else
+                dialect.setValue( value, binding, ps, offset + i+1, cx );
             if ( LOGGER.isLoggable( Level.FINE ) ) {
                 LOGGER.fine( (i+1) + " = " + value );
             }
@@ -2492,7 +2483,6 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected <F extends FilterToSQL> F initializeFilterToSQL( F toSQL, final SimpleFeatureType featureType ) {
         toSQL.setSqlNameEscape(dialect.getNameEscape());
-        toSQL.setCapabilities(filterCapabilities);
         
         if ( featureType != null ) {
             //set up a fid mapper

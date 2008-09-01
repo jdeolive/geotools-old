@@ -33,11 +33,22 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.data.jdbc.FilterToSQL;
+import org.geotools.filter.FilterCapabilities;
 import org.geotools.util.Converters;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.filter.ExcludeFilter;
+import org.opengis.filter.Id;
+import org.opengis.filter.IncludeFilter;
+import org.opengis.filter.PropertyIsBetween;
+import org.opengis.filter.PropertyIsLike;
+import org.opengis.filter.PropertyIsNull;
+import org.opengis.filter.expression.Add;
+import org.opengis.filter.expression.Divide;
 import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.Multiply;
+import org.opengis.filter.expression.Subtract;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -97,6 +108,30 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */
 public abstract class SQLDialect {
     protected static final Logger LOGGER = Logging.getLogger(SQLDialect.class);
+    
+    /**
+     * The basic filter capabilities all databases should have
+     */
+    public static FilterCapabilities BASE_DBMS_CAPABILITIES = new FilterCapabilities() {
+        {
+            addAll(FilterCapabilities.LOGICAL_OPENGIS);
+            addAll(FilterCapabilities.SIMPLE_COMPARISONS_OPENGIS);
+            
+            //simple arithmetic
+            addType(Add.class);
+            addType(Subtract.class);
+            addType(Multiply.class);
+            addType(Divide.class);
+            
+            //simple comparisons
+            addType(PropertyIsNull.class);
+            addType(PropertyIsBetween.class);
+            addType(Id.class);
+            addType(IncludeFilter.class);
+            addType(ExcludeFilter.class);
+            addType(PropertyIsLike.class);
+        }
+    };
     
     /**
      * The datastore using the dialect
@@ -483,7 +518,7 @@ public abstract class SQLDialect {
         throws IOException;
 
     public abstract void setGeometryValue(Geometry g, Class binding,
-            PreparedStatement ps, int column, Connection cx) throws IOException, SQLException;
+            PreparedStatement ps, int column, Connection cx) throws SQLException;
     
     /**
      * Decodes a geometry value from the result of a query.
@@ -754,9 +789,13 @@ public abstract class SQLDialect {
      * </p>
      */
     public FilterToSQL createFilterToSQL() {
-        return new FilterToSQL();
+        FilterToSQL f2s = new FilterToSQL();
+        f2s.setCapabilities(BASE_DBMS_CAPABILITIES);
+        return f2s;
     }
     public PreparedFilterToSQL createPreparedFilterToSQL() {
-        return new PreparedFilterToSQL();
+        PreparedFilterToSQL f2s = new PreparedFilterToSQL();
+        f2s.setCapabilities(BASE_DBMS_CAPABILITIES);
+        return f2s;
     }
 }

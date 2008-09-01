@@ -125,16 +125,6 @@ public abstract class JDBCTestSupport extends TestCase {
         //initialize the data
         setup.setUpData();
 
-        FilterCapabilities filterCapabilities = new FilterCapabilities();
-        filterCapabilities.addAll(FilterCapabilities.LOGICAL_OPENGIS);
-        filterCapabilities.addAll(FilterCapabilities.SIMPLE_COMPARISONS_OPENGIS);
-        filterCapabilities.addType(PropertyIsNull.class);
-        filterCapabilities.addType(PropertyIsBetween.class);
-        filterCapabilities.addType(Id.class);
-        filterCapabilities.addType(IncludeFilter.class);
-        filterCapabilities.addType(ExcludeFilter.class);
-        filterCapabilities.addType(PropertyIsLike.class);
-
         //create the dataStore
         //TODO: replace this with call to datastore factory
         dataStore = new JDBCDataStore();
@@ -146,7 +136,6 @@ public abstract class JDBCTestSupport extends TestCase {
         dataStore.setGeometryFactory(new GeometryFactory());
         dataStore.setFeatureFactory(new LenientFeatureFactoryImpl());
         dataStore.setFeatureTypeFactory(new FeatureTypeFactoryImpl());
-        dataStore.setFilterCapabilities(filterCapabilities);
 
         setup.setUpDataStore(dataStore);
         

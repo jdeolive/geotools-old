@@ -125,9 +125,6 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
         dataStore.setFeatureTypeFactory(new FeatureTypeFactoryImpl());
         dataStore.setFeatureFactory(new LenientFeatureFactoryImpl());
 
-        //filter capabilities
-        dataStore.setFilterCapabilities(createFilterCapabilities());
-
         //call subclass hook and return
         return createDataStoreInternal(dataStore, params);
     }
@@ -292,43 +289,5 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
         }
 
         return dataSource;
-    }
-
-    /**
-     * Creates the filter capabilities object which represents the filters that
-     * the datastore is capable of encoding as sql.
-     * <p>
-     * Subclasses should extend this method. This implementation provided a basic
-     * set of capabilities which includes:
-     * <ul>
-     *   <li>simple comparisons
-     *   <li>simple arithmetic
-     *   <li>identifiers
-     *   <li>null comparison
-     *   <li>like comparison
-     * </ul>
-     * </p>
-     * @return The filter capabilities object.
-     */
-    protected FilterCapabilities createFilterCapabilities() {
-        FilterCapabilities filterCapabilities = new FilterCapabilities();
-        filterCapabilities.addAll(FilterCapabilities.LOGICAL_OPENGIS);
-        filterCapabilities.addAll(FilterCapabilities.SIMPLE_COMPARISONS_OPENGIS);
-        
-        //simple arithmetic
-        filterCapabilities.addType(Add.class);
-        filterCapabilities.addType(Subtract.class);
-        filterCapabilities.addType(Multiply.class);
-        filterCapabilities.addType(Divide.class);
-        
-        //simple comparisons
-        filterCapabilities.addType(PropertyIsNull.class);
-        filterCapabilities.addType(PropertyIsBetween.class);
-        filterCapabilities.addType(Id.class);
-        filterCapabilities.addType(IncludeFilter.class);
-        filterCapabilities.addType(ExcludeFilter.class);
-        filterCapabilities.addType(PropertyIsLike.class);
-
-        return filterCapabilities;
     }
 }

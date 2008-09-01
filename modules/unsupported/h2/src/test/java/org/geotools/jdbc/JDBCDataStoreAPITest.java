@@ -60,6 +60,7 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.spatial.BBOX;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -151,7 +152,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         String featureTypeName = tname("building");
 
         // create a featureType and write it to PostGIS
-        CoordinateReferenceSystem crs = CRS.decode("EPSG:4326"); // requires gt2-epsg-wkt
+        CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
 
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
         ftb.setName(featureTypeName);
@@ -489,6 +490,22 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         assertEquals(1, count(reader));
         reader.close();
         t.close();
+    }
+    
+    public void testBboxFilter() throws Exception {
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        // should match only "r2"
+        BBOX bbox = ff.bbox(aname("geom"), 2, 3, 4, 5, "EPSG:4326");
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(bbox);
+        assertEquals(1, features.size());
+        FeatureIterator fr = features.features();
+        assertTrue(fr.hasNext());
+        SimpleFeature f = (SimpleFeature) fr.next();
+        assertNotNull(f);
+        assertEquals("r2", f.getAttribute(aname("name")));
+        assertFalse(fr.hasNext());
+        fr.close();
+         
     }
 
     public void testGetFeatureWriterClose() throws Exception {

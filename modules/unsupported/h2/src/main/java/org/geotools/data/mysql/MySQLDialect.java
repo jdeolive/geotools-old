@@ -182,7 +182,7 @@ public class MySQLDialect extends SQLDialect {
     
     public void setGeometryValue(Geometry g, Class binding,
             PreparedStatement ps, int column, Connection cx)
-            throws IOException, SQLException {
+            throws SQLException {
     }
 
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, String name,
