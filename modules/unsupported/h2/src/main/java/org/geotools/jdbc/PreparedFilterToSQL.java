@@ -55,8 +55,12 @@ public class PreparedFilterToSQL extends FilterToSQL {
             return super.visit(expression, context);
         
         //evaluate the literal and store it for later
-        literalTypes.add( (Class) context );
-        literalValues.add( evaluateLiteral( expression, (Class) context ) );
+        Object literalValue = evaluateLiteral( expression, (Class) context );
+        literalValues.add(literalValue);
+        if(literalValue != null)
+            literalTypes.add(literalValue.getClass());
+        else if(context instanceof Class)
+            literalTypes.add((Class) context);
         
         try {
             out.write( "?" );
