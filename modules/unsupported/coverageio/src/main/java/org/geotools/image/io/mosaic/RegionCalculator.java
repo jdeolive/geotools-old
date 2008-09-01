@@ -125,11 +125,11 @@ final class RegionCalculator {
      * <p>
      * <strong>Invoking this method flush the collection</strong>. On return, this instance
      * is in the same state as if {@link #clear} has been invoked. This is because current
-     * implementation modify its workspace directly for efficiently.
+     * implementation modify its workspace directly for efficiency.
      */
     public Map<ImageGeometry,Tile[]> tiles() {
         final Map<ImageGeometry,Tile[]> results = new HashMap<ImageGeometry,Tile[]>(4);
-        for (final Map<AffineTransform,Dimension> levels : computePyramidLevels(tiles.keySet())) {
+        for (final Map<AffineTransform,Dimension> tilesAT : computePyramidLevels(tiles.keySet())) {
             /*
              * Picks an affine transform to be used as the reference one. We need the finest one.
              * If more than one have the finest resolution, the exact choice does not matter much.
@@ -140,7 +140,7 @@ final class RegionCalculator {
             double xMin  = Double.POSITIVE_INFINITY;
             double yMin  = Double.POSITIVE_INFINITY;
             double scale = Double.POSITIVE_INFINITY;
-            for (final AffineTransform tr : levels.keySet()) {
+            for (final AffineTransform tr : tilesAT.keySet()) {
                 final double s = XAffineTransform.getScale(tr);
                 double y = tr.getTranslateY(); if (tr.getScaleY() < 0 || tr.getShearY() < 0) y = -y;
                 double x = tr.getTranslateX(); if (tr.getScaleX() < 0 || tr.getShearX() < 0) x = -x;
@@ -178,8 +178,8 @@ final class RegionCalculator {
             int index = 0;
             Rectangle groupBounds = null;
             final Rectangle2D.Double envelope = new Rectangle2D.Double();
-            final Tile[] tilesArray = new Tile[levels.size()];
-            for (final Map.Entry<AffineTransform,Dimension> entry : levels.entrySet()) {
+            final Tile[] tilesArray = new Tile[tilesAT.size()];
+            for (final Map.Entry<AffineTransform,Dimension> entry : tilesAT.entrySet()) {
                 final AffineTransform tr = entry.getKey();
                 Tile tile = tiles.remove(tr); // Should never be null.
                 tr.preConcatenate(toGrid);
@@ -220,9 +220,12 @@ final class RegionCalculator {
                 }
                 tilesArray[index++] = tile;
             }
+            tilesAT.clear(); // Lets GC do its work.
             /*
              * Translates the tiles in such a way that the upper-left corner has the coordinates
-             * specified by (xLocation, yLocation). Adjusts the final affine transform concequently.
+             * specified by (xLocation, yLocation). Adjusts the tile affine transform concequently.
+             * After this block, tiles having the same subsampling will share the same immutable
+             * affine transform instance.
              */
             if (groupBounds != null) {
                 final int dx = xLocation - groupBounds.x;
@@ -233,9 +236,16 @@ final class RegionCalculator {
                 }
                 final ImageGeometry geometry = new ImageGeometry(groupBounds, reference);
                 reference = geometry.getGridToCRS(); // Fetchs the immutable instance.
+                final Map<Dimension,TranslatedTransform> pool =
+                        new HashMap<Dimension,TranslatedTransform>();
                 for (final Tile tile : tilesArray) {
-                    tile.translate(dx, dy);
-                    tile.setGridToCRS(reference);
+                    final Dimension subsampling = tile.getSubsampling();
+                    TranslatedTransform translated = pool.get(subsampling);
+                    if (translated == null) {
+                        translated = new TranslatedTransform(subsampling, reference, dx, dy);
+                        pool.put(subsampling, translated);
+                    }
+                    translated.applyTo(tile);
                 }
                 results.put(geometry, tilesArray);
             }
@@ -277,7 +287,8 @@ final class RegionCalculator {
      * the second pass are put in the third element of the list, <cite>etc</cite>.
      *
      * @param  gridToCRS The <cite>grid to CRS</cite> affine transforms computed from the
-     *         image to use in a pyramid. Those transforms will not be modified.
+     *         image to use in a pyramid. The collection and the transform elements are not
+     *         modified by this method (they may be modified by the caller however).
      * @return A subset of the given transforms with their relative resolution. This method
      *         typically returns one map, but more could be returned if the scale ratio is
      *         not an integer for every transforms.
@@ -342,7 +353,7 @@ final class RegionCalculator {
      * stores the result in the given map.
      *
      * @param  gridToCRS The AffineTransform to analyse. This array <strong>must</strong> be
-     *                   sorted along the dimension specififed by {@code term}.
+     *                   sorted along the dimension specified by {@code term}.
      * @param  length    The number of valid entries in the {@code gridToCRS} array.
      * @param  result    An initially empty map in which to store the results.
      * @param  isY       {@code false} for analyzing the X axis, or {@code true} for the Y axis.
@@ -360,7 +371,7 @@ final class RegionCalculator {
             if (processing >= length) {
                 return remaining;
             }
-            base  = gridToCRS[processing++];
+            base = gridToCRS[processing++];
             if (isY) {
                 scale = base.getScaleY();
                 shear = base.getShearY();

@@ -205,13 +205,7 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
          */
         for (int i=(root != null ? 1 : 0); i<nodes.length; i++) {
             final GridNode child = nodes[i];
-            GridNode parent = smallest(child, true);
-            if (parent == this) {
-                // Note: a previous version had also the following condition: !isGridded(child).
-                // However it leads to the "worst case" scenario when the mosaic doesn't contain
-                // and integer number of tiles, so we should not put this condition.
-                parent = smallest(child, false);
-            }
+            final GridNode parent = smallest(child);
             if (!parent.overlaps) {
                 TreeNode existing = parent.firstChildren();
                 while (existing != null) {
@@ -251,29 +245,39 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
      * {@code this} node, if non-empty, {@linkplain #contains contains} the given bounds.
      * Note that the constructor may invoke this method from the root with an empty bounding
      * box, which is valid.
+     * <p>
+     * This method tries to returns the smallest {@linkplain #isGridded gridded} node, if any.
+     * By "gridded" we mean a node that can align the given bounds on a grid. If there is no
+     * such node, then any node containing the bounds is returned.
      *
      * @param  The bounds to check for inclusion.
-     * @param  {@code true} if we require that the node can align the given bounds on a grid.
      * @return The smallest node, or {@code this} if none (never {@code null}).
      */
-    private GridNode smallest(final Rectangle bounds, final boolean gridded) {
+    private GridNode smallest(final Rectangle bounds) {
         long smallestArea;
+        boolean gridded;
         if (isEmpty()) {
             smallestArea = Long.MAX_VALUE;
+            gridded = false;
         } else {
             assert contains(bounds);
             smallestArea = (long) width * (long) height;
+            gridded = isGridded(bounds);
         }
         GridNode smallest = this;
         GridNode child = (GridNode) firstChildren();
         while (child != null) {
             if (child.contains(bounds)) {
-                final GridNode candidate = child.smallest(bounds, gridded);
-                if (!gridded || candidate.isGridded(bounds)) {
+                final GridNode candidate = child.smallest(bounds);
+                final boolean cg = candidate.isGridded(bounds);
+                if (!gridded || cg) {
                     final long area = (long) candidate.width * (long) candidate.height;
-                    if (area < smallestArea) {
+                    if ((!gridded && cg) || (area < smallestArea)) {
+                        // If the smallest node was not gridded while the candidate is gridded,
+                        // retains the candidate inconditionnaly. Otherwise retains only if smaller.
                         smallestArea = area;
                         smallest = candidate;
+                        gridded = cg;
                     }
                 }
             }
@@ -543,7 +547,8 @@ final class GridNode extends TreeNode implements Comparable<GridNode> {
             final short xSubsampling = node.xSubsampling;
             final short ySubsampling = node.ySubsampling;
             for (int i=1; i<nodes.length; i++) {
-                if (node.xSubsampling != xSubsampling && node.ySubsampling != ySubsampling) {
+                node = nodes[i];
+                if (node.xSubsampling != xSubsampling || node.ySubsampling != ySubsampling) {
                     return false;
                 }
             }

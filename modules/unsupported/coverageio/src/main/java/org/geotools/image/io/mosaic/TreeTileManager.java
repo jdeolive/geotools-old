@@ -123,7 +123,13 @@ final class TreeTileManager extends TileManager {
             final ReaderInputPair key = new ReaderInputPair(spi, tile.getInput());
             List<Tile> sameInputs = tilesByInput.get(key);
             if (sameInputs == null) {
-                sameInputs = new ArrayList<Tile>(4);
+                /*
+                 * We will usually have only one element in each list. Because we may create
+                 * thousands of them, it is better to stick to such a small size. If we have
+                 * more elements, the number of distinct lists will be smaller and they will
+                 * be reasonably cheap to growth.
+                 */
+                sameInputs = new ArrayList<Tile>(1);
                 tilesByInput.put(key, sameInputs);
                 providers.add(spi);
             }
@@ -138,9 +144,12 @@ final class TreeTileManager extends TileManager {
         final Comparator<List<Tile>> comparator = Comparators.forLists();
         Arrays.sort(asArray, comparator);
         int numTiles = 0;
-fill:   for (final List<Tile> sameInputs : asArray) {
-            assert !sameInputs.isEmpty();
-            Collections.sort(sameInputs);
+        for (final List<Tile> sameInputs : asArray) {
+            switch (sameInputs.size()) {
+                case 0:  throw new AssertionError(); // Should never happen.
+                case 1:  break; // Worthly optimization when we have thousands of lists of lenght 1.
+                default: Collections.sort(sameInputs); break;
+            }
             for (final Tile tile : sameInputs) {
                 tiles[numTiles++] = tile;
             }

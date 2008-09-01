@@ -193,9 +193,10 @@ final class RTree {
         Dimension bestSubsampling = subsamplingCandidate = subsampling;
         SelectedNode bestCandidate = null;
         int bestCandidateCount = 0;
+        long lowestCost = Long.MAX_VALUE;
         try {
             do {
-                final SelectedNode candidate = addTileCandidate(root, Long.MAX_VALUE);
+                final SelectedNode candidate = addTileCandidate(root, lowestCost);
                 /*
                  * We now have the final set of tiles for current subsampling. Checks if the cost
                  * of this set is lower than previous sets, and keep as "best candidates" if it is.
@@ -218,6 +219,7 @@ final class RTree {
                     bestCandidate = candidate;
                     bestCandidateCount = candidateCount;
                     bestSubsampling = subsamplingCandidate;
+                    lowestCost = candidate.cost;
                 }
             } while ((subsamplingCandidate = subsamplingToTry.poll()) != null);
         } finally {

@@ -41,11 +41,17 @@ final class ReaderInputPair {
     private final Object input;
 
     /**
+     * Hash code computed at construction time in order to avoid computing it twice.
+     */
+    private final int hash;
+
+    /**
      * Creates a provider/input pair.
      */
     ReaderInputPair(final ImageReaderSpi provider, final Object input) {
         this.reader = provider;
         this.input  = input;
+        this.hash   = hash();
     }
 
     /**
@@ -54,13 +60,20 @@ final class ReaderInputPair {
     ReaderInputPair(final ImageReader reader, final Object input) {
         this.reader = reader;
         this.input  = input;
+        this.hash   = hash();
     }
-
     /**
      * Returns a hash value for this reader/input pair.
      */
     @Override
     public int hashCode() {
+        return hash;
+    }
+
+    /**
+     * Computes the hash value for this reader/input pair.
+     */
+    private int hash() {
         return reader.hashCode() + 37*Utilities.deepHashCode(input);
     }
 
