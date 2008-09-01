@@ -59,14 +59,25 @@ import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.spatial.BBOX;
+import org.opengis.filter.spatial.Contains;
+import org.opengis.filter.spatial.Crosses;
+import org.opengis.filter.spatial.Disjoint;
+import org.opengis.filter.spatial.Equals;
+import org.opengis.filter.spatial.Intersects;
+import org.opengis.filter.spatial.Touches;
+import org.opengis.filter.spatial.Within;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 
 
 public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
@@ -505,7 +516,153 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         assertEquals("r2", f.getAttribute(aname("name")));
         assertFalse(fr.hasNext());
         fr.close();
-         
+    }
+    
+    public void testCrossesFilter() throws Exception {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        // should match only "r2"
+        GeometryFactory gf = new GeometryFactory();
+        PackedCoordinateSequenceFactory sf = new PackedCoordinateSequenceFactory();
+        LineString ls = gf.createLineString(sf.create(new double[] {2,3,4,3}, 2));
+        // TODO: remove this, the datastore should be smart enough not to need this hint
+        ls.setSRID(4326);
+        Crosses cs = ff.crosses(ff.property(aname("geom")), ff.literal(ls));
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(cs);
+        assertEquals(1, features.size());
+        FeatureIterator fr = features.features();
+        assertTrue(fr.hasNext());
+        SimpleFeature f = (SimpleFeature) fr.next();
+        assertNotNull(f);
+        assertEquals("r2", f.getAttribute(aname("name")));
+        assertFalse(fr.hasNext());
+        fr.close();
+    }
+    
+    public void testIntersectsFilter() throws Exception {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        // should match only "r1"
+        GeometryFactory gf = new GeometryFactory();
+        PackedCoordinateSequenceFactory sf = new PackedCoordinateSequenceFactory();
+        LineString ls = gf.createLineString(sf.create(new double[] {2,1,2,3}, 2));
+        // TODO: remove this, the datastore should be smart enough not to need this hint
+        ls.setSRID(4326);
+        Intersects is = ff.intersects(ff.property(aname("geom")), ff.literal(ls));
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(is);
+        assertEquals(1, features.size());
+        FeatureIterator fr = features.features();
+        assertTrue(fr.hasNext());
+        SimpleFeature f = (SimpleFeature) fr.next();
+        assertNotNull(f);
+        assertEquals("r1", f.getAttribute(aname("name")));
+        assertFalse(fr.hasNext());
+        fr.close();
+    }
+    
+    public void testTouchesFilter() throws Exception {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        // should match only "r1"
+        GeometryFactory gf = new GeometryFactory();
+        PackedCoordinateSequenceFactory sf = new PackedCoordinateSequenceFactory();
+        LineString ls = gf.createLineString(sf.create(new double[] {1,1,1,3}, 2));
+        // TODO: remove this, the datastore should be smart enough not to need this hint
+        ls.setSRID(4326);
+        Touches is = ff.touches(ff.property(aname("geom")), ff.literal(ls));
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(is);
+        assertEquals(1, features.size());
+        FeatureIterator fr = features.features();
+        assertTrue(fr.hasNext());
+        SimpleFeature f = (SimpleFeature) fr.next();
+        assertNotNull(f);
+        assertEquals("r1", f.getAttribute(aname("name")));
+        assertFalse(fr.hasNext());
+        fr.close();
+    }
+    
+    public void testContainsFilter() throws Exception {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        // should match only "r2"
+        GeometryFactory gf = new GeometryFactory();
+        PackedCoordinateSequenceFactory sf = new PackedCoordinateSequenceFactory();
+        LinearRing shell = gf.createLinearRing(sf.create(new double[] {2,-1,2,5,4,5,4,-1,2,-1}, 2));
+        Polygon polygon = gf.createPolygon(shell, null);
+        // TODO: remove this, the datastore should be smart enough not to need this hint
+        polygon.setSRID(4326);
+        Contains cs = ff.contains(ff.literal(polygon), ff.property(aname("geom")));
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(cs);
+        assertEquals(1, features.size());
+        FeatureIterator fr = features.features();
+        assertTrue(fr.hasNext());
+        SimpleFeature f = (SimpleFeature) fr.next();
+        assertNotNull(f);
+        assertEquals("r2", f.getAttribute(aname("name")));
+        assertFalse(fr.hasNext());
+        fr.close();
+    }
+    
+    /**
+     * Same as contains, with roles reversed
+     * @throws Exception
+     */
+    public void testWithinFilter() throws Exception {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        // should match only "r2"
+        GeometryFactory gf = new GeometryFactory();
+        PackedCoordinateSequenceFactory sf = new PackedCoordinateSequenceFactory();
+        LinearRing shell = gf.createLinearRing(sf.create(new double[] {2,-1,2,5,4,5,4,-1,2,-1}, 2));
+        Polygon polygon = gf.createPolygon(shell, null);
+        // TODO: remove this, the datastore should be smart enough not to need this hint
+        polygon.setSRID(4326);
+        Within wt = ff.within(ff.property(aname("geom")), ff.literal(polygon));
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(wt);
+        assertEquals(1, features.size());
+        FeatureIterator fr = features.features();
+        assertTrue(fr.hasNext());
+        SimpleFeature f = (SimpleFeature) fr.next();
+        assertNotNull(f);
+        assertEquals("r2", f.getAttribute(aname("name")));
+        assertFalse(fr.hasNext());
+        fr.close();
+    }
+    
+    public void testDisjointFilter() throws Exception {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        // should match only "r2"
+        GeometryFactory gf = new GeometryFactory();
+        PackedCoordinateSequenceFactory sf = new PackedCoordinateSequenceFactory();
+        LinearRing shell = gf.createLinearRing(sf.create(new double[] {4,-1,4,5,6,5,6,-1,4,-1}, 2));
+        Polygon polygon = gf.createPolygon(shell, null);
+        // TODO: remove this, the datastore should be smart enough not to need this hint
+        polygon.setSRID(4326);
+        Disjoint dj = ff.disjoint(ff.property(aname("geom")), ff.literal(polygon));
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(dj);
+        assertEquals(1, features.size());
+        FeatureIterator fr = features.features();
+        assertTrue(fr.hasNext());
+        SimpleFeature f = (SimpleFeature) fr.next();
+        assertNotNull(f);
+        assertEquals("r2", f.getAttribute(aname("name")));
+        assertFalse(fr.hasNext());
+        fr.close();
+    }
+    
+    public void testEqualsFilter() throws Exception {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        // should match only "r3"
+        // TODO: remove this, the datastore should be smart enough not to need this hint
+        GeometryFactory gf = new GeometryFactory();
+        Geometry g = gf.createGeometry((Geometry) td.roadFeatures[2].getDefaultGeometry());
+        // TODO: remove this, the datastore should be smart enough not to need this hint
+        g.setSRID(4326);
+        Equals cs = ff.equal(ff.literal(g), ff.property(aname("geom")));
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(cs);
+        assertEquals(1, features.size());
+        FeatureIterator fr = features.features();
+        assertTrue(fr.hasNext());
+        SimpleFeature f = (SimpleFeature) fr.next();
+        assertNotNull(f);
+        assertEquals("r3", f.getAttribute(aname("name")));
+        assertFalse(fr.hasNext());
+        fr.close();
     }
 
     public void testGetFeatureWriterClose() throws Exception {
