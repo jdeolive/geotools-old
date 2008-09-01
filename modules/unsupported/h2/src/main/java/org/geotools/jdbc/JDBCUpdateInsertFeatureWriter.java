@@ -18,6 +18,7 @@ package org.geotools.jdbc;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
@@ -32,6 +33,12 @@ public class JDBCUpdateInsertFeatureWriter extends JDBCUpdateFeatureWriter {
             JDBCFeatureStore featureStore, Hints hints) throws SQLException,
             IOException {
         super(sql, cx, featureStore, hints);
+    }
+    
+    public JDBCUpdateInsertFeatureWriter(PreparedStatement ps,
+            JDBCFeatureStore featureStore, Hints hints) throws SQLException,
+            IOException {
+        super(ps, featureStore, hints);
     }
     
     public boolean hasNext() throws IOException {

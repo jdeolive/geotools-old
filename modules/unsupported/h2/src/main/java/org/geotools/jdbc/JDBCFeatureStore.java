@@ -487,16 +487,26 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
             postFilter = split[1];
             
             //build up a statement for the content
-            String sql = getDataStore().selectSQL(getSchema(), preFilter, query.getSortBy());
-            getDataStore().getLogger().fine(sql);
+            if(getDataStore().getSQLDialect().isUsingPreparedStatements()) {
+                PreparedStatement ps = getDataStore().selectSQLPS(getSchema(), preFilter, query.getSortBy(), cx);
+                if ( (flags | WRITER_UPDATE) == WRITER_UPDATE ) {
+                    writer = new JDBCUpdateFeatureWriter(ps, this, query.getHints() );
+                } else {
+                    //update insert case
+                    writer = new JDBCUpdateInsertFeatureWriter(ps, this, query.getHints() );
+                }
+            } else {
+                String sql = getDataStore().selectSQL(getSchema(), preFilter, query.getSortBy());
+                getDataStore().getLogger().fine(sql);
+                
+                if ( (flags | WRITER_UPDATE) == WRITER_UPDATE ) {
+                    writer = new JDBCUpdateFeatureWriter( sql, cx, this, query.getHints() );
+                } else {
+                    //update insert case
+                    writer = new JDBCUpdateInsertFeatureWriter( sql, cx, this, query.getHints() );
+                }
+            }
             
-            if ( (flags | WRITER_UPDATE) == WRITER_UPDATE ) {
-                writer = new JDBCUpdateFeatureWriter( sql, cx, this, query.getHints() );
-            }
-            else {
-                //update insert case
-                writer = new JDBCUpdateInsertFeatureWriter( sql, cx, this, query.getHints() );
-            }
         } 
         catch (SQLException e) {
             throw (IOException) new IOException( ).initCause(e);

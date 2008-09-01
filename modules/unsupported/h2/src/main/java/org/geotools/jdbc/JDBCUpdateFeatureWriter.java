@@ -18,6 +18,7 @@ package org.geotools.jdbc;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +42,13 @@ public class JDBCUpdateFeatureWriter extends JDBCFeatureReader implements
         
         super(sql, cx, featureStore, hints);
         last = new ResultSetFeature( rs, cx );
+    }
+    
+    public JDBCUpdateFeatureWriter(PreparedStatement ps,
+            JDBCFeatureStore featureStore, Hints hints) throws SQLException, IOException {
+        
+        super(ps, featureStore, hints);
+        last = new ResultSetFeature( rs, ps.getConnection());
     }
 
     public SimpleFeature next() throws IOException, IllegalArgumentException,
