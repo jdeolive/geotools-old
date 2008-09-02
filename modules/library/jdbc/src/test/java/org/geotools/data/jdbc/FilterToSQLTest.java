@@ -104,12 +104,12 @@ public class FilterToSQLTest extends TestCase {
     
     public void testInclude() throws Exception {
         encoder.encode(Filter.INCLUDE);
-        assertEquals(output.getBuffer().toString(), "WHERE TRUE");
+        assertEquals(output.getBuffer().toString(), "WHERE 1 = 1");
     }
     
     public void testExclude() throws Exception {
         encoder.encode(Filter.EXCLUDE);
-        assertEquals(output.getBuffer().toString(), "WHERE FALSE");
+        assertEquals(output.getBuffer().toString(), "WHERE 0 = 1");
     }
     
     public void testIdFilter() throws Exception {

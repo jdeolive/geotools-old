@@ -321,7 +321,7 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
      */
     public Object visit(ExcludeFilter filter, Object extraData) {
         try {
-            out.write("FALSE");
+            out.write("0 = 1");
         } catch (IOException ioe) {
             throw new RuntimeException(IO_ERROR, ioe);
         }
@@ -339,7 +339,7 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
      */
     public Object visit(IncludeFilter filter, Object extraData) {
         try {
-            out.write("TRUE");
+            out.write("1 = 1");
         } catch (IOException ioe) {
             throw new RuntimeException(IO_ERROR, ioe);
         }
