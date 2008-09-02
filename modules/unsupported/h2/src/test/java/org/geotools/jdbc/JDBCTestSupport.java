@@ -25,17 +25,9 @@ import javax.sql.DataSource;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 
-import org.geotools.feature.AbstractFeatureFactoryImpl;
 import org.geotools.feature.LenientFeatureFactoryImpl;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
-import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.FilterFactoryImpl;
-import org.opengis.filter.ExcludeFilter;
-import org.opengis.filter.Id;
-import org.opengis.filter.IncludeFilter;
-import org.opengis.filter.PropertyIsBetween;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.PropertyIsNull;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
 
