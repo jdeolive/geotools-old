@@ -30,10 +30,12 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.filter.FilterCapabilities;
+import org.geotools.referencing.CRS;
 import org.geotools.util.Converters;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -49,6 +51,7 @@ import org.opengis.filter.expression.Divide;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.Multiply;
 import org.opengis.filter.expression.Subtract;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -432,6 +435,24 @@ public abstract class SQLDialect {
     public Integer getGeometrySRID(String schemaName, String tableName, String columnName,
         Connection cx) throws SQLException {
         return null;
+    }
+    
+    /**
+     * Turns the specified srid into a {@link CoordinateReferenceSystem}, or returns <code>null</code> if not possible.
+     * The implementation might just use <code>CRS.decode("EPSG:" + srid)</code>, but most spatial databases will have 
+     * their own SRS database that can be queried as well.
+     * @param srid
+     * @return
+     */
+    public CoordinateReferenceSystem createCRS(int srid, Connection cx) throws SQLException {
+        try {
+            return CRS.decode("EPSG:" + srid);
+        } catch(Exception e) {
+            if(LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.log(Level.FINE, "Could not decode " + srid + " using the built-in EPSG database", e);
+            }
+            return null;
+        }
     }
 
     /**

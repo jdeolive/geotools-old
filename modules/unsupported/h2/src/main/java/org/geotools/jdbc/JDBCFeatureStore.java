@@ -42,6 +42,7 @@ import org.opengis.feature.Association;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -263,16 +264,18 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
                         //add the attribute as a geometry, try to figure out 
                         // its srid first
                         Integer srid = null;
-
+                        CoordinateReferenceSystem crs = null;
                         try {
                             srid = dialect.getGeometrySRID(databaseSchema, tableName, name, cx);
+                            if(srid != null)
+                                crs = dialect.createCRS(srid, cx);
                         } catch (Exception e) {
                             String msg = "Error occured determing srid for " + tableName + "."
                                 + name;
                             getDataStore().getLogger().log(Level.WARNING, msg, e);
                         }
 
-                        tb.add(name, binding, srid);
+                        tb.add(name, binding, crs);
                     } else {
                         //add the attribute
                         tb.add(name, binding);
