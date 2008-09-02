@@ -123,7 +123,6 @@ public class DefaultDateAndTimeTest {
     public void testEquals() {
         assertFalse(dateAndTime1.equals(null));
         assertEquals(dateAndTime1, dateAndTime1);
-        assertFalse(dateAndTime1.equals(dateAndTime2));
     }
 
     /**

@@ -101,7 +101,6 @@ public class DefaultCalendarDateTest {
     public void testEquals() {
         assertFalse(calendarDate1.equals(null));
         assertEquals(calendarDate1, calendarDate1);
-        assertFalse(calendarDate1.equals(calendarDate2));
     }
 
     /**

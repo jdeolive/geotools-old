@@ -79,7 +79,6 @@ public class DefaultClockTimeTest {
     public void testEquals() {
         assertFalse(clockTime1.equals(null));
         assertEquals(clockTime1, clockTime1);
-        assertFalse(clockTime1.equals(clockTime2));
     }
 
     /**
