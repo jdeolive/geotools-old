@@ -180,8 +180,8 @@ public class MySQLDialect extends SQLDialect {
         sql.append("')");
     }
     
-    public void setGeometryValue(Geometry g, Class binding,
-            PreparedStatement ps, int column, Connection cx)
+    public void setGeometryValue(Geometry g, int srid,
+            Class binding, PreparedStatement ps, int column)
             throws SQLException {
     }
 

@@ -538,8 +538,17 @@ public abstract class SQLDialect {
     public abstract void encodeGeometryValue(Geometry value, int srid, StringBuffer sql)
         throws IOException;
 
-    public abstract void setGeometryValue(Geometry g, Class binding,
-            PreparedStatement ps, int column, Connection cx) throws SQLException;
+    /**
+     * Sets the geometry value into the prepared statement. 
+     * @param g The geometry
+     * @param srid the geometry native srid (should be forced into the encoded geometry)
+     * @param binding the geometry type
+     * @param ps the prepared statement
+     * @param column the column index where the geometry is to be set
+     * @throws SQLException
+     */
+    public abstract void setGeometryValue(Geometry g, int srid,
+            Class binding, PreparedStatement ps, int column) throws SQLException;
     
     /**
      * Decodes a geometry value from the result of a query.

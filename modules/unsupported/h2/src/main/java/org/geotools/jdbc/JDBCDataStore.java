@@ -58,6 +58,7 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -110,6 +111,11 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public final class JDBCDataStore extends ContentDataStore
     implements GmlObjectStore {
+    
+    /**
+     * The native SRID associated to a certain descriptor
+     */
+    public static final String JDBC_NATIVE_SRID = "nativeSRID";
     
     /**
      * name of table to use to store geometries when {@link #associations}
@@ -1922,7 +1928,7 @@ public final class JDBCDataStore extends ContentDataStore
             Class binding = toSQL.getLiteralTypes().get(i);
             
             if(binding != null && Geometry.class.isAssignableFrom(binding))
-                dialect.setGeometryValue((Geometry) value, binding, ps, offset + i+1, cx);
+                dialect.setGeometryValue((Geometry) value, -1, binding, ps, offset + i+1);
             else
                 dialect.setValue( value, binding, ps, offset + i+1, cx );
             if ( LOGGER.isLoggable( Level.FINE ) ) {
@@ -2202,7 +2208,8 @@ public final class JDBCDataStore extends ContentDataStore
                 if (Geometry.class.isAssignableFrom(binding)) {
                     try {
                         Geometry g = (Geometry) value;
-                        encodeGeometryValue( g, sql );
+                        int srid = getGeometrySRID(g, att);
+                        dialect.encodeGeometryValue(g, srid, sql);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -2299,7 +2306,8 @@ public final class JDBCDataStore extends ContentDataStore
             
             if (Geometry.class.isAssignableFrom(binding)) {
                 Geometry g = (Geometry) value;
-                dialect.setGeometryValue( g, binding, ps, i+1, cx );
+                int srid = getGeometrySRID(g, att);
+                dialect.setGeometryValue( g, srid, binding, ps, i+1 );
             } else {
                 dialect.setValue( value, binding, ps, i+1, cx );
             }
@@ -2324,29 +2332,39 @@ public final class JDBCDataStore extends ContentDataStore
     }
     
     /**
-     * Helper method for encoding a geometry, pulls out the crs, turns it to 
-     * a code and then delegates to the dialecte.
+     * Looks up the geometry srs by trying a number of heuristics. Returns -1 if all attempts
+     * at guessing the srid failed.
      */
-    protected void encodeGeometryValue( Geometry g, StringBuffer sql ) throws IOException {
-
-        int srid = 0;
-
-        // check for srid
-        if (g.getSRID() > 0) {
+    protected int getGeometrySRID(Geometry g, AttributeDescriptor descriptor) throws IOException {
+        int srid = -1;
+        
+        // check if we have stored the native srid in the descriptor (we should)
+        if(descriptor.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID) != null)
+            srid = (Integer) descriptor.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID);
+        
+        // check for srid in the jts geometry then
+        if (srid <= 0 && g.getSRID() > 0) {
             srid = g.getSRID();
         }
-
-        if (srid == 0) {
-            //check for crs object
+        
+        // check if the geometry has anything
+        if (srid <= 0) {
+            // check for crs object
             CoordinateReferenceSystem crs = (CoordinateReferenceSystem) g
                 .getUserData();
 
             if (crs != null) {
-                //pull out the epsg code
+                try {
+                    Integer candidate = CRS.lookupEpsgCode(crs, false);
+                    if(candidate != null)
+                        srid = candidate;
+                } catch(Exception e) {
+                    // ok, we tried...
+                }
             }
         }
-
-        dialect.encodeGeometryValue(g, srid, sql);
+        
+        return srid;
     }
     
     /**
@@ -2366,7 +2384,9 @@ public final class JDBCDataStore extends ContentDataStore
             
             if ( Geometry.class.isAssignableFrom( attributes[i].getType().getBinding() ) ) {
                 try {
-                    encodeGeometryValue((Geometry)values[i],sql); 
+                    Geometry g = (Geometry) values[i];
+                    int srid = getGeometrySRID(g, attributes[i]);
+                    dialect.encodeGeometryValue(g, srid, sql);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -2432,7 +2452,7 @@ public final class JDBCDataStore extends ContentDataStore
             Class binding = attributes[i].getType().getBinding();
             if (Geometry.class.isAssignableFrom( binding ) ) {
                 Geometry g = (Geometry) values[i];
-                dialect.setGeometryValue(g, binding, ps, i+1, cx);
+                dialect.setGeometryValue(g, -1, binding, ps, i+1);
             }
             else {
                 dialect.setValue( values[i], binding, ps, i+1, cx);    

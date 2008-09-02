@@ -144,8 +144,8 @@ public class H2Dialect extends SQLDialect {
     }
     
     @Override
-    public void setGeometryValue(Geometry g, Class binding,
-            PreparedStatement ps, int column, Connection cx)
+    public void setGeometryValue(Geometry g, int srid,
+            Class binding, PreparedStatement ps, int column)
             throws SQLException {
         if ( g == null ) {
             ps.setNull( column, Types.BLOB );
@@ -160,7 +160,6 @@ public class H2Dialect extends SQLDialect {
             w.write( g , new OutputStreamOutStream( bytes ) );
        
             //supplement it with the srid
-            int srid = g.getSRID();
             bytes.write( (byte)(srid >>> 24) );
             bytes.write( (byte)(srid >> 16 & 0xff) );
             bytes.write( (byte)(srid >> 8 & 0xff) );

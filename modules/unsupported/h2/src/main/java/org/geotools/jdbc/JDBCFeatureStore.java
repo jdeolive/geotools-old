@@ -34,6 +34,7 @@ import org.geotools.data.jdbc.JDBCFeatureCollection;
 import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentFeatureStore;
 import org.geotools.data.store.ContentState;
+import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
@@ -121,6 +122,7 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
      */
     protected SimpleFeatureType buildFeatureType() throws IOException {
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
+        AttributeTypeBuilder ab = new AttributeTypeBuilder();
 
         //set up the name
         String tableName = entry.getName().getLocalPart();
@@ -255,8 +257,8 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
 
                     //nullability
                     if ( "NO".equalsIgnoreCase( columns.getString( "IS_NULLABLE" ) ) ) {
-                        tb.nillable(false);
-                        tb.minOccurs(1);
+                        ab.nillable(false);
+                        ab.minOccurs(1);
                     }
                     
                     //determine if this attribute is a geometry or not
@@ -275,10 +277,17 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
                             getDataStore().getLogger().log(Level.WARNING, msg, e);
                         }
 
-                        tb.add(name, binding, crs);
+                        ab.setBinding(binding);
+                        ab.setName(name);
+                        ab.setCRS(crs);
+                        if(srid != null)
+                            ab.addUserData(JDBCDataStore.JDBC_NATIVE_SRID, srid);
+                        tb.add(ab.buildDescriptor(name, ab.buildGeometryType()));
                     } else {
                         //add the attribute
-                        tb.add(name, binding);
+                        ab.setName(name);
+                        ab.setBinding(binding);
+                        tb.add(ab.buildDescriptor(name, ab.buildType()));
                     }
                 }
 
