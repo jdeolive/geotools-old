@@ -206,6 +206,7 @@ public class AttributeTypeBuilder {
 	 */
 	public AttributeTypeBuilder( FeatureTypeFactory factory ) {
 		this.factory = factory;
+		init();
 	}
 	
 	/**
@@ -557,6 +558,8 @@ public class AttributeTypeBuilder {
 	    GeometryDescriptor descriptor = factory.createGeometryDescriptor(
             type, name, minOccurs(), maxOccurs(), isNillable, defaultValue());
     
+	    // set the user data
+        descriptor.getUserData().putAll( userData );
         resetDescriptorState();
         return descriptor;
     }
