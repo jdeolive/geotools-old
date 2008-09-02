@@ -18,13 +18,17 @@ package org.geotools.jdbc;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
+
+import org.apache.commons.dbcp.BasicDataSource;
 
 
 /**
@@ -149,7 +153,36 @@ public abstract class JDBCTestSetup {
         return raw;
     }
     
-    protected abstract DataSource createDataSource();
+    /**
+     * Creates a data source by reading properties from a file called 'db.properties', 
+     * located paralell to the test setup instance.
+     */
+    protected final DataSource createDataSource() throws IOException {
+        Properties db = new Properties();
+        db.load( getClass().getResourceAsStream( "db.properties") );
+
+        BasicDataSource dataSource = new BasicDataSource();
+        
+        dataSource.setDriverClassName(db.getProperty( "driver") );
+        dataSource.setUrl( db.getProperty( "url") );
+        
+        if ( db.containsKey( "username") ) {
+            dataSource.setUsername(db.getProperty("username"));    
+        }
+        if ( db.containsKey( "password") ) {
+            dataSource.setPassword(db.getProperty("password"));
+        }
+        
+        dataSource.setPoolPreparedStatements(false);
+        dataSource.setAccessToUnderlyingConnectionAllowed(true);
+        
+        initializeDataSource( dataSource, db );
+        return dataSource;
+    }
+    
+    protected void initializeDataSource( BasicDataSource ds, Properties db ) {
+        
+    }
 
     protected abstract SQLDialect createSQLDialect(JDBCDataStore dataStore);
 }

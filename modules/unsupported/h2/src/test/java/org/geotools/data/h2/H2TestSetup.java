@@ -79,16 +79,6 @@ public class H2TestSetup extends JDBCTestSetup {
         run(sql);
     }
 
-    protected DataSource createDataSource() {
-        //set up the data source
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setUrl("jdbc:h2:target/geotools");
-        dataSource.setDriverClassName("org.h2.Driver");
-        dataSource.setPoolPreparedStatements(false);
-
-        return dataSource;
-    }
-
     protected SQLDialect createSQLDialect(JDBCDataStore dataStore) {
         return new H2Dialect(dataStore);
     }

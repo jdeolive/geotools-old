@@ -31,17 +31,7 @@ import org.geotools.jdbc.SQLDialect;
  *
  */
 public class MySQLTestSetup extends JDBCTestSetup {
-    protected DataSource createDataSource() {
-        //set up the data source
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost/geotools");
-        dataSource.setUsername("jdeolive");
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setPoolPreparedStatements(false);
-
-        return dataSource;
-    }
-
+  
     protected SQLDialect createSQLDialect(JDBCDataStore dataStore) {
         return new MySQLDialect(dataStore);
     }

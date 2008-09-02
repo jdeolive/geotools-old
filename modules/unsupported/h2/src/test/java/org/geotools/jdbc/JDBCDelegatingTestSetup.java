@@ -1,6 +1,10 @@
 package org.geotools.jdbc;
 
+import java.util.Properties;
+
 import javax.sql.DataSource;
+
+import org.apache.commons.dbcp.BasicDataSource;
 
 public class JDBCDelegatingTestSetup extends JDBCTestSetup {
 
@@ -20,8 +24,8 @@ public class JDBCDelegatingTestSetup extends JDBCTestSetup {
         delegate.initializeDatabase();
     }
 
-    protected final DataSource createDataSource() {
-        return delegate.createDataSource();
+    protected void initializeDataSource(BasicDataSource ds, Properties db) {
+        delegate.initializeDataSource(ds, db);
     }
 
     protected final SQLDialect createSQLDialect(JDBCDataStore dataStore) {
