@@ -15,8 +15,8 @@
 
   <parent>
     <groupId>org.geotools</groupId>
-    <artifactId>gt2-community-schemas</artifactId>
-    <version>2.4-SNAPSHOT</version>
+    <artifactId>community-schemas</artifactId>
+    <version>2.6-SNAPSHOT</version>
   </parent>
 
 
@@ -24,17 +24,17 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
-  <artifactId>gt2-sql-datastore</artifactId>
+  <artifactId>gt-sql-datastore</artifactId>
   <packaging>jar</packaging>
   <name>DataStore InProcess SQL View helper classes</name>
   <url>http://maven.geotools.fr/reports/modules/unsupported/community-schemas/sql-datastore/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/branches/2.4.x/modules/unsupported/community-schemas/sql-datastore
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/community-schemas/sql-datastore
     </connection>
     <url>
-      http://svn.geotools.org/geotools/branches/2.4.x/modules/unsupported/community-schemas/sql-datastore
+      http://svn.geotools.org/trunk/modules/unsupported/community-schemas/sql-datastore
     </url>
   </scm>
 
@@ -88,23 +88,23 @@
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt2-jdbc</artifactId>
+      <artifactId>gt-jdbc</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt2-referencing</artifactId>
+      <artifactId>gt-referencing</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt2-epsg-wkt</artifactId>
+      <artifactId>gt-epsg-wkt</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt2-sample-data</artifactId>
+      <artifactId>gt-sample-data</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

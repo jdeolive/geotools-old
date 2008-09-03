@@ -6,24 +6,23 @@
 
 	<parent>
 		<groupId>org.geotools</groupId>
-		<artifactId>gt2-community-schemas</artifactId>
-		<version>2.4-SNAPSHOT</version>
+		<artifactId>community-schemas</artifactId>
+		<version>2.6-SNAPSHOT</version>
 	</parent>
 
 
 	<groupId>org.geotools</groupId>
-	<artifactId>gt2-jdbc-regfunc</artifactId>
+	<artifactId>gt-jdbc-regfunc</artifactId>
 	<packaging>jar</packaging>
-	<version>2.4-SNAPSHOT</version>
 	<name>Support for Registered Functions in JDBC data stores</name>
 	<url>http://geotools.org/</url>
 
 	<scm>
 		<connection>
-			scm:svn:http://svn.geotools.org/geotools/branches/2.4.x/module/unsupported/community-schemas/jdbc-regfunc
+			scm:svn:http://svn.geotools.org/trunk/modules/unsupported/community-schemas/jdbc-regfunc
 		</connection>
 		<url>
-			http://svn.geotools.org/geotools/branches/2.4.x/module/unsupported/community-schemas/jdbc-regfunc
+			http://svn.geotools.org/geotools/trunk/modules/unsupported/community-schemas/jdbc-regfunc
 		</url>
 	</scm>
 	<description>
@@ -42,19 +41,19 @@
 	<!-- ==================================================== -->
 	<dependencies>
 		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt2-xml-filter</artifactId>
+			<groupId>org.geotools.xsd</groupId>
+			<artifactId>gt-xsd-filter</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
-			<artifactId>gt2-postgis</artifactId>
+			<artifactId>gt-postgis</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<!-- will need oracle spatial -->
 		<dependency>
 			<groupId>org.geotools</groupId>
-			<artifactId>gt2-sample-data</artifactId>
+			<artifactId>gt-sample-data</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
