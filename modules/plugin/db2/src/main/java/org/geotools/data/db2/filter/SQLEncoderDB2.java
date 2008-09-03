@@ -24,7 +24,9 @@ import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.filter.DefaultExpression;
 import org.geotools.filter.FilterCapabilities;
 
+import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Id;
+import org.opengis.filter.IncludeFilter;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.identity.FeatureId;
@@ -489,4 +491,26 @@ try {
                 this.out.write(" " + this.selectivityClause);
             }
 	    }
+	    
+		/* (non-Javadoc)
+		 * @see org.geotools.data.jdbc.FilterToSQL#visit(org.opengis.filter.ExcludeFilter, java.lang.Object)
+		 */
+		public Object visit(ExcludeFilter filter, Object extraData) {
+			try {
+				out.write("1=0");
+			} catch (java.io.IOException ioe) {};
+			return extraData;
+		}
+
+		
+		/* (non-Javadoc)
+		 * @see org.geotools.data.jdbc.FilterToSQL#visit(org.opengis.filter.IncludeFilter, java.lang.Object)
+		 */
+		public Object visit(IncludeFilter filter, Object extraData) {
+			try {
+				out.write("1=1");
+			} catch (java.io.IOException ioe) {};
+			return extraData;
+		}
+
 }
