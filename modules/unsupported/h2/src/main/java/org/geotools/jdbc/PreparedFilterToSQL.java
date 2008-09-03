@@ -115,7 +115,7 @@ public class PreparedFilterToSQL extends FilterToSQL {
     }
     
     @Override
-    protected final Object visitBinarySpatialOperator(BinarySpatialOperator filter,
+    protected Object visitBinarySpatialOperator(BinarySpatialOperator filter,
             Object extraData) {
         // basic checks
         if(filter == null)
@@ -148,18 +148,21 @@ public class PreparedFilterToSQL extends FilterToSQL {
             }
         }
         
-        return visitBinarySpatialOperator(filter, property, geometry, extraData);
+        return visitBinarySpatialOperator(filter, property, geometry, 
+                filter.getExpression1() instanceof Literal, extraData);
     }
 
     /**
      * Subclasses should override this, the property and the geometry have already been separated out
-     * @param filter
-     * @param property
-     * @param geometry
-     * @param extraData
+     * @param filter the original filter to be encoded
+     * @param property the property name
+     * @param geometry the geometry name
+     * @param swapped if true, the operation is <code>literal op name</code>, if false it's the normal
+     *        <code>name op literal</code>
+     * @param extraData the context
      */
     protected Object visitBinarySpatialOperator(BinarySpatialOperator filter, PropertyName property,
-            Literal geometry, Object extraData) {
+            Literal geometry, boolean swapped, Object extraData) {
         return super.visitBinarySpatialOperator(filter, extraData);
     }
 }
