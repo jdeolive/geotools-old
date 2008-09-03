@@ -427,11 +427,16 @@ public class PostgisDataStoreAPIOnlineTest extends AbstractPostgisDataTestCase {
         ftb.add("id", Integer.class);
         ftb.add("name", String.class);
         ftb.add("the_geom", Point.class, crs);
+        ftb.add("long", Long.class);
+        
         SimpleFeatureType newFT = ftb.buildFeatureType();
         data.createSchema(newFT);
         SimpleFeatureType newSchema = data.getSchema(featureTypeName);
         assertNotNull(newSchema);
-        assertEquals(3, newSchema.getAttributeCount());
+        assertEquals(4, newSchema.getAttributeCount());
+        assertEquals( Integer.class, newSchema.getDescriptor("id").getType().getBinding());
+        assertEquals( String.class, newSchema.getDescriptor("name").getType().getBinding());
+        assertEquals( Long.class, newSchema.getDescriptor("long").getType().getBinding());
     }
 
     static public void assertEquals(String message, String expected, String actual) {

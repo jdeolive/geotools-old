@@ -161,7 +161,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         CLASS_MAPPINGS.put(Boolean.class, "BOOLEAN");
 
         CLASS_MAPPINGS.put(Integer.class, "INTEGER");
-
+        CLASS_MAPPINGS.put(Long.class, "BIGINT");
         CLASS_MAPPINGS.put(Float.class, "REAL");
         CLASS_MAPPINGS.put(Double.class, "DOUBLE PRECISION");
 
