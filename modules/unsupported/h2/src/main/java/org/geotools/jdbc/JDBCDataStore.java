@@ -34,9 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -1944,9 +1942,12 @@ public final class JDBCDataStore extends ContentDataStore
         for ( int i = 0; i < toSQL.getLiteralValues().size(); i++) {
             Object value = toSQL.getLiteralValues().get(i);
             Class binding = toSQL.getLiteralTypes().get(i);
+            Integer srid = toSQL.getSRIDs().get(i);
+            if(srid == null)
+                srid = -1;
             
             if(binding != null && Geometry.class.isAssignableFrom(binding))
-                dialect.setGeometryValue((Geometry) value, -1, binding, ps, offset + i+1);
+                dialect.setGeometryValue((Geometry) value, srid, binding, ps, offset + i+1);
             else
                 dialect.setValue( value, binding, ps, offset + i+1, cx );
             if ( LOGGER.isLoggable( Level.FINE ) ) {
