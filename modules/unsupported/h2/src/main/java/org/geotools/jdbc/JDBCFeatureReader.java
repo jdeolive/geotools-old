@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
@@ -41,6 +42,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.util.Converters;
+import org.geotools.util.logging.Logging;
 import org.opengis.feature.Association;
 import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.GeometryAttribute;
@@ -75,6 +77,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  *
  */
 public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
+    protected static final Logger LOGGER = Logging.getLogger(JDBCFeatureReader.class);
 
     /**
      * the datastore
@@ -110,12 +113,14 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
      */
     protected Statement st;
     protected ResultSet rs;
+    protected Connection cx;
     
     public JDBCFeatureReader( String sql, Connection cx, JDBCFeatureStore featureStore, Hints hints ) 
         throws SQLException {
         init( featureStore, hints );
         
         //create the result set
+        this.cx = cx;
         st = cx.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         rs = st.executeQuery(sql);
     }
@@ -584,6 +589,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
             //clean up
             dataStore.closeSafe( rs );
             dataStore.closeSafe( st );    
+            dataStore.closeSafe( cx );
         }
         else {
             //means we are already closed... should we throw an exception?
@@ -601,6 +607,14 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         next = null;
         builder = null;
       
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        if(dataStore != null) {
+            LOGGER.warning("There is code leaving feature readers/iterators open, this is leaking statements and connections!");
+            close();
+        }
     }
     
      /**
