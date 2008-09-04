@@ -78,6 +78,12 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  */
 public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
     protected static final Logger LOGGER = Logging.getLogger(JDBCFeatureReader.class);
+    
+    /**
+     * When true, the stack trace that created a reader that wasn't closed is recorded and then
+     * printed out when warning the user about this.
+     */
+    protected static final Boolean TRACE_ENABLED = "true".equalsIgnoreCase(System.getProperty("gt2.jdbc.trace"));
 
     /**
      * the datastore
@@ -114,6 +120,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
     protected Statement st;
     protected ResultSet rs;
     protected Connection cx;
+    protected Exception tracer;
     
     public JDBCFeatureReader( String sql, Connection cx, JDBCFeatureStore featureStore, Hints hints ) 
         throws SQLException {
@@ -136,6 +143,12 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
     }
     
     protected void init( JDBCFeatureStore featureStore , Hints hints ) {
+        // init the tracer if we need to debug a connection leak
+        if(TRACE_ENABLED) {
+            tracer = new Exception();
+            tracer.fillInStackTrace();
+        }
+        
         //grab feature type of features
         this.featureType = featureStore.getSchema();
         this.dataStore = featureStore.getDataStore();
@@ -588,7 +601,12 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         if ( dataStore != null ) {
             //clean up
             dataStore.closeSafe( rs );
-            dataStore.closeSafe( st );    
+            dataStore.closeSafe( st );
+            // TODO: FIX THIS!
+            // technically we should close only in case of Transaction.AUTO_COMMIT, 
+            // this has to be fixed along with http://jira.codehaus.org/browse/GEOT-2009
+            // For the moment I need it in order to load test a little the datastore in read ops
+            // without exhausting the connection pool
             dataStore.closeSafe( cx );
         }
         else {
@@ -613,6 +631,9 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
     protected void finalize() throws Throwable {
         if(dataStore != null) {
             LOGGER.warning("There is code leaving feature readers/iterators open, this is leaking statements and connections!");
+            if(TRACE_ENABLED) {
+                LOGGER.log(Level.WARNING, "The unclosed reader originated on this stack trace", tracer);
+            }
             close();
         }
     }
