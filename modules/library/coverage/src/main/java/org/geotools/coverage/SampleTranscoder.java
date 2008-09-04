@@ -282,6 +282,7 @@ final class SampleTranscoder extends PointOpImage {
             record.setSourceClassName(GridSampleDimension.class.getName());
             record.setSourceMethodName("<classinit>");
             record.setThrown(exception);
+            record.setLoggerName(AbstractGridCoverage.LOGGER.getName());
             AbstractGridCoverage.LOGGER.log(record);
         }
     }
