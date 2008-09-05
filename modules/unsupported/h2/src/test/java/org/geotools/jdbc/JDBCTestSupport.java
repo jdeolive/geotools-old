@@ -137,10 +137,8 @@ public abstract class JDBCTestSupport extends TestCase {
     protected abstract JDBCTestSetup createTestSetup();
 
     protected void tearDown() throws Exception {
-        super.tearDown();
-
-        setup.tearDown();
-
         dataStore.dispose();
+        setup.tearDown();
+        super.tearDown();
     }
 }

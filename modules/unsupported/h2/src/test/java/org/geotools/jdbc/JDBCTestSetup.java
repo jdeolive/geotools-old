@@ -71,6 +71,9 @@ public abstract class JDBCTestSetup {
     }
 
     public void tearDown() throws Exception {
+        if(dataSource instanceof BasicDataSource) {
+            ((BasicDataSource) dataSource).close();
+        }
     }
     
     /**
@@ -173,8 +176,10 @@ public abstract class JDBCTestSetup {
             dataSource.setPassword(db.getProperty("password"));
         }
         
-        dataSource.setPoolPreparedStatements(false);
+        dataSource.setPoolPreparedStatements(true);
         dataSource.setAccessToUnderlyingConnectionAllowed(true);
+        dataSource.setMinIdle(1);
+        dataSource.setMaxActive(4);
         
         initializeDataSource( dataSource, db );
         return dataSource;

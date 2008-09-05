@@ -110,8 +110,6 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        System.gc(); System.gc();
-        System.runFinalization();
     }
 
     protected abstract JDBCDataStoreAPITestSetup createTestSetup();
