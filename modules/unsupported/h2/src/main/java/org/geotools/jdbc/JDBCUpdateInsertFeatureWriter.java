@@ -35,10 +35,10 @@ public class JDBCUpdateInsertFeatureWriter extends JDBCUpdateFeatureWriter {
         super(sql, cx, featureStore, hints);
     }
     
-    public JDBCUpdateInsertFeatureWriter(PreparedStatement ps,
+    public JDBCUpdateInsertFeatureWriter(PreparedStatement ps, Connection cx,
             JDBCFeatureStore featureStore, Hints hints) throws SQLException,
             IOException {
-        super(ps, featureStore, hints);
+        super(ps, cx, featureStore, hints);
     }
     
     public boolean hasNext() throws IOException {

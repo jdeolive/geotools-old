@@ -299,6 +299,9 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
             String msg = "Error occurred building feature type";
             throw (IOException) new IOException().initCause(e);
         }
+        finally {
+            getDataStore().releaseConnection( cx, getState() );
+        }
     }
 
     /**
@@ -357,11 +360,17 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
             } else {
                 //no post filter, we have a preFilter, or preFilter is null.. 
                 // either way we can use the datastore optimization
-                int count = dataStore.getCount(getSchema(), preFilter, dataStore.getConnection(getState()));
-                if(query.getMaxFeatures() > 0 && count > query.getMaxFeatures())
-                    return query.getMaxFeatures();
-                else
-                    return count;
+                Connection cx = dataStore.getConnection(getState());
+                try {
+                    int count = dataStore.getCount(getSchema(), preFilter, cx);
+                    if(query.getMaxFeatures() > 0 && count > query.getMaxFeatures())
+                        return query.getMaxFeatures();
+                    else
+                        return count;
+                }
+                finally {
+                    dataStore.releaseConnection(cx, getState());
+                }
             } 
         
     }
@@ -404,7 +413,12 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
                 //post filter was null... pre can be set or null... either way
                 // use datastore optimization
                 Connection cx = dataStore.getConnection(getState());
-                return dataStore.getBounds(getSchema(), preFilter, cx);
+                try {
+                    return dataStore.getBounds(getSchema(), preFilter, cx);
+                }
+                finally {
+                    getDataStore().releaseConnection( cx, getState() );
+                }
             } 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -436,7 +450,7 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
             try {
                 PreparedStatement ps = 
                     getDataStore().selectSQLPS(getSchema(), preFilter, query. getSortBy(), cx);
-                reader = new JDBCFeatureReader( ps, this, query.getHints() );
+                reader = new JDBCFeatureReader( ps, cx, this, query.getHints() );
             } 
             catch (SQLException e) {
                 throw (IOException) new IOException().initCause(e);
@@ -481,7 +495,7 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
             if ( (flags | WRITER_ADD) == WRITER_ADD ) {
                 if ( getDataStore().getSQLDialect().isUsingPreparedStatements() ) {
                     PreparedStatement ps = getDataStore().selectSQLPS(getSchema(), Filter.EXCLUDE, query.getSortBy(), cx);
-                    return new JDBCInsertFeatureWriter( ps, this, query.getHints() );
+                    return new JDBCInsertFeatureWriter( ps, cx, this, query.getHints() );
                 }
                 else {
                     //build up a statement for the content, inserting only so we dont want
@@ -502,10 +516,10 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
             if(getDataStore().getSQLDialect().isUsingPreparedStatements()) {
                 PreparedStatement ps = getDataStore().selectSQLPS(getSchema(), preFilter, query.getSortBy(), cx);
                 if ( (flags | WRITER_UPDATE) == WRITER_UPDATE ) {
-                    writer = new JDBCUpdateFeatureWriter(ps, this, query.getHints() );
+                    writer = new JDBCUpdateFeatureWriter(ps, cx, this, query.getHints() );
                 } else {
                     //update insert case
-                    writer = new JDBCUpdateInsertFeatureWriter(ps, this, query.getHints() );
+                    writer = new JDBCUpdateInsertFeatureWriter(ps, cx, this, query.getHints() );
                 }
             } else {
                 String sql = getDataStore().selectSQL(getSchema(), preFilter, query.getSortBy());

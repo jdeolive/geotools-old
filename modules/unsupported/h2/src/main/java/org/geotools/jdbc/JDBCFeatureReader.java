@@ -86,6 +86,10 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
     protected static final Boolean TRACE_ENABLED = "true".equalsIgnoreCase(System.getProperty("gt2.jdbc.trace"));
 
     /**
+     * the feature source the reader originated from. 
+     */
+    protected JDBCFeatureStore featureStore;
+    /**
      * the datastore
      */
     protected JDBCDataStore dataStore;
@@ -121,6 +125,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
     protected ResultSet rs;
     protected Connection cx;
     protected Exception tracer;
+
     
     public JDBCFeatureReader( String sql, Connection cx, JDBCFeatureStore featureStore, Hints hints ) 
         throws SQLException {
@@ -132,12 +137,13 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         rs = st.executeQuery(sql);
     }
     
-    public JDBCFeatureReader( PreparedStatement st, JDBCFeatureStore featureStore, Hints hints ) 
+    public JDBCFeatureReader( PreparedStatement st, Connection cx, JDBCFeatureStore featureStore, Hints hints ) 
         throws SQLException {
             
         init( featureStore, hints );
         
         //create the result set
+        this.cx = cx;
         this.st = st;
         rs = st.executeQuery();
     }
@@ -150,6 +156,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         }
         
         //grab feature type of features
+        this.featureStore = featureStore;
         this.featureType = featureStore.getSchema();
         this.dataStore = featureStore.getDataStore();
         this.tx = featureStore.getTransaction();

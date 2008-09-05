@@ -44,10 +44,10 @@ public class JDBCUpdateFeatureWriter extends JDBCFeatureReader implements
         last = new ResultSetFeature( rs, cx );
     }
     
-    public JDBCUpdateFeatureWriter(PreparedStatement ps,
+    public JDBCUpdateFeatureWriter(PreparedStatement ps, Connection cx,
             JDBCFeatureStore featureStore, Hints hints) throws SQLException, IOException {
         
-        super(ps, featureStore, hints);
+        super(ps, cx, featureStore, hints);
         last = new ResultSetFeature( rs, ps.getConnection());
     }
 

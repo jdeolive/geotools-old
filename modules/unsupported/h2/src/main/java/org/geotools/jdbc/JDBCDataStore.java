@@ -40,7 +40,10 @@ import javax.sql.DataSource;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
+import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureWriter;
 import org.geotools.data.GmlObjectStore;
+import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.data.jdbc.FilterToSQLException;
@@ -181,6 +184,24 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected boolean associations = false;
 
+    @Override
+    public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(
+            Query query, Transaction tx) throws IOException {
+        //when the client grabs a feature reader with this method, the intermediate 
+        // feature source created is not visible, therefore when they close the reader
+        // we want to make sure we close the connection, this is different from when 
+        // the client grabs a feature source, then a reader... because in that case
+        // it is up to the client to make sure they close the feature source... 
+        return new JDBCClosingFeatureReader( super.getFeatureReader(query, tx) );
+    }
+    
+    @Override
+    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(
+            String typeName, Filter filter, Transaction tx) throws IOException {
+        return new JDBCClosingFeatureWriter( super.getFeatureWriter(typeName, filter, tx) );
+        //return super.getFeatureWriter(typeName, filter, tx);
+    }
+    
     /**
      * The dialect the datastore uses to generate sql statements in order to
      * communicate with the underlying database.
@@ -1003,12 +1024,14 @@ public final class JDBCDataStore extends ContentDataStore
                     throw new RuntimeException(e);
                 }
 
-                state.setConnection(cx);
+                //state.setConnection(cx);
                 
+                //we only cache the connection for non-auto commit transactions
                 if ( state.getTransaction() != Transaction.AUTO_COMMIT ) {
                     //TODO: what abotu when it is auto commmit... i beleive this
                     // is leaking connection
                     //add connection state to the transaction
+                    state.setConnection(cx);
                     state.getTransaction().putState(state, new JDBCTransactionState( cx, this ) );    
                 }
 }
@@ -1026,6 +1049,7 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected final Connection createConnection() {
         try {
+            LOGGER.fine( "CREATE CONNECTION");
             Connection cx = getDataSource().getConnection();
 
             //TODO: make this configurable
@@ -1036,6 +1060,18 @@ public final class JDBCDataStore extends ContentDataStore
             return cx;
         } catch (SQLException e) {
             throw new RuntimeException("Unable to obtain connection", e);
+        }
+    }
+    
+    /**
+     * Releases an existing connection.
+     */
+    protected final void releaseConnection( Connection cx, JDBCState state ) {
+        //if the state is based off the AUTO_COMMIT transaction, close the 
+        // connection, otherwise wait until the transaction itself is closed to 
+        // close the connection
+        if ( state.getTransaction() == Transaction.AUTO_COMMIT ) {
+            closeSafe( cx );
         }
     }
 
@@ -2716,6 +2752,7 @@ public final class JDBCDataStore extends ContentDataStore
 
         try {
             cx.close();
+            LOGGER.fine( "CLOSE CONNECTION");
         } catch (SQLException e) {
             String msg = "Error occurred closing connection";
             LOGGER.warning(msg);
