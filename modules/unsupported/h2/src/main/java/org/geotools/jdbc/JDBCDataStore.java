@@ -1010,33 +1010,37 @@ public final class JDBCDataStore extends ContentDataStore
      * Gets a database connection for the specified feature store.
      */
     protected final Connection getConnection(JDBCState state) {
+     // short circuit this state, all auto commit transactions are using the same
+        if(state.getTransaction() == Transaction.AUTO_COMMIT) {
+            Connection cx = createConnection();
+            try {
+                cx.setAutoCommit(true);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return cx;
+        }
+ 
+        // else we look to grab the connection from the state, and eventually create it
+        // for the first time
         Connection cx = state.getConnection();
-
         if (cx == null) {
             synchronized (state) {
                 //create a new connection
                 cx = createConnection();
 
-                //set auto commit to false if tx != auto commit
+                //set auto commit to false, we know tx != auto commit
                 try {
-                    cx.setAutoCommit(state.getTransaction() == Transaction.AUTO_COMMIT);
+                    cx.setAutoCommit(false);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
 
-                //state.setConnection(cx);
-                
-                //we only cache the connection for non-auto commit transactions
-                if ( state.getTransaction() != Transaction.AUTO_COMMIT ) {
-                    //TODO: what abotu when it is auto commmit... i beleive this
-                    // is leaking connection
-                    //add connection state to the transaction
-                    state.setConnection(cx);
-                    state.getTransaction().putState(state, new JDBCTransactionState( cx, this ) );    
-                }
-}
+                //add connection state to the transaction
+                state.setConnection(cx);
+                state.getTransaction().putState(state, new JDBCTransactionState( cx, this ) );    
+            }
         }
-
         return cx;
     }
     
