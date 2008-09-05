@@ -178,9 +178,9 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
     public void setFeatureTypeName(String name) {
         featureTypeNames.clear();
         
-        if (name.equals("Feature")) {
+        if (name.equals("feature")) {
             LOGGER.warning("FeatureTypeStyle with typename 'feature' - " +
-                    "ou probably meant to say 'Feature' (capital F) for the 'generic' FeatureType");
+                    "did you mean to say 'Feature' (with a capital F) for the 'generic' FeatureType");
         }
 
         Name featurename = new NameImpl(name);

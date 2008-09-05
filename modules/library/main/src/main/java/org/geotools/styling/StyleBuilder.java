@@ -1801,7 +1801,7 @@ public class StyleBuilder {
         rules[colors.length].setIsElseFilter(true);
 
         FeatureTypeStyle ft = sf.createFeatureTypeStyle(rules);
-        ft.setFeatureTypeName("feature");
+        ft.setFeatureTypeName("Feature");
         ft.setName(name);
         ret.addFeatureTypeStyle(ft);
 

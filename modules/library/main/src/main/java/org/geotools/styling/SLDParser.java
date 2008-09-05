@@ -1376,7 +1376,7 @@ public class SLDParser {
             LOGGER.finest("processing graphic " + root);
         }
 
-        Graphic graphic = factory.getDefaultGraphic();
+        Graphic graphic = factory.createGraphic(null,null,null,null,null,null);// factory.getDefaultGraphic();
 
         NodeList children = root.getChildNodes();
         final int length = children.getLength();
