@@ -66,6 +66,9 @@ public class ReTypeFeatureReader implements DelegatingFeatureReader<SimpleFeatur
     /** The descriptors we are going to from the original reader */
     AttributeDescriptor[] types;
     
+    /** Creates retyped features  */
+    SimpleFeatureBuilder builder;
+    
     boolean clone;
 
     /**
@@ -91,6 +94,7 @@ public class ReTypeFeatureReader implements DelegatingFeatureReader<SimpleFeatur
         this.featureType = featureType;
         this.clone = clone;
         types = typeAttributes(featureType, reader.getFeatureType());
+        builder = new SimpleFeatureBuilder(featureType);
     }
 
     public FeatureReader getDelegate() {
@@ -166,18 +170,17 @@ public class ReTypeFeatureReader implements DelegatingFeatureReader<SimpleFeatur
         SimpleFeature next = reader.next();
         String id = next.getID();
 
-        Object[] attributes = new Object[types.length];
         String xpath;
 
         for (int i = 0; i < types.length; i++) {
             xpath = types[i].getLocalName();
             if(clone)
-                attributes[i] = DataUtilities.duplicate(next.getAttribute(xpath));
+                builder.add(DataUtilities.duplicate(next.getAttribute(xpath)));
             else
-                attributes[i] = next.getAttribute(xpath);
+                builder.add(next.getAttribute(xpath));
         }
 
-        return SimpleFeatureBuilder.build(featureType, attributes, id);
+        return builder.buildFeature(id);
     }
 
     /**
