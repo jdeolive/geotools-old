@@ -55,7 +55,7 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         
         //grabbing a reader should be no problem
         DefaultQuery query = new DefaultQuery( tname("ft1") );
-         FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query,tx);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query,tx);
         
         int count = 0;
         while( reader.hasNext() ) {
@@ -88,6 +88,7 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         feature = writer.next();
         feature.setAttribute(aname("intProperty"), new Integer(100) );
         writer.write();
+        writer.close();
     }
     
     public void testLockFeaturesWithFilter() throws Exception {
@@ -121,12 +122,13 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
                 }
                 catch( FeatureLockException e ) {
                     failure = true;
-                }
+                } 
             }
             else {
                 writer.write();
             }
         }
+        writer.close();
         
         assertTrue( failure );
     }

@@ -111,6 +111,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         SimpleFeature feature = (SimpleFeature) iterator.next();
         assertEquals("one", feature.getAttribute(aname("stringProperty")));
         assertEquals( new Double(1.1), feature.getAttribute( aname("doubleProperty")) );
+        features.close(iterator);
         
     }
 
@@ -133,6 +134,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
 
         assertEquals(new Double(1.1), feature.getAttribute(0));
         assertNotNull( feature.getAttribute(1));
+        features.close(iterator);
     }
 
     public void testGetFeaturesWithSort() throws Exception {
@@ -177,6 +179,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         assertTrue(iterator.hasNext());
         f = (SimpleFeature) iterator.next();
         assertEquals("one", f.getAttribute(aname("stringProperty")));
+        features.close(iterator);
     }
     
     public void testGetFeaturesWithMax() throws Exception {
@@ -195,5 +198,6 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
             count++;
         }
         assertEquals(2, count);
+        features.close(it);
     }
 }

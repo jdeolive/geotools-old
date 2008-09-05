@@ -46,7 +46,7 @@ public abstract class JDBCGeometryAssociationTestSupport extends JDBCTestSupport
         query.setTypeName("ga");
         query.setHints(hints);
 
-         FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
         assertTrue(reader.hasNext());
 
         SimpleFeature feature = (SimpleFeature) reader.next();
@@ -60,6 +60,7 @@ public abstract class JDBCGeometryAssociationTestSupport extends JDBCTestSupport
 
         Map ud = (Map) g.getUserData();
         assertEquals("0", ud.get("gml:id"));
+        reader.close();
     }
 
     public void testGetFeatureWithAssociation() throws Exception {
@@ -69,7 +70,7 @@ public abstract class JDBCGeometryAssociationTestSupport extends JDBCTestSupport
         query.setTypeName("ga");
         query.setHints(hints);
 
-         FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
         assertTrue(reader.hasNext());
         reader.next();
 
@@ -85,6 +86,8 @@ public abstract class JDBCGeometryAssociationTestSupport extends JDBCTestSupport
         assertEquals(new Coordinate(1, 1), g.getCoordinate());
         assertTrue(g.getUserData() instanceof Map);
         assertEquals("1", ((Map) g.getUserData()).get("gml:id"));
+        
+        reader.close();
 
         //test with zero dpeth
         query.setHints(new Hints(Hints.ASSOCIATION_TRAVERSAL_DEPTH, new Integer(0)));
@@ -106,6 +109,8 @@ public abstract class JDBCGeometryAssociationTestSupport extends JDBCTestSupport
         //assertTrue( g instanceof NullGeometry );
         assertTrue(g.getUserData() instanceof Map);
         assertEquals("1", ((Map) g.getUserData()).get("gml:id"));
+        
+        reader.close();
     }
 
     public void testMultiGeometryAssociation() throws Exception {
@@ -115,7 +120,7 @@ public abstract class JDBCGeometryAssociationTestSupport extends JDBCTestSupport
         query.setTypeName("ga");
         query.setHints(hints);
 
-         FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
         assertTrue(reader.hasNext());
         reader.next();
         assertTrue(reader.hasNext());
@@ -141,6 +146,8 @@ public abstract class JDBCGeometryAssociationTestSupport extends JDBCTestSupport
         p = (Point) mp.getGeometryN(1);
         assertEquals(new Coordinate(1, 1), p.getCoordinate());
         assertEquals("1", ((Map) p.getUserData()).get("gml:id"));
+        
+        reader.close();
     }
     
     public void testGetGmlObjectGeometry() throws Exception {

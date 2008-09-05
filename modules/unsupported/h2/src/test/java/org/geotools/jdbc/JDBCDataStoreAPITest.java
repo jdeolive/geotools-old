@@ -106,6 +106,13 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
 
         dataStore.setDatabaseSchema(null);
     }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        System.gc(); System.gc();
+        System.runFinalization();
+    }
 
     protected abstract JDBCDataStoreAPITestSetup createTestSetup();
 
@@ -241,6 +248,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         filter = factory.equals(geomTypeExpr, factory.literal("LineString"));
         reader = dataStore.getFeatureReader(new DefaultQuery(tname("road"), filter), t);
         assertTrue(reader.hasNext());
+        reader.close();
         t.close();
     }
 
@@ -267,6 +275,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         query.setFilter(filter);
         reader = dataStore.getFeatureReader(query, t);
         assertTrue(reader.hasNext());
+        reader.close();
 
         t.close();
     }
@@ -425,13 +434,14 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         assertFalse(reader instanceof FilteringFeatureReader);
         assertEquals(type, reader.getFeatureType());
         assertEquals(td.roadFeatures.length, count(reader));
+        reader.close();
 
         reader = dataStore.getFeatureReader(new DefaultQuery(tname("road"), Filter.EXCLUDE),
                 Transaction.AUTO_COMMIT);
         assertFalse(reader.hasNext());
-
         assertEquals(type, reader.getFeatureType());
         assertEquals(0, count(reader));
+        reader.close();
 
         reader = dataStore.getFeatureReader(new DefaultQuery(tname("road"), td.rd1Filter),
                 Transaction.AUTO_COMMIT);
@@ -439,6 +449,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         // assertTrue(reader instanceof FilteringFeatureReader);
         assertEquals(type, reader.getFeatureType());
         assertEquals(1, count(reader));
+        reader.close();
     }
 
     public void testGetFeatureReaderFilterTransaction()
@@ -1239,18 +1250,22 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         SimpleFeature f;
         SimpleFeature g;
 
-        for (FeatureIterator<SimpleFeature> i = c1.features(); i.hasNext();) {
+        FeatureIterator<SimpleFeature> i = null;
+        for (i = c1.features(); i.hasNext();) {
             f = (SimpleFeature) i.next();
 
             boolean found = false;
 
-            for (FeatureIterator<SimpleFeature> j = c2.features(); j.hasNext() && !found;) {
+            FeatureIterator<SimpleFeature> j = null;
+            for (j = c2.features(); j.hasNext() && !found;) {
                 g = j.next();
                 found = f.getID().equals(g.getID());
             }
+            j.close();
 
             assertTrue(msg + " " + f.getID(), found);
         }
+        i.close();
     }
 
     void assertFeatureTypesEqual(SimpleFeatureType expected, SimpleFeatureType actual) {

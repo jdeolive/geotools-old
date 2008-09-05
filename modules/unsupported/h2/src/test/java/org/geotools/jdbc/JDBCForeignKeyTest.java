@@ -52,7 +52,7 @@ public abstract class JDBCForeignKeyTest extends JDBCTestSupport {
         query.setTypeName("fk");
         query.setHints(hints);
 
-         FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
         assertTrue(reader.hasNext());
 
         SimpleFeature feature = reader.next();
@@ -66,6 +66,8 @@ public abstract class JDBCForeignKeyTest extends JDBCTestSupport {
 
         Property attribute = feature.getProperty("ft1");
         assertEquals("ft1.0", attribute.getUserData().get("gml:id"));
+        
+        reader.close();
     }
 
     public void testGetFeaturesWithZeroDepth() throws Exception {
@@ -75,7 +77,7 @@ public abstract class JDBCForeignKeyTest extends JDBCTestSupport {
         query.setTypeName("fk");
         query.setHints(hints);
 
-         FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
         assertTrue(reader.hasNext());
 
         SimpleFeature feature = reader.next();
@@ -84,5 +86,7 @@ public abstract class JDBCForeignKeyTest extends JDBCTestSupport {
 
         Property attribute = feature.getProperty("ft1");
         assertEquals("ft1.0", attribute.getUserData().get("gml:id"));
+        
+        reader.close();
     }
 }
