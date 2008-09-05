@@ -539,9 +539,9 @@ public abstract class ContentFeatureSource implements FeatureSource<SimpleFeatur
                 SimpleFeatureType target = 
                     SimpleFeatureTypeBuilder.retype(getSchema(), query.getPropertyNames());
                 
-                //do an equals check because we may have needlessly retyped
-                //TODO: do this check before hand
-                if ( !target.equals( getSchema() ) ) {
+                // do an equals check because we may have needlessly retyped (that is,
+                // the subclass might be able to only partially retype)
+                if ( !target.equals( reader.getFeatureType() ) ) {
                     reader = new ReTypeFeatureReader( reader, target, false );    
                 }
             }
