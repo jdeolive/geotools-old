@@ -32,7 +32,8 @@ import org.opengis.feature.type.FeatureType;
  * @source $URL$
  * @version $Id$
  */
-public class MaxFeatureReader<T extends FeatureType, F extends Feature> implements FeatureReader<T, F> {
+public class MaxFeatureReader<T extends FeatureType, F extends Feature> implements DelegatingFeatureReader<T,F>{
+    
     protected final  FeatureReader<T, F> featureReader;
     protected final int maxFeatures;
     protected int counter = 0;
@@ -48,6 +49,10 @@ public class MaxFeatureReader<T extends FeatureType, F extends Feature> implemen
         this.maxFeatures = maxFeatures;
     }
 
+    public FeatureReader<T, F> getDelegate() {
+        return featureReader;
+    }
+    
     public F next()
         throws IOException, IllegalAttributeException, NoSuchElementException {
         if (hasNext()) {

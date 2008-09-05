@@ -45,7 +45,7 @@ import org.opengis.filter.Filter;
  * @source $URL$
  * @version $Id$
  */
-public class FilteringFeatureReader<T extends FeatureType, F extends Feature> implements FeatureReader<T, F> {
+public class FilteringFeatureReader<T extends FeatureType, F extends Feature> implements DelegatingFeatureReader<T,F> {
     protected final FeatureReader<T, F> featureReader;
     protected final Filter filter;
     protected F next;

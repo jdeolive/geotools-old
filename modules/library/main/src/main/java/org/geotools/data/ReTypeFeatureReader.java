@@ -55,7 +55,8 @@ import org.opengis.feature.type.AttributeDescriptor;
  * @author Jody Garnett (Refractions Research)
  * @source $URL$
  */
-public class ReTypeFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
+public class ReTypeFeatureReader implements DelegatingFeatureReader<SimpleFeatureType,SimpleFeature> {
+    
     /** The original reader we are grabbing content from */
     FeatureReader<SimpleFeatureType, SimpleFeature> reader;
     
@@ -92,6 +93,10 @@ public class ReTypeFeatureReader implements  FeatureReader<SimpleFeatureType, Si
         types = typeAttributes(featureType, reader.getFeatureType());
     }
 
+    public FeatureReader getDelegate() {
+        return reader;
+    }
+    
     /**
      * Supplies mapping from original to target FeatureType.
      * 

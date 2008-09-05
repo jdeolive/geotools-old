@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DelegatingFeatureReader;
 import org.geotools.data.FeatureReader;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
@@ -72,7 +73,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * @source $URL$
  * @version $Id$
  */
-public class ReprojectFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
+public class ReprojectFeatureReader implements DelegatingFeatureReader<SimpleFeatureType, SimpleFeature>{
+    
      FeatureReader<SimpleFeatureType, SimpleFeature> reader;
     SimpleFeatureType schema;
     GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
@@ -105,6 +107,10 @@ public class ReprojectFeatureReader implements  FeatureReader<SimpleFeatureType,
         transformer.setMathTransform(CRS.findMathTransform(original, cs, true));
     }
 
+    public FeatureReader<SimpleFeatureType, SimpleFeature> getDelegate() {
+        return reader;
+    }
+    
     /**
      * Implement getFeatureType.
      * 
