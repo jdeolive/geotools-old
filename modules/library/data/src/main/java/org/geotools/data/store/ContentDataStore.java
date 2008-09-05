@@ -369,7 +369,7 @@ public abstract class ContentDataStore implements DataStore {
      * in a {@link FeatureReader}.
      * </p>
      */
-    public final  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(Query query, Transaction tx)
+    public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(Query query, Transaction tx)
         throws IOException {
         
         if ( query.getTypeName() == null ) {
@@ -387,7 +387,7 @@ public abstract class ContentDataStore implements DataStore {
      * in a {@link FeatureWriter}.
      * </p>
      */
-    public final FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(String typeName, Filter filter,
+    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(String typeName, Filter filter,
         Transaction tx) throws IOException {
         
         ContentFeatureStore featureStore = ensureFeatureStore(typeName,tx);
