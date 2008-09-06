@@ -151,7 +151,7 @@
          <module>epsg-oracle</module>
          <module>gml</module>    
          <module>gpx</module>
-         <!-- <module>h2</module> -->
+         <module>h2</module>
          <module>mappane</module>
          <module>mif</module>
          <module>mysql</module>
