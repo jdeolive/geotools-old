@@ -192,14 +192,13 @@ public final class JDBCDataStore extends ContentDataStore
         // we want to make sure we close the connection, this is different from when 
         // the client grabs a feature source, then a reader... because in that case
         // it is up to the client to make sure they close the feature source... 
-        return new JDBCClosingFeatureReader( super.getFeatureReader(query, tx) );
+        return super.getFeatureReader(query, tx);
     }
     
     @Override
     public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(
             String typeName, Filter filter, Transaction tx) throws IOException {
-        return new JDBCClosingFeatureWriter( super.getFeatureWriter(typeName, filter, tx) );
-        //return super.getFeatureWriter(typeName, filter, tx);
+        return super.getFeatureWriter(typeName, filter, tx);
     }
     
     /**
@@ -448,6 +447,8 @@ public final class JDBCDataStore extends ContentDataStore
         //cache the feature type
         entry.getState(Transaction.AUTO_COMMIT).setFeatureType(featureType);
         entries.put(entry.getName(), entry);
+        
+        typeNameCache = null;
     }
 
     /**
@@ -570,7 +571,11 @@ public final class JDBCDataStore extends ContentDataStore
      * The list is generated from the underlying database metadata.
      * </p>
      */
+    List typeNameCache = null;
     protected List createTypeNames() throws IOException {
+        if(typeNameCache != null)
+            return typeNameCache;
+        
         Connection cx = createConnection();
 
         /*
@@ -617,6 +622,7 @@ public final class JDBCDataStore extends ContentDataStore
             closeSafe(cx);
         }
 
+        typeNameCache = typeNames;
         return typeNames;
     }
 
@@ -1055,6 +1061,7 @@ public final class JDBCDataStore extends ContentDataStore
         try {
             LOGGER.fine( "CREATE CONNECTION");
             Connection cx = getDataSource().getConnection();
+//            System.out.println("Created connection: " + System.identityHashCode(cx));
 
             //TODO: make this configurable
             //cx.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE );
@@ -1963,7 +1970,8 @@ public final class JDBCDataStore extends ContentDataStore
         }
 
         LOGGER.fine( sql.toString() );
-        PreparedStatement ps = cx.prepareStatement(sql.toString());
+        PreparedStatement ps = cx.prepareStatement(sql.toString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        ps.setFetchSize(1000);
         
         if ( toSQL != null ) {
             setPreparedFilterValues( ps, toSQL, 0, cx );
@@ -2389,6 +2397,9 @@ public final class JDBCDataStore extends ContentDataStore
                 Object value = keyValues.get( j );
                 dialect.setValue( value, col.getType(), ps, i+1, cx);
                 i++;
+                if ( LOGGER.isLoggable( Level.FINE ) ) {
+                    LOGGER.fine( (i) + " = " + value );    
+                }
             }
         }
         
@@ -2755,6 +2766,7 @@ public final class JDBCDataStore extends ContentDataStore
         }
 
         try {
+//            System.out.println("Closing connection " + System.identityHashCode(cx));
             cx.close();
             LOGGER.fine( "CLOSE CONNECTION");
         } catch (SQLException e) {

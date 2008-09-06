@@ -271,6 +271,7 @@ public abstract class SQLDialect {
 
         mappings.put(Date.class, new Integer(Types.DATE));
         mappings.put(Time.class, new Integer(Types.TIME));
+        mappings.put(java.util.Date.class, new Integer(Types.TIMESTAMP));
         mappings.put(Timestamp.class, new Integer(Types.TIMESTAMP));
 
         //subclasses should extend and provide additional
