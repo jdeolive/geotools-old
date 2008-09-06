@@ -609,12 +609,14 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
             //clean up
             dataStore.closeSafe( rs );
             dataStore.closeSafe( st );
+            dataStore.releaseConnection( cx, featureStore.getState() );
+            
             // TODO: FIX THIS!
             // technically we should close only in case of Transaction.AUTO_COMMIT, 
             // this has to be fixed along with http://jira.codehaus.org/browse/GEOT-2009
             // For the moment I need it in order to load test a little the datastore in read ops
             // without exhausting the connection pool
-            dataStore.closeSafe( cx );
+            // dataStore.closeSafe( cx );
         }
         else {
             //means we are already closed... should we throw an exception?
