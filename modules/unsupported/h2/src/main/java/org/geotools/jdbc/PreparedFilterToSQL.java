@@ -19,14 +19,18 @@ package org.geotools.jdbc;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.geotools.data.jdbc.FilterToSQL;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.BinaryComparisonOperator;
+import org.opengis.filter.Id;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.identity.Identifier;
 import org.opengis.filter.spatial.BinarySpatialOperator;
 
 /**
@@ -96,6 +100,66 @@ public class PreparedFilterToSQL extends FilterToSQL {
         }
         
         return context;
+    }
+    
+    /**
+     * Encodes an Id filter
+     *
+     * @param filter the
+     *
+     * @throws RuntimeException If there's a problem writing output
+     *
+     */
+    public Object visit(Id filter, Object extraData) {
+        if (mapper == null) {
+            throw new RuntimeException(
+                "Must set a fid mapper before trying to encode FIDFilters");
+        }
+
+        Set ids = filter.getIdentifiers();
+        
+        // prepare column name array
+        String[] colNames = new String[mapper.getColumnCount()];
+
+        for (int i = 0; i < colNames.length; i++) {
+            colNames[i] = mapper.getColumnName(i);
+        }
+
+        for (Iterator i = ids.iterator(); i.hasNext(); ) {
+            try {
+                Identifier id = (Identifier) i.next();
+                Object[] attValues = mapper.getPKAttributes(id.toString());
+
+                out.write("(");
+
+                for (int j = 0; j < attValues.length; j++) {
+                    out.write( escapeName(colNames[j]) );
+                    out.write(" = ");
+                    out.write('?');
+                    
+                    // store the value for later usage
+                    literalValues.add(attValues[j]);
+                    // no srid, pk are not formed with geometry values
+                    SRIDs.add(-1);
+                    // if it's not null, we can also infer the type
+                    literalTypes.add(attValues[j] != null ?  attValues[j].getClass() : null);
+
+                    if (j < (attValues.length - 1)) {
+                        out.write(" AND ");
+                    }
+                }
+
+                out.write(")");
+
+                if (i.hasNext()) {
+                    out.write(" OR ");
+                }
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(IO_ERROR, e);
+            }
+        }
+        
+        return extraData;
     }
     
     public List<Object> getLiteralValues() {
