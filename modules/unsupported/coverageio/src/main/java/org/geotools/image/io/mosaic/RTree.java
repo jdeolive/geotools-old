@@ -172,6 +172,35 @@ final class RTree {
     }
 
     /**
+     * Returns the value of {@link Tile#getSubsamplingFloor} for the first tile that returns a
+     * non-null value. It doesn't matter if the selected tile is not the best one. This method
+     * is used only as a hint for begining with a tile having reasonable chances to be cheap,
+     * in order to compute an initial cost relatively low.
+     *
+     * @param node The node where to starts the search (initially the {@linkplain #root}).
+     * @param subsampling The requested subsampling.
+     * @return A suggested subsampling.
+     */
+    private static Dimension getSubsamplingFloor(TreeNode node, final Dimension subsampling) {
+        final Tile tile = node.tile;
+        if (tile != null) {
+            final Dimension floor = tile.getSubsamplingFloor(subsampling);
+            if (floor != null) {
+                return floor;
+            }
+        }
+        node = node.firstChildren();
+        while (node != null) {
+            final Dimension floor = getSubsamplingFloor(node, subsampling);
+            if (floor != null) {
+                return floor;
+            }
+            node = node.nextSibling();
+        }
+        return subsampling;
+    }
+
+    /**
      * Returns every tiles that intersect the {@linkplain #regionOfInterest region of interest},
      * which must be set before this method is invoked. This method does not use any cache - the
      * search is performed inconditionnaly.
@@ -195,6 +224,21 @@ final class RTree {
         int bestCandidateCount = 0;
         long lowestCost = Long.MAX_VALUE;
         try {
+            /*
+             * Before to perform the exaustive search, get a subsampling which is likely to lead to
+             * one of the lowest costs. Trying this subsampling first will help us to compute a low
+             * cost early, and consequently stop more aggresively the subsequent searchs when their
+             * cost appear higher. This optimization can be safely disabled if we suspect that
+             * something is wrong with it.
+             */
+            if (subsamplingChangeAllowed) {
+                final Dimension floor = getSubsamplingFloor(root, subsampling);
+                if (floor != subsampling) {
+                    subsamplingDone.add(subsampling);
+                    subsamplingToTry.add(subsampling);
+                    subsamplingCandidate = floor;
+                }
+            }
             do {
                 final SelectedNode candidate = addTileCandidate(root, lowestCost);
                 /*
