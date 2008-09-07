@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
@@ -357,7 +358,9 @@ public class GeographicMetadata extends IIOMetadata {
         } else if (owner instanceof GeographicImageWriter) {
             ((GeographicImageWriter) owner).warningOccurred(record);
         } else {
-            Logging.getLogger(GeographicMetadata.class).log(record);
+            final Logger logger = Logging.getLogger(GeographicMetadata.class);
+            record.setLoggerName(logger.getName());
+            logger.log(record);
         }
     }
 

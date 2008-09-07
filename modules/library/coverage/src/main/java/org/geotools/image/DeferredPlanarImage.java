@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -302,6 +302,7 @@ public final class DeferredPlanarImage extends PlanarImage
                   LoggingKeys.DEFERRED_TILE_PAINTING_$2, tileX, tileY);
             record.setSourceClassName(DeferredPlanarImage.class.getName());
             record.setSourceMethodName("getTile");
+            record.setLoggerName(LOGGER.getName());
             LOGGER.log(record);
         }
         if (pendings == null) {
@@ -427,6 +428,7 @@ public final class DeferredPlanarImage extends PlanarImage
                     record.setSourceClassName(observers[i].getClass().getName());
                     record.setSourceMethodName("tileUpdate");
                     record.setThrown(cause);
+                    record.setLoggerName(LOGGER.getName());
                     LOGGER.log(record);
                 }
             }
@@ -499,6 +501,7 @@ public final class DeferredPlanarImage extends PlanarImage
         record.setSourceClassName(DeferredPlanarImage.class.getName());
         record.setSourceMethodName("getTile");
         record.setThrown(cause);
+        record.setLoggerName(LOGGER.getName());
         LOGGER.log(record);
     }
 

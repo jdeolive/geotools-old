@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -407,6 +407,7 @@ public class FactoryRegistry extends ServiceRegistry {
         final LogRecord record = new LogRecord(DEBUG_LEVEL, buffer.toString());
         record.setSourceClassName(FactoryRegistry.class.getName());
         record.setSourceMethodName("getServiceProvider");
+        record.setLoggerName(LOGGER.getName());
         LOGGER.log(record);
     }
 
@@ -969,6 +970,7 @@ public class FactoryRegistry extends ServiceRegistry {
         }
         record.setSourceClassName(FactoryRegistry.class.getName());
         record.setSourceMethodName("scanForPlugins");
+        record.setLoggerName(LOGGER.getName());
         LOGGER.log(record);
     }
 
@@ -987,6 +989,7 @@ public class FactoryRegistry extends ServiceRegistry {
         final LogRecord record = new LogRecord(Level.CONFIG, message.toString());
         record.setSourceClassName(FactoryRegistry.class.getName());
         record.setSourceMethodName(method);
+        record.setLoggerName(LOGGER.getName());
         LOGGER.log(record);
     }
 

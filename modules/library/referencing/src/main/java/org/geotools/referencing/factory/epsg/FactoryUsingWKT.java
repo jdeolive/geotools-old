@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Collection;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -266,8 +267,10 @@ public class FactoryUsingWKT extends DeferredAuthorityFactory implements CRSAuth
             }
             final Iterator<? extends Identifier> ids = getAuthority().getIdentifiers().iterator();
             final String authority = ids.hasNext() ? ids.next().getCode() : "EPSG";
-            LOGGER.log(Loggings.format(Level.CONFIG, LoggingKeys.USING_FILE_AS_FACTORY_$2,
-                                       url.getPath(), authority));
+            final LogRecord record = Loggings.format(Level.CONFIG,
+                    LoggingKeys.USING_FILE_AS_FACTORY_$2, url.getPath(), authority);
+            record.setLoggerName(LOGGER.getName());
+            LOGGER.log(record);
             return new PropertyAuthorityFactory(factories, getAuthorities(), url);
         } catch (IOException exception) {
             throw new FactoryException(Errors.format(ErrorKeys.CANT_READ_$1, FILENAME), exception);

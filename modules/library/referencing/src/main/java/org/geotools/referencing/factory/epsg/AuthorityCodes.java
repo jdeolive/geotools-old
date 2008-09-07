@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import java.io.Serializable;
 import java.io.ObjectStreamException;
@@ -377,7 +378,9 @@ final class AuthorityCodes extends AbstractSet<String> implements Serializable {
         record.setSourceClassName(AuthorityCodes.class.getName());
         record.setSourceMethodName(method);
         record.setThrown(exception);
-        Logging.getLogger(AuthorityCodes.class).log(record);
+        final Logger logger = Logging.getLogger(AuthorityCodes.class);
+        record.setLoggerName(logger.getName());
+        logger.log(record);
     }
 
     /**

@@ -380,7 +380,9 @@ public class MosaicImageWriter extends ImageWriter {
                 ((MosaicImageReadParam) readParam).setNullForEmptyImage(true);
             }
             if (logReads) {
-                logger.log(getLogRecord(false, VocabularyKeys.LOADING_$1, imageTile));
+                final LogRecord record = getLogRecord(false, VocabularyKeys.LOADING_$1, imageTile);
+                record.setLoggerName(logger.getName());
+                logger.log(record);
             }
             /*
              * Before to attempt image loading, ask explicitly for a garbage collection cycle.
@@ -402,8 +404,10 @@ public class MosaicImageWriter extends ImageWriter {
                     throw error;
                 }
                 if (logWrites) {
-                    logger.log(getLogRecord(true, LoggingKeys.RECOVERABLE_OUT_OF_MEMORY_$1,
-                            ((float) imageRegion.width * imageRegion.height) / (1024 * 1024f)));
+                    final LogRecord record = getLogRecord(true, LoggingKeys.RECOVERABLE_OUT_OF_MEMORY_$1,
+                            ((float) imageRegion.width * imageRegion.height) / (1024 * 1024f));
+                    record.setLoggerName(logger.getName());
+                    logger.log(record);
                 }
                 continue;
             }
@@ -446,7 +450,10 @@ public class MosaicImageWriter extends ImageWriter {
                         public Object call() throws IOException {
                             if (!abortRequested()) {
                                 if (logWrites) {
-                                    logger.log(getLogRecord(false, VocabularyKeys.SAVING_$1, tile));
+                                    final LogRecord record =
+                                            getLogRecord(false, VocabularyKeys.SAVING_$1, tile);
+                                    record.setLoggerName(logger.getName());
+                                    logger.log(record);
                                 }
                                 boolean success = false;
                                 try {

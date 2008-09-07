@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
 import javax.media.jai.CRIFImpl;
@@ -282,8 +283,9 @@ final class SampleTranscoder extends PointOpImage {
             record.setSourceClassName(GridSampleDimension.class.getName());
             record.setSourceMethodName("<classinit>");
             record.setThrown(exception);
-            record.setLoggerName(AbstractGridCoverage.LOGGER.getName());
-            AbstractGridCoverage.LOGGER.log(record);
+            final Logger logger = AbstractGridCoverage.LOGGER;
+            record.setLoggerName(logger.getName());
+            logger.log(record);
         }
     }
 }

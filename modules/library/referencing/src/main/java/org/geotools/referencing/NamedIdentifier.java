@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 
 import org.opengis.metadata.Identifier;
 import org.opengis.metadata.citation.Citation;
@@ -346,8 +348,10 @@ public class NamedIdentifier implements ReferenceIdentifier, GenericName,
             if (remarks == null) {
                 remarks = growable;
             } else {
-                Logging.getLogger(NamedIdentifier.class).log(
-                        Loggings.format(Level.WARNING, LoggingKeys.LOCALES_DISCARTED));
+                final Logger logger = Logging.getLogger(NamedIdentifier.class);
+                final LogRecord record = Loggings.format(Level.WARNING, LoggingKeys.LOCALES_DISCARTED);
+                record.setLoggerName(logger.getName());
+                logger.log(record);
             }
         }
         /*

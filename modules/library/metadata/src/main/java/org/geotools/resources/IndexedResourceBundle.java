@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import java.util.logging.Logger;
 import org.opengis.util.InternationalString;
 import org.geotools.util.logging.Logging;
 
@@ -231,13 +232,17 @@ public class IndexedResourceBundle extends ResourceBundle {
                 }
                 record.setParameters(new String[]{language, getPackageName()});
             }
-            Logging.getLogger(IndexedResourceBundle.class).log(record);
+            final Logger logger = Logging.getLogger(IndexedResourceBundle.class);
+            record.setLoggerName(logger.getName());
+            logger.log(record);
             return values;
         } catch (IOException exception) {
             record.setLevel  (Level.WARNING);
             record.setMessage(exception.getLocalizedMessage());
             record.setThrown (exception);
-            Logging.getLogger(IndexedResourceBundle.class).log(record);
+            final Logger logger = Logging.getLogger(IndexedResourceBundle.class);
+            record.setLoggerName(logger.getName());
+            logger.log(record);
             final MissingResourceException error = new MissingResourceException(
                     exception.getLocalizedMessage(), getClass().getName(), key);
             error.initCause(exception);

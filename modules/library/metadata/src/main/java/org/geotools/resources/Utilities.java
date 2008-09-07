@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -219,6 +219,7 @@ public final class Utilities {
         record.setLevel(Level.FINER);
         record.setSourceClassName (classe.getName());
         record.setSourceMethodName(method);
+        record.setLoggerName(paquet);
         Logging.getLogger(paquet).log(record);
     }
 

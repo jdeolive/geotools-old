@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -225,6 +225,7 @@ public abstract class DeferredAuthorityFactory extends BufferedAuthorityFactory
                         record.setSourceMethodName("run");
                         record.setSourceClassName(Disposer.class.getName());
                         record.setThrown(exception);
+                        record.setLoggerName(LOGGER.getName());
                         LOGGER.log(record);
                     }
                     // Needed in order to lets GC do its job.

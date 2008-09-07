@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -934,6 +934,7 @@ public abstract class GeographicImageReader extends ImageReader {
      */
     public void warningOccurred(final LogRecord record) {
         if (warningListeners == null) {
+            record.setLoggerName(LOGGER.getName());
             LOGGER.log(record);
         } else {
             processWarningOccurred(IndexedResourceBundle.format(record));

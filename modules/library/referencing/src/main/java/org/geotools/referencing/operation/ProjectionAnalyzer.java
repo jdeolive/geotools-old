@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import javax.measure.unit.Unit;
 import javax.measure.unit.SI;
@@ -275,7 +276,9 @@ final class ProjectionAnalyzer {
                     LoggingKeys.APPLIED_UNIT_CONVERSION_$3, warning, unit, SI.METER);
             record.setSourceClassName(getClass().getName());
             record.setSourceMethodName("createLinearConversion"); // This is the public method.
-            ReferencingFactory.LOGGER.log(record);
+            final Logger logger = ReferencingFactory.LOGGER;
+            record.setLoggerName(logger.getName());
+            logger.log(record);
         }
         return matrix;
     }

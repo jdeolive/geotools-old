@@ -25,6 +25,7 @@ import java.awt.image.DataBuffer;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
 import javax.media.jai.JAI;
@@ -924,6 +925,8 @@ final class Resampler2D extends GridCoverage2D {
     private static void log(final LogRecord record) {
         record.setSourceClassName("Resample");
         record.setSourceMethodName("doOperation");
-        AbstractProcessor.LOGGER.log(record);
+        final Logger logger = AbstractProcessor.LOGGER;
+        record.setLoggerName(logger.getName());
+        logger.log(record);
     }
 }

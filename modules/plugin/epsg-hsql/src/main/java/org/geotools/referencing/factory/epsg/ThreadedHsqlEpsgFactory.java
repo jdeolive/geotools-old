@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -31,6 +31,8 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 import java.util.Properties;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
@@ -316,8 +318,11 @@ public class ThreadedHsqlEpsgFactory extends ThreadedEpsgFactory {
              * a full SQL statement. For this plugin however, we have compressed "INSERT
              * INTO" statements using Compactor class in this package.
              */
-            Logging.getLogger(LOGGER).log(Loggings.format(Level.INFO,
-                    LoggingKeys.CREATING_CACHED_EPSG_DATABASE_$1, VERSION));
+            final Logger logger = Logging.getLogger(LOGGER);
+            final LogRecord record = Loggings.format(Level.INFO,
+                    LoggingKeys.CREATING_CACHED_EPSG_DATABASE_$1, VERSION);
+            record.setLoggerName(logger.getName());
+            logger.log(record);
             final Statement statement = connection.createStatement();
             try {
                 final BufferedReader in = new BufferedReader(new InputStreamReader(

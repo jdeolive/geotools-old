@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -57,6 +57,8 @@ public final class JDBC {
      * @param  driver The JDBC driver to load, as a fully qualified Java class name.
      * @return A log message with driver information, or {@code null} if the driver was already
      *         loaded.
+     *
+     * @todo Remember to invoke {@link LogRecord#setLoggerName}.
      */
     public static LogRecord loadDriver(final String driver) {
         LogRecord log = null;

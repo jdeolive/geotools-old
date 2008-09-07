@@ -983,6 +983,7 @@ public class FallbackAuthorityFactory extends AuthorityFactoryAdapter {
                     LoggingKeys.FALLBACK_FACTORY_$1, exception);
             record.setSourceClassName(FallbackAuthorityFactory.class.getName());
             record.setSourceMethodName(method);
+            record.setLoggerName(LOGGER.getName());
             LOGGER.log(record);
         }
     }

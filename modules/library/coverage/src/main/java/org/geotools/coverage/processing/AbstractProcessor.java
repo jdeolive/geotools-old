@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -175,6 +175,7 @@ public abstract class AbstractProcessor {
             // Note: DefaultProcessor is the class that will use this method.
             record.setSourceClassName("org.geotools.coverage.processing.DefaultProcessor");
             record.setSourceMethodName("doOperation");
+            record.setLoggerName(LOGGER.getName());
             LOGGER.log(record);
         }
     }

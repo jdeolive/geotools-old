@@ -953,6 +953,7 @@ public class AuthorityFactoryAdapter extends AbstractAuthorityFactory implements
                     LoggingKeys.MISMATCHED_COORDINATE_OPERATION_FACTORIES_$2, sourceCRS, targetCRS);
             record.setSourceMethodName("createFromCoordinateReferenceSystemCodes");
             record.setSourceClassName(AuthorityFactoryAdapter.class.getName());
+            record.setLoggerName(LOGGER.getName());
             LOGGER.log(record);
             return Collections.emptySet();
         }

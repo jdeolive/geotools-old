@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
@@ -472,8 +474,10 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
             if (remarks == null) {
                 remarks = growable;
             } else if (!growable.isSubsetOf(remarks)) {
-                Logging.getLogger(AbstractIdentifiedObject.class).
-                        log(Loggings.format(Level.WARNING, LoggingKeys.LOCALES_DISCARTED));
+                final Logger logger = Logging.getLogger(AbstractIdentifiedObject.class);
+                final LogRecord record = Loggings.format(Level.WARNING, LoggingKeys.LOCALES_DISCARTED);
+                record.setLoggerName(logger.getName());
+                logger.log(record);
             }
         }
         /*
@@ -488,8 +492,10 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
                     if (current == null) {
                         subProperties.put(prefix, growable);
                     } else if (!growable.isSubsetOf(current)) {
-                        Logging.getLogger(AbstractIdentifiedObject.class)
-                                .log(Loggings.format(Level.WARNING, LoggingKeys.LOCALES_DISCARTED));
+                        final Logger logger = Logging.getLogger(AbstractIdentifiedObject.class);
+                        final LogRecord record = Loggings.format(Level.WARNING, LoggingKeys.LOCALES_DISCARTED);
+                        record.setLoggerName(logger.getName());
+                        logger.log(record);
                     }
                 }
             }

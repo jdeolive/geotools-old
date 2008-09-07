@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
 import org.geotools.resources.Classes;
@@ -254,7 +255,9 @@ public class LoggedFormat<T> extends Format {
      */
     protected void logWarning(final LogRecord warning) {
         if (logger != null) {
-            Logging.getLogger(logger).log(warning);
+            final Logger logger = Logging.getLogger(this.logger);
+            warning.setLoggerName(logger.getName());
+            logger.log(warning);
         }
     }
 

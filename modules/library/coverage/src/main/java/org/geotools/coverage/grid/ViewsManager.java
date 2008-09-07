@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -618,7 +619,9 @@ testLinear: for (int i=0; i<numBands; i++) {
                     });
             record.setSourceClassName(GridCoverage2D.class.getName());
             record.setSourceMethodName("geophysics");
-            GridCoverage2D.LOGGER.log(record);
+            final Logger logger = GridCoverage2D.LOGGER;
+            record.setLoggerName(logger.getName());
+            logger.log(record);
         }
         final GridCoverage[] sources = new GridCoverage[] {coverage};
         return new GridCoverage2D(name, view, coverage.gridGeometry, targetBands, sources, null, userHints);

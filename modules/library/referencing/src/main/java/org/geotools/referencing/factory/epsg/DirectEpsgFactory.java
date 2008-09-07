@@ -33,6 +33,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.ref.SoftReference;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.SI;
@@ -1200,7 +1201,9 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
                     if (semiMinorAxis != 0) {
                         // Both 'inverseFlattening' and 'semiMinorAxis' are defined.
                         // Log a warning and create the ellipsoid using the inverse flattening.
-                        LOGGER.log(Loggings.format(Level.WARNING, LoggingKeys.AMBIGUOUS_ELLIPSOID, code));
+                        final LogRecord record = Loggings.format(Level.WARNING, LoggingKeys.AMBIGUOUS_ELLIPSOID, code);
+                        record.setLoggerName(LOGGER.getName());
+                        LOGGER.log(record);
                     }
                     ellipsoid = factories.getDatumFactory().createFlattenedSphere(
                                 properties, semiMajorAxis, inverseFlattening, unit);
@@ -2991,7 +2994,9 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
              * was already closed. However we will log a message only if we actually closed
              * the connection, otherwise the log records are a little bit misleading.
              */
-            LOGGER.log(Loggings.format(Level.FINE, LoggingKeys.CLOSED_EPSG_DATABASE));
+            final LogRecord record = Loggings.format(Level.FINE, LoggingKeys.CLOSED_EPSG_DATABASE);
+            record.setLoggerName(LOGGER.getName());
+            LOGGER.log(record);
         }
     }
 

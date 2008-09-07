@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -28,6 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
 import org.opengis.metadata.Identifier;
@@ -335,7 +336,9 @@ public class IdentifiedObjectSet extends AbstractSet implements Serializable {
         record.setSourceClassName(IdentifiedObjectSet.class.getName());
         record.setSourceMethodName("createObject");
         record.setThrown(exception);
-        AbstractAuthorityFactory.LOGGER.log(record);
+        final Logger logger = AbstractAuthorityFactory.LOGGER;
+        record.setLoggerName(logger.getName());
+        logger.log(record);
     }
 
     /**

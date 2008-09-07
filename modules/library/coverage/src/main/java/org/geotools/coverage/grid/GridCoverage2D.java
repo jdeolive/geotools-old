@@ -1037,6 +1037,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
                         LoggingKeys.CREATED_SERIALIZABLE_IMAGE_$2, getName(), tileEncoding);
                 record.setSourceClassName(GridCoverage2D.class.getName());
                 record.setSourceMethodName("writeObject");
+                record.setLoggerName(LOGGER.getName());
                 LOGGER.log(record);
             }
         }

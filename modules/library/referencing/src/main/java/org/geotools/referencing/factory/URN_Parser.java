@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
 package org.geotools.referencing.factory;
 
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
 import org.opengis.referencing.AuthorityFactory;
@@ -145,7 +146,9 @@ final class URN_Parser {
             // Set the source to the public or protected method.
             record.setSourceClassName(URN_AuthorityFactory.class.getName());
             record.setSourceMethodName("get" + Classes.getShortName(expected));
-            AbstractAuthorityFactory.LOGGER.log(record);
+            final Logger logger = AbstractAuthorityFactory.LOGGER;
+            record.setLoggerName(logger.getName());
+            logger.log(record);
         }
     }
 

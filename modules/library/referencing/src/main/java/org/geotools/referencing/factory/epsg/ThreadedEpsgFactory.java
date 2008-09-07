@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -441,6 +441,7 @@ public class ThreadedEpsgFactory extends DeferredAuthorityFactory
     private static void log(final LogRecord record) {
         record.setSourceClassName(ThreadedEpsgFactory.class.getName());
         record.setSourceMethodName("createBackingStore"); // The public caller.
+        record.setLoggerName(LOGGER.getName());
         LOGGER.log(record);
     }
 

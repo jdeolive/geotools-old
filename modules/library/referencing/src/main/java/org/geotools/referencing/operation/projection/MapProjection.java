@@ -460,6 +460,7 @@ public abstract class MapProjection extends AbstractMathTransform
         }
         record.setSourceClassName(classe);
         record.setSourceMethodName("transform");
+        record.setLoggerName(LOGGER.getName());
         LOGGER.log(record);
         return true;
     }

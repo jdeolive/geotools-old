@@ -1337,6 +1337,7 @@ public class MosaicImageReader extends ImageReader {
             final LogRecord record = new LogRecord(level, message.toString());
             record.setSourceClassName(MosaicImageReader.class.getName());
             record.setSourceMethodName("read");
+            record.setLoggerName(logger.getName());
             logger.log(record);
             table = null;
         } while (true);

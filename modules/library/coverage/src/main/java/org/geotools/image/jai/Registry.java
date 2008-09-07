@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,6 +18,7 @@ package org.geotools.image.jai;
 
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import java.awt.image.renderable.ContextualRenderedImageFactory;
 import java.awt.image.renderable.RenderedImageFactory;
@@ -204,17 +205,20 @@ public final class Registry {
 			record.setSourceClassName(GridSampleDimension.class.getName());
 			record.setSourceMethodName("<classinit>");
 			record.setThrown(exception);
+			record.setLoggerName(AbstractGridCoverage.LOGGER.getName());
 			AbstractGridCoverage.LOGGER.log(record);
 		}
 		return false;
 	}
-	
+
     /**
      * Logs the specified record.
      */
     private static void log(final String method, final LogRecord record) {
         record.setSourceClassName(Registry.class.getName());
         record.setSourceMethodName(method);
-        Logging.getLogger(Registry.class).log(record);
+        final Logger logger = Logging.getLogger(Registry.class);
+        record.setLoggerName(logger.getName());
+        logger.log(record);
     }
 }

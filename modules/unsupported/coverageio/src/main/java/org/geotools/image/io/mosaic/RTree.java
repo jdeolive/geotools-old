@@ -287,6 +287,7 @@ final class RTree {
                 final LogRecord record = new LogRecord(LEVEL, message.toString());
                 record.setSourceClassName("org.geotools.image.io.mosaic.TileManager");
                 record.setSourceMethodName("getTiles"); // This is the public API for this method.
+                record.setLoggerName(LOGGER.getName());
                 LOGGER.log(record);
             }
         }

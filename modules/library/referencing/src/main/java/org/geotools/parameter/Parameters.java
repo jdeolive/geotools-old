@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import javax.measure.unit.Unit;
 
@@ -411,7 +412,9 @@ public final class Parameters {
             final LogRecord record = new LogRecord(Level.FINE, "Axis length mismatch.");
             record.setSourceClassName(Parameters.class.getName());
             record.setSourceMethodName("ensureSet");
-            Logging.getLogger(Parameters.class).log(record);
+            final Logger logger = Logging.getLogger(Parameters.class);
+            record.setLoggerName(logger.getName());
+            logger.log(record);
         }
         return true;
     }

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -657,7 +658,9 @@ public class CoverageStack extends AbstractCoverage {
                                 FOUND_MISMATCHED_CRS_$4, size, elements.length, f[0], f[size-1]);
                         record.setSourceClassName(CoverageStack.class.getName());
                         record.setSourceMethodName("<init>"); // This is the public method invoked.
-                        Logging.getLogger(CoverageStack.class).log(record);
+                        final Logger logger = Logging.getLogger(CoverageStack.class);
+                        record.setLoggerName(logger.getName());
+                        logger.log(record);
                         // Fall through
                     }
                     case 1: {
@@ -1485,7 +1488,9 @@ public class CoverageStack extends AbstractCoverage {
      * @param record The log record. The message contains information about the images to load.
      */
     protected void logLoading(final LogRecord record) {
-        Logging.getLogger(CoverageStack.class).log(record);
+        final Logger logger = Logging.getLogger(CoverageStack.class);
+        record.setLoggerName(logger.getName());
+        logger.log(record);
     }
 
     /**

@@ -36,6 +36,8 @@ import java.awt.geom.Rectangle2D;
 
 import java.util.Arrays;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.measure.unit.Unit;
@@ -688,8 +690,11 @@ public class ColorRamp extends JComponent {
                 graduation = new LogarithmicNumberGraduation(units);
             }
         } else {
-            Logging.getLogger(ColorRamp.class).log(Loggings.format(Level.WARNING,
-                    LoggingKeys.UNRECOGNIZED_SCALE_TYPE_$1, Classes.getShortClassName(tr)));
+            final Logger logger = Logging.getLogger(ColorRamp.class);
+            final LogRecord record = Loggings.format(Level.WARNING,
+                    LoggingKeys.UNRECOGNIZED_SCALE_TYPE_$1, Classes.getShortClassName(tr));
+            record.setLoggerName(logger.getName());
+            logger.log(record);
             graduation = new NumberGraduation(units);
         }
         if (graduation == reuse) {

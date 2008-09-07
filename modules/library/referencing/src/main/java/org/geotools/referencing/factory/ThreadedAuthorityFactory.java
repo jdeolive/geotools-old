@@ -254,6 +254,7 @@ public class ThreadedAuthorityFactory extends AbstractAuthorityFactory implement
             record.setSourceClassName(getClass().getName());
             record.setSourceMethodName("isAvailable");
             record.setThrown(exception);
+            record.setLoggerName(LOGGER.getName());
             LOGGER.log(record);
         }
         return false;

@@ -309,6 +309,7 @@ public class WeakValueHashMap<K,V> extends AbstractMap<K,V> {
                     "Rehash from " + oldTable.length + " to " + table.length);
             record.setSourceMethodName(augmentation ? "unique" : "remove");
             record.setSourceClassName(WeakValueHashMap.class.getName());
+            record.setLoggerName(logger.getName());
             logger.log(record);
         }
         assert valid();

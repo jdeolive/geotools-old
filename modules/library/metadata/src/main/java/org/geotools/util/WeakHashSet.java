@@ -263,6 +263,7 @@ public class WeakHashSet<E> extends AbstractSet<E> implements CheckedCollection<
                     "Rehash from " + oldTable.length + " to " + table.length);
             record.setSourceMethodName(augmentation ? "unique" : "remove");
             record.setSourceClassName(WeakHashSet.class.getName());
+            record.setLoggerName(logger.getName());
             logger.log(record);
         }
         assert valid();

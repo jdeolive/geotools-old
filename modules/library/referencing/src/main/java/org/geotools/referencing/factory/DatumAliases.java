@@ -217,7 +217,10 @@ public class DatumAliases extends ReferencingFactory implements DatumFactory {
      */
     private void reload() throws IOException {
         assert Thread.holdsLock(this);
-        LOGGER.log(Loggings.format(Level.FINE, LoggingKeys.LOADING_DATUM_ALIASES_$1, aliasURL));
+        final LogRecord record = Loggings.format(Level.FINE,
+                LoggingKeys.LOADING_DATUM_ALIASES_$1, aliasURL);
+        record.setLoggerName(LOGGER.getName());
+        LOGGER.log(record);
         final BufferedReader in = new BufferedReader(new InputStreamReader(aliasURL.openStream()));
         /*
          * Parses the title line. This line contains authority names as column titles.
@@ -297,6 +300,7 @@ public class DatumAliases extends ReferencingFactory implements DatumFactory {
         record.setSourceClassName(DatumAliases.class.getName());
         record.setSourceMethodName("reload");
         record.setThrown(exception);
+        record.setLoggerName(LOGGER.getName());
         LOGGER.log(record);
     }
 

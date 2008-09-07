@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
@@ -89,8 +90,10 @@ public class DefaultProcessor extends AbstractProcessor {
          * for serious trouble.
          */
         if (cache.getMemoryCapacity() + (4*1024*1024) >= maxMemory) {
-            LOGGER.log(Loggings.format(Level.SEVERE,
-                    LoggingKeys.EXCESSIVE_TILE_CACHE_$1, maxMemory / (1024 * 1024.0)));
+            final LogRecord record = Loggings.format(Level.SEVERE,
+                    LoggingKeys.EXCESSIVE_TILE_CACHE_$1, maxMemory / (1024 * 1024.0));
+            record.setLoggerName(LOGGER.getName());
+            LOGGER.log(record);
         }
     }
 
