@@ -47,14 +47,14 @@ import org.opengis.filter.spatial.BinarySpatialOperator;
  */
 public class PreparedFilterToSQL extends FilterToSQL {
     
-    Integer currentSRID;
+    protected Integer currentSRID;
 
     /**
      * ordered list of literal values encountered and their types
      */
-    List<Object> literalValues = new ArrayList<Object>();
-    List<Class> literalTypes = new ArrayList<Class>();
-    List<Integer> SRIDs = new ArrayList<Integer>();
+    protected List<Object> literalValues = new ArrayList<Object>();
+    protected List<Class> literalTypes = new ArrayList<Class>();
+    protected List<Integer> SRIDs = new ArrayList<Integer>();
     boolean prepareEnabled = true;
     
     public PreparedFilterToSQL() {
