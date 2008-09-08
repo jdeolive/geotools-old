@@ -184,23 +184,6 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected boolean associations = false;
 
-    @Override
-    public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(
-            Query query, Transaction tx) throws IOException {
-        //when the client grabs a feature reader with this method, the intermediate 
-        // feature source created is not visible, therefore when they close the reader
-        // we want to make sure we close the connection, this is different from when 
-        // the client grabs a feature source, then a reader... because in that case
-        // it is up to the client to make sure they close the feature source... 
-        return super.getFeatureReader(query, tx);
-    }
-    
-    @Override
-    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(
-            String typeName, Filter filter, Transaction tx) throws IOException {
-        return super.getFeatureWriter(typeName, filter, tx);
-    }
-    
     /**
      * The dialect the datastore uses to generate sql statements in order to
      * communicate with the underlying database.
