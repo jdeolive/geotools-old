@@ -206,7 +206,9 @@ public class PreparedFilterToSQL extends FilterToSQL {
         // handle native srid
         currentSRID = null;
         if(featureType != null) {
-            AttributeDescriptor descriptor = featureType.getDescriptor(property.getPropertyName());
+            // going thru evaluate ensures we get the proper result even if the name has 
+            // not been specified (convention -> the default geometry)
+            AttributeDescriptor descriptor = (AttributeDescriptor) property.evaluate(featureType);
             if(descriptor instanceof GeometryDescriptor) {
                 currentSRID = (Integer) descriptor.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID);
             }

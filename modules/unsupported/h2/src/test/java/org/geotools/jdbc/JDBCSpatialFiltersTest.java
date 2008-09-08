@@ -63,6 +63,14 @@ public abstract class JDBCSpatialFiltersTest extends JDBCTestSupport {
         FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(bbox);
         checkSingleResult(features, "r2");
     }
+    
+    public void testBboxFilterDefault() throws Exception {
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        // should match only "r2"
+        BBOX bbox = ff.bbox("", 2, 3, 4, 5, "EPSG:4326");
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(bbox);
+        checkSingleResult(features, "r2");
+    }
 
     public void testCrossesFilter() throws Exception {
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
@@ -151,7 +159,7 @@ public abstract class JDBCSpatialFiltersTest extends JDBCTestSupport {
         checkSingleResult(features, "r3");
     }
 
-    void checkSingleResult(FeatureCollection features, String name) {
+    protected void checkSingleResult(FeatureCollection features, String name) {
         assertEquals(1, features.size());
         FeatureIterator fr = features.features();
         assertTrue(fr.hasNext());
