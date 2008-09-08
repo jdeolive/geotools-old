@@ -540,7 +540,7 @@ final class PropertyAccessor {
                 continue; // Null argument (which is valid): nothing to do.
             }
             final Class<?> paramType = paramTypes[i];
-            if (paramType.isInstance(argument)) {
+            if (Classes.primitiveToWrapper(paramType).isInstance(argument)) {
                 continue; // Argument is of the expected type: nothing to do.
             }
             /*
