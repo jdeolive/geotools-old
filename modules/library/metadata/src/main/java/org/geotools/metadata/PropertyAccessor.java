@@ -572,8 +572,11 @@ final class PropertyAccessor {
                     Class<?> c = Classes.boundOfParameterizedAttribute(setter);
                     if (c == null) {
                         c = Classes.boundOfParameterizedAttribute(getter);
+                        if (c == null) {
+                            c = Object.class;
+                        }
                     }
-                    elementType = (c != null) ? c : Object.class;
+                    elementType = c;
                 }
             } else {
                 addTo = null;
@@ -586,7 +589,9 @@ final class PropertyAccessor {
              */
             Object parsed = null;
             Exception failure = null;
-            if (argument instanceof CharSequence) {
+            if (elementType.isInstance(argument)) {
+                parsed = argument;
+            } else if (argument instanceof CharSequence) {
                 final String text = argument.toString();
                 if (InternationalString.class.isAssignableFrom(elementType)) {
                     parsed = new SimpleInternationalString(text);
