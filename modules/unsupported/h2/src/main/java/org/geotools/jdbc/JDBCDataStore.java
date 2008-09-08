@@ -2276,6 +2276,7 @@ public final class JDBCDataStore extends ContentDataStore
                     //Object value = getNextValue(col, key, cx);
                     Object value = keyValues.get( i );
                     dialect.encodeValue( value, col.getType(), sql );
+                    sql.append( "," );
                 } 
                 catch( Exception e ) {
                     throw new RuntimeException( e );
