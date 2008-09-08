@@ -126,7 +126,7 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     /**
      * The tiles to use as a pattern for creating tiles on the fly, or {@code null} if none.
      * If non-null, then the array length is typically 1. If greater than one, then the
-     * {@linkplain #usePattern} field needs to be non-null un order to specify which pattern
+     * {@linkplain #usePattern} field needs to be non-null in order to specify which pattern
      * is used.
      */
     private Tile[] patterns;
@@ -595,14 +595,26 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     public Tile getSampleTile() {
         if (sample == null) {
             if (patterns != null) {
-                // Should never be empty. If we get an IndexOutOfBoundsException,
-                // then it would be a bug in the createLinkedList(...) method.
-                sample = patterns[0];
+                /*
+                 * Should never be empty and should never contains null elements (but we still do
+                 * a loop for paranoia). If we get an IndexOutOfBoundsException, then it would be
+                 * a bug in the createLinkedList(...) method.
+                 */
+                int i = 0;
+                do {
+                    sample = patterns[i++];
+                } while (sample == null);
             } else {
-                // Should never be null when patterns == null and never empty. If we get
-                // a NullPointerException or an IndexOutOfBoundsException, then it would
-                // be a bug in the createLinkedList(...) method.
-                sample = tiles.get(0);
+                /*
+                 * Should never be null when patterns == null and never empty. It may contains
+                 * some null elements, but at least one element should be nun-null. If we get a
+                 * NullPointerException or an IndexOutOfBoundsException, then it would be a bug
+                 * in the createLinkedList(...) method.
+                 */
+                int i = 0;
+                do {
+                    sample = tiles.get(i++);
+                } while (sample == null);
             }
         }
         return sample;
