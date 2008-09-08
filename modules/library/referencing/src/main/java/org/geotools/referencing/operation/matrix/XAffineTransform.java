@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -302,11 +302,16 @@ public class XAffineTransform extends AffineTransform {
         if (type == TYPE_IDENTITY) {
             return shape;
         }
+        // If there is only scale, flip, quadrant rotation or translation,
+        // then we can optimize the transformation of rectangular shapes.
         if ((type & (TYPE_GENERAL_ROTATION | TYPE_GENERAL_TRANSFORM)) == 0) {
+            // For a Rectangle input, the output should be a rectangle as well.
             if (shape instanceof Rectangle2D) {
                 final Rectangle2D rect = (Rectangle2D) shape;
                 return transform(transform, rect, overwrite ? rect : null);
             }
+            // For other rectangular shapes, we restrict to cases whithout
+            // rotation or flip because we don't know if the shape is symetric.
             if ((type & (TYPE_FLIP & TYPE_MASK_ROTATION)) == 0) {
                 if (shape instanceof RectangularShape) {
                     RectangularShape rect = (RectangularShape) shape;
@@ -336,7 +341,12 @@ public class XAffineTransform extends AffineTransform {
                 shape = area.createTransformedArea(transform);
             }
         } else {
-            shape = transform.createTransformedShape(shape);
+            final GeneralPath path = new GeneralPath(shape);
+            path.transform(transform);
+            shape = path;
+            // TODO: use the line below instead of the above 3 lines when we will
+            //       be allowed to compile for Java 6:
+//          shape = new Path2D.Double(shape, this);
         }
         return shape;
     }

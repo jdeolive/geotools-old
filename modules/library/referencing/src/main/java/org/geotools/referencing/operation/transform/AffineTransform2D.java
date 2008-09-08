@@ -130,7 +130,7 @@ public class AffineTransform2D extends XAffineTransform
                           ErrorKeys.MISMATCHED_DIMENSION_$3, "ptDst", dimension, 2));
             }
         }
-        final double[] array = ptSrc.getCoordinates();
+        final double[] array = ptSrc.getCoordinate();
         transform(array, 0, array, 0, 1);
         ptDst.setOrdinate(0, array[0]);
         ptDst.setOrdinate(1, array[1]);
