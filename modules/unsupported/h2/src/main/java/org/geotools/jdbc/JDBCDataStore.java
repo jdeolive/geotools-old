@@ -1044,12 +1044,8 @@ public final class JDBCDataStore extends ContentDataStore
         try {
             LOGGER.fine( "CREATE CONNECTION");
             Connection cx = getDataSource().getConnection();
-//            System.out.println("Created connection: " + System.identityHashCode(cx));
-
-            //TODO: make this configurable
-            //cx.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE );
-            //cx.setTransactionIsolation( Connection.TRANSACTION_READ_UNCOMMITTED );
-            cx.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            // isolation level is not set in the datastore, see 
+            // http://jira.codehaus.org/browse/GEOT-2021 
 
             return cx;
         } catch (SQLException e) {
