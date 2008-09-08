@@ -16,15 +16,10 @@
  */
 package org.geotools.data;
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.swing.Icon;
 
 /**
  * Implementation of DefaultServiceInfo as a java bean.
@@ -39,7 +34,6 @@ public class DefaultServiceInfo implements ServiceInfo, Serializable {
     protected URI publisher;
     protected URI schema;
     protected String title;
-    private Icon icon;
     private URI source;
     
     public DefaultServiceInfo(){                
@@ -129,5 +123,33 @@ public class DefaultServiceInfo implements ServiceInfo, Serializable {
     public void setSource( URI source ) {
         this.source = source;
     }
-
+    @Override
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("ServiceInfo ");
+        if( source != null ){
+            buf.append( source );            
+        }        
+        if( this.title != null ){
+            buf.append( "\n title=");
+            buf.append( title );
+        }
+        if( this.publisher != null ){
+            buf.append( "\n publisher=");
+            buf.append( publisher );
+        }
+        if( this.publisher != null ){
+            buf.append( "\n schema=");
+            buf.append( schema );
+        }
+        if( keywords != null ){
+            buf.append( "\n keywords=");
+            buf.append( keywords );            
+        }
+        if( description != null ){
+            buf.append( "\n description=");
+            buf.append( description );
+        }
+        return buf.toString();
+    }
 }
