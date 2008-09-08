@@ -1128,7 +1128,8 @@ public final class JDBCDataStore extends ContentDataStore
                   sql.append( "SELECT MAX(");
                   dialect.encodeColumnName( col.getName() , sql );
                   sql.append( ") + 1 FROM ");
-                  dialect.encodeTableName( pkey.getTableName(), sql);
+                  encodeTableName(pkey.getTableName(), sql);
+                  
                   LOGGER.log(Level.FINE, "Getting next FID: {0}", sql);
                   
                   Statement st = cx.createStatement();
