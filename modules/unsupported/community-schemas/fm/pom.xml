@@ -23,7 +23,7 @@
   <groupId>org.geotools</groupId>
   <artifactId>gt-fm</artifactId>
   <name>ISO Feature Implementation module</name>
-  <url>http://maven.geotools.fr/reports/main/</url>
+  <url>http://maven.geotools.fr/reports/modules/unsupported/community-schemas/fm/</url>
   <scm>
     <connection>scm:svn:http://svn.geotools.org/trunk/modules/unsupported/community-schemas/fm</connection>
     <url>http://svn.geotools.org/trunk/modules/unsupported/community-schemas/fm</url>

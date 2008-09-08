@@ -26,8 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.geotools.factory.FactoryConfigurationError;
-import org.geotools.feature.FeatureTypeBuilder;
+import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.LengthFunction;
@@ -42,12 +41,10 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.FeatureCollectionType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
-import org.opengis.feature.type.TypeFactory;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.Filter;
 import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
@@ -358,14 +355,14 @@ public class FeatureTypes {
 	 *            Currently, all types inherit from feature in the opengis
 	 *            namespace.
 	 * @return A new FeatureType created from the given arguments.
-	 * @throws FactoryConfigurationError
+	 * @throws FactoryRegistryException
 	 *             If there are problems creating a factory.
 	 * @throws SchemaException
 	 *             If the AttributeTypes provided are invalid in some way.
 	 */
 	public static FeatureType newFeatureType(AttributeType[] types,
 			String name, URI ns, boolean isAbstract, FeatureType[] superTypes)
-			throws FactoryConfigurationError, SchemaException {
+			throws FactoryRegistryException, SchemaException {
 		return newFeatureType(types, name, ns, isAbstract, superTypes, null);
 	}
 
@@ -375,7 +372,7 @@ public class FeatureTypes {
 	 */
 	public static FeatureType newFeatureType(AttributeType[] types,
 			String name, URI ns, boolean isAbstract, FeatureType[] superTypes,
-			AttributeType defaultGeometry) throws FactoryConfigurationError,
+			AttributeType defaultGeometry) throws FactoryRegistryException,
 			SchemaException {
 
 		assert defaultGeometry instanceof GeometryType;
@@ -401,7 +398,7 @@ public class FeatureTypes {
 	 *            Currently, all types inherit from feature in the opengis
 	 *            namespace.
 	 * @return A new FeatureType created from the given arguments.
-	 * @throws FactoryConfigurationError
+	 * @throws FactoryRegistryException
 	 *             If there are problems creating a factory.
 	 * @throws SchemaException
 	 *             If the AttributeTypes provided are invalid in some way.
@@ -410,7 +407,7 @@ public class FeatureTypes {
 	 */
 	public FeatureType createNewFeatureType(AttributeType[] types, String name,
 			URI ns, boolean isAbstract, FeatureType[] superTypes,
-			GeometryType defaultGeometry) throws FactoryConfigurationError,
+			GeometryType defaultGeometry) throws FactoryRegistryException,
 			SchemaException {
 
 		typeBuilder.init();
@@ -442,7 +439,7 @@ public class FeatureTypes {
 	 */
 	public static FeatureType newFeatureType(AttributeType[] types,
 			String name, URI ns, boolean isAbstract, FeatureType[] superTypes,
-			GeometryType defaultGeometry) throws FactoryConfigurationError,
+			GeometryType defaultGeometry) throws FactoryRegistryException,
 			SchemaException {
 
 		if (superTypes == null)
@@ -473,7 +470,7 @@ public class FeatureTypes {
 	 * @param isAbstract
 	 *            True if this created type should be abstract.
 	 * @return A new FeatureType created from the given arguments.
-	 * @throws FactoryConfigurationError
+	 * @throws FactoryRegistryException
 	 *             If there are problems creating a factory.
 	 * @throws SchemaException
 	 *             If the AttributeTypes provided are invalid in some way.
@@ -483,7 +480,7 @@ public class FeatureTypes {
 	 */
 	public static FeatureType newFeatureType(AttributeType[] types,
 			String name, URI ns, boolean isAbstract)
-			throws FactoryConfigurationError, SchemaException {
+			throws FactoryRegistryException, SchemaException {
 		return newFeatureType(types, name, ns, isAbstract, null);
 	}
 
@@ -498,7 +495,7 @@ public class FeatureTypes {
 	 * @param ns
 	 *            The namespace of the FeatureType. Optional, may be null.
 	 * @return A new FeatureType created from the given arguments.
-	 * @throws FactoryConfigurationError
+	 * @throws FactoryRegistryException
 	 *             If there are problems creating a factory.
 	 * @throws SchemaException
 	 *             If the AttributeTypes provided are invalid in some way.
@@ -507,7 +504,7 @@ public class FeatureTypes {
 	 *             {@link #newFeatureType(AttributeType[], String, URI, boolean, SimpleFeatureType[], GeometryType)}
 	 */
 	public static FeatureType newFeatureType(AttributeType[] types,
-			String name, URI ns) throws FactoryConfigurationError,
+			String name, URI ns) throws FactoryRegistryException,
 			SchemaException {
 		return newFeatureType(types, name, ns, false);
 	}
@@ -522,7 +519,7 @@ public class FeatureTypes {
 	 * @param name
 	 *            The typeName of the FeatureType. Required, may not be null.
 	 * @return A new FeatureType created from the given arguments.
-	 * @throws FactoryConfigurationError
+	 * @throws FactoryRegistryException
 	 *             If there are problems creating a factory.
 	 * @throws SchemaException
 	 *             If the AttributeTypes provided are invalid in some way.
@@ -531,7 +528,7 @@ public class FeatureTypes {
 	 *             {@link #newFeatureType(AttributeType[], String, URI, boolean, SimpleFeatureType[], GeometryType)}
 	 */
 	public static FeatureType newFeatureType(AttributeType[] types, String name)
-			throws FactoryConfigurationError, SchemaException {
+			throws FactoryRegistryException, SchemaException {
 
 		URI namespace = null;
 		try {
