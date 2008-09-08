@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.oracle.sdo.SDO;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Id;
 import org.opengis.filter.IncludeFilter;
@@ -781,7 +782,13 @@ public class SQLEncoderOracle extends SQLEncoder {
         super.visit(ae);
 
         if (inGeomFilter) {
-            currentGeomColumnName = ae.getAttributePath();
+            if(featureType != null) {
+                // handle default geometry as well
+                AttributeDescriptor attributeType = (AttributeDescriptor) ae.evaluate( featureType );
+                currentGeomColumnName = attributeType.getLocalName();
+            } else {
+                currentGeomColumnName = ae.getAttributePath();
+            }
         }
     }
     

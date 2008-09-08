@@ -369,6 +369,35 @@ public class OracleDataStoreOnlineTest extends TestCase {
         assertEquals(2, fr.size()); // we pass this!
     }
     
+    public void testBBoxFilterNoAttribute() throws Exception {
+        if( conn == null ) return;      
+        GeometryFilter filter = filterFactory.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+        // had to reduce the envelope a little, Oracle has trobles with bbox that span the whole earth
+        Expression right = filterFactory.createBBoxExpression(new Envelope(-170, 170, -80, 80));
+        Expression left = filterFactory.createAttributeExpression("");
+        filter.addLeftGeometry(left);
+        filter.addRightGeometry(right);
+        
+        FeatureSource<SimpleFeatureType, SimpleFeature> fs = dstore.getFeatureSource("ORA_TEST_POINTS");
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fr = fs.getFeatures(filter);        
+        assertEquals(5, fr.size()); // we pass this!
+        
+        //                   + (20,30)
+        //                            +----------------------+
+        //  +(20,10)         +(10,10) | + (20,10)   +(30,10) |
+        //                            +----------------------+
+        right = filterFactory.createBBoxExpression(new Envelope(15, 35, 0, 15));        
+        filter.addRightGeometry(right);
+        fr = fs.getFeatures(filter);
+        assertEquals(2, fr.size()); // we have 4!
+        
+        // check a filter built changing operands order works the same
+        filter.addLeftGeometry(right);
+        filter.addRightGeometry(left);
+        fr = fs.getFeatures(filter);        
+        assertEquals(2, fr.size()); // we pass this!
+    }
+    
     public void testDisjointFilter() throws Exception {
         if( conn == null ) return;
         
