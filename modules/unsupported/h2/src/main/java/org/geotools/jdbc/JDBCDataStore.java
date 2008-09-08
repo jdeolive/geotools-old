@@ -183,6 +183,31 @@ public final class JDBCDataStore extends ContentDataStore
      * relationships with associations
      */
     protected boolean associations = false;
+    
+    /**
+     * The fetch size for this datastore, defaulting to 1000. Set to a value less or equal
+     * to 0 to disable fetch size limit and grab all the records in one shot.
+     */
+    protected int fetchSize;
+
+    /**
+     * The current fetch size. The fetch size influences how many records are read from the
+     * dbms at a time. If set to a value less or equal than zero, all the records will be
+     * read in one shot, severily increasing the memory requirements to read a big number
+     * of features.
+     * @return
+     */
+    public int getFetchSize() {
+        return fetchSize;
+    }
+
+    /**
+     * Changes the fetch size.
+     * @param fetchSize
+     */
+    public void setFetchSize(int fetchSize) {
+        this.fetchSize = fetchSize;
+    }
 
     /**
      * The dialect the datastore uses to generate sql statements in order to
@@ -547,6 +572,12 @@ public final class JDBCDataStore extends ContentDataStore
 
         return state;
     }
+    
+    /**
+     * TODO: this must be removed and replaced by a more configurable 
+     * cache
+     */
+    List typeNameCache = null;
 
     /**
      * Generates the list of type names provided by the database.
@@ -554,7 +585,6 @@ public final class JDBCDataStore extends ContentDataStore
      * The list is generated from the underlying database metadata.
      * </p>
      */
-    List typeNameCache = null;
     protected List createTypeNames() throws IOException {
         if(typeNameCache != null)
             return typeNameCache;
@@ -1951,7 +1981,7 @@ public final class JDBCDataStore extends ContentDataStore
 
         LOGGER.fine( sql.toString() );
         PreparedStatement ps = cx.prepareStatement(sql.toString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        ps.setFetchSize(1000);
+        ps.setFetchSize(fetchSize);
         
         if ( toSQL != null ) {
             setPreparedFilterValues( ps, toSQL, 0, cx );
