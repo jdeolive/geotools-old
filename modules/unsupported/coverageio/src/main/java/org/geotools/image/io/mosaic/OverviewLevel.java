@@ -744,12 +744,15 @@ final class OverviewLevel implements Comparable<OverviewLevel>, Serializable {
     final long getTiles(final ArrayList<Tile> addTo, final Rectangle search,
             final Dimension subsampling, final long costLimit) throws IOException
     {
-        // Note: "atr" stands for "Absolute Tile Region".
         final Rectangle atr = toTileIndex(search);
         final int xmin = atr.x;
         final int ymin = atr.y;
         final int xmax = atr.width  + xmin;
         final int ymax = atr.height + ymin;
+        /*
+         * Recycles the rectangle created by toTileIndex. The "atr" name stands for "Absolute
+         * Tile Region". Width and height will not change anymore. X and y will be set later.
+         */
         atr.width  = dx * xSubsampling;
         atr.height = dy * ySubsampling;
         final int size = addTo.size();
@@ -775,9 +778,7 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
                  * of reading this tile and checks if reading a tile at a finer level would be
                  * cheaper.
                  */
-                atr.x = atr.width  * x;
-                atr.y = atr.height * y;
-                final long cost = tile.countUnwantedPixelsFromAbsolute(atr, subsampling);
+                final long cost = tile.countUnwantedPixelsFromAbsolute(search, subsampling);
                 if (cost != 0) {
                     totalCost += cost;
                     if (totalCost >= costLimit) {
@@ -794,6 +795,8 @@ nextTile:   for (int x=xmin; x<xmax; x++) {
                         addTo.subList(size, addTo.size()).clear();
                         return -1;
                     }
+                    atr.x = atr.width  * x;
+                    atr.y = atr.height * y;
                     assert atr.equals(tile.getAbsoluteRegion()) ||
                             !tile.getClass().equals(Tile.class) : atr;
                     OverviewLevel previous = this;
