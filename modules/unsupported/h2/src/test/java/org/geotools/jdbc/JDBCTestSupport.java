@@ -26,9 +26,15 @@ import junit.framework.TestCase;
 import junit.framework.TestResult;
 
 import org.geotools.feature.LenientFeatureFactoryImpl;
+import org.geotools.feature.NameImpl;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.filter.FilterFactoryImpl;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.AttributeType;
+import org.opengis.feature.type.Name;
 
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 
@@ -93,14 +99,6 @@ public abstract class JDBCTestSupport extends TestCase {
         }
     }
     
-    protected String tname( String raw ) {
-        return setup.typeName( raw );
-    }
-    
-    protected String aname( String raw ) {
-        return setup.attributeName( raw );
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
 
@@ -140,5 +138,75 @@ public abstract class JDBCTestSupport extends TestCase {
         dataStore.dispose();
         setup.tearDown();
         super.tearDown();
+    }
+    
+    /**
+     * Returns the table name as the datastore understands it (some datastore are incapable of supporting
+     * mixed case names for example)
+     */
+    protected String tname( String raw ) {
+        return setup.typeName( raw );
+    }
+    
+    /**
+     * Returns the attribute name as the datastore understands it (some datastore are incapable of supporting
+     * mixed case names for example)
+     */
+    protected String aname( String raw ) {
+        return setup.attributeName( raw );
+    }
+    
+    /**
+     * Returns the attribute name as the datastore understands it (some datastore are incapable of supporting
+     * mixed case names for example)
+     */
+    protected Name aname( Name raw ) {
+        return new NameImpl( raw.getNamespaceURI(), aname( raw.getLocalPart() ) );
+    }
+    
+    /**
+     * Checkes the two feature types are equal, taking into consideration the eventual modification
+     * the datastore had to perform in order to actually manage the type (change in names case, for example)
+     */
+    protected void assertFeatureTypesEqual(SimpleFeatureType expected, SimpleFeatureType actual) {
+        for (int i = 0; i < expected.getAttributeCount(); i++) {
+            AttributeDescriptor expectedAttribute = expected.getDescriptor(i);
+            AttributeDescriptor actualAttribute = actual.getDescriptor(i);
+
+            assertAttributesEqual(expectedAttribute,actualAttribute);
+        }
+
+        // make sure the geometry is nillable and has minOccurrs to 0
+        if(expected.getGeometryDescriptor() != null) {
+            AttributeDescriptor dg = actual.getGeometryDescriptor();
+            assertTrue(dg.isNillable());
+            assertEquals(0, dg.getMinOccurs());
+        }
+    }
+
+    /**
+     * Checkes the two feature types are equal, taking into consideration the eventual modification
+     * the datastore had to perform in order to actually manage the type (change in names case, for example)
+     */
+    protected void assertAttributesEqual(AttributeDescriptor expected, AttributeDescriptor actual) {
+        assertEquals(aname(expected.getName()), actual.getName());
+        assertEquals(expected.getMinOccurs(), actual.getMinOccurs());
+        assertEquals(expected.getMaxOccurs(), actual.getMaxOccurs());
+        assertEquals(expected.isNillable(), actual.isNillable());
+        assertEquals(expected.getDefaultValue(), actual.getDefaultValue());
+
+        AttributeType texpected = expected.getType();
+        AttributeType tactual = actual.getType();
+
+        if ( Number.class.isAssignableFrom( texpected.getBinding() ) ) {
+            assertTrue( Number.class.isAssignableFrom( tactual.getBinding() ) );
+        }
+        else if ( Geometry.class.isAssignableFrom( texpected.getBinding())) {
+            assertTrue( Geometry.class.isAssignableFrom( tactual.getBinding()));
+        }
+        else {
+            assertTrue(texpected.getBinding().isAssignableFrom(tactual.getBinding()));    
+        }
+        
     }
 }

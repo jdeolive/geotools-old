@@ -147,6 +147,11 @@ public final class JDBCDataStore extends ContentDataStore
      * is set.
      */
     protected static final String FEATURE_ASSOCIATION_TABLE = "feature_associations";
+    
+    /**
+     * The envelope returned when bounds is called against a geometryless feature type
+     */
+    protected static final ReferencedEnvelope EMPTY_ENVELOPE = new ReferencedEnvelope();  
 
     /**
      * data source
@@ -783,6 +788,10 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected ReferencedEnvelope getBounds(SimpleFeatureType featureType, /*Set types,*/ Filter filter,
         Connection cx) throws IOException {
+        
+        // handle geometryless case by returning an emtpy envelope
+        if(featureType.getGeometryDescriptor() == null)
+            return EMPTY_ENVELOPE;
         
         Statement st = null;
         ResultSet rs = null;

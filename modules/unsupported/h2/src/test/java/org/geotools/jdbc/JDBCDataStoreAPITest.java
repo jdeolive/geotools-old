@@ -148,10 +148,6 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         //assertEquals(expected, actual);
     }
 
-    Name aname( Name raw ) {
-        return new NameImpl( raw.getNamespaceURI(), aname( raw.getLocalPart() ) );
-    }
-    
     public void testGetSchemaRiver() throws IOException {
         SimpleFeatureType expected = td.riverType;
         SimpleFeatureType actual = dataStore.getSchema(tname("river"));
@@ -1266,42 +1262,6 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         i.close();
     }
 
-    void assertFeatureTypesEqual(SimpleFeatureType expected, SimpleFeatureType actual) {
-        for (int i = 0; i < expected.getAttributeCount(); i++) {
-            AttributeDescriptor expectedAttribute = expected.getDescriptor(i);
-            AttributeDescriptor actualAttribute = actual.getDescriptor(i);
-
-            assertAttributesEqual(expectedAttribute,actualAttribute);
-        }
-
-        // make sure the geometry is nillable and has minOccurrs to 0
-        AttributeDescriptor dg = actual.getGeometryDescriptor();
-        assertTrue(dg.isNillable());
-        assertEquals(0, dg.getMinOccurs());
-    }
-
-    void assertAttributesEqual(AttributeDescriptor expected, AttributeDescriptor actual) {
-        assertEquals(aname(expected.getName()), actual.getName());
-        assertEquals(expected.getMinOccurs(), actual.getMinOccurs());
-        assertEquals(expected.getMaxOccurs(), actual.getMaxOccurs());
-        assertEquals(expected.isNillable(), actual.isNillable());
-        assertEquals(expected.getDefaultValue(), actual.getDefaultValue());
-
-        AttributeType texpected = expected.getType();
-        AttributeType tactual = actual.getType();
-
-        if ( Number.class.isAssignableFrom( texpected.getBinding() ) ) {
-            assertTrue( Number.class.isAssignableFrom( tactual.getBinding() ) );
-        }
-        else if ( Geometry.class.isAssignableFrom( texpected.getBinding())) {
-            assertTrue( Geometry.class.isAssignableFrom( tactual.getBinding()));
-        }
-        else {
-            assertTrue(texpected.getBinding().isAssignableFrom(tactual.getBinding()));    
-        }
-        
-    }
-
     void assertContains(SimpleFeature[] array, SimpleFeature expected) {
         assertFalse(array == null);
         assertFalse(array.length == 0);
@@ -1340,7 +1300,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         return false;
     }
 
-     FeatureReader<SimpleFeatureType, SimpleFeature> reader(String typeName) throws IOException {
+    FeatureReader<SimpleFeatureType, SimpleFeature> reader(String typeName) throws IOException {
         return dataStore.getFeatureReader(new DefaultQuery(typeName, Filter.INCLUDE),
             Transaction.AUTO_COMMIT);
     }
