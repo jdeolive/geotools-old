@@ -346,7 +346,7 @@ public class XAffineTransform extends AffineTransform {
             shape = path;
             // TODO: use the line below instead of the above 3 lines when we will
             //       be allowed to compile for Java 6:
-//          shape = new Path2D.Double(shape, this);
+//          shape = new Path2D.Double(shape, transform);
         }
         return shape;
     }

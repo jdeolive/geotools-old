@@ -550,8 +550,9 @@ public class MetadataReader {
     }
 
     /**
-     * Convenience method returning the envelope in geographic coordinate system using WGS
-     * 1984 datum.
+     * Convenience method returning the envelope in geographic coordinate reference system.
+     * Note that the geographic CRS doesn't need to use the 1984 datum, since geographic
+     * bounding boxes are approximative.
      *
      * @throws MetadataException if the operation failed. This exception
      *         may contains a {@link TransformException} as its cause.

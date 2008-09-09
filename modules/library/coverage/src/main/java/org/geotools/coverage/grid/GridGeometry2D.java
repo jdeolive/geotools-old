@@ -270,9 +270,9 @@ public class GridGeometry2D extends GeneralGridGeometry {
      *
      * @since 2.5
      */
-    public GridGeometry2D(final GridEnvelope        gridRange,
-                          final PixelInCell         anchor,
-                          final MathTransform       gridToCRS,
+    public GridGeometry2D(final GridEnvelope  gridRange,
+                          final PixelInCell   anchor,
+                          final MathTransform gridToCRS,
                           final CoordinateReferenceSystem crs,
                           final Hints hints)
             throws MismatchedDimensionException, IllegalArgumentException

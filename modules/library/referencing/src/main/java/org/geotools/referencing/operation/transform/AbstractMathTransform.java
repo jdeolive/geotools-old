@@ -310,6 +310,8 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
      * @return The transformed geometric shape.
      * @throws MismatchedDimensionException if this transform doesn't is not two-dimensional.
      * @throws TransformException If a transformation failed.
+     *
+     * @todo Use double precision when we will be allowed to target Java 6.
      */
     final Shape createTransformedShape(final Shape           shape,
                                        final AffineTransform preTransform,
