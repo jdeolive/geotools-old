@@ -82,7 +82,7 @@ class JDBCAccessDB2 extends JDBCAccessBase {
         " = t." + config.getKeyAttributeNameInTileTable());
 
         String whereClause = "db2gse.st_mbrIntersects(s." + geomAttr + "," +
-            "db2gse.ST_GEOMETRY(CAST(? AS BLOB(128)),CAST(? AS INT))) = 1";
+            "db2gse.ST_GEOMETRY(CAST(? AS BLOB(128)),CAST(? AS INT))) = 1 SELECTIVITY 0.0000001";
 
         gridSelect = allSelect + " WHERE " + whereClause;
         gridSelectJoined = allSelectJoined + " AND " + whereClause;
