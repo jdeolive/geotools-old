@@ -62,12 +62,7 @@ com.mycompany.MyDatumFactory3</PRE></BLOCKQUOTE>
           are checked recursively.</P></LI>
 
       <LI><P><strong>Optionally</strong>, if no factory matches the given hints, a new instance can be
-          {@linkplain org.geotools.factory.FactoryCreator#createServiceProvider automatically created}.
-          However, those new instances are not registered. If creation of new instances at every
-          {@link org.geotools.factory.FactoryRegistry#getServiceProvider getServiceProvider(...)}
-          method invocation is undesired, an implementation matching the expected
-          {@linkplain org.geotools.factory.Hints hints} should be registered in the
-          {@code META-INF/services} directory, as explained above.</P></LI>
+          {@linkplain org.geotools.factory.FactoryCreator#createServiceProvider automatically created}.</P></LI>
     </UL>
 
     <P>Note that the {@linkplain org.geotools.factory.Hints hints}, if provided, don't need to apply
