@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2007-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@ import junit.framework.TestSuite;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
@@ -46,6 +47,7 @@ import org.geotools.referencing.factory.OrderedAxisAuthorityFactory;
  * @version $Id$
  * @author Jody Garnett
  * @author Martin Desruisseaux
+ * @author Andrea Aime
  */
 public class CRSTest extends TestCase {
     /**
@@ -204,10 +206,6 @@ public class CRSTest extends TestCase {
         assertTrue("WSG84 transformed to WSG84 should be Identity", tForce.isIdentity());
     }
 
-    // -------------------------------------------------------------------------
-    // The following tests are copied from the legacy plugin/epsg-wkt test suite
-    // -------------------------------------------------------------------------
-
     /**
      * Makes sure that the authority factory has the proper name.
      */
@@ -321,6 +319,32 @@ public class CRSTest extends TestCase {
     public void test4269Lower() throws FactoryException {
         CoordinateReferenceSystem crs = CRS.decode("epsg:4269");
         assertNotNull(crs);
+    }
+
+    /**
+     * Tests {@link CRS#getHorizontalCRS} from a compound CRS.
+     */
+    public void testHorizontalFromCompound() throws FactoryException {
+        // retrives "NTF (Paris) / France II + NGF Lallemand"
+        CoordinateReferenceSystem compound = CRS.decode("EPSG:7401");
+        CoordinateReferenceSystem horizontal = CRS.getHorizontalCRS(compound);
+        // compares with "NTF (Paris) / France II"
+        assertEquals(CRS.decode("EPSG:27582"), horizontal);
+    }
+
+    /**
+     * Tests {@link CRS#getHorizontalCRS} from a Geographic 3D CR.
+     */
+    public void testHorizontalFromGeodetic() throws FactoryException {
+        // retrives "WGS 84 (geographic 3D)"
+        CoordinateReferenceSystem compound = CRS.decode("EPSG:4327");
+        CoordinateReferenceSystem horizontal = CRS.getHorizontalCRS(compound);
+        // the horizonal version is basically 4326, but it won't compare positively
+        // with 4326, not even using CRS.equalsIgnoreMetadata(), so we check the axis directly
+        CoordinateSystem cs = horizontal.getCoordinateSystem();
+        assertEquals(2, cs.getDimension());
+        assertEquals(AxisDirection.NORTH, cs.getAxis(0).getDirection());
+        assertEquals(AxisDirection.EAST, cs.getAxis(1).getDirection());
     }
 
     /**
