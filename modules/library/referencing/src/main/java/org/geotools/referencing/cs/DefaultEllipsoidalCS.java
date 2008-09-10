@@ -60,8 +60,8 @@ public class DefaultEllipsoidalCS extends AbstractCS implements EllipsoidalCS {
 
     /**
      * A two-dimensional ellipsoidal CS with
-     * <var>{@linkplain DefaultCoordinateSystemAxis#GEODETIC_LONGITUDE longitude}</var>,
-     * <var>{@linkplain DefaultCoordinateSystemAxis#GEODETIC_LATITUDE latitude}</var>
+     * <var>{@linkplain DefaultCoordinateSystemAxis#GEODETIC_LONGITUDE geodetic longitude}</var>,
+     * <var>{@linkplain DefaultCoordinateSystemAxis#GEODETIC_LATITUDE geodetic latitude}</var>
      * axis in decimal degrees.
      */
     public static DefaultEllipsoidalCS GEODETIC_2D = new DefaultEllipsoidalCS(
@@ -71,9 +71,9 @@ public class DefaultEllipsoidalCS extends AbstractCS implements EllipsoidalCS {
 
     /**
      * A three-dimensional ellipsoidal CS with
-     * <var>{@linkplain DefaultCoordinateSystemAxis#GEODETIC_LONGITUDE longitude}</var>,
-     * <var>{@linkplain DefaultCoordinateSystemAxis#GEODETIC_LATITUDE latitude}</var>,
-     * <var>{@linkplain DefaultCoordinateSystemAxis#ELLIPSOIDAL_HEIGHT height}</var>
+     * <var>{@linkplain DefaultCoordinateSystemAxis#GEODETIC_LONGITUDE geodetic longitude}</var>,
+     * <var>{@linkplain DefaultCoordinateSystemAxis#GEODETIC_LATITUDE geodetic latitude}</var>,
+     * <var>{@linkplain DefaultCoordinateSystemAxis#ELLIPSOIDAL_HEIGHT ellipsoidal height}</var>
      * axis.
      */
     public static DefaultEllipsoidalCS GEODETIC_3D = new DefaultEllipsoidalCS(

@@ -16,13 +16,16 @@
  */
 package org.geotools.resources;
 
+import java.util.Map;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Collections;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import javax.measure.unit.Unit;
 
+import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.SingleCRS;
 import org.opengis.referencing.crs.CompoundCRS;
@@ -47,7 +50,6 @@ import org.geotools.measure.Latitude;
 import org.geotools.measure.Longitude;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultEllipsoidalCS;
 import org.geotools.referencing.datum.DefaultGeodeticDatum;
@@ -249,6 +251,57 @@ public final class CRSUtilities {
             }
         }
         return crs;
+    }
+
+    /**
+     * Changes the dimension declared in the name. For example if {@code name} is
+     * "WGS 84 (geographic 3D)", {@code search} is "3D" and {@code replace} is "2D",
+     * then this method returns "WGS 84 (geographic 2D)". If the string to search is
+     * not found, then it is concatenated to the name.
+     *
+     * @param object The identified object having the original name.
+     * @param search The dimension token to search in the {@code object} name.
+     * @param replace The new token to substitute to the one we were looking for.
+     * @return The name with the substitution performed.
+     *
+     * @since 2.6
+     */
+    public static Map<String,?> changeDimensionInName(final IdentifiedObject object,
+            final String search, final String replace)
+    {
+        final StringBuilder name = new StringBuilder(object.getName().getCode());
+        final int last = name.length() - search.length();
+        boolean append = true;
+        for (int i=name.lastIndexOf(search); i>=0; i=name.lastIndexOf(search, i-1)) {
+            if (i != 0 && Character.isLetterOrDigit(name.charAt(i-1))) {
+                continue;
+            }
+            if (i != last && Character.isLetterOrDigit(i + search.length())) {
+                continue;
+            }
+            name.replace(i, i+search.length(), replace);
+            i = name.indexOf(". ", i);
+            if (i >= 0) {
+                /*
+                 * Stops the sentence after the dimension, since it may contains details that
+                 * are not applicable anymore. For example the EPSG name for 3D EllipsoidalCS is:
+                 *
+                 *     Ellipsoidal 3D CS. Axes: latitude, longitude, ellipsoidal height.
+                 *     Orientations: north, east, up.  UoM: DMSH, DMSH, m.
+                 */
+                name.setLength(i+1);
+            }
+            append = false;
+            break;
+        }
+        if (append) {
+            if (name.indexOf(" ") >= 0) {
+                name.append(" (").append(replace).append(')');
+            } else {
+                name.append('_').append(replace);
+            }
+        }
+        return Collections.singletonMap(IdentifiedObject.NAME_KEY, name.toString());
     }
 
     /**
