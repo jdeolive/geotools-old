@@ -237,7 +237,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         Set fidsToRemove = new HashSet(mfids.getCreated());
         fidsToRemove.removeAll(mfids.getDeleted());
         if (!fidsToRemove.isEmpty())
-            removeFeatures(store.buildFidFilter(ff, fidsToRemove));
+            removeFeatures(store.buildFidFilter(fidsToRemove));
 
         // reinstate all features that were there before toVersion and that
         // have been deleted after it. Notice this is an insertion, so to preserve
@@ -250,7 +250,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
             long revision = store.wrapped.getVersionedJdbcTransactionState(getTransaction())
                     .getRevision();
             Filter recreateFilter = store.buildVersionedFilter(schema.getTypeName(), store
-                    .buildFidFilter(ff, fidsToRecreate), new RevisionInfo(toVersion));
+                    .buildFidFilter(fidsToRecreate), mfids.fromRevision);
             FeatureReader<SimpleFeatureType, SimpleFeature> fr = null;
             FeatureWriter<SimpleFeatureType, SimpleFeature> fw = null;
             try {
@@ -285,7 +285,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         // Here it's possible to work against the external API, thought it would be more
         // efficient (but more complex) to work against the wrapped one.
         if (!mfids.getModified().isEmpty()) {
-            Filter modifiedIdFilter = store.buildFidFilter(ff, mfids.getModified());
+            Filter modifiedIdFilter = store.buildFidFilter(mfids.getModified());
             Filter mifCurrent = store.buildVersionedFilter(schema.getTypeName(), modifiedIdFilter,
                     new RevisionInfo());
              FeatureReader<SimpleFeatureType, SimpleFeature> fr = null;
@@ -297,9 +297,9 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
                     Filter currIdFilter = ff.id(Collections
                             .singleton(ff.featureId(current.getID())));
                     Filter cidToVersion = store.buildVersionedFilter(schema.getTypeName(),
-                            currIdFilter, new RevisionInfo(toVersion));
+                            currIdFilter, mfids.fromRevision);
                     DefaultQuery q = new DefaultQuery(schema.getTypeName(), cidToVersion);
-                    q.setVersion(toVersion);
+                    q.setVersion(mfids.fromRevision.toString());
                     fr = store.getFeatureReader(q, getTransaction());
                     SimpleFeature original = fr.next();
                     for (int i = 0; i < original.getFeatureType().getAttributeCount(); i++) {
@@ -348,6 +348,10 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         Set ids = new HashSet(mfids.getCreated());
         ids.addAll(mfids.getDeleted());
         ids.addAll(mfids.getModified());
+        
+        // grab the eventually modified revisions from mfids
+        r1 = mfids.fromRevision;
+        r2 = mfids.toRevision;
 
         // no changes?
         if (ids.isEmpty())
@@ -357,7 +361,7 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         // (revision > r1 and revision <= r2) or (expired > r1 and expired <= r2) and fid in
         // (fidlist)
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-        Filter fidFilter = store.buildFidFilter(ff, ids);
+        Filter fidFilter = store.buildFidFilter(ids);
         Filter transformedFidFilter = store.transformFidFilter(schema.getTypeName(), fidFilter);
         Filter revGrR1 = ff.greater(ff.property("revision"), ff.literal(r1.revision));
         Filter revLeR2 = ff.lessOrEqual(ff.property("revision"), ff.literal(r2.revision));

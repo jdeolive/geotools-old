@@ -69,7 +69,6 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -77,8 +76,9 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
@@ -143,6 +143,11 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
      * increase speed since isVersioned() check is required in every other public API)
      */
     protected Map versionedMap = new HashMap();
+    
+    /**
+     * The filter factory used for all filter operations
+     */
+    protected FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
 
     /** Manages listener lists for FeatureSource<SimpleFeatureType, SimpleFeature> implementations */
     protected FeatureListenerManager listenerManager = new FeatureListenerManager();
@@ -551,7 +556,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
      * <ul>
      * <li>A feature is said to have been modified between version1 and version2 if a new state of
      * it has been created after version1 and before or at version2 (included), or if it has been
-     * deleted between version1 and version2 (included).</li>
+     * deleted between version1 (excluded) and version2 (included).</li>
      * <li>Filter is used to match every state between version1 and version2, so all new states
      * after version1, but also the states existent at version1 provided they existed also at
      * version1 + 1.</li>
@@ -618,6 +623,15 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             r2 = tmp;
         }
         
+        // gather the minimum revision at which it makes sense to check for changes
+        // then check if it makes sense to have any result, and limit the minimum rev
+        // to avoid picking up the changeset where the feature type was revision enabled
+        long baseRevision = getBaseRevision(typeName, transaction);
+        if(baseRevision > r2.revision)
+            return new ModifiedFeatureIds(r1, r2); 
+        if(baseRevision > r1.revision)
+            r1.revision = baseRevision;
+        
         // gather revisions where the specified users were involved... that would be
         // a job for joins, but I don't want to make this code datastore dependent, so
         // far this one is relatively easy to port over to other dbms, I would like it
@@ -629,7 +643,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         // select rowId, revisionCreated, [columnsForSecondaryFilter]
         // from data
         // where (
-        // (revision <= r1 and expired >= r1 and expired <= r2)
+        // (revision < r1 and expired >= r1 and expired <= r2)
         // or
         // (revision > r1 and revision <= r2)
         // )
@@ -642,7 +656,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         // allow us to conclude that a feature has been created after r1 only because
         // the smallest revision attribute with find is > r1. There may be a feature
         // that was already there, but that matches the filter only after r1.
-        // A second query, fid filter based, is required to decide wheter a feature
+        // A second query, fid filter based, is required to decide whether a feature
         // has really come to live after r1.
         // The same goes for deletion, the may be a feature that matches the filter
         // only before r2, and does not match it in the state laying across r2 (if there
@@ -666,13 +680,17 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         columns.add("expired");
 
         // build a filter to extract stuff modified between r1 and r2 and matching the prefilter
-        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
         Filter revLeR1 = ff.lessOrEqual(ff.property("revision"), ff.literal(r1.revision));
         Filter expGeR1 = ff.greaterOrEqual(ff.property("expired"), ff.literal(r1.revision));
         Filter expLeR2 = ff.lessOrEqual(ff.property("expired"), ff.literal(r2.revision));
+        Filter expLtR2 = ff.less(ff.property("expired"), ff.literal(r2.revision));
         Filter revGtR1 = ff.greater(ff.property("revision"), ff.literal(r1.revision));
         Filter revLeR2 = ff.lessOrEqual(ff.property("revision"), ff.literal(r2.revision));
-        Filter versionFilter = ff.or(ff.and(revLeR1, ff.and(expGeR1, expLeR2)), ff.and(revGtR1,
+        Filter versionFilter;
+        if(r2.isLast())
+            versionFilter = ff.or(ff.and(revLeR1, ff.and(expGeR1, expLtR2)), revGtR1);
+        else
+            versionFilter = ff.or(ff.and(revLeR1, ff.and(expGeR1, expLeR2)), ff.and(revGtR1,
                 revLeR2));
         // ... merge in the prefilter
         Filter newFilter = null;
@@ -741,7 +759,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             Set created = new HashSet(matched);
             created.removeAll(createdBefore);
             if (!created.isEmpty()) {
-                Filter r1FidFilter = buildFidFilter(ff, created);
+                Filter r1FidFilter = buildFidFilter(created);
                 Filter r1Filter = buildVersionedFilter(typeName, r1FidFilter, r1);
                 DefaultQuery r1q = new DefaultQuery(typeName, r1Filter, colArray);
                 fr = wrapped.getFeatureReader(r1q, transaction);
@@ -758,7 +776,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             Set deleted = new HashSet(matched);
             deleted.removeAll(expiredAfter);
             if (!deleted.isEmpty()) {
-                Filter r2FidFilter = buildFidFilter(ff, deleted);
+                Filter r2FidFilter = buildFidFilter(deleted);
                 Filter r2Filter = buildVersionedFilter(typeName, r2FidFilter, r2);
                 DefaultQuery r2q = new DefaultQuery(typeName, r2Filter, colArray);
                 fr = wrapped.getFeatureReader(r2q, transaction);
@@ -797,7 +815,6 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         if(users == null || users.length == 0)
             return null;
         
-        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
         List filters = new ArrayList(users.length);
         for (int i = 0; i < users.length; i++) {
             filters.add(ff.equals(ff.property("author"), ff.literal(users[i])));
@@ -823,6 +840,27 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
         }
         return revisions;
     }
+    
+    /**
+     * Returns the base revision for the specified feature type.<p>
+     * The base revision is the revision at which the feature type has been version enabled.
+     * returned) 
+     * @param typeName
+     * @return
+     */
+    long getBaseRevision(String typeName, Transaction transaction) throws IOException {
+        DefaultQuery q = new DefaultQuery(typeName);
+        q.setPropertyNames(new String[] {REVISION});
+        q.setSortBy(new org.opengis.filter.sort.SortBy[] { ff.sort(REVISION, SortOrder.ASCENDING) });
+        q.setMaxFeatures(1);
+        FeatureReader<SimpleFeatureType, SimpleFeature> fr = null;
+        try {
+            fr = wrapped.getFeatureReader(q, transaction);
+            return (Long) fr.next().getAttribute(REVISION);
+        } finally {
+            if(fr != null) fr.close();
+        }
+    }
 
     /**
      * Builds a filter from a set of feature ids, since there is no convenient way to build it using
@@ -832,7 +870,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
      * @param ids
      * @return
      */
-    Filter buildFidFilter(FilterFactory ff, Set ids) {
+    Filter buildFidFilter(Set ids) {
         Set featureIds = new HashSet();
         for (Iterator it = ids.iterator(); it.hasNext();) {
             String id = (String) it.next();
@@ -1433,7 +1471,6 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             throws IOException {
         // build extra filter we need to append to query in order to retrieve
         // the desired revision
-        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
         Filter extraFilter = null;
         if (ri.isLast()) {
             // expired = Long.MAX_VALUE
@@ -1480,8 +1517,7 @@ public class VersionedPostgisDataStore implements VersioningDataStore {
             featureTypeName = getVFCTableName(featureTypeName);
         SimpleFeatureType featureType = wrapped.getSchema(featureTypeName);
         VersionedFIDMapper mapper = (VersionedFIDMapper) wrapped.getFIDMapper(featureTypeName);
-        FidTransformeVisitor transformer = new FidTransformeVisitor(FilterFactoryFinder
-                .createFilterFactory(), featureType, mapper);
+        FidTransformeVisitor transformer = new FidTransformeVisitor(ff, featureType, mapper);
         
         Filter clone = (Filter) filter.accept(transformer, null);
         return clone;

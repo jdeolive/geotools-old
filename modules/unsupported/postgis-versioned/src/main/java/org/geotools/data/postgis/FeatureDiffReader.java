@@ -109,14 +109,17 @@ public class FeatureDiffReader {
 
         // TODO: extract only pk attributes for the delete reader, no need for the others
         if (fromVersion.revision > toVersion.revision) {
-            createdReader = readerFromIdsRevision(ff, null, modifiedIds.deleted, toVersion);
-            deletedReader = readerFromIdsRevision(ff, null, modifiedIds.created, fromVersion);
+            createdReader = readerFromIdsRevision(ff, null, modifiedIds.deleted, modifiedIds.fromRevision);
+            deletedReader = readerFromIdsRevision(ff, null, modifiedIds.created, modifiedIds.toRevision);
+            fvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, modifiedIds.toRevision);
+            tvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, modifiedIds.fromRevision);
         } else {
-            createdReader = readerFromIdsRevision(ff, null, modifiedIds.created, toVersion);
-            deletedReader = readerFromIdsRevision(ff, null, modifiedIds.deleted, fromVersion);
+            createdReader = readerFromIdsRevision(ff, null, modifiedIds.created, modifiedIds.toRevision);
+            deletedReader = readerFromIdsRevision(ff, null, modifiedIds.deleted, modifiedIds.fromRevision);
+            fvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, modifiedIds.fromRevision);
+            tvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, modifiedIds.toRevision);
         }
-        fvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, fromVersion);
-        tvReader = readerFromIdsRevision(ff, mapper, modifiedIds.modified, toVersion);
+        
     }
 
     /**
@@ -131,7 +134,7 @@ public class FeatureDiffReader {
      FeatureReader<SimpleFeatureType, SimpleFeature> readerFromIdsRevision(FilterFactory ff, VersionedFIDMapper mapper, Set fids,
             RevisionInfo ri) throws IOException {
         if (fids != null && !fids.isEmpty()) {
-            Filter fidFilter = store.buildFidFilter(ff, fids);
+            Filter fidFilter = store.buildFidFilter(fids);
             Filter versionFilter = store.buildVersionedFilter(externalFeatureType.getTypeName(),
                     fidFilter, ri);
             DefaultQuery query = new DefaultQuery(externalFeatureType.getTypeName(), versionFilter);
