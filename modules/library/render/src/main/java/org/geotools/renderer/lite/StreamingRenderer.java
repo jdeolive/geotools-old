@@ -1446,7 +1446,12 @@ public final class StreamingRenderer implements GTRenderer {
         // The correct value is in sourceCrs.
 
         // this is the reader's CRS
-        CoordinateReferenceSystem rCS = features.getSchema().getGeometryDescriptor().getType().getCoordinateReferenceSystem();
+        CoordinateReferenceSystem rCS = null;
+        try {
+            features.getSchema().getGeometryDescriptor().getType().getCoordinateReferenceSystem();
+        } catch(NullPointerException e) {
+            // life sucks sometimes
+        }
 
         // sourceCrs == source's real SRS
         // if we need to recode the incoming geometries
@@ -1609,6 +1614,8 @@ public final class StreamingRenderer implements GTRenderer {
             if( collection instanceof FeatureCollection ){
                 FeatureCollection resource = (FeatureCollection ) collection;
                 resource.close( iterator );
+            } else if(features != null) {
+                features.close( iterator );
             }
 		}
 		// have to re-form the image now.
