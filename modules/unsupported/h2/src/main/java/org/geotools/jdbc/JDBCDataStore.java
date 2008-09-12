@@ -454,13 +454,9 @@ public final class JDBCDataStore extends ContentDataStore
             closeSafe(cx);
         }
 
-        //create a content entry for the type
+        // create a content entry for the type
         ContentEntry entry = new ContentEntry(this, featureType.getName());
 
-        //cache the feature type
-        entry.getState(Transaction.AUTO_COMMIT).setFeatureType(featureType);
-        entries.put(entry.getName(), entry);
-        
         typeNameCache = null;
     }
 
@@ -818,7 +814,9 @@ public final class JDBCDataStore extends ContentDataStore
                     bounds = (ReferencedEnvelope) e;
                 } else {
                     //set the crs to be the crs of the feature type
-                    bounds = new ReferencedEnvelope(e, featureType.getCoordinateReferenceSystem());
+                    // grab the 2d part of the crs 
+                    CoordinateReferenceSystem flatCRS = CRS.getHorizontalCRS(featureType.getCoordinateReferenceSystem());
+                    bounds = new ReferencedEnvelope(e, flatCRS);
                 }
 
                 //keep going to handle case where envelope is not calculated
@@ -2333,7 +2331,7 @@ public final class JDBCDataStore extends ContentDataStore
      * Generates a 'INSERT INFO' prepared statement.
      */
     protected PreparedStatement insertSQLPS(SimpleFeatureType featureType, SimpleFeature feature, List keyValues, Connection cx) 
-        throws IOException, SQLException { 
+        throws IOException, SQLException {
         StringBuffer sql = new StringBuffer();
         sql.append("INSERT INTO ");
         encodeTableName(featureType.getTypeName(), sql);

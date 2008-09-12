@@ -43,7 +43,6 @@ import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
-import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.function.FilterFunction_geometryType;
@@ -55,29 +54,15 @@ import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.spatial.BBOX;
-import org.opengis.filter.spatial.Contains;
-import org.opengis.filter.spatial.Crosses;
-import org.opengis.filter.spatial.Disjoint;
-import org.opengis.filter.spatial.Equals;
-import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.spatial.Touches;
-import org.opengis.filter.spatial.Within;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 
 
 public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {

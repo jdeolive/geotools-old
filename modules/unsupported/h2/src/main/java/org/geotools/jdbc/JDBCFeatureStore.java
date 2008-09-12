@@ -39,6 +39,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
 import org.opengis.feature.Association;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -383,13 +384,15 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
         Filter[] split = splitFilter( query.getFilter() );
         Filter preFilter = split[0];
         Filter postFilter = split[1];
-
+        
         try {
             if ((postFilter != null) && (postFilter != Filter.INCLUDE)) {
                 //calculate manually, dont use datastore optimization
                 getDataStore().getLogger().fine("Calculating bounds manually");
 
-                ReferencedEnvelope bounds = new ReferencedEnvelope(getSchema().getCoordinateReferenceSystem());
+                // grab the 2d part of the crs 
+                CoordinateReferenceSystem flatCRS = CRS.getHorizontalCRS(getSchema().getCoordinateReferenceSystem());
+                ReferencedEnvelope bounds = new ReferencedEnvelope(flatCRS);
 
                 //grab a reader
                  FeatureReader<SimpleFeatureType, SimpleFeature> i = getReader(postFilter);
