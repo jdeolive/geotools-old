@@ -2274,7 +2274,7 @@ public final class StreamingRenderer implements GTRenderer {
 							destinationCrs))
 						transform = null;
 					else
-						transform = (MathTransform2D) CRS.findMathTransform(sa.crs, destinationCrs);
+						transform = (MathTransform2D) CRS.findMathTransform(sa.crs, destinationCrs, true);
 					if (transform != null && !transform.isIdentity()) {
 						transform = (MathTransform2D) ConcatenatedTransform
 								.create(transform, ProjectiveTransform
