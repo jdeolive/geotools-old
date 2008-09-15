@@ -2240,7 +2240,7 @@ public final class StreamingRenderer implements GTRenderer {
 		private List shapes = new ArrayList();
 		private boolean multiLayerRendering;
 		private boolean clone;
-		private HashMap decimators = new HashMap();
+		private IdentityHashMap decimators = new IdentityHashMap();
 		
 		public RenderableFeature(boolean multiLayerRendering) {
 			this.multiLayerRendering = multiLayerRendering;
