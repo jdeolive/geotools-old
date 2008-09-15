@@ -39,10 +39,13 @@ import org.opengis.filter.identity.FeatureId;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -256,10 +259,16 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
         
         return polygon;
     }
-    
-    public MultiPoint buildMultyPoint(int pointNode) throws CQLException {
 
-        // retrieves all points from stack and create the multipoint geometry
+    /**
+     * Retrieves all points built in previous parsing process from stack and 
+     * creates the multipoint geometry.
+     * 
+     * @param pointNode
+     * @return a MultiPoint
+     * @throws CQLException
+     */
+    public MultiPoint buildMultiPoint(int pointNode) throws CQLException {
 
         List<Geometry> pointList = popGeometry(pointNode);
         
@@ -267,8 +276,88 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
         Point[] arrayOfPoint = pointList.toArray(new Point[pointListSize]) ;
         
         MultiPoint multiPoint= this.GEOM_FACTORY.createMultiPoint(arrayOfPoint);
+
         return multiPoint;
     }
+
+    /**
+     * Retrieves all linestring built from stack and creates the multilinestring geometry
+     * @param pointNode
+     * @return a MultiLineString
+     * 
+     * @throws CQLException 
+¡    */
+    public MultiLineString buildMultiLineString(final int linestringtextNode) throws CQLException {
+
+        List<Geometry> lineList = popGeometry(linestringtextNode);
+
+        LineString[] lineStrings = lineList.toArray(new LineString[lineList.size()]) ;
+        
+        MultiLineString multiLineString= this.GEOM_FACTORY.createMultiLineString(lineStrings);
+ 
+        return multiLineString;
+    }
+
+    /**
+     * Builds a multipolygon using the polygon staked in the parsing process
+     * @param polygontextNode.
+     * 
+     * @return MultiPolygon
+     * @throws CQLException 
+     */
+    public MultiPolygon buildMultiPolygon(final int polygontextNode) throws CQLException {
+        
+        List<Geometry> polygonList = popGeometry(polygontextNode);
+
+        Polygon[] polygons = polygonList.toArray(new Polygon[polygonList.size()]) ;
+        
+        MultiPolygon multiPolygon= this.GEOM_FACTORY.createMultiPolygon(polygons);
+ 
+        return multiPolygon;
+    }
+    /**
+     * 
+     * @param jjtgeometryliteral
+     * @return GeometryCollection Literal
+     * @throws CQLException 
+     */
+    public GeometryCollection buildGeometryCollection(final int jjtgeometryliteral) throws CQLException {
+
+        List<Geometry> geometryList = popGeometryLiteral(jjtgeometryliteral);
+
+        Geometry[] geometries = geometryList.toArray(new Geometry[geometryList.size()]) ;
+        
+        GeometryCollection geometryCollection= this.GEOM_FACTORY.createGeometryCollection(geometries);
+        
+        return geometryCollection;
+    }
+    
+    /**
+     * Pop the indeed geometry and order the result before delivery the list
+     * 
+     * @param geometryNode geometry required
+     * @return a list of indeed geometries 
+     * @throws CQLException
+     */
+    private List<Geometry> popGeometryLiteral(final int geometryNode) throws CQLException{
+
+        List<Geometry> geomList = new LinkedList<Geometry>();
+        while( !getResultStack().empty() ) {
+            
+            Result result = getResultStack().peek();
+            if(result.getNodeType() != geometryNode){
+                break;
+            }
+            getResultStack().popResult();
+            
+            Literal geometry = (Literal)result.getBuilt();
+            geomList.add((Geometry) geometry.getValue());
+        }
+        Collections.reverse(geomList);
+
+        return geomList;
+    }
+
     /**
      * Pop the indeed geometry and order the result before delivery the list
      * 
@@ -344,6 +433,11 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
         
         return literal;
     }
+
+    public Literal buildGeometryLiteral() throws CQLException {
+        return getResultStack().popLiteral();
+    }
+
 
 
     

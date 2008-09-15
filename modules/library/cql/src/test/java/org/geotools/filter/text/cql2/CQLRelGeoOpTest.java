@@ -124,7 +124,7 @@ public class CQLRelGeoOpTest {
 
 
     @Test
-    public final void getSyntaxErrorMessage() {
+    public final void syntaxErrorMessage() {
 
         try {
             // must be WITHIN

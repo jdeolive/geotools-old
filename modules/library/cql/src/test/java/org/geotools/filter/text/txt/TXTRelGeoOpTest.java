@@ -113,7 +113,7 @@ public class TXTRelGeoOpTest extends CQLRelGeoOpTest {
         assertEqualsGeometries(strGeomExpected, actualGeometry);
     }
 
-    @Test //FIXME fail
+    @Test 
     public void dwithinMultipoint() throws Exception {
         Filter resultFilter;
 
@@ -135,7 +135,51 @@ public class TXTRelGeoOpTest extends CQLRelGeoOpTest {
         Expression actualGeometry = filter.getExpression2();
         assertEqualsGeometries(jtsExpected, actualGeometry);
     }
+    
+    @Test 
+    public void dwithinMultiLine() throws Exception {
+        Filter resultFilter;
 
+        final String propExpected = "ATTR1";
+        final String expectedGeometry = "MULTILINESTRING ((20 20, 90 20, 170 20), (90 20, 90 80, 90 140))";
+        resultFilter = CompilerUtil.parseFilter(language,
+                "DWITHIN("+propExpected+", " + expectedGeometry+", 10, kilometers)" );
+
+        Assert.assertTrue("DistanceBufferOperator filter was expected",
+                resultFilter instanceof DWithin);
+
+        DistanceBufferOperator filter = (DWithin) resultFilter;
+        Expression property = filter.getExpression1();
+
+        Assert.assertEquals(propExpected, property.toString());
+
+        Expression actualGeometry = filter.getExpression2();
+        assertEqualsGeometries(expectedGeometry, actualGeometry);
+    }
+
+    
+    @Test 
+    public void dwithinMultiPolygon() throws Exception {
+        Filter resultFilter;
+
+        final String propExpected = "ATTR1";
+        final String expectedGeometry = "MULTIPOLYGON (((80 40, 120 40, 120 80, 80 80, 80 40)), ((120 80, 160 80, 160 120, 120 120, 120 80)), ((80 120, 120 120, 120 160, 80 160, 80 120)), ((40 80, 80 80, 80 120, 40 120, 40 80)))";
+        resultFilter = CompilerUtil.parseFilter(language,
+                "DWITHIN("+propExpected+", " + expectedGeometry+", 10, kilometers)" );
+
+        Assert.assertTrue("DistanceBufferOperator filter was expected",
+                resultFilter instanceof DWithin);
+
+        DistanceBufferOperator filter = (DWithin) resultFilter;
+        Expression property = filter.getExpression1();
+
+        Assert.assertEquals(propExpected, property.toString());
+
+        Expression actualGeometry = filter.getExpression2();
+        assertEqualsGeometries(expectedGeometry, actualGeometry);
+    }
+
+    
     private void assertEqualsGeometries(final String strGeomExpected,
             final Expression actualGeometry)throws Exception {
 
@@ -145,8 +189,4 @@ public class TXTRelGeoOpTest extends CQLRelGeoOpTest {
         Assert.assertEquals(LiteralGeomExpected, actualGeometry);
 
     }
-    //TODO test for MULTILINESTRING ((20 20, 90 20, 170 20), (90 20, 90 80, 90 140))
-    
-    //TODO test for MULTIPOLYGON (((80 40, 120 40, 120 80, 80 80, 80 40)), ((120 80, 160 80, 160 120, 120 120, 120 80)), ((80 120, 120 120, 120 160, 80 160, 80 120)), ((40 80, 80 80, 80 120, 40 120, 40 80)))
-    
 }

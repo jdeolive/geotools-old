@@ -549,7 +549,7 @@ void DistanceUnits() #DistanceUnits_Node:
  * 	| <GeometryCollection Tagged Text>
  *	| <Envelope Tagged Text>
  */
-void GeometryLiteral() #void:
+void GeometryLiteral() #GeometryLiteral:
 {}
 {
   PointTaggedText() |
@@ -1038,14 +1038,14 @@ void MultiPointText() #MultiPointText_Node:
 void MultiLineStringTaggedText() #WKTNode:
 {}
 {
-  jjtThis.token = <MULTILINESTRING> MultiLineStringText()
+  <MULTILINESTRING> MultiLineStringText()
 }
 /*
  * <MultiLineString Text> := 
  *		EMPTY
  * 		| ( <LineString Text > {, < LineString Text > }* )
  */
-void MultiLineStringText() #void:
+void MultiLineStringText() #MultiLineStringText_Node:
 {}
 {
 	( <LP> LineStringText() (<COMMA> LineStringText())* <RP> )?
@@ -1056,13 +1056,13 @@ void MultiLineStringText() #void:
 void MultiPolygonTaggedText() #WKTNode:
 {}
 {
-  jjtThis.token = <MULTIPOLYGON> MultiPolygonText()
+  <MULTIPOLYGON> MultiPolygonText()
 }
 /*
  * <MultiPolygon Text> := EMPTY
  * 	| <left paren><Polygon Text>{<comma><Polygon Text>}* <right paren>
  */
-void MultiPolygonText() #void:
+void MultiPolygonText() #MultiPolygonText_Node:
 {}
 {
 	( <LP> PolygonText() ( <COMMA> PolygonText() )* <RP> )?
@@ -1071,14 +1071,14 @@ void MultiPolygonText() #void:
 void GeometryCollectionTaggedText() #WKTNode:
 {}
 {
-  jjtThis.token = <GEOMETRYCOLLECTION> GeometryCollectionText()
+  <GEOMETRYCOLLECTION> GeometryCollectionText()
 }
 
 /*
  * <GeometryCollection Text> := EMPTY
  * | ( <Geometry Tagged Text> {, <Geometry Tagged Text> }* )
  */
- void GeometryCollectionText() #void:
+ void GeometryCollectionText() #GeometryCollectionText_Node:
  {}
  {
  	( <LP> GeometryLiteral() ( <COMMA> GeometryLiteral() )* <RP>)?

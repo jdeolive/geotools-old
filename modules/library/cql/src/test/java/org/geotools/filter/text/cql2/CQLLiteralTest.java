@@ -89,7 +89,7 @@ public class CQLLiteralTest {
         Assert.assertNotNull(geom.getValue());
         Assert.assertTrue(geom.getValue() instanceof com.vividsolutions.jts.geom.LineString);
 
-        // Poligon
+        // Polygon
         result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
                 "CROSS(ATTR1, POLYGON((1 2, 15 2, 15 20, 15 21, 1 2)))");
 
@@ -125,15 +125,6 @@ public class CQLLiteralTest {
         Assert.assertNotNull(geom.getValue());
         Assert.assertTrue(geom.getValue() instanceof com.vividsolutions.jts.geom.MultiPolygon);
 
-        // GEOMETRYCOLLECTION
-        result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
-                "CROSS(ATTR1, GEOMETRYCOLLECTION (POINT (10 10),POINT (30 30),LINESTRING (15 15, 20 20)) )");
-
-        geom = (Literal) result.getExpression2();
-
-        Assert.assertNotNull(geom.getValue());
-        Assert.assertTrue(geom.getValue() instanceof com.vividsolutions.jts.geom.GeometryCollection);
-
         // ENVELOPE
         result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
                 "CROSS(ATTR1, ENVELOPE( 10, 20, 30, 40) )");
@@ -143,16 +134,32 @@ public class CQLLiteralTest {
         Assert.assertNotNull(geom.getValue());
         Assert.assertTrue(geom.getValue() instanceof com.vividsolutions.jts.geom.Polygon);
     }
+    
+    @Test
+    public void geometryCollection()throws Exception{
+
+        // GEOMETRYCOLLECTION
+        Filter result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
+                "CROSS(ATTR1, GEOMETRYCOLLECTION (POINT (10 10),POINT (30 30),LINESTRING (15 15, 20 20)) )");
+
+        BinarySpatialOperator resultBinarySpatialOp = (BinarySpatialOperator) result;
+        
+        Literal geom = (Literal) resultBinarySpatialOp.getExpression2();
+
+        Assert.assertNotNull(geom.getValue());
+        Assert.assertTrue(geom.getValue() instanceof com.vividsolutions.jts.geom.GeometryCollection);
+
+    }
 
     /**
      * Test error at geometry literal
      * @throws CQLException 
      */
     @Test(expected=CQLException.class)
-    public void testGeometryLiteralsError() throws CQLException {
-        final String filterError = "WITHIN(ATTR1, POLYGON((1 2, 10 15), (10 15, 1 2)))";
-        CompilerUtil.parseFilter(this.language,filterError);
+    public void geometryLiteralsError() throws CQLException {
 
+        final String filterError = "WITHIN(ATTR1, POLYGON(1 2, 10 15), (10 15, 1 2)))";
+        CompilerUtil.parseFilter(this.language,filterError);
     }
    
     

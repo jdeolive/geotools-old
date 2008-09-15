@@ -49,11 +49,10 @@ import org.opengis.filter.spatial.DistanceBufferOperator;
  * </p>
  * 
  * @author Jody Garnett
- * @author Maria Comanescu
  * @author Mauricio Pazos (Axios Engineering)
  * 
  * @version Revision: 1.9
- * @since 
+ * @since 2.6
  */
 public class TXTCompiler extends TXTParser implements ICompiler{
     
@@ -406,18 +405,35 @@ public class TXTCompiler extends TXTParser implements ICompiler{
                 // ----------------------------------------
             case JJTPOINT_NODE:
                 return this.builder.buildCoordinate();
+                
             case JJTPOINTTEXT_NODE:
                 return this.builder.buildPointText();
+                
             case JJTLINESTRINGTEXT_NODE:
                 return this.builder.buildLineString(JJTPOINT_NODE);
+                
             case JJTPOLYGONTEXT_NODE:
                 return this.builder.buildPolygon(JJTLINESTRINGTEXT_NODE);
+                
             case JJTMULTIPOINTTEXT_NODE:
-                return this.builder.buildMultyPoint(JJTPOINTTEXT_NODE);
-                //TODO ADD ALL GEOMETRIES
+                return this.builder.buildMultiPoint(JJTPOINTTEXT_NODE);
+                
+            case JJTMULTILINESTRINGTEXT_NODE:
+                return this.builder.buildMultiLineString(JJTLINESTRINGTEXT_NODE);
+                
+            case JJTMULTIPOLYGONTEXT_NODE:
+                return this.builder.buildMultiPolygon(JJTPOLYGONTEXT_NODE);
+                
+            case JJTGEOMETRYLITERAL:
+                return this.builder.buildGeometryLiteral();
+
+            case JJTGEOMETRYCOLLECTIONTEXT_NODE:
+                return this.builder.buildGeometryCollection(JJTGEOMETRYLITERAL);
+                
+                
             case JJTWKTNODE:
                 return this.builder.buildGeometry();
-
+                
             case JJTENVELOPETAGGEDTEXT_NODE:
                 return this.builder.buildEnvelop(TokenAdapter.newAdapterFor(n
                         .getToken()));
