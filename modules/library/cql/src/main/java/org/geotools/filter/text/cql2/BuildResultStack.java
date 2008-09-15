@@ -22,6 +22,9 @@ import java.util.Stack;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+
 
 /**
  * Holds the results of the building process in a stack
@@ -181,6 +184,18 @@ public final class BuildResultStack {
         }
     }
 
+    public Geometry popGeometry() throws CQLException {
+        try {
+            Result result = (Result) stack.pop();
+            Geometry g = (Geometry) result.getBuilt();
+
+            return g;
+            
+        } catch (ClassCastException e) {
+            throw new CQLException("fail in geometry parsing");
+        }
+    }
+
     public void push(Result item) {
         stack.push(item);
     }
@@ -188,4 +203,6 @@ public final class BuildResultStack {
     public int size() {
         return stack.size();
     }
+
+
 }

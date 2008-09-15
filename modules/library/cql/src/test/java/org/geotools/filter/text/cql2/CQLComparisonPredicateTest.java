@@ -74,7 +74,7 @@ public class CQLComparisonPredicateTest {
         // attr1 < 5
         expected = FilterCQLSample.getSample(FilterCQLSample.LESS_FILTER_SAMPLE);
 
-        actual = CompilerUtil.parse(this.language, FilterCQLSample.LESS_FILTER_SAMPLE);
+        actual = CompilerUtil.parseFilter(this.language, FilterCQLSample.LESS_FILTER_SAMPLE);
 
         Assert.assertNotNull("expects filter not null", actual);
 
@@ -83,7 +83,7 @@ public class CQLComparisonPredicateTest {
         // attr1 <= 5
         expected = FilterCQLSample.getSample(FilterCQLSample.LESS_EQ_FILTER_SAMPLE);
 
-        actual = CompilerUtil.parse(this.language, FilterCQLSample.LESS_EQ_FILTER_SAMPLE);
+        actual = CompilerUtil.parseFilter(this.language, FilterCQLSample.LESS_EQ_FILTER_SAMPLE);
 
         Assert.assertNotNull("expects filter not null", actual);
 
@@ -92,7 +92,7 @@ public class CQLComparisonPredicateTest {
         // attr <> 5
         expected = FilterCQLSample.getSample(FilterCQLSample.NOT_EQ_FILTER);
 
-        actual = CompilerUtil.parse(this.language, FilterCQLSample.NOT_EQ_FILTER);
+        actual = CompilerUtil.parseFilter(this.language, FilterCQLSample.NOT_EQ_FILTER);
 
         Assert.assertNotNull("expects filter not null", actual);
 
@@ -116,7 +116,7 @@ public class CQLComparisonPredicateTest {
       final String prop = "gmd:aa:bb.gmd:cc.gmd:dd";
       final String propExpected = "gmd:aa:bb/gmd:cc/gmd:dd";
       
-      Filter actual = CompilerUtil.parse(this.language, prop + " < 100");
+      Filter actual = CompilerUtil.parseFilter(this.language, prop + " < 100");
     
       Assert.assertTrue("PropertyIsLessThan filter was expected", actual instanceof PropertyIsLessThan);
     
@@ -147,7 +147,7 @@ public class CQLComparisonPredicateTest {
         Filter actual;
 
         expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_SIMPLE_EXPR);
-        actual = CompilerUtil.parse(this.language, FilterCQLSample.FILTER_SIMPLE_EXPR);
+        actual = CompilerUtil.parseFilter(this.language, FilterCQLSample.FILTER_SIMPLE_EXPR);
 
         Assert.assertNotNull("expects filter not null", actual);
 
@@ -165,7 +165,7 @@ public class CQLComparisonPredicateTest {
         PropertyIsEqualTo eqFilter;
         
         //test true value
-        filter = CompilerUtil.parse(this.language, "attr = true");
+        filter = CompilerUtil.parseFilter(this.language, "attr = true");
         Assert.assertNotNull(filter);
         Assert.assertTrue(filter instanceof PropertyIsEqualTo);
 
@@ -174,7 +174,7 @@ public class CQLComparisonPredicateTest {
         Assert.assertEquals(Boolean.TRUE, ((Literal) eqFilter.getExpression2()).getValue());
 
         //test false value
-        filter = CompilerUtil.parse(this.language, "attr = false");
+        filter = CompilerUtil.parseFilter(this.language, "attr = false");
         Assert.assertNotNull(filter);
         Assert.assertTrue(filter instanceof PropertyIsEqualTo);
 
@@ -182,5 +182,41 @@ public class CQLComparisonPredicateTest {
         Assert.assertEquals("attr", ((PropertyName) eqFilter.getExpression1()).getPropertyName());
         Assert.assertEquals(Boolean.FALSE, ((Literal) eqFilter.getExpression2()).getValue());
     }
+
+    @Test
+    public void parenRoundtripExpression() throws Exception {
+        // ATTR1 > ((1 + 2) / 3)
+        testEqualsExpressions(FilterCQLSample.FILTER_WITH_PAREN_ROUNDTRIP_EXPR);
+
+        // "ATTR1 < (1 + ((2 / 3) * 4))"
+        testEqualsExpressions(FilterCQLSample.FILTER_WITH_NESTED_PAREN_EXPR);
+    }
+
+    @Test
+    public void bracketRoundtripFilter() throws Exception {
+        // ATTR1 > [[1 + 2] / 3]
+        testEqualsExpressions(FilterCQLSample.FILTER_WITH_BRACKET_ROUNDTRIP_EXPR);
+
+        // TODO more test
+        // roundtripFilter("[[[ 3 < 4 ] AND NOT [ 2 < 4 ]] AND [ 5 < 4 ]]");
+        // roundtripFilter("[3<4 AND 2<4 ] OR 5<4");
+        // roundtripFilter("3<4 && 2<4");
+    }
+
+    /**
+     * General test for cql expressions
+     *
+     * @param cqlSample
+     * @throws Exception
+     */
+    private void testEqualsExpressions(final String cqlSample)
+        throws Exception {
+        Filter expected = FilterCQLSample.getSample(cqlSample);
+        Filter actual = CompilerUtil.parseFilter(language, cqlSample);
+
+        Assert.assertNotNull("expects filter not null", actual);
+        Assert.assertEquals("this is not the filter expected", expected, actual);
+    }
+    
 
 }

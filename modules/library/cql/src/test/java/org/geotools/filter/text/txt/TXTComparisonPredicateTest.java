@@ -138,7 +138,7 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
         
         Filter expected = FilterTXTSample.getSample(testPredicate);
 
-        Filter actual = CompilerUtil.parse(this.language, testPredicate);
+        Filter actual = CompilerUtil.parseFilter(this.language, testPredicate);
 
         Assert.assertNotNull("expects filter not null", actual);
 

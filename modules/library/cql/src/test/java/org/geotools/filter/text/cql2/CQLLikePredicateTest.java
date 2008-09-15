@@ -22,6 +22,8 @@ import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.filter.Filter;
+import org.opengis.filter.PropertyIsLike;
+import org.opengis.filter.expression.PropertyName;
 
 /**
  * Test case for Like predicate
@@ -80,7 +82,7 @@ public class CQLLikePredicateTest {
     public void likePredicate() throws Exception {
 
         // Like
-        Filter resultFilter = CompilerUtil.parse(this.language, FilterCQLSample.LIKE_FILTER);
+        Filter resultFilter = CompilerUtil.parseFilter(this.language, FilterCQLSample.LIKE_FILTER);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
@@ -108,7 +110,7 @@ public class CQLLikePredicateTest {
     @Test
     public void notLikePredicate() throws Exception{
         // not Like
-        Filter resultFilter = CompilerUtil.parse(this.language,FilterCQLSample.NOT_LIKE_FILTER);
+        Filter resultFilter = CompilerUtil.parseFilter(this.language,FilterCQLSample.NOT_LIKE_FILTER);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
@@ -118,6 +120,48 @@ public class CQLLikePredicateTest {
         
     }
     
-    
+    /**
+     * Test Attribute
+     * <p>
+     *
+     * <pre>
+     *  &lt;attribute name &gt; ::=
+     *          &lt;simple attribute name &gt;
+     *      |    &lt;compound attribute name &gt;
+     *  &lt;simple attribute name &gt; ::=  &lt;identifier &gt;
+     *  &lt;compound attribute name &gt; ::=  &lt;identifier &gt; &lt;period &gt; [{ &lt;identifier &gt; &lt;period &gt;}...] &lt;simple attribute name &gt;
+     *  &lt;identifier &gt; ::=  &lt;identifier start [ {  &lt;colon &gt; |  &lt;identifier part &gt; }... ]
+     *  &lt;identifier start &gt; ::=  &lt;simple Latin letter &gt;
+     *  &lt;identifier part &gt; ::=  &lt;simple Latin letter &gt; |  &lt;digit &gt;
+     * </pre>
+     *
+     * </p>
+     */
+    @Test
+    public void compoundAttribute() throws CQLException {
+        // Simple attribute name
+        testAttribute("startPart");
+
+        testAttribute("startpart:part1:part2");
+
+        // Compound attribute name
+        testAttribute("s11:p12:p13.s21:p22.s31:p32");
+
+        testAttribute(
+            "gmd:MD_Metadata.gmd:identificationInfo.gmd:MD_DataIdentification.gmd:abstract");
+    }
+
+    private void testAttribute(final String attSample) throws CQLException {
+        PropertyIsLike result;
+        PropertyName attResult = null;
+
+        String expected = attSample.replace('.', '/');
+
+        result = (PropertyIsLike) CompilerUtil.parseFilter(this.language, attSample + " LIKE 'abc%'");
+
+        attResult = (PropertyName) result.getExpression();
+
+        Assert.assertEquals(expected, attResult.getPropertyName());
+    }    
     
 }

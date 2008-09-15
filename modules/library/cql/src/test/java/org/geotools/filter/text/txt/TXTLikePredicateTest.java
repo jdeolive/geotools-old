@@ -58,7 +58,7 @@ public class TXTLikePredicateTest extends CQLLikePredicateTest {
     public void functionlikePredicate() throws Exception {
 
         // Like strConcat('aa', 'bbcc') like '%bb%'
-        Filter resultFilter = CompilerUtil.parse(this.language, FilterTXTSample.FUNCTION_LIKE_TXT_PATTERN);
+        Filter resultFilter = CompilerUtil.parseFilter(this.language, FilterTXTSample.FUNCTION_LIKE_TXT_PATTERN);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
@@ -78,7 +78,7 @@ public class TXTLikePredicateTest extends CQLLikePredicateTest {
     @Test
     public void literallikePredicate() throws Exception {
 
-        Filter resultFilter = CompilerUtil.parse(this.language, FilterTXTSample.LITERAL_LIKE_TXT_PATTERN);
+        Filter resultFilter = CompilerUtil.parseFilter(this.language, FilterTXTSample.LITERAL_LIKE_TXT_PATTERN);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 
@@ -93,7 +93,7 @@ public class TXTLikePredicateTest extends CQLLikePredicateTest {
     @Test
     public void literalNotlikePredicate() throws Exception {
 
-        Filter resultFilter = CompilerUtil.parse(this.language, FilterTXTSample.LITERAL_NOT_LIKE_TXT_PATTERN);
+        Filter resultFilter = CompilerUtil.parseFilter(this.language, FilterTXTSample.LITERAL_NOT_LIKE_TXT_PATTERN);
 
         Assert.assertNotNull("Filter expected", resultFilter);
 

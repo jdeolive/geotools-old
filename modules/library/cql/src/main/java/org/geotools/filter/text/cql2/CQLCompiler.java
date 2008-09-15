@@ -88,6 +88,8 @@ class CQLCompiler extends CQLParser implements ICompiler{
             super.FilterCompilationUnit();
         } catch (TokenMgrError tokenError){
             throw new CQLException(tokenError.getMessage(),getTokenInPosition(0), this.source);
+        } catch (CQLException e) {
+            throw e;
         } catch (ParseException e) {
             throw new CQLException(e.getMessage(), getTokenInPosition(0), e.getCause(), this.source);
         }
@@ -101,6 +103,8 @@ class CQLCompiler extends CQLParser implements ICompiler{
             super.ExpressionCompilationUnit();
         } catch (TokenMgrError tokenError){
             throw new CQLException(tokenError.getMessage(),getTokenInPosition(0), this.source);
+        } catch (CQLException e) {
+            throw e;
         } catch (ParseException e) {
             throw new CQLException(e.getMessage(), getTokenInPosition(0), e.getCause(), this.source);
         }
@@ -112,6 +116,8 @@ class CQLCompiler extends CQLParser implements ICompiler{
             super.FilterListCompilationUnit();
         } catch (TokenMgrError tokenError){
             throw new CQLException(tokenError.getMessage(),getTokenInPosition(0), this.source);
+        } catch (CQLException e) {
+            throw e;
         } catch (ParseException e) {
             throw new CQLException(e.getMessage(), getTokenInPosition(0), e.getCause(), this.source);
         }
@@ -166,9 +172,7 @@ class CQLCompiler extends CQLParser implements ICompiler{
         
         try {
             Object built = build(n);
-
-            assert built != null : "build result cannot be null";
-            
+           
             IToken tokenAdapter = TokenAdapter.newAdapterFor(token);
             Result r = new Result(built, tokenAdapter, n.getType());
             this.builder.pushResult(r );

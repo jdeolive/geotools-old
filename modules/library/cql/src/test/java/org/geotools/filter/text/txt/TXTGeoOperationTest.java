@@ -17,25 +17,21 @@
 
 package org.geotools.filter.text.txt;
 
-import org.geotools.filter.text.cql2.CQLTemporalPredicateTest;
-import org.geotools.filter.text.cql2.CompilerFactory;
-
+import org.geotools.filter.text.cql2.CQLGeoOperationTest;
+import org.geotools.filter.text.cql2.CompilerFactory.Language;
 
 /**
- * TXT Temporal predicate
- * 
+ * TXT Geo Operation Test
  * <p>
- * Executes all cql temporal predicate test using the TXT parser
+ * Execute all cql test for spatial relation using the TXT compiler
  * </p>
- *
+ * 
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class TXTTemporalPredicateTest extends CQLTemporalPredicateTest {
+public final class TXTGeoOperationTest extends CQLGeoOperationTest{
 
-    public TXTTemporalPredicateTest() {
-        // sets the TXT language used to execute this test case
-        super(CompilerFactory.Language.TXT);
+    public TXTGeoOperationTest(){
+        super(Language.TXT);
     }
-    
 }

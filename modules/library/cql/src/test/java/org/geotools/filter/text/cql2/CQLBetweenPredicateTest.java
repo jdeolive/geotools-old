@@ -108,7 +108,7 @@ public class CQLBetweenPredicateTest {
      */
     protected void testBetweenPredicate(final String samplePredicate, Filter expected) throws Exception{
         
-        Filter actual = CompilerUtil.parse(this.language, samplePredicate);
+        Filter actual = CompilerUtil.parseFilter(this.language, samplePredicate);
 
         Assert.assertNotNull("expects a not null filter", actual);
 

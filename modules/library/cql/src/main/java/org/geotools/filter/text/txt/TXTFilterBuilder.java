@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CQLFilterBuilder;
@@ -36,6 +37,15 @@ import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.FeatureId;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+
 /**
  * Builds the filters required by the {@link TXTCompiler}.
  *
@@ -43,6 +53,8 @@ import org.opengis.filter.identity.FeatureId;
  * @since 2.5
  */
 final class TXTFilterBuilder extends CQLFilterBuilder {
+
+    private final GeometryFactory GEOM_FACTORY = new GeometryFactory();
 
     public TXTFilterBuilder(String cqlSource, FilterFactory filterFactory) {
         super(cqlSource, filterFactory);
@@ -174,4 +186,165 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
         
         return orFilter;
     }
+
+    public Coordinate buildCoordinate() throws CQLException {
+
+        double y = getResultStack().popDoubleValue();
+        double x = getResultStack().popDoubleValue();
+
+        Coordinate coordinate = new Coordinate(x, y);
+
+        return coordinate;
+    }
+
+    public Point buildPointText() throws CQLException {
+
+        Result result = getResultStack().popResult();
+        IToken token = result.getToken();
+        try {
+            Coordinate coordinate = (Coordinate) result.getBuilt();
+
+            Point point = this.GEOM_FACTORY.createPoint(coordinate);
+
+            return point;
+            
+        } catch (ClassCastException e) {
+            throw new CQLException(e.getMessage(), token,this.cqlSource);
+        }
+    }
+
+    public LineString buildLineString(final int pointNode) throws CQLException {
+
+        // Retrieve the linestirng points
+        Stack<Coordinate> pointStack = popCoordinatesOf(pointNode);
+        // now pointStack has the coordinate in the correct order
+        // the next code create the coordinate array used to create
+        // the lineString
+        Coordinate[] coordinates = asCoordinate(pointStack);
+        LineString line= this.GEOM_FACTORY.createLineString(coordinates);
+        
+        return line;
+    }
+
+    public Polygon buildPolygon(final int linestringNode) throws CQLException {
+        
+        // Retrieve the liner ring for shell and holes
+        final List<Geometry> geometryList= popGeometry(linestringNode);
+        
+        assert geometryList.size() >= 1;
+        
+        // retrieves the shell
+        LineString line = (LineString)geometryList.get(0);
+        final LinearRing shell = this.GEOM_FACTORY.createLinearRing(line.getCoordinates());
+
+        // if it has holes, creates a ring for each linestring
+        LinearRing[] holes = new LinearRing[0]; 
+        if(geometryList.size() > 1){
+            
+            List<LinearRing> holeList = new LinkedList<LinearRing>();
+            for( int i = 1;i < geometryList.size(); i++) {
+                
+                LineString holeLines = (LineString) geometryList.get(i);
+                LinearRing ring = this.GEOM_FACTORY.createLinearRing(holeLines.getCoordinates());
+                holeList.add(ring);
+            }
+            int holesSize = holeList.size();
+            holes = holeList.toArray(new LinearRing[holesSize]) ;
+        } 
+        // creates the polygon
+        Polygon polygon= this.GEOM_FACTORY.createPolygon(shell, holes);
+        
+        return polygon;
+    }
+    
+    public MultiPoint buildMultyPoint(int pointNode) throws CQLException {
+
+        // retrieves all points from stack and create the multipoint geometry
+
+        List<Geometry> pointList = popGeometry(pointNode);
+        
+        int pointListSize = pointList.size();
+        Point[] arrayOfPoint = pointList.toArray(new Point[pointListSize]) ;
+        
+        MultiPoint multiPoint= this.GEOM_FACTORY.createMultiPoint(arrayOfPoint);
+        return multiPoint;
+    }
+    /**
+     * Pop the indeed geometry and order the result before delivery the list
+     * 
+     * @param geometryNode geometry required
+     * @return a list of indeed geometries 
+     * @throws CQLException
+     */
+    private List<Geometry> popGeometry(final int geometryNode) throws CQLException{
+
+        List<Geometry> geomList = new LinkedList<Geometry>();
+        while( !getResultStack().empty() ) {
+            
+            Result result = getResultStack().peek();
+            if(result.getNodeType() != geometryNode){
+                break;
+            }
+            getResultStack().popResult();
+            
+            Geometry geometry = (Geometry)result.getBuilt();
+            geomList.add(geometry);
+        }
+        Collections.reverse(geomList);
+
+        return geomList;
+    }
+
+    private Coordinate[] asCoordinate(Stack<Coordinate> stack) {
+        
+        int size = stack.size();
+        Coordinate[] coordinates = new Coordinate[ size ];
+        int i = 0;
+        while( !stack.empty()) {
+            coordinates[i++]= (Coordinate) stack.pop();
+        }
+        return coordinates;
+    }
+
+    /**
+     * Makes an stack with the geometries indeed by the typeGeom
+     * @param geomNode
+     * @return an Stack with the required geometries
+     * @throws CQLException
+     */
+    private Stack<Coordinate> popCoordinatesOf(int geomNode) throws CQLException {
+        Stack<Coordinate> stack = new Stack<Coordinate>();
+        while (!getResultStack().empty()) {
+
+            Result result = getResultStack().peek();
+
+            int node = result.getNodeType();
+            if (node != geomNode) {
+                break;
+            }
+            getResultStack().popResult();
+            Coordinate coordinate = (Coordinate)result.getBuilt();
+
+            stack.push(coordinate);
+        }
+        return stack;
+    }
+    /**
+     * Builds literal geometry
+     * 
+     * @param geometry
+     * @return a Literal Geometry
+     * @throws CQLException
+     */
+    public Literal buildGeometry() throws CQLException {
+
+        Geometry geometry = getResultStack().popGeometry();
+
+        Literal literal = getFilterFactory().literal(geometry);
+        
+        return literal;
+    }
+
+
+    
 }

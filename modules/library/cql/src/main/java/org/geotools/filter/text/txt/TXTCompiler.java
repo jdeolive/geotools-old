@@ -91,6 +91,9 @@ public class TXTCompiler extends TXTParser implements ICompiler{
             super.FilterCompilationUnit();
         } catch (TokenMgrError tokenError){
             throw new CQLException(tokenError.getMessage(),getTokenInPosition(0), this.source);
+        } catch(CQLException e){
+            throw e;
+            
         } catch (ParseException e) {
             throw new CQLException(e.getMessage(), getTokenInPosition(0), e.getCause(), this.source);
         }
@@ -104,6 +107,8 @@ public class TXTCompiler extends TXTParser implements ICompiler{
             super.ExpressionCompilationUnit();
         } catch (TokenMgrError tokenError){
             throw new CQLException(tokenError.getMessage(),getTokenInPosition(0), this.source);
+        } catch(CQLException e){
+            throw e;
         } catch (ParseException e) {
             throw new CQLException(e.getMessage(), getTokenInPosition(0), e.getCause(), this.source);
         }
@@ -117,6 +122,8 @@ public class TXTCompiler extends TXTParser implements ICompiler{
             super.FilterListCompilationUnit();
         } catch (TokenMgrError tokenError){
             throw new CQLException(tokenError.getMessage(),getTokenInPosition(0), this.source);
+        } catch(CQLException e){
+            throw e;
         } catch (ParseException e) {
             throw new CQLException(e.getMessage(), getTokenInPosition(0), e.getCause(), this.source);
         }
@@ -198,6 +205,7 @@ public class TXTCompiler extends TXTParser implements ICompiler{
      * @throws CQLException
      */
     private Object build(Node n) throws CQLException {
+
         switch (n.getType()) {
 
             // ----------------------------------------
@@ -396,9 +404,19 @@ public class TXTCompiler extends TXTParser implements ICompiler{
                 // ----------------------------------------
                 // Geometries:
                 // ----------------------------------------
+            case JJTPOINT_NODE:
+                return this.builder.buildCoordinate();
+            case JJTPOINTTEXT_NODE:
+                return this.builder.buildPointText();
+            case JJTLINESTRINGTEXT_NODE:
+                return this.builder.buildLineString(JJTPOINT_NODE);
+            case JJTPOLYGONTEXT_NODE:
+                return this.builder.buildPolygon(JJTLINESTRINGTEXT_NODE);
+            case JJTMULTIPOINTTEXT_NODE:
+                return this.builder.buildMultyPoint(JJTPOINTTEXT_NODE);
+                //TODO ADD ALL GEOMETRIES
             case JJTWKTNODE:
-                return this.builder.buildGeometry(TokenAdapter.newAdapterFor(n
-                        .getToken()));
+                return this.builder.buildGeometry();
 
             case JJTENVELOPETAGGEDTEXT_NODE:
                 return this.builder.buildEnvelop(TokenAdapter.newAdapterFor(n

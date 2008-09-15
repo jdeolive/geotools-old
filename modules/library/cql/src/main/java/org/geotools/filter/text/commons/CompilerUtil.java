@@ -22,6 +22,7 @@ import org.geotools.filter.text.cql2.CompilerFactory;
 import org.geotools.filter.text.cql2.ICompiler;
 import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.opengis.filter.Filter;
+import org.opengis.filter.expression.Expression;
 
 /**
  * Compiler Utility class
@@ -48,7 +49,7 @@ final public class CompilerUtil {
      * @return Filter
      * @throws CQLException
      */
-    static final public Filter parse(final Language language, final String predicate) throws CQLException {
+    static final public Filter parseFilter(final Language language, final String predicate) throws CQLException {
 
         assert language != null: "language cannot be null";
         assert predicate != null:"predicate cannot be null";
@@ -60,6 +61,17 @@ final public class CompilerUtil {
         return result;
     }
     
+    static final public Expression parseExpression(final Language language, final String predicate) throws CQLException {
+
+        assert language != null: "language cannot be null";
+        assert predicate != null:"predicate cannot be null";
+        
+        ICompiler compiler = CompilerFactory.makeCompiler(language, predicate, null);
+        compiler.compileExpression();
+        Expression result = compiler.getExpression();
+
+        return result;
+    }
     
     
 }

@@ -69,7 +69,7 @@ import com.vividsolutions.jts.io.WKTReader;
  */
 public class CQLFilterBuilder {
 
-    private static final WKTReader WKT_READER = new WKTReader();
+    protected static final WKTReader WKT_READER = new WKTReader();
 
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -78,7 +78,7 @@ public class CQLFilterBuilder {
 
     private final BuildResultStack resultStack;
 
-    private final String cqlSource;
+    protected final String cqlSource;
 
     protected FilterFactory getFilterFactory(){
         return this.filterFactory;
@@ -909,9 +909,9 @@ public class CQLFilterBuilder {
 
             return literal;
         } catch (com.vividsolutions.jts.io.ParseException e) {
-            throw new CQLException(e.getMessage(), geometry, this.cqlSource);
+            throw new CQLException(e.getMessage(), geometry, e, this.cqlSource);
         } catch (Exception e) {
-            throw new CQLException("Error building WKT Geometry",geometry, e, this.cqlSource);
+            throw new CQLException("Error building WKT Geometry: " + e.getMessage(),geometry, e, this.cqlSource);
         }
     }
 
@@ -922,7 +922,7 @@ public class CQLFilterBuilder {
      * 
      * @return String the expression 
      */
-    private String scanExpression(final IToken initialToken) {
+    protected String scanExpression(final IToken initialToken) {
 
         IToken end = initialToken;
 
@@ -953,7 +953,7 @@ public class CQLFilterBuilder {
      * @param wktGeom ogc wkt geometry
      * @return String vividsolution geometry
      */
-    private String transformWKTGeometry(final String wktGeom) {
+    protected String transformWKTGeometry(final String wktGeom) {
         final String MULTIPOINT_TYPE = "MULTIPOINT";
 
         StringBuffer transformed = new StringBuffer(30);

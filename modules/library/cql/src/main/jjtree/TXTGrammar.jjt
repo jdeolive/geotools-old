@@ -959,7 +959,7 @@ void FunctionArg() #FunctionArg_Node:
 /*
  * <Point> := <x><space><y>
  */
-void Point() #void:
+void Point() #Point_Node:
 {}
 {
   NumericLiteral() NumericLiteral()
@@ -969,7 +969,7 @@ void Point() #void:
  * <LineString Text> := EMPTY
  * | <left paren><Point>{<comma><Point >} ... <right paren>
  */
-void LineStringText() #void:
+void LineStringText() #LineStringText_Node:
 {}
 {
   (<LP> Point() ( <COMMA> Point() )* <RP>)?
@@ -978,12 +978,12 @@ void LineStringText() #void:
 void PointTaggedText() #WKTNode:
 {} 
 {
-  jjtThis.token = <POINT> PointText()
+   <POINT> PointText()
 }
 /*
  * <Point Text> := EMPTY | <left paren> <Point> <right paren>
  */
-void PointText() #void:
+void PointText() #PointText_Node:
 {}
 {
 	(<LP> Point() <RP>)?
@@ -992,7 +992,7 @@ void PointText() #void:
 void LineStringTaggedText() #WKTNode:
 {}
 {
-  jjtThis.token = <LINESTRING> LineStringText() 
+   <LINESTRING> LineStringText() 
 }
 /*
  * <Polygon Tagged Text> := POLYGON <Polygon Text>
@@ -1000,7 +1000,7 @@ void LineStringTaggedText() #WKTNode:
 void PolygonTaggedText() #WKTNode:
 {}
 {
-  jjtThis.token = <POLYGON> PolygonText()
+  <POLYGON> PolygonText()
 }
 
 
@@ -1008,7 +1008,7 @@ void PolygonTaggedText() #WKTNode:
  * <Polygon Text> := EMPTY
  *  	| <left paren><LineString Text>{<comma><LineString Text>}*<right paren>
  */
-void PolygonText()#void:
+void PolygonText()#PolygonText_Node:
 {}
 {
 	(<LP> LineStringText() (<COMMA> LineStringText())* <RP>)?
@@ -1020,13 +1020,13 @@ void PolygonText()#void:
 void MultiPointTaggedText() #WKTNode:
 {}
 {
-  jjtThis.token = <MULTIPOINT> MultiPointText()
+  <MULTIPOINT> MultiPointText()
 }
 /*
  * <Multipoint Text> := EMPTY
  * 	| ( <Point Text > {, <Point Text > }* )
  */
-void MultiPointText() #void:
+void MultiPointText() #MultiPointText_Node:
 {}
 {
  	(<LP> PointText() (<COMMA> PointText() )* <RP>)?

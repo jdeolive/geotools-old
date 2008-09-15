@@ -17,25 +17,24 @@
 
 package org.geotools.filter.text.txt;
 
-import org.geotools.filter.text.cql2.CQLTemporalPredicateTest;
-import org.geotools.filter.text.cql2.CompilerFactory;
-
+import org.geotools.filter.text.cql2.CQLBooleanValueExpression;
+import org.geotools.filter.text.cql2.CompilerFactory.Language;
 
 /**
- * TXT Temporal predicate
- * 
+ * TXT Boolean expression test
+ *
  * <p>
- * Executes all cql temporal predicate test using the TXT parser
+ * Executes the and/or predicates test implemented for CQL using the TXT compiler
  * </p>
+ * @see CQLBooleanValueExpression
  *
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class TXTTemporalPredicateTest extends CQLTemporalPredicateTest {
+public class TXTBooleanValueExpression extends CQLBooleanValueExpression {
 
-    public TXTTemporalPredicateTest() {
-        // sets the TXT language used to execute this test case
-        super(CompilerFactory.Language.TXT);
+    public TXTBooleanValueExpression() {
+        super(Language.TXT);
     }
     
 }

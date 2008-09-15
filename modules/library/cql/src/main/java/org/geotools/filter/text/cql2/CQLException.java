@@ -99,11 +99,8 @@ public class CQLException extends ParseException {
      * @return a message
      */
     public String getMessage() {
-        if (this.currentToken == null) {
-            return super.getMessage();
-        }
 
-        return super.getMessage() + ", Current Token : " + currentToken.toString();
+        return super.getMessage() + ". Parsing : " + this.cqlSource + ". Current Token : \"" + this.currentToken.toString()+ "\"";
     }
 
     /**
@@ -139,7 +136,7 @@ public class CQLException extends ParseException {
         }
 
         msg.append('^').append('\n');
-        msg.append(this.getMessage());
+        msg.append(super.getMessage());
 
         return msg.toString();
     }

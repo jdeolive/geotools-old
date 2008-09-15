@@ -16,34 +16,23 @@
  */
 package org.geotools.filter.function;
 
-import org.apache.commons.beanutils.PropertyUtils;
-
-/**
- * Function expression that returns a Boolean indicating if a given property
- * exists in the structure of the object being evaluated.
- *
- * @since 2.4
- * @author Gabriel Roldan, Axios Engineering
- * @author Mauricio Pazos, Axios Engineering
- * @version $Id$
- * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/library/cql/src/main/java/org/geotools/filter/function/PropertyExistsFunction.java $
- */
 import java.lang.reflect.InvocationTargetException;
 
+import org.apache.commons.beanutils.PropertyUtils;
+import org.geotools.filter.FunctionExpressionImpl;
+import org.geotools.util.Utilities;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
-import org.geotools.filter.FunctionExpressionImpl;
-import org.geotools.resources.Utilities;
 
 /**
  * A new function to check if a property exists.
  */
 public class PropertyExistsFunction extends FunctionExpressionImpl {
+
     public PropertyExistsFunction() {
         super("PropertyExists");
     }
@@ -124,21 +113,27 @@ public class PropertyExistsFunction extends FunctionExpressionImpl {
     }
 
     public boolean equals(Object obj) {
-        if (!(obj instanceof Function)) {
+
+        if (obj == this)
+            return true;
+        if (!(obj instanceof PropertyExistsFunction)) {
+
             return false;
         }
+        PropertyExistsFunction other = (PropertyExistsFunction) obj;
 
-        Function other = (Function) obj;
-
-        if (!Utilities.equals(getName(), other.getName())) {
+        if (other.getParameters().size() != this.getParameters().size())
             return false;
+        if (other.getParameters().size() > 0) {
+            final String propName = getPropertyName();
+
+            Expression otherPropNameExpr = (Expression) other.getParameters()
+                    .get(0);
+            final String otherPropName = getPropertyName(otherPropNameExpr);
+
+            return Utilities.equals(propName, otherPropName);
+        } else {
+            return true;
         }
-
-        final String propName = getPropertyName();
-
-        Expression otherPropNameExpr = (Expression) other.getParameters().get(0);
-        final String otherPropName = getPropertyName(otherPropNameExpr);
-
-        return Utilities.equals(propName, otherPropName);
     }
 }
