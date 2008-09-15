@@ -39,8 +39,8 @@ import com.vividsolutions.jts.geom.Geometry;
 public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
     SimpleFeatureType featureType;
     QueryData queryData;
-    Object[] attributes;
     Object[] fidAttributes;
+    SimpleFeatureBuilder builder;
 
     /**
      * Creates a new JDBCFeatureReader object.
@@ -51,8 +51,8 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
      */
     public JDBCFeatureReader(QueryData queryData) throws IOException {
         this.queryData = queryData;
-        attributes = new Object[queryData.getAttributeHandlers().length];
         fidAttributes = new Object[queryData.getMapper().getColumnCount()];
+        builder = new SimpleFeatureBuilder(queryData.getFeatureType());
     }
 
     /**
@@ -103,7 +103,8 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         FIDMapper mapper = queryData.getMapper();
         String fid = mapper.getID(fidAttributes);
 
-        for (int i = 0; i < attributes.length; i++) {
+        int attributeCount = queryData.getFeatureType().getAttributeCount();
+		for (int i = 0; i < attributeCount; i++) {
         	Object attribute = queryData.read( i );
         	
         	//JD: check for a coordinate system, if present on the type, set on the geometry
@@ -119,10 +120,10 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         		}
         	}
         	
-            attributes[i] = attribute;
+            builder.add(attribute);
         }
 
-        return SimpleFeatureBuilder.build(queryData.getFeatureType(), attributes, fid);
+		return builder.buildFeature(fid);
     }
 
     /**
