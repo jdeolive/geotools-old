@@ -1216,6 +1216,8 @@ public final class LabelCacheDefault implements LabelCache {
 		// display geometry. we choose largest one
 		if (clippedPolys.size() == 0)
 			return null;
+		if (clippedPolys.size() == 1)
+			return (Polygon) clippedPolys.get(0);
 		double maxSize = -1;
 		Polygon maxPoly = null;
 		Polygon cpoly;
