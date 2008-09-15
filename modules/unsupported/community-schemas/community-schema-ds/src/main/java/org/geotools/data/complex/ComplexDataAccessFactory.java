@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFactory;
-import org.geotools.data.feature.FeatureAccess;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.util.InternationalString;
 
@@ -32,7 +31,8 @@ import org.opengis.util.InternationalString;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/ComplexDataAccessFactory.java $
  * @since 2.4
  */
 public class ComplexDataAccessFactory extends ComplexDataStoreFactory implements DataAccessFactory {
@@ -49,8 +49,7 @@ public class ComplexDataAccessFactory extends ComplexDataStoreFactory implements
     }
 
     public DataAccess createAccess(Object params) throws IOException {
-        FeatureAccess store = (FeatureAccess) super.createDataStore((Map) params);
-        return store;
+        return super.createDataStore((Map) params);
     }
 
     public Object createAccessBean() {

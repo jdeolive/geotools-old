@@ -23,8 +23,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.filter.XPath.StepList;
-import org.geotools.data.feature.FeatureSource2;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.xml.sax.helpers.NamespaceSupport;
@@ -41,62 +43,54 @@ public class FeatureTypeMapping {
     /**
      * 
      */
-    private FeatureSource2 source;
+    private FeatureSource<SimpleFeatureType, SimpleFeature> source;
 
     /**
      * Encapsulates the name and type of target Features
      */
     private AttributeDescriptor target;
 
-    private List/* <String> */groupByAttNames;
-
     /**
-     * Map of <source expression>/<target property>, where target property is
-     * an XPath expression addressing the mapped property of the target schema.
+     * Map of <source expression>/<target property>, where target property is an XPath expression
+     * addressing the mapped property of the target schema.
      */
-    List/* <AttributeMapping> */attributeMappings;
+    List<AttributeMapping> attributeMappings;
 
     NamespaceSupport namespaces;
 
     /**
-     * No parameters constructor for use by the digester configuration engine as
-     * a JavaBean
+     * No parameters constructor for use by the digester configuration engine as a JavaBean
      */
     public FeatureTypeMapping() {
-        this.source = null;
-        this.target = null;
-        this.attributeMappings = new LinkedList();
-        this.groupByAttNames = Collections.EMPTY_LIST;
-        this.namespaces = new NamespaceSupport();
+        this(null, null, new LinkedList<AttributeMapping>(), new NamespaceSupport());
     }
 
-    public FeatureTypeMapping(FeatureSource2 source, AttributeDescriptor target,
-            List/* <AttributeMapping> */mappings, NamespaceSupport namespaces) {
+    public FeatureTypeMapping(FeatureSource<SimpleFeatureType, SimpleFeature> source,
+            AttributeDescriptor target, List<AttributeMapping> mappings, NamespaceSupport namespaces) {
         this.source = source;
         this.target = target;
-        this.attributeMappings = new LinkedList/* <AttributeMapping> */(mappings);
+        this.attributeMappings = new LinkedList<AttributeMapping>(mappings);
         this.namespaces = namespaces;
-
-        this.groupByAttNames = Collections.EMPTY_LIST;
     }
 
-    public List/* <AttributeMapping> */getAttributeMappings() {
-        return new ArrayList(attributeMappings);
+    public List<AttributeMapping> getAttributeMappings() {
+        return Collections.unmodifiableList(attributeMappings);
     }
 
     /**
-     * Finds the attribute mappings for the given target location path ignoring the xpath index
-     * of each step.
+     * Finds the attribute mappings for the given target location path ignoring the xpath index of
+     * each step.
+     * 
      * @param targetPath
      * @return
      */
     public List/* <AttributeMapping> */getAttributeMappingsIgnoreIndex(final StepList targetPath) {
         AttributeMapping attMapping;
         List mappings = Collections.EMPTY_LIST;
-        for(Iterator it = attributeMappings.iterator(); it.hasNext();){
+        for (Iterator it = attributeMappings.iterator(); it.hasNext();) {
             attMapping = (AttributeMapping) it.next();
-            if(targetPath.equalsIgnoreIndex(attMapping.getTargetXPath())){
-                if(mappings.size() == 0){
+            if (targetPath.equalsIgnoreIndex(attMapping.getTargetXPath())) {
+                if (mappings.size() == 0) {
                     mappings = new ArrayList(2);
                 }
                 mappings.add(attMapping);
@@ -106,20 +100,18 @@ public class FeatureTypeMapping {
     }
 
     /**
-     * Finds the attribute mapping for the target expression
-     * <code>exactPath</code>
+     * Finds the attribute mapping for the target expression <code>exactPath</code>
      * 
      * @param exactPath
-     *            the xpath expression on the target schema to find the mapping
-     *            for
-     * @return the attribute mapping that match 1:1 with <code>exactPath</code>
-     *         or <code>null</code> if 
+     *                the xpath expression on the target schema to find the mapping for
+     * @return the attribute mapping that match 1:1 with <code>exactPath</code> or
+     *         <code>null</code> if
      */
     public AttributeMapping getAttributeMapping(final StepList exactPath) {
         AttributeMapping attMapping;
-        for(Iterator it = attributeMappings.iterator(); it.hasNext();){
+        for (Iterator it = attributeMappings.iterator(); it.hasNext();) {
             attMapping = (AttributeMapping) it.next();
-            if(exactPath.equals(attMapping.getTargetXPath())){
+            if (exactPath.equals(attMapping.getTargetXPath())) {
                 return attMapping;
             }
         }
@@ -136,11 +128,11 @@ public class FeatureTypeMapping {
      * @param elementName
      * @param featureTypeName
      */
-    public void setTargetFeature(AttributeDescriptor featureDescriptor) {
-        this.target = featureDescriptor;
+    public void setTargetFeature(AttributeDescriptor feature) {
+        this.target = feature;
     }
 
-    public void setSource(FeatureSource2 source) {
+    public void setSource() {
         this.source = source;
     }
 
@@ -148,16 +140,8 @@ public class FeatureTypeMapping {
         return this.target;
     }
 
-    public FeatureSource2 getSource() {
+    public FeatureSource<SimpleFeatureType, SimpleFeature> getSource() {
         return this.source;
     }
 
-    public List/* <String> */getGroupByAttNames() {
-        return groupByAttNames;
-    }
-
-    public void setGroupByAttNames(List/* <String> */groupByAttNames) {
-        this.groupByAttNames = groupByAttNames == null ? Collections.EMPTY_LIST : Collections
-                .unmodifiableList(groupByAttNames);
-    }
 }

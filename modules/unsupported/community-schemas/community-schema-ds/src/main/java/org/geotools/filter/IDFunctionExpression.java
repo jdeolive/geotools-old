@@ -32,7 +32,7 @@ public class IDFunctionExpression extends FunctionExpressionImpl {
     public Object evaluate(Object obj) {
         if (obj instanceof Attribute) {
             Attribute att = (Attribute) obj;
-            return att.getID();
+            return att.getIdentifier();
         }
         return null;
     }

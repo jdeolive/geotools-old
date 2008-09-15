@@ -30,7 +30,8 @@ import org.opengis.filter.expression.Expression;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/AttributeMapping.java $
  * @since 2.4
  */
 public class AttributeMapping {
@@ -42,15 +43,14 @@ public class AttributeMapping {
     private Expression sourceExpression;
 
     /** DOCUMENT ME! */
-    //private String targetXPath;
+    // private String targetXPath;
     private StepList targetXPath;
 
     private boolean isMultiValued;
 
     /**
-     * If present, represents our way to deal polymorphic attribute instances,
-     * so this node should be of a subtype of the one referenced by
-     * {@link  #targetXPath}
+     * If present, represents our way to deal polymorphic attribute instances, so this node should
+     * be of a subtype of the one referenced by {@link  #targetXPath}
      */
     AttributeType targetNodeInstance;
 
@@ -60,32 +60,28 @@ public class AttributeMapping {
      * Creates a new AttributeMapping object.
      * 
      * @param sourceExpression
-     *            DOCUMENT ME!
+     *                DOCUMENT ME!
      * @param targetXPath
-     *            DOCUMENT ME!
+     *                DOCUMENT ME!
      */
-    public AttributeMapping(Expression idExpression,
-            Expression sourceExpression, StepList targetXPath) {
+    public AttributeMapping(Expression idExpression, Expression sourceExpression,
+            StepList targetXPath) {
         this(idExpression, sourceExpression, targetXPath, null, false, null);
     }
 
-    public AttributeMapping(Expression idExpression,
-            Expression sourceExpression, StepList targetXPath,
-            AttributeType targetNodeInstance, boolean isMultiValued,
+    public AttributeMapping(Expression idExpression, Expression sourceExpression,
+            StepList targetXPath, AttributeType targetNodeInstance, boolean isMultiValued,
             Map clientProperties) {
 
-        this.identifierExpression = idExpression == null ? Expression.NIL
-                : idExpression;
-        this.sourceExpression = sourceExpression == null ? Expression.NIL
-                : sourceExpression;
+        this.identifierExpression = idExpression == null ? Expression.NIL : idExpression;
+        this.sourceExpression = sourceExpression == null ? Expression.NIL : sourceExpression;
         this.isMultiValued = isMultiValued;
         if (this.sourceExpression == null) {
             this.sourceExpression = Expression.NIL;
         }
         this.targetXPath = targetXPath;
         this.targetNodeInstance = targetNodeInstance;
-        this.clientProperties = clientProperties == null ? Collections.EMPTY_MAP
-                : clientProperties;
+        this.clientProperties = clientProperties == null ? Collections.EMPTY_MAP : clientProperties;
     }
 
     public boolean isMultiValued() {
@@ -118,7 +114,7 @@ public class AttributeMapping {
      * DOCUMENT ME!
      * 
      * @param o
-     *            DOCUMENT ME!
+     *                DOCUMENT ME!
      * 
      * @return DOCUMENT ME!
      */
@@ -133,12 +129,10 @@ public class AttributeMapping {
 
         AttributeMapping other = (AttributeMapping) o;
 
-        return Utilities.equals(identifierExpression,
-                other.identifierExpression)
+        return Utilities.equals(identifierExpression, other.identifierExpression)
                 && Utilities.equals(sourceExpression, other.sourceExpression)
                 && Utilities.equals(targetXPath, other.targetXPath)
-                && Utilities.equals(targetNodeInstance,
-                        other.targetNodeInstance);
+                && Utilities.equals(targetNodeInstance, other.targetNodeInstance);
     }
 
     /**
@@ -147,8 +141,7 @@ public class AttributeMapping {
      * @return DOCUMENT ME!
      */
     public int hashCode() {
-        return (37 * identifierExpression.hashCode() + 37 * sourceExpression
-                .hashCode())
+        return (37 * identifierExpression.hashCode() + 37 * sourceExpression.hashCode())
                 ^ targetXPath.hashCode();
     }
 
@@ -159,8 +152,8 @@ public class AttributeMapping {
      */
     public String toString() {
         StringBuffer sb = new StringBuffer("AttributeMapping[");
-        sb.append("sourceExpression='").append(sourceExpression).append(
-                "', targetXPath='").append(targetXPath);
+        sb.append("sourceExpression='").append(sourceExpression).append("', targetXPath='").append(
+                targetXPath);
         if (targetNodeInstance != null) {
             sb.append(", target instance type=").append(targetNodeInstance);
         }
@@ -170,8 +163,7 @@ public class AttributeMapping {
     }
 
     public Map getClientProperties() {
-        return clientProperties == null ? Collections.EMPTY_MAP
-                : clientProperties;
+        return clientProperties == null ? Collections.EMPTY_MAP : clientProperties;
     }
 
     public Expression getIdentifierExpression() {

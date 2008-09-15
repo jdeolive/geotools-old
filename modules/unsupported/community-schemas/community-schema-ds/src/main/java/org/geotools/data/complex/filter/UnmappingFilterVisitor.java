@@ -33,8 +33,8 @@ import org.geotools.data.complex.AttributeMapping;
 import org.geotools.data.complex.FeatureTypeMapping;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
-import org.geotools.feature.iso.Types;
-import org.geotools.filter.RegfuncFilterFactoryImpl;
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.Types;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.And;
@@ -83,10 +83,10 @@ import org.opengis.filter.spatial.Within;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /**
- * A Filter visitor that traverse a Filter or Expression made against a complex
- * FeatureType, and that uses the attribute and type mapping information given
- * by a {@linkplain org.geotools.data.complex.FeatureTypeMapping} object to
- * produce an equivalent Filter that operates against the original FeatureType.
+ * A Filter visitor that traverse a Filter or Expression made against a complex FeatureType, and
+ * that uses the attribute and type mapping information given by a
+ * {@linkplain org.geotools.data.complex.FeatureTypeMapping} object to produce an equivalent Filter
+ * that operates against the original FeatureType.
  * <p>
  * Usage:
  * 
@@ -110,29 +110,31 @@ import org.xml.sax.helpers.NamespaceSupport;
  * @since 2.4
  */
 public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor, ExpressionVisitor {
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(UnmappingFilterVisitor.class.getPackage()
-            .getName());
+    private static final Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger(UnmappingFilterVisitor.class.getPackage().getName());
 
     private FeatureTypeMapping mappings;
 
-    //    private static final FilterFactory2 ff = (FilterFactory2) CommonFactoryFinder
-    //            .getFilterFactory(null);
+    // private static final FilterFactory2 ff = (FilterFactory2) CommonFactoryFinder
+    // .getFilterFactory(null);
     // TODO: once Regfunc stuff pulled up into FilterFactoryImpl
     // the code below can be replaced by the original above.
-    private static final FilterFactory2 ff = new RegfuncFilterFactoryImpl(null);
+
+    // disabled regfunc
+    // private static final FilterFactory2 ff = new RegfuncFilterFactoryImpl(null);
+    private static final FilterFactory2 ff = (FilterFactory2) CommonFactoryFinder
+            .getFilterFactory(null);
 
     /**
-     * visit(*Expression) holds the unmapped expression here. Package visible
-     * just for unit tests
+     * visit(*Expression) holds the unmapped expression here. Package visible just for unit tests
      */
     public UnmappingFilterVisitor(FeatureTypeMapping mappings) {
         this.mappings = mappings;
     }
 
     /**
-     * Used by methods that visited a filter that produced one or more filters
-     * over the surrogate feature type to combine them in an Or filter if
-     * necessary.
+     * Used by methods that visited a filter that produced one or more filters over the surrogate
+     * feature type to combine them in an Or filter if necessary.
      * 
      * @param combinedFilters
      * @return
@@ -149,9 +151,8 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
     }
 
     /**
-     * Returns a CompareFilter of the same type than <code>filter</code>, but
-     * built on the unmapped expressions pointing to the surrogate type
-     * attributes.
+     * Returns a CompareFilter of the same type than <code>filter</code>, but built on the
+     * unmapped expressions pointing to the surrogate type attributes.
      * 
      * @return the scalar product of the evaluation of both expressions
      */
@@ -726,12 +727,10 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
     }
 
     /**
-     * @todo: support function arguments that map to more than one source
-     *        expression. For example, if the argumen <code>gml:name</code>
-     *        maps to source expressions <code>name</code> and
-     *        <code>description</code> because the mapping has attribute
-     *        mappings for both <code>gml:name[1] = name</code> and
-     *        <code>gml:name[2] = description</code>.
+     * @todo: support function arguments that map to more than one source expression. For example,
+     *        if the argumen <code>gml:name</code> maps to source expressions <code>name</code>
+     *        and <code>description</code> because the mapping has attribute mappings for both
+     *        <code>gml:name[1] = name</code> and <code>gml:name[2] = description</code>.
      */
     public Object visit(Function function, Object arg1) {
 
@@ -795,13 +794,11 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
     }
 
     /**
-     * Looks up for attribute mappings matching the xpath expression
-     * <code>propertyName</code>.
+     * Looks up for attribute mappings matching the xpath expression <code>propertyName</code>.
      * <p>
-     * If any step in <code>propertyName</code> has index greater than 1, any
-     * mapping for the same property applies, regardless of the mapping. For
-     * example, if there are mappings for <code>gml:name[1]</code>,
-     * <code>gml:name[2]</code> and <code>gml:name[3]</code>, but
+     * If any step in <code>propertyName</code> has index greater than 1, any mapping for the same
+     * property applies, regardless of the mapping. For example, if there are mappings for
+     * <code>gml:name[1]</code>, <code>gml:name[2]</code> and <code>gml:name[3]</code>, but
      * propertyName is just <code>gml:name</code>, all three mappings apply.
      * </p>
      * 
@@ -846,7 +843,7 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                 clientPropertyExpressions.add(propertyExpression);
             }
         }
-        
+
         return clientPropertyExpressions;
     }
 

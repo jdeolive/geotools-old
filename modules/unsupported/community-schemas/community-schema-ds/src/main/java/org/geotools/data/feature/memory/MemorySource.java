@@ -23,19 +23,16 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.geotools.catalog.GeoResourceInfo;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureListener;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
-import org.geotools.data.feature.FeatureSource2;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.iso.collection.AbstractFeatureCollection;
-import org.geotools.feature.iso.collection.MemorySimpleFeatureCollection;
+import org.geotools.feature.collection.AbstractFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
-import org.opengis.feature.type.FeatureCollectionType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -50,7 +47,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @source $URL$
  * @since 2.4
  */
-public class MemorySource implements FeatureSource2 {
+public class MemorySource implements FeatureSource {
 
     private FeatureType type;
 

@@ -21,14 +21,15 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.geotools.feature.Name;
-import org.geotools.feature.iso.TypeBuilder;
+import org.geotools.feature.TypeBuilder;
 import org.geotools.referencing.CRS;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.feature.type.GeometryType;
-import org.opengis.feature.type.TypeFactory;
+import org.opengis.feature.type.Name;
+import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -38,7 +39,8 @@ import com.vividsolutions.jts.geom.Point;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/test/java/org/geotools/data/ComplexTestData.java $
  * @since 2.4
  */
 public abstract class ComplexTestData extends TestCase {
@@ -151,7 +153,7 @@ public abstract class ComplexTestData extends TestCase {
      * @return
      */
     public static FeatureType createExample01MultiValuedComplexProperty(
-            TypeFactory typeFactory) {
+            FeatureTypeFactory typeFactory) {
         FeatureType wqPlusType;
 
         TypeBuilder builder = new TypeBuilder(typeFactory);
@@ -201,8 +203,7 @@ public abstract class ComplexTestData extends TestCase {
     /**
      * A feature type that has various multi-valued properties.
      * <p>
-     * Multi valued properties: meassurement(0:unbounded),
-     * sitename(1:unbounded).
+     * Multi valued properties: meassurement(0:unbounded), sitename(1:unbounded).
      * 
      * <pre>
      * <code>
@@ -215,8 +216,7 @@ public abstract class ComplexTestData extends TestCase {
      * @param descFactory
      * @return
      */
-    public static FeatureType createExample02MultipleMultivalued(
-            TypeFactory typeFactory) {
+    public static FeatureType createExample02MultipleMultivalued(FeatureTypeFactory typeFactory) {
 
         TypeBuilder builder = new TypeBuilder(typeFactory);
         builder.setNamespaceURI(NSURI);
@@ -224,13 +224,13 @@ public abstract class ComplexTestData extends TestCase {
         AttributeType measurement = createMeasurementType(typeFactory);
         AttributeType the_geom = builder.name("the_geom").bind(Geometry.class).attribute();
         AttributeType sitename = builder.name("sitename").bind(String.class).attribute();
-        
+
         builder.cardinality(0, Integer.MAX_VALUE);
         builder.addAttribute("measurement", measurement);
 
         builder.cardinality(1, 1);
         builder.addAttribute("the_geom", the_geom);
-        
+
         builder.nillable(true);
         builder.cardinality(1, Integer.MAX_VALUE);
         builder.addAttribute("sitename", sitename);
@@ -273,8 +273,7 @@ public abstract class ComplexTestData extends TestCase {
      * @param descFactory
      * @return
      */
-    public static FeatureType createExample03MultipleGeometries(
-            TypeFactory typeFactory) {
+    public static FeatureType createExample03MultipleGeometries(FeatureTypeFactory typeFactory) {
         TypeBuilder builder = new TypeBuilder(typeFactory);
         builder.setNamespaceURI(NSURI);
 
@@ -313,7 +312,7 @@ public abstract class ComplexTestData extends TestCase {
      * @param descFactory
      * @return
      */
-    public static FeatureType createExample04Type(TypeFactory typeFactory) {
+    public static FeatureType createExample04Type(FeatureTypeFactory typeFactory) {
         TypeBuilder builder = new TypeBuilder(typeFactory);
         builder.setNamespaceURI(NSURI);
 
@@ -331,100 +330,7 @@ public abstract class ComplexTestData extends TestCase {
         return wqPlusType;
     }
 
-    /**
-     * Creates a FeatureType for the Road
-     * 
-     * <pre><code>
-     *      	 &lt;xs:element name=&quot;roadRef&quot; type=&quot;sco:RoadPropertyType&quot;/&gt;
-     *      	 &lt;xs:element name=&quot;junctionRef&quot; type=&quot;sco:JunctionPropertyType&quot;/&gt;
-     *      
-     *      	 &lt;xs:complexType name=&quot;RoadPropertyType&quot;&gt;
-     *      	 &lt;xs:annotation&gt;
-     *      	 &lt;xs:documentation&gt;Container for a road - follow gml:AssociationType pattern.&lt;/xs:documentation&gt;
-     *      	 &lt;/xs:annotation&gt;
-     *      	 &lt;xs:sequence minOccurs=&quot;0&quot;&gt;
-     *      	 &lt;xs:element ref=&quot;sco:Road&quot; /&gt;
-     *      	 &lt;/xs:sequence&gt;
-     *      	 &lt;xs:attributeGroup ref=&quot;gml:AssociationAttributeGroup&quot; /&gt;
-     *      	 &lt;/xs:complexType&gt;
-     *      
-     *      	 &lt;xs:complexType name=&quot;JunctionPropertyType&quot;&gt;
-     *      	 &lt;xs:annotation&gt;
-     *      	 &lt;xs:documentation&gt;Container for a junction - follow gml:AssociationType pattern.&lt;/xs:documentation&gt;
-     *      	 &lt;/xs:annotation&gt;
-     *      	 &lt;xs:sequence minOccurs=&quot;0&quot;&gt;
-     *      	 &lt;xs:element ref=&quot;sco:Junction&quot; /&gt;
-     *      	 &lt;/xs:sequence&gt;
-     *      	 &lt;xs:attributeGroup ref=&quot;gml:AssociationAttributeGroup&quot; /&gt;
-     *      	 &lt;/xs:complexType&gt;
-     *      
-     *      	 &lt;xs:complexType name=&quot;RoadType&quot;&gt;
-     *      	 &lt;xs:complexContent&gt;
-     *      	 &lt;xs:extension base=&quot;gml:AbstractFeatureType&quot;&gt;
-     *      	 &lt;xs:sequence&gt;
-     *      	 &lt;xs:element name=&quot;geom&quot; type=&quot;gml:CurvePropertyType&quot; minOccurs=&quot;0&quot; /&gt;
-     *      	 &lt;xs:element ref=&quot;sco:junctionRef&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;unbounded&quot; /&gt;
-     *      	 &lt;/xs:sequence&gt;
-     *      	 &lt;/xs:extension&gt;
-     *      	 &lt;/xs:complexContent&gt;
-     *      	 &lt;/xs:complexType&gt;
-     *      
-     *      	 &lt;xs:complexType name=&quot;JunctionType&quot;&gt;
-     *      	 &lt;xs:complexContent&gt;
-     *      	 &lt;xs:extension base=&quot;gml:AbstractFeatureType&quot;&gt;
-     *      	 &lt;xs:sequence&gt;
-     *      	 &lt;xs:element ref=&quot;sco:roadRef&quot; /&gt;
-     *      	 &lt;xs:element name=&quot;direction&quot; type=&quot;xs:int&quot; /&gt;
-     *      	 &lt;/xs:sequence&gt;
-     *      	 &lt;/xs:extension&gt;
-     *      	 &lt;/xs:complexContent&gt;
-     *      	 &lt;/xs:complexType&gt;
-     *      
-     *      	 &lt;xs:element name='Junction' type='sco:JunctionType' substitutionGroup=&quot;gml:_Feature&quot; /&gt;
-     *      	 &lt;xs:element name='Road' type='sco:RoadType' substitutionGroup=&quot;gml:_Feature&quot; /&gt;
-     *      
-     * </code></pre>
-     * 
-     */
-    /*
-     * public static FeatureType createExample05RoadType(TypeFactory
-     * typeFactory, DescriptorFactory descFactory) { List<Descriptor>
-     * roadContents = new ArrayList<Descriptor>();
-     * 
-     * //create association type to reference junction GenericName
-     * junctionTypeName = new GenericName(NSURI, "Junction"); AttributeType
-     * junctionReference = typeFactory.createAssociationType(junctionTypeName);
-     * 
-     * List<Descriptor> junctionRefContents = new ArrayList<Descriptor>();
-     * junctionRefContents.add(descFactory.node(junctionReference, 1, 1));
-     * 
-     * Descriptor junctionPropertySchema =
-     * descFactory.ordered(junctionRefContents, 0, 1); ComplexType junctionRef =
-     * typeFactory.createType(new GenericName("functionRef"),
-     * junctionPropertySchema);
-     * 
-     * 
-     * //create junction type List<Descriptor> junctionContents = new ArrayList<Descriptor>();
-     * 
-     * FeatureType roadType = typeFactory.createFeatureType(new
-     * GenericName(NSURI), roadSchema, null);
-     * 
-     * List<Descriptor>roadRefContents = new ArrayList<Descriptor>();
-     * 
-     * roadRefContents.add(descFactory.node(RoadType, 1, 1)); Descriptor
-     * roadRefDesc = descFactory.ordered(roadRefContents, 0, 1); ComplexType
-     * roadRef = typeFactory.createType(new GenericName(NSURI, "roadRef"),
-     * roadRefDesc); AttributeType direction = typeFactory.createType(new
-     * GenericName(NSURI, "direction"), Integer.class);
-     * junctionContents.add(descFactory.node(direction, 1, 1)); }
-     */
-
-    public static FeatureType createExample05JunctionType(
-            TypeFactory typeFactory) {
-        return null;
-    }
-
-    public static ComplexType createMeasurementType(TypeFactory typeFactory) {
+    public static ComplexType createMeasurementType(FeatureTypeFactory typeFactory) {
         TypeBuilder builder = new TypeBuilder(typeFactory);
         builder.setNamespaceURI(NSURI);
 
@@ -441,20 +347,20 @@ public abstract class ComplexTestData extends TestCase {
         builder.cardinality(1, 1);
         builder.addAttribute("determinand_description", detdesc);
         builder.addAttribute("result", result);
-        
+
         ComplexType measurement = builder.complex();
 
         return measurement;
     }
 
     /**
-     * Creates a representation of a gml:LocationPropertyType association. This
-     * would be better done by obtaining the type from a registry, so we can
-     * have GML2TypeRegistry, GML3TypeRegistry, DefaultTypeRegistry, etc.
+     * Creates a representation of a gml:LocationPropertyType association. This would be better done
+     * by obtaining the type from a registry, so we can have GML2TypeRegistry, GML3TypeRegistry,
+     * DefaultTypeRegistry, etc.
      * 
      * @return
      */
-    public static AttributeType createGmlLocation(TypeFactory typeFactory) {
+    public static AttributeType createGmlLocation(FeatureTypeFactory typeFactory) {
         TypeBuilder builder = new TypeBuilder(typeFactory);
         builder.setNamespaceURI(GML_NSURI);
         builder.setName("LocationPropertyType");
@@ -466,14 +372,13 @@ public abstract class ComplexTestData extends TestCase {
     }
 
     /**
-     * Creates a representation of a gml:PointPropertyType association as an
-     * AttributeType. This would be better done by obtaining the type from a
-     * registry, so we can have GML2TypeRegistry, GML3TypeRegistry,
-     * DefaultTypeRegistry, etc.
+     * Creates a representation of a gml:PointPropertyType association as an AttributeType. This
+     * would be better done by obtaining the type from a registry, so we can have GML2TypeRegistry,
+     * GML3TypeRegistry, DefaultTypeRegistry, etc.
      * 
      * @return
      */
-    public static AttributeType createGmlPoint(TypeFactory typeFactory) {
+    public static AttributeType createGmlPoint(FeatureTypeFactory typeFactory) {
         TypeBuilder builder = new TypeBuilder(typeFactory);
         builder.setNamespaceURI(GML_NSURI);
 
@@ -493,8 +398,8 @@ public abstract class ComplexTestData extends TestCase {
     }
 
     /**
-     * Asserts the corresponding properties of <code>type</code> for equality
-     * with the provided parameter values
+     * Asserts the corresponding properties of <code>type</code> for equality with the provided
+     * parameter values
      * 
      * @param type
      * @param name
@@ -505,9 +410,8 @@ public abstract class ComplexTestData extends TestCase {
      * @param superType
      * @param nillable
      */
-    public static void checkType(AttributeType type, Name name, Class binding,
-            Set/* <Filter> */restrictions, boolean identified,
-            boolean _abstract, AttributeType superType) {
+    public static void checkType(AttributeType type, Name name, Class<?> binding,
+            Set<Filter> restrictions, boolean identified, boolean _abstract, AttributeType superType) {
 
         assertNotNull(type);
         assertEquals(name, type.getName());

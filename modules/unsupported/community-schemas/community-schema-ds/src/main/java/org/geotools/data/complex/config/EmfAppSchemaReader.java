@@ -46,34 +46,31 @@ import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDSimpleTypeDefinition;
 import org.eclipse.xsd.XSDTypeDefinition;
-import org.geotools.data.feature.adapter.ISOAttributeTypeAdapter;
-import org.geotools.data.feature.adapter.ISOFeatureTypeAdapter;
-import org.geotools.feature.iso.Types;
-import org.geotools.feature.iso.simple.SimpleTypeFactoryImpl;
-import org.geotools.feature.iso.type.TypeFactoryImpl;
+import org.geotools.feature.Types;
+import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.gml3.ApplicationSchemaConfiguration;
+import org.geotools.gml3.GML;
 import org.geotools.gml3.GMLConfiguration;
 import org.geotools.gml3.GMLSchema;
-import org.geotools.gml3.bindings.GML;
-import org.geotools.gml3.bindings.smil.SMIL20;
-import org.geotools.gml3.bindings.smil.SMIL20LANG;
+import org.geotools.gml3.smil.SMIL20;
+import org.geotools.gml3.smil.SMIL20LANG;
 import org.geotools.gml3.smil.SMIL20LANGSchema;
 import org.geotools.gml3.smil.SMIL20Schema;
-import org.geotools.xlink.bindings.XLINK;
+import org.geotools.xlink.XLINK;
 import org.geotools.xml.Binding;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.SchemaIndex;
 import org.geotools.xml.Schemas;
+import org.geotools.xs.XS;
 import org.geotools.xs.XSSchema;
-import org.geotools.xs.bindings.XS;
-import org.opengis.feature.simple.SimpleTypeFactory;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
-import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.FeatureTypeFactory;
+import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.Schema;
-import org.opengis.feature.type.TypeFactory;
+import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 import org.xmlpull.v1.XmlPullParser;
@@ -81,16 +78,15 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
- * Parses an application schema given by a gtxml {@link Configuration} into a
- * set of {@link AttributeType}s and {@link AttributeDescriptor}s.
+ * Parses an application schema given by a gtxml {@link Configuration} into a set of
+ * {@link AttributeType}s and {@link AttributeDescriptor}s.
  * <p>
- * All the XSD schema locations that comprise the application schema are
- * obtained from the main {@link Configuration} and its dependencies.
+ * All the XSD schema locations that comprise the application schema are obtained from the main
+ * {@link Configuration} and its dependencies.
  * </p>
  * <p>
- * Of particular interest might be the {@link ApplicationSchemaConfiguration}
- * object, which allows to provide the location of the root xsd schema for a
- * given application schema.
+ * Of particular interest might be the {@link ApplicationSchemaConfiguration} object, which allows
+ * to provide the location of the root xsd schema for a given application schema.
  * </p>
  * 
  * @author Gabriel Roldan
@@ -100,8 +96,8 @@ import org.xmlpull.v1.XmlPullParserFactory;
  * @since 2.4
  */
 public class EmfAppSchemaReader {
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(EmfAppSchemaReader.class.getPackage()
-            .getName());
+    private static final Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger(EmfAppSchemaReader.class.getPackage().getName());
 
     /**
      * Caches the GML 3.1.1 types and its dependencies
@@ -114,34 +110,32 @@ public class EmfAppSchemaReader {
     private static Map FOUNDATION_DESCRIPTORS = new HashMap();
 
     /**
-     * Contains all the AttributeTypes defined in the application schema and its
-     * imports
+     * Contains all the AttributeTypes defined in the application schema and its imports
      */
     private Map/* <Name, AttributeType> */typeRegistry;
 
     /**
-     * Contains all the AttributeDescriptors defined in the application schema
-     * and its imports
+     * Contains all the AttributeDescriptors defined in the application schema and its imports
      */
     private Map/* <Name, AttributeDescriptor> */descriptorRegistry;
 
     /**
      * stack of currently being built type names, used by
-     * {@link #createType(Name, XSDTypeDefinition)} to prevent recursive type
-     * definitions by proxy'ing a type that appears to be already being
-     * constructed and thus still not in the type registry.
+     * {@link #createType(Name, XSDTypeDefinition)} to prevent recursive type definitions by
+     * proxy'ing a type that appears to be already being constructed and thus still not in the type
+     * registry.
      */
     private Stack processingTypes;
 
-    private TypeFactory typeFactory;
+    private FeatureTypeFactory typeFactory;
 
     private Catalog oasisCatalog;
 
     private EmfAppSchemaReader() {
-        typeFactory = new TypeFactoryImpl();
+        typeFactory = new FeatureTypeFactoryImpl();
     }
 
-    public TypeFactory getTypeFactory() {
+    public FeatureTypeFactory getTypeFactory() {
         return typeFactory;
     }
 
@@ -152,12 +146,12 @@ public class EmfAppSchemaReader {
     public Map getDescriptorRegistry() {
         return new HashMap(this.descriptorRegistry);
     }
-    
-    public Catalog getCatalog(){
+
+    public Catalog getCatalog() {
         return oasisCatalog;
     }
-    
-    public void setCatalog(final Catalog oasisCatalog){
+
+    public void setCatalog(final Catalog oasisCatalog) {
         this.oasisCatalog = oasisCatalog;
     }
 
@@ -166,21 +160,21 @@ public class EmfAppSchemaReader {
      * {@link Configuration#getSchemaFileURL() schema location} into a set of
      * {@link AttributeDescriptor} and {@link AttributeType} objects.
      * <p>
-     * Upon return of this method, its guaranteed that all the globally defined
-     * xml elements in the application schema and its dependencies are available
-     * through {@link #getDescriptorRegistry()}, and all the globally defined
-     * xml types through {@link #getTypeRegistry()}.
+     * Upon return of this method, its guaranteed that all the globally defined xml elements in the
+     * application schema and its dependencies are available through
+     * {@link #getDescriptorRegistry()}, and all the globally defined xml types through
+     * {@link #getTypeRegistry()}.
      * </p>
      * 
      * @param configuration
-     *            configuration object used to access the XSDSchema to parse.
-     *            This configuration object might contain {@link Binding}s
+     *                configuration object used to access the XSDSchema to parse. This configuration
+     *                object might contain {@link Binding}s
      * @throws IOException
      */
     public void parse(Configuration configuration) throws IOException {
-        //if there's an Oasis catalog set, use it to resolve schema locations
+        // if there's an Oasis catalog set, use it to resolve schema locations
         final Catalog catalog = getCatalog();
-        if(catalog != null){
+        if (catalog != null) {
             configuration = new OasisCatalogConfigurationWrapper(catalog, configuration);
         }
         // find out the schemas involved in the app schema configuration
@@ -233,19 +227,18 @@ public class EmfAppSchemaReader {
      * Parses the gml schema referenced by <code>location</code> into a set of
      * {@link AttributeDescriptor} and {@link AttributeType} objects.
      * <p>
-     * Upon return of this method, its guaranteed that all the globally defined
-     * xml elements in the application schema and its dependencies are available
-     * through {@link #getDescriptorRegistry()}, and all the globally defined
-     * xml types through {@link #getTypeRegistry()}.
+     * Upon return of this method, its guaranteed that all the globally defined xml elements in the
+     * application schema and its dependencies are available through
+     * {@link #getDescriptorRegistry()}, and all the globally defined xml types through
+     * {@link #getTypeRegistry()}.
      * </p>
      * 
      * @param location
-     *            the phisical location of the root xsd schema that comprises
-     *            the application schema to parse.
+     *                the phisical location of the root xsd schema that comprises the application
+     *                schema to parse.
      * @throws IOException
-     *             if any non recoverable problem occurs while parsing the
-     *             application schema pointed out by <code>location</code> or
-     *             one of its dependencies.
+     *                 if any non recoverable problem occurs while parsing the application schema
+     *                 pointed out by <code>location</code> or one of its dependencies.
      */
     public void parse(final URL location) throws IOException {
 
@@ -260,8 +253,7 @@ public class EmfAppSchemaReader {
     }
 
     /**
-     * Finds out the targetNamespace of the xsd schema referenced by
-     * <code>location</code>
+     * Finds out the targetNamespace of the xsd schema referenced by <code>location</code>
      * 
      * @param location
      * @return
@@ -271,9 +263,9 @@ public class EmfAppSchemaReader {
         String targetNamespace = null;
         // parse some of the instance document to find out the
         // schema location
-        if(getCatalog() != null){
+        if (getCatalog() != null) {
             String resolvedLocation = getCatalog().resolveSystem(location.toExternalForm());
-            if(resolvedLocation != null){
+            if (resolvedLocation != null) {
                 location = new URL(resolvedLocation);
             }
         }
@@ -357,10 +349,9 @@ public class EmfAppSchemaReader {
     }
 
     /**
-     * Traverses over the {@link XSDElementDeclaration}s and
-     * {@link XSDTypeDefinition}s in <code>xsdSchema</code>, parses them to
-     * the appropriate {@link AttributeDescriptor}s and {@link AttributeType}s,
-     * and stores the parsed objects into {@link #descriptorRegistry} and
+     * Traverses over the {@link XSDElementDeclaration}s and {@link XSDTypeDefinition}s in
+     * <code>xsdSchema</code>, parses them to the appropriate {@link AttributeDescriptor}s and
+     * {@link AttributeType}s, and stores the parsed objects into {@link #descriptorRegistry} and
      * {@link #typeRegistry}, respectively.
      * 
      * @param xsdSchema
@@ -437,16 +428,15 @@ public class EmfAppSchemaReader {
         AttributeDescriptor descriptor = typeFactory.createAttributeDescriptor(type, elemName,
                 minOccurs, maxOccurs, nillable, defaultValue);
 
-        descriptor.putUserData(XSDElementDeclaration.class, elemDecl);
+        descriptor.getUserData().put(XSDElementDeclaration.class, elemDecl);
 
         return descriptor;
     }
 
     /**
-     * If the type of elemDecl is annonymous creates a new type with the same
-     * name than the atrribute and returns it. If it is not anonymous, looks it
-     * up on the registry and in case the type does not exists in the registry
-     * uses a proxy.
+     * If the type of elemDecl is annonymous creates a new type with the same name than the
+     * atrribute and returns it. If it is not anonymous, looks it up on the registry and in case the
+     * type does not exists in the registry uses a proxy.
      * 
      * @param elemDecl
      * @return
@@ -514,8 +504,7 @@ public class EmfAppSchemaReader {
     }
 
     /**
-     * Returns whether <code>typeDefinition</code> has an ancestor named
-     * <code>baseTypeName</code>.
+     * Returns whether <code>typeDefinition</code> has an ancestor named <code>baseTypeName</code>.
      * 
      * @param typeDefinition
      * @param baseTypeName
@@ -538,17 +527,15 @@ public class EmfAppSchemaReader {
     }
 
     /**
-     * Creates an {@link AttributeType} that matches the xsd type definition as
-     * much as possible.
+     * Creates an {@link AttributeType} that matches the xsd type definition as much as possible.
      * <p>
-     * The original type definition given by the {@link XSDTypeDefinition} is
-     * kept as AttributeType's metadata stored as a "user data" property using
+     * The original type definition given by the {@link XSDTypeDefinition} is kept as
+     * AttributeType's metadata stored as a "user data" property using
      * <code>XSDTypeDefinition.class</code> as key.
      * </p>
      * <p>
-     * If it is a complex attribute, it will contain all the properties declared
-     * in the <code>typeDefinition</code>, as well as all the properties
-     * declared in its super types.
+     * If it is a complex attribute, it will contain all the properties declared in the
+     * <code>typeDefinition</code>, as well as all the properties declared in its super types.
      * </p>
      * TODO: handle the case where the extension mechanism is restriction.
      * 
@@ -581,7 +568,7 @@ public class EmfAppSchemaReader {
                 superType = createType(baseType);
                 register(superType);
             }
-        }else{
+        } else {
             LOGGER.warning(assignedName + " has no super type");
         }
 
@@ -618,16 +605,16 @@ public class EmfAppSchemaReader {
             attType = createComplexAttributeType(assignedName, schema, complexTypeDef, superType);
 
         } else {
-            Class binding = String.class;
+            Class<?> binding = String.class;
             boolean isIdentifiable = false;
             boolean isAbstract = false;
-            Set restrictions = Collections.EMPTY_SET;
+            List<Filter> restrictions = Collections.emptyList();
             InternationalString description = null;
             attType = typeFactory.createAttributeType(assignedName, binding, isIdentifiable,
                     isAbstract, restrictions, superType, description);
         }
 
-        attType.putUserData(XSDTypeDefinition.class, typeDefinition);
+        attType.getUserData().put(XSDTypeDefinition.class, typeDefinition);
 
         processingTypes.pop();
         return attType;
@@ -653,22 +640,21 @@ public class EmfAppSchemaReader {
         boolean isSimpleContent = isSimpleContent(schema);
 
         boolean isAbstract = false;// TODO
-        Set restrictions = Collections.EMPTY_SET;
+        List<Filter> restrictions = Collections.emptyList();
         InternationalString description = null; // TODO
 
         AttributeType type;
         if (isFeatureType) {
             if (isSimpleContent) {
-                SimpleTypeFactory fac = new SimpleTypeFactoryImpl();
-                // let the factory decide
-                CoordinateReferenceSystem crs = null;
-                // let the factory decide
-                AttributeDescriptor defaultGeometry = null;
-                type = fac.createSimpleFeatureType(assignedName, new ArrayList(schema),
-                        defaultGeometry, crs, restrictions, description);
+                FeatureTypeFactory fac = new FeatureTypeFactoryImpl();
+                type = fac
+                        .createSimpleFeatureType(assignedName, new ArrayList(schema),
+                                (GeometryDescriptor) null, isAbstract, restrictions, superType,
+                                description);
             } else {
-                type = typeFactory.createFeatureType(assignedName, schema, null, null, isAbstract,
-                        restrictions, superType, description);
+                type = typeFactory
+                        .createFeatureType(assignedName, schema, (GeometryDescriptor) null,
+                                isAbstract, restrictions, superType, description);
 
             }
         } else {
@@ -680,9 +666,8 @@ public class EmfAppSchemaReader {
     }
 
     /**
-     * Determines if elements of the given complex type definition are required
-     * to have an identifier by looking for a child element of
-     * <code>typeDefinition</code> of the form
+     * Determines if elements of the given complex type definition are required to have an
+     * identifier by looking for a child element of <code>typeDefinition</code> of the form
      * <code>&lt;xs:attribute ref=&quot;gml:id&quot; use=&quot;required&quot; /&gt;</code>
      * 
      * @param typeDefinition
@@ -711,8 +696,8 @@ public class EmfAppSchemaReader {
     }
 
     /**
-     * Returns true if all the AttributeDescriptors contained in
-     * <code>schema</code> are of a simple type and no one has maxOccurs > 1.
+     * Returns true if all the AttributeDescriptors contained in <code>schema</code> are of a
+     * simple type and no one has maxOccurs > 1.
      * <p>
      * Note this method ignores the attributes from the GML namespace
      * </p>
@@ -730,7 +715,7 @@ public class EmfAppSchemaReader {
             if (descriptor.getMaxOccurs() > 1) {
                 return false;
             }
-            if (descriptor.type() instanceof ComplexType) {
+            if (descriptor.getType() instanceof ComplexType) {
                 return false;
             }
         }
@@ -738,8 +723,8 @@ public class EmfAppSchemaReader {
     }
 
     /**
-     * Returns <code>true</code> if <code>typeDefinition</code> is derived
-     * from a type named <code>superTypeName</code>
+     * Returns <code>true</code> if <code>typeDefinition</code> is derived from a type named
+     * <code>superTypeName</code>
      * 
      * @param typeDefinition
      * @param superTypeName
@@ -816,21 +801,10 @@ public class EmfAppSchemaReader {
                 } else if (value instanceof AttributeDescriptor) {
                     AttributeDescriptor descriptor = (AttributeDescriptor) value;
                     register(descriptor);
-                } else if (value instanceof org.geotools.feature.AttributeType) {
-                    org.geotools.feature.AttributeType gtType;
-                    gtType = (org.geotools.feature.AttributeType) value;
-                    String nsUri = schema.namespace().getURI();
-                    AttributeType isoType = ISOAttributeTypeAdapter.adapter(nsUri, gtType);
-                    register(isoType);
-                } else if (value instanceof org.geotools.feature.FeatureType) {
-                    org.geotools.feature.FeatureType gtType;
-                    gtType = (org.geotools.feature.FeatureType) value;
-                    FeatureType isoType = new ISOFeatureTypeAdapter(gtType);
-                    register(isoType);
                 }
             }
         }
-        LOGGER.fine("Schema " + schema.namespace().getURI() + " imported successfully");
+        LOGGER.fine("Schema " + schema.getURI() + " imported successfully");
     }
 
     public static EmfAppSchemaReader newInstance() {

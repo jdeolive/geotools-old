@@ -18,11 +18,12 @@
 package org.geotools.data.complex.config;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.Filter;
 import org.opengis.util.InternationalString;
 
 /**
@@ -63,7 +64,7 @@ class AttributeTypeProxy implements AttributeType {
         return null;
     }
 
-    public Set getRestrictions() {
+    public List<Filter> getRestrictions() {
         return getSubject().getRestrictions();
     }
 
@@ -87,12 +88,8 @@ class AttributeTypeProxy implements AttributeType {
         return typeName;
     }
 
-    public Object getUserData(Object key) {
-        return getSubject().getUserData(key);
-    }
-
-    public void putUserData(Object key, Object value) {
-        getSubject().putUserData(key, value);
+    public Map<Object, Object> getUserData() {
+        return getSubject().getUserData();
     }
 
     public boolean equals(Object o) {

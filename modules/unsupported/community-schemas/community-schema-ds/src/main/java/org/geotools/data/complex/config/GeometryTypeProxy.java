@@ -29,8 +29,8 @@ class GeometryTypeProxy extends AttributeTypeProxy implements GeometryType {
         super(typeName, registry);
     }
 
-    public CoordinateReferenceSystem getCRS() {
-        return ((GeometryType) getSubject()).getCRS();
+    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+        return ((GeometryType) getSubject()).getCoordinateReferenceSystem();
     }
 
 }

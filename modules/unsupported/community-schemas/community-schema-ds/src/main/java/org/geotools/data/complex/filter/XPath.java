@@ -28,10 +28,9 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.iso.AttributeBuilder;
-import org.geotools.feature.iso.AttributeFactoryImpl;
-import org.geotools.feature.iso.Types;
-import org.geotools.feature.iso.type.TypeFactoryImpl;
+import org.geotools.feature.AttributeBuilder;
+import org.geotools.feature.Types;
+import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.geotools.util.CheckedArrayList;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
@@ -39,9 +38,9 @@ import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
+import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
-import org.opengis.feature.type.TypeFactory;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
@@ -49,25 +48,24 @@ import org.opengis.util.Cloneable;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /**
- * Utility class to evaluate XPath expressions against an Attribute instance,
- * which may be any Attribute, wether it is simple, complex, a feature, etc.
+ * Utility class to evaluate XPath expressions against an Attribute instance, which may be any
+ * Attribute, whether it is simple, complex, a feature, etc.
  * <p>
- * At the difference of the Filter subsystem, which works against Attribute
- * contents (for example to evaluate a comparison filter), the XPath subsystem,
- * for which this class is the single entry point, works against Attribute
- * instances. That is, the result of an XPath expression, if a single value, is
- * an Attribtue, not the attribute content, or a List of Attributes, for
- * instance.
+ * At the difference of the Filter subsystem, which works against Attribute contents (for example to
+ * evaluate a comparison filter), the XPath subsystem, for which this class is the single entry
+ * point, works against Attribute instances. That is, the result of an XPath expression, if a single
+ * value, is an Attribtue, not the attribute content, or a List of Attributes, for instance.
  * </p>
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
- * @source $URL:
- *         http://svn.geotools.org/geotools/branches/2.4.x/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/filter/XPath.java $
+ * @source $URL$
  * @since 2.4
  */
 public class XPath {
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(XPath.class.getPackage().getName());
+
+    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(XPath.class
+            .getPackage().getName());
 
     private FilterFactory FF;
 
@@ -75,22 +73,21 @@ public class XPath {
 
     /**
      * Used to create specific attribute descriptors for
-     * {@link #set(Attribute, String, Object, String, AttributeType)} when the
-     * actual attribute instance is of a derived type of the corresponding one
-     * declared in the feature type.
+     * {@link #set(Attribute, String, Object, String, AttributeType)} when the actual attribute
+     * instance is of a derived type of the corresponding one declared in the feature type.
      */
-    private TypeFactory descriptorFactory;
+    private FeatureTypeFactory descriptorFactory;
 
     public XPath() {
         this.FF = CommonFactoryFinder.getFilterFactory(null);
-        this.featureFactory = new AttributeFactoryImpl();
-        this.descriptorFactory = new TypeFactoryImpl();
+        this.featureFactory = new ValidatingFeatureFactoryImpl();
+        // this.descriptorFactory = new TypeFactoryImpl();
     }
 
     public XPath(FilterFactory ff, FeatureFactory featureFactory) {
         setFilterFactory(ff);
         setFeatureFactory(featureFactory);
-        this.descriptorFactory = new TypeFactoryImpl();
+        // this.descriptorFactory = new TypeFactoryImpl();
     }
 
     public void setFilterFactory(FilterFactory ff) {
@@ -101,7 +98,7 @@ public class XPath {
         this.featureFactory = featureFactory;
     }
 
-    public static class StepList extends CheckedArrayList implements List, Cloneable {
+    public static class StepList extends CheckedArrayList<Step> {
         private static final long serialVersionUID = -5612786286175355862L;
 
         private StepList() {
@@ -115,7 +112,7 @@ public class XPath {
 
         public String toString() {
             StringBuffer sb = new StringBuffer();
-            for (Iterator it = iterator(); it.hasNext();) {
+            for (Iterator<Step> it = iterator(); it.hasNext();) {
                 Step s = (Step) it.next();
                 sb.append(s.toString());
                 if (it.hasNext()) {
@@ -125,24 +122,22 @@ public class XPath {
             return sb.toString();
         }
 
-        public Object clone() {
+        public StepList clone() {
             StepList copy = new StepList();
-            Step step;
-            for (Iterator it = iterator(); it.hasNext();) {
-                step = (Step) it.next();
-                copy.add(step.clone());
+            for (Step step : this) {
+                copy.add((Step) step.clone());
             }
             return copy;
         }
 
         /**
-         * Compares this StepList with another for equivalence regardless of the
-         * indexes of each Step.
+         * Compares this StepList with another for equivalence regardless of the indexes of each
+         * Step.
          * 
          * @param propertyName
-         * @return <code>true</code> if this step list has the same location
-         *         paths than <code>propertyName</code> ignoring the indexes
-         *         in each step. <code>false</code> otherwise.
+         * @return <code>true</code> if this step list has the same location paths than
+         *         <code>propertyName</code> ignoring the indexes in each step. <code>false</code>
+         *         otherwise.
          */
         public boolean equalsIgnoreIndex(final StepList propertyName) {
             if (propertyName == null) {
@@ -192,21 +187,21 @@ public class XPath {
         }
 
         /**
-         * Creates an xpath step for the given qualified name and index; and the
-         * given flag to indicate if it it an "attribute" or "property" step.
+         * Creates an xpath step for the given qualified name and index; and the given flag to
+         * indicate if it it an "attribute" or "property" step.
          * 
          * @param name
-         *            the qualified name of the step (name should include prefix
-         *            to be reflected in toString())
+         *                the qualified name of the step (name should include prefix to be reflected
+         *                in toString())
          * @param index
-         *            the index (indexing starts at 1 for Xpath) of the step
+         *                the index (indexing starts at 1 for Xpath) of the step
          * @param isXmlAttribute
-         *            whether the step referers to an "attribute" or a
-         *            "property" (like for attributes and elements in xml)
+         *                whether the step referers to an "attribute" or a "property" (like for
+         *                attributes and elements in xml)
          * @throws NullPointerException
-         *             if <code>name==null</code>
+         *                 if <code>name==null</code>
          * @throws IllegalArgumentException
-         *             if <code>index &lt; 1</code>
+         *                 if <code>index &lt; 1</code>
          */
         public Step(final QName name, final int index, boolean isXmlAttribute) {
             if (name == null) {
@@ -221,8 +216,7 @@ public class XPath {
         }
 
         /**
-         * Compares this Step with another for equivalence ignoring the steps
-         * indexes.
+         * Compares this Step with another for equivalence ignoring the steps indexes.
          * 
          * @param hisStep
          * @return
@@ -246,7 +240,7 @@ public class XPath {
         }
 
         public String toString() {
-            StringBuffer sb = new StringBuffer(isXmlAttribute? "@" : "");
+            StringBuffer sb = new StringBuffer(isXmlAttribute ? "@" : "");
             if (XMLConstants.DEFAULT_NS_PREFIX != attributeName.getPrefix()) {
                 sb.append(attributeName.getPrefix()).append(':');
             }
@@ -262,7 +256,8 @@ public class XPath {
                 return false;
             }
             Step s = (Step) o;
-            return attributeName.equals(s.attributeName) && index == s.index && isXmlAttribute == s.isXmlAttribute;
+            return attributeName.equals(s.attributeName) && index == s.index
+                    && isXmlAttribute == s.isXmlAttribute;
         }
 
         public int hashCode() {
@@ -274,8 +269,8 @@ public class XPath {
         }
 
         /**
-         * Flag that indicates that this single step refers to an "attribute"
-         * rather than a "property".
+         * Flag that indicates that this single step refers to an "attribute" rather than a
+         * "property".
          * <p>
          * I.e. it was created from the last step of an expression like
          * <code>foo/bar@attribute</code>.
@@ -289,22 +284,21 @@ public class XPath {
     }
 
     /**
-     * Returns the list of stepts in <code>xpathExpression</code> by cleaning
-     * it up removing unnecessary elements.
+     * Returns the list of stepts in <code>xpathExpression</code> by cleaning it up removing
+     * unnecessary elements.
      * <p>
      * </p>
      * 
      * @param root
-     *            non null descriptor of the root attribute, generally the
-     *            Feature descriptor. Used to ignore the first step in
-     *            xpathExpression if the expression's first step is named as
-     *            rootName.
+     *                non null descriptor of the root attribute, generally the Feature descriptor.
+     *                Used to ignore the first step in xpathExpression if the expression's first
+     *                step is named as rootName.
      * 
      * @param xpathExpression
      * @return
      * @throws IllegalArgumentException
-     *             if <code>xpathExpression</code> has no steps or it isn't a
-     *             valid XPath expression against <code>type</code>.
+     *                 if <code>xpathExpression</code> has no steps or it isn't a valid XPath
+     *                 expression against <code>type</code>.
      */
     public static StepList steps(final AttributeDescriptor root, final String xpathExpression,
             final NamespaceSupport namespaces) throws IllegalArgumentException {
@@ -344,11 +338,11 @@ public class XPath {
         for (int i = startIndex; i < partialSteps.length; i++) {
 
             String step = partialSteps[i];
-            if("..".equals(step)){
+            if ("..".equals(step)) {
                 steps.remove(steps.size() - 1);
-            }else if (".".equals(step)){
+            } else if (".".equals(step)) {
                 continue;
-            }else{
+            } else {
                 int index = 1;
                 boolean isXmlAttribute = false;
                 String stepName = step;
@@ -358,29 +352,29 @@ public class XPath {
                     stepName = step.substring(0, start);
                     index = Integer.parseInt(step.substring(start + 1, end));
                 }
-                if(step.charAt(0) == '@'){
+                if (step.charAt(0) == '@') {
                     isXmlAttribute = true;
                     stepName = stepName.substring(1);
                 }
-                QName qName  = deglose(stepName, root, namespaces);
+                QName qName = deglose(stepName, root, namespaces);
                 steps.add(new Step(qName, index, isXmlAttribute));
             }
-//            
-//            if (step.indexOf('[') != -1) {
-//                int start = step.indexOf('[');
-//                int end = step.indexOf(']');
-//                String stepName = step.substring(0, start);
-//                int stepIndex = Integer.parseInt(step.substring(start + 1, end));
-//                QName qName = deglose(stepName, root, namespaces);
-//                steps.add(new Step(qName, stepIndex));
-//            } else if ("..".equals(step)) {
-//                steps.remove(steps.size() - 1);
-//            } else if (".".equals(step)) {
-//                continue;
-//            } else {
-//                QName qName = deglose(step, root, namespaces);
-//                steps.add(new Step(qName, 1));
-//            }
+            //            
+            // if (step.indexOf('[') != -1) {
+            // int start = step.indexOf('[');
+            // int end = step.indexOf(']');
+            // String stepName = step.substring(0, start);
+            // int stepIndex = Integer.parseInt(step.substring(start + 1, end));
+            // QName qName = deglose(stepName, root, namespaces);
+            // steps.add(new Step(qName, stepIndex));
+            // } else if ("..".equals(step)) {
+            // steps.remove(steps.size() - 1);
+            // } else if (".".equals(step)) {
+            // continue;
+            // } else {
+            // QName qName = deglose(step, root, namespaces);
+            // steps.add(new Step(qName, 1));
+            // }
         }
 
         // XPath simplification phase: if the xpath expression contains more
@@ -447,23 +441,22 @@ public class XPath {
     }
 
     /**
-     * Sets the value of the attribute of <code>att</code> addressed by
-     * <code>xpath</code> and of type <code>targetNodeType</code> to be
-     * <code>value</code> with id <code>id</code>.
+     * Sets the value of the attribute of <code>att</code> addressed by <code>xpath</code> and
+     * of type <code>targetNodeType</code> to be <code>value</code> with id <code>id</code>.
      * 
      * @param att
-     *            the root attribute for which to set the child attribute value
+     *                the root attribute for which to set the child attribute value
      * @param xpath
-     *            the xpath expression that addresses the <code>att</code>
-     *            child whose value is to be set
+     *                the xpath expression that addresses the <code>att</code> child whose value
+     *                is to be set
      * @param value
-     *            the value of the attribute addressed by <code>xpath</code>
+     *                the value of the attribute addressed by <code>xpath</code>
      * @param id
-     *            the identifier of the attribute addressed by
-     *            <code>xpath</code>, might be <code>null</code>
+     *                the identifier of the attribute addressed by <code>xpath</code>, might be
+     *                <code>null</code>
      * @param targetNodeType
-     *            the expected type of the attribute addressed by
-     *            <code>xpath</code>, or <code>null</code> if unknown
+     *                the expected type of the attribute addressed by <code>xpath</code>, or
+     *                <code>null</code> if unknown
      * @return
      */
     public Attribute set(final Attribute att, final StepList xpath, Object value, String id,
@@ -546,7 +539,7 @@ public class XPath {
 
             if (currStepDescriptor == null) {
                 StringBuffer parentAtts = new StringBuffer();
-                Collection properties = parentType.getProperties();
+                Collection properties = parentType.getDescriptors();
                 for (Iterator it = properties.iterator(); it.hasNext();) {
                     PropertyDescriptor desc = (PropertyDescriptor) it.next();
                     Name name = desc.getName();
@@ -593,12 +586,12 @@ public class XPath {
 
         // adapt value to context
         Literal literal = FF.literal(value);
-        Class binding = ((AttributeType)descriptor.type()).getBinding();
+        Class binding = ((AttributeType) descriptor.getType()).getBinding();
         value = literal.evaluate(value, binding);
 
         Attribute leafAttribute = null;
 
-        Object currStepValue = parent.get(attributeName);
+        Object currStepValue = parent.getProperties(attributeName);
 
         if (currStepValue instanceof Collection) {
             List values = new ArrayList((Collection) currStepValue);
@@ -622,7 +615,7 @@ public class XPath {
                 leafAttribute = builder.add(id, value, attributeName);
             }
             List newValue = new ArrayList();
-            newValue.addAll((Collection)parent.getValue());
+            newValue.addAll((Collection) parent.getValue());
             newValue.add(leafAttribute);
             parent.setValue(newValue);
         }
@@ -642,7 +635,7 @@ public class XPath {
         }
 
         AttributeDescriptor node = (AttributeDescriptor) type;
-        return node.type() instanceof ComplexType;
+        return node.getType() instanceof ComplexType;
     }
 
 }

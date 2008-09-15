@@ -33,9 +33,9 @@ import org.geotools.util.CheckedHashSet;
 /**
  * Configuration object for a {@link org.geotools.data.complex.ComplexDataStore}.
  * <p>
- * This configuration object contains all the needed elements for a
- * ComplexDataStore to aquire the source and target FeatureTypes, and apply the
- * mappings between attributes to serve community schemas.
+ * This configuration object contains all the needed elements for a ComplexDataStore to aquire the
+ * source and target FeatureTypes, and apply the mappings between attributes to serve community
+ * schemas.
  * </p>
  * 
  * @author Gabriel Roldan, Axios Engineering
@@ -48,8 +48,7 @@ public class ComplexDataStoreDTO implements Serializable {
     private static final long serialVersionUID = -8649884546130644668L;
 
     /**
-     * Url used as base path to resolve relative file names in {@link
-     * #targetSchemasUris}
+     * Url used as base path to resolve relative file names in {@link #targetSchemasUris}
      */
     private String baseSchemasUrl;
 
@@ -57,18 +56,17 @@ public class ComplexDataStoreDTO implements Serializable {
     private Map namespaces = Collections.EMPTY_MAP;
 
     /**
-     * List of configuration objects used to aquire the datastores that provides
-     * the source FeatureTypes. Source feature types are those internally
-     * defined whose Feature instances are converted to features of the target
-     * schemas by applying the FeatureTypeMappings.
+     * List of configuration objects used to aquire the datastores that provides the source
+     * FeatureTypes. Source feature types are those internally defined whose Feature instances are
+     * converted to features of the target schemas by applying the FeatureTypeMappings.
      */
     private List /* <SourceDataStore> */sourceDataStores = Collections.EMPTY_LIST;
 
     private Set /* <TypeMapping> */typeMappings = Collections.EMPTY_SET;
 
     /**
-     * List of file names, that may be fully qualified URL's, or paths relative
-     * to {@link #baseSchemasUrl}
+     * List of file names, that may be fully qualified URL's, or paths relative to
+     * {@link #baseSchemasUrl}
      */
     private List targetSchemasUris = Collections.EMPTY_LIST;
 
@@ -87,7 +85,7 @@ public class ComplexDataStoreDTO implements Serializable {
      * DOCUMENT ME!
      * 
      * @param targetSchemasUris
-     *            DOCUMENT ME!
+     *                DOCUMENT ME!
      */
     public void setTargetSchemasUris(List targetSchemasUris) {
         this.targetSchemasUris = new CheckedArrayList(String.class);
@@ -101,7 +99,7 @@ public class ComplexDataStoreDTO implements Serializable {
      * DOCUMENT ME!
      * 
      * @param nameSpaces
-     *            DOCUMENT ME!
+     *                DOCUMENT ME!
      */
     public void setNamespaces(Map nameSpaces) {
         if (nameSpaces == null) {
@@ -125,7 +123,7 @@ public class ComplexDataStoreDTO implements Serializable {
      * DOCUMENT ME!
      * 
      * @param dataStores
-     *            DOCUMENT ME!
+     *                DOCUMENT ME!
      */
     public void setSourceDataStores(List /* <SourceDataStore> */dataStores) {
         if (dataStores == null) {
@@ -149,7 +147,7 @@ public class ComplexDataStoreDTO implements Serializable {
      * DOCUMENT ME!
      * 
      * @param typeMappings
-     *            DOCUMENT ME!
+     *                DOCUMENT ME!
      */
     public void setTypeMappings(Set typeMappings) {
         this.typeMappings = new CheckedHashSet(TypeMapping.class);
@@ -171,9 +169,8 @@ public class ComplexDataStoreDTO implements Serializable {
     /**
      * DOCUMENT ME!
      * 
-     * @return a non null URL for the base location of the resource files in
-     *         order to serve as the base to resolve relative configuration
-     *         paths.
+     * @return a non null URL for the base location of the resource files in order to serve as the
+     *         base to resolve relative configuration paths.
      */
     public String getBaseSchemasUrl() {
         return baseSchemasUrl;
@@ -183,9 +180,8 @@ public class ComplexDataStoreDTO implements Serializable {
      * DOCUMENT ME!
      * 
      * @param baseSchemasUrl
-     *            URL of a resource which's going to be taken as the base
-     *            location to resolve configuration path elements expressed as
-     *            relative paths.
+     *                URL of a resource which's going to be taken as the base location to resolve
+     *                configuration path elements expressed as relative paths.
      */
     public void setBaseSchemasUrl(final String baseSchemasUrl) {
         this.baseSchemasUrl = baseSchemasUrl;

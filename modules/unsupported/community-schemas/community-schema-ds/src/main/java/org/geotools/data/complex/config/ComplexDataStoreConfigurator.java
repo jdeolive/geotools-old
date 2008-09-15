@@ -44,49 +44,48 @@ import org.apache.xml.resolver.tools.ResolvingXMLReader;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.AttributeMapping;
 import org.geotools.data.complex.FeatureTypeMapping;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
-import org.geotools.data.feature.FeatureAccess;
-import org.geotools.data.feature.FeatureSource2;
-import org.geotools.feature.iso.Types;
+import org.geotools.feature.Types;
 import org.geotools.filter.text.cql2.CQL;
-import org.geotools.filter.text.cql2.ParseException;
+import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
 import org.xml.sax.helpers.NamespaceSupport;
-
 /**
- * Utility class to create a set of {@linkPlain
- * org.geotools.data.complex.FeatureTypeMapping} objects from a complex
- * datastore's configuration object ({@link
+ * Utility class to create a set of {@linkPlain org.geotools.data.complex.FeatureTypeMapping}
+ * objects from a complex datastore's configuration object ({@link
  * org.geotools.data.complex.config.ComplexDataStoreDTO}).
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/config/ComplexDataStoreConfigurator.java $
  * @since 2.4
  */
 public class ComplexDataStoreConfigurator {
     /** DOCUMENT ME! */
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(ComplexDataStoreConfigurator.class
-            .getPackage().getName());
+    private static final Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger(ComplexDataStoreConfigurator.class.getPackage().getName());
 
     /** DOCUMENT ME! */
     private ComplexDataStoreDTO config;
 
     private Map typeRegistry;
+
     private Map descriptorRegistry;
 
     private Map sourceDataStores;
 
     /**
-     * Placeholder for the prefix:namespaceURI mappings declared in the
-     * Namespaces section of the mapping file.
+     * Placeholder for the prefix:namespaceURI mappings declared in the Namespaces section of the
+     * mapping file.
      */
     private NamespaceSupport namespaces;
 
@@ -94,7 +93,7 @@ public class ComplexDataStoreConfigurator {
      * Creates a new ComplexDataStoreConfigurator object.
      * 
      * @param config
-     *            DOCUMENT ME!
+     *                DOCUMENT ME!
      */
     private ComplexDataStoreConfigurator(ComplexDataStoreDTO config) {
         this.config = config;
@@ -112,19 +111,19 @@ public class ComplexDataStoreConfigurator {
      * Takes a config object and creates a set of mappings.
      * 
      * <p>
-     * In the process will parse xml schemas to geotools' Feature Model types
-     * and descriptors, connect to source datastores and build the mapping
-     * objects from source FeatureTypes to the target ones.
+     * In the process will parse xml schemas to geotools' Feature Model types and descriptors,
+     * connect to source datastores and build the mapping objects from source FeatureTypes to the
+     * target ones.
      * </p>
      * 
      * @param config
-     *            DOCUMENT ME!
+     *                DOCUMENT ME!
      * 
-     * @return a Set of {@link org.geotools.data.complex.FeatureTypeMapping}
-     *         source to target FeatureType mapping definitions
+     * @return a Set of {@link org.geotools.data.complex.FeatureTypeMapping} source to target
+     *         FeatureType mapping definitions
      * 
      * @throws IOException
-     *             if any error occurs while creating the mappings
+     *                 if any error occurs while creating the mappings
      */
     public static Set buildMappings(ComplexDataStoreDTO config) throws IOException {
         ComplexDataStoreConfigurator mappingsBuilder;
@@ -139,14 +138,14 @@ public class ComplexDataStoreConfigurator {
      * Actually builds the mappings from the config dto.
      * 
      * <p>
-     * Build steps are: - parse xml schemas to FM types - connect to source
-     * datastores - build mappings
+     * Build steps are: - parse xml schemas to FM types - connect to source datastores - build
+     * mappings
      * </p>
      * 
      * @return
      * 
      * @throws IOException
-     *             DOCUMENT ME!
+     *                 DOCUMENT ME!
      */
     private Set buildMappings() throws IOException {
         // -parse target xml schemas, let parsed types on <code>registry</code>
@@ -169,18 +168,13 @@ public class ComplexDataStoreConfigurator {
         for (Iterator it = mappingsConfigs.iterator(); it.hasNext();) {
             TypeMapping dto = (TypeMapping) it.next();
 
-            FeatureSource2 featureSoruce = getFeatureSource(dto);
+            FeatureSource featureSource = getFeatureSource(dto);
             AttributeDescriptor target = getTargetDescriptor(dto);
             List attMappings = getAttributeMappings(target, dto.getAttributeMappings());
-            List groupByAtts = dto.getGroupbyAttributeNames();
 
             FeatureTypeMapping mapping;
 
-            mapping = new FeatureTypeMapping(featureSoruce, target, attMappings, namespaces);
-
-            if (groupByAtts.size() > 0) {
-                mapping.setGroupByAttNames(groupByAtts);
-            }
+            mapping = new FeatureTypeMapping(featureSource, target, attMappings, namespaces);
 
             featureTypeMappings.add(mapping);
         }
@@ -197,16 +191,16 @@ public class ComplexDataStoreConfigurator {
 
         AttributeDescriptor targetDescriptor;
         targetDescriptor = (AttributeDescriptor) descriptorRegistry.get(targetNodeName);
-        if(targetDescriptor == null){
-            throw new NoSuchElementException("descriptor " + targetNodeName + " not found in parsed schema");
+        if (targetDescriptor == null) {
+            throw new NoSuchElementException("descriptor " + targetNodeName
+                    + " not found in parsed schema");
         }
         return targetDescriptor;
     }
 
     /**
-     * Creates a list of {@link org.geotools.data.complex.AttributeMapping} from
-     * the attribute mapping configurations in the provided list of
-     * {@link AttributeMapping}
+     * Creates a list of {@link org.geotools.data.complex.AttributeMapping} from the attribute
+     * mapping configurations in the provided list of {@link AttributeMapping}
      * 
      * @param attDtos
      * @return
@@ -259,10 +253,9 @@ public class ComplexDataStoreConfigurator {
     }
 
     /**
-     * Throws an IllegalArgumentException if some Step in the given xpath
-     * StepList has a prefix for which no prefix to namespace mapping were
-     * provided (as in the Namespaces section of the mappings xml configuration
-     * file)
+     * Throws an IllegalArgumentException if some Step in the given xpath StepList has a prefix for
+     * which no prefix to namespace mapping were provided (as in the Namespaces section of the
+     * mappings xml configuration file)
      * 
      * @param targetXPathSteps
      */
@@ -285,12 +278,13 @@ public class ComplexDataStoreConfigurator {
         if (sourceExpr != null && sourceExpr.trim().length() > 0) {
             try {
                 expression = CQL.toExpression(sourceExpr);
-            } catch (ParseException e) {
+            } catch (CQLException e) {
                 String formattedErrorMessage = e.getMessage();
                 ComplexDataStoreConfigurator.LOGGER.log(Level.SEVERE, formattedErrorMessage, e);
-                throw new DataSourceException("Error parsing expression " + sourceExpr + ":\n" + formattedErrorMessage);
+                throw new DataSourceException("Error parsing CQL expression " + sourceExpr + ":\n"
+                        + formattedErrorMessage);
             } catch (Exception e) {
-            	e.printStackTrace();
+                e.printStackTrace();
                 String msg = "parsing expression " + sourceExpr;
                 ComplexDataStoreConfigurator.LOGGER.log(Level.SEVERE, msg, e);
                 throw new DataSourceException(msg + ": " + e.getMessage(), e);
@@ -302,8 +296,8 @@ public class ComplexDataStoreConfigurator {
     /**
      * 
      * @param dto
-     * @return Map&lt;Name, Expression&gt; with the values per qualified name
-     *         (attribute name in the mapping)
+     * @return Map&lt;Name, Expression&gt; with the values per qualified name (attribute name in the
+     *         mapping)
      * @throws DataSourceException
      */
     private Map getClientProperties(org.geotools.data.complex.config.AttributeMapping dto)
@@ -325,7 +319,7 @@ public class ComplexDataStoreConfigurator {
         return clientProperties;
     }
 
-    private FeatureSource2 getFeatureSource(TypeMapping dto) throws IOException {
+    private FeatureSource getFeatureSource(TypeMapping dto) throws IOException {
         String dsId = dto.getSourceDataStore();
         String typeName = dto.getSourceTypeName();
 
@@ -338,20 +332,18 @@ public class ComplexDataStoreConfigurator {
         ComplexDataStoreConfigurator.LOGGER.fine("asking datastore " + sourceDataStore
                 + " for source type " + typeName);
         Name name = degloseName(typeName);
-        FeatureSource2 fSource = (FeatureSource2) sourceDataStore.access(name);
+        FeatureSource fSource = (FeatureSource) sourceDataStore.getFeatureSource(name);
         ComplexDataStoreConfigurator.LOGGER.fine("found feature source for " + typeName);
         return fSource;
     }
 
     /**
-     * Parses the target xml schema files and stores the generated types in
-     * {@link #typeRegistry} and AttributeDescriptors in
-     * {@link #descriptorRegistry}.
+     * Parses the target xml schema files and stores the generated types in {@link #typeRegistry}
+     * and AttributeDescriptors in {@link #descriptorRegistry}.
      * 
      * <p>
-     * The list of file names to parse is obtained from
-     * config.getTargetSchemasUris(). If a file name contained in that list is a
-     * relative path (i.e., does not starts with file: or http:,
+     * The list of file names to parse is obtained from config.getTargetSchemasUris(). If a file
+     * name contained in that list is a relative path (i.e., does not starts with file: or http:,
      * config.getBaseSchemasUrl() is used to resolve relative paths against.
      * </p>
      * 
@@ -385,12 +377,12 @@ public class ComplexDataStoreConfigurator {
     private Catalog getCatalog() throws MalformedURLException, IOException {
         Catalog oasisCatalog = null;
         String catalogLocation = config.getCatalog();
-        if(catalogLocation != null){
+        if (catalogLocation != null) {
             final URL baseUrl = new URL(config.getBaseSchemasUrl());
             final URL resolvedResourceLocation = resolveResourceLocation(baseUrl, catalogLocation);
             catalogLocation = resolvedResourceLocation.toExternalForm();
             boolean exists = resourceExists(resolvedResourceLocation);
-            if(!exists){
+            if (!exists) {
                 throw new FileNotFoundException("Catalog file does not exists: " + catalogLocation);
             }
             final ResolvingXMLReader reader = new ResolvingXMLReader();
@@ -439,12 +431,12 @@ public class ComplexDataStoreConfigurator {
     /**
      * DOCUMENT ME!
      * 
-     * @return a Map&lt;String,DataStore&gt; where the key is the id given to
-     *         the datastore in the configuration.
+     * @return a Map&lt;String,DataStore&gt; where the key is the id given to the datastore in the
+     *         configuration.
      * 
      * @throws IOException
      * @throws DataSourceException
-     *             DOCUMENT ME!
+     *                 DOCUMENT ME!
      */
     private Map/* <String, FeatureAccess> */aquireSourceDatastores() throws IOException {
         ComplexDataStoreConfigurator.LOGGER
@@ -464,9 +456,9 @@ public class ComplexDataStoreConfigurator {
 
             ComplexDataStoreConfigurator.LOGGER.fine("looking for datastore " + id);
 
-            DataAccess dataStore = DataAccessFinder.createAccess((Object) datastoreParams);
+            DataAccess dataStore = DataAccessFinder.getDataStore(datastoreParams);
 
-            if (!(dataStore instanceof FeatureAccess)) {
+            if (dataStore == null) {
                 throw new DataSourceException("Cannot find a DataAccess for parameters "
                         + datastoreParams);
             }
@@ -479,9 +471,8 @@ public class ComplexDataStoreConfigurator {
     }
 
     /**
-     * Resolves any source datastore parameter settled as a file path relative
-     * to the location of the xml mappings configuration file as an absolute
-     * path and returns a new Map with it.
+     * Resolves any source datastore parameter settled as a file path relative to the location of
+     * the xml mappings configuration file as an absolute path and returns a new Map with it.
      * 
      * @param datastoreParams
      * @return
@@ -503,7 +494,7 @@ public class ComplexDataStoreConfigurator {
                     URL baseSchemasUrl = new URL(config.getBaseSchemasUrl());
                     URL resolvedUrl = new URL(baseSchemasUrl, value);
                     value = resolvedUrl.toExternalForm();
-                    //HACK for shapefile: shapefile requires file:/...
+                    // HACK for shapefile: shapefile requires file:/...
                     if (!"url".equals(key) && value.startsWith("file:")) {
                         value = value.substring("file:".length());
                     }
@@ -518,14 +509,13 @@ public class ComplexDataStoreConfigurator {
     }
 
     /**
-     * Takes a prefixed attribute name and returns an {@link Name} by
-     * looking which namespace belongs the prefix to in
-     * {@link ComplexDataStoreDTO#getNamespaces()}.
+     * Takes a prefixed attribute name and returns an {@link Name} by looking which namespace
+     * belongs the prefix to in {@link ComplexDataStoreDTO#getNamespaces()}.
      * 
      * @param prefixedName
      * @return
      * @throws IllegalArgumentException
-     *             if <code>prefixedName</code> has no prefix.
+     *                 if <code>prefixedName</code> has no prefix.
      */
     private Name degloseTypeName(String prefixedName) throws IllegalArgumentException {
         Name name = null;

@@ -26,9 +26,9 @@ import javax.xml.namespace.QName;
 import org.geotools.data.Query;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
-import org.geotools.feature.iso.AttributeBuilder;
-import org.geotools.feature.iso.AttributeFactoryImpl;
-import org.geotools.feature.iso.Types;
+import org.geotools.feature.AttributeBuilder;
+import org.geotools.feature.Types;
+import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -36,18 +36,16 @@ import org.opengis.feature.type.Name;
 
 /**
  * A Feature iterator that operates over the FeatureSource of a
- * {@linkplain org.geotools.data.complex.FeatureTypeMapping} and produces
- * Features of the output schema by applying the mapping rules to the Features
- * of the source schema.
+ * {@linkplain org.geotools.data.complex.FeatureTypeMapping} and produces Features of the output
+ * schema by applying the mapping rules to the Features of the source schema.
  * <p>
- * This iterator acts like a one-to-one mapping, producing a Feature of the
- * target type for each feature of the source type. For a one-to-many iterator
- * see {@linkplain org.geotools.data.complex.GroupingFeatureIterator}
+ * This iterator acts like a one-to-one mapping, producing a Feature of the target type for each
+ * feature of the source type. For a one-to-many iterator see
+ * {@linkplain org.geotools.data.complex.GroupingFeatureIterator}
  * </p>
  * 
  * @author Gabriel Roldan, Axios Engineering
- * @version $Id: DefaultMappingFeatureIterator.java 29918 2008-04-14 00:56:28Z
- *          bencd $
+ * @version $Id$
  * @source $URL:
  *         http://svn.geotools.org/branches/2.4.x/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/DefaultMappingFeatureIterator.java $
  * @since 2.4
@@ -62,13 +60,13 @@ class DefaultMappingFeatureIterator extends AbstractMappingFeatureIterator {
     /** counter to ensure maxFeatures is not exceeded */
     private int featureCounter;
 
-    public DefaultMappingFeatureIterator(ComplexDataStore store,
-            FeatureTypeMapping mapping, Query query) throws IOException {
-        super(store, mapping, query, new AttributeFactoryImpl());
+    public DefaultMappingFeatureIterator(ComplexDataStore store, FeatureTypeMapping mapping,
+            Query query) throws IOException {
+        super(store, mapping, query, new ValidatingFeatureFactoryImpl());
         maxFeatures = query.getMaxFeatures();
     }
 
-    public Object/* Feature */next() {
+    public Feature next() {
         try {
             return computeNext();
         } catch (IOException e) {
@@ -78,8 +76,7 @@ class DefaultMappingFeatureIterator extends AbstractMappingFeatureIterator {
     }
 
     public boolean hasNext() {
-        return featureCounter < maxFeatures && sourceFeatures != null
-                && sourceFeatures.hasNext();
+        return featureCounter < maxFeatures && sourceFeatures != null && sourceFeatures.hasNext();
     }
 
     protected Query getUnrolledQuery(Query query) {
@@ -87,8 +84,7 @@ class DefaultMappingFeatureIterator extends AbstractMappingFeatureIterator {
     }
 
     private Feature computeNext() throws IOException {
-        ComplexAttribute sourceInstance = (ComplexAttribute) sourceFeatures
-                .next();
+        ComplexAttribute sourceInstance = (ComplexAttribute) sourceFeatures.next();
         final AttributeDescriptor targetNode = mapping.getTargetFeature();
         final Name targetNodeName = targetNode.getName();
         final List mappings = mapping.getAttributeMappings();
