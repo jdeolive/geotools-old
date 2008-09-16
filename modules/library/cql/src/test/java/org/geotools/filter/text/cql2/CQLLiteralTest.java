@@ -134,22 +134,6 @@ public class CQLLiteralTest {
         Assert.assertNotNull(geom.getValue());
         Assert.assertTrue(geom.getValue() instanceof com.vividsolutions.jts.geom.Polygon);
     }
-    
-    @Test
-    public void geometryCollection()throws Exception{
-
-        // GEOMETRYCOLLECTION
-        Filter result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
-                "CROSS(ATTR1, GEOMETRYCOLLECTION (POINT (10 10),POINT (30 30),LINESTRING (15 15, 20 20)) )");
-
-        BinarySpatialOperator resultBinarySpatialOp = (BinarySpatialOperator) result;
-        
-        Literal geom = (Literal) resultBinarySpatialOp.getExpression2();
-
-        Assert.assertNotNull(geom.getValue());
-        Assert.assertTrue(geom.getValue() instanceof com.vividsolutions.jts.geom.GeometryCollection);
-
-    }
 
     /**
      * Test error at geometry literal

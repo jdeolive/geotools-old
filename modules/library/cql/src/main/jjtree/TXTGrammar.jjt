@@ -24,8 +24,8 @@ options {
 
    NODE_PACKAGE="org.geotools.filter.text.generated.parsers";
  
-   SANITY_CHECK=false;
-   VISITOR=false;
+   SANITY_CHECK=true;
+   VISITOR=true;
 
    	// debug
    DEBUG_TOKEN_MANAGER=false;
@@ -273,9 +273,16 @@ Node FilterCompilationUnit() :
 Node ExpressionCompilationUnit() :
 {}
 {
-   Expression()
+    TXTExpression()
    <EOF>
    {return jjtree.rootNode();}
+}
+
+void TXTExpression()#void:
+{}
+{
+    	Expression()
+	| 	GeometryLiteral()
 }
 
 /*
