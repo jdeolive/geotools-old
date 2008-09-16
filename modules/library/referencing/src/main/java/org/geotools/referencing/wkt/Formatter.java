@@ -69,7 +69,7 @@ import org.geotools.resources.i18n.ErrorKeys;
  * @author Martin Desruisseaux (IRD)
  *
  * @see <A HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html">Well Know Text specification</A>
- * @see <A HREF="http://gdal.velocet.ca/~warmerda/wktproblems.html">OGC WKT Coordinate System Issues</A>
+ * @see <A HREF="http://home.gdal.org/projects/opengis/wktproblems.html">OGC WKT Coordinate System Issues</A>
  */
 public class Formatter {
     /**
@@ -216,8 +216,9 @@ public class Formatter {
     /**
      * Creates a new instance of the formatter with the specified indentation width.
      * The WKT will be formatted on many lines, and the indentation width will have
-     * the value specified to this constructor. If the specified indentation is 0,
-     * then the whole WKT will be formatted on a single line.
+     * the value specified to this constructor. If the specified indentation is
+     * {@link FormattableObject#SINGLE_LINE}, then the whole WKT will be formatted
+     * on a single line.
      *
      * @param symbols The symbols.
      * @param indentation The amount of spaces to use in indentation. Typical values are 2 or 4.

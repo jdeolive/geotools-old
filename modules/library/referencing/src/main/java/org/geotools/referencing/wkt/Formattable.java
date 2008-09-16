@@ -57,6 +57,14 @@ public class Formattable {
     private static final ThreadLocal<Formatter> FORMATTER = new ThreadLocal<Formatter>();
 
     /**
+     * The indentation value to give to {@link #toWKT(int)} method for formatting the complete
+     * object on a single line.
+     *
+     * @since 2.6
+     */
+    public static final int SINGLE_LINE = 0;
+
+    /**
      * Default constructor.
      */
     protected Formattable() {
@@ -82,13 +90,7 @@ public class Formattable {
      * Returns a
      * <A HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html"><cite>Well
      * Known Text</cite> (WKT)</A> using a default indentation. The default indentation is read from
-     * {@linkplain Preferences user preferences}. It can be set from the command line using the
-     * following syntax:
-     *
-     * <blockquote>
-     * {@code java org.geotools.referencing.wkt.Formattable -identation=}<var>&lt;preferred
-     * indentation&gt;</var>
-     * </blockquote>
+     * {@linkplain Preferences user preferences}.
      *
      * @return The Well Know Text for this object.
      * @throws UnformattableObjectException If this object can't be formatted as WKT.
@@ -107,7 +109,7 @@ public class Formattable {
      * Known Text</cite> (WKT)</A> for this object using the specified indentation.
      *
      * @param  indentation The amount of spaces to use in indentation for WKT formatting,
-     *         or 0 for formatting the whole WKT on a single line.
+     *         or {@link #SINGLE_LINE} for formatting the whole WKT on a single line.
      * @return The Well Know Text for this object.
      * @throws UnformattableObjectException If this object can't be formatted as WKT.
      *         A formatting may fails because an object is too complex for the WKT format capability
@@ -126,7 +128,7 @@ public class Formattable {
      *
      * @param  authority The authority to prefer when choosing WKT entities names.
      * @param  indentation The amount of spaces to use in indentation for WKT formatting,
-     *         or 0 for formatting the whole WKT on a single line.
+     *         or {@link #SINGLE_LINE} for formatting the whole WKT on a single line.
      * @return The Well Know Text for this object.
      * @throws UnformattableObjectException If this object can't be formatted as WKT.
      *         A formatting may fails because an object is too complex for the WKT format capability

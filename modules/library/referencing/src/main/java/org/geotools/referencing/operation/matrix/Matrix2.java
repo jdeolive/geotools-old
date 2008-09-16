@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -156,7 +156,7 @@ public class Matrix2 implements XMatrix, Serializable {
      * {@inheritDoc}
      */
     public final void setIdentity() {
-        m01 = m10 = 1;
+        m01 = m10 = 0;
         m00 = m11 = 1;
         assert isIdentity();
     }
