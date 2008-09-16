@@ -793,5 +793,15 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 				new double[] { xMax, yMax });
 		originalEnvelope.setCoordinateReferenceSystem(crs);
 	}
+	
+	/**
+	 * Number of coverages for this reader is 1
+	 * 
+	 * @return the number of coverages for this reader.
+	 */
+	@Override
+	public int getGridCoverageCount() {
+		return 1;
+	}
 
 }

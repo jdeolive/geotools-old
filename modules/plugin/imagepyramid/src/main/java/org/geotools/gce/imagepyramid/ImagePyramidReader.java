@@ -551,15 +551,22 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 		return reader.read(params);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see org.opengis.coverage.grid.GridCoverageReader#dispose()
 	 */
 	public void dispose() {
 		super.dispose();
 		readers.clear();
-
+	}
+	
+	/**
+	 * Number of coverages for this reader is 1
+	 * 
+	 * @return the number of coverages for this reader.
+	 */
+	@Override
+	public int getGridCoverageCount() {
+		return 1;
 	}
 
 }

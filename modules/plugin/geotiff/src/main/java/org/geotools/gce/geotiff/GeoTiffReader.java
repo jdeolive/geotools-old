@@ -470,5 +470,15 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 	public GeoTiffIIOMetadataDecoder getMetadata() {
 		return metadata;
 	}
+	
+	/**
+	 * Number of coverages for this reader is 1
+	 * 
+	 * @return the number of coverages for this reader.
+	 */
+	@Override
+	public int getGridCoverageCount() {
+		return 1;
+	}
 
 }

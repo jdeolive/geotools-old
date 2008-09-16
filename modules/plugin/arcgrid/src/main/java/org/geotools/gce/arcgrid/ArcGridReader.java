@@ -747,4 +747,14 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			LOGGER.info( "Unable to find crs, continuing with default WGS4 CRS" );
 		}
 	}
+
+	/**
+	 * Number of coverages for this reader is 1
+	 * 
+	 * @return the number of coverages for this reader.
+	 */
+	@Override
+	public int getGridCoverageCount() {
+		return 1;
+	}
 }
