@@ -22,6 +22,7 @@ class ShpFilesLocker {
     final URL url;
     final FileReader reader;
     final FileWriter writer;
+    boolean upgraded;
     private Trace trace;
 
     public ShpFilesLocker( URL url, FileReader reader ) {

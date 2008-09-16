@@ -16,7 +16,7 @@
  */
 package org.geotools.data.shapefile;
 
-import static org.geotools.data.shapefile.ShpFileType.SHP;
+import static org.geotools.data.shapefile.ShpFileType.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,17 +35,17 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.geotools.data.DataUtilities;
 
@@ -75,9 +75,16 @@ public class ShpFiles {
      */
     private final Map<ShpFileType, URL> urls = new HashMap<ShpFileType, URL>();
 
-    private final Lock readWriteLock = new ReentrantLock();
+    /**
+     * A read/write lock, so that we can have concurrent readers 
+     */
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
-    private final Collection<ShpFilesLocker> lockers = new LinkedList<ShpFilesLocker>();
+    /**
+     * The set of locker sources per thread. Used as a debugging aid and to upgrade/downgrade
+     * the locks
+     */
+    private final Map<Thread, Collection<ShpFilesLocker>> lockers = new HashMap<Thread, Collection<ShpFilesLocker>>();
 
     /**
      * Searches for all the files and adds then to the map of files.
@@ -223,14 +230,16 @@ public class ShpFiles {
      *                the level at which to log.
      */
     public void logCurrentLockers(Level logLevel) {
-        for (ShpFilesLocker locker : lockers) {
-            ShapefileDataStoreFactory.LOGGER
-                    .log(
-                            logLevel,
-                            "The following locker still has a lock� "
-                                    + locker
-                                    + "\n it was created with the following stack trace",
-                            locker.getTrace());
+        for (Collection<ShpFilesLocker> lockerList : lockers.values()) {
+            for (ShpFilesLocker locker : lockerList) {
+                ShapefileDataStoreFactory.LOGGER
+                        .log(
+                                logLevel,
+                                "The following locker still has a lock� "
+                                        + locker
+                                        + "\n it was created with the following stack trace",
+                                locker.getTrace());
+            }
         }
     }
 
@@ -297,7 +306,11 @@ public class ShpFiles {
      * @return the number of locks on the current set of shapefile files.
      */
     public int numberOfLocks() {
-        return lockers.size();
+        int count = 0;
+        for (Collection<ShpFilesLocker> lockerList : lockers.values()) {
+            count += lockerList.size();
+        }
+        return count;
     }
     /**
      * Acquire a File for read only purposes. It is recommended that get*Stream or
@@ -343,13 +356,13 @@ public class ShpFiles {
      * @return the URL to the file of the type requested
      */
     public URL acquireRead(ShpFileType type, FileReader requestor) {
-        readWriteLock.lock();
         URL url = urls.get(type);
-        if (url == null) {
-            readWriteLock.unlock();
+        if (url == null)
             return null;
-        }
-        lockers.add(new ShpFilesLocker(url, requestor));
+        
+        readWriteLock.readLock().lock();
+        Collection<ShpFilesLocker> threadLockers = getCurrentThreadLockers();
+        threadLockers.add(new ShpFilesLocker(url, requestor));
         return url;
     }
 
@@ -374,19 +387,17 @@ public class ShpFiles {
      */
     public Result<URL, State> tryAcquireRead(ShpFileType type,
             FileReader requestor) {
-        boolean locked = readWriteLock.tryLock();
-
+        URL url = urls.get(type);
+        if (url == null) {
+            return new Result<URL, State>(null, State.NOT_EXIST);
+        }
+        
+        boolean locked = readWriteLock.readLock().tryLock();
         if (!locked) {
             return new Result<URL, State>(null, State.LOCKED);
         }
-
-        URL url = urls.get(type);
-        if (url == null) {
-            readWriteLock.unlock();
-            return new Result<URL, State>(null, State.NOT_EXIST);
-        }
-
-        lockers.add(new ShpFilesLocker(url, requestor));
+        
+        getCurrentThreadLockers().add(new ShpFilesLocker(url, requestor));
 
         return new Result<URL, State>(url, State.GOOD);
     }
@@ -426,14 +437,17 @@ public class ShpFiles {
             throw new NullPointerException("requestor cannot be null");
         }
 
-        boolean removed = lockers.remove(new ShpFilesLocker(url, requestor));
+        Collection threadLockers = getCurrentThreadLockers();
+        boolean removed = threadLockers.remove(new ShpFilesLocker(url, requestor));
         if (!removed) {
             throw new IllegalArgumentException(
                     "Expected requestor "
                             + requestor
                             + " to have locked the url but it does not hold the lock for the URL");
         }
-        readWriteLock.unlock();
+        if(threadLockers.size() == 0)
+            lockers.remove(Thread.currentThread());
+        readWriteLock.readLock().unlock();
     }
 
     /**
@@ -483,16 +497,19 @@ public class ShpFiles {
      * @return the URL to the file of the type requested
      */
     public URL acquireWrite(ShpFileType type, FileWriter requestor) {
-        readWriteLock.lock();
         URL url = urls.get(type);
         if (url == null) {
-            readWriteLock.unlock();
             return null;
         }
-        lockers.add(new ShpFilesLocker(url, requestor));
+
+        // we need to give up all read locks before getting the write one
+        Collection<ShpFilesLocker> threadLockers = getCurrentThreadLockers();
+        relinquishReadLocks(threadLockers);
+        readWriteLock.writeLock().lock();
+        threadLockers.add(new ShpFilesLocker(url, requestor));
         return url;
     }
-
+    
     /**
      * Tries to acquire a URL for read/write purposes. Returns null if the
      * acquire failed or if the file does not exist
@@ -515,22 +532,25 @@ public class ShpFiles {
      */
     public Result<URL, State> tryAcquireWrite(ShpFileType type,
             FileWriter requestor) {
-
-        boolean locked = readWriteLock.tryLock();
-        if (!locked) {
-            return new Result<URL, State>(null, State.LOCKED);
-        }
-
+        
         URL url = urls.get(type);
         if (url == null) {
-            if (locked) {
-                readWriteLock.unlock();
-            }
             return new Result<URL, State>(null, State.NOT_EXIST);
         }
 
-        lockers.add(new ShpFilesLocker(url, requestor));
+        Collection<ShpFilesLocker> threadLockers = getCurrentThreadLockers();
+        boolean locked = readWriteLock.writeLock().tryLock();
+        if (!locked && threadLockers.size() > 1) {
+            // hum, it may be be because we are holding a read lock
+            relinquishReadLocks(threadLockers);
+            locked = readWriteLock.writeLock().tryLock();
+            if(locked == false) {
+                regainReadLocks(threadLockers);
+                return new Result<URL, State>(null, State.LOCKED);
+            }
+        }
 
+        threadLockers.add(new ShpFilesLocker(url, requestor));
         return new Result<URL, State>(url, State.GOOD);
     }
 
@@ -569,15 +589,61 @@ public class ShpFiles {
         if (requestor == null) {
             throw new NullPointerException("requestor cannot be null");
         }
-        boolean removed = lockers.remove(new ShpFilesLocker(url, requestor));
+        Collection<ShpFilesLocker> threadLockers = getCurrentThreadLockers();
+        boolean removed = threadLockers.remove(new ShpFilesLocker(url, requestor));
         if (!removed) {
             throw new IllegalArgumentException(
                     "Expected requestor "
                             + requestor
                             + " to have locked the url but it does not hold the lock for the URL");
         }
+        
+        if(threadLockers.size() == 0) {
+            lockers.remove(Thread.currentThread());
+        } else {
+            // get back read locks before giving up the write one
+            regainReadLocks(threadLockers);
+        }
+        readWriteLock.writeLock().unlock();
+    }
+   
+    /**
+     * Returns the list of lockers attached to a given thread, or creates it if missing
+     * @return
+     */
+    private Collection<ShpFilesLocker> getCurrentThreadLockers() {
+        Collection<ShpFilesLocker> threadLockers = lockers.get(Thread.currentThread());
+        if(threadLockers == null) {
+            threadLockers = new ArrayList<ShpFilesLocker>();
+            lockers.put(Thread.currentThread(), threadLockers);
+        }
+        return threadLockers;
+    }
 
-        readWriteLock.unlock();
+    /**
+     * Gives up all read locks in preparation for lock upgade
+     * @param threadLockers
+     */
+    private void relinquishReadLocks(Collection<ShpFilesLocker> threadLockers) {
+        for (ShpFilesLocker shpFilesLocker : threadLockers) {
+            if(shpFilesLocker.reader != null && !shpFilesLocker.upgraded) {
+                readWriteLock.readLock().unlock();
+                shpFilesLocker.upgraded = true;
+            }
+        }
+    }
+    
+    /**
+     * Re-takes the read locks in preparation for lock downgrade
+     * @param threadLockers
+     */
+    private void regainReadLocks(Collection<ShpFilesLocker> threadLockers) {
+        for (ShpFilesLocker shpFilesLocker : threadLockers) {
+            if(shpFilesLocker.reader != null && shpFilesLocker.upgraded) {
+                readWriteLock.readLock().lock();
+                shpFilesLocker.upgraded = false;
+            }
+        }
     }
 
     /**
