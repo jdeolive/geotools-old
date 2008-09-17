@@ -332,15 +332,22 @@ public class ShapefileRenderer implements GTRenderer {
                     }
 
                     Rule r = rules[j];
-                    
-                    // make copy so I don't accidentally modify style
-                    DuplicatingStyleVisitor duplicator = new DuplicatingStyleVisitor();
-                    r.accept(duplicator);
-                    r=(Rule) duplicator.getCopy();
-                    if ( r.getFilter()!=null ){
-                        // now reproject the geometries in filter because geoms are retrieved projected to screen space
-                        FilterTransformer transformer= new  FilterTransformer(mt);
-                        r.setFilter((Filter) r.getFilter().accept(transformer, null));
+                    Filter f = r.getFilter();
+                    if(f != null) {
+                    	GeometryFilterChecker checker = new GeometryFilterChecker();
+                        f.accept(checker, null);
+                        // geometry filters are quite unlikely in SLD, but if we have any,
+                        // we need to reproject it to screen space since geometries are
+                        // read directly in screen space
+                        if(checker.isGeometryFilterPresent()) {
+                        	// make copy so we don't modify the style
+                        	DuplicatingStyleVisitor duplicator = new DuplicatingStyleVisitor();
+                            r.accept(duplicator);
+                            r=(Rule) duplicator.getCopy();
+                            
+                            FilterTransformer transformer= new  FilterTransformer(mt);
+                            r.setFilter((Filter) r.getFilter().accept(transformer, null));
+                        }
                     }
                     if (isWithInScale(r)) {
                         if (r.hasElseFilter()) {
@@ -706,10 +713,9 @@ public class ShapefileRenderer implements GTRenderer {
             builder.add(getGeom(record.shape(), type.getGeometryDescriptor()));
             return builder.buildFeature(id);
         } else {
-            Object[] all = dbfreader.readEntry();
-
+            dbfreader.read();
             for( int i = 0; i < (type.getAttributeCount() - 1); i++ ) {
-                builder.add(all[attributeIndexing[i]]);
+                builder.add(dbfreader.readField(attributeIndexing[i]));
             }
             builder.add(getGeom(record.shape(), type.getGeometryDescriptor()));
             return builder.buildFeature(id);
@@ -807,17 +813,7 @@ public class ShapefileRenderer implements GTRenderer {
      * @return the minimun set of attribute names needed to render <code>layer</code>
      */
     private String[] findStyleAttributes( final Query query, Style style, SimpleFeatureType schema ) {
-        StyleAttributeExtractor sae = new StyleAttributeExtractor() {
-            public void visit( Rule rule ) {
-
-                DuplicatingStyleVisitor dupeStyleVisitor = new DuplicatingStyleVisitor();
-                // dupeStyleVisitor.setStrict(true);
-                dupeStyleVisitor.visit(rule);
-                Rule clone = (Rule) dupeStyleVisitor.getCopy();
-                super.visit(clone);
-            }
-        };
-
+        StyleAttributeExtractor sae = new StyleAttributeExtractor();
         sae.visit(style);
 
         

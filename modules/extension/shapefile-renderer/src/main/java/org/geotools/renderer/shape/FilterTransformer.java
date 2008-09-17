@@ -27,6 +27,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.operation.matrix.Matrix2;
 import org.geotools.util.logging.Logging;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
@@ -56,6 +57,11 @@ public class FilterTransformer extends DuplicatingFilterVisitor {
     CoordinateReferenceSystem toCRS;
     
     public FilterTransformer(final MathTransform mt) {
+        this.mt = mt;
+    }
+    
+    public FilterTransformer(final FilterFactory2 ff, final MathTransform mt) {
+    	super(ff);
         this.mt = mt;
     }
     
