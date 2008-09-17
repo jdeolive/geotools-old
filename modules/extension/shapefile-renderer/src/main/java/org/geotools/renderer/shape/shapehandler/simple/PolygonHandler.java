@@ -180,7 +180,7 @@ public class PolygonHandler implements ShapeHandler {
 
 				if (!mt.isIdentity()) {
 					try {
-						GeometryHandlerUtilities.transform(type, mt, coords[part], transformed[partsInBBox]);
+						GeometryHandlerUtilities.transform(type, mt, coords[part], transformed[partsInBBox], readDoubles / 2);
 //						mt.transform(coords[part], 0, transformed[partsInBBox],
 //								0, readDoubles / 2);
 					} catch (Exception e) {

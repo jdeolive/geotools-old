@@ -214,7 +214,7 @@ public class MultiLineHandler implements ShapeHandler {
                     try {
                         transformed[partsInBBox] = new double[readDoubles];
                         GeometryHandlerUtilities.transform(type, mt,
-                            coords[part], transformed[partsInBBox]);
+                            coords[part], transformed[partsInBBox], readDoubles / 2);
                     } catch (Exception e) {
                         ShapefileRenderer.LOGGER.severe(
                             "could not transform coordinates "

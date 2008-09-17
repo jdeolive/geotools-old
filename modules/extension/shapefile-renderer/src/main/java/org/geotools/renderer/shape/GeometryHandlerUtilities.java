@@ -26,6 +26,8 @@ import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.nio.ByteBuffer;
 
+import javax.measure.quantity.Torque;
+
 
 /**
  * Useful methods common to all geometry handlers
@@ -56,45 +58,64 @@ public class GeometryHandlerUtilities {
         return geomBBox;
     }
 
+    /**
+     * Applies the specied transformation to the points in src, dropping
+     * the transformed points in dest. In case of transformation failure,
+     * it skips the points were the transformation failed.
+     * @param type
+     * @param mt
+     * @param src
+     * @param dest
+     * @throws TransformException
+     */
     public static void transform(ShapeType type, MathTransform mt,
-        double[] src, double[] dest) throws TransformException {
-        boolean startPointTransformed = true;
+        double[] src, double[] dest, int numPoints) throws TransformException {
+    	try {
+    		mt.transform(src, 0, dest, 0, numPoints);
+    	} catch(TransformException e) {
+    		tolerantTransform(type, mt, src, dest);
+    	}
+    }
+    
+    static void tolerantTransform(ShapeType type, MathTransform mt,
+            double[] src, double[] dest) throws TransformException {
+            boolean startPointTransformed = true;
 
-        for (int i = 0; i < dest.length; i += 2) {
-            try {
-                mt.transform(src, i, dest, i, 1);
+            for (int i = 0; i < dest.length; i += 2) {
+                try {
+                    mt.transform(src, i, dest, i, 1);
 
-                if (!startPointTransformed) {
-                    startPointTransformed = true;
+                    if (!startPointTransformed) {
+                        startPointTransformed = true;
 
-                    for (int j = 0; j < i; j += 2) {
-                        dest[j] = src[i];
-                        dest[j + 1] = src[i + 1];
+                        for (int j = 0; j < i; j += 2) {
+                            dest[j] = src[i];
+                            dest[j + 1] = src[i + 1];
+                        }
                     }
-                }
-            } catch (TransformException e) {
-                if (i == 0) {
-                    startPointTransformed = false;
-                } else if (startPointTransformed) {
-                    if ((i == (dest.length - 2))
-                            && ((type == ShapeType.POLYGON)
-                            || (type == ShapeType.POLYGONZ)
-                            || (type == ShapeType.POLYGONM))) {
-                        dest[i] = dest[0];
-                        dest[i + 1] = dest[1];
-                    } else {
-                        dest[i] = dest[i - 2];
-                        dest[i + 1] = dest[i - 1];
+                } catch (TransformException e) {
+                    if (i == 0) {
+                        startPointTransformed = false;
+                    } else if (startPointTransformed) {
+                        if ((i == (dest.length - 2))
+                                && ((type == ShapeType.POLYGON)
+                                || (type == ShapeType.POLYGONZ)
+                                || (type == ShapeType.POLYGONM))) {
+                            dest[i] = dest[0];
+                            dest[i + 1] = dest[1];
+                        } else {
+                            dest[i] = dest[i - 2];
+                            dest[i + 1] = dest[i - 1];
+                        }
                     }
                 }
             }
-        }
 
-        if (!startPointTransformed) {
-            throw new TransformException(
-                "Unable to transform any of the points in the shape");
+            if (!startPointTransformed) {
+                throw new TransformException(
+                    "Unable to transform any of the points in the shape");
+            }
         }
-    }
 
     /**
      * calculates the distance between the centers of the two pixels at x,y

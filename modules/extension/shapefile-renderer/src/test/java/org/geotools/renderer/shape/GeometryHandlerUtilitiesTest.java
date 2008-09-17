@@ -68,12 +68,13 @@ public class GeometryHandlerUtilitiesTest extends TestCase {
                 return null;
             }
 
-            public void transform(double[] arg0, int arg1, double[] arg2,
-                int arg3, int arg4) throws TransformException {
-                if (arg1 == 2) {
-                    throw new TransformException("boom");
+            public void transform(double[] src, int srcOffset, double[] dest,
+                    int destOffset, int numPoints) throws TransformException {
+                	for (int i = srcOffset; i < srcOffset + numPoints * 2; i++) {
+    					if(i == 4 || i == 5)
+    					    throw new TransformException("boom");
+    				}
                 }
-            }
 
             public void transform(float[] arg0, int arg1, float[] arg2,
                 int arg3, int arg4) throws TransformException {
@@ -131,11 +132,12 @@ public class GeometryHandlerUtilitiesTest extends TestCase {
                 return null;
             }
 
-            public void transform(double[] arg0, int arg1, double[] arg2,
-                int arg3, int arg4) throws TransformException {
-                if ((arg1 < 3) || (arg1 == (arg2.length - 2))) {
-                    throw new TransformException("boom");
-                }
+            public void transform(double[] src, int srcOffset, double[] dest,
+                int destOffset, int numPoints) throws TransformException {
+            	for (int i = srcOffset * 2; i < srcOffset + numPoints * 2; i++) {
+					if(i == 0 || i == 1)
+						throw new TransformException("boom");
+				}
             }
 
             public void transform(float[] arg0, int arg1, float[] arg2,
@@ -234,7 +236,7 @@ public class GeometryHandlerUtilitiesTest extends TestCase {
         MathTransform mt = ReferencingFactoryFinder.getMathTransformFactory(null)
                                         .createAffineTransform(new GeneralMatrix(
                     at));
-        GeometryHandlerUtilities.transform(ShapeType.ARC, mt, src, dest);
+        GeometryHandlerUtilities.transform(ShapeType.ARC, mt, src, dest, dest.length / 2);
 
         assertEquals(2d, dest[0], ACCURACY);
         assertEquals(.5d, dest[1], ACCURACY);
@@ -250,7 +252,7 @@ public class GeometryHandlerUtilitiesTest extends TestCase {
         mt = NEVER_TRANSFORM;
 
         try {
-            GeometryHandlerUtilities.transform(ShapeType.ARC, mt, src, dest);
+            GeometryHandlerUtilities.transform(ShapeType.ARC, mt, src, dest, dest.length / 2);
             assertFalse("Shouldn't get here", true);
         } catch (Exception e) {
             //correct
@@ -258,26 +260,26 @@ public class GeometryHandlerUtilitiesTest extends TestCase {
 
         dest = new double[] { 1, 1, 2, 2, 3, 3, 4, 4 };
         mt = CANT_TRANSFORM_FIRST_ELEMENT;
-        GeometryHandlerUtilities.transform(ShapeType.POLYGON, mt, src, dest);
+        GeometryHandlerUtilities.transform(ShapeType.POLYGON, mt, src, dest, dest.length / 2);
 
-        assertEquals(3d, dest[0], ACCURACY);
-        assertEquals(3d, dest[1], ACCURACY);
-        assertEquals(3d, dest[2], ACCURACY);
-        assertEquals(3d, dest[3], ACCURACY);
+        assertEquals(2d, dest[0], ACCURACY);
+        assertEquals(2d, dest[1], ACCURACY);
+        assertEquals(2d, dest[2], ACCURACY);
+        assertEquals(2d, dest[3], ACCURACY);
         assertEquals(3d, dest[4], ACCURACY);
         assertEquals(3d, dest[5], ACCURACY);
-        assertEquals(3d, dest[6], ACCURACY);
-        assertEquals(3d, dest[7], ACCURACY);
+        assertEquals(4d, dest[6], ACCURACY);
+        assertEquals(4d, dest[7], ACCURACY);
 
         dest = new double[] { 1, 1, 2, 2, 3, 3, 4, 4 };
         mt = CANT_TRANSFORM_3RD_ELEMENT;
-        GeometryHandlerUtilities.transform(ShapeType.POLYGON, mt, src, dest);
+        GeometryHandlerUtilities.transform(ShapeType.POLYGON, mt, src, dest, dest.length / 2);
         assertEquals(1d, dest[0], ACCURACY);
         assertEquals(1d, dest[1], ACCURACY);
-        assertEquals(1d, dest[2], ACCURACY);
-        assertEquals(1d, dest[3], ACCURACY);
-        assertEquals(3d, dest[4], ACCURACY);
-        assertEquals(3d, dest[5], ACCURACY);
+        assertEquals(2d, dest[2], ACCURACY);
+        assertEquals(2d, dest[3], ACCURACY);
+        assertEquals(2d, dest[4], ACCURACY);
+        assertEquals(2d, dest[5], ACCURACY);
         assertEquals(4d, dest[6], ACCURACY);
         assertEquals(4d, dest[7], ACCURACY);
     }
