@@ -163,15 +163,13 @@ public interface Driver extends Factory, OptionalFactory {
      * @param params
      *                required {@link Param}s to connect to a certain
      *                {@link CoverageStore}
-     * @param canCreate
-     *                tells the factory whether or not the request should fail
-     *                for a non-existent {@link CoverageAccess}.
+     *                
      * @return a {@link CoverageAccess} which
      * @throws IOException
      *                 in case something wrong happens during the connection.
      */
     public CoverageAccess connect(Map<String, Serializable> params,
-            Hints hints, final ProgressListener listener, boolean canCreate)
+            Hints hints, final ProgressListener listener)
             throws IOException;
 
     /**

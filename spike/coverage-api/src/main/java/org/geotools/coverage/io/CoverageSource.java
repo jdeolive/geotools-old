@@ -18,6 +18,7 @@ package org.geotools.coverage.io;
 
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ import org.opengis.temporal.TemporalGeometricPrimitive;
 import org.opengis.util.ProgressListener;
 
 /**
- * Allows access to a Coverage.
+ * Allows read-only access to a Coverage.
  * 
  * @author Simone Giannecchini, GeoSolutions
  * @author Jody Garnett
@@ -207,6 +208,14 @@ public interface CoverageSource {
 
 	
 	/**
+	 * Describes the required (and optional) parameters that
+	 * can be passed to the {@link #read(CoverageReadRequest, ProgressListener)} method.
+	 * <p>
+	 * @return Param a {@link Map} describing the {@link Map} for {@link #read(CoverageReadRequest, ProgressListener)}.
+	 */
+	public Map<String, Parameter<?>> getReadParameterInfo();		
+	
+	/**
 	 * Obtain a {@link CoverageResponse} from this {@link CoverageSource} given a specified {@link DefaultCoverageRequest}.
 	 * 
 	 * @param request the input {@link DefaultCoverageRequest}.
@@ -238,21 +247,18 @@ public interface CoverageSource {
 	public void dispose();
 	
 	/**
-	 * Retrieves a {@link CoverageSourceCapabilities} which can be used to discover
+	 * Set of supported {@link CoverageCapabilities} which can be used to discover
 	 * capabilities of a certain {@link CoverageSource}.
-	 * 
-	 * @return a {@link CoverageSourceCapabilities} which can be used to discover
-	 * capabilities of a certain {@link CoverageSource}.
-	 */
-	public CoverageSourceCapabilities getCapabilities();
-	
-	/**
-	 * Describes the required (and optional) parameters that
-	 * can be passed to the {@link #read(CoverageReadRequest, ProgressListener)} method.
 	 * <p>
-	 * @return Param a {@link Map} describing the {@link Map} for {@link #read(CoverageReadRequest, ProgressListener)}.
+	 * You can use set membership to quickly test abilities:<code><pre>
+	 * if( getCapabilities().contains( CoverageCapabilities.READ_SUBSAMPLING ) ){
+	 *     ...
+	 * }
+	 * </code></pre>
+	 * @return a {@link EnumSet} of CoverageCapabilities which can be used to discover
+	 * capabilities of this {@link CoverageSource}.
 	 */
-	public Map<String, Parameter<?>> getReadParameterInfo();		
+	public EnumSet<CoverageCapabilities> getCapabilities();
 	
 //	/**
 //	 * @todo TBD, I am not even sure this should leave at the general interface level!

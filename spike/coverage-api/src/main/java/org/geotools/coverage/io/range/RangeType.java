@@ -18,8 +18,6 @@ package org.geotools.coverage.io.range;
 
 import java.util.Set;
 
-import javax.measure.quantity.Quantity;
-
 import org.opengis.feature.type.Name;
 import org.opengis.util.InternationalString;
 
@@ -67,14 +65,16 @@ public interface RangeType {
 	 * 
 	 * @return Set of FieldType instances
 	 */
-	public Set<FieldType<? extends Quantity>> getFieldTypes();
+	public Set<FieldType> getFieldTypes();
 
 	/**
 	 * Get the FieldType by name
 	 * 
 	 * @param name
-	 *            name of the FieldType
+	 *            name of the FieldType in the form "nameSpace:localPart".
+	 *            In case of no nameSpace, the simple "localPart" section
+	 *            need to be provided
 	 * @return FieldType instance or null if not found
 	 */
-	public FieldType<? extends Quantity> getFieldType(String name);
+	public FieldType getFieldType(String name);
 }

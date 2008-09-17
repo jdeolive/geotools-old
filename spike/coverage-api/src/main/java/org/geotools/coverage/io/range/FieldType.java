@@ -19,7 +19,7 @@ package org.geotools.coverage.io.range;
 import java.util.List;
 import java.util.Set;
 
-import javax.measure.Measurable;
+import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
@@ -50,7 +50,7 @@ import org.opengis.util.InternationalString;
  * @author Simone Giannecchini, GeoSolutions
  * 
  */
-public interface FieldType<Q extends Quantity> {
+public interface FieldType {
 
     /**
      * Get the {@link FieldType} {@link org.opengis.feature.type.Name}
@@ -72,7 +72,7 @@ public interface FieldType<Q extends Quantity> {
      * @return a {@link List} of all the {@link Axis} instances for this
      *         {@link FieldType}
      */
-    public List<Axis<? extends Quantity, ? extends Measurable<Quantity>>> getAxes();
+    public List<Axis<?,?>> getAxes();
 
     /**
      * {@link List} of all the {@link Axis} instances
@@ -90,36 +90,27 @@ public interface FieldType<Q extends Quantity> {
      *                name of the Axis
      * @return Axis instance or null if not found
      */
-    public Axis<? extends Quantity, ? extends Measurable<Quantity>> getAxis(
-            Name name);
+    public Axis<?,?> getAxis(Name name);
 
     /**
-     * List all the axes of the measure
+     * List the SampleDimensions of the measure.
      * 
-     * @return Iterator of Axis instance
+     * @return Set of {@link SampleDimension} instances
      */
     public Set<SampleDimension> getSampleDimensions();
 
     /**
-     * Get the Axis by name
+     * Look up the SampleDimension by key (as described by Axis)
      * 
-     * @param name
-     *                name of the Axis
-     * @return Axis instance or null if not found
+     * @param key
+     *                key of the SampleDimension
+     * @return {@link SampleDimension} instance or null if not found
      */
-    public Axis<? extends Quantity, ? extends Measurable<Quantity>> getSampleDimension(
-            Set<?> key);
-
-    /**
-     * Retrieves the {@link Quantity} described by this {@link FieldType}.
-     * 
-     * @return the {@link Quantity} described by this {@link FieldType}.
-     */
-    public Q getQuantity();
+    public SampleDimension getSampleDimension(Measure<?,?> key);
 
     /**
      * Retrieves the Unit of measure for the values described by this field.
-     * 
+     *  
      * <p>
      * In case this {@link FieldType} is not made of measurable quantities we
      * return <code>null</code>
@@ -128,6 +119,6 @@ public interface FieldType<Q extends Quantity> {
      *         <code>null</code> in case this {@link FieldType} is not made of
      *         measurable quantities
      */
-    public Unit<Q> getUnitOfMeasure();
+    public Unit<?> getUnitOfMeasure();
 
 }

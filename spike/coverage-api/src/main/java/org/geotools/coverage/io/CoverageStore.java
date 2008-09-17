@@ -16,13 +16,14 @@
  */
 package org.geotools.coverage.io;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.geotools.data.Parameter;
 import org.opengis.util.ProgressListener;
 
 /**
- * Provided write access to a coverage data product.
+ * Provided read-write access to a coverage data product.
  * 
  * @author Simone Giannecchini, GeoSolutions
  * @author Jody Garnett
@@ -30,17 +31,19 @@ import org.opengis.util.ProgressListener;
  */
 public interface CoverageStore extends CoverageSource {
 
-    public CoverageResponse update(CoverageUpdateRequest writeRequest,
-            ProgressListener progress);
-
 	/**
-	 * Retrieves a {@link CoverageStoreCapabilities} which can be used to discover
-	 * capabilities of a certain {@link CoverageSource}.
-	 * 
-	 * @return a {@link CoverageSourceCapabilities} which can be used to discover
-	 * capabilities of a certain {@link CoverageStoreCapabilities}.
+	 * Retrieves a {@link CoverageCapabilities} which can be used to discover
+	 * capabilities of a certain {@link CoverageStore}.
+	 * <p>
+	 * You can use set membership to quickly test abilities:<code><pre>
+	 * if( getCapabilities().contains( CoverageCapabilities.WRITE_SUBSAMPLING ) ){
+	 *     ...
+	 * }
+	 * </code></pre>
+	 * @return a {@link EnumSet} of CoverageCapabilities which can be used to discover
+	 * capabilities of this {@link CoverageStore}.
 	 */
-	public CoverageStoreCapabilities getCapabilities();
+	public EnumSet<CoverageCapabilities> getCapabilities();
 	
 	/**
 	 * Describes the required (and optional) parameters that
@@ -50,4 +53,17 @@ public interface CoverageStore extends CoverageSource {
 	 */
 	public Map<String, Parameter<?>> getUpdateParameterInfo();	
 
+	/**
+	 * Issue a writeRequest to the coverage store.
+	 * <p>
+	 * The writeRequest should be constructed within the guidelines provided by the 
+	 * getUpdateParameterInfo method; and should be limited to the abilities
+	 * laid out by the getCapabilities method.
+	 * </p>
+	 * @param writeRequest
+	 * @param progress
+	 * @return response capturing the success/failure and side effects of performing the update. 
+	 */
+    public CoverageResponse update(CoverageUpdateRequest writeRequest,
+            ProgressListener progress);
 }

@@ -16,14 +16,23 @@
  */
 package org.geotools.coverage.io.impl.range;
 
+import java.awt.color.ColorSpace;
+import java.awt.image.ColorModel;
+import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.Unit;
+import javax.media.jai.IHSColorSpace;
 
+import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.io.range.Axis;
+import org.geotools.feature.NameImpl;
+import org.geotools.util.SimpleInternationalString;
+import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.SampleDimension;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.crs.SingleCRS;
@@ -41,7 +50,8 @@ import org.opengis.util.InternationalString;
  * @todo add convenience constructor based on {@link SampleDimension} and or
  *       {@link SampleModel}
  */
-public class DimensionlessAxis implements Axis<Dimensionless, BandIndexMeasure> {
+@SuppressWarnings("deprecation")
+public class DimensionlessAxis implements Axis<String,Dimensionless> {
 
     /**
      * Textual representation for the various bands in this {@link Axis}.
@@ -51,6 +61,135 @@ public class DimensionlessAxis implements Axis<Dimensionless, BandIndexMeasure> 
     private Name name = null;
 
     private InternationalString description;
+    
+    
+    /**
+     * Helper classes for creating {@link DimensionlessAxis} for the most common color models' bands.
+     * 
+     * <p>
+     * Suypported colorspaces incluse RGBA, GRAY, GRAYA, HSV,HLS, LAB, LUV, IHS, CI_XYZ, CMY(K).
+     * Notice that RGB is not handled here but through a wavelength axis.
+     * 
+     * <p>
+     * This method returns null if an unsupported {@link ColorModel} is provided.
+     * 
+     * @param raster a {@link RenderedImage} implementation from which to extract needed info, usually {@link ColorModel} and {@link SampleModel}.
+     * @return a {@link DimensionlessAxis} or null if an unsupported {@link ColorModel} is provided.
+     */
+	public static DimensionlessAxis createFromRenderedImage(final RenderedImage raster){
+		if(raster==null)
+			throw new IllegalArgumentException("Provided null input image");
+		
+		final ColorModel cm= raster.getColorModel();
+		if(cm==null)
+			throw new IllegalArgumentException("Provided input image with null color model");	
+		final SampleModel sm= raster.getSampleModel();
+		if(sm==null)
+			throw new IllegalArgumentException("Provided input image with null SampleModel");			
+		
+		//get the color interpretation for the three bands
+		final ColorInterpretation firstBandCI = TypeMap.getColorInterpretation(cm, 0);
+		
+		//		CMY - CMYK
+		if(firstBandCI==ColorInterpretation.CYAN_BAND)
+		{
+			if(sm.getNumBands()==3)
+				return new DimensionlessAxis(
+						Arrays.asList("CYAN","MAGENTA","YELLOW"),
+						new NameImpl("CMY-AXIS"),
+						new SimpleInternationalString("Axis for CMY bands"));
+			else
+				return new DimensionlessAxis(
+						Arrays.asList("CYAN","MAGENTA","YELLOW","BLACK"),
+						new NameImpl("CMYK-AXIS"),
+						new SimpleInternationalString("Axis for CMYK bands"));				
+		}
+		
+		// HSV
+		if(firstBandCI==ColorInterpretation.HUE_BAND)
+		{
+			return new DimensionlessAxis(
+					Arrays.asList("HUE","SATURATION","VALUE"),
+					new NameImpl("HSV-AXIS"),
+					new SimpleInternationalString("Axis for HSV bands"));
+		}
+		
+		//RGBA
+		if(firstBandCI==ColorInterpretation.RED_BAND)
+		{
+			return new DimensionlessAxis(
+					Arrays.asList("RED","GREEN","BLUE","ALPHA"),
+					new NameImpl("RGBA-AXIS"),
+					new SimpleInternationalString("Axis for RGBA bands"));
+		}
+		
+		//PALETTE
+		if(firstBandCI==ColorInterpretation.PALETTE_INDEX)
+			return new DimensionlessAxis(
+					Arrays.asList("PALETTE_INDEX"),
+					new NameImpl("PALETTE_INDEX-AXIS"),
+					new SimpleInternationalString("Axis for PALETTE INDEX bands"));			
+		
+		// GRAY, GRAY+ALPHA
+		if(firstBandCI==ColorInterpretation.GRAY_INDEX)
+		{
+			if(sm.getNumBands()==2)
+				return new DimensionlessAxis(
+						Arrays.asList("GRAY","ALPHA"),
+						new NameImpl("GA-AXIS"),
+						new SimpleInternationalString("Axis for GRAY-ALPHA bands"));
+			else
+				return new DimensionlessAxis(
+						Arrays.asList("GRAY"),
+						new NameImpl("GRAY-AXIS"),
+						new SimpleInternationalString("Axis for GRAY bands"));
+				
+		}
+		
+		
+		final ColorSpace cs = cm.getColorSpace();
+		//IHS
+		if(cs instanceof IHSColorSpace)
+			return new DimensionlessAxis(
+					Arrays.asList("INTENSITY","HUE","SATURATION"),
+					new NameImpl("IHS-AXIS"),
+					new SimpleInternationalString("Axis for IHS bands"));
+
+		//YCbCr, LUV, LAB, HLS, IEXYZ 
+		switch(cs.getType()){
+		case ColorSpace.TYPE_YCbCr:
+			return new DimensionlessAxis(
+					Arrays.asList("LUMA","CHROMA-A","CHROMA-B"),
+					new NameImpl("YCbCr-AXIS"),
+					new SimpleInternationalString("Axis for YCbCr bands"));		
+		case ColorSpace.TYPE_Luv:
+			return new DimensionlessAxis(
+					Arrays.asList("LIGHTNESS","U","V"),
+					new NameImpl("LUV-AXIS"),
+					new SimpleInternationalString("Axis for LUV bands"));				
+		case ColorSpace.TYPE_Lab:
+			return new DimensionlessAxis(
+					Arrays.asList("LIGHTNESS","A","B"),
+					new NameImpl("LAB-AXIS"),
+					new SimpleInternationalString("Axis for LAB bands"));				
+		case ColorSpace.TYPE_HLS:
+			return new DimensionlessAxis(
+					Arrays.asList("HUE","LIGHTNESS","SATURATION"),
+					new NameImpl("HLS-AXIS"),
+					new SimpleInternationalString("Axis for HLS bands"));			
+		case ColorSpace.CS_CIEXYZ:
+			return new DimensionlessAxis(
+					Arrays.asList("X","Y","Z"),
+					new NameImpl("XYZ-AXIS"),
+					new SimpleInternationalString("Axis for XYZ bands"));				
+			
+		default:
+			return null;
+		
+			
+		}
+    }
+    
 
     /**
      * 
@@ -76,7 +215,9 @@ public class DimensionlessAxis implements Axis<Dimensionless, BandIndexMeasure> 
      */
     public DimensionlessAxis(final List<String> bandsKeys, final Name name,
             final InternationalString description) {
-        init((String[]) bandsKeys.toArray(), name, description);
+        if (bandsKeys==null || bandsKeys.isEmpty())
+            throw new IllegalArgumentException("Specified band keys list is invalid");
+        init((String[])bandsKeys.toArray(new String[bandsKeys.size()]), name, description);
     }
 
     private void init(String[] bandsKeys, final Name name,

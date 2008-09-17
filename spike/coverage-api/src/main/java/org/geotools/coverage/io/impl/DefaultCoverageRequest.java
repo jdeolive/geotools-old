@@ -60,33 +60,29 @@ public class DefaultCoverageRequest implements CoverageRequest {
 		this.handle = handle;
 	}
 
-	/**
-	 * Specifies some hints to drive the query execution and results build-up. <p> Hints examples can be the GeometryFactory to be used, a generalization distance to be applied right in the data store, to data store specific things such as the fetch size to be used in JDBC queries. The set of hints supported can be fetched by calling   {@links    FeatureSource#getSupportedHints()}   . Depending on the actual values of the hints, the data store is free to ignore them. No mechanism is in place, at the moment, to figure out which hints where actually used during the query execution.
-	 * @return    the Hints the data store should try to use when executing the query  (eventually empty but never null).
-	 * @uml.property  name="hints"
+	/** 
+	 * @see org.geotools.coverage.io.CoverageRequest#getHints()
 	 */
 	public Hints getHints(){
 		return hints;
 	}
 
 	/**
-	 * @param  hints
-	 * @uml.property  name="hints"
+	 * @see org.geotools.coverage.io.CoverageRequest#setHints(Hints)
 	 */
 	public void setHints(Hints hints){
 		this.hints = hints;
 	}
 
 	/**
-	 * @param  additionalParameters
-	 * @uml.property  name="additionalParameters"
+	 * @see org.geotools.coverage.io.CoverageRequest#setAdditionalParameters(Map)
 	 */
 	public void setAdditionalParameters( Map<String,Parameter<?>> additionalParameters){
 		this.additionalParameters = additionalParameters;
 	}
 
 	/**
-	 * @uml.property  name="additionalParameters"
+	 * @see org.geotools.coverage.io.CoverageRequest#getAdditionalParameters()
 	 */
 	public Map<String, Parameter<?>> getAdditionalParameters() {
 		return additionalParameters;

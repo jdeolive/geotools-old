@@ -35,17 +35,27 @@ import org.opengis.util.InternationalString;
  * @author Simone Giannecchini, GeoSolutions
  *
  */
-public class SimpleScalarAxis implements Axis<Dimensionless, BandIndexMeasure> {
+public class SimpleScalarAxis implements Axis<String, Dimensionless> {
 	public static final String DEFAUL_BAND_NAME="0";
 
 	/**
 	 * We use composition rather than inheritance since we want to restrict the {@link DimensionlessAxis} implementation.
 	 */
 	private DimensionlessAxis wrappedAxis;
+	/**
+	 * 
+	 * @param bandName
+	 * @param name
+	 * @param description
+	 */
 	public SimpleScalarAxis(final String bandName,final Name name, final InternationalString description){
 		wrappedAxis= new DimensionlessAxis(Collections.singletonList(bandName), name, description);
 	}
-	
+	/**
+	 * 
+	 * @param name
+	 * @param description
+	 */
 	public SimpleScalarAxis(final Name name, final InternationalString description){
 		wrappedAxis= new DimensionlessAxis(Collections.singletonList(DEFAUL_BAND_NAME), name, description);
 	}

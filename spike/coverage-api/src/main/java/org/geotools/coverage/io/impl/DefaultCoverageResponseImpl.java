@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.geotools.coverage.io.CoverageRequest;
 import org.geotools.coverage.io.CoverageResponse;
+import org.geotools.util.NullProgressListener;
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.util.ProgressListener;
@@ -80,8 +81,15 @@ public class DefaultCoverageResponseImpl implements CoverageResponse {
 	}
 
 	public Collection<? extends Coverage> getResults(ProgressListener listener) {
-		synchronized (this.results) {
-			return new ArrayList<GridCoverage>(this.results);
+		if( listener == null ) listener = new NullProgressListener();
+		listener.started();
+		try {
+			synchronized (this.results) {
+				return new ArrayList<GridCoverage>(this.results);
+			}
+		}
+		finally {
+			listener.complete();
 		}
 	}
 	

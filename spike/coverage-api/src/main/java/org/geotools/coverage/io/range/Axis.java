@@ -19,6 +19,7 @@ package org.geotools.coverage.io.range;
 import java.util.List;
 
 import javax.measure.Measurable;
+import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
@@ -38,8 +39,10 @@ import org.opengis.util.InternationalString;
  * possibility to encode {@link Measurable}s as {@link String}s.
  * 
  * @author Simone Giannecchini, GeoSolutions
+ * @param V Value being used to define this Axis
+ * @param QA Quantity being represented by this Axis
  */
-public interface Axis<QM extends Quantity, M extends Measurable<QM>> {
+public interface Axis<V,QA extends Quantity> {
     /**
      * Retrieves the {@link Axis} name
      * 
@@ -59,7 +62,7 @@ public interface Axis<QM extends Quantity, M extends Measurable<QM>> {
      * 
      * @return Retrieves the list of keys for this {@link Axis}.
      */
-    public List<M> getKeys();
+    public List<? extends Measure<V, QA>> getKeys();
 
     /**
      * Retrieves the number of keys for this {@link Axis}.
@@ -73,7 +76,7 @@ public interface Axis<QM extends Quantity, M extends Measurable<QM>> {
      * 
      * @return Retrieves a specific key for this {@link Axis}.
      */
-    public M getKey(final int keyIndex);
+    public Measure<V, QA> getKey(final int keyIndex);
 
     /**
      * Retrieves the Unit of measure for the various keys of this axis.
@@ -82,7 +85,7 @@ public interface Axis<QM extends Quantity, M extends Measurable<QM>> {
      * 
      * @return the Unit of measure for the various keys of this axis.
      */
-    public Unit<QM> getUnitOfMeasure();
+    public Unit<QA> getUnitOfMeasure();
 
     /**
      * Retrieves the coordinate reference system for this {@link Axis}.
