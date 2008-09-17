@@ -19,15 +19,12 @@ package org.geotools.filter.visitor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.FactoryNotFoundException;
 import org.geotools.factory.GeoTools;
 import org.opengis.filter.And;
 import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.Id;
@@ -80,7 +77,7 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 	protected final FilterFactory2 ff;
 
 	public DuplicatingFilterVisitor() {
-		this(findFactory2());
+		this(CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints()));
 		
 	}
 	
@@ -88,17 +85,6 @@ public class DuplicatingFilterVisitor implements FilterVisitor, ExpressionVisito
 		this.ff = factory;
 	}
 	
-	private static FilterFactory2 findFactory2() {
-		Set factories = CommonFactoryFinder.getFilterFactories(GeoTools.getDefaultHints());
-		for (Iterator iter = factories.iterator(); iter.hasNext();) {
-			FilterFactory factory = (FilterFactory) iter.next();
-			if (factory instanceof FilterFactory2) {
-				return (FilterFactory2) factory;
-			}
-		}
-		throw new FactoryNotFoundException("There is no FilterFactory2 instance available for the default system hints");
-	}
-
 	protected FilterFactory2 getFactory(Object extraData) {
 		if( extraData instanceof FilterFactory2)
 			return (FilterFactory2) extraData;
