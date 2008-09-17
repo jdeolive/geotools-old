@@ -181,9 +181,24 @@ public class LiteCoordinateSequence extends PackedCoordinateSequence{
 
     public Envelope expandEnvelope(Envelope env)
     {
+      double minx = coords[0];
+      double maxx = minx;
+      double miny = coords[1];
+      double maxy = miny;
       for (int i = 0; i < coords.length; i += dimension ) {
-        env.expandToInclude(coords[i], coords[i + 1]);
+    	  double x = coords[i];
+    	  if(x < minx)
+    		  minx = x;
+    	  else if(x > maxx)
+    		  maxx = x;
+    	  double y = coords[i + 1];
+    	  if(y < miny)
+    		  miny = y;
+    	  else if(y > maxy)
+    		  maxy = y;
       }
+      env.expandToInclude(minx, miny);
+      env.expandToInclude(maxx, maxy);
       return env;
     }
 
