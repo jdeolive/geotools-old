@@ -343,6 +343,24 @@ public class DbaseFileReader implements FileReader {
 
         return entry;
     }
+    
+    /**
+     * Reads a single field from the current record and returns it. Remember to call {@link #read()} before
+     * starting to read fields from the dbf, and call it every time you need to move to the next record.
+     * @param fieldNum The field number to be read (zero based)
+     * @throws IOException
+     *                 If an error occurs.
+     * @return The value of the field
+     */
+    public Object readField(int fieldNum)
+            throws IOException {
+        // retrieve the record length
+        int fieldOffset = 0;
+        for (int j = 0; j < fieldNum; j++) {
+            fieldOffset += fieldLengths[j];
+        }
+        return readObject(fieldOffset, fieldNum);
+    }
 
     /**
      * Transfer, by bytes, the next record to the writer.
@@ -356,7 +374,12 @@ public class DbaseFileReader implements FileReader {
         cnt++;
     }
 
-    private void read() throws IOException {
+    /**
+     * Reads the next record into memory. You need to use this directly when reading only
+     * a subset of the fields using {@link #readField(int)}. 
+     * @throws IOException
+     */
+    public void read() throws IOException {
         boolean foundRecord = false;
         while (!foundRecord) {
 
