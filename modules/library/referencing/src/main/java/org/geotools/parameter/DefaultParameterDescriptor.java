@@ -128,7 +128,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * @param minimum The minimum parameter value, or {@link Integer#MIN_VALUE} if none.
      * @param maximum The maximum parameter value, or {@link Integer#MAX_VALUE} if none.
      *
-     * @deprecated Needs to move in a factory class.
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     public DefaultParameterDescriptor(final String name,
@@ -149,7 +150,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * @param maximum The maximum parameter value, or {@link Integer#MAX_VALUE} if none.
      * @param required {@code true} if this parameter is required, {@code false} otherwise.
      *
-     * @deprecated Should move to a static factory method (required for getting ride of warnings).
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     public DefaultParameterDescriptor(final Map<String,?> properties,
@@ -172,7 +174,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * @param maximum The maximum parameter value, or {@link Double#POSITIVE_INFINITY} if none.
      * @param unit    The unit for default, minimum and maximum values.
      *
-     * @deprecated Should move to a static factory method (required for getting ride of warnings).
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     public DefaultParameterDescriptor(final String name,
@@ -195,7 +198,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * @param unit    The unit for default, minimum and maximum values.
      * @param required {@code true} if this parameter is required, {@code false} otherwise.
      *
-     * @deprecated Should move to a static factory method (required for getting ride of warnings).
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     public DefaultParameterDescriptor(final Map<String,?> properties,
@@ -221,7 +225,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * @param defaultValue The default value.
      * @param required     {@code true} if this parameter is required, {@code false} otherwise.
      *
-     * @deprecated Should move to a static factory method (required for getting ride of warnings).
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     public DefaultParameterDescriptor(final String       name,
@@ -259,7 +264,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * @param name         The parameter name.
      * @param defaultValue The default value.
      *
-     * @deprecated Should move to a static factory method (required for getting ride of warnings).
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     public DefaultParameterDescriptor(final String   name,
@@ -277,7 +283,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      *                     Must be a subclass of {@link CodeList}.
      * @param defaultValue The default value, or {@code null}.
      *
-     * @deprecated Should move to a static factory method (required for getting ride of warnings).
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     DefaultParameterDescriptor(final String   name,
@@ -441,6 +448,128 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
         if (defaultValue != null) {
             Parameter.ensureValidValue(this, defaultValue);
         }
+    }
+
+    /**
+     * Constructs a descriptor for a mandatory parameter in a range of integer values.
+     *
+     * @param  name         The parameter name.
+     * @param  defaultValue The default value for the parameter.
+     * @param  minimum      The minimum parameter value, or {@link Integer#MIN_VALUE} if none.
+     * @param  maximum      The maximum parameter value, or {@link Integer#MAX_VALUE} if none.
+     * @return The parameter descriptor for the given range of values.
+     *
+     * @since 2.5
+     */
+    public static DefaultParameterDescriptor<Integer> create(final String name,
+            final int defaultValue, final int minimum, final int maximum)
+    {
+        return create(Collections.singletonMap(NAME_KEY, name),
+                defaultValue, minimum, maximum, true);
+    }
+
+    /**
+     * Constructs a descriptor for a parameter in a range of integer values.
+     *
+     * @param  properties   The parameter properties (name, identifiers, alias...).
+     * @param  defaultValue The default value for the parameter.
+     * @param  minimum      The minimum parameter value, or {@link Integer#MIN_VALUE} if none.
+     * @param  maximum      The maximum parameter value, or {@link Integer#MAX_VALUE} if none.
+     * @param  required     {@code true} if this parameter is required, {@code false} otherwise.
+     * @return The parameter descriptor for the given range of values.
+     *
+     * @since 2.5
+     */
+    public static DefaultParameterDescriptor<Integer> create(final Map<String,?> properties,
+            final int defaultValue, final int minimum, final int maximum, final boolean required)
+    {
+        return new DefaultParameterDescriptor<Integer>(properties, required,
+                 Integer.class, null, Integer.valueOf(defaultValue),
+                 Integer.valueOf(minimum == Integer.MIN_VALUE ? null : minimum),
+                 Integer.valueOf(maximum == Integer.MAX_VALUE ? null : maximum), null);
+    }
+
+    /**
+     * Constructs a descriptor for a mandatory parameter in a range of floating point values.
+     *
+     * @param  name         The parameter name.
+     * @param  defaultValue The default value for the parameter, or {@link Double#NaN} if none.
+     * @param  minimum      The minimum parameter value, or {@link Double#NEGATIVE_INFINITY} if none.
+     * @param  maximum      The maximum parameter value, or {@link Double#POSITIVE_INFINITY} if none.
+     * @param  unit         The unit for default, minimum and maximum values.
+     * @return The parameter descriptor for the given range of values.
+     *
+     * @since 2.5
+     */
+    public static DefaultParameterDescriptor<Double> create(final String name,
+            final double defaultValue, final double minimum, final double maximum, final Unit<?> unit)
+    {
+        return create(Collections.singletonMap(NAME_KEY, name),
+                defaultValue, minimum, maximum, unit, true);
+    }
+
+    /**
+     * Constructs a descriptor for a parameter in a range of floating point values.
+     *
+     * @param  properties   The parameter properties (name, identifiers, alias...).
+     * @param  defaultValue The default value for the parameter, or {@link Double#NaN} if none.
+     * @param  minimum      The minimum parameter value, or {@link Double#NEGATIVE_INFINITY} if none.
+     * @param  maximum      The maximum parameter value, or {@link Double#POSITIVE_INFINITY} if none.
+     * @param  unit         The unit of measurement for default, minimum and maximum values.
+     * @param  required     {@code true} if this parameter is required, {@code false} otherwise.
+     * @return The parameter descriptor for the given range of values.
+     *
+     * @since 2.5
+     */
+    public static DefaultParameterDescriptor<Double> create(final Map<String,?> properties,
+            final double defaultValue, final double minimum, final double maximum,
+            final Unit<?> unit, final boolean required)
+    {
+        return new DefaultParameterDescriptor<Double>(properties, required, Double.class, null,
+                Double.isNaN(defaultValue)          ? null : Double.valueOf(defaultValue),
+                minimum == Double.NEGATIVE_INFINITY ? null : Double.valueOf(minimum),
+                maximum == Double.POSITIVE_INFINITY ? null : Double.valueOf(maximum), unit);
+    }
+
+    /**
+     * Constructs a descriptor from a name and a default value.
+     *
+     * @param  <T>          The parameter type.
+     * @param  name         The parameter name.
+     * @param  remarks      An optional description as a {@link String} or an {@link InternationalString}.
+     * @param  valueClass   The parameter type.
+     * @param  defaultValue The default value.
+     * @param  required     {@code true} if this parameter is required, {@code false} otherwise.
+     * @return The parameter descriptor for the given default value.
+     *
+     * @since 2.5
+     */
+    public static <T> DefaultParameterDescriptor<T> create(final String name,
+            final CharSequence remarks, final Class<T> valueClass,
+            final T defaultValue, final boolean required)
+    {
+        T[] codeList = null;
+        if (CodeList.class.isAssignableFrom(valueClass)) {
+            try {
+                @SuppressWarnings("unchecked") // Type checked with reflection.
+                final T[] tmp = (T[]) valueClass.getMethod("values",
+                        (Class<?>[]) null).invoke(null, (Object[]) null);
+                codeList = tmp;
+            } catch (Exception exception) {
+                // No code list defined. Not a problem; we will just
+                // not provide any set of code to check against.
+            }
+        }
+        final Map<String,CharSequence> properties;
+        if (remarks == null ){
+            properties = Collections.singletonMap(NAME_KEY, (CharSequence) name);
+        } else {
+            properties = new HashMap<String,CharSequence>(4);
+            properties.put(NAME_KEY,    name);
+            properties.put(REMARKS_KEY, remarks);
+        }
+        return new DefaultParameterDescriptor<T>(properties, valueClass,
+                codeList, defaultValue, null, null, null, required);
     }
 
     /**

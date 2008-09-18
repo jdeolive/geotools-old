@@ -87,7 +87,8 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * @param name  The parameter name.
      * @param value The parameter value.
      *
-     * @deprecated Should move to a static factory method (required for getting ride of warnings).
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     public Parameter(final String name, final int value) {
@@ -105,7 +106,8 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * @param value The parameter value.
      * @param unit  The unit for the parameter value.
      *
-     * @deprecated Should move to a static factory method (required for getting ride of warnings).
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     public Parameter(final String name, final double value, final Unit<?> unit) {
@@ -124,7 +126,8 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * @param name  The parameter name.
      * @param value The parameter value.
      *
-     * @deprecated Should move to a static factory method (required for getting ride of warnings).
+     * @deprecated This constructor can not ensure type safety with parameterized types.
+     *             Use the static {@code create} methods instead.
      */
     @Deprecated
     public Parameter(final String name, final CodeList value) {
@@ -171,6 +174,78 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
             if (NonSI.DEGREE_ANGLE.isCompatible(unit)) return NonSI.DEGREE_ANGLE;
         }
         return unit;
+    }
+
+    /**
+     * Constructs a parameter from the specified name and value. This convenience
+     * constructor creates a {@link DefaultParameterDescriptor} object. But if such
+     * an object is available, then the preferred way to get a {@code ParameterValue}
+     * is to invoke {@link ParameterDescriptor#createValue}.
+     *
+     * @param  name  The parameter name.
+     * @param  value The parameter value.
+     * @return A new parameter instance for the given name and value.
+     *
+     * @since 2.5
+     */
+    public static Parameter<Integer> create(final String name, final int value) {
+        final ParameterDescriptor<Integer> descriptor = DefaultParameterDescriptor.create(
+                name, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        final Parameter<Integer> parameter = new Parameter<Integer>(descriptor);
+        parameter.value = value;
+        return parameter;
+    }
+
+    /**
+     * Constructs a parameter from the specified name and value. This convenience
+     * constructor creates a {@link DefaultParameterDescriptor} object. But if such
+     * an object is available, then the preferred way to get a {@code ParameterValue}
+     * is to invoke {@link ParameterDescriptor#createValue}.
+     *
+     * @param name  The parameter name.
+     * @param value The parameter value.
+     * @param unit  The unit for the parameter value.
+     * @return A new parameter instance for the given name and value.
+     *
+     * @since 2.5
+     */
+    public static Parameter<Double> create(final String name, final double value, Unit<?> unit) {
+        // Normalizes the specified unit into one of "standard" units used in projections.
+        if (unit != null) {
+                 if (SI.METER          .isCompatible(unit)) unit = SI.METER;
+            else if (NonSI.DAY         .isCompatible(unit)) unit = NonSI.DAY;
+            else if (NonSI.DEGREE_ANGLE.isCompatible(unit)) unit = NonSI.DEGREE_ANGLE;
+        }
+        final ParameterDescriptor<Double> descriptor = DefaultParameterDescriptor.create(
+                name, Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, unit);
+        final Parameter<Double> parameter = new Parameter<Double>(descriptor);
+        parameter.value = value;
+        parameter.unit  = unit;
+        return parameter;
+    }
+
+    /**
+     * Constructs a parameter from the specified code list. This convenience
+     * constructor creates a {@link DefaultParameterDescriptor} object. But if
+     * such an object is available, then the preferred way to get a {@code ParameterValue}
+     * is to invoke {@link ParameterDescriptor#createValue}.
+     *
+     * @param  <T>   The parameter type.
+     * @param  name  The parameter name.
+     * @param  type  The parameter type.
+     * @param  value The parameter value.
+     * @return A new parameter instance for the given name and value.
+     *
+     * @since 2.5
+     */
+    public static <T extends CodeList> Parameter<T> create(
+            final String name, final Class<T> type, final T value)
+    {
+        final ParameterDescriptor<T> descriptor =
+                DefaultParameterDescriptor.create(name, null, type, null, true);
+        final Parameter<T> parameter = new Parameter<T>(descriptor);
+        parameter.value = value;
+        return parameter;
     }
 
     /**
