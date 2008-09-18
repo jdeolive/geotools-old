@@ -280,6 +280,51 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
     }
 
     /**
+     * Transforms a list of coordinate point ordinal values. The default implementation
+     * invokes {@link #transform(double[],int,double[],int,int)} using a temporary array
+     * of doubles.
+     *
+     * @since 2.5
+     */
+    public void transform(final double[] srcPts, final int srcOff,
+                          final float [] dstPts, final int dstOff, final int numPts)
+            throws TransformException
+    {
+        final int dimSource = getSourceDimensions();
+        final int dimTarget = getTargetDimensions();
+        final double[] tmpPts = new double[numPts * Math.max(dimSource, dimTarget)];
+        System.arraycopy(srcPts, srcOff, tmpPts, 0, numPts * dimSource);
+        transform(tmpPts, 0, tmpPts, 0, numPts);
+        for (int i=numPts*dimTarget; --i>=0;) {
+            dstPts[dstOff+i] = (float) tmpPts[i];
+        }
+    }
+
+    /**
+     * Transforms a list of coordinate point ordinal values. The default implementation
+     * delegates to {@link #transform(double[],int,double[],int,int)}.
+     *
+     * @since 2.5
+     */
+    public void transform(final float [] srcPts, final int srcOff,
+                          final double[] dstPts, final int dstOff, final int numPts)
+            throws TransformException
+    {
+        final int dimSource = getSourceDimensions();
+        final int dimTarget = getTargetDimensions();
+        if (dimSource == dimTarget) {
+            System.arraycopy(dimSource, srcOff, dimTarget, dstOff, numPts*dimSource);
+            transform(dstPts, dstOff, dstPts, dstOff, numPts);
+        } else {
+            final double[] tmpPts = new double[numPts*dimSource];
+            for (int i=tmpPts.length; --i>=0;) {
+                tmpPts[i] = srcPts[srcOff+i];
+            }
+            transform(tmpPts, 0, dstPts, 0, numPts);
+        }
+    }
+
+    /**
      * Transform the specified shape. The default implementation computes
      * quadratic curves using three points for each shape segments.
      *
