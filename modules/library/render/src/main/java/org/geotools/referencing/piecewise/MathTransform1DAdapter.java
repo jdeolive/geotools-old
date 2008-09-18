@@ -212,4 +212,30 @@ public class MathTransform1DAdapter implements MathTransform1D {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opengis.referencing.operation.MathTransform#transform(float[],
+	 *      int, float[], int, int)
+	 */
+	public void transform(float[] arg0, int arg1, double[] arg2, int arg3,
+			int arg4) throws TransformException {
+		throw new UnsupportedOperationException(Errors.format(
+				ErrorKeys.UNSUPPORTED_OPERATION_$1, "transform"));
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opengis.referencing.operation.MathTransform#transform(float[],
+	 *      int, float[], int, int)
+	 */
+	public void transform(double[] arg0, int arg1, float[] arg2, int arg3,
+			int arg4) throws TransformException {
+		throw new UnsupportedOperationException(Errors.format(
+				ErrorKeys.UNSUPPORTED_OPERATION_$1, "transform"));
+
+	}
+
 }

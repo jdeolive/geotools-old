@@ -789,6 +789,18 @@ public final class LinearColorMap extends AbstractList<LinearColorMapElement>
 		
 	}
 
+	public void transform(float[] srcPts, int srcOff, double[] dstPts, int dstOff,
+			int numPts) throws TransformException {
+		throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1, "transform"));
+		
+	}
+
+	public void transform(double[] srcPts, int srcOff, float[] dstPts, int dstOff,
+			int numPts) throws TransformException {
+		throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1, "transform"));
+		
+	}
+
     @Override
     public boolean equals(Object o) {
         if(this==o)

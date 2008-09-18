@@ -81,6 +81,16 @@ public class GeometryHandlerUtilitiesTest extends TestCase {
                 // TODO Auto-generated method stub
             }
 
+            public void transform(float[] arg0, int arg1, double[] arg2,
+                int arg3, int arg4) throws TransformException {
+                // TODO Auto-generated method stub
+            }
+
+            public void transform(double[] arg0, int arg1, float[] arg2,
+                int arg3, int arg4) throws TransformException {
+                // TODO Auto-generated method stub
+            }
+
             public Matrix derivative(DirectPosition arg0)
                 throws MismatchedDimensionException, TransformException {
                 // TODO Auto-generated method stub
@@ -145,6 +155,16 @@ public class GeometryHandlerUtilitiesTest extends TestCase {
                 // TODO Auto-generated method stub
             }
 
+            public void transform(float[] arg0, int arg1, double[] arg2,
+                int arg3, int arg4) throws TransformException {
+                // TODO Auto-generated method stub
+            }
+
+            public void transform(double[] arg0, int arg1, float[] arg2,
+                int arg3, int arg4) throws TransformException {
+                // TODO Auto-generated method stub
+            }
+
             public Matrix derivative(DirectPosition arg0)
                 throws MismatchedDimensionException, TransformException {
                 // TODO Auto-generated method stub
@@ -202,6 +222,16 @@ public class GeometryHandlerUtilitiesTest extends TestCase {
             }
 
             public void transform(float[] arg0, int arg1, float[] arg2,
+                int arg3, int arg4) throws TransformException {
+                // TODO Auto-generated method stub
+            }
+
+            public void transform(float[] arg0, int arg1, double[] arg2,
+                int arg3, int arg4) throws TransformException {
+                // TODO Auto-generated method stub
+            }
+
+            public void transform(double[] arg0, int arg1, float[] arg2,
                 int arg3, int arg4) throws TransformException {
                 // TODO Auto-generated method stub
             }

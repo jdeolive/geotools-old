@@ -161,7 +161,7 @@ public class TestPiecewise extends TestCase {
 		}
 		
 		try{
-			defaultAdapter.transform(new double[]{0},0,null,0,1);
+			defaultAdapter.transform(new double[]{0},0,(double[])null,0,1);
 			assertFalse(true);
 		}catch (UnsupportedOperationException e) {
 			
@@ -169,7 +169,7 @@ public class TestPiecewise extends TestCase {
 		
 		
 		try{
-			defaultAdapter.transform(new float[]{0},0,null,0,1);
+			defaultAdapter.transform(new float[]{0},0,(float[])null,0,1);
 			assertFalse(true);
 		}catch (UnsupportedOperationException e) {
 			
@@ -426,6 +426,18 @@ public class TestPiecewise extends TestCase {
 						
 						
 					}
+
+					public void transform(float[] arg0, int arg1, double[] arg2,
+							int arg3, int arg4) throws TransformException {
+						
+						
+					}
+
+					public void transform(double[] arg0, int arg1, float[] arg2,
+							int arg3, int arg4) throws TransformException {
+						
+						
+					}
 				});
 		DefaultPiecewiseTransform1D<DefaultPiecewiseTransform1DElement> transform = 
 		    new DefaultPiecewiseTransform1D<DefaultPiecewiseTransform1DElement>(new DefaultPiecewiseTransform1DElement[] {zero,mainElement});
@@ -632,7 +644,7 @@ public class TestPiecewise extends TestCase {
 			assertTrue(outDP.getOrdinate(0)==0.6);
 			try{
 		
-				p0.transform(new double[]{0.5},0,null,0,0);
+				p0.transform(new double[]{0.5},0,(double[])null,0,0);
 				assertFalse(true);
 			}
 			catch (UnsupportedOperationException e) {
@@ -641,7 +653,7 @@ public class TestPiecewise extends TestCase {
 			
 			try{
 		
-				p0.transform(new float[]{0.5f},0,null,0,0);
+				p0.transform(new float[]{0.5f},0,(float[])null,0,0);
 				assertFalse(true);
 			}
 			catch (UnsupportedOperationException e) {
@@ -679,7 +691,7 @@ public class TestPiecewise extends TestCase {
 			
 			try{
 		
-				piecewise.transform(new double[]{0.5},0,null,0,0);
+				piecewise.transform(new double[]{0.5},0,(double[])null,0,0);
 				assertFalse(true);
 			}
 			catch (UnsupportedOperationException e) {
@@ -688,7 +700,7 @@ public class TestPiecewise extends TestCase {
 			
 			try{
 		
-				piecewise.transform(new float[]{0.5f},0,null,0,0);
+				piecewise.transform(new float[]{0.5f},0,(float[])null,0,0);
 				assertFalse(true);
 			}
 			catch (UnsupportedOperationException e) {
@@ -737,7 +749,7 @@ public class TestPiecewise extends TestCase {
 			assertTrue(outDP1.getOrdinate(0)==0.6);
 			try{
 		
-				p1.transform(new double[]{1233444.5},0,null,0,0);
+				p1.transform(new double[]{1233444.5},0,(double[])null,0,0);
 				assertFalse(true);
 			}
 			catch (UnsupportedOperationException e) {
@@ -746,7 +758,7 @@ public class TestPiecewise extends TestCase {
 			
 			try{
 		
-				p1.transform(new float[]{6595.5f},0,null,0,0);
+				p1.transform(new float[]{6595.5f},0,(float[])null,0,0);
 				assertFalse(true);
 			}
 			catch (UnsupportedOperationException e) {

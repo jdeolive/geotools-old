@@ -183,6 +183,22 @@ public class DefaultPiecewiseTransform1D<T extends DefaultPiecewiseTransform1DEl
 		throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1, "transform"));
 	}
 
+	/**
+	 * Transforms a list of coordinate point ordinal values.
+	 */
+	public void transform(final float[] srcPts, final int srcOff, final double[] dstPts,
+			final int dstOff, final int numPts) throws TransformException {
+		throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1, "transform"));
+	}
+
+	/**
+	 * Transforms a list of coordinate point ordinal values.
+	 */
+	public void transform(final double[] srcPts, final int srcOff, final float[] dstPts,
+			final int dstOff, final int numPts) throws TransformException {
+		throw new UnsupportedOperationException(Errors.format(ErrorKeys.UNSUPPORTED_OPERATION_$1, "transform"));
+	}
+
 
 
 	public boolean hasDefaultValue() {

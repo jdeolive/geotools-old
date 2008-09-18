@@ -1093,6 +1093,28 @@ class CategoryList extends AbstractList<Category>
     }
 
     /**
+     * Transforms a list of coordinate point ordinal values.
+     *
+     * @todo Not yet implemented.
+     */
+    public final void transform(float[] srcPts, int srcOff,
+                                double[] dstPts, int dstOff, int numPts) throws TransformException
+    {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Transforms a list of coordinate point ordinal values.
+     *
+     * @todo Not yet implemented.
+     */
+    public final void transform(double[] srcPts, int srcOff,
+                                float[] dstPts, int dstOff, int numPts) throws TransformException
+    {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
      * Transforms a raster. Only the current band in {@code iterator} will be transformed.
      * The transformed value are write back in the {@code iterator}. If a different
      * destination raster is wanted, a {@link org.geotools.image.TransfertRectIter}

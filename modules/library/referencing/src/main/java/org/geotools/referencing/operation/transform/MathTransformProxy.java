@@ -114,6 +114,32 @@ public class MathTransformProxy implements MathTransform, Serializable {
     }
 
     /**
+     * Transforms a list of coordinate point ordinal values.
+     *
+     * @todo Remove the cast to {@link AbstractMathTransform}
+     *       when this method will be part of GeoAPI.
+     */
+    public void transform(final float [] srcPts, final int srcOff,
+                          final double[] dstPts, final int dstOff,
+                          final int numPts) throws TransformException
+    {
+        ((AbstractMathTransform) transform).transform(srcPts, srcOff, dstPts, dstOff, numPts);
+    }
+
+    /**
+     * Transforms a list of coordinate point ordinal values.
+     *
+     * @todo Remove the cast to {@link AbstractMathTransform}
+     *       when this method will be part of GeoAPI.
+     */
+    public void transform(final double[] srcPts, final int srcOff,
+                          final float [] dstPts, final int dstOff,
+                          final int numPts) throws TransformException
+    {
+        ((AbstractMathTransform) transform).transform(srcPts, srcOff, dstPts, dstOff, numPts);
+    }
+
+    /**
      * Gets the derivative of this transform at a point.
      */
     public Matrix derivative(final DirectPosition point) throws TransformException {
