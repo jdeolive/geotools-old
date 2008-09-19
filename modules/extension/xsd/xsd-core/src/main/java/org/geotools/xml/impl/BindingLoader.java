@@ -52,6 +52,10 @@ public class BindingLoader {
         if ( o == null ) {
             return null;
         }
+        if ( o instanceof ComponentAdapter ) {
+            return (Binding) ((ComponentAdapter)o).getComponentInstance( context );
+        }
+        
         if ( o instanceof Class ) {
             return loadBinding(qName, (Class)o, context);
         }
@@ -87,6 +91,10 @@ public class BindingLoader {
         Object o = bindings.get( type );
         if ( o == null ) {
             return null;
+        }
+        
+        if ( o instanceof ComponentAdapter ) {
+            return (ComponentAdapter) o; 
         }
         
         if ( o instanceof Class ) {

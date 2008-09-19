@@ -87,9 +87,15 @@ public class ParseExecutor implements Visitor {
             QName bindingTarget = binding.getTarget();
             
             binding = (Binding) context.getComponentInstanceOfType(binding.getClass());
-
             if (binding == null) {
-                binding = parser.getBindingLoader().loadBinding(bindingTarget,bindingClass, context);
+                
+                binding = parser.getBindingLoader().loadBinding(bindingTarget, context);
+                if ( binding == null ) {
+                    binding = parser.getBindingLoader().loadBinding(bindingTarget,bindingClass,context);
+                }
+                if ( binding.getClass() != bindingClass ) {
+                    throw new IllegalStateException( "Reloaded binding resulted in different type");
+                }
             }    
         }
         
