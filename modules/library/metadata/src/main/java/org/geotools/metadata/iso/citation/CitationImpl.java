@@ -21,10 +21,6 @@ package org.geotools.metadata.iso.citation;
 
 import java.util.Collection;
 import java.util.Date;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.Identifier;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.metadata.citation.CitationDate;
@@ -46,12 +42,6 @@ import org.geotools.util.SimpleInternationalString;
  * @author Martin Desruisseaux (IRD)
  * @author Jody Garnett
  */
-@XmlType(propOrder={
-    "title", "alternateTitles", "dates", "edition", "editionDate", "identifiers", 
-    "citedResponsibleParties", "presentationForm", "series", "otherCitationDetails",
-    "collectiveTitle", "ISBN", "ISSN"
-})
-@XmlRootElement(name = "CI_Citation")
 public class CitationImpl extends MetadataEntity implements Citation {
     /**
      * Serial number for interoperability with different versions.
@@ -200,7 +190,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
     /**
      * Returns the name by which the cited resource is known.
      */
-    @XmlElement(name = "title", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getTitle() {
         return title;
     }
@@ -217,9 +206,8 @@ public class CitationImpl extends MetadataEntity implements Citation {
      * Returns the short name or other language name by which the cited information is known.
      * Example: "DCW" as an alternative title for "Digital Chart of the World".
      */
-    @XmlElement(name = "alternateTitle", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<InternationalString> getAlternateTitles() {
-        return xmlOptional(alternateTitles = nonNullCollection(alternateTitles, InternationalString.class));
+        return (alternateTitles = nonNullCollection(alternateTitles, InternationalString.class));
     }
 
     /**
@@ -234,7 +222,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
     /**
      * Returns the reference date for the cited resource.
      */
-    @XmlElement(name = "date", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<CitationDate> getDates() {
         return dates = nonNullCollection(dates, CitationDate.class);
     }
@@ -249,7 +236,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
     /**
      * Returns the version of the cited resource.
      */
-    @XmlElement(name = "edition", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getEdition() {
         return edition;
     }
@@ -265,7 +251,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
     /**
      * Returns the date of the edition, or {@code null} if none.
      */
-    @XmlElement(name = "editionDate", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Date getEditionDate() {
         return (editionDate!=Long.MIN_VALUE) ? new Date(editionDate) : null;
     }
@@ -284,9 +269,8 @@ public class CitationImpl extends MetadataEntity implements Citation {
      * Returns the unique identifier for the resource. Example: Universal Product Code (UPC),
      * National Stock Number (NSN).
      */
-    @XmlElement(name = "identifier", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Identifier> getIdentifiers() {
-        return xmlOptional(identifiers = nonNullCollection(identifiers, Identifier.class));
+        return (identifiers = nonNullCollection(identifiers, Identifier.class));
     }
 
     /**
@@ -301,10 +285,9 @@ public class CitationImpl extends MetadataEntity implements Citation {
      * Returns the name and position information for an individual or organization that is
      * responsible for the resource. Returns an empty string if there is none.
      */
-    @XmlElement(name = "citedResponsibleParty", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<ResponsibleParty> getCitedResponsibleParties() {
-        return xmlOptional(citedResponsibleParties = nonNullCollection(citedResponsibleParties,
-                                                           ResponsibleParty.class));
+        return (citedResponsibleParties = nonNullCollection(citedResponsibleParties,
+                ResponsibleParty.class));
     }
 
     /**
@@ -321,9 +304,8 @@ public class CitationImpl extends MetadataEntity implements Citation {
     /**
      * Returns the mode in which the resource is represented, or an empty string if none.
      */
-    @XmlElement(name = "presentationForm", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<PresentationForm> getPresentationForm() {
-        return xmlOptional(presentationForm = nonNullCollection(presentationForm, 
+        return (presentationForm = nonNullCollection(presentationForm, 
                 PresentationForm.class));
     }
 
@@ -340,7 +322,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
      * Returns the information about the series, or aggregate dataset, of which the dataset is
      * a part. Returns {@code null} if none.
      */
-    @XmlElement(name = "series", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Series getSeries() {
         return series;
     }
@@ -358,7 +339,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
      * Returns other information required to complete the citation that is not recorded elsewhere.
      * Returns {@code null} if none.
      */
-    @XmlElement(name = "otherCitationDetails", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getOtherCitationDetails() {
         return otherCitationDetails;
     }
@@ -377,7 +357,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
      * collectively, combined with information about what volumes are available at the
      * source cited. Returns {@code null} if there is no title.
      */
-    @XmlElement(name = "collectiveTitle", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getCollectiveTitle() {
         return collectiveTitle;
     }
@@ -395,7 +374,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
     /**
      * Returns the International Standard Book Number, or {@code null} if none.
      */
-    @XmlElement(name = "ISBN", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getISBN() {
         return ISBN;
     }
@@ -411,7 +389,6 @@ public class CitationImpl extends MetadataEntity implements Citation {
     /**
      * Returns the International Standard Serial Number, or {@code null} if none.
      */
-    @XmlElement(name = "ISSN", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getISSN() {
         return ISSN;
     }
@@ -423,26 +400,4 @@ public class CitationImpl extends MetadataEntity implements Citation {
         checkWritePermission();
         ISSN = newValue;
     }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     * 
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     * 
-     * @param marshaller Not used in this implementation
-     */
-///    private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///    }
 }

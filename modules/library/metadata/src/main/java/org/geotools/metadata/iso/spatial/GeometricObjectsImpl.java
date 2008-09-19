@@ -19,9 +19,6 @@
  */
 package org.geotools.metadata.iso.spatial;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.spatial.GeometricObjects;
 import org.opengis.metadata.spatial.GeometricObjectType;
 import org.geotools.metadata.iso.MetadataEntity;
@@ -37,10 +34,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "geometricObjectType", "geometricObjectCount"
-})
-@XmlRootElement(name = "MD_GeometricObjects")
 public class GeometricObjectsImpl extends MetadataEntity implements GeometricObjects {
     /**
      * Serial number for interoperability with different versions.
@@ -82,7 +75,6 @@ public class GeometricObjectsImpl extends MetadataEntity implements GeometricObj
     /**
      * Total number of the point or vector object type occurring in the dataset.
      */
-    @XmlElement(name = "geometricObjectType", required = true)
     public GeometricObjectType getGeometricObjectType() {
         return geometricObjectType;
     }
@@ -98,7 +90,6 @@ public class GeometricObjectsImpl extends MetadataEntity implements GeometricObj
     /**
      * Total number of the point or vector object type occurring in the dataset.
      */
-    @XmlElement(name = "geometricObjectCount", required = true)
     public Integer getGeometricObjectCount() {
         return geometricObjectCount;
     }

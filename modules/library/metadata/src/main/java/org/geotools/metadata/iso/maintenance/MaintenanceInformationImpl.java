@@ -23,10 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.ResponsibleParty;
 import org.opengis.metadata.maintenance.MaintenanceInformation;
 import org.opengis.metadata.maintenance.MaintenanceFrequency;
@@ -47,11 +43,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "maintenanceAndUpdateFrequency", "dateOfNextUpdate",
-    "updateScopes", "updateScopeDescriptions", "maintenanceNotes", "contacts"
-})
-@XmlRootElement(name = "MD_MaintenanceInformation")
 public class MaintenanceInformationImpl extends MetadataEntity implements MaintenanceInformation {
     /**
      * Serial number for interoperability with different versions.
@@ -123,7 +114,6 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
      * Returns the frequency with which changes and additions are made to the resource
      * after the initial resource is completed.
      */
-    @XmlElement(name = "maintenanceAndUpdateFrequency", required = true)
     public MaintenanceFrequency getMaintenanceAndUpdateFrequency() {
         return maintenanceAndUpdateFrequency;
     }
@@ -140,7 +130,6 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
     /**
      * Returns the scheduled revision date for resource.
      */
-    @XmlElement(name = "dateOfNextUpdate", required = false)
     public synchronized Date getDateOfNextUpdate() {
         return (dateOfNextUpdate!=Long.MIN_VALUE) ? new Date(dateOfNextUpdate) : null;
     }
@@ -178,9 +167,8 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
      *
      * @since 2.4
      */
-    @XmlElement(name = "updateScope", required = false)
     public synchronized Collection<ScopeCode> getUpdateScopes() {
-        return xmlOptional(updateScopes = nonNullCollection(updateScopes, ScopeCode.class));
+        return (updateScopes = nonNullCollection(updateScopes, ScopeCode.class));
     }
 
     /**
@@ -197,9 +185,8 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
      *
      * @since 2.4
      */
-    @XmlElement(name = "updateScopeDescription", required = false)
     public synchronized Collection<ScopeDescription> getUpdateScopeDescriptions() {
-        return xmlOptional(updateScopeDescriptions = nonNullCollection(updateScopeDescriptions, ScopeDescription.class));
+        return (updateScopeDescriptions = nonNullCollection(updateScopeDescriptions, ScopeDescription.class));
     }
 
     /**
@@ -218,9 +205,8 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
      *
      * @since 2.4
      */
-    @XmlElement(name = "maintenanceNote", required = false)
     public synchronized Collection<InternationalString> getMaintenanceNotes() {
-        return xmlOptional(maintenanceNotes = nonNullCollection(maintenanceNotes, InternationalString.class));
+        return (maintenanceNotes = nonNullCollection(maintenanceNotes, InternationalString.class));
     }
 
     /**
@@ -240,9 +226,8 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
      *
      * @since 2.4
      */
-    @XmlElement(name = "contact", required = false)
     public synchronized Collection<ResponsibleParty> getContacts() {
-        return xmlOptional(contacts = nonNullCollection(contacts, ResponsibleParty.class));
+        return (contacts = nonNullCollection(contacts, ResponsibleParty.class));
     }
 
     /**
@@ -254,26 +239,4 @@ public class MaintenanceInformationImpl extends MetadataEntity implements Mainte
     public synchronized void setContacts(final Collection<? extends ResponsibleParty> newValues) {
         contacts = copyCollection(newValues, contacts, ResponsibleParty.class);
     }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     * 
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     * 
-     * @param marshaller Not used in this implementation
-     */
-///    private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///    }
 }

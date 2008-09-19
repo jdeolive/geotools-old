@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Locale;
 
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.util.NameSpace;
 import org.opengis.util.LocalName;
 import org.opengis.util.ScopedName;  // For javadoc
@@ -49,7 +47,6 @@ import org.opengis.util.InternationalString;
  *
  * @see NameFactory
  */
-@XmlType(name = "GenericName")
 public abstract class GenericName implements org.opengis.util.GenericName, Serializable {
     /**
      * Serial number for interoperability with different versions.
@@ -138,7 +135,6 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      *
      * @since 2.3
      */
-    @XmlElement(name = "depth", required = true)
     public int depth() {
         return getParsedNames().size();
     }
@@ -150,7 +146,6 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      *
      * @return The sequence of local names.
      */
-    @XmlElement(name = "parsedName", required = true)
     public abstract List<LocalName> getParsedNames();
 
     /**

@@ -19,9 +19,6 @@
  */
 package org.geotools.metadata.iso.content;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.Identifier;
 import org.opengis.metadata.content.ImageDescription;
 import org.opengis.metadata.content.ImagingCondition;
@@ -37,13 +34,6 @@ import org.opengis.metadata.content.ImagingCondition;
  *
  * @since 2.1
  */
-@XmlType(name = "MD_ImageDescription", propOrder={
-    "illuminationElevationAngle", "illuminationAzimuthAngle", "imagingCondition", "imageQualityCode",
-    "cloudCoverPercentage", "processingLevelCode", "compressionGenerationQuantity",
-    "triangulationIndicator", "radiometricCalibrationDataAvailable", "cameraCalibrationInformationAvailable",
-    "filmDistortionInformationAvailable", "lensDistortionInformationAvailable"
-})
-@XmlRootElement(name = "MD_ImageDescription")
 public class ImageDescriptionImpl extends CoverageDescriptionImpl implements ImageDescription {
     /**
      * Serial number for interoperability with different versions.
@@ -138,7 +128,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
      * intersection of the optical line of sight with the Earths surface. For images from a
      * scanning device, refer to the centre pixel of the image.
      */
-    @XmlElement(name = "illuminationElevationAngle", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Double getIlluminationElevationAngle() {
         return illuminationElevationAngle;
     }
@@ -158,7 +147,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
      * the image is taken. For images from a scanning device, refer to the centre pixel of the
      * image.
      */
-    @XmlElement(name = "illuminationAzimuthAngle", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Double getIlluminationAzimuthAngle() {
         return illuminationAzimuthAngle;
     }
@@ -175,7 +163,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
     /**
      * Returns the conditions affected the image.
      */
-    @XmlElement(name = "imagingCondition", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public ImagingCondition getImagingCondition() {
         return imagingCondition;
     }
@@ -191,7 +178,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
     /**
      * Returns the specifies the image quality.
      */
-    @XmlElement(name = "imageQualityCode", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Identifier getImageQualityCode() {
         return imageQualityCode;
     }
@@ -208,7 +194,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
      * Returns the area of the dataset obscured by clouds, expressed as a percentage of the spatial
      * extent.
      */
-    @XmlElement(name = "cloudCoverPercentage", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Double getCloudCoverPercentage() {
         return cloudCoverPercentage;
     }
@@ -226,7 +211,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
      * Returns the image distributors code that identifies the level of radiometric and geometric
      * processing that has been applied.
      */
-    @XmlElement(name = "processingLevelCode", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Identifier getProcessingLevelCode() {
         return processingLevelCode;
     }
@@ -244,7 +228,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
      * Returns the count of the number the number of lossy compression cycles performed on the
      * image. Returns {@code null} if the information is not provided.
      */
-    @XmlElement(name = "compressionGenerationQuantity", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Integer getCompressionGenerationQuantity() {
         return compressionGenerationQuantity;
     }
@@ -261,7 +244,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
      * Returns the indication of whether or not triangulation has been performed upon the image.
      * Returns {@code null} if the information is not provided.
      */
-    @XmlElement(name = "triangulationIndicator", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Boolean getTriangulationIndicator() {
         return triangulationIndicator;
     }
@@ -278,7 +260,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
      * Returns theiIndication of whether or not the radiometric calibration information for
      * generating the radiometrically calibrated standard data product is available.
      */
-    @XmlElement(name = "radiometricCalibrationDataAvailability", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Boolean isRadiometricCalibrationDataAvailable() {
         return radiometricCalibrationDataAvailable;
     }
@@ -296,7 +277,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
      * Returns the indication of whether or not constants are available which allow for camera
      * calibration corrections.
      */
-    @XmlElement(name = "cameraCalibrationInformationAvailability", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Boolean isCameraCalibrationInformationAvailable() {
         return cameraCalibrationInformationAvailable;
     }
@@ -313,7 +293,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
     /**
      * Returns the indication of whether or not Calibration Reseau information is available.
      */
-    @XmlElement(name = "filmDistortionInformationAvailability", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Boolean isFilmDistortionInformationAvailable() {
         return filmDistortionInformationAvailable;
     }
@@ -329,7 +308,6 @@ public class ImageDescriptionImpl extends CoverageDescriptionImpl implements Ima
     /**
      * Returns the indication of whether or not lens aberration correction information is available.
      */
-    @XmlElement(name = "lensDistortionInformationAvailability", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Boolean isLensDistortionInformationAvailable() {
         return lensDistortionInformationAvailable;
     }

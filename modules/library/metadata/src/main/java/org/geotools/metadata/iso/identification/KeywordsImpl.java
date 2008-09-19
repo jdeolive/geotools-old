@@ -20,9 +20,6 @@
 package org.geotools.metadata.iso.identification;
 
 import java.util.Collection;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.metadata.identification.Keywords;
 import org.opengis.metadata.identification.KeywordType;
@@ -40,8 +37,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlRootElement(name = "MD_Keywords")
-@XmlType(propOrder={"keywords", "type", "thesaurusName"})
 public class KeywordsImpl extends MetadataEntity implements Keywords {
     /**
      * Serial number for compatibility with different versions.
@@ -89,7 +84,6 @@ public class KeywordsImpl extends MetadataEntity implements Keywords {
     /**
      * Commonly used word(s) or formalised word(s) or phrase(s) used to describe the subject.
      */
-    @XmlElement(name = "keyword", required = true)
     public synchronized Collection<InternationalString> getKeywords() {
         return keywords = nonNullCollection(keywords, InternationalString.class);
     }
@@ -104,7 +98,6 @@ public class KeywordsImpl extends MetadataEntity implements Keywords {
     /**
      * Subject matter used to group similar keywords.
      */
-    @XmlElement(name = "type", required = false)
     public KeywordType getType() {
         return type;
     }
@@ -120,7 +113,6 @@ public class KeywordsImpl extends MetadataEntity implements Keywords {
     /**
      * Name of the formally registered thesaurus or a similar authoritative source of keywords.
      */
-    @XmlElement(name = "thesaurusName", required = false)
     public Citation getThesaurusName() {
         return thesaurusName;
     }

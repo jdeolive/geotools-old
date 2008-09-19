@@ -20,10 +20,6 @@
 package org.geotools.metadata.iso.spatial;
 
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.spatial.Dimension;
 import org.opengis.metadata.spatial.CellGeometry;
 import org.opengis.metadata.spatial.GridSpatialRepresentation;
@@ -39,11 +35,6 @@ import org.opengis.metadata.spatial.GridSpatialRepresentation;
  *
  * @since 2.1
  */
-@XmlType(name = "MD_GridSpatialRepresentation", propOrder={"numberOfDimensions",
-    "axisDimensionsProperties", "cellGeometry", "transformationParameterAvailable"
-})
-@XmlSeeAlso({GeorectifiedImpl.class, GeoreferenceableImpl.class})
-@XmlRootElement(name = "MD_GridSpatialRepresentation")
 public class GridSpatialRepresentationImpl extends SpatialRepresentationImpl
         implements GridSpatialRepresentation
 {
@@ -107,8 +98,6 @@ public class GridSpatialRepresentationImpl extends SpatialRepresentationImpl
     /**
      * Number of independent spatial-temporal axes.
      */
-    @XmlElement(name = "numberOfDimensions", required = true, 
-                namespace = "http://www.isotc211.org/2005/gmd")
     public Integer getNumberOfDimensions() {
         return numberOfDimensions;
     }
@@ -124,8 +113,6 @@ public class GridSpatialRepresentationImpl extends SpatialRepresentationImpl
     /**
      * Information about spatial-temporal axis properties.
      */
-    @XmlElement(name = "axisDimensionProperties", required = true,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized List<Dimension> getAxisDimensionsProperties() {
         return axisDimensionsProperties = nonNullList(axisDimensionsProperties, Dimension.class);
     }
@@ -142,8 +129,6 @@ public class GridSpatialRepresentationImpl extends SpatialRepresentationImpl
     /**
      * Identification of grid data as point or cell.
      */
-    @XmlElement(name = "cellGeometry", required = true,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public CellGeometry getCellGeometry() {
         return cellGeometry;
     }
@@ -159,8 +144,6 @@ public class GridSpatialRepresentationImpl extends SpatialRepresentationImpl
     /**
      * Indication of whether or not parameters for transformation exists.
      */
-    @XmlElement(name = "transformationParameterAvailability", required = true,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public boolean isTransformationParameterAvailable() {
         return transformationParameterAvailable;
     }

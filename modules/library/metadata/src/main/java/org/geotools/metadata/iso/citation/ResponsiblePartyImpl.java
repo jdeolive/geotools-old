@@ -21,9 +21,6 @@ package org.geotools.metadata.iso.citation;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.Contact;
 import org.opengis.metadata.citation.OnLineFunction;
 import org.opengis.metadata.citation.OnLineResource;
@@ -45,10 +42,6 @@ import org.geotools.util.SimpleInternationalString;
  * @author Martin Desruisseaux (IRD)
  * @author Touraïvane
  */
-@XmlType(propOrder={
-    "individualName", "organisationName", "positionName", "contactInfo", "role"
-})
-@XmlRootElement(name = "CI_ResponsibleParty")
 public class ResponsiblePartyImpl extends MetadataEntity implements ResponsibleParty {
     /**
      * Serial number for interoperability with different versions.
@@ -314,7 +307,6 @@ public class ResponsiblePartyImpl extends MetadataEntity implements ResponsibleP
      * Only one of {@code individualName}, {@link #getOrganisationName organisationName}
      * and {@link #getPositionName positionName} should be provided.
      */
-    @XmlElement(name = "individualName", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getIndividualName() {
         return individualName;
     }
@@ -334,7 +326,6 @@ public class ResponsiblePartyImpl extends MetadataEntity implements ResponsibleP
      * Only one of {@link #getIndividualName individualName}, </code>organisationName</code>
      * and {@link #getPositionName positionName} should be provided.
      */
-    @XmlElement(name = "organisationName", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getOrganisationName() {
         return organisationName;
     }
@@ -355,7 +346,6 @@ public class ResponsiblePartyImpl extends MetadataEntity implements ResponsibleP
      * {@link #getOrganisationName organisationName} and {@code positionName}
      * should be provided.
      */
-    @XmlElement(name = "positionName", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getPositionName() {
         return positionName;
     }
@@ -374,7 +364,6 @@ public class ResponsiblePartyImpl extends MetadataEntity implements ResponsibleP
     /**
      * Returns the address of the responsible party.
      */
-    @XmlElement(name = "contactInfo", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Contact getContactInfo() {
         return contactInfo;
     }
@@ -390,7 +379,6 @@ public class ResponsiblePartyImpl extends MetadataEntity implements ResponsibleP
     /**
      * Returns the function performed by the responsible party.
      */
-    @XmlElement(name = "role", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public Role getRole() {
         return role;
     }

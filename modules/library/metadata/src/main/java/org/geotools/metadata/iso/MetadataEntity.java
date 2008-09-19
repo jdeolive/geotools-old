@@ -18,7 +18,6 @@ package org.geotools.metadata.iso;
 
 import java.io.Serializable;
 
-import java.util.Collection;
 import org.geotools.metadata.MetadataStandard;
 import org.geotools.metadata.ModifiableMetadata;
 import org.geotools.metadata.InvalidMetadataException;
@@ -42,13 +41,6 @@ public class MetadataEntity extends ModifiableMetadata implements Serializable {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = 5730550742604669102L;
-
-    /**
-     * If a XML marshalling with JAXB is under progress, value {@link Boolean#TRUE}. Otherwise
-     * {@link Boolean#FALSE}. This implementation assumes that JAXB performs marshalling in the
-     * same thread than the one that invoke the {@code beforeMarshal(...)} method.
-     */
-    private transient ThreadLocal<Boolean> xmlMarshalling;
 
     /**
      * Constructs an initially empty metadata entity.
@@ -97,50 +89,5 @@ public class MetadataEntity extends ModifiableMetadata implements Serializable {
         if (object == null) {
             throw new InvalidMetadataException(Errors.format(ErrorKeys.NULL_ATTRIBUTE_$1, name));
         }
-    }
-
-    /**
-     * Invoked with value {@code true} if a XML marshalling is begining,
-     * or {@code false} if XML marshalling ended.
-     *
-     * @since 2.5
-     *
-     * @todo Current implementation will not work if more than one thread are marshalling in
-     *       same time. It may also leave the object in an unstable state if the marshalling
-     *       failed with an exception. We need to find a better mechanism.
-     */
-    protected final synchronized void xmlMarshalling(final boolean marshalling) {
-        if (xmlMarshalling == null) {
-            if (!marshalling) {
-                return;
-            }
-            xmlMarshalling = new ThreadLocal<Boolean>();
-        }
-        xmlMarshalling.set(Boolean.valueOf(marshalling));
-    }
-
-    /**
-     * If a XML marshalling is under progress and the given collection is empty, returns
-     * {@code null}. Otherwise returns the collection unchanged. This method is invoked
-     * by implementation having optional elements to ommit when empty.
-     *
-     * @param  elements The collection to return.
-     * @return The given collection, or {@code null} if the collection is empty and a marshalling
-     *         is under progress.
-     *
-     * @since 2.5
-     */
-    protected final <E> Collection<E> xmlOptional(final Collection<E> elements) {
-        assert Thread.holdsLock(this);
-        if (elements != null && elements.isEmpty()) {
-            final ThreadLocal<Boolean> xmlMarshalling = this.xmlMarshalling;
-            if (xmlMarshalling != null) {
-                final Boolean isMarshalling = xmlMarshalling.get();
-                if (Boolean.TRUE.equals(isMarshalling)) {
-                    return null;
-                }
-            }
-        }
-        return elements;
     }
 }

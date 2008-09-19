@@ -20,9 +20,6 @@
 package org.geotools.metadata.iso.content;
 
 import javax.measure.unit.Unit;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.content.Band;
 
 
@@ -36,11 +33,6 @@ import org.opengis.metadata.content.Band;
  *
  * @since 2.1
  */
-@XmlType(name = "MD_Band", propOrder={
-    "maxValue", "minValue", "peakResponse", "bitsPerValue", "toneGradation", "scaleFactor",
-    "offset"
-})
-@XmlRootElement(name = "MD_Band")
 public class BandImpl extends RangeDimensionImpl implements Band {
     /**
      * Serial number for interoperability with different versions.
@@ -114,7 +106,6 @@ public class BandImpl extends RangeDimensionImpl implements Band {
      * Returns the longest wavelength that the sensor is capable of collecting within
      * a designated band. Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "maxValue", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Double getMaxValue() {
         return maxValue;
     }
@@ -132,7 +123,6 @@ public class BandImpl extends RangeDimensionImpl implements Band {
      * Returns the shortest wavelength that the sensor is capable of collecting
      * within a designated band.
      */
-    @XmlElement(name = "minValue", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Double getMinValue() {
         return minValue;
     }
@@ -151,7 +141,6 @@ public class BandImpl extends RangeDimensionImpl implements Band {
      * if {@linkplain #getMinValue min value} or {@linkplain #getMaxValue max value}
      * are provided.
      */
-    //@XmlElement(name = "units", required = false)
     public Unit getUnits() {
         return units;
     }
@@ -170,7 +159,6 @@ public class BandImpl extends RangeDimensionImpl implements Band {
      * Returns the wavelength at which the response is the highest.
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "peakResponse", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Double getPeakResponse() {
         return peakResponse;
     }
@@ -188,7 +176,6 @@ public class BandImpl extends RangeDimensionImpl implements Band {
      * representation for the value in each band of each pixel.
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "bitsPerValue", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Integer getBitsPerValue() {
         return bitsPerValue;
     }
@@ -206,7 +193,6 @@ public class BandImpl extends RangeDimensionImpl implements Band {
      * Returns the number of discrete numerical values in the grid data.
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "toneGradation", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Integer getToneGradation() {
         return toneGradation;
     }
@@ -223,7 +209,6 @@ public class BandImpl extends RangeDimensionImpl implements Band {
      * Returns the scale factor which has been applied to the cell value.
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "scaleFactor", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Double getScaleFactor() {
         return scaleFactor;
     }
@@ -240,7 +225,6 @@ public class BandImpl extends RangeDimensionImpl implements Band {
      * Returns the physical value corresponding to a cell value of zero.
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "offset", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Double getOffset() {
         return offset;
     }

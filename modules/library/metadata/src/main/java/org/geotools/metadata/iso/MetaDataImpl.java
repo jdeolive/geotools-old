@@ -24,10 +24,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.MetaData;
 import org.opengis.metadata.ApplicationSchemaInformation;
 import org.opengis.metadata.MetadataExtensionInformation;
@@ -55,14 +51,6 @@ import org.opengis.referencing.ReferenceSystem;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "fileIdentifier", "language", "characterSet", "parentIdentifier", "hierarchyLevels",
-    "hierarchyLevelNames", "contacts", "dateStamp", "metadataStandardName", "metadataStandardVersion",
-    "dataSetUri", "spatialRepresentationInfo", "metadataExtensionInfo", "identificationInfo",
-    "contentInfo", "distributionInfo", "dataQualityInfo", "portrayalCatalogueInfo", "metadataConstraints",
-    "applicationSchemaInfo", "metadataMaintenance"
-})
-@XmlRootElement(name = "MD_Metadata")
 public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Serial number for interoperability with different versions.
@@ -222,7 +210,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the unique identifier for this metadata file, or {@code null} if none.
      */
-    @XmlElement(name = "fileIdentifier", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getFileIdentifier() {
         return fileIdentifier;
     }
@@ -238,7 +225,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the language used for documenting metadata.
      */
-    @XmlElement(name = "language", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Locale getLanguage() {
         return language;
     }
@@ -254,7 +240,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the full name of the character coding standard used for the metadata set.
      */
-    @XmlElement(name = "characterSet", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public CharacterSet getCharacterSet()  {
         return characterSet;
     }
@@ -270,7 +255,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the file identifier of the metadata to which this metadata is a subset (child).
      */
-    @XmlElement(name = "parentIdentifier", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getParentIdentifier() {
         return parentIdentifier;
     }
@@ -286,9 +270,8 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the scope to which the metadata applies.
      */
-    @XmlElement(name = "hierarchyLevel", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<ScopeCode> getHierarchyLevels() {
-        return xmlOptional(hierarchyLevels = nonNullCollection(hierarchyLevels, ScopeCode.class));
+        return (hierarchyLevels = nonNullCollection(hierarchyLevels, ScopeCode.class));
     }
 
     /**
@@ -303,9 +286,8 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the name of the hierarchy levels for which the metadata is provided.
      */
-    @XmlElement(name = "hierarchyLevelName", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<String> getHierarchyLevelNames() {
-        return xmlOptional(hierarchyLevelNames = nonNullCollection(hierarchyLevelNames, String.class));
+        return (hierarchyLevelNames = nonNullCollection(hierarchyLevelNames, String.class));
     }
 
     /**
@@ -320,7 +302,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the parties responsible for the metadata information.
      */
-    @XmlElement(name = "contact", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<ResponsibleParty> getContacts() {
         return contacts = nonNullCollection(contacts, ResponsibleParty.class);
     }
@@ -338,7 +319,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the date that the metadata was created.
      */
-    @XmlElement(name = "dateStamp", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Date getDateStamp() {
         return (dateStamp!=Long.MIN_VALUE) ? new Date(dateStamp) : (Date)null;
     }
@@ -354,7 +334,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the name of the metadata standard (including profile name) used.
      */
-    @XmlElement(name = "metadataStandardName", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getMetadataStandardName() {
         return metadataStandardName;
     }
@@ -370,7 +349,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the version (profile) of the metadata standard used.
      */
-    @XmlElement(name = "metadataStandardVersion", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getMetadataStandardVersion() {
         return metadataStandardVersion;
     }
@@ -386,10 +364,9 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns the digital representation of spatial information in the dataset.
      */
-    @XmlElement(name = "spatialRepresentationInfo", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<SpatialRepresentation> getSpatialRepresentationInfo() {
-        return xmlOptional(spatialRepresentationInfo = nonNullCollection(spatialRepresentationInfo,
-                                                             SpatialRepresentation.class));
+        return (spatialRepresentationInfo = nonNullCollection(spatialRepresentationInfo,
+                SpatialRepresentation.class));
     }
 
     /**
@@ -423,10 +400,9 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns information describing metadata extensions.
      */
-    @XmlElement(name = "metadataExtensionInfo", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<MetadataExtensionInformation> getMetadataExtensionInfo() {
-        return xmlOptional(metadataExtensionInfo = nonNullCollection(metadataExtensionInfo,
-                                                         MetadataExtensionInformation.class));
+        return (metadataExtensionInfo = nonNullCollection(metadataExtensionInfo,
+                MetadataExtensionInformation.class));
     }
 
     /**
@@ -442,7 +418,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Returns basic information about the resource(s) to which the metadata applies.
      */
-    @XmlElement(name = "identificationInfo", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Identification> getIdentificationInfo() {
         return identificationInfo = nonNullCollection(identificationInfo, Identification.class);
     }
@@ -460,9 +435,8 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
      * Provides information about the feature catalogue and describes the coverage and
      * image data characteristics.
      */
-    @XmlElement(name = "contentInfo", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<ContentInformation> getContentInfo() {
-        return xmlOptional(contentInfo = nonNullCollection(contentInfo, ContentInformation.class));
+        return (contentInfo = nonNullCollection(contentInfo, ContentInformation.class));
     }
 
     /**
@@ -478,7 +452,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Provides information about the distributor of and options for obtaining the resource(s).
      */
-    @XmlElement(name = "distributionInfo", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Distribution getDistributionInfo() {
         return distributionInfo;
     }
@@ -494,9 +467,8 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Provides overall assessment of quality of a resource(s).
      */
-    @XmlElement(name = "dataQualityInfo", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<DataQuality> getDataQualityInfo() {
-        return xmlOptional(dataQualityInfo = nonNullCollection(dataQualityInfo, DataQuality.class));
+        return (dataQualityInfo = nonNullCollection(dataQualityInfo, DataQuality.class));
     }
 
     /**
@@ -512,9 +484,8 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
      * Provides information about the catalogue of rules defined for the portrayal of a
      * resource(s).
      */
-    @XmlElement(name = "portrayalCatalogueInfo", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<PortrayalCatalogueReference> getPortrayalCatalogueInfo() {
-        return xmlOptional(portrayalCatalogueInfo = nonNullCollection(portrayalCatalogueInfo,
+        return (portrayalCatalogueInfo = nonNullCollection(portrayalCatalogueInfo,
                 PortrayalCatalogueReference.class));
     }
 
@@ -531,9 +502,8 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Provides restrictions on the access and use of data.
      */
-    @XmlElement(name = "metadataConstraints", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Constraints> getMetadataConstraints() {
-        return xmlOptional(metadataConstraints = nonNullCollection(metadataConstraints, Constraints.class));
+        return (metadataConstraints = nonNullCollection(metadataConstraints, Constraints.class));
     }
 
     /**
@@ -548,10 +518,9 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Provides information about the conceptual schema of a dataset.
      */
-    @XmlElement(name = "applicationSchemaInfo", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<ApplicationSchemaInformation> getApplicationSchemaInfo() {
-        return xmlOptional(applicationSchemaInfo = nonNullCollection(applicationSchemaInfo,
-                                                         ApplicationSchemaInformation.class));
+        return (applicationSchemaInfo = nonNullCollection(applicationSchemaInfo,
+                ApplicationSchemaInformation.class));
     }
 
     /**
@@ -567,7 +536,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
     /**
      * Provides information about the frequency of metadata updates, and the scope of those updates.
      */
-    @XmlElement(name = "metadataMaintenance", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public MaintenanceInformation getMetadataMaintenance() {
         return metadataMaintenance;
     }
@@ -607,7 +575,6 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
      *
      * @since 2.4
      */
-    @XmlElement(name = "dataSetURI", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getDataSetUri() {
         return dataSetUri;
     }
@@ -621,26 +588,4 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
         checkWritePermission();
         dataSetUri = newValue;
     }
-    
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     * 
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     * 
-     * @param marshaller Not used in this implementation
-     */
-///    private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///    }
 }

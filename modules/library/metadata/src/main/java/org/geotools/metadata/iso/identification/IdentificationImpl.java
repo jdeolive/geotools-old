@@ -20,11 +20,6 @@
 package org.geotools.metadata.iso.identification;
 
 import java.util.Collection;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.metadata.citation.ResponsibleParty;
 import org.opengis.metadata.constraint.Constraints;
@@ -50,13 +45,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(name = "MD_Identification", propOrder={
-    "citation", "abstract", "purpose", "credits", "status", "pointOfContacts",
-    "resourceMaintenance", "graphicOverviews", "resourceFormat", "descriptiveKeywords",
-    "resourceSpecificUsages", "resourceConstraints"
-})
-@XmlSeeAlso({DataIdentificationImpl.class, ServiceIdentificationImpl.class})
-@XmlRootElement(name = "MD_Identification")
 public class IdentificationImpl extends MetadataEntity implements Identification {
     /**
      * Serial number for compatibility with different versions.
@@ -156,8 +144,6 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Citation data for the resource(s).
      */
-    @XmlElement(name = "citation", required = true,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public Citation getCitation() {
         return citation;
     }
@@ -173,8 +159,6 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Brief narrative summary of the content of the resource(s).
      */
-    @XmlElement(name = "abstract", required = true,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getAbstract() {
         return abstracts;
     }
@@ -190,8 +174,6 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Summary of the intentions with which the resource(s) was developed.
      */
-    @XmlElement(name = "purpose", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getPurpose() {
         return purpose;
     }
@@ -207,10 +189,8 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Recognition of those who contributed to the resource(s).
      */
-    @XmlElement(name = "credit", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<String> getCredits() {
-        return xmlOptional(credits = nonNullCollection(credits, String.class));
+        return (credits = nonNullCollection(credits, String.class));
     }
 
     /**
@@ -223,10 +203,8 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Status of the resource(s).
      */
-    @XmlElement(name = "status", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Progress> getStatus() {
-        return xmlOptional(status = nonNullCollection(status, Progress.class));
+        return (status = nonNullCollection(status, Progress.class));
     }
 
     /**
@@ -240,10 +218,8 @@ public class IdentificationImpl extends MetadataEntity implements Identification
      * Identification of, and means of communication with, person(s) and organizations(s)
      * associated with the resource(s).
      */
-    @XmlElement(name = "pointOfContact", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<ResponsibleParty> getPointOfContacts() {
-        return xmlOptional(pointOfContacts = nonNullCollection(pointOfContacts, ResponsibleParty.class));
+        return (pointOfContacts = nonNullCollection(pointOfContacts, ResponsibleParty.class));
     }
 
     /**
@@ -258,11 +234,9 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Provides information about the frequency of resource updates, and the scope of those updates.
      */
-    @XmlElement(name = "resourceMaintenance", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<MaintenanceInformation> getResourceMaintenance() {
-        return xmlOptional(resourceMaintenance = nonNullCollection(resourceMaintenance,
-                                                       MaintenanceInformation.class));
+        return (resourceMaintenance = nonNullCollection(resourceMaintenance,
+                MaintenanceInformation.class));
     }
 
     /**
@@ -278,10 +252,8 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Provides a graphic that illustrates the resource(s) (should include a legend for the graphic).
      */
-    @XmlElement(name = "graphicOverview", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<BrowseGraphic> getGraphicOverviews() {
-        return xmlOptional(graphicOverviews = nonNullCollection(graphicOverviews, BrowseGraphic.class));
+        return (graphicOverviews = nonNullCollection(graphicOverviews, BrowseGraphic.class));
     }
 
     /**
@@ -296,10 +268,8 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Provides a description of the format of the resource(s).
      */
-    @XmlElement(name = "resourceFormat", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Format> getResourceFormat() {
-        return xmlOptional(resourceFormat = nonNullCollection(resourceFormat, Format.class));
+        return (resourceFormat = nonNullCollection(resourceFormat, Format.class));
     }
 
     /**
@@ -312,10 +282,8 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Provides category keywords, their type, and reference source.
      */
-    @XmlElement(name = "descriptiveKeywords", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Keywords> getDescriptiveKeywords() {
-        return xmlOptional(descriptiveKeywords = nonNullCollection(descriptiveKeywords, Keywords.class));
+        return (descriptiveKeywords = nonNullCollection(descriptiveKeywords, Keywords.class));
     }
 
     /**
@@ -331,10 +299,8 @@ public class IdentificationImpl extends MetadataEntity implements Identification
      * Provides basic information about specific application(s) for which the resource(s)
      * has/have been or is being used by different users.
      */
-    @XmlElement(name = "resourceSpecificUsage", required = false, 
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Usage> getResourceSpecificUsages() {
-        return xmlOptional(resourceSpecificUsages = nonNullCollection(resourceSpecificUsages, Usage.class));
+        return (resourceSpecificUsages = nonNullCollection(resourceSpecificUsages, Usage.class));
     }
 
     /**
@@ -349,10 +315,8 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     /**
      * Provides information about constraints which apply to the resource(s).
      */
-    @XmlElement(name = "resourceConstraints", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Constraints> getResourceConstraints() {
-        return xmlOptional(resourceConstraints = nonNullCollection(resourceConstraints, Constraints.class));
+        return (resourceConstraints = nonNullCollection(resourceConstraints, Constraints.class));
     }
 
     /**
@@ -383,26 +347,4 @@ public class IdentificationImpl extends MetadataEntity implements Identification
     {
         aggregationInfo = copyCollection(newValues, aggregationInfo, AggregateInformation.class);
     }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     * 
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     * 
-     * @param marshaller Not used in this implementation
-     */
-///    private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///    }
 }

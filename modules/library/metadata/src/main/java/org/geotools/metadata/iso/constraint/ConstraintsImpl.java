@@ -21,11 +21,6 @@ package org.geotools.metadata.iso.constraint;
 
 import java.util.Collection;
 
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.util.InternationalString;
 import org.opengis.metadata.constraint.Constraints;
 import org.geotools.metadata.iso.MetadataEntity;
@@ -41,9 +36,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(name = "MD_Constraints", propOrder = {"useLimitation"})
-@XmlSeeAlso({LegalConstraintsImpl.class, SecurityConstraintsImpl.class})
-@XmlRootElement(name = "MD_Constraints")
 public class ConstraintsImpl extends MetadataEntity implements Constraints {
     /**
      * Serial number for interoperability with different versions.
@@ -75,10 +67,8 @@ public class ConstraintsImpl extends MetadataEntity implements Constraints {
      * Returns the limitation affecting the fitness for use of the resource. Example, "not to be used for
      * navigation".
      */
-    @XmlElement(name = "useLimitation", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<InternationalString> getUseLimitation() {
-        return xmlOptional(useLimitation = nonNullCollection(useLimitation, InternationalString.class));
+        return (useLimitation = nonNullCollection(useLimitation, InternationalString.class));
     }
 
     /**
@@ -90,26 +80,4 @@ public class ConstraintsImpl extends MetadataEntity implements Constraints {
     {
         useLimitation = copyCollection(newValues, useLimitation, InternationalString.class);
     }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     *
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     *
-     * @param marshaller Not used in this implementation
-     */
-///    private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///    }
 }

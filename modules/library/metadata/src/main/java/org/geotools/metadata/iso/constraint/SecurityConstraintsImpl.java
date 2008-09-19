@@ -19,9 +19,6 @@
  */
 package org.geotools.metadata.iso.constraint;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.constraint.Classification;
 import org.opengis.metadata.constraint.SecurityConstraints;
 import org.opengis.util.InternationalString;
@@ -37,10 +34,6 @@ import org.opengis.util.InternationalString;
  *
  * @since 2.1
  */
-@XmlType(name = "MD_SecurityConstraints", propOrder={
-    "classification", "userNote", "classificationSystem", "handlingDescription"
-})
-@XmlRootElement(name = "MD_SecurityConstraints")
 public class SecurityConstraintsImpl extends ConstraintsImpl implements SecurityConstraints {
     /**
      * Serial number for interoperability with different versions.
@@ -93,7 +86,6 @@ public class SecurityConstraintsImpl extends ConstraintsImpl implements Security
     /**
      * Returns the name of the handling restrictions on the resource.
      */
-    @XmlElement(name = "classification", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public Classification getClassification() {
         return classification;
     }
@@ -110,7 +102,6 @@ public class SecurityConstraintsImpl extends ConstraintsImpl implements Security
      * Returns the explanation of the application of the legal constraints or other restrictions and legal
      * prerequisites for obtaining and using the resource.
      */
-    @XmlElement(name = "userNote", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getUserNote() {
         return userNote;
     }
@@ -127,7 +118,6 @@ public class SecurityConstraintsImpl extends ConstraintsImpl implements Security
     /**
      * Returns the name of the classification system.
      */
-    @XmlElement(name = "classificationSystem", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getClassificationSystem() {
         return classificationSystem;
     }
@@ -143,7 +133,6 @@ public class SecurityConstraintsImpl extends ConstraintsImpl implements Security
     /**
      * Returns the additional information about the restrictions on handling the resource.
      */
-    @XmlElement(name = "handlingDescription", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getHandlingDescription() {
         return handlingDescription;
     }

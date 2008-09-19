@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.util.MemberName;
 import org.opengis.util.Record;
 import org.opengis.util.RecordSchema;
@@ -46,7 +45,6 @@ import org.opengis.util.TypeName;
  * @author Jody Garnet
  * @author Martin Desruisseaux
  */
-@XmlType(name = "RecordType")
 public class RecordTypeImpl implements RecordType {
     /**
      * The name that identifies this record type.

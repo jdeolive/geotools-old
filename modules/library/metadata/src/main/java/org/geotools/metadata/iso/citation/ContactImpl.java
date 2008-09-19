@@ -19,9 +19,6 @@
  */
 package org.geotools.metadata.iso.citation;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.Address;
 import org.opengis.metadata.citation.Contact;
 import org.opengis.metadata.citation.OnLineResource;
@@ -39,10 +36,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  * @author Martin Desruisseaux (IRD)
  * @author Touraïvane
  */
-@XmlType(propOrder={
-    "phone", "address", "onLineResource", "hoursOfService", "contactInstructions"
-})
-@XmlRootElement(name = "CI_Contact")
 public class ContactImpl extends MetadataEntity implements Contact {
     /**
      * Serial number for interoperability with different versions.
@@ -218,7 +211,6 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * Returns the physical and email address at which the organization or individual may be contacted.
      * Returns {@code null} if none.
      */
-    @XmlElement(name = "address", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Address getAddress() {
         return address;
     }
@@ -235,7 +227,6 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * Returns supplemental instructions on how or when to contact the individual or organization.
      * Returns {@code null} if none.
      */
-    @XmlElement(name = "contactInstructions", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getContactInstructions() {
         return contactInstructions;
     }
@@ -252,7 +243,6 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * Return on-line information that can be used to contact the individual or organization.
      * Returns {@code null} if none.
      */
-    @XmlElement(name = "onlineResource", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public OnLineResource getOnLineResource() {
         return onLineResource;
     }
@@ -269,7 +259,6 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * Returns telephone numbers at which the organization or individual may be contacted.
      * Returns {@code null} if none.
      */
-    @XmlElement(name = "phone", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Telephone getPhone() {
         return phone;
     }
@@ -287,7 +276,6 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * individual.
      * Returns {@code null} if none.
      */
-    @XmlElement(name = "hoursOfService", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getHoursOfService() {
         return hoursOfService;
     }

@@ -98,28 +98,6 @@
     </contributor>
   </contributors>
 
-<profiles>
-  <profile>
-  <activation>
-  <jdk>1.5</jdk>
-  </activation>
-  <dependencies>
-        <dependency>
-        <groupId>jaxb</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <!-- The version number is specified in the parent POM. -->
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>jaxb</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <!-- The version number is specified in the parent POM. -->
-        <scope>provided</scope>
-      </dependency>
-  </dependencies>
-  </profile>
-</profiles>
-
   <!-- =========================================================== -->
   <!--     Dependency Management                                   -->
   <!-- =========================================================== -->

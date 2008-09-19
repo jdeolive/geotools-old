@@ -20,9 +20,6 @@
 package org.geotools.metadata.iso.citation;
 
 import java.util.Date;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.CitationDate;
 import org.opengis.metadata.citation.DateType;
 import org.geotools.metadata.iso.MetadataEntity;
@@ -37,10 +34,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "date", "dateType"
-})
-@XmlRootElement(name = "CI_Date")
 public class CitationDateImpl extends MetadataEntity implements CitationDate {
     /**
      * Serial number for interoperability with different versions.
@@ -84,7 +77,6 @@ public class CitationDateImpl extends MetadataEntity implements CitationDate {
     /**
      * Returns the reference date for the cited resource.
      */
-    @XmlElement(name = "date", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Date getDate() {
         return (date!=Long.MIN_VALUE) ? new Date(date) : null;
     }
@@ -100,7 +92,6 @@ public class CitationDateImpl extends MetadataEntity implements CitationDate {
     /**
      * Returns the event used for reference date.
      */
-    @XmlElement(name = "dateType", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public DateType getDateType() {
         return dateType;
     }

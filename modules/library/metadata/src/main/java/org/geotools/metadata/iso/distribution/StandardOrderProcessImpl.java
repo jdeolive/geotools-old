@@ -20,14 +20,9 @@
 package org.geotools.metadata.iso.distribution;
 
 import java.util.Date;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.opengis.util.InternationalString;
 import org.opengis.metadata.distribution.StandardOrderProcess;
 import org.geotools.metadata.iso.MetadataEntity;
-import org.geotools.resources.jaxb.metadata.DateTimeAdapter;
 
 
 /**
@@ -41,10 +36,6 @@ import org.geotools.resources.jaxb.metadata.DateTimeAdapter;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "fees", "plannedAvailableDateTime", "orderingInstructions", "turnaround"
-})
-@XmlRootElement(name = "MD_StandardOrderProcess")
 public class StandardOrderProcessImpl extends MetadataEntity implements StandardOrderProcess {
     /**
      * Serial number for interoperability with different versions.
@@ -92,7 +83,6 @@ public class StandardOrderProcessImpl extends MetadataEntity implements Standard
      * Returns fees and terms for retrieving the resource.
      * Include monetary units (as specified in ISO 4217).
      */
-    @XmlElement(name = "fees", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getFees() {
         return fees;
     }
@@ -109,8 +99,6 @@ public class StandardOrderProcessImpl extends MetadataEntity implements Standard
     /**
      * Returns the date and time when the dataset will be available.
      */
-    @XmlJavaTypeAdapter(DateTimeAdapter.class)
-    @XmlElement(name = "plannedAvailableDateTime", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Date getPlannedAvailableDateTime() {
         return (plannedAvailableDateTime!=Long.MIN_VALUE) ?
                 new Date(plannedAvailableDateTime) : null;
@@ -127,7 +115,6 @@ public class StandardOrderProcessImpl extends MetadataEntity implements Standard
     /**
      * Returns general instructions, terms and services provided by the distributor.
      */
-    @XmlElement(name = "orderingInstructions", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getOrderingInstructions() {
         return orderingInstructions;
     }
@@ -143,7 +130,6 @@ public class StandardOrderProcessImpl extends MetadataEntity implements Standard
     /**
      * Returns typical turnaround time for the filling of an order.
      */
-    @XmlElement(name = "turnaround", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getTurnaround() {
         return turnaround;
     }

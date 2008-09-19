@@ -20,10 +20,6 @@
 package org.geotools.metadata.iso.distribution;
 
 import java.util.Collection;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.distribution.Distributor;
 import org.opengis.metadata.distribution.Format;
 import org.opengis.util.InternationalString;
@@ -41,11 +37,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "name", "version", "amendmentNumber", "specification", "fileDecompressionTechnique",
-    "formatDistributors"
-})
-@XmlRootElement(name = "MD_Format")
 public class FormatImpl extends MetadataEntity implements Format {
     /**
      * Serial number for interoperability with different versions.
@@ -109,7 +100,6 @@ public class FormatImpl extends MetadataEntity implements Format {
     /**
      * Returns the name of the data transfer format(s).
      */
-    @XmlElement(name = "name", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getName() {
         return name;
     }
@@ -125,7 +115,6 @@ public class FormatImpl extends MetadataEntity implements Format {
     /**
      * Returne the version of the format (date, number, etc.).
      */
-    @XmlElement(name = "version", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getVersion() {
         return version;
     }
@@ -141,7 +130,6 @@ public class FormatImpl extends MetadataEntity implements Format {
     /**
      * Returns the amendment number of the format version.
      */
-    @XmlElement(name = "amendmentNumber", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getAmendmentNumber() {
         return amendmentNumber;
     }
@@ -157,7 +145,6 @@ public class FormatImpl extends MetadataEntity implements Format {
     /**
      * Returns the name of a subset, profile, or product specification of the format.
      */
-    @XmlElement(name = "specification", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getSpecification() {
         return specification;
     }
@@ -174,7 +161,6 @@ public class FormatImpl extends MetadataEntity implements Format {
      * Returns recommendations of algorithms or processes that can be applied to read or
      * expand resources to which compression techniques have been applied.
      */
-    @XmlElement(name = "fileDecompressionTechnique", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getFileDecompressionTechnique() {
         return fileDecompressionTechnique;
     }
@@ -191,9 +177,8 @@ public class FormatImpl extends MetadataEntity implements Format {
     /**
      * Provides information about the distributors format.
      */
-    @XmlElement(name = "FormatDistributor", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Distributor> getFormatDistributors() {
-        return xmlOptional(formatDistributors = nonNullCollection(formatDistributors, Distributor.class));
+        return (formatDistributors = nonNullCollection(formatDistributors, Distributor.class));
     }
 
     /**

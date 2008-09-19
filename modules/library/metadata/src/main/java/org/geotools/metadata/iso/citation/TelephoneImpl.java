@@ -20,10 +20,6 @@
 package org.geotools.metadata.iso.citation;
 
 import java.util.Collection;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.Telephone;
 import org.geotools.metadata.iso.MetadataEntity;
 
@@ -37,10 +33,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  * @since 2.1
  * @source $URL$
  */
-@XmlType(propOrder={
-    "voices", "facsimiles"
-})
-@XmlRootElement(name = "CI_Telephone")
 public class TelephoneImpl extends MetadataEntity implements Telephone {
     /**
      * Serial number for interoperability with different versions.
@@ -79,9 +71,8 @@ public class TelephoneImpl extends MetadataEntity implements Telephone {
      *
      * @since 2.4
      */
-    @XmlElement(name = "voice", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<String> getVoices() {
-        return xmlOptional(voices = nonNullCollection(voices, String.class));
+        return (voices = nonNullCollection(voices, String.class));
     }
 
     /**
@@ -100,9 +91,8 @@ public class TelephoneImpl extends MetadataEntity implements Telephone {
      *
      * @since 2.4
      */
-    @XmlElement(name = "facsimile", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<String> getFacsimiles() {
-        return xmlOptional(facsimiles = nonNullCollection(facsimiles, String.class));
+        return (facsimiles = nonNullCollection(facsimiles, String.class));
     }
 
     /**
@@ -114,26 +104,4 @@ public class TelephoneImpl extends MetadataEntity implements Telephone {
     public synchronized void setFacsimiles(final Collection<? extends String> newValues) {
         facsimiles = copyCollection(newValues, facsimiles, String.class);
     }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     * 
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     * 
-     * @param marshaller Not used in this implementation
-     */
-///    private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///    }
 }

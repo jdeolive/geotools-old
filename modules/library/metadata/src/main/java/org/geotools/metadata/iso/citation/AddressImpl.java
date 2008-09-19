@@ -20,10 +20,6 @@
 package org.geotools.metadata.iso.citation;
 
 import java.util.Collection;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.Address;
 import org.opengis.util.InternationalString;
 import org.geotools.metadata.iso.MetadataEntity;
@@ -39,10 +35,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "deliveryPoints", "city", "administrativeArea", "postalCode", "country", "electronicMailAddresses"
-})
-@XmlRootElement(name = "CI_Address")
 public class AddressImpl extends MetadataEntity implements Address {
     /**
      * Serial number for interoperability with different versions.
@@ -98,7 +90,6 @@ public class AddressImpl extends MetadataEntity implements Address {
      * Return the state, province of the location.
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "administrativeArea", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getAdministrativeArea() {
         return administrativeArea;
     }
@@ -115,7 +106,6 @@ public class AddressImpl extends MetadataEntity implements Address {
      * Returns the city of the location
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "city", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getCity() {
         return city;
     }
@@ -132,7 +122,6 @@ public class AddressImpl extends MetadataEntity implements Address {
      * Returns the country of the physical address.
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "country", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getCountry() {
         return country;
     }
@@ -148,9 +137,8 @@ public class AddressImpl extends MetadataEntity implements Address {
     /**
      * Returns the address line for the location (as described in ISO 11180, Annex A).
      */
-    @XmlElement(name = "deliveryPoint", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<String> getDeliveryPoints() {
-        return xmlOptional(deliveryPoints = nonNullCollection(deliveryPoints, String.class));
+        return (deliveryPoints = nonNullCollection(deliveryPoints, String.class));
     }
 
     /**
@@ -165,9 +153,8 @@ public class AddressImpl extends MetadataEntity implements Address {
     /**
      * Returns the address of the electronic mailbox of the responsible organization or individual.
      */
-    @XmlElement(name = "electronicMailAddress", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<String> getElectronicMailAddresses() {
-        return xmlOptional(electronicMailAddresses = nonNullCollection(electronicMailAddresses, String.class));
+        return (electronicMailAddresses = nonNullCollection(electronicMailAddresses, String.class));
     }
 
     /**
@@ -183,7 +170,6 @@ public class AddressImpl extends MetadataEntity implements Address {
      * Returns ZIP or other postal code.
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "postalCode", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getPostalCode() {
         return postalCode;
     }
@@ -195,26 +181,4 @@ public class AddressImpl extends MetadataEntity implements Address {
         checkWritePermission();
         postalCode = newValue;
     }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     * 
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     * 
-     * @param marshaller Not used in this implementation
-     */
-///   private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///    }
 }

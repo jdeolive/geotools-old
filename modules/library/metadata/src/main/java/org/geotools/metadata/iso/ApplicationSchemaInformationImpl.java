@@ -21,9 +21,6 @@ package org.geotools.metadata.iso;
 
 import java.net.URI;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.ApplicationSchemaInformation;
 import org.opengis.metadata.SpatialAttributeSupplement;
 import org.opengis.metadata.citation.Citation;
@@ -39,9 +36,6 @@ import org.opengis.metadata.citation.Citation;
  *
  * @since 2.1
  */
-@XmlType(propOrder = {"name", "schemaLanguage", "constraintLanguage", "schemaAscii", "graphicsFile",
-                      "softwareDevelopmentFile", "softwareDevelopmentFileFormat"})
-@XmlRootElement(name = "MD_ApplicationSchemaInformation")
 public class ApplicationSchemaInformationImpl extends MetadataEntity
         implements ApplicationSchemaInformation
 {
@@ -120,7 +114,6 @@ public class ApplicationSchemaInformationImpl extends MetadataEntity
     /**
      * Name of the application schema used.
      */
-    @XmlElement(name = "name", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public Citation getName() {
         return name;
     }
@@ -136,7 +129,6 @@ public class ApplicationSchemaInformationImpl extends MetadataEntity
     /**
      * Identification of the schema language used.
      */
-    @XmlElement(name = "schemaLanguage", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public String getSchemaLanguage() {
         return schemaLanguage;
     }
@@ -152,7 +144,6 @@ public class ApplicationSchemaInformationImpl extends MetadataEntity
     /**
      * Formal language used in Application Schema.
      */
-    @XmlElement(name = "constraintLanguage", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public String getConstraintLanguage()  {
         return constraintLanguage;
     }
@@ -168,7 +159,6 @@ public class ApplicationSchemaInformationImpl extends MetadataEntity
     /**
      * Full application schema given as an ASCII file.
      */
-    @XmlElement(name = "schemaAscii", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public URI getSchemaAscii()  {
         return schemaAscii;
     }
@@ -184,7 +174,6 @@ public class ApplicationSchemaInformationImpl extends MetadataEntity
     /**
      * Full application schema given as a graphics file.
      */
-    @XmlElement(name = "graphicsFile", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public URI getGraphicsFile()  {
         return graphicsFile;
     }
@@ -200,7 +189,6 @@ public class ApplicationSchemaInformationImpl extends MetadataEntity
     /**
      * Full application schema given as a software development file.
      */
-    @XmlElement(name = "softwareDevelopmentFile", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public URI getSoftwareDevelopmentFile()  {
         return softwareDevelopmentFile;
     }
@@ -216,7 +204,6 @@ public class ApplicationSchemaInformationImpl extends MetadataEntity
     /**
      * Software dependent format used for the application schema software dependent file.
      */
-    @XmlElement(name = "softwareDevelopmentFile", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getSoftwareDevelopmentFileFormat()  {
         return softwareDevelopmentFileFormat;
     }

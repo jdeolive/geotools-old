@@ -20,9 +20,6 @@
 package org.geotools.metadata.iso.extent;
 
 import java.util.Date;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.extent.TemporalExtent;
 import org.opengis.temporal.TemporalPrimitive;
 import org.geotools.metadata.iso.MetadataEntity;
@@ -40,9 +37,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(name = "EX_TemporalExtent")
-@XmlSeeAlso({SpatialTemporalExtentImpl.class})
-@XmlRootElement(name = "EX_TemporalExtent")
 public class TemporalExtentImpl extends MetadataEntity implements TemporalExtent {
     /**
      * Serial number for interoperability with different versions.
@@ -127,7 +121,6 @@ public class TemporalExtentImpl extends MetadataEntity implements TemporalExtent
      * @since 2.4
      */
     // No implementing class for {@linkplain org.opengis.temporal.TemporalPrimitive}
-    //@XmlElement(name = "extent", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public TemporalPrimitive getExtent() {
         return extent;
     }

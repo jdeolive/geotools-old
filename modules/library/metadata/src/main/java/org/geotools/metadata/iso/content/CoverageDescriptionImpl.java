@@ -20,11 +20,6 @@
 package org.geotools.metadata.iso.content;
 
 import java.util.Collection;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.content.CoverageContentType;
 import org.opengis.metadata.content.CoverageDescription;
 import org.opengis.metadata.content.RangeDimension;
@@ -40,10 +35,6 @@ import org.opengis.util.RecordType;
  * @author Martin Desruisseaux (IRD)
  * @author Touraïvane
  */
-@XmlType(name = "MD_CoverageDescription", propOrder={
-    "attributeDescription", "contentType", "dimensions"})
-@XmlSeeAlso({ImageDescriptionImpl.class})
-@XmlRootElement(name = "MD_CoverageDescription")
 public class CoverageDescriptionImpl extends ContentInformationImpl implements CoverageDescription {
     /**
      * Serial number for interoperability with different versions.
@@ -83,8 +74,6 @@ public class CoverageDescriptionImpl extends ContentInformationImpl implements C
     /**
      * Returns the description of the attribute described by the measurement value.
      */
-    @XmlElement(name = "attributeDescription", required = true,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public RecordType getAttributeDescription() {
         return attributeDescription;
     }
@@ -100,8 +89,6 @@ public class CoverageDescriptionImpl extends ContentInformationImpl implements C
     /**
      * Returns the type of information represented by the cell value.
      */
-    @XmlElement(name = "contentType", required = true,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public CoverageContentType getContentType() {
         return contentType;
     }
@@ -119,10 +106,8 @@ public class CoverageDescriptionImpl extends ContentInformationImpl implements C
      *
      * @since 2.4
      */
-    @XmlElement(name = "dimension", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<RangeDimension> getDimensions() {
-        return xmlOptional(dimensions = nonNullCollection(dimensions, RangeDimension.class));
+        return (dimensions = nonNullCollection(dimensions, RangeDimension.class));
     }
 
     /**
@@ -133,27 +118,4 @@ public class CoverageDescriptionImpl extends ContentInformationImpl implements C
     public synchronized void setDimensions(final Collection<? extends RangeDimension> newValues) {
         dimensions = copyCollection(newValues, dimensions, RangeDimension.class);
     }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     * 
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     * 
-     * @param marshaller Not used in this implementation
-     */
-///    private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///   }
-    
 }

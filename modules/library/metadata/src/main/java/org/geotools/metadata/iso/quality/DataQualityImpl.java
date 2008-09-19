@@ -20,8 +20,6 @@
 package org.geotools.metadata.iso.quality;
 
 import java.util.Collection;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.opengis.metadata.lineage.Lineage;
 import org.opengis.metadata.quality.DataQuality;
 import org.opengis.metadata.quality.Element;
@@ -38,7 +36,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  * @author Martin Desruisseaux (IRD)
  * @author Touraïvane
  */
-@XmlRootElement(name = "DQ_DataQuality")
 public class DataQualityImpl extends MetadataEntity implements DataQuality {
     /**
      * Serial number for interoperability with different versions.
@@ -89,7 +86,6 @@ public class DataQualityImpl extends MetadataEntity implements DataQuality {
     /**
      * The specific data to which the data quality information applies.
      */
-    //@XmlElement(name = "scope", required = true)
     public Scope getScope() {
         return scope;
     }
@@ -125,7 +121,6 @@ public class DataQualityImpl extends MetadataEntity implements DataQuality {
      * the scope. Should be provided only if {@linkplain Scope#getLevel scope level} is
      * {@linkplain org.opengis.metadata.maintenance.ScopeCode#DATASET dataset}.
      */
-    @XmlElement(name = "lineage", required = false)
     public Lineage getLineage() {
         return lineage;
     }

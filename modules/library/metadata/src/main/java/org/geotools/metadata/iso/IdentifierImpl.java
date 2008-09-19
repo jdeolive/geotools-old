@@ -19,9 +19,6 @@
  */
 package org.geotools.metadata.iso;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.Identifier;
 import org.opengis.metadata.citation.Citation;
 
@@ -36,10 +33,6 @@ import org.opengis.metadata.citation.Citation;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "code", "authority"
-})
-@XmlRootElement(name = "MD_Identifier")
 public class IdentifierImpl extends MetadataEntity implements Identifier {
     /**
      * Serial number for interoperability with different versions.
@@ -103,7 +96,6 @@ public class IdentifierImpl extends MetadataEntity implements Identifier {
      *
      * @return The code.
      */
-    @XmlElement(name = "code", required = true)
     public String getCode() {
         return code;
     }
@@ -143,7 +135,6 @@ public class IdentifierImpl extends MetadataEntity implements Identifier {
      *
      * @return The authority, or {@code null} if not available.
      */
-    @XmlElement(name = "authority", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Citation getAuthority() {
         return authority;
     }

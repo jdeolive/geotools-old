@@ -19,9 +19,6 @@
  */
 package org.geotools.metadata.iso;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.FeatureTypeList;
 
 
@@ -35,10 +32,6 @@ import org.opengis.metadata.FeatureTypeList;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "spatialObject", "spatialSchemaName"
-})
-@XmlRootElement(name = "MD_FeatureTypeList")
 public class FeatureTypeListImpl extends MetadataEntity implements FeatureTypeList {
     /**
      * Serial number for interoperability with different versions.
@@ -83,7 +76,6 @@ public class FeatureTypeListImpl extends MetadataEntity implements FeatureTypeLi
     /**
      * Instance of a type defined in the spatial schema.
      */
-    @XmlElement(name = "spatialObject", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public String getSpatialObject() {
         return spatialObject;
     }
@@ -99,7 +91,6 @@ public class FeatureTypeListImpl extends MetadataEntity implements FeatureTypeLi
     /**
      * Name of the spatial schema used.
      */
-    @XmlElement(name = "spatialSchemaName", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public String getSpatialSchemaName() {
         return spatialSchemaName;
     }

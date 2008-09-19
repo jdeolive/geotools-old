@@ -21,9 +21,6 @@ package org.geotools.metadata.iso.citation;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.OnLineFunction;
 import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.util.InternationalString;
@@ -40,10 +37,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  * @author Martin Desruisseaux (IRD)
  * @author Touraïvane
  */
-@XmlType(propOrder={
-    "linkage", "protocol", "applicationProfile", "name", "description", "function"
-})
-@XmlRootElement(name = "CI_OnlineResource")
 public class OnLineResourceImpl extends MetadataEntity implements OnLineResource {
     /**
      * Serial number for interoperability with different versions.
@@ -236,7 +229,6 @@ public class OnLineResourceImpl extends MetadataEntity implements OnLineResource
      * Returns the name of an application profile that can be used with the online resource.
      * Returns {@code null} if none.
      */
-    @XmlElement(name = "applicationProfile", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getApplicationProfile() {
         return applicationProfile;
     }
@@ -254,7 +246,6 @@ public class OnLineResourceImpl extends MetadataEntity implements OnLineResource
      *
      * @since 2.4
      */
-    @XmlElement(name = "name", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getName() {
         return name;
     }
@@ -273,7 +264,6 @@ public class OnLineResourceImpl extends MetadataEntity implements OnLineResource
      * Returns the detailed text description of what the online resource is/does.
      * Returns {@code null} if none.
      */
-    @XmlElement(name = "description", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getDescription() {
         return description;
     }
@@ -290,7 +280,6 @@ public class OnLineResourceImpl extends MetadataEntity implements OnLineResource
      * Returns the code for function performed by the online resource.
      * Returns {@code null} if unspecified.
      */
-    @XmlElement(name = "function", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public OnLineFunction getFunction() {
         return function;
     }
@@ -307,7 +296,6 @@ public class OnLineResourceImpl extends MetadataEntity implements OnLineResource
      * Returns the location (address) for on-line access using a Uniform Resource Locator address or
      * similar addressing scheme such as http://www.statkart.no/isotc211.
      */
-    @XmlElement(name = "linkage", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public URI getLinkage() {
         return linkage;
     }
@@ -325,7 +313,6 @@ public class OnLineResourceImpl extends MetadataEntity implements OnLineResource
      * Returns the connection protocol to be used.
      * Returns {@code null} if none.
      */
-    @XmlElement(name = "protocol", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getProtocol() {
         final URI linkage = this.linkage;
         return (linkage!=null) ? linkage.getScheme() : null;

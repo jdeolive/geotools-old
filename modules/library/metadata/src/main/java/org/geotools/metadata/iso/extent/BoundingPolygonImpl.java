@@ -20,8 +20,6 @@
 package org.geotools.metadata.iso.extent;
 
 import java.util.Collection;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.extent.BoundingPolygon;
 import org.opengis.geometry.Geometry;
 
@@ -38,8 +36,6 @@ import org.opengis.geometry.Geometry;
  *
  * @since 2.1
  */
-@XmlType(name = "EX_BoundingPolygon")
-@XmlRootElement(name = "EX_BoundingPolygon")
 public class BoundingPolygonImpl extends GeographicExtentImpl implements BoundingPolygon {
     /**
      * Serial number for interoperability with different versions.
@@ -77,7 +73,6 @@ public class BoundingPolygonImpl extends GeographicExtentImpl implements Boundin
      * Returns the sets of points defining the bounding polygon.
      */
     // No class is currently implementing {@linkplain org.opengis.geometry.Geometry}.
-    //@XmlElement(name = "polygon", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Geometry> getPolygons() {
         return polygons = nonNullCollection(polygons, Geometry.class);
     }

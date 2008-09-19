@@ -21,10 +21,6 @@ package org.geotools.metadata.iso;
 
 import java.util.Collection;
 
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.Datatype;
 import org.opengis.metadata.Obligation;
 import org.opengis.metadata.citation.ResponsibleParty;
@@ -42,11 +38,6 @@ import org.opengis.util.InternationalString;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "name", "shortName", "domainCode", "definition", "condition", "dataType",
-    "maximumOccurrence", "domainValue", "parentEntity", "rule", "rationales", "sources"
-})
-@XmlRootElement(name = "MD_ExtendedElementInformation")
 public class ExtendedElementInformationImpl extends MetadataEntity
         implements ExtendedElementInformation
 {
@@ -171,7 +162,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     /**
      * Name of the extended metadata element.
      */
-    @XmlElement(name = "name", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public String getName() {
         return name;
     }
@@ -190,7 +180,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
      * Returns {@code null} if the {@linkplain #getDataType data type}
      * is {@linkplain Datatype#CODE_LIST_ELEMENT code list element}.
      */
-    @XmlElement(name = "shortName", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public String getShortName()  {
         return shortName;
     }
@@ -208,7 +197,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
      * Returns a non-null value only if the {@linkplain #getDataType data type}
      * is {@linkplain Datatype#CODE_LIST_ELEMENT code list element}.
      */
-    @XmlElement(name = "domainCode", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Integer getDomainCode() {
         return domainCode;
     }
@@ -224,7 +212,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     /**
      * Definition of the extended element.
      */
-    @XmlElement(name = "definition", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getDefinition()  {
         return definition;
     }
@@ -240,7 +227,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     /**
      * Obligation of the extended element.
      */
-    //@XmlElement(name = "obligation", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Obligation getObligation()  {
         return obligation;
     }
@@ -258,7 +244,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
      * Returns a non-null value only if the {@linkplain #getObligation obligation}
      * is {@linkplain Obligation#CONDITIONAL conditional}.
      */
-    @XmlElement(name = "condition", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getCondition() {
         return condition;
     }
@@ -274,7 +259,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     /**
      * Code which identifies the kind of value provided in the extended element.
      */
-    @XmlElement(name = "dataType", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public Datatype getDataType() {
         return dataType;
     }
@@ -294,7 +278,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
      * {@linkplain Datatype#CODE_LIST code list} or {@linkplain Datatype#CODE_LIST_ELEMENT
      * code list element}.
      */
-    @XmlElement(name = "maximumOccurrence", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Integer getMaximumOccurrence() {
         return maximumOccurrence;
     }
@@ -314,7 +297,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
      * {@linkplain Datatype#CODE_LIST code list} or {@linkplain Datatype#CODE_LIST_ELEMENT
      * code list element}.
      */
-    @XmlElement(name = "domainValue", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getDomainValue() {
         return domainValue;
     }
@@ -331,7 +313,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
      * Name of the metadata entity(s) under which this extended metadata element may appear.
      * The name(s) may be standard metadata element(s) or other extended metadata element(s).
      */
-    @XmlElement(name = "parentEntity", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<String> getParentEntity() {
         return parentEntity = nonNullCollection(parentEntity, String.class);
     }
@@ -348,7 +329,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     /**
      * Specifies how the extended element relates to other existing elements and entities.
      */
-    @XmlElement(name = "rule", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public InternationalString getRule() {
         return rule;
     }
@@ -364,9 +344,8 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     /**
      * Reason for creating the extended element.
      */
-    @XmlElement(name = "rationale", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<InternationalString> getRationales() {
-        return xmlOptional(rationales = nonNullCollection(rationales, InternationalString.class));
+        return (rationales = nonNullCollection(rationales, InternationalString.class));
     }
 
     /**
@@ -381,7 +360,6 @@ public class ExtendedElementInformationImpl extends MetadataEntity
     /**
      * Name of the person or organization creating the extended element.
      */
-    @XmlElement(name = "source", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<ResponsibleParty> getSources() {
         return sources = nonNullCollection(sources, ResponsibleParty.class);
     }

@@ -19,8 +19,6 @@
  */
 package org.geotools.metadata.iso.spatial;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.spatial.SpatialRepresentation;
 import org.geotools.metadata.iso.MetadataEntity;
 
@@ -35,8 +33,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(name = "MD_SpatialRepresentation")
-@XmlSeeAlso({GridSpatialRepresentationImpl.class, VectorSpatialRepresentationImpl.class})
 public class SpatialRepresentationImpl extends MetadataEntity implements SpatialRepresentation {
     /**
      * Serial number for interoperability with different versions.

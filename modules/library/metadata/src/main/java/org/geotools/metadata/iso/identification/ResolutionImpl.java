@@ -19,14 +19,9 @@
  */
 package org.geotools.metadata.iso.identification;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.opengis.metadata.identification.RepresentativeFraction;
 import org.opengis.metadata.identification.Resolution;
 import org.geotools.metadata.iso.MetadataEntity;
-import org.geotools.resources.jaxb.uom.DistanceAdapter;
 
 
 /**
@@ -39,10 +34,6 @@ import org.geotools.resources.jaxb.uom.DistanceAdapter;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "equivalentScale", "distance"
-})
-@XmlRootElement(name = "MD_Resolution")
 public class ResolutionImpl extends MetadataEntity implements Resolution {
     /**
      * Serial number for compatibility with different versions.
@@ -84,7 +75,6 @@ public class ResolutionImpl extends MetadataEntity implements Resolution {
      * Only one of {@linkplain #getEquivalentScale equivalent scale} and
      * {@linkplain #getDistance ground sample distance} may be provided.
      */
-    @XmlElement(name = "equivalentScale", required = false)
     public RepresentativeFraction getEquivalentScale()  {
         return equivalentScale;
     }
@@ -104,8 +94,6 @@ public class ResolutionImpl extends MetadataEntity implements Resolution {
      * Only one of {@linkplain #getEquivalentScale equivalent scale} and
      * {@linkplain #getDistance ground sample distance} may be provided.
      */
-    @XmlJavaTypeAdapter(DistanceAdapter.class)
-    @XmlElement(name = "distance", required = false)
     public Double getDistance() {
         return distance;
     }

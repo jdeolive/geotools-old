@@ -19,10 +19,6 @@
  */
 package org.geotools.metadata.iso.extent;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.extent.GeographicExtent;
 import org.geotools.metadata.iso.MetadataEntity;
 
@@ -37,9 +33,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(name = "EX_GeographicExtent")
-@XmlSeeAlso({GeographicBoundingBoxImpl.class, BoundingPolygonImpl.class, GeographicDescriptionImpl.class})
-@XmlRootElement(name = "EX_GeographicExtent")
 public class GeographicExtentImpl extends MetadataEntity implements GeographicExtent {
     /**
      * Serial number for interoperability with different versions.
@@ -80,8 +73,6 @@ public class GeographicExtentImpl extends MetadataEntity implements GeographicEx
      *
      * @return {@code true} for inclusion, or {@code false} for exclusion.
      */
-    @XmlElement(name = "extentTypeCode", required = false,
-                namespace = "http://www.isotc211.org/2005/gmd")
     public Boolean getInclusion() {
         return inclusion;
     }

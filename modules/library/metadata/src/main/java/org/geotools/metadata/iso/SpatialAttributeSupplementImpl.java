@@ -21,8 +21,6 @@ package org.geotools.metadata.iso;
 
 import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.opengis.metadata.FeatureTypeList;
 import org.opengis.metadata.SpatialAttributeSupplement;
 
@@ -37,7 +35,6 @@ import org.opengis.metadata.SpatialAttributeSupplement;
  *
  * @since 2.1
  */
-@XmlRootElement(name = "MD_SpatialAttributeSupplement")
 public class SpatialAttributeSupplementImpl extends MetadataEntity
         implements SpatialAttributeSupplement
 {
@@ -76,7 +73,6 @@ public class SpatialAttributeSupplementImpl extends MetadataEntity
     /**
      * Provides information about the list of feature types with the same spatial representation.
      */
-    @XmlElement(name = "featureTypeList", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<FeatureTypeList> getFeatureTypeList() {
         return featureTypeList = nonNullCollection(featureTypeList, FeatureTypeList.class);
     }

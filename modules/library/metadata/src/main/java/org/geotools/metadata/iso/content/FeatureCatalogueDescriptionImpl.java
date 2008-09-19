@@ -21,10 +21,6 @@ package org.geotools.metadata.iso.content;
 
 import java.util.Collection;
 import java.util.Locale;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.content.FeatureCatalogueDescription;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.util.GenericName;
@@ -40,10 +36,6 @@ import org.opengis.util.GenericName;
  *
  * @since 2.1
  */
-@XmlType(name = "MD_FeatureCatalogueDescription", propOrder={
-    "compliant", "languages", "includedWithDataset", "featureCatalogueCitations"
-})
-@XmlRootElement(name = "MD_FeatureCatalogueDescription")
 public class FeatureCatalogueDescriptionImpl extends ContentInformationImpl
         implements FeatureCatalogueDescription
 {
@@ -95,7 +87,6 @@ public class FeatureCatalogueDescriptionImpl extends ContentInformationImpl
     /**
      * Returns whether or not the cited feature catalogue complies with ISO 19110.
      */
-    @XmlElement(name = "complianceCode", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public Boolean isCompliant() {
         return compliant;
     }
@@ -111,9 +102,8 @@ public class FeatureCatalogueDescriptionImpl extends ContentInformationImpl
     /**
      * Returns the language(s) used within the catalogue
      */
-    @XmlElement(name = "language", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Locale> getLanguages() {
-        return xmlOptional(languages = nonNullCollection(languages, Locale.class));
+        return (languages = nonNullCollection(languages, Locale.class));
     }
 
     /**
@@ -126,7 +116,6 @@ public class FeatureCatalogueDescriptionImpl extends ContentInformationImpl
     /**
      * Returns whether or not the feature catalogue is included with the dataset.
      */
-    @XmlElement(name = "includeWithDataset", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public boolean isIncludedWithDataset() {
         return includeWithDataset;
     }
@@ -144,7 +133,6 @@ public class FeatureCatalogueDescriptionImpl extends ContentInformationImpl
      * 
      * @TODO: annotate the org.geotools.util package before.
      */
-    //@XmlElement(name = "featureTypes", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<GenericName> getFeatureTypes() {
         return featureTypes = nonNullCollection(featureTypes, GenericName.class);
     }
@@ -159,7 +147,6 @@ public class FeatureCatalogueDescriptionImpl extends ContentInformationImpl
     /**
      * Returns the Complete bibliographic reference to one or more external feature catalogues.
      */
-    @XmlElement(name = "featureCatalogueCitation", required = true, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Citation> getFeatureCatalogueCitations() {
         return featureCatalogueCitations = nonNullCollection(featureCatalogueCitations, Citation.class);
     }

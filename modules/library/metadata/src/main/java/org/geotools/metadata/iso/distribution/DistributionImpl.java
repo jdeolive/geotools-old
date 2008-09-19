@@ -20,10 +20,6 @@
 package org.geotools.metadata.iso.distribution;
 
 import java.util.Collection;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.distribution.DigitalTransferOptions;
 import org.opengis.metadata.distribution.Distribution;
 import org.opengis.metadata.distribution.Distributor;
@@ -41,10 +37,6 @@ import org.geotools.metadata.iso.MetadataEntity;
  *
  * @since 2.1
  */
-@XmlType(propOrder={
-    "distributors", "transferOptions", "distributionFormats"
-})
-@XmlRootElement(name = "MD_Distribution")
 public class DistributionImpl extends MetadataEntity implements Distribution {
     /**
      * Serial number for interoperability with different versions.
@@ -85,9 +77,8 @@ public class DistributionImpl extends MetadataEntity implements Distribution {
     /**
      * Provides a description of the format of the data to be distributed.
      */
-    @XmlElement(name = "distributionFormat", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Format> getDistributionFormats() {
-        return xmlOptional(distributionFormats = nonNullCollection(distributionFormats, Format.class));
+        return (distributionFormats = nonNullCollection(distributionFormats, Format.class));
     }
 
     /**
@@ -100,9 +91,8 @@ public class DistributionImpl extends MetadataEntity implements Distribution {
     /**
      * Provides information about the distributor.
      */
-    @XmlElement(name = "distributor", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<Distributor> getDistributors() {
-        return xmlOptional(distributors = nonNullCollection(distributors, Distributor.class));
+        return (distributors = nonNullCollection(distributors, Distributor.class));
     }
 
     /**
@@ -116,9 +106,8 @@ public class DistributionImpl extends MetadataEntity implements Distribution {
      * Provides information about technical means and media by which a resource is obtained
      * from the distributor.
      */
-    @XmlElement(name = "transferOptions", required = false, namespace = "http://www.isotc211.org/2005/gmd")
     public synchronized Collection<DigitalTransferOptions> getTransferOptions() {
-        return xmlOptional(transferOptions = nonNullCollection(transferOptions, DigitalTransferOptions.class));
+        return (transferOptions = nonNullCollection(transferOptions, DigitalTransferOptions.class));
     }
 
     /**
@@ -130,26 +119,4 @@ public class DistributionImpl extends MetadataEntity implements Distribution {
     {
         transferOptions = copyCollection(newValues, transferOptions, DigitalTransferOptions.class);
     }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     * 
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     * 
-     * @param marshaller Not used in this implementation
-     */
-///    private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///    }
 }

@@ -21,10 +21,6 @@ package org.geotools.metadata.iso.spatial;
 
 import java.util.List;
 import java.util.Collection;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.metadata.spatial.CellGeometry;
 import org.opengis.metadata.spatial.Dimension;
@@ -45,11 +41,6 @@ import org.opengis.util.Record;
  *
  * @since 2.1
  */
-@XmlType(name = "MD_Georeferenceable", propOrder={
-    "controlPointAvailable", "orientationParameterAvailable", "orientationParameterDescription",
-    "parameterCitation"
-})
-@XmlRootElement(name = "MD_Georeferenceable")
 public class GeoreferenceableImpl extends GridSpatialRepresentationImpl implements Georeferenceable {
     /**
      * Serial number for interoperability with different versions.
@@ -114,7 +105,6 @@ public class GeoreferenceableImpl extends GridSpatialRepresentationImpl implemen
     /**
      * Indication of whether or not control point(s) exists.
      */
-    @XmlElement(name = "controlPointAvailability", required = true)
     public boolean isControlPointAvailable() {
         return controlPointAvailable;
     }
@@ -130,7 +120,6 @@ public class GeoreferenceableImpl extends GridSpatialRepresentationImpl implemen
     /**
      * Indication of whether or not orientation parameters are available.
      */
-    @XmlElement(name = "orientationParameterAvailability", required = true)
     public boolean isOrientationParameterAvailable() {
         return orientationParameterAvailable;
     }
@@ -146,7 +135,6 @@ public class GeoreferenceableImpl extends GridSpatialRepresentationImpl implemen
     /**
      * Description of parameters used to describe sensor orientation.
      */
-    @XmlElement(name = "orientationParameterDescription", required = false)
     public InternationalString getOrientationParameterDescription() {
         return orientationParameterDescription;
     }
@@ -164,7 +152,6 @@ public class GeoreferenceableImpl extends GridSpatialRepresentationImpl implemen
      *
      * @since 2.4
      */
-    //@XmlElement(name = "georeferencedParameters", required = true)
     public Record getGeoreferencedParameters() {
         return georeferencedParameters;
     }
@@ -182,9 +169,8 @@ public class GeoreferenceableImpl extends GridSpatialRepresentationImpl implemen
     /**
      * Reference providing description of the parameters.
      */
-    @XmlElement(name = "parameterCitation", required = false)
     public synchronized Collection<Citation> getParameterCitation() {
-        return xmlOptional(parameterCitation = nonNullCollection(parameterCitation, Citation.class));
+        return (parameterCitation = nonNullCollection(parameterCitation, Citation.class));
     }
 
     /**
@@ -193,26 +179,4 @@ public class GeoreferenceableImpl extends GridSpatialRepresentationImpl implemen
     public synchronized void setParameterCitation(final Collection<? extends Citation> newValues) {
         parameterCitation = copyCollection(newValues, parameterCitation, Citation.class);
     }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code true}, since the marshalling
-     * process is going to be done.
-     * This method is automatically called by JAXB, when the marshalling begins.
-     * 
-     * @param marshaller Not used in this implementation.
-     */
-///    private void beforeMarshal(Marshaller marshaller) {
-///        xmlMarshalling(true);
-///    }
-
-    /**
-     * Sets the {@code xmlMarshalling} flag to {@code false}, since the marshalling
-     * process is finished.
-     * This method is automatically called by JAXB, when the marshalling ends.
-     * 
-     * @param marshaller Not used in this implementation
-     */
-///    private void afterMarshal(Marshaller marshaller) {
-///        xmlMarshalling(false);
-///    }
 }
