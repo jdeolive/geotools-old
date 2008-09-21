@@ -471,8 +471,11 @@ public class MosaicIndexBuilder extends BaseArgumentsManager implements
 					// resetting reader and recreating stream, turnarounf for a
 					// strange imageio bug
 					r.reset();
-					inStream.reset();
-					r.setInput(inStream);
+					try{
+						inStream.reset();
+					}catch (IOException e) {
+						inStream= ImageIO.createImageInputStream(fileBeingProcessed);
+					}					r.setInput(inStream);
 					numberOfLevels = r.getNumImages(true);
 					resolutionLevels = new double[2][numberOfLevels];
 					double[] res = getResolution(envelope, new Rectangle(r
