@@ -15,7 +15,7 @@
 
   <parent>
     <groupId>org.geotools</groupId>
-    <artifactId>unsupported</artifactId>
+    <artifactId>plugin</artifactId>
     <version>2.6-SNAPSHOT</version>
   </parent>
 
@@ -27,13 +27,13 @@
   <artifactId>gt-imagemosaic-jdbc</artifactId>
   <packaging>jar</packaging>
   <name>imagemosaic-jdbc module</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/imagemosaic-jdbc/</url>
+  <url>http://maven.geotools.fr/reports/modules/plugin/imagemosaic-jdbc/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/modules/unsupported/imagemosaic-jdbc/
+      scm:svn:http://svn.geotools.org/geotools/trunk/modules/plugin/imagemosaic-jdbc/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/modules/unsupported/imagemosaic-jdbc/</url>
+    <url>http://svn.geotools.org/geotools/trunk/modules/plugin/imagemosaic-jdbc/</url>
   </scm>
 
   <description>

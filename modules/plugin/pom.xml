@@ -89,6 +89,7 @@
     <module>image</module>
     <module>imagemosaic</module>
     <module>imagepyramid</module>
+    <module>imagemosaic-jdbc</module>
     <module>postgis</module>
     <module>property</module>
     <module>referencing3D</module>

@@ -108,7 +108,6 @@
          <module>coverageio-netcdf</module>
          <module>coveragetools</module>
          <module>imageio-ext-gdal</module>
-         <module>imagemosaic-jdbc</module>
        </modules>
      </profile>
      <profile>
