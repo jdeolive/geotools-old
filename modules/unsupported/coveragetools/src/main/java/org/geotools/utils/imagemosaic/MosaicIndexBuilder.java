@@ -351,7 +351,7 @@ public class MosaicIndexBuilder extends BaseArgumentsManager implements
 				//
 				//
 				// ////////////////////////////////////////////////////////
-				final ImageInputStream inStream = ImageIO
+				ImageInputStream inStream = ImageIO
 						.createImageInputStream(fileBeingProcessed);
 				inStream.mark();
 				final Iterator<ImageReader> it = ImageIO.getImageReaders(inStream);
