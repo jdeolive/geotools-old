@@ -328,9 +328,10 @@ public class MolodenskiTransform extends AbstractMathTransform implements Serial
                 //       in the CTS implementation...
                 throw new UnsupportedOperationException("Not yet implemented.");
             }
-            step = -getSourceDimensions();
-            srcOff -= (numPts-1)*step;
-            dstOff -= (numPts-1)*step;
+            step = getSourceDimensions();
+            srcOff += (numPts-1)*step;
+            dstOff += (numPts-1)*step;
+            step *= -2;
         }
         while (--numPts >= 0) {
             double x,y,z;

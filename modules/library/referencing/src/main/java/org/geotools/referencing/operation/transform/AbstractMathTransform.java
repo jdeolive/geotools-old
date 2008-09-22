@@ -714,6 +714,9 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
      *     }
      * }</pre><blockquote>
      *
+     * <strong>This method is for internal usage by the referencing module only. Do not use!
+     * It will be replaced by a different mechanism in a future GeoTools version.</strong>
+     *
      * @param srcOff The offset in the source coordinate array.
      * @param dimSource The dimension of input points.
      * @param dstOff The offset in the destination coordinate array.
