@@ -26,10 +26,12 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.And;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.opengis.filter.spatial.BBOX;
 
 
 public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
@@ -105,7 +107,25 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(filter);
         assertEquals(1, features.size());
 
-        Iterator iterator = features.iterator();
+        Iterator<SimpleFeature> iterator = features.iterator();
+        assertTrue(iterator.hasNext());
+
+        SimpleFeature feature = (SimpleFeature) iterator.next();
+        assertEquals("one", feature.getAttribute(aname("stringProperty")));
+        assertEquals( new Double(1.1), feature.getAttribute( aname("doubleProperty")) );
+        features.close(iterator);
+    }
+    
+    public void testGetFeaturesWithLogicFilter() throws Exception {
+        FilterFactory ff = dataStore.getFilterFactory();
+        PropertyIsEqualTo property = ff.equals(ff.property(aname("stringProperty")), ff.literal("one"));
+        BBOX bbox = ff.bbox(aname("geometry"), -20, -20, 20, 20, "EPSG:4326");
+        And filter = ff.and(property, bbox);
+
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(filter);
+        assertEquals(1, features.size());
+
+        Iterator<SimpleFeature> iterator = features.iterator();
         assertTrue(iterator.hasNext());
 
         SimpleFeature feature = (SimpleFeature) iterator.next();
@@ -126,7 +146,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(query);
         assertEquals(1, features.size());
 
-        Iterator iterator = features.iterator();
+        Iterator<SimpleFeature> iterator = features.iterator();
         assertTrue(iterator.hasNext());
 
         SimpleFeature feature = (SimpleFeature) iterator.next();
@@ -146,7 +166,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(query);
         assertEquals(3, features.size());
 
-        Iterator iterator = features.iterator();
+        Iterator<SimpleFeature> iterator = features.iterator();
         assertTrue(iterator.hasNext());
 
         SimpleFeature f = (SimpleFeature) iterator.next();
@@ -191,7 +211,7 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         assertEquals(2, features.size());
         
         // check actual iteration
-        Iterator it = features.iterator();
+        Iterator<SimpleFeature> it = features.iterator();
         int count = 0;
         while(it.hasNext()) {
             it.next();

@@ -84,7 +84,7 @@ public class PreparedFilterToSQL extends FilterToSQL {
             return super.visit(expression, context);
         
         //evaluate the literal and store it for later
-        Object literalValue = evaluateLiteral( expression, (Class) context );
+        Object literalValue = evaluateLiteral( expression, (context instanceof Class ? (Class) context : null) );
         literalValues.add(literalValue);
         SRIDs.add(currentSRID);
         if(literalValue != null)
