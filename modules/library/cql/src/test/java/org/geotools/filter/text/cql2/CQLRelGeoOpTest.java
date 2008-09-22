@@ -116,10 +116,10 @@ public class CQLRelGeoOpTest {
     }
 
     @Test(expected = CQLException.class)
-    public void sintaxError() throws Exception {
+    public void syntaxError() throws Exception {
 
         CompilerUtil.parseFilter(language,
-                "BEYOND(ATTR1, POINTS(1.0 2.0), 10.0, kilometers)");
+                "EYOND(ATTR1, POINTS(1.0 2.0), 10.0, kilometers)");
     }
 
 
@@ -127,8 +127,8 @@ public class CQLRelGeoOpTest {
     public final void syntaxErrorMessage() {
 
         try {
-            // must be WITHIN
-            final String malformedGeometry = "WITHI(ATTR1, POLYGON((1 2, 10 15), (10 15, 1 2)))";
+            // must polygon must have two ring (shell and hole)
+            final String malformedGeometry = "WITHIN(ATTR1, POLYGON((1 2, 10 15), (10 15, 1 2)))";
             CompilerUtil.parseFilter(this.language, malformedGeometry);
             Assert.fail();
         } catch (CQLException e) {

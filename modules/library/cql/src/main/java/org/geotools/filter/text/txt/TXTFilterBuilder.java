@@ -231,33 +231,40 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
 
     public Polygon buildPolygon(final int linestringNode) throws CQLException {
         
-        // Retrieve the liner ring for shell and holes
-        final List<Geometry> geometryList= popGeometry(linestringNode);
-        
-        assert geometryList.size() >= 1;
-        
-        // retrieves the shell
-        LineString line = (LineString)geometryList.get(0);
-        final LinearRing shell = this.GEOM_FACTORY.createLinearRing(line.getCoordinates());
-
-        // if it has holes, creates a ring for each linestring
-        LinearRing[] holes = new LinearRing[0]; 
-        if(geometryList.size() > 1){
+        Result result = getResultStack().peek();
+        try{
+            // Retrieve the liner ring for shell and holes
+            final List<Geometry> geometryList= popGeometry(linestringNode);
             
-            List<LinearRing> holeList = new LinkedList<LinearRing>();
-            for( int i = 1;i < geometryList.size(); i++) {
+            assert geometryList.size() >= 1;
+            
+            // retrieves the shell
+            LineString line = (LineString)geometryList.get(0);
+            final LinearRing shell = this.GEOM_FACTORY.createLinearRing(line.getCoordinates());
+
+            // if it has holes, creates a ring for each linestring
+            LinearRing[] holes = new LinearRing[0]; 
+            if(geometryList.size() > 1){
                 
-                LineString holeLines = (LineString) geometryList.get(i);
-                LinearRing ring = this.GEOM_FACTORY.createLinearRing(holeLines.getCoordinates());
-                holeList.add(ring);
-            }
-            int holesSize = holeList.size();
-            holes = holeList.toArray(new LinearRing[holesSize]) ;
-        } 
-        // creates the polygon
-        Polygon polygon= this.GEOM_FACTORY.createPolygon(shell, holes);
-        
-        return polygon;
+                List<LinearRing> holeList = new LinkedList<LinearRing>();
+                for( int i = 1;i < geometryList.size(); i++) {
+                    
+                    LineString holeLines = (LineString) geometryList.get(i);
+                    LinearRing ring = this.GEOM_FACTORY.createLinearRing(holeLines.getCoordinates());
+                    holeList.add(ring);
+                }
+                int holesSize = holeList.size();
+                holes = holeList.toArray(new LinearRing[holesSize]) ;
+            } 
+            // creates the polygon
+            Polygon polygon= this.GEOM_FACTORY.createPolygon(shell, holes);
+            
+            return polygon;
+            
+        }catch(Exception e){
+
+            throw new CQLException(e.getMessage(),  result.getToken(), this.cqlSource);
+        }
     }
 
     /**

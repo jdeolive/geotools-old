@@ -17,15 +17,54 @@
 
 package org.geotools.filter.text.txt;
 
+import org.geotools.filter.text.commons.CompilerUtil;
+import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CQLGeoOperationTest;
 import org.geotools.filter.text.cql2.CompilerFactory.Language;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.opengis.filter.Filter;
+import org.opengis.filter.spatial.Contains;
+import org.opengis.filter.spatial.Crosses;
+import org.opengis.filter.spatial.Disjoint;
+import org.opengis.filter.spatial.Equals;
+import org.opengis.filter.spatial.Intersects;
+import org.opengis.filter.spatial.Overlaps;
+import org.opengis.filter.spatial.Touches;
+import org.opengis.filter.spatial.Within;
 
 /**
  * TXT Geo Operation Test
  * <p>
  * Execute all cql test for spatial relation using the TXT compiler
  * </p>
+* <p>
  * 
+ * <pre>
+ *   &lt;routine invocation &gt; ::=
+ *           &lt;geoop name &gt; &lt;georoutine argument list &gt;[*]
+ *       |   &lt;relgeoop name &gt; &lt;relgeoop argument list &gt;
+ *       |   &lt;routine name &gt; &lt;argument list &gt;
+ *   &lt;geoop name &gt; ::=
+ *           EQUALS | DISJOINT | INTERSECTS | TOUCHES | CROSSES | [*]
+ *           WITHIN | CONTAINS |OVERLAPS | RELATE [*]
+ *   That rule is extended with bbox for convenience.
+ *   &lt;bbox argument list &gt;::=
+ *       &quot;(&quot;  &lt;attribute &gt; &quot;,&quot; &lt;min X &gt; &quot;,&quot; &lt;min Y &gt; &quot;,&quot; &lt;max X &gt; &quot;,&quot; &lt;max Y &gt;[&quot;,&quot;  &lt;srs &gt;] &quot;)&quot;
+ *       &lt;min X &gt; ::=  &lt;signed numerical literal &gt;
+ *       &lt;min Y &gt; ::=  &lt;signed numerical literal &gt;
+ *       &lt;max X &gt; ::=  &lt;signed numerical literal &gt;
+ *       &lt;max Y &gt; ::=  &lt;signed numerical literal &gt;
+ *       &lt;srs &gt; ::=
+ *     
+ * </pre>
+ *</p>
+ * <p>
+ * Note: the symbols of geoop names were changed to adjust these name to geoapi filter.
+ * 
+ * 
+ * </p>
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
@@ -34,4 +73,105 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
     public TXTGeoOperationTest(){
         super(Language.TXT);
     }
+
+    @Test
+    public void disjoint() throws CQLException{
+        
+
+        Filter resultFilter = CompilerUtil.parseFilter(language, "DISJOINT(the_geom, POINT(1 2))");
+
+        Assert.assertTrue("Disjoint was expected", resultFilter instanceof Disjoint);
+    }
+
+    @Test
+    public void Intersects() throws CQLException {
+        Filter resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(the_geom, POINT(1 2))");
+
+        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
+        
+    }
+
+    @Test
+    public void functionAsFirstArgument() throws CQLException {
+        
+        Filter resultFilter;
+        
+        resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(centroid(the_geom), POINT(1 2))");
+
+        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
+
+        resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(buffer(POINT(1 2) ,10), POINT(1 2))");
+        
+        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
+    }
+    
+    @Ignore
+    public void functionAsSecondArgument() throws CQLException {
+        Filter resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(centroid(the_geom), buffer(the_geom,10))");
+        // TODO Filter resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(centroid(the_geom), buffer(POINT(1 2),10))");
+
+        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
+        
+    }
+
+    @Test
+    public void touches() throws CQLException{
+        Filter resultFilter = CompilerUtil.parseFilter(language,"TOUCHES(the_geom, POINT(1 2))");
+
+        Assert.assertTrue("Touches was expected", resultFilter instanceof Touches);
+    }
+
+    public void crosses() throws CQLException {
+        Filter resultFilter = CompilerUtil.parseFilter(language,"CROSSES(the_geom, POINT(1 2))");
+
+        Assert.assertTrue("Crosses was expected", resultFilter instanceof Crosses);
+        
+    }
+    @Test
+    public void contains() throws CQLException      {
+        Filter resultFilter = CompilerUtil.parseFilter(language,"CONTAINS(the_geom, POINT(1 2))");
+
+        Assert.assertTrue("Contains was expected", resultFilter instanceof Contains);
+        
+    }
+    
+    @Test
+    public void overlaps() throws Exception {
+        Filter resultFilter;
+
+
+        resultFilter = CompilerUtil.parseFilter(language,"OVERLAPS(the_geom, POINT(1 2))");
+
+        Assert.assertTrue("Overlaps was expected", resultFilter instanceof Overlaps);
+
+        
+    }
+    @Test
+    public void equals() throws CQLException{
+        // EQUALS
+        Filter resultFilter = CompilerUtil.parseFilter(language,"EQUALS(the_geom, POINT(1 2))");
+
+        Assert.assertTrue("not an instance of Equals", resultFilter instanceof Equals);
+
+        resultFilter = CompilerUtil.parseFilter(language,"WITHIN(the_geom, POLYGON((1 2, 1 10, 5 10, 1 2)) )");
+
+        Assert.assertTrue("Within was expected", resultFilter instanceof Within);
+        
+    }
+    
+//
+//    TODO BBOX( buffer( the_geom , 10), 10,20,30,40 )
+//    TODO BBOX( buffer( the_geom , 10), buffer( POINT( 15,15), 10) )
+    
+    /**
+     * Sample CROSSES(centroid( the_geom ), BUFFER(LINESTRING (15 15, 20 20),10))
+     */
+//    @Test
+//    public void functionContainsFunction() throws CQLException      {
+//        Filter resultFilter = CompilerUtil.parseFilter(language,"CROSSES(centroid( the_geom ), BUFFER(LINESTRING (15 15, 20 20),10))");
+//
+//        Assert.assertTrue("Contains was expected", resultFilter instanceof Crosses);
+//        
+//    }
+    
 }

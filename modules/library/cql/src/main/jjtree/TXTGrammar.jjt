@@ -59,14 +59,14 @@ public class TXTParser {
   // initialize geooperations
   protected static final Set GEOOP = new HashSet();
   static {
-		GEOOP.add("EQUAL");
+		GEOOP.add("EQUALS");
 		GEOOP.add("DISJOINT");
-		GEOOP.add("INTERSECT");
-		GEOOP.add("TOUCH");
-		GEOOP.add("CROSS");
+		GEOOP.add("INTERSECTS");
+		GEOOP.add("TOUCHES");
+		GEOOP.add("CROSSES");
 		GEOOP.add("WITHIN");
 		GEOOP.add("CONTAINS");
-		GEOOP.add("OVERLAP");
+		GEOOP.add("OVERLAPS");
 		GEOOP.add("RELATE");
 		GEOOP.add("BBOX");
   }
@@ -106,7 +106,6 @@ SKIP : /* WHITE SPACE */
 /*
  * <character string literal>
  */
- 
 TOKEN:
 {
 	  < STRING_LITERAL: "'" ( "''" | ~["'"] )* "'" > : DEFAULT
@@ -171,14 +170,14 @@ TOKEN [IGNORE_CASE]: /* existence predicate*/
 
 TOKEN [IGNORE_CASE]:  
 {
-  < EQUAL: "equal"> |
+  < EQUALS: "equals"> |
   < DISJOINT: "disjoint"> |
-  < INTERSECT: "intersect"> |
-  < TOUCH: "touch"> |
-  < CROSS: "cross"> |
+  < INTERSECTS: "intersects"> |
+  < TOUCHES: "touches"> |
+  < CROSSES: "crosses"> |
   < WITHIN: "within"> |
   < CONTAINS: "contains"> |
-  < OVERLAP: "overlap"> |
+  < OVERLAPS: "overlaps"> |
   < RELATE: "relate"> |
   < BBOX: "bbox"> 
 }
@@ -282,7 +281,6 @@ void TXTExpression()#void:
 {}
 {
     	Expression()
-	| 	GeometryLiteral()
 }
 
 /*
@@ -454,14 +452,14 @@ void RoutineInvocation() #void:
 void RoutineInvocationGeoOp() #void:
 {}
 {
-  	<EQUAL> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Equal_Node
+  	<EQUALS> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Equal_Node
   |	<DISJOINT> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Disjoint_Node
-  |	<INTERSECT> GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Intersect_Node
-  |	<TOUCH> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Touch_Node
-  |	<CROSS> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Cross_Node
+  |	<INTERSECTS> GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Intersect_Node
+  |	<TOUCHES> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Touch_Node
+  |	<CROSSES> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Cross_Node
   |	<WITHIN> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Within_Node
   |	<CONTAINS> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Contain_Node
-  |	<OVERLAP> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Overlap_Node
+  |	<OVERLAPS> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Overlap_Node
   |	<RELATE> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Relate_Node
   | <BBOX> 		BBoxArgumentList()		 
 }
@@ -474,8 +472,9 @@ void RoutineInvocationGeoOp() #void:
 void GeoRoutineArgumentList() #void:
 {}
 {
-	<LP> Attribute() <COMMA> GeometryLiteral() <RP>
+	<LP> Expression() <COMMA> Expression() <RP>
 }
+
 /*
  * <bbox argument list>::= 
  * 	"(" <attribute> "," 
@@ -775,11 +774,14 @@ void BetweenPredicate() #void:
 
 /*
  * cql extension
+ *	
+ 
  */
  void Expression() #void:
 {}
 {
-   BinaryExpression()
+   		BinaryExpression()
+   	|  	GeometryLiteral()
 }
 
 void BinaryExpression() #void:
