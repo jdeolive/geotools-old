@@ -172,6 +172,73 @@ public class SLDTransformerTest extends TestCase {
     }
 
     /**
+     * SLD Fragment reported to produce error on user list - no related Jira.
+     * @throws Exception
+     */
+    public void testTextSymbolizerLabelPalcement() throws Exception {
+        String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"
+            +"<StyledLayerDescriptor version=\"1.0.0\" "
+            +"              xsi:schemaLocation=\"http://www.opengis.net/sld StyledLayerDescriptor.xsd\" "
+            +"              xmlns=\"http://www.opengis.net/sld\" "
+            +"              xmlns:ogc=\"http://www.opengis.net/ogc\" "
+            +"              xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
+            +"              xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
+            +"      <NamedLayer>"
+            +"              <Name>Default Line</Name>"
+            +"              <UserStyle>"
+            +"                      <Title>A boring default style</Title>"
+            +"                      <Abstract>A sample style that just prints out a blue line</Abstract>"
+            +"                              <FeatureTypeStyle>"
+            +"                              <Rule>"
+            +"                                      <Name>Rule 1</Name>"
+            +"                                      <Title>Blue Line</Title>"
+            +"                                      <Abstract>A blue line with a 1 pixel width</Abstract>"
+            +"                                      <LineSymbolizer>"
+            +"                                              <Stroke>"
+            +"                                                      <CssParameter name=\"stroke\">#0000ff</CssParameter>"
+            +"                                              </Stroke>"
+            +"                                      </LineSymbolizer>"
+            +"                              </Rule>"
+            +"                              <Rule>"
+            +"                              <TextSymbolizer>"
+            +"                <Label><ogc:PropertyName>name</ogc:PropertyName></Label>"
+            +"                <Font>"
+            +"                    <CssParameter name=\"font-family\">Arial</CssParameter>"
+            +"                    <CssParameter name=\"font-style\">normal</CssParameter>"
+            +"                    <CssParameter name=\"font-size\">12</CssParameter>"
+            +"                    <CssParameter name=\"font-weight\">normal</CssParameter>"
+            +"                </Font>"
+            +"                <LabelPlacement>"
+            +"                      <LinePlacement>"
+            +"                              <PerpendicularOffset>0</PerpendicularOffset>"
+            +"                      </LinePlacement>"
+            +"                </LabelPlacement>"
+            +"                </TextSymbolizer>"
+            +"                              </Rule>"
+            +"                  </FeatureTypeStyle>"
+            +"              </UserStyle>"
+            +"      </NamedLayer>"
+            +"</StyledLayerDescriptor>";
+
+        StringReader reader = new StringReader(xml);
+        SLDParser sldParser = new SLDParser(sf, reader);
+
+        Style[] parsed = sldParser.readXML();
+        assertNotNull("parsed xml", parsed);
+        assertTrue("parsed xml into style", parsed.length > 0);
+
+        Style style = parsed[0];
+        assertNotNull(style);
+        Rule rule = style.featureTypeStyles().get(0).rules().get(0);
+        LineSymbolizer lineSymbolize = (LineSymbolizer) rule.symbolizers().get(0);
+        Stroke stroke = lineSymbolize.getStroke();
+
+        Expression color = stroke.getColor();
+        Color value = color.evaluate(null, Color.class);
+        assertNotNull("color", value);
+        assertEquals("blue", Color.BLUE, value);
+    }
+    /**
      * Another bug reported from uDig 1.2; we are trying to save a LineSymbolizer (and then restore
      * it) and the stroke is comming back black and with width 1 all the time.
      * 
