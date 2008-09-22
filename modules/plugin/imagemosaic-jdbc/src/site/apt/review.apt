@@ -1,7 +1,17 @@
 Imagemosaic Jdbc  Implementation for Geotools
 ---------------------------------------------
 
-STATUS: Check code and sample data
+Module Maintainer: Christian Mueller
+
+IP Review: 
+
+    * Christian Mueller Sept 22th, 2008
+
+STATUS: CLEAN
+
+IP: 
+
+   * LICENSE.TEXT refers to LGPL
 
 ** Sample Data **
 resources.zip		:	a zip file containing image material needed for the tests
