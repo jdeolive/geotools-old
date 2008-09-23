@@ -48,6 +48,10 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * getDistance( Geometry ) method). We are also going to
  * throw these into a spatial index.
  * </p>
+ * <p>
+ * This kind of code is needed when you have low accuracy information
+ * (like GPS in a city) that you wish to snap to a road network.
+ * </p>
  * 
  * @author Jody Garnett (Refractions Research)
  */
@@ -105,7 +109,7 @@ public class SnapToLine {
                     limit.getMinY()+rand.nextDouble()*limit.getHeight()
             );
         }
-        double distance = limit.getSpan(0) / 1000.0;
+        double distance = limit.getSpan(0) / 100.0;
         long now = System.currentTimeMillis();
         long then = now+DURATION;
         int count = 0;
@@ -118,7 +122,7 @@ public class SnapToLine {
             
             List<LocationIndexedLine> hits = index.query( search );
             double d = Double.MAX_VALUE;
-            Coordinate best = pt;
+            Coordinate best = null;
             for( LocationIndexedLine line : hits ){
                 LinearLocation here = line.project( pt );                
                 Coordinate point = line.extractPoint( here );
@@ -127,7 +131,13 @@ public class SnapToLine {
                     best = point;
                 }
             }
-            //System.out.println( pt + "->" + best );
+            if( best == null ){
+                // we did not manage to snap to a line? with real data sets this happens all the time...
+                System.out.println( pt + "-X");
+            }
+            else {
+                System.out.println( pt + "->" + best );
+            }
             count++;
         }
         System.out.println("snapped "+count+" times - and now I am tired");
