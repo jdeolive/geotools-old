@@ -466,7 +466,7 @@ void RoutineInvocationGeoOp() #void:
 
 /*
  * <georoutine argument list> ::=
- *		<left paren><attribute name><comma><geometry literal><right paren>
+ *		<left paren><Expression><comma><Expression><right paren>
  *
  */
 void GeoRoutineArgumentList() #void:
@@ -580,7 +580,7 @@ void GeometryLiteral() #GeometryLiteral:
  *      <literal>  
  *  |   <attribute name>                                            
  *  |   <function>           (*Extension*)                                            
- *  |   <binary expression>  (*Extnsion*)                            
+ *  |   <binary expression>  (*Extension*)                            
  */
 void RoutineInvocationGeneric() #void:
 {}
@@ -774,8 +774,7 @@ void BetweenPredicate() #void:
 
 /*
  * cql extension
- *	
- 
+ *	<expression> ::= 
  */
  void Expression() #void:
 {}
@@ -840,7 +839,7 @@ void IdentifierPart() #Identifier_Part_Node:
 	<IDENTIFIER>
  }
  
-  
+   
 /*
  * <attribute name> ::= 
  *  	  <simple attribute name> 

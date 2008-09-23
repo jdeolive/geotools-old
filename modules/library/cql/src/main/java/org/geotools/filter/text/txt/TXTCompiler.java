@@ -564,6 +564,7 @@ public class TXTCompiler extends TXTParser implements ICompiler{
 
         switch (nodeType) {
         case JJTROUTINEINVOCATION_GEOOP_EQUAL_NODE:
+            
             filter = this.builder.buildSpatialEqualFilter();
             break;
         case JJTROUTINEINVOCATION_GEOOP_DISJOINT_NODE:

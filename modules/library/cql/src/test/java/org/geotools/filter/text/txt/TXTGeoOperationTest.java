@@ -22,7 +22,6 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CQLGeoOperationTest;
 import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.spatial.Contains;
@@ -91,28 +90,6 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
         
     }
 
-    @Test
-    public void functionAsFirstArgument() throws CQLException {
-        
-        Filter resultFilter;
-        
-        resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(centroid(the_geom), POINT(1 2))");
-
-        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
-
-        resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(buffer(POINT(1 2) ,10), POINT(1 2))");
-        
-        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
-    }
-    
-    @Ignore
-    public void functionAsSecondArgument() throws CQLException {
-        Filter resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(centroid(the_geom), buffer(the_geom,10))");
-        // TODO Filter resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(centroid(the_geom), buffer(POINT(1 2),10))");
-
-        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
-        
-    }
 
     @Test
     public void touches() throws CQLException{
@@ -132,7 +109,6 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
         Filter resultFilter = CompilerUtil.parseFilter(language,"CONTAINS(the_geom, POINT(1 2))");
 
         Assert.assertTrue("Contains was expected", resultFilter instanceof Contains);
-        
     }
     
     @Test
@@ -143,9 +119,8 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
         resultFilter = CompilerUtil.parseFilter(language,"OVERLAPS(the_geom, POINT(1 2))");
 
         Assert.assertTrue("Overlaps was expected", resultFilter instanceof Overlaps);
-
-        
     }
+    
     @Test
     public void equals() throws CQLException{
         // EQUALS
@@ -159,19 +134,50 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
         
     }
     
-//
-//    TODO BBOX( buffer( the_geom , 10), 10,20,30,40 )
-//    TODO BBOX( buffer( the_geom , 10), buffer( POINT( 15,15), 10) )
+
+    @Test
+    public void functionAsFirstArgument() throws CQLException {
+        
+        Filter resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(centroid(the_geom), POINT(1 2))");
+
+        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
+    }
+
+    @Test
+    public void functionAsSecondArgument() throws CQLException {
+        
+        Filter resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(the_geom, buffer(POINT(1 2),10))");
+        
+        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
+
+        
+        resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(the_geom, buffer(the_geom,10))"); 
+        
+        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
+    }
+
+    @Test
+    public void functionAsFirstAndSecondArgument() throws CQLException {
+        
+        Filter resultFilter = CompilerUtil.parseFilter(language,"INTERSECTS(centroid(the_geom), buffer(POINT(1 2) ,10))");
+
+        Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
+
+    }
     
-    /**
-     * Sample CROSSES(centroid( the_geom ), BUFFER(LINESTRING (15 15, 20 20),10))
-     */
-//    @Test
-//    public void functionContainsFunction() throws CQLException      {
-//        Filter resultFilter = CompilerUtil.parseFilter(language,"CROSSES(centroid( the_geom ), BUFFER(LINESTRING (15 15, 20 20),10))");
+    //
+//  TODO BBOX( buffer( the_geom , 10), 10,20,30,40 )
+//  TODO BBOX( buffer( the_geom , 10), buffer( POINT( 15,15), 10) )
+  
+  /**
+   * Sample CROSSES(centroid( the_geom ), BUFFER(LINESTRING (15 15, 20 20),10))
+   */
+//  @Test
+//  public void functionContainsFunction() throws CQLException      {
+//      Filter resultFilter = CompilerUtil.parseFilter(language,"CROSSES(centroid( the_geom ), BUFFER(LINESTRING (15 15, 20 20),10))");
 //
-//        Assert.assertTrue("Contains was expected", resultFilter instanceof Crosses);
-//        
-//    }
+//      Assert.assertTrue("Contains was expected", resultFilter instanceof Crosses);
+//      
+//  }
     
 }

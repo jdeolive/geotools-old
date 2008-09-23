@@ -29,6 +29,7 @@ import org.geotools.filter.text.cql2.IToken;
 import org.geotools.filter.text.cql2.Result;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -36,7 +37,10 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.FeatureId;
+import org.opengis.filter.spatial.BinarySpatialOperator;
+import org.opengis.filter.spatial.Equals;
 
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -444,6 +448,86 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
     public Literal buildGeometryLiteral() throws CQLException {
         return getResultStack().popLiteral();
     }
+
+    public BinarySpatialOperator buildSpatialEqualFilter() throws CQLException {
+
+        SpatialEqualsBuilder builder = new SpatialEqualsBuilder(getResultStack(), getFilterFactory());
+        BinarySpatialOperator filter = builder.build();
+        
+        return filter;
+        
+    }
+    
+    public BinarySpatialOperator buildSpatialDisjointFilter() throws CQLException {
+        SpatialDisjointBuilder builder = new SpatialDisjointBuilder(getResultStack(), getFilterFactory());
+        
+        BinarySpatialOperator filter = builder.build();
+        
+        return filter;
+    }
+
+    public BinarySpatialOperator buildSpatialIntersectsFilter() throws CQLException {
+        
+        SpatialIntersectsBuilder builder = new SpatialIntersectsBuilder(getResultStack(), getFilterFactory());
+        
+        BinarySpatialOperator filter = builder.build();
+        
+        return filter;
+    }
+
+    public BinarySpatialOperator buildSpatialTouchesFilter() throws CQLException {
+
+        SpatialTouchesBuilder builder = new SpatialTouchesBuilder(getResultStack(), getFilterFactory());
+        
+        BinarySpatialOperator filter = builder.build();
+        
+        return filter;
+    }
+    
+
+    public BinarySpatialOperator buildSpatialCrossesFilter() throws CQLException {
+
+        SpatialCrossesBuilder builder = new SpatialCrossesBuilder(getResultStack(), getFilterFactory());
+        
+        BinarySpatialOperator filter = builder.build();
+        
+        return filter;
+
+    }
+    
+
+    public BinarySpatialOperator buildSpatialWithinFilter() throws CQLException {
+
+        SpatialWithinBuilder builder = new SpatialWithinBuilder(getResultStack(), getFilterFactory());
+        
+        BinarySpatialOperator filter = builder.build();
+        
+        return filter;
+    }
+    
+    public BinarySpatialOperator buildSpatialContainsFilter() throws CQLException {
+
+        SpatialContainsBuilder builder = new SpatialContainsBuilder(getResultStack(), getFilterFactory());
+        
+        BinarySpatialOperator filter = builder.build();
+        
+        return filter;
+
+    }
+
+    public BinarySpatialOperator buildSpatialOverlapsFilter() throws CQLException {
+
+        SpatialOverlapsBuilder builder = new SpatialOverlapsBuilder(getResultStack(), getFilterFactory());
+        
+        BinarySpatialOperator filter = builder.build();
+        
+        return filter;
+    }
+
+
+    
+
+    
 
 
 
