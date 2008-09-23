@@ -477,7 +477,7 @@ void GeoRoutineArgumentList() #void:
 
 /*
  * <bbox argument list>::= 
- * 	"(" <attribute> "," 
+ * 	"(" <expression> "," 
  * 		<min X> ","
  * 		<min Y> ","
  * 		<max X> ","
@@ -493,7 +493,7 @@ void GeoRoutineArgumentList() #void:
 void BBoxArgumentList() #void:
 {}
 {
-		<LP> Attribute() <COMMA> 
+		<LP> Expression() <COMMA> 
 			 NumericLiteral() <COMMA>
 			 NumericLiteral() <COMMA>
 			 NumericLiteral() <COMMA>
