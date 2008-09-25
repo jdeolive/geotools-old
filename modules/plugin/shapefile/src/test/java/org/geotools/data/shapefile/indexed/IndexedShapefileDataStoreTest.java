@@ -28,7 +28,10 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.geotools.TestData;
 import org.geotools.data.DataUtilities;
@@ -56,6 +59,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.Id;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -238,6 +243,55 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         assertTrue(file.exists());
         ds.dispose();
         ds2.dispose();
+    }
+
+    public void testFidFilter() throws Exception {
+        File shpFile = copyShapefiles(STATE_POP);
+        URL url = shpFile.toURL();
+        IndexedShapefileDataStore ds = new IndexedShapefileDataStore(url, null, true, true,
+                IndexType.NONE);
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ds.getFeatureSource();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures();
+        FeatureIterator<SimpleFeature> indexIter = features.features();
+
+        Set<String> expectedFids = new HashSet<String>();
+        final Filter fidFilter;
+        try {
+            FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+            Set<FeatureId> fids = new HashSet<FeatureId>();
+            while (indexIter.hasNext()) {
+                SimpleFeature newFeature = indexIter.next();
+                String id = newFeature.getID();
+                expectedFids.add(id);
+                fids.add(ff.featureId(id));
+            }
+            fidFilter = ff.id(fids);
+        } finally {
+            indexIter.close();
+        }
+
+        Set<String> actualFids = new HashSet<String>();
+        {
+            features = featureSource.getFeatures(fidFilter);
+            indexIter = features.features();
+            while (indexIter.hasNext()) {
+                SimpleFeature next = indexIter.next();
+                String id = next.getID();
+                actualFids.add(id);
+            }
+        }
+
+        TreeSet<String> lackingFids = new TreeSet<String>(expectedFids);
+        lackingFids.removeAll(actualFids);
+
+        TreeSet<String> unexpectedFids = new TreeSet<String>(actualFids);
+        unexpectedFids.removeAll(expectedFids);
+
+        String lacking = String.valueOf(lackingFids);
+        String unexpected = String.valueOf(unexpectedFids);
+        String failureMsg = "lacking fids: " + lacking + ". Unexpected ones: " + unexpected;
+        assertEquals(failureMsg, expectedFids.size(), actualFids.size());
+        assertEquals(failureMsg, expectedFids, actualFids);
     }
 
     private ArrayList performQueryComparison(

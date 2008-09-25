@@ -460,13 +460,22 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
                 def.addField(Long.class);
                 for (int i = 0; i < fids.length; i++) {
                     long recno = reader.findFid(fids[i]);
-                    if (recno == -1)
+                    if (recno == -1){
+                        if(LOGGER.isLoggable(Level.FINEST)){
+                            LOGGER.finest("fid " + fids[i] + " not found in index, continuing with next queried fid...");
+                        }
                         continue;
+                    }
                     try {
                         Data data = new Data(def);
                         data.addValue(new Integer((int) recno + 1));
                         data.addValue(new Long(shx
                                 .getOffsetInBytes((int) recno)));
+                        if(LOGGER.isLoggable(Level.FINEST)){
+                            LOGGER.finest("fid " + fids[i] + " found for record #"
+                                    + data.getValue(0) + " at index file offset "
+                                    + data.getValue(1));
+                        }
                         records.add(data);
                     } catch (Exception e) {
                         IOException exception = new IOException();
