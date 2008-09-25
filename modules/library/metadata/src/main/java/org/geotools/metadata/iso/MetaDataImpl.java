@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -264,7 +264,7 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
      */
     public synchronized void setParentIdentifier(final String newValue) {
         checkWritePermission();
-        fileIdentifier = newValue;
+        parentIdentifier = newValue;
     }
 
     /**
@@ -381,7 +381,7 @@ public class MetaDataImpl extends MetadataEntity implements MetaData {
 
     /**
      * Returns the description of the spatial and temporal reference systems used in the dataset.
-     * 
+     *
      * @TODO: annotates the referencing module of Geotools before.
      */
      public synchronized Collection<ReferenceSystem> getReferenceSystemInfo() {

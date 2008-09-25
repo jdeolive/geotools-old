@@ -313,7 +313,10 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
         final int dimSource = getSourceDimensions();
         final int dimTarget = getTargetDimensions();
         if (dimSource == dimTarget) {
-            System.arraycopy(dimSource, srcOff, dimTarget, dstOff, numPts*dimSource);
+            final int n = numPts * dimSource;
+            for (int i=0; i<n; i++) {
+                dstPts[dstOff + i] = srcPts[srcOff + i];
+            }
             transform(dstPts, dstOff, dstPts, dstOff, numPts);
         } else {
             final double[] tmpPts = new double[numPts*dimSource];
