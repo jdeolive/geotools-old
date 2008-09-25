@@ -159,7 +159,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 	 * Searches for an EPSG code inside this <code>IdentifiedObject</code>.
 	 * 
 	 * <p>
-	 * It is importanto to remarck that this function should be seen as an hack
+	 * It is important to remark that this function should be seen as an hack
 	 * hence it may change in the near future. DO not rely on it!
 	 * 
 	 * @param obj
@@ -181,7 +181,6 @@ public final class CRS2GeoTiffMetadataAdapter {
 
 				code = identifier.getCode();
 				break;
-
 			}
 		}
 
@@ -200,7 +199,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 	 * 
 	 * <p>
 	 * For the moment we can only encode geographic and projected coordinate
-	 * reference systes, we cannot encode the other types like vertical
+	 * reference systems, we cannot encode the other types like vertical
 	 * coordinate reference systems.
 	 * 
 	 * @throws GeoTiffException
@@ -228,9 +227,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 		//
 		// /////////////////////////////////////////////////////////////////////
 		case GeoTiffGCSCodes.ModelTypeGeographic:
-
 			parseGeoGCS((DefaultGeographicCRS) crs, metadata);
-
 			break;
 
 		// /////////////////////////////////////////////////////////////////////
@@ -241,7 +238,6 @@ public final class CRS2GeoTiffMetadataAdapter {
 		// /////////////////////////////////////////////////////////////////////
 		case GeoTiffPCSCodes.ModelTypeProjected:
 			parseProjCRS((ProjectedCRS) crs, metadata);
-
 			break;
 
 		default:
@@ -309,7 +305,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 		// projection
 		parseProjection(projectedCRS, metadata);
 
-		// gographic crs
+		// geographic crs
 		parseGeoGCS((DefaultGeographicCRS) (projectedCRS.getBaseCRS()),
 				metadata);
 
@@ -463,7 +459,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 
 		// /////////////////////////////////////////////////////////////////////
 		//
-		// mercator_1SP
+		// Mercator_1SP
 		// Mercator_2SP
 		//
 		// /////////////////////////////////////////////////////////////////////
@@ -495,7 +491,6 @@ public final class CRS2GeoTiffMetadataAdapter {
 		// /////////////////////////////////////////////////////////////////////
 		//
 		// Lamber conformal 1sp
-		// Mercator_2SP
 		//
 		// /////////////////////////////////////////////////////////////////////
 		if (projTransf instanceof LambertConformal && name.indexOf("1") != -1) {
@@ -525,7 +520,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 
 		// /////////////////////////////////////////////////////////////////////
 		//
-		// LAMBERT_CONFORMAT_CONIC_2SP
+		// LAMBERT_CONFORMAL_CONIC_2SP
 		// lambert_conformal_conic_2SP_Belgium
 		//
 		// /////////////////////////////////////////////////////////////////////
@@ -641,7 +636,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 		}
 		// /////////////////////////////////////////////////////////////////////
 		//
-		// Transverse Mercator
+		// Oblique Mercator
 		//
 		// /////////////////////////////////////////////////////////////////////
 		if (projTransf instanceof ObliqueMercator
@@ -727,7 +722,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 		}
 		// throw new
 		// GeoTiffException(null,"CRS2GeoTiffMetadataAdapter::parseCoordinateTransform::unknown
-		// prohection transform");
+		// projection transform");
 
 	}
 
@@ -850,7 +845,7 @@ public final class CRS2GeoTiffMetadataAdapter {
 			return;
 		}
 
-		// user definde ellipsoid
+		// user defined ellipsoid
 		metadata.addGeoShortParam(GeoTiffGCSCodes.GeogEllipsoidGeoKey, 32767);
 		// setting the name
 		metadata.addGeoAscii(GeoTiffGCSCodes.GeogCitationGeoKey, ellipsoid

@@ -460,8 +460,8 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 	/**
 	 * Create the grid to world (or raster to model) transformation for this
-	 * source repsecting ALWAYS the OGC {@link PixelInCell#CELL_CENTER}
-	 * onvention for the {@link ImageDatum} of the underlying {@link ImageCRS}.
+	 * source respecting ALWAYS the OGC {@link PixelInCell#CELL_CENTER}
+	 * convention for the {@link ImageDatum} of the underlying {@link ImageCRS}.
 	 * 
 	 * @see <a
 	 *      href="http://lists.maptools.org/pipermail/geotiff/2006-January/000213.html">this
@@ -727,14 +727,14 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 	/**
 	 * Clean the provided parameters <code>tiffName</code> from strange
-	 * strings like it happens with erdas imageine.
+	 * strings like it happens with erdas imagine.
 	 * 
 	 * @param tiffName
 	 *            is the {@link String} to clean up.
 	 * @return a cleaned up {@link String}.
 	 */
 	private final static String cleanName(String tiffName) {
-		// look fofr strange chars
+		// look for strange chars
 		// $
 		int index = tiffName.lastIndexOf('$');
 		if (index != -1)
@@ -754,7 +754,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * Creates a {@link CartesianCS} for a {@link ProjectedCRS} given the
 	 * provided {@link Unit}.
 	 * 
-	 * @todo conside caching this items
+	 * @todo consider caching this items
 	 * @param linearUnit
 	 *            to be used for building this {@link CartesianCS}.
 	 * @return an instance of {@link CartesianCS} using the provided
@@ -780,7 +780,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 	/**
 	 * Creating a prime meridian for the gcs we are creating at an higher level.
-	 * As usua this method tries to follow tthe geotiff specification.
+	 * As usual this method tries to follow the geotiff specification.
 	 * 
 	 * @param linearUnit
 	 *            to use for building this {@link PrimeMeridian}.
@@ -971,7 +971,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 			// along with the semi-major axis to builde the Flattened Sphere.
 			// This
 			// has to be done in order to comply with the opposite process of
-			// goin from CRS to metadata where this coupls is always used.
+			// going from CRS to metadata where this coupls is always used.
 			//
 			// //
 			// getting temporary parameters
@@ -1025,7 +1025,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * </ul>
 	 * 
 	 * @param metadata
-	 *            to use fo building this {@link GeographicCRS}.
+	 *            to use for building this {@link GeographicCRS}.
 	 * @param linearUnit
 	 * @param angularUnit
 	 * @return a {@link GeographicCRS}.
@@ -1078,7 +1078,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * @param name
 	 *            indicates the name for the projection.
 	 * @param metadata
-	 *            to use fo building this {@link ParameterValueGroup}.
+	 *            to use for building this {@link ParameterValueGroup}.
 	 * @return a {@link ParameterValueGroup} that can be used to trigger this
 	 *         projection.
 	 * @throws IOException
@@ -1120,7 +1120,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * ones. I have tested this code against some geotiff files you can find on
 	 * the geotiff website under the ftp sample directory but I can say that
 	 * they are a real mess! I am respecting the specification strictly while
-	 * many of those fiels do not! I could make this method trickier and use
+	 * many of those fields do not! I could make this method trickier and use
 	 * workarounds in order to be less strict but I will not do this, since I
 	 * believe it is may lead us just on a very dangerous path.
 	 * 
@@ -1196,6 +1196,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 			/**
 			 * 
 			 * Mercator_1SP
+			 * Mercator_2SP
 			 * 
 			 */
 			if (name.equalsIgnoreCase("mercator_1SP")
@@ -1216,7 +1217,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 			/**
 			 * 
-			 * Mercator_2Sp
+			 * Lambert_conformal_conic_1SP
 			 * 
 			 */
 			if (name.equalsIgnoreCase("lambert_conformal_conic_1SP")
@@ -1241,7 +1242,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 			/**
 			 * 
-			 * LAMBERT_CONFORMAT_CONIC_2SP
+			 * Lambert_conformal_conic_2SP
 			 * 
 			 */
 			if (name.equalsIgnoreCase("lambert_conformal_conic_2SP")
@@ -1504,7 +1505,7 @@ public final class GeoTiffMetadata2CRSAdapter {
 	 * Getting the false easting with a minimum of tolerance with respect to the
 	 * parameters name. I saw that often people use the wrong geokey to store
 	 * the false easting, we cannot be too picky we need to get going pretty
-	 * smouthly.
+	 * smoothly.
 	 * 
 	 * @param metadata
 	 *            to use for searching the false easting.
@@ -1522,9 +1523,9 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 	/**
 	 * Getting the false northing with a minimum of tolerance with respect to
-	 * the parameters name. I saw that ofetn people use the wrong geokey to
-	 * store the false eassting, we cannot be too picky we need to get going
-	 * pretty smoouthly.
+	 * the parameters name. I saw that often people use the wrong geokey to
+	 * store the false easting, we cannot be too picky we need to get going
+	 * pretty smoothly.
 	 * 
 	 * @param metadata
 	 *            to use for searching the false northing.
@@ -1542,9 +1543,9 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 	/**
 	 * Getting the origin long with a minimum of tolerance with respect to the
-	 * parameters name. I saw that ofetn people use the wrong geokey to store
-	 * the false eassting, we cannot be too picky we need to get going pretty
-	 * smoouthly.
+	 * parameters name. I saw that often people use the wrong geokey to store
+	 * the false easting, we cannot be too picky we need to get going pretty
+	 * smoothly.
 	 * 
 	 * @param metadata
 	 *            to use for searching the originating longitude.
@@ -1565,9 +1566,9 @@ public final class GeoTiffMetadata2CRSAdapter {
 
 	/**
 	 * Getting the origin lat with a minimum of tolerance with respect to the
-	 * parameters name. I saw that ofetn people use the wrong geokey to store
-	 * the false eassting, we cannot be too picky we need to get going pretty
-	 * smoouthly.
+	 * parameters name. I saw that often people use the wrong geokey to store
+	 * the false easting, we cannot be too picky we need to get going pretty
+	 * smoothly.
 	 * 
 	 * @param metadata
 	 *            to use for searching the origin latitude.
@@ -1661,7 +1662,6 @@ public final class GeoTiffMetadata2CRSAdapter {
 				throw io;
 			}
 		}
-
 	}
 
 	/**
