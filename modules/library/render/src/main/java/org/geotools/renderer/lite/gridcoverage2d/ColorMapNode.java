@@ -290,10 +290,11 @@ class ColorMapNode extends StyleVisitorCoverageProcessingNodeAdapter implements
 	        // prepare the output coverage by specifying its bands
 	        //
 	        ////
-	        final int outputBands=sourceImage.getColorModel().getNumComponents();
-	        assert outputBands==1||outputBands==3;
-	        final GridSampleDimension [] sd= new GridSampleDimension[outputBands];
-	        for(int i=0;i<outputBands;i++)
+	        final int outputChannels=classified.getColorModel().getNumComponents();
+                final int numBands=classified.getSampleModel().getNumBands();
+                assert outputChannels==1||outputChannels==3||outputChannels==4;
+                final GridSampleDimension [] sd= new GridSampleDimension[numBands];
+                for(int i=0;i<numBands;i++)
 		        sd[i]= new GridSampleDimension(TypeMap.getColorInterpretation(classified.getColorModel(), i).name());
 	        
 	        ////
