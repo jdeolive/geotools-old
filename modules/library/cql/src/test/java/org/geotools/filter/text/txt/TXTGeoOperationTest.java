@@ -22,6 +22,7 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CQLGeoOperationTest;
 import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.spatial.Contains;
@@ -38,7 +39,7 @@ import org.opengis.filter.spatial.Within;
  * <p>
  * Execute all cql test for spatial relation using the TXT compiler
  * </p>
-* <p>
+ * <p>
  * 
  * <pre>
  *   &lt;routine invocation &gt; ::=
@@ -165,19 +166,18 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
 
     }
     
-    //
-//  TODO BBOX( buffer( the_geom , 10), 10,20,30,40 )
-//  TODO BBOX( buffer( the_geom , 10), buffer( POINT( 15,15), 10) )
+    /**
+     * This test require an extension of bbox filter
+     */
+    @Ignore
+    public void bboxWithFunctionOnFirstArgument(){
+        
+        //  TODO function on first arg BBOX( buffer( the_geom , 10), 10,20,30,40 )
+        //  TODO function on second argument BBOX( buffer( the_geom , 10), buffer( POINT( 15,15), 10) )
+        //  TODO Geometry on first and second arguments BBOX( POLYGON( .... ), POLYGON( .... ), 10) )
+        //  TODO Proposal in geotools wiki for this
+    }
+
   
-  /**
-   * Sample CROSSES(centroid( the_geom ), BUFFER(LINESTRING (15 15, 20 20),10))
-   */
-//  @Test
-//  public void functionContainsFunction() throws CQLException      {
-//      Filter resultFilter = CompilerUtil.parseFilter(language,"CROSSES(centroid( the_geom ), BUFFER(LINESTRING (15 15, 20 20),10))");
-//
-//      Assert.assertTrue("Contains was expected", resultFilter instanceof Crosses);
-//      
-//  }
     
 }
