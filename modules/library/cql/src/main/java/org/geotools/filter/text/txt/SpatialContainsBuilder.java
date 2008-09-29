@@ -29,7 +29,7 @@ import org.opengis.filter.spatial.Contains;
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class SpatialContainsBuilder extends SpatialOperationBuilder {
+class SpatialContainsBuilder extends SpatialOperationBuilder {
 
     public SpatialContainsBuilder(BuildResultStack resultStack,
             FilterFactory filterFactory) {

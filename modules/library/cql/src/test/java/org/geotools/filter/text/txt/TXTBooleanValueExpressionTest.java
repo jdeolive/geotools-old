@@ -17,7 +17,7 @@
 
 package org.geotools.filter.text.txt;
 
-import org.geotools.filter.text.cql2.CQLBooleanValueExpression;
+import org.geotools.filter.text.cql2.CQLBooleanValueExpressionTest;
 import org.geotools.filter.text.cql2.CompilerFactory.Language;
 
 /**
@@ -31,9 +31,9 @@ import org.geotools.filter.text.cql2.CompilerFactory.Language;
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class TXTBooleanValueExpression extends CQLBooleanValueExpression {
+public class TXTBooleanValueExpressionTest extends CQLBooleanValueExpressionTest {
 
-    public TXTBooleanValueExpression() {
+    public TXTBooleanValueExpressionTest() {
         super(Language.TXT);
     }
     

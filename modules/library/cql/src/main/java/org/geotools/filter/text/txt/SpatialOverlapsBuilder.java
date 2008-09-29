@@ -29,7 +29,7 @@ import org.opengis.filter.spatial.Overlaps;
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class SpatialOverlapsBuilder extends SpatialOperationBuilder {
+class SpatialOverlapsBuilder extends SpatialOperationBuilder {
 
     public SpatialOverlapsBuilder(BuildResultStack resultStack,
             FilterFactory filterFactory) {

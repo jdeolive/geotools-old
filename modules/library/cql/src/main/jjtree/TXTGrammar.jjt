@@ -477,7 +477,8 @@ void GeoRoutineArgumentList() #void:
 
 /*
  * <bbox argument list>::= 
- * 	"(" <expression> "," 
+ * 	  "(" <expression> "," <bounding box> ")" 
+ * 	| "(" <expression> "," 
  * 		<min X> ","
  * 		<min Y> ","
  * 		<max X> ","
@@ -493,13 +494,26 @@ void GeoRoutineArgumentList() #void:
 void BBoxArgumentList() #void:
 {}
 {
-		<LP> Expression() <COMMA> 
-			 NumericLiteral() <COMMA>
-			 NumericLiteral() <COMMA>
-			 NumericLiteral() <COMMA>
-			 NumericLiteral() 
-			 ( <RP> 						#RoutineInvocation_GeoOp_BBOX_Node
-			  | <COMMA> StringLiteral()<RP> #RoutineInvocation_GeoOp_BBOX_SRS_Node)
+		<LP> 	Expression() 	<COMMA> BBoxArgListTail() 
+}
+
+void BBoxArgListTail() #void:
+{}
+{
+		BoundingBox()
+	| 	(Function() | GeometryLiteral())
+	
+} 
+
+void BoundingBox() #void:
+{}
+{
+	 	NumericLiteral() <COMMA>
+ 		NumericLiteral() <COMMA>
+ 		NumericLiteral() <COMMA>
+ 		NumericLiteral() 
+ 	( 		<RP> 						#RoutineInvocation_GeoOp_BBOX_Node
+  		| 	<COMMA> StringLiteral()<RP> #RoutineInvocation_GeoOp_BBOX_SRS_Node)
 }
 
 /*

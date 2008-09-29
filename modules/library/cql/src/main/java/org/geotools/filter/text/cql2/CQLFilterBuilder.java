@@ -87,6 +87,12 @@ public class CQLFilterBuilder {
     protected final BuildResultStack getResultStack(){
         return this.resultStack;
     }
+    
+    protected final String getStatement(){
+        return this.cqlSource;
+    }
+    
+    
     /**
      * New instance of FilterBuilder
      * @param cqlSource 

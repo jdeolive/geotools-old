@@ -29,7 +29,7 @@ import org.opengis.filter.spatial.Crosses;
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class SpatialCrossesBuilder extends SpatialOperationBuilder {
+class SpatialCrossesBuilder extends SpatialOperationBuilder {
 
     public SpatialCrossesBuilder(BuildResultStack resultStack,
             FilterFactory filterFactory) {

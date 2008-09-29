@@ -29,7 +29,7 @@ import org.opengis.filter.spatial.Disjoint;
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class SpatialDisjointBuilder extends SpatialOperationBuilder {
+class SpatialDisjointBuilder extends SpatialOperationBuilder {
 
     public SpatialDisjointBuilder(BuildResultStack resultStack,
             FilterFactory filterFactory) {

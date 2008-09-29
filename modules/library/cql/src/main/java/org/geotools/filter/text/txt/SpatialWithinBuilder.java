@@ -29,7 +29,7 @@ import org.opengis.filter.spatial.Within;
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class SpatialWithinBuilder extends SpatialOperationBuilder {
+class SpatialWithinBuilder extends SpatialOperationBuilder {
 
     public SpatialWithinBuilder(BuildResultStack resultStack,
             FilterFactory filterFactory) {

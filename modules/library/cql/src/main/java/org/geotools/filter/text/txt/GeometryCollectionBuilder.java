@@ -17,39 +17,43 @@
 
 package org.geotools.filter.text.txt;
 
+import java.util.List;
+
 import org.geotools.filter.text.cql2.BuildResultStack;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.spatial.BinarySpatialOperator;
+import org.geotools.filter.text.cql2.CQLException;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 
 /**
- * Builds the intersect filter
+ * Builds a {@link GeometryCollection} using the 
  *
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-class SpatialIntersectsBuilder extends SpatialOperationBuilder {
+final class GeometryCollectionBuilder extends GeometryBuilder {
 
     /**
+     * @param statement
      * @param resultStack
-     * @param filterFactory
      */
-    public SpatialIntersectsBuilder(BuildResultStack resultStack,
-            FilterFactory filterFactory) {
-        super(resultStack, filterFactory);
+    public GeometryCollectionBuilder(String statement,
+            BuildResultStack resultStack) {
+        super(statement, resultStack);
 
     }
 
-    /* (non-Javadoc)
-     * @see org.geotools.filter.text.txt.SpatialOperationBuilder#buildFilter(org.opengis.filter.expression.Expression, org.opengis.filter.expression.Expression)
-     */
     @Override
-    protected BinarySpatialOperator buildFilter(Expression expr1,
-            Expression expr2) {
+    public Geometry build(int jjtgeometryliteral) throws CQLException {
+        
+        List<Geometry> geometryList = popGeometryLiteral(jjtgeometryliteral);
 
-        BinarySpatialOperator filter = getFilterFactory().intersects(expr1, expr2);
+        Geometry[] geometries = geometryList.toArray(new Geometry[geometryList.size()]) ;
+        
+        GeometryCollection geometryCollection= getGeometryFactory().createGeometryCollection(geometries);
+        
+        return geometryCollection;
 
-        return filter;
     }
 
 }

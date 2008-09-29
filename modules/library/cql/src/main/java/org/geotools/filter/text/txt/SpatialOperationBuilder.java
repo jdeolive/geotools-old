@@ -61,8 +61,8 @@ abstract class SpatialOperationBuilder {
         return buildFilter(expr1, expr2) ;
    }
 
-    protected abstract BinarySpatialOperator buildFilter(Expression expr1, Expression expr2) ;
-    
-
+    protected BinarySpatialOperator buildFilter(Expression expr1, Expression expr2) {
+        throw new UnsupportedOperationException("must be implemented");
+    };
 
 }

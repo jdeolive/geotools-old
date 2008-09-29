@@ -29,7 +29,7 @@ import org.opengis.filter.spatial.Touches;
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class SpatialTouchesBuilder extends SpatialOperationBuilder {
+class SpatialTouchesBuilder extends SpatialOperationBuilder {
 
     public SpatialTouchesBuilder(BuildResultStack resultStack,
             FilterFactory filterFactory) {
