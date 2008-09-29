@@ -16,7 +16,9 @@
  */
 package org.geotools.renderer.style;
 
+import java.awt.Color;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
@@ -35,6 +37,7 @@ import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.renderer.style.SLDStyleFactory.SymbolizerKey;
 import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
@@ -209,5 +212,17 @@ public class SLDStyleFactoryTest extends TestCase {
         MarkStyle2D ms = (MarkStyle2D) sld.createPointStyle(feature, symb, range);
         assertEquals(16, ms.getSize());
     }
-    
+    public void testDefaultLineSymbolizerWithColor() throws Exception {
+        LineSymbolizer symb = sf.createLineSymbolizer();
+        symb.setStroke( sf.createStroke( ff.literal("#0000FF"), ff.literal(1.0)));
+        
+        Style2D s = sld.createLineStyle( feature, symb, range );
+        assertNotNull( s );
+        
+        DynamicLineStyle2D s2 = (DynamicLineStyle2D) sld.createDynamicLineStyle( feature, symb, range );
+        assertNotNull( s2 );
+        Stroke stroke = s2.getStroke();
+        assertEquals( Color.BLUE, s2.getContour() );
+        assertNotNull( s2.getStroke() );
+    }
 }

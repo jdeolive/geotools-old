@@ -132,7 +132,11 @@ public interface StyleFactory extends Factory {
 
     public Fill createFill(Expression color, Expression backgroundColor, Expression opacity,
         Graphic graphicFill);
-
+    
+    /**
+     * Create default line symbolizer 
+     * @return
+     */
     public LineSymbolizer createLineSymbolizer();
 
     public PointSymbolizer createPointSymbolizer(Graphic graphic, String geometryPropertyName);

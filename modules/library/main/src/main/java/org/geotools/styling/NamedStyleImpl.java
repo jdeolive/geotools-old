@@ -125,7 +125,7 @@ public class NamedStyleImpl extends StyleImpl implements NamedStyle {
      * @return DOCUMENT ME!
      */
     public org.geotools.styling.FeatureTypeStyle[] getFeatureTypeStyles() {
-        return null;
+        return new org.geotools.styling.FeatureTypeStyle[0];
     }
 
     /**

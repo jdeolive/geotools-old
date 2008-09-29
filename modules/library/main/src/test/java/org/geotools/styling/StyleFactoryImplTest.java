@@ -16,18 +16,22 @@
  */
 package org.geotools.styling;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Random;
+import java.util.logging.Logger;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.styling.visitor.DuplicatingStyleVisitor;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.logging.Logger;
 
 
 /**
@@ -363,80 +367,37 @@ public class StyleFactoryImplTest extends TestCase {
         assertEquals("Wrong radius", 4,
             ((Number) h.getRadius().evaluate(feature)).intValue());
     }
+    
+    public void testBuggyStyleCopy() throws Exception {
+        StyleFactory sf = CommonFactoryFinder.getStyleFactory( null );
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2( null );
+        Random rand = new Random();
 
-    //    
-    //    /** Test of getDefaultFill method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultFill() {
-    //        LOGGER.finer("testGetDefaultFill");
-    //        
-    //    }
-    //    
-    //    /** Test of getDefaultLineSymbolizer method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultLineSymbolizer() {
-    //        LOGGER.finer("testGetDefaultLineSymbolizer");
-    //        
-    //        
-    //    }
-    //    
-    //    /** Test of getDefaultMark method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultMark() {
-    //        LOGGER.finer("testGetDefaultMark");
-    //        
-    //        
-    //    }
-    //    
-    //    /** Test of getDefaultPointSymbolizer method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultPointSymbolizer() {
-    //        LOGGER.finer("testGetDefaultPointSymbolizer");
-    //        
-    //        
-    //    }
-    //    
-    //    /** Test of getDefaultPolygonSymbolizer method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultPolygonSymbolizer() {
-    //        LOGGER.finer("testGetDefaultPolygonSymbolizer");
-    //        
-    //    }
-    //    
-    //    /** Test of getDefaultStroke method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultStroke() {
-    //        LOGGER.finer("testGetDefaultStroke");
-    //        
-    //        
-    //    }
-    //    
-    //    /** Test of getDefaultStyle method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultStyle() {
-    //        LOGGER.finer("testGetDefaultStyle");
-    //        
-    //        
-    //    }
-    //    
-    //    /** Test of getDefaultTextSymbolizer method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultTextSymbolizer() {
-    //        LOGGER.finer("testGetDefaultTextSymbolizer");
-    //        
-    //        
-    //    }
-    //    
-    //    /** Test of getDefaultFont method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultFont() {
-    //        LOGGER.finer("testGetDefaultFont");
-    //        
-    //        
-    //    }
-    //    
-    //    /** Test of getDefaultGraphic method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testGetDefaultGraphic() {
-    //        LOGGER.finer("testGetDefaultGraphic");
-    //        
-    //        
-    //    }
-    //    
-    //    /** Test of createRasterSymbolizer method, of class org.geotools.styling.StyleFactoryImpl. */
-    //    public void testCreateRasterSymbolizer() {
-    //        LOGGER.finer("testCreateRasterSymbolizer");
-    //        
-    //        
-    //    }
+        Stroke stroke = sf.createStroke( ff.literal( "#8024d0" ), ff.literal( rand.nextInt( 10 ) + 1 ) );
+        stroke.setOpacity( ff.literal( rand.nextFloat() ) );
+
+        LineSymbolizer lineSymb = sf.createLineSymbolizer( stroke, "." );
+
+        Rule rule = sf.createRule();
+        rule.symbolizers().add( lineSymb );
+        rule.setFilter( Filter.INCLUDE );
+        rule.setMaxScaleDenominator( 20000 );
+
+        FeatureTypeStyle style = sf.createFeatureTypeStyle();
+        style.addRule( rule );
+        style.setFeatureTypeName( "Feature" );
+
+        Style namedStyle = sf.createStyle();
+        namedStyle.addFeatureTypeStyle( style );
+        namedStyle.setName( "Feature" );
+
+        DuplicatingStyleVisitor duplicator = new DuplicatingStyleVisitor();
+        namedStyle.accept( duplicator );
+        Style namedStyle2 = (Style ) duplicator.getCopy();
+
+        SLDTransformer writer = new SLDTransformer();
+        String out = writer.transform( style );
+        
+        assertNotNull( out );
+    }
 }

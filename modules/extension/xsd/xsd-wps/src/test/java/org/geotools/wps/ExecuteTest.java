@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,67 +50,56 @@ import junit.framework.TestCase;
 
 public class ExecuteTest extends TestCase {
 
-	/*
-	 * Try doing an execute request from the example xsd and parse it
-	 */
-	public void testExecute() throws IOException, SAXException, ParserConfigurationException {
-		   URL url = new URL("http://schemas.opengis.net/wps/1.0.0/examples/51_wpsExecute_request_ResponseDocument.xml");
-		   BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-		   org.geotools.xml.Parser parser = new org.geotools.xml.Parser(new WPSConfiguration());
-		   Object obj = parser.parse(in);
-		   assertNotNull(obj);
-	}
-        
-        public void testExecuteEncode() throws Exception {
-            WpsFactory f = WpsFactory.eINSTANCE;
-            ExecuteType ex = f.createExecuteType();
-            
-            CodeType id = Ows11Factory.eINSTANCE.createCodeType();
-            ex.setIdentifier( id );
-            id.setValue( "foo" );
-            
-            DataInputsType1 inputs = f.createDataInputsType1();
-            ex.setDataInputs(inputs);
-            
-            InputType in = f.createInputType();
-            inputs.getInput().add( in );
-        
-            DataType data = f.createDataType();
-            in.setData( data );
-            
-            ComplexDataType cd = f.createComplexDataType();
-            data.setComplexData( cd );
-                
-            cd.getData().add( new GeometryFactory().createPoint( new Coordinate( 1, 2 ) ) );
-            
-            Encoder e = new Encoder( new WPSConfiguration() );
-            e.setIndenting( true );
-            e.encode( ex, WPS.Execute, System.out );
-        }
-        
-        public void testExecuteResponse() throws Exception {
-            WpsFactory f = WpsFactory.eINSTANCE;
-            ExecuteResponseType response = f.createExecuteResponseType();
-            
-            ProcessOutputsType1 outputs = f.createProcessOutputsType1();
-            response.setProcessOutputs( outputs );
-            
-            OutputDataType output = f.createOutputDataType();
-            outputs.getOutput().add( output );
-            
-            LanguageStringType title = Ows11Factory.eINSTANCE.createLanguageStringType();
-            output.setTitle( title );
-            title.setValue( "foo" );
-            
-            DataType data = f.createDataType();
-            output.setData( data );
-            
-            ComplexDataType cdata = f.createComplexDataType();
-            data.setComplexData( cdata );
-            cdata.getData().add( new GeometryFactory().createPoint( new Coordinate( 1, 1 )));
-            
-            Encoder e = new Encoder( new WPSConfiguration() );
-            e.setIndenting( true );
-            e.encode( response, WPS.ExecuteResponse, System.out);
-        }
+    public void testExecuteEncode() throws Exception {
+        WpsFactory f = WpsFactory.eINSTANCE;
+        ExecuteType ex = f.createExecuteType();
+
+        CodeType id = Ows11Factory.eINSTANCE.createCodeType();
+        ex.setIdentifier(id);
+        id.setValue("foo");
+
+        DataInputsType1 inputs = f.createDataInputsType1();
+        ex.setDataInputs(inputs);
+
+        InputType in = f.createInputType();
+        inputs.getInput().add(in);
+
+        DataType data = f.createDataType();
+        in.setData(data);
+
+        ComplexDataType cd = f.createComplexDataType();
+        data.setComplexData(cd);
+
+        cd.getData().add(new GeometryFactory().createPoint(new Coordinate(1, 2)));
+
+        Encoder e = new Encoder(new WPSConfiguration());
+        e.setIndenting(true);
+        e.encode(ex, WPS.Execute, System.out);
+    }
+
+    public void testExecuteResponse() throws Exception {
+        WpsFactory f = WpsFactory.eINSTANCE;
+        ExecuteResponseType response = f.createExecuteResponseType();
+
+        ProcessOutputsType1 outputs = f.createProcessOutputsType1();
+        response.setProcessOutputs(outputs);
+
+        OutputDataType output = f.createOutputDataType();
+        outputs.getOutput().add(output);
+
+        LanguageStringType title = Ows11Factory.eINSTANCE.createLanguageStringType();
+        output.setTitle(title);
+        title.setValue("foo");
+
+        DataType data = f.createDataType();
+        output.setData(data);
+
+        ComplexDataType cdata = f.createComplexDataType();
+        data.setComplexData(cdata);
+        cdata.getData().add(new GeometryFactory().createPoint(new Coordinate(1, 1)));
+
+        Encoder e = new Encoder(new WPSConfiguration());
+        e.setIndenting(true);
+        e.encode(response, WPS.ExecuteResponse, System.out);
+    }
 }

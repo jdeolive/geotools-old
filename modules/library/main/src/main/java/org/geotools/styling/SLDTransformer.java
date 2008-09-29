@@ -497,8 +497,12 @@ public class SLDTransformer extends TransformerBase {
                 end("LegendGraphic");
             }
             
-            if (rule.getFilter() != null) {
-                filterTranslator.encode(rule.getFilter());
+            Filter filter = rule.getFilter();
+            if( filter == null || filter == Filter.INCLUDE ){
+                // no filter
+            }
+            else {
+                filterTranslator.encode(filter);
             }
 
             if (rule.hasElseFilter()) {

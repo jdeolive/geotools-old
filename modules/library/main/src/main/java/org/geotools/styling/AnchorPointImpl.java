@@ -57,6 +57,11 @@ public class AnchorPointImpl implements AnchorPoint,Cloneable {
         }
     }
 
+    public AnchorPointImpl(FilterFactory filterFactory, Expression x, Expression y) {
+        this.filterFactory = filterFactory;
+        anchorPointX = x;
+        anchorPointY = y;
+    }
     /**
      * Getter for property anchorPointX.
      *

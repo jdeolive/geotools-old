@@ -44,6 +44,10 @@ public class SelectedChannelTypeImpl implements SelectedChannelType {
         contrastEnhancement = contrastEnhancement(filterFactory
                 .literal(1.0));
     }
+    public SelectedChannelTypeImpl(FilterFactory factory, ContrastEnhancement contrast ) {
+        filterFactory = factory;
+        contrastEnhancement = contrast;
+    }
 
     public String getChannelName() {
         return name;

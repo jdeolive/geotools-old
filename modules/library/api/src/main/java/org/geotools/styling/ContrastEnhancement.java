@@ -59,7 +59,7 @@ import org.opengis.filter.expression.Expression;
  * @source $URL$
  * 
  */
-public interface ContrastEnhancement extends org.opengis.style.ContrastEnhancement{
+public interface ContrastEnhancement extends org.opengis.style.ContrastEnhancement {
     
     /**
      * @deprecated symbolizers and underneath classes are immutable

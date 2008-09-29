@@ -260,8 +260,8 @@ public interface Action {
          * @see org.geotools.wfs.v_1_0_0.data.Action#getTypeName()
          */
         public String getTypeName() {
-            return (feature == null) ? null
-                                     : feature.getName().getLocalPart();
+            return (feature == null) ? null 
+                    : feature.getType().getName().getLocalPart();
         }
 
         /**

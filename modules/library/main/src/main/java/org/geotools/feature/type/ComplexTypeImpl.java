@@ -50,20 +50,21 @@ public class ComplexTypeImpl extends AttributeTypeImpl implements ComplexType {
 		InternationalString description
 	) {
 		
-		super(
-			name, Collection.class, identified, isAbstract, restrictions, 
-			superType, description
-		);
-		
-		if(properties == null)
-		    this.propertyMap = Collections.emptyMap();
-		else {
-		    this.propertyMap = new HashMap<Name, PropertyDescriptor>();
-		    for (PropertyDescriptor pd : properties) {
+	super(name, Collection.class, identified, isAbstract, restrictions, superType, description);
+
+        if (properties == null)
+            this.propertyMap = Collections.emptyMap();
+        else {
+            this.propertyMap = new HashMap<Name, PropertyDescriptor>();
+            for (PropertyDescriptor pd : properties) {
+                if( pd == null ){
+                    // descriptor entry may be null if a request was made for a property that does not exist
+                    throw new NullPointerException("PropertyDescriptor is null - did you request a property that does not exist?");
+                }
                 this.propertyMap.put(pd.getName(), pd);
             }
-		}
-	}
+        }
+    }
 
 	public Class<Collection<Property>> getBinding() {
 	    return (Class<Collection<Property>>) super.getBinding();
