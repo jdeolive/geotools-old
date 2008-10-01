@@ -157,13 +157,6 @@ public class XMLConfigDigester {
         digester.addCallMethod(typeMapping + "/targetElement", "setTargetElementName", 1);
         digester.addCallParam(typeMapping + "/targetElement", 0);
 
-        // add grouping source attribute names
-        final String groupBy = typeMapping + "/groupBy";
-        digester.addObjectCreate(groupBy, XMLConfigDigester.CONFIG_NS_URI, ArrayList.class);
-        digester.addCallMethod(groupBy + "/GroupByAttribute", "add", 1);
-        digester.addCallParam(groupBy + "/GroupByAttribute", 0);
-        digester.addSetNext(groupBy, "setGroupbyAttributeNames", "java.util.List");
-
         // create attribute mappings
         final String attMappings = typeMapping + "/attributeMappings";
         digester.addObjectCreate(attMappings, XMLConfigDigester.CONFIG_NS_URI, ArrayList.class);
