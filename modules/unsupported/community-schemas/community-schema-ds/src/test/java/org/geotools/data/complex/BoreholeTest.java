@@ -249,16 +249,7 @@ public class BoreholeTest extends TestCase {
         assertNotNull(source);
         FeatureType schema = source.getSchema();
         String typeName = schema.getName().toString();
-        assertEquals("boreholes_denormalized", typeName);
-
-        /*
-         * assertTrue(groupingAttributes.contains("BGS_ID"));
-         * assertTrue(groupingAttributes.contains("NAME"));
-         * assertTrue(groupingAttributes.contains("ORIGINAL_N"));
-         * assertTrue(groupingAttributes.contains("CONFIDENTI"));
-         * assertTrue(groupingAttributes.contains("LENGTHC"));
-         * assertTrue(groupingAttributes.contains("SHAPE"));
-         */
+        assertEquals("test-data:boreholes_denormalized", typeName);
 
         List attributeMappings = mapping.getAttributeMappings();
         assertEquals(24, attributeMappings.size());

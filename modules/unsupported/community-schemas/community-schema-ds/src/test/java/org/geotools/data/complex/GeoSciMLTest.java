@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -30,26 +29,20 @@ import junit.framework.TestCase;
 
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.tools.ResolvingXMLReader;
+import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.config.ComplexDataStoreConfigurator;
 import org.geotools.data.complex.config.ComplexDataStoreDTO;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.XMLConfigDigester;
-import org.geotools.data.complex.filter.XPath.StepList;
-import org.geotools.data.feature.FeatureAccess;
-import org.geotools.data.feature.FeatureSource2;
-import org.geotools.feature.iso.Types;
-import org.geotools.test.TestData;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.Types;
 import org.opengis.feature.Feature;
-import org.opengis.feature.FeatureCollection;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Function;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
 
 /**
  * DOCUMENT ME!
@@ -61,7 +54,8 @@ import org.opengis.filter.expression.PropertyName;
  * @since 2.4
  */
 public class GeoSciMLTest extends TestCase {
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GeoSciMLTest.class.getPackage().getName());
+    private static final Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger(GeoSciMLTest.class.getPackage().getName());
 
     private static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
 
@@ -71,13 +65,13 @@ public class GeoSciMLTest extends TestCase {
 
     EmfAppSchemaReader reader;
 
-    private FeatureSource2 source;
+    private FeatureSource source;
 
     /**
      * DOCUMENT ME!
      * 
      * @throws Exception
-     *             DOCUMENT ME!
+     *                 DOCUMENT ME!
      */
     protected void setUp() throws Exception {
         super.setUp();
@@ -89,7 +83,7 @@ public class GeoSciMLTest extends TestCase {
      * DOCUMENT ME!
      * 
      * @throws Exception
-     *             DOCUMENT ME!
+     *                 DOCUMENT ME!
      */
     protected void tearDown() throws Exception {
         super.tearDown();
@@ -98,34 +92,33 @@ public class GeoSciMLTest extends TestCase {
     /**
      * 
      * @param location
-     *            schema location path discoverable through
-     *            getClass().getResource()
+     *                schema location path discoverable through getClass().getResource()
      */
     private void loadSchema(String location) throws IOException {
         // load needed GML types directly from the gml schemas
-//        URL schemaLocation = getClass().getResource(location);
-//        assertNotNull(location, schemaLocation);
-        
+        // URL schemaLocation = getClass().getResource(location);
+        // assertNotNull(location, schemaLocation);
+
         URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
         Catalog catalog = new ResolvingXMLReader().getCatalog();
         catalog.getCatalogManager().setVerbosity(9);
         catalog.parseCatalog(catalogLocation);
-        
+
         reader.setCatalog(catalog);
-        
+
         reader.parse(new URL(location));
     }
 
     /**
-     * Tests if the schema-to-FM parsing code developed for complex datastore
-     * configuration loading can parse the GeoSciML types
+     * Tests if the schema-to-FM parsing code developed for complex datastore configuration loading
+     * can parse the GeoSciML types
      * 
      * @throws Exception
      */
     public void testParseSchema() throws Exception {
         try {
-            //loadSchema(schemaBase + "commonSchemas_new/GeoSciML/Gsml.xsd");
-            //use the absolute URL and let the Oasis Catalog resolve it to the local FS
+            // loadSchema(schemaBase + "commonSchemas_new/GeoSciML/Gsml.xsd");
+            // use the absolute URL and let the Oasis Catalog resolve it to the local FS
             loadSchema("http://schemas.opengis.net/GeoSciML/Gsml.xsd");
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,67 +137,49 @@ public class GeoSciMLTest extends TestCase {
         assertNotNull(mf);
         assertTrue(mf instanceof FeatureType);
         /*
-         * AttributeType superType = mf.getSuper(); assertNotNull(superType);
-         * Name superTypeName = Types.typeName(SANS, "ProfileType");
-         * assertEquals(superTypeName, superType.getName());
-         * assertTrue(superType instanceof FeatureType); // ensure all needed
-         * types were parsed and aren't just empty proxies Collection properties =
-         * mf.getProperties(); assertEquals(16, properties.size()); Map
-         * expectedNamesAndTypes = new HashMap(); // from
-         * gml:AbstractFeatureType expectedNamesAndTypes.put(name(GMLNS,
-         * "metaDataProperty"), typeName(GMLNS, "MetaDataPropertyType"));
-         * expectedNamesAndTypes.put(name(GMLNS, "description"), typeName(GMLNS,
-         * "StringOrRefType")); expectedNamesAndTypes.put(name(GMLNS, "name"),
-         * typeName(GMLNS, "CodeType")); expectedNamesAndTypes.put(name(GMLNS,
-         * "boundedBy"), typeName(GMLNS, "BoundingShapeType"));
-         * expectedNamesAndTypes.put(name(GMLNS, "location"), typeName(GMLNS,
-         * "LocationPropertyType")); // from sa:ProfileType
-         * expectedNamesAndTypes.put(name(SANS, "begin"), typeName(GMLNS,
-         * "PointPropertyType")); expectedNamesAndTypes.put(name(SANS, "end"),
-         * typeName(GMLNS, "PointPropertyType"));
-         * expectedNamesAndTypes.put(name(SANS, "length"), typeName(SWENS,
-         * "RelativeMeasureType")); expectedNamesAndTypes.put(name(SANS,
-         * "shape"), typeName(GEONS, "Shape1DPropertyType")); //
-         * sa:SamplingFeatureType expectedNamesAndTypes.put(name(SANS,
-         * "member"), typeName(SANS, "SamplingFeaturePropertyType"));
-         * expectedNamesAndTypes.put(name(SANS, "surveyDetails"), typeName(SANS,
-         * "SurveyProcedurePropertyType")); expectedNamesAndTypes.put(name(SANS,
+         * AttributeType superType = mf.getSuper(); assertNotNull(superType); Name superTypeName =
+         * Types.typeName(SANS, "ProfileType"); assertEquals(superTypeName, superType.getName());
+         * assertTrue(superType instanceof FeatureType); // ensure all needed types were parsed and
+         * aren't just empty proxies Collection properties = mf.getProperties(); assertEquals(16,
+         * properties.size()); Map expectedNamesAndTypes = new HashMap(); // from
+         * gml:AbstractFeatureType expectedNamesAndTypes.put(name(GMLNS, "metaDataProperty"),
+         * typeName(GMLNS, "MetaDataPropertyType")); expectedNamesAndTypes.put(name(GMLNS,
+         * "description"), typeName(GMLNS, "StringOrRefType"));
+         * expectedNamesAndTypes.put(name(GMLNS, "name"), typeName(GMLNS, "CodeType"));
+         * expectedNamesAndTypes.put(name(GMLNS, "boundedBy"), typeName(GMLNS,
+         * "BoundingShapeType")); expectedNamesAndTypes.put(name(GMLNS, "location"), typeName(GMLNS,
+         * "LocationPropertyType")); // from sa:ProfileType expectedNamesAndTypes.put(name(SANS,
+         * "begin"), typeName(GMLNS, "PointPropertyType")); expectedNamesAndTypes.put(name(SANS,
+         * "end"), typeName(GMLNS, "PointPropertyType")); expectedNamesAndTypes.put(name(SANS,
+         * "length"), typeName(SWENS, "RelativeMeasureType")); expectedNamesAndTypes.put(name(SANS,
+         * "shape"), typeName(GEONS, "Shape1DPropertyType")); // sa:SamplingFeatureType
+         * expectedNamesAndTypes.put(name(SANS, "member"), typeName(SANS,
+         * "SamplingFeaturePropertyType")); expectedNamesAndTypes.put(name(SANS, "surveyDetails"),
+         * typeName(SANS, "SurveyProcedurePropertyType")); expectedNamesAndTypes.put(name(SANS,
          * "associatedSpecimen"), typeName(SANS, "SpecimenPropertyType"));
-         * expectedNamesAndTypes.put(name(SANS, "relatedObservation"),
-         * typeName(OMNS, "AbstractObservationPropertyType")); // from
-         * xmml:mfType expectedNamesAndTypes.put(name(XMMLNS, "drillMethod"),
-         * typeName(XMMLNS, "drillCode"));
-         * expectedNamesAndTypes.put(name(XMMLNS, "collarDiameter"),
-         * typeName(GMLNS, "MeasureType"));
-         * expectedNamesAndTypes.put(name(XMMLNS, "log"), typeName(XMMLNS,
+         * expectedNamesAndTypes.put(name(SANS, "relatedObservation"), typeName(OMNS,
+         * "AbstractObservationPropertyType")); // from xmml:mfType
+         * expectedNamesAndTypes.put(name(XMMLNS, "drillMethod"), typeName(XMMLNS, "drillCode"));
+         * expectedNamesAndTypes.put(name(XMMLNS, "collarDiameter"), typeName(GMLNS,
+         * "MeasureType")); expectedNamesAndTypes.put(name(XMMLNS, "log"), typeName(XMMLNS,
          * "LogPropertyType"));
          * 
-         * for (Iterator it = expectedNamesAndTypes.entrySet().iterator();
-         * it.hasNext();) { Map.Entry entry = (Entry) it.next(); Name dName =
-         * (Name) entry.getKey(); Name tName = (Name) entry.getValue();
+         * for (Iterator it = expectedNamesAndTypes.entrySet().iterator(); it.hasNext();) {
+         * Map.Entry entry = (Entry) it.next(); Name dName = (Name) entry.getKey(); Name tName =
+         * (Name) entry.getValue();
          * 
-         * AttributeDescriptor d = (AttributeDescriptor) Types.descriptor(mf,
-         * dName); assertNotNull("Descriptor not found: " + dName, d);
-         * AttributeType type; try { type = d.getType(); } catch (Exception e) {
-         * LOGGER.log(Level.SEVERE, "type not parsed for " +
-         * ((AttributeDescriptor) d).getName(), e); throw e; }
-         * assertNotNull(type); assertNotNull(type.getName());
-         * assertNotNull(type.getBinding()); if (tName != null) {
+         * AttributeDescriptor d = (AttributeDescriptor) Types.descriptor(mf, dName);
+         * assertNotNull("Descriptor not found: " + dName, d); AttributeType type; try { type =
+         * d.getType(); } catch (Exception e) { LOGGER.log(Level.SEVERE, "type not parsed for " +
+         * ((AttributeDescriptor) d).getName(), e); throw e; } assertNotNull(type);
+         * assertNotNull(type.getName()); assertNotNull(type.getBinding()); if (tName != null) {
          * assertEquals(tName, type.getName()); } }
          * 
-         * Name tcl = Types.typeName(SWENS, "TypedCategoryListType");
-         * AttributeType typedCategoryListType = (AttributeType)
-         * typeRegistry.get(tcl); assertNotNull(typedCategoryListType);
-         * assertFalse(typedCategoryListType instanceof ComplexType);
+         * Name tcl = Types.typeName(SWENS, "TypedCategoryListType"); AttributeType
+         * typedCategoryListType = (AttributeType) typeRegistry.get(tcl);
+         * assertNotNull(typedCategoryListType); assertFalse(typedCategoryListType instanceof
+         * ComplexType);
          */
-    }
-
-    private Name typeName(String ns, String localName) {
-        return Types.typeName(ns, localName);
-    }
-
-    private Object name(String ns, String localName) {
-        return new org.geotools.feature.Name(ns, localName);
     }
 
     public void testLoadMappingsConfig() throws Exception {
@@ -227,22 +202,21 @@ public class GeoSciMLTest extends TestCase {
             dsParams.put("dbtype", "complex");
             dsParams.put("url", url.toExternalForm());
 
-            final Name typeName = new org.geotools.feature.Name(GSMLNS, "MappedFeature");
+            final Name typeName = Types.typeName(GSMLNS, "MappedFeature");
 
-            FeatureAccess mappingDataStore = (FeatureAccess) DataAccessFinder
-                    .createAccess(dsParams);
+            DataAccess mappingDataStore = DataAccessFinder.getDataStore(dsParams);
             assertNotNull(mappingDataStore);
             AttributeDescriptor mappedFeature = (AttributeDescriptor) mappingDataStore
-                    .describe(typeName);
+                    .getSchema(typeName);
             assertNotNull(mappedFeature);
-            assertTrue(mappedFeature.type() instanceof FeatureType);
-            FeatureType boreholeType = (FeatureType) mappedFeature.type();
+            assertTrue(mappedFeature.getType() instanceof FeatureType);
+            FeatureType boreholeType = (FeatureType) mappedFeature.getType();
 
-            FeatureSource2 fSource = (FeatureSource2) mappingDataStore.access(typeName);
+            FeatureSource fSource = (FeatureSource) mappingDataStore.getFeatureSource(typeName);
 
             final int EXPECTED_RESULT_COUNT = 2;
 
-            FeatureCollection features = (FeatureCollection) fSource.content();
+            FeatureCollection features = (FeatureCollection) fSource.getFeatures();
 
             int resultCount = getCount(features);
             assertEquals(EXPECTED_RESULT_COUNT, resultCount);

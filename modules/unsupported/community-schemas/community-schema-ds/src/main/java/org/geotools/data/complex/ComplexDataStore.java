@@ -372,8 +372,7 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
     }
 
     public void updateSchema(Name typeName, FeatureType featureType) throws IOException {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException();
     }
 
 }

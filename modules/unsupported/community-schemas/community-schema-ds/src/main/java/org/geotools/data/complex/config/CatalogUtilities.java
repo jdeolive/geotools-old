@@ -51,10 +51,11 @@ public class CatalogUtilities {
             try {
                 LOGGER.finest("resolving " + location);
                 /*
-                 * TODO: resolve the rewriteSystem versus rewriteURI discussion
+                 * See discussion of rewriteSystem versus rewriteURI:
                  * https://www.seegrid.csiro.au/twiki/bin/view/AppSchemas/ConfiguringXMLProcessors
+                 * Old version used rewriteSystem.
                  */
-                schemaLocation = catalog.resolveSystem(location);
+                schemaLocation = catalog.resolveURI(location);
                 if (schemaLocation != null) {
                     LOGGER.finer("Verifying existence of catalog resolved location "
                             + schemaLocation);

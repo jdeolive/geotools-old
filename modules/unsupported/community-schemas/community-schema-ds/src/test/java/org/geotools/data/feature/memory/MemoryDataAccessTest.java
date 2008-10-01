@@ -26,21 +26,17 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.geotools.data.ComplexTestData;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
-import org.geotools.data.Source;
-import org.geotools.data.feature.FeatureSource2;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.iso.AttributeBuilder;
-import org.geotools.feature.iso.AttributeFactoryImpl;
-import org.geotools.feature.iso.TypeBuilder;
-import org.geotools.feature.iso.Types;
-import org.geotools.feature.iso.simple.SimpleTypeFactoryImpl;
-import org.geotools.feature.iso.type.TypeFactoryImpl;
+import org.geotools.feature.AttributeBuilder;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.TypeBuilder;
+import org.geotools.feature.Types;
 import org.geotools.filter.IllegalFilterException;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
-import org.opengis.feature.FeatureCollection;
 import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -49,7 +45,6 @@ import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
-import org.opengis.feature.type.TypeFactory;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.PropertyIsGreaterThan;
@@ -140,7 +135,7 @@ public class MemoryDataAccessTest extends TestCase {
 
     public void testFeatureReader() throws IOException {
         Name typeName = wq_plusType.getName();
-        FeatureSource2 source = (FeatureSource2) dataStore.access(typeName);
+        FeatureSource source = (FeatureSource) dataStore.access(typeName);
 
         FeatureCollection features = (FeatureCollection) source.content();
         assertNotNull(features);
@@ -158,7 +153,7 @@ public class MemoryDataAccessTest extends TestCase {
 
     public void testFeatureSource() throws IOException {
         Name name = wq_plusType.getName();
-        FeatureSource2 fs = (FeatureSource2) dataStore.access(name);
+        FeatureSource fs = (FeatureSource) dataStore.access(name);
         assertNotNull(fs);
         AttributeDescriptor describe = (AttributeDescriptor) fs.describe();
         assertEquals(wq_plusType, describe.type());
@@ -197,7 +192,7 @@ public class MemoryDataAccessTest extends TestCase {
 
         Filter filter = ff.or(determinand, project_no);
 
-        Source source = dataStore.access(wq_plusType.getName());
+        FeatureSource source = dataStore.access(wq_plusType.getName());
         FeatureCollection result = (FeatureCollection) source.content(filter);
 
         assertNotNull(result);

@@ -1198,7 +1198,7 @@ public class TypeBuilder {
     /**
      * Template method for creating an attribute name.
      * 
-     * @return {@link org.geotools.feature.iso.Types#typeName(String, String)}
+     * @return {@link org.geotools.feature.Types#typeName(String, String)}
      */
     protected Name createName(String ns, String local) {
         return Types.typeName(ns, local);

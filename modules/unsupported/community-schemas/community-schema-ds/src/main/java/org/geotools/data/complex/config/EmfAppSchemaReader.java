@@ -68,6 +68,7 @@ import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.Schema;
 import org.opengis.filter.Filter;
@@ -244,7 +245,7 @@ public class EmfAppSchemaReader {
         // if there's an Oasis catalog set, use it to resolve schema locations
         // (can be null)
         final Catalog catalog = getCatalog();
-        
+
         final Configuration configuration = new CatalogApplicationSchemaConfiguration(nameSpace,
                 schemaLocation, catalog);
 
@@ -426,9 +427,7 @@ public class EmfAppSchemaReader {
         Object defaultValue = null;
         AttributeDescriptor descriptor = typeFactory.createAttributeDescriptor(type, elemName,
                 minOccurs, maxOccurs, nillable, defaultValue);
-
         descriptor.getUserData().put(XSDElementDeclaration.class, elemDecl);
-
         return descriptor;
     }
 
