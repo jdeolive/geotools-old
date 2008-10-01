@@ -172,11 +172,6 @@ public class EmfAppSchemaReader {
      * @throws IOException
      */
     public void parse(Configuration configuration) throws IOException {
-        // if there's an Oasis catalog set, use it to resolve schema locations
-        final Catalog catalog = getCatalog();
-        if (catalog != null) {
-            configuration = new OasisCatalogConfigurationWrapper(catalog, configuration);
-        }
         // find out the schemas involved in the app schema configuration
         final SchemaIndex appSchemaIndex = Schemas.findSchemas(configuration);
 
@@ -246,8 +241,12 @@ public class EmfAppSchemaReader {
 
         final String schemaLocation = location.toExternalForm();
 
-        final Configuration configuration = new ApplicationSchemaConfiguration(nameSpace,
-                schemaLocation);
+        // if there's an Oasis catalog set, use it to resolve schema locations
+        // (can be null)
+        final Catalog catalog = getCatalog();
+        
+        final Configuration configuration = new CatalogApplicationSchemaConfiguration(nameSpace,
+                schemaLocation, catalog);
 
         parse(configuration);
     }
