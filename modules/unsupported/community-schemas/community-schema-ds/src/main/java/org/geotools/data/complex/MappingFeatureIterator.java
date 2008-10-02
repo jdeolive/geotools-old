@@ -32,13 +32,16 @@ import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.AttributeBuilder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
+import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureFactory;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -48,18 +51,12 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /**
- * Base class for mapping iterator strategies.
+ * A Feature iterator that operates over the FeatureSource of a
+ * {@linkplain org.geotools.data.complex.FeatureTypeMapping} and produces Features of the output
+ * schema by applying the mapping rules to the Features of the source schema.
  * <p>
- * This class provides the common behavior for iterating over a mapped FeatureSource and returning
- * instances of the target FeatureType, by unpacking the incoming
- * <code>org.geotools.data.Query</code> and creating its equivalent over the mapped FeatureType.
- * </p>
- * <p>
- * This way, subclasses should only worry on implementing <code>next()</code> and
- * <code>hasNext()</code> in a way according to their fetching stratagy, while this superclass
- * provides them with a FeatureIterator already made by executing the unpacked Query over the source
- * FeatureSource.
- * </p>
+ * This iterator acts like a one-to-one mapping, producing a Feature of the target type for each
+ * feature of the source type.
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
@@ -67,10 +64,10 @@ import org.xml.sax.helpers.NamespaceSupport;
  *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/AbstractMappingFeatureIterator.java $
  * @since 2.4
  */
-abstract class AbstractMappingFeatureIterator implements Iterator<Feature> {
+public class MappingFeatureIterator implements Iterator<Feature> {
 
     private static final Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger(AbstractMappingFeatureIterator.class.getPackage().getName());
+            .getLogger(MappingFeatureIterator.class.getPackage().getName());
 
     /**
      * The mappings for the source and target schemas
@@ -102,6 +99,14 @@ abstract class AbstractMappingFeatureIterator implements Iterator<Feature> {
     // this(store, mapping, query, new AttributeFactoryImpl());
 
     /**
+     * maxFeatures restriction value as provided by query
+     */
+    private final int maxFeatures;
+
+    /** counter to ensure maxFeatures is not exceeded */
+    private int featureCounter;
+
+    /**
      * 
      * @param store
      * @param mapping
@@ -114,10 +119,10 @@ abstract class AbstractMappingFeatureIterator implements Iterator<Feature> {
      *                feature factory to use
      * @throws IOException
      */
-    public AbstractMappingFeatureIterator(ComplexDataStore store, FeatureTypeMapping mapping,
-            Query query, FeatureFactory atff) throws IOException {
+    public MappingFeatureIterator(ComplexDataStore store, FeatureTypeMapping mapping, Query query,
+            FeatureFactory atff) throws IOException {
         this.store = store;
-        this.attf = atff;
+        this.attf = new ValidatingFeatureFactoryImpl();
         Name name = mapping.getTargetFeature().getName();
         this.featureSource = store.getFeatureSource(name);
 
@@ -158,17 +163,9 @@ abstract class AbstractMappingFeatureIterator implements Iterator<Feature> {
         NamespaceSupport namespaces = mapping.getNamespaces();
         namespaceAwareFilterFactory = new FilterFactoryImplNamespaceAware(namespaces);
         xpathAttributeBuilder.setFilterFactory(namespaceAwareFilterFactory);
+        this.maxFeatures = query.getMaxFeatures();
 
     }
-
-    /**
-     * Subclasses must override to provide a query appropiate to its underlying feature source.
-     * 
-     * @param query
-     *                the original query against the output schema
-     * @return a query appropiate to be executed over the underlying feature source.
-     */
-    protected abstract Query getUnrolledQuery(Query query);
 
     /**
      * Shall not be called, just throws an UnsupportedOperationException
@@ -263,6 +260,60 @@ abstract class AbstractMappingFeatureIterator implements Iterator<Feature> {
             targetAttributes.put(propName, propValue);
         }
         target.getUserData().put(Attributes.class, targetAttributes);
+    }
+
+    public Feature next() {
+        try {
+            return computeNext();
+        } catch (IOException e) {
+            close();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean hasNext() {
+        return featureCounter < maxFeatures && sourceFeatures != null && sourceFeatures.hasNext();
+    }
+
+    /**
+     * Return a query appropriate to its underlying feature source.
+     * 
+     * @param query
+     *                the original query against the output schema
+     * @return a query appropriate to be executed over the underlying feature source.
+     */
+    protected Query getUnrolledQuery(Query query) {
+        return store.unrollQuery(query, mapping);
+    }
+
+    private Feature computeNext() throws IOException {
+        ComplexAttribute sourceInstance = (ComplexAttribute) sourceFeatures.next();
+        final AttributeDescriptor targetNode = mapping.getTargetFeature();
+        final Name targetNodeName = targetNode.getName();
+        final List mappings = mapping.getAttributeMappings();
+        String id = extractIdForFeature(sourceInstance);
+        AttributeBuilder builder = new AttributeBuilder(attf);
+        builder.setDescriptor(targetNode);
+        Feature target = (Feature) builder.build(id);
+        for (Iterator itr = mappings.iterator(); itr.hasNext();) {
+            AttributeMapping attMapping = (AttributeMapping) itr.next();
+            StepList targetXpathProperty = attMapping.getTargetXPath();
+            if (targetXpathProperty.size() == 1) {
+                Step rootStep = (Step) targetXpathProperty.get(0);
+                QName stepName = rootStep.getName();
+                if (Types.equals(targetNodeName, stepName)) {
+                    // ignore the top level mapping for the Feature itself
+                    // as it was already set
+                    continue;
+                }
+            }
+            setSingleValuedAttribute(target, sourceInstance, attMapping);
+        }
+        featureCounter++;
+        if (!hasNext()) {
+            close();
+        }
+        return target;
     }
 
 }
