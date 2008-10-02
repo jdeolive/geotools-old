@@ -61,18 +61,16 @@ import org.opengis.filter.capability.FilterCapabilities;
  * @source $URL:
  *         http://svn.geotools.org/geotools/branches/2.4.x/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/MappingFeatureSource.java $
  * @since 2.4
- * @see org.geotools.data.complex.DefaultMappingFeatureIterator
- * @see org.geotools.data.complex.GroupingFeatureIterator
  */
 class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
 
     private ComplexDataStore store;
 
-    private FeatureTypeMapping mappings;
+    private FeatureTypeMapping mapping;
 
     public MappingFeatureSource(ComplexDataStore store, FeatureTypeMapping mapping) {
         this.store = store;
-        this.mappings = mapping;
+        this.mapping = mapping;
     }
 
     public void addFeatureListener(FeatureListener listener) {
@@ -117,19 +115,20 @@ class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
     }
 
     public FeatureType getSchema() {
-        return (FeatureType) mappings.getTargetFeature().getType();
+        return (FeatureType) mapping.getTargetFeature().getType();
     }
 
-    public FeatureCollection getFeatures(Query query) throws IOException {
-        throw new UnsupportedOperationException();
+    public FeatureCollection<FeatureType, Feature> getFeatures(Query query) throws IOException {
+        return new MappingFeatureCollection(store, mapping, namedQuery(query));
     }
 
-    public FeatureCollection getFeatures(Filter filter) throws IOException {
-        throw new UnsupportedOperationException();
+    public FeatureCollection<FeatureType, Feature> getFeatures(Filter filter) throws IOException {
+        return new MappingFeatureCollection(store, mapping, namedQuery(filter, Integer.MAX_VALUE));
     }
 
-    public FeatureCollection getFeatures() throws IOException {
-        throw new UnsupportedOperationException();
+    public FeatureCollection<FeatureType, Feature> getFeatures() throws IOException {
+        return new MappingFeatureCollection(store, mapping, namedQuery(Filter.INCLUDE,
+                Integer.MAX_VALUE));
     }
 
     public void removeFeatureListener(FeatureListener listener) {
@@ -137,12 +136,11 @@ class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
     }
 
     public Object describe() {
-        return mappings.getTargetFeature();
+        return mapping.getTargetFeature();
     }
 
     public void dispose() {
-        // TODO Auto-generated method stub
-
+        store.dispose();
     }
 
     public FilterCapabilities getFilterCapabilities() {
@@ -154,7 +152,7 @@ class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
     }
 
     public Name getName() {
-        Name name = mappings.getTargetFeature().getName();
+        Name name = mapping.getTargetFeature().getName();
         return name;
     }
 

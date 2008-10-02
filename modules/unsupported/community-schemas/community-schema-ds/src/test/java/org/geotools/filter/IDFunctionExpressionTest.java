@@ -21,12 +21,9 @@ import junit.framework.TestCase;
 
 import org.geotools.data.ComplexTestData;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.iso.AttributeBuilder;
-import org.geotools.feature.iso.AttributeFactoryImpl;
-import org.geotools.feature.iso.type.TypeFactoryImpl;
+import org.geotools.feature.AttributeBuilder;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
-import org.opengis.feature.type.TypeFactory;
 import org.opengis.filter.expression.Function;
 
 /**

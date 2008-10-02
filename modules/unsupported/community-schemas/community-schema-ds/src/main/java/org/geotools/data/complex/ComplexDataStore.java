@@ -43,6 +43,7 @@ import org.geotools.data.complex.filter.UnmappingFilterVisitor;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.Types;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
@@ -55,11 +56,14 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
 import org.xml.sax.helpers.NamespaceSupport;
 
+import com.sun.org.apache.bcel.internal.generic.StoreInstruction;
+
 /**
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/ComplexDataStore.java $
  * @since 2.4
  */
 public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
@@ -67,7 +71,7 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(ComplexDataStore.class.getPackage().getName());
 
-    private Map<String, FeatureTypeMapping> mappings = Collections.emptyMap();
+    private Map<Name, FeatureTypeMapping> mappings = Collections.emptyMap();
 
     private FilterFactory filterFac = CommonFactoryFinder.getFilterFactory(null);
 
@@ -78,12 +82,10 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
      *                DataStore is going to hold.
      */
     public ComplexDataStore(Set<FeatureTypeMapping> mappings) {
-        FeatureTypeMapping mapping;
-        this.mappings = new HashMap();
-        for (Iterator it = mappings.iterator(); it.hasNext();) {
-            mapping = (FeatureTypeMapping) it.next();
+        this.mappings = new HashMap<Name, FeatureTypeMapping>();
+        for (FeatureTypeMapping mapping : mappings) {
             Name mappedElement = mapping.getTargetFeature().getName();
-            this.mappings.put(mappedElement.getLocalPart(), mapping);
+            this.mappings.put(mappedElement, mapping);
         }
     }
 
@@ -102,7 +104,7 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
      * Finds the target FeatureType named <code>typeName</code> in this ComplexDatastore's
      * internal list of FeatureType mappings and returns it.
      */
-    public FeatureType getSchema(String typeName) throws IOException {
+    public FeatureType getSchema(Name typeName) throws IOException {
         return (FeatureType) getMapping(typeName).getTargetFeature().getType();
     }
 
@@ -117,7 +119,7 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
      * @return
      * @throws IOException
      */
-    public FeatureTypeMapping getMapping(String typeName) throws IOException {
+    public FeatureTypeMapping getMapping(Name typeName) throws IOException {
         FeatureTypeMapping mapping = (FeatureTypeMapping) this.mappings.get(typeName);
         if (mapping == null) {
             StringBuffer availables = new StringBuffer("[");
@@ -145,8 +147,7 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
      * @throws IOException
      */
     protected ReferencedEnvelope getBounds(Query query) throws IOException {
-        String typeName = query.getTypeName();
-        FeatureTypeMapping mapping = getMapping(typeName);
+        FeatureTypeMapping mapping = getMapping(getName(query));
         Query unmappedQuery = unrollQuery(query, mapping);
         FeatureSource mappedSource = mapping.getSource();
         return mappedSource.getBounds(unmappedQuery);
@@ -171,13 +172,17 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
      */
     protected int getCount(final Query targetQuery) throws IOException {
         final String typeName = targetQuery.getTypeName();
-        final FeatureTypeMapping mapping = getMapping(typeName);
+        final FeatureTypeMapping mapping = getMapping(getName(targetQuery));
         final FeatureSource mappedSource = mapping.getSource();
 
         Query unmappedQuery = unrollQuery(targetQuery, mapping);
 
         ((DefaultQuery) unmappedQuery).setMaxFeatures(targetQuery.getMaxFeatures());
         return mappedSource.getCount(unmappedQuery);
+    }
+
+    private Name getName(Query query) {
+        return Types.typeName(query.getNamespace().toString(), query.getTypeName());
     }
 
     /**
@@ -305,29 +310,6 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
         return unrolledFilter;
     }
 
-    // //// FeatureAccess implementation /////
-
-    public FeatureSource access(Name typeName) {
-        FeatureTypeMapping mapping;
-        try {
-            mapping = getMapping(typeName.getLocalPart());
-        } catch (IOException e) {
-            throw (RuntimeException) new RuntimeException().initCause(e);
-        }
-        MappingFeatureSource reader = new MappingFeatureSource(this, mapping);
-        return reader;
-    }
-
-    public Object describe(Name typeName) {
-        FeatureTypeMapping mapping;
-        try {
-            mapping = getMapping(typeName.getLocalPart());
-        } catch (IOException e) {
-            throw (RuntimeException) new RuntimeException().initCause(e);
-        }
-        return mapping.getTargetFeature();
-    }
-
     public void dispose() {
         // TODO Auto-generated method stub
     }
@@ -350,25 +332,9 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
         throw new UnsupportedOperationException();
     }
 
-    public FeatureReader getFeatureReader(Query query, Transaction transaction) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public FeatureSource getFeatureSource(String typeName) throws IOException {
-        FeatureTypeMapping mapping = getMapping(typeName);
-        Name name = mapping.getTargetFeature().getName();
-        return getFeatureSource(name);
-    }
-
     public FeatureSource<FeatureType, Feature> getFeatureSource(Name typeName) throws IOException {
         // TODO Auto-generated method stub
-        return null;
-    }
-
-    public FeatureType getSchema(Name name) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+        return new MappingFeatureSource(this, getMapping(typeName));
     }
 
     public void updateSchema(Name typeName, FeatureType featureType) throws IOException {

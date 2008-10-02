@@ -157,11 +157,11 @@ public class AttributeBuilder {
 
         if (attribute instanceof Feature) {
             Feature feature = (Feature) attribute;
-            crs = feature.getDefaultGeometryProperty().getType().getCoordinateReferenceSystem();
 
             if (feature.getDefaultGeometryProperty() != null) {
-                defaultGeometry = feature.getDefaultGeometryProperty().getValue();
-            }
+               crs = feature.getDefaultGeometryProperty().getType().getCoordinateReferenceSystem();
+               defaultGeometry = feature.getDefaultGeometryProperty().getValue();
+             }
         }
 
     }

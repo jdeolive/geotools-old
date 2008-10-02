@@ -273,10 +273,8 @@ public class BoreholeTest extends TestCase {
 
     public void testGetDataStore() throws Exception {
         DataAccess<FeatureType, Feature> mappingDataStore = getDataStore();
-        AttributeDescriptor borehole = (AttributeDescriptor) mappingDataStore.getSchema(typeName);
-        assertNotNull(borehole);
-        assertTrue(borehole.getType() instanceof FeatureType);
-        FeatureType boreholeType = (FeatureType) borehole.getType();
+        assertNotNull(mappingDataStore);
+        assertNotNull(mappingDataStore.getSchema(typeName));
     }
 
     public void testDataStore() throws Exception {

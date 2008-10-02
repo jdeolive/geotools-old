@@ -34,6 +34,7 @@ import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeBuilder;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.Types;
 import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
@@ -64,7 +65,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/AbstractMappingFeatureIterator.java $
  * @since 2.4
  */
-public class MappingFeatureIterator implements Iterator<Feature> {
+public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterator<Feature> {
 
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(MappingFeatureIterator.class.getPackage().getName());
@@ -115,12 +116,10 @@ public class MappingFeatureIterator implements Iterator<Feature> {
      * @param query
      *                the query over the target feature type, that is to be unpacked to its
      *                equivalent over the surrogate feature type.
-     * @param atff
-     *                feature factory to use
      * @throws IOException
      */
-    public MappingFeatureIterator(ComplexDataStore store, FeatureTypeMapping mapping, Query query,
-            FeatureFactory atff) throws IOException {
+    public MappingFeatureIterator(ComplexDataStore store, FeatureTypeMapping mapping, Query query)
+            throws IOException {
         this.store = store;
         this.attf = new ValidatingFeatureFactoryImpl();
         Name name = mapping.getTargetFeature().getName();
