@@ -185,7 +185,7 @@ public final class TXTRelateLikePatternTest {
      * @throws Exception 
      */
     @Test
-    public void patternsDM9IM() throws Exception{
+    public void patternsDE9IM() throws Exception{
 
         // Lines overlap
         assertPattern("1*T***T**");
@@ -202,7 +202,7 @@ public final class TXTRelateLikePatternTest {
      * @throws Exception
      */
     @Test(expected = CQLException.class)
-    public void badPatternFlagDM9IM() throws Exception{
+    public void badPatternFlagDE9IM() throws Exception{
         // Lines overlap
         assertPattern("X*T***T**"); //X is an invalid character
         
@@ -213,7 +213,7 @@ public final class TXTRelateLikePatternTest {
      * @throws Exception
      */
     @Test(expected = CQLException.class)
-    public void badPatternLengthDM9IM() throws Exception{
+    public void badPatternLengthDE9IM() throws Exception{
         // Lines overlap
         assertPattern("*T***T**"); //should have 9 character
         
