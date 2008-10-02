@@ -428,7 +428,6 @@ public class CQLExtensionTest extends TestCase {
      * </pre>
      *
      * </p>
-     * TODO requires more test
      */
     public void testUnaryExpressionFunction() throws Exception {
         Filter result;

@@ -25,6 +25,9 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
+import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
 import org.opengis.filter.spatial.Contains;
 import org.opengis.filter.spatial.Crosses;
 import org.opengis.filter.spatial.Disjoint;
@@ -164,6 +167,24 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
 
         Assert.assertTrue("Intersects was expected", resultFilter instanceof Intersects);
 
+    }
+
+    @Test // TODO should be in the superclass
+    public void relate() throws CQLException {
+        
+        Filter resultFilter = CompilerUtil.parseFilter(language,"RELATE(geom1, POINT(1 2))");
+
+        Assert.assertTrue("Intersects was expected", resultFilter instanceof PropertyIsEqualTo);
+        
+        PropertyIsEqualTo eq = (PropertyIsEqualTo) resultFilter;
+        
+        Function expr1 = (Function) eq.getExpression1();
+        
+        Assert.assertEquals(expr1.getName(), "relate");
+        
+        Literal expr2 = (Literal) eq.getExpression2();
+
+        Assert.assertEquals(expr2.getValue() , true );
     }
     
     /**

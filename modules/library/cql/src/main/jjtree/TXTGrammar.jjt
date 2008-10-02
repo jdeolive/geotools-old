@@ -1,6 +1,6 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
- *    http://geotools.org
+ *    http://geotools.orgLITERAL
  *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
@@ -24,8 +24,8 @@ options {
 
    NODE_PACKAGE="org.geotools.filter.text.generated.parsers";
  
-   SANITY_CHECK=true;
-   VISITOR=true;
+   SANITY_CHECK=false;
+   VISITOR=false;
 
    	// debug
    DEBUG_TOKEN_MANAGER=false;
@@ -460,8 +460,36 @@ void RoutineInvocationGeoOp() #void:
   |	<WITHIN> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Within_Node
   |	<CONTAINS> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Contain_Node
   |	<OVERLAPS> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Overlap_Node
-  |	<RELATE> 	GeoRoutineArgumentList() #RoutineInvocation_GeoOp_Relate_Node
+  |	<RELATE> 	GeoRoutineArgumentList() RelateTail() 
   | <BBOX> 		BBoxArgumentList()		 
+}
+
+void RelateTail() #void:
+{}
+{
+	    <EOF> #Relate_Node
+	  | SpatialRelateLike()  
+}
+
+void SpatialRelateLike() #void:
+{}
+{
+  	 	LOOKAHEAD(2)  <NOT> <LIKE> CharacterPattern() 	#Not_SpatialRelateLike_Node
+  	|	              <LIKE> Pattern9IM() 				#SpatialRelateLike_Node
+}
+
+/*
+ *<relate pattern> ::=  <quote>
+ *                        <relate flag><relate flag><relate flag><relate flag>
+ *                        <relate flag><relate flag><relate flag><relate flag>
+ *                        <relate flag>
+ *                       <quote>
+ * <relate flag> ::= "T" | "F" | "*" | "0" | "1" | "2"
+ */
+void Pattern9IM() #Pattern9IM_Node:
+{}
+{
+	CharacterPattern()
 }
 
 /*
@@ -494,14 +522,14 @@ void GeoRoutineArgumentList() #void:
 void BBoxArgumentList() #void:
 {}
 {
-		<LP> 	Expression() 	<COMMA> BBoxArgListTail() 
+		<LP> Expression() <COMMA> BBoxArgListTail() 
 }
 
 void BBoxArgListTail() #void:
 {}
 {
 		BoundingBox()
-	| 	(Function() | GeometryLiteral())
+	| 	(Function() | GeometryLiteral()) <RP>
 	
 } 
 

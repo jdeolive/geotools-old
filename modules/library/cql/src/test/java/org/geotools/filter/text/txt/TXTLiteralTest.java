@@ -195,13 +195,6 @@ public class TXTLiteralTest extends CQLLiteralTest {
         Object actualGeometry =geomLiteral.getValue();
         Assert.assertNotNull(actualGeometry);
         Assert.assertTrue(actualGeometry instanceof GeometryCollection);
-// FIXME the following assert fail
-//        GeometryCollection collection = (GeometryCollection) actualGeometry;
-//        
-//        for( int i =0 ; i < collection.getNumGeometries(); i++){
-//            Geometry g = collection.getGeometryN(i);
-//            Assert.assertTrue(expectedGeometriesList.contains(g));
-//        }
 
     }
     
@@ -242,7 +235,6 @@ public class TXTLiteralTest extends CQLLiteralTest {
             Geometry expectedGeometry;
             expectedGeometry = reader.read(strGeomExpected);
             
-            //Assert.assertEquals( expectedGeometry, actualGeometry); //TODO bug: this test fails but the result is correct!. I replaced this line by the following
             Assert.assertTrue(expectedGeometry.equals(actualGeometry));
 
     }

@@ -29,9 +29,11 @@ import org.geotools.filter.text.cql2.Result;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
+import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.FeatureId;
@@ -50,12 +52,11 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Builds the filters required by the {@link TXTCompiler}.
- *
+ * 
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.5
  */
 final class TXTFilterBuilder extends CQLFilterBuilder {
-
 
     public TXTFilterBuilder(String txtSource, FilterFactory filterFactory) {
         super(txtSource, filterFactory);
@@ -64,27 +65,29 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
     /**
      * builds the filter id
      * 
-     * @param token  <character>
+     * @param token
+     *            <character>
      * @return String without the quotes
      */
     public FeatureId buildFeatureID(IToken token) {
-       
+
         String strId = removeQuotes(token.toString());
 
-        FeatureId id = getFilterFactory().featureId( strId);
-        
+        FeatureId id = getFilterFactory().featureId(strId);
+
         return id;
     }
 
     /**
      * builds the filter id
-     * @param jjtfeature_id_separator_node 
+     * 
+     * @param jjtfeature_id_separator_node
      * @return Id
      * @throws CQLException
      */
     public Id buildFilterId(final int nodeFeatureId) throws CQLException {
-        
-        //retrieves the id from stack
+
+        // retrieves the id from stack
         List<FeatureId> idList = new LinkedList<FeatureId>();
         while (!getResultStack().empty()) {
 
@@ -98,11 +101,11 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
             idList.add(id);
             getResultStack().popResult();
         }
-        assert idList.size() >= 1: "must have one or more FeatureIds";
-        
+        assert idList.size() >= 1 : "must have one or more FeatureIds";
+
         // shorts the id list and builds the filter Id
         Collections.reverse(idList);
-        Set<FeatureId> idSet = new LinkedHashSet<FeatureId>(idList); 
+        Set<FeatureId> idSet = new LinkedHashSet<FeatureId>(idList);
         Id filter = getFilterFactory().id(idSet);
 
         return filter;
@@ -110,52 +113,53 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
 
     /**
      * Builds a negative Number
+     * 
      * @return Negative number
      * @throws CQLException
      */
     public Literal bulidNegativeNumber() throws CQLException {
-        
+
         // retrieves the number value from stack and adds the (-) minus
         Literal literal = getResultStack().popLiteral();
         String strNumber = "-" + literal.getValue();
         Object value = literal.getValue();
-        
-        //builds the negative number
+
+        // builds the negative number
         @SuppressWarnings("unused")
         Number number = null;
-        if(value instanceof Double){
+        if (value instanceof Double) {
             number = Double.parseDouble(strNumber);
-        }else if (value instanceof Float){
+        } else if (value instanceof Float) {
             number = Float.parseFloat(strNumber);
-        }else if(value instanceof Integer) {
+        } else if (value instanceof Integer) {
             number = Integer.parseInt(strNumber);
-        }else if(value instanceof Long) {
+        } else if (value instanceof Long) {
             number = Long.parseLong(strNumber);
-        }else{
-            assert false: "Number instnce is expected";
+        } else {
+            assert false : "Number instnce is expected";
         }
         Literal signedNumber = getFilterFactory().literal(strNumber);
-        
+
         return signedNumber;
     }
 
     /**
-     * builds the or filter for the in predicate. The method 
-     * retrieves the list of expressions and the property name 
-     * from stack to make the Or filter.
+     * builds the or filter for the in predicate. The method retrieves the list
+     * of expressions and the property name from stack to make the Or filter.
+     * 
      * <pre>
      * Thus if the stack have the following predicate 
      * propName in (expr1, expr2)
      * this method will produce:
      * (propName = expr1) or (propName = expr2)
      * </pre>
-     *  
+     * 
      * @param nodeExpression
      * @return
-     * @throws CQLException 
+     * @throws CQLException
      */
     public Or buildInPredicate(final int nodeExpression) throws CQLException {
-        //retrieves the expressions from stack
+        // retrieves the expressions from stack
         List<Expression> exprList = new LinkedList<Expression>();
         while (!getResultStack().empty()) {
 
@@ -170,21 +174,22 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
             Expression expr = (Expression) getResultStack().popExpression();
             exprList.add(expr);
         }
-        
-        assert exprList.size() >= 1: "must have one or more FeatureIds";
-        
+
+        assert exprList.size() >= 1 : "must have one or more FeatureIds";
+
         // retrieve the attribute from stack
         final PropertyName property = getResultStack().popPropertyName();
-        
+
         // makes one comparison for each expression in the expression list,
         // associated by the Or filter.
         List<Filter> filterList = new LinkedList<Filter>();
         for (Expression expression : exprList) {
-            PropertyIsEqualTo eq = getFilterFactory().equals(property, expression);
+            PropertyIsEqualTo eq = getFilterFactory().equals(property,
+                    expression);
             filterList.add(eq);
         }
         Or orFilter = getFilterFactory().or(filterList);
-        
+
         return orFilter;
     }
 
@@ -211,24 +216,26 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
 
     public LineString buildLineString(final int pointNode) throws CQLException {
 
-        LineStringBuilder builder = new LineStringBuilder(getStatement(), getResultStack());
-        
+        LineStringBuilder builder = new LineStringBuilder(getStatement(),
+                getResultStack());
+
         LineString line = (LineString) builder.build(pointNode);
-        
+
         return line;
     }
 
     public Polygon buildPolygon(final int linestringNode) throws CQLException {
 
-        PolygonBuilder builder = new PolygonBuilder( getStatement(), getResultStack());
-        
-        Polygon polygon = (Polygon)builder.build(linestringNode);
+        PolygonBuilder builder = new PolygonBuilder(getStatement(),
+                getResultStack());
+
+        Polygon polygon = (Polygon) builder.build(linestringNode);
 
         return polygon;
     }
 
     /**
-     * Retrieves all points built in previous parsing process from stack and 
+     * Retrieves all points built in previous parsing process from stack and
      * creates the multipoint geometry.
      * 
      * @param pointNode
@@ -237,62 +244,78 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
      */
     public MultiPoint buildMultiPoint(int pointNode) throws CQLException {
 
-        MultiPointBuilder builder = new MultiPointBuilder( getStatement(), getResultStack());
-        
+        MultiPointBuilder builder = new MultiPointBuilder(getStatement(),
+                getResultStack());
+
         MultiPoint mp = (MultiPoint) builder.build(pointNode);
-        
+
         return mp;
-        
+
     }
 
     /**
-     * Retrieves all linestring built from stack and creates the multilinestring geometry
+     * Retrieves all linestring built from stack and creates the multilinestring
+     * geometry
+     * 
      * @param pointNode
      * @return a MultiLineString
      * 
-     * @throws CQLException 
-¡    */
-    public MultiLineString buildMultiLineString(final int linestringtextNode) throws CQLException {
+     * @throws CQLException
+     *             ¡
+     */
+    public MultiLineString buildMultiLineString(final int linestringtextNode)
+            throws CQLException {
 
-        MultiLineStringBuilder builder = new MultiLineStringBuilder(getStatement(), getResultStack());
-        
-        MultiLineString ml = (MultiLineString)builder.build(linestringtextNode);
-        
+        MultiLineStringBuilder builder = new MultiLineStringBuilder(
+                getStatement(), getResultStack());
+
+        MultiLineString ml = (MultiLineString) builder
+                .build(linestringtextNode);
+
         return ml;
-        
+
     }
 
     /**
-     * Builds a {@link MuliPolygon} using the {@link Polygon}  staked in the parsing process
-     * @param polygontextNode.
+     * Builds a {@link MuliPolygon} using the {@link Polygon} staked in the
+     * parsing process
+     * 
+     * @param polygontextNode
+     *            .
      * 
      * @return MultiPolygon
-     * @throws CQLException 
+     * @throws CQLException
      */
-    public MultiPolygon buildMultiPolygon(final int polygontextNode) throws CQLException {
-        
-        MultiPolygonBuilder builder = new MultiPolygonBuilder(getStatement(), getResultStack());
-        
-        MultiPolygon mp = (MultiPolygon)builder.build(polygontextNode);
-        
+    public MultiPolygon buildMultiPolygon(final int polygontextNode)
+            throws CQLException {
+
+        MultiPolygonBuilder builder = new MultiPolygonBuilder(getStatement(),
+                getResultStack());
+
+        MultiPolygon mp = (MultiPolygon) builder.build(polygontextNode);
+
         return mp;
-        
+
     }
+
     /**
      * Builds a {@link GeometryCollection}
      * 
      * @param jjtgeometryliteral
      * @return GeometryCollection
-     * @throws CQLException 
+     * @throws CQLException
      */
-    public GeometryCollection buildGeometryCollection(final int jjtgeometryliteral) throws CQLException {
+    public GeometryCollection buildGeometryCollection(
+            final int jjtgeometryliteral) throws CQLException {
 
-        GeometryCollectionBuilder builder = new GeometryCollectionBuilder(getStatement(), getResultStack());
-        
-        GeometryCollection gc = (GeometryCollection) builder.build(jjtgeometryliteral);
-        
+        GeometryCollectionBuilder builder = new GeometryCollectionBuilder(
+                getStatement(), getResultStack());
+
+        GeometryCollection gc = (GeometryCollection) builder
+                .build(jjtgeometryliteral);
+
         return gc;
-        
+
     }
 
     /**
@@ -307,7 +330,7 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
         Geometry geometry = getResultStack().popGeometry();
 
         Literal literal = getFilterFactory().literal(geometry);
-        
+
         return literal;
     }
 
@@ -317,96 +340,205 @@ final class TXTFilterBuilder extends CQLFilterBuilder {
 
     public BinarySpatialOperator buildSpatialEqualFilter() throws CQLException {
 
-        SpatialEqualsBuilder builder = new SpatialEqualsBuilder(getResultStack(), getFilterFactory());
+        SpatialEqualsBuilder builder = new SpatialEqualsBuilder(
+                getResultStack(), getFilterFactory());
         BinarySpatialOperator filter = builder.build();
-        
-        return filter;
-        
-    }
-    
-    public BinarySpatialOperator buildSpatialDisjointFilter() throws CQLException {
-        SpatialDisjointBuilder builder = new SpatialDisjointBuilder(getResultStack(), getFilterFactory());
-        
-        BinarySpatialOperator filter = builder.build();
-        
-        return filter;
-    }
 
-    public BinarySpatialOperator buildSpatialIntersectsFilter() throws CQLException {
-        
-        SpatialIntersectsBuilder builder = new SpatialIntersectsBuilder(getResultStack(), getFilterFactory());
-        
-        BinarySpatialOperator filter = builder.build();
-        
-        return filter;
-    }
-
-    public BinarySpatialOperator buildSpatialTouchesFilter() throws CQLException {
-
-        SpatialTouchesBuilder builder = new SpatialTouchesBuilder(getResultStack(), getFilterFactory());
-        
-        BinarySpatialOperator filter = builder.build();
-        
-        return filter;
-    }
-    
-
-    public BinarySpatialOperator buildSpatialCrossesFilter() throws CQLException {
-
-        SpatialCrossesBuilder builder = new SpatialCrossesBuilder(getResultStack(), getFilterFactory());
-        
-        BinarySpatialOperator filter = builder.build();
-        
         return filter;
 
     }
-    
+
+    public BinarySpatialOperator buildSpatialDisjointFilter()
+            throws CQLException {
+        SpatialDisjointBuilder builder = new SpatialDisjointBuilder(
+                getResultStack(), getFilterFactory());
+
+        BinarySpatialOperator filter = builder.build();
+
+        return filter;
+    }
+
+    public BinarySpatialOperator buildSpatialIntersectsFilter()
+            throws CQLException {
+
+        SpatialIntersectsBuilder builder = new SpatialIntersectsBuilder(
+                getResultStack(), getFilterFactory());
+
+        BinarySpatialOperator filter = builder.build();
+
+        return filter;
+    }
+
+    public BinarySpatialOperator buildSpatialTouchesFilter()
+            throws CQLException {
+
+        SpatialTouchesBuilder builder = new SpatialTouchesBuilder(
+                getResultStack(), getFilterFactory());
+
+        BinarySpatialOperator filter = builder.build();
+
+        return filter;
+    }
+
+    public BinarySpatialOperator buildSpatialCrossesFilter()
+            throws CQLException {
+
+        SpatialCrossesBuilder builder = new SpatialCrossesBuilder(
+                getResultStack(), getFilterFactory());
+
+        BinarySpatialOperator filter = builder.build();
+
+        return filter;
+
+    }
+
+    /**
+     * Makes an equals to true filter with the relatePattern function 
+     * 
+     * @return relatePattern is equal to true
+     * @throws CQLException
+     */
+    public PropertyIsEqualTo buildRelatePattern() throws CQLException {
+
+        RelatePatternBuilder builder = new RelatePatternBuilder(getResultStack(),
+                getFilterFactory());
+
+        Function relatePattern = builder.build();
+
+        PropertyIsEqualTo eq = getFilterFactory().equals(relatePattern, getFilterFactory().literal(true));
+
+        return eq;
+    }
+
+
+    /**
+     * Builds a not equal filter with that evaluate the relate pattern function
+     * @return Not filter
+     * @throws CQLException
+     */
+    public Not buildNotRelatePattern() throws CQLException {
+        
+        PropertyIsEqualTo  eq = buildRelatePattern();
+        
+        Not notFilter = getFilterFactory().not(eq);
+        
+        return notFilter;
+    }
+
+    /**
+     * Checks the correctness of pattern and makes a literal with this pattern;
+     * 
+     * @return a Literal with the pattern
+     * @throws CQLException if the pattern has not one of the following characters:T,F,*,0,1,2
+     */
+    public Literal buildPattern9IM() throws CQLException {
+ 
+        // retrieves the pattern from stack
+        Result resut = getResultStack().popResult();
+        IToken token = resut.getToken();
+
+        Literal built = (Literal)resut.getBuilt();
+        final String pattern = (String)built.getValue();
+
+        // validates the length
+        if(pattern.length() != 9){
+            throw new CQLException("the pattern DE-9IM must have nine (9) characters", token, getStatement() );
+        }
+        
+        // validates that the pattern has only the characters T,F,*,0,1,2
+        String patternUC = pattern.toUpperCase();
+        
+        char[] validFlags = new char[]{'T', 'F', '*', '0', '1', '2'};
+        for (int i = 0; i < validFlags.length; i++) {
+            char character = patternUC.charAt(i);
+            
+            boolean found = false;
+            for (int j = 0; j < validFlags.length; j++) {
+                if(validFlags[j] == character){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                throw new CQLException("the pattern DE-9IM must have only the following characters: T, F, *, 0, 1, 2", token, getStatement() );
+            }
+        }
+        
+        Literal patternExpr = getFilterFactory().literal(pattern);
+        
+        return patternExpr;
+    }
 
     public BinarySpatialOperator buildSpatialWithinFilter() throws CQLException {
 
-        SpatialWithinBuilder builder = new SpatialWithinBuilder(getResultStack(), getFilterFactory());
-        
+        SpatialWithinBuilder builder = new SpatialWithinBuilder(
+                getResultStack(), getFilterFactory());
+
         BinarySpatialOperator filter = builder.build();
-        
-        return filter;
-    }
-    
-    public BinarySpatialOperator buildSpatialContainsFilter() throws CQLException {
 
-        SpatialContainsBuilder builder = new SpatialContainsBuilder(getResultStack(), getFilterFactory());
-        
-        BinarySpatialOperator filter = builder.build();
-        
-        return filter;
-
-    }
-
-    public BinarySpatialOperator buildSpatialOverlapsFilter() throws CQLException {
-
-        SpatialOverlapsBuilder builder = new SpatialOverlapsBuilder(getResultStack(), getFilterFactory());
-        
-        BinarySpatialOperator filter = builder.build();
-        
         return filter;
     }
 
-    public org.opengis.filter.spatial.BBOX buildBBox() throws CQLException{
+    public BinarySpatialOperator buildSpatialContainsFilter()
+            throws CQLException {
 
-        SpatialBBoxBuilder builder = new SpatialBBoxBuilder(getResultStack(), getFilterFactory());
+        SpatialContainsBuilder builder = new SpatialContainsBuilder(
+                getResultStack(), getFilterFactory());
+
+        BinarySpatialOperator filter = builder.build();
+
+        return filter;
+
+    }
+
+    public BinarySpatialOperator buildSpatialOverlapsFilter()
+            throws CQLException {
+
+        SpatialOverlapsBuilder builder = new SpatialOverlapsBuilder(
+                getResultStack(), getFilterFactory());
+
+        BinarySpatialOperator filter = builder.build();
+
+        return filter;
+    }
+
+    /**
+     * An equals filter with to test the relate function
+     * 
+     * @return Relate equals true
+     * @throws CQLException
+     */
+    public PropertyIsEqualTo buildRelate() throws CQLException {
+
+        RelateBuilder builder = new RelateBuilder(getResultStack(),
+                getFilterFactory());
+
+        Function f = builder.build();
+
+        PropertyIsEqualTo eq = getFilterFactory().equals(f, getFilterFactory().literal(true));
         
+        return eq;
+    }
+
+    public org.opengis.filter.spatial.BBOX buildBBox() throws CQLException {
+
+        SpatialBBoxBuilder builder = new SpatialBBoxBuilder(getResultStack(),
+                getFilterFactory());
+
         BBOX filter = builder.build();
-        
+
         return filter;
     }
 
     public org.opengis.filter.spatial.BBOX buildBBoxWithCRS()
             throws CQLException {
 
-        SpatialBBoxBuilder builder = new SpatialBBoxBuilder(getResultStack(), getFilterFactory());
-        
+        SpatialBBoxBuilder builder = new SpatialBBoxBuilder(getResultStack(),
+                getFilterFactory());
+
         BBOX filter = builder.buildWithCRS();
-        
+
         return filter;
     }
-    
+
 }

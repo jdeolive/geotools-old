@@ -189,7 +189,8 @@ public class TXTCompiler extends TXTParser implements ICompiler{
             this.builder.pushResult(r );
         
         } catch (CQLException e) {
-                throw new ParseException(e.getMessage());
+                //FIXME throw new ParseException(e.getMessage());
+                throw e;
               
         } finally {
             n.dispose();
@@ -382,11 +383,21 @@ public class TXTCompiler extends TXTParser implements ICompiler{
             case JJTROUTINEINVOCATION_GEOOP_BBOX_SRS_NODE:
                 return buildBBox(n.getType());
 
-            case JJTROUTINEINVOCATION_GEOOP_RELATE_NODE:
-                throw new CQLException(
-                        "Unsupported geooperation RELATE (is not implemented by GeoTools)",
-                        getTokenInPosition(0), this.source);
+            case JJTRELATE_NODE:
+                return this.builder.buildRelate();
 
+                // ----------------------------------------
+                // Spatial Relate Like
+                // ----------------------------------------
+                
+            case JJTPATTERN9IM_NODE:
+                return this.builder.buildPattern9IM();
+
+            case JJTSPATIALRELATELIKE_NODE:
+                return this.builder.buildRelatePattern();
+                
+            case JJTNOT_SPATIALRELATELIKE_NODE:
+                return this.builder.buildNotRelatePattern();
                 // ----------------------------------------
                 // routine invocation RelGeo Operation
                 // ----------------------------------------

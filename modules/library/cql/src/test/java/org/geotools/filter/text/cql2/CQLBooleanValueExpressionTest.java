@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
+import org.opengis.filter.Not;
 
 /**
  * Test boolean value expressions.
@@ -95,7 +96,7 @@ public class CQLBooleanValueExpressionTest {
      * Sample 2: ATTR3 < 4 AND (ATT1 > 10 OR ATT2 < 2)
      * @throws CQLException 
      */
-    @Ignore // FIXME it fail for txt
+    @Ignore // FIXME it fail for TXT grammar
     public void andOr() throws CQLException{
         Filter result;
         Filter expected;
@@ -118,8 +119,31 @@ public class CQLBooleanValueExpressionTest {
         Assert.assertEquals("ATTR3 < 4 AND (ATT1 > 10 OR ATT2 < 2) was expected", expected, result);
         
     }
+
+    /**
+     * Sample: NOT  ATTR1 < 10
+     * @throws Exception
+     */
+    @Test 
+    public void not() throws Exception {
+
+        final String stmt = "NOT " + FilterCQLSample.LESS_FILTER_SAMPLE;
+        Filter result = CompilerUtil.parseFilter(language, stmt);
+
+        Assert.assertNotNull("filter expected", result);
+
+        Assert.assertTrue( result instanceof Not);
+
+        Not notFilter = (Not)result;
+        
+        Filter actual = notFilter.getFilter();
+        
+        Filter expected = FilterCQLSample.getSample(FilterCQLSample.LESS_FILTER_SAMPLE);
+
+        Assert.assertEquals(FilterCQLSample.LESS_FILTER_SAMPLE + "was expected", expected, actual);
+    }
     
-    @Ignore // FIXME it fail for txt
+    @Ignore //FIXME it fail for txt grammar
     public void andNot() throws Exception {
         Filter result;
         Filter expected;
@@ -134,13 +158,13 @@ public class CQLBooleanValueExpressionTest {
         Assert.assertEquals("ATTR3 < 4 AND (NOT( ATTR1 < 10 AND ATTR2 < 2)) was expected", expected, result);
 
         // "ATTR1 < 1 AND (NOT (ATTR2 < 2)) AND ATTR3 < 3"
-        result = CompilerUtil.parseFilter(language, FilterCQLSample.FILTER_AND_NOT_COMPARASION);
-
-        Assert.assertNotNull("filter expected", result);
-
-        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AND_NOT_COMPARASION);
-
-        Assert.assertEquals("ATTR1 < 4 AND (NOT (ATTR2 < 4)) AND ATTR3 < 4 was expected", expected, result);
+//FIXME        result = CompilerUtil.parseFilter(language, FilterCQLSample.FILTER_AND_NOT_COMPARASION);
+//
+//        Assert.assertNotNull("filter expected", result);
+//
+//        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AND_NOT_COMPARASION);
+//
+//        Assert.assertEquals("ATTR1 < 4 AND (NOT (ATTR2 < 4)) AND ATTR3 < 4 was expected", expected, result);
     }
      
 

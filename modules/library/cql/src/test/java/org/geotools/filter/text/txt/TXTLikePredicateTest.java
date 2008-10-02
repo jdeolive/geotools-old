@@ -17,10 +17,8 @@
 
 package org.geotools.filter.text.txt;
 
-import org.geotools.filter.LikeFilter;
 import org.geotools.filter.text.commons.CompilerUtil;
 import org.geotools.filter.text.cql2.CQLLikePredicateTest;
-import org.geotools.filter.text.cql2.FilterCQLSample;
 import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.junit.Assert;
 import org.junit.Test;
