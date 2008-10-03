@@ -17,6 +17,7 @@
 package org.geotools.util;
 
 import java.lang.ref.Reference;  // For javadoc
+import java.util.Set;
 
 
 /**
@@ -147,4 +148,22 @@ public interface ObjectCache {
      * @param key
      */
     void writeUnLock(Object key);
+    
+    /**
+     * Returns a set of all the keys currently contained within the 
+     * ObjectCache.
+     * <p>
+     * This is a static copy of the keys in the cache at the point 
+     * in time when the function is called.
+     * 
+     * 
+     * @return a set of keys currently contained within the cache.
+     */
+    Set<Object> getKeys();
+    
+    /**
+     * Removes a given key from the cache.
+     * @param key
+     */
+    void remove(Object key);
 }

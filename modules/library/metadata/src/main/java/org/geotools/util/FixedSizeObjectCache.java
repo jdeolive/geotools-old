@@ -18,7 +18,9 @@ package org.geotools.util;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -71,7 +73,10 @@ final class FixedSizeObjectCache implements ObjectCache {
      * Removes all entries from this map.
      */
     public void clear() {
-        cache.clear();       
+    	synchronized (locks) {
+    		locks.clear();
+    		cache.clear();
+		}
     }
 
     /**
@@ -147,4 +152,23 @@ final class FixedSizeObjectCache implements ObjectCache {
         }
     }
 
+    /**
+     * @return the keys of the object currently in the set
+     */
+    public Set<Object> getKeys() {
+		Set<Object> keys = null;
+		keys = new HashSet<Object>(cache.keySet());
+		return keys;
+	}
+    
+    /**
+     * Removes the given key from the cache.
+     */
+    public void remove(Object key){
+    	//ensure nobody else is writing to this key as we remove it
+    	synchronized (locks) {
+    		locks.remove(key);
+    		cache.remove(key);
+		}
+    }
 }

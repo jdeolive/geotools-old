@@ -16,6 +16,9 @@
  */
 package org.geotools.util;
 
+import java.util.Collections;
+import java.util.Set;
+
 
 /**
  * Null implementation for the {@link ObjectCache}. Used for cases where
@@ -82,4 +85,19 @@ final class NullObjectCache implements ObjectCache {
      */
     public void writeUnLock(Object key) {
     }
+    
+    /**
+     * Return an empty set.
+     */
+    public Set<Object> getKeys(){
+    	return Collections.emptySet();
+    }
+    
+    /**
+     * Do nothing since there is nothing to remove.
+     */
+    public void remove(Object key){
+    	
+    }
+    
 }

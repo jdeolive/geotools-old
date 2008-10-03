@@ -16,8 +16,11 @@
  */
 package org.geotools.util;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -271,4 +274,26 @@ final class DefaultObjectCache implements ObjectCache {
             return entry;
         }
     }
+    
+    /**
+     * Retrieves all keys currently in the cache.
+     * 
+     * @return Set of keys
+     */
+    public Set<Object> getKeys(){
+    	Set<Object> ret = null;
+    	synchronized (cache) {
+    		ret = new HashSet<Object>( cache.keySet() );
+		}
+    	return ret;
+    }
+
+	/**
+	 * Removes this item from the object cache.
+	 */
+	public void remove(Object key) {
+		synchronized (cache) {
+			cache.remove(key);
+		}
+	}
 }

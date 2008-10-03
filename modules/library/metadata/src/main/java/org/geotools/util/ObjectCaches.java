@@ -16,6 +16,8 @@
  */
 package org.geotools.util;
 
+import java.util.Set;
+
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
@@ -157,6 +159,14 @@ public final class ObjectCaches {
 
             public void writeUnLock( Object key ) {
                 level1.writeLock(key);
+            }
+            
+            public Set<Object> getKeys(){
+            	return level1.getKeys();
+            }
+            
+            public void remove(Object key){
+            	level1.remove(key);
             }
         };
     }
