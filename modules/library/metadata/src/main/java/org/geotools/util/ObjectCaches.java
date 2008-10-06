@@ -183,7 +183,7 @@ public final class ObjectCaches {
     /**
      * Utility method used to produce an ObjectCache.
      *
-     * @param policy One of "weak", "all", "none"
+     * @param policy One of "weak", "all", "none", "soft"
      * @param size Used to indicate requested size, exact use depends on policy
      * @return A new ObjectCache
      * @see Hints.BUFFER_POLICY
@@ -197,6 +197,8 @@ public final class ObjectCaches {
             return NullObjectCache.INSTANCE;
         } else if ("fixed".equalsIgnoreCase(policy)) {
             return new FixedSizeObjectCache(size);
+        } else if ("soft".equals(policy)){
+        	return new SoftObjectCache(size);
         } else {
             return new DefaultObjectCache(size);
         }

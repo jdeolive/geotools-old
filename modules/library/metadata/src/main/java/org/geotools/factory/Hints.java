@@ -813,11 +813,13 @@ public class Hints extends RenderingHints {
      *   <li>{@code "fixed") for holding a fixed number of values specified by {@link #CACHE_LIMIT}.
      *   <li>{@code "all"} for holding values through strong references.</li>
      *   <li>{@code "none"} for disabling the cache.</li>
+     *   <li>{@code "soft"} for holding the value throuhg(@linkplain java.lang.ref.SoftReference 
+     *       soft references}.
      * </ul>
      *
      * @since 2.5
      */
-    public static final OptionKey CACHE_POLICY = new OptionKey("weak", "all", "fixed","none","default");
+    public static final OptionKey CACHE_POLICY = new OptionKey("weak", "all", "fixed","none","default","soft");
 
     /**
      * The recommended maximum number of referencing objects to hold in a
