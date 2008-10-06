@@ -189,7 +189,6 @@ public class TXTCompiler extends TXTParser implements ICompiler{
             this.builder.pushResult(r );
         
         } catch (CQLException e) {
-                //FIXME throw new ParseException(e.getMessage());
                 throw e;
               
         } finally {

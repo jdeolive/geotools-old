@@ -36,5 +36,4 @@ public class TXTBooleanValueExpressionTest extends CQLBooleanValueExpressionTest
     public TXTBooleanValueExpressionTest() {
         super(Language.TXT);
     }
-    
 }

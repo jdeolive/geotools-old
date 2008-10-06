@@ -169,7 +169,7 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
 
     }
 
-    @Test // TODO should be in the superclass
+    @Test // TODO should be in the superclass but is required improve the cql parser like TXT
     public void relate() throws CQLException {
         
         Filter resultFilter = CompilerUtil.parseFilter(language,"RELATE(geom1, POINT(1 2))");

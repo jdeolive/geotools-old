@@ -24,8 +24,10 @@ options {
 
    NODE_PACKAGE="org.geotools.filter.text.generated.parsers";
  
-   SANITY_CHECK=false;
+   SANITY_CHECK=true;
    VISITOR=false;
+   
+   FORCE_LA_CHECK=false; // force lookahead ambiguity checking in such instances. This option don't take into account the locak lookagead
 
    	// debug
    DEBUG_TOKEN_MANAGER=false;
@@ -294,11 +296,7 @@ Node FilterListCompilationUnit() :
    {return jjtree.rootNode();}
 }
 
-void SearchCondition() #void:
-{}
-{
-	 BooleanValueExpression()
-}
+
 /*
  * <SequenceOfSearchConditions> ::= 
  * 			<search condition>
@@ -310,6 +308,12 @@ void SequenceOfSearchConditions() #void:
 		SearchCondition() (<SENTENCE_SEPARATOR> SearchCondition())*
 }
 
+void SearchCondition() #void:
+{}
+{
+	 BooleanValueExpression()
+}
+
 /*
  * <boolean value expression> ::= 
  *			<boolean term>
@@ -318,9 +322,8 @@ void SequenceOfSearchConditions() #void:
 void BooleanValueExpression() #void:
 {}
 {
-		BooleanTerm()( <OR> BooleanTerm() #Boolean_Or_Node(2) )*
+		BooleanTerm()( <OR> BooleanTerm() #Boolean_Or_Node )*
 }
-
 
 /*
  * <boolean term> ::= 
@@ -330,24 +333,25 @@ void BooleanValueExpression() #void:
 void BooleanTerm() #void :
 {}
 {
-	 (BooleanFactor()( <AND> BooleanFactor() #Boolean_And_Node(2) )*)
+	 BooleanFactor()( <AND> BooleanFactor() #Boolean_And_Node )*
 }
 
 
 void BooleanFactor() #void:
 {}
 {
-		BooleanPrimary()
-	| 	<NOT> BooleanPrimary() #Boolean_Not_Node
+	  <NOT> BooleanPrimary() #Boolean_Not_Node
+	| BooleanPrimary()
+
 }
 
 void BooleanPrimary() #void:
 {}
 {
-	LOOKAHEAD(1) IncludeExcludePredicate()
-	|   LOOKAHEAD(1) Predicate() 
+	   LOOKAHEAD(Predicate()) Predicate() 
+	|  LOOKAHEAD(3)IncludeExcludePredicate()
+	|  LOOKAHEAD(3)<LP>SearchCondition()<RP> 
 	|  RoutineInvocation() 
-	|  <LP>SearchCondition()<RP> 
 }
 
 /*
@@ -818,7 +822,7 @@ void BetweenPredicate() #void:
  * cql extension
  *	<expression> ::= 
  */
- void Expression() #void:
+void Expression() #void:
 {}
 {
    		BinaryExpression()
@@ -853,11 +857,11 @@ void MultiplicativeExpression() #void :
 void UnaryExpression() #void:
 {}
 {
-	  LOOKAHEAD(2) Function() 
+	  LOOKAHEAD(2)<LP> Expression()<RP>
+	| LOOKAHEAD(2)<LSP> Expression()<RSP>
+	| LOOKAHEAD(2) Function() 
 	| Literal()
 	| Attribute()
-	| <LP> Expression()<RP>
-	| <LSP> Expression()<RSP>
 }
 
 void Evaluate() #void:

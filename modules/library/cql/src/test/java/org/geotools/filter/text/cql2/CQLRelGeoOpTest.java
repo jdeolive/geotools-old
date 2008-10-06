@@ -162,8 +162,7 @@ public class CQLRelGeoOpTest {
      */
     @Ignore
     public void testRoutineInvocationGeneric() throws Exception {
-        // TODO not implement it
-        // (Mauricio Comments) This case is not implemented because the filter
+        // TODO (Mauricio Comments) This case is not implemented because the filter
         // model has not a
         // Routine (Like functions in Expression). We could develop easily the
         // parser but we can not build a filter for CQL <Routine invocation>.

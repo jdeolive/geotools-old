@@ -50,17 +50,21 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
 
     /**
      * Test: Expression on the Left hand of comparison predicate
-     * Sample: (1+3) > prop1
+     * 
+     * <pre>
+     * Sample: (1+3) > aProperty
      *         (1+3) > (4-5)
+     * </pre>
+     * 
      * @throws CQLException
      */
-    @Test
+    @Test 
     public void expressionComparisonProperty() throws CQLException {
 
-        // (1+3) > prop1
+        // (1+3) > aProperty
         testComparison(FilterTXTSample.EXPRESION_GREATER_PROPERTY);
-        
-        //(1+3) > (4-5)
+
+        // (1+3) > (4-5)
         testComparison(FilterTXTSample.ADD_EXPRESION_GREATER_SUBTRACT_EXPRESION);
     }
 

@@ -283,7 +283,6 @@ public class FilterBuilderTest extends TestCase {
 
         assertNotNull("implementation of function was expected", eqToResultFilter.getExpression1());
 
-        // TODO this function must be implemented in Geotools
     }
 
     /**
@@ -332,7 +331,6 @@ public class FilterBuilderTest extends TestCase {
         // ATTR1 > [[1 + 2] / 3]
         testEqualsExpressions(FilterSample.FILTER_WITH_BRACKET_ROUNDTRIP_EXPR);
 
-        // TODO more test
         // roundtripFilter("[[[ 3 < 4 ] AND NOT [ 2 < 4 ]] AND [ 5 < 4 ]]");
         // roundtripFilter("[3<4 AND 2<4 ] OR 5<4");
         // roundtripFilter("3<4 && 2<4");
@@ -938,7 +936,6 @@ public class FilterBuilderTest extends TestCase {
      * </pre>
      *
      * </p>
-     * TODO requires more test
      */
     public void testUnaryExpressionFunction() throws Exception {
         Filter result;
@@ -1118,7 +1115,6 @@ public class FilterBuilderTest extends TestCase {
      * @throws Exception
      */
     public void testRoutineInvocationGeneric() throws Exception {
-        // TODO not implement it
         // (Mauricio Comments) This case is not implemented because the filter
         // model has not a
         // Routine (Like functions in ExpresiÃ³n). We could develop easily the

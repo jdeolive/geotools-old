@@ -20,7 +20,6 @@ package org.geotools.filter.text.cql2;
 import org.geotools.filter.text.commons.CompilerUtil;
 import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Not;
@@ -96,7 +95,7 @@ public class CQLBooleanValueExpressionTest {
      * Sample 2: ATTR3 < 4 AND (ATT1 > 10 OR ATT2 < 2)
      * @throws CQLException 
      */
-    @Ignore // FIXME it fail for TXT grammar
+    @Test
     public void andOr() throws CQLException{
         Filter result;
         Filter expected;
@@ -107,7 +106,7 @@ public class CQLBooleanValueExpressionTest {
 
         expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_OR_AND);
 
-        Assert.assertEquals("(ATTR1 < 10 AND ATTR2 < 2 OR ATTR3 > 10) was expected", expected, result);
+        Assert.assertEquals("a bad filter was expected", expected, result);
 
         // ATTR3 < 4 AND (ATT1 > 10 OR ATT2 < 2)
         result = CompilerUtil.parseFilter(language, FilterCQLSample.FILTER_OR_AND_PARENTHESIS);
@@ -116,7 +115,7 @@ public class CQLBooleanValueExpressionTest {
 
         expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_OR_AND_PARENTHESIS);
 
-        Assert.assertEquals("ATTR3 < 4 AND (ATT1 > 10 OR ATT2 < 2) was expected", expected, result);
+        Assert.assertEquals("a bad filter was expected", expected, result);
         
     }
 
@@ -143,28 +142,40 @@ public class CQLBooleanValueExpressionTest {
         Assert.assertEquals(FilterCQLSample.LESS_FILTER_SAMPLE + "was expected", expected, actual);
     }
     
-    @Ignore //FIXME it fail for txt grammar
+    /**
+     * <pre>
+     * Sample: 
+     * ATTR3 < 4 AND (NOT( ATTR1 < 10 AND ATTR2 < 2))
+     * ATTR1 < 1 AND (NOT (ATTR2 < 2)) AND ATTR3 < 3
+     * </pre>
+     * @throws Exception
+     */
+    @Test
     public void andNot() throws Exception {
         Filter result;
         Filter expected;
 
         // ATTR3 < 4 AND (NOT( ATTR1 < 10 AND ATTR2 < 2))
-        result = CompilerUtil.parseFilter(language, FilterCQLSample.FILTER_AND_NOT_AND);
+        result = CompilerUtil.parseFilter(language,
+                FilterCQLSample.FILTER_AND_NOT_AND);
 
         Assert.assertNotNull("filter expected", result);
 
-        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AND_NOT_AND);
+        expected = FilterCQLSample
+                .getSample(FilterCQLSample.FILTER_AND_NOT_AND);
 
-        Assert.assertEquals("ATTR3 < 4 AND (NOT( ATTR1 < 10 AND ATTR2 < 2)) was expected", expected, result);
+        Assert.assertEquals("a bad filter was produced", expected, result);
 
         // "ATTR1 < 1 AND (NOT (ATTR2 < 2)) AND ATTR3 < 3"
-//FIXME        result = CompilerUtil.parseFilter(language, FilterCQLSample.FILTER_AND_NOT_COMPARASION);
-//
-//        Assert.assertNotNull("filter expected", result);
-//
-//        expected = FilterCQLSample.getSample(FilterCQLSample.FILTER_AND_NOT_COMPARASION);
-//
-//        Assert.assertEquals("ATTR1 < 4 AND (NOT (ATTR2 < 4)) AND ATTR3 < 4 was expected", expected, result);
+        result = CompilerUtil.parseFilter(language,
+                FilterCQLSample.FILTER_AND_NOT_COMPARASION);
+
+        Assert.assertNotNull("filter expected", result);
+
+        expected = FilterCQLSample
+                .getSample(FilterCQLSample.FILTER_AND_NOT_COMPARASION);
+
+        Assert.assertEquals("a bad filter was produced", expected, result);
     }
      
 
