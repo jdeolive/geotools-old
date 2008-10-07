@@ -18,7 +18,6 @@
 package org.geotools.filter.text.txt;
 
 import org.geotools.filter.text.cql2.CQLNullPredicateTest;
-import org.geotools.filter.text.cql2.FilterCQLSample;
 import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.junit.Test;
 import org.opengis.filter.Filter;
@@ -61,19 +60,6 @@ public class TXTNullPredicateTest extends CQLNullPredicateTest {
      */
     @Test
     public void functionIsNotNull() throws Exception {
-
-        final String samplePredicate = FilterTXTSample.FUNCTION_IS_NOT_NULL;
-
-        Filter expected = FilterTXTSample.getSample(samplePredicate);
-        
-        testNullPredicate(samplePredicate, expected);
-    }
-
-    /**
-     * Sample: 3+4 IS NOT NULL
-     */
-    @Test
-    public void mathExprIsNull() throws Exception {
 
         final String samplePredicate = FilterTXTSample.FUNCTION_IS_NOT_NULL;
 

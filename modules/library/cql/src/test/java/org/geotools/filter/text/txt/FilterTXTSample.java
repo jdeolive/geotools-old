@@ -89,6 +89,7 @@ public final class FilterTXTSample {
 
     public static final String           FUNCTION_IS_NOT_NULL                     = "centroid( the_geom ) IS NOT NULL";
 
+
     /** Maintains the TXT predicates (input) and the expected filters (output) */
     public static Map<String, Object> SAMPLES = new HashMap<String, Object>();
 
@@ -276,8 +277,6 @@ public final class FilterTXTSample {
         //centroid( the_geom ) IS NOT NULL
         Not notIsNullFilter = FACTORY.not(isNullFilter);
         SAMPLES.put(FUNCTION_IS_NOT_NULL, notIsNullFilter);
-        
-        
     }
     
 
