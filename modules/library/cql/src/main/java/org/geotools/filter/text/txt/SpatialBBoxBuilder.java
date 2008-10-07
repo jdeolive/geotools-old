@@ -17,7 +17,7 @@
 
 package org.geotools.filter.text.txt;
 
-import org.geotools.filter.text.cql2.BuildResultStack;
+import org.geotools.filter.text.commons.BuildResultStack;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;

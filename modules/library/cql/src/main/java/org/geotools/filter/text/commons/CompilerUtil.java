@@ -17,10 +17,8 @@
 
 package org.geotools.filter.text.commons;
 
+import org.geotools.filter.text.commons.CompilerFactory.Language;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.cql2.CompilerFactory;
-import org.geotools.filter.text.cql2.ICompiler;
-import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.opengis.filter.Filter;
 import org.opengis.filter.expression.Expression;
 

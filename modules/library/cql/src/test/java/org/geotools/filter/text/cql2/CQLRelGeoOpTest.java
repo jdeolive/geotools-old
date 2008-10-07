@@ -18,6 +18,7 @@
 package org.geotools.filter.text.cql2;
 
 import org.geotools.filter.text.commons.CompilerUtil;
+import org.geotools.filter.text.commons.CompilerFactory.Language;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -50,14 +51,14 @@ import com.vividsolutions.jts.geom.Point;
  */
 public class CQLRelGeoOpTest {
 
-    protected final CompilerFactory.Language language;
+    protected final Language language;
 
     public CQLRelGeoOpTest() {
 
-        this(CompilerFactory.Language.CQL);
+        this(Language.CQL);
     }
 
-    public CQLRelGeoOpTest(final CompilerFactory.Language language) {
+    public CQLRelGeoOpTest(final Language language) {
 
         assert language != null : "language cannot be null value";
 

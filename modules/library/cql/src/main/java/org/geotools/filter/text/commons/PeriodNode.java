@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.filter.text.cql2;
+package org.geotools.filter.text.commons;
 
 import java.security.InvalidParameterException;
 import java.util.Date;
@@ -35,7 +35,7 @@ import org.opengis.filter.expression.Literal;
  *         http://svn.geotools.org/geotools/trunk/gt/modules/library/cql/src/main/java/org/geotools/text/filter/PeriodNode.java $
  *
  */
-class PeriodNode {
+public class PeriodNode {
     private Literal begin = null;
     private Literal end = null;
 

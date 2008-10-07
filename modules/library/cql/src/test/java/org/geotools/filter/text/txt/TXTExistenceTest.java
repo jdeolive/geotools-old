@@ -17,18 +17,18 @@
 
 package org.geotools.filter.text.txt;
 
+import org.geotools.filter.text.commons.CompilerFactory.Language;
 import org.geotools.filter.text.cql2.CQLExistenceTest;
-import org.geotools.filter.text.cql2.CompilerFactory.Language;
 
 /**
  * Test for TXT Existence Predicate
  * 
  * <p>
- * 
+ * Same to CQL
  * </p>
  * 
  * @author Mauricio Pazos (Axios Engineering)
- * @since 
+ * @since 2.6
  */
 public class TXTExistenceTest extends CQLExistenceTest {
     

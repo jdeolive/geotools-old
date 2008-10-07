@@ -16,7 +16,7 @@
  */
 package org.geotools.filter.text.txt;
 
-import org.geotools.filter.text.cql2.BuildResultStack;
+import org.geotools.filter.text.commons.BuildResultStack;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.spatial.BinarySpatialOperator;

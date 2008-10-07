@@ -17,10 +17,9 @@
 
 package org.geotools.filter.text.txt;
 
-import org.geotools.filter.text.cql2.BuildResultStack;
+import org.geotools.filter.text.commons.BuildResultStack;
+import org.geotools.filter.text.commons.Result;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.cql2.IToken;
-import org.geotools.filter.text.cql2.Result;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -47,7 +46,7 @@ final class PointBuilder extends GeometryBuilder {
      */
     public Geometry build() throws CQLException {
         Result result = getResultStack().popResult();
-        IToken token = result.getToken();
+        org.geotools.filter.text.commons.IToken token = result.getToken();
         try {
             Coordinate coordinate = (Coordinate) result.getBuilt();
 

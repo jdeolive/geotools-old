@@ -19,8 +19,8 @@ package org.geotools.filter.text.txt;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
+import org.geotools.filter.text.commons.CompilerFactory.Language;
 import org.geotools.filter.text.cql2.CQLRelGeoOpTest;
-import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.opengis.filter.FilterFactory;
 
 /**

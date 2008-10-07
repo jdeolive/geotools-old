@@ -19,7 +19,7 @@ package org.geotools.filter.text.txt;
 
 import java.util.List;
 
-import org.geotools.filter.text.cql2.BuildResultStack;
+import org.geotools.filter.text.commons.BuildResultStack;
 import org.geotools.filter.text.cql2.CQLException;
 
 import com.vividsolutions.jts.geom.Geometry;

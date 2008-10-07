@@ -17,8 +17,8 @@
 
 package org.geotools.filter.text.txt;
 
+import org.geotools.filter.text.commons.CompilerFactory;
 import org.geotools.filter.text.cql2.CQLTemporalPredicateTest;
-import org.geotools.filter.text.cql2.CompilerFactory;
 
 
 /**

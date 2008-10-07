@@ -17,6 +17,7 @@
 
 package org.geotools.filter.text.cql2;
 
+import org.geotools.filter.text.commons.CompilerFactory;
 import org.geotools.filter.text.commons.CompilerUtil;
 import org.junit.Assert;
 import org.junit.Test;

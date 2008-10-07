@@ -22,9 +22,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import org.geotools.filter.text.cql2.BuildResultStack;
+import org.geotools.filter.text.commons.BuildResultStack;
+import org.geotools.filter.text.commons.Result;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.cql2.Result;
 import org.opengis.filter.expression.Literal;
 
 import com.vividsolutions.jts.geom.Coordinate;

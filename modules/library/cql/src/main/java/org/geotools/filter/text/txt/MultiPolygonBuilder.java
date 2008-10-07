@@ -19,7 +19,7 @@ package org.geotools.filter.text.txt;
 
 import java.util.List;
 
-import org.geotools.filter.text.cql2.BuildResultStack;
+import org.geotools.filter.text.commons.BuildResultStack;
 import org.geotools.filter.text.cql2.CQLException;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -28,7 +28,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Builds the a {@link MultiPolygon} using the {@link Polygon} made in previous steps of 
- * parssing process.
+ * parsing process.
  *
  * @author Mauricio Pazos (Axios Engineering)
  * @since 

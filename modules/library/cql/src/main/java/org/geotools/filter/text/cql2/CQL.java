@@ -24,6 +24,8 @@ import java.util.List;
 import javax.xml.transform.TransformerException;
 
 import org.geotools.filter.FilterTransformer;
+import org.geotools.filter.text.commons.CompilerFactory;
+import org.geotools.filter.text.commons.ICompiler;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;

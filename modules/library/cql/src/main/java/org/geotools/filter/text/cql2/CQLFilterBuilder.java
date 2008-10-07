@@ -25,6 +25,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.geotools.filter.IllegalFilterException;
+import org.geotools.filter.text.commons.BuildResultStack;
+import org.geotools.filter.text.commons.IToken;
+import org.geotools.filter.text.commons.PeriodNode;
+import org.geotools.filter.text.commons.Result;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;

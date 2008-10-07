@@ -20,11 +20,10 @@ import java.io.StringReader;
 import java.util.List;
 
 import org.geotools.filter.IllegalFilterException;
+import org.geotools.filter.text.commons.IToken;
+import org.geotools.filter.text.commons.Result;
+import org.geotools.filter.text.commons.TokenAdapter;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.cql2.ICompiler;
-import org.geotools.filter.text.cql2.IToken;
-import org.geotools.filter.text.cql2.Result;
-import org.geotools.filter.text.cql2.TokenAdapter;
 import org.geotools.filter.text.generated.parsers.Node;
 import org.geotools.filter.text.generated.parsers.ParseException;
 import org.geotools.filter.text.generated.parsers.TXTParser;
@@ -54,7 +53,7 @@ import org.opengis.filter.spatial.DistanceBufferOperator;
  * @version Revision: 1.9
  * @since 2.6
  */
-public class TXTCompiler extends TXTParser implements ICompiler{
+public class TXTCompiler extends TXTParser implements org.geotools.filter.text.commons.ICompiler{
     
     private static final String ATTRIBUTE_PATH_SEPARATOR = "/";
 

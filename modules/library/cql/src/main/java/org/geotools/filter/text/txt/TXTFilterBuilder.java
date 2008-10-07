@@ -22,10 +22,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.geotools.filter.text.commons.IToken;
+import org.geotools.filter.text.commons.Result;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CQLFilterBuilder;
-import org.geotools.filter.text.cql2.IToken;
-import org.geotools.filter.text.cql2.Result;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;

@@ -17,8 +17,8 @@
 
 package org.geotools.filter.text.txt;
 
+import org.geotools.filter.text.commons.CompilerFactory.Language;
 import org.geotools.filter.text.cql2.CQLBooleanValueExpressionTest;
-import org.geotools.filter.text.cql2.CompilerFactory.Language;
 
 /**
  * TXT Boolean expression test

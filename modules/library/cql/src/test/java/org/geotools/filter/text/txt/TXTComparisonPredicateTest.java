@@ -17,9 +17,9 @@
 package org.geotools.filter.text.txt;
 
 import org.geotools.filter.text.commons.CompilerUtil;
+import org.geotools.filter.text.commons.CompilerFactory.Language;
 import org.geotools.filter.text.cql2.CQLComparisonPredicateTest;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.cql2.CompilerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.filter.Filter;
@@ -45,7 +45,7 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
 
     public TXTComparisonPredicateTest() {
         // sets the language used to execute this test case
-        super(CompilerFactory.Language.TXT);
+        super(Language.TXT);
     }
 
     /**

@@ -17,9 +17,9 @@
 
 package org.geotools.filter.text.txt;
 
+import org.geotools.filter.text.commons.CompilerFactory.Language;
 import org.geotools.filter.text.cql2.CQLBetweenPredicateTest;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.cql2.CompilerFactory.Language;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 
@@ -28,7 +28,7 @@ import org.opengis.filter.Filter;
  * Test case for between predicate with expressions
  * <p>
  * <pre>
- * <between predicate> ::= <expression> [ "NOT" ] "BETWEEN" <expression> "AND" <expression>
+ * &lt; between predicate &gt; ::= &lt; expression &gt; [ "NOT" ] "BETWEEN" &lt; expression &gt; "AND" &lt; expression &gt;
  * </pre>
  * </p>
  *
