@@ -35,5 +35,7 @@ public class TXTRelGeoOpTest extends CQLRelGeoOpTest {
     public TXTRelGeoOpTest(){
         super(Language.TXT);
     }
+   
+   
 
 }
