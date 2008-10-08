@@ -36,6 +36,7 @@ import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.spatial.Disjoint;
+import org.opengis.filter.spatial.DistanceBufferOperator;
 
 /**
  * TXT Test Case.
@@ -135,6 +136,17 @@ public final class TXTTest  {
         filter = TXT.toFilter("DISJOINT(buffer(the_geom, 10) , POINT(1 2))");
 
         Assert.assertTrue("Disjoint was expected", filter instanceof Disjoint);
+    }
+    
+    @Test
+    public void functionDwithinGeometry() throws Exception{
+        Filter resultFilter;
+
+        // DWITHIN
+        resultFilter = TXT.toFilter(
+                "DWITHIN(buffer(the_geom,5), POINT(1 2), 10, kilometers)");
+
+        Assert.assertTrue(resultFilter instanceof DistanceBufferOperator);
     }
 
     /**

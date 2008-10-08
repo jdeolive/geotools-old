@@ -565,7 +565,9 @@ void RoutineInvocationRelGeoOp() #void:
 void RelGeoRoutineArgumentList() #void:
 {}
 {
-	<LP> Attribute() <COMMA> GeometryLiteral() <COMMA> Tolerance() <RP>
+	<LP> Expression() <COMMA> Expression() <COMMA> Tolerance() <RP>
+	
+//	<LP> Attribute() <COMMA> GeometryLiteral() <COMMA> Tolerance() <RP>
 }
 /*
  * <tolerance> ::= <unsigned numeric literal><comma><distance units>
