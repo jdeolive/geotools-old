@@ -557,6 +557,7 @@ public class Encoder {
 
     public void encode(Object object, QName name, ContentHandler handler)
         throws IOException, SAXException {
+        try {
         serializer = handler;
 
         if (!inline) {
@@ -966,6 +967,17 @@ O:
         if (!inline) {
             serializer.endDocument();
         }
+        
+        }
+        finally {
+            //cleanup
+            index.destroy();
+            
+            //TODO: there are probably other refences to elements of XSDScheam objects, we should
+            // kill them too
+        }
+        
+
     }
 
     protected Node encode(Object object, XSDNamedComponent component) {

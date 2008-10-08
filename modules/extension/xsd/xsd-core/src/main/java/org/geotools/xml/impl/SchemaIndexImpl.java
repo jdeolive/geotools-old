@@ -72,17 +72,31 @@ public class SchemaIndexImpl implements SchemaIndex {
      */
     HashMap /*<XSDElementDeclaratoin,List>*/ element2attributes = new HashMap();
 
+    /**
+     * Adapter for tracking changes to schemas.
+     */
+    SchemaAdapter adapter;
+    
     public SchemaIndexImpl(XSDSchema[] schemas) {
         this.schemas = new XSDSchema[schemas.length + 1];
-
+        adapter = new SchemaAdapter();
+        
         //set the schemas passed in
         for (int i = 0; i < schemas.length; i++) {
             this.schemas[i] = schemas[i];
-            this.schemas[i].eAdapters().add(new SchemaAdapter());
+            this.schemas[i].eAdapters().add(adapter);
         }
 
         //add the schema for xml schema itself
         this.schemas[schemas.length] = schemas[0].getSchemaForSchema();
+    }
+    
+    public void destroy() {
+        //remove the adapter from the schemas
+        for (int i = 0; i < schemas.length; i++) {
+            this.schemas[i].eAdapters().remove(adapter);
+        }
+        schemas = null;
     }
 
     public XSDSchema[] getSchemas() {

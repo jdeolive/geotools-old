@@ -119,4 +119,9 @@ public interface SchemaIndex {
      * @return The list of attributed definied for the element.
      */
     List getAttributes(XSDElementDeclaration element);
+    
+    /**
+     * Cleans up the index before desctruction.
+     */
+    void destroy();
 }
