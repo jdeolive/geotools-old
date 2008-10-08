@@ -253,9 +253,14 @@ public class SimpleFeatureImpl implements SimpleFeature {
     }
 
     public Collection<Property> getProperties(String name) {
-        // cast temporarily to a plain collection to avoid type problems with generics
-        Collection c = Collections.singleton( new Attribute( index.get(name) ) );
-        return c;
+        final Integer idx = index.get(name);
+        if(idx != null) {
+            // cast temporarily to a plain collection to avoid type problems with generics
+            Collection c = Collections.singleton( new Attribute( idx ) );
+            return c;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public Property getProperty(Name name) {
@@ -263,7 +268,11 @@ public class SimpleFeatureImpl implements SimpleFeature {
     }
 
     public Property getProperty(String name) {
-        return new Attribute( index.get( name ) );
+        final Integer idx = index.get(name);
+        if(idx == null)
+            return null;
+        else
+            return new Attribute( idx );
     }
 
     public Collection<? extends Property> getValue() {
