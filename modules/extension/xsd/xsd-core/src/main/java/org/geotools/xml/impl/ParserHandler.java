@@ -594,6 +594,12 @@ O:          for (int i = 0; i < schemas.length; i++) {
     public void endDocument() throws SAXException {
         //only the document handler should be left on the stack
         documentHandler = (DocumentHandler) handlers.pop();
+        
+        //cleanup
+        if ( index != null ) {
+            index.destroy();
+        }
+        index = null;
         schemas = null;
 
         synchronized (this) {
