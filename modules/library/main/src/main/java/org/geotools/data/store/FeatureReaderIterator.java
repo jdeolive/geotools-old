@@ -57,7 +57,7 @@ final class FeatureReaderIterator<F extends Feature> implements Iterator<F> {
                 close();
                 return false;
             }            
-        } catch (IOException e) {
+        } catch (Exception e) {
             close();
             return false; // failure sounds like lack of next to me
         }        
@@ -92,7 +92,7 @@ final class FeatureReaderIterator<F extends Feature> implements Iterator<F> {
         if( reader != null){
             try {
                 reader.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 // sorry but iterators die quitely in the night
             }
             reader = null;
