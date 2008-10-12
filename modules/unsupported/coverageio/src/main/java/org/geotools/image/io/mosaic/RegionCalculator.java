@@ -296,42 +296,31 @@ final class RegionCalculator {
     private static List<Map<AffineTransform,Dimension>> computePyramidLevels(
             final Collection<AffineTransform> gridToCRS)
     {
-        Map<AffineTransform,Dimension> result = null;
-        List<Map<AffineTransform,Dimension>> results = null;
+        final List<Map<AffineTransform,Dimension>> results =
+                new ArrayList<Map<AffineTransform,Dimension>>(2);
         /*
-         * First, computes the pyramid levels along the X axis. Hash map will be created
-         * when needed. Transforms that we were unable to classify will be discarded from
-         * the first run and put in a subsequent run.
+         * First, computes the pyramid levels along the X axis. Transforms that we were unable
+         * to classify will be discarded from the first run and put in a subsequent run.
          */
         AffineTransform[] transforms = gridToCRS.toArray(new AffineTransform[gridToCRS.size()]);
         Arrays.sort(transforms, X_COMPARATOR);
         int length = transforms.length;
         while (length != 0) {
-            if (result == null) {
-                result = new IdentityHashMap<AffineTransform,Dimension>();
-            }
+            final Map<AffineTransform,Dimension> result =
+                    new IdentityHashMap<AffineTransform,Dimension>();
             if (length <= (length = computePyramidLevels(transforms, length, result, false))) {
                 throw new AssertionError(length); // Should always be decreasing.
             }
-            if (!result.isEmpty()) {
-                if (results == null) {
-                    results = new ArrayList<Map<AffineTransform,Dimension>>(2);
-                }
-                results.add(result);
-                result = null;
-            }
+            results.add(result);
         }
         /*
          * Next, computes the pyramid levels along the Y axis. If we fail to compute the
          * pyramid level for some AffineTransform, they will be removed from the map. If
          * a map became empty because of that, the whole map will be removed.
          */
-        if (results == null) {
-            return Collections.emptyList();
-        }
         final Iterator<Map<AffineTransform,Dimension>> iterator = results.iterator();
         while (iterator.hasNext()) {
-            result = iterator.next();
+            final Map<AffineTransform,Dimension> result = iterator.next();
             length = result.size();
             transforms = result.keySet().toArray(transforms);
             Arrays.sort(transforms, 0, length, Y_COMPARATOR);
@@ -341,7 +330,7 @@ final class RegionCalculator {
                     throw new AssertionError(length);
                 }
             }
-            if (result.size() <= 1) {
+            if (result.isEmpty()) {
                 iterator.remove();
             }
         }
@@ -385,6 +374,9 @@ final class RegionCalculator {
         if (isY) {
             // If we get a NullPointerException here, it would be a bug in the algorithm.
             result.get(base).height = 1;
+        } else {
+            assert result.isEmpty() : result;
+            result.put(base, new Dimension(1,0));
         }
         /*
          * From this point, consider 'base', 'scale', 'shear', 'scaleIsNull', 'shearIsNull'
@@ -431,9 +423,6 @@ final class RegionCalculator {
                 // If we get a NullPointerException here, it would be a bug in the algorithm.
                 result.get(candidate).height = level;
             } else {
-                if (result.isEmpty()) {
-                    result.put(base, new Dimension(1,0));
-                }
                 if (result.put(candidate, new Dimension(level,0)) != null) {
                     throw new AssertionError(candidate); // Should never happen.
                 }

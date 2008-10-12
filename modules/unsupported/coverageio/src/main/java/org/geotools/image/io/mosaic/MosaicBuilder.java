@@ -720,7 +720,7 @@ public class MosaicBuilder {
             ny = Arrays.binarySearch(ySubsamplings, ny); if (ny < 0) ny = ~ny; ny++;
             // The above increment (++) are inconditional (outside the "if" block).
             // Using "Math.max" below is safe since arrays have the same length.
-            final int length = Math.min(Math.max(nx, ny), xSubsamplings.length + 1);
+            final int length = Math.min(Math.max(nx, ny), xSubsamplings.length);
             subsamplings = new int[length * 2];
             int source = 0;
             for (int i=0; i<length; i++) {
