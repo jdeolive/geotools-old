@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -52,6 +52,17 @@ public abstract class TestBase {
      * Target tile size for BlueMarble mosaic.
      */
     protected static final int TARGET_SIZE = 960;
+
+    /**
+     * Subsamplings to be used along X and Y axes. We fix those values in order to protect
+     * the test suite from changes in the algorithm computing default subsampling values.
+     *
+     * @todo The commented-out values are the ones for a smaller tile size (480 instead of 960).
+     *       It may be better to use them since it use different values for X and Y axis.
+     */
+    private static final int[]
+            X_SUBSAMPLING = new int[] {1,3,5,9,15,45,90}, //{1,2,3,3,5,6,9,10,10,15,18,18,30,45,90},
+            Y_SUBSAMPLING = new int[] {1,3,5,9,15,45,90}; //{1,2,3,4,4,6,8, 8,12,16,16,24,24,48,90};
 
     /**
      * The mosaic builder used for creating {@link #targetTiles}.
@@ -117,8 +128,16 @@ public abstract class TestBase {
             new Tile(spi, new File(directory, "C2.png"), 0, new Rectangle(2*S, S, S, S)),
             new Tile(spi, new File(directory, "D2.png"), 0, new Rectangle(3*S, S, S, S))
         };
-        builder.setTileDirectory(new File("S960")); // Dummy directory - will not be written.
+        final Dimension[] subsamplings = new Dimension[
+                Math.max(X_SUBSAMPLING.length, Y_SUBSAMPLING.length)];
+        assertEquals(subsamplings.length, X_SUBSAMPLING.length);
+        assertEquals(subsamplings.length, Y_SUBSAMPLING.length);
+        for (int i=0; i<subsamplings.length; i++) {
+            subsamplings[i] = new Dimension(X_SUBSAMPLING[i], Y_SUBSAMPLING[i]);
+        }
+        builder.setSubsamplings(subsamplings);
         builder.setTileSize(new Dimension(TARGET_SIZE, TARGET_SIZE));
+        builder.setTileDirectory(new File("S960")); // Dummy directory - will not be written.
         manager = builder.createTileManager(sourceTiles);
         targetTiles = manager.getTiles().toArray(new Tile[manager.getTiles().size()]);
     }

@@ -54,24 +54,21 @@ public final class MosaicBuilderTest extends TestBase {
         Dimension size = builder.getTileSize();
         assertEquals(480, size.width);
         assertEquals(480, size.height);
-        builder.setTileSize(new Dimension(960,900));
 
         Dimension[] subsamplings = builder.getSubsamplings();
-        int[] width  = new int[] {1,2,3,3,5,6,9,10,10,15,18,18,30,45,90};
-        int[] height = new int[] {1,2,3,4,4,6,8, 8,12,16,16,24,24,48,90};
+        int[] expected = new int[] {1,2,3,4,5,6,9,10,12,15,18,20,30,36,45,60,90,180};
         for (int i=0; i<subsamplings.length; i++) {
-            assertEquals("width["  + i + ']', width [i], subsamplings[i].width);
-            assertEquals("height[" + i + ']', height[i], subsamplings[i].height);
+            assertEquals("width["  + i + ']', expected[i], subsamplings[i].width);
+            assertEquals("height[" + i + ']', expected[i], subsamplings[i].height);
         }
 
         builder.setTileSize(new Dimension(960,960));
         builder.setSubsamplings((Dimension[]) null); // For forcing new computation.
         subsamplings = builder.getSubsamplings();
-        width  = new int[] {1,3,5,9,15,45,90};
-        height = new int[] {1,3,5,9,15,45,90};
+        expected = new int[] {1,2,3,5,6,9,10,15,18,30,45,90};
         for (int i=0; i<subsamplings.length; i++) {
-            assertEquals("width["  + i + ']', width [i], subsamplings[i].width);
-            assertEquals("height[" + i + ']', height[i], subsamplings[i].height);
+            assertEquals("width["  + i + ']', expected[i], subsamplings[i].width);
+            assertEquals("height[" + i + ']', expected[i], subsamplings[i].height);
         }
     }
 

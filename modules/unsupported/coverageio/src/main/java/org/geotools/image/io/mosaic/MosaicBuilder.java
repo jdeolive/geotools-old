@@ -626,7 +626,7 @@ public class MosaicBuilder {
              * effect of reducing the number of tiles required for covering the whole image. So we
              * are better to choose subsamplings that are divisors of the number of tiles. If the
              * number of tiles are not integers, we round towards nearest integers in the hope that
-             * to get a number closer to user's intend.
+             * we get a number closer to user's intend.
              *
              * If the tile layout is unknown, we don't really know what to choose. We fallback on
              * some values that seem reasonable, but our fallback may change in future version.
@@ -642,65 +642,48 @@ public class MosaicBuilder {
                 ny = Fraction.round(untiledBounds.height, ny);
             }
             int[] xSubsamplings = XMath.divisors(nx);
-            int[] ySubsamplings;
-            if (nx == ny) {
-                ySubsamplings = xSubsamplings;
-            } else {
-                ySubsamplings = XMath.divisors(ny);
+            if (nx != ny) {
                 /*
                  * Subsamplings are different along x and y axis. We need at least arrays of the
-                 * same length. First (as a help for further processing) computes the union of all
-                 * subsamplings, together with subsamplings that are common to both axis.
+                 * same length. While not strictly required, it is better that xSubsampling and
+                 * ySubsampling are equal, assuming that pixels are square (otherwise we could
+                 * multiply by a height/width ratio; it may be done in a future version). Current
+                 * implementation keep the union of divisors.
+                 *
+                 * TODO: move the code that computes the union in XArray.union(int[],int[]).
                  */
+                final int[] ySubsamplings = XMath.divisors(ny);
                 final int[] union  = new int[xSubsamplings.length + ySubsamplings.length];
-                final int[] common = new int[union.length];
-                int nu=0, nc=0, no;
+                int nu=0;
                 for (int ix=0, iy=0;;) {
                     if (ix == xSubsamplings.length) {
-                        no = ySubsamplings.length - iy;
+                        final int no = ySubsamplings.length - iy;
                         System.arraycopy(ySubsamplings, iy, union, nu, no);
+                        nu += no;
                         break;
                     }
                     if (iy == ySubsamplings.length) {
-                        no = xSubsamplings.length - ix;
+                        final int no = xSubsamplings.length - ix;
                         System.arraycopy(xSubsamplings, ix, union, nu, no);
+                        nu += no;
                         break;
                     }
                     final int sx = xSubsamplings[ix];
                     final int sy = ySubsamplings[iy];
-                    int s = 0;
-                    if (sx <= sy) {s = sx; ix++;}
-                    if (sy <= sx) {s = sy; iy++;}
-                    if (sx == sy) common[nc++] = s;
+                    final int s;
+                    if (sx <= sy) {
+                        s = sx;
+                        ix++;
+                        if (sx == sy) {
+                            iy++;
+                        }
+                    } else {
+                        s = sy;
+                        iy++;
+                    }
                     union[nu++] = s;
                 }
-                /*
-                 * If there is a fair amount of subsampling values that are common in both axis
-                 * (the threshold is totally arbitrary in current implementation), retains only
-                 * the common values. Otherwise we will try some merge.
-                 */
-                if (nc >= nu / 2) {
-                    ySubsamplings = xSubsamplings = new int[nc + no];
-                    System.arraycopy(common, 0, xSubsamplings,  0, nc);
-                    System.arraycopy(union, nu, xSubsamplings, nc, no);
-                } else {
-                    nu += no;
-                    int j = 0;
-                    final int[] newX = new int[nu];
-                    final int[] newY = new int[nu];
-                    for (int i=0; i<nu; i++) {
-                        final int s  = union[i];
-                        final int sx = closest(xSubsamplings, s);
-                        final int sy = closest(ySubsamplings, s);
-                        if (j == 0 || newX[j-1] != sx || newY[j-1] != sy) {
-                            newX[j] = sx;
-                            newY[j] = sy;
-                            j++;
-                        }
-                    }
-                    xSubsamplings = XArray.resize(newX, j);
-                    ySubsamplings = XArray.resize(newY, j);
-                }
+                xSubsamplings = XArray.resize(union, nu);
             }
             /*
              * Trims the subsamplings which would produce tiles smaller than the minimum size
@@ -716,16 +699,15 @@ public class MosaicBuilder {
                 nx = (untiledBounds.width  - 1) / tileSize.width  + 1;
                 ny = (untiledBounds.height - 1) / tileSize.height + 1;
             }
+            // Increments (++) below are inconditional (outside the "if" block).
             nx = Arrays.binarySearch(xSubsamplings, nx); if (nx < 0) nx = ~nx; nx++;
-            ny = Arrays.binarySearch(ySubsamplings, ny); if (ny < 0) ny = ~ny; ny++;
-            // The above increment (++) are inconditional (outside the "if" block).
-            // Using "Math.max" below is safe since arrays have the same length.
+            ny = Arrays.binarySearch(xSubsamplings, ny); if (ny < 0) ny = ~ny; ny++;
             final int length = Math.min(Math.max(nx, ny), xSubsamplings.length);
             subsamplings = new int[length * 2];
             int source = 0;
             for (int i=0; i<length; i++) {
                 subsamplings[source++] = xSubsamplings[i];
-                subsamplings[source++] = ySubsamplings[i];
+                subsamplings[source++] = xSubsamplings[i];
             }
         }
         final Dimension[] dimensions = new Dimension[subsamplings.length / 2];
@@ -1042,25 +1024,6 @@ public class MosaicBuilder {
             manager = managers[0];
         }
         return manager;
-    }
-
-    /**
-     * Returns the value from the specified array which is the closest to the specified value.
-     * If the specified value is out of upper bounds, then it is returned unchanged. The array
-     * values must be sorted in increasing order.
-     */
-    private static int closest(final int[] subsamplings, final int s) {
-        int i = Arrays.binarySearch(subsamplings, s);
-        if (i < 0) {
-            i = ~i;
-            if (i == subsamplings.length) {
-                return s;
-            }
-            if (i != 0 && (s - subsamplings[i-1]) <= (subsamplings[i] - s)) {
-                i--;
-            }
-        }
-        return subsamplings[i];
     }
 
     /**
