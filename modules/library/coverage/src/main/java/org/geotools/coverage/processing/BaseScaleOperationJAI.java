@@ -277,7 +277,7 @@ public class BaseScaleOperationJAI extends OperationJAI {
 	     * be equal to the coordinate system set in the 'parameters' block.
 	     */
 	    final InternationalString      name = deriveName(sources, 0, parameters);
-	    final Map<String,Object>       properties = getProperties(image,parameters.crs,name,finalTransform,sources,parameters);
+	    final Map<String,?>       properties = getProperties(image,parameters.crs,name,finalTransform,sources,parameters);
 	    final GridCoverage2D result = getFactory(parameters.hints)
 	            .create(name,        // The grid coverage name
 	                    image,        // The underlying data

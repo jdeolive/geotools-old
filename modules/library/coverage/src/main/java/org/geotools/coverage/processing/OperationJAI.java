@@ -669,7 +669,7 @@ public class OperationJAI extends Operation2D {
      *
      * @since 2.4
      */
-    protected Map getProperties(RenderedImage data,        CoordinateReferenceSystem crs,
+    protected Map<String,?> getProperties(RenderedImage data,        CoordinateReferenceSystem crs,
                                 InternationalString name,  MathTransform gridToCRS,
                                 GridCoverage2D[] sources,  Parameters parameters)
     {

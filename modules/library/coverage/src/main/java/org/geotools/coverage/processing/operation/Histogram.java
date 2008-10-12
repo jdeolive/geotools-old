@@ -118,7 +118,7 @@ public class Histogram extends AbstractStatisticsOperationJAI {
 	 *      InternationalString, MathTransform, GridCoverage2D[],
 	 *      org.geotools.coverage.processing.OperationJAI.Parameters),
 	 */
-	protected Map getProperties(RenderedImage data,
+	protected Map<String, ?> getProperties(RenderedImage data,
 			CoordinateReferenceSystem crs, InternationalString name,
 			MathTransform toCRS, GridCoverage2D[] sources, Parameters parameters) {
 		// /////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ public class Histogram extends AbstractStatisticsOperationJAI {
 					.getProperty(GT_SYNTHETIC_PROPERTY_HISTOGRAM);
 
 			// return the map
-			final Map synthProp = new HashMap(2);
+			final Map<String, javax.media.jai.Histogram> synthProp = new HashMap<String, javax.media.jai.Histogram>();
 			synthProp.put(GT_SYNTHETIC_PROPERTY_HISTOGRAM, hist);
 			return Collections.unmodifiableMap(synthProp);
 

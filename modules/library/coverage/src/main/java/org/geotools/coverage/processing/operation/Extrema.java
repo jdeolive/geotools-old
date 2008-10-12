@@ -20,6 +20,7 @@ import java.awt.Shape;
 import java.awt.image.RenderedImage;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -90,6 +91,11 @@ public class Extrema extends AbstractStatisticsOperationJAI {
 
 	/** {@link String} key for getting the maximum vector. */
 	public final static String GT_SYNTHETIC_PROPERTY_MAXIMUM = "maximum";
+	/**Locations of min values. */
+	public final static String GT_SYNTHETIC_PROPERTY_MIN_LOCATIONS="minLocations";
+	
+	/**Locations of max values. */
+	public final static String GT_SYNTHETIC_PROPERTY_MAX_LOCATIONS="maxLocations";
 
 
 	/**
@@ -124,27 +130,33 @@ public class Extrema extends AbstractStatisticsOperationJAI {
 	 *      InternationalString, MathTransform, GridCoverage2D[],
 	 *      org.geotools.coverage.processing.OperationJAI.Parameters),
 	 */
-	protected Map getProperties(RenderedImage data,
+	@SuppressWarnings("unchecked")
+	protected Map<String,?> getProperties(RenderedImage data,
 			CoordinateReferenceSystem crs, InternationalString name,
 			MathTransform toCRS, GridCoverage2D[] sources, Parameters parameters) {
 		// /////////////////////////////////////////////////////////////////////
 		//
-		// If and only if data is a RenderedOp we prepar the properties for
+		// If and only if data is a RenderedOp we prepare the properties for
 		// minimum and maximum as the output of the extrema operation.
 		//
 		// /////////////////////////////////////////////////////////////////////
 		if (data instanceof RenderedOp) {
-			// XXX remove me with 1.5
 			final RenderedOp result = (RenderedOp) data;
+			final Map<String, Object> synthProp = new HashMap<String, Object>();			
 
 			// get the properties
 			final double[] maximums = (double[]) result
 					.getProperty(GT_SYNTHETIC_PROPERTY_MAXIMUM);
 			final double[] minimums = (double[]) result
 					.getProperty(GT_SYNTHETIC_PROPERTY_MINIMUM);
+			Object property=result.getProperty(GT_SYNTHETIC_PROPERTY_MIN_LOCATIONS);
+			if((property instanceof List[]))
+				synthProp.put(GT_SYNTHETIC_PROPERTY_MIN_LOCATIONS, (List<int[]>[])property);
+			property=result.getProperty(GT_SYNTHETIC_PROPERTY_MAX_LOCATIONS);
+			if((property instanceof List[]))
+				synthProp.put(GT_SYNTHETIC_PROPERTY_MAX_LOCATIONS, (List<int[]>[])property);
 
 			// return the map
-			final Map synthProp = new HashMap(2);
 			synthProp.put(GT_SYNTHETIC_PROPERTY_MINIMUM, minimums);
 			synthProp.put(GT_SYNTHETIC_PROPERTY_MAXIMUM, maximums);
 			return Collections.unmodifiableMap(synthProp);
