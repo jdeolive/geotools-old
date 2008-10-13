@@ -47,7 +47,7 @@ import java.util.Set;
  * TXTParser is the result of a javacc jjtree grammar.
  * 
  * @author  Mauricio Pazos - Axios Engineering
- * @since 2.5
+ * @since 2.6
  */
 public class TXTParser {
   public void jjtreeOpenNodeScope(Node n) throws ParseException {

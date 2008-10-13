@@ -31,6 +31,7 @@ import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.PropertyIsGreaterThan;
 import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.expression.Add;
@@ -89,9 +90,9 @@ public final class TXTTest  {
 
         Filter filter; 
         
-        filter = TXT.toFilter("A = 1");
+        filter = TXT.toFilter("POP_RANK > 6");
         
-        Assert.assertTrue(filter instanceof PropertyIsEqualTo);
+        Assert.assertTrue(filter instanceof PropertyIsGreaterThan);
 
         filter = TXT.toFilter("area(the_geom) < 3000");
         
