@@ -17,7 +17,9 @@
 package org.geotools.data.postgis;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,7 +64,8 @@ class FidTransformeVisitor extends DuplicatingFilterVisitor {
             throw new IllegalArgumentException(
                     "Invalid fid filter provides, has no fids inside");
         }
-        Filter external = null;
+        Filter result = null;
+        List<Filter> transformedIdFilters = new ArrayList<Filter>();
         for (Iterator it = ids.iterator(); it.hasNext();) {
             String id = (String) it.next();
             Object[] attributes;
@@ -82,27 +85,28 @@ class FidTransformeVisitor extends DuplicatingFilterVisitor {
                 String colName = mapper.getColumnName(j);
                 if ("revision".equals(colName))
                     continue;
-                PropertyIsEqualTo  equal = ff.equals(ff.property(colName), ff.literal(attributes[i]));
-                if (idf == null)
-                    idf = equal;
-                else
-                    idf = ff.and( idf,  equal);
+                transformedIdFilters.add(ff.equals(ff.property(colName), ff.literal(attributes[i])));
                 i++;
             }
-            if (external == null)
-                external = idf;
-            else
-                external = ff.or( external, idf);
         }
+        
+        // build the or of all the property is equals equivalent to each id filter
+        if(transformedIdFilters.size() > 1) {
+            result = ff.or(transformedIdFilters);
+        } else if (transformedIdFilters.size() == 1) {
+            result = transformedIdFilters.get(0);
+        }
+            
+        
         // if all the fids are in an improper format, the fid filter is equivalent to
         // a Filter that excludes everything... Since I cannot use Filter.EXCLUDE (it breaks
         // the filter splitter with a class cast exception) I'm falling back on the old  
         // "1 = 0" filter (ugly, but works...)
-        if(external == null) {
+        if(result == null) {
             PropertyIsEqualTo equal = ff.equals(ff.literal(0),ff.literal(1));
             return equal;
         } else
-            return external;
+            return result;
     }
 
 }

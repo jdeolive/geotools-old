@@ -288,6 +288,22 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         assertFalse(fr.hasNext());
         fr.close();
     }
+    
+    public void testReaderBigFidFilter() throws Exception {
+        VersionedPostgisDataStore ds = getDataStore();
+
+        SimpleFeatureType originalFt = ds.getSchema("road");
+        ds.setVersioned("road", true, "gimbo", "version enabling stuff");
+        
+        Set<FeatureId> fids = new HashSet<FeatureId>();
+        for (int i = 0; i < 1000; i++) {
+            fids.add(ff.featureId("road.rd" + i));
+        }
+        Filter manyIds = ff.id(fids);
+        DefaultQuery q = new DefaultQuery("road", manyIds);
+        
+        FeatureReader<SimpleFeatureType, SimpleFeature> fr = ds.getFeatureReader(q, Transaction.AUTO_COMMIT);
+    }
 
     public void testFidFilter() throws IOException, NoSuchElementException,
             IllegalAttributeException {
