@@ -303,6 +303,7 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         DefaultQuery q = new DefaultQuery("road", manyIds);
         
         FeatureReader<SimpleFeatureType, SimpleFeature> fr = ds.getFeatureReader(q, Transaction.AUTO_COMMIT);
+        fr.close();
     }
 
     public void testFidFilter() throws IOException, NoSuchElementException,
