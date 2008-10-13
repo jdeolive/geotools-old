@@ -84,8 +84,6 @@ import com.vividsolutions.jts.io.WKTWriter;
  * @task TODO: make individual operations truly atomic.  If the transaction is
  *       an auto-commit one, then it should make a a new jdbc transaction that
  *       rollsback if there are errors while performing its action.
- * @task TODO: don't use encoder at all, only access it through
- *       PostgisSQLBuilder
  */
 public class PostgisFeatureStore extends JDBCFeatureStore {
     /** The logger for the postgis module. */
@@ -105,7 +103,6 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
 
     /** To create the sql where statement */
     protected PostgisSQLBuilder sqlBuilder;
-    protected SQLEncoderPostgis encoder;
     protected String tableName;
 
     /** the name of the column to use for the featureId */
@@ -119,17 +116,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         sqlBuilder = (PostgisSQLBuilder) postgisDataStore.getSqlBuilder(tableName);
 
         AttributeDescriptor geomType = featureType.getGeometryDescriptor();
-        encoder = new SQLEncoderPostgis();
-        encoder.setFeatureType( featureType );
-        encoder.setFIDMapper(postgisDataStore.getFIDMapper(featureType.getTypeName()));
 
-        if (geomType != null) {
-            //HACK: encoder should be set for each geometry.
-            int srid = getSRID(geomType.getLocalName());
-            encoder.setDefaultGeometry(geomType.getLocalName());
-            encoder.setSRID(srid);
-            encoder.setFIDMapper(fidMapper);
-        }
         /**
          * Override to indicate we support offset, and natural and reverse order sorting
          */
@@ -201,9 +188,6 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         Filter encodableFilter = sqlBuilder.getPreQueryFilter(filter);
         Filter unEncodableFilter = sqlBuilder.getPostQueryFilter(filter);
 
-//        SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
-//        unpacker.unPackOR(filter);
-
         PreparedStatement statement = null;
         Connection conn = null;
 
@@ -215,8 +199,12 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             }
 
             if (encodableFilter != null) {
-                whereStmt = encoder.encode(encodableFilter);
-                sql = "DELETE from " + sqlBuilder.encodeTableName(tableName) + whereStmt + ";";
+                StringBuffer sb = new StringBuffer();
+                sb.append("DELETE FROM");
+                sb.append(sqlBuilder.encodeTableName(tableName));
+                sb.append(" WHERE ");
+                sqlBuilder.encode(sb, encodableFilter);
+                sql = sb.toString();
 
                 //do actual delete
                 LOGGER.fine("sql statment is " + sql);
@@ -300,7 +288,9 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             }
 
             if (encodableFilter != null) {
-                whereStmt = encoder.encode(encodableFilter);
+                StringBuffer sb = new StringBuffer();
+                sqlBuilder.encode(sb, encodableFilter);
+                whereStmt = "WHERE " + sb;
                 final String sql = makeModifySqlStatement(type, value, whereStmt);
                 statement = conn.prepareStatement(sql);
                 LOGGER.finer("encoded modify is " + sql);
@@ -583,7 +573,9 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
 
         if (filter != null) {
             try {
-                where = encoder.encode(filter);
+                StringBuffer sb = new StringBuffer();
+                sqlBuilder.encode(sb, filter);
+                where = "WHERE " + sb.toString();
             } catch (SQLEncoderException sqle) {
                 String message = "Encoder error" + sqle.getMessage();
                 LOGGER.warning(message);

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
@@ -60,6 +61,7 @@ import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.function.FilterFunction_geometryType;
 import org.geotools.filter.function.math.FilterFunction_ceil;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.LiteCoordinateSequence;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -67,10 +69,13 @@ import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -1700,6 +1705,30 @@ public class PostgisDataStoreAPIOnlineTest extends AbstractPostgisDataTestCase {
         road.removeFeatures(Filter.INCLUDE);
         assertEquals(0, road.getFeatures().size());
     }
+    
+    public void testGetFeatureStoreRemoveIntersects() throws IOException {
+        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
+        final PropertyName property = ff.property(roadType.getGeometryDescriptor().getLocalName());
+        // this should match only rd1
+        final Literal polygon = ff.literal(JTS.toGeometry(new Envelope(1, 2, 1, 2)));
+
+        int size = road.getFeatures().size();
+        road.removeFeatures(ff.intersects(property, polygon));
+        assertEquals(size - 1, road.getFeatures().size());
+    }
+    
+    public void testGetFeatureStoreUpdateIntersects() throws IOException {
+        FeatureStore<SimpleFeatureType, SimpleFeature> road = (FeatureStore<SimpleFeatureType, SimpleFeature>) data.getFeatureSource("road");
+        final PropertyName property = ff.property(roadType.getGeometryDescriptor().getLocalName());
+        // this should match only rd1
+        final Literal polygon = ff.literal(JTS.toGeometry(new Envelope(1, 2, 1, 2)));
+
+        road.modifyFeatures(roadType.getDescriptor("name"), "r1.updated", ff.intersects(property, polygon));
+        FeatureCollection fc = road.getFeatures(ff.id(Collections.singleton(ff.featureId("road.rd1"))));
+        SimpleFeature rd1 = (SimpleFeature) fc.toArray()[0];
+        assertEquals("r1.updated", rd1.getAttribute("name"));
+    }
+    
 
     public void testGetFeatureStoreAddFeatures() throws IOException {
          FeatureReader<SimpleFeatureType, SimpleFeature> reader = DataUtilities.reader(new SimpleFeature[] { newRoad, });
