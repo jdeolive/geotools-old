@@ -27,12 +27,14 @@ import org.opengis.filter.FilterFactory;
  * Creates the compiler required for the specific language.
  *
  * @author Mauricio Pazos (Axios Engineering)
- * @since 2.5
+ * @since 2.6
  */
-public final class CompilerFactory {
+final class CompilerFactory {
     
-    /** implemented languages*/
-    public static enum Language {TXT, CQL};
+    
+    private CompilerFactory(){
+        
+    }
 
     /**
      * Initializes and create the new compiler

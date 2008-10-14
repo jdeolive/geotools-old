@@ -21,7 +21,7 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.filter.function.FilterFunction_buffer;
 import org.geotools.filter.text.commons.CompilerUtil;
-import org.geotools.filter.text.commons.CompilerFactory.Language;
+import org.geotools.filter.text.commons.Language;
 import org.geotools.filter.text.cql2.CQLRelGeoOpTest;
 import org.junit.Assert;
 import org.junit.Test;

@@ -17,7 +17,7 @@
 
 package org.geotools.filter.text.txt;
 
-import org.geotools.filter.text.commons.CompilerFactory;
+import org.geotools.filter.text.commons.Language;
 import org.geotools.filter.text.cql2.CQLTemporalPredicateTest;
 
 
@@ -35,7 +35,7 @@ public class TXTTemporalPredicateTest extends CQLTemporalPredicateTest {
 
     public TXTTemporalPredicateTest() {
         // sets the TXT language used to execute this test case
-        super(CompilerFactory.Language.TXT);
+        super(Language.TXT);
     }
     
 }

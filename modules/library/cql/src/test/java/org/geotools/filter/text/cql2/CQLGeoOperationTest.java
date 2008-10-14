@@ -17,8 +17,8 @@
 
 package org.geotools.filter.text.cql2;
 
-import org.geotools.filter.text.commons.CompilerFactory;
 import org.geotools.filter.text.commons.CompilerUtil;
+import org.geotools.filter.text.commons.Language;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.filter.Filter;
@@ -63,21 +63,21 @@ import org.opengis.filter.spatial.Within;
 public class CQLGeoOperationTest {
 
     
-    protected final CompilerFactory.Language language;
+    protected final Language language;
 
     /**
      * New instance of CQLTemporalPredicateTest
      */
     public CQLGeoOperationTest(){
         
-        this(CompilerFactory.Language.CQL);
+        this(Language.CQL);
     }
 
     /**
      * New instance of CQLTemporalPredicateTest
      * @param language
      */
-    public CQLGeoOperationTest(final CompilerFactory.Language language){
+    public CQLGeoOperationTest(final Language language){
         
         assert language != null: "language cannot be null value";
         

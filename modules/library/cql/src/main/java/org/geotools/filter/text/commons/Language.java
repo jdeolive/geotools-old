@@ -15,21 +15,16 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.filter.text.txt;
-
-import org.geotools.filter.text.commons.Language;
-import org.geotools.filter.text.cql2.CQLExpressionTest;
+package org.geotools.filter.text.commons;
 
 /**
- * Expression Test
+ * Languages supported by this module
  *
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
  */
-public class TXTExpressionTest extends CQLExpressionTest {
+public enum Language {
 
-    public TXTExpressionTest(){
-        
-        super(Language.TXT);
-    }
+    TXT, CQL;
+
 }

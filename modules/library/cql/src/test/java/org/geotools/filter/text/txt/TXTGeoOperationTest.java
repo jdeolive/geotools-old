@@ -18,7 +18,7 @@
 package org.geotools.filter.text.txt;
 
 import org.geotools.filter.text.commons.CompilerUtil;
-import org.geotools.filter.text.commons.CompilerFactory.Language;
+import org.geotools.filter.text.commons.Language;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CQLGeoOperationTest;
 import org.junit.Assert;

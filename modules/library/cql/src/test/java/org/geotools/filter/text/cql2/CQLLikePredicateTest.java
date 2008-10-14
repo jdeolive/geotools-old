@@ -17,9 +17,8 @@
 
 package org.geotools.filter.text.cql2;
 
-import org.geotools.filter.text.commons.CompilerFactory;
 import org.geotools.filter.text.commons.CompilerUtil;
-import org.geotools.filter.text.commons.CompilerFactory.Language;
+import org.geotools.filter.text.commons.Language;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.filter.Filter;
@@ -53,7 +52,7 @@ public class CQLLikePredicateTest {
     protected final Language language;
     
     public CQLLikePredicateTest(){
-        this(CompilerFactory.Language.CQL);
+        this(Language.CQL);
     }
 
     public CQLLikePredicateTest(final Language language) {

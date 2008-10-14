@@ -18,14 +18,17 @@ package org.geotools.filter.text.txt;
 
 import java.util.List;
 
+import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.IsNullImpl;
 import org.geotools.filter.function.FilterFunction_relatePattern;
 import org.geotools.filter.function.PropertyExistsFunction;
+import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
@@ -36,8 +39,11 @@ import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.Disjoint;
 import org.opengis.filter.spatial.DistanceBufferOperator;
+
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 
 /**
  * TXT Test Case.
@@ -294,4 +300,45 @@ public final class TXTTest  {
         
         Assert.assertTrue(list.get(1) instanceof PropertyIsLessThan );
     }
+    
+    
+    /**
+     * Verify the parser uses the provided FilterFactory implementation
+     * @throws Exception
+     */
+    @Test
+    public void toFilterUsesProvidedFilterFactory() throws Exception {
+        final boolean[] called = { false };
+        
+        FilterFactory ff = new FilterFactoryImpl() {
+                public PropertyName property(String propName) {
+                    called[0] = true;
+
+                    return super.property(propName);
+                }
+            };
+
+        TXT.toFilter("attName > 20", ff);
+        Assert.assertTrue("Provided FilterFactory was not called", called[0]);
+    }
+    /**
+     * Verify the parser uses the provided FilterFactory implementation
+     * @throws Exception
+     */
+    @Test
+    public void toExpressionUsesProvidedFilterFactory() throws Exception {
+        final boolean[] called = { false };
+        
+        FilterFactory ff = new FilterFactoryImpl() {
+                public PropertyName property(String propName) {
+                    called[0] = true;
+
+                    return super.property(propName);
+                }
+            };
+
+        TXT.toExpression("attName", ff);
+        Assert.assertTrue("Provided FilterFactory was not called", called[0]);
+    }
+    
 }

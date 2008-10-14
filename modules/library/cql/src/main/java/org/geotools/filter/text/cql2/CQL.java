@@ -24,8 +24,8 @@ import java.util.List;
 import javax.xml.transform.TransformerException;
 
 import org.geotools.filter.FilterTransformer;
-import org.geotools.filter.text.commons.CompilerFactory;
-import org.geotools.filter.text.commons.ICompiler;
+import org.geotools.filter.text.commons.CompilerUtil;
+import org.geotools.filter.text.commons.Language;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
@@ -52,31 +52,35 @@ import org.opengis.filter.expression.Expression;
  * Here are some usage examples. Refer to the <a
  * href="http://docs.codehaus.org/display/GEOTOOLS/CQL+Parser+Design">complete
  * grammar</a> to see what exactly you can do.
- *
+ * 
+ * 
  * <pre>
  * <code>
- * Filter f1 = CQL.toFilter(&quot;ATTR1 &lt; 10 AND ATTR2 &lt; 2 OR ATTR3 &gt; 10&quot;);
+ * Filter f = CQL.toFilter(&quot;ATTR1 &lt; 10 AND ATTR2 &lt; 2 OR ATTR3 &gt; 10&quot;);
+ * 
+ * Filter f = CQL.toFilter(&quot;NAME = 'New York' &quot;);
+ * 
+ * Filter f = CQL.toFilter(&quot;NAME LIKE 'New%' &quot;);
  *
- * Filter f2 = CQL.toFilter(&quot;ATTR1 IS NULL&quot;);
+ * Filter f = CQL.toFilter(&quot;NAME IS NULL&quot;);
  *
- * Filter f3 = CQL.toFilter(&quot;ATTR1 BEFORE 2006-11-30T01:30:00Z&quot;);
+ * Filter f = CQL.toFilter(&quot;DATE BEFORE 2006-11-30T01:30:00Z&quot;);
  *
- * Filter f4 = CQL.toFilter(&quot;ATTR1 DOES-NOT-EXIST&quot;);
+ * Filter f = CQL.toFilter(&quot;NAME DOES-NOT-EXIST&quot;);
  *
- * Filter f5 = CQL.toFilter(&quot;ATTR1 BETWEEN 10 AND 20&quot;);
+ * Filter f = CQL.toFilter(&quot;QUANTITY BETWEEN 10 AND 20&quot;);
  *
- * Filter f6 = CQL.toFilter(&quot;CROSS(ATTR1, LINESTRING(1 2, 10 15))&quot;);
+ * Filter f = CQL.toFilter(&quot;CROSS(SHAPE, LINESTRING(1 2, 10 15))&quot;);
  *
- * Filter f7 = CQL.toFilter(&quot;BBOX(ATTR1, 10,20,30,40)&quot;);
+ * Filter f = CQL.toFilter(&quot;BBOX(SHAPE, 10,20,30,40)&quot;);
  *
- * Expression expr1 = CQL.toExpression(&quot;attName&quot;);
+ * Expression e = CQL.toExpression(&quot;NAME&quot;);
  *
- * Expression expr2 = CQL.toExpression(&quot;attName * 2&quot;);
+ * Expression e = CQL.toExpression(&quot;QUANTITY * 2&quot;);
  *
- * Expression expr3 = CQL.toExpression(&quot;strConcat(attName, 'suffix')&quot;);
+ * Expression e = CQL.toExpression(&quot;strConcat(NAME, 'suffix')&quot;);
  *
- * List filters = CQL
- *                 .toFilterList(&quot;ATTR1 IS NULL|BBOX(ATTR1, 10,20,30,40)|INCLUDE&quot;);
+ * List filters = CQL.toFilterList(&quot;NAME IS NULL;BBOX(SHAPE, 10,20,30,40);INCLUDE&quot;);
  * </code>
  * </pre>
  *
@@ -88,7 +92,7 @@ import org.opengis.filter.expression.Expression;
  *        http://svn.geotools.org/geotools/trunk/gt/modules/library/cql/src/main/java/org/geotools/filter/text/cql2/CQL.java $
  */
 public class CQL {
-    protected CQL() {
+    private CQL() {
         // do nothing, private constructor
         // to indicate it is a pure utility class
     }
@@ -124,9 +128,7 @@ public class CQL {
     public static Filter toFilter(final String cqlPredicate, final FilterFactory filterFactory)
         throws CQLException {
 
-            ICompiler compiler = CompilerFactory.makeCompiler(CompilerFactory.Language.CQL, cqlPredicate, filterFactory);
-            compiler.compileFilter();
-            Filter result = compiler.getFilter();
+            Filter result = CompilerUtil.parseFilter(Language.CQL, cqlPredicate, filterFactory);
 
             return result;
     }
@@ -162,16 +164,14 @@ public class CQL {
     public static Expression toExpression(final String cqlExpression,
                                           final FilterFactory filterFactory) throws CQLException {
 
-            ICompiler compiler = CompilerFactory.makeCompiler(CompilerFactory.Language.CQL, cqlExpression, filterFactory);
-            compiler.compileExpression();           
-            Expression builtFilter = compiler.getExpression();
+        Expression result = CompilerUtil.parseExpression(Language.CQL, cqlExpression, filterFactory);
 
-            return builtFilter;
+        return result;
     }
 
     /**
      * Parses the input string, which has to be a list of OGC CQL predicates
-     * separated by <code>|</code> into a <code>List</code> of
+     * separated by <code>;</code> into a <code>List</code> of
      * <code>Filter</code>s, using the provided FilterFactory.
      *
      * @param cqlFilterList
@@ -228,10 +228,9 @@ public class CQL {
      */
     public static List<Filter> toFilterList(final String cqlSourceFilterList, final FilterFactory filterFactory)
         throws CQLException {
+        
+        List<Filter> results = CompilerUtil.parseFilterList(Language.CQL,cqlSourceFilterList, filterFactory);
 
-        ICompiler compiler = CompilerFactory.makeCompiler(CompilerFactory.Language.CQL, cqlSourceFilterList, filterFactory);
-        compiler.compileFilterList();
-        List<Filter> results = compiler.getFilterList();
         return results;
 
     }

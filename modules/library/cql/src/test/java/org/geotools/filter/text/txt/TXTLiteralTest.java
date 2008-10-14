@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.geotools.filter.text.commons.CompilerUtil;
-import org.geotools.filter.text.commons.CompilerFactory.Language;
+import org.geotools.filter.text.commons.Language;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.cql2.CQLLiteralTest;
 import org.junit.Assert;
