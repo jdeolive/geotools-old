@@ -132,7 +132,7 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
             oldFeature = updateWriter.next();
             newFeature = appendWriter.next();
             original = oldFeature;
-            state.expandDirtyBounds(getLatLonFeatureEnvelope(oldFeature));
+            state.expandDirtyBounds(getWgs84FeatureEnvelope(oldFeature));
         } else {
             oldFeature = null;
             newFeature = appendWriter.next();
@@ -163,7 +163,7 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
      * @return
      * @throws TransformException
      */
-    public Envelope getLatLonFeatureEnvelope(SimpleFeature feature) throws IOException {
+    public Envelope getWgs84FeatureEnvelope(SimpleFeature feature) throws IOException {
         try {
             Envelope result = new Envelope();
             SimpleFeatureType ft = feature.getFeatureType();
@@ -336,7 +336,7 @@ class VersionedFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
             }
 
             // update dirty bounds
-            state.expandDirtyBounds(getLatLonFeatureEnvelope(writtenFeature));
+            state.expandDirtyBounds(getWgs84FeatureEnvelope(writtenFeature));
 
             // and finally notify the user
             if (oldFeature != null) {

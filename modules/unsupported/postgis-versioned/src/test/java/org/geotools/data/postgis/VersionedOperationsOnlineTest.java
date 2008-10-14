@@ -55,9 +55,12 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
 import org.opengis.filter.identity.FeatureId;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataTestCase {
@@ -563,18 +566,109 @@ public class VersionedOperationsOnlineTest extends AbstractVersionedPostgisDataT
         Transaction t = createTransaction("gimbo", "first change");
         FeatureWriter<SimpleFeatureType, SimpleFeature> fw = ds.getFeatureWriter("road", filter, t);
         assertTrue(fw.hasNext());
-        fw.next();
+        SimpleFeature f = fw.next();
+        Envelope env = ((Geometry) f.getDefaultGeometry()).getEnvelopeInternal();
         fw.remove();
         fw.close();
         t.commit();
         t.close();
 
         // and now see if it's still there
-         FeatureReader<SimpleFeatureType, SimpleFeature> fr = ds.getFeatureReader(new DefaultQuery("road"), Transaction.AUTO_COMMIT);
+        FeatureReader<SimpleFeatureType, SimpleFeature> fr = ds.getFeatureReader(new DefaultQuery("road"), Transaction.AUTO_COMMIT);
         while (fr.hasNext())
             assertFalse(fr.next().getID().equals("road.rd1"));
         fr.close();
+        
+        // also make sure the deleted feature got into the changesets with proper bounds 
+        DefaultQuery q = new DefaultQuery("changesets");
+        q.setSortBy(new SortBy[] {ff.sort("revision", SortOrder.DESCENDING)});
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> features = ds.getFeatureSource("changesets").getFeatures(q);
+        FeatureIterator<SimpleFeature> fi = features.features();
+        SimpleFeature lastChangeset = fi.next();
+        fi.close();
+        assertEquals(env, ((Geometry) lastChangeset.getDefaultGeometry()).getEnvelopeInternal());
     }
+    
+    public void testFeatureStoreDeleteFeatures() throws IOException, NoSuchElementException,
+            IllegalAttributeException {
+        VersionedPostgisDataStore ds = getDataStore();
+
+        // version enable road
+        ds.setVersioned("road", true, "gimbo", "version enabling stuff");
+
+        // build a filter to extract just road 1
+        Filter filter = ff.id(Collections.singleton(ff.featureId("road.rd1")));
+        
+        // get it
+        FeatureReader<SimpleFeatureType, SimpleFeature> fr = ds.getFeatureReader(new DefaultQuery("road", filter), Transaction.AUTO_COMMIT);
+        Envelope env = ((Geometry) ((SimpleFeature) fr.next()).getDefaultGeometry()).getEnvelopeInternal();
+        fr.close();
+
+        // now delete one feature
+        Transaction t = createTransaction("gimbo", "first change");
+        FeatureStore fs = (FeatureStore) ds.getFeatureSource("road");
+        fs.setTransaction(t);
+        fs.removeFeatures(filter);
+        t.commit();
+        t.close();
+
+        // and now see if it's still there
+        fr = ds.getFeatureReader(new DefaultQuery(
+                "road"), Transaction.AUTO_COMMIT);
+        while (fr.hasNext())
+            assertFalse(fr.next().getID().equals("road.rd1"));
+        fr.close();
+
+        // also make sure the deleted feature got into the changesets with
+        // proper bounds
+        DefaultQuery q = new DefaultQuery("changesets");
+        q.setSortBy(new SortBy[] { ff.sort("revision", SortOrder.DESCENDING) });
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> features = ds.getFeatureSource(
+                "changesets").getFeatures(q);
+        FeatureIterator<SimpleFeature> fi = features.features();
+        SimpleFeature lastChangeset = fi.next();
+        fi.close();
+        assertEquals(env, ((Geometry) lastChangeset.getDefaultGeometry()).getEnvelopeInternal());
+    }
+    
+    public void testFeatureStoreUpdateFeatures() throws IOException, NoSuchElementException,
+            IllegalAttributeException {
+        VersionedPostgisDataStore ds = getDataStore();
+
+        // version enable road
+        ds.setVersioned("road", true, "gimbo", "version enabling stuff");
+
+        // build a filter to extract just road 1
+        Filter filter = ff.id(Collections.singleton(ff.featureId("road.rd1")));
+
+        // get it
+        FeatureReader<SimpleFeatureType, SimpleFeature> fr = ds.getFeatureReader(new DefaultQuery(
+                "road", filter), Transaction.AUTO_COMMIT);
+        Envelope env = ((Geometry) ((SimpleFeature) fr.next()).getDefaultGeometry())
+                .getEnvelopeInternal();
+        fr.close();
+
+        // now updated it
+        Transaction t = createTransaction("gimbo", "first change");
+        FeatureStore fs = (FeatureStore) ds.getFeatureSource("road");
+        fs.setTransaction(t);
+        fs.modifyFeatures(roadType.getDescriptor("name"), "newRoad1", filter);
+        t.commit();
+        t.close();
+
+        // make sure the updated feature got into the changesets with
+        // proper bounds
+        DefaultQuery q = new DefaultQuery("changesets");
+        q.setSortBy(new SortBy[] { ff.sort("revision", SortOrder.DESCENDING) });
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> features = ds.getFeatureSource(
+                "changesets").getFeatures(q);
+        FeatureIterator<SimpleFeature> fi = features.features();
+        SimpleFeature lastChangeset = fi.next();
+        fi.close();
+        assertEquals(env, ((Geometry) lastChangeset.getDefaultGeometry()).getEnvelopeInternal());
+    }
+    
+    
 
     /**
      * Versioned datastore broke if the same feature got updated twice in the same transaction

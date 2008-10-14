@@ -49,6 +49,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -143,8 +144,8 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
         // revisions (and before that, we have to compute the modified envelope)
         Filter versionedFilter = (Filter) store.buildVersionedFilter(schema.getTypeName(), filter,
                 new RevisionInfo());
-        ReferencedEnvelope bounds = locking
-                .getBounds(new DefaultQuery(schema.getTypeName(), versionedFilter));
+        
+        // deal with the transaction, are we playing with auto commit or long running?
         Transaction t = getTransaction();
         boolean autoCommit = false;
         if (Transaction.AUTO_COMMIT.equals(t)) {
@@ -152,8 +153,28 @@ public class VersionedPostgisFeatureStore extends AbstractFeatureStore implement
             autoCommit = true;
         }
         VersionedJdbcTransactionState state = store.wrapped.getVersionedJdbcTransactionState(t);
+        
+        // we need to mark the modified bounds and store their wgs84 version into the transaction
+        ReferencedEnvelope bounds = locking.getBounds(new DefaultQuery(schema.getTypeName(), versionedFilter));
+        if(bounds.getCoordinateReferenceSystem() == null)
+            bounds = new ReferencedEnvelope(bounds, getSchema().getCoordinateReferenceSystem());
+        try {
+            ReferencedEnvelope wgsBounds = null;
+            if(bounds.getCoordinateReferenceSystem() != null)
+                wgsBounds = bounds.transform(DefaultGeographicCRS.WGS84, true);
+            else
+                wgsBounds = bounds;
+            state.expandDirtyBounds(wgsBounds);
+        } catch(Exception e) {
+            throw new DataSourceException("Problems computing and storing the " +
+            		"bounds affected by this feature removal", e);
+        }
+        
+        // now we can run the 
         locking.modifyFeatures(locking.getSchema().getDescriptor("expired"), new Long(state
                 .getRevision()), versionedFilter);
+        
+        // if it's auto commit, don't forget to actually commit
         if (autoCommit) {
             t.commit();
             t.close();
