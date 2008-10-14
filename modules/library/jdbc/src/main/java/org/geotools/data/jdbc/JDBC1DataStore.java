@@ -1277,6 +1277,7 @@ public abstract class JDBC1DataStore implements DataStore {
 			final int COLUMN_NAME = 4;
 			final int DATA_TYPE = 5;
 			final int NULLABLE = 11;
+			final int LENGTH = 7;
 			
 			String columnName = rs.getString(COLUMN_NAME);
 			int dataType = rs.getInt(DATA_TYPE);
@@ -1313,6 +1314,7 @@ public abstract class JDBC1DataStore implements DataStore {
 				atb.setBinding(type);
 				atb.setMinOccurs(min);
 				atb.setMaxOccurs(1);
+				atb.setLength( rs.getInt( LENGTH ) );
 //				atb.setNillable(nillable);
 				return atb.buildDescriptor(columnName);
 			}
@@ -1321,7 +1323,7 @@ public abstract class JDBC1DataStore implements DataStore {
 		}
 	}
 
-	/**
+    /**
 	 * Provides a hook for subclasses to determine the SRID of a geometry
 	 * column.
 	 *
