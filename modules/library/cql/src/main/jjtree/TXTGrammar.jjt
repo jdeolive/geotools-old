@@ -351,6 +351,7 @@ void BooleanPrimary() #void:
 	   LOOKAHEAD(Predicate()) Predicate() 
 	|  LOOKAHEAD(3)IncludeExcludePredicate()
 	|  LOOKAHEAD(3)<LP>SearchCondition()<RP> 
+	|  LOOKAHEAD(3)<LSP>SearchCondition()<RSP> 
 	|  RoutineInvocation() 
 }
 

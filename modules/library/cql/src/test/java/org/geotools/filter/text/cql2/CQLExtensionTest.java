@@ -18,12 +18,10 @@ package org.geotools.filter.text.cql2;
 
 import java.util.List;
 
-import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.IncludeFilter;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -33,8 +31,6 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
-
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 
 
 /**

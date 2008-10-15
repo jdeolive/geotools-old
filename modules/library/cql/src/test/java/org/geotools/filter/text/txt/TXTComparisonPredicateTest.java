@@ -66,8 +66,13 @@ public class TXTComparisonPredicateTest extends CQLComparisonPredicateTest {
 
         // (1+3) > (4-5)
         testComparison(FilterTXTSample.ADD_EXPRESION_GREATER_SUBTRACT_EXPRESION);
+    
+        // (x+3) > (y-5)
+        testComparison(FilterTXTSample.EXPRESSIONS_WITH_PROPERTIES);
     }
 
+    
+    
     /**
      * Negative value test
      * 

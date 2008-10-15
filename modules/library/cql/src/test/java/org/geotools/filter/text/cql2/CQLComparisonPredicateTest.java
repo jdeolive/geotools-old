@@ -21,7 +21,9 @@ import org.geotools.filter.text.commons.CompilerUtil;
 import org.geotools.filter.text.commons.Language;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opengis.filter.And;
 import org.opengis.filter.Filter;
+import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.expression.Expression;
@@ -195,13 +197,23 @@ public class CQLComparisonPredicateTest {
 
     @Test
     public void bracketRoundtripFilter() throws Exception {
-        // ATTR1 > [[1 + 2] / 3]
+
         testEqualsExpressions(FilterCQLSample.FILTER_WITH_BRACKET_ROUNDTRIP_EXPR);
 
-        // TODO more test
-        // roundtripFilter("[[[ 3 < 4 ] AND NOT [ 2 < 4 ]] AND [ 5 < 4 ]]");
-        // roundtripFilter("[3<4 AND 2<4 ] OR 5<4");
-        // roundtripFilter("3<4 && 2<4");
+        Filter f1 = CompilerUtil.parseFilter(this.language,"[[[ X < 4 ] AND NOT [ Y < 4 ]] AND [ Z < 4 ]]");
+        Assert.assertTrue(f1 instanceof And);
+        
+        Filter f2 = CompilerUtil.parseFilter(this.language, "[X<4 AND Y<4 ] OR Z<4");
+        Or orf2 = (Or) f2;
+        Filter leftf2 =  orf2.getChildren().get(0);
+        Assert.assertTrue(leftf2 instanceof And);
+        
+        Filter rightf2 = orf2.getChildren().get(1);
+        Assert.assertTrue(rightf2 instanceof PropertyIsLessThan);
+
+        Filter f3 = CompilerUtil.parseFilter(this.language,"[([ X < 4 ] AND NOT [ Y < 4 ]) AND [ Z < 4 ]]");
+        Assert.assertTrue(f3 instanceof And);
+
     }
 
     /**

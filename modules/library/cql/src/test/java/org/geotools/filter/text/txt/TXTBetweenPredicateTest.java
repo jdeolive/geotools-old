@@ -68,7 +68,6 @@ public class TXTBetweenPredicateTest extends CQLBetweenPredicateTest{
         Filter expected = FilterTXTSample.getSample(txtPredicate);
         
         testBetweenPredicate(txtPredicate, expected);
-
     }
 
     /**

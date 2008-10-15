@@ -89,6 +89,8 @@ public final class FilterTXTSample {
 
     public static final String           FUNCTION_IS_NOT_NULL                     = "centroid( the_geom ) IS NOT NULL";
 
+    public static final String           EXPRESSIONS_WITH_PROPERTIES              = "(x+4) > (y - 5)";
+
 
     /** Maintains the TXT predicates (input) and the expected filters (output) */
     public static Map<String, Object> SAMPLES = new HashMap<String, Object>();
@@ -142,6 +144,14 @@ public final class FilterTXTSample {
         filter = FACTORY.greater(simpleAddExpression, simpleSubtractExpression);
         
         SAMPLES.put(ADD_EXPRESION_GREATER_SUBTRACT_EXPRESION, filter);
+        
+        //        
+        Add plusToProp = FACTORY.add( FACTORY.property("x"), FACTORY.literal(4) );
+        Subtract subtractToProp = FACTORY.subtract( FACTORY.property("y"), FACTORY.literal(5) );
+        
+        filter = FACTORY.greater(plusToProp, subtractToProp);
+
+        SAMPLES.put(EXPRESSIONS_WITH_PROPERTIES, filter);
 
         // ----------------------------------------------------
         // Expressions with minus value

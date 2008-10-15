@@ -22,7 +22,6 @@ import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.IsNullImpl;
 import org.geotools.filter.function.FilterFunction_relatePattern;
 import org.geotools.filter.function.PropertyExistsFunction;
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,8 +41,6 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.Disjoint;
 import org.opengis.filter.spatial.DistanceBufferOperator;
-
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 
 /**
  * TXT Test Case.
