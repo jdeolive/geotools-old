@@ -33,8 +33,10 @@ import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.factory.Hints;
 import org.geotools.feature.IllegalAttributeException;
@@ -126,9 +128,9 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
     protected Connection cx;
     protected Exception tracer;
     
-    public JDBCFeatureReader( String sql, Connection cx, JDBCFeatureStore featureStore, Hints hints ) 
+    public JDBCFeatureReader( String sql, Connection cx, JDBCFeatureStore featureStore, SimpleFeatureType featureType, Hints hints ) 
         throws SQLException {
-        init( featureStore, hints );
+        init( featureStore, featureType, hints );
         
         //create the result set
         this.cx = cx;
@@ -136,10 +138,10 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         rs = st.executeQuery(sql);
     }
     
-    public JDBCFeatureReader( PreparedStatement st, Connection cx, JDBCFeatureStore featureStore, Hints hints ) 
+    public JDBCFeatureReader( PreparedStatement st, Connection cx, JDBCFeatureStore featureStore, SimpleFeatureType featureType, Hints hints ) 
         throws SQLException {
             
-        init( featureStore, hints );
+        init( featureStore, featureType, hints );
         
         //create the result set
         this.cx = cx;
@@ -147,17 +149,17 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         rs = st.executeQuery();
     }
     
-    protected void init( JDBCFeatureStore featureStore , Hints hints ) {
+    protected void init( JDBCFeatureStore featureStore, SimpleFeatureType featureType, Hints hints ) {
         // init the tracer if we need to debug a connection leak
         if(TRACE_ENABLED) {
             tracer = new Exception();
             tracer.fillInStackTrace();
         }
         
-        //grab feature type of features
+        // init base fields
         this.featureStore = featureStore;
-        this.featureType = featureStore.getSchema();
         this.dataStore = featureStore.getDataStore();
+        this.featureType = featureType;
         this.tx = featureStore.getTransaction();
         this.hints = hints;
         
@@ -177,7 +179,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
             // fall back on one privided by datastore
             geometryFactory = dataStore.getGeometryFactory();
         }
-
+        
         // create a feature builder using the factory hinted or the one coming 
         // from the datastore
         FeatureFactory ff = (FeatureFactory) hints.get(Hints.FEATURE_FACTORY);
@@ -275,9 +277,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
 
         // round up attributes
         // List attributes = new ArrayList();
-        for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            AttributeDescriptor type = featureType.getDescriptor(i);
-
+        for (AttributeDescriptor type : featureType.getAttributeDescriptors()) {
             //figure out if any referenced attributes should be resolved
             boolean resolve = depth.intValue() > 0;
 

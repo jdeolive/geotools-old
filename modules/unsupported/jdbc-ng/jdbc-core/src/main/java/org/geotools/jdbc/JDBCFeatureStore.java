@@ -23,6 +23,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.geotools.data.FeatureReader;
@@ -30,12 +33,14 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.FilteringFeatureReader;
 import org.geotools.data.FilteringFeatureWriter;
 import org.geotools.data.Query;
+import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.jdbc.JDBCFeatureCollection;
 import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentFeatureStore;
 import org.geotools.data.store.ContentState;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -387,15 +392,15 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
         
         try {
             if ((postFilter != null) && (postFilter != Filter.INCLUDE)) {
-                //calculate manually, dont use datastore optimization
+                //calculate manually, don't use datastore optimization
                 getDataStore().getLogger().fine("Calculating bounds manually");
 
                 // grab the 2d part of the crs 
                 CoordinateReferenceSystem flatCRS = CRS.getHorizontalCRS(getSchema().getCoordinateReferenceSystem());
                 ReferencedEnvelope bounds = new ReferencedEnvelope(flatCRS);
 
-                //grab a reader
-                 FeatureReader<SimpleFeatureType, SimpleFeature> i = getReader(postFilter);
+                // grab a reader
+                FeatureReader<SimpleFeatureType, SimpleFeature> i = getReader(postFilter);
                 try {
                     if (i.hasNext()) {
                         SimpleFeature f = (SimpleFeature) i.next();
@@ -436,11 +441,39 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
         return true;
     }
     
+    protected boolean canRetype() {
+        return true;
+    }
+    
     protected  FeatureReader<SimpleFeatureType, SimpleFeature> getReaderInternal(Query query) throws IOException {
-        
+        // split the filter
         Filter[] split = splitFilter(query.getFilter());
         Filter preFilter = split[0];
         Filter postFilter = split[1];
+        
+        // Build the feature type returned by this query. Also build an eventual extra feature type
+        // containing the attributes we might need in order to evaluate the post filter
+        SimpleFeatureType querySchema;
+        SimpleFeatureType returnedSchema;
+        if(query.getPropertyNames() == Query.ALL_NAMES) {
+            returnedSchema = querySchema = getSchema();
+        } else {
+            returnedSchema = SimpleFeatureTypeBuilder.retype(getSchema(), query.getPropertyNames());
+            FilterAttributeExtractor extractor = new FilterAttributeExtractor(getSchema());
+            postFilter.accept(extractor, null);
+            String[] extraAttributes = extractor.getAttributeNames();
+            if(extraAttributes == null || extraAttributes.length == 0) {
+                querySchema = returnedSchema;
+            } else {
+                List<String> allAttributes = new ArrayList<String>(Arrays.asList(query.getPropertyNames())); 
+                for (String extraAttribute : extraAttributes) {
+                    if(!allAttributes.contains(extraAttribute))
+                        allAttributes.add(extraAttribute);
+                }
+                String[] allAttributeArray =  (String[]) allAttributes.toArray(new String[allAttributes.size()]);
+                querySchema = SimpleFeatureTypeBuilder.retype(getSchema(), allAttributeArray);
+            }
+        }
         
         //grab connection
         Connection cx = getDataStore().getConnection(getState());
@@ -452,8 +485,8 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
         if ( dialect.isUsingPreparedStatements() ) {
             try {
                 PreparedStatement ps = 
-                    getDataStore().selectSQLPS(getSchema(), preFilter, query. getSortBy(), cx);
-                reader = new JDBCFeatureReader( ps, cx, this, query.getHints() );
+                    getDataStore().selectSQLPS(querySchema, preFilter, query.getSortBy(), cx);
+                reader = new JDBCFeatureReader( ps, cx, this, querySchema, query.getHints() );
             } 
             catch (SQLException e) {
                 throw (IOException) new IOException().initCause(e);
@@ -461,20 +494,22 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
         }
         else {
             //build up a statement for the content
-            String sql = getDataStore().selectSQL(getSchema(), preFilter, query.getSortBy());
+            String sql = getDataStore().selectSQL(querySchema, preFilter, query.getSortBy());
             getDataStore().getLogger().fine(sql);
 
             try {
-                reader = new JDBCFeatureReader( sql, cx, this, query.getHints() );
+                reader = new JDBCFeatureReader( sql, cx, this, querySchema, query.getHints() );
             } catch (SQLException e) {
                 throw (IOException) new IOException("error create reader").initCause( e );
             }
         }
         
 
-        //if post filter, wrap it
+        // if post filter, wrap it
         if (postFilter != null && postFilter != Filter.INCLUDE) {
             reader = new FilteringFeatureReader<SimpleFeatureType, SimpleFeature>(reader,postFilter);
+            if(!returnedSchema.equals(querySchema))
+                reader = new ReTypeFeatureReader(reader, returnedSchema);
         }
 
         return reader;
@@ -515,14 +550,14 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
             Filter preFilter = split[0];
             postFilter = split[1];
             
-            //build up a statement for the content
+            // build up a statement for the content
             if(getDataStore().getSQLDialect().isUsingPreparedStatements()) {
                 PreparedStatement ps = getDataStore().selectSQLPS(getSchema(), preFilter, query.getSortBy(), cx);
                 if ( (flags | WRITER_UPDATE) == WRITER_UPDATE ) {
                     writer = new JDBCUpdateFeatureWriter(ps, cx, this, query.getHints() );
                 } else {
                     //update insert case
-                    writer = new JDBCUpdateInsertFeatureWriter(ps, cx, this, query.getHints() );
+                    writer = new JDBCUpdateInsertFeatureWriter(ps, cx, this, query.getPropertyNames(), query.getHints() );
                 }
             } else {
                 String sql = getDataStore().selectSQL(getSchema(), preFilter, query.getSortBy());

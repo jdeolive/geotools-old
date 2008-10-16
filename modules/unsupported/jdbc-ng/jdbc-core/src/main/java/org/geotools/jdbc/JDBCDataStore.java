@@ -1833,7 +1833,19 @@ public final class JDBCDataStore extends ContentDataStore
     }
 
     /**
-     * Generates a 'SELECT * FROM' sql statement.
+     * Generates a 'SELECT p1, p2, ... FROM ... WHERE ...' statement.
+     * 
+     * @param featureType
+     *            the feature type that the query must return (may contain less
+     *            attributes than the native one)
+     * @param attributes
+     *            the properties queried, or {@link Query#ALL_NAMES} to gather
+     *            all of them
+     * @param filter
+     *            an encodable filter (filter splitting should already have
+     *            occurred)
+     * @param sort
+     *            sort conditions
      */
     protected String selectSQL(SimpleFeatureType featureType, Filter filter, SortBy[] sort) {
         StringBuffer sql = new StringBuffer();
@@ -1910,7 +1922,22 @@ public final class JDBCDataStore extends ContentDataStore
     }
 
     /**
-     * Generates a 'SELECT * FROM' prepared statement.  
+     * Generates a 'SELECT p1, p2, ... FROM ... WHERE ...' prepared statement.
+     * 
+     * @param featureType
+     *            the feature type that the query must return (may contain less
+     *            attributes than the native one)
+     * @param attributes
+     *            the properties queried, or {@link Query#ALL_NAMES} to gather
+     *            all of them
+     * @param filter
+     *            an encodable filter (filter splitting should already have
+     *            occurred)
+     * @param sort
+     *            sort conditions
+     * @param cx
+     *            The database connection to be used to create the prepared
+     *            statement
      */
     protected PreparedStatement selectSQLPS( SimpleFeatureType featureType, Filter filter, SortBy[] sort, Connection cx )
         throws SQLException {
@@ -1918,9 +1945,7 @@ public final class JDBCDataStore extends ContentDataStore
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT ");
 
-        //column names
-
-        //primary key
+        // primary key
         PrimaryKey key = null;
 
         try {

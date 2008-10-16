@@ -33,13 +33,13 @@ public class JDBCInsertFeatureWriter extends JDBCFeatureReader implements Featur
     
     public JDBCInsertFeatureWriter(String sql, Connection cx,
             JDBCFeatureStore featureStore, Hints hints) throws SQLException, IOException {
-        super(sql, cx, featureStore, hints);
+        super(sql, cx, featureStore, featureStore.getSchema(), hints);
         last = new ResultSetFeature( rs, cx );
     }
 
     public JDBCInsertFeatureWriter(PreparedStatement ps, Connection cx, JDBCFeatureStore featureStore, Hints hints)
         throws SQLException, IOException {
-        super( ps, cx, featureStore, hints );
+        super( ps, cx, featureStore, featureStore.getSchema(), hints );
         last = new ResultSetFeature( rs, ps.getConnection() );
     }
     

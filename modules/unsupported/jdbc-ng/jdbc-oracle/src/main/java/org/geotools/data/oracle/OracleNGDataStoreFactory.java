@@ -76,6 +76,9 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
         Boolean loose = (Boolean) LOOSEBBOX.lookUp(params);
         dialect.setLooseBBOXEnabled(loose == null || Boolean.TRUE.equals(loose));
         
+        // setup proper fetch size
+        dataStore.setFetchSize(200);
+        
         return dataStore;
     }
     

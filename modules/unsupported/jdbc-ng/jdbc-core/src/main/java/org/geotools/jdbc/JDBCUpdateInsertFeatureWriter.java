@@ -36,7 +36,7 @@ public class JDBCUpdateInsertFeatureWriter extends JDBCUpdateFeatureWriter {
     }
     
     public JDBCUpdateInsertFeatureWriter(PreparedStatement ps, Connection cx,
-            JDBCFeatureStore featureStore, Hints hints) throws SQLException,
+            JDBCFeatureStore featureStore, String[] attributeNames, Hints hints) throws SQLException,
             IOException {
         super(ps, cx, featureStore, hints);
     }

@@ -40,14 +40,14 @@ public class JDBCUpdateFeatureWriter extends JDBCFeatureReader implements
     public JDBCUpdateFeatureWriter(String sql, Connection cx,
             JDBCFeatureStore featureStore, Hints hints) throws SQLException, IOException {
         
-        super(sql, cx, featureStore, hints);
+        super(sql, cx, featureStore, featureStore.getSchema(), hints);
         last = new ResultSetFeature( rs, cx );
     }
     
     public JDBCUpdateFeatureWriter(PreparedStatement ps, Connection cx,
             JDBCFeatureStore featureStore, Hints hints) throws SQLException, IOException {
         
-        super(ps, cx, featureStore, hints);
+        super(ps, cx, featureStore, featureStore.getSchema(), hints);
         last = new ResultSetFeature( rs, ps.getConnection());
     }
 
