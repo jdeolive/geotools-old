@@ -89,6 +89,7 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         feature.setAttribute(aname("intProperty"), new Integer(100) );
         writer.write();
         writer.close();
+        tx.close();
     }
     
     public void testLockFeaturesWithFilter() throws Exception {
@@ -131,6 +132,7 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         writer.close();
         
         assertTrue( failure );
+        tx.close();
     }
     
     public void testUnlockFeatures() throws Exception {
@@ -175,5 +177,6 @@ public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
         
         writer.write();
         writer.close();
+        tx.close();
     }
 }

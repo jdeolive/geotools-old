@@ -93,6 +93,8 @@ public abstract class JDBCTransactionTest extends JDBCTestSupport {
 
         tx1.commit();
         tx2.commit();
+        tx1.close();
+        tx2.close();
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = dataStore.getFeatureSource("ft1").getFeatures();
         assertEquals(5, fc.size());
@@ -111,12 +113,14 @@ public abstract class JDBCTransactionTest extends JDBCTestSupport {
         st.setTransaction(tx1);
         st.addFeatures( features );
         tx1.commit();
+        tx1.close();
         assertEquals(4, dataStore.getFeatureSource("ft1").getCount(Query.ALL));
         
         Transaction tx2 = new DefaultTransaction();
         st.setTransaction(tx2);
         st.addFeatures( features );
         tx2.commit();
+        tx2.close();
         assertEquals(5, dataStore.getFeatureSource("ft1").getCount(Query.ALL));
     }
 }
