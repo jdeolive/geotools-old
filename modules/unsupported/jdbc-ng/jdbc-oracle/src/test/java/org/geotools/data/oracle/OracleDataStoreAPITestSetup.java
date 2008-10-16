@@ -111,7 +111,7 @@ public class OracleDataStoreAPITestSetup extends JDBCDataStoreAPITestSetup {
         runSafe( "DROP TRIGGER lake_pkey_trigger");
         runSafe( "DROP SEQUENCE lake_pkey_seq");
         runSafe( "DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'LAKE'" );
-        runSafe( "DROP TABLE lake");
+        runSafe( "DROP TABLE lake PURGE");
         
     }
 
@@ -120,7 +120,7 @@ public class OracleDataStoreAPITestSetup extends JDBCDataStoreAPITestSetup {
         runSafe( "DROP TRIGGER river_pkey_trigger");
         runSafe( "DROP SEQUENCE river_pkey_seq");
         runSafe( "DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'RIVER'" );
-        runSafe( "DROP TABLE river");
+        runSafe( "DROP TABLE river PURGE");
     }
 
     @Override
@@ -128,12 +128,12 @@ public class OracleDataStoreAPITestSetup extends JDBCDataStoreAPITestSetup {
         runSafe( "DROP TRIGGER road_pkey_trigger");
         runSafe( "DROP SEQUENCE road_pkey_seq");
         runSafe( "DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'ROAD'" );
-        runSafe( "DROP TABLE road");
+        runSafe( "DROP TABLE road PURGE");
     }
     
     @Override
     protected void dropBuildingTable() throws Exception {
-        runSafe( "DROP TABLE building");
+        runSafe( "DROP TABLE building PURGE");
         run("DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'BUILDING'");
     }
 

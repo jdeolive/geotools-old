@@ -49,8 +49,9 @@ public class OracleTestSetup extends JDBCTestSetup {
         } catch (Exception e) {
         }
         try {
-            run("DROP TABLE ft1");
+            run("DROP TABLE ft1 purge");
         } catch (Exception e) {
+            e.printStackTrace();
         }
         try {
             run("DROP SEQUENCE ft1_pkey_seq");
@@ -60,7 +61,7 @@ public class OracleTestSetup extends JDBCTestSetup {
         run("DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'FT1'");
         
         try {
-            run("DROP TABLE ft2");
+            run("DROP TABLE ft2 purge");
         } catch (Exception e) {
         }
         run("DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'FT2'");

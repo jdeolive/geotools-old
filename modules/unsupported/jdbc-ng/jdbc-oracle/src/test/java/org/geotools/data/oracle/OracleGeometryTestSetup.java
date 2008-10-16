@@ -27,7 +27,7 @@ public class OracleGeometryTestSetup extends JDBCGeometryTestSetup {
 
     @Override
     protected void dropSpatialTable(String tableName) throws Exception {
-        runSafe("DROP TABLE " + tableName);
+        runSafe("DROP TABLE " + tableName + " PURGE");
         run("DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = '" + tableName.toUpperCase()
                 + "'");
     }

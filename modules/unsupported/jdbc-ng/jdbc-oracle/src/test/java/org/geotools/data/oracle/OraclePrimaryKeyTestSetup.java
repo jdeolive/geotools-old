@@ -73,20 +73,20 @@ public class OraclePrimaryKeyTestSetup extends JDBCPrimaryKeyTestSetup {
     
     @Override
     protected void dropSequencedPrimaryKeyTable() throws Exception {
-        run( "DROP TABLE seq");
+        run( "DROP TABLE seq PURGE");
         run( "DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'SEQ'");
         run( "DROP SEQUENCE seq_key_sequence");
     }
     
     @Override
     protected void dropNonIncrementingPrimaryKeyTable() throws Exception {
-        run( "DROP TABLE noninc");
+        run( "DROP TABLE noninc PURGE");
         run( "DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'NONINC'");
     }
     
     @Override
     protected void dropMultiColumnPrimaryKeyTable() throws Exception {
-        run( "DROP TABLE multi");
+        run( "DROP TABLE multi PURGE");
         run( "DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'MULTI'");  
     }
 
