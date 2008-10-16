@@ -1870,7 +1870,7 @@ public final class JDBCDataStore extends ContentDataStore
         for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
             if (att instanceof GeometryDescriptor) {
                 //encode as geometry
-                dialect.encodeGeometryColumn((GeometryDescriptor) att, sql);
+                dialect.encodeGeometryColumn((GeometryDescriptor) att, getDescriptorSRID(att), sql);
 
                 //alias it to be the name of the original geometry
                 dialect.encodeColumnAlias(att.getLocalName(), sql);
@@ -1962,7 +1962,7 @@ public final class JDBCDataStore extends ContentDataStore
         for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
             if (att instanceof GeometryDescriptor) {
                 //encode as geometry
-                dialect.encodeGeometryColumn((GeometryDescriptor) att, sql);
+                dialect.encodeGeometryColumn((GeometryDescriptor) att, getDescriptorSRID(att), sql);
 
                 //alias it to be the name of the original geometry
                 dialect.encodeColumnAlias(att.getLocalName(), sql);
@@ -2360,7 +2360,7 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append("INSERT INTO ");
         encodeTableName(featureType.getTypeName(), sql);
 
-        //column names
+        // column names
         sql.append(" ( ");
 
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
@@ -2368,7 +2368,7 @@ public final class JDBCDataStore extends ContentDataStore
             sql.append(",");
         }
 
-        //primary key values
+        // primary key values
         PrimaryKey key = null; 
         try {
             key = getPrimaryKey(featureType);
@@ -2385,10 +2385,17 @@ public final class JDBCDataStore extends ContentDataStore
         }
         sql.setLength(sql.length() - 1);
 
-        //values
+        // values
         sql.append(" ) VALUES ( ");
-        for (int i = 0; i < featureType.getAttributeCount(); i++) {
-            sql.append("?").append(",");
+        for (AttributeDescriptor att : featureType.getAttributeDescriptors()) {
+            // geometries might need special treatment, delegate to the dialect
+            if(att instanceof GeometryDescriptor) {
+                Geometry geometry = (Geometry) feature.getAttribute(att.getName());
+                dialect.prepareGeometryValue(geometry, getDescriptorSRID(att), att.getType().getBinding(),  sql );
+            } else {
+                sql.append("?");
+            }
+            sql.append(",");
         }
         for (PrimaryKeyColumn col : key.getColumns() ) {
             //only include if its non auto generating
@@ -2453,11 +2460,7 @@ public final class JDBCDataStore extends ContentDataStore
      * at guessing the srid failed.
      */
     protected int getGeometrySRID(Geometry g, AttributeDescriptor descriptor) throws IOException {
-        int srid = -1;
-        
-        // check if we have stored the native srid in the descriptor (we should)
-        if(descriptor.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID) != null)
-            srid = (Integer) descriptor.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID);
+        int srid = getDescriptorSRID(descriptor);
         
         // check for srid in the jts geometry then
         if (srid <= 0 && g.getSRID() > 0) {
@@ -2480,6 +2483,21 @@ public final class JDBCDataStore extends ContentDataStore
                 }
             }
         }
+        
+        return srid;
+    }
+
+    /**
+     * Extracts the eventual native SRID user property from the descriptor, 
+     * returns -1 if not found
+     * @param descriptor
+     */
+    protected int getDescriptorSRID(AttributeDescriptor descriptor) {
+        int srid = -1;
+        
+        // check if we have stored the native srid in the descriptor (we should)
+        if(descriptor.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID) != null)
+            srid = (Integer) descriptor.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID);
         
         return srid;
     }
@@ -2544,8 +2562,19 @@ public final class JDBCDataStore extends ContentDataStore
         sql.append(" SET ");
 
         for (int i = 0; i < attributes.length; i++) {
-            dialect.encodeColumnName(attributes[i].getLocalName(), sql);
-            sql.append(" = ?,");
+            AttributeDescriptor att = attributes[i];
+            dialect.encodeColumnName(att.getLocalName(), sql);
+            sql.append(" = ");
+            
+            // geometries might need special treatment, delegate to the dialect
+            if(attributes[i] instanceof GeometryDescriptor) {
+                Geometry geometry = (Geometry) values[i];
+                final Class<?> binding = att.getType().getBinding();
+                dialect.prepareGeometryValue(geometry, getDescriptorSRID(att), binding,  sql );
+            } else {
+                sql.append("?");
+            }
+            sql.append(",");
         }
         sql.setLength(sql.length() - 1);
         sql.append(" ");

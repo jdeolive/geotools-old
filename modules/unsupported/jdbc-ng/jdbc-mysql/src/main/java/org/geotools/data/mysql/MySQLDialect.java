@@ -144,7 +144,7 @@ public class MySQLDialect extends SQLDialect {
         }
     }
 
-    public void encodeGeometryColumn(GeometryDescriptor gatt, StringBuffer sql) {
+    public void encodeGeometryColumn(GeometryDescriptor gatt, int srid, StringBuffer sql) {
         sql.append("asWKB(");
         encodeColumnName(gatt.getLocalName(), sql);
         sql.append(")");

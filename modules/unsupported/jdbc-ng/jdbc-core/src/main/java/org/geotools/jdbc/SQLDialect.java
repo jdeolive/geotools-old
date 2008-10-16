@@ -512,7 +512,7 @@ public abstract class SQLDialect {
      * wrapping function, subclasses must override.
      * </p>
      */
-    public void encodeGeometryColumn(GeometryDescriptor gatt, StringBuffer sql) {
+    public void encodeGeometryColumn(GeometryDescriptor gatt, int srid, StringBuffer sql) {
         encodeColumnName(gatt.getLocalName(), sql);
     }
 
@@ -538,6 +538,19 @@ public abstract class SQLDialect {
      */
     public abstract void encodeGeometryValue(Geometry value, int srid, StringBuffer sql)
         throws IOException;
+    
+    /**
+     * Allows the dialect to specify the placeholder for a geometry value in a INSERT or UPDATE
+     * statement. The default implementation simply appends <code>?</code> to the sql buffer,
+     * but specialized dialects might override to call decoding functions, perform casts,
+     * force the srid and so on.
+     * @param descriptor
+     * @param srid
+     * @param sql
+     */
+    public void prepareGeometryValue(Geometry geom, int srid, Class binding, StringBuffer sql) {
+        sql.append("?");
+    }
 
     /**
      * Sets the geometry value into the prepared statement. 
