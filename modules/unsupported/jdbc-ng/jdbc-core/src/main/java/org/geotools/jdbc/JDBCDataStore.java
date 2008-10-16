@@ -40,13 +40,12 @@ import javax.sql.DataSource;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureWriter;
 import org.geotools.data.GmlObjectStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.data.jdbc.FilterToSQLException;
+import org.geotools.data.jdbc.datasource.ManageableDataSource;
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
 import org.geotools.data.store.ContentDataStore;
 import org.geotools.data.store.ContentEntry;
@@ -2818,6 +2817,30 @@ public final class JDBCDataStore extends ContentDataStore
 
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.log(Level.FINER, msg, e);
+            }
+        }
+    }
+    
+    protected void finalize() throws Throwable {
+        if(dataSource != null) {
+            LOGGER.severe("There's code using JDBC based datastore and " +
+                    "not disposing them. This may lead to temporary loss of database connections. " +
+                    "Please make sure all data access code calls DataStore.dispose() " +
+                    "before freeing all references to it");
+            dispose();
+        }
+        
+    }
+    
+    public void dispose() {
+        if(dataSource != null && dataSource instanceof ManageableDataSource) {
+            try {
+                ManageableDataSource mds = (ManageableDataSource) dataSource; 
+                dataSource = null;
+                mds.close();
+            } catch(SQLException e) {
+                // it's ok, we did our best..
+                LOGGER.log(Level.FINE, "Could not close dataSource", e);
             }
         }
     }

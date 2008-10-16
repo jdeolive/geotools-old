@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.geotools.data.jdbc.datasource.DBCPDataSource;
 
 
 /**
@@ -182,7 +183,10 @@ public abstract class JDBCTestSetup {
         dataSource.setMaxActive(4);
         
         initializeDataSource( dataSource, db );
-        return dataSource;
+        
+        // return a closeable data source (DisposableDataSource interface)
+        // so that the connection pool will be tore down on datastore dispose
+        return new DBCPDataSource(dataSource);
     }
     
     protected void initializeDataSource( BasicDataSource ds, Properties db ) {
