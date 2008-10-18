@@ -18,6 +18,8 @@ package org.geotools.styling.visitor;
 
 import java.util.Collections;
 
+import javax.xml.transform.TransformerException;
+
 import junit.framework.TestCase;
 
 import org.geotools.factory.CommonFactoryFinder;
@@ -25,6 +27,7 @@ import org.geotools.filter.IllegalFilterException;
 import org.geotools.styling.AnchorPoint;
 import org.geotools.styling.Displacement;
 import org.geotools.styling.ExternalGraphic;
+import org.geotools.styling.FeatureTypeConstraint;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Font;
@@ -38,14 +41,15 @@ import org.geotools.styling.PointPlacement;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Rule;
+import org.geotools.styling.SLDTransformer;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.StyleFactory;
-import org.geotools.styling.StyleFactoryFinder;
+import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
-import org.opengis.filter.FilterFactory;
+import org.geotools.styling.UserLayer;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.util.Cloneable;
@@ -85,7 +89,50 @@ public class DuplicatorStyleVisitorTest extends TestCase {
     	//compare it
     	assertNotNull(newStyle);
     	assertEquals(2, newStyle.getFeatureTypeStyles()[0].getSemanticTypeIdentifiers().length);
+
     	//TODO: actually compare it
+    	assertTrue(areStylesEqualByXml(oldStyle, newStyle));
+    }
+    
+    /**
+     * Produces an XML representation of a Style.
+     * @param style
+     * @return
+     * @throws TransformerException
+     */
+    private String styleToXML(final Style style) throws TransformerException
+    {
+        StyledLayerDescriptor sld = sf.createStyledLayerDescriptor();
+        UserLayer layer = sf.createUserLayer();
+        layer.setLayerFeatureConstraints(new FeatureTypeConstraint[]{null});
+        sld.addStyledLayer(layer);
+        layer.addUserStyle(style);
+
+        SLDTransformer styleTransform = new SLDTransformer();
+        String xml = styleTransform.transform(sld);
+
+        return xml;
+    }
+    
+    /**
+     * Returns whether two Styles have equal XML representations.
+     * @param s1
+     * @param s2
+     * @return
+     */
+    private boolean areStylesEqualByXml(final Style s1, final Style s2)
+    {
+        try
+        {
+            String xmlS1 = styleToXML(s1);
+            String xmlS2 = styleToXML(s2);
+            
+            return xmlS1.equals(xmlS2);
+        }
+        catch (TransformerException te)
+        {
+            return false;
+        }
     }
 
 

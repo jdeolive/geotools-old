@@ -132,11 +132,18 @@ public class StrokeImpl implements Stroke, Cloneable {
      *         "dashlength gaplength ..."
      */
     public float[] getDashArray() {
-        float[] ret = new float[0];
+        float[] ret = null;
 
         if (dashArray != null) {
             ret = new float[dashArray.length];
             System.arraycopy(dashArray, 0, ret, 0, dashArray.length);
+        } else {
+        	final float[] defaultDashArray = Stroke.DEFAULT.getDashArray();
+        	
+        	assert defaultDashArray != null;
+        	
+        	ret = new float[defaultDashArray.length];
+        	System.arraycopy(defaultDashArray, 0, ret, 0, defaultDashArray.length);
         }
 
         return ret;
@@ -168,6 +175,10 @@ public class StrokeImpl implements Stroke, Cloneable {
      * @return where the dash should start from.
      */
     public Expression getDashOffset() {
+    	if ( dashOffset == null ) {
+    		return Stroke.DEFAULT.getDashOffset();
+    	}
+
         return dashOffset;
     }
 
