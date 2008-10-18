@@ -18,12 +18,14 @@ package org.geotools.filter.function;
 
 import java.util.logging.Logger;
 
+import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.filter.Expression;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.FunctionExpression;
-import org.geotools.filter.parser.ParseException;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
 
 /**
  *
@@ -48,12 +50,12 @@ public class StandardDeviationFunctionTest extends FunctionTestSupport {
     }
     
     public void testInstance() {
-        FunctionExpression stdDev = FilterFactoryFinder.createFilterFactory().createFunctionExpression("StandardDeviation");
+        Function stdDev = ff.function("StandardDeviation", ff.literal(FeatureCollections.newCollection()));
         assertNotNull(stdDev);
     }
     
     public void testGetName() {
-        FunctionExpression equInt = FilterFactoryFinder.createFilterFactory().createFunctionExpression("StandardDeviation");
+        Function equInt = ff.function("StandardDeviation", ff.literal(FeatureCollections.newCollection()));
         LOGGER.finer("testGetName");
         assertEquals("StandardDeviation",equInt.getName());
     }
@@ -61,56 +63,53 @@ public class StandardDeviationFunctionTest extends FunctionTestSupport {
     public void testSetNumberOfClasses() throws Exception{
         LOGGER.finer("testSetNumberOfClasses");
         
-        Expression classes = (Expression) builder.parser(dataType, "3");
-        Expression exp = (Expression) builder.parser(dataType, "foo");
-        StandardDeviationFunction func = (StandardDeviationFunction) fac.createFunctionExpression("StandardDeviation");
-        func.setArgs(new Expression[]{exp,classes});
+        Literal classes = ff.literal(3);
+        PropertyName exp = ff.property("foo");
+        StandardDeviationFunction func = (StandardDeviationFunction) ff.function("StandardDeviation", exp, classes);
         assertEquals(3, func.getClasses());
-        classes = (Expression) builder.parser(dataType, "12");
-        func.setArgs(new Expression[]{exp,classes});
+        classes = ff.literal(12);
+        func = (StandardDeviationFunction) ff.function("StandardDeviation", exp, classes);
         assertEquals(12, func.getClasses());
     }
     
-    public void XtestGetValue() throws Exception{
+    public void xTestGetValue() throws Exception{
         //doesn't work yet?
-        LOGGER.finer("testGetValue");
-        Expression classes = (Expression)builder.parse(dataType, "5");
-        Expression exp = (Expression)builder.parse(dataType, "foo");
-        FunctionExpression func = fac.createFunctionExpression("StandardDeviation");
-        func.setArgs(new Expression[]{exp,classes});
+        Literal classes = ff.literal(5);
+        PropertyName exp = ff.property("foo");
+        Function func = ff.function("StandardDeviation", exp, classes);
         
         FeatureIterator<SimpleFeature> list = featureCollection.features();
         //feature 1
         SimpleFeature f = list.next();
-        int slot = ((Number)func.getValue(f)).intValue();
+        int slot = ((Number)func.evaluate(f)).intValue();
         assertEquals(1, slot);
         //feature 2
         f = list.next();
-        slot = ((Number)func.getValue(f)).intValue();
+        slot = ((Number)func.evaluate(f)).intValue();
         assertEquals(4, slot);
         //feature 3
         f = list.next();
-        slot = ((Number)func.getValue(f)).intValue();
+        slot = ((Number)func.evaluate(f)).intValue();
         assertEquals(2, slot);
         //feature 4
         f = list.next();
-        slot = ((Number)func.getValue(f)).intValue();
+        slot = ((Number)func.evaluate(f)).intValue();
         assertEquals(2, slot);
         //feature 5
         f = list.next();
-        slot = ((Number)func.getValue(f)).intValue();
+        slot = ((Number)func.evaluate(f)).intValue();
         assertEquals(2, slot);
         //feature 6
         f = list.next();
-        slot = ((Number)func.getValue(f)).intValue();
+        slot = ((Number)func.evaluate(f)).intValue();
         assertEquals(3, slot);
         //feature 7
         f = list.next();
-        slot = ((Number)func.getValue(f)).intValue();
+        slot = ((Number)func.evaluate(f)).intValue();
         assertEquals(1, slot);
         //feature 8
         f = list.next();
-        slot = ((Number)func.getValue(f)).intValue();
+        slot = ((Number)func.evaluate(f)).intValue();
         assertEquals(1, slot);
     }
     

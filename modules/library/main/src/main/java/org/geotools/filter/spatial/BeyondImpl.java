@@ -27,7 +27,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class BeyondImpl extends CartesianDistanceFilter implements Beyond {
 
-	public BeyondImpl(FilterFactory factory,Expression e1,Expression e2) {
+	public BeyondImpl(org.opengis.filter.FilterFactory factory,Expression e1,Expression e2) {
 		super(factory,e1,e2);
 		
 		//backwards compat with old type system

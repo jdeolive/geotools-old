@@ -27,7 +27,7 @@ import org.opengis.filter.Or;
  */
 public class OrImpl extends LogicFilterImpl implements Or {
 	
-	protected OrImpl(FilterFactory factory, List/*<Filter>*/ children) {
+	protected OrImpl(org.opengis.filter.FilterFactory factory, List/*<Filter>*/ children) {
 		super(factory, children );
 		
 		//backwards compatability with old type system

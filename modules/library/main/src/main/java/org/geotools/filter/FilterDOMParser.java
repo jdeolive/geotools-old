@@ -18,6 +18,10 @@
  */
 package org.geotools.filter;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.w3c.dom.Element;
@@ -25,12 +29,15 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsNull;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -51,7 +58,7 @@ public final class FilterDOMParser {
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.filter");
 
     /** Factory to create filters. */
-    private static final FilterFactory FILTER_FACT = FilterFactoryFinder.createFilterFactory();
+    private static final FilterFactory2 FILTER_FACT = CommonFactoryFinder.getFilterFactory2(null);
 
     /** Number of children in a between filter. */
     private static final int NUM_BETWEEN_CHILDREN = 3;
@@ -155,9 +162,9 @@ public final class FilterDOMParser {
                 LOGGER.finer("type is " + type);
 
                 if (type == AbstractFilter.FID) {
-                    FidFilter fidFilter = FILTER_FACT.createFidFilter();
+                    Set<FeatureId> ids = new HashSet<FeatureId>();
                     Element fidElement = (Element) child;
-                    fidFilter.addFid(fidElement.getAttribute("fid"));
+                    ids.add(FILTER_FACT.featureId(fidElement.getAttribute("fid")));
 
                     Node sibling = fidElement.getNextSibling();
 
@@ -177,14 +184,14 @@ public final class FilterDOMParser {
                             	fidElementName = fidElementName.substring(fidElementName.indexOf(':')+1);
                             }
                             if ("FeatureId".equals(fidElementName)) {
-                                fidFilter.addFid(fidElement.getAttribute("fid"));
+                                ids.add(FILTER_FACT.featureId(fidElement.getAttribute("fid")));
                             }
                         }
 
                         sibling = sibling.getNextSibling();
                     }
 
-                    return fidFilter;
+                    return FILTER_FACT.id(ids);
                 } else if (type == AbstractFilter.BETWEEN) {
                     //BetweenFilter bfilter = FILTER_FACT.createBetweenFilter();
 
@@ -465,10 +472,7 @@ public final class FilterDOMParser {
             LOGGER.finest("a logical filter " + childName);
 
             try {
-                short type = ((Integer) logical.get(childName)).shortValue();
-                LOGGER.finest("logic type " + type);
-
-                LogicFilter filter = FILTER_FACT.createLogicFilter(type);
+                List<org.opengis.filter.Filter> children = new ArrayList<org.opengis.filter.Filter>();
                 NodeList map = child.getChildNodes();
 
                 for (int i = 0; i < map.getLength(); i++) {
@@ -480,10 +484,22 @@ public final class FilterDOMParser {
                     }
 
                     LOGGER.finest("adding to logic filter " + kid.getLocalName());
-                    filter.addFilter(parseFilter(kid));
+                    children.add(parseFilter(kid));
                 }
-
-                return filter;
+                
+                if(childName.equals("And"))
+                    return FILTER_FACT.and(children);
+                else if(childName.equals("Or"))
+                    return FILTER_FACT.or(children);
+                else if(childName.equals("Not")) {
+                    if(children.size() != 1)
+                        throw new IllegalFilterException("Filter negation can be " +
+                        		"applied to one and only one child filter");
+                    return FILTER_FACT.not(children.get(0));
+                } else {
+                    throw new RuntimeException("Logical filter, but not And, Or, Not? " +
+                    		"This should not happen");
+                }
             } catch (IllegalFilterException ife) {
                 LOGGER.warning("Unable to build filter: " + ife);
 

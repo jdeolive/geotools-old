@@ -28,7 +28,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class WithinImpl extends GeometryFilterImpl implements Within {
 
-	public WithinImpl(FilterFactory factory,Expression e1,Expression e2) {
+	public WithinImpl(org.opengis.filter.FilterFactory factory,Expression e1,Expression e2) {
 		super(factory,e1,e2);
 		
 		//backwards compat with old type system

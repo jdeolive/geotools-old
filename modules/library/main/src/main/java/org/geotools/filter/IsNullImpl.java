@@ -22,7 +22,7 @@ import org.opengis.filter.expression.Expression;
 public class IsNullImpl extends CompareFilterImpl implements
 		NullFilter {
 
-	public IsNullImpl(FilterFactory factory, org.opengis.filter.expression.Expression expression) {
+	public IsNullImpl(org.opengis.filter.FilterFactory factory, org.opengis.filter.expression.Expression expression) {
 		super( factory , expression , null );
 		
 		filterType = FilterType.NULL;

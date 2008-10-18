@@ -28,15 +28,15 @@ import org.opengis.filter.expression.Literal;
  */
 public class IsEqualsToImpl extends CompareFilterImpl implements PropertyIsEqualTo {
 
-    protected IsEqualsToImpl(FilterFactory factory) {
+    protected IsEqualsToImpl(org.opengis.filter.FilterFactory factory) {
         this(factory, null, null);
     }
 
-    protected IsEqualsToImpl(FilterFactory factory, Expression expression1, Expression expression2) {
+    protected IsEqualsToImpl(org.opengis.filter.FilterFactory factory, Expression expression1, Expression expression2) {
         this(factory, expression1, expression2, true);
     }
 
-    protected IsEqualsToImpl(FilterFactory factory, Expression expression1, Expression expression2,
+    protected IsEqualsToImpl(org.opengis.filter.FilterFactory factory, Expression expression1, Expression expression2,
             boolean matchCase) {
         super(factory, expression1, expression2, matchCase);
 

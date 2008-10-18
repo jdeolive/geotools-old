@@ -27,7 +27,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class TouchesImpl extends GeometryFilterImpl implements Touches {
 
-	public TouchesImpl(FilterFactory factory,Expression e1,Expression e2) {
+	public TouchesImpl(org.opengis.filter.FilterFactory factory,Expression e1,Expression e2) {
 		super(factory,e1,e2);
 		
 		// backwards compat with old type system

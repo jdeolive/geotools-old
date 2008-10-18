@@ -30,7 +30,7 @@ import org.opengis.filter.FilterVisitor;
  */
 public class AndImpl extends LogicFilterImpl implements And {
 	
-	protected AndImpl(FilterFactory factory, List/*<Filter>*/ children) {
+	protected AndImpl(org.opengis.filter.FilterFactory factory, List/*<Filter>*/ children) {
 		super(factory, children );
 		
 		//backwards compatability with old type system

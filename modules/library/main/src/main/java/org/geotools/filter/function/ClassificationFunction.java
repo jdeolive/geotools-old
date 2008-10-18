@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.DefaultExpression;
 import org.geotools.filter.Expression;
 import org.geotools.filter.ExpressionType;
@@ -165,8 +166,8 @@ public abstract class ClassificationFunction extends DefaultExpression implement
     }
 
     public void setClasses(int classes) {
-        FilterFactory ff = FilterFactoryFinder.createFilterFactory();
-        LiteralExpression expression = ff.createLiteralExpression(classes);
+        org.opengis.filter.FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        Literal expression = ff.literal(classes);
         getParameters().set(1, expression);
     }
     

@@ -29,7 +29,7 @@ public class IsBetweenImpl extends CompareFilterImpl implements BetweenFilter {
 
 	private Expression expression;
 
-	protected IsBetweenImpl(FilterFactory factory, Expression lower, Expression expression, Expression upper ){
+	protected IsBetweenImpl(org.opengis.filter.FilterFactory factory, Expression lower, Expression expression, Expression upper ){
 		super( factory, lower, upper );
 		this.expression = expression;
 		

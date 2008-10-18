@@ -17,22 +17,23 @@
 package org.geotools.data;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
-import org.geotools.feature.IllegalAttributeException;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.filter.FidFilter;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.FilterFactoryFinder;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.Id;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -97,7 +98,7 @@ public class DataTestCase extends TestCase {
      * Invoked before a test is run. The default implementation invokes {@link #dataSetUp}.
      */
     protected void setUp() throws Exception {
-        ff = FilterFactoryFinder.createFilterFactory();
+        ff = CommonFactoryFinder.getFilterFactory(null);
         dataSetUp();
     }
     
@@ -154,12 +155,10 @@ public class DataTestCase extends TestCase {
         roadBounds.expandToInclude( new ReferencedEnvelope(roadFeatures[1].getBounds()) );
         roadBounds.expandToInclude( new ReferencedEnvelope(roadFeatures[2].getBounds()) );
                 
-        rd1Filter = ff.createFidFilter("road.rd1");
-        rd2Filter = ff.createFidFilter("road.rd2");
+        rd1Filter = ff.id(Collections.singleton(ff.featureId("road.rd1")));
+        rd2Filter = ff.id(Collections.singleton(ff.featureId("road.rd2")));
 
-        FidFilter create = ff.createFidFilter();
-        create.addFid("road.rd1");
-        create.addFid("road.rd2");
+        Id create = ff.id(new HashSet(Arrays.asList(ff.featureId("road.rd1"), ff.featureId("road.rd2"))));
         
         rd12Filter = create;
         
@@ -210,7 +209,7 @@ public class DataTestCase extends TestCase {
         riverBounds.expandToInclude(ReferencedEnvelope.reference(riverFeatures[0].getBounds()));
         riverBounds.expandToInclude(ReferencedEnvelope.reference(riverFeatures[1].getBounds()));
                 
-        rv1Filter = FilterFactoryFinder.createFilterFactory().createFidFilter("river.rv1");
+        rv1Filter = ff.id(Collections.singleton(ff.featureId("river.rv1")));
 
         //  9,5   11,5   
         //   +-----+
@@ -378,7 +377,7 @@ public class DataTestCase extends TestCase {
         } catch (NoSuchElementException e) {
             // bad dog!
             throw new DataSourceException("hasNext() lied to me at:"+count, e );
-        } catch (IllegalAttributeException e) {
+        } catch (Exception e) {
             throw new DataSourceException("next() could not understand feature at:"+count, e );
         }
         finally {
@@ -392,7 +391,7 @@ public class DataTestCase extends TestCase {
      * This method will close the writer.
      */
     protected int count(FeatureWriter<SimpleFeatureType, SimpleFeature> writer)
-        throws NoSuchElementException, IOException, IllegalAttributeException {
+        throws NoSuchElementException, IOException {
         int count = 0;
 
         try {

@@ -24,14 +24,14 @@ import org.opengis.filter.Not;
  */
 public class NotImpl extends LogicFilterImpl implements Not {
 	
-	protected NotImpl(FilterFactory factory) {
+	protected NotImpl(org.opengis.filter.FilterFactory factory) {
 		super(factory);
 		
 		//backwards compatability with old type system
 		filterType = LOGIC_NOT;
 	}
 	
-	protected NotImpl(FilterFactory factory, Filter filter) {
+	protected NotImpl(org.opengis.filter.FilterFactory factory, Filter filter) {
 		super(factory);
 		this.children.add(filter);
 		

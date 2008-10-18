@@ -16,21 +16,28 @@
  */
 package org.geotools.filter;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.geotools.feature.IllegalAttributeException;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.SchemaException;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.Id;
+import org.opengis.filter.Or;
+import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.PropertyIsLike;
+import org.opengis.filter.PropertyIsNull;
+import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.spatial.DWithin;
+import org.opengis.filter.spatial.Equals;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
 
@@ -42,15 +49,9 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  * @source $URL$
  */
 public class FilterAttributeExtractorTest extends TestCase {
-    /** The logger for the filter module. */
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.filter");
-
-    /** Schema on which to preform tests */
-    private static SimpleFeatureType testSchema = null;
-    
     boolean set = false;
     FilterAttributeExtractor fae;
-    FilterFactory fac;
+    org.opengis.filter.FilterFactory2 fac;
 
     /** Test suite for this test case */
     TestSuite suite = null;
@@ -88,9 +89,8 @@ public class FilterAttributeExtractorTest extends TestCase {
      * Sets up a schema and a test feature.
      *
      * @throws SchemaException If there is a problem setting up the schema.
-     * @throws IllegalAttributeException If problem setting up the feature.
      */
-    protected void setUp() throws SchemaException, IllegalAttributeException {
+    protected void setUp() throws SchemaException {
         if (set) {
             return;
         }
@@ -99,22 +99,7 @@ public class FilterAttributeExtractorTest extends TestCase {
 
         fae = new FilterAttributeExtractor();
 
-        fac = FilterFactoryFinder.createFilterFactory();
-        
-        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-    	ftb.add("testGeometry", LineString.class);
-    	ftb.add("testBoolean", Boolean.class);
-    	ftb.add("testCharacter", Character.class);
-    	ftb.add("testByte", Byte.class);
-    	ftb.add("testShort", Short.class);
-    	ftb.add("testInteger", Integer.class);
-    	ftb.add("testLong", Long.class);
-    	ftb.add("testFloat", Float.class);
-    	ftb.add("testDouble", Double.class);
-    	ftb.add("testString", String.class);
-    	ftb.add("testZeroDouble", Double.class);
-    	ftb.setName("testSchema");
-        testSchema = ftb.buildFeatureType();
+        fac = CommonFactoryFinder.getFilterFactory2(null);
     }
 
     /**
@@ -123,27 +108,15 @@ public class FilterAttributeExtractorTest extends TestCase {
      * @throws IllegalFilterException If the constructed filter is not valid.
      */
     public void testCompare() throws IllegalFilterException {
-        // Test all integer permutations
-        Expression testAttribute = new AttributeExpressionImpl(testSchema, "testInteger");
-
-        // Set up the string test.
-        testAttribute = new AttributeExpressionImpl(testSchema, "testString");
-
-        CompareFilter filter = FilterFactoryFinder.createFilterFactory()
-        	.createCompareFilter(FilterType.COMPARE_EQUALS);
-        Expression testLiteral;
-        filter.addLeftValue(testAttribute);
-        testLiteral = new LiteralExpressionImpl("test string data");
-        filter.addRightValue(testLiteral);
-
+        PropertyIsEqualTo filter = fac.equals(fac.property("testString"), fac.literal("test string data"));
         assertAttributeName(filter, "testString");
     }
 
-    private void assertAttributeName(Filter filter, String name) {
+    private void assertAttributeName(org.opengis.filter.Filter filter, String name) {
         assertAttributeName(filter, new String[] { name });
     }
 
-    private void assertAttributeName(Filter filter, String[] names) {
+    private void assertAttributeName(org.opengis.filter.Filter filter, String[] names) {
         fae.clear();
         filter.accept(fae, null);
 
@@ -163,14 +136,7 @@ public class FilterAttributeExtractorTest extends TestCase {
      * @throws IllegalFilterException If the constructed filter is not valid.
      */
     public void testLike() throws IllegalFilterException {
-        Expression testAttribute = null;
-
-        // Set up string
-        testAttribute = new AttributeExpressionImpl(testSchema, "testString");
-
-        LikeFilter filter = fac.createLikeFilter();
-        filter.setValue(testAttribute);
-
+        PropertyIsLike filter = fac.like(fac.property("testString"), "abc");
         assertAttributeName(filter, "testString");
     }
 
@@ -180,13 +146,7 @@ public class FilterAttributeExtractorTest extends TestCase {
      * @throws IllegalFilterException If the constructed filter is not valid.
      */
     public void testNull() throws IllegalFilterException {
-        Expression testAttribute = null;
-
-        // Test for false positive.
-        testAttribute = new AttributeExpressionImpl(testSchema, "testString");
-
-        NullFilter filter = fac.createNullFilter();
-        filter.nullCheckValue( (Expression) fac.property("foo") );
+        PropertyIsNull filter = fac.isNull(fac.property("foo"));
         assertAttributeName( filter, new String[]{"foo"} );        
     }
 
@@ -197,30 +157,18 @@ public class FilterAttributeExtractorTest extends TestCase {
      */
     public void testBetween() throws IllegalFilterException {
         // Set up the integer
-        BetweenFilter filter = fac.createBetweenFilter();
-        Expression testLiteralLower = new LiteralExpressionImpl(new Integer(1001));
-        Expression testAttribute = new AttributeExpressionImpl(testSchema, "testInteger");
-        Expression testLiteralUpper = new LiteralExpressionImpl(new Integer(1003));
+        Literal lower = fac.literal(1001);
+        Literal upper = fac.literal(1003);
+        PropertyName pint = fac.property("testInteger");
+        PropertyName plong = fac.property("testLong");
+        PropertyName pfloat = fac.property("testFloat");
 
-        filter.addLeftValue(testLiteralLower);
-        filter.addMiddleValue(testLiteralLower);
-        filter.addRightValue(testLiteralUpper);
-        assertAttributeName(filter, new String[0]);
+        assertAttributeName(fac.between(lower, lower, upper), new String[0]);
+        assertAttributeName(fac.between(pint, lower, upper), "testInteger");
+        assertAttributeName(fac.between(pint, pint, pint), "testInteger");
 
-        filter.addLeftValue(testLiteralLower);
-        filter.addMiddleValue(testAttribute);
-        filter.addRightValue(testLiteralUpper);
-        assertAttributeName(filter, "testInteger");
-
-        filter.addLeftValue(testAttribute);
-        filter.addMiddleValue(testAttribute);
-        filter.addRightValue(testAttribute);
-        assertAttributeName(filter, "testInteger");
-
-        filter.addLeftValue(new AttributeExpressionImpl(testSchema, "testInteger"));
-        filter.addMiddleValue(new AttributeExpressionImpl(testSchema, "testLong"));
-        filter.addRightValue(new AttributeExpressionImpl(testSchema, "testFloat"));
-        assertAttributeName(filter, new String[] { "testInteger", "testLong", "testFloat" });
+        assertAttributeName(fac.between(pint, plong, pfloat), 
+                new String[] { "testInteger", "testLong", "testFloat" });
     }
 
     /**
@@ -234,31 +182,22 @@ public class FilterAttributeExtractorTest extends TestCase {
         coords[1] = new Coordinate(3, 4);
         coords[2] = new Coordinate(5, 6);
 
-        FilterFactory factory = FilterFactoryFinder.createFilterFactory();
         // Test Equals
-        GeometryFilter filter = factory.createGeometryFilter(AbstractFilter.GEOMETRY_EQUALS);
-        Expression left = new AttributeExpressionImpl(testSchema, "testGeometry");
-        filter.addLeftGeometry(left);
-
+        PropertyName att = fac.property("testGeometry");
         GeometryFactory gf = new GeometryFactory(new PrecisionModel());
-        Expression geom = new LiteralExpressionImpl(gf.createLineString(coords));
-        filter.addRightGeometry(geom);
+        Literal geom = fac.literal(gf.createLineString(coords));
+        
+        Equals filter = fac.equal(att, geom);
         assertAttributeName(filter, "testGeometry");
 
-        filter.addRightGeometry(new AttributeExpressionImpl(testSchema, "testGeometry"));
+        filter = fac.equal(att, att);
         assertAttributeName(filter, "testGeometry");
 
-        filter.addLeftGeometry(geom);
+        filter = fac.equal(geom, att);
         assertAttributeName(filter, "testGeometry");
     }
 
     public void testDistanceGeometry() throws Exception {
-        // Test DWithin
-        GeometryDistanceFilter filter = FilterFactoryFinder.createFilterFactory()
-        	.createGeometryDistanceFilter(AbstractFilter.GEOMETRY_DWITHIN);
-        Expression left = new AttributeExpressionImpl(testSchema, "testGeometry");
-        filter.addLeftGeometry(left);
-
         Coordinate[] coords2 = new Coordinate[5];
         coords2[0] = new Coordinate(10, 10);
         coords2[1] = new Coordinate(15, 10);
@@ -267,16 +206,15 @@ public class FilterAttributeExtractorTest extends TestCase {
         coords2[4] = new Coordinate(10, 10);
 
         GeometryFactory gf = new GeometryFactory(new PrecisionModel());
-        Expression right = new LiteralExpressionImpl(gf.createPolygon(
+        Literal right = fac.literal(gf.createPolygon(
                     gf.createLinearRing(coords2), null));
-        filter.addRightGeometry(right);
-        filter.setDistance(20);
+        DWithin filter = fac.dwithin(fac.property("testGeometry"), right, 10, "m");
 
         assertAttributeName(filter, "testGeometry");
     }
 
-    public void testFid() throws IllegalAttributeException {
-        FidFilter filter = fac.createFidFilter();
+    public void testFid() {
+        Id filter = fac.id(Collections.singleton(fac.featureId("fakeId")));
         assertAttributeName(filter, new String[0]);
     }
 
@@ -286,25 +224,18 @@ public class FilterAttributeExtractorTest extends TestCase {
      * @throws IllegalFilterException If the constructed filter is not valid.
      */
     public void testLogic() throws IllegalFilterException {
-        Expression testAttribute = null;
+        
+        PropertyName testAttribute = fac.property("testString");
 
         // Set up true sub filter
-        testAttribute = new AttributeExpressionImpl(testSchema, "testString");
-
-        CompareFilter filterTrue = fac.createCompareFilter(FilterType.COMPARE_EQUALS);
-        Expression testLiteral;
-        filterTrue.addLeftValue(testAttribute);
-        testLiteral = new LiteralExpressionImpl("test string data");
-        filterTrue.addRightValue(testLiteral);
+        PropertyIsEqualTo filterTrue = fac.equals(testAttribute, fac.literal("test string data"));
 
         // Set up false sub filter
-        CompareFilter filterFalse = fac.createCompareFilter(FilterType.COMPARE_EQUALS);
-        filterFalse.addLeftValue(testAttribute);
-        testLiteral = new LiteralExpressionImpl("incorrect test string data");
-        filterFalse.addRightValue(testLiteral);
+        PropertyIsEqualTo filterFalse = fac.equals(testAttribute, fac.literal("incorrect test string data"));
 
         // Test OR for false negatives
-        LogicFilter filter = fac.createLogicFilter(filterFalse, filterTrue, AbstractFilter.LOGIC_OR);
+        Or filter = fac.or(Arrays.asList((org.opengis.filter.Filter) filterFalse, 
+                (org.opengis.filter.Filter) filterTrue));
 
         assertAttributeName(filter, "testString");
     }

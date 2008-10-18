@@ -42,11 +42,11 @@ public abstract class LogicFilterImpl extends BinaryLogicAbstract implements Log
     /** The logger for the default core module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
 
-      protected LogicFilterImpl(FilterFactory factory) {
+      protected LogicFilterImpl(org.opengis.filter.FilterFactory factory) {
     	this(factory,new ArrayList());
     }
     
-    protected LogicFilterImpl(FilterFactory factory, List children) {
+    protected LogicFilterImpl(org.opengis.filter.FilterFactory factory, List children) {
     	super(factory,children);
     }
     

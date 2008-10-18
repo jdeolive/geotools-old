@@ -22,10 +22,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.opengis.filter.And;
 import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
 import org.opengis.filter.IncludeFilter;
 import org.opengis.filter.Not;
@@ -115,15 +117,15 @@ public class Filters {
 	 */
     private static final boolean STRICT = false;
 	
-	FilterFactory ff;
+	org.opengis.filter.FilterFactory2 ff;
 	
 	public Filters(){
-		this( FilterFactoryFinder.createFilterFactory() );
+		this( CommonFactoryFinder.getFilterFactory2(null) );
 	}	
-	public Filters( FilterFactory factory ){
+	public Filters( org.opengis.filter.FilterFactory2 factory ){
 		ff = factory;
 	}
-	public void setFilterFactory( FilterFactory factory ){
+	public void setFilterFactory( org.opengis.filter.FilterFactory2 factory ){
 		ff = factory;
 	}
     
@@ -255,7 +257,7 @@ public class Filters {
                throw new ClassCastException("Please update your code to a org.opengis.filter.FilterVisitor");
            }
            // Copy the provided filter into the old org.geotools.filter.Filter api           
-           FilterFactory ff = FilterFactoryFinder.createFilterFactory();
+           FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
            DuplicatingFilterVisitor xerox = new DuplicatingFilterVisitor( ff );           
            org.geotools.filter.Filter copy = (org.geotools.filter.Filter) filter.accept( xerox, ff );
            

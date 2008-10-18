@@ -28,7 +28,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class EqualsImpl extends GeometryFilterImpl implements Equals {
 
-	public EqualsImpl(FilterFactory factory, Expression e1, Expression e2) {
+	public EqualsImpl(org.opengis.filter.FilterFactory factory, Expression e1, Expression e2) {
 		super(factory, e1, e2);
 
 		// backwards compat with old type system

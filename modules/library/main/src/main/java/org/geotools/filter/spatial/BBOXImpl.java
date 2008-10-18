@@ -37,7 +37,7 @@ public class BBOXImpl extends GeometryFilterImpl implements BBOX {
 	double minx,miny,maxx,maxy;	
 	String srs;
 	
-	public BBOXImpl(FilterFactory factory,Expression e1,Expression e2) {
+	public BBOXImpl(org.opengis.filter.FilterFactory factory,Expression e1,Expression e2) {
 		super(factory,e1,e2);
 		
 		//backwards compat with old type system

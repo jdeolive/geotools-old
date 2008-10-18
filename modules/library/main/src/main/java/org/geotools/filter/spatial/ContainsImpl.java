@@ -28,7 +28,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class ContainsImpl extends GeometryFilterImpl implements Contains {
 
-	public ContainsImpl(FilterFactory factory,Expression e1,Expression e2) {
+	public ContainsImpl(org.opengis.filter.FilterFactory factory,Expression e1,Expression e2) {
 		super(factory,e1,e2);
 		
 		this.filterType = GEOMETRY_CONTAINS;

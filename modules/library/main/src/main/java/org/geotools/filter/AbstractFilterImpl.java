@@ -18,6 +18,8 @@
  */
 package org.geotools.filter;
 
+import org.opengis.filter.FilterFactory;
+
 
 /**
  * Abstract filter implementation provides or and and methods for child filters

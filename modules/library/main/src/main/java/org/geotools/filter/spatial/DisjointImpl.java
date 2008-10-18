@@ -28,7 +28,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class DisjointImpl extends GeometryFilterImpl implements Disjoint {
 
-	public DisjointImpl(FilterFactory factory,Expression e1,Expression e2) {
+	public DisjointImpl(org.opengis.filter.FilterFactory factory,Expression e1,Expression e2) {
 		super(factory,e1,e2);
 		
 		//backwards compat with old type system

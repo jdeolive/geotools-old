@@ -18,12 +18,15 @@
  */
 package org.geotools.filter.function;
 
+import java.util.Collections;
 import java.util.HashSet;
 
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollections;
 import org.geotools.filter.Expression;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.FunctionExpression;
+import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.PropertyName;
 
 /**
  * Do aggregate functions actually work?
@@ -40,18 +43,13 @@ public class Collection_FunctionsTest extends FunctionTestSupport{
     
     
     public void testInstance() {
-        FunctionExpression cmin = FilterFactoryFinder.createFilterFactory().createFunctionExpression("Collection_Min");
+        Function cmin = ff.function("Collection_Min", ff.literal(FeatureCollections.newCollection()));
         assertNotNull(cmin);
     }
     
     public void testAverage() throws Exception {
     	performNumberTest("Collection_Average", new Double(33.375));   
     }
-
-//FunctionTestSupport doesn't have a geometry, so no bounds test for you :(    
-//    public void testBounds() throws Exception {
-//    	performNumberTest("Collection_Bounds", new Integer(4));   
-//    }
 
     public void testCount() throws Exception {
     	performNumberTest("Collection_Count", new Integer(8));   
@@ -93,21 +91,19 @@ public class Collection_FunctionsTest extends FunctionTestSupport{
      * Example: performTest("Collection_Min", 4);
      */
     public void performNumberTest(String functionName, Object expectedValue) throws Exception{
-        Expression exp = (Expression) builder.parse(dataType, "foo");
-		FunctionExpression func = fac.createFunctionExpression(functionName);
-		func.setArgs(new Expression[] { exp });
-		Object obj = func.evaluate(featureCollection);
-		Number result = (Number) obj;
-		Number expected = (Number) expectedValue;
-		assertEquals(expected.doubleValue(), result.doubleValue(), 0);
+        PropertyName exp = ff.property("foo");
+        Function func = ff.function(functionName, exp);
+        Object obj = func.evaluate(featureCollection);
+        Number result = (Number) obj;
+        Number expected = (Number) expectedValue;
+        assertEquals(expected.doubleValue(), result.doubleValue(), 0);
     }
     
     public void performObjectTest(String functionName, Object expectedValue) throws Exception{
-        Expression exp = (Expression) builder.parse(dataType, "foo");
-		FunctionExpression func = fac.createFunctionExpression(functionName);
-		func.setArgs(new Expression[] { exp });
-		Object result = func.evaluate(featureCollection);
-		assertEquals(expectedValue, result);
+        PropertyName exp = ff.property("foo");
+        Function func = ff.function(functionName, exp);
+        Object result = func.evaluate(featureCollection);
+        assertEquals(expectedValue, result);
     }
     
     

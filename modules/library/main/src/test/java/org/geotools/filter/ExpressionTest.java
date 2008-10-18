@@ -63,8 +63,6 @@ public class ExpressionTest extends TestCase {
 	/** Schema on which to preform tests */
 	private static SimpleFeatureType testSchema = null;
 
-	static FilterFactory filterFactory = FilterFactoryFinder
-			.createFilterFactory();
 	static FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2( null );
 
 	boolean set = false;
@@ -259,35 +257,26 @@ public class ExpressionTest extends TestCase {
 	 *             if filter problems
 	 */
 	public void testMinFunctionOld() throws IllegalFilterException {
-		Expression a = new AttributeExpressionImpl(testSchema, "testInteger");
-		Expression b = new LiteralExpressionImpl(new Double(1004));
+	    org.opengis.filter.expression.Expression a, b;
+		a = new AttributeExpressionImpl(testSchema, "testInteger");
+		b = new LiteralExpressionImpl(new Double(1004));
 
-		FunctionExpression min = filterFactory.createFunctionExpression("min");
-		min.setArgs(new Expression[] { a, b });
+		Function min = ff.function("min", a, b);
 
-		Object value = min.getValue(testFeature);
+		Object value = min.evaluate(testFeature);
 		assertEquals(1002d, ((Double) value).doubleValue(),
 				0);
 
-		b = filterFactory.createLiteralExpression(new Double(-100.001));
-		min.setArgs(new Expression[] { a, b });
+		b = ff.literal(new Double(-100.001));
+		min = ff.function("min", a, b);
 		
-		value = min.getValue(testFeature);
+		value = min.evaluate(testFeature);
 		assertEquals(-100.001, ((Double) value).doubleValue(), 0);
-
-		assertEquals(FunctionExpressionImpl.FUNCTION, min.getType());
-
-		assertEquals("min", min.getName());
-		assertEquals(2, min.getArgCount());
-		assertEquals(min.getArgs()[0], a);
-		assertEquals(min.getArgs()[1], b);
-		min.toString();
 	}
 
 	public void testNonExistentFunction() {
 		try {
-			Expression nochance = filterFactory
-					.createFunctionExpression("%$#%$%#%#$@#%@");
+			Function nochance = ff.function("%$#%$%#%#$@#%@", (org.opengis.filter.expression.Expression) null);
 			assertNull(nochance);
 		} catch (RuntimeException re) {
 		}
@@ -295,8 +284,7 @@ public class ExpressionTest extends TestCase {
 	}
 
 	public void testFunctionNameTrim() throws IllegalFilterException {
-		FunctionExpression min = filterFactory
-				.createFunctionExpression("minFunction");
+		Function min = ff.function("minFunction", ff.literal(2), ff.literal(3));
 		assertTrue(min != null);
 	}
 
@@ -307,25 +295,18 @@ public class ExpressionTest extends TestCase {
 	 *             if filter problems
 	 */
 	public void testMaxFunction() throws IllegalFilterException {
-		Expression a = new AttributeExpressionImpl(testSchema, "testInteger");
-		Expression b = new LiteralExpressionImpl(new Double(1004));
+	    org.opengis.filter.expression.Expression a, b;
+		a = new AttributeExpressionImpl(testSchema, "testInteger");
+		b = new LiteralExpressionImpl(new Double(1004));
 
-		FunctionExpression max = filterFactory.createFunctionExpression("max");
-		max.setArgs(new Expression[] { a, b });
-		assertEquals(1004d, ((Double) max.getValue(testFeature)).doubleValue(),
+		Function max = ff.function("max", a, b);
+		assertEquals(1004d, ((Double) max.evaluate(testFeature)).doubleValue(),
 				0);
 
 		b = new LiteralExpressionImpl(new Double(-100.001));
-		max.setArgs(new Expression[] { a, b });
-		assertEquals(1002d, ((Double) max.getValue(testFeature)).doubleValue(),
+		max = ff.function("max", a, b);
+		assertEquals(1002d, ((Double) max.evaluate(testFeature)).doubleValue(),
 				0);
-
-		assertEquals("max", max.getName());
-		assertEquals(2, max.getArgCount());
-		assertEquals(max.getArgs()[0], a);
-		assertEquals(max.getArgs()[1], b);
-		max.toString();
-
 	}
 
 	/**
@@ -341,7 +322,7 @@ public class ExpressionTest extends TestCase {
 		org.opengis.filter.expression.Expression b = new LiteralExpressionImpl(
 				new Double(1004));
 
-		Function max = filterFactory.function("max", a, b);
+		Function max = ff.function("max", a, b);
 		assertEquals("max", max.getName());
 
 		Object maxValue = max.evaluate(testObj);
@@ -349,7 +330,7 @@ public class ExpressionTest extends TestCase {
 
 		b = new LiteralExpressionImpl(new Double(-100.001));
 
-		max = filterFactory.function("max", a, b);
+		max = ff.function("max", a, b);
 		maxValue = max.evaluate(testObj);
 
 		assertEquals(10, ((Double) maxValue).doubleValue(), 0);
@@ -362,26 +343,6 @@ public class ExpressionTest extends TestCase {
 			FilterFactoryFinder.createFilterFactory().createMathExpression(
 					DefaultExpression.ATTRIBUTE);
 			fail("Only math types should be allowed when constructing");
-		} catch (IllegalFilterException ife) {
-		}
-	}
-
-	public void testDisalowedLeftAndRightExpressions()
-			throws IllegalFilterException {
-		FilterFactory factory = FilterFactoryFinder.createFilterFactory();
-		GeometryFactory gf = new GeometryFactory(new PrecisionModel());
-		Expression geom = new LiteralExpressionImpl(gf
-				.createPoint(new Coordinate(2, 2)));
-		Expression text = new LiteralExpressionImpl("text");
-		MathExpressionImpl mathTest = new AddImpl(null, null);
-		try {
-			mathTest.addLeftValue(geom);
-			fail("geometries are not allowed in math expressions");
-		} catch (IllegalFilterException ife) {
-		}
-		try {
-			mathTest.addRightValue(geom);
-			fail("geometries are not allowed in math expressions");
 		} catch (IllegalFilterException ife) {
 		}
 	}

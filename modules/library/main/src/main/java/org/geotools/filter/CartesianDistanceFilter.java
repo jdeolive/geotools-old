@@ -59,11 +59,11 @@ public abstract class CartesianDistanceFilter extends GeometryFilterImpl
     /** the distnace units */
     private String units;
     
-    protected CartesianDistanceFilter(FilterFactory factory) {
+    protected CartesianDistanceFilter(org.opengis.filter.FilterFactory factory) {
     	super(factory);
     }
     
-    protected CartesianDistanceFilter(FilterFactory factory, Expression e1,Expression e2) {
+    protected CartesianDistanceFilter(org.opengis.filter.FilterFactory factory, Expression e1,Expression e2) {
     	super(factory,e1,e2);
     }
     

@@ -24,15 +24,15 @@ import org.opengis.filter.expression.Expression;
 public class IsNotEqualToImpl extends CompareFilterImpl
 	implements PropertyIsNotEqualTo {
 
-	protected IsNotEqualToImpl(FilterFactory factory) {
+	protected IsNotEqualToImpl(org.opengis.filter.FilterFactory factory) {
 		this(factory,null,null);
 	}
 	
-	protected IsNotEqualToImpl(FilterFactory factory, Expression e1, Expression e2) {
+	protected IsNotEqualToImpl(org.opengis.filter.FilterFactory factory, Expression e1, Expression e2) {
 		this( factory, e1, e2, true );
 	}
 	
-	protected IsNotEqualToImpl(FilterFactory factory, Expression expression1, Expression expression2, boolean matchCase ) {
+	protected IsNotEqualToImpl(org.opengis.filter.FilterFactory factory, Expression expression1, Expression expression2, boolean matchCase ) {
 		super(factory, expression1, expression2, matchCase);
 		
 		//backwards compat with old type system

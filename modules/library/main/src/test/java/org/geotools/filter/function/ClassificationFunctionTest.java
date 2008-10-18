@@ -18,7 +18,7 @@ package org.geotools.filter.function;
 
 import java.util.logging.Logger;
 
-import org.geotools.filter.FunctionExpression;
+import org.opengis.filter.expression.Expression;
 
 public class ClassificationFunctionTest extends FunctionTestSupport {
     
@@ -29,8 +29,7 @@ public class ClassificationFunctionTest extends FunctionTestSupport {
     }
     
     public void testDecimalPlaces() throws Exception {
-    	FunctionExpression func = fac.createFunctionExpression("EqualInterval");
-        EqualIntervalFunction eif = (EqualIntervalFunction) func;
+        EqualIntervalFunction eif = (EqualIntervalFunction) ff.function("EqualInterval", Expression.NIL);
         assertEquals(0, eif.decimalPlaces(100.0));
         assertEquals(3, eif.decimalPlaces(25.99312));
         assertEquals(1, eif.decimalPlaces(1.1));
@@ -41,8 +40,7 @@ public class ClassificationFunctionTest extends FunctionTestSupport {
     }
     
     public void testRound() throws Exception {
-        FunctionExpression func = fac.createFunctionExpression("Quantile");
-        QuantileFunction classifier = (QuantileFunction) func;
+        QuantileFunction classifier = (QuantileFunction) ff.function("Quantile", Expression.NIL);
         assertEquals(100.0, classifier.round(100.0, 0), 0);
         assertEquals(1.1, classifier.round(1.12, 1), 0);
         assertEquals(0.35, classifier.round(0.34523, 2), 0);

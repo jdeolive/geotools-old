@@ -16,10 +16,11 @@
  */
 package org.geotools.filter.function;
 
-import java.util.Arrays;
 import org.geotools.filter.Expression;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.FunctionExpression;
+import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
 
 
 /**
@@ -47,8 +48,7 @@ public class UniqueIntervalFunctionTest extends FunctionTestSupport {
      * org.geotools.filter.functions.UniqueIntervalFunction.
      */
     public void testInstance() {
-        FunctionExpression equInt = FilterFactoryFinder.createFilterFactory()
-                                                 .createFunctionExpression("UniqueInterval");
+        Function equInt = ff.function("UniqueInterval", ff.literal(featureCollection));
         assertNotNull(equInt);
     }
 
@@ -57,8 +57,7 @@ public class UniqueIntervalFunctionTest extends FunctionTestSupport {
      * org.geotools.filter.functions.UniqueIntervalFunction.
      */
     public void testGetName() {
-        FunctionExpression equInt = FilterFactoryFinder.createFilterFactory()
-                .createFunctionExpression("UniqueInterval");
+        Function equInt = ff.function("UniqueInterval", ff.literal(featureCollection));
         assertEquals("UniqueInterval", equInt.getName());
     }
 
@@ -67,11 +66,9 @@ public class UniqueIntervalFunctionTest extends FunctionTestSupport {
      * org.geotools.filter.function.UniqueIntervalFunction.
      */
     public void testSetClasses() throws Exception {
-        Expression classes = (Expression) builder.parser(dataType, "3");
-        Expression exp = (Expression) builder.parser(dataType, "foo");
-        UniqueIntervalFunction func = (UniqueIntervalFunction) fac
-            .createFunctionExpression("UniqueInterval");
-        func.setArgs(new Expression[] { exp, classes });
+        Literal classes = ff.literal(3);
+        PropertyName exp = ff.property("foo");
+        UniqueIntervalFunction func = (UniqueIntervalFunction) ff.function("UniqueInterval", exp, classes);
         assertEquals(3, func.getClasses());
         func.setClasses(12);
         assertEquals(12, func.getClasses());
@@ -82,10 +79,9 @@ public class UniqueIntervalFunctionTest extends FunctionTestSupport {
      * org.geotools.filter.function.UniqueIntervalFunction.
      */
     public void testEvaluate() throws Exception {
-        Expression classes = (Expression) builder.parser(dataType, "2");
-        Expression exp = (Expression) builder.parser(dataType, "foo");
-        FunctionExpression func = fac.createFunctionExpression("UniqueInterval");
-        func.setArgs(new Expression[] { exp, classes });
+        Literal classes = ff.literal(2);
+        PropertyName exp = ff.property("foo");
+        UniqueIntervalFunction func = (UniqueIntervalFunction) ff.function("UniqueInterval", exp, classes);
 
         Object result = func.evaluate(featureCollection);
         assertTrue(result instanceof ExplicitClassifier);

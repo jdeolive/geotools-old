@@ -23,11 +23,11 @@ import org.opengis.filter.expression.Expression;
 public class IsLessThenOrEqualToImpl extends CompareFilterImpl implements
 		PropertyIsLessThanOrEqualTo {
 	
-	protected IsLessThenOrEqualToImpl(FilterFactory factory) {
+	protected IsLessThenOrEqualToImpl(org.opengis.filter.FilterFactory factory) {
 		this(factory, null, null);
 	}
 	
-	protected IsLessThenOrEqualToImpl(FilterFactory factory, Expression expression1, Expression expression2) {
+	protected IsLessThenOrEqualToImpl(org.opengis.filter.FilterFactory factory, Expression expression1, Expression expression2) {
 		super(factory, expression1, expression2);
 		
 		//backwards compat with old type system

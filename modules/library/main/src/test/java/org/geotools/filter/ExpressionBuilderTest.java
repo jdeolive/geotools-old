@@ -21,6 +21,7 @@ package org.geotools.filter;
 
 import java.util.logging.Logger;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.parser.ParseException;
 
 /**
@@ -31,7 +32,7 @@ import org.geotools.filter.parser.ParseException;
 public class ExpressionBuilderTest extends FilterTestSupport {
     protected static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.filter");
     
-    private FilterFactory filterFac = FilterFactoryFinder.createFilterFactory();
+    private org.opengis.filter.FilterFactory filterFac = CommonFactoryFinder.getFilterFactory(null);
     
     public ExpressionBuilderTest(String testName) {
         super(testName);

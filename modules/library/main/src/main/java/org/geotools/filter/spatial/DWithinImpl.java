@@ -27,7 +27,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class DWithinImpl extends CartesianDistanceFilter implements DWithin {
 
-	public DWithinImpl(FilterFactory factory,Expression e1,Expression e2) {
+	public DWithinImpl(org.opengis.filter.FilterFactory factory,Expression e1,Expression e2) {
 		super(factory,e1,e2);
 		
 		// backwards compat with old type system

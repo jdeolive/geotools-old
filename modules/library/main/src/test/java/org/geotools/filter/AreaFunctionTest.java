@@ -16,18 +16,21 @@
  */
 package org.geotools.filter;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.expression.PropertyName;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -156,7 +159,7 @@ public class AreaFunctionTest extends TestCase {
         //_log.getLoggerRepository().setThreshold(Level.DEBUG);
     }
 
-    static FilterFactory filterFactory = FilterFactoryFinder.createFilterFactory();
+    static org.opengis.filter.FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
     
      /** 
      * Tests the min function expression.
@@ -164,11 +167,11 @@ public class AreaFunctionTest extends TestCase {
     public void testAreaFunction()
         throws IllegalFilterException {
             
-        Expression a = filterFactory.createAttributeExpression(testSchema, "testGeometry");         
+        PropertyName a = filterFactory.property("testGeometry");         
         
         AreaFunction area = new AreaFunction();
-        area.setArgs(new Expression[]{a});         
-        assertEquals(100d,((Double)area.getValue(testFeature)).doubleValue(),0);
+        area.setParameters(Arrays.asList(new org.opengis.filter.expression.Expression[] {a}));         
+        assertEquals(100d,((Double)area.evaluate(testFeature)).doubleValue(),0);
     }
     
    

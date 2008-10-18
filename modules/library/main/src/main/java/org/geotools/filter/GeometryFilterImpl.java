@@ -19,7 +19,6 @@ package org.geotools.filter;
 import java.util.logging.Logger;
 
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -67,11 +66,11 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
     /** Class logger */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.filter");
 
-    protected GeometryFilterImpl(FilterFactory factory) {
+    protected GeometryFilterImpl(org.opengis.filter.FilterFactory factory) {
     	super(factory);
     }
     
-    protected GeometryFilterImpl(FilterFactory factory,org.opengis.filter.expression.Expression e1,org.opengis.filter.expression.Expression e2) {
+    protected GeometryFilterImpl(org.opengis.filter.FilterFactory factory,org.opengis.filter.expression.Expression e1,org.opengis.filter.expression.Expression e2) {
     	super(factory,e1,e2);
     }
     

@@ -55,7 +55,7 @@ public abstract class CompareFilterImpl extends BinaryComparisonAbstract
      * @param filterType The type of comparison.
      *
      * @throws IllegalFilterException Non-compare type.
-     * @deprecated use {@link #CompareFilterImpl(FilterFactory, org.opengis.filter.expression.Expression, org.opengis.filter.expression.Expression)}
+     * @deprecated use {@link #CompareFilterImpl(org.opengis.filter.FilterFactory, org.opengis.filter.expression.Expression, org.opengis.filter.expression.Expression)}
      */
     protected CompareFilterImpl(short filterType) throws IllegalFilterException {
     	super(CommonFactoryFinder.getFilterFactory(null));
@@ -67,11 +67,11 @@ public abstract class CompareFilterImpl extends BinaryComparisonAbstract
         }
     }
 
-    protected CompareFilterImpl(FilterFactory factory, org.opengis.filter.expression.Expression e1, org.opengis.filter.expression.Expression e2) {
+    protected CompareFilterImpl(org.opengis.filter.FilterFactory factory, org.opengis.filter.expression.Expression e1, org.opengis.filter.expression.Expression e2) {
     	this(factory,e1,e2,true);
     }
     
-    protected CompareFilterImpl(FilterFactory factory, org.opengis.filter.expression.Expression e1, org.opengis.filter.expression.Expression e2, boolean matchCase ) {
+    protected CompareFilterImpl(org.opengis.filter.FilterFactory factory, org.opengis.filter.expression.Expression e1, org.opengis.filter.expression.Expression e2, boolean matchCase ) {
     	super(factory,e1,e2,matchCase);
     }
     

@@ -28,7 +28,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class IntersectsImpl extends GeometryFilterImpl implements Intersects {
 
-	public IntersectsImpl(FilterFactory factory,Expression e1,Expression e2) {
+	public IntersectsImpl(org.opengis.filter.FilterFactory factory,Expression e1,Expression e2) {
 		super(factory,e1,e2);
 		
 		// backwards compat with type system

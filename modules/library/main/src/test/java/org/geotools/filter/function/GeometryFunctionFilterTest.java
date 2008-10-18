@@ -17,9 +17,8 @@
 package org.geotools.filter.function;
 
 import org.geotools.feature.FeatureIterator;
-import org.geotools.filter.Expression;
-import org.geotools.filter.FunctionExpression;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.expression.Function;
 
 
 public class GeometryFunctionFilterTest extends FunctionTestSupport {
@@ -29,25 +28,23 @@ public class GeometryFunctionFilterTest extends FunctionTestSupport {
     }
     
     public void testBasicTest() throws Exception {
-        FunctionExpression exp = fac.createFunctionExpression("geometryType");
-        exp.setArgs(new Expression[]{ fac.createAttributeExpression("geom") });
+        Function exp = ff.function("geometryType", ff.property("geom"));
         FeatureIterator<SimpleFeature> iter=featureCollection.features();
         while( iter.hasNext() ){
             SimpleFeature feature = iter.next();
-            assertEquals( "Point", exp.getValue(feature) );
+            assertEquals( "Point", exp.evaluate(feature) );
         }
         
         iter.close();
     }
     
     public void testNullTest() throws Exception {
-        FunctionExpression exp = fac.createFunctionExpression("geometryType");
-        exp.setArgs(new Expression[]{ fac.createAttributeExpression("geom") });
+        Function exp = ff.function("geometryType", ff.property("geom"));
         FeatureIterator<SimpleFeature> iter=featureCollection.features();
         while( iter.hasNext() ){
         	SimpleFeature feature = iter.next();
             feature.setAttribute("geom",null);
-            assertNull( exp.getValue(feature) );
+            assertNull( exp.evaluate(feature) );
         }
         
         iter.close();

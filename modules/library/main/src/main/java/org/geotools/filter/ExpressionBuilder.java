@@ -22,6 +22,8 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EmptyStackException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 import org.geotools.factory.CommonFactoryFinder;
@@ -48,6 +50,7 @@ import org.opengis.filter.expression.Divide;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Multiply;
 import org.opengis.filter.expression.Subtract;
+import org.opengis.filter.spatial.SpatialOperator;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -64,14 +67,31 @@ import com.vividsolutions.jts.io.WKTReader;
  * @deprecated Please use CQL
  */
 public class ExpressionBuilder {
-	private org.opengis.filter.FilterFactory factory;
-	public ExpressionBuilder(){
-		this( CommonFactoryFinder.getFilterFactory(null) );
-	}
-	public ExpressionBuilder( org.opengis.filter.FilterFactory factory ){
-		this.factory = factory;
-	}
-    public void setFilterFactory( org.opengis.filter.FilterFactory factory ){
+    
+    static final Set<String> GEOMETRY_FILTERS = new HashSet<String>() {
+        {
+            add("EQUALS");
+            add("DISJOINT");
+            add("INTERSECTS");
+            add("TOUCHES");
+            add("CROSSES");
+            add("WITHIN");
+            add("CONTAINS");
+            add("OVERLAPS");
+        }
+    };
+    
+    private org.opengis.filter.FilterFactory2 factory;
+
+    public ExpressionBuilder() {
+        this(CommonFactoryFinder.getFilterFactory2(null));
+    }
+
+    public ExpressionBuilder(org.opengis.filter.FilterFactory2 factory) {
+        this.factory = factory;
+    }
+	
+    public void setFilterFactory( org.opengis.filter.FilterFactory2 factory ){
     	this.factory = factory;
     }
     /**
@@ -457,9 +477,8 @@ public class ExpressionBuilder {
                 }
             }
             
-            short geometryFilterType = lookupGeometryFilter(function);
-            if (geometryFilterType >= 0)
-                return buildGeometryFilter(geometryFilterType);
+            if (GEOMETRY_FILTERS.contains(function.toUpperCase()))
+                return buildGeometryFilter(function);
             
             //GR: GEOT-1192, don't know how to fetch the number of arguments
             //before creating the function
@@ -482,31 +501,27 @@ public class ExpressionBuilder {
             
         }
         
-        /**
-         * @todo this is sheer laziness
-         */
-        short lookupGeometryFilter(String name) {
-            java.lang.reflect.Field[] f = AbstractFilter.class.getFields();
-            name = name.toUpperCase();
-            for (int i = 0, ii = f.length; i < ii; i++) {
-                if (f[i].getName().endsWith(name))
-                    try {return f[i].getShort(null);} catch (Exception e) {}
-            }
-            return -1;
-        }
-        
-        GeometryFilter buildGeometryFilter(short type) throws ExpressionException {
+        SpatialOperator buildGeometryFilter(String type) throws ExpressionException {
             Expression right = expression();
             Expression left = expression();
-            try {
-                FilterFactory ff = (FilterFactory) factory;
-                GeometryFilter f = ff.createGeometryFilter(type);
-                f.addLeftGeometry((org.geotools.filter.Expression) left);
-                f.addRightGeometry((org.geotools.filter.Expression) right);
-                return f;
-            } catch (IllegalFilterException ife) {
-                throw new ExpressionException("Exception building GeometryFilter",getToken(0),ife);
-            }
+            if(type.equalsIgnoreCase("EQUALS"))
+                return factory.equal(right, left);
+            else if(type.equalsIgnoreCase("DISJOINT"))
+                return factory.disjoint(right, left);
+            else if(type.equalsIgnoreCase("INTERSECTS"))
+                return factory.intersects(right, left);
+            else if(type.equalsIgnoreCase("TOUCHES"))
+                return factory.touches(right, left);
+            else if(type.equalsIgnoreCase("CROSSES"))
+                return factory.crosses(right, left);
+            else if(type.equalsIgnoreCase("WITHIN"))
+                return factory.within(right, left);
+            else if(type.equalsIgnoreCase("CONTAINS"))
+                return factory.contains(right, left);
+            else if(type.equalsIgnoreCase("OVERLAPS"))
+                return factory.overlaps(right, left);
+            else
+                throw new ExpressionException("Exception building GeometryFilter",getToken(0));
         }
     }
     

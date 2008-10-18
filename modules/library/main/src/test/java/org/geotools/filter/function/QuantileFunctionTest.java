@@ -16,22 +16,17 @@
  */
 package org.geotools.filter.function;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.geotools.data.DataUtilities;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.visitor.FeatureVisitor;
-import org.geotools.filter.Expression;
-import org.geotools.filter.ExpressionType;
-import org.geotools.filter.FilterFactoryFinder;
-import org.geotools.filter.FunctionExpression;
-import org.geotools.filter.MathExpression;
-import org.geotools.filter.parser.ParseException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.expression.Divide;
+import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
 
 /**
  * 
@@ -56,40 +51,33 @@ public class QuantileFunctionTest extends FunctionTestSupport {
     }
     
     public void testInstance() {
-        FunctionExpression equInt = FilterFactoryFinder.createFilterFactory().createFunctionExpression("Quantile");
+        Function equInt = ff.function("Quantile", ff.literal(FeatureCollections.newCollection()));
         assertNotNull(equInt);
     }
     
     public void testGetName() {
-        FunctionExpression qInt = FilterFactoryFinder.createFilterFactory().createFunctionExpression("Quantile");
-        System.out.println("testGetName");
+        Function qInt = ff.function("Quantile", ff.literal(FeatureCollections.newCollection()));
         assertEquals("Quantile",qInt.getName());
     }
     
     public void testSetParameters() throws Exception{
-        Expression classes = (Expression) builder.parser(dataType, "3");
-        Expression expr = (Expression) builder.parser(dataType, "foo");
-        List params = new ArrayList();
-        params.add(0, expr);
-        params.add(1, classes);
-        QuantileFunction func = (QuantileFunction) fac.createFunctionExpression("Quantile");
-        func.setParameters(params);
+        Literal classes = ff.literal(3);
+        PropertyName expr = ff.property("foo");
+        QuantileFunction func = (QuantileFunction) ff.function("Quantile", expr, classes);
         assertEquals(3, func.getClasses());
-        classes = (Expression) builder.parser(dataType, "12");
-        params.set(1, classes);
-        func.setParameters(params);
+        classes = ff.literal(12);
+        func = (QuantileFunction) ff.function("Quantile", expr, classes);
         assertEquals(12,func.getClasses());
         //deprecated still works?
-        classes = (Expression) builder.parser(dataType, "5");
-        func.setArgs(new Expression[]{expr, classes});
+        classes = ff.literal(5);
+        func = (QuantileFunction) ff.function("Quantile", expr, classes);
         assertEquals(5, func.getClasses());
     }
     
     public void testEvaluateWithExpressions() throws Exception{
-        Expression classes = (Expression) builder.parser(dataType, "2");
-        Expression exp = (Expression) builder.parser(dataType, "foo");
-        FunctionExpression func = fac.createFunctionExpression("Quantile");
-        func.setArgs(new Expression[]{exp,classes});
+        Literal classes = ff.literal(2);
+        PropertyName exp = ff.property("foo");
+        Function func = ff.function("Quantile", exp, classes);
         
         Object value = func.evaluate(featureCollection);
         assertTrue(value instanceof RangedClassifier);
@@ -109,11 +97,8 @@ public class QuantileFunctionTest extends FunctionTestSupport {
         Integer number = (Integer) function.evaluate( featureCollection, Integer.class );
         assertNull( number );
     }
+    
     public void xtestNullNaNHandling() throws Exception {
-    	//setup
-    	FunctionExpression func = fac.createFunctionExpression("Quantile");
-    	QuantileFunction qf = (QuantileFunction) func;
- 
     	//create a feature collection
     	SimpleFeatureType ft = DataUtilities.createType("classification.nullnan",
         "id:0,foo:int,bar:double");
@@ -153,12 +138,8 @@ public class QuantileFunctionTest extends FunctionTestSupport {
     	FeatureCollection<SimpleFeatureType, SimpleFeature> thisFC = store.getFeatureSource("nullnan").getFeatures();
 
     	//create the expression
-        MathExpression divide = fac.createMathExpression(ExpressionType.MATH_DIVIDE);
-        divide.addLeftValue((Expression)builder.parse(dataType, "foo"));
-        divide.addRightValue((Expression)builder.parse(dataType, "bar"));
-    	
-    	qf.setClasses(3);    	
-    	qf.setExpression(divide);
+        Divide divide = ff.divide(ff.property("foo"), ff.property("bar"));
+        QuantileFunction qf = (QuantileFunction) ff.function("Quantile", divide, ff.literal(3));
         
         RangedClassifier range = (RangedClassifier) qf.evaluate(thisFC);
         assertEquals(2, range.getSize()); //2 or 3?

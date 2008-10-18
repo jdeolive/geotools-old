@@ -24,28 +24,8 @@ import org.opengis.filter.PropertyIsGreaterThan;
 import org.opengis.filter.expression.Expression;
 
 public class FilterFactoryBeforeTest extends TestCase {
-
-    public void testBefore() throws Exception {
-        org.geotools.filter.FilterFactory ff = FilterFactoryFinder.createFilterFactory();
     
-        CompareFilter filter = ff.createCompareFilter(org.geotools.filter.FilterType.COMPARE_GREATER_THAN);
-        filter.addLeftValue( ff.createLiteralExpression(2));
-        filter.addRightValue( ff.createLiteralExpression(1));
-        
-        assertTrue( filter.evaluate( null ) );
-        assertTrue( filter.getFilterType() == FilterType.COMPARE_GREATER_THAN );
-    }
-
-    public void testQuick() throws Exception {
-        org.geotools.filter.FilterFactory ff = FilterFactoryFinder.createFilterFactory();
-    
-        CompareFilter filter = ff.createCompareFilter(org.geotools.filter.FilterType.COMPARE_GREATER_THAN);
-        filter.addLeftValue( ff.createLiteralExpression(2));
-        filter.addRightValue( ff.createLiteralExpression(1));
-        
-        assertTrue( filter.evaluate( null ) );
-        assertTrue( filter instanceof PropertyIsGreaterThan );
-    }
+    FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
     public void testAfter() throws Exception {
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);

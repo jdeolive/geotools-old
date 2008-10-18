@@ -16,10 +16,8 @@
  */
 package org.geotools.filter.function;
 
-import org.geotools.feature.FeatureIterator;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.Expression;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.FunctionExpression;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.expression.Function;
@@ -34,7 +32,7 @@ import org.opengis.filter.expression.PropertyName;
 public class EqualIntervalFunctionTest extends FunctionTestSupport {
    
     
-    private static final FilterFactory ff = FilterFactoryFinder.createFilterFactory();
+    private static final org.opengis.filter.FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
     public EqualIntervalFunctionTest(String testName) {
         super(testName);
@@ -52,7 +50,7 @@ public class EqualIntervalFunctionTest extends FunctionTestSupport {
      * Test of getName method, of class org.geotools.filter.functions.EqualIntervalFunction.
      */
     public void testInstance() {
-        Function equInt = ff.createFunctionExpression("EqualInterval");        
+        Function equInt = ff.function("EqualInterval", org.opengis.filter.expression.Expression.NIL);        
         assertNotNull(equInt);
         assertEquals("test get name", "EqualInterval",equInt.getName());
     }
@@ -72,10 +70,9 @@ public class EqualIntervalFunctionTest extends FunctionTestSupport {
     }
     
     public void testEvaluateWithExpressions() throws Exception {
-        Expression classes = (Expression) builder.parser(dataType, "3");
-        Expression expr1 = (Expression) builder.parser(dataType, "foo");
-        FunctionExpression func = fac.createFunctionExpression("EqualInterval");
-        func.setArgs(new Expression[]{expr1,classes});
+        Literal classes = ff.literal(3);
+        PropertyName name = ff.property("foo");
+        Function func = ff.function("EqualInterval", name, classes);
         
         Object classifier = func.evaluate(featureCollection);
         assertTrue(classifier instanceof RangedClassifier);
@@ -91,12 +88,12 @@ public class EqualIntervalFunctionTest extends FunctionTestSupport {
         assertEquals("61.333..90", ranged.getTitle(2));
         //check classifier binning
         assertEquals(0, ranged.classify(new Double(4)));
-        assertEquals(2, ranged.classify(expr1, testFeatures[1])); //90
+        assertEquals(2, ranged.classify(name, testFeatures[1])); //90
         assertEquals(0, ranged.classify(new Double(20)));
         assertEquals(1, ranged.classify(new Double(43)));
         assertEquals(0, ranged.classify(new Double(29)));
         assertEquals(1, ranged.classify(new Double(61)));
-        assertEquals(0, ranged.classify(expr1, testFeatures[6])); //8
+        assertEquals(0, ranged.classify(name, testFeatures[6])); //8
         assertEquals(0, ranged.classify(new Double(12)));
         
         //try again with foo        
