@@ -20,6 +20,7 @@ package org.geotools.filter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.PropertyIsLike;
 
@@ -272,7 +273,7 @@ public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
      * Constructor which flags the operator as like.
      */
     protected LikeFilterImpl() {
-    	super(FilterFactoryFinder.createFilterFactory());
+    	super(CommonFactoryFinder.getFilterFactory(null));
     	filterType = LIKE;
     }
 

@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.expression.PropertyAccessor;
 import org.geotools.filter.expression.PropertyAccessors;
 import org.geotools.filter.expression.SimpleFeaturePropertyAccessorFactory;
@@ -62,7 +63,7 @@ public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
 	 * @deprecated use {@link #FidFilterImpl(Set)}
 	 */
 	protected FidFilterImpl() {
-		super(FilterFactoryFinder.createFilterFactory());
+		super(CommonFactoryFinder.getFilterFactory(null));
 		filterType = AbstractFilter.FID;
 	}
 
@@ -74,7 +75,7 @@ public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
 	 * @deprecated use {@link #FidFilterImpl(Set)}
 	 */
 	protected FidFilterImpl(String initialFid) {
-		super(FilterFactoryFinder.createFilterFactory());
+		super(CommonFactoryFinder.getFilterFactory(null));
 		filterType = AbstractFilter.FID;
 		addFid(initialFid);
 	}
@@ -85,7 +86,7 @@ public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
 	 * 
 	 */
 	protected FidFilterImpl(Set/* <Identiger> */fids) {
-		super(FilterFactoryFinder.createFilterFactory());
+		super(CommonFactoryFinder.getFilterFactory(null));
 		filterType = AbstractFilter.FID;
 		// check these are really identifiers
 		for (Iterator it = fids.iterator(); it.hasNext();) {

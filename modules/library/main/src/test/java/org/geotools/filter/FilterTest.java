@@ -31,7 +31,6 @@ import junit.framework.TestSuite;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -45,12 +44,18 @@ import org.opengis.filter.Id;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.PropertyIsGreaterThan;
+import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
+import org.opengis.filter.PropertyIsLessThan;
+import org.opengis.filter.PropertyIsLessThanOrEqualTo;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.PropertyIsNull;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.spatial.BBOX;
+import org.opengis.filter.spatial.Beyond;
+import org.opengis.filter.spatial.DWithin;
 import org.opengis.filter.spatial.Disjoint;
 import org.opengis.filter.spatial.Equals;
 
@@ -58,6 +63,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
 
@@ -127,16 +134,15 @@ public class FilterTest extends TestCase {
      * Sets up a schema and a test feature.
      *
      * @throws SchemaException If there is a problem setting up the schema.
-     * @throws IllegalAttributeException If problem setting up the feature.
      */
-    protected void setUp() throws SchemaException, IllegalAttributeException {
+    protected void setUp() throws SchemaException {
         if (set) {
             return;
         }
 
         set = true;
         
-        fac = FilterFactoryFinder.createFilterFactory();
+        fac = CommonFactoryFinder.getFilterFactory2(null);
         
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
         ftb.setName( "testFeatureType");
@@ -224,79 +230,70 @@ public class FilterTest extends TestCase {
      */
     public void testCompare() throws IllegalFilterException {
         // Test all integer permutations
-        Expression testAttribute = new AttributeExpressionImpl(testSchema,
+        PropertyName testAttribute = new AttributeExpressionImpl(testSchema,
                 "testInteger");
-        compareNumberRunner(testAttribute, FilterType.COMPARE_EQUALS,
+        compareNumberRunner(testAttribute, PropertyIsEqualTo.class,
             false, true, false);
-        compareNumberRunner(testAttribute, FilterType.COMPARE_GREATER_THAN,
+        compareNumberRunner(testAttribute, PropertyIsGreaterThan.class,
             true, false, false);
-        compareNumberRunner(testAttribute, FilterType.COMPARE_LESS_THAN,
+        compareNumberRunner(testAttribute, PropertyIsLessThan.class,
             false, false, true);
         compareNumberRunner(testAttribute,
-            FilterType.COMPARE_GREATER_THAN_EQUAL, true, true, false);
+                PropertyIsGreaterThanOrEqualTo.class, true, true, false);
         compareNumberRunner(testAttribute,
-            FilterType.COMPARE_LESS_THAN_EQUAL, false, true, true);
+                PropertyIsLessThanOrEqualTo.class, false, true, true);
         
         // test all date permutations, with string/date conversion included
         testAttribute = new AttributeExpressionImpl(testSchema, "date");
-        compareSqlDateRunner(testAttribute, FilterType.COMPARE_EQUALS,
+        compareSqlDateRunner(testAttribute, PropertyIsEqualTo.class,
                 false, true, false);
-        compareSqlDateRunner(testAttribute, FilterType.COMPARE_GREATER_THAN,
+        compareSqlDateRunner(testAttribute, PropertyIsGreaterThan.class,
                 true, false, false);
-        compareSqlDateRunner(testAttribute, FilterType.COMPARE_LESS_THAN,
+        compareSqlDateRunner(testAttribute, PropertyIsLessThan.class,
                 false, false, true);
-        compareSqlDateRunner(testAttribute, FilterType.COMPARE_GREATER_THAN_EQUAL,
+        compareSqlDateRunner(testAttribute, PropertyIsGreaterThanOrEqualTo.class,
                 true, true, false);
-        compareSqlDateRunner(testAttribute, FilterType.COMPARE_LESS_THAN_EQUAL,
+        compareSqlDateRunner(testAttribute, PropertyIsLessThanOrEqualTo.class,
                 false, true, true);
         
         // test all date permutations, with string/date conversion included
         testAttribute = new AttributeExpressionImpl(testSchema, "time");
-        compareSqlTimeRunner(testAttribute, FilterType.COMPARE_EQUALS,
+        compareSqlTimeRunner(testAttribute, PropertyIsEqualTo.class,
                 false, true, false);
-        compareSqlTimeRunner(testAttribute, FilterType.COMPARE_GREATER_THAN,
+        compareSqlTimeRunner(testAttribute, PropertyIsGreaterThan.class,
                 true, false, false);
-        compareSqlTimeRunner(testAttribute, FilterType.COMPARE_LESS_THAN,
+        compareSqlTimeRunner(testAttribute, PropertyIsLessThan.class,
                 false, false, true);
-        compareSqlTimeRunner(testAttribute, FilterType.COMPARE_GREATER_THAN_EQUAL,
+        compareSqlTimeRunner(testAttribute, PropertyIsGreaterThanOrEqualTo.class,
                 true, true, false);
-        compareSqlTimeRunner(testAttribute, FilterType.COMPARE_LESS_THAN_EQUAL,
+        compareSqlTimeRunner(testAttribute, PropertyIsLessThanOrEqualTo.class,
                 false, true, true);
 
         // Set up the string test.
         testAttribute = new AttributeExpressionImpl(testSchema, "testString");
 
-        CompareFilter filter = FilterFactoryFinder.createFilterFactory()
-        	.createCompareFilter(FilterType.COMPARE_EQUALS);
-        Expression testLiteral;
-        filter.addLeftValue(testAttribute);
-
         // Test for false positive.
-        testLiteral = new LiteralExpressionImpl("test string data");
-        filter.addRightValue(testLiteral);
+        Literal testLiteral = new LiteralExpressionImpl("test string data");
+        org.opengis.filter.Filter filter = compare(PropertyIsEqualTo.class, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertTrue(filter.contains(testFeature));
+        assertTrue(filter.evaluate(testFeature));
 
         // Test for false negative.
         testLiteral = new LiteralExpressionImpl("incorrect test string data");
-        filter.addRightValue(testLiteral);
+        filter = compare(PropertyIsEqualTo.class, testAttribute, testLiteral);
 
-        assertTrue(!filter.contains(testFeature));
-
-	filter = FilterFactoryFinder.createFilterFactory()
-		.createCompareFilter(FilterType.COMPARE_LESS_THAN);
-	filter.addLeftValue(testAttribute);
+        assertTrue(!filter.evaluate(testFeature));
 
         // Test for false positive.
         testLiteral = new LiteralExpressionImpl("zebra");
-        filter.addRightValue(testLiteral);
-	assertTrue(filter.contains(testFeature));
+        filter = compare(PropertyIsLessThan.class, testAttribute, testLiteral);
+	assertTrue(filter.evaluate(testFeature));
 
 	testLiteral = new LiteralExpressionImpl("blorg");
-        filter.addRightValue(testLiteral);
-	assertTrue(!filter.contains(testFeature));
+	filter = compare(PropertyIsLessThan.class, testAttribute, testLiteral);
+	assertTrue(!filter.evaluate(testFeature));
     }
     
     
@@ -313,34 +310,29 @@ public class FilterTest extends TestCase {
      *
      * @throws IllegalFilterException If the constructed filter is not valid.
      */
-    public static void compareNumberRunner(Expression testAttribute,
-        short filterType, boolean test1, boolean test2, boolean test3)
+    public void compareNumberRunner(PropertyName testAttribute,
+        Class filterType, boolean test1, boolean test2, boolean test3)
         throws IllegalFilterException {
-        CompareFilter filter = FilterFactoryFinder.createFilterFactory()
-        	.createCompareFilter(filterType);
-        Expression testLiteral;
-        filter.addLeftValue(testAttribute);
-
-        testLiteral = new LiteralExpressionImpl(new Integer(1001));
-        filter.addRightValue(testLiteral);
+        Literal testLiteral = new LiteralExpressionImpl(new Integer(1001));
+        org.opengis.filter.Filter filter = compare(filterType, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertEquals(filter.contains(testFeature), test1);
+        assertEquals(filter.evaluate(testFeature), test1);
 
         testLiteral = new LiteralExpressionImpl(new Integer(1002));
-        filter.addRightValue(testLiteral);
+        filter = compare(filterType, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertEquals(filter.contains(testFeature), test2);
+        assertEquals(filter.evaluate(testFeature), test2);
 
         testLiteral = new LiteralExpressionImpl(new Integer(1003));
-        filter.addRightValue(testLiteral);
+        filter = compare(filterType, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertEquals(filter.contains(testFeature), test3);
+        assertEquals(filter.evaluate(testFeature), test3);
     }
     
     /**
@@ -354,38 +346,56 @@ public class FilterTest extends TestCase {
      *
      * @throws IllegalFilterException If the constructed filter is not valid.
      */
-    public void compareSqlDateRunner(Expression testAttribute,
-        short filterType, boolean test1, boolean test2, boolean test3)
+    public void compareSqlDateRunner(PropertyName testAttribute,
+        Class filterType, boolean test1, boolean test2, boolean test3)
         throws IllegalFilterException {
-        CompareFilter filter = FilterFactoryFinder.createFilterFactory()
-                .createCompareFilter(filterType);
-        Expression testLiteral;
-        filter.addLeftValue(testAttribute);
-
         Calendar calLocal = Calendar.getInstance();
         calLocal.setTime(calDate.getTime());
         calLocal.set(Calendar.DAY_OF_MONTH, calDateTime.get(Calendar.DAY_OF_MONTH) - 1);
-        testLiteral = new LiteralExpressionImpl(new java.sql.Date(calLocal.getTimeInMillis()).toString());
-        filter.addRightValue(testLiteral);
+        Literal testLiteral = new LiteralExpressionImpl(new java.sql.Date(calLocal.getTimeInMillis()).toString());
+        org.opengis.filter.Filter filter = compare(filterType, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertEquals(filter.contains(testFeature), test1);
+        assertEquals(test1, filter.evaluate(testFeature));
 
         testLiteral = new LiteralExpressionImpl(new java.sql.Date(calDate.getTimeInMillis()).toString());
-        filter.addRightValue(testLiteral);
+        filter = compare(filterType, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertEquals(filter.contains(testFeature), test2);
+        assertEquals(test2, filter.evaluate(testFeature));
 
         calLocal.set(Calendar.DAY_OF_MONTH, calDateTime.get(Calendar.DAY_OF_MONTH) + 1);
         testLiteral = new LiteralExpressionImpl(new java.sql.Date(calLocal.getTimeInMillis()).toString());
-        filter.addRightValue(testLiteral);
+        filter = compare(filterType, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertEquals(filter.contains(testFeature), test3);
+        assertEquals(filter.evaluate(testFeature), test3);
+    }
+    
+    /**
+     * Builds a filter that compares a and b: <code>a compare b</code>
+     * @param filterType
+     * @param a
+     * @param b
+     * @return
+     */
+    org.opengis.filter.Filter compare(Class filterType, org.opengis.filter.expression.Expression a, org.opengis.filter.expression.Expression b) {
+        if(filterType == PropertyIsLessThan.class) {
+            return fac.less(a, b);
+        } else if(filterType == PropertyIsLessThanOrEqualTo.class) {
+            return fac.lessOrEqual(a, b);
+        } if(filterType == PropertyIsEqualTo.class) {
+            return fac.equals(a, b);
+        } else if(filterType == PropertyIsGreaterThanOrEqualTo.class) {
+            return fac.greaterOrEqual(a, b);
+        } else if(filterType == PropertyIsGreaterThan.class) {
+            return fac.greater(a, b);
+        } else {
+            throw new IllegalArgumentException("Uknown compare filter type " + filterType);
+        }
     }
     
     /**
@@ -399,38 +409,33 @@ public class FilterTest extends TestCase {
      *
      * @throws IllegalFilterException If the constructed filter is not valid.
      */
-    public void compareSqlTimeRunner(Expression testAttribute,
-        short filterType, boolean test1, boolean test2, boolean test3)
+    public void compareSqlTimeRunner(PropertyName testAttribute,
+        Class filterType, boolean test1, boolean test2, boolean test3)
         throws IllegalFilterException {
-        CompareFilter filter = FilterFactoryFinder.createFilterFactory()
-                .createCompareFilter(filterType);
-        Expression testLiteral;
-        filter.addLeftValue(testAttribute);
-
         Calendar calLocal = Calendar.getInstance();
         calLocal.setTime(calTime.getTime());
         calLocal.set(Calendar.HOUR_OF_DAY, calTime.get(Calendar.HOUR_OF_DAY) - 1);
-        testLiteral = new LiteralExpressionImpl(new java.sql.Time(calLocal.getTimeInMillis()).toString());
-        filter.addRightValue(testLiteral);
+        Literal testLiteral = new LiteralExpressionImpl(new java.sql.Time(calLocal.getTimeInMillis()).toString());
+        org.opengis.filter.Filter filter = compare(filterType, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertEquals(filter.contains(testFeature), test1);
+        assertEquals(filter.evaluate(testFeature), test1);
 
         testLiteral = new LiteralExpressionImpl(new java.sql.Time(calTime.getTimeInMillis()).toString());
-        filter.addRightValue(testLiteral);
+        filter = compare(filterType, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertEquals(filter.contains(testFeature), test2);
+        assertEquals(filter.evaluate(testFeature), test2);
 
         calLocal.set(Calendar.HOUR_OF_DAY, calTime.get(Calendar.HOUR_OF_DAY) + 1);
         testLiteral = new LiteralExpressionImpl(new java.sql.Time(calLocal.getTimeInMillis()).toString());
-        filter.addRightValue(testLiteral);
+        filter = compare(filterType, testAttribute, testLiteral);
 
         //LOGGER.finer( filter.toString());            
         //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-        assertEquals(filter.contains(testFeature), test3);
+        assertEquals(filter.evaluate(testFeature), test3);
     }
 
     /**
@@ -446,7 +451,7 @@ public class FilterTest extends TestCase {
         
         assertTrue(matcher.matches());
         
-        Expression testAttribute = null;
+        PropertyName testAttribute = null;
 
         // Set up string
         testAttribute = new AttributeExpressionImpl(testSchema, "testString");
@@ -494,15 +499,14 @@ public class FilterTest extends TestCase {
          *
          * @throws IllegalFilterException If the constructed filter is not valid.
         */
-        public void testCompareShortCircuit() throws IllegalFilterException, IllegalAttributeException {
+        public void testCompareShortCircuit() throws IllegalFilterException {
            // Test all integer permutations
-            Expression testAttribute = new AttributeExpressionImpl(testSchema,
+            PropertyName testAttribute = new AttributeExpressionImpl(testSchema,
                    "testInteger");
     
-            NullFilterImpl nullFilter = new NullFilterImpl();
-            nullFilter.nullCheckValue(testAttribute);
+            PropertyIsNull nullFilter = fac.isNull(testAttribute);
            
-            Filter notNullFilter  = (Filter) fac.not(nullFilter);
+            org.opengis.filter.Filter notNullFilter  = fac.not(nullFilter);
             
             PropertyIsEqualTo compareFilter = fac.equals( testAttribute, fac.literal(10));
             
@@ -510,21 +514,21 @@ public class FilterTest extends TestCase {
             testFeature.setAttribute("testInteger", null);
             assertEquals( false, compareFilter.evaluate( testFeature ) );
             
-            assertTrue(nullFilter.contains(testFeature));
-            assertFalse(notNullFilter.contains(testFeature));
+            assertTrue(nullFilter.evaluate(testFeature));
+            assertFalse(notNullFilter.evaluate(testFeature));
             
             //test AND
-            Filter finalFilter = notNullFilter.and(compareFilter);
+            org.opengis.filter.Filter finalFilter = fac.and(notNullFilter, compareFilter);
             try{
-               assertFalse(finalFilter.contains(testFeature));
+               assertFalse(finalFilter.evaluate(testFeature));
             }catch(NullPointerException e){
                fail("Short-circuit evaluation was not performed by LogicFilter: " + e.getMessage());
             }
             
             //test OR
-            finalFilter = nullFilter.or(compareFilter);
+            finalFilter = fac.or(nullFilter, compareFilter);
             try{
-               assertTrue(finalFilter.contains(testFeature));
+               assertTrue(finalFilter.evaluate(testFeature));
             }catch(NullPointerException e){
                fail("Short-circuit evaluation was not performed by LogicFilter: " + e.getMessage());
             }
@@ -552,7 +556,7 @@ public class FilterTest extends TestCase {
         filter = fac.between(testAttribute, testLiteralLower, testLiteralUpper); 
 
         //LOGGER.finer( filter.toString());            
-        //LOGGER.finer( "contains feature: " + filter.contains(testFeature));
+        //LOGGER.finer( "contains feature: " + filter.evaluate(testFeature));
         assertFalse(filter.evaluate(testFeature));
     }
 
@@ -642,13 +646,9 @@ public class FilterTest extends TestCase {
         assertTrue(!bbox.evaluate(testFeature));
     }
 
-    public void testDistanceGeometry() throws Exception {
+    public void testDWithin() throws Exception {
         // Test DWithin
-        GeometryDistanceFilter filter = FilterFactoryFinder.createFilterFactory()
-        	.createGeometryDistanceFilter(AbstractFilter.GEOMETRY_DWITHIN);
-        	
-        Expression left = new AttributeExpressionImpl(testSchema, "testGeometry");
-        filter.addLeftGeometry(left);
+        PropertyName left = new AttributeExpressionImpl(testSchema, "testGeometry");
 
         Coordinate[] coords2 = new Coordinate[5];
         coords2[0] = new Coordinate(10, 10);
@@ -656,48 +656,54 @@ public class FilterTest extends TestCase {
         coords2[2] = new Coordinate(15, 15);
         coords2[3] = new Coordinate(10, 15);
         coords2[4] = new Coordinate(10, 10);
-
         GeometryFactory gf = new GeometryFactory(new PrecisionModel());
-        Expression right = new LiteralExpressionImpl(gf.createPolygon(gf.createLinearRing(
+        Literal right = new LiteralExpressionImpl(gf.createPolygon(gf.createLinearRing(
                 coords2),null));
-        filter.addRightGeometry(right);
-        filter.setDistance(20);
+        
+        DWithin filter = fac.dwithin(left, right, 20, "m");
         LOGGER.finer(filter.toString());
-        LOGGER.finer("contains feature: " + filter.contains(testFeature));
-
-        //assertTrue(filter.contains(testFeature));
-        filter.setDistance(2);
+        LOGGER.finer("contains feature: " + filter.evaluate(testFeature));
+        assertTrue(filter.evaluate(testFeature));
+        
+        filter = fac.dwithin(left, right, 2, "m");
         LOGGER.finer(filter.toString());
-        LOGGER.finer("contains feature: " + filter.contains(testFeature));
+        LOGGER.finer("contains feature: " + filter.evaluate(testFeature));
+        assertFalse(filter.evaluate(testFeature));
+    }
+    
+    public void testBeyond() throws Exception {
+        PropertyName left = new AttributeExpressionImpl(testSchema, "testGeometry");
 
-        //Test Beyond
-        GeometryDistanceFilter filterB = FilterFactoryFinder.createFilterFactory()
-        	.createGeometryDistanceFilter(AbstractFilter.GEOMETRY_BEYOND);
-        filterB.addLeftGeometry(left);
-        filterB.addRightGeometry(right);
-        filterB.setDistance(20);
-        LOGGER.finer(filterB.toString());
-        LOGGER.finer("contains feature: " + filterB.contains(testFeature));
+        Coordinate[] coords2 = new Coordinate[5];
+        coords2[0] = new Coordinate(10, 10);
+        coords2[1] = new Coordinate(15, 10);
+        coords2[2] = new Coordinate(15, 15);
+        coords2[3] = new Coordinate(10, 15);
+        coords2[4] = new Coordinate(10, 10);
+        GeometryFactory gf = new GeometryFactory(new PrecisionModel());
+        Literal right = new LiteralExpressionImpl(gf.createPolygon(gf.createLinearRing(
+                coords2),null));
 
-        //assertTrue(filter.contains(testFeature));
-        filterB.setDistance(2);
-        LOGGER.finer(filterB.toString());
-        LOGGER.finer("contains feature: " + filterB.contains(testFeature));
+        Beyond filter = fac.beyond(left, right, 20, "m");
+        LOGGER.finer(filter.toString());
+        LOGGER.finer("contains feature: " + filter.evaluate(testFeature));
+        assertFalse(filter.evaluate(testFeature));
+        
+        filter = fac.beyond(left, right, 2, "m");
+        LOGGER.finer("contains feature: " + filter.evaluate(testFeature));
+        assertTrue(filter.evaluate(testFeature));        
 
-        /*coords2[0] = new Coordinate(20,20);
-           /coords2[1] = new Coordinate(21,20);
-           coords2[2] = new Coordinate(21,21);
-           coords2[3] = new Coordinate(20,21);
-           coords2[4] = new Coordinate(20,20);
-           right = new LiteralExpressionImpl(new Polygon(new LinearRing(coords2,new PrecisionModel(), 1),
-                                                     null, new PrecisionModel(), 1));
-           filter.addRightGeometry(right);
-           LOGGER.finer( filter.toString());
-           LOGGER.finer( "contains feature: " + filter.contains(testFeature));
-           assertTrue(!filter.contains(testFeature));
-         */
-
-        //Test Beyond
+        coords2[0] = new Coordinate(20, 20);
+        coords2[1] = new Coordinate(21, 20);
+        coords2[2] = new Coordinate(21, 21);
+        coords2[3] = new Coordinate(20, 21);
+        coords2[4] = new Coordinate(20, 20);
+        right = fac.literal(gf
+                .createPolygon(gf.createLinearRing(coords2), null));
+        filter = fac.beyond(left, right, 2, "m");
+        LOGGER.finer(filter.toString());
+        LOGGER.finer("contains feature: " + filter.evaluate(testFeature));
+        assertTrue(filter.evaluate(testFeature));
     }
 
     public void testFid() {
@@ -906,8 +912,7 @@ public class FilterTest extends TestCase {
 				}
 
 				public void set(Object object, String xpath, Object value,
-						Class target) throws IllegalAttributeException,
-						IllegalArgumentException {
+						Class target) throws IllegalArgumentException {
 					throw new UnsupportedOperationException();
 				}
 			};

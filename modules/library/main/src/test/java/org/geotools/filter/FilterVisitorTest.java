@@ -20,6 +20,8 @@
 package org.geotools.filter;
 
 import org.geotools.filter.expression.AddImpl;
+import org.geotools.filter.function.math.FilterFunction_abs;
+import org.geotools.filter.function.math.FilterFunction_min;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -203,7 +205,7 @@ public class FilterVisitorTest extends TestCase implements FilterVisitor {
     public void testFunctionExpression() {
         checkcode = 0;
         
-        FunctionExpression min = FilterFactoryFinder.createFilterFactory().createFunctionExpression("min");
+        FunctionExpression min = new FilterFunction_min();
         min.accept(this);
         assertEquals(6,checkcode);
     }

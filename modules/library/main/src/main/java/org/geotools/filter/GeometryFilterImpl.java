@@ -18,6 +18,7 @@ package org.geotools.filter;
 
 import java.util.logging.Logger;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 
 
@@ -84,7 +85,7 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
     protected GeometryFilterImpl(short filterType)
         throws IllegalFilterException {
     	
-    	super(FilterFactoryFinder.createFilterFactory());
+    	super(CommonFactoryFinder.getFilterFactory(null));
     	
         if (isGeometryFilter(filterType)) {
             this.filterType = filterType;

@@ -287,8 +287,8 @@ public class FilterEqualsTest extends TestCase {
 	bFilter1.addRightValue(testLit1);
 	bFilter2.addRightValue(testLit2);
 	assertTrue(bFilter2.equals(bFilter1));
-	tFilter1 = FilterFactoryFinder.createFilterFactory()
-		.createCompareFilter(FilterType.COMPARE_EQUALS);
+	tFilter1 = ff.equals(org.opengis.filter.expression.Expression.NIL, 
+	        org.opengis.filter.expression.Expression.NIL);
 	assertTrue(!bFilter2.equals(tFilter1));
 	bFilter2.addRightValue(new LiteralExpressionImpl(new Integer(65)));
 	assertTrue(!bFilter2.equals(bFilter1));

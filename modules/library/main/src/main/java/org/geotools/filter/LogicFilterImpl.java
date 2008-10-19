@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.And;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.Or;
@@ -60,7 +61,7 @@ public abstract class LogicFilterImpl extends BinaryLogicAbstract implements Log
      * an actual java type.
      */
     protected LogicFilterImpl(short filterType) throws IllegalFilterException {
-    	super(FilterFactoryFinder.createFilterFactory(), new ArrayList());
+    	super(CommonFactoryFinder.getFilterFactory(null), new ArrayList());
         LOGGER.finest("filtertype " + filterType);
 
         if (isLogicFilter(filterType)) {
@@ -83,7 +84,7 @@ public abstract class LogicFilterImpl extends BinaryLogicAbstract implements Log
     protected LogicFilterImpl(Filter filter, short filterType)
         throws IllegalFilterException {
     	
-    	super(FilterFactoryFinder.createFilterFactory(),new ArrayList());
+    	super(CommonFactoryFinder.getFilterFactory(null), new ArrayList());
         if (isLogicFilter(filterType)) {
             this.filterType = filterType;
         } else {
@@ -106,7 +107,7 @@ public abstract class LogicFilterImpl extends BinaryLogicAbstract implements Log
      */
     protected LogicFilterImpl(Filter filter1, Filter filter2, short filterType)
         throws IllegalFilterException {
-    	super(FilterFactoryFinder.createFilterFactory(),new ArrayList());
+    	super(CommonFactoryFinder.getFilterFactory(null), new ArrayList());
     	
         if (isLogicFilter(filterType)) {
             this.filterType = filterType;

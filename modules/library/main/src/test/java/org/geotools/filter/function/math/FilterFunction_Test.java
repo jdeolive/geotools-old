@@ -18,54 +18,45 @@ package org.geotools.filter.function.math;
 
 import junit.framework.TestCase;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryRegistryException;
-import org.geotools.filter.Expression;
-import org.geotools.filter.FilterFactoryFinder;
 import org.geotools.filter.FilterFactoryImpl;
-import org.geotools.filter.FunctionExpression;
-import org.geotools.filter.LiteralExpression;
-import org.geotools.filter.LiteralExpressionImpl;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
 
 public class FilterFunction_Test extends TestCase {
 
-    private LiteralExpressionImpl literal_1 = null;
+    private Literal literal_1 = null;
 
-    private LiteralExpression literal_m1;
+    private Literal literal_m1;
 
-    private LiteralExpression literal_2;
+    private Literal literal_2;
 
-    private LiteralExpression literal_m2;
+    private Literal literal_m2;
 
-    private LiteralExpression literal_pi;
+    private Literal literal_pi;
 
-    private LiteralExpression literal_05pi;
+    private Literal literal_05pi;
 
-    private FilterFactoryImpl filterFactory;
+    private FilterFactory ff;
 
     protected void setUp() throws Exception {
         super.setUp();
-        filterFactory = (FilterFactoryImpl) FilterFactoryFinder
-                .createFilterFactory();
-        literal_1 = (LiteralExpressionImpl) filterFactory
-                .createLiteralExpression();
-        literal_pi = filterFactory.createLiteralExpression();
-        literal_05pi = filterFactory.createLiteralExpression();
-        literal_m1 = filterFactory.createLiteralExpression();
-        literal_2 = filterFactory.createLiteralExpression();
-        literal_m2 = filterFactory.createLiteralExpression();
+        ff = (FilterFactoryImpl) CommonFactoryFinder.getFilterFactory2(null);
 
-        literal_1.setLiteral(new Double(1));
-        literal_m1.setLiteral(new Double(-1));
-        literal_2.setLiteral(new Double(2));
-        literal_m2.setLiteral(new Double(-2));
-        literal_pi.setLiteral(new Double(Math.PI));
-        literal_05pi.setLiteral(new Double(0.5 * Math.PI));
+        literal_1 = ff.literal(new Double(1));
+        literal_m1 = ff.literal(new Double(-1));
+        literal_2 = ff.literal(new Double(2));
+        literal_m2 = ff.literal(new Double(-2));
+        literal_pi = ff.literal(new Double(Math.PI));
+        literal_05pi = ff.literal(new Double(0.5 * Math.PI));
         assertEquals("Literal Expression 0.0", new Double(1.0), literal_1
-                .getLiteral());
+                .evaluate(null));
         assertEquals("Literal Expression pi", new Double(Math.PI), literal_pi
-                .getLiteral());
+                .evaluate(null));
         assertEquals("Literal Expression 05pi", new Double(0.5 * Math.PI),
-                literal_05pi.getLiteral());
+                literal_05pi.evaluate(null));
 
     }
 
@@ -75,80 +66,75 @@ public class FilterFunction_Test extends TestCase {
 
     public void testsin() {
         try {
+            FilterFunction_sin sin = (FilterFunction_sin) ff.function("sin", org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "sin", sin.getName());
+            assertEquals("Number of arguments, ", 1, sin.getArgCount());
 
-            FunctionExpression sinFunction = filterFactory
-                    .createFunctionExpression("sin");
-            assertEquals("Name is, ", "sin", sinFunction.getName());
-            assertEquals("Number of arguments, ", 1, sinFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            sinFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function sinFunction = ff.function("sin", literal_1);
             double good0 = Math.sin(1.0);
             if (Double.isNaN(good0)) {
                 assertTrue("sin of (1.0):", Double.isNaN(((Double) sinFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("sin of (1.0):", (double) Math.sin(1.0),
-                        ((Double) sinFunction.getValue(null)).doubleValue(),
+                        ((Double) sinFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            sinFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            sinFunction = ff.function("sin", literal_m1);
             double good1 = Math.sin(-1.0);
             if (Double.isNaN(good1)) {
                 assertTrue("sin of (-1.0):", Double.isNaN(((Double) sinFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("sin of (-1.0):", (double) Math.sin(-1.0),
-                        ((Double) sinFunction.getValue(null)).doubleValue(),
+                        ((Double) sinFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            sinFunction.setParameters(java.util.Arrays.asList(expressions));
+            sinFunction = ff.function("sin", literal_2);
             double good2 = Math.sin(2.0);
             if (Double.isNaN(good2)) {
                 assertTrue("sin of (2.0):", Double.isNaN(((Double) sinFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("sin of (2.0):", (double) Math.sin(2.0),
-                        ((Double) sinFunction.getValue(null)).doubleValue(),
+                        ((Double) sinFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            sinFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            sinFunction = ff.function("sin", literal_m2);
             double good3 = Math.sin(-2.0);
             if (Double.isNaN(good3)) {
                 assertTrue("sin of (-2.0):", Double.isNaN(((Double) sinFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("sin of (-2.0):", (double) Math.sin(-2.0),
-                        ((Double) sinFunction.getValue(null)).doubleValue(),
+                        ((Double) sinFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            sinFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            sinFunction = ff.function("sin",literal_pi);
             double good4 = Math.sin(3.141592653589793);
             if (Double.isNaN(good4)) {
                 assertTrue("sin of (3.141592653589793):", Double
-                        .isNaN(((Double) sinFunction.getValue(null))
+                        .isNaN(((Double) sinFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("sin of (3.141592653589793):", (double) Math
                         .sin(3.141592653589793), ((Double) sinFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            sinFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            sinFunction = ff.function("sin", literal_05pi);
             double good5 = Math.sin(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("sin of (1.5707963267948966):", Double
-                        .isNaN(((Double) sinFunction.getValue(null))
+                        .isNaN(((Double) sinFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("sin of (1.5707963267948966):", (double) Math
                         .sin(1.5707963267948966), ((Double) sinFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -159,79 +145,76 @@ public class FilterFunction_Test extends TestCase {
     public void testcos() {
         try {
 
-            FunctionExpression cosFunction = filterFactory
-                    .createFunctionExpression("cos");
-            assertEquals("Name is, ", "cos", cosFunction.getName());
-            assertEquals("Number of arguments, ", 1, cosFunction.getArgCount());
+            FilterFunction_cos cos = (FilterFunction_cos) ff.function("cos", org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "cos", cos.getName());
+            assertEquals("Number of arguments, ", 1, cos.getArgCount());
 
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            cosFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function cosFunction = ff.function("cos", literal_1);
             double good0 = Math.cos(1.0);
             if (Double.isNaN(good0)) {
                 assertTrue("cos of (1.0):", Double.isNaN(((Double) cosFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("cos of (1.0):", (double) Math.cos(1.0),
-                        ((Double) cosFunction.getValue(null)).doubleValue(),
+                        ((Double) cosFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            cosFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            cosFunction = ff.function("cos", literal_m1);
             double good1 = Math.cos(-1.0);
             if (Double.isNaN(good1)) {
                 assertTrue("cos of (-1.0):", Double.isNaN(((Double) cosFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("cos of (-1.0):", (double) Math.cos(-1.0),
-                        ((Double) cosFunction.getValue(null)).doubleValue(),
+                        ((Double) cosFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            cosFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            cosFunction = ff.function("cos", literal_2);
             double good2 = Math.cos(2.0);
             if (Double.isNaN(good2)) {
                 assertTrue("cos of (2.0):", Double.isNaN(((Double) cosFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("cos of (2.0):", (double) Math.cos(2.0),
-                        ((Double) cosFunction.getValue(null)).doubleValue(),
+                        ((Double) cosFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            cosFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            cosFunction = ff.function("cos", literal_m2);
             double good3 = Math.cos(-2.0);
             if (Double.isNaN(good3)) {
                 assertTrue("cos of (-2.0):", Double.isNaN(((Double) cosFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("cos of (-2.0):", (double) Math.cos(-2.0),
-                        ((Double) cosFunction.getValue(null)).doubleValue(),
+                        ((Double) cosFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            cosFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            cosFunction = ff.function("cos", literal_pi);
             double good4 = Math.cos(3.141592653589793);
             if (Double.isNaN(good4)) {
                 assertTrue("cos of (3.141592653589793):", Double
-                        .isNaN(((Double) cosFunction.getValue(null))
+                        .isNaN(((Double) cosFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("cos of (3.141592653589793):", (double) Math
                         .cos(3.141592653589793), ((Double) cosFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            cosFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            cosFunction = ff.function("cos", literal_05pi);
             double good5 = Math.cos(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("cos of (1.5707963267948966):", Double
-                        .isNaN(((Double) cosFunction.getValue(null))
+                        .isNaN(((Double) cosFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("cos of (1.5707963267948966):", (double) Math
                         .cos(1.5707963267948966), ((Double) cosFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -242,79 +225,77 @@ public class FilterFunction_Test extends TestCase {
     public void testtan() {
         try {
 
-            FunctionExpression tanFunction = filterFactory
-                    .createFunctionExpression("tan");
-            assertEquals("Name is, ", "tan", tanFunction.getName());
-            assertEquals("Number of arguments, ", 1, tanFunction.getArgCount());
+            FilterFunction_tan tan = (FilterFunction_tan) ff.function("tan", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "tan", tan.getName());
+            assertEquals("Number of arguments, ", 1, tan.getArgCount());
 
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            tanFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function tanFunction = ff.function("tan", literal_1);
             double good0 = Math.tan(1.0);
             if (Double.isNaN(good0)) {
                 assertTrue("tan of (1.0):", Double.isNaN(((Double) tanFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("tan of (1.0):", (double) Math.tan(1.0),
-                        ((Double) tanFunction.getValue(null)).doubleValue(),
+                        ((Double) tanFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            tanFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            tanFunction = ff.function("tan", literal_m1);
             double good1 = Math.tan(-1.0);
             if (Double.isNaN(good1)) {
                 assertTrue("tan of (-1.0):", Double.isNaN(((Double) tanFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("tan of (-1.0):", (double) Math.tan(-1.0),
-                        ((Double) tanFunction.getValue(null)).doubleValue(),
+                        ((Double) tanFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            tanFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            tanFunction = ff.function("tan", literal_2);
             double good2 = Math.tan(2.0);
             if (Double.isNaN(good2)) {
                 assertTrue("tan of (2.0):", Double.isNaN(((Double) tanFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("tan of (2.0):", (double) Math.tan(2.0),
-                        ((Double) tanFunction.getValue(null)).doubleValue(),
+                        ((Double) tanFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            tanFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            tanFunction = ff.function("tan", literal_m2);
             double good3 = Math.tan(-2.0);
             if (Double.isNaN(good3)) {
                 assertTrue("tan of (-2.0):", Double.isNaN(((Double) tanFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("tan of (-2.0):", (double) Math.tan(-2.0),
-                        ((Double) tanFunction.getValue(null)).doubleValue(),
+                        ((Double) tanFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            tanFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.tan(3.141592653589793);
+            
+            tanFunction = ff.function("tan", literal_pi);
+            double good4 = Math.tan(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("tan of (3.141592653589793):", Double
-                        .isNaN(((Double) tanFunction.getValue(null))
+                        .isNaN(((Double) tanFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("tan of (3.141592653589793):", (double) Math
                         .tan(3.141592653589793), ((Double) tanFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            tanFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            tanFunction = ff.function("tan", literal_05pi);
             double good5 = Math.tan(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("tan of (1.5707963267948966):", Double
-                        .isNaN(((Double) tanFunction.getValue(null))
+                        .isNaN(((Double) tanFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("tan of (1.5707963267948966):", (double) Math
                         .tan(1.5707963267948966), ((Double) tanFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -324,94 +305,85 @@ public class FilterFunction_Test extends TestCase {
 
     public void testatan2() {
         try {
+            FilterFunction_atan2 atan2 = (FilterFunction_atan2) ff.function("atan2", 
+                    org.opengis.filter.expression.Expression.NIL,
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "atan2", atan2.getName());
+            assertEquals("Number of arguments, ", 2, atan2.getArgCount());
 
-            FunctionExpression atan2Function = filterFactory
-                    .createFunctionExpression("atan2");
-            assertEquals("Name is, ", "atan2", atan2Function.getName());
-            assertEquals("Number of arguments, ", 2, atan2Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            atan2Function.setParameters(java.util.Arrays.asList(expressions));
+            Function atan2Function = ff.function("atan2", literal_1, literal_m1);
             double good0 = Math.atan2(1.0, -1.0);
             if (Double.isNaN(good0)) {
                 assertTrue("atan2 of (1.0,-1.0):", Double
-                        .isNaN(((Double) atan2Function.getValue(null))
+                        .isNaN(((Double) atan2Function.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("atan2 of (1.0,-1.0):", (double) Math.atan2(1.0,
-                        -1.0), ((Double) atan2Function.getValue(null))
+                        -1.0), ((Double) atan2Function.evaluate(null))
                         .doubleValue(), 0.00001);
             }
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            atan2Function.setParameters(java.util.Arrays.asList(expressions));
+            
+            atan2Function = ff.function("atan2", literal_m1, literal_2);
             double good1 = Math.atan2(-1.0, 2.0);
             if (Double.isNaN(good1)) {
                 assertTrue("atan2 of (-1.0,2.0):", Double
-                        .isNaN(((Double) atan2Function.getValue(null))
+                        .isNaN(((Double) atan2Function.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("atan2 of (-1.0,2.0):", (double) Math.atan2(-1.0,
-                        2.0), ((Double) atan2Function.getValue(null))
+                        2.0), ((Double) atan2Function.evaluate(null))
                         .doubleValue(), 0.00001);
             }
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            atan2Function.setParameters(java.util.Arrays.asList(expressions));
+            
+            atan2Function = ff.function("atan2", literal_2, literal_m2);
             double good2 = Math.atan2(2.0, -2.0);
             if (Double.isNaN(good2)) {
                 assertTrue("atan2 of (2.0,-2.0):", Double
-                        .isNaN(((Double) atan2Function.getValue(null))
+                        .isNaN(((Double) atan2Function.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("atan2 of (2.0,-2.0):", (double) Math.atan2(2.0,
-                        -2.0), ((Double) atan2Function.getValue(null))
+                        -2.0), ((Double) atan2Function.evaluate(null))
                         .doubleValue(), 0.00001);
             }
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            atan2Function.setParameters(java.util.Arrays.asList(expressions));
+            
+            atan2Function = ff.function("atan2", literal_m2, literal_pi);
             double good3 = Math.atan2(-2.0, 3.141592653589793);
             if (Double.isNaN(good3)) {
                 assertTrue("atan2 of (-2.0,3.141592653589793):", Double
-                        .isNaN(((Double) atan2Function.getValue(null))
+                        .isNaN(((Double) atan2Function.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("atan2 of (-2.0,3.141592653589793):",
                         (double) Math.atan2(-2.0, 3.141592653589793),
-                        ((Double) atan2Function.getValue(null)).doubleValue(),
+                        ((Double) atan2Function.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            atan2Function.setParameters(java.util.Arrays.asList(expressions));
+            
+            atan2Function = ff.function("atan2", literal_pi, literal_05pi);
             double good4 = Math.atan2(3.141592653589793, 1.5707963267948966);
             if (Double.isNaN(good4)) {
                 assertTrue("atan2 of (3.141592653589793,1.5707963267948966):",
-                        Double.isNaN(((Double) atan2Function.getValue(null))
+                        Double.isNaN(((Double) atan2Function.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals(
                         "atan2 of (3.141592653589793,1.5707963267948966):",
                         (double) Math.atan2(3.141592653589793,
                                 1.5707963267948966), ((Double) atan2Function
-                                .getValue(null)).doubleValue(), 0.00001);
+                                .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            atan2Function.setParameters(java.util.Arrays.asList(expressions));
+            
+            atan2Function = ff.function("atan2", literal_05pi, literal_1);
             double good5 = Math.atan2(1.5707963267948966, 1.0);
             if (Double.isNaN(good5)) {
                 assertTrue("atan2 of (1.5707963267948966,1.0):", Double
-                        .isNaN(((Double) atan2Function.getValue(null))
+                        .isNaN(((Double) atan2Function.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("atan2 of (1.5707963267948966,1.0):",
                         (double) Math.atan2(1.5707963267948966, 1.0),
-                        ((Double) atan2Function.getValue(null)).doubleValue(),
+                        ((Double) atan2Function.evaluate(null)).doubleValue(),
                         0.00001);
             }
         } catch (FactoryRegistryException e) {
@@ -422,84 +394,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testsqrt() {
         try {
+            FilterFunction_sqrt sqrt = (FilterFunction_sqrt) ff.function("sqrt", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "sqrt", sqrt.getName());
+            assertEquals("Number of arguments, ", 1, sqrt.getArgCount());
 
-            FunctionExpression sqrtFunction = filterFactory
-                    .createFunctionExpression("sqrt");
-            assertEquals("Name is, ", "sqrt", sqrtFunction.getName());
-            assertEquals("Number of arguments, ", 1, sqrtFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            sqrtFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function sqrtFunction = ff.function("sqrt", literal_1);
             double good0 = Math.sqrt(1.0);
             if (Double.isNaN(good0)) {
-                assertTrue("sqrt of (1.0):", Double
-                        .isNaN(((Double) sqrtFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("sqrt of (1.0):", Double.isNaN(((Double) sqrtFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("sqrt of (1.0):", (double) Math.sqrt(1.0),
-                        ((Double) sqrtFunction.getValue(null)).doubleValue(),
+                        ((Double) sqrtFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            sqrtFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            sqrtFunction = ff.function("sqrt", literal_m1);
             double good1 = Math.sqrt(-1.0);
             if (Double.isNaN(good1)) {
-                assertTrue("sqrt of (-1.0):", Double
-                        .isNaN(((Double) sqrtFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("sqrt of (-1.0):", Double.isNaN(((Double) sqrtFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("sqrt of (-1.0):", (double) Math.sqrt(-1.0),
-                        ((Double) sqrtFunction.getValue(null)).doubleValue(),
+                        ((Double) sqrtFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            sqrtFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            sqrtFunction = ff.function("sqrt", literal_2);
             double good2 = Math.sqrt(2.0);
             if (Double.isNaN(good2)) {
-                assertTrue("sqrt of (2.0):", Double
-                        .isNaN(((Double) sqrtFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("sqrt of (2.0):", Double.isNaN(((Double) sqrtFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("sqrt of (2.0):", (double) Math.sqrt(2.0),
-                        ((Double) sqrtFunction.getValue(null)).doubleValue(),
+                        ((Double) sqrtFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            sqrtFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            sqrtFunction = ff.function("sqrt", literal_m2);
             double good3 = Math.sqrt(-2.0);
             if (Double.isNaN(good3)) {
-                assertTrue("sqrt of (-2.0):", Double
-                        .isNaN(((Double) sqrtFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("sqrt of (-2.0):", Double.isNaN(((Double) sqrtFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("sqrt of (-2.0):", (double) Math.sqrt(-2.0),
-                        ((Double) sqrtFunction.getValue(null)).doubleValue(),
+                        ((Double) sqrtFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            sqrtFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.sqrt(3.141592653589793);
+            
+            sqrtFunction = ff.function("sqrt", literal_pi);
+            double good4 = Math.sqrt(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("sqrt of (3.141592653589793):", Double
-                        .isNaN(((Double) sqrtFunction.getValue(null))
+                        .isNaN(((Double) sqrtFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("sqrt of (3.141592653589793):", (double) Math
                         .sqrt(3.141592653589793), ((Double) sqrtFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            sqrtFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            sqrtFunction = ff.function("sqrt", literal_05pi);
             double good5 = Math.sqrt(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("sqrt of (1.5707963267948966):", Double
-                        .isNaN(((Double) sqrtFunction.getValue(null))
+                        .isNaN(((Double) sqrtFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("sqrt of (1.5707963267948966):", (double) Math
                         .sqrt(1.5707963267948966), ((Double) sqrtFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -509,92 +474,86 @@ public class FilterFunction_Test extends TestCase {
 
     public void testpow() {
         try {
+            FilterFunction_pow pow = (FilterFunction_pow) ff.function("pow", 
+                    org.opengis.filter.expression.Expression.NIL,
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "pow", pow.getName());
+            assertEquals("Number of arguments, ", 2, pow.getArgCount());
 
-            FunctionExpression powFunction = filterFactory
-                    .createFunctionExpression("pow");
-            assertEquals("Name is, ", "pow", powFunction.getName());
-            assertEquals("Number of arguments, ", 2, powFunction.getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            powFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function powFunction = ff.function("pow", literal_1, literal_m1);
             double good0 = Math.pow(1.0, -1.0);
             if (Double.isNaN(good0)) {
                 assertTrue("pow of (1.0,-1.0):", Double
-                        .isNaN(((Double) powFunction.getValue(null))
+                        .isNaN(((Double) powFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("pow of (1.0,-1.0):",
-                        (double) Math.pow(1.0, -1.0), ((Double) powFunction
-                                .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("pow of (1.0,-1.0):", (double) Math.pow(1.0,
+                        -1.0), ((Double) powFunction.evaluate(null))
+                        .doubleValue(), 0.00001);
             }
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            powFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            powFunction = ff.function("pow", literal_m1, literal_2);
             double good1 = Math.pow(-1.0, 2.0);
             if (Double.isNaN(good1)) {
                 assertTrue("pow of (-1.0,2.0):", Double
-                        .isNaN(((Double) powFunction.getValue(null))
+                        .isNaN(((Double) powFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("pow of (-1.0,2.0):",
-                        (double) Math.pow(-1.0, 2.0), ((Double) powFunction
-                                .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("pow of (-1.0,2.0):", (double) Math.pow(-1.0,
+                        2.0), ((Double) powFunction.evaluate(null))
+                        .doubleValue(), 0.00001);
             }
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            powFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            powFunction = ff.function("pow", literal_2, literal_m2);
             double good2 = Math.pow(2.0, -2.0);
             if (Double.isNaN(good2)) {
                 assertTrue("pow of (2.0,-2.0):", Double
-                        .isNaN(((Double) powFunction.getValue(null))
+                        .isNaN(((Double) powFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("pow of (2.0,-2.0):",
-                        (double) Math.pow(2.0, -2.0), ((Double) powFunction
-                                .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("pow of (2.0,-2.0):", (double) Math.pow(2.0,
+                        -2.0), ((Double) powFunction.evaluate(null))
+                        .doubleValue(), 0.00001);
             }
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            powFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            powFunction = ff.function("pow", literal_m2, literal_pi);
             double good3 = Math.pow(-2.0, 3.141592653589793);
             if (Double.isNaN(good3)) {
                 assertTrue("pow of (-2.0,3.141592653589793):", Double
-                        .isNaN(((Double) powFunction.getValue(null))
+                        .isNaN(((Double) powFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("pow of (-2.0,3.141592653589793):", (double) Math
-                        .pow(-2.0, 3.141592653589793), ((Double) powFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("pow of (-2.0,3.141592653589793):",
+                        (double) Math.pow(-2.0, 3.141592653589793),
+                        ((Double) powFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            powFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            powFunction = ff.function("pow", literal_pi, literal_05pi);
             double good4 = Math.pow(3.141592653589793, 1.5707963267948966);
             if (Double.isNaN(good4)) {
                 assertTrue("pow of (3.141592653589793,1.5707963267948966):",
-                        Double.isNaN(((Double) powFunction.getValue(null))
+                        Double.isNaN(((Double) powFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("pow of (3.141592653589793,1.5707963267948966):",
-                        (double) Math
-                                .pow(3.141592653589793, 1.5707963267948966),
-                        ((Double) powFunction.getValue(null)).doubleValue(),
-                        0.00001);
+                assertEquals(
+                        "pow of (3.141592653589793,1.5707963267948966):",
+                        (double) Math.pow(3.141592653589793,
+                                1.5707963267948966), ((Double) powFunction
+                                .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            powFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            powFunction = ff.function("pow", literal_05pi, literal_1);
             double good5 = Math.pow(1.5707963267948966, 1.0);
             if (Double.isNaN(good5)) {
                 assertTrue("pow of (1.5707963267948966,1.0):", Double
-                        .isNaN(((Double) powFunction.getValue(null))
+                        .isNaN(((Double) powFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("pow of (1.5707963267948966,1.0):", (double) Math
-                        .pow(1.5707963267948966, 1.0), ((Double) powFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("pow of (1.5707963267948966,1.0):",
+                        (double) Math.pow(1.5707963267948966, 1.0),
+                        ((Double) powFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -604,46 +563,37 @@ public class FilterFunction_Test extends TestCase {
 
     public void testmin_4() {
         try {
+            FilterFunction_min_4 min_4 = (FilterFunction_min_4) ff.function("min_4", 
+                    new org.opengis.filter.expression.Expression[2]);
+            assertEquals("Name is, ", "min_4", min_4.getName());
+            assertEquals("Number of arguments, ", 2, min_4.getArgCount());
 
-            FunctionExpression min4Function = filterFactory
-                    .createFunctionExpression("min_4");
-            assertEquals("Name is, ", "min_4", min4Function.getName());
-            assertEquals("Number of arguments, ", 2, min4Function.getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            min4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("min of (1.0,-1.0):", (int) Math.min(1.0, -1.0),
-                    ((Integer) min4Function.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            min4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("min of (-1.0,2.0):", (int) Math.min(-1.0, 2.0),
-                    ((Integer) min4Function.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            min4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("min of (2.0,-2.0):", (int) Math.min(2.0, -2.0),
-                    ((Integer) min4Function.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            min4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("min of (-2.0,3.141592653589793):", (int) Math.min(
-                    -2.0, 3.141592653589793), ((Integer) min4Function
-                    .getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            min4Function.setParameters(java.util.Arrays.asList(expressions));
+            Function min_4Function = ff.function("min_4", literal_1, literal_m1);
+            assertEquals("min of (1.0,-1.0):", (long) Math.min(1.0, -1.0),
+                    ((Integer) min_4Function.evaluate(null)).intValue(), 0.00001);
+            
+            min_4Function = ff.function("min_4", literal_m1, literal_2);
+            assertEquals("min of (-1.0,2.0):", (long) Math.min(-1.0, 2.0),
+                    ((Integer) min_4Function.evaluate(null)).intValue(), 0.00001);
+            
+            min_4Function = ff.function("min_4", literal_2, literal_m2);
+            assertEquals("min of (2.0,-2.0):", (long) Math.min(2.0, -2.0),
+                    ((Integer) min_4Function.evaluate(null)).intValue(), 0.00001);
+            
+            min_4Function = ff.function("min_4", literal_m2, literal_pi);
+            assertEquals("min of (-2.0,3.141592653589793):", (long) Math.min(
+                    -2.0, 3.141592653589793), ((Integer) min_4Function
+                    .evaluate(null)).intValue(), 0.00001);
+            
+            min_4Function = ff.function("min_4", literal_pi, literal_05pi);
             assertEquals("min of (3.141592653589793,1.5707963267948966):",
-                    (int) Math.min(3.141592653589793, 1.5707963267948966),
-                    ((Integer) min4Function.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            min4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("min of (1.5707963267948966,1.0):", (int) Math.min(
-                    1.5707963267948966, 1.0), ((Integer) min4Function
-                    .getValue(null)).intValue(), 0.00001);
+                    (long) Math.min(3.141592653589793, 1.5707963267948966),
+                    ((Integer) min_4Function.evaluate(null)).intValue(), 0.00001);
+            
+            min_4Function = ff.function("min_4", literal_05pi, literal_1);
+            assertEquals("min of (1.5707963267948966,1.0):", (long) Math.min(
+                    1.5707963267948966, 1.0), ((Integer) min_4Function
+                    .evaluate(null)).intValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -652,47 +602,37 @@ public class FilterFunction_Test extends TestCase {
 
     public void testmin_2() {
         try {
+            FilterFunction_min_2 min_2 = (FilterFunction_min_2) ff.function("min_2", 
+                    new org.opengis.filter.expression.Expression[2]);
+            assertEquals("Name is, ", "min_2", min_2.getName());
+            assertEquals("Number of arguments, ", 2, min_2.getArgCount());
 
-            FunctionExpression min_2Function = filterFactory
-                    .createFunctionExpression("min_2");
-            assertEquals("Name is, ", "min_2", min_2Function.getName());
-            assertEquals("Number of arguments, ", 2, min_2Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            min_2Function.setParameters(java.util.Arrays.asList(expressions));
+            Function min_2Function = ff.function("min_2", literal_1, literal_m1);
             assertEquals("min of (1.0,-1.0):", (long) Math.min(1.0, -1.0),
-                    ((Long) min_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            min_2Function.setParameters(java.util.Arrays.asList(expressions));
+                    ((Long) min_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            min_2Function = ff.function("min_2", literal_m1, literal_2);
             assertEquals("min of (-1.0,2.0):", (long) Math.min(-1.0, 2.0),
-                    ((Long) min_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            min_2Function.setParameters(java.util.Arrays.asList(expressions));
+                    ((Long) min_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            min_2Function = ff.function("min_2", literal_2, literal_m2);
             assertEquals("min of (2.0,-2.0):", (long) Math.min(2.0, -2.0),
-                    ((Long) min_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            min_2Function.setParameters(java.util.Arrays.asList(expressions));
+                    ((Long) min_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            min_2Function = ff.function("min_2", literal_m2, literal_pi);
             assertEquals("min of (-2.0,3.141592653589793):", (long) Math.min(
                     -2.0, 3.141592653589793), ((Long) min_2Function
-                    .getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            min_2Function.setParameters(java.util.Arrays.asList(expressions));
+                    .evaluate(null)).longValue(), 0.00001);
+            
+            min_2Function = ff.function("min_2", literal_pi, literal_05pi);
             assertEquals("min of (3.141592653589793,1.5707963267948966):",
                     (long) Math.min(3.141592653589793, 1.5707963267948966),
-                    ((Long) min_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            min_2Function.setParameters(java.util.Arrays.asList(expressions));
+                    ((Long) min_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            min_2Function = ff.function("min_2", literal_05pi, literal_1);
             assertEquals("min of (1.5707963267948966,1.0):", (long) Math.min(
                     1.5707963267948966, 1.0), ((Long) min_2Function
-                    .getValue(null)).longValue(), 0.00001);
+                    .evaluate(null)).longValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -701,51 +641,37 @@ public class FilterFunction_Test extends TestCase {
 
     public void testmin_3() {
         try {
+            FilterFunction_min_3 min_3 = (FilterFunction_min_3) ff.function("min_3", 
+                    new org.opengis.filter.expression.Expression[2]);
+            assertEquals("Name is, ", "min_3", min_3.getName());
+            assertEquals("Number of arguments, ", 2, min_3.getArgCount());
 
-            FunctionExpression min_3Function = filterFactory
-                    .createFunctionExpression("min_3");
-            assertEquals("Name is, ", "min_3", min_3Function.getName());
-            assertEquals("Number of arguments, ", 2, min_3Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            min_3Function.setParameters(java.util.Arrays.asList(expressions));
+            Function min_3Function = ff.function("min_3", literal_1, literal_m1);
             assertEquals("min of (1.0,-1.0):", (float) Math.min(1.0, -1.0),
-                    ((Float) min_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            min_3Function.setParameters(java.util.Arrays.asList(expressions));
+                    ((Float) min_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            min_3Function = ff.function("min_3", literal_m1, literal_2);
             assertEquals("min of (-1.0,2.0):", (float) Math.min(-1.0, 2.0),
-                    ((Float) min_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            min_3Function.setParameters(java.util.Arrays.asList(expressions));
+                    ((Float) min_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            min_3Function = ff.function("min_3", literal_2, literal_m2);
             assertEquals("min of (2.0,-2.0):", (float) Math.min(2.0, -2.0),
-                    ((Float) min_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            min_3Function.setParameters(java.util.Arrays.asList(expressions));
+                    ((Float) min_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            min_3Function = ff.function("min_3", literal_m2, literal_pi);
             assertEquals("min of (-2.0,3.141592653589793):", (float) Math.min(
                     -2.0, 3.141592653589793), ((Float) min_3Function
-                    .getValue(null)).floatValue(), 0.00001);
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            min_3Function.setParameters(java.util.Arrays.asList(expressions));
+                    .evaluate(null)).floatValue(), 0.00001);
+            
+            min_3Function = ff.function("min_3", literal_pi, literal_05pi);
             assertEquals("min of (3.141592653589793,1.5707963267948966):",
                     (float) Math.min(3.141592653589793, 1.5707963267948966),
-                    ((Float) min_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            min_3Function.setParameters(java.util.Arrays.asList(expressions));
+                    ((Float) min_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            min_3Function = ff.function("min_3", literal_05pi, literal_1);
             assertEquals("min of (1.5707963267948966,1.0):", (float) Math.min(
                     1.5707963267948966, 1.0), ((Float) min_3Function
-                    .getValue(null)).floatValue(), 0.00001);
+                    .evaluate(null)).floatValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -754,94 +680,37 @@ public class FilterFunction_Test extends TestCase {
 
     public void testmin() {
         try {
+            FilterFunction_min min = (FilterFunction_min) ff.function("min", 
+                    new org.opengis.filter.expression.Expression[2]);
+            assertEquals("Name is, ", "min", min.getName());
+            assertEquals("Number of arguments, ", 2, min.getArgCount());
 
-            FunctionExpression min_Function = filterFactory
-                    .createFunctionExpression("min");
-            assertEquals("Name is, ", "min", min_Function.getName());
-            assertEquals("Number of arguments, ", 2, min_Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            min_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good0 = Math.min(1.0, -1.0);
-            if (Double.isNaN(good0)) {
-                assertTrue("min of (1.0,-1.0):", Double
-                        .isNaN(((Double) min_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("min of (1.0,-1.0):",
-                        (double) Math.min(1.0, -1.0), ((Double) min_Function
-                                .getValue(null)).doubleValue(), 0.00001);
-            }
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            min_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good1 = Math.min(-1.0, 2.0);
-            if (Double.isNaN(good1)) {
-                assertTrue("min of (-1.0,2.0):", Double
-                        .isNaN(((Double) min_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("min of (-1.0,2.0):",
-                        (double) Math.min(-1.0, 2.0), ((Double) min_Function
-                                .getValue(null)).doubleValue(), 0.00001);
-            }
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            min_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good2 = Math.min(2.0, -2.0);
-            if (Double.isNaN(good2)) {
-                assertTrue("min of (2.0,-2.0):", Double
-                        .isNaN(((Double) min_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("min of (2.0,-2.0):",
-                        (double) Math.min(2.0, -2.0), ((Double) min_Function
-                                .getValue(null)).doubleValue(), 0.00001);
-            }
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            min_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good3 = Math.min(-2.0, 3.141592653589793);
-            if (Double.isNaN(good3)) {
-                assertTrue("min of (-2.0,3.141592653589793):", Double
-                        .isNaN(((Double) min_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("min of (-2.0,3.141592653589793):", (double) Math
-                        .min(-2.0, 3.141592653589793), ((Double) min_Function
-                        .getValue(null)).doubleValue(), 0.00001);
-            }
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            min_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.min(3.141592653589793, 1.5707963267948966);
-            if (Double.isNaN(good4)) {
-                assertTrue("min of (3.141592653589793,1.5707963267948966):",
-                        Double.isNaN(((Double) min_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("min of (3.141592653589793,1.5707963267948966):",
-                        (double) Math
-                                .min(3.141592653589793, 1.5707963267948966),
-                        ((Double) min_Function.getValue(null)).doubleValue(),
-                        0.00001);
-            }
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            min_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good5 = Math.min(1.5707963267948966, 1.0);
-            if (Double.isNaN(good5)) {
-                assertTrue("min of (1.5707963267948966,1.0):", Double
-                        .isNaN(((Double) min_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("min of (1.5707963267948966,1.0):", (double) Math
-                        .min(1.5707963267948966, 1.0), ((Double) min_Function
-                        .getValue(null)).doubleValue(), 0.00001);
-            }
+            Function minFunction = ff.function("min", literal_1, literal_m1);
+            assertEquals("min of (1.0,-1.0):", (double) Math.min(1.0, -1.0),
+                    ((Double) minFunction.evaluate(null)).doubleValue(), 0.00001);
+            
+            minFunction = ff.function("min", literal_m1, literal_2);
+            assertEquals("min of (-1.0,2.0):", (double) Math.min(-1.0, 2.0),
+                    ((Double) minFunction.evaluate(null)).doubleValue(), 0.00001);
+            
+            minFunction = ff.function("min", literal_2, literal_m2);
+            assertEquals("min of (2.0,-2.0):", (double) Math.min(2.0, -2.0),
+                    ((Double) minFunction.evaluate(null)).doubleValue(), 0.00001);
+            
+            minFunction = ff.function("min", literal_m2, literal_pi);
+            assertEquals("min of (-2.0,3.141592653589793):", (double) Math.min(
+                    -2.0, 3.141592653589793), ((Double) minFunction
+                    .evaluate(null)).doubleValue(), 0.00001);
+            
+            minFunction = ff.function("min", literal_pi, literal_05pi);
+            assertEquals("min of (3.141592653589793,1.5707963267948966):",
+                    (double) Math.min(3.141592653589793, 1.5707963267948966),
+                    ((Double) minFunction.evaluate(null)).doubleValue(), 0.00001);
+            
+            minFunction = ff.function("min", literal_05pi, literal_1);
+            assertEquals("min of (1.5707963267948966,1.0):", (double) Math.min(
+                    1.5707963267948966, 1.0), ((Double) minFunction
+                    .evaluate(null)).doubleValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -850,46 +719,37 @@ public class FilterFunction_Test extends TestCase {
 
     public void testmax_4() {
         try {
+            FilterFunction_max_4 max_4 = (FilterFunction_max_4) ff.function("max_4", 
+                    new org.opengis.filter.expression.Expression[2]);
+            assertEquals("Name is, ", "max_4", max_4.getName());
+            assertEquals("Number of arguments, ", 2, max_4.getArgCount());
 
-            FunctionExpression max4Function = filterFactory
-                    .createFunctionExpression("max_4");
-            assertEquals("Name is, ", "max_4", max4Function.getName());
-            assertEquals("Number of arguments, ", 2, max4Function.getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            max4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (1.0,-1.0):", (int) Math.max(1.0, -1.0),
-                    ((Integer) max4Function.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            max4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (-1.0,2.0):", (int) Math.max(-1.0, 2.0),
-                    ((Integer) max4Function.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            max4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (2.0,-2.0):", (int) Math.max(2.0, -2.0),
-                    ((Integer) max4Function.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            max4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (-2.0,3.141592653589793):", (int) Math.max(
-                    -2.0, 3.141592653589793), ((Integer) max4Function
-                    .getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            max4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (3.141592653589793,1.5707963267948966):",
+            Function max_4Function = ff.function("max_4", literal_1, literal_m1);
+            assertEquals("max_4 of (1.0,-1.0):", (int) Math.max(1.0, -1.0),
+                    ((Integer) max_4Function.evaluate(null)).intValue(), 0.00001);
+            
+            max_4Function = ff.function("max_4", literal_m1, literal_2);
+            assertEquals("max_4 of (-1.0,2.0):", (int) Math.max(-1.0, 2.0),
+                    ((Integer) max_4Function.evaluate(null)).intValue(), 0.00001);
+            
+            max_4Function = ff.function("max_4", literal_2, literal_m2);
+            assertEquals("max_4 of (2.0,-2.0):", (int) Math.max(2.0, -2.0),
+                    ((Integer) max_4Function.evaluate(null)).intValue(), 0.00001);
+            
+            max_4Function = ff.function("max_4", literal_m2, literal_pi);
+            assertEquals("max_4 of (-2.0,3.141592653589793):", (int) Math.max(
+                    -2.0, 3.141592653589793), ((Integer) max_4Function
+                    .evaluate(null)).intValue(), 0.00001);
+            
+            max_4Function = ff.function("max_4", literal_pi, literal_05pi);
+            assertEquals("max_4 of (3.141592653589793,1.5707963267948966):",
                     (int) Math.max(3.141592653589793, 1.5707963267948966),
-                    ((Integer) max4Function.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            max4Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (1.5707963267948966,1.0):", (int) Math.max(
-                    1.5707963267948966, 1.0), ((Integer) max4Function
-                    .getValue(null)).intValue(), 0.00001);
+                    ((Integer) max_4Function.evaluate(null)).intValue(), 0.00001);
+            
+            max_4Function = ff.function("max_4", literal_05pi, literal_1);
+            assertEquals("max_4 of (1.5707963267948966,1.0):", (int) Math.max(
+                    1.5707963267948966, 1.0), ((Integer) max_4Function
+                    .evaluate(null)).intValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -898,47 +758,37 @@ public class FilterFunction_Test extends TestCase {
 
     public void testmax_2() {
         try {
+            FilterFunction_max_2 max_2 = (FilterFunction_max_2) ff.function("max_2", 
+                    new org.opengis.filter.expression.Expression[2]);
+            assertEquals("Name is, ", "max_2", max_2.getName());
+            assertEquals("Number of arguments, ", 2, max_2.getArgCount());
 
-            FunctionExpression max_2Function = filterFactory
-                    .createFunctionExpression("max_2");
-            assertEquals("Name is, ", "max_2", max_2Function.getName());
-            assertEquals("Number of arguments, ", 2, max_2Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            max_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (1.0,-1.0):", (long) Math.max(1.0, -1.0),
-                    ((Long) max_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            max_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (-1.0,2.0):", (long) Math.max(-1.0, 2.0),
-                    ((Long) max_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            max_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (2.0,-2.0):", (long) Math.max(2.0, -2.0),
-                    ((Long) max_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            max_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (-2.0,3.141592653589793):", (long) Math.max(
+            Function max_2Function = ff.function("max_2", literal_1, literal_m1);
+            assertEquals("max_2 of (1.0,-1.0):", (long) Math.max(1.0, -1.0),
+                    ((Long) max_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            max_2Function = ff.function("max_2", literal_m1, literal_2);
+            assertEquals("max_2 of (-1.0,2.0):", (long) Math.max(-1.0, 2.0),
+                    ((Long) max_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            max_2Function = ff.function("max_2", literal_2, literal_m2);
+            assertEquals("max_2 of (2.0,-2.0):", (long) Math.max(2.0, -2.0),
+                    ((Long) max_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            max_2Function = ff.function("max_2", literal_m2, literal_pi);
+            assertEquals("max_2 of (-2.0,3.141592653589793):", (long) Math.max(
                     -2.0, 3.141592653589793), ((Long) max_2Function
-                    .getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            max_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (3.141592653589793,1.5707963267948966):",
+                    .evaluate(null)).longValue(), 0.00001);
+            
+            max_2Function = ff.function("max_2", literal_pi, literal_05pi);
+            assertEquals("max_2 of (3.141592653589793,1.5707963267948966):",
                     (long) Math.max(3.141592653589793, 1.5707963267948966),
-                    ((Long) max_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            max_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (1.5707963267948966,1.0):", (long) Math.max(
+                    ((Long) max_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            max_2Function = ff.function("max_2", literal_05pi, literal_1);
+            assertEquals("max_2 of (1.5707963267948966,1.0):", (long) Math.max(
                     1.5707963267948966, 1.0), ((Long) max_2Function
-                    .getValue(null)).longValue(), 0.00001);
+                    .evaluate(null)).longValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -947,51 +797,37 @@ public class FilterFunction_Test extends TestCase {
 
     public void testmax_3() {
         try {
+            FilterFunction_max_3 max_3 = (FilterFunction_max_3) ff.function("max_3", 
+                    new org.opengis.filter.expression.Expression[2]);
+            assertEquals("Name is, ", "max_3", max_3.getName());
+            assertEquals("Number of arguments, ", 2, max_3.getArgCount());
 
-            FunctionExpression max_3Function = filterFactory
-                    .createFunctionExpression("max_3");
-            assertEquals("Name is, ", "max_3", max_3Function.getName());
-            assertEquals("Number of arguments, ", 2, max_3Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            max_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (1.0,-1.0):", (float) Math.max(1.0, -1.0),
-                    ((Float) max_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            max_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (-1.0,2.0):", (float) Math.max(-1.0, 2.0),
-                    ((Float) max_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            max_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (2.0,-2.0):", (float) Math.max(2.0, -2.0),
-                    ((Float) max_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            max_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (-2.0,3.141592653589793):", (float) Math.max(
+            Function max_3Function = ff.function("max_3", literal_1, literal_m1);
+            assertEquals("max_3 of (1.0,-1.0):", (float) Math.max(1.0, -1.0),
+                    ((Float) max_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            max_3Function = ff.function("max_3", literal_m1, literal_2);
+            assertEquals("max_3 of (-1.0,2.0):", (float) Math.max(-1.0, 2.0),
+                    ((Float) max_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            max_3Function = ff.function("max_3", literal_2, literal_m2);
+            assertEquals("max_3 of (2.0,-2.0):", (float) Math.max(2.0, -2.0),
+                    ((Float) max_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            max_3Function = ff.function("max_3", literal_m2, literal_pi);
+            assertEquals("max_3 of (-2.0,3.141592653589793):", (float) Math.max(
                     -2.0, 3.141592653589793), ((Float) max_3Function
-                    .getValue(null)).floatValue(), 0.00001);
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            max_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (3.141592653589793,1.5707963267948966):",
+                    .evaluate(null)).floatValue(), 0.00001);
+            
+            max_3Function = ff.function("max_3", literal_pi, literal_05pi);
+            assertEquals("max_3 of (3.141592653589793,1.5707963267948966):",
                     (float) Math.max(3.141592653589793, 1.5707963267948966),
-                    ((Float) max_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            max_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("max of (1.5707963267948966,1.0):", (float) Math.max(
+                    ((Float) max_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            max_3Function = ff.function("max_3", literal_05pi, literal_1);
+            assertEquals("max_3 of (1.5707963267948966,1.0):", (float) Math.max(
                     1.5707963267948966, 1.0), ((Float) max_3Function
-                    .getValue(null)).floatValue(), 0.00001);
+                    .evaluate(null)).floatValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -1000,94 +836,37 @@ public class FilterFunction_Test extends TestCase {
 
     public void testmax() {
         try {
+            FilterFunction_max max = (FilterFunction_max) ff.function("max", 
+                    new org.opengis.filter.expression.Expression[2]);
+            assertEquals("Name is, ", "max", max.getName());
+            assertEquals("Number of arguments, ", 2, max.getArgCount());
 
-            FunctionExpression max_Function = filterFactory
-                    .createFunctionExpression("max");
-            assertEquals("Name is, ", "max", max_Function.getName());
-            assertEquals("Number of arguments, ", 2, max_Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            max_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good0 = Math.max(1.0, -1.0);
-            if (Double.isNaN(good0)) {
-                assertTrue("max of (1.0,-1.0):", Double
-                        .isNaN(((Double) max_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("max of (1.0,-1.0):",
-                        (double) Math.max(1.0, -1.0), ((Double) max_Function
-                                .getValue(null)).doubleValue(), 0.00001);
-            }
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            max_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good1 = Math.max(-1.0, 2.0);
-            if (Double.isNaN(good1)) {
-                assertTrue("max of (-1.0,2.0):", Double
-                        .isNaN(((Double) max_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("max of (-1.0,2.0):",
-                        (double) Math.max(-1.0, 2.0), ((Double) max_Function
-                                .getValue(null)).doubleValue(), 0.00001);
-            }
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            max_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good2 = Math.max(2.0, -2.0);
-            if (Double.isNaN(good2)) {
-                assertTrue("max of (2.0,-2.0):", Double
-                        .isNaN(((Double) max_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("max of (2.0,-2.0):",
-                        (double) Math.max(2.0, -2.0), ((Double) max_Function
-                                .getValue(null)).doubleValue(), 0.00001);
-            }
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            max_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good3 = Math.max(-2.0, 3.141592653589793);
-            if (Double.isNaN(good3)) {
-                assertTrue("max of (-2.0,3.141592653589793):", Double
-                        .isNaN(((Double) max_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("max of (-2.0,3.141592653589793):", (double) Math
-                        .max(-2.0, 3.141592653589793), ((Double) max_Function
-                        .getValue(null)).doubleValue(), 0.00001);
-            }
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            max_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.max(3.141592653589793, 1.5707963267948966);
-            if (Double.isNaN(good4)) {
-                assertTrue("max of (3.141592653589793,1.5707963267948966):",
-                        Double.isNaN(((Double) max_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("max of (3.141592653589793,1.5707963267948966):",
-                        (double) Math
-                                .max(3.141592653589793, 1.5707963267948966),
-                        ((Double) max_Function.getValue(null)).doubleValue(),
-                        0.00001);
-            }
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            max_Function.setParameters(java.util.Arrays.asList(expressions));
-            double good5 = Math.max(1.5707963267948966, 1.0);
-            if (Double.isNaN(good5)) {
-                assertTrue("max of (1.5707963267948966,1.0):", Double
-                        .isNaN(((Double) max_Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("max of (1.5707963267948966,1.0):", (double) Math
-                        .max(1.5707963267948966, 1.0), ((Double) max_Function
-                        .getValue(null)).doubleValue(), 0.00001);
-            }
+            Function maxFunction = ff.function("max", literal_1, literal_m1);
+            assertEquals("max of (1.0,-1.0):", (double) Math.max(1.0, -1.0),
+                    ((Double) maxFunction.evaluate(null)).doubleValue(), 0.00001);
+            
+            maxFunction = ff.function("max", literal_m1, literal_2);
+            assertEquals("max of (-1.0,2.0):", (double) Math.max(-1.0, 2.0),
+                    ((Double) maxFunction.evaluate(null)).doubleValue(), 0.00001);
+            
+            maxFunction = ff.function("max", literal_2, literal_m2);
+            assertEquals("max of (2.0,-2.0):", (double) Math.max(2.0, -2.0),
+                    ((Double) maxFunction.evaluate(null)).doubleValue(), 0.00001);
+            
+            maxFunction = ff.function("max", literal_m2, literal_pi);
+            assertEquals("max of (-2.0,3.141592653589793):", (double) Math.max(
+                    -2.0, 3.141592653589793), ((Double) maxFunction
+                    .evaluate(null)).doubleValue(), 0.00001);
+            
+            maxFunction = ff.function("max", literal_pi, literal_05pi);
+            assertEquals("max of (3.141592653589793,1.5707963267948966):",
+                    (double) Math.max(3.141592653589793, 1.5707963267948966),
+                    ((Double) maxFunction.evaluate(null)).doubleValue(), 0.00001);
+            
+            maxFunction = ff.function("max", literal_05pi, literal_1);
+            assertEquals("max of (1.5707963267948966,1.0):", (double) Math.max(
+                    1.5707963267948966, 1.0), ((Double) maxFunction
+                    .evaluate(null)).doubleValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -1096,39 +875,35 @@ public class FilterFunction_Test extends TestCase {
 
     public void testabs() {
         try {
+            FilterFunction_abs abs = (FilterFunction_abs) ff.function("abs", org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "abs", abs.getName());
+            assertEquals("Number of arguments, ", 1, abs.getArgCount());
 
-            FunctionExpression absFunction = filterFactory
-                    .createFunctionExpression("abs");
-            assertEquals("Name is, ", "abs", absFunction.getName());
-            assertEquals("Number of arguments, ", 1, absFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            absFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function absFunction = ff.function("abs", literal_1);
             assertEquals("abs of (1.0):", (int) Math.abs(1.0),
-                    ((Integer) absFunction.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_m1;
-            absFunction.setParameters(java.util.Arrays.asList(expressions));
+                    ((Integer) absFunction.evaluate(null)).intValue(), 0.00001);
+            
+            absFunction = ff.function("abs", literal_m1);
             assertEquals("abs of (-1.0):", (int) Math.abs(-1.0),
-                    ((Integer) absFunction.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_2;
-            absFunction.setParameters(java.util.Arrays.asList(expressions));
+                    ((Integer) absFunction.evaluate(null)).intValue(), 0.00001);
+            
+            absFunction = ff.function("abs", literal_2);
             assertEquals("abs of (2.0):", (int) Math.abs(2.0),
-                    ((Integer) absFunction.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_m2;
-            absFunction.setParameters(java.util.Arrays.asList(expressions));
+                    ((Integer) absFunction.evaluate(null)).intValue(), 0.00001);
+            
+            absFunction = ff.function("abs", literal_m2);
             assertEquals("abs of (-2.0):", (int) Math.abs(-2.0),
-                    ((Integer) absFunction.getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_pi;
-            absFunction.setParameters(java.util.Arrays.asList(expressions));
+                    ((Integer) absFunction.evaluate(null)).intValue(), 0.00001);
+            
+            absFunction = ff.function("abs", literal_pi);
             assertEquals("abs of (3.141592653589793):", (int) Math
                     .abs(3.141592653589793), ((Integer) absFunction
-                    .getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_05pi;
-            absFunction.setParameters(java.util.Arrays.asList(expressions));
+                    .evaluate(null)).intValue(), 0.00001);
+            
+            absFunction = ff.function("abs", literal_05pi);
             assertEquals("abs of (1.5707963267948966):", (int) Math
                     .abs(1.5707963267948966), ((Integer) absFunction
-                    .getValue(null)).intValue(), 0.00001);
+                    .evaluate(null)).intValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -1137,40 +912,35 @@ public class FilterFunction_Test extends TestCase {
 
     public void testabs_2() {
         try {
+            FilterFunction_abs_4 abs_4 = (FilterFunction_abs_4) ff.function("abs_4", org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "abs_4", abs_4.getName());
+            assertEquals("Number of arguments, ", 1, abs_4.getArgCount());
 
-            FunctionExpression abs_2Function = filterFactory
-                    .createFunctionExpression("abs_2");
-            assertEquals("Name is, ", "abs_2", abs_2Function.getName());
-            assertEquals("Number of arguments, ", 1, abs_2Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            abs_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (1.0):", (long) Math.abs(1.0),
-                    ((Long) abs_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_m1;
-            abs_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (-1.0):", (long) Math.abs(-1.0),
-                    ((Long) abs_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_2;
-            abs_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (2.0):", (long) Math.abs(2.0),
-                    ((Long) abs_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_m2;
-            abs_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (-2.0):", (long) Math.abs(-2.0),
-                    ((Long) abs_2Function.getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_pi;
-            abs_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (3.141592653589793):", (long) Math
-                    .abs(3.141592653589793), ((Long) abs_2Function
-                    .getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_05pi;
-            abs_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (1.5707963267948966):", (long) Math
-                    .abs(1.5707963267948966), ((Long) abs_2Function
-                    .getValue(null)).longValue(), 0.00001);
+            Function abs_4Function = ff.function("abs_4", literal_1);
+            assertEquals("abs_4 of (1.0):", (double) Math.abs(1.0),
+                    ((Double) abs_4Function.evaluate(null)).doubleValue(), 0.00001);
+            
+            abs_4Function = ff.function("abs_4", literal_m1);
+            assertEquals("abs_4 of (-1.0):", (double) Math.abs(-1.0),
+                    ((Double) abs_4Function.evaluate(null)).doubleValue(), 0.00001);
+            
+            abs_4Function = ff.function("abs_4", literal_2);
+            assertEquals("abs_4 of (2.0):", (double) Math.abs(2.0),
+                    ((Double) abs_4Function.evaluate(null)).doubleValue(), 0.00001);
+            
+            abs_4Function = ff.function("abs_4", literal_m2);
+            assertEquals("abs_4 of (-2.0):", (double) Math.abs(-2.0),
+                    ((Double) abs_4Function.evaluate(null)).doubleValue(), 0.00001);
+            
+            abs_4Function = ff.function("abs_4", literal_pi);
+            assertEquals("abs_4 of (3.141592653589793):", (double) Math
+                    .abs(3.141592653589793), ((Double) abs_4Function
+                    .evaluate(null)).doubleValue(), 0.00001);
+            
+            abs_4Function = ff.function("abs_4", literal_05pi);
+            assertEquals("abs_4 of (1.5707963267948966):", (double) Math
+                    .abs(1.5707963267948966), ((Double) abs_4Function
+                    .evaluate(null)).doubleValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -1179,44 +949,35 @@ public class FilterFunction_Test extends TestCase {
 
     public void testabs_3() {
         try {
+            FilterFunction_abs_3 abs_3 = (FilterFunction_abs_3) ff.function("abs_3", org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "abs_3", abs_3.getName());
+            assertEquals("Number of arguments, ", 1, abs_3.getArgCount());
 
-            FunctionExpression abs_3Function = filterFactory
-                    .createFunctionExpression("abs_3");
-            assertEquals("Name is, ", "abs_3", abs_3Function.getName());
-            assertEquals("Number of arguments, ", 1, abs_3Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            abs_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (1.0):", (float) Math.abs(1.0),
-                    ((Float) abs_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_m1;
-            abs_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (-1.0):", (float) Math.abs(-1.0),
-                    ((Float) abs_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_2;
-            abs_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (2.0):", (float) Math.abs(2.0),
-                    ((Float) abs_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_m2;
-            abs_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (-2.0):", (float) Math.abs(-2.0),
-                    ((Float) abs_3Function.getValue(null)).floatValue(),
-                    0.00001);
-            expressions[0] = literal_pi;
-            abs_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (3.141592653589793):", (float) Math
+            Function abs_3Function = ff.function("abs_3", literal_1);
+            assertEquals("abs_3 of (1.0):", (float) Math.abs(1.0),
+                    ((Float) abs_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            abs_3Function = ff.function("abs_3", literal_m1);
+            assertEquals("abs_3 of (-1.0):", (float) Math.abs(-1.0),
+                    ((Float) abs_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            abs_3Function = ff.function("abs_3", literal_2);
+            assertEquals("abs_3 of (2.0):", (float) Math.abs(2.0),
+                    ((Float) abs_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            abs_3Function = ff.function("abs_3", literal_m2);
+            assertEquals("abs_3 of (-2.0):", (float) Math.abs(-2.0),
+                    ((Float) abs_3Function.evaluate(null)).floatValue(), 0.00001);
+            
+            abs_3Function = ff.function("abs_3", literal_pi);
+            assertEquals("abs_3 of (3.141592653589793):", (float) Math
                     .abs(3.141592653589793), ((Float) abs_3Function
-                    .getValue(null)).floatValue(), 0.00001);
-            expressions[0] = literal_05pi;
-            abs_3Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("abs of (1.5707963267948966):", (float) Math
+                    .evaluate(null)).floatValue(), 0.00001);
+            
+            abs_3Function = ff.function("abs_3", literal_05pi);
+            assertEquals("abs_3 of (1.5707963267948966):", (float) Math
                     .abs(1.5707963267948966), ((Float) abs_3Function
-                    .getValue(null)).floatValue(), 0.00001);
+                    .evaluate(null)).floatValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -1225,86 +986,35 @@ public class FilterFunction_Test extends TestCase {
 
     public void testabs_4() {
         try {
+            FilterFunction_abs_2 abs_2 = (FilterFunction_abs_2) ff.function("abs_2", org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "abs_2", abs_2.getName());
+            assertEquals("Number of arguments, ", 1, abs_2.getArgCount());
 
-            FunctionExpression abs_4Function = filterFactory
-                    .createFunctionExpression("abs_4");
-            assertEquals("Name is, ", "abs_4", abs_4Function.getName());
-            assertEquals("Number of arguments, ", 1, abs_4Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            abs_4Function.setParameters(java.util.Arrays.asList(expressions));
-            double good0 = Math.abs(1.0);
-            if (Double.isNaN(good0)) {
-                assertTrue("abs of (1.0):", Double
-                        .isNaN(((Double) abs_4Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("abs of (1.0):", (double) Math.abs(1.0),
-                        ((Double) abs_4Function.getValue(null)).doubleValue(),
-                        0.00001);
-            }
-            expressions[0] = literal_m1;
-            abs_4Function.setParameters(java.util.Arrays.asList(expressions));
-            double good1 = Math.abs(-1.0);
-            if (Double.isNaN(good1)) {
-                assertTrue("abs of (-1.0):", Double
-                        .isNaN(((Double) abs_4Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("abs of (-1.0):", (double) Math.abs(-1.0),
-                        ((Double) abs_4Function.getValue(null)).doubleValue(),
-                        0.00001);
-            }
-            expressions[0] = literal_2;
-            abs_4Function.setParameters(java.util.Arrays.asList(expressions));
-            double good2 = Math.abs(2.0);
-            if (Double.isNaN(good2)) {
-                assertTrue("abs of (2.0):", Double
-                        .isNaN(((Double) abs_4Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("abs of (2.0):", (double) Math.abs(2.0),
-                        ((Double) abs_4Function.getValue(null)).doubleValue(),
-                        0.00001);
-            }
-            expressions[0] = literal_m2;
-            abs_4Function.setParameters(java.util.Arrays.asList(expressions));
-            double good3 = Math.abs(-2.0);
-            if (Double.isNaN(good3)) {
-                assertTrue("abs of (-2.0):", Double
-                        .isNaN(((Double) abs_4Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("abs of (-2.0):", (double) Math.abs(-2.0),
-                        ((Double) abs_4Function.getValue(null)).doubleValue(),
-                        0.00001);
-            }
-            expressions[0] = literal_pi;
-            abs_4Function.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.abs(3.141592653589793);
-            if (Double.isNaN(good4)) {
-                assertTrue("abs of (3.141592653589793):", Double
-                        .isNaN(((Double) abs_4Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("abs of (3.141592653589793):", (double) Math
-                        .abs(3.141592653589793), ((Double) abs_4Function
-                        .getValue(null)).doubleValue(), 0.00001);
-            }
-            expressions[0] = literal_05pi;
-            abs_4Function.setParameters(java.util.Arrays.asList(expressions));
-            double good5 = Math.abs(1.5707963267948966);
-            if (Double.isNaN(good5)) {
-                assertTrue("abs of (1.5707963267948966):", Double
-                        .isNaN(((Double) abs_4Function.getValue(null))
-                                .doubleValue()));
-            } else {
-                assertEquals("abs of (1.5707963267948966):", (double) Math
-                        .abs(1.5707963267948966), ((Double) abs_4Function
-                        .getValue(null)).doubleValue(), 0.00001);
-            }
+            Function abs_2Function = ff.function("abs_2", literal_1);
+            assertEquals("abs_2 of (1.0):", (long) Math.abs(1.0),
+                    ((Long) abs_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            abs_2Function = ff.function("abs_2", literal_m1);
+            assertEquals("abs_2 of (-1.0):", (long) Math.abs(-1.0),
+                    ((Long) abs_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            abs_2Function = ff.function("abs_2", literal_2);
+            assertEquals("abs_2 of (2.0):", (long) Math.abs(2.0),
+                    ((Long) abs_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            abs_2Function = ff.function("abs_2", literal_m2);
+            assertEquals("abs_2 of (-2.0):", (long) Math.abs(-2.0),
+                    ((Long) abs_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            abs_2Function = ff.function("abs_2", literal_pi);
+            assertEquals("abs_2 of (3.141592653589793):", (long) Math
+                    .abs(3.141592653589793), ((Long) abs_2Function
+                    .evaluate(null)).longValue(), 0.00001);
+            
+            abs_2Function = ff.function("abs_2", literal_05pi);
+            assertEquals("abs_2 of (1.5707963267948966):", (long) Math
+                    .abs(1.5707963267948966), ((Long) abs_2Function
+                    .evaluate(null)).longValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -1313,108 +1023,86 @@ public class FilterFunction_Test extends TestCase {
 
     public void testIEEEremainder() {
         try {
+            FilterFunction_IEEEremainder IEEEremainder = (FilterFunction_IEEEremainder) ff.function("IEEEremainder", 
+                    org.opengis.filter.expression.Expression.NIL,
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "IEEEremainder", IEEEremainder.getName());
+            assertEquals("Number of arguments, ", 2, IEEEremainder.getArgCount());
 
-            FunctionExpression IEEEremainderFunction = filterFactory
-                    .createFunctionExpression("IEEEremainder");
-            assertEquals("Name is, ", "IEEEremainder", IEEEremainderFunction
-                    .getName());
-            assertEquals("Number of arguments, ", 2, IEEEremainderFunction
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[2];
-            expressions[0] = literal_1;
-            expressions[1] = literal_m1;
-            IEEEremainderFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            Function IEEEremainderFunction = ff.function("IEEEremainder", literal_1, literal_m1);
             double good0 = Math.IEEEremainder(1.0, -1.0);
             if (Double.isNaN(good0)) {
                 assertTrue("IEEEremainder of (1.0,-1.0):", Double
-                        .isNaN(((Double) IEEEremainderFunction.getValue(null))
+                        .isNaN(((Double) IEEEremainderFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("IEEEremainder of (1.0,-1.0):", (double) Math
-                        .IEEEremainder(1.0, -1.0),
-                        ((Double) IEEEremainderFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                assertEquals("IEEEremainder of (1.0,-1.0):", (double) Math.IEEEremainder(1.0,
+                        -1.0), ((Double) IEEEremainderFunction.evaluate(null))
+                        .doubleValue(), 0.00001);
             }
-            expressions[0] = literal_m1;
-            expressions[1] = literal_2;
-            IEEEremainderFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            IEEEremainderFunction = ff.function("IEEEremainder", literal_m1, literal_2);
             double good1 = Math.IEEEremainder(-1.0, 2.0);
             if (Double.isNaN(good1)) {
                 assertTrue("IEEEremainder of (-1.0,2.0):", Double
-                        .isNaN(((Double) IEEEremainderFunction.getValue(null))
+                        .isNaN(((Double) IEEEremainderFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("IEEEremainder of (-1.0,2.0):", (double) Math
-                        .IEEEremainder(-1.0, 2.0),
-                        ((Double) IEEEremainderFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                assertEquals("IEEEremainder of (-1.0,2.0):", (double) Math.IEEEremainder(-1.0,
+                        2.0), ((Double) IEEEremainderFunction.evaluate(null))
+                        .doubleValue(), 0.00001);
             }
-            expressions[0] = literal_2;
-            expressions[1] = literal_m2;
-            IEEEremainderFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            IEEEremainderFunction = ff.function("IEEEremainder", literal_2, literal_m2);
             double good2 = Math.IEEEremainder(2.0, -2.0);
             if (Double.isNaN(good2)) {
                 assertTrue("IEEEremainder of (2.0,-2.0):", Double
-                        .isNaN(((Double) IEEEremainderFunction.getValue(null))
+                        .isNaN(((Double) IEEEremainderFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("IEEEremainder of (2.0,-2.0):", (double) Math
-                        .IEEEremainder(2.0, -2.0),
-                        ((Double) IEEEremainderFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                assertEquals("IEEEremainder of (2.0,-2.0):", (double) Math.IEEEremainder(2.0,
+                        -2.0), ((Double) IEEEremainderFunction.evaluate(null))
+                        .doubleValue(), 0.00001);
             }
-            expressions[0] = literal_m2;
-            expressions[1] = literal_pi;
-            IEEEremainderFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            IEEEremainderFunction = ff.function("IEEEremainder", literal_m2, literal_pi);
             double good3 = Math.IEEEremainder(-2.0, 3.141592653589793);
             if (Double.isNaN(good3)) {
                 assertTrue("IEEEremainder of (-2.0,3.141592653589793):", Double
-                        .isNaN(((Double) IEEEremainderFunction.getValue(null))
+                        .isNaN(((Double) IEEEremainderFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("IEEEremainder of (-2.0,3.141592653589793):",
                         (double) Math.IEEEremainder(-2.0, 3.141592653589793),
-                        ((Double) IEEEremainderFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                        ((Double) IEEEremainderFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_pi;
-            expressions[1] = literal_05pi;
-            IEEEremainderFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
-            double good4 = Math.IEEEremainder(3.141592653589793,
-                    1.5707963267948966);
+            
+            IEEEremainderFunction = ff.function("IEEEremainder", literal_pi, literal_05pi);
+            double good4 = Math.IEEEremainder(3.141592653589793, 1.5707963267948966);
             if (Double.isNaN(good4)) {
-                assertTrue(
-                        "IEEEremainder of (3.141592653589793,1.5707963267948966):",
-                        Double.isNaN(((Double) IEEEremainderFunction
-                                .getValue(null)).doubleValue()));
+                assertTrue("IEEEremainder of (3.141592653589793,1.5707963267948966):",
+                        Double.isNaN(((Double) IEEEremainderFunction.evaluate(null))
+                                .doubleValue()));
             } else {
                 assertEquals(
                         "IEEEremainder of (3.141592653589793,1.5707963267948966):",
                         (double) Math.IEEEremainder(3.141592653589793,
-                                1.5707963267948966),
-                        ((Double) IEEEremainderFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                                1.5707963267948966), ((Double) IEEEremainderFunction
+                                .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            expressions[1] = literal_1;
-            IEEEremainderFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            IEEEremainderFunction = ff.function("IEEEremainder", literal_05pi, literal_1);
             double good5 = Math.IEEEremainder(1.5707963267948966, 1.0);
             if (Double.isNaN(good5)) {
                 assertTrue("IEEEremainder of (1.5707963267948966,1.0):", Double
-                        .isNaN(((Double) IEEEremainderFunction.getValue(null))
+                        .isNaN(((Double) IEEEremainderFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("IEEEremainder of (1.5707963267948966,1.0):",
                         (double) Math.IEEEremainder(1.5707963267948966, 1.0),
-                        ((Double) IEEEremainderFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                        ((Double) IEEEremainderFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -1424,84 +1112,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testacos() {
         try {
+            FilterFunction_acos acos = (FilterFunction_acos) ff.function("acos", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "acos", acos.getName());
+            assertEquals("Number of arguments, ", 1, acos.getArgCount());
 
-            FunctionExpression acosFunction = filterFactory
-                    .createFunctionExpression("acos");
-            assertEquals("Name is, ", "acos", acosFunction.getName());
-            assertEquals("Number of arguments, ", 1, acosFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            acosFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function acosFunction = ff.function("acos", literal_1);
             double good0 = Math.acos(1.0);
             if (Double.isNaN(good0)) {
-                assertTrue("acos of (1.0):", Double
-                        .isNaN(((Double) acosFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("acos of (1.0):", Double.isNaN(((Double) acosFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("acos of (1.0):", (double) Math.acos(1.0),
-                        ((Double) acosFunction.getValue(null)).doubleValue(),
+                        ((Double) acosFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            acosFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            acosFunction = ff.function("acos", literal_m1);
             double good1 = Math.acos(-1.0);
             if (Double.isNaN(good1)) {
-                assertTrue("acos of (-1.0):", Double
-                        .isNaN(((Double) acosFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("acos of (-1.0):", Double.isNaN(((Double) acosFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("acos of (-1.0):", (double) Math.acos(-1.0),
-                        ((Double) acosFunction.getValue(null)).doubleValue(),
+                        ((Double) acosFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            acosFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            acosFunction = ff.function("acos", literal_2);
             double good2 = Math.acos(2.0);
             if (Double.isNaN(good2)) {
-                assertTrue("acos of (2.0):", Double
-                        .isNaN(((Double) acosFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("acos of (2.0):", Double.isNaN(((Double) acosFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("acos of (2.0):", (double) Math.acos(2.0),
-                        ((Double) acosFunction.getValue(null)).doubleValue(),
+                        ((Double) acosFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            acosFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            acosFunction = ff.function("acos", literal_m2);
             double good3 = Math.acos(-2.0);
             if (Double.isNaN(good3)) {
-                assertTrue("acos of (-2.0):", Double
-                        .isNaN(((Double) acosFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("acos of (-2.0):", Double.isNaN(((Double) acosFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("acos of (-2.0):", (double) Math.acos(-2.0),
-                        ((Double) acosFunction.getValue(null)).doubleValue(),
+                        ((Double) acosFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            acosFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.acos(3.141592653589793);
+            
+            acosFunction = ff.function("acos", literal_pi);
+            double good4 = Math.acos(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("acos of (3.141592653589793):", Double
-                        .isNaN(((Double) acosFunction.getValue(null))
+                        .isNaN(((Double) acosFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("acos of (3.141592653589793):", (double) Math
                         .acos(3.141592653589793), ((Double) acosFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            acosFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            acosFunction = ff.function("acos", literal_05pi);
             double good5 = Math.acos(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("acos of (1.5707963267948966):", Double
-                        .isNaN(((Double) acosFunction.getValue(null))
+                        .isNaN(((Double) acosFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("acos of (1.5707963267948966):", (double) Math
                         .acos(1.5707963267948966), ((Double) acosFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -1511,84 +1192,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testasin() {
         try {
+            FilterFunction_asin asin = (FilterFunction_asin) ff.function("asin", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "asin", asin.getName());
+            assertEquals("Number of arguments, ", 1, asin.getArgCount());
 
-            FunctionExpression asinFunction = filterFactory
-                    .createFunctionExpression("asin");
-            assertEquals("Name is, ", "asin", asinFunction.getName());
-            assertEquals("Number of arguments, ", 1, asinFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            asinFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function asinFunction = ff.function("asin", literal_1);
             double good0 = Math.asin(1.0);
             if (Double.isNaN(good0)) {
-                assertTrue("asin of (1.0):", Double
-                        .isNaN(((Double) asinFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("asin of (1.0):", Double.isNaN(((Double) asinFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("asin of (1.0):", (double) Math.asin(1.0),
-                        ((Double) asinFunction.getValue(null)).doubleValue(),
+                        ((Double) asinFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            asinFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            asinFunction = ff.function("asin", literal_m1);
             double good1 = Math.asin(-1.0);
             if (Double.isNaN(good1)) {
-                assertTrue("asin of (-1.0):", Double
-                        .isNaN(((Double) asinFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("asin of (-1.0):", Double.isNaN(((Double) asinFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("asin of (-1.0):", (double) Math.asin(-1.0),
-                        ((Double) asinFunction.getValue(null)).doubleValue(),
+                        ((Double) asinFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            asinFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            asinFunction = ff.function("asin", literal_2);
             double good2 = Math.asin(2.0);
             if (Double.isNaN(good2)) {
-                assertTrue("asin of (2.0):", Double
-                        .isNaN(((Double) asinFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("asin of (2.0):", Double.isNaN(((Double) asinFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("asin of (2.0):", (double) Math.asin(2.0),
-                        ((Double) asinFunction.getValue(null)).doubleValue(),
+                        ((Double) asinFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            asinFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            asinFunction = ff.function("asin", literal_m2);
             double good3 = Math.asin(-2.0);
             if (Double.isNaN(good3)) {
-                assertTrue("asin of (-2.0):", Double
-                        .isNaN(((Double) asinFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("asin of (-2.0):", Double.isNaN(((Double) asinFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("asin of (-2.0):", (double) Math.asin(-2.0),
-                        ((Double) asinFunction.getValue(null)).doubleValue(),
+                        ((Double) asinFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            asinFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.asin(3.141592653589793);
+            
+            asinFunction = ff.function("asin", literal_pi);
+            double good4 = Math.asin(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("asin of (3.141592653589793):", Double
-                        .isNaN(((Double) asinFunction.getValue(null))
+                        .isNaN(((Double) asinFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("asin of (3.141592653589793):", (double) Math
                         .asin(3.141592653589793), ((Double) asinFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            asinFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            asinFunction = ff.function("asin", literal_05pi);
             double good5 = Math.asin(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("asin of (1.5707963267948966):", Double
-                        .isNaN(((Double) asinFunction.getValue(null))
+                        .isNaN(((Double) asinFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("asin of (1.5707963267948966):", (double) Math
                         .asin(1.5707963267948966), ((Double) asinFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -1598,84 +1272,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testatan() {
         try {
+            FilterFunction_atan atan = (FilterFunction_atan) ff.function("atan", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "atan", atan.getName());
+            assertEquals("Number of arguments, ", 1, atan.getArgCount());
 
-            FunctionExpression atanFunction = filterFactory
-                    .createFunctionExpression("atan");
-            assertEquals("Name is, ", "atan", atanFunction.getName());
-            assertEquals("Number of arguments, ", 1, atanFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            atanFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function atanFunction = ff.function("atan", literal_1);
             double good0 = Math.atan(1.0);
             if (Double.isNaN(good0)) {
-                assertTrue("atan of (1.0):", Double
-                        .isNaN(((Double) atanFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("atan of (1.0):", Double.isNaN(((Double) atanFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("atan of (1.0):", (double) Math.atan(1.0),
-                        ((Double) atanFunction.getValue(null)).doubleValue(),
+                        ((Double) atanFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            atanFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            atanFunction = ff.function("atan", literal_m1);
             double good1 = Math.atan(-1.0);
             if (Double.isNaN(good1)) {
-                assertTrue("atan of (-1.0):", Double
-                        .isNaN(((Double) atanFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("atan of (-1.0):", Double.isNaN(((Double) atanFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("atan of (-1.0):", (double) Math.atan(-1.0),
-                        ((Double) atanFunction.getValue(null)).doubleValue(),
+                        ((Double) atanFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            atanFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            atanFunction = ff.function("atan", literal_2);
             double good2 = Math.atan(2.0);
             if (Double.isNaN(good2)) {
-                assertTrue("atan of (2.0):", Double
-                        .isNaN(((Double) atanFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("atan of (2.0):", Double.isNaN(((Double) atanFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("atan of (2.0):", (double) Math.atan(2.0),
-                        ((Double) atanFunction.getValue(null)).doubleValue(),
+                        ((Double) atanFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            atanFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            atanFunction = ff.function("atan", literal_m2);
             double good3 = Math.atan(-2.0);
             if (Double.isNaN(good3)) {
-                assertTrue("atan of (-2.0):", Double
-                        .isNaN(((Double) atanFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("atan of (-2.0):", Double.isNaN(((Double) atanFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("atan of (-2.0):", (double) Math.atan(-2.0),
-                        ((Double) atanFunction.getValue(null)).doubleValue(),
+                        ((Double) atanFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            atanFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.atan(3.141592653589793);
+            
+            atanFunction = ff.function("atan", literal_pi);
+            double good4 = Math.atan(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("atan of (3.141592653589793):", Double
-                        .isNaN(((Double) atanFunction.getValue(null))
+                        .isNaN(((Double) atanFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("atan of (3.141592653589793):", (double) Math
                         .atan(3.141592653589793), ((Double) atanFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            atanFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            atanFunction = ff.function("atan", literal_05pi);
             double good5 = Math.atan(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("atan of (1.5707963267948966):", Double
-                        .isNaN(((Double) atanFunction.getValue(null))
+                        .isNaN(((Double) atanFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("atan of (1.5707963267948966):", (double) Math
                         .atan(1.5707963267948966), ((Double) atanFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -1685,84 +1352,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testceil() {
         try {
+            FilterFunction_ceil ceil = (FilterFunction_ceil) ff.function("ceil", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "ceil", ceil.getName());
+            assertEquals("Number of arguments, ", 1, ceil.getArgCount());
 
-            FunctionExpression ceilFunction = filterFactory
-                    .createFunctionExpression("ceil");
-            assertEquals("Name is, ", "ceil", ceilFunction.getName());
-            assertEquals("Number of arguments, ", 1, ceilFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            ceilFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function ceilFunction = ff.function("ceil", literal_1);
             double good0 = Math.ceil(1.0);
             if (Double.isNaN(good0)) {
-                assertTrue("ceil of (1.0):", Double
-                        .isNaN(((Double) ceilFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("ceil of (1.0):", Double.isNaN(((Double) ceilFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("ceil of (1.0):", (double) Math.ceil(1.0),
-                        ((Double) ceilFunction.getValue(null)).doubleValue(),
+                        ((Double) ceilFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            ceilFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            ceilFunction = ff.function("ceil", literal_m1);
             double good1 = Math.ceil(-1.0);
             if (Double.isNaN(good1)) {
-                assertTrue("ceil of (-1.0):", Double
-                        .isNaN(((Double) ceilFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("ceil of (-1.0):", Double.isNaN(((Double) ceilFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("ceil of (-1.0):", (double) Math.ceil(-1.0),
-                        ((Double) ceilFunction.getValue(null)).doubleValue(),
+                        ((Double) ceilFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            ceilFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            ceilFunction = ff.function("ceil", literal_2);
             double good2 = Math.ceil(2.0);
             if (Double.isNaN(good2)) {
-                assertTrue("ceil of (2.0):", Double
-                        .isNaN(((Double) ceilFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("ceil of (2.0):", Double.isNaN(((Double) ceilFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("ceil of (2.0):", (double) Math.ceil(2.0),
-                        ((Double) ceilFunction.getValue(null)).doubleValue(),
+                        ((Double) ceilFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            ceilFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            ceilFunction = ff.function("ceil", literal_m2);
             double good3 = Math.ceil(-2.0);
             if (Double.isNaN(good3)) {
-                assertTrue("ceil of (-2.0):", Double
-                        .isNaN(((Double) ceilFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("ceil of (-2.0):", Double.isNaN(((Double) ceilFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("ceil of (-2.0):", (double) Math.ceil(-2.0),
-                        ((Double) ceilFunction.getValue(null)).doubleValue(),
+                        ((Double) ceilFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            ceilFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.ceil(3.141592653589793);
+            
+            ceilFunction = ff.function("ceil", literal_pi);
+            double good4 = Math.ceil(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("ceil of (3.141592653589793):", Double
-                        .isNaN(((Double) ceilFunction.getValue(null))
+                        .isNaN(((Double) ceilFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("ceil of (3.141592653589793):", (double) Math
                         .ceil(3.141592653589793), ((Double) ceilFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            ceilFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            ceilFunction = ff.function("ceil", literal_05pi);
             double good5 = Math.ceil(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("ceil of (1.5707963267948966):", Double
-                        .isNaN(((Double) ceilFunction.getValue(null))
+                        .isNaN(((Double) ceilFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("ceil of (1.5707963267948966):", (double) Math
                         .ceil(1.5707963267948966), ((Double) ceilFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -1772,80 +1432,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testexp() {
         try {
+            FilterFunction_exp exp = (FilterFunction_exp) ff.function("exp", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "exp", exp.getName());
+            assertEquals("Number of arguments, ", 1, exp.getArgCount());
 
-            FunctionExpression expFunction = filterFactory
-                    .createFunctionExpression("exp");
-            assertEquals("Name is, ", "exp", expFunction.getName());
-            assertEquals("Number of arguments, ", 1, expFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            expFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function expFunction = ff.function("exp", literal_1);
             double good0 = Math.exp(1.0);
             if (Double.isNaN(good0)) {
                 assertTrue("exp of (1.0):", Double.isNaN(((Double) expFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("exp of (1.0):", (double) Math.exp(1.0),
-                        ((Double) expFunction.getValue(null)).doubleValue(),
+                        ((Double) expFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            expFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            expFunction = ff.function("exp", literal_m1);
             double good1 = Math.exp(-1.0);
             if (Double.isNaN(good1)) {
                 assertTrue("exp of (-1.0):", Double.isNaN(((Double) expFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("exp of (-1.0):", (double) Math.exp(-1.0),
-                        ((Double) expFunction.getValue(null)).doubleValue(),
+                        ((Double) expFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            expFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            expFunction = ff.function("exp", literal_2);
             double good2 = Math.exp(2.0);
             if (Double.isNaN(good2)) {
                 assertTrue("exp of (2.0):", Double.isNaN(((Double) expFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("exp of (2.0):", (double) Math.exp(2.0),
-                        ((Double) expFunction.getValue(null)).doubleValue(),
+                        ((Double) expFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            expFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            expFunction = ff.function("exp", literal_m2);
             double good3 = Math.exp(-2.0);
             if (Double.isNaN(good3)) {
                 assertTrue("exp of (-2.0):", Double.isNaN(((Double) expFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("exp of (-2.0):", (double) Math.exp(-2.0),
-                        ((Double) expFunction.getValue(null)).doubleValue(),
+                        ((Double) expFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            expFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.exp(3.141592653589793);
+            
+            expFunction = ff.function("exp", literal_pi);
+            double good4 = Math.exp(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("exp of (3.141592653589793):", Double
-                        .isNaN(((Double) expFunction.getValue(null))
+                        .isNaN(((Double) expFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("exp of (3.141592653589793):", (double) Math
                         .exp(3.141592653589793), ((Double) expFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            expFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            expFunction = ff.function("exp", literal_05pi);
             double good5 = Math.exp(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("exp of (1.5707963267948966):", Double
-                        .isNaN(((Double) expFunction.getValue(null))
+                        .isNaN(((Double) expFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("exp of (1.5707963267948966):", (double) Math
                         .exp(1.5707963267948966), ((Double) expFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -1855,85 +1512,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testfloor() {
         try {
+            FilterFunction_floor floor = (FilterFunction_floor) ff.function("floor", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "floor", floor.getName());
+            assertEquals("Number of arguments, ", 1, floor.getArgCount());
 
-            FunctionExpression floorFunction = filterFactory
-                    .createFunctionExpression("floor");
-            assertEquals("Name is, ", "floor", floorFunction.getName());
-            assertEquals("Number of arguments, ", 1, floorFunction
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            floorFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function floorFunction = ff.function("floor", literal_1);
             double good0 = Math.floor(1.0);
             if (Double.isNaN(good0)) {
-                assertTrue("floor of (1.0):", Double
-                        .isNaN(((Double) floorFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("floor of (1.0):", Double.isNaN(((Double) floorFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("floor of (1.0):", (double) Math.floor(1.0),
-                        ((Double) floorFunction.getValue(null)).doubleValue(),
+                        ((Double) floorFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            floorFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            floorFunction = ff.function("floor", literal_m1);
             double good1 = Math.floor(-1.0);
             if (Double.isNaN(good1)) {
-                assertTrue("floor of (-1.0):", Double
-                        .isNaN(((Double) floorFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("floor of (-1.0):", Double.isNaN(((Double) floorFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("floor of (-1.0):", (double) Math.floor(-1.0),
-                        ((Double) floorFunction.getValue(null)).doubleValue(),
+                        ((Double) floorFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            floorFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            floorFunction = ff.function("floor", literal_2);
             double good2 = Math.floor(2.0);
             if (Double.isNaN(good2)) {
-                assertTrue("floor of (2.0):", Double
-                        .isNaN(((Double) floorFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("floor of (2.0):", Double.isNaN(((Double) floorFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("floor of (2.0):", (double) Math.floor(2.0),
-                        ((Double) floorFunction.getValue(null)).doubleValue(),
+                        ((Double) floorFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            floorFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            floorFunction = ff.function("floor", literal_m2);
             double good3 = Math.floor(-2.0);
             if (Double.isNaN(good3)) {
-                assertTrue("floor of (-2.0):", Double
-                        .isNaN(((Double) floorFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("floor of (-2.0):", Double.isNaN(((Double) floorFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("floor of (-2.0):", (double) Math.floor(-2.0),
-                        ((Double) floorFunction.getValue(null)).doubleValue(),
+                        ((Double) floorFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            floorFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.floor(3.141592653589793);
+            
+            floorFunction = ff.function("floor", literal_pi);
+            double good4 = Math.floor(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("floor of (3.141592653589793):", Double
-                        .isNaN(((Double) floorFunction.getValue(null))
+                        .isNaN(((Double) floorFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("floor of (3.141592653589793):", (double) Math
                         .floor(3.141592653589793), ((Double) floorFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            floorFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            floorFunction = ff.function("floor", literal_05pi);
             double good5 = Math.floor(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("floor of (1.5707963267948966):", Double
-                        .isNaN(((Double) floorFunction.getValue(null))
+                        .isNaN(((Double) floorFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("floor of (1.5707963267948966):", (double) Math
                         .floor(1.5707963267948966), ((Double) floorFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -1943,80 +1592,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testlog() {
         try {
+            FilterFunction_log log = (FilterFunction_log) ff.function("log", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "log", log.getName());
+            assertEquals("Number of arguments, ", 1, log.getArgCount());
 
-            FunctionExpression logFunction = filterFactory
-                    .createFunctionExpression("log");
-            assertEquals("Name is, ", "log", logFunction.getName());
-            assertEquals("Number of arguments, ", 1, logFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            logFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function logFunction = ff.function("log", literal_1);
             double good0 = Math.log(1.0);
             if (Double.isNaN(good0)) {
                 assertTrue("log of (1.0):", Double.isNaN(((Double) logFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("log of (1.0):", (double) Math.log(1.0),
-                        ((Double) logFunction.getValue(null)).doubleValue(),
+                        ((Double) logFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            logFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            logFunction = ff.function("log", literal_m1);
             double good1 = Math.log(-1.0);
             if (Double.isNaN(good1)) {
                 assertTrue("log of (-1.0):", Double.isNaN(((Double) logFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("log of (-1.0):", (double) Math.log(-1.0),
-                        ((Double) logFunction.getValue(null)).doubleValue(),
+                        ((Double) logFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            logFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            logFunction = ff.function("log", literal_2);
             double good2 = Math.log(2.0);
             if (Double.isNaN(good2)) {
                 assertTrue("log of (2.0):", Double.isNaN(((Double) logFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("log of (2.0):", (double) Math.log(2.0),
-                        ((Double) logFunction.getValue(null)).doubleValue(),
+                        ((Double) logFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            logFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            logFunction = ff.function("log", literal_m2);
             double good3 = Math.log(-2.0);
             if (Double.isNaN(good3)) {
                 assertTrue("log of (-2.0):", Double.isNaN(((Double) logFunction
-                        .getValue(null)).doubleValue()));
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("log of (-2.0):", (double) Math.log(-2.0),
-                        ((Double) logFunction.getValue(null)).doubleValue(),
+                        ((Double) logFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            logFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.log(3.141592653589793);
+            
+            logFunction = ff.function("log", literal_pi);
+            double good4 = Math.log(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("log of (3.141592653589793):", Double
-                        .isNaN(((Double) logFunction.getValue(null))
+                        .isNaN(((Double) logFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("log of (3.141592653589793):", (double) Math
                         .log(3.141592653589793), ((Double) logFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            logFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            logFunction = ff.function("log", literal_05pi);
             double good5 = Math.log(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("log of (1.5707963267948966):", Double
-                        .isNaN(((Double) logFunction.getValue(null))
+                        .isNaN(((Double) logFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("log of (1.5707963267948966):", (double) Math
                         .log(1.5707963267948966), ((Double) logFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -2027,13 +1673,11 @@ public class FilterFunction_Test extends TestCase {
     public void testrandom() {
         try {
 
-            FunctionExpression randomFunction = filterFactory
-                    .createFunctionExpression("random");
+            FilterFunction_random randomFunction = (FilterFunction_random) ff
+                    .function("random", new org.opengis.filter.expression.Expression[0]);
             assertEquals("Name is, ", "random", randomFunction.getName());
             assertEquals("Number of arguments, ", 0, randomFunction
                     .getArgCount());
-
-            Expression[] expressions = new Expression[0];
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -2042,84 +1686,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testrint() {
         try {
+            FilterFunction_rint rint = (FilterFunction_rint) ff.function("rint", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "rint", rint.getName());
+            assertEquals("Number of arguments, ", 1, rint.getArgCount());
 
-            FunctionExpression rintFunction = filterFactory
-                    .createFunctionExpression("rint");
-            assertEquals("Name is, ", "rint", rintFunction.getName());
-            assertEquals("Number of arguments, ", 1, rintFunction.getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            rintFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function rintFunction = ff.function("rint", literal_1);
             double good0 = Math.rint(1.0);
             if (Double.isNaN(good0)) {
-                assertTrue("rint of (1.0):", Double
-                        .isNaN(((Double) rintFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("rint of (1.0):", Double.isNaN(((Double) rintFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("rint of (1.0):", (double) Math.rint(1.0),
-                        ((Double) rintFunction.getValue(null)).doubleValue(),
+                        ((Double) rintFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m1;
-            rintFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            rintFunction = ff.function("rint", literal_m1);
             double good1 = Math.rint(-1.0);
             if (Double.isNaN(good1)) {
-                assertTrue("rint of (-1.0):", Double
-                        .isNaN(((Double) rintFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("rint of (-1.0):", Double.isNaN(((Double) rintFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("rint of (-1.0):", (double) Math.rint(-1.0),
-                        ((Double) rintFunction.getValue(null)).doubleValue(),
+                        ((Double) rintFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_2;
-            rintFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            rintFunction = ff.function("rint", literal_2);
             double good2 = Math.rint(2.0);
             if (Double.isNaN(good2)) {
-                assertTrue("rint of (2.0):", Double
-                        .isNaN(((Double) rintFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("rint of (2.0):", Double.isNaN(((Double) rintFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("rint of (2.0):", (double) Math.rint(2.0),
-                        ((Double) rintFunction.getValue(null)).doubleValue(),
+                        ((Double) rintFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_m2;
-            rintFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            rintFunction = ff.function("rint", literal_m2);
             double good3 = Math.rint(-2.0);
             if (Double.isNaN(good3)) {
-                assertTrue("rint of (-2.0):", Double
-                        .isNaN(((Double) rintFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("rint of (-2.0):", Double.isNaN(((Double) rintFunction
+                        .evaluate(null)).doubleValue()));
             } else {
                 assertEquals("rint of (-2.0):", (double) Math.rint(-2.0),
-                        ((Double) rintFunction.getValue(null)).doubleValue(),
+                        ((Double) rintFunction.evaluate(null)).doubleValue(),
                         0.00001);
             }
-            expressions[0] = literal_pi;
-            rintFunction.setParameters(java.util.Arrays.asList(expressions));
-            double good4 = Math.rint(3.141592653589793);
+            
+            rintFunction = ff.function("rint", literal_pi);
+            double good4 = Math.rint(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("rint of (3.141592653589793):", Double
-                        .isNaN(((Double) rintFunction.getValue(null))
+                        .isNaN(((Double) rintFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("rint of (3.141592653589793):", (double) Math
                         .rint(3.141592653589793), ((Double) rintFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            rintFunction.setParameters(java.util.Arrays.asList(expressions));
+            
+            rintFunction = ff.function("rint", literal_05pi);
             double good5 = Math.rint(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("rint of (1.5707963267948966):", Double
-                        .isNaN(((Double) rintFunction.getValue(null))
+                        .isNaN(((Double) rintFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("rint of (1.5707963267948966):", (double) Math
                         .rint(1.5707963267948966), ((Double) rintFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -2129,44 +1766,35 @@ public class FilterFunction_Test extends TestCase {
 
     public void testround() {
         try {
+            FilterFunction_round round = (FilterFunction_round) ff.function("round", org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "round", round.getName());
+            assertEquals("Number of arguments, ", 1, round.getArgCount());
 
-            FunctionExpression roundFunction = filterFactory
-                    .createFunctionExpression("round");
-            assertEquals("Name is, ", "round", roundFunction.getName());
-            assertEquals("Number of arguments, ", 1, roundFunction
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            roundFunction.setParameters(java.util.Arrays.asList(expressions));
+            Function roundFunction = ff.function("round", literal_1);
             assertEquals("round of (1.0):", (int) Math.round(1.0),
-                    ((Integer) roundFunction.getValue(null)).intValue(),
-                    0.00001);
-            expressions[0] = literal_m1;
-            roundFunction.setParameters(java.util.Arrays.asList(expressions));
+                    ((Integer) roundFunction.evaluate(null)).intValue(), 0.00001);
+            
+            roundFunction = ff.function("round", literal_m1);
             assertEquals("round of (-1.0):", (int) Math.round(-1.0),
-                    ((Integer) roundFunction.getValue(null)).intValue(),
-                    0.00001);
-            expressions[0] = literal_2;
-            roundFunction.setParameters(java.util.Arrays.asList(expressions));
+                    ((Integer) roundFunction.evaluate(null)).intValue(), 0.00001);
+            
+            roundFunction = ff.function("round", literal_2);
             assertEquals("round of (2.0):", (int) Math.round(2.0),
-                    ((Integer) roundFunction.getValue(null)).intValue(),
-                    0.00001);
-            expressions[0] = literal_m2;
-            roundFunction.setParameters(java.util.Arrays.asList(expressions));
+                    ((Integer) roundFunction.evaluate(null)).intValue(), 0.00001);
+            
+            roundFunction = ff.function("round", literal_m2);
             assertEquals("round of (-2.0):", (int) Math.round(-2.0),
-                    ((Integer) roundFunction.getValue(null)).intValue(),
-                    0.00001);
-            expressions[0] = literal_pi;
-            roundFunction.setParameters(java.util.Arrays.asList(expressions));
+                    ((Integer) roundFunction.evaluate(null)).intValue(), 0.00001);
+            
+            roundFunction = ff.function("round", literal_pi);
             assertEquals("round of (3.141592653589793):", (int) Math
                     .round(3.141592653589793), ((Integer) roundFunction
-                    .getValue(null)).intValue(), 0.00001);
-            expressions[0] = literal_05pi;
-            roundFunction.setParameters(java.util.Arrays.asList(expressions));
+                    .evaluate(null)).intValue(), 0.00001);
+            
+            roundFunction = ff.function("round", literal_05pi);
             assertEquals("round of (1.5707963267948966):", (int) Math
                     .round(1.5707963267948966), ((Integer) roundFunction
-                    .getValue(null)).intValue(), 0.00001);
+                    .evaluate(null)).intValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -2175,44 +1803,35 @@ public class FilterFunction_Test extends TestCase {
 
     public void testround_2() {
         try {
+            FilterFunction_round_2 round_2 = (FilterFunction_round_2) ff.function("round_2", org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "round_2", round_2.getName());
+            assertEquals("Number of arguments, ", 1, round_2.getArgCount());
 
-            FunctionExpression round_2Function = filterFactory
-                    .createFunctionExpression("round_2");
-            assertEquals("Name is, ", "round_2", round_2Function.getName());
-            assertEquals("Number of arguments, ", 1, round_2Function
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            round_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("round of (1.0):", (long) Math.round(1.0),
-                    ((Long) round_2Function.getValue(null)).longValue(),
-                    0.00001);
-            expressions[0] = literal_m1;
-            round_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("round of (-1.0):", (long) Math.round(-1.0),
-                    ((Long) round_2Function.getValue(null)).longValue(),
-                    0.00001);
-            expressions[0] = literal_2;
-            round_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("round of (2.0):", (long) Math.round(2.0),
-                    ((Long) round_2Function.getValue(null)).longValue(),
-                    0.00001);
-            expressions[0] = literal_m2;
-            round_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("round of (-2.0):", (long) Math.round(-2.0),
-                    ((Long) round_2Function.getValue(null)).longValue(),
-                    0.00001);
-            expressions[0] = literal_pi;
-            round_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("round of (3.141592653589793):", (long) Math
+            Function round_2Function = ff.function("round_2", literal_1);
+            assertEquals("round_2 of (1.0):", (long) Math.round(1.0),
+                    ((Long) round_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            round_2Function = ff.function("round_2", literal_m1);
+            assertEquals("round_2 of (-1.0):", (long) Math.round(-1.0),
+                    ((Long) round_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            round_2Function = ff.function("round_2", literal_2);
+            assertEquals("round_2 of (2.0):", (long) Math.round(2.0),
+                    ((Long) round_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            round_2Function = ff.function("round_2", literal_m2);
+            assertEquals("round_2 of (-2.0):", (long) Math.round(-2.0),
+                    ((Long) round_2Function.evaluate(null)).longValue(), 0.00001);
+            
+            round_2Function = ff.function("round_2", literal_pi);
+            assertEquals("round_2 of (3.141592653589793):", (long) Math
                     .round(3.141592653589793), ((Long) round_2Function
-                    .getValue(null)).longValue(), 0.00001);
-            expressions[0] = literal_05pi;
-            round_2Function.setParameters(java.util.Arrays.asList(expressions));
-            assertEquals("round of (1.5707963267948966):", (long) Math
+                    .evaluate(null)).longValue(), 0.00001);
+            
+            round_2Function = ff.function("round_2", literal_05pi);
+            assertEquals("round_2 of (1.5707963267948966):", (long) Math
                     .round(1.5707963267948966), ((Long) round_2Function
-                    .getValue(null)).longValue(), 0.00001);
+                    .evaluate(null)).longValue(), 0.00001);
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
             fail("Unexpected exception: " + e.getMessage());
@@ -2221,93 +1840,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testtoDegrees() {
         try {
+            FilterFunction_toDegrees toDegrees = (FilterFunction_toDegrees) ff.function("toDegrees", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "toDegrees", toDegrees.getName());
+            assertEquals("Number of arguments, ", 1, toDegrees.getArgCount());
 
-            FunctionExpression toDegreesFunction = filterFactory
-                    .createFunctionExpression("toDegrees");
-            assertEquals("Name is, ", "toDegrees", toDegreesFunction.getName());
-            assertEquals("Number of arguments, ", 1, toDegreesFunction
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            toDegreesFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            Function toDegreesFunction = ff.function("toDegrees", literal_1);
             double good0 = Math.toDegrees(1.0);
             if (Double.isNaN(good0)) {
-                assertTrue("toDegrees of (1.0):", Double
-                        .isNaN(((Double) toDegreesFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("toDegrees of (1.0):", Double.isNaN(((Double) toDegreesFunction
+                        .evaluate(null)).doubleValue()));
             } else {
-                assertEquals("toDegrees of (1.0):", (double) Math
-                        .toDegrees(1.0), ((Double) toDegreesFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("toDegrees of (1.0):", (double) Math.toDegrees(1.0),
+                        ((Double) toDegreesFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_m1;
-            toDegreesFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            toDegreesFunction = ff.function("toDegrees", literal_m1);
             double good1 = Math.toDegrees(-1.0);
             if (Double.isNaN(good1)) {
-                assertTrue("toDegrees of (-1.0):", Double
-                        .isNaN(((Double) toDegreesFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("toDegrees of (-1.0):", Double.isNaN(((Double) toDegreesFunction
+                        .evaluate(null)).doubleValue()));
             } else {
-                assertEquals("toDegrees of (-1.0):", (double) Math
-                        .toDegrees(-1.0), ((Double) toDegreesFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("toDegrees of (-1.0):", (double) Math.toDegrees(-1.0),
+                        ((Double) toDegreesFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_2;
-            toDegreesFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            toDegreesFunction = ff.function("toDegrees", literal_2);
             double good2 = Math.toDegrees(2.0);
             if (Double.isNaN(good2)) {
-                assertTrue("toDegrees of (2.0):", Double
-                        .isNaN(((Double) toDegreesFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("toDegrees of (2.0):", Double.isNaN(((Double) toDegreesFunction
+                        .evaluate(null)).doubleValue()));
             } else {
-                assertEquals("toDegrees of (2.0):", (double) Math
-                        .toDegrees(2.0), ((Double) toDegreesFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("toDegrees of (2.0):", (double) Math.toDegrees(2.0),
+                        ((Double) toDegreesFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_m2;
-            toDegreesFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            toDegreesFunction = ff.function("toDegrees", literal_m2);
             double good3 = Math.toDegrees(-2.0);
             if (Double.isNaN(good3)) {
-                assertTrue("toDegrees of (-2.0):", Double
-                        .isNaN(((Double) toDegreesFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("toDegrees of (-2.0):", Double.isNaN(((Double) toDegreesFunction
+                        .evaluate(null)).doubleValue()));
             } else {
-                assertEquals("toDegrees of (-2.0):", (double) Math
-                        .toDegrees(-2.0), ((Double) toDegreesFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("toDegrees of (-2.0):", (double) Math.toDegrees(-2.0),
+                        ((Double) toDegreesFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_pi;
-            toDegreesFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
-            double good4 = Math.toDegrees(3.141592653589793);
+            
+            toDegreesFunction = ff.function("toDegrees", literal_pi);
+            double good4 = Math.toDegrees(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("toDegrees of (3.141592653589793):", Double
-                        .isNaN(((Double) toDegreesFunction.getValue(null))
+                        .isNaN(((Double) toDegreesFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("toDegrees of (3.141592653589793):", (double) Math
-                        .toDegrees(3.141592653589793),
-                        ((Double) toDegreesFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                        .toDegrees(3.141592653589793), ((Double) toDegreesFunction
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            toDegreesFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            toDegreesFunction = ff.function("toDegrees", literal_05pi);
             double good5 = Math.toDegrees(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("toDegrees of (1.5707963267948966):", Double
-                        .isNaN(((Double) toDegreesFunction.getValue(null))
+                        .isNaN(((Double) toDegreesFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("toDegrees of (1.5707963267948966):",
-                        (double) Math.toDegrees(1.5707963267948966),
-                        ((Double) toDegreesFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                assertEquals("toDegrees of (1.5707963267948966):", (double) Math
+                        .toDegrees(1.5707963267948966), ((Double) toDegreesFunction
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();
@@ -2317,93 +1920,77 @@ public class FilterFunction_Test extends TestCase {
 
     public void testtoRadians() {
         try {
+            FilterFunction_toRadians toRadians = (FilterFunction_toRadians) ff.function("toRadians", 
+                    org.opengis.filter.expression.Expression.NIL);
+            assertEquals("Name is, ", "toRadians", toRadians.getName());
+            assertEquals("Number of arguments, ", 1, toRadians.getArgCount());
 
-            FunctionExpression toRadiansFunction = filterFactory
-                    .createFunctionExpression("toRadians");
-            assertEquals("Name is, ", "toRadians", toRadiansFunction.getName());
-            assertEquals("Number of arguments, ", 1, toRadiansFunction
-                    .getArgCount());
-
-            Expression[] expressions = new Expression[1];
-            expressions[0] = literal_1;
-            toRadiansFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            Function toRadiansFunction = ff.function("toRadians", literal_1);
             double good0 = Math.toRadians(1.0);
             if (Double.isNaN(good0)) {
-                assertTrue("toRadians of (1.0):", Double
-                        .isNaN(((Double) toRadiansFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("toRadians of (1.0):", Double.isNaN(((Double) toRadiansFunction
+                        .evaluate(null)).doubleValue()));
             } else {
-                assertEquals("toRadians of (1.0):", (double) Math
-                        .toRadians(1.0), ((Double) toRadiansFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("toRadians of (1.0):", (double) Math.toRadians(1.0),
+                        ((Double) toRadiansFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_m1;
-            toRadiansFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            toRadiansFunction = ff.function("toRadians", literal_m1);
             double good1 = Math.toRadians(-1.0);
             if (Double.isNaN(good1)) {
-                assertTrue("toRadians of (-1.0):", Double
-                        .isNaN(((Double) toRadiansFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("toRadians of (-1.0):", Double.isNaN(((Double) toRadiansFunction
+                        .evaluate(null)).doubleValue()));
             } else {
-                assertEquals("toRadians of (-1.0):", (double) Math
-                        .toRadians(-1.0), ((Double) toRadiansFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("toRadians of (-1.0):", (double) Math.toRadians(-1.0),
+                        ((Double) toRadiansFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_2;
-            toRadiansFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            toRadiansFunction = ff.function("toRadians", literal_2);
             double good2 = Math.toRadians(2.0);
             if (Double.isNaN(good2)) {
-                assertTrue("toRadians of (2.0):", Double
-                        .isNaN(((Double) toRadiansFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("toRadians of (2.0):", Double.isNaN(((Double) toRadiansFunction
+                        .evaluate(null)).doubleValue()));
             } else {
-                assertEquals("toRadians of (2.0):", (double) Math
-                        .toRadians(2.0), ((Double) toRadiansFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("toRadians of (2.0):", (double) Math.toRadians(2.0),
+                        ((Double) toRadiansFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_m2;
-            toRadiansFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            toRadiansFunction = ff.function("toRadians", literal_m2);
             double good3 = Math.toRadians(-2.0);
             if (Double.isNaN(good3)) {
-                assertTrue("toRadians of (-2.0):", Double
-                        .isNaN(((Double) toRadiansFunction.getValue(null))
-                                .doubleValue()));
+                assertTrue("toRadians of (-2.0):", Double.isNaN(((Double) toRadiansFunction
+                        .evaluate(null)).doubleValue()));
             } else {
-                assertEquals("toRadians of (-2.0):", (double) Math
-                        .toRadians(-2.0), ((Double) toRadiansFunction
-                        .getValue(null)).doubleValue(), 0.00001);
+                assertEquals("toRadians of (-2.0):", (double) Math.toRadians(-2.0),
+                        ((Double) toRadiansFunction.evaluate(null)).doubleValue(),
+                        0.00001);
             }
-            expressions[0] = literal_pi;
-            toRadiansFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
-            double good4 = Math.toRadians(3.141592653589793);
+            
+            toRadiansFunction = ff.function("toRadians", literal_pi);
+            double good4 = Math.toRadians(Math.PI);
             if (Double.isNaN(good4)) {
                 assertTrue("toRadians of (3.141592653589793):", Double
-                        .isNaN(((Double) toRadiansFunction.getValue(null))
+                        .isNaN(((Double) toRadiansFunction.evaluate(null))
                                 .doubleValue()));
             } else {
                 assertEquals("toRadians of (3.141592653589793):", (double) Math
-                        .toRadians(3.141592653589793),
-                        ((Double) toRadiansFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                        .toRadians(3.141592653589793), ((Double) toRadiansFunction
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
-            expressions[0] = literal_05pi;
-            toRadiansFunction.setParameters(java.util.Arrays
-                    .asList(expressions));
+            
+            toRadiansFunction = ff.function("toRadians", literal_05pi);
             double good5 = Math.toRadians(1.5707963267948966);
             if (Double.isNaN(good5)) {
                 assertTrue("toRadians of (1.5707963267948966):", Double
-                        .isNaN(((Double) toRadiansFunction.getValue(null))
+                        .isNaN(((Double) toRadiansFunction.evaluate(null))
                                 .doubleValue()));
             } else {
-                assertEquals("toRadians of (1.5707963267948966):",
-                        (double) Math.toRadians(1.5707963267948966),
-                        ((Double) toRadiansFunction.getValue(null))
-                                .doubleValue(), 0.00001);
+                assertEquals("toRadians of (1.5707963267948966):", (double) Math
+                        .toRadians(1.5707963267948966), ((Double) toRadiansFunction
+                        .evaluate(null)).doubleValue(), 0.00001);
             }
         } catch (FactoryRegistryException e) {
             e.printStackTrace();

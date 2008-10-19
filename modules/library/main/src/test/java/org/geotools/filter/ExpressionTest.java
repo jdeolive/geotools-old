@@ -337,16 +337,6 @@ public class ExpressionTest extends TestCase {
 
 	}
 
-	public void testInvalidMath() {
-		try {
-
-			FilterFactoryFinder.createFilterFactory().createMathExpression(
-					DefaultExpression.ATTRIBUTE);
-			fail("Only math types should be allowed when constructing");
-		} catch (IllegalFilterException ife) {
-		}
-	}
-
 	public void testIncompleteMathExpression() throws IllegalFilterException {
 		Expression testAttribute1 = new LiteralExpressionImpl(new Integer(4));
 

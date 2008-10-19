@@ -16,6 +16,7 @@
  */
 package org.geotools.filter;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.PropertyIsNull;
 
@@ -35,7 +36,7 @@ public class NullFilterImpl extends AbstractFilterImpl implements NullFilter {
      * Constructor which sets the type as null check.
      */
     protected NullFilterImpl() {
-    	super(FilterFactoryFinder.createFilterFactory());
+    	super(CommonFactoryFinder.getFilterFactory(null));
     	filterType = NULL;
     }
 

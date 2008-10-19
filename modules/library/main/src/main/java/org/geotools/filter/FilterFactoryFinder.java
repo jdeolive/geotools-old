@@ -16,16 +16,11 @@
  */
 package org.geotools.filter;
 
-import java.util.Map;
-import java.util.Collections;
-
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.Factory;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
-
-import com.vividsolutions.jts.geom.Envelope;
+import org.opengis.feature.type.FeatureTypeFactory;
 
 
 /**
