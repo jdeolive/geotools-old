@@ -26,12 +26,12 @@ import junit.framework.TestCase;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.filter.FilterFactory;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -98,7 +98,7 @@ public class DataTestCase extends TestCase {
      * Invoked before a test is run. The default implementation invokes {@link #dataSetUp}.
      */
     protected void setUp() throws Exception {
-        ff = CommonFactoryFinder.getFilterFactory(null);
+        ff = (FilterFactory) CommonFactoryFinder.getFilterFactory2(null);
         dataSetUp();
     }
     
