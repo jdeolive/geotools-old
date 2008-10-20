@@ -387,15 +387,15 @@ public class TXTCompiler extends TXTParser implements org.geotools.filter.text.c
                 // ----------------------------------------
                 // Spatial Relate Like
                 // ----------------------------------------
-                
-            case JJTPATTERN9IM_NODE:
-                return this.builder.buildPattern9IM();
-
-            case JJTSPATIALRELATELIKE_NODE:
-                return this.builder.buildRelatePattern();
-                
-            case JJTNOT_SPATIALRELATELIKE_NODE:
-                return this.builder.buildNotRelatePattern();
+//                FIXME under debate
+//            case JJTPATTERN9IM_NODE:
+//                return this.builder.buildPattern9IM();
+//
+//            case JJTSPATIALRELATELIKE_NODE:
+//                return this.builder.buildRelatePattern();
+//                
+//            case JJTNOT_SPATIALRELATELIKE_NODE:
+//                return this.builder.buildNotRelatePattern();
                 // ----------------------------------------
                 // routine invocation RelGeo Operation
                 // ----------------------------------------

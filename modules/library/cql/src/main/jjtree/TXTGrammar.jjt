@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.orgLITERAL
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)SpatialRelateLikeSpatialRelateLike
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -473,9 +473,10 @@ void RelateTail() #void:
 {}
 {
 	    <EOF> #Relate_Node
-	  | SpatialRelateLike()  
+// FIXME	  | SpatialRelateLike()  
 }
 
+/*
 void SpatialRelateLike() #void:
 {}
 {
@@ -483,19 +484,20 @@ void SpatialRelateLike() #void:
   	|	              <LIKE> Pattern9IM() 				#SpatialRelateLike_Node
 }
 
-/*
+*
  *<relate pattern> ::=  <quote>
  *                        <relate flag><relate flag><relate flag><relate flag>
  *                        <relate flag><relate flag><relate flag><relate flag>
  *                        <relate flag>
  *                       <quote>
  * <relate flag> ::= "T" | "F" | "*" | "0" | "1" | "2"
- */
+ *
 void Pattern9IM() #Pattern9IM_Node:
 {}
 {
 	CharacterPattern()
 }
+*/
 
 /*
  * <georoutine argument list> ::=

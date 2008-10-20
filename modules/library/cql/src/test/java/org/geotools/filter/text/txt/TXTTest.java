@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.IsNullImpl;
-import org.geotools.filter.function.FilterFunction_relatePattern;
 import org.geotools.filter.function.PropertyExistsFunction;
 import org.geotools.filter.text.cql2.CQLException;
 import org.junit.Assert;
@@ -39,8 +38,8 @@ import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.spatial.Disjoint;
 import org.opengis.filter.spatial.DistanceBufferOperator;
+import org.opengis.filter.spatial.Intersects;
 
 /**
  * TXT Test Case.
@@ -101,24 +100,24 @@ public final class TXTTest  {
         
         Assert.assertTrue(filter instanceof PropertyIsLessThan);
     }
-    
-    /**
-     * Spatial relate like Intersection Matrix (DE-9IM)
-     * 
-     * @see TXTRelateLikePatternTest
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void relateLikePattern() throws Exception{
-        
-        Filter filter = TXT.toFilter("relate( the_geom1,the_geom2) like 'T**F*****'");
-
-        Assert.assertTrue(filter instanceof PropertyIsEqualTo );
-        
-        PropertyIsEqualTo eq = (PropertyIsEqualTo) filter;
-        Assert.assertTrue(eq.getExpression1()  instanceof FilterFunction_relatePattern);
-    }
+// FIXME the sintax is under debate. It will be eliminate from release    
+//    /**
+//     * Spatial relate like Intersection Matrix (DE-9IM)
+//     * 
+//     * @see TXTRelateLikePatternTest
+//     * 
+//     * @throws Exception
+//     */
+//    @Test
+//    public void relateLikePattern() throws Exception{
+//        
+//        Filter filter = TXT.toFilter("relate( the_geom1,the_geom2) like 'T**F*****'");
+//
+//        Assert.assertTrue(filter instanceof PropertyIsEqualTo );
+//        
+//        PropertyIsEqualTo eq = (PropertyIsEqualTo) filter;
+//        Assert.assertTrue(eq.getExpression1()  instanceof FilterFunction_relatePattern);
+//    }
     
 
     /**
@@ -133,13 +132,13 @@ public final class TXTTest  {
         
         Filter filter;
         
-        filter = TXT.toFilter("DISJOINT(the_geom, POINT(1 2))");
+        filter = TXT.toFilter("INTERSECTS(the_geom, POINT(1 2))");
 
-        Assert.assertTrue("Disjoint was expected", filter instanceof Disjoint);
+        Assert.assertTrue("Disjoint was expected", filter instanceof Intersects);
 
-        filter = TXT.toFilter("DISJOINT(buffer(the_geom, 10) , POINT(1 2))");
+        filter = TXT.toFilter("INTERSECTS(buffer(the_geom, 10) , POINT(1 2))");
 
-        Assert.assertTrue("Disjoint was expected", filter instanceof Disjoint);
+        Assert.assertTrue("Disjoint was expected", filter instanceof Intersects);
     }
     
     @Test

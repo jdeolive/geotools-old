@@ -74,7 +74,7 @@ public class CQLLiteralTest {
         Literal geom;
 
         // Point
-        result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language, "DISJOINT(ATTR1, POINT(1 2))");
+        result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language, "WITHIN(ATTR1, POINT(1 2))");
 
         geom = (Literal) result.getExpression2();
 
@@ -82,7 +82,7 @@ public class CQLLiteralTest {
         Assert.assertTrue(geom.getValue() instanceof com.vividsolutions.jts.geom.Point);
 
         // LineString
-        result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,"DISJOINT(ATTR1, LINESTRING(1 2, 10 15))");
+        result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,"WITHIN(ATTR1, LINESTRING(1 2, 10 15))");
 
         geom = (Literal) result.getExpression2();
 
@@ -91,7 +91,7 @@ public class CQLLiteralTest {
 
         // Polygon
         result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
-                "DISJOINT(ATTR1, POLYGON((1 2, 15 2, 15 20, 15 21, 1 2)))");
+                "WITHIN(ATTR1, POLYGON((1 2, 15 2, 15 20, 15 21, 1 2)))");
 
         geom = (Literal) result.getExpression2();
 
@@ -100,7 +100,7 @@ public class CQLLiteralTest {
 
         // MultiPoint
         result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
-                "DISJOINT(ATTR1, MULTIPOINT( (1 2), (15 2), (15 20), (15 21), (1 2) ))");
+                "WITHIN(ATTR1, MULTIPOINT( (1 2), (15 2), (15 20), (15 21), (1 2) ))");
 
         geom = (Literal) result.getExpression2();
 
@@ -109,7 +109,7 @@ public class CQLLiteralTest {
 
         // MultiLineString
         result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
-                "DISJOINT(ATTR1, MULTILINESTRING((10 10, 20 20),(15 15,30 15)) )");
+                "WITHIN(ATTR1, MULTILINESTRING((10 10, 20 20),(15 15,30 15)) )");
 
         geom = (Literal) result.getExpression2();
 
@@ -118,7 +118,7 @@ public class CQLLiteralTest {
 
         // MultiPolygon
         result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
-                "DISJOINT(ATTR1, MULTIPOLYGON( ((10 10, 10 20, 20 20, 20 15, 10 10)),((60 60, 70 70, 80 60, 60 60 )) ) )");
+                "WITHIN(ATTR1, MULTIPOLYGON( ((10 10, 10 20, 20 20, 20 15, 10 10)),((60 60, 70 70, 80 60, 60 60 )) ) )");
 
         geom = (Literal) result.getExpression2();
 
@@ -127,7 +127,7 @@ public class CQLLiteralTest {
 
         // ENVELOPE
         result = (BinarySpatialOperator) CompilerUtil.parseFilter(this.language,
-                "DISJOINT(ATTR1, ENVELOPE( 10, 20, 30, 40) )");
+                "WITHIN(ATTR1, ENVELOPE( 10, 20, 30, 40) )");
 
         geom = (Literal) result.getExpression2();
 

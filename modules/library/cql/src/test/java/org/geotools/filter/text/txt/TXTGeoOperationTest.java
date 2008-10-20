@@ -46,12 +46,12 @@ import org.opengis.filter.spatial.Within;
  * 
  * <pre>
  *   &lt;routine invocation &gt; ::=
- *           &lt;geoop name &gt; &lt;georoutine argument list &gt;[*]
+ *           &lt;geoop name &gt; &lt;georoutine argument list &gt;
  *       |   &lt;relgeoop name &gt; &lt;relgeoop argument list &gt;
  *       |   &lt;routine name &gt; &lt;argument list &gt;
  *   &lt;geoop name &gt; ::=
- *           EQUALS | DISJOINT | INTERSECTS | TOUCHES | CROSSES | [*]
- *           WITHIN | CONTAINS |OVERLAPS | RELATE [*]
+ *           EQUALS | DISJOINT | INTERSECTS | TOUCHES | CROSSES | 
+ *           WITHIN | CONTAINS |OVERLAPS | RELATE 
  *   That rule is extended with bbox for convenience.
  *   &lt;bbox argument list &gt;::=
  *       &quot;(&quot;  &lt;attribute &gt; &quot;,&quot; &lt;min X &gt; &quot;,&quot; &lt;min Y &gt; &quot;,&quot; &lt;max X &gt; &quot;,&quot; &lt;max Y &gt;[&quot;,&quot;  &lt;srs &gt;] &quot;)&quot;
@@ -174,7 +174,7 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
         
         Filter resultFilter = CompilerUtil.parseFilter(language,"RELATE(geom1, POINT(1 2))");
 
-        Assert.assertTrue("Intersects was expected", resultFilter instanceof PropertyIsEqualTo);
+        Assert.assertTrue( resultFilter instanceof PropertyIsEqualTo);
         
         PropertyIsEqualTo eq = (PropertyIsEqualTo) resultFilter;
         
@@ -186,6 +186,24 @@ public final class TXTGeoOperationTest extends CQLGeoOperationTest{
 
         Assert.assertEquals(expr2.getValue() , true );
     }
+//TODO this could be an alternative to relate like pattern sentence
+//    @Test
+//    public void relateWhithPattern() throws CQLException {
+//        
+//        Filter resultFilter = CompilerUtil.parseFilter(language,"RELATE(geom1, POINT(1 2), '2FFF1FFF2')");
+//
+//        Assert.assertTrue(resultFilter instanceof PropertyIsEqualTo);
+//        
+//        PropertyIsEqualTo eq = (PropertyIsEqualTo) resultFilter;
+//        
+//        Function expr1 = (Function) eq.getExpression1();
+//        
+//        Assert.assertEquals(expr1.getName(), "relate");
+//        
+//        Literal expr2 = (Literal) eq.getExpression2();
+//
+//        Assert.assertEquals(expr2.getValue() , true );
+//    }
     
     /**
      * This test require an extension of bbox filter

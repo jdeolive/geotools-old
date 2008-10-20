@@ -55,7 +55,6 @@ import org.opengis.filter.spatial.Within;
  * </pre>
  * 
  * </p>
- * TODO Note: RELATE is not supported (was implemented in TXT)
  * 
  * @author Mauricio Pazos (Axios Engineering)
  * @since 2.6
