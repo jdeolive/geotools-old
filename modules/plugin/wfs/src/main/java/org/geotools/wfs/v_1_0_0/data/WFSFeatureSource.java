@@ -26,8 +26,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.Icon;
-
 import org.geotools.data.AbstractFeatureSource;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultFeatureResults;
@@ -55,15 +53,14 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * {@link FeatureSource} extension interface to provide WFS specific extra
- * information.
+ * {@link FeatureSource} extension interface to provide WFS specific extra information.
  * 
  * @author dzwiers
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/wfs/src/main/java/org/geotools/wfs/v_1_0_0/data/WFSFeatureSource.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/wfs/src/main/java/org/geotools
+ *         /wfs/v_1_0_0/data/WFSFeatureSource.java $
  */
-public class WFSFeatureSource extends AbstractFeatureSource implements
-        org.geotools.data.wfs.WFSFeatureSource<SimpleFeatureType, SimpleFeature> {
+public class WFSFeatureSource extends AbstractFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
     private static final Logger LOGGER = Logging.getLogger("org.geotools.data.wfs");
 
     protected WFS_1_0_0_DataStore ds;
@@ -72,7 +69,7 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
 
     private FeatureSetDescription featureSetDescription;
 
-    protected WFSFeatureSource(WFS_1_0_0_DataStore ds, String fname) {
+    protected WFSFeatureSource( WFS_1_0_0_DataStore ds, String fname ) {
         this.ds = ds;
         this.fname = fname;
         this.featureSetDescription = WFSCapabilities.getFeatureSetDescription(ds.getCapabilities(),
@@ -84,19 +81,20 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
      * @see FeatureSource#getName()
      */
     public Name getName() {
-        if( featureSetDescription != null && featureSetDescription.getNamespace() != null ){
-            return new NameImpl( featureSetDescription.getNamespace().toString(), fname );
+        if (featureSetDescription != null && featureSetDescription.getNamespace() != null) {
+            return new NameImpl(featureSetDescription.getNamespace().toString(), fname);
         }
-        return new NameImpl( fname );
+        return new NameImpl(fname);
     }
 
     /**
      * Resource information from the wfs capabilities document.
      * 
      * @return ResoruceInfo from the capabilities document
+     * @see FeatureSource#getInfo()
      */
     public ResourceInfo getInfo() {
-        return new ResourceInfo() {
+        return new ResourceInfo(){
             public ReferencedEnvelope getBounds() {
                 try {
                     return ds.getBounds(new DefaultQuery(fname));
@@ -150,7 +148,6 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
     }
 
     /**
-     * 
      * @see org.geotools.data.FeatureSource#getDataStore()
      */
     public DataStore getDataStore() {
@@ -158,23 +155,20 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
     }
 
     /**
-     * 
      * @see org.geotools.data.FeatureSource#addFeatureListener(org.geotools.data.FeatureListener)
      */
-    public void addFeatureListener(FeatureListener listener) {
+    public void addFeatureListener( FeatureListener listener ) {
         ds.listenerManager.addFeatureListener(this, listener);
     }
 
     /**
-     * 
      * @see org.geotools.data.FeatureSource#removeFeatureListener(org.geotools.data.FeatureListener)
      */
-    public void removeFeatureListener(FeatureListener listener) {
+    public void removeFeatureListener( FeatureListener listener ) {
         ds.listenerManager.removeFeatureListener(this, listener);
     }
 
     /**
-     * 
      * @see org.geotools.data.FeatureSource#getSchema()
      */
     public SimpleFeatureType getSchema() {
@@ -186,7 +180,6 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
     }
 
     /**
-     * 
      * @see org.geotools.data.FeatureSource#getBounds()
      */
     public ReferencedEnvelope getBounds() throws IOException {
@@ -194,15 +187,13 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
     }
 
     /**
-     * 
      * @see org.geotools.data.FeatureSource#getBounds(org.geotools.data.Query)
      */
-    public ReferencedEnvelope getBounds(Query query) throws IOException {
+    public ReferencedEnvelope getBounds( Query query ) throws IOException {
         return ds.getBounds(namedQuery(query));
     }
 
     /**
-     * 
      * @see org.geotools.data.FeatureSource#getFeatures()
      */
     public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures() throws IOException {
@@ -210,18 +201,18 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
     }
 
     /**
-     * 
      * @see org.geotools.data.FeatureSource#getFeatures(org.geotools.filter.Filter)
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Filter filter) throws IOException {
+    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures( Filter filter )
+            throws IOException {
         return getFeatures(new DefaultQuery(getSchema().getTypeName(), filter));
     }
 
     /**
-     * 
      * @see org.geotools.data.FeatureSource#getFeatures(org.geotools.data.Query)
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures(Query query) throws IOException {
+    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatures( Query query )
+            throws IOException {
         SimpleFeatureType schema = getSchema();
         String typeName = schema.getTypeName();
 
@@ -239,7 +230,6 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
     }
 
     /**
-     * 
      * @see org.geotools.data.AbstractFeatureSource#getTransaction()
      */
     public Transaction getTransaction() {
@@ -247,7 +237,6 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
     }
 
     /**
-     * 
      * @author dzwiers
      */
     public static class WFSFeatureResults extends DefaultFeatureResults {
@@ -256,18 +245,16 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
         private Query query;
 
         /**
-         * 
          * @param fs
          * @param query
          */
-        public WFSFeatureResults(WFSFeatureSource fs, Query query) throws IOException {
+        public WFSFeatureResults( WFSFeatureSource fs, Query query ) throws IOException {
             super(fs, query);
             this.query = query;
             this.fs = fs;
         }
 
         /**
-         * 
          * @see org.geotools.data.FeatureResults#getSchema()
          */
         public SimpleFeatureType getSchema() {
@@ -275,15 +262,13 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
         }
 
         /**
-         * 
          * @see org.geotools.data.FeatureResults#reader()
          */
-        public  FeatureReader<SimpleFeatureType, SimpleFeature> reader() throws IOException {
+        public FeatureReader<SimpleFeatureType, SimpleFeature> reader() throws IOException {
             return fs.ds.getFeatureReader(query, fs.getTransaction());
         }
 
         /**
-         * 
          * @see org.geotools.data.FeatureResults#getBounds()
          */
         public ReferencedEnvelope getBounds() {
@@ -296,7 +281,6 @@ public class WFSFeatureSource extends AbstractFeatureSource implements
         }
 
         /**
-         * 
          * @see org.geotools.data.FeatureResults#getCount()
          */
         public int getCount() throws IOException {

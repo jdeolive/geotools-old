@@ -22,13 +22,10 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,27 +37,20 @@ import org.geotools.data.Query;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
-import org.geotools.data.wfs.WFSFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.gml2.bindings.GML2EncodingUtils;
 import org.geotools.referencing.CRS;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
-import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.vividsolutions.jts.geom.MultiPolygon;
 
 public abstract class AbstractWfsDataStoreOnlineTest extends TestCase {
 
@@ -164,7 +154,7 @@ public abstract class AbstractWfsDataStoreOnlineTest extends TestCase {
             return;
         }
 
-        WFSFeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         featureSource = wfs.getFeatureSource(testType.FEATURETYPENAME);
 
         assertNotNull(featureSource);
@@ -184,7 +174,7 @@ public abstract class AbstractWfsDataStoreOnlineTest extends TestCase {
             return;
         }
 
-        WFSFeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         featureSource = wfs.getFeatureSource(testType.FEATURETYPENAME);
         assertNotNull(featureSource);
 
@@ -215,7 +205,7 @@ public abstract class AbstractWfsDataStoreOnlineTest extends TestCase {
             return;
         }
 
-        WFSFeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         featureSource = wfs.getFeatureSource(testType.FEATURETYPENAME);
         assertNotNull(featureSource);
 
@@ -238,7 +228,7 @@ public abstract class AbstractWfsDataStoreOnlineTest extends TestCase {
             return;
         }
 
-        WFSFeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         featureSource = wfs.getFeatureSource(testType.FEATURETYPENAME);
         assertNotNull(featureSource);
 
@@ -258,7 +248,7 @@ public abstract class AbstractWfsDataStoreOnlineTest extends TestCase {
             return;
         }
 
-        WFSFeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         featureSource = wfs.getFeatureSource(testType.FEATURETYPENAME);
         assertNotNull(featureSource);
 

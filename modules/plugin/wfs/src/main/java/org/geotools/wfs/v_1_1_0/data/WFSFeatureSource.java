@@ -39,19 +39,19 @@ import org.opengis.filter.Filter;
 /**
  * Simple implementation of FeatureSource for a WFS 1.1 server.
  * <p>
- * This implementation is really simple in the sense that it delegates all the
- * hard work to the {@link WFS110ProtocolHandler} provided.
+ * This implementation is really simple in the sense that it delegates all the hard work to the
+ * {@link WFS110ProtocolHandler} provided.
  * </p>
  * 
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
  * @since 2.5.x
  * @source $URL:
- *         http://svn.geotools.org/trunk/modules/plugin/wfs/src/main/java/org/geotools/wfs/v_1_1_0/data/XmlSimpleFeatureParser.java $
+ *         http://svn.geotools.org/trunk/modules/plugin/wfs/src/main/java/org/geotools/wfs/v_1_1_0
+ *         /data/XmlSimpleFeatureParser.java $
  */
 
-public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature>,
-        org.geotools.data.wfs.WFSFeatureSource<SimpleFeatureType, SimpleFeature> {
+public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
 
     private String typeName;
 
@@ -63,8 +63,8 @@ public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, Simple
 
     private QueryCapabilities queryCapabilities;
 
-    public WFSFeatureSource(final WFS_1_1_0_DataStore dataStore, final String typeName,
-            final WFS110ProtocolHandler protocolHandler) throws IOException {
+    public WFSFeatureSource( final WFS_1_1_0_DataStore dataStore, final String typeName,
+            final WFS110ProtocolHandler protocolHandler ) throws IOException {
         this.typeName = typeName;
         this.dataStore = dataStore;
         this.protocolHandler = protocolHandler;
@@ -103,14 +103,14 @@ public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, Simple
     /**
      * @see FeatureSource#addFeatureListener(FeatureListener)
      */
-    public void addFeatureListener(FeatureListener listener) {
+    public void addFeatureListener( FeatureListener listener ) {
 
     }
 
     /**
      * @see FeatureSource#removeFeatureListener(FeatureListener)
      */
-    public void removeFeatureListener(FeatureListener listener) {
+    public void removeFeatureListener( FeatureListener listener ) {
     }
 
     /**
@@ -123,7 +123,7 @@ public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, Simple
     /**
      * @see FeatureSource#getBounds(Query)
      */
-    public ReferencedEnvelope getBounds(Query query) throws IOException {
+    public ReferencedEnvelope getBounds( Query query ) throws IOException {
         Query namedQuery = namedQuery(typeName, query);
         return protocolHandler.getBounds(namedQuery);
     }
@@ -131,7 +131,7 @@ public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, Simple
     /**
      * @see FeatureSource#getCount(Query)
      */
-    public int getCount(Query query) throws IOException {
+    public int getCount( Query query ) throws IOException {
         Query namedQuery = namedQuery(typeName, query);
         return protocolHandler.getCount(namedQuery);
     }
@@ -139,7 +139,7 @@ public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, Simple
     /**
      * @see FeatureSource#getFeatures(Filter)
      */
-    public WFSFeatureCollection getFeatures(Filter filter) throws IOException {
+    public WFSFeatureCollection getFeatures( Filter filter ) throws IOException {
         return getFeatures(new DefaultQuery(typeName, filter));
     }
 
@@ -153,7 +153,7 @@ public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, Simple
     /**
      * @see FeatureSource#getFeatures(Query)
      */
-    public WFSFeatureCollection getFeatures(final Query query) throws IOException {
+    public WFSFeatureCollection getFeatures( final Query query ) throws IOException {
         Query namedQuery = namedQuery(typeName, query);
         return new WFSFeatureCollection(protocolHandler, namedQuery);
     }
@@ -166,7 +166,7 @@ public class WFSFeatureSource implements FeatureSource<SimpleFeatureType, Simple
         return Collections.EMPTY_SET;
     }
 
-    private Query namedQuery(final String typeName, final Query query) {
+    private Query namedQuery( final String typeName, final Query query ) {
         if (query.getTypeName() != null && !query.getTypeName().equals(typeName)) {
             throw new IllegalArgumentException("Wrong query type name: " + query.getTypeName()
                     + ". It should be " + typeName);

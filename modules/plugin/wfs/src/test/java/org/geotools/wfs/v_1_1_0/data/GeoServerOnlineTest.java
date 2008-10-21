@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.wfs.WFSFeatureSource;
+import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -31,7 +31,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.spatial.Intersects;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -53,7 +52,7 @@ public class GeoServerOnlineTest extends AbstractWfsDataStoreOnlineTest {
             return;
         }
 
-        WFSFeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         featureSource = wfs.getFeatureSource(testType.FEATURETYPENAME);
         assertNotNull(featureSource);
 

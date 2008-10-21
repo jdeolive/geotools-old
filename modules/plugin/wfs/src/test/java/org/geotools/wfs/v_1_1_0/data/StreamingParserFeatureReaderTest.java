@@ -29,12 +29,14 @@ import org.geotools.xml.Configuration;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
+ * Test suite for the {@link StreamingParserFeatureReader} strategy.
+ * 
  * @author Gabriel Roldan
- * @version $Id: StreamingParserFeatureReaderTest.java 28884 2008-01-22
- *          15:21:03Z groldan $
+ * @version $Id$
  * @since 2.5.x
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/wfs/src/test/java/org/geotools/wfs/v_1_1_0/data/StreamingParserFeatureReaderTest.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/wfs/src/test/java/org/geotools
+ *         /wfs/v_1_1_0/data/StreamingParserFeatureReaderTest.java $
  */
 public class StreamingParserFeatureReaderTest extends AbstractGetFeatureParserTest {
 
@@ -47,8 +49,8 @@ public class StreamingParserFeatureReaderTest extends AbstractGetFeatureParserTe
     }
 
     @Override
-    protected GetFeatureParser getParser(QName featureName, String schemaLocation,
-            SimpleFeatureType featureType, URL getFeaturesRequest) throws IOException {
+    protected GetFeatureParser getParser( QName featureName, String schemaLocation,
+            SimpleFeatureType featureType, URL getFeaturesRequest ) throws IOException {
         URL schemaLocationUrl = TestData.getResource(this, schemaLocation);
 
         Configuration configuration = new WFSConfiguration();
@@ -60,13 +62,13 @@ public class StreamingParserFeatureReaderTest extends AbstractGetFeatureParserTe
     }
 
     /**
-     * This is to be run as a normal java application in order to reproduce a
-     * GetFeature request to the nsdi server and thus being able to
-     * assess/profile the OutOfMemory errors I'm getting in uDig
+     * This is to be run as a normal java application in order to reproduce a GetFeature request to
+     * the nsdi server and thus being able to assess/profile the OutOfMemory errors I'm getting in
+     * uDig
      * 
      * @param argv
      */
-    public static void main(String argv[]) {
+    public static void main( String argv[] ) {
         StreamingParserFeatureReaderTest test;
         test = new StreamingParserFeatureReaderTest();
         try {
