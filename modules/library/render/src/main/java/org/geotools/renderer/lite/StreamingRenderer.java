@@ -62,6 +62,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.IllegalFilterException;
+import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
@@ -879,6 +880,9 @@ public final class StreamingRenderer implements GTRenderer {
 			} else {
 				query = new DefaultQuery(DataUtilities.mixQueries(
 						definitionQuery, query, "liteRenderer"));
+				SimplifyingFilterVisitor simplifier = new SimplifyingFilterVisitor();
+				Filter simplified = (Filter)query.getFilter().accept(simplifier, null);
+				query.setFilter(simplified);
 			}
 		}
 		query.setCoordinateSystem(featCrs);
