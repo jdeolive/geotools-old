@@ -947,6 +947,12 @@ public class StyleFactoryImpl extends AbstractStyleFactory
         return null;
     }
 
+    public org.opengis.style.SelectedChannelType selectedChannelType(String channelName,
+            org.opengis.style.ContrastEnhancement contrastEnhancement)
+    {
+        return null;
+    }
+
     public SemanticType semanticType(String name, org.opengis.style.ContrastEnhancement contrast) {
         return null;
     }
