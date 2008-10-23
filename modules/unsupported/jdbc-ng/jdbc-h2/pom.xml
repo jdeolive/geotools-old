@@ -77,17 +77,6 @@
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.openplans</groupId>
-      <artifactId>spatialdbbox</artifactId>
-      <version>1.0-SNAPSHOT</version>
-      <exclusions>
-		<exclusion>
-		  <groupId>org.geotools</groupId>
-		  <artifactId>gt2-main</artifactId>
-		</exclusion>
-	  </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-jdbc-core</artifactId>
       <version>${project.version}</version>
