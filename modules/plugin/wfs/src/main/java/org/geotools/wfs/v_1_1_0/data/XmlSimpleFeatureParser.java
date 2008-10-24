@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.geotools.data.DataSourceException;
+import org.geotools.data.wfs.GetFeatureParser;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.gml3.GML;
 import org.geotools.referencing.CRS;

@@ -112,6 +112,10 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+	<dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

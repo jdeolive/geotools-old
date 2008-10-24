@@ -14,10 +14,11 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.wfs.v_1_1_0.data;
+package org.geotools.data.wfs;
 
 import java.io.IOException;
 
+import org.geotools.wfs.v_1_0_0.data.WFSFeatureReader;
 import org.opengis.feature.simple.SimpleFeature;
 
 /**
@@ -30,7 +31,7 @@ import org.opengis.feature.simple.SimpleFeature;
  * @source $URL$
  * @see WFSFeatureReader
  */
-interface GetFeatureParser {
+public interface GetFeatureParser extends WFSResponseParser{
 
     /**
      * @return the next feature in the stream or {@code null} if there are no

@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.wfs.protocol;
+package org.geotools.data.wfs;
 
 /**
  * Enumeration to specify the preferred HTTP method a WFS datastore to use then

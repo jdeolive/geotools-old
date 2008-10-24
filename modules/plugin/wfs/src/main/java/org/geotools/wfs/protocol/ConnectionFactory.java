@@ -22,6 +22,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import org.geotools.data.wfs.HttpMethod;
+
 /**
  * Interface to abstract out the plain connection and stream set up against the
  * target WFS
