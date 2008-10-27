@@ -264,7 +264,7 @@ public class EmfAppSchemaReader {
         // parse some of the instance document to find out the
         // schema location
         if (getCatalog() != null) {
-            String resolvedLocation = getCatalog().resolveSystem(location.toExternalForm());
+            String resolvedLocation = getCatalog().resolveURI(location.toExternalForm());
             if (resolvedLocation != null) {
                 location = new URL(resolvedLocation);
             }

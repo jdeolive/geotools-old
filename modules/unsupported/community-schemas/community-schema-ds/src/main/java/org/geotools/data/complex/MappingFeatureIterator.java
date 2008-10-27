@@ -35,8 +35,8 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeBuilder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.SafeGmlIdFeatureFactoryImpl;
 import org.geotools.feature.Types;
-import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
@@ -121,7 +121,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
     public MappingFeatureIterator(ComplexDataStore store, FeatureTypeMapping mapping, Query query)
             throws IOException {
         this.store = store;
-        this.attf = new ValidatingFeatureFactoryImpl();
+        this.attf = new SafeGmlIdFeatureFactoryImpl();
         Name name = mapping.getTargetFeature().getName();
         this.featureSource = store.getFeatureSource(name);
 
