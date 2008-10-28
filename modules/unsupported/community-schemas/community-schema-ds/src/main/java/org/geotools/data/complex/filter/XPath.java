@@ -34,6 +34,7 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.util.CheckedArrayList;
 import org.geotools.xs.XSSchema;
 import org.opengis.feature.Attribute;
@@ -86,7 +87,7 @@ public class XPath {
     public XPath() {
         this.FF = CommonFactoryFinder.getFilterFactory(null);
         this.featureFactory = new ValidatingFeatureFactoryImpl();
-        // this.descriptorFactory = new TypeFactoryImpl();
+        this.descriptorFactory = new FeatureTypeFactoryImpl();
     }
 
     public XPath(FilterFactory ff, FeatureFactory featureFactory) {
