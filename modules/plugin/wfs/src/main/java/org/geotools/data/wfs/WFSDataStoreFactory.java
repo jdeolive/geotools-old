@@ -257,7 +257,7 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
 
     /**
      * Requests the WFS Capabilities document from the {@link WFSDataStoreFactory#URL url} parameter
-     * in {@code params} and returns a {@link WFSDataStore} accoding to the version of the
+     * in {@code params} and returns a {@link WFSDataStore} according to the version of the
      * GetCapabilities document returned.
      * <p>
      * Note the {@code URL} provided as parameter must refer to the actual {@code GetCapabilities}
@@ -478,19 +478,20 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
         if (version == null) {
             throw new NullPointerException("version");
         }
-        String protocol = host.getProtocol();
-        String hostname = host.getHost();
-        int port = host.getPort();
-        String path = host.getPath();
-        String file = path + "?SERVICE=WFS&REQUEST=GetCapabilities&VERSION=" + version;
-        URL getCapabilities;
+        HTTPProtocol httpUtils = new DefaultHTTPProtocol();
+        Map<String, String> getCapsKvp = new HashMap<String, String>();
+        getCapsKvp.put("SERVICE", "WFS");
+        getCapsKvp.put("REQUEST", "GetCapabilities");
+        getCapsKvp.put("VERSION", version.toString());
+        URL getcapsUrl;
         try {
-            getCapabilities = new URL(protocol, hostname, port, file);
+            getcapsUrl = httpUtils.createUrl(host, getCapsKvp);
         } catch (MalformedURLException e) {
             logger.log(Level.WARNING, "Can't create GetCapabilities request from " + host, e);
-            return host;
+            throw new RuntimeException(e);
         }
-        return getCapabilities;
+        
+        return getcapsUrl;
     }
 
     /**
