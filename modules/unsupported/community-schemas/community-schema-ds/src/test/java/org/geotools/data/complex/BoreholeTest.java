@@ -286,7 +286,7 @@ public class BoreholeTest extends TestCase {
         // note that the expected result count is set to 65 since that's the
         // number
         // of results I get from a sql select on min_time_d = 'carnian'
-        final int EXPECTED_RESULT_COUNT = 10;
+        final int EXPECTED_RESULT_COUNT = 20;
 
         FeatureCollection<FeatureType, Feature> features = (FeatureCollection<FeatureType, Feature>) fSource
                 .getFeatures();
@@ -330,7 +330,9 @@ public class BoreholeTest extends TestCase {
 
         // did the query work?
         int resultCount = getCount(features);
-        assertEquals(1, resultCount);
+        // we now expect two features because the old grouping implementation is disabled
+        // and because we have two property files rows with this id
+        assertEquals(2, resultCount);
 
         // the datastore performed the query by unmapping the client property
         // to its corresponding source expression, as defined in the AttributeMapping
