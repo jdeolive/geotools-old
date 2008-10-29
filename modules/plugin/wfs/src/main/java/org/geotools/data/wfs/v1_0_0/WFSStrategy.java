@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -14,28 +14,25 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.wfs;
+package org.geotools.data.wfs.v1_0_0;
 
 import java.io.IOException;
 
+import org.geotools.data.FeatureReader;
+import org.geotools.data.Query;
+import org.geotools.data.Transaction;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+
 
 /**
- * Interface to abstract out the parsing of features coming from a GetFeature
- * request from the underlying xml parsing technology in use.
- * 
- * @author Gabriel Roldan (TOPP)
- * @version $Id$
- * @since 2.5.x
- * @source $URL$
+ * Provides an interface for certain methods that need to be handled on a server by server basis.
+ * <p>
+ * Allows for a bit more configurability than just the WFS params.
+ * </p>
+ * @author Jesse
  */
-public interface GetFeatureParser extends WFSResponseParser{
-
-    /**
-     * @return the next feature in the stream or {@code null} if there are no
-     *         more features to parse.
-     */
-    SimpleFeature parse() throws IOException;
-
-    void close() throws IOException;
+interface WFSStrategy {
+     FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(Query query,
+            Transaction transaction) throws IOException;
 }
