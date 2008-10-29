@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.wfs;
+package org.geotools.data.wfs.protocol.wfs;
 
 import java.util.ArrayList;
 import java.util.Arrays;

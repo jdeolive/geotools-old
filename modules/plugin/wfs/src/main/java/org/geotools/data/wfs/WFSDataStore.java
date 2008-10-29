@@ -34,7 +34,7 @@ public interface WFSDataStore extends DataStore {
      * Overrides {@link DataAccess#getInfo()} so it type narrows to a {@link WFSServiceInfo}
      * 
      * @return service information
-     * @see DataStore#getInfo()
+     * @see DataAccess#getInfo()
      */
     WFSServiceInfo getInfo();
 

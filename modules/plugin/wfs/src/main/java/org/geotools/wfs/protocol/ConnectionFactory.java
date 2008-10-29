@@ -22,7 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import org.geotools.data.wfs.HttpMethod;
+import org.geotools.data.wfs.protocol.http.HttpMethod;
 
 /**
  * Interface to abstract out the plain connection and stream set up against the

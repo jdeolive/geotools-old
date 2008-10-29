@@ -16,9 +16,9 @@
  */
 package org.geotools.data.wfs.v1_1_0;
 
-import static org.geotools.data.wfs.HttpMethod.GET;
-import static org.geotools.data.wfs.HttpMethod.POST;
-import static org.geotools.data.wfs.WFSOperationType.GET_CAPABILITIES;
+import static org.geotools.data.wfs.protocol.http.HttpMethod.GET;
+import static org.geotools.data.wfs.protocol.http.HttpMethod.POST;
+import static org.geotools.data.wfs.protocol.wfs.WFSOperationType.GET_CAPABILITIES;
 
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -16,9 +16,9 @@
  */
 package org.geotools.data.wfs.v1_1_0;
 
-import static org.geotools.data.wfs.HttpMethod.GET;
-import static org.geotools.data.wfs.HttpMethod.POST;
-import static org.geotools.data.wfs.WFSOperationType.GET_FEATURE;
+import static org.geotools.data.wfs.protocol.http.HttpMethod.GET;
+import static org.geotools.data.wfs.protocol.http.HttpMethod.POST;
+import static org.geotools.data.wfs.protocol.wfs.WFSOperationType.GET_FEATURE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -75,11 +75,11 @@ import org.geotools.data.FilteringFeatureReader;
 import org.geotools.data.MaxFeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
-import org.geotools.data.wfs.GetFeatureParser;
-import org.geotools.data.wfs.HttpMethod;
-import org.geotools.data.wfs.Version;
-import org.geotools.data.wfs.WFSOperationType;
-import org.geotools.data.wfs.WFSProtocol;
+import org.geotools.data.wfs.protocol.http.HttpMethod;
+import org.geotools.data.wfs.protocol.wfs.GetFeatureParser;
+import org.geotools.data.wfs.protocol.wfs.Version;
+import org.geotools.data.wfs.protocol.wfs.WFSOperationType;
+import org.geotools.data.wfs.protocol.wfs.WFSProtocol;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.v1_1.OGC;

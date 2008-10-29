@@ -16,8 +16,8 @@
  */
 package org.geotools.data.wfs;
 
-import static org.geotools.data.wfs.HttpMethod.GET;
-import static org.geotools.data.wfs.HttpMethod.POST;
+import static org.geotools.data.wfs.protocol.http.HttpMethod.GET;
+import static org.geotools.data.wfs.protocol.http.HttpMethod.POST;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -40,6 +40,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.geotools.data.AbstractDataStoreFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
+import org.geotools.data.wfs.protocol.http.DefaultHTTPProtocol;
+import org.geotools.data.wfs.protocol.http.HTTPProtocol;
+import org.geotools.data.wfs.protocol.http.HttpMethod;
+import org.geotools.data.wfs.protocol.wfs.Version;
+import org.geotools.data.wfs.protocol.wfs.WFSProtocol;
 import org.geotools.data.wfs.v1_0_0.WFS100ProtocolHandler;
 import org.geotools.data.wfs.v1_0_0.WFS_1_0_0_DataStore;
 import org.geotools.data.wfs.v1_1_0.WFS_1_1_0_DataStore;

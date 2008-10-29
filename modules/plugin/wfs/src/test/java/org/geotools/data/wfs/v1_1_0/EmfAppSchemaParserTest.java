@@ -34,6 +34,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
+ * Unit test suite for {@link EmfAppSchemaParser}
  * 
  * @author Gabriel Roldan
  * @version $Id$
