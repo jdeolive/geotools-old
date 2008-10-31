@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.filter.XPath;
-import org.geotools.data.feature.memory.MemoryDataAccess;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.TypeBuilder;
