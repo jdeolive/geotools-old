@@ -126,7 +126,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = loadFeatures(DANISH, Query.ALL);
         SimpleFeature first = firstFeature(fc);
 
-        // Charlï¿½tte, if you can read it with your OS charset
+        // Charlotte (but with the o is stroked)
         assertEquals("Charl\u00F8tte", first.getAttribute("TEKST1"));
     }
 
