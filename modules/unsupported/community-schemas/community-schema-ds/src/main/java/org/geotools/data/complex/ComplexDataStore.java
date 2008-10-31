@@ -33,12 +33,10 @@ import java.util.logging.Logger;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.SchemaNotFoundException;
 import org.geotools.data.ServiceInfo;
-import org.geotools.data.Transaction;
 import org.geotools.data.complex.filter.UnmappingFilterVisitor;
 import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.StepList;
@@ -55,8 +53,6 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
 import org.xml.sax.helpers.NamespaceSupport;
-
-import com.sun.org.apache.bcel.internal.generic.StoreInstruction;
 
 /**
  * 
@@ -94,8 +90,8 @@ public class ComplexDataStore implements DataAccess<FeatureType, Feature> {
      * refers to the name of one of the types this datastore produces by mapping another ones
      * through the definitions stored in its {@linkplain FeatureTypeMapping}s
      */
-    public String[] getTypeNames() throws IOException {
-        String[] typeNames = new String[mappings.size()];
+    public Name[] getTypeNames() throws IOException {
+        Name[] typeNames = new Name[mappings.size()];
         this.mappings.keySet().toArray(typeNames);
         return typeNames;
     }
