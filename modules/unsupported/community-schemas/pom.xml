@@ -49,8 +49,6 @@
   <!--     Modules included in the build                           -->
   <!-- =========================================================== -->
   <modules>
-  	<module>fm</module>
-  	<module>sql-datastore</module>
   	<module>community-schema-ds</module>
   	<module>jdbc-regfunc</module>
   </modules>
