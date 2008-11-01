@@ -406,6 +406,10 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
         return wfs.getFeatureTypeAbstract(typeName);
     }
 
+    public ReferencedEnvelope getFeatureTypeWGS84Bounds( String typeName ){
+        return wfs.getFeatureTypeWGS84Bounds(typeName);
+    }
+    
     public ReferencedEnvelope getFeatureTypeBounds( String typeName ) {
         final ReferencedEnvelope wgs84Bounds = wfs.getFeatureTypeWGS84Bounds(typeName);
         final CoordinateReferenceSystem ftypeCrs = getFeatureTypeCRS(typeName);
