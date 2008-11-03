@@ -206,11 +206,8 @@ public class GeoSciMLTest extends TestCase {
 
             DataAccess mappingDataStore = DataAccessFinder.getDataStore(dsParams);
             assertNotNull(mappingDataStore);
-            AttributeDescriptor mappedFeature = (AttributeDescriptor) mappingDataStore
-                    .getSchema(typeName);
-            assertNotNull(mappedFeature);
-            assertTrue(mappedFeature.getType() instanceof FeatureType);
-            FeatureType boreholeType = (FeatureType) mappedFeature.getType();
+            FeatureType boreholeType = mappingDataStore.getSchema(typeName);
+            assertNotNull(boreholeType);
 
             FeatureSource fSource = (FeatureSource) mappingDataStore.getFeatureSource(typeName);
 
