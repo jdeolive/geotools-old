@@ -76,18 +76,11 @@
       <version>1.7.0</version>
     </dependency>
 
-<!--
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-jdbc-regfunc</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-fm</artifactId>
-      <version>${project.version}</version>
-    </dependency>
--->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-data</artifactId>
