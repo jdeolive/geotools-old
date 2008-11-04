@@ -178,7 +178,7 @@ public class UnmappingFilterVisitorTest extends TestCase {
         SimpleFeature unmappedFeature = (SimpleFeature) features.next();
         results.close(features);
         assertNotNull(unmappedFeature);
-        Object object = unmappedFeature.getProperty("station_no");
+        Object object = unmappedFeature.getProperty("station_no").getValue();
         assertEquals(fid, object);
     }
 
