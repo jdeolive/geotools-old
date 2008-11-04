@@ -212,6 +212,12 @@
       <artifactId>batik-parser</artifactId>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
   </dependencies>
   
 

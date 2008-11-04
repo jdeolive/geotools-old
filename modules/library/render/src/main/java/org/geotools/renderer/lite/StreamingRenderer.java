@@ -1600,10 +1600,14 @@ public final class StreamingRenderer implements GTRenderer {
 			rf.setLayer(currLayer);
 			int t = 0;
 			while (!renderingStopRequested) { // loop exit condition tested inside try catch
+			    // make sure we test hasNext() outside of the try/cath that follows, as that
+			    // one is there to make sure a single feature error does not ruin the rendering
+			    // (best effort) whilst an exception in hasNext() + ignoring catch results in
+			    // an infinite loop
+				if (!iterator.hasNext()) {
+					break;
+				}
 				try {
-					if (!iterator.hasNext()) {
-						break;
-					}
 					rf.setFeature(iterator.next());
 					for (t = 0; t < n_lfts; t++) {
 						process(rf, fts_array[t], scaleRange, at, destinationCrs, layerId);
