@@ -126,7 +126,6 @@
         <configuration>
           <excludes>
             <!-- The following tests are skipped because they do not extend OnlineTestCase -->
-            <exclude>**/WFSDataStoreTest.java</exclude>
             <exclude>**/WFSFeatureSourceTest.java</exclude>
             <exclude>**/StreamingParserFeatureReaderTest.java</exclude>
             <!-- fails on gridlock but not on my machine! -->

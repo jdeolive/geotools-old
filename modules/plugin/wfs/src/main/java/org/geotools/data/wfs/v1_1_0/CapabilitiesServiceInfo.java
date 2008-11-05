@@ -110,10 +110,10 @@ final class CapabilitiesServiceInfo implements WFSServiceInfo {
      */
     public URI getSource() {
         URL url;
-        if (wfs.supportsOperation(GET_CAPABILITIES, GET)) {
-            url = wfs.getOperationURL(GET_CAPABILITIES, GET);
+        if (wfs.supportsOperation(GET_CAPABILITIES, false)) {
+            url = wfs.getOperationURL(GET_CAPABILITIES, false);
         } else {
-            url = wfs.getOperationURL(GET_CAPABILITIES, POST);
+            url = wfs.getOperationURL(GET_CAPABILITIES, true);
         }
         try {
             return url.toURI();

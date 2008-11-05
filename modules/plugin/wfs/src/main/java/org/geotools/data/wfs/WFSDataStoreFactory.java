@@ -236,7 +236,7 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
 
     /**
      * Optional {@code Integer} parameter stating how many Feature instances to buffer at once. Only
-     * implemented for WFS 1.1.0 support.
+     * implemented for WFS 1.0.0 support.
      */
     public static final WFSFactoryParam<Integer> BUFFER_SIZE = parametersInfo[6];
 

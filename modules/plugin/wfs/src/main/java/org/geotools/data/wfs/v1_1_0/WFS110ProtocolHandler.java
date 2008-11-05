@@ -641,7 +641,7 @@ public class WFS110ProtocolHandler extends WFSProtocolHandler {
         URL describeFeatureTypeURL = getDescribeFeatureTypeURLGet(typeName);
         GetFeatureParser parser;
         if (this.usePullParser) {
-            parser = new XmlSimpleFeatureParser(responseStream, name, contentType);
+            parser = new XmlSimpleFeatureParser(responseStream, contentType, name);
         } else {
             parser = new StreamingParserFeatureReader(configuration, responseStream, name,
                     describeFeatureTypeURL);
