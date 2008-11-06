@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+import org.geotools.data.wfs.v1_1_0.parsers.EmfAppSchemaParser;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
 import org.geotools.wfs.WFSConfiguration;

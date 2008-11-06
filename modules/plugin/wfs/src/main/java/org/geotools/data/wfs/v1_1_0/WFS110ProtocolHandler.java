@@ -80,6 +80,8 @@ import org.geotools.data.wfs.protocol.wfs.GetFeatureParser;
 import org.geotools.data.wfs.protocol.wfs.Version;
 import org.geotools.data.wfs.protocol.wfs.WFSOperationType;
 import org.geotools.data.wfs.protocol.wfs.WFSProtocol;
+import org.geotools.data.wfs.v1_1_0.parsers.EmfAppSchemaParser;
+import org.geotools.data.wfs.v1_1_0.parsers.XmlSimpleFeatureParser;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.v1_1.OGC;

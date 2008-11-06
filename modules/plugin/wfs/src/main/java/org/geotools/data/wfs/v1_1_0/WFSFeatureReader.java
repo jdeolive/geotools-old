@@ -21,6 +21,7 @@ import java.util.NoSuchElementException;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.wfs.protocol.wfs.GetFeatureParser;
+import org.geotools.data.wfs.v1_1_0.parsers.EmfAppSchemaParser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;

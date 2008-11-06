@@ -57,4 +57,6 @@ public interface WFSDataStore extends DataStore {
 
     public URL getDescribeFeatureTypeURL(String typeName);
 
+    void setMaxFeatures( Integer maxFeatures );
+
 }

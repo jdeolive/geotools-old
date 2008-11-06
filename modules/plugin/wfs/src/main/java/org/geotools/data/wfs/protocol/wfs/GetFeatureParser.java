@@ -29,7 +29,7 @@ import org.opengis.feature.simple.SimpleFeature;
  * @since 2.5.x
  * @source $URL$
  */
-public interface GetFeatureParser extends WFSResponseParser{
+public interface GetFeatureParser{
 
     /**
      * @return the next feature in the stream or {@code null} if there are no
