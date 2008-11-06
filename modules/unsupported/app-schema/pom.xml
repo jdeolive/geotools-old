@@ -20,20 +20,20 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
-  <artifactId>community-schemas</artifactId>
+  <artifactId>app-schema</artifactId>
   <packaging>pom</packaging>
-  <name>Geotools community schemas support</name>
+  <name>Geotools application schema support</name>
   <url>http://maven.geotools.fr/reports/modules/unsupported/community-schemas</url>
   
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/community-schemas
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/app-schema
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/community-schemas</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/app-schema</url>
   </scm>
   
   <description>
-    Modules to support serving community defined FeatureTypes through DataStore GeoTools.
+    Modules to support serving application schema defined FeatureTypes through DataAccess GeoTools.
   </description>
 
   <licenses>
@@ -49,7 +49,7 @@
   <!--     Modules included in the build                           -->
   <!-- =========================================================== -->
   <modules>
-  	<module>community-schema-ds</module>
+  	<module>app-schema</module>
   	<module>jdbc-regfunc</module>
   </modules>
   

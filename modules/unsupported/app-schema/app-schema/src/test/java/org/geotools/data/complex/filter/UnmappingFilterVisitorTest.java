@@ -297,7 +297,7 @@ public class UnmappingFilterVisitorTest extends TestCase {
         final String schemaBase = "/test-data/";
         final Map dsParams = new HashMap();
         final URL url = getClass().getResource(schemaBase + "BoreholeTest_properties.xml");
-        dsParams.put("dbtype", "complex");
+        dsParams.put("dbtype", "app-schema");
         dsParams.put("url", url.toExternalForm());
 
         final String XMMLNS = "http://www.opengis.net/xmml";
@@ -384,7 +384,7 @@ public class UnmappingFilterVisitorTest extends TestCase {
         final String schemaBase = "/test-data/";
         final Map dsParams = new HashMap();
         final URL url = getClass().getResource(schemaBase + "BoreholeTest_properties.xml");
-        dsParams.put("dbtype", "complex");
+        dsParams.put("dbtype", "app-schema");
         dsParams.put("url", url.toExternalForm());
 
         final String XMMLNS = "http://www.opengis.net/xmml";

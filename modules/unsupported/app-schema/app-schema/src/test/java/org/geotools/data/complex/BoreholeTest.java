@@ -384,7 +384,7 @@ public class BoreholeTest extends TestCase {
     private DataAccess<FeatureType, Feature> getDataStore() throws IOException {
         final Map dsParams = new HashMap();
         final URL url = getClass().getResource(schemaBase + "BoreholeTest_properties.xml");
-        dsParams.put("dbtype", "complex");
+        dsParams.put("dbtype", "app-schema");
         dsParams.put("url", url.toExternalForm());
 
         DataAccess<FeatureType, Feature> mappingDataStore = DataAccessFinder.getDataStore(dsParams);

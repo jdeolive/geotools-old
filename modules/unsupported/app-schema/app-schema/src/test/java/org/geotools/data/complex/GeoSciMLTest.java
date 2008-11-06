@@ -198,7 +198,7 @@ public class GeoSciMLTest extends TestCase {
             final Map dsParams = new HashMap();
             final URL url = getClass().getResource(schemaBase + "mappedPolygons.xml");
             assertNotNull(url);
-            dsParams.put("dbtype", "complex");
+            dsParams.put("dbtype", "app-schema");
             dsParams.put("url", url.toExternalForm());
 
             final Name typeName = Types.typeName(GSMLNS, "MappedFeature");

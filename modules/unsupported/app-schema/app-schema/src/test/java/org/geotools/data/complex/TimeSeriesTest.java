@@ -383,7 +383,7 @@ public class TimeSeriesTest extends TestCase {
             // "file:/home/gabriel/svn/geoserver/trunk/configuration/community-schema-timeseries2/TimeSeriesTest_properties.xml";
             // URL url = new URL(configLocation);
 
-            dsParams.put("dbtype", "complex");
+            dsParams.put("dbtype", "app-schema");
             dsParams.put("url", url.toExternalForm());
 
             mappingDataStore = DataAccessFinder.getDataStore(dsParams);
