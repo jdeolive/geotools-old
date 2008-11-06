@@ -33,8 +33,8 @@ import org.geotools.data.complex.filter.XPath;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.AppSchemaFeatureFactoryImpl;
 import org.geotools.feature.AttributeBuilder;
-import org.geotools.feature.ComplexFeatureFactoryImpl;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.GeometryAttributeImpl;
@@ -99,7 +99,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
 
     protected Iterator sourceFeatures;
 
-    protected ComplexDataStore store;
+    protected AppSchemaDataAccess store;
 
     protected FeatureSource featureSource;
 
@@ -128,10 +128,10 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
      *                equivalent over the surrogate feature type.
      * @throws IOException
      */
-    public MappingFeatureIterator(ComplexDataStore store, FeatureTypeMapping mapping, Query query)
+    public MappingFeatureIterator(AppSchemaDataAccess store, FeatureTypeMapping mapping, Query query)
             throws IOException {
         this.store = store;
-        this.attf = new ComplexFeatureFactoryImpl();
+        this.attf = new AppSchemaFeatureFactoryImpl();
         Name name = mapping.getTargetFeature().getName();
         this.featureSource = store.getFeatureSource(name);
 
@@ -318,7 +318,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
             }
             setSingleValuedAttribute(target, sourceInstance, attMapping);
         }
-         if (target.getDefaultGeometryProperty() == null) {
+        if (target.getDefaultGeometryProperty() == null) {
             setGeometry(target);
         }
         featureCounter++;

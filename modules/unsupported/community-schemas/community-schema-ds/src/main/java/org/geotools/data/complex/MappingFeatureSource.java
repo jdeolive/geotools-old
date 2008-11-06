@@ -18,9 +18,7 @@
 package org.geotools.data.complex;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.geotools.data.DataAccess;
@@ -32,7 +30,6 @@ import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.collection.AbstractFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
@@ -64,11 +61,11 @@ import org.opengis.filter.capability.FilterCapabilities;
  */
 class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
 
-    private ComplexDataStore store;
+    private AppSchemaDataAccess store;
 
     private FeatureTypeMapping mapping;
 
-    public MappingFeatureSource(ComplexDataStore store, FeatureTypeMapping mapping) {
+    public MappingFeatureSource(AppSchemaDataAccess store, FeatureTypeMapping mapping) {
         this.store = store;
         this.mapping = mapping;
     }

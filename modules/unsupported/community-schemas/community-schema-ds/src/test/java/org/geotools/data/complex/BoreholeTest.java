@@ -34,8 +34,8 @@ import junit.framework.TestCase;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.complex.config.ComplexDataStoreConfigurator;
-import org.geotools.data.complex.config.ComplexDataStoreDTO;
+import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
+import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.data.complex.filter.XPath.StepList;
@@ -230,9 +230,9 @@ public class BoreholeTest extends TestCase {
         XMLConfigDigester reader = new XMLConfigDigester();
         URL url = getClass().getResource(schemaBase + "BoreholeTest_properties.xml");
 
-        ComplexDataStoreDTO config = reader.parse(url);
+        AppSchemaDataAccessDTO config = reader.parse(url);
 
-        Set mappings = ComplexDataStoreConfigurator.buildMappings(config);
+        Set mappings = AppSchemaDataAccessConfigurator.buildMappings(config);
 
         assertNotNull(mappings);
         assertEquals(1, mappings.size());

@@ -27,7 +27,8 @@ import java.util.Map;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/config/AttributeMapping.java $
  * @since 2.4
  */
 public class AttributeMapping implements Serializable {
@@ -154,7 +155,7 @@ public class AttributeMapping implements Serializable {
      * @param targetAttributeSchemaElement
      *                name of the target element instance in the output schema. Could be prefixed,
      *                in which case the prefix mapping has to be available in the corresponding
-     *                {@link ComplexDataStoreDTO#getNamespaces()}
+     *                {@link AppSchemaDataAccessDTO#getNamespaces()}
      */
     public void setTargetAttributeSchemaElement(String targetAttributeSchemaElement) {
         this.targetAttributeSchemaElement = targetAttributeSchemaElement;
