@@ -34,7 +34,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author dblasby
  * @author simone giannecchini  * @source $URL$
  */
-public final class LabelCacheItem implements Comparable {
+public class LabelCacheItem implements Comparable {
 	TextStyle2D textStyle;
 	List geoms=new ArrayList();
 	double priority = 0.0;
