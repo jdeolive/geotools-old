@@ -181,6 +181,8 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
             }
 
             final URL describeUrl = wfs.getDescribeFeatureTypeURLGet(prefixedTypeName);
+            //@TODO remove this
+            System.err.println("DecribeFT URL for " + prefixedTypeName + ": " + describeUrl);
 
             final SimpleFeatureType featureType;
             CoordinateReferenceSystem crs = getFeatureTypeCRS(prefixedTypeName);

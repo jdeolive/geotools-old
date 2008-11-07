@@ -101,6 +101,8 @@ class WFSFeatureCollection extends DataFeatureCollection {
         try {
             bounds = dataStore.getBounds(query);
             if (bounds == null) {
+                // System.err.println("Making FC full scan at getBounds() for "
+                // + this.schema.getName());
                 // bad luck, do a full scan
                 final Name defaultgeom = contentType.getGeometryDescriptor().getName();
                 final DefaultQuery geomQuery = new DefaultQuery(this.query);
@@ -122,12 +124,15 @@ class WFSFeatureCollection extends DataFeatureCollection {
                     if (this.cachedSize == -1) {
                         this.cachedSize = collectionSize;
                     }
+                    // System.err.println("Done making FC full scan at getBounds() for "
+                    // + this.schema.getName() + ", cachedSize=" + cachedSize + ", bounds="
+                    // + bounds);
                 } finally {
                     reader.close();
                 }
             }
         } catch (IOException e) {
-            LOGGER.log(Level.FINE, "Error getting bounds for " + query);
+            LOGGER.log(Level.INFO, "Error getting bounds for " + query);
             bounds = new ReferencedEnvelope(getSchema().getCoordinateReferenceSystem());
         }
         return bounds;
@@ -162,7 +167,10 @@ class WFSFeatureCollection extends DataFeatureCollection {
     @Override
     protected Iterator<SimpleFeature> openIterator() throws IOException {
         FeatureReader<SimpleFeatureType, SimpleFeature> reader;
+        // System.err.println("Opening FC iterator for " + getSchema().getName() + " and query "
+        // + query);
         reader = dataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
+        // System.err.println("Got FeatureReader to open FC iterator for " + getSchema().getName());
         return new FeatureReaderIterator<SimpleFeature>(reader);
     }
 }
