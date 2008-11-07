@@ -181,7 +181,7 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
             }
 
             final URL describeUrl = wfs.getDescribeFeatureTypeURLGet(prefixedTypeName);
-            //@TODO remove this
+            // @TODO remove this
             System.err.println("DecribeFT URL for " + prefixedTypeName + ": " + describeUrl);
 
             final SimpleFeatureType featureType;
@@ -289,6 +289,7 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
 
         GetFeatureParser parser;
         if (result instanceof WFSException) {
+            // try to recover from common server implementation errors
             throw (WFSException) result;
         } else if (result instanceof GetFeatureParser) {
             parser = (GetFeatureParser) result;
@@ -783,5 +784,10 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
         }
         throw new IllegalArgumentException("Neither POST nor GET method is supported for the "
                 + operation + " operation by the server");
+    }
+    
+    
+    private static interface WFSProtocolStrategy extends WFSProtocol{
+        
     }
 }
