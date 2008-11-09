@@ -142,12 +142,15 @@
       <artifactId>gt-xsd-filter</artifactId>
       <version>${project.version}</version>
     </dependency>
-        <!-- GeoTools unsupported -->
+
+    <!-- GeoTools unsupported -->
+    <!--
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-widgets-swing-pending</artifactId>
       <version>${project.version}</version>
     </dependency>
+    -->
   </dependencies>
 
   <!-- =========================================================== -->

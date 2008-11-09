@@ -151,12 +151,10 @@
          <module>gml</module>    
          <module>gpx</module>
          <module>jdbc-ng</module>
-         <module>mappane</module>
          <module>mif</module>
          <module>mysql</module>
          <module>oracle-spatial</module>
          <module>postgis-versioned</module>
-         <module>repository</module>
          <module>temporal</module>
          <module>tiger</module>
          <module>vpf</module>
@@ -167,6 +165,8 @@
 
   <modules>
     <module>ogc</module>
+    <module>repository</module>
+    <module>mappane</module>
   </modules>
 
 </project>
