@@ -23,6 +23,12 @@ import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+/**
+ * @author Gabriel Roldan
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
+ */
 class GeometryTypeProxy extends AttributeTypeProxy implements GeometryType {
 
     public GeometryTypeProxy(final Name typeName, final Map registry) {

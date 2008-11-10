@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Logger;
 
 import org.apache.xml.resolver.Catalog;
 import org.eclipse.xsd.XSDSchema;
@@ -29,6 +28,11 @@ import org.geotools.xml.SchemaLocationResolver;
 
 /**
  * Wrapper to perform OASIS catalogue lookup when resolving a schema location.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.6
  */
 public class CatalogSchemaLocationResolverWrapper extends SchemaLocationResolver {
 

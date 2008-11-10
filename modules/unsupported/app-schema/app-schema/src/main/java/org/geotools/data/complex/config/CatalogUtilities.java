@@ -29,6 +29,11 @@ import org.apache.xml.resolver.Catalog;
 
 /**
  * Implementation help for use of OASIS catalog.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.6
  */
 public class CatalogUtilities {
 

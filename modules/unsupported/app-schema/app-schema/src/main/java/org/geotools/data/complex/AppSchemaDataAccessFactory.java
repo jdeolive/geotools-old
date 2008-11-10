@@ -58,7 +58,7 @@ public class AppSchemaDataAccessFactory implements DataAccessFactory {
     }
 
     public DataAccess<FeatureType, Feature> createDataStore(Map params) throws IOException {
-        Set/* <FeatureTypeMapping> */mappings;
+        Set<FeatureTypeMapping> mappings;
         AppSchemaDataAccess dataStore;
 
         URL configFileUrl = (URL) AppSchemaDataAccessFactory.URL.lookUp(params);
