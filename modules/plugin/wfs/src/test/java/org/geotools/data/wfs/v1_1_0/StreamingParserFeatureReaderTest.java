@@ -41,14 +41,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 public class StreamingParserFeatureReaderTest extends AbstractGetFeatureParserTest {
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     @Override
     protected GetFeatureParser getParser( QName featureName, String schemaLocation,
             SimpleFeatureType featureType, URL getFeaturesRequest ) throws IOException {
