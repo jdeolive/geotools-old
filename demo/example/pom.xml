@@ -116,11 +116,6 @@
       <artifactId>gt-epsg-hsql</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-geometry</artifactId>
-      <version>${project.version}</version>
-    </dependency>    
     <!--  GeoTools Extentions -->
     <dependency>
       <groupId>org.geotools</groupId>
@@ -150,6 +145,11 @@
       <artifactId>gt-widgets-swing-pending</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-geometry</artifactId>
+      <version>${project.version}</version>
+    </dependency>    
     -->
   </dependencies>
 
