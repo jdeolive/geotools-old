@@ -23,6 +23,11 @@ import junit.framework.TestCase;
 
 /**
  * Tests for {@link RegfuncFilterFactoryImpl}.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
  */
 public class RegfuncFilterFactoryImplTest extends TestCase {
 

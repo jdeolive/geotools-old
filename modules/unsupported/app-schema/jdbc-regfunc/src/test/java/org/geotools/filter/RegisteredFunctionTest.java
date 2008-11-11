@@ -24,6 +24,11 @@ import junit.framework.TestCase;
 
 /**
  * Test for {@link RegisteredFunction}.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
  */
 public class RegisteredFunctionTest extends TestCase {
 

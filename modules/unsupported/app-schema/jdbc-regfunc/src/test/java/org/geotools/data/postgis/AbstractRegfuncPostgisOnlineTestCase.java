@@ -44,6 +44,11 @@ import org.geotools.test.OnlineTestCase;
  * </pre>
  * 
  * See {@link OnlineTestCase} for more about online test fixtures.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
  */
 public abstract class AbstractRegfuncPostgisOnlineTestCase extends OnlineTestCase {
 

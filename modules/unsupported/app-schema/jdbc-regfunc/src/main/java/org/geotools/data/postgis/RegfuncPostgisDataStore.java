@@ -44,6 +44,11 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * <p>
  * 
  * TODO: everything in this class should be pulled up into ancestor classes.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
  */
 public class RegfuncPostgisDataStore extends PostgisDataStore {
 

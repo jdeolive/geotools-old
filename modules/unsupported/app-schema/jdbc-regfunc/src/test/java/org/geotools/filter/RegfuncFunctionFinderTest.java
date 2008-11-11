@@ -26,6 +26,11 @@ import org.opengis.filter.expression.Function;
 
 /**
  * Test for {@link RegfuncFunctionFinder}.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
  */
 public class RegfuncFunctionFinderTest extends TestCase {
 

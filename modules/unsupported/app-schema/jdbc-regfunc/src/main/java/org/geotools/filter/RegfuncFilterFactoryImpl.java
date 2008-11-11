@@ -34,6 +34,11 @@ import org.opengis.filter.expression.Function;
  * <p>
  * 
  * TODO: pull this functionality up into {@link FilterFactoryImpl}.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
  */
 public class RegfuncFilterFactoryImpl extends FilterFactoryImpl {
 

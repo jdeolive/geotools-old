@@ -26,6 +26,11 @@ import org.geotools.data.DataStoreFinder;
  * <p>
  * 
  * See {@link AbstractRegfuncPostgisOnlineTestCase} for a description of this test fixture.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
  */
 public class RegfuncPostgisDataStoreFactoryOnlineTest extends AbstractRegfuncPostgisOnlineTestCase {
 

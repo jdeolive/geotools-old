@@ -38,6 +38,10 @@ import org.picocontainer.MutablePicoContainer;
  * TODO: this class should be obsolete in the future, when {@link RegfuncFilterFactoryImpl} is
  * merged into {@link FilterFactoryImpl}.
  * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
  */
 public class RegfuncOGCConfiguration extends OGCConfiguration {
 

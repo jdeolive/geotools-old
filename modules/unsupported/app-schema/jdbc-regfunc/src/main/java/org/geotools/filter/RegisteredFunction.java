@@ -32,6 +32,11 @@ import java.util.List;
  * <p>
  * 
  * The number of arguments is deduced from the number provided. We hope they match.
+ * 
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
+ * @version $Id$
+ * @source $URL$
+ * @since 2.4
  */
 public class RegisteredFunction extends FunctionExpressionImpl {
 
