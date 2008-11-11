@@ -21,19 +21,30 @@ import java.io.IOException;
 import org.opengis.feature.simple.SimpleFeature;
 
 /**
- * Interface to abstract out the parsing of features coming from a GetFeature
- * request from the underlying xml parsing technology in use.
+ * Interface to abstract out the parsing of features coming from a GetFeature request from the
+ * underlying xml parsing technology in use.
  * 
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
  * @since 2.5.x
- * @source $URL$
+ * @source $URL:
+ *         http://gtsvn.refractions.net/trunk/modules/plugin/wfs/src/main/java/org/geotools/data
+ *         /wfs/protocol/wfs/GetFeatureParser.java $
  */
-public interface GetFeatureParser{
+public interface GetFeatureParser {
 
     /**
-     * @return the next feature in the stream or {@code null} if there are no
-     *         more features to parse.
+     * Returns the number of features if advertised by the server and the parser was able to get
+     * that information for example from the {@code wfs:FeatureCollection} "numberOfFeatures" xml
+     * attribute, or {@code -1} if unknown.
+     * 
+     * @return number of features advertised by server, or {@code -1} if unknown
+     */
+    public int getNumberOfFeatures();
+
+    /**
+     * @return the next feature in the stream or {@code null} if there are no more features to
+     *         parse.
      */
     SimpleFeature parse() throws IOException;
 

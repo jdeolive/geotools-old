@@ -51,6 +51,8 @@ import org.geotools.data.wfs.v1_0_0.WFS100ProtocolHandler;
 import org.geotools.data.wfs.v1_0_0.WFS_1_0_0_DataStore;
 import org.geotools.data.wfs.v1_1_0.CubeWerxStrategy;
 import org.geotools.data.wfs.v1_1_0.DefaultWFSStrategy;
+import org.geotools.data.wfs.v1_1_0.GeoServerStrategy;
+import org.geotools.data.wfs.v1_1_0.MapServerStrategy;
 import org.geotools.data.wfs.v1_1_0.WFSStrategy;
 import org.geotools.data.wfs.v1_1_0.WFS_1_1_0_DataStore;
 import org.geotools.data.wfs.v1_1_0.WFS_1_1_0_Protocol;
@@ -376,7 +378,7 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
             // protocolHandler.setUsePullParser(usePullParser.booleanValue());
             // ///////////////////////////////////
 
-            WFSStrategy strategy = determineCorrectStrategy(capsDoc);
+            WFSStrategy strategy = determineCorrectStrategy(getCapabilitiesRequest, capsDoc);
             dataStore = new WFS_1_1_0_DataStore(wfs, strategy);
             dataStore.setMaxFeatures(maxFeatures);
             dataStore.setPreferPostOverGet(protocol);
@@ -429,7 +431,7 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
         return capsDoc;
     }
 
-    static WFSStrategy determineCorrectStrategy(Document capabilitiesDoc) {
+    static WFSStrategy determineCorrectStrategy(URL getCapabilitiesRequest, Document capabilitiesDoc) {
         WFSStrategy strategy = null;
         NodeList childNodes = capabilitiesDoc.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -441,6 +443,13 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
                     strategy = new CubeWerxStrategy();
                 }
             }
+        }
+
+        String uri = getCapabilitiesRequest.toExternalForm();
+        if (uri.contains("/mapserv")) {
+            strategy = new MapServerStrategy();
+        } else if (uri.contains("geoserver")) {
+            strategy = new GeoServerStrategy();
         }
 
         if (strategy == null) {

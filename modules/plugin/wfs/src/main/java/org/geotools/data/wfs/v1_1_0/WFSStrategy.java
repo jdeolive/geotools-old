@@ -17,6 +17,8 @@
 package org.geotools.data.wfs.v1_1_0;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 import net.opengis.wfs.GetFeatureType;
 
@@ -40,6 +42,13 @@ import org.opengis.filter.Filter;
  * @see CubeWerxStrategy
  */
 public interface WFSStrategy {
+
+    /**
+     * Returns the protocol default output format name for the WFS version the implementation talks.
+     * 
+     * @return the default output format name for the GetFeature operation for the protocol version
+     */
+    public String getDefaultOutputFormat(WFSProtocol wfs);
 
     /**
      * Returns the feature type that shall result of issueing the given request, adapting the
@@ -95,6 +104,8 @@ public interface WFSStrategy {
          * The GetFeature request to issue to the WFS
          */
         private GetFeatureType serverRequest;
+        
+        private Map<String, String>kvpParameters;
 
         public Filter getPostFilter() {
             return postFilter;
@@ -110,6 +121,15 @@ public interface WFSStrategy {
 
         public void setServerRequest(GetFeatureType serverRequest) {
             this.serverRequest = serverRequest;
+        }
+
+        @SuppressWarnings("unchecked")
+        public Map<String, String> getKvpParameters() {
+            return kvpParameters == null? Collections.EMPTY_MAP : kvpParameters;
+        }
+
+        public void setKvpParameters(Map<String, String> kvpParameters) {
+            this.kvpParameters = kvpParameters;
         }
     }
 }
