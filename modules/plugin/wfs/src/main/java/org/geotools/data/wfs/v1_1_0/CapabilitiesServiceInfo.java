@@ -57,7 +57,7 @@ final class CapabilitiesServiceInfo implements WFSServiceInfo {
 
     private WFS_1_1_0_DataStore wfs;
 
-    public CapabilitiesServiceInfo( WFS_1_1_0_DataStore service ) {
+    public CapabilitiesServiceInfo(WFS_1_1_0_DataStore service) {
         this.wfs = service;
     }
 
@@ -109,12 +109,7 @@ final class CapabilitiesServiceInfo implements WFSServiceInfo {
      * @see ServiceInfo#getSource()
      */
     public URI getSource() {
-        URL url;
-        if (wfs.supportsOperation(GET_CAPABILITIES, false)) {
-            url = wfs.getOperationURL(GET_CAPABILITIES, false);
-        } else {
-            url = wfs.getOperationURL(GET_CAPABILITIES, true);
-        }
+        URL url = wfs.getCapabilitiesURL();
         try {
             return url.toURI();
         } catch (URISyntaxException e) {

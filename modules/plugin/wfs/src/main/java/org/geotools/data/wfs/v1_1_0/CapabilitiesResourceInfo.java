@@ -22,12 +22,13 @@ import java.net.URL;
 import java.util.Set;
 
 import org.geotools.data.ResourceInfo;
+import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
- * A {@link ResourceInfo} adapter for the GetCapabilities information provided by
- * {@link WFS110ProtocolHandler}.
+ * A {@link ResourceInfo} adapter for the GetCapabilities information provided by the custom methods
+ * in {@link WFSDataStore}.
  * 
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
@@ -41,7 +42,7 @@ final class CapabilitiesResourceInfo implements ResourceInfo {
 
     private String typeName;
 
-    public CapabilitiesResourceInfo( String typeName, WFS_1_1_0_DataStore service ) {
+    public CapabilitiesResourceInfo(String typeName, WFS_1_1_0_DataStore service) {
         this.typeName = typeName;
         this.wfs = service;
     }

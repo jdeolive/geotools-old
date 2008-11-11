@@ -22,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import org.geotools.data.wfs.protocol.http.HTTPProtocol;
 import org.geotools.data.wfs.protocol.http.HttpMethod;
 
 /**
@@ -32,6 +33,7 @@ import org.geotools.data.wfs.protocol.http.HttpMethod;
  * @version $Id$
  * @since 2.5.x
  * @source $URL$
+ * @deprecated in favour of {@link HTTPProtocol}
  */
 public interface ConnectionFactory {
 
