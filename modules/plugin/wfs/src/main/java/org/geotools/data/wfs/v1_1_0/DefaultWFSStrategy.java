@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -202,7 +203,7 @@ public class DefaultWFSStrategy implements WFSStrategy {
         return reqParts;
     }
 
-    private Map<String, String> buildGetFeatureParametersForGet(GetFeatureType request)
+    protected Map<String, String> buildGetFeatureParametersForGet(GetFeatureType request)
             throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         map.put("SERVICE", "WFS");
@@ -264,11 +265,12 @@ public class DefaultWFSStrategy implements WFSStrategy {
      * Returns a single-line string containing the xml representation of the given filter, as
      * appropriate for the {@code FILTER} parameter in a GetFeature request.
      */
-    private String encodeGetFeatureGetFilter(final Filter filter) throws IOException {
+    protected String encodeGetFeatureGetFilter(final Filter filter) throws IOException {
         Configuration filterConfig = getFilterConfiguration();
         Encoder encoder = new Encoder(filterConfig);
         // do not write the xml declaration
         encoder.setOmitXMLDeclaration(true);
+        encoder.setEncoding(Charset.forName("UTF-8"));
 
         OutputStream out = new ByteArrayOutputStream();
         encoder.encode(filter, OGC.Filter, out);

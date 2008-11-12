@@ -16,7 +16,7 @@
  */
 package org.geotools.data.wfs.v1_1_0;
 
-import static org.geotools.data.wfs.v1_1_0.DataTestSupport.CUBEWERX_GOVUNITCE;
+import static org.geotools.data.wfs.v1_1_0.DataTestSupport.*;
 import static org.geotools.data.wfs.v1_1_0.DataTestSupport.CUBEWERX_ROADSEG;
 import static org.geotools.data.wfs.v1_1_0.DataTestSupport.GEOS_ARCHSITES;
 import static org.geotools.data.wfs.v1_1_0.DataTestSupport.GEOS_ROADS;
@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * @see XmlSimpleFeatureParserTest
  * @see StreamingParserFeatureReaderTest
  */
+@SuppressWarnings("nls")
 public abstract class AbstractGetFeatureParserTest {
 
     /**
@@ -372,6 +373,24 @@ public abstract class AbstractGetFeatureParserTest {
 
         FeatureVisitor assertor = new FeatureAssertor(featureType);
         testParseGetFeatures(featureName, featureType, parser, assertor, 3);
+    }
+
+    @Test
+    public void testParseMapserver_StatisticalUnit() throws Exception {
+        final String[] properties = { "unitId", "typeAbbreviation", "instanceName", "geometry" };
+        final QName featureName = MAPSERVER_STATISTICAL_UNIT.TYPENAME;
+        final String schemaLocation = MAPSERVER_STATISTICAL_UNIT.SCHEMA;
+        final SimpleFeatureType featureType = getTypeView(featureName, schemaLocation,
+                CUBEWERX_ROADSEG.CRS, properties);
+
+        URL url = TestData.getResource(this, MAPSERVER_STATISTICAL_UNIT.DATA);
+        final GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
+
+        int nof = parser.getNumberOfFeatures();
+        assertEquals(-1, nof);
+
+        FeatureVisitor assertor = new FeatureAssertor(featureType);
+        testParseGetFeatures(featureName, featureType, parser, assertor, 2);
     }
 
     protected void runGetFeaturesParsing() throws Exception {

@@ -40,14 +40,18 @@ import org.geotools.util.logging.Logging;
  * @author Gabriel Roldan (OpenGeo)
  * @version $Id$
  * @since 2.6
- * @source $URL$
+ * @source $URL:
+ *         http://gtsvn.refractions.net/trunk/modules/plugin/wfs/src/main/java/org/geotools/data
+ *         /wfs/v1_1_0/parsers/Gml31GetFeatureResponseParserFactory.java $
  */
 @SuppressWarnings("nls")
 public class Gml31GetFeatureResponseParserFactory implements WFSResponseParserFactory {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.data.wfs");
 
-    private static final String SUPPORTED_OUTPUT_FORMAT = "text/xml; subtype=gml/3.1.1";
+    private static final String SUPPORTED_OUTPUT_FORMAT1 = "text/xml; subtype=gml/3.1.1";
+
+    private static final String SUPPORTED_OUTPUT_FORMAT2 = "GML3";
 
     /**
      * @see WFSResponseParserFactory#isAvailable()
@@ -72,7 +76,13 @@ public class Gml31GetFeatureResponseParserFactory implements WFSResponseParserFa
             return false;
         }
         String outputFormat = ((GetFeatureType) request).getOutputFormat();
-        boolean matches = SUPPORTED_OUTPUT_FORMAT.equals(outputFormat);
+        boolean matches = isSupportedOutputFormat(outputFormat);
+        return matches;
+    }
+
+    protected boolean isSupportedOutputFormat(String outputFormat) {
+        boolean matches = SUPPORTED_OUTPUT_FORMAT1.equals(outputFormat)
+                || SUPPORTED_OUTPUT_FORMAT2.equals(outputFormat);
         return matches;
     }
 
@@ -93,7 +103,7 @@ public class Gml31GetFeatureResponseParserFactory implements WFSResponseParserFa
             throws IOException {
         final WFSResponseParser parser;
         final String contentType = response.getContentType();
-        if (SUPPORTED_OUTPUT_FORMAT.equals(contentType)) {
+        if (isSupportedOutputFormat(contentType)) {
             parser = new FeatureCollectionParser();
         } else {
             // We can't rely on the server returning the correct output format. Some, for example
