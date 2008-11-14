@@ -809,8 +809,15 @@ public class DefaultFactoryTest {
         assertEquals("4326",
                 AbstractIdentifiedObject.getIdentifier(find, factory.getAuthority()).getCode());
         finder.setFullScanAllowed(false);
+
+        ReferenceIdentifier foundri = AbstractIdentifiedObject.getIdentifier(find, factory.getAuthority());
+
+        // this is broken because, as we know from above, it is ambiguous, so it may not be EPSG:4326 in the cache at all!
+        //        assertEquals("The CRS should still in the cache.",
+        //                            "EPSG:4326", finder.findIdentifier(crs));
         assertEquals("The CRS should still in the cache.",
-                     "EPSG:4326", finder.findIdentifier(crs));
+                foundri.getCodeSpace()+':'+foundri.getCode(), finder.findIdentifier(crs));
+
         /*
          * The PROJCS below intentionally uses a name different from the one found in the
          * EPSG database, in order to force a full scan (otherwise the EPSG database would
