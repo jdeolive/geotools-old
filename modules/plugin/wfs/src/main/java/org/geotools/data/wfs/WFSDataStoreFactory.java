@@ -52,7 +52,7 @@ import org.geotools.data.wfs.v1_0_0.WFS_1_0_0_DataStore;
 import org.geotools.data.wfs.v1_1_0.CubeWerxStrategy;
 import org.geotools.data.wfs.v1_1_0.DefaultWFSStrategy;
 import org.geotools.data.wfs.v1_1_0.GeoServerStrategy;
-import org.geotools.data.wfs.v1_1_0.MapServerStrategy;
+import org.geotools.data.wfs.v1_1_0.IonicStrategy;
 import org.geotools.data.wfs.v1_1_0.WFSStrategy;
 import org.geotools.data.wfs.v1_1_0.WFS_1_1_0_DataStore;
 import org.geotools.data.wfs.v1_1_0.WFS_1_1_0_Protocol;
@@ -433,7 +433,7 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
 
     static WFSStrategy determineCorrectStrategy(URL getCapabilitiesRequest, Document capabilitiesDoc) {
         WFSStrategy strategy = null;
-        
+
         // look in comments for indication of CubeWerx server
         NodeList childNodes = capabilitiesDoc.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -449,11 +449,25 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
         }
 
         if (strategy == null) {
+            // Ionic declares its own namespace so that's our hook
+            Element root = capabilitiesDoc.getDocumentElement();
+            String ionicNs = root.getAttribute("xmlns:ionic");
+            if (ionicNs != null) {
+                if (ionicNs.equals("http://www.ionicsoft.com/versions/4")) {
+                    strategy = new IonicStrategy();
+                } else if (ionicNs.startsWith("http://www.ionicsoft.com/versions")) {
+                    logger
+                            .warning("Found a Ionic server but the version may not match the strategy "
+                                    + "we have (v.4). Ionic namespace url: " + ionicNs);
+                    strategy = new IonicStrategy();
+                }
+            }
+        }
+        
+        if (strategy == null) {
             // guess server implementation from capabilities URI
             String uri = getCapabilitiesRequest.toExternalForm();
-            if (uri.contains("/mapserv")) {
-                strategy = new MapServerStrategy();
-            } else if (uri.contains("geoserver")) {
+            if (uri.contains("geoserver")) {
                 strategy = new GeoServerStrategy();
             }
         }

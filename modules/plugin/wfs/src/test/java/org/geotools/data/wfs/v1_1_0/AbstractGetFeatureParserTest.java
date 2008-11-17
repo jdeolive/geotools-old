@@ -378,12 +378,12 @@ public abstract class AbstractGetFeatureParserTest {
     @Test
     public void testParseMapserver_StatisticalUnit() throws Exception {
         final String[] properties = { "unitId", "typeAbbreviation", "instanceName", "geometry" };
-        final QName featureName = MAPSERVER_STATISTICAL_UNIT.TYPENAME;
-        final String schemaLocation = MAPSERVER_STATISTICAL_UNIT.SCHEMA;
+        final QName featureName = IONIC_STATISTICAL_UNIT.TYPENAME;
+        final String schemaLocation = IONIC_STATISTICAL_UNIT.SCHEMA;
         final SimpleFeatureType featureType = getTypeView(featureName, schemaLocation,
                 CUBEWERX_ROADSEG.CRS, properties);
 
-        URL url = TestData.getResource(this, MAPSERVER_STATISTICAL_UNIT.DATA);
+        URL url = TestData.getResource(this, IONIC_STATISTICAL_UNIT.DATA);
         final GetFeatureParser parser = getParser(featureName, schemaLocation, featureType, url);
 
         int nof = parser.getNumberOfFeatures();
