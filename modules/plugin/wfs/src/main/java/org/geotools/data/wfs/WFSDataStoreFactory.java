@@ -433,6 +433,8 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
 
     static WFSStrategy determineCorrectStrategy(URL getCapabilitiesRequest, Document capabilitiesDoc) {
         WFSStrategy strategy = null;
+        
+        // look in comments for indication of CubeWerx server
         NodeList childNodes = capabilitiesDoc.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node child = childNodes.item(i);
@@ -441,18 +443,23 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
                 nodeValue = nodeValue.toLowerCase();
                 if (nodeValue.contains("cubewerx")) {
                     strategy = new CubeWerxStrategy();
+                    break;
                 }
             }
         }
 
-        String uri = getCapabilitiesRequest.toExternalForm();
-        if (uri.contains("/mapserv")) {
-            strategy = new MapServerStrategy();
-        } else if (uri.contains("geoserver")) {
-            strategy = new GeoServerStrategy();
+        if (strategy == null) {
+            // guess server implementation from capabilities URI
+            String uri = getCapabilitiesRequest.toExternalForm();
+            if (uri.contains("/mapserv")) {
+                strategy = new MapServerStrategy();
+            } else if (uri.contains("geoserver")) {
+                strategy = new GeoServerStrategy();
+            }
         }
 
         if (strategy == null) {
+            // use fallback strategy
             strategy = new DefaultWFSStrategy();
         }
         logger.info("Using WFS Strategy: " + strategy.getClass().getName());
