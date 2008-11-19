@@ -19,6 +19,7 @@ package org.geotools.data.shapefile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -157,7 +158,7 @@ public class DbaseFileTest extends TestCaseSupport {
                 "scratchDBF.dbf");
         f.deleteOnExit();
         FileOutputStream fout = new FileOutputStream(f);
-        DbaseFileWriter dbf = new DbaseFileWriter(header, fout.getChannel());
+        DbaseFileWriter dbf = new DbaseFileWriter(header, fout.getChannel(), Charset.defaultCharset());
         for (int i = 0; i < header.getNumRecords(); i++) {
             dbf.write(new Object[6]);
         }
@@ -177,7 +178,7 @@ public class DbaseFileTest extends TestCaseSupport {
     }
 
     public void testFieldFormatter() throws Exception {
-        DbaseFileWriter.FieldFormatter formatter = new DbaseFileWriter.FieldFormatter();
+        DbaseFileWriter.FieldFormatter formatter = new DbaseFileWriter.FieldFormatter(Charset.defaultCharset());
 
         String stringWithInternationChars = "hello " + '\u20ac';
         // if (verbose) {
