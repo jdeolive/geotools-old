@@ -138,7 +138,7 @@ public class AttributeMapping implements Serializable {
      * <p>
      * For example, the target FeatureType may define a property as GeometryAttributeType, but the
      * actual instance should be PointPropertyType. In which case, it should be set to
-     * "gml:PointPropertyType" so ComplexDataStore knows it should create a point property an thus
+     * "gml:PointPropertyType" so AppSchemaDataAccess knows it should create a point property an thus
      * its subelements are to be addressable by subsequent mappings.
      * </p>
      * 
