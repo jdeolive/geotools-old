@@ -197,7 +197,7 @@ public interface FeatureTypeType extends EObject {
      * <!-- end-model-doc -->
      * @return the value of the '<em>Other SRS</em>' attribute list.
      * @see net.opengis.wfs.WfsPackage#getFeatureTypeType_OtherSRS()
-     * @model unique="false" dataType="org.eclipse.emf.ecore.xml.type.AnyURI"
+     * @model unique="false" dataType="org.eclipse.emf.ecore.xml.type.AnyURI" many="true"
      *        extendedMetaData="kind='element' name='OtherSRS' namespace='##targetNamespace'"
      * @generated
      */

@@ -58,7 +58,7 @@ public interface OutputFormatListType extends EObject {
 	 * <!-- end-user-doc -->
      * @return the value of the '<em>Format</em>' attribute list.
      * @see net.opengis.wfs.WfsPackage#getOutputFormatListType_Format()
-     * @model unique="false" dataType="org.eclipse.emf.ecore.xml.type.String" required="true" transient="true" volatile="true" derived="true"
+     * @model unique="false" dataType="org.eclipse.emf.ecore.xml.type.String" required="true" transient="true" volatile="true" derived="true" many="true"
      *        extendedMetaData="kind='element' name='Format' namespace='##targetNamespace' group='#group:0'"
      * @generated
      */
