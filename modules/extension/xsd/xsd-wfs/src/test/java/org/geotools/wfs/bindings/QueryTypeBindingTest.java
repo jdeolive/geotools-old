@@ -19,6 +19,7 @@ package org.geotools.wfs.bindings;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.Collections;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -64,10 +65,12 @@ public class QueryTypeBindingTest extends WFSTestSupport {
                 parsed instanceof QueryType);
 
         QueryType query = (QueryType) parsed;
-        assertEquals(1, query.getTypeName().size());
+        List typeNames = query.getTypeName();
+        assertEquals(1, typeNames.size());
 
         QName typeName = new QName("http://www.geotools.org/test", "testType1");
-        assertEquals(typeName, query.getTypeName().get(0));
+        Object parsedName = typeNames.get(0);
+        assertEquals(typeName, parsedName);
         assertEquals("testHandle", query.getHandle());
         assertEquals("HEAD", query.getFeatureVersion());
         assertEquals("urn:x-ogc:def:crs:EPSG:6.11.2:4326", query.getSrsName().toString());
@@ -113,6 +116,8 @@ public class QueryTypeBindingTest extends WFSTestSupport {
 
         assertName(WFS.Query, root);
         assertEquals(8, root.getChildNodes().getLength());
+        
+        assertEquals("typeName1", root.getAttribute("typeName"));
 
         assertEquals(2, getElementsByQName(dom, WFS.PropertyName).getLength());
         assertEquals(2, getElementsByQName(dom, WFS.XlinkPropertyName).getLength());
