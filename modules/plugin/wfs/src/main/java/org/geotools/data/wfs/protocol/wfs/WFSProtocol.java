@@ -279,17 +279,17 @@ public interface WFSProtocol {
      * @throws IOException
      * @throws UnsupportedOperationException
      */
-    public WFSResponse getFeatureGET(final GetFeatureType request, final Map<String, String> kvp)
+    public WFSResponse issueGetFeatureGET(final GetFeatureType request, final Map<String, String> kvp)
             throws IOException, UnsupportedOperationException;
 
     /**
      * Issues a GetFeature request for the given {@link Query}, using POST HTTP method
      * <p>
      * The query to WFS request parameter translation is the same than for
-     * {@link #getFeatureGET(Query, String)}
+     * {@link #issueGetFeatureGET(Query, String)}
      * </p>
      */
-    public WFSResponse getFeaturePOST(GetFeatureType request) throws IOException,
+    public WFSResponse issueGetFeaturePOST(GetFeatureType request) throws IOException,
             UnsupportedOperationException;
 
     /**

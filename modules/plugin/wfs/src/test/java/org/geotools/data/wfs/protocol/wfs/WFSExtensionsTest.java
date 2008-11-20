@@ -8,6 +8,7 @@ import net.opengis.wfs.BaseRequestType;
 import net.opengis.wfs.GetFeatureType;
 import net.opengis.wfs.WfsFactory;
 
+import org.eclipse.emf.ecore.EObject;
 import org.geotools.data.wfs.v1_1_0.WFS_1_1_0_DataStore;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class WFSExtensionsTest {
 
     public static class TestParserFactory implements WFSResponseParserFactory {
 
-        public boolean canProcess( BaseRequestType request ) {
+        public boolean canProcess( EObject request ) {
             return request instanceof GetFeatureType
                     && "application/fakeFormat"
                             .equals(((GetFeatureType) request).getOutputFormat());

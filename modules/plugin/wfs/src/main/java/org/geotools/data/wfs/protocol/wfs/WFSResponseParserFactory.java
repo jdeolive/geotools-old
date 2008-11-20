@@ -18,9 +18,8 @@ package org.geotools.data.wfs.protocol.wfs;
 
 import java.io.IOException;
 
+import org.eclipse.emf.ecore.EObject;
 import org.geotools.data.wfs.v1_1_0.WFS_1_1_0_DataStore;
-
-import net.opengis.wfs.BaseRequestType;
 
 /**
  * A factory interface meant to be used through the usual GeoTools SPI mechanism to dynamically find
@@ -52,7 +51,7 @@ public interface WFSResponseParserFactory {
      * @return {@code true} if this factory can create a parser for the responses of the given
      *         request
      */
-    public boolean canProcess(BaseRequestType request);
+    public boolean canProcess(EObject request);
 
     /**
      * Creates a response parser for the given WFS response.

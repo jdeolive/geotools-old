@@ -21,8 +21,7 @@ import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.opengis.wfs.BaseRequestType;
-
+import org.eclipse.emf.ecore.EObject;
 import org.geotools.util.logging.Logging;
 
 /**
@@ -45,7 +44,7 @@ public class WFSResponse {
 
     private InputStream inputStream;
 
-    private BaseRequestType request;
+    private EObject request;
 
     private String targetUrl;
 
@@ -57,7 +56,7 @@ public class WFSResponse {
      * @param in
      *            the response input stream ready to be consumed
      */
-    public WFSResponse(String targetUrl, BaseRequestType originatingRequest, Charset charset,
+    public WFSResponse(String targetUrl, EObject originatingRequest, Charset charset,
             String contentType, InputStream in) {
         this.targetUrl = targetUrl;
         this.request = originatingRequest;
@@ -110,7 +109,7 @@ public class WFSResponse {
         this.inputStream = in;
     }
 
-    public BaseRequestType getOriginatingRequest() {
+    public EObject getOriginatingRequest() {
         return request;
     }
 

@@ -43,6 +43,7 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.wfs.protocol.wfs.WFSProtocol;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.GeoTools;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Capabilities;
 import org.geotools.filter.v1_1.OGC;
@@ -160,7 +161,7 @@ public class DefaultWFSStrategy implements WFSStrategy {
         getFeature.setVersion(wfs.getServiceVersion().toString());
         getFeature.setOutputFormat(outputFormat);
 
-        getFeature.setHandle("GeoTools WFS DataStore");
+        getFeature.setHandle("GeoTools " + GeoTools.getVersion() + " WFS DataStore");
         Integer maxFeatures = getMaxFeatures(ds, query);
         if (maxFeatures.intValue() > 0) {
             getFeature.setMaxFeatures(BigInteger.valueOf(maxFeatures));
@@ -170,7 +171,9 @@ public class DefaultWFSStrategy implements WFSStrategy {
         QueryType wfsQuery = factory.createQueryType();
         wfsQuery.setTypeName(Collections.singletonList(query.getTypeName()));
 
-        wfsQuery.setFilter(serverFilter);
+        if (!Filter.INCLUDE.equals(serverFilter)) {
+            wfsQuery.setFilter(serverFilter);
+        }
         try {
             wfsQuery.setSrsName(new URI(srsName));
         } catch (URISyntaxException e) {
