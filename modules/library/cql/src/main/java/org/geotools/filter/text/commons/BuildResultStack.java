@@ -19,6 +19,7 @@ package org.geotools.filter.text.commons;
 import java.util.EmptyStackException;
 import java.util.Stack;
 
+import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 

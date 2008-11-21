@@ -24,7 +24,6 @@ import java.util.List;
 import javax.xml.transform.TransformerException;
 
 import org.geotools.filter.FilterTransformer;
-import org.geotools.filter.text.commons.CQLException;
 import org.geotools.filter.text.commons.CompilerUtil;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;

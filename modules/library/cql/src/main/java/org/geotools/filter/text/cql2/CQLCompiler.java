@@ -25,7 +25,6 @@ import java.util.List;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.filter.IllegalFilterException;
-import org.geotools.filter.text.commons.CQLException;
 import org.geotools.filter.text.commons.ICompiler;
 import org.geotools.filter.text.commons.IToken;
 import org.geotools.filter.text.commons.Result;
