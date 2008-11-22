@@ -319,7 +319,7 @@ public class DefaultHTTPProtocol implements HTTPProtocol {
      */
     private HTTPResponse issueRequest(HttpMethodBase httpRequest) throws IOException {
         if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("Executing HTTP request: " + httpRequest);
+            LOGGER.fine("Executing HTTP request: " + httpRequest.getURI());
         }
         final HttpClient client = new HttpClient();
         client.getParams().setParameter("http.useragent",

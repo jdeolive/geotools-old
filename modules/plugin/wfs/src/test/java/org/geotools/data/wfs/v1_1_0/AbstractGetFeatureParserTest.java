@@ -376,7 +376,7 @@ public abstract class AbstractGetFeatureParserTest {
     }
 
     @Test
-    public void testParseMapserver_StatisticalUnit() throws Exception {
+    public void testParseIonic_StatisticalUnit() throws Exception {
         final String[] properties = { "unitId", "typeAbbreviation", "instanceName", "geometry" };
         final QName featureName = IONIC_STATISTICAL_UNIT.TYPENAME;
         final String schemaLocation = IONIC_STATISTICAL_UNIT.SCHEMA;
