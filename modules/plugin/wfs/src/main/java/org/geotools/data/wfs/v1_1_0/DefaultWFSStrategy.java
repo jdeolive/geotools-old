@@ -54,7 +54,6 @@ import org.geotools.xml.Configuration;
 import org.geotools.xml.Encoder;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
-import org.opengis.filter.capability.FilterCapabilities;
 import org.opengis.filter.identity.Identifier;
 import org.opengis.filter.sort.SortBy;
 
@@ -268,8 +267,8 @@ public class DefaultWFSStrategy implements WFSStrategy {
      * Splits the filter provided by the geotools query into the server supported and unsupported
      * ones.
      * 
-     * @param ds
-     * @param wfs
+     * @param caps
+     *            the server filter capabilities description
      * @param queryFilter
      * @return a two-element array where the first element is the supported filter and the second
      *         the one to post-process
