@@ -79,7 +79,6 @@ public class DefaultWFSStrategy implements WFSStrategy {
 
     private static final Configuration wfs_1_1_0_Configuration = new WFSConfiguration();
 
-
     /**
      * @see WFSStrategy#supportsGet()
      */
@@ -276,9 +275,7 @@ public class DefaultWFSStrategy implements WFSStrategy {
      *         the one to post-process
      * @see WFSStrategy#splitFilters(WFS_1_1_0_Protocol, Filter)
      */
-    public Filter[] splitFilters(WFSProtocol wfs, Filter queryFilter) {
-        FilterCapabilities filterCapabilities = wfs.getFilterCapabilities();
-        Capabilities caps = new Capabilities(filterCapabilities);
+    public Filter[] splitFilters(Capabilities caps, Filter queryFilter) {
         PostPreProcessFilterSplittingVisitor splitter = new PostPreProcessFilterSplittingVisitor(
                 caps, null, null);
 

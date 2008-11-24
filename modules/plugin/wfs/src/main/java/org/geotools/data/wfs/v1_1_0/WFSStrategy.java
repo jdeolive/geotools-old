@@ -28,6 +28,7 @@ import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.geotools.data.wfs.protocol.wfs.GetFeature;
 import org.geotools.data.wfs.protocol.wfs.WFSOperationType;
 import org.geotools.data.wfs.protocol.wfs.WFSProtocol;
+import org.geotools.filter.Capabilities;
 import org.geotools.wfs.WFSConfiguration;
 import org.geotools.xml.Configuration;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -90,7 +91,7 @@ public interface WFSStrategy {
      */
     public String getDefaultOutputFormat(WFSProtocol wfs, WFSOperationType operation);
 
-    public Filter[] splitFilters(WFSProtocol protocol, Filter filter);
+    public Filter[] splitFilters(Capabilities filterCaps, Filter filter);
 
     /**
      * Creates a GetFeature request that the server implementation this strategy works upon can deal

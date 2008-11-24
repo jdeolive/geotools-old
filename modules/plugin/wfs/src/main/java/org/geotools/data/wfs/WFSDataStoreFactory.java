@@ -412,9 +412,9 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
                         message.append(text.trim());
                     }
                     message.append(" Exception Code:");
-                    message.append(exceptionCode.getTextContent());
+                    message.append(exceptionCode== null? "" : exceptionCode.getTextContent());
                     message.append(" Locator: ");
-                    message.append(locator.getTextContent());
+                    message.append(locator == null? "" : locator.getTextContent());
                     throw new DataSourceException(message.toString());
                 }
                 throw new DataSourceException("Expected " + WFS.WFS_Capabilities + " but was "

@@ -25,6 +25,7 @@ import net.opengis.wfs.GetFeatureType;
 import org.geotools.data.wfs.protocol.wfs.GetFeature;
 import org.geotools.data.wfs.protocol.wfs.WFSProtocol;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.Capabilities;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.opengis.filter.BinaryLogicOperator;
 import org.opengis.filter.Filter;
@@ -82,10 +83,10 @@ public class CubeWerxStrategy extends DefaultWFSStrategy {
     }
 
     @Override
-    public Filter[] splitFilters(final WFSProtocol wfs, final Filter queryFilter) {
+    public Filter[] splitFilters(final Capabilities caps, final Filter queryFilter) {
 
         if (!(queryFilter instanceof BinaryLogicOperator)) {
-            return super.splitFilters(wfs, queryFilter);
+            return super.splitFilters(caps, queryFilter);
         }
 
         int spatialFiltersCount = 0;
@@ -97,7 +98,7 @@ public class CubeWerxStrategy extends DefaultWFSStrategy {
             }
         }
         if (spatialFiltersCount <= 1) {
-            return super.splitFilters(wfs, queryFilter);
+            return super.splitFilters(caps, queryFilter);
         }
 
         Filter serverFilter;

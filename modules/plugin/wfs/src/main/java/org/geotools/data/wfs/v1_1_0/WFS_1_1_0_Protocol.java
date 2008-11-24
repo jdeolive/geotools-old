@@ -76,6 +76,7 @@ import org.geotools.data.wfs.protocol.wfs.WFSOperationType;
 import org.geotools.data.wfs.protocol.wfs.WFSProtocol;
 import org.geotools.data.wfs.protocol.wfs.WFSResponse;
 import org.geotools.data.wfs.v1_1_0.WFSStrategy.RequestComponents;
+import org.geotools.filter.Capabilities;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.util.logging.Logging;
@@ -669,7 +670,12 @@ public class WFS_1_1_0_Protocol implements WFSProtocol {
     }
 
     public Filter[] splitFilters(Filter filter) {
-        return strategy.splitFilters(this, filter);
+        FilterCapabilities filterCapabilities = getFilterCapabilities();
+        Capabilities filterCaps = new Capabilities();
+        if (filterCapabilities != null) {
+            filterCaps.addAll(filterCapabilities);
+        }
+        return strategy.splitFilters(filterCaps, filter);
     }
 
 }
