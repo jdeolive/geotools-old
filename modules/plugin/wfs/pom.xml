@@ -128,6 +128,10 @@
             <!-- The following tests are skipped because they do not extend OnlineTestCase -->
             <exclude>**/StreamingParserFeatureReaderTest.java</exclude>
             <exclude>**/*OnlineTest.java</exclude>
+            <!-- exluded waiting for resolution of GEOT-1637 -->
+            <exclude>**/*PostPreProcessFilterSplitterVisitorFunctionTest.java</exclude>
+            <exclude>**/*PostPreProcessFilterSplittingVisitorTest.java</exclude>
+            <exclude>**/*PostPreProcessFilterSplittingVisitorSpatialTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
