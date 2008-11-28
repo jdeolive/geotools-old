@@ -165,7 +165,7 @@ public class SessionPool {
     }
 
     /**
-     * returns the number of actual connections holded by this connection pool.
+     * returns the number of actual connections held by this connection pool.
      * In other words, the sum of used and available connections, regardless
      * 
      * @return DOCUMENT ME!
