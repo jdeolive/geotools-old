@@ -50,6 +50,11 @@ import org.opengis.filter.spatial.DistanceBufferOperator;
  * each syntax rules recognized.
  * </p>
  * 
+ * <p>
+ * Warning: This component is not published. It is part of module implementation. 
+ * Client module should not use this feature.
+ * </p>
+ * 
  * TODO This module should use the new geometry API, more info in http://docs.codehaus.org/display/GEOTOOLS/GeomeryFactoryFinder+Proposal
  * 
  * 

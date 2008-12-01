@@ -21,7 +21,10 @@ import org.geotools.filter.text.commons.IToken;
 
 /**
  * Maintains the result of building process.
- *
+ * <p>
+ * Warning: This component is not published. It is part of module implementation. 
+ * Client module should not use this feature.
+ * </p>
  * @since 2.4
  * @author Mauricio Pazos - Axios Engineering
  * @author Gabriel Roldan - Axios Engineering

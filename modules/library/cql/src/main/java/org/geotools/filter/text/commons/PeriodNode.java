@@ -26,6 +26,10 @@ import org.opengis.filter.expression.Literal;
  * Period is constructed in the parsing process. this has convenient method to
  * deliver begin and end date of period. a period can be created from
  * date-time/date-time or date-time/duration or duration/date-time
+ * <p>
+ * Warning: This component is not published. It is part of module implementation. 
+ * Client module should not use this feature.
+ * </p>
  *
  * @since 2.4
  * @author Mauricio Pazos - Axios Engineering
