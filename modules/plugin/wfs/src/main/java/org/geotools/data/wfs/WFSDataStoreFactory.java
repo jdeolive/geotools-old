@@ -354,7 +354,7 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
 
         if (Version.v1_0_0 == version) {
             final ConnectionFactory connectionFac = new DefaultConnectionFactory(tryGZIP, user,
-                    pass, defaultEncoding);
+                    pass, defaultEncoding, timeoutMillis);
             InputStream reader = new ByteArrayInputStream(wfsCapabilitiesRawData);
             final WFS100ProtocolHandler protocolHandler = new WFS100ProtocolHandler(reader,
                     connectionFac);
