@@ -808,4 +808,36 @@ public class SQLEncoderOracle extends SQLEncoder {
             throw new RuntimeException(IO_ERROR, ioe);
         }
     }
+    
+    @Override
+    public void visit(CompareFilter filter) throws RuntimeException {
+        DefaultExpression left = (DefaultExpression) filter.getLeftValue();
+        DefaultExpression right = (DefaultExpression) filter.getRightValue();
+        String type = (String) comparisions.get(new Integer(
+                filter.getFilterType()));
+        
+        if ( !filter.isMatchingCase() ) {
+            //only for == or != 
+            if ( filter.getFilterType() == Filter.COMPARE_EQUALS || 
+                    filter.getFilterType() == Filter.COMPARE_NOT_EQUALS ) {
+                
+                //only for strings
+                if ( left.getType() == Expression.LITERAL_STRING  
+                        || right.getType() == Expression.LITERAL_STRING ) {
+                    
+                    try {
+                        out.write( "lower(" ); left.accept( this ); out.write( ")");
+                        out.write( " " + type + " " );
+                        out.write( "lower(" ); right.accept( this ); out.write( ")");
+                    
+                        return;
+                    } catch(IOException e) {
+                        throw new RuntimeException("Error occurred writing filter", e);
+                    }
+                }
+            }
+        }
+        
+        super.visit(filter);
+    }
 }
