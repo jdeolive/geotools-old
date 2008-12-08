@@ -275,7 +275,7 @@ public class DefaultWFSStrategy implements WFSStrategy {
      * @see WFSStrategy#splitFilters(WFS_1_1_0_Protocol, Filter)
      */
     public Filter[] splitFilters(Capabilities caps, Filter queryFilter) {
-        PostPreProcessFilterSplittingVisitor splitter = new PostPreProcessFilterSplittingVisitor(
+        CapabilitiesFilterSplitter splitter = new CapabilitiesFilterSplitter(
                 caps, null, null);
 
         queryFilter.accept(splitter, null);
