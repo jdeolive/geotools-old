@@ -48,6 +48,7 @@ import org.geotools.factory.GeoTools;
 import org.geotools.filter.Capabilities;
 import org.geotools.filter.v1_1.OGC;
 import org.geotools.filter.v1_1.OGCConfiguration;
+import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
 import org.geotools.util.logging.Logging;
 import org.geotools.wfs.WFSConfiguration;
 import org.geotools.xml.Configuration;
