@@ -140,12 +140,12 @@ public class LongitudeFirstFactory extends DeferredAuthorityFactory implements C
     private static int relativePriority() {
         try {
             if (Boolean.getBoolean(SYSTEM_DEFAULT_KEY)) {
-                return +10;
+                return +7;
             }
         } catch (SecurityException e) {
             // Fall back on default value.
         }
-        return -10;
+        return -7;
     }
 
     /**
