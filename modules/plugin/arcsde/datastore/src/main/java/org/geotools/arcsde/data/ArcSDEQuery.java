@@ -44,6 +44,7 @@ import org.geotools.feature.SchemaException;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
+import org.geotools.filter.visitor.SimplifyingFilterVisitor.FIDValidator;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -911,6 +912,10 @@ class ArcSDEQuery {
             sourceFilter.accept(unpacker, null);
 
             SimplifyingFilterVisitor filterSimplifier = new SimplifyingFilterVisitor();
+            final String typeName = this.featureType.getTypeName();
+            FIDValidator validator = new SimplifyingFilterVisitor.TypeNameDotNumberFidValidator(typeName);
+            filterSimplifier.setFIDValidator(validator);
+            
             this._sqlFilter = unpacker.getFilterPre();
             this._sqlFilter = (Filter) this._sqlFilter.accept(filterSimplifier, null);
 
