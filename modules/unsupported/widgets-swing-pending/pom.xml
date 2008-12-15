@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/widgets-swing-pending/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/widgets-swing-pending/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/widgets-swing-pending/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/widgets-swing-pending/</url>
   </scm>
 
   <description>Swing widgets, coming from project AlterSIG. Will be added in module swing widgets once cleaned up.</description>

@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/library/cql/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/cql/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/library/cql/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/library/cql/</url>
   </scm>
 
   <description>

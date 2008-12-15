@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/wms/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/wms/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/wms/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/wms/</url>
   </scm>
 
   <description>

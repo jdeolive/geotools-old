@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/epsg-access/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/epsg-access/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/epsg-access/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/epsg-access/</url>
   </scm>
 
   <description>

@@ -31,10 +31,10 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/sql-datastore
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/sql-datastore
     </connection>
     <url>
-      http://svn.geotools.org/trunk/modules/unsupported/sql-datastore
+      http://svn.osgeo.org/geotools/trunk/modules/unsupported/sql-datastore
     </url>
   </scm>
 

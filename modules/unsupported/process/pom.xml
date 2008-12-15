@@ -64,9 +64,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/process/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/process/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/process/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/process/</url>
   </scm>
 
   <description>

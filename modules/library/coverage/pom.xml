@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/library/coverage/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/coverage/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/library/coverage/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/library/coverage/</url>
   </scm>
 
   <description>

@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/extension/widgets-swing/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/widgets-swing/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/extension/widgets-swing/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/extension/widgets-swing/</url>
   </scm>
 
   <description>

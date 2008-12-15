@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/gtopo30/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/gtopo30/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/gtopo30/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/gtopo30/</url>
   </scm>
 
   <description>

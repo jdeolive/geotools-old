@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/library/sample-data/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/sample-data/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/library/sample-data/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/library/sample-data/</url>
   </scm>
 
   <description>

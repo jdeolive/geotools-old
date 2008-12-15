@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/library/jdbc/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/jdbc/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/library/jdbc/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/library/jdbc/</url>
   </scm>
 
   <description>

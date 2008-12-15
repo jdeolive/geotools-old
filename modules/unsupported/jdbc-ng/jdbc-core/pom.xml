@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/jdbc-ng/jdbc-core/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-core/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/jdbc-ng/jdbc-core/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-core/</url>
   </scm>
 
   <description>

@@ -33,9 +33,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/jts-wrapper/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/jts-wrapper/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/jts-wrapper/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/jts-wrapper/</url>
   </scm>
 
   <description>

@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/library/render/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/render/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/library/render/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/library/render/</url>
   </scm>
 
   <description>

@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/shapefile/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/shapefile/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/shapefile/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/shapefile/</url>
   </scm>
 
   <description>

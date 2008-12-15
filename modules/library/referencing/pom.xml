@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/library/referencing/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/referencing/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/library/referencing/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/library/referencing/</url>
   </scm>
 
   <description>

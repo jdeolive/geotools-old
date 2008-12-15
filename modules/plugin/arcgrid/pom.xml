@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/arcgrid/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/arcgrid/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/arcgrid/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/arcgrid/</url>
   </scm>
 
   <description>

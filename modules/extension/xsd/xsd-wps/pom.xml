@@ -30,9 +30,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/extension/xsd/xsd-wps/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-wps/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/extension/xsd/xsd-wps/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-wps/</url>
   </scm>
 
   <description>

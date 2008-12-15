@@ -27,9 +27,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/notifying-collections/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/notifying-collections/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/notifying-collections/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/notifying-collections/</url>
   </scm>
 
   <description>

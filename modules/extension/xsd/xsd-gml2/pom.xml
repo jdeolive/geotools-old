@@ -30,9 +30,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/extension/xsd/xsd-gml2/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml2/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/extension/xsd/xsd-gml2/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml2/</url>
   </scm>
 
   <description>

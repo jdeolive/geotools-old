@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/imagepyramid/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/imagepyramid/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/imagepyramid/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/imagepyramid/</url>
   </scm>
 
   <description>

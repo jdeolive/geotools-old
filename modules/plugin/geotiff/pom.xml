@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/geotiff/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/geotiff/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/geotiff/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/geotiff/</url>
   </scm>
 
   <description>

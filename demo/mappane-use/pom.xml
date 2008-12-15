@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/demo/mappane-use/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/demo/mappane-use/
     </connection>
-    <url>http://svn.geotools.org/trunk/demo/mappane-use/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/demo/mappane-use/</url>
   </scm>
 
   <description>

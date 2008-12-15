@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/imageio-ext-gdal/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/imageio-ext-gdal/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/imageio-ext-gdal/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/imageio-ext-gdal/</url>
   </scm>
 
   <description>

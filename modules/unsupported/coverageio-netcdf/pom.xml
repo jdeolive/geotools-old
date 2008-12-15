@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/coverageio-netcdf/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/coverageio-netcdf/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/coverageio-netcdf/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/coverageio-netcdf/</url>
   </scm>
 
   <description>

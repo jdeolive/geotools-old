@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/db2/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/db2/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/db2/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/db2/</url>
   </scm>
 
   <description>

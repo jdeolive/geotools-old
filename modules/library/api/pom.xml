@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/library/api/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/api/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/library/api/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/library/api/</url>
   </scm>
 
   <description>
@@ -64,7 +64,7 @@
       <name>Jody Garnett</name>
       <id>jive</id>
       <email>jgarnett@refractions.net</email>
-      <organization>Refractions Research, Inc.</organization>
+      <organization>LISAsoft</organization>
       <roles>
         <role>Java Developer</role>
         <role>Documentation</role>

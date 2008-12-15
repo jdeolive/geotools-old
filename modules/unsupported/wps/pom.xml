@@ -63,9 +63,9 @@
   <url>http://maven.geotools.fr/reports/modules/unsupported/wps/</url>
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/wps/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/wps/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/wps/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/wps/</url>
   </scm>
   
   <description>

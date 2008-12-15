@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/jdbc-ng/jdbc-mysql
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-mysql
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/jdbc-ng/jdbc-mysql</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-mysql</url>
   </scm>
 
   <description>

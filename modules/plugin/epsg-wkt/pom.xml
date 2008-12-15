@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/epsg-wkt/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/epsg-wkt/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/epsg-wkt/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/epsg-wkt/</url>
   </scm>
 
   <description>

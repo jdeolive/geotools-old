@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/oracle-spatial/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/oracle-spatial/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/oracle-spatial/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/oracle-spatial/</url>
   </scm>
 
   <description>

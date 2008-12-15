@@ -31,9 +31,9 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/extension/xsd/xsd-sld/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-sld/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/extension/xsd/xsd-sld/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-sld/</url>
   </scm>
 
   <description>

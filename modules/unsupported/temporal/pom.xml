@@ -32,10 +32,10 @@
   </url>
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/temporal/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/temporal/
     </connection>
     <url>
-      http://svn.geotools.org/trunk/modules/unsupported/temporal/
+      http://svn.osgeo.org/geotools/trunk/modules/unsupported/temporal/
     </url>
   </scm>
 
