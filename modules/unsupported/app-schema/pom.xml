@@ -27,9 +27,9 @@
   
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/app-schema
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/app-schema</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema</url>
   </scm>
   
   <description>

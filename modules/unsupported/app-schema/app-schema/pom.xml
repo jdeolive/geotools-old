@@ -25,9 +25,9 @@
   <url>http://maven.geotools.fr/reports/main/</url>
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/app-schema/app-schema
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/app-schema/app-schema</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema</url>
   </scm>
   <description>
     DataAccess to create FeatureTypes defined in application schema.
