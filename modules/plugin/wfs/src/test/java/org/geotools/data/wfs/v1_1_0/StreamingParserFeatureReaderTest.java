@@ -25,7 +25,7 @@ import javax.xml.namespace.QName;
 
 import org.geotools.data.wfs.protocol.wfs.GetFeatureParser;
 import org.geotools.test.TestData;
-import org.geotools.wfs.WFSConfiguration;
+import org.geotools.wfs.v1_1.WFSConfiguration;
 import org.geotools.xml.Configuration;
 import org.opengis.feature.simple.SimpleFeatureType;
 
