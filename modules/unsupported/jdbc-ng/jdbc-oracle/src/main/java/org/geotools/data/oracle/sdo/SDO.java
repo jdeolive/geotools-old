@@ -2063,8 +2063,8 @@ public final class SDO {
         //      POINT_TYPE Special Case
         //
         if ((D == 2) && (L == 0) && (TT == 1)) {
-            CoordinateSequence cs = f.create(1, ordinates.length);
-            for (int i = 0; i < ordinates.length; i++)
+            CoordinateSequence cs = f.create(1, 2);
+            for (int i = 0; i < 2; i++)
                 cs.setOrdinate(0, i, ordinates[i]);
             return cs;
         }
