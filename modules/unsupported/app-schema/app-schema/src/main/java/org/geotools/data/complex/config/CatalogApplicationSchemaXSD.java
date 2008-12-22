@@ -26,7 +26,9 @@ import org.geotools.xml.SchemaLocationResolver;
  * 
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/unsupported/app-schema/app-schema/src/main/java
+ *         /org/geotools/data/complex/config/CatalogApplicationSchemaXSD.java $
  * @since 2.6
  */
 public class CatalogApplicationSchemaXSD extends ApplicationSchemaXSD {
@@ -35,11 +37,11 @@ public class CatalogApplicationSchemaXSD extends ApplicationSchemaXSD {
 
     /**
      * @param namespaceURI
-     *                namespace of the schema
+     *            namespace of the schema
      * @param schemaLocation
-     *                the schema location
+     *            the schema location
      * @param catalog
-     *                OASIS Catalog for lookup, or null if none
+     *            OASIS Catalog for lookup, or null if none
      */
     public CatalogApplicationSchemaXSD(String namespaceURI, String schemaLocation, Catalog catalog) {
         super(namespaceURI, resolveSchemaLocation(catalog, schemaLocation));
@@ -50,7 +52,7 @@ public class CatalogApplicationSchemaXSD extends ApplicationSchemaXSD {
      * @see org.geotools.gml3.ApplicationSchemaXSD#createSchemaLocationResolver()
      */
     @Override
-    protected SchemaLocationResolver createSchemaLocationResolver() {
+    public SchemaLocationResolver createSchemaLocationResolver() {
         return new CatalogSchemaLocationResolverWrapper(catalog, super
                 .createSchemaLocationResolver());
     }
