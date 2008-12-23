@@ -41,16 +41,20 @@ import org.opengis.feature.type.FeatureType;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/unsupported/app-schema/app-schema/src/main/java
+ *         /org/geotools/data/complex/AppSchemaDataAccessFactory.java $
  * @since 2.4
  */
 public class AppSchemaDataAccessFactory implements DataAccessFactory {
 
-    public static final DataStoreFactorySpi.Param DBTYPE = new DataStoreFactorySpi.Param("dbtype",
-            String.class, "Fixed value 'app-schema'", true, "app-schema");
+    public static final String DBTYPE_STRING = "app-schema";
 
-    public static final DataStoreFactorySpi.Param URL = new DataStoreFactorySpi.Param("url",
-            URL.class, "URL to an application schema datastore XML configuration file", true);
+    public static final DataAccessFactory.Param DBTYPE = new DataAccessFactory.Param("dbtype",
+            String.class, "Fixed value '" + DBTYPE_STRING + "'", true, DBTYPE_STRING);
+
+    public static final DataAccessFactory.Param URL = new DataAccessFactory.Param("url", URL.class,
+            "URL to an application schema datastore XML configuration file", true);
 
     public AppSchemaDataAccessFactory() {
         // no-op
@@ -91,7 +95,7 @@ public class AppSchemaDataAccessFactory implements DataAccessFactory {
         try {
             Object dbType = AppSchemaDataAccessFactory.DBTYPE.lookUp(params);
             Object configUrl = AppSchemaDataAccessFactory.URL.lookUp(params);
-            return "app-schema".equals(dbType) && configUrl != null;
+            return DBTYPE_STRING.equals(dbType) && configUrl != null;
         } catch (Exception e) {
             // e.printStackTrace();
         }
