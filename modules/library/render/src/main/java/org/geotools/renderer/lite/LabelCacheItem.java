@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.geotools.geometry.jts.LiteShape2;
+import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.style.TextStyle2D;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -33,6 +34,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author jeichar
  * @author dblasby
  * @author simone giannecchini  * @source $URL$
+ * @deprecated Use {@link LabelCacheItem} instead (along with {@link LabelCacheImpl}
  */
 public class LabelCacheItem implements Comparable {
 	TextStyle2D textStyle;

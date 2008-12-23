@@ -77,6 +77,7 @@ import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
+import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.lite.gridcoverage2d.GridCoverageRenderer;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style2D;
@@ -227,7 +228,7 @@ public final class StreamingRenderer implements GTRenderer {
 	/** Factory that will resolve symbolizers into rendered styles */
 	private SLDStyleFactory styleFactory = new SLDStyleFactory();
 
-	protected LabelCache labelCache = new LabelCacheDefault();
+	protected LabelCache labelCache = new LabelCacheImpl();
 
 	/** The painter class we use to depict shapes onto the screen */
 	private StyledShapePainter painter = new StyledShapePainter(labelCache);
