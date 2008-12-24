@@ -49,8 +49,9 @@
   <!--     Modules included in the build                           -->
   <!-- =========================================================== -->
   <modules>
-  	<module>app-schema</module>
-  	<module>jdbc-regfunc</module>
+      <module>app-schema</module>
+      <module>jdbc-regfunc</module>
+      <module>sample-data-access</module>
   </modules>
   
 </project>
