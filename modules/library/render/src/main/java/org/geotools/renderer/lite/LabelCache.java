@@ -55,7 +55,7 @@ public interface LabelCache {
 	 * @param shape the shape to be labeled.  This is in screen coordinates.
 	 * @param scaleRange the scaleRange that the symbolizer is legal
 	 */
-	void put( String layerId, TextSymbolizer symbolizer, SimpleFeature feature, LiteShape2 shape, NumberRange scaleRange) ;
+	void put( String layerId, TextSymbolizer symbolizer, SimpleFeature feature, LiteShape2 shape, NumberRange<Double> scaleRange) ;
 	/**
 	 * Called to indicate that a layer is done rendering.  The method may draw labels if appropriate
 	 * for the labeling algorithm 
