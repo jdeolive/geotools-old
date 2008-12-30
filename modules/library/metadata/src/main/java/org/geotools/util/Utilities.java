@@ -84,7 +84,7 @@ public final class Utilities {
     /**
      * The singleton instance to be returned by {@link #emptyQueue}.
      */
-    private static final Queue EMPTY_QUEUE = new EmptyQueue<Object>();
+    private static final Queue<?> EMPTY_QUEUE = new EmptyQueue<Object>();
 
     /**
      * The class for the {@link #EMPTY_QUEUE} instance. Defined as a named class rather than
@@ -592,7 +592,7 @@ public final class Utilities {
      */
     @SuppressWarnings("unchecked")
     public static <E> Queue<E> emptyQueue() {
-        return EMPTY_QUEUE;
+        return (Queue<E>) EMPTY_QUEUE;
     }
 
     /**
