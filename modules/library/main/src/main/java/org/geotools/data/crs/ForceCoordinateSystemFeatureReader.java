@@ -64,7 +64,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public class ForceCoordinateSystemFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
     protected  FeatureReader<SimpleFeatureType, SimpleFeature> reader;
-    protected SimpleFeatureType schema;
+    protected SimpleFeatureBuilder builder;
     
     /**
      * Shortcut constructor that can be used if the new schema has already been computed
@@ -73,7 +73,7 @@ public class ForceCoordinateSystemFeatureReader implements  FeatureReader<Simple
      */
     ForceCoordinateSystemFeatureReader(FeatureReader<SimpleFeatureType, SimpleFeature> reader, SimpleFeatureType schema) {
         this.reader = reader;
-        this.schema = schema;
+        this.builder = new SimpleFeatureBuilder(schema);
     }
     
     /**
@@ -111,8 +111,9 @@ public class ForceCoordinateSystemFeatureReader implements  FeatureReader<Simple
         CoordinateReferenceSystem originalCs = type.getCoordinateReferenceSystem();
 
         if (!cs.equals(originalCs)) {
-            schema = FeatureTypes.transform(type, cs, forceOnlyMissing);
+            type = FeatureTypes.transform(type, cs, forceOnlyMissing);
         }
+        this.builder = new SimpleFeatureBuilder(type);
 
         this.reader = reader;
     }
@@ -125,10 +126,10 @@ public class ForceCoordinateSystemFeatureReader implements  FeatureReader<Simple
             throw new IllegalStateException("Reader has already been closed");
         }
         
-        if( schema==null )
+        if( builder == null )
             return reader.getFeatureType();
 
-        return schema;
+        return builder.getFeatureType();
     }
 
     /**
@@ -141,11 +142,11 @@ public class ForceCoordinateSystemFeatureReader implements  FeatureReader<Simple
         }
 
         SimpleFeature next = reader.next();
-        if( schema==null )
+        if( builder == null )
             return next;
         
         
-        return SimpleFeatureBuilder.retype(next, schema);
+        return SimpleFeatureBuilder.retype(next, builder);
     }
 
     /**
@@ -169,6 +170,6 @@ public class ForceCoordinateSystemFeatureReader implements  FeatureReader<Simple
 
         reader.close();
         reader = null;
-        schema = null;
+        builder = null;
     }
 }
