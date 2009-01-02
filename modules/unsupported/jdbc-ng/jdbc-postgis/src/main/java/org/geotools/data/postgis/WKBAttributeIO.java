@@ -91,6 +91,21 @@ public class WKBAttributeIO {
             throw new DataSourceException("SQL exception occurred while reading the geometry.", e);
         }
     }
+    
+    /**
+     * @see org.geotools.data.jdbc.attributeio.AttributeIO#read(java.sql.ResultSet,
+     *      int)
+     */
+    public Object read(ResultSet rs, int columnIndex) throws IOException {
+        try {
+            byte bytes[] = rs.getBytes(columnIndex);
+            if (bytes == null) // ie. its a null column -> return a null geometry!
+                return null;
+            return wkb2Geometry(Base64.decode(bytes));
+        } catch (SQLException e) {
+            throw new DataSourceException("SQL exception occurred while reading the geometry.", e);
+        }
+    }
 
     /**
      * @see org.geotools.data.jdbc.attributeio.AttributeIO#write(java.sql.PreparedStatement, int, java.lang.Object)
