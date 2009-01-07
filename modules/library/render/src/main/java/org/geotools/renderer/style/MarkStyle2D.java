@@ -70,7 +70,7 @@ public class MarkStyle2D extends PolygonStyle2D {
             ts.shape = shape;
             ts.translate(x, y);
             ts.rotate(rotation);
-            ts.scale(scale, -scale);
+            ts.scale(scale, scale);
 
             return ts;
         } else {

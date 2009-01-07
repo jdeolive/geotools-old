@@ -137,6 +137,17 @@
       <!-- The version number is specified in the parent POM. -->
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-property</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     
     <!-- 
          FROM HERE ON, BATIK DEPENDENCIES - I'VE TRIED WITH 1.6-1 BUT
@@ -212,12 +223,6 @@
       <artifactId>batik-parser</artifactId>
       <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <scope>test</scope>
-    </dependency>
-    
   </dependencies>
   
 
