@@ -1453,7 +1453,7 @@ public final class StreamingRenderer implements GTRenderer {
         // this is the reader's CRS
         CoordinateReferenceSystem rCS = null;
         try {
-            features.getSchema().getGeometryDescriptor().getType().getCoordinateReferenceSystem();
+            rCS = features.getSchema().getGeometryDescriptor().getType().getCoordinateReferenceSystem();
         } catch(NullPointerException e) {
             // life sucks sometimes
         }
@@ -2173,6 +2173,7 @@ public final class StreamingRenderer implements GTRenderer {
 	 */
 	public void setJava2DHints(RenderingHints hints) {
 		this.java2dHints = hints;
+		styleFactory.setRenderingHints(hints);
 	}
 
 	/*
