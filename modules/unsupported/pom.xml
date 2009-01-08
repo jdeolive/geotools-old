@@ -71,6 +71,12 @@
          <module>notifying-collections</module>
        </modules>
      </profile>
+     <profile>
+       <id>app-schema</id>
+       <modules>
+         <module>app-schema</module>
+       </modules>
+     </profile>
 
      <!-- ================================================== -->
      <!--     Modules kicked out of the build                -->
@@ -80,7 +86,6 @@
      <profile>
        <id>archive</id>
        <modules>
-         <module>community-schemas</module>
          <module>hsql</module>
          <module>geomedia</module>
          <module>ogr</module>
