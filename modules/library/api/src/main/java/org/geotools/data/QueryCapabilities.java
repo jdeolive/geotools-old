@@ -79,4 +79,17 @@ public class QueryCapabilities {
     public boolean supportsSorting(SortBy[] sortAttributes) {
         return (sortAttributes == null) || (sortAttributes.length == 0);
     }
+    
+    /**
+     * Returns whether the feature source is capable of producing "reliable" fids.
+     * <p>
+     * In this content the term "reliable" refers to the ability to read the same feature
+     * twice (with no transactions against the feature source in the interim) and get the 
+     * same feature id back both times.
+     * </p>
+     * @return True to indicate reliable fids are supported, otherwise false.
+     */
+    public boolean isReliableFIDSupported() {
+        return true;
+    }
 }

@@ -36,6 +36,7 @@ import org.geotools.data.jdbc.JDBCFeatureStore;
 import org.geotools.data.jdbc.JDBCUtils;
 import org.geotools.data.jdbc.SQLBuilder;
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
+import org.geotools.data.jdbc.fidmapper.NullFIDMapper;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -134,6 +135,13 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             @Override
             protected boolean supportsReverseOrderSorting() {
                 return true;
+            }
+            
+            @Override
+            public boolean isReliableFIDSupported() {
+                //parent implementation does same thing but we already have fid mapper handy
+                // so might as well save a lookup
+                return !isNullFidMapper(fidMapper);
             }
         };
     }

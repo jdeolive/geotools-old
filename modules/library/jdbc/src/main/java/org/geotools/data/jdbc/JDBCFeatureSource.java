@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataSourceException;
@@ -36,6 +37,9 @@ import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.Transaction;
+import org.geotools.data.jdbc.fidmapper.FIDMapper;
+import org.geotools.data.jdbc.fidmapper.NullFIDMapper;
+import org.geotools.data.jdbc.fidmapper.TypedFIDMapper;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.SQLEncoderException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -49,6 +53,7 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.sun.org.apache.bcel.internal.generic.GETFIELD;
 import com.vividsolutions.jts.geom.Envelope;
 
 
@@ -104,7 +109,7 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
      * @see #supportsReverseOrderSorting()
      * @see #supportsPropertySorting(PropertyName, SortOrder)
      */
-    protected static class JDBCQueryCapabilities extends QueryCapabilities {
+    protected class JDBCQueryCapabilities extends QueryCapabilities {
 
         private SimpleFeatureType featureType;
 
@@ -189,6 +194,36 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
             String attName = propertyName.getPropertyName();
             AttributeDescriptor attribute = featureType.getDescriptor(attName);
             return attribute != null;
+        }
+        
+        /**
+         * Consults the fid mapper for the feature source, if the null feature map reliable fids
+         * not supported. 
+         */
+        @Override
+        public boolean isReliableFIDSupported() {
+            FIDMapper mapper;
+            try {
+                mapper = JDBCFeatureSource.this.dataStore.getFIDMapper(featureType.getTypeName());
+            } 
+            catch (IOException e) {
+                LOGGER.warning( "Unable to access fid mapper" );
+                LOGGER.log( Level.FINE, "", e );
+                return super.isReliableFIDSupported();
+            }
+            
+            return !isNullFidMapper( mapper );
+        }
+        
+        /**
+         * Helper method to test if a fid mapper is a null fid mapper.
+         */
+        protected boolean isNullFidMapper( FIDMapper mapper ) {
+            if ( mapper instanceof TypedFIDMapper ) {
+                mapper = ((TypedFIDMapper)mapper).getWrappedMapper();
+            }
+            
+            return mapper instanceof NullFIDMapper;
         }
     }
     
