@@ -800,10 +800,16 @@ search:             if (DefaultCoordinateSystemAxis.isCompassDirection(axis.getD
      */
     public static String toSRS(final CoordinateReferenceSystem crs) {
         if (crs != null) {
-            final ReferenceIdentifier name = crs.getName();
-            if (name != null) {
-                return name.toString();
-            }
+        	final Set<ReferenceIdentifier> identifiers = crs.getIdentifiers();
+        	if( identifiers.isEmpty() ){
+        		// fallback unfortunately this often doesnt work
+	            final ReferenceIdentifier name = crs.getName();
+	            if (name != null) {
+	                return name.toString();
+	            }
+        	} else {
+        		return identifiers.iterator().next().toString();
+        	}
         }
         return null;
     }
