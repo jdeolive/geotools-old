@@ -156,8 +156,7 @@ public class ArcSDEPyramidTest {
             String tableName = testData.getRasterTestDataProperty("fourbandtable");
             if (tableName == null)
                 return;
-            SeQuery q = new SeQuery(conn, new String[] { "RASTER" },
-                    new SeSqlConstruct(tableName));
+            SeQuery q = new SeQuery(conn, new String[] { "RASTER" }, new SeSqlConstruct(tableName));
             q.prepareQuery();
             q.execute();
             SeRow r = q.fetch();

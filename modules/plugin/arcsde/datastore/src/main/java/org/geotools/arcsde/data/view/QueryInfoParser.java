@@ -48,7 +48,8 @@ import com.esri.sde.sdk.client.SeSqlConstruct;
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/view/QueryInfoParser.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java
+ *         /org/geotools/arcsde/data/view/QueryInfoParser.java $
  * @since 2.3.x
  */
 public class QueryInfoParser {

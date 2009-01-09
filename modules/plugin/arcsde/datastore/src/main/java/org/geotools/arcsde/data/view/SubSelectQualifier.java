@@ -29,15 +29,18 @@ import org.geotools.arcsde.pool.ISession;
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/view/SubSelectQualifier.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java
+ *         /org/geotools/arcsde/data/view/SubSelectQualifier.java $
  * @since 2.3.x
  */
 class SubSelectQualifier {
     /**
      * DOCUMENT ME!
      * 
-     * @param session DOCUMENT ME!
-     * @param subSelect DOCUMENT ME!
+     * @param session
+     *            DOCUMENT ME!
+     * @param subSelect
+     *            DOCUMENT ME!
      * @return DOCUMENT ME!
      */
     public static SubSelect qualify(ISession session, SubSelect subSelect) {

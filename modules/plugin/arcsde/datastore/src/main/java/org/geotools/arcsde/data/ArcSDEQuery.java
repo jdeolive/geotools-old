@@ -913,9 +913,10 @@ class ArcSDEQuery {
 
             SimplifyingFilterVisitor filterSimplifier = new SimplifyingFilterVisitor();
             final String typeName = this.featureType.getTypeName();
-            FIDValidator validator = new SimplifyingFilterVisitor.TypeNameDotNumberFidValidator(typeName);
+            FIDValidator validator = new SimplifyingFilterVisitor.TypeNameDotNumberFidValidator(
+                    typeName);
             filterSimplifier.setFIDValidator(validator);
-            
+
             this._sqlFilter = unpacker.getFilterPre();
             this._sqlFilter = (Filter) this._sqlFilter.accept(filterSimplifier, null);
 

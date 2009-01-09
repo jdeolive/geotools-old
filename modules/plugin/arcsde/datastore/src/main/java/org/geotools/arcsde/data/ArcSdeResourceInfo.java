@@ -34,7 +34,8 @@ import org.opengis.util.InternationalString;
  * @version $Id$
  * @since 2.5.x
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/ArcSdeResourceInfo.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java
+ *         /org/geotools/arcsde/data/ArcSdeResourceInfo.java $
  */
 public final class ArcSdeResourceInfo implements ResourceInfo {
 
@@ -47,8 +48,10 @@ public final class ArcSdeResourceInfo implements ResourceInfo {
     private URI namespace;
 
     /**
-     * @param info where to grab most of the information from
-     * @param source where the grab the bounds. Its a live value, so asked every time
+     * @param info
+     *            where to grab most of the information from
+     * @param source
+     *            where the grab the bounds. Its a live value, so asked every time
      *            {@link #getBounds()} is called
      */
     ArcSdeResourceInfo(final FeatureTypeInfo info, final ArcSdeFeatureSource source) {

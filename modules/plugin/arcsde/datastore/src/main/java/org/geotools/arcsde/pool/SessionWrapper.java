@@ -46,7 +46,8 @@ import com.esri.sde.sdk.client.SeVersion;
  * @version $Id$
  * @since 2.5.x
  * @source $URL:
- *         http://svn.geotools.org/trunk/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/pool/SessionWrapper.java $
+ *         http://svn.geotools.org/trunk/modules/plugin/arcsde/datastore/src/main/java/org/geotools
+ *         /arcsde/pool/SessionWrapper.java $
  */
 public class SessionWrapper implements ISession {
 
@@ -290,7 +291,6 @@ public class SessionWrapper implements ISession {
         wrapped.startTransaction();
     }
 
-    
     /**
      * @see ISession#getDefaultVersion()
      */

@@ -31,15 +31,18 @@ import org.geotools.arcsde.pool.ISession;
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/view/ColumnQualifier.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java
+ *         /org/geotools/arcsde/data/view/ColumnQualifier.java $
  * @since 2.3.x
  */
 class ColumnQualifier {
     /**
      * DOCUMENT ME!
      * 
-     * @param session DOCUMENT ME!
-     * @param column DOCUMENT ME!
+     * @param session
+     *            DOCUMENT ME!
+     * @param column
+     *            DOCUMENT ME!
      * @return DOCUMENT ME!
      */
     public static Column qualify(ISession session, Map tableAliases, Column column) {

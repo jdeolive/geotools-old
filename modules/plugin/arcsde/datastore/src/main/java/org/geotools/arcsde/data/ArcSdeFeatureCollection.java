@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.store.DataFeatureCollection;
@@ -109,7 +107,7 @@ public class ArcSdeFeatureCollection extends DataFeatureCollection {
     @Override
     public FeatureReader<SimpleFeatureType, SimpleFeature> reader() throws IOException {
         final FeatureReader<SimpleFeatureType, SimpleFeature> reader;
-        
+
         reader = featureSource.getfeatureReader(childrenSchema, query);
 
         return reader;

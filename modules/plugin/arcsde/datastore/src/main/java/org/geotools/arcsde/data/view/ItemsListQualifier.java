@@ -36,7 +36,8 @@ import org.geotools.arcsde.pool.ISession;
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/view/ItemsListQualifier.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java
+ *         /org/geotools/arcsde/data/view/ItemsListQualifier.java $
  * @since 2.3.x
  */
 class ItemsListQualifier implements ItemsListVisitor {
@@ -51,7 +52,8 @@ class ItemsListQualifier implements ItemsListVisitor {
     /**
      * Creates a new ItemsListQualifier object.
      * 
-     * @param session DOCUMENT ME!
+     * @param session
+     *            DOCUMENT ME!
      */
     public ItemsListQualifier(ISession session, Map tableAliases) {
         this.session = session;
@@ -61,8 +63,10 @@ class ItemsListQualifier implements ItemsListVisitor {
     /**
      * DOCUMENT ME!
      * 
-     * @param session DOCUMENT ME!
-     * @param items DOCUMENT ME!
+     * @param session
+     *            DOCUMENT ME!
+     * @param items
+     *            DOCUMENT ME!
      * @return DOCUMENT ME!
      */
     public static ItemsList qualify(ISession session, Map tableAliases, ItemsList items) {
@@ -79,7 +83,8 @@ class ItemsListQualifier implements ItemsListVisitor {
     /**
      * DOCUMENT ME!
      * 
-     * @param subSelect DOCUMENT ME!
+     * @param subSelect
+     *            DOCUMENT ME!
      */
     public void visit(SubSelect subSelect) {
         SubSelect qualified = SubSelectQualifier.qualify(session, subSelect);
@@ -89,7 +94,8 @@ class ItemsListQualifier implements ItemsListVisitor {
     /**
      * DOCUMENT ME!
      * 
-     * @param expressionList DOCUMENT ME!
+     * @param expressionList
+     *            DOCUMENT ME!
      */
     public void visit(ExpressionList expressionList) {
         List expressions = expressionList.getExpressions();
