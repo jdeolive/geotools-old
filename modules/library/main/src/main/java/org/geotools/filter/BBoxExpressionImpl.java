@@ -95,9 +95,9 @@ public class BBoxExpressionImpl
 
         Polygon polygon = gfac.createPolygon(ring, null);
         if (env instanceof ReferencedEnvelope) {
-			ReferencedEnvelope refEnv = (ReferencedEnvelope) env;
-			polygon.setUserData(CRS.toSRS(refEnv.getCoordinateReferenceSystem()));
-		}
-		super.setValue(polygon);
+            ReferencedEnvelope refEnv = (ReferencedEnvelope) env;
+            polygon.setUserData(refEnv.getCoordinateReferenceSystem());
+        }
+        super.setValue(polygon);
     }
 }
