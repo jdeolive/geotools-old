@@ -159,7 +159,7 @@ public abstract class GeometryFilterImpl extends BinaryComparisonAbstract
             }
         } else {
             // I guess we assume it is a good expression...
-            super.setExpression1(expression);
+            super.setExpression2(expression);
         }
     }
 
