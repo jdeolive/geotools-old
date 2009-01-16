@@ -53,7 +53,6 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.sun.org.apache.bcel.internal.generic.GETFIELD;
 import com.vividsolutions.jts.geom.Envelope;
 
 
