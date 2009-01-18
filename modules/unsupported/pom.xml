@@ -135,6 +135,17 @@
        </modules>
      </profile>
      <profile>
+       <id>temporal</id>
+       <!-- not active as it randomly fails the build
+       <activation>
+         <property><name>all</name></property>
+       </activation>
+       -->
+       <modules>
+         <module>temporal</module>
+       </modules>
+     </profile>
+     <profile>
        <id>workflow</id>
        <activation>
          <property><name>all</name></property>
@@ -160,7 +171,6 @@
          <module>mysql</module>
          <module>oracle-spatial</module>
          <module>postgis-versioned</module>
-         <module>temporal</module>
          <module>tiger</module>
          <module>vpf</module>
          <module>xml-gpx</module>
