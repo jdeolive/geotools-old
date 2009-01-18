@@ -29,10 +29,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.geotools.filter.ExpressionDOMParser;
-import org.geotools.filter.Filter;
 import org.geotools.filter.FilterDOMParser;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.gml.producer.GeometryTransformer;
+import org.opengis.filter.Filter;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
