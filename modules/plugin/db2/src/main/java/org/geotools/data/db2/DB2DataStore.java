@@ -506,7 +506,7 @@ public class DB2DataStore extends JDBCDataStore implements DataStore{
 	 * (non-Javadoc)
 	 * 
 	 * @see org.geotools.data.DataStore#getFeatureReader(org.geotools.feature.FeatureType,
-	 *      org.geotools.filter.Filter, org.geotools.data.Transaction)
+	 *      Filter, org.geotools.data.Transaction)
 	 */
 	public  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(final SimpleFeatureType requestType,
 			final Filter filter, final Transaction transaction)
