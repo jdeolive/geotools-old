@@ -122,6 +122,9 @@ public abstract class AbstractFeatureFactoryImpl implements FeatureFactory {
 	
     public SimpleFeature createSimpleFeature(Object[] array,
             SimpleFeatureType type, String id) {
+        if( type.isAbstract() ){
+            throw new IllegalArgumentException("Cannot create an feature of an abstract FeatureType "+type.getTypeName());
+        }
         return new SimpleFeatureImpl(array, type, ff.featureId(id), validating);
     }
 
