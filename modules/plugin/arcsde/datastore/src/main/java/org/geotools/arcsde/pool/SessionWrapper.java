@@ -194,6 +194,13 @@ public class SessionWrapper implements ISession {
     }
 
     /**
+     * @see org.geotools.arcsde.pool.ISession#fetch(SeQuery, SdeRow)
+     */
+    public SdeRow fetch(SeQuery query, SdeRow currentRow) throws IOException {
+        return wrapped.fetch(query, currentRow);
+    }
+
+    /**
      * @see org.geotools.arcsde.pool.ISession#getDatabaseName()
      */
     public String getDatabaseName() throws IOException {

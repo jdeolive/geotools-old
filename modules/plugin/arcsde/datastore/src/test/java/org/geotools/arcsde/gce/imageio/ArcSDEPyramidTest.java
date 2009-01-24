@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.gce;
+package org.geotools.arcsde.gce.imageio;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,9 +24,10 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.gce.RasterTestData;
 import org.geotools.arcsde.gce.RasterTestData.RasterTableName;
+import org.geotools.arcsde.gce.imageio.ArcSDEPyramid.RasterQueryInfo;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ArcSDEPooledConnection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.junit.AfterClass;
@@ -35,6 +36,7 @@ import org.junit.Test;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeCoordinateReference;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeExtent;
@@ -109,7 +111,7 @@ public class ArcSDEPyramidTest {
 
         testData.loadRGBRaster();
         final String tableName = testData.getRasterTableName(RasterTableName.RGB);
-        ArcSDEPooledConnection conn = pool.getConnection();
+        SeConnection conn = pool.getConnection();
         final SeRasterAttr rAttr;
         try {
             SeQuery q = new SeQuery(conn, new String[] { "RASTER" }, new SeSqlConstruct(tableName));
@@ -163,7 +165,7 @@ public class ArcSDEPyramidTest {
 
         testData.loadRGBARaster();
         
-        ArcSDEPooledConnection conn = pool.getConnection();
+        SeConnection conn = pool.getConnection();
         SeRasterAttr rAttr;
         try {
             String tableName = testData.getRasterTableName(RasterTableName.RGBA);

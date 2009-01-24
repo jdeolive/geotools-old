@@ -58,6 +58,7 @@ import com.esri.sde.sdk.client.SeStreamOp;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeUpdate;
 import com.esri.sde.sdk.client.SeVersion;
+import com.esri.sde.sdk.geom.GeometryFactory;
 
 /**
  * Provides thread safe access to an SeConnection.
@@ -747,20 +748,25 @@ class Session implements ISession {
      * @see ISession#fetch(com.esri.sde.sdk.client.SeQuery)
      */
     public SdeRow fetch(final SeQuery query) throws IOException {
+        return fetch(query, new SdeRow((GeometryFactory)null));
+    }
+
+    public SdeRow fetch(final SeQuery query, final SdeRow currentRow) throws IOException{
         return issue(new Command<SdeRow>() {
             @Override
             public SdeRow execute(final ISession session, final SeConnection connection)
                     throws SeException, IOException {
                 SeRow row = query.fetch();
-                SdeRow populatedRow = null;
-                if (row != null) {
-                    populatedRow = new SdeRow(row);
+                if (row == null) {
+                    return null;
+                }else{
+                    currentRow.setRow(row);
                 }
-                return populatedRow;
+                return currentRow;
             }
         });
     }
-
+    
     /**
      * @see ISession#close(com.esri.sde.sdk.client.SeState)
      */

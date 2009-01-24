@@ -27,12 +27,14 @@ import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
+import org.geotools.arcsde.gce.imageio.ArcSDEPyramid;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterImageReadParam;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterReader;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterReaderSpi;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEPooledConnection;
 import org.geotools.referencing.CRS;
+import org.geotools.util.logging.Logging;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.esri.sde.sdk.client.SeQuery;
@@ -55,8 +57,7 @@ import com.esri.sde.sdk.client.SeSqlConstruct;
  */
 public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
 
-    private static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.arcsde.gce");
+    private static Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
     private ArcSDEConnectionPool pool = null;
 
