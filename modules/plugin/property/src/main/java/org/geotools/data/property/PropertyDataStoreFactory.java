@@ -125,7 +125,7 @@ public class PropertyDataStoreFactory implements DataStoreFactorySpi {
      * @return DOCUMENT ME!
      */
     public Param[] getParametersInfo() {
-        return new Param[] { DIRECTORY, };
+        return new Param[] { DIRECTORY, NAMESPACE };
     }
 
     /**
@@ -193,6 +193,8 @@ public class PropertyDataStoreFactory implements DataStoreFactorySpi {
     		if(!directory.isDirectory()){
     			throw new IllegalArgumentException(directory.getAbsolutePath() + " is not a directory");
     		}
+    	} else if(!directory.isDirectory()) {
+    	        throw new IllegalArgumentException(directory.getAbsolutePath() + " is not a directory");
     	}
     	return directory;
     }
