@@ -458,9 +458,9 @@ public final class GridCoverageRenderer {
         final GeneralEnvelope intersectionEnvelope = new GeneralEnvelope(destinationEnvelopeInSourceCRS);
         intersectionEnvelope.intersect(sourceCoverageEnvelope);
         if (intersectionEnvelope.isEmpty()||intersectionEnvelope.isNull()) {
-            if (LOGGER.isLoggable(Level.FINE)) {
+            if (LOGGER.isLoggable(Level.INFO)) {
                 LOGGER
-                        .warning("The destination envelope does not intersect the envelope of the source coverage.");
+                        .info("The destination envelope does not intersect the envelope of the source coverage.");
             }
             return;
         }
