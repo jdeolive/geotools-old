@@ -124,13 +124,12 @@ public class SampleDataAccessFeatureCollection extends ArrayList<Feature> implem
     }
 
     /**
-     * Not yet implemented.
+     * Return type of features.
      * 
      * @see org.geotools.feature.FeatureCollection#getSchema()
      */
     public FeatureType getSchema() {
-        // FIXME implement this
-        return null;
+        return SampleDataAccessData.MAPPEDFEATURE_TYPE;
     }
 
     /**

@@ -112,8 +112,8 @@ public class SampleDataAccessFeatureSource implements FeatureSource<FeatureType,
      * @see org.geotools.data.FeatureSource#getFeatures(org.opengis.filter.Filter)
      */
     public FeatureCollection<FeatureType, Feature> getFeatures(Filter filter) throws IOException {
-        // FIXME implement this
-        return null;
+        // FIXME temporary hack
+        return getFeatures();
     }
 
     /**
@@ -122,8 +122,8 @@ public class SampleDataAccessFeatureSource implements FeatureSource<FeatureType,
      * @see org.geotools.data.FeatureSource#getFeatures(org.geotools.data.Query)
      */
     public FeatureCollection<FeatureType, Feature> getFeatures(Query query) throws IOException {
-        // FIXME implement this
-        return null;
+        // FIXME temporary hack
+        return getFeatures();
     }
 
     /**
@@ -142,8 +142,7 @@ public class SampleDataAccessFeatureSource implements FeatureSource<FeatureType,
      * @see org.geotools.data.FeatureSource#getName()
      */
     public Name getName() {
-        // FIXME implement this
-        return null;
+        return SampleDataAccessData.MAPPEDFEATURE_TYPE_NAME;
     }
 
     /**
@@ -157,13 +156,12 @@ public class SampleDataAccessFeatureSource implements FeatureSource<FeatureType,
     }
 
     /**
-     * Not yet implemented.
+     * Return feature type.
      * 
      * @see org.geotools.data.FeatureSource#getSchema()
      */
     public FeatureType getSchema() {
-        // FIXME implement this
-        return null;
+        return SampleDataAccessData.MAPPEDFEATURE_TYPE;
     }
 
     /**
