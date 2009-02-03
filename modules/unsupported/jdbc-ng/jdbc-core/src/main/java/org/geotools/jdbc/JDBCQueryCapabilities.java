@@ -77,4 +77,6 @@ class JDBCQueryCapabilities extends QueryCapabilities {
     public boolean isReliableFIDSupported() {
         return !(source.getPrimaryKey() instanceof NullPrimaryKey);
     }
+    
+    
 }
