@@ -136,11 +136,9 @@
      </profile>
      <profile>
        <id>temporal</id>
-       <!-- not active as it randomly fails the build
        <activation>
          <property><name>all</name></property>
        </activation>
-       -->
        <modules>
          <module>temporal</module>
        </modules>
