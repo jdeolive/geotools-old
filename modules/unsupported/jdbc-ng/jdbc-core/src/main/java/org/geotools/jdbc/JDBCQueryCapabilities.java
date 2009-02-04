@@ -78,5 +78,8 @@ class JDBCQueryCapabilities extends QueryCapabilities {
         return !(source.getPrimaryKey() instanceof NullPrimaryKey);
     }
     
-    
+    @Override
+    public boolean isOffsetSupported() {
+        return source.getDataStore().getSQLDialect().isLimitOffsetSupported();
+    }
 }
