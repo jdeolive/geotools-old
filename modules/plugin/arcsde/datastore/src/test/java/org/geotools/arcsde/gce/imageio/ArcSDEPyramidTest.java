@@ -134,7 +134,7 @@ public class ArcSDEPyramidTest {
 
         RasterTestData testData = new RasterTestData();
         testData.setUp();
-        String tableName = testData.getRasterTableName(RasterCellType.TYPE_8BIT_U, false);
+        String tableName = testData.getRasterTableName(RasterCellType.TYPE_8BIT_U, 1, false);
         testData.loadTestRaster(tableName, 1, 1013, 1021, RasterCellType.TYPE_8BIT_U, null, true,
                 false, SeRaster.SE_INTERPOLATION_NEAREST, 9);
 
