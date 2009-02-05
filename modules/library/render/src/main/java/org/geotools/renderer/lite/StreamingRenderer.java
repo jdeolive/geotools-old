@@ -633,9 +633,9 @@ public final class StreamingRenderer implements GTRenderer {
 		// ////////////////////////////////////////////////////////////////////
 		final MapLayer[] layers = context.getLayers();
 		labelCache.start();
-		if(labelCache instanceof LabelCacheDefault) {
+		if(labelCache instanceof LabelCacheImpl) {
 		    boolean outlineEnabled = TEXT_RENDERING_OUTLINE.equals(getTextRenderingMethod());
-            ((LabelCacheDefault) labelCache).setOutlineRenderingEnabled(outlineEnabled);
+            ((LabelCacheImpl) labelCache).setOutlineRenderingEnabled(outlineEnabled);
 		}
 		final int layersNumber = layers.length;
 		MapLayer currLayer;
