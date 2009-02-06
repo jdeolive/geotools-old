@@ -70,7 +70,9 @@ public class MarkStyle2D extends PolygonStyle2D {
             ts.shape = shape;
             ts.translate(x, y);
             ts.rotate(rotation);
-            ts.scale(scale, scale);
+            // flip the symbol to take into account the screen orientation
+            // where the y grows from top to bottom
+            ts.scale(scale, -scale);
 
             return ts;
         } else {
