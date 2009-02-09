@@ -29,8 +29,6 @@ import junit.framework.TestCase;
 
 import org.geotools.arcsde.gce.imageio.ArcSDEPyramid;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterImageReadParam;
-import org.geotools.arcsde.gce.imageio.ArcSDERasterReader;
-import org.geotools.arcsde.gce.imageio.ArcSDERasterReaderSpi;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEPooledConnection;
 import org.geotools.referencing.CRS;
