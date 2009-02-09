@@ -322,6 +322,8 @@ public class UnmappingFilterVisitorTest extends TestCase {
         assertNotNull(unrolled);
         assertEquals(1, unrolled.size());
         assertTrue(unrolled.get(0) instanceof Expression);
+
+        mappingDataStore.dispose();
     }
 
     public void testBetweenFilter() throws Exception {
@@ -436,7 +438,9 @@ public class UnmappingFilterVisitorTest extends TestCase {
 
         assertEquals("BGS_ID", ((PropertyName) filter2.getExpression1()).getPropertyName());
         assertEquals("NAME", ((PropertyName) filter3.getExpression1()).getPropertyName());
-        assertEquals("ORIGINAL_N", ((PropertyName) filter4.getExpression1()).getPropertyName());
+        assertEquals("ORIGINAL_N", ((PropertyName) filter4.getExpression1()).getPropertyName());        
+
+        mappingDataStore.dispose();
     }
 
     /**

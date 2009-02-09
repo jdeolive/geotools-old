@@ -26,9 +26,9 @@ import java.util.Map;
  * Configuration object for the mapping of a community schema attribute.
  * 
  * @author Gabriel Roldan, Axios Engineering
+ * @author Rini Angreani, Curtin University of Technology
  * @version $Id$
- * @source $URL:
- *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/config/AttributeMapping.java $
+ * @source $URL$
  * @since 2.4
  */
 public class AttributeMapping implements Serializable {
@@ -48,6 +48,16 @@ public class AttributeMapping implements Serializable {
      * </p>
      */
     private String sourceExpression;
+
+    /**
+     * Name of the linked element type of which this attribute is nesting/targeting.
+     */
+    private String linkElement;
+
+    /**
+     * XPath expression addressing the target attribute in the linked target feature type.
+     */
+    private String linkField;
 
     /**
      * Expression whose evaluation result against a Feature of the source FeatureType is going to be
@@ -110,6 +120,43 @@ public class AttributeMapping implements Serializable {
      */
     public void setSourceExpression(String sourceExpression) {
         this.sourceExpression = sourceExpression;
+    }
+
+    /**
+     * Returns the name of the linked element type of which this attribute is nesting/targeting.
+     * 
+     * @return the link element name
+     */
+    public String getLinkElement() {
+        return linkElement;
+    }
+
+    /**
+     * Sets the name of the linked element type of which this attribute is nesting/targeting.
+     * 
+     * @param linkElement
+     */
+    public void setLinkElement(String linkElement) {
+        this.linkElement = linkElement;
+    }
+
+    /**
+     * Returns the XPath expression addressing the target attribute in the linked target feature
+     * type
+     * 
+     * @return the linked field
+     */
+    public String getLinkField() {
+        return linkField;
+    }
+
+    /**
+     * Sets the XPath expression addressing the target attribute in the linked target feature type
+     * 
+     * @param linkField
+     */
+    public void setLinkField(String linkField) {
+        this.linkField = linkField;
     }
 
     /**
@@ -208,7 +255,9 @@ public class AttributeMapping implements Serializable {
                 + ", isMultiple: "
                 + isMultiple
                 + ((targetAttributeSchemaElement == null) ? ""
-                        : (", target node: " + targetAttributeSchemaElement)) + "]";
+                        : (", target node: " + targetAttributeSchemaElement)) 
+                + ((linkElement == null) ? "" : (", linkElement: " + linkElement))
+                + ((linkField == null) ? "" : (", linkField: " + linkField)) + "]";
     }
 
     public Map getClientProperties() {

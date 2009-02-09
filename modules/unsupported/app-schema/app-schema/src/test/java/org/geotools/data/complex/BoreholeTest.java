@@ -275,6 +275,7 @@ public class BoreholeTest extends TestCase {
         DataAccess<FeatureType, Feature> mappingDataStore = getDataStore();
         assertNotNull(mappingDataStore);
         assertNotNull(mappingDataStore.getSchema(typeName));
+        mappingDataStore.dispose();
     }
 
     public void testDataStore() throws Exception {
@@ -304,6 +305,7 @@ public class BoreholeTest extends TestCase {
             count++;
         }
         features.close(it);
+        mappingDataStore.dispose();
         assertEquals(EXPECTED_RESULT_COUNT, count);
     }
 
@@ -343,6 +345,8 @@ public class BoreholeTest extends TestCase {
         // String obtainedValue = (String) propertyName.evaluate(feature);
         // assertNotNull(obtainedValue);
         // assertEquals(queryLiteral, obtainedValue);
+
+        mappingDataStore.dispose();
     }
 
     /**
@@ -366,6 +370,7 @@ public class BoreholeTest extends TestCase {
                 .getFeatures();
         Feature f = (Feature) features.iterator().next();
         traverse(f);
+        mappingDataStore.dispose();
     }
 
     private void traverse(Attribute f) {

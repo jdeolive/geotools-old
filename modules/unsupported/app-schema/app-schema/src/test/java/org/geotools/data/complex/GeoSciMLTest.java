@@ -225,6 +225,9 @@ public class GeoSciMLTest extends TestCase {
                 count++;
             }
             features.close(it);
+
+            mappingDataStore.dispose();
+            
             assertEquals(EXPECTED_RESULT_COUNT, count);
         } catch (Exception e) {
             e.printStackTrace();

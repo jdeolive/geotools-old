@@ -34,9 +34,9 @@ import org.xml.sax.SAXException;
  * Digester to consume the app-schema {@link AppSchemaDataAccessFactory} configuration file.
  * 
  * @author Gabriel Roldan, Axios Engineering
+ * @author Rini Angreani, Curtin University of Technology
  * @version $Id$
- * @source $URL:
- *         http://svn.geotools.org/trunk/modules/unsupported/community-schemas/community-schema-ds/src/main/java/org/geotools/data/complex/config/XMLConfigDigester.java $
+ * @source $URL$
  * @since 2.4
  */
 public class XMLConfigDigester {
@@ -180,6 +180,14 @@ public class XMLConfigDigester {
 
         digester.addCallMethod(attMap + "/sourceExpression/OCQL", "setSourceExpression", 1);
         digester.addCallParam(attMap + "/sourceExpression/OCQL", 0);
+
+        // for feature chaining: this refers to the nested feature type
+        digester.addCallMethod(attMap + "/sourceExpression/linkElement", "setLinkElement", 1);
+        digester.addCallParam(attMap + "/sourceExpression/linkElement", 0);
+
+        // for feature chaining: this refers to the nested feature attribute
+        digester.addCallMethod(attMap + "/sourceExpression/linkField", "setLinkField", 1);
+        digester.addCallParam(attMap + "/sourceExpression/linkField", 0);
 
         digester.addCallMethod(attMap + "/ClientProperty", "putClientProperty", 2);
         digester.addCallParam(attMap + "/ClientProperty/name", 0);

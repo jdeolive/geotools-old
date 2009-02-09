@@ -106,6 +106,7 @@ public class AppSchemaDataAccessFactoryTest extends TestCase {
         FeatureSource<FeatureType, Feature> mappedSource = ds.getFeatureSource(mappedTypeName);
         assertNotNull(mappedSource);
         assertSame(ds, mappedSource.getDataStore());
+        ds.dispose();
     }
 
     /**
@@ -119,6 +120,8 @@ public class AppSchemaDataAccessFactoryTest extends TestCase {
 
         FeatureSource<FeatureType, Feature> mappedSource = ds.getFeatureSource(mappedTypeName);
         assertNotNull(mappedSource);
+        
+        ds.dispose();
     }
 
     /**
