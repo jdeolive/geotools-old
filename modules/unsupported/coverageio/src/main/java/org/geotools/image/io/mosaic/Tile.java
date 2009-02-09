@@ -956,6 +956,18 @@ public class Tile implements Comparable<Tile>, Serializable {
     }
 
     /**
+     * Returns {@code true} if the subsampling of this tile is equals to the subsampling of
+     * the given tile, but this tile cover a greater area than the given tile.
+     *
+     * @param other The other tile to compare with.
+     * @return {@code true} if both tiles have the same subsampling and this tile is larger.
+     */
+    final boolean isLargerThan(final Tile other) {
+        return xSubsampling == other.xSubsampling && ySubsampling == other.ySubsampling &&
+                (width & MASK) * (height & MASK) > (other.width & MASK) * (other.height & MASK);
+    }
+
+    /**
      * Returns the upper-left corner in the
      * {@linkplain javax.imageio.ImageReadParam#setDestination destination image}. This is the
      * location when no {@linkplain javax.imageio.ImageReadParam#setDestinationOffset destination

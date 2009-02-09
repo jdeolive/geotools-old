@@ -36,7 +36,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.SampleDimension;
 import org.opengis.coverage.CannotEvaluateException;
-import org.opengis.coverage.grid.GridRange;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.referencing.FactoryException;
@@ -948,7 +948,7 @@ public class CoverageStack extends AbstractCoverage {
         final Element element = elements[index];
         final GridGeometry geometry = element.getGridGeometry();
         if (geometry != null) {
-            final GridRange     range     = geometry.getGridRange();
+            final GridEnvelope  range     = geometry.getGridRange();
             final MathTransform transform = geometry.getGridToCRS();
             final int           dimension = transform.getSourceDimensions();
             DirectPosition position = new GeneralDirectPosition(dimension);
@@ -959,8 +959,8 @@ public class CoverageStack extends AbstractCoverage {
             try {
                 position = transform.inverse().transform(position, position);
                 for (int i=dimension; --i>=0;) {
-                    position.setOrdinate(i, Math.max(range.getLower(i),
-                                            Math.min(range.getUpper(i)-1,
+                    position.setOrdinate(i, Math.max(range.getLow(i),
+                                            Math.min(range.getHigh(i),
                                        (int)Math.rint(position.getOrdinate(i)))));
                 }
                 position = transform.transform(position, position);

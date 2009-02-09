@@ -22,7 +22,7 @@ import javax.media.jai.operator.AffineDescriptor;  // For javadoc
 
 import org.opengis.geometry.Envelope;
 import org.opengis.coverage.Coverage;
-import org.opengis.coverage.grid.GridRange;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.parameter.ParameterDescriptor;
@@ -264,7 +264,7 @@ public class Resample extends Operation2D {
              * target image should have the same size). Then create again a new grid geometry,
              * this time with the target envelope.
              */
-            GridRange gridRange;
+            GridEnvelope gridRange;
             try {
                 final GeneralEnvelope transformed;
                 transformed = CRS.transform(CRS.getCoordinateOperationFactory(true)
