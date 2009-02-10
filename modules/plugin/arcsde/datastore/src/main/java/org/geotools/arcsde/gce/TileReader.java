@@ -192,7 +192,7 @@ class TileReader {
                     + " has more: " + hasNext());
         }
 
-        final byte NO_DATA_BYTE = (byte) 0xFF;
+        final byte NO_DATA_BYTE = (byte) 0x00;
 
         final int numPixels = tile.getNumPixels();
         if (0 == numPixels) {

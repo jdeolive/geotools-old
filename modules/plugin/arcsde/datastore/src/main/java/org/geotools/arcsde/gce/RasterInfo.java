@@ -201,7 +201,11 @@ class RasterInfo {
      * @return the bands
      */
     public List<RasterBandInfo> getBands() {
-        return bands;
+        return new ArrayList<RasterBandInfo>(bands);
+    }
+
+    public RasterBandInfo getBand(int index) {
+        return bands.get(index);
     }
 
     /**
