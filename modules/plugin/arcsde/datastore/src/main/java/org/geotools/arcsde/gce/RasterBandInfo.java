@@ -22,10 +22,6 @@ import java.awt.geom.Point2D.Double;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
 
-import org.geotools.arcsde.gce.imageio.CompressionType;
-import org.geotools.arcsde.gce.imageio.InterleaveType;
-import org.geotools.arcsde.gce.imageio.InterpolationType;
-import org.geotools.arcsde.gce.imageio.RasterCellType;
 
 import com.vividsolutions.jts.geom.Envelope;
 

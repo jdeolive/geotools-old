@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.geotools.arcsde.gce.imageio.ArcSDEPyramid;
-import org.geotools.arcsde.gce.imageio.RasterCellType;
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GeneralGridRange;

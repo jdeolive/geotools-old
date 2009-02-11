@@ -44,9 +44,6 @@ import javax.media.jai.RenderedOp;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.gce.RasterUtils.QueryInfo;
-import org.geotools.arcsde.gce.imageio.ArcSDEPyramid;
-import org.geotools.arcsde.gce.imageio.ArcSDEPyramidLevel;
-import org.geotools.arcsde.gce.imageio.RasterCellType;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEPooledConnection;
 import org.geotools.coverage.CoverageFactoryFinder;

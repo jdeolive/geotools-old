@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.gce.imageio;
+package org.geotools.arcsde.gce;
 
 import java.util.NoSuchElementException;
 
@@ -30,7 +30,7 @@ import com.esri.sde.sdk.client.SeRaster;
  * @version $Id$
  * @source $URL$
  */
-public enum CompressionType {
+enum CompressionType {
     COMPRESSION_JP2, COMPRESSION_JPEG, COMPRESSION_LZ77, COMPRESSION_NONE;
     static {
         COMPRESSION_JP2.setSdeTypeId(SeRaster.SE_COMPRESSION_JP2);

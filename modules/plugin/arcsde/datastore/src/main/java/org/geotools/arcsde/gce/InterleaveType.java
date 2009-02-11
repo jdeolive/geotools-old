@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.gce.imageio;
+package org.geotools.arcsde.gce;
 
 import java.util.NoSuchElementException;
 
@@ -30,7 +30,7 @@ import com.esri.sde.sdk.client.SeRaster;
  * @version $Id$
  * @source $URL$
  */
-public enum InterleaveType {
+enum InterleaveType {
     INTERLEAVE_BIL, INTERLEAVE_BIL_91, INTERLEAVE_BIP, INTERLEAVE_BIP_91, INTERLEAVE_BSQ, INTERLEAVE_BSQ_91, INTERLEAVE_NONE;
     static {
         INTERLEAVE_BIL.setSdeTypeId(SeRaster.SE_RASTER_INTERLEAVE_BIL);

@@ -24,8 +24,6 @@ import java.awt.image.IndexColorModel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.gce.imageio.ArcSDEPyramid;
-import org.geotools.arcsde.gce.imageio.ArcSDEPyramidLevel;
 import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.data.DataSourceException;
 import org.geotools.geometry.GeneralEnvelope;

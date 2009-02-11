@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.gce.imageio;
+package org.geotools.arcsde.gce;
 
 import java.util.NoSuchElementException;
 
@@ -30,7 +30,7 @@ import com.esri.sde.sdk.client.SeRaster;
  * @version $Id$
  * @source $URL$
  */
-public enum InterpolationType {
+enum InterpolationType {
     INTERPOLATION_BICUBIC, INTERPOLATION_BILINEAR, INTERPOLATION_NEAREST, INTERPOLATION_NONE;
     static {
         INTERPOLATION_BICUBIC.setSdeTypeId(SeRaster.SE_INTERPOLATION_BICUBIC);
