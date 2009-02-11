@@ -72,6 +72,7 @@ import com.esri.sde.sdk.client.SeRelease;
  * @version $Id$
  * @deprecated still here waiting for gce to switch to {@link SessionPool}
  */
+@SuppressWarnings("unchecked")
 public class ArcSDEConnectionPool {
     /** package's logger */
     private static final Logger LOGGER = org.geotools.util.logging.Logging
