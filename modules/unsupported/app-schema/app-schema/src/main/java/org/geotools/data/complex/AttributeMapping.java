@@ -154,8 +154,4 @@ public class AttributeMapping {
         this.identifierExpression = identifierExpression;
     }
 
-    public boolean isNestedFeature() {
-        // TODO Auto-generated method stub
-        return false;
-    }
 }

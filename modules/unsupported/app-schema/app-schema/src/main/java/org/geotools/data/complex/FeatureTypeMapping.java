@@ -84,14 +84,14 @@ public class FeatureTypeMapping {
      * @param targetPath
      * @return
      */
-    public List/* <AttributeMapping> */getAttributeMappingsIgnoreIndex(final StepList targetPath) {
+    public List<AttributeMapping> getAttributeMappingsIgnoreIndex(final StepList targetPath) {
         AttributeMapping attMapping;
-        List mappings = Collections.EMPTY_LIST;
-        for (Iterator it = attributeMappings.iterator(); it.hasNext();) {
+        List<AttributeMapping> mappings = Collections.EMPTY_LIST;
+        for (Iterator<AttributeMapping> it = attributeMappings.iterator(); it.hasNext();) {
             attMapping = (AttributeMapping) it.next();
             if (targetPath.equalsIgnoreIndex(attMapping.getTargetXPath())) {
                 if (mappings.size() == 0) {
-                    mappings = new ArrayList(2);
+                    mappings = new ArrayList<AttributeMapping>(2);
                 }
                 mappings.add(attMapping);
             }
@@ -105,15 +105,14 @@ public class FeatureTypeMapping {
      * @param sourceExpression
      * @return list of matching attribute mappings
      */
-    public List/* <AttributeMapping> */getAttributeMappingsByExpression(
-            final Expression sourceExpression) {
+    public List<AttributeMapping> getAttributeMappingsByExpression(final Expression sourceExpression) {
         AttributeMapping attMapping;
-        List mappings = Collections.EMPTY_LIST;
-        for (Iterator it = attributeMappings.iterator(); it.hasNext();) {
+        List<AttributeMapping> mappings = Collections.EMPTY_LIST;
+        for (Iterator<AttributeMapping> it = attributeMappings.iterator(); it.hasNext();) {
             attMapping = (AttributeMapping) it.next();
             if (sourceExpression.equals(attMapping.getSourceExpression())) {
                 if (mappings.size() == 0) {
-                    mappings = new ArrayList(2);
+                    mappings = new ArrayList<AttributeMapping>(2);
                 }
                 mappings.add(attMapping);
             }
@@ -131,7 +130,7 @@ public class FeatureTypeMapping {
      */
     public AttributeMapping getAttributeMapping(final StepList exactPath) {
         AttributeMapping attMapping;
-        for (Iterator it = attributeMappings.iterator(); it.hasNext();) {
+        for (Iterator<AttributeMapping> it = attributeMappings.iterator(); it.hasNext();) {
             attMapping = (AttributeMapping) it.next();
             if (exactPath.equals(attMapping.getTargetXPath())) {
                 return attMapping;
