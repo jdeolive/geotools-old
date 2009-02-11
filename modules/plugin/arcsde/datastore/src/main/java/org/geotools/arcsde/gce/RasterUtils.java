@@ -211,8 +211,8 @@ class RasterUtils {
     }
 
     public static QueryInfo fitRequestToRaster(final GeneralEnvelope requestedEnvelope,
-            final Rectangle requestedDim, final ArcSDEPyramid pyramidInfo, final int pyramidLevel) {
-        final ArcSDEPyramidLevel level = pyramidInfo.getPyramidLevel(pyramidLevel);
+            final Rectangle requestedDim, final PyramidInfo pyramidInfo, final int pyramidLevel) {
+        final PyramidLevelInfo level = pyramidInfo.getPyramidLevel(pyramidLevel);
 
         final CoordinateReferenceSystem nativeCrs;
         {

@@ -117,7 +117,7 @@ class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         this.connectionPool = connectionPool;
         this.rasterInfo = rasterInfo;
 
-        final ArcSDEPyramid pyramidInfo = rasterInfo.getPyramidInfo();
+        final PyramidInfo pyramidInfo = rasterInfo.getPyramidInfo();
 
         super.hints = hints;
         super.coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(this.hints);
@@ -138,7 +138,7 @@ class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         // highestRes = new double[2];
         // highestRes[0] = pyramidInfo.getPyramidLevel(0).getXRes();
         // highestRes[1] = pyramidInfo.getPyramidLevel(0).getYRes();
-        ArcSDEPyramidLevel levelZero = pyramidInfo.getPyramidLevel(0);
+        PyramidLevelInfo levelZero = pyramidInfo.getPyramidLevel(0);
         highestRes = super
                 .getResolution(new GeneralEnvelope(levelZero.getEnvelope()),
                         new Rectangle2D.Double(0, 0, levelZero.getSize().width,
@@ -151,7 +151,7 @@ class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         if (numOverviews > 0) {
             overViewResolutions = new double[numOverviews][2];
             for (int pyramidLevel = 1; pyramidLevel <= numOverviews; pyramidLevel++) {
-                ArcSDEPyramidLevel level = pyramidInfo.getPyramidLevel(pyramidLevel);
+                PyramidLevelInfo level = pyramidInfo.getPyramidLevel(pyramidLevel);
                 overViewResolutions[pyramidLevel - 1] = super.getResolution(new GeneralEnvelope(
                         level.getEnvelope()), new Rectangle2D.Double(0, 0, level.getSize().width,
                         level.getSize().height), crs);
@@ -195,7 +195,7 @@ class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             requestedEnvelope = opParams.requestedEnvelope;
             requestedDim = opParams.dim;
         }
-        final ArcSDEPyramid pyramidInfo = rasterInfo.getPyramidInfo();
+        final PyramidInfo pyramidInfo = rasterInfo.getPyramidInfo();
 
         /*
          * set params

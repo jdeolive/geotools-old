@@ -49,7 +49,7 @@ class RasterInfo {
     private String[] rasterColumns;
 
     /** Array holding information on each level of the pyramid in this raster. * */
-    private ArcSDEPyramid pyramidInfo;
+    private PyramidInfo pyramidInfo;
 
     private List<RasterBandInfo> bands;
 
@@ -99,14 +99,14 @@ class RasterInfo {
      * @param pyramidInfo
      *            the pyramidInfo to set
      */
-    void setPyramidInfo(ArcSDEPyramid pyramidInfo) {
+    void setPyramidInfo(PyramidInfo pyramidInfo) {
         this.pyramidInfo = pyramidInfo;
     }
 
     /**
      * @return the pyramidInfo
      */
-    public ArcSDEPyramid getPyramidInfo() {
+    public PyramidInfo getPyramidInfo() {
         return pyramidInfo;
     }
 
