@@ -213,7 +213,7 @@ class RasterInfo {
             int maxx = Integer.MIN_VALUE;
             int maxy = Integer.MIN_VALUE;
 
-            final int rasterCount = getRasterCount();
+            final int rasterCount = getNumRasters();
             for (int rasterN = 0; rasterN < rasterCount; rasterN++) {
                 final GeneralEnvelope rasterEnvelope = getEnvelope(rasterN, 0);
                 final Rectangle rasterGridRange = getGridRange(rasterN, 0);
@@ -305,7 +305,7 @@ class RasterInfo {
         return sb.toString();
     }
 
-    public int getRasterCount() {
+    public int getNumRasters() {
         return subRasterInfo.size();
     }
 
@@ -379,5 +379,10 @@ class RasterInfo {
 
     public RasterCellType getCellType() {
         return getBand(0, 0).getCellType();
+    }
+
+    public long getRasterId(final int rasterIndex) {
+        final PyramidInfo rasterInfo = getRasterInfo(rasterIndex);
+        return rasterInfo.getRasterId();
     }
 }
