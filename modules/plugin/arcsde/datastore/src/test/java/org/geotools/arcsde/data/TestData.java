@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
+import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
@@ -259,8 +260,13 @@ public class TestData {
 
     public void deleteTable(final String typeName) throws IOException,
             UnavailableArcSDEConnectionException {
+        deleteTable(typeName, true);
+    }
+
+    public void deleteTable(final String typeName, final boolean ignoreFailure) throws IOException,
+            UnavailableArcSDEConnectionException {
         SessionPool connectionPool = getConnectionPool();
-        deleteTable(connectionPool, typeName);
+        deleteTable(connectionPool, typeName, ignoreFailure);
     }
 
     /**
@@ -269,16 +275,12 @@ public class TestData {
      * @param connPool
      *            to get the connection to use in deleting {@link #getTempTableName()}
      */
-    public void deleteTempTable(SessionPool connPool) {
-        try {
-            deleteTable(connPool, getTempTableName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void deleteTempTable(SessionPool connPool) throws IOException {
+        deleteTable(connPool, getTempTableName(), false);
     }
 
-    private static void deleteTable(final SessionPool connPool, final String tableName)
-            throws IOException, UnavailableArcSDEConnectionException {
+    private static void deleteTable(final SessionPool connPool, final String tableName,
+            final boolean ignoreFailure) throws IOException, UnavailableArcSDEConnectionException {
 
         final ISession session = connPool.getSession();
 
@@ -302,7 +304,10 @@ public class TestData {
                 try {
                     table.delete();
                 } catch (SeException ignorable) {
-                    // table did not already exist
+                    // table did not already exist? or was locked...
+                    if (!ignoreFailure) {
+                        throw new ArcSdeException(ignorable);
+                    }
                 }
                 return null;
             }
