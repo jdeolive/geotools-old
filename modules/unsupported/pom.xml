@@ -160,7 +160,6 @@
          <property><name>all</name></property>
        </activation>
        <modules>
-         <module>directory</module>
          <module>epsg-oracle</module>
          <module>gml</module>    
          <module>gpx</module>
@@ -180,6 +179,7 @@
     <module>ogc</module>
     <module>repository</module>
     <module>mappane</module>
+    <module>directory</module>
   </modules>
 
 </project>
