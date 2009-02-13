@@ -123,14 +123,14 @@ class TileReader {
      * @return number of tiles being fetched over the X axis
      */
     public int getTilesWide() {
-        return 1 + requestedTiles.width;
+        return requestedTiles.width;
     }
 
     /**
      * @return number of tiles being fetched over the Y axis
      */
     public int getTilesHigh() {
-        return 1 + requestedTiles.height;
+        return requestedTiles.height;
     }
 
     /**
