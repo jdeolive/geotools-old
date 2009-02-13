@@ -233,7 +233,9 @@ class RasterInfo {
                 maxx = Math.max(maxx, (int) Math.ceil(rasterGridRangeInDataSet.getMaximum(0)));
                 maxy = Math.max(maxy, (int) Math.ceil(rasterGridRangeInDataSet.getMaximum(1)));
             }
-            Rectangle range = new Rectangle(minx, miny, maxx - minx, maxy - miny);
+            int width = maxx - minx;
+            int height = maxy - miny;
+            Rectangle range = new Rectangle(0, 0, width, height);
             originalGridRange = new GeneralGridRange(range);
         }
         return originalGridRange;
