@@ -483,7 +483,7 @@ class RasterUtils {
         return colorModel;
     }
 
-    public static ImageTypeSpecifier createFullImageTypeSpecifier(final RasterInfo rasterInfo) {
+    public static ImageTypeSpecifier createFullImageTypeSpecifier(final RasterInfo rasterInfo, final int rasterIndex) {
         final int numberOfBands = rasterInfo.getNumBands();
         final RasterCellType pixelType = rasterInfo.getCellType();
         // Prepare temporary colorModel and sample model, needed to build the final
@@ -498,7 +498,7 @@ class RasterUtils {
             final boolean hasColorMap = rasterInfo.isColorMapped();
             if (hasColorMap) {
                 LOGGER.fine("Found single-band colormapped raster, using its index color model");
-                colorModel = rasterInfo.getColorMap();
+                colorModel = rasterInfo.getColorMap(rasterIndex);
                 sampleModel = colorModel.createCompatibleSampleModel(sampleImageWidth,
                         sampleImageHeight);
             } else if (bitsPerSample == 1 || bitsPerSample == 4) {
