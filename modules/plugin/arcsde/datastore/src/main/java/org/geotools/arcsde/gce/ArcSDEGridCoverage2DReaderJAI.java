@@ -341,7 +341,7 @@ class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         }
 
         for (QueryInfo match : matchingQueries) {
-            RasterUtils.fitRequestToRaster(requestedEnvelope, requestedDim, rasterInfo, match);
+            RasterUtils.fitRequestToRaster(requestedEnvelope, rasterInfo, match);
         }
         return matchingQueries;
     }
