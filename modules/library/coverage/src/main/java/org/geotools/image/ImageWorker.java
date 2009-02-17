@@ -1096,7 +1096,7 @@ public class ImageWorker {
 				}
 				break;
 				
-			case DataBuffer.TYPE_USHORT:case DataBuffer.TYPE_SHORT:
+			case DataBuffer.TYPE_USHORT:
 			{
 				final int mapSize=icm.getMapSize();
 				final short    data[][] = new short[numDestinationBands][mapSize];
