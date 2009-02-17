@@ -276,7 +276,7 @@ public class TestData {
      *            to get the connection to use in deleting {@link #getTempTableName()}
      */
     public void deleteTempTable(SessionPool connPool) throws IOException {
-        deleteTable(connPool, getTempTableName(), false);
+        deleteTable(connPool, getTempTableName(), true);
     }
 
     private static void deleteTable(final SessionPool connPool, final String tableName,

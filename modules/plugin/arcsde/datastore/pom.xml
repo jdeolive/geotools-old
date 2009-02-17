@@ -101,15 +101,6 @@
       <artifactId>gt-jdbc</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!--
-    This dependency was being used by FilterTest, which anyway
-    is not being executed as it relies in non available data.
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-jts-wrapper</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-     -->
     <dependency>
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
@@ -228,11 +219,6 @@
               <includes>
                 <include>**/*Test.java</include>
               </includes>
-              <excludes>
-                <!-- this ones contains no test cases yet but the surefire plugin tries to run it anyway leading to an initializationError -->
-                <exclude>**/OneByteBandNoColormapReaderTest.java</exclude>
-                <exclude>**/UnsignedByteRGBABandCopierTest.java</exclude>
-              </excludes>
             </configuration>
           </plugin>
         </plugins>
