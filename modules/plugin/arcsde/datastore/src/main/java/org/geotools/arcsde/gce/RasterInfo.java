@@ -19,6 +19,7 @@ package org.geotools.arcsde.gce;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.IndexColorModel;
 import java.util.ArrayList;
@@ -394,5 +395,17 @@ class RasterInfo {
             }
         }
         throw new IllegalArgumentException("rasterId: " + rasterId);
+    }
+
+    public double[] getResolution(int rasterN, int pyramidLevel) {
+        PyramidInfo rasterInfo = getRasterInfo(rasterN);
+        double[] resolution = rasterInfo.getResolution(pyramidLevel);
+        return resolution;
+    }
+
+    public Point getTileOffset(final int rasterIndex, final int pyramidLevel) {
+        PyramidInfo rasterInfo = getRasterInfo(rasterIndex);
+        PyramidLevelInfo level = rasterInfo.getPyramidLevel(pyramidLevel);
+        return new Point(level.getXOffset(), level.getYOffset());
     }
 }
