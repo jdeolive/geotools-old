@@ -19,6 +19,7 @@ package org.geotools.data.complex.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -634,7 +635,7 @@ public class XPath {
                     assert previousValue instanceof Collection;
                     ((Collection) convertedValue).addAll((Collection) previousValue);
                 } else {
-                    List temp = new ArrayList();
+                    HashSet temp = new HashSet();
                     ((Collection) temp).add(convertedValue);
                     if (previousValue instanceof Collection) {
                         ((Collection) temp).addAll((Collection) previousValue);
@@ -667,7 +668,7 @@ public class XPath {
                 return list;
             } else {
                 if (value instanceof Feature) {
-                    ArrayList<Feature> list = new ArrayList<Feature>();
+                    HashSet<Feature> list = new HashSet<Feature>();
                     list.add((Feature) value);
                     return list;
                 }
