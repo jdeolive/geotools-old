@@ -19,7 +19,6 @@ package org.geotools.data.complex.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -633,19 +632,26 @@ public class XPath {
             if (previousValue != null) {
                 if (convertedValue instanceof Collection) {
                     assert previousValue instanceof Collection;
-                    ((Collection) convertedValue).addAll((Collection) previousValue);
-                } else {
-                    HashSet temp = new HashSet();
-                    ((Collection) temp).add(convertedValue);
-                    if (previousValue instanceof Collection) {
-                        ((Collection) temp).addAll((Collection) previousValue);
-                    } else {
-                        ((Collection) temp).add(previousValue);
+                    // we could have the same multiple entries from denormalized
+                    // view, so make sure they're unique
+                    if (!((Collection) previousValue).containsAll((Collection) convertedValue)) {
+                        ((Collection) convertedValue).addAll((Collection) previousValue);
+                        leafAttribute.setValue(convertedValue);
                     }
-                    convertedValue = temp;
+                } else if (previousValue instanceof Collection) {
+                    if (!((Collection) previousValue).contains(convertedValue)) {
+                        ArrayList temp = new ArrayList();
+                        temp.add(convertedValue);
+                        temp.addAll((Collection) previousValue);
+                        leafAttribute.setValue(temp);
+                    }
+                } else if (!previousValue.equals(convertedValue)) {
+                    ArrayList temp = new ArrayList();
+                    temp.add(convertedValue);
+                    temp.add(previousValue);
+                    leafAttribute.setValue(temp);
                 }
             }
-            leafAttribute.setValue(convertedValue);
         }
         return leafAttribute;
     }
@@ -668,7 +674,7 @@ public class XPath {
                 return list;
             } else {
                 if (value instanceof Feature) {
-                    HashSet<Feature> list = new HashSet<Feature>();
+                    ArrayList<Feature> list = new ArrayList<Feature>();
                     list.add((Feature) value);
                     return list;
                 }
