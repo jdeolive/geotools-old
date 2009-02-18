@@ -87,7 +87,7 @@
      <!-- ================================================== -->
      <!--     Unsupported Modules                            -->
      <!-- ================================================== -->
-     <!-- The following profiles can all be turned on by     -->BufferedImage
+     <!-- The following profiles can all be turned on by     -->
      <!-- providing -Dall on the command line.               -->
      <!--                                                    -->
      <!-- These modules are included in the build and deploy -->
