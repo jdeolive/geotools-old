@@ -19,6 +19,7 @@ package org.geotools.arcsde.gce;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
@@ -445,11 +446,6 @@ class RasterUtils {
         return levelOverlappingPixels;
     }
 
-    private static boolean relates(Rectangle r1, Rectangle r2) {
-        // expand r2 by one so intersects acts as relates (counts adjacent edges)
-        return r1.intersects(new Rectangle(r2.x - 1, r2.y - 1, r2.width + 2, r2.height + 2));
-    }
-
     public static IndexColorModel sdeColorMapToJavaColorModel(final int bitsPerPixel,
             final DataBuffer colorMapData) {
         if (colorMapData == null) {
@@ -483,7 +479,8 @@ class RasterUtils {
         return colorModel;
     }
 
-    public static ImageTypeSpecifier createFullImageTypeSpecifier(final RasterInfo rasterInfo, final int rasterIndex) {
+    public static ImageTypeSpecifier createFullImageTypeSpecifier(final RasterInfo rasterInfo,
+            final int rasterIndex) {
         final int numberOfBands = rasterInfo.getNumBands();
         final RasterCellType pixelType = rasterInfo.getCellType();
         // Prepare temporary colorModel and sample model, needed to build the final
@@ -784,10 +781,12 @@ class RasterUtils {
             final Dimension tileSize = rasterInfo.getTileDimension(rasterIndex);
             final int numTilesWide = rasterInfo.getNumTilesWide(rasterIndex, pyramidLevel);
             final int numTilesHigh = rasterInfo.getNumTilesHigh(rasterIndex, pyramidLevel);
+            final Point tileOffset = rasterInfo.getTileOffset(rasterIndex, pyramidLevel);
             matchingTiles = findMatchingTiles(tileSize, numTilesWide, numTilesHigh, resultGridRange);
 
-            int tiledImageMinX = matchingTiles.x * tileSize.width;
-            int tiledImageMinY = matchingTiles.y * tileSize.height;
+            int tiledImageMinX = tileOffset.x + (matchingTiles.x * tileSize.width);
+            int tiledImageMinY = tileOffset.y + (matchingTiles.y * tileSize.height);
+
             int tiledWidth = (matchingTiles.width * tileSize.width);
             int tiledHeight = (matchingTiles.height * tileSize.height);
 
