@@ -446,8 +446,7 @@ class RasterUtils {
         return levelOverlappingPixels;
     }
 
-    public static IndexColorModel sdeColorMapToJavaColorModel(final int bitsPerPixel,
-            final DataBuffer colorMapData) {
+    public static IndexColorModel sdeColorMapToJavaColorModel(final DataBuffer colorMapData) {
         if (colorMapData == null) {
             throw new NullPointerException("colorMapData");
         }
