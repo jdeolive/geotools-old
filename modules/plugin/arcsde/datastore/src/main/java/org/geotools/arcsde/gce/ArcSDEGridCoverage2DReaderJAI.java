@@ -95,7 +95,7 @@ class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final File debugDir = new File(System.getProperty("user.home") + File.separator
             + "arcsde_test");
