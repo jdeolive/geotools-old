@@ -121,10 +121,7 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
         if (currTileDataIndex == tileDataLength) {
             if (tileReader.hasNext()) {
                 tileReader.next(currTileData, currBitmaskData);
-                // if (tileReader.getBitsPerSample() == 1) {
-                // currTileData = expandOneBitData(tileData);
-                // } else {
-                // }
+                actualTileData = currTileData;
                 currTileDataIndex = 0;
             } else {
                 return null;
