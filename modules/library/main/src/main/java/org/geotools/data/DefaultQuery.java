@@ -334,6 +334,15 @@ public class DefaultQuery implements Query {
     }
 
     /**
+     * Set the namespace of the type name.
+     * 
+     * @param namespace namespace of the type name
+     */
+    public void setNamespace(URI namespace) {
+        this.namespace = namespace;
+    }
+    
+    /**
      * The handle attribute is included to allow a client to associate  a
      * mnemonic name to the Query request. The purpose of the handle attribute
      * is to provide an error handling mechanism for locating  a statement
