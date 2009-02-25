@@ -144,6 +144,16 @@
         </site>
       </distributionManagement>
     </profile>
+    <profile>
+      <id>deploy.opengeo</id>
+      <distributionManagement>
+        <repository>
+          <id>opengeo</id>
+          <name>OpenGeo Maven Repository</name>
+          <url>dav:http://repo.opengeo.org</url>
+        </repository>
+      </distributionManagement>
+    </profile>
   </profiles>
 
 
