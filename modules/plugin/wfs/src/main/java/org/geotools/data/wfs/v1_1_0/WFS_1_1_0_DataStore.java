@@ -364,7 +364,7 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
         }
 
         if (this.maxFeaturesHardLimit.intValue() > 0 || query.getMaxFeatures() != Integer.MAX_VALUE) {
-            int maxFeatures = Math.min(maxFeaturesHardLimit.intValue(), query.getMaxFeatures());
+            int maxFeatures = maxFeaturesHardLimit.intValue() > 0 ? Math.min(maxFeaturesHardLimit.intValue(), query.getMaxFeatures()) : query.getMaxFeatures();
             reader = new MaxFeatureReader<SimpleFeatureType, SimpleFeature>(reader, maxFeatures);
         }
         return reader;
