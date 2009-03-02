@@ -104,7 +104,7 @@
 
     <!--module>metadata</module-->
     <!-- Unvetted. -->
-    <module>mappane-use</module>
+    <!--module>mappane-use</module-->
 
     <!-- Sample code from the User Guide -->
     <module>example</module>
