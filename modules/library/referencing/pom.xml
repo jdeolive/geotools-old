@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!-- =======================================================================
         Maven Project Configuration File
 
@@ -161,6 +161,12 @@
   <!--     Dependency Management                                   -->
   <!-- =========================================================== -->
   <dependencies>
+    <dependency>
+      <groupId>org.opengis</groupId>
+      <artifactId>geoapi-pending</artifactId>
+      <version>2.3-SNAPSHOT</version>
+    </dependency>
+
     <!-- NOTE: The referencing module does not depends on JTS. -->
     <dependency>
       <groupId>java3d</groupId>
