@@ -63,6 +63,9 @@ public class ChannelSelectionImpl
     public void setGrayChannel(SelectedChannelType gray) {
         this.gray = gray;
     }
+    public void setGrayChannel(org.opengis.style.SelectedChannelType gray ){
+        this.gray = new SelectedChannelTypeImpl( gray );
+    }
 
     public void setRGBChannels(SelectedChannelType[] channels) {
         if (channels.length != 3) {
