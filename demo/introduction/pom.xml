@@ -110,11 +110,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.geotools.demo</groupId>
-      <artifactId>gt-mappane-use</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-repository</artifactId>
       <version>${project.version}</version>

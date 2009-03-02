@@ -20,6 +20,7 @@ package org.geotools.styling;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.measure.unit.Unit;
@@ -36,6 +37,7 @@ import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.ColorReplacement;
 import org.opengis.style.ContrastMethod;
 import org.opengis.style.Description;
+import org.opengis.style.ExtensionSymbolizer;
 import org.opengis.style.ExternalMark;
 import org.opengis.style.GraphicFill;
 import org.opengis.style.GraphicLegend;
@@ -156,7 +158,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
 
         return tSymb;
     }
-
+    
     public Extent createExtent(String name, String value) {
         Extent extent = new ExtentImpl();
         extent.setName(name);
@@ -933,6 +935,11 @@ public class StyleFactoryImpl extends AbstractStyleFactory
         return null;
     }
 
+    public ExtensionSymbolizer extensionSymbolizer(Expression geometry, Description description,
+            Unit<?> unit, String extensionName, Map<String, Expression> parameters) {
+        return null;
+    }
+    
     public org.opengis.style.Rule rule(String name, Description description, GraphicLegend legend,
             double min, double max, List<org.opengis.style.Symbolizer> symbolizers) {
         return null;

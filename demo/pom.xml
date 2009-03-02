@@ -99,7 +99,7 @@
   <!-- =========================================================== -->
   <modules>
     <!-- Adrian's Demos -->
-    <module>introduction</module>
+    <!--<module>introduction</module>-->
     <module>libraryJTS</module>
 
     <!--module>metadata</module-->
