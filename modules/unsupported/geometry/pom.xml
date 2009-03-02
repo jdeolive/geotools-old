@@ -147,10 +147,6 @@
   <!-- =========================================================== -->
   <dependencies>
     <dependency>
-      <groupId>org.opengis</groupId>
-      <artifactId>geoapi</artifactId>
-    </dependency>
-    <dependency>
       <groupId>net.java.dev.jsr-275</groupId>
       <artifactId>jsr-275</artifactId>
     </dependency>

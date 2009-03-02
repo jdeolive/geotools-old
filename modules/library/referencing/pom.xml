@@ -161,12 +161,6 @@
   <!--     Dependency Management                                   -->
   <!-- =========================================================== -->
   <dependencies>
-    <dependency>
-      <groupId>org.opengis</groupId>
-      <artifactId>geoapi-pending</artifactId>
-      <version>2.3-SNAPSHOT</version>
-    </dependency>
-
     <!-- NOTE: The referencing module does not depends on JTS. -->
     <dependency>
       <groupId>java3d</groupId>

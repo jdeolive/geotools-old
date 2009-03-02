@@ -547,6 +547,11 @@
       </dependency>
       <dependency>
         <groupId>org.opengis</groupId>
+        <artifactId>geoapi-dummy-pending</artifactId>
+        <version>2.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opengis</groupId>
         <artifactId>geoapi-pending</artifactId>
         <version>2.3-SNAPSHOT</version>
       </dependency>

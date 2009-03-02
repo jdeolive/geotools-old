@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!-- =======================================================================
         Maven Project Configuration File
 
@@ -112,6 +112,17 @@
     <dependency>
       <groupId>org.opengis</groupId>
       <artifactId>geoapi</artifactId>
+      <!-- The version number is specified in the parent POM. -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.opengis</groupId>
+          <artifactId>geoapi-dummy-pending</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.opengis</groupId>
+      <artifactId>geoapi-pending</artifactId>
       <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
