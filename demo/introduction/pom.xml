@@ -129,6 +129,11 @@
       <artifactId>gt-epsg-wkt</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.geotools.demo</groupId>
+      <artifactId>gt-mappane-use</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
 
