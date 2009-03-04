@@ -490,7 +490,7 @@ public class WMSSchema implements Schema {
         }
 		public Element findChildElement(String localName, URI namespaceURI) {
             return (this.name!=null 
-            		&& this.name.equals(name)
+            		&& this.name.equals(localName)
             		&& getNamespace().equals(namespaceURI))?this:null;
 		}
     }
