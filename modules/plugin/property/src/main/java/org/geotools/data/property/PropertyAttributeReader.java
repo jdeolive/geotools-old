@@ -115,7 +115,7 @@ public class PropertyAttributeReader implements AttributeReader {
         String typeSpec = line.substring(2);
 
         try {
-            type = DataUtilities.createType(namespace + typeName, typeSpec);
+            type = DataUtilities.createType(namespace, typeName, typeSpec);
         } catch (SchemaException e) {
             throw new DataSourceException(typeName + " schema not available", e);
         }
