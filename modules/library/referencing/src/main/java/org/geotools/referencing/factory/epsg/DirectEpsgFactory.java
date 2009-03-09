@@ -3076,6 +3076,16 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
         } else {
             if(!isConnectionValid(connection)) {
                 statements.clear();
+                try {
+                    // we need to send back the connection to the eventual
+                    // pool setup by the datastore. The eventual pooling 
+                    // datasource is responsible to figure out that the 
+                    // connection is no more valid and get rid of it.
+                    connection.close();
+                } catch(Exception e) {
+                    LOGGER.log(Level.FINER, 
+                            "Error occurred while closing an invalid connection", e);
+                }
                 connection = dataSource.getConnection();
             }
         }
