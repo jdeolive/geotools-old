@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 // Geotools dependencies
 import org.geotools.factory.Hints;
 
@@ -117,6 +119,23 @@ public class FactoryUsingAnsiSQL extends FactoryUsingSQL {
                                final Connection connection)
     {
         super(userHints, connection);
+        for (int i=0; i<ANSI.length; i++) {
+            map.put(ANSI[i], ANSI[++i]);
+        }
+    }
+    
+    /**
+     * Constructs an authority factory using the specified source.
+     *
+     * @param userHints  The underlying factories used for objects creation.
+     * @param dataSource The connection to the underlying EPSG database.
+     *
+     * @since 2.5
+     */
+    public FactoryUsingAnsiSQL(final Hints      userHints,
+                               final DataSource dataSource)
+    {
+        super(userHints, dataSource);
         for (int i=0; i<ANSI.length; i++) {
             map.put(ANSI[i], ANSI[++i]);
         }

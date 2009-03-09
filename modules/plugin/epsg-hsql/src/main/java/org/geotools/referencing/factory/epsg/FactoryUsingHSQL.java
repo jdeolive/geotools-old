@@ -93,7 +93,7 @@ final class FactoryUsingHSQL extends FactoryUsingAnsiSQL {
      */
     protected void shutdown(final boolean active) throws SQLException {
         if (active) {
-            final Statement statement = connection.createStatement();
+            final Statement statement = getConnection().createStatement();
             statement.execute("SHUTDOWN");
             statement.close();
         }

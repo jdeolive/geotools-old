@@ -420,7 +420,7 @@ public class ThreadedEpsgFactory extends DeferredAuthorityFactory
         try {
             factory = createBackingStore0();
             if (factory instanceof DirectEpsgFactory) {
-                final DatabaseMetaData info = ((DirectEpsgFactory) factory).connection.getMetaData();
+                final DatabaseMetaData info = ((DirectEpsgFactory) factory).getConnection().getMetaData();
                 product = info.getDatabaseProductName();
                 url     = info.getURL();
             }

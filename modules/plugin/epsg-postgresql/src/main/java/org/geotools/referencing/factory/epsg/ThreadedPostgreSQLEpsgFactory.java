@@ -24,6 +24,8 @@ import java.io.FileInputStream;
 import java.util.Properties;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
+
 import javax.sql.DataSource;
 
 // Geotools dependencies
@@ -206,8 +208,8 @@ public class ThreadedPostgreSQLEpsgFactory extends ThreadedEpsgFactory {
      * @throws SQLException if connection to the database failed.
      */
     protected AbstractAuthorityFactory createBackingStore(final Hints hints) throws SQLException {
-        final Connection connection = getDataSource().getConnection();
-        final FactoryUsingAnsiSQL factory = new FactoryUsingAnsiSQL(hints, connection);
+        final FactoryUsingAnsiSQL factory = new FactoryUsingAnsiSQL(hints, getDataSource());
+        factory.setValidationQuery("select now()");
         if (schema != null) {
             factory.setSchema(schema);
         }
