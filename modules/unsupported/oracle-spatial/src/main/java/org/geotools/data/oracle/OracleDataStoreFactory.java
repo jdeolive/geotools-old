@@ -31,7 +31,7 @@ import org.geotools.data.jdbc.datasource.DataSourceUtil;
 import org.geotools.data.jdbc.datasource.ManageableDataSource;
 
 /**
- * Creates a PostgisDataStore baed on the correct params.
+ * Creates an OracleDataStore based on the correct params.
  * <p>
  * This factory should be registered in the META-INF/ folder, under services/
  * in the DataStoreFactorySpi file.
