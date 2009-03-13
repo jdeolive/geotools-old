@@ -151,6 +151,11 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         GEOM_TYPE_MAP.put("MULTIPOLYGONM", MultiPolygon.class);
         GEOM_TYPE_MAP.put("GEOMETRYCOLLECTION", GeometryCollection.class);
         GEOM_TYPE_MAP.put("GEOMETRYCOLLECTIONM", GeometryCollection.class);
+
+        // SQL MM "Curve" extensions
+        GEOM_TYPE_MAP.put("CIRCULARSTRING", LineString.class);
+        GEOM_TYPE_MAP.put("COMPOUNDCURVE", LineString.class);
+        GEOM_TYPE_MAP.put("CURVEPOLYGON", Polygon.class);
     }
 
     private static Map CLASS_MAPPINGS = new HashMap();

@@ -24,6 +24,7 @@ import java.sql.Types;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.jdbc.attributeio.AttributeIO;
+import org.geotools.geometry.jts.WKTReader2;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -48,7 +49,7 @@ public class EWKTAttributeIO implements AttributeIO {
      */
     private WKTReader getWKTReader() {
         if (reader == null) {
-            reader = new WKTReader();
+            reader = new WKTReader2();
         }
         return reader;
     }
