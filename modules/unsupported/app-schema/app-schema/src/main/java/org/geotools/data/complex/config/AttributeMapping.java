@@ -38,7 +38,11 @@ public class AttributeMapping implements Serializable {
      * XPath expression addressing the target attribute in a target FeatureType.
      */
     private String targetAttributePath;
-
+    /**
+     * XPath expression addressing the input attribute in the input FeatureType if the source
+     * is a data access containing complex features.
+     */
+    private String inputAttributePath;
     /**
      * Expression whose evaluation result against a Feature of the source FeatureType is going to be
      * the value of the target attribute in output FeatureType.
@@ -120,6 +124,23 @@ public class AttributeMapping implements Serializable {
      */
     public void setSourceExpression(String sourceExpression) {
         this.sourceExpression = sourceExpression;
+    }
+    
+    /**
+     * Return the input XPath expression
+     * @return the input XPath expression
+     */
+    public String getInputAttributePath() {
+        return inputAttributePath;
+    }
+    
+    /**
+     * Set the input XPath expression where we are getting the features from a data access
+     * instead of a data store. 
+     * @param inputAttributePath
+     */
+    public void setInputAttributePath(String inputAttributePath) {
+        this.inputAttributePath = inputAttributePath;
     }
 
     /**
@@ -249,13 +270,14 @@ public class AttributeMapping implements Serializable {
         return "AttributeMappingDTO[id > "
                 + identifierExpression
                 + ", "
-                + sourceExpression
+                + ((sourceExpression == null) ? ((inputAttributePath == null ? ""
+                        : inputAttributePath)) : sourceExpression)
                 + " -> "
                 + targetAttributePath
                 + ", isMultiple: "
                 + isMultiple
                 + ((targetAttributeSchemaElement == null) ? ""
-                        : (", target node: " + targetAttributeSchemaElement)) 
+                        : (", target node: " + targetAttributeSchemaElement))
                 + ((linkElement == null) ? "" : (", linkElement: " + linkElement))
                 + ((linkField == null) ? "" : (", linkField: " + linkField)) + "]";
     }

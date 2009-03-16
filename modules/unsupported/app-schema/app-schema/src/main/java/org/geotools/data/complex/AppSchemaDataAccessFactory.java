@@ -52,16 +52,10 @@ public class AppSchemaDataAccessFactory implements DataAccessFactory {
     public static final DataAccessFactory.Param DBTYPE = new DataAccessFactory.Param("dbtype",
             String.class, "Fixed value '" + DBTYPE_STRING + "'", true, DBTYPE_STRING);
 
-    /**
-     * Registry for app schema data accesses so they can access each other's mappings
-     */
-    private AppSchemaDataAccessRegistry registry;
-
     public static final DataAccessFactory.Param URL = new DataAccessFactory.Param("url", URL.class,
             "URL to an application schema datastore XML configuration file", true);
 
     public AppSchemaDataAccessFactory() {
-        this.registry = AppSchemaDataAccessRegistry.newInstance();
     }
 
     public DataAccess<FeatureType, Feature> createDataStore(Map params) throws IOException {

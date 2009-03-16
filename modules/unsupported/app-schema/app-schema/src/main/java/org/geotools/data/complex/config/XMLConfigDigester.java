@@ -180,6 +180,10 @@ public class XMLConfigDigester {
 
         digester.addCallMethod(attMap + "/sourceExpression/OCQL", "setSourceExpression", 1);
         digester.addCallParam(attMap + "/sourceExpression/OCQL", 0);
+        
+        // if the source is a data access, then the input is in XPath expression
+        digester.addCallMethod(attMap + "/sourceExpression/inputAttribute", "setInputAttributePath", 1);
+        digester.addCallParam(attMap + "/sourceExpression/inputAttribute", 0);
 
         // for feature chaining: this refers to the nested feature type
         digester.addCallMethod(attMap + "/sourceExpression/linkElement", "setLinkElement", 1);
@@ -238,6 +242,11 @@ public class XMLConfigDigester {
         digester.addCallParam(dataStores + "/DataStore/parameters/Parameter/name", 0);
         digester.addCallParam(dataStores + "/DataStore/parameters/Parameter/value", 1);
         digester.addSetNext(dataStores + "/DataStore/parameters", "setParams");
+        
+        // isDataAccess is a flag to denote that we want to connect to the data access
+        // that is connected to the data store specified
+        digester.addCallMethod(dataStores + "/DataStore/isDataAccess", "setDataAccess", 1);
+        digester.addCallParam(dataStores + "/DataStore/isDataAccess", 0);
 
         // add the SourceDataStore to the list
         digester.addSetNext(dataStores + "/DataStore", "add");

@@ -48,8 +48,6 @@ import org.geotools.feature.type.NonFeatureTypeProxy;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
@@ -132,7 +130,7 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
      * Registers this data access to the registry so the mappings can be retrieved globally
      */
     protected void register() {
-        AppSchemaDataAccessRegistry.register(this);
+        DataAccessRegistry.register(this);
     }
 
     /**
@@ -225,7 +223,7 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
      */
     protected int getCount(final Query targetQuery) throws IOException {
         final FeatureTypeMapping mapping = getMapping(getName(targetQuery));
-        final FeatureSource<SimpleFeatureType, SimpleFeature> mappedSource = mapping.getSource();
+        final FeatureSource<FeatureType, Feature> mappedSource = mapping.getSource();
         Query unmappedQuery = unrollQuery(targetQuery, mapping);
         ((DefaultQuery) unmappedQuery).setMaxFeatures(targetQuery.getMaxFeatures());
         return mappedSource.getCount(unmappedQuery);
@@ -267,7 +265,7 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
      */
     public Query unrollQuery(Query query, FeatureTypeMapping mapping) {
         Query unrolledQuery = Query.ALL;
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = mapping.getSource();
+        FeatureSource<FeatureType, Feature> source = mapping.getSource();
 
         if (!Query.ALL.equals(query)) {
             Filter complexFilter = query.getFilter();
@@ -360,7 +358,7 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
     }
 
     public void dispose() {
-        AppSchemaDataAccessRegistry.unregister(this);
+        DataAccessRegistry.unregister(this);
     }
 
     /**

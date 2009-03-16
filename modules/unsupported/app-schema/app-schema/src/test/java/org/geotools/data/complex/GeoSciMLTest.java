@@ -258,6 +258,8 @@ public class GeoSciMLTest extends TestCase {
         FeatureCollection<FeatureType, Feature> features = source.getFeatures(query);
         assertNotNull(features);
         assertEquals(2, features.size());
+        
+        mappingDataStore.dispose();
     }
 
     private int getCount(FeatureCollection features) {
