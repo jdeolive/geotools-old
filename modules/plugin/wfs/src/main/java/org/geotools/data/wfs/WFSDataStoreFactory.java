@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -531,10 +530,13 @@ public class WFSDataStoreFactory extends AbstractDataStoreFactory {
      */
     public boolean canProcess(final Map params) {
         if (params == null) {
-            throw new NullPointerException("params");
+            return false; // throw new NullPointerException("params");
         }
         try {
-            URL.lookUp(params);
+            URL url = (URL) URL.lookUp(params);
+            if( !"http".equalsIgnoreCase(url.getProtocol()) && !"https".equalsIgnoreCase(url.getProtocol())){
+                return false; // must be http or https since we use SimpleHttpProtocol class
+            }
         } catch (Exception e) {
             return false;
         }
