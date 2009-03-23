@@ -954,7 +954,8 @@ public class ArcSDEAdapter {
                     String qualifiedName = null;
 
                     if (unqualifiedTypeName.indexOf('.') == -1) {
-                        qualifiedName = connection.getUser() + "." + featureType.getTypeName();
+                        // Use the already parsed name (unqualifiedTypeName)
+                        qualifiedName = connection.getUser() + "." + unqualifiedTypeName; //featureType.getTypeName();
                         LOGGER.finer("new full qualified type name: " + qualifiedName);
                     } else {
                         qualifiedName = unqualifiedTypeName;
@@ -1077,7 +1078,7 @@ public class ArcSDEAdapter {
         // Set the shape types that can be inserted into this layer
         int seShapeTypes = ArcSDEAdapter.guessShapeTypes(geometryAtt);
         layer.setShapeTypes(seShapeTypes);
-        layer.setGridSizes(1100, 0, 0);
+        layer.setGridSizes(1100.0, 0.0, 0.0);
         layer.setDescription("Created with GeoTools");
 
         // Define the layer's Coordinate Reference
