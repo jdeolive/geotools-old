@@ -55,6 +55,8 @@ public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
     /** The matcher to match patterns with. */
     private Matcher match = null;
     
+    /** Used to indicate if case should be ignored or not */
+    boolean matchingCase;
     
     /**
 	 * Given OGC PropertyIsLike Filter information, construct
@@ -172,6 +174,13 @@ public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
 		match = null;
 	}
 	
+	public boolean isMatchingCase() {
+            return matchingCase;
+    }
+
+    public void setMatchingCase(boolean matchingCase) {
+            this.matchingCase = matchingCase;
+    }
 	
     private Matcher getMatcher(){
         if(match == null){
