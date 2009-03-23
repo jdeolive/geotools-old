@@ -961,7 +961,7 @@ public class ArcSDEJavaApiTest {
                      * Define the layer's Coordinate Reference
                      */
                     SeCoordinateReference coordref = new SeCoordinateReference();
-                    coordref.setXY(0, 0, 100);
+                    coordref.setXY(0D, 0D, 100D);
                     layer.setCoordRef(coordref);
 
                     /*
