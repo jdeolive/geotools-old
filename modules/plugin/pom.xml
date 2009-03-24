@@ -77,7 +77,7 @@
   <!-- =========================================================== --> 
   <modules>
     <module>arcgrid</module>
-    <module>arcsde</module>
+    <!--<module>arcsde</module>-->
     <module>db2</module>
     <module>epsg-access</module>
     <module>epsg-extension</module>
