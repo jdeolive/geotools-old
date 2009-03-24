@@ -105,6 +105,23 @@ public interface MapLayer {
     void setVisible(boolean visible);
 
     /**
+     * Determine whether this layer is currently selected.
+     *
+     * @return <code>true</code> if the layer is selected, or <code>false</code>
+     * otherwise
+     */
+    boolean isSelected();
+
+    /**
+     * Specify whether this layer is selected. A {@link LayerEvent} iw fired
+     * if the selected status is changed.
+     *
+     * @param selected Set the layer as selected if <code>true</code> or as
+     * unselected if <code>false</code>
+     */
+    void setSelected(boolean selected);
+
+    /**
      * Returns the definition query (filter) for this layer. If no definition
      * query has  been defined {@link Query.ALL} is returned.
      *

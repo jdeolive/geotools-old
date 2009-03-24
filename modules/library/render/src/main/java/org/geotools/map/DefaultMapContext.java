@@ -84,6 +84,14 @@ public class DefaultMapContext implements MapContext {
 			fireAsListEvent(event);
 		}
 
+        public void layerSelected(MapLayerEvent event) {
+            fireAsListEvent(event);
+        }
+
+        public void layerDeselected(MapLayerEvent event) {
+            fireAsListEvent(event);
+        }
+
 		private void fireAsListEvent(MapLayerEvent event) {
 			MapLayer layer = (MapLayer) event.getSource();
 			int position = layerList.indexOf(layer);

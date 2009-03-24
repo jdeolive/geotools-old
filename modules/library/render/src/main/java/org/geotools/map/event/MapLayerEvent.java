@@ -73,6 +73,13 @@ public class MapLayerEvent extends EventObject {
     private final int reason;
 
     /**
+     * Flag set when the layer selection status is changed.
+     *
+     * @see #getReason
+     */
+    public static final int SELECTION_CHANGED = 6;
+
+    /**
      * Creates a new instance of <code>LayerEvent</code> with the specified reason.
      *
      * @param source The source of the event change.

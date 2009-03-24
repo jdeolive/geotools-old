@@ -54,4 +54,18 @@ public interface MapLayerListener extends EventListener {
      * @param event encapsulating the event information
      */
     void layerHidden(MapLayerEvent event);
+
+    /**
+     * Invoked when the component has been set as selected.
+     *
+     * @param event encapsulating the event information
+     */
+    void layerSelected(MapLayerEvent event);
+
+    /**
+     * nvoked when the component has been set as not selected.
+     *
+     * @param event encapsulating the event information
+     */
+    void layerDeselected(MapLayerEvent event);
 }
