@@ -116,11 +116,9 @@
      </profile>
      <profile>
        <id>swing</id>
-       <!--
        <activation>
          <property><name>all</name></property>
        </activation>
-       -->
        <modules>
          <module>widgets-swing-pending</module>
        </modules>
