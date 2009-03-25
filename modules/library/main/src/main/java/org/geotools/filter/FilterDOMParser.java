@@ -32,7 +32,6 @@ import org.w3c.dom.NodeList;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.CRS;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsNull;
 import org.opengis.filter.expression.Expression;
@@ -365,7 +364,7 @@ public final class FilterDOMParser {
                     return FILTER_FACT.lessOrEqual(left, right );
 
                 case FilterType.COMPARE_NOT_EQUALS:
-                    return FILTER_FACT.notEqual(left, right,false );
+                    return FILTER_FACT.notEqual(left, right, true);
 
                 default:
                     LOGGER.warning("Unable to build filter for " + childName);
