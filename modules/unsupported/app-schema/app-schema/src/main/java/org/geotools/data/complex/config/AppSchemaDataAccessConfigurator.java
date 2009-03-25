@@ -185,8 +185,7 @@ public class AppSchemaDataAccessConfigurator {
 
             FeatureSource featureSource = getFeatureSource(dto);
             AttributeDescriptor target = getTargetDescriptor(dto);
-            List attMappings = getAttributeMappings(target, dto.getAttributeMappings(),
-                    featureSource);
+            List attMappings = getAttributeMappings(target, dto.getAttributeMappings());
 
             FeatureTypeMapping mapping;
 
@@ -220,12 +219,10 @@ public class AppSchemaDataAccessConfigurator {
      * 
      * @param root
      * @param attDtos
-     * @param fSource
-     *            Feature source
+     * 
      * @return
      */
-    private List getAttributeMappings(final AttributeDescriptor root, final List attDtos,
-            FeatureSource fSource) throws IOException {
+    private List getAttributeMappings(final AttributeDescriptor root, final List attDtos) throws IOException {
         List attMappings = new LinkedList();
 
         for (Iterator it = attDtos.iterator(); it.hasNext();) {
@@ -287,7 +284,7 @@ public class AppSchemaDataAccessConfigurator {
                 // a nested feature
                 attMapping = new NestedAttributeMapping(idExpression, sourceExpression,
                         targetXPathSteps, isMultiValued, clientProperties,
-                        degloseTypeName(sourceElement), sourceFieldSteps, fSource);
+                        degloseTypeName(sourceElement), sourceFieldSteps);
             } else {
                 attMapping = new AttributeMapping(idExpression, sourceExpression, targetXPathSteps,
                         expectedInstanceOf, isMultiValued, clientProperties);

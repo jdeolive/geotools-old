@@ -918,8 +918,19 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
     private List <Expression> findMappingsFor(FeatureTypeMapping mappings,
             final StepList propertyName) {
         // collect all the mappings for the given property
-        // regardless of xpath index
-        List candidates = mappings.getAttributeMappingsIgnoreIndex(propertyName);
+        List candidates;
+
+        // get all matching mappings if index is not specified, otherwise
+        // get the specified mapping
+        if (!propertyName.toString().contains("[")) {
+            candidates = mappings.getAttributeMappingsIgnoreIndex(propertyName);
+        } else {
+            candidates = new ArrayList <AttributeMapping>();
+            AttributeMapping mapping = mappings.getAttributeMapping(propertyName);
+            if (mapping != null) {
+                candidates.add(mapping);
+            }
+        }
         List expressions = getExpressions(candidates);
 
         // does the last step refer to a client property of the parent step?

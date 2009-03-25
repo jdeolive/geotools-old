@@ -39,7 +39,6 @@ import org.geotools.util.CheckedArrayList;
 import org.geotools.xs.XSSchema;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
-import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureFactory;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -672,13 +671,7 @@ public class XPath {
                 ArrayList<Property> list = new ArrayList<Property>();
                 list.add(buildSimpleContent(type, value));
                 return list;
-            } else {
-                if (value instanceof Feature) {
-                    ArrayList<Feature> list = new ArrayList<Feature>();
-                    list.add((Feature) value);
-                    return list;
-                }
-            }
+            } 
         }
         return FF.literal(value).evaluate(value, binding);
     }
