@@ -325,6 +325,35 @@ public class ArcSDEJavaApiTest {
             throw e;
         }
     }
+    
+    @Test
+    public void testCalculateCountSpatialFilter() throws Exception {
+        try {
+            String typeName = testData.getTempTableName();
+            String where = null;
+            int expCount = 4;
+            int actualCount;
+
+            SeExtent extent = new SeExtent(-180, -90, -170, -80);
+
+            SeLayer layer = session.getLayer(typeName);
+            SeShape filterShape = new SeShape(layer.getCoordRef());
+            filterShape.generateRectangle(extent);
+
+            SeShapeFilter bboxFilter = new SeShapeFilter(typeName, layer.getSpatialColumn(),
+                    filterShape, SeFilter.METHOD_ENVP, true);
+            SeFilter[] spatFilters = { bboxFilter };
+
+            expCount = 2;
+
+            actualCount = getTempTableCount(session, typeName, where, spatFilters, null);
+
+            assertEquals(expCount, actualCount);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
     @Test
     public void testCalculateBoundsSqlFilter() throws Exception {
