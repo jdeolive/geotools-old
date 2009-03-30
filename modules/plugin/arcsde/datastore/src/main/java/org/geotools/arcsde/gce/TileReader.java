@@ -197,7 +197,20 @@ final class TileReader {
 
         if (0 == numPixels) {
             LOGGER.finer("tile contains no pixel data, skipping: " + tile);
-            final byte NO_DATA_MASK = (byte) 0xFF;
+            final byte NO_DATA_MASK;
+            /*
+             * HACK this is hacky cause I'm guessing a sensible value for no data tiles. The full
+             * solution however implies the ability to use an actual no-data value and hence to
+             * promote band sample types on the fly in order to make room for an extra value holding
+             * the no-data value. Promotions may be from 1-bit and 4-bit to 8-bit, 8-bit to 16-bit.
+             * I don't think 16,32,64 bit should/could be promoted but it would be easier to choose
+             * an unused value as the no-data value anyways.
+             */
+            if (bitsPerSample == 1) {
+                NO_DATA_MASK = (byte) 0x00;
+            } else {
+                NO_DATA_MASK = (byte) 0xFF;
+            }
             Arrays.fill(tileData, NO_DATA_MASK);
         } else if (pixelsPerTile == numPixels) {
             final byte[] rawTileData = tile.getPixelData();
