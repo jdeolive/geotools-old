@@ -177,7 +177,7 @@ public final class StreamingRenderer implements GTRenderer {
 	
 	private final static PropertyName paramsPropertyName = filterFactory.property("params");
 	
-  private final static PropertyName defaultGeometryPropertyName = filterFactory.property("");
+	private final static PropertyName defaultGeometryPropertyName = filterFactory.property("");
 	
 
 	/**
@@ -993,14 +993,12 @@ public final class StreamingRenderer implements GTRenderer {
 
 			final int maxFilters = getMaxFiltersToSendToDatastore();
 			final List<Filter> filtersToDS = new ArrayList<Filter>();
-			int u = 0;
 			// look at each featuretypestyle
 			for(LiteFeatureTypeStyle style : styles) {
 				if (style.elseRules.length > 0) // uh-oh has elseRule
 					return;
 				// look at each rule in the featuretypestyle
 				for(Rule r : style.ruleList) {
-					r = style.ruleList[u];
 					if (r.getFilter() == null)
 						return; // uh-oh has no filter (want all rows)
 					filtersToDS.add(r.getFilter());
