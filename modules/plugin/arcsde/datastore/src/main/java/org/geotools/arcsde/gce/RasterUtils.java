@@ -528,6 +528,12 @@ class RasterUtils {
                     int[] tmp = new int[65536];
                     System.arraycopy(ARGB, 0, tmp, 0, ARGB.length);
                     ARGB = tmp;
+                    // HACK set the largest value as the no data value. I need to get rid of this
+                    // hack by properly setting a no-data value being just one more index than the
+                    // maximum one instead of 65535, but for that we need proper format promotion
+                    // with parameterizable no-data value for TileReader
+                    int nodataValue = ColorUtilities.getIntFromColor(0, 0, 0, 0);
+                    ARGB[ARGB.length - 1] = nodataValue;
                 } else {
                     finalBitsPerSample = 8;
                 }
@@ -540,8 +546,6 @@ class RasterUtils {
                 throw new IllegalArgumentException("Unknown pixel depth to compute color map: "
                         + bitsPerSample);
             }
-            int nodataValue = ColorUtilities.getIntFromColor(0, 0, 0, 0);
-            ARGB[ARGB.length - 1] = nodataValue;
         }
 
         final boolean hasAlpha = true;
@@ -549,8 +553,6 @@ class RasterUtils {
 
         IndexColorModel colorModel = new IndexColorModel(finalBitsPerSample, ARGB.length, ARGB, 0,
                 hasAlpha, transparency, transferType);
-
-        // IndexColorModel colorModel = ColorUtilities.getIndexColorModel(ARGB);
 
         return colorModel;
     }

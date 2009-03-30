@@ -22,6 +22,8 @@ import java.awt.Rectangle;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,6 +65,8 @@ final class TileReader {
 
     private boolean started;
 
+    private final int bitmaskDataLength;
+
     public static TileReader getInstance(final SeRow row, final int bitsPerSample,
             final int numberOfBands, final Rectangle requestedTiles, final Dimension tileSize) {
         return new TileReader(row, bitsPerSample, numberOfBands, requestedTiles, tileSize);
@@ -89,6 +93,7 @@ final class TileReader {
         this.pixelsPerTile = tileSize.width * tileSize.height;
         this.tileDataLength = (int) Math
                 .ceil(((double) pixelsPerTile * (double) bitsPerSample) / 8D);
+        this.bitmaskDataLength = (int) Math.ceil(pixelsPerTile / bitsPerSample);
     }
 
     /**
@@ -186,12 +191,14 @@ final class TileReader {
             throw new IllegalStateException("There're no more tiles to fetch");
         }
 
-        final byte[] bitMaskData = tile.getBitMaskData();
+        byte[] bitMaskData = tile.getBitMaskData();
 
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest(" >> Fetching " + tile + " - bitmask: " + bitMaskData.length
                     + " has more: " + hasNext());
         }
+        
+        assert bitMaskData.length == 0? true : bitmaskDataLength == bitMaskData.length;
 
         final int numPixels = tile.getNumPixels();
 
@@ -212,11 +219,16 @@ final class TileReader {
                 NO_DATA_MASK = (byte) 0xFF;
             }
             Arrays.fill(tileData, NO_DATA_MASK);
+            
+            //mark the whole tile as no data... 
+            bitMaskData = new byte[bitmaskDataLength];
+            Arrays.fill(bitMaskData, (byte)0x00);
         } else if (pixelsPerTile == numPixels) {
+            
             final byte[] rawTileData = tile.getPixelData();
 
             System.arraycopy(rawTileData, 0, tileData, 0, tileDataLength);
-
+            
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("returning " + numPixels + " pixels data packaged into "
                         + tileDataLength + " bytes for tile [" + tile.getColumnIndex() + ","
