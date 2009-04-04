@@ -914,6 +914,11 @@ public final class StreamingRenderer implements GTRenderer {
 		}
 		query.setCoordinateSystem(featCrs);
 		query.setHints(new Hints(Hints.JTS_COORDINATE_SEQUENCE_FACTORY, new LiteCoordinateSequenceFactory()));
+		
+		// simplify the filter
+		SimplifyingFilterVisitor simplifier = new SimplifyingFilterVisitor();
+		Filter simplifiedFilter = (Filter) query.getFilter().accept(simplifier, null);
+		query.setFilter(simplifiedFilter);
 
 		if (isMemoryPreloadingEnabled()) {
 			// TODO: attache a feature listener, we must erase the memory cache
