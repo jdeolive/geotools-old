@@ -28,7 +28,6 @@ import org.geotools.data.ows.StyleImpl;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.wms.WMS1_1_1;
 import org.geotools.data.wms.WebMapServer;
-import org.opengis.layer.Style;
 import org.xml.sax.SAXException;
 
 /**
@@ -143,7 +142,7 @@ public class WMS1_1_1_OnlineTest extends WMS1_1_0_OnlineTest {
             assertTrue(layer.getStyles().contains(new StyleImpl("GeoGrid_Gray")));
             assertTrue(layer.getStyles().contains(new StyleImpl("GeoGrid_White")));
             
-            Style utmGrid = (Style) layer.getStyles().get(0);
+            StyleImpl utmGrid = (StyleImpl) layer.getStyles().get(0);
             assertEquals(utmGrid.getName(), "UTMGrid");
             assertEquals(utmGrid.getAbstract().toString(), "Display grid lines in Goldenrod on the DOQ image");
             assertEquals(utmGrid.getTitle().toString(), "Goldedrod Grid Lines on UTM coordinates");

@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.opengis.go.CommonFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.CoordinateOperation;
@@ -383,7 +382,7 @@ public abstract class GeometryImpl
      */
     public final Geometry transform(final CoordinateReferenceSystem newCRS) throws TransformException {
         try {
-            CommonFactory commonFactory = BasicFactories.getDefault(); 
+            BasicFactories commonFactory = BasicFactories.getDefault(); 
             CoordinateOperationFactory cof = commonFactory.getCoordinateOperationFactory();
             CoordinateReferenceSystem oldCRS = getCoordinateReferenceSystem();
             CoordinateOperation coordOp = cof.createOperation(oldCRS, newCRS);

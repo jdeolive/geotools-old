@@ -936,7 +936,7 @@ public class StyleFactoryImpl extends AbstractStyleFactory
         return null;
     }
     
-    public ExtensionSymbolizer extensionSymbolizer(String name, Expression geometry,
+    public ExtensionSymbolizer extensionSymbolizer(String name, String propertyName,
             Description description, Unit<?> unit, String extensionName,
             Map<String, Expression> parameters) {
         return null;

@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Set;
 
 // OpenGIS direct dependencies
-import org.opengis.go.CommonFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
@@ -127,7 +126,7 @@ public class PointImpl extends GeometryImpl implements Point {
             if ((myCRS != null) && (pointCRS != null) && (!myCRS.equals(pointCRS))) {
                 // Do the conversion.
                 try {
-                    CommonFactory commonFactory = BasicFactories.getDefault(); 
+                	BasicFactories commonFactory = BasicFactories.getDefault(); 
                     CoordinateOperationFactory cof = commonFactory.getCoordinateOperationFactory();
                     CoordinateOperation coordOp = cof.createOperation(pointCRS, myCRS);
                     MathTransform mt = coordOp.getMathTransform();

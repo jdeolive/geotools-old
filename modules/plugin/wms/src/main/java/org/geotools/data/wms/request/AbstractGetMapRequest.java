@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.geotools.data.ows.AbstractRequest;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
-import org.opengis.layer.Style;
+import org.geotools.data.ows.StyleImpl;
 
 /**
  * @author Richard Gould
@@ -122,7 +122,7 @@ public abstract class AbstractGetMapRequest extends AbstractWMSRequest implement
         styles.push(style);
     }
     
-    public void addLayer( Layer layer, Style style) {
+    public void addLayer( Layer layer, StyleImpl style) {
     	if (style == null) {
     		addLayer(layer.getName(), "");
     		return;
@@ -130,7 +130,7 @@ public abstract class AbstractGetMapRequest extends AbstractWMSRequest implement
     	addLayer(layer.getName(), style.getName());
     }
     
-    public void addLayer( String layerName, Style style) {
+    public void addLayer( String layerName, StyleImpl style) {
     	if (style == null) {
     		addLayer(layerName, "");
     		return;
