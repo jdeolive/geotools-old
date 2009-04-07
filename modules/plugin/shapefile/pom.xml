@@ -83,8 +83,9 @@
       <name>Andrea Aime</name>
       <id>aaime</id>
       <email>aaime@users.sourceforge.net</email>
-      <organization>University of Modena and Reggio Emilia</organization>
+      <organization>OpenGeo</organization>
       <roles>
+        <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
     </developer>
@@ -94,7 +95,15 @@
       <email>ian.schneider@ars.usda.gov</email>
       <organization>USDA/ARS</organization>
       <roles>
-        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Jesse Eichar</name>
+      <id>en</id>
+      <email>jeichar@users.sourceforge.net</email>
+      <organization>CampToCamp</organization>
+      <roles>
         <role>Java Developer</role>
       </roles>
     </developer>

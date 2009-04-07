@@ -56,8 +56,17 @@
     <developer>
       <name>Jesse Eichar</name>
       <id>jeichar</id>
-      <email>jeichar@refractions.net</email>
-      <organization>Refraction Research Inc.</organization>
+      <email>jeichar@users.sourceforge.net</email>
+      <organization>CampToCamp</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Andrea Aime</name>
+      <id>aaime</id>
+      <email>aaime@users.sourceforge.net</email>
+      <organization>OpenGeo</organization>
       <roles>
         <role>Module Maintainer</role>
         <role>Java Developer</role>
