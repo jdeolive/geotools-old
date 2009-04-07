@@ -380,13 +380,24 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor2 {
     	char esc = filter.getEscape().charAt(0);
     	char multi = filter.getWildcardMulti().charAt(0);
     	char single = filter.getWildcardSingle().charAt(0);
-    	String pattern = LikeFilterImpl.convertToSQL92(esc,multi,single,filter.getPattern());
+        boolean matchCase = ((LikeFilterImpl)filter).isMatchingCase();
+    	String pattern = LikeFilterImpl.convertToSQL92(esc, multi, single, matchCase, 
+    	        filter.getPattern());
     	
     	DefaultExpression att = (DefaultExpression) filter.getValue();
     	 
     	try {
+            if (!matchCase){
+                out.write(" UPPER(");
+            }
+
 	    	att.accept(this);
-	    	out.write(" LIKE '");
+            if (!matchCase){
+                out.write(") LIKE '");
+            } else {
+                out.write(" LIKE '");
+            }
+
 	    	out.write(pattern);
 	    	out.write("' ");
     	} catch (java.io.IOException ioe) {
