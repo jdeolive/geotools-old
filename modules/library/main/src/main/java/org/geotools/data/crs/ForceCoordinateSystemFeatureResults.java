@@ -125,7 +125,9 @@ public class ForceCoordinateSystemFeatureResults extends AbstractFeatureCollecti
      * @see org.geotools.data.FeatureResults#getBounds()
      */
     public ReferencedEnvelope getBounds() {
-        return results.getBounds();
+        ReferencedEnvelope env = results.getBounds();
+        env = new ReferencedEnvelope(env, getSchema().getCoordinateReferenceSystem());
+        return env;
     }
 
    
