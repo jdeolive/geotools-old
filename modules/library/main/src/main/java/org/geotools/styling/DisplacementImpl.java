@@ -56,6 +56,12 @@ public class DisplacementImpl implements Displacement, Cloneable {
         }
     }
 
+    public DisplacementImpl(Expression dx, Expression dy) {
+        filterFactory = CommonFactoryFinder.getFilterFactory2(null);
+        displacementX = dx;
+        displacementY = dy;
+    }
+
     public void setFilterFactory(FilterFactory factory) {
         filterFactory = factory;
 

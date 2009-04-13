@@ -61,11 +61,10 @@ public class ExternalGraphicImpl implements ExternalGraphic, Symbol, Cloneable {
             replacements = new ArrayList<ColorReplacement>();
         }else{
             replacements = new ArrayList<ColorReplacement>(replaces);
-        }
-        
-        this.online = source;
-        
+        }       
+        this.online = source;        
     }
+    
     
     @Deprecated
     public void setURI(String uri) {

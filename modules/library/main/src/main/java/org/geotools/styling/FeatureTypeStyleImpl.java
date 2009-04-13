@@ -56,6 +56,7 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
     private Set<SemanticType> semantics = new LinkedHashSet<SemanticType>();
     private Id featureInstances = null;
     private Set<Name> featureTypeNames = new LinkedHashSet<Name>();
+    
     private final DescriptionImpl description = new DescriptionImpl(
             new SimpleInternationalString("title"), 
             new SimpleInternationalString("abstract"));
