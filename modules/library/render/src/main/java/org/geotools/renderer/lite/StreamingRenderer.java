@@ -41,14 +41,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationBicubic;
-import javax.media.jai.InterpolationBilinear;
-import javax.media.jai.InterpolationNearest;
-import javax.media.jai.JAI;
-
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -65,7 +59,6 @@ import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
-import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.geometry.jts.LiteShape2;
