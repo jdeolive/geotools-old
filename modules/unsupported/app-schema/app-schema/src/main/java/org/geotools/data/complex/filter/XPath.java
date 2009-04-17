@@ -703,7 +703,19 @@ public class XPath {
         Name name = new NameImpl(null, "simpleContent");
         AttributeDescriptor descriptor = new AttributeDescriptorImpl(simpleContentType, name, 1, 1,
                 true, (Object) null);
-        return new AttributeImpl(convertedValue, descriptor, null);
+        return new AttributeImpl(convertedValue, descriptor, null) {
+            /*
+             * FIXME: this is an ugly hack. Here we rely on the Encoder fallback behaviour to encode
+             * simpleContent. Without this, the default toString() is used, and programmer debugging
+             * information is encoded into XML. Furthermore, the contained angle brackets break XML
+             * well-formedness as well as being garbage. This should be done properly when correct
+             * handling of complexType with simpleContent is implemented.
+             */
+            @Override
+            public String toString() {
+                return getValue().toString();
+            }
+        };
     }
 
     public boolean isComplexType(final StepList attrXPath, final AttributeDescriptor featureType) {
