@@ -180,7 +180,7 @@ public abstract class Orthographic extends MapProjection {
                 throws ParameterNotFoundException, FactoryException
         {
             // Values here are in radians (the standard units for the map projection package)
-            final double latitudeOfOrigin = abs(doubleValue(LATITUDE_OF_ORIGIN, parameters));
+            final double latitudeOfOrigin = abs(AbstractProvider.doubleValue(LATITUDE_OF_ORIGIN, parameters));
             if (isSpherical(parameters)) {
                 // Polar case.
                 if (abs(latitudeOfOrigin - PI/2) < EPSILON) {

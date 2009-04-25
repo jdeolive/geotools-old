@@ -279,7 +279,7 @@ public abstract class Stereographic extends MapProjection {
                 throws ParameterNotFoundException
         {
             // Values here are in radians (the standard units for the map projection package)
-            final double latitudeOfOrigin = abs(doubleValue(LATITUDE_OF_ORIGIN, parameters));
+            final double latitudeOfOrigin = abs(AbstractProvider.doubleValue(LATITUDE_OF_ORIGIN, parameters));
             final boolean     isSpherical = isSpherical(parameters);
             final ParameterDescriptorGroup descriptor = getParameters();
             // Polar case.

@@ -285,8 +285,13 @@ public abstract class AbstractConsole implements Runnable {
      */
     public void executeAll() throws Exception {
         while ((line=readLine(in)) != null) {
-            execute(line);
-            out.flush();
+            try {
+                execute(line);
+                out.flush();
+            } catch(Exception e) {
+                reportError(e);
+                throw e;
+            }
         }
     }
 
