@@ -1199,6 +1199,7 @@ public class BufferedAuthorityFactory extends AbstractAuthorityFactory implement
             backingStore = null;
         }
         pool.clear();
+        findPool.clear();
         super.dispose();
     }
 
