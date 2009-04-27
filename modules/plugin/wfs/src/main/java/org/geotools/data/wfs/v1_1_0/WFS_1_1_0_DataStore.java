@@ -720,7 +720,7 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
     public int getCount(final Query query) throws IOException {
         Filter[] filters = wfs.splitFilters(query.getFilter());
         Filter postFilter = filters[1];
-        if (!Filter.EXCLUDE.equals(postFilter)) {
+        if (!Filter.INCLUDE.equals(postFilter)) {
             // Filter not fully supported, can't know without a full scan of the results
             return -1;
         }
@@ -792,7 +792,7 @@ public final class WFS_1_1_0_DataStore implements WFSDataStore {
         final String defaultCrs = wfs.getDefaultCRS(typeName);
 
         if (queryCrs == null) {
-            LOGGER.warning("Query does not provides a CRS, using default: " + query);
+            LOGGER.warning("Query does not provide a CRS, using default: " + query);
             return defaultCrs;
         }
 
