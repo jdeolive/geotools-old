@@ -482,8 +482,6 @@ public final class GridCoverageRenderer {
         //
         // /////////////////////////////////////////////////////////////////////
         GridCoverage2D preResample=gridCoverage;
-//        if(simpleG2WTransform)
-//        {
     	try{
 		    preResample = getCroppedCoverage(gridCoverage, intersectionEnvelope, sourceCoverageCRS,this.hints);
 		    if (preResample == null) {
@@ -507,7 +505,6 @@ public final class GridCoverageRenderer {
         if (DEBUG) {
             writeRenderedImage(preResample.geophysics(false).getRenderedImage(),"preresample");
         }
-//        }
             
         
         // /////////////////////////////////////////////////////////////////////
