@@ -296,7 +296,7 @@ public class GridCoverageTestBase extends CoverageTestBase {
                  * Geographic extent  :  (90°S, 180°W) - (90°N, 180°E)
                  */
                 case 3:{
-                    path   = "BATHY.gif";
+                    path   = "BATHY.png";
                     bounds = new Rectangle2D.Double(-180, -90, 360, 180);
                     crs    = DefaultGeographicCRS.WGS84;
                     bands  = null;
