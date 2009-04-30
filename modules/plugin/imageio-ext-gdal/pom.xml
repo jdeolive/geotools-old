@@ -20,7 +20,7 @@
   </parent>
 
   <properties>
-    <imageio.ext.version>1.0.1</imageio.ext.version>
+    <imageio.ext.version>1.0.2</imageio.ext.version>
   </properties>
 
   <!-- =========================================================== -->

@@ -122,7 +122,7 @@
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-arcgrid</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>

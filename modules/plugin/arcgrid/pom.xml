@@ -33,6 +33,7 @@
     <connection>
       scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/arcgrid/
     </connection>
+    <developerConnection>Simone Giannecchini</developerConnection>
     <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/arcgrid/</url>
   </scm>
 
@@ -89,7 +90,7 @@
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
   	  <artifactId>imageio-ext-arcgrid</artifactId>
-  	  <version>1.0.1</version>
+  	  <version>1.0.2</version>
     </dependency>
 
     <!-- Test dependencies -->
