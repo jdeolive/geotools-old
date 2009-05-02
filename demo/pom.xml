@@ -97,20 +97,34 @@
   <!-- =========================================================== -->
   <!--     Modules included in the build                           -->
   <!-- =========================================================== -->
+
+  <profiles>
+    <profile>
+      <id>introduction</id>
+        <activation> 
+          <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>introduction</module>
+       </modules>
+    </profile>
+
+    <profile>
+      <id>mappane-use</id>
+        <activation>
+          <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>mappane-use</module>
+       </modules>
+    </profile>
+  </profiles>
+
   <modules>
-    <!-- Adrian's Demos -->
-    <module>introduction</module>
     <module>libraryJTS</module>
-
-    <!--module>metadata</module-->
-    <!-- Unvetted. -->
-    <module>mappane-use</module>
-
-    <!-- Sample code from the User Guide -->
     <module>example</module>
-
     <module>svgsupport</module>
-    <!--module>xml-po</module-->
+    <!--module>xml-po</module--> <!-- what is this? -->
   </modules>
   
 </project>
