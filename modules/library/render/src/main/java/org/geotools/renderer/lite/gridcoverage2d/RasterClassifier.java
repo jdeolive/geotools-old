@@ -19,7 +19,6 @@ package org.geotools.renderer.lite.gridcoverage2d;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.ColorModel;
-import java.awt.image.RasterFormatException;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
@@ -311,7 +310,7 @@ public class RasterClassifier extends PointOpImage {
 					new Class[] { ColorMapTransform.class,
 							Integer.class }, // Argument
 					// classes
-					new Object[] { NO_PARAMETER_DEFAULT, new Integer(-1) }, // Default
+					new Object[] { NO_PARAMETER_DEFAULT, Integer.valueOf(-1) }, // Default
 					// values
 					// for parameters,
 					null // No restriction on valid parameter values.
