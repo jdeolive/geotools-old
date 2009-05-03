@@ -79,7 +79,7 @@ package org.geotools.styling;
  * @source $URL$
  * @version $Id$
  */
-public interface PointSymbolizer extends org.opengis.style.PointSymbolizer,Symbolizer {
+public interface PointSymbolizer extends org.opengis.style.PointSymbolizer, Symbolizer {
     /**
      * Provides the graphical-symbolization parameter to use for the  point
      * geometry.
@@ -91,10 +91,7 @@ public interface PointSymbolizer extends org.opengis.style.PointSymbolizer,Symbo
     /**
      * Provides the graphical-symbolization parameter to use for the  point
      * geometry.
-     *
-     * @deprecated symbolizers and underneath classes are immutable
      */
-    @Deprecated
     void setGraphic(Graphic graphic);
 
     /**
@@ -107,9 +104,19 @@ public interface PointSymbolizer extends org.opengis.style.PointSymbolizer,Symbo
      * select one is not required. Note: this moves a little away from the SLD
      * spec which provides an XPath reference to a Geometry object, but does
      * follow it in spirit.
-     *
-     * @deprecated symbolizers and underneath classes are immutable
      */
-    @Deprecated
+    String getGeometryPropertyName();
+
+    /**
+     * This property defines the geometry to be used for styling.<br>
+     * The property is optional and if it is absent (null) then the "default"
+     * geometry property of the feature should be used.  Geometry types other
+     * than inherently point types can be used.  The geometryPropertyName is
+     * the name of a geometry property in the Feature being styled.
+     * Typically, features only have one geometry so, in general, the need to
+     * select one is not required. Note: this moves a little away from the SLD
+     * spec which provides an XPath reference to a Geometry object, but does
+     * follow it in spirit.
+     */
     void setGeometryPropertyName(String geometryPropertyName);
 }

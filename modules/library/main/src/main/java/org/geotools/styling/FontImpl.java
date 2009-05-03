@@ -94,6 +94,9 @@ public class FontImpl implements Font, Cloneable {
 	public Expression getSize() {
 		return fontSize;
 	}
+	public void setSize(Expression size) {
+		this.fontSize = size;
+	}
     /**
      * Setter for property fontSize.
      *
@@ -117,7 +120,9 @@ public class FontImpl implements Font, Cloneable {
     public Expression getStyle() {
     	return fontStyle;
     }
-
+    public void setStyle(Expression style) {
+    	fontStyle = style;
+    }
     /**
      * Setter for property fontStyle.
      *
@@ -141,7 +146,9 @@ public class FontImpl implements Font, Cloneable {
     public Expression getWeight() {
     	return fontWeight;
     }
-
+	public void setWeight(Expression weight) {
+		fontWeight = weight;
+	}
     /**
      * Setter for property fontWeight.
      *
@@ -231,10 +238,10 @@ public class FontImpl implements Font, Cloneable {
     public static Font createDefault( FilterFactory filterFactory ) {
         Font font = new FontImpl();
         try {
-            font.setFontSize(filterFactory.literal(
+            font.setSize(filterFactory.literal(
                     new Integer(10)));
-            font.setFontStyle(filterFactory.literal("normal"));
-            font.setFontWeight(filterFactory.literal("normal"));
+            font.setStyle(filterFactory.literal("normal"));
+            font.setWeight(filterFactory.literal("normal"));
             font.setFontFamily(filterFactory.literal("Serif"));
         } catch (org.geotools.filter.IllegalFilterException ife) {
             throw new RuntimeException("Error creating default", ife);

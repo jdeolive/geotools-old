@@ -73,25 +73,22 @@ public interface Halo extends org.opengis.style.Halo{
     /**
      * Expression that represents the the distance the halo extends from the
      * text
-     *
-     * @deprecated symbolizers and underneath classes are immutable
+     * @param radius
      */
-    @Deprecated
     void setRadius(Expression radius);
 
     /**
      * The fill (color) of the halo
      *
-     * @return DOCUMENT ME!
+     * @return fill (color) of the halo
      */
     Fill getFill();
 
     /**
      * The fill (color) of the halo
      *
-     * @deprecated symbolizers and underneath classes are immutable
+     * @param fill
      */
-    @Deprecated
     void setFill(Fill fill);
 
     void accept(org.geotools.styling.StyleVisitor visitor);

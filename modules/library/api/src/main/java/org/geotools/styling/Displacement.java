@@ -32,7 +32,7 @@ import org.opengis.style.StyleVisitor;
  */
 public interface Displacement extends org.opengis.style.Displacement{
     /**
-     * Default Displacment instance.
+     * Default Displacement instance.
      */
     static final Displacement DEFAULT = new ConstantDisplacement() {
             private void cannotModifyConstant() {
@@ -77,21 +77,25 @@ public interface Displacement extends org.opengis.style.Displacement{
         };
 
     /**
+     * Returns an expression that computes a pixel offset from the geometry
+     * point.  This offset point is where the text's anchor point gets
+     * located. If this expression is null, the default offset of zero is
+     * used.
+     *
+     * @return Horizontal offeset
+     */
+    Expression getDisplacementX();
+
+    /**
      * Sets the expression that computes a pixel offset from the geometry
      * point.
-     *
-     * @deprecated symbolizers and underneath classes are immutable
      */
-    @Deprecated
     void setDisplacementX(Expression x);
 
     /**
      * Sets the expression that computes a pixel offset from the geometry
      * point.
-     *
-     * @deprecated symbolizers and underneath classes are immutable
      */
-    @Deprecated
     void setDisplacementY(Expression y);
 
     void accept(org.geotools.styling.StyleVisitor visitor);
@@ -118,5 +122,4 @@ abstract class ConstantDisplacement implements Displacement {
     public void accept(StyleVisitor visitor) {
         cannotModifyConstant();
     }
-}
-;
+};

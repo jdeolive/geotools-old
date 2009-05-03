@@ -78,13 +78,10 @@ public interface ExternalGraphic extends org.opengis.style.ExternalGraphic,Symbo
     public static final ExternalGraphic[] EXTERNAL_GRAPHICS_EMPTY = new ExternalGraphic[0];
 
     /**
-     * converts a URI in a string to the location URL
+     * Converts a URI in a string to the location URL
      *
      * @param uri the uri of the external graphic
-     * 
-     * @deprecated symbolizers and underneath classes are immutable
      */
-    @Deprecated
     public void setURI(String uri);
 
     /**
@@ -103,10 +100,7 @@ public interface ExternalGraphic extends org.opengis.style.ExternalGraphic,Symbo
      * Provides the URL for where the external graphic resource can be located.
      *
      * @param url The URL of the ExternalGraphic
-     * 
-     * @deprecated symbolizers and underneath classes are immutable
      */
-    @Deprecated
     void setLocation(URL url);
 
     /**
@@ -114,10 +108,7 @@ public interface ExternalGraphic extends org.opengis.style.ExternalGraphic,Symbo
      *
      * @param format The format of the external graphic.  Reported as its MIME
      *        type in a String object.
-     * 
-     * @deprecated symbolizers and underneath classes are immutable
      */
-    @Deprecated
     void setFormat(String format);
 
     /**

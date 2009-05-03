@@ -54,10 +54,7 @@ public interface ShadedRelief extends org.opengis.style.ShadedRelief{
      * turns brightnessOnly on or off depending on value of flag.
      *
      * @param flag boolean
-     * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
-    @Deprecated
     public void setBrightnessOnly(boolean flag);
 
     /**
@@ -66,10 +63,7 @@ public interface ShadedRelief extends org.opengis.style.ShadedRelief{
      * for Earth-based DEMs. The default value is system-dependent.
      *
      * @param reliefFactor an expression which evaluates to a double.
-     * 
-     * @deprecated symbolizers and underneath classes will be immutable in 2.6.x
      */
-    @Deprecated
     public void setReliefFactor(Expression reliefFactor);
 
     public void accept(org.geotools.styling.StyleVisitor visitor);

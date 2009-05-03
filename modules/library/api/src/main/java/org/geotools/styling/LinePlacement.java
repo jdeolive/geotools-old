@@ -52,15 +52,22 @@ import org.opengis.filter.expression.Expression;
  * @author Ian Turton, CCG
  * @source $URL$
  */
-public interface LinePlacement extends org.opengis.style.LinePlacement,LabelPlacement {
+public interface LinePlacement extends org.opengis.style.LinePlacement, LabelPlacement {
+    /**
+     * Returns the expression that is used to compute how far from the lines
+     * the text will be drawn.  The distance must evaluate to a non-negative
+     * number.
+     *
+     * @return compute how far from the line the text will be drawn
+     */
+    Expression getPerpendicularOffset();
 
     /**
      * Sets the expression that is used to compute how far from the lines the
      * text will be drawn. See {@link #getPerpendicularOffset} for details.
      *
-     * @deprecated symbolizers and underneath classes are immutable
+     * @param offset 
      */
-    @Deprecated
     void setPerpendicularOffset(Expression offset);
     
 }

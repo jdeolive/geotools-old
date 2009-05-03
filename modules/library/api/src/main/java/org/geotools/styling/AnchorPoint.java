@@ -30,6 +30,13 @@ import org.opengis.style.StyleVisitor;
  * @version $Id$
  */
 public interface AnchorPoint extends org.opengis.style.AnchorPoint{
+    //TODO: add AnchorPoint to GeoAPI
+    /**
+     * get the x coordinate of the anchor point
+     *
+     * @return the expression which represents the X coordinate
+     */
+    Expression getAnchorPointX();
 
     static final AnchorPoint DEFAULT = new AnchorPoint() {
         private void cannotModifyConstant() {
@@ -63,23 +70,17 @@ public interface AnchorPoint extends org.opengis.style.AnchorPoint{
     };
     
     /**
-     * set the X coordinate for the anchor point
+     * Set the X coordinate for the anchor point
      *
      * @param x an expression which represents the X coordinate
-     * 
-     * @deprecated symbolizers and underneath classes are immutable .
      */
-    @Deprecated
     void setAnchorPointX(Expression x);
 
     /**
      * set the Y coordinate for the anchor point
      *
      * @param y an expression which represents the Y coordinate
-     * 
-     * @deprecated symbolizers and underneath classes are immutable .
      */
-    @Deprecated
     void setAnchorPointY(Expression y);
 
     /**

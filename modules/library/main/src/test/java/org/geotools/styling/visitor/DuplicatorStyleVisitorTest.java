@@ -131,6 +131,7 @@ public class DuplicatorStyleVisitorTest extends TestCase {
         }
         catch (TransformerException te)
         {
+            te.printStackTrace();
             return false;
         }
     }

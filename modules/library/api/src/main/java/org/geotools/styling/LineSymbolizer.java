@@ -92,15 +92,13 @@ public interface LineSymbolizer extends org.opengis.style.LineSymbolizer, Symbol
      * geometry.
      *
      * @param stroke The Stroke style to use when rendering lines.
-     * 
-     * @deprecated symbolizers and underneath classes are immutable
      */
-    @Deprecated
     void setStroke(Stroke stroke);
 
+    String getGeometryPropertyName();
+
     /**
-     * @deprecated symbolizers and underneath classes are immutable
+     * @param geometry property name
      */
-    @Deprecated
     void setGeometryPropertyName(String geometryPropertyName);
 }

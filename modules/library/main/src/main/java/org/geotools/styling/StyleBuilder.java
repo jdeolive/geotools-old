@@ -1798,7 +1798,7 @@ public class StyleBuilder {
 
         PolygonSymbolizer elsePoly = createPolygonSymbolizer(Color.black, 1.0);
         rules[colors.length].setSymbolizers(new Symbolizer[] { elsePoly });
-        rules[colors.length].setIsElseFilter(true);
+        rules[colors.length].setElseFilter(true);
 
         FeatureTypeStyle ft = sf.createFeatureTypeStyle(rules);
         ft.setFeatureTypeName("Feature");
