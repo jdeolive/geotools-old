@@ -52,5 +52,5 @@ package org.geotools.styling;
  */
 public interface LabelPlacement extends org.opengis.style.LabelPlacement{
     
-    void accept(org.geotools.styling.StyleVisitor visitor);
+    void accept(StyleVisitor visitor);
 }
