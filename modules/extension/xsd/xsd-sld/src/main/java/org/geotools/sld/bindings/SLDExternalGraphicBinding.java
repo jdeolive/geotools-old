@@ -23,6 +23,7 @@ import java.net.URI;
 import javax.xml.namespace.QName;
 import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.StyleFactory;
+import org.geotools.util.Converters;
 import org.geotools.xml.*;
 
 
@@ -103,7 +104,10 @@ public class SLDExternalGraphicBinding extends AbstractComplexBinding {
      */
     public Object parse(ElementInstance instance, Node node, Object value)
         throws Exception {
-        URI uri = (URI) node.getChildValue("OnlineResource");
+        //the Converters wrapper here is a workaround for http://jira.codehaus.org/browse/GEOT-2457
+        // for some reason on the IBM JDK returns a string, we should really find out why instead 
+        // of applying this bandaid
+        URI uri = Converters.convert( node.getChildValue("OnlineResource"), URI.class );
         String format = (String) node.getChildValue("Format");
 
         return styleFactory.createExternalGraphic(uri.toURL(), format);
