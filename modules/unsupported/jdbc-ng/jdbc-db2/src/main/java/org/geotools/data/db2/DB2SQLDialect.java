@@ -23,8 +23,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
+import org.geotools.factory.Hints;
+import org.geotools.factory.Hints.Key;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.SQLDialect;
 import org.geotools.referencing.CRS;
@@ -491,4 +494,17 @@ public class DB2SQLDialect extends SQLDialect  {
     	}
     }
     
+    public void encodeGeometryColumnGeneralized(GeometryDescriptor gatt, int srid,  StringBuffer sql,Double distance) {
+    		     	
+          	
+        sql.append("db2gse.ST_AsBinary(db2gse.st_Generalize(");
+        encodeColumnName(gatt.getLocalName(), sql);
+        sql.append(",").append(distance);
+        sql.append("))");    	
+    }
+
+    @Override
+    protected void addSupportedHints(Set<Key> hints) {
+    	hints.add(Hints.GEOMETRY_GENERALIZATION);
+    }
 }

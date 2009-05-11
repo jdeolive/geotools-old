@@ -22,8 +22,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Set;
 
 import org.geotools.data.jdbc.FilterToSQL;
+import org.geotools.factory.Hints;
+import org.geotools.factory.Hints.Key;
 import org.geotools.jdbc.BasicSQLDialect;
 import org.geotools.jdbc.JDBCDataStore;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -159,4 +162,11 @@ public class DB2SQLDialectBasic extends BasicSQLDialect {
         delegate.applyLimitOffset(sql, limit, offset);
     }
 
+    public void encodeGeometryColumnGeneralized(GeometryDescriptor gatt, int srid, StringBuffer sql,Double distance) {
+    	delegate.encodeGeometryColumnGeneralized(gatt, srid, sql, distance);
+    }
+    @Override
+    protected void addSupportedHints(Set<Key> hints) {
+    	delegate.addSupportedHints(hints);
+    }
 }

@@ -23,7 +23,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Map;
+import java.util.Set;
 
+import org.geotools.factory.Hints;
+import org.geotools.factory.Hints.Key;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.PreparedFilterToSQL;
 import org.geotools.jdbc.PreparedStatementSQLDialect;
@@ -183,6 +186,14 @@ public class DB2SQLDialectPrepared extends PreparedStatementSQLDialect {
     }
     public void applyLimitOffset(StringBuffer sql, int limit, int offset) {
         delegate.applyLimitOffset(sql, limit, offset);
+    }
+
+    public void encodeGeometryColumnGeneralized(GeometryDescriptor gatt, int srid,StringBuffer sql,Double distance) {
+    	delegate.encodeGeometryColumnGeneralized(gatt,srid,sql,distance);
+    }
+    @Override
+    protected void addSupportedHints(Set<Key> hints) {
+    	delegate.addSupportedHints(hints);
     }
 
 
