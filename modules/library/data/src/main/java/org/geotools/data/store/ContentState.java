@@ -278,7 +278,7 @@ public class ContentState {
         
         fireFeatureEvent( event );
     }
-
+    
     public void fireFeatureRemoved(FeatureSource<?,?> source, Feature feature) {
         if( listeners.isEmpty() && tx != Transaction.AUTO_COMMIT) return;
         
@@ -330,6 +330,7 @@ public class ContentState {
     /**
      * Notifies all waiting listeners that a commit has been issued;
      * this notification is also sent to our  
+     * @param isCommit 
      */
     public final void fireBatchFeatureEvent(boolean isCommit){
        if( batchFeatureEvent == null ){

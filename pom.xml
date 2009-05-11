@@ -149,6 +149,7 @@
       <distributionManagement>
         <repository>
           <id>opengeo</id>
+          <uniqueVersion>false</uniqueVersion>
           <name>OpenGeo Maven Repository</name>
           <url>dav:http://repo.opengeo.org</url>
         </repository>

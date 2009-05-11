@@ -41,6 +41,7 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.identity.FeatureIdImpl;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Converters;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.Association;
@@ -86,7 +87,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
     protected static final Boolean TRACE_ENABLED = "true".equalsIgnoreCase(System.getProperty("gt2.jdbc.trace"));
 
     /**
-     * the feature source the reader originated from. 
+     * The feature source the reader originated from. 
      */
     protected JDBCFeatureSource featureSource;
     /**
@@ -203,6 +204,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
     public JDBCFeatureReader( JDBCFeatureReader other ) {
         this.featureType = other.featureType;
         this.dataStore = other.dataStore;
+        this.featureSource = other.featureSource;
         this.tx = other.tx;
         this.hints = other.hints;
         this.geometryFactory = other.geometryFactory;
@@ -825,7 +827,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         }
 
         public FeatureId getIdentifier() {
-        	return fid;
+            return fid;
         }
         public String getID() {
             return fid.getID();
@@ -944,7 +946,8 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         }
 
         public Object getDefaultGeometry() {
-            throw new UnsupportedOperationException();
+            GeometryDescriptor defaultGeometry = featureType.getGeometryDescriptor();
+            return getAttribute( defaultGeometry.getName() );            
         }
 
         public void setAttributes(Object[] object) {
@@ -952,11 +955,17 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         }
 
         public void setDefaultGeometry(Object defaultGeometry) {
-            throw new UnsupportedOperationException();
+            GeometryDescriptor descriptor = featureType.getGeometryDescriptor();
+            setAttribute(descriptor.getName(), defaultGeometry );            
         }
 
         public BoundingBox getBounds() {
-            throw new UnsupportedOperationException();
+            Object obj = getDefaultGeometry();
+            if( obj instanceof Geometry ){
+                Geometry geometry = (Geometry) obj;
+                return new ReferencedEnvelope( geometry.getEnvelopeInternal(), featureType.getCoordinateReferenceSystem() );
+            }
+            return new ReferencedEnvelope( featureType.getCoordinateReferenceSystem() );
         }
 
         public GeometryAttribute getDefaultGeometryProperty() {

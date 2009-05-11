@@ -21,7 +21,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureWriter;
+import org.geotools.data.FeatureEvent.Type;
+import org.geotools.data.store.ContentEntry;
+import org.geotools.data.store.ContentState;
 import org.geotools.factory.Hints;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -71,6 +75,10 @@ public class JDBCInsertFeatureWriter extends JDBCFeatureReader implements Featur
             //the datastore sets as userData, grab it and update the fid
             String fid = (String) last.getUserData().get( "fid" );
             last.setID( fid );
+            
+            ContentEntry entry = featureSource.getEntry();
+            ContentState state = entry.getState( this.tx );            
+            state.fireFeatureAdded( featureSource, last );
         } catch (SQLException e) {
             throw (IOException) new IOException().initCause(e);
         }

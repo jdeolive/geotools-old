@@ -38,9 +38,13 @@ public final class JDBCTransactionState implements State {
      * The current connection
      */
     Connection cx;
-    
-    public JDBCTransactionState(Connection cx, JDBCDataStore dataStore) {
+    /**
+     * The current JDBCState; used to issue commit events
+     */
+    JDBCState state;
+    public JDBCTransactionState(JDBCState state, Connection cx, JDBCDataStore dataStore) {
         this.cx = cx;
+        this.state = state;
         this.dataStore = dataStore;
     }
 
@@ -79,6 +83,7 @@ public final class JDBCTransactionState implements State {
             String msg = "Error occured on commit";
             throw (IOException) new IOException(msg).initCause(e);
         }
+        state.fireBatchFeatureEvent( true );
     }
 
     public void rollback() throws IOException {
@@ -88,6 +93,7 @@ public final class JDBCTransactionState implements State {
             String msg = "Error occured on rollback";
             throw (IOException) new IOException(msg).initCause(e);
         }
+        state.fireBatchFeatureEvent( false );
     }
     
     @Override
