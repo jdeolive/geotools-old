@@ -160,6 +160,7 @@
          <module>tiger</module>
          <module>vpf</module>
          <module>xml-gpx</module>
+         <module>feature-pregeneralized</module>
        </modules>
      </profile>
   </profiles>
