@@ -175,6 +175,7 @@
           <include>**/*.properties</include>
           <include>**/*.xml</include>
           <include>**/*.xsd</include>
+          <include>**/META-INF/**</include>
         </includes>
       </testResource>
     </testResources>
