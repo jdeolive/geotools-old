@@ -31,24 +31,6 @@
         <module>epsg-access</module>      
       </modules>
     </profile>
-    <profile>
-      <id>Java 1.4 Specific Plugins</id>
-      <activation>
-        <jdk>1.4</jdk>
-      </activation>
-      <modules>
-         <module>arcgrid</module>
-      </modules>
-    </profile>
-    <!--profile>
-      <id>Java 5 Specific Plugins</id>
-      <activation>
-        <jdk>1.5</jdk>
-      </activation>
-      <modules>
-         <module>arcgrid</module>
-      </modules>
-    </profile-->
 
   </profiles>
 
@@ -79,6 +61,7 @@
     <module>arcgrid</module>
     <module>arcsde</module>
     <module>db2</module>
+    <module>charts</module>
     <module>epsg-access</module>
     <module>epsg-extension</module>
     <module>epsg-hsql</module>
