@@ -16,6 +16,7 @@
  */
 package org.geotools.data.store;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +29,9 @@ import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Transaction;
 import org.geotools.data.FeatureEvent.Type;
+import org.geotools.data.Transaction.State;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.expression.ThisPropertyAccessorFactory;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -117,6 +120,23 @@ public class ContentState {
      * observers
      */
     protected List<FeatureListener> listeners;
+
+    /**
+     * Callback used to issue batch feature events when commit/rollback issued
+     * on the transaction.
+     */
+    protected State callback = new State(){
+        public void setTransaction(Transaction transaction) {
+        }  
+        public void addAuthorization(String AuthID) throws IOException {
+        }
+        public void commit() throws IOException {
+            fireBatchFeatureEvent(true);
+        }
+        public void rollback() throws IOException {
+            fireBatchFeatureEvent(false);
+        }
+    };
     
     /**
      * Creates a new state.
@@ -144,7 +164,8 @@ public class ContentState {
         count = state.count;
         bounds = state.bounds == null ? 
                 null : new ReferencedEnvelope( state.bounds );
-	}
+        batchFeatureEvent = null;
+   }
 
     /**
      * The entry which maintains the state.
@@ -165,6 +186,9 @@ public class ContentState {
      */
     public void setTransaction(Transaction tx) {
         this.tx = tx;
+        if( tx != Transaction.AUTO_COMMIT ){
+            tx.putState( this.entry, callback );
+        }
     }
     
     /**
@@ -399,5 +423,5 @@ public class ContentState {
     public ContentState copy() {
         return new ContentState( this );
     }
-
+    
 }

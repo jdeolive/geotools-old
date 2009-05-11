@@ -454,6 +454,7 @@ public abstract class ContentDataStore implements DataStore {
 
     public final void updateSchema(String typeName, SimpleFeatureType featureType)
         throws IOException {
+        throw new UnsupportedOperationException();
     }
 
     public void dispose() {
