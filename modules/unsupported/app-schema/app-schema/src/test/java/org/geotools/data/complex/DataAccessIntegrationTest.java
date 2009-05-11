@@ -127,7 +127,7 @@ public class DataAccessIntegrationTest extends TestCase {
     /**
      * The input data access in MO form
      */
-    private static DataAccess<FeatureType, Feature> minOccDataAccess;
+    private DataAccess<FeatureType, Feature> minOccDataAccess;
 
     /**
      * The converted Geologic Unit data access in GSML form
@@ -152,7 +152,7 @@ public class DataAccessIntegrationTest extends TestCase {
     /**
      * App schema config reader
      */
-    private EmfAppSchemaReader reader;
+    private static EmfAppSchemaReader reader;
 
     /**
      * GSML:geologicUnit feature source coming from the mapped data access
@@ -162,7 +162,7 @@ public class DataAccessIntegrationTest extends TestCase {
     /**
      * Collection of MO:earthResource complex features
      */
-    private ArrayList<Feature> minOccFeatures;
+    private static ArrayList<Feature> minOccFeatures;
 
     /**
      * Collection of GSML:compositionPart complex features
@@ -178,31 +178,11 @@ public class DataAccessIntegrationTest extends TestCase {
      * Create the input data access containing complex features of MO form.
      */
     protected void setUp() throws Exception {
-        File dir = new File(getClass().getResource(schemaBase).toURI());
-        PropertyDataStore dataStore = new PropertyDataStore(dir);
-        FeatureSource<SimpleFeatureType, SimpleFeature> simpleFeatureSource = dataStore
-                .getFeatureSource(EARTH_RESOURCE);
-
-        // get the simple features from EarthResource.properties file
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection = simpleFeatureSource
-                .getFeatures();
-        reader = EmfAppSchemaReader.newInstance();
-        reader.parse(getClass().getResource(
-                schemaBase + "commonSchemas_new/mineralOccurrence/mineralOccurrence.xsd"));
-
-        Map typeRegistry = reader.getTypeRegistry();
-        ComplexType complexType = (ComplexType) typeRegistry.get(EARTH_RESOURCE_TYPE);
-
-        // extend from abstract feature type
-        FeatureType earthResourceType = new FeatureTypeImpl(complexType.getName(), complexType
-                .getDescriptors(), null, true, complexType.getRestrictions(),
-                GMLSchema.ABSTRACTFEATURETYPE_TYPE, null);
-
-        minOccFeatures = getEarthResourceFeatures(fCollection, earthResourceType);
-
-        minOccDataAccess = new MinOccDataAccess(minOccFeatures, simpleFeatureSource.getSchema());
-
-        this.loadDataAccesses();
+        Map<String, Serializable> moParams = new HashMap<String, Serializable>();
+        moParams.put("dbtype", "mo-data-access");
+        moParams.put("directory", getClass().getResource(schemaBase));
+        minOccDataAccess = DataAccessFinder.getDataStore(moParams);
+        loadDataAccesses();
     }
 
     /**
@@ -214,7 +194,7 @@ public class DataAccessIntegrationTest extends TestCase {
      *            Earth Resource schema
      * @return MO:EarthResource features
      */
-    private ArrayList<Feature> getEarthResourceFeatures(
+    private static ArrayList<Feature> getEarthResourceFeatures(
             FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection,
             FeatureType earthResourceType) {
         ArrayList<Feature> features = new ArrayList<Feature>();
@@ -310,7 +290,7 @@ public class DataAccessIntegrationTest extends TestCase {
         /**
          * Load mapped feature as occurrence data access
          */
-        Map<String, Serializable> dsParams = new HashMap();
+        Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
         URL url = getClass().getResource(schemaBase + "MappedFeatureAsOccurrence.xml");
         assertNotNull(url);
 
@@ -669,14 +649,41 @@ public class DataAccessIntegrationTest extends TestCase {
         }
 
         public boolean canProcess(Map<String, Serializable> params) {
-            Object url = params.get("url");
-            return url == null ? false : url.equals(getClass().getResource(
-                    schemaBase + "EarthResourceToGeologicUnit.xml"));
+            Object dbType = params.get("dbtype");
+            return dbType == null ? false : dbType.equals("mo-data-access");
         }
 
         public DataAccess<? extends FeatureType, ? extends Feature> createDataStore(
                 Map<String, Serializable> params) throws IOException {
-            return minOccDataAccess;
+            URL schemaBase = (URL) params.get("directory");
+            File dir;
+            try {
+                dir = new File(schemaBase.toURI());
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            PropertyDataStore dataStore = new PropertyDataStore(dir);
+            FeatureSource<SimpleFeatureType, SimpleFeature> simpleFeatureSource = dataStore
+                    .getFeatureSource(EARTH_RESOURCE);
+
+            // get the simple features from EarthResource.properties file
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection = simpleFeatureSource
+                    .getFeatures();
+            reader = EmfAppSchemaReader.newInstance();
+            reader.parse(new URL(schemaBase.toString() + File.separator
+                    + "commonSchemas_new/mineralOccurrence/mineralOccurrence.xsd"));
+
+            Map typeRegistry = reader.getTypeRegistry();
+            ComplexType complexType = (ComplexType) typeRegistry.get(EARTH_RESOURCE_TYPE);
+
+            // extend from abstract feature type
+            FeatureType earthResourceType = new FeatureTypeImpl(complexType.getName(), complexType
+                    .getDescriptors(), null, true, complexType.getRestrictions(),
+                    GMLSchema.ABSTRACTFEATURETYPE_TYPE, null);
+
+            minOccFeatures = getEarthResourceFeatures(fCollection, earthResourceType);
+
+            return new MinOccDataAccess(minOccFeatures, simpleFeatureSource.getSchema());
         }
 
         public String getDescription() {
@@ -698,288 +705,291 @@ public class DataAccessIntegrationTest extends TestCase {
         public Map<Key, ?> getImplementationHints() {
             return null;
         }
-    }
 
-    /**
-     * This is a test non app-schema MO:data access
-     * 
-     * @author ang05a
-     */
-    private class MinOccDataAccess implements DataAccess<FeatureType, Feature> {
-        private FeatureSource<FeatureType, Feature> fSource;
+        /**
+         * This is a test non app-schema MO:data access
+         * 
+         * @author ang05a
+         */
+        private class MinOccDataAccess implements DataAccess<FeatureType, Feature> {
+            private FeatureSource<FeatureType, Feature> fSource;
 
-        private ArrayList<Name> names = new ArrayList<Name>();
+            private ArrayList<Name> names = new ArrayList<Name>();
 
-        public MinOccDataAccess(Collection<Feature> features, FeatureType schema) {
-            MinOccFeatureCollection fCollection = new MinOccFeatureCollection(schema, features);
-            fSource = new MinOccFeatureSource(fCollection, this);
-            names.add(fSource.getName());
-            DataAccessRegistry.register(this);
-        }
-
-        public void createSchema(FeatureType featureType) throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        public void dispose() {
-            this.fSource = null;
-            this.names.clear();
-            DataAccessRegistry.unregister(this);
-        }
-
-        public FeatureSource<FeatureType, Feature> getFeatureSource(Name typeName)
-                throws IOException {
-            return fSource;
-        }
-
-        public ServiceInfo getInfo() {
-            throw new UnsupportedOperationException();
-        }
-
-        public List<Name> getNames() throws IOException {
-            return names;
-        }
-
-        public FeatureType getSchema(Name name) throws IOException {
-            return fSource.getFeatures().getSchema();
-        }
-
-        public void updateSchema(Name typeName, FeatureType featureType) throws IOException {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    /**
-     * This is a test feature source for non-app-schema complex features.
-     * 
-     * @author ang05a
-     */
-    private class MinOccFeatureSource implements FeatureSource<FeatureType, Feature> {
-        private FeatureCollection<FeatureType, Feature> fCollection;
-
-        private DataAccess<FeatureType, Feature> dataAccess;
-
-        public MinOccFeatureSource(FeatureCollection<FeatureType, Feature> fCollection,
-                DataAccess<FeatureType, Feature> dataAccess) {
-            this.fCollection = fCollection;
-            this.dataAccess = dataAccess;
-        }
-
-        public void addFeatureListener(FeatureListener listener) {
-            throw new UnsupportedOperationException();
-        }
-
-        public ReferencedEnvelope getBounds() throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        public ReferencedEnvelope getBounds(Query query) throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        public int getCount(Query query) throws IOException {
-            return fCollection.size();
-        }
-
-        public DataAccess<FeatureType, Feature> getDataStore() {
-            return dataAccess;
-        }
-
-        public FeatureCollection<FeatureType, Feature> getFeatures(Query query) throws IOException {
-            return fCollection;
-        }
-
-        public FeatureCollection<FeatureType, Feature> getFeatures(Filter filter)
-                throws IOException {
-            return fCollection.subCollection(filter);
-        }
-
-        public FeatureCollection<FeatureType, Feature> getFeatures() throws IOException {
-            return fCollection;
-        }
-
-        public ResourceInfo getInfo() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Name getName() {
-            return fCollection.getSchema().getName();
-        }
-
-        public QueryCapabilities getQueryCapabilities() {
-            throw new UnsupportedOperationException();
-        }
-
-        public FeatureType getSchema() {
-            return fCollection.getSchema();
-        }
-
-        public Set<Key> getSupportedHints() {
-            throw new UnsupportedOperationException();
-        }
-
-        public void removeFeatureListener(FeatureListener listener) {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    /**
-     * This is a test feature collection of non-app-schema complex features
-     * 
-     * @author ang05a
-     */
-    private class MinOccFeatureCollection implements FeatureCollection<FeatureType, Feature> {
-        private ArrayList<Feature> fList = new ArrayList<Feature>();
-
-        private FeatureType schema;
-
-        public MinOccFeatureCollection(FeatureType schema, Collection<Feature> features) {
-            this.schema = schema;
-            this.addAll(features);
-        }
-
-        public void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Feature obj) {
-            return fList.add(obj);
-        }
-
-        public boolean addAll(Collection<? extends Feature> collection) {
-            return fList.addAll(collection);
-        }
-
-        public boolean addAll(FeatureCollection<? extends FeatureType, ? extends Feature> resource) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void addListener(CollectionListener listener) throws NullPointerException {
-            throw new UnsupportedOperationException();
-        }
-
-        public void clear() {
-            fList.clear();
-        }
-
-        public void close(FeatureIterator<Feature> close) {
-            close.close();
-        }
-
-        public void close(Iterator<Feature> close) {
-            ((MinOccFeatureIterator) close).close();
-        }
-
-        public boolean contains(Object o) {
-            return fList.contains(o);
-        }
-
-        public boolean containsAll(Collection<?> o) {
-            return fList.containsAll(o);
-        }
-
-        public FeatureIterator<Feature> features() {
-            return new MinOccFeatureIterator(fList);
-        }
-
-        public ReferencedEnvelope getBounds() {
-            throw new UnsupportedOperationException();
-        }
-
-        public String getID() {
-            return null;
-        }
-
-        public FeatureType getSchema() {
-            return schema;
-        }
-
-        public boolean isEmpty() {
-            return this.fList.isEmpty();
-        }
-
-        public Iterator<Feature> iterator() {
-            return (Iterator<Feature>) features();
-        }
-
-        public void purge() {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            return this.fList.remove(o);
-        }
-
-        public boolean removeAll(Collection<?> c) {
-            return this.fList.removeAll(c);
-        }
-
-        public void removeListener(CollectionListener listener) throws NullPointerException {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean retainAll(Collection<?> c) {
-            return this.fList.retainAll(c);
-        }
-
-        public int size() {
-            return this.fList.size();
-        }
-
-        public FeatureCollection<FeatureType, Feature> sort(SortBy order) {
-            throw new UnsupportedOperationException();
-        }
-
-        public FeatureCollection<FeatureType, Feature> subCollection(Filter filter) {
-            if (filter == Filter.INCLUDE) {
-                return this;
+            public MinOccDataAccess(Collection<Feature> features, FeatureType schema) {
+                MinOccFeatureCollection fCollection = new MinOccFeatureCollection(schema, features);
+                fSource = new MinOccFeatureSource(fCollection, this);
+                names.add(fSource.getName());
+                DataAccessRegistry.register(this);
             }
-            FeatureCollection<FeatureType, Feature> fCollection = new MinOccFeatureCollection(
-                    this.schema, new ArrayList<Feature>());
 
-            for (Feature feature : this.fList) {
-                if (filter.evaluate(feature)) {
-                    fCollection.add(feature);
+            public void createSchema(FeatureType featureType) throws IOException {
+                throw new UnsupportedOperationException();
+            }
+
+            public void dispose() {
+                this.fSource = null;
+                this.names.clear();
+                DataAccessRegistry.unregister(this);
+            }
+
+            public FeatureSource<FeatureType, Feature> getFeatureSource(Name typeName)
+                    throws IOException {
+                return fSource;
+            }
+
+            public ServiceInfo getInfo() {
+                throw new UnsupportedOperationException();
+            }
+
+            public List<Name> getNames() throws IOException {
+                return names;
+            }
+
+            public FeatureType getSchema(Name name) throws IOException {
+                return fSource.getFeatures().getSchema();
+            }
+
+            public void updateSchema(Name typeName, FeatureType featureType) throws IOException {
+                throw new UnsupportedOperationException();
+            }
+        }
+
+        /**
+         * This is a test feature source for non-app-schema complex features.
+         * 
+         * @author ang05a
+         */
+        private class MinOccFeatureSource implements FeatureSource<FeatureType, Feature> {
+            private FeatureCollection<FeatureType, Feature> fCollection;
+
+            private DataAccess<FeatureType, Feature> dataAccess;
+
+            public MinOccFeatureSource(FeatureCollection<FeatureType, Feature> fCollection,
+                    DataAccess<FeatureType, Feature> dataAccess) {
+                this.fCollection = fCollection;
+                this.dataAccess = dataAccess;
+            }
+
+            public void addFeatureListener(FeatureListener listener) {
+                throw new UnsupportedOperationException();
+            }
+
+            public ReferencedEnvelope getBounds() throws IOException {
+                throw new UnsupportedOperationException();
+            }
+
+            public ReferencedEnvelope getBounds(Query query) throws IOException {
+                throw new UnsupportedOperationException();
+            }
+
+            public int getCount(Query query) throws IOException {
+                return fCollection.size();
+            }
+
+            public DataAccess<FeatureType, Feature> getDataStore() {
+                return dataAccess;
+            }
+
+            public FeatureCollection<FeatureType, Feature> getFeatures(Query query)
+                    throws IOException {
+                return fCollection;
+            }
+
+            public FeatureCollection<FeatureType, Feature> getFeatures(Filter filter)
+                    throws IOException {
+                return fCollection.subCollection(filter);
+            }
+
+            public FeatureCollection<FeatureType, Feature> getFeatures() throws IOException {
+                return fCollection;
+            }
+
+            public ResourceInfo getInfo() {
+                throw new UnsupportedOperationException();
+            }
+
+            public Name getName() {
+                return fCollection.getSchema().getName();
+            }
+
+            public QueryCapabilities getQueryCapabilities() {
+                throw new UnsupportedOperationException();
+            }
+
+            public FeatureType getSchema() {
+                return fCollection.getSchema();
+            }
+
+            public Set<Key> getSupportedHints() {
+                throw new UnsupportedOperationException();
+            }
+
+            public void removeFeatureListener(FeatureListener listener) {
+                throw new UnsupportedOperationException();
+            }
+        }
+
+        /**
+         * This is a test feature collection of non-app-schema complex features
+         * 
+         * @author ang05a
+         */
+        private class MinOccFeatureCollection implements FeatureCollection<FeatureType, Feature> {
+            private ArrayList<Feature> fList = new ArrayList<Feature>();
+
+            private FeatureType schema;
+
+            public MinOccFeatureCollection(FeatureType schema, Collection<Feature> features) {
+                this.schema = schema;
+                this.addAll(features);
+            }
+
+            public void accepts(FeatureVisitor visitor, ProgressListener progress)
+                    throws IOException {
+                throw new UnsupportedOperationException();
+            }
+
+            public boolean add(Feature obj) {
+                return fList.add(obj);
+            }
+
+            public boolean addAll(Collection<? extends Feature> collection) {
+                return fList.addAll(collection);
+            }
+
+            public boolean addAll(
+                    FeatureCollection<? extends FeatureType, ? extends Feature> resource) {
+                throw new UnsupportedOperationException();
+            }
+
+            public void addListener(CollectionListener listener) throws NullPointerException {
+                throw new UnsupportedOperationException();
+            }
+
+            public void clear() {
+                fList.clear();
+            }
+
+            public void close(FeatureIterator<Feature> close) {
+                close.close();
+            }
+
+            public void close(Iterator<Feature> close) {
+                ((MinOccFeatureIterator) close).close();
+            }
+
+            public boolean contains(Object o) {
+                return fList.contains(o);
+            }
+
+            public boolean containsAll(Collection<?> o) {
+                return fList.containsAll(o);
+            }
+
+            public FeatureIterator<Feature> features() {
+                return new MinOccFeatureIterator(fList);
+            }
+
+            public ReferencedEnvelope getBounds() {
+                throw new UnsupportedOperationException();
+            }
+
+            public String getID() {
+                return null;
+            }
+
+            public FeatureType getSchema() {
+                return schema;
+            }
+
+            public boolean isEmpty() {
+                return this.fList.isEmpty();
+            }
+
+            public Iterator<Feature> iterator() {
+                return (Iterator<Feature>) features();
+            }
+
+            public void purge() {
+                throw new UnsupportedOperationException();
+            }
+
+            public boolean remove(Object o) {
+                return this.fList.remove(o);
+            }
+
+            public boolean removeAll(Collection<?> c) {
+                return this.fList.removeAll(c);
+            }
+
+            public void removeListener(CollectionListener listener) throws NullPointerException {
+                throw new UnsupportedOperationException();
+            }
+
+            public boolean retainAll(Collection<?> c) {
+                return this.fList.retainAll(c);
+            }
+
+            public int size() {
+                return this.fList.size();
+            }
+
+            public FeatureCollection<FeatureType, Feature> sort(SortBy order) {
+                throw new UnsupportedOperationException();
+            }
+
+            public FeatureCollection<FeatureType, Feature> subCollection(Filter filter) {
+                if (filter == Filter.INCLUDE) {
+                    return this;
                 }
+                FeatureCollection<FeatureType, Feature> fCollection = new MinOccFeatureCollection(
+                        this.schema, new ArrayList<Feature>());
+
+                for (Feature feature : this.fList) {
+                    if (filter.evaluate(feature)) {
+                        fCollection.add(feature);
+                    }
+                }
+                return fCollection;
             }
-            return fCollection;
+
+            public Object[] toArray() {
+                return fList.toArray();
+            }
+
+            public <O> O[] toArray(O[] a) {
+                return fList.toArray(a);
+            }
         }
 
-        public Object[] toArray() {
-            return fList.toArray();
-        }
+        /**
+         * This is a test feature iterator for non-app-schema complex features
+         * 
+         * @author ang05a
+         */
+        private class MinOccFeatureIterator implements Iterator<Feature>, FeatureIterator<Feature> {
+            Iterator<Feature> iterator;
 
-        public <O> O[] toArray(O[] a) {
-            return fList.toArray(a);
-        }
-    }
+            public MinOccFeatureIterator(ArrayList<Feature> features) {
+                iterator = features.iterator();
+            }
 
-    /**
-     * This is a test feature iterator for non-app-schema complex features
-     * 
-     * @author ang05a
-     */
-    private class MinOccFeatureIterator implements Iterator<Feature>, FeatureIterator<Feature> {
-        Iterator<Feature> iterator;
+            public void close() {
+                iterator = null;
+            }
 
-        public MinOccFeatureIterator(ArrayList<Feature> features) {
-            iterator = features.iterator();
-        }
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
 
-        public void close() {
-            iterator = null;
-        }
+            public Feature next() throws NoSuchElementException {
+                return iterator.next();
+            }
 
-        public boolean hasNext() {
-            return iterator.hasNext();
-        }
-
-        public Feature next() throws NoSuchElementException {
-            return iterator.next();
-        }
-
-        public void remove() {
-            iterator.remove();
+            public void remove() {
+                iterator.remove();
+            }
         }
     }
 }
