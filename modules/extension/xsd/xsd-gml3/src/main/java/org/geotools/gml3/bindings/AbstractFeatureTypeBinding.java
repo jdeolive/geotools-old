@@ -129,15 +129,9 @@ public class AbstractFeatureTypeBinding extends AbstractComplexBinding {
         return GML3EncodingUtils.AbstractFeatureType_encode(object,document,value);
     }
 
-    public Object getProperty(Object object, QName name)
-        throws Exception {
-        
-        return GML3EncodingUtils.AbstractFeatureType_getProperty(object,name,configuration);
-    }
-    
     @Override
-    public List getProperties(Object object, XSDElementDeclaration element)
-            throws Exception {
-        return GML3EncodingUtils.AbstractFeatureType_getProperties(object, element, schemaIndex);
+    public List getProperties(Object object, XSDElementDeclaration element) throws Exception {
+        return GML3EncodingUtils.AbstractFeatureType_getProperties(object, element, schemaIndex,
+                configuration);
     }
 }

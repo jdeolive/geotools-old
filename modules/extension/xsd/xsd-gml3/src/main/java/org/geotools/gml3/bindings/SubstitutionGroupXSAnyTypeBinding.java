@@ -30,6 +30,8 @@ import org.geotools.xs.bindings.XSAnyTypeBinding;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.Name;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * A binding that searches the substitution group of XSD element children to find properties of a
@@ -99,4 +101,16 @@ public class SubstitutionGroupXSAnyTypeBinding extends XSAnyTypeBinding {
         return null;
     }
 
+    /**
+     * @see org.geotools.xml.AbstractComplexBinding#encode(java.lang.Object, org.w3c.dom.Document,
+     *      org.w3c.dom.Element)
+     */
+    @Override
+    public Element encode(Object object, Document document, Element value) throws Exception {
+        if (object instanceof ComplexAttribute) {
+            GML3EncodingUtils.encodeClientProperties((ComplexAttribute) object, value);
+        }
+        return value;
+    }
+    
 }

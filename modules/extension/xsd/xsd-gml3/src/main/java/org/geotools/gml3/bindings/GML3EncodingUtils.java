@@ -21,22 +21,28 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import org.eclipse.xsd.XSDElementDeclaration;
+import org.geotools.feature.NameImpl;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.gml2.bindings.GML2EncodingUtils;
 import org.geotools.gml3.GML;
 import org.geotools.xml.ComplexBinding;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.SchemaIndex;
+import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
+import org.opengis.feature.Property;
 import org.opengis.feature.type.Name;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Text;
+import org.xml.sax.Attributes;
 
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
@@ -149,17 +155,59 @@ public class GML3EncodingUtils {
         Element encoding = document.createElementNS(typeName.getNamespaceURI(), typeName
                 .getLocalPart());
         encoding.setAttributeNS(GML.NAMESPACE, "id", feature.getIdentifier().getID());
+        encodeClientProperties(feature, value);
         return encoding;
     }
 
-    public static Object AbstractFeatureType_getProperty(Object object,
-            QName name, Configuration configuration) {
-        return GML2EncodingUtils.AbstractFeatureType_getProperty(object, name, configuration);
-    }
-    
-    public static List AbstractFeatureType_getProperties(Object object,XSDElementDeclaration element,SchemaIndex schemaIndex) {
+    public static List AbstractFeatureType_getProperties(Object object,
+            XSDElementDeclaration element, SchemaIndex schemaIndex, Configuration configuration) {
         return GML2EncodingUtils.AbstractFeatureType_getProperties(object, element, schemaIndex,
-            new HashSet<String>(Arrays.asList("name","description","boundedBy","location","metaDataProperty")));
+                new HashSet<String>(Arrays.asList("name", "description", "boundedBy", "location",
+                        "metaDataProperty")), configuration);
     }
-   
+
+    /**
+     * Encode any client properties (XML attributes) found in the UserData map of a ComplexAttribute
+     * as XML attributes of the element.
+     * 
+     * @param complex the ComplexAttribute to search for client properties
+     * @param element the element to which XML attributes should be added
+     */
+    @SuppressWarnings("unchecked")
+    public static void encodeClientProperties(ComplexAttribute complex, Element element) {
+        Map<Name, Object> clientProperties = (Map<Name, Object>) complex.getUserData().get(
+                Attributes.class);
+        if (clientProperties != null) {
+            for (Name name : clientProperties.keySet()) {
+                element.setAttributeNS(name.getNamespaceURI(), name.getLocalPart(),
+                        clientProperties.get(name).toString());
+            }
+        }
+    }
+
+    /**
+     * Encode the simpleContent property of a ComplexAttribute (if any) as an XML text node.
+     * 
+     * <p>
+     * 
+     * A property named simpleContent is a convention for representing XSD complexType with
+     * simpleContent in GeoAPI.
+     * 
+     * @param complex
+     *            the ComplexAttribute to be searched for simpleContent
+     * @param document
+     *            the containing document
+     * @param element
+     *            the element to which text node should be added
+     */
+    public static void encodeSimpleContent(ComplexAttribute complex, Document document,
+            Element element) {
+        Property simpleContent = complex.getProperty(new NameImpl("simpleContent"));
+        if (simpleContent != null) {
+            // TODO: Better conversion to String. Use Converters?
+            Text text = document.createTextNode(simpleContent.getValue().toString());
+            element.appendChild(text);
+        }
+    }
+
 }
