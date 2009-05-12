@@ -107,28 +107,6 @@
           <encoding>UTF-8</encoding> <!-- The -encoding argument for the Java compiler. -->
         </configuration>
       </plugin>
-      <!-- ======================================================= -->
-      <!--     Code coverage                                       -->
-      <!-- ======================================================= -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clover-plugin</artifactId>
-        <configuration>
-          <jdk>1.5</jdk>
-          <licenseLocation>http://svn.osgeo.org/geotools/trunk/build/maven/build-configs/src/main/resources/gt2/clover.license</licenseLocation>
-          <flushPolicy>directed</flushPolicy>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>instrument</goal>
-              <!-- aggregation is disabled due to the bug:     -->
-              <!-- http://jira.codehaus.org/browse/MCLOVER-34  -->
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

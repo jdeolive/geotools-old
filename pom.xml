@@ -969,28 +969,6 @@
             </descriptors>
           </configuration>
         </plugin>
-      <!-- ======================================================= -->
-      <!--     Source reformat                                     -->
-      <!--       (activated only on request, jalopy:format)        -->
-      <!--     See developer's guide for automated activation      -->
-      <!-- ======================================================= -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jalopy-maven-plugin</artifactId>
-        <configuration>
-          <convention>gt2/jalopygeotools.xml</convention>
-          <failOnError>false</failOnError>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.geotools.maven</groupId>
-            <artifactId>build-configs</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-
 
       <!-- ======================================================= -->
       <!--     Compilation.                                        -->
@@ -1059,40 +1037,6 @@
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
         </configuration>
       </plugin>
-
-
-
-      <!-- ======================================================= -->
-      <!--     Code coverage                                       -->
-      <!-- ======================================================= -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clover-plugin</artifactId>
-        <configuration>
-          <jdk>1.5</jdk>
-          <licenseLocation>http://svn.geotools.org/trunk/build/maven/build-configs/src/main/resources/gt2/clover.license</licenseLocation>
-          <flushPolicy>directed</flushPolicy>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>instrument</goal>
-              <!-- aggregation is disabled due to the bug:     -->
-              <!-- http://jira.codehaus.org/browse/MCLOVER-34  -->
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.geotools.maven</groupId>
-            <artifactId>build-configs</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-
 
       <!-- ======================================================= -->
       <!--     JAR packaging.                                      -->

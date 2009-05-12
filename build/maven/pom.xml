@@ -71,7 +71,6 @@
   <!-- =========================================================== -->
   <modules>
     <module>archetype</module>
-    <module>build-configs</module>
     <module>jar-collector</module>
     <module>javadoc</module>
     <module>javamaker</module>
