@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -754,6 +756,12 @@ public class DataUtilities {
         }
         if( type==Float.class ){
             return new Float(0.0f);
+        }
+        if( type==BigDecimal.class){
+            return BigDecimal.valueOf(0);
+        }
+        if( type==BigInteger.class){
+            return BigInteger.valueOf(0);
         }
         if( type==Character.class ){
             return new Character(' ');
