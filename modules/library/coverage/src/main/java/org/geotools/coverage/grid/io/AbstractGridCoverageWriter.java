@@ -43,6 +43,7 @@ import org.opengis.parameter.GeneralParameterValue;
  * @since 2.3.x
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class AbstractGridCoverageWriter implements GridCoverageWriter {
 
 	/** The {@link Logger} for this {@link AbstractGridCoverageWriter}. */
@@ -126,7 +127,6 @@ public abstract class AbstractGridCoverageWriter implements GridCoverageWriter {
 	 */
 	@Override
 	protected void finalize() throws Throwable {
-		// TODO Auto-generated method stub
 		super.finalize();
 	}
 

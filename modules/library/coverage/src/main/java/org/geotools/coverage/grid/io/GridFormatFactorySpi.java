@@ -19,7 +19,6 @@ package org.geotools.coverage.grid.io;
 
 import java.io.IOException;
 
-import org.geotools.factory.Factory;
 import org.geotools.factory.OptionalFactory;
 import org.opengis.coverage.grid.Format;
 

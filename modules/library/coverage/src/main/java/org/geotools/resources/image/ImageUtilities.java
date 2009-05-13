@@ -338,7 +338,7 @@ public final class ImageUtilities {
      * @param  sources The list of sources {@link RenderedImage}.
      * @return A new {@code ImageLayout}, or the original {@code layout} if no change was needed.
      */
-    public static ImageLayout createIntersection(final ImageLayout layout, final List sources) {
+    public static ImageLayout createIntersection(final ImageLayout layout, final List<RenderedImage> sources) {
         ImageLayout result = layout;
         if (result == null) {
             result = new ImageLayout();
@@ -481,20 +481,6 @@ public final class ImageUtilities {
             } else {
                 registry.setOrdering(category, standard, codeclib);
             }
-        }
-    }
-
-    /**
-     * @deprecated Replaced by {@link #allowNativeCodec(String,Class,boolean)}.
-     */
-    public static void allowNativeCodec(final String  format,
-                                        final boolean writer,
-                                        final boolean allowed)
-    {
-        if (writer) {
-            allowNativeCodec(format, ImageWriterSpi.class, allowed);
-        } else {
-            allowNativeCodec(format, ImageReaderSpi.class, allowed);
         }
     }
 
