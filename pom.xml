@@ -1156,7 +1156,6 @@
     </plugins>
   </reporting>
 
-
   <distributionManagement>
     <repository>
       <uniqueVersion>false</uniqueVersion>
@@ -1164,9 +1163,13 @@
       <name>Open Source Geospatial Foundation - Maven 2 repo</name>
       <url>dav:http://download.osgeo.org/webdav/geotools/</url>
     </repository>
+    <snapshotRepository>
+        <id>opengeo</id>
+        <uniqueVersion>false</uniqueVersion>
+        <name>OpenGeo Maven Repository</name>
+        <url>dav:http://repo.opengeo.org</url>
+    </snapshotRepository>
   </distributionManagement>
-
-
 
   <!-- ================================================================== -->
   <!--     Repositories. This is where Maven looks for dependencies. The  -->
