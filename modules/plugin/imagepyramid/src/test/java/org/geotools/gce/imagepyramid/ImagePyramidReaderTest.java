@@ -29,8 +29,8 @@ import javax.media.jai.JAI;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.data.DataSourceException;
@@ -39,10 +39,10 @@ import org.geotools.gce.imagemosaic.ImageMosaicFormat;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
+import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.geometry.MismatchedDimensionException;
 
 /**
  * Testing {@link ImagePyramidReader}.
@@ -100,8 +100,8 @@ public class ImagePyramidReaderTest extends TestCase {
 		final GridCoverage2D coverage = (GridCoverage2D) reader.read(null);
 		assertNotNull("Null value returned instead of a coverage", coverage);
 		assertTrue("coverage dimensions different from what we expected",
-				coverage.getGridGeometry().getGridRange().getLength(0) == 250
-						&& coverage.getGridGeometry().getGridRange().getLength(
+				coverage.getGridGeometry().getGridRange().getSpan(0) == 250
+						&& coverage.getGridGeometry().getGridRange().getSpan(
 								1) == 250);
 		if (TestData.isInteractiveTest())
 			coverage.show("testDefaultParameterValue");
@@ -145,8 +145,8 @@ public class ImagePyramidReaderTest extends TestCase {
 		final GridCoverage2D coverage = (GridCoverage2D) reader.read(null);
 		assertNotNull("Null value returned instead of a coverage", coverage);
 		assertTrue("coverage dimensions different from what we expected",
-				coverage.getGridGeometry().getGridRange().getLength(0) == 250
-						&& coverage.getGridGeometry().getGridRange().getLength(
+				coverage.getGridGeometry().getGridRange().getSpan(0) == 250
+						&& coverage.getGridGeometry().getGridRange().getSpan(
 								1) == 250);
 		if (TestData.isInteractiveTest())
 			coverage.show("testDefaultParameterValueFile");
@@ -191,8 +191,8 @@ public class ImagePyramidReaderTest extends TestCase {
 		final GridCoverage2D coverage = (GridCoverage2D) reader.read(null);
 		assertNotNull("Null value returned instead of a coverage", coverage);
 		assertTrue("coverage dimensions different from what we expected",
-				coverage.getGridGeometry().getGridRange().getLength(0) == 250
-						&& coverage.getGridGeometry().getGridRange().getLength(
+				coverage.getGridGeometry().getGridRange().getSpan(0) == 250
+						&& coverage.getGridGeometry().getGridRange().getSpan(
 								1) == 250);
 		if (TestData.isInteractiveTest())
 			coverage.show("testDefaultParameterValueString");
@@ -331,8 +331,8 @@ public class ImagePyramidReaderTest extends TestCase {
 						transp });
 		assertNotNull(coverage);
 		assertTrue("coverage dimensions different from what we expected",
-				coverage.getGridGeometry().getGridRange().getLength(0) == 250
-						&& coverage.getGridGeometry().getGridRange().getLength(
+				coverage.getGridGeometry().getGridRange().getSpan(0) == 250
+						&& coverage.getGridGeometry().getGridRange().getSpan(
 								1) == 250);
 		if (TestData.isInteractiveTest())
 			coverage.show("testComplete");
@@ -391,11 +391,11 @@ public class ImagePyramidReaderTest extends TestCase {
 				oldEnvelop.getLowerCorner().getOrdinate(0),
 				oldEnvelop.getLowerCorner().getOrdinate(1) }, new double[] {
 				oldEnvelop.getLowerCorner().getOrdinate(0)
-						+ oldEnvelop.getLength(0) / 2,
+						+ oldEnvelop.getSpan(0) / 2,
 				oldEnvelop.getLowerCorner().getOrdinate(1)
-						+ oldEnvelop.getLength(1) / 2 });
+						+ oldEnvelop.getSpan(1) / 2 });
 		cropEnvelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-		gg.setValue(new GridGeometry2D(new GeneralGridRange(new Rectangle(0, 0,
+		gg.setValue(new GridGeometry2D(new GridEnvelope2D(new Rectangle(0, 0,
 				250, 250)), cropEnvelope));
 
 		//
@@ -409,8 +409,8 @@ public class ImagePyramidReaderTest extends TestCase {
 				.read(new GeneralParameterValue[] { gg }));
 		assertNotNull("Null value returned instead of a coverage", coverage);
 		assertTrue("coverage dimensions different from what we expected",
-				coverage.getGridGeometry().getGridRange().getLength(0) == 125
-						&& coverage.getGridGeometry().getGridRange().getLength(
+				coverage.getGridGeometry().getGridRange().getSpan(0) == 125
+						&& coverage.getGridGeometry().getGridRange().getSpan(
 								1) == 125);
 		if (TestData.isInteractiveTest())
 			coverage.show("testCropHighestLevel");
@@ -469,11 +469,11 @@ public class ImagePyramidReaderTest extends TestCase {
 				oldEnvelop.getLowerCorner().getOrdinate(0),
 				oldEnvelop.getLowerCorner().getOrdinate(1) }, new double[] {
 				oldEnvelop.getLowerCorner().getOrdinate(0)
-						+ oldEnvelop.getLength(0) / 2,
+						+ oldEnvelop.getSpan(0) / 2,
 				oldEnvelop.getLowerCorner().getOrdinate(1)
-						+ oldEnvelop.getLength(1) / 2 });
+						+ oldEnvelop.getSpan(1) / 2 });
 		cropEnvelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-		gg.setValue(new GridGeometry2D(new GeneralGridRange(new Rectangle(0, 0,
+		gg.setValue(new GridGeometry2D(new GridEnvelope2D(new Rectangle(0, 0,
 				125, 125)), cropEnvelope));
 
 		//
@@ -487,8 +487,8 @@ public class ImagePyramidReaderTest extends TestCase {
 				.read(new GeneralParameterValue[] { gg }));
 		assertNotNull("Null value returned instead of a coverage", coverage);
 		// assertTrue("coverage dimensions different from what we expected",
-		// coverage.getGridGeometry().getGridRange().getLength(0) == 63
-		// && coverage.getGridGeometry().getGridRange().getLength(
+		// coverage.getGridGeometry().getGridRange().getSpan(0) == 63
+		// && coverage.getGridGeometry().getGridRange().getSpan(
 		// 1) == 62);
 		if (TestData.isInteractiveTest())
 			coverage.show("testCropLevel1");
@@ -547,11 +547,11 @@ public class ImagePyramidReaderTest extends TestCase {
 				oldEnvelop.getLowerCorner().getOrdinate(0),
 				oldEnvelop.getLowerCorner().getOrdinate(1) }, new double[] {
 				oldEnvelop.getLowerCorner().getOrdinate(0)
-						+ oldEnvelop.getLength(0) / 2,
+						+ oldEnvelop.getSpan(0) / 2,
 				oldEnvelop.getLowerCorner().getOrdinate(1)
-						+ oldEnvelop.getLength(1) / 2 });
+						+ oldEnvelop.getSpan(1) / 2 });
 		cropEnvelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-		gg.setValue(new GridGeometry2D(new GeneralGridRange(new Rectangle(0, 0,
+		gg.setValue(new GridGeometry2D(new GridEnvelope2D(new Rectangle(0, 0,
 				62, 62)), cropEnvelope));
 
 		//
@@ -565,8 +565,8 @@ public class ImagePyramidReaderTest extends TestCase {
 				.read(new GeneralParameterValue[] { gg }));
 		assertNotNull("Null value returned instead of a coverage", coverage);
 		// assertTrue("coverage dimensions different from what we expected",
-		// coverage.getGridGeometry().getGridRange().getLength(0) == 31
-		// && coverage.getGridGeometry().getGridRange().getLength(
+		// coverage.getGridGeometry().getGridRange().getSpan(0) == 31
+		// && coverage.getGridGeometry().getGridRange().getSpan(
 		// 1) == 31);
 		if (TestData.isInteractiveTest())
 			coverage.show("testCropLevel1");
@@ -625,11 +625,11 @@ public class ImagePyramidReaderTest extends TestCase {
 				oldEnvelop.getLowerCorner().getOrdinate(0),
 				oldEnvelop.getLowerCorner().getOrdinate(1) }, new double[] {
 				oldEnvelop.getLowerCorner().getOrdinate(0)
-						+ oldEnvelop.getLength(0) / 2,
+						+ oldEnvelop.getSpan(0) / 2,
 				oldEnvelop.getLowerCorner().getOrdinate(1)
-						+ oldEnvelop.getLength(1) / 2 });
+						+ oldEnvelop.getSpan(1) / 2 });
 		cropEnvelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-		gg.setValue(new GridGeometry2D(new GeneralGridRange(new Rectangle(0, 0,
+		gg.setValue(new GridGeometry2D(new GridEnvelope2D(new Rectangle(0, 0,
 				25, 25)), cropEnvelope));
 
 		//
@@ -643,8 +643,8 @@ public class ImagePyramidReaderTest extends TestCase {
 				.read(new GeneralParameterValue[] { gg }));
 		assertNotNull("Null value returned instead of a coverage", coverage);
 		// assertTrue("coverage dimensions different from what we expected",
-		// coverage.getGridGeometry().getGridRange().getLength(0) == 15
-		// && coverage.getGridGeometry().getGridRange().getLength(
+		// coverage.getGridGeometry().getGridRange().getSpan(0) == 15
+		// && coverage.getGridGeometry().getGridRange().getSpan(
 		// 1) == 15);
 		if (TestData.isInteractiveTest())
 			coverage.show("testCropLevel1");

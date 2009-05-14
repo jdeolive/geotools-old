@@ -16,39 +16,39 @@
  */
 package org.geotools.coverage.grid;
 
-import java.util.Map;
 import java.awt.Color;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
-import java.awt.geom.AffineTransform;
+import java.util.Map;
+
+import javax.measure.unit.Unit;
+import javax.media.jai.ImageFunction;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
-import javax.media.jai.ImageFunction;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.util.CaselessStringKey;
-import javax.measure.unit.Unit;
 
-import org.opengis.coverage.SampleDimensionType;
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.coverage.grid.GridRange;
-import org.opengis.referencing.cs.AxisDirection;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.geometry.Envelope;
-
-import org.geotools.factory.Hints;
-import org.geotools.factory.AbstractFactory;
-import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.coverage.GridSampleDimension;
+import org.geotools.factory.AbstractFactory;
+import org.geotools.factory.Hints;
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.util.Utilities;
+import org.opengis.coverage.SampleDimensionType;
+import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.geometry.Envelope;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.AxisDirection;
+import org.opengis.referencing.operation.MathTransform;
 
 
 /**
@@ -206,10 +206,10 @@ public class GridCoverageFactory extends AbstractFactory {
         final double yScale =  at.getScaleY();
         final double xTrans = -at.getTranslateX()/xScale;
         final double yTrans = -at.getTranslateY()/yScale;
-        final GridRange      range = gridGeometry.getGridRange();
+        final GridEnvelope      range = gridGeometry.getGridRange();
         final ParameterBlock param = new ParameterBlock().add(function)
-                                                         .add(range.getLength(0)) // width
-                                                         .add(range.getLength(1)) // height
+                                                         .add(range.getSpan(0)) // width
+                                                         .add(range.getSpan(1)) // height
                                                          .add((float) xScale)
                                                          .add((float) yScale)
                                                          .add((float) xTrans)
@@ -518,7 +518,7 @@ public class GridCoverageFactory extends AbstractFactory {
             envelope = e;
         }
         final GridGeometry2D gm = new GridGeometry2D(
-                new GeneralGridRange(image, envelope.getDimension()), envelope);
+                new GeneralGridEnvelope(image, envelope.getDimension()), envelope);
         return create(name, image, gm, bands, sources, properties);
     }
 
@@ -548,7 +548,7 @@ public class GridCoverageFactory extends AbstractFactory {
                                  final GridCoverage[]            sources,
                                  final Map                       properties)
     {
-        final GridGeometry2D gm = new GridGeometry2D(new GeneralGridRange(image,
+        final GridGeometry2D gm = new GridGeometry2D(new GeneralGridEnvelope(image,
                 crs.getCoordinateSystem().getDimension()), gridToCRS, crs);
         return create(name, image, gm, bands, sources, properties);
     }

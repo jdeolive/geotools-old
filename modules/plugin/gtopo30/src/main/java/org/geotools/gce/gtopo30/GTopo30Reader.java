@@ -48,20 +48,21 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
-import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
 
 import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
@@ -90,7 +91,6 @@ import org.opengis.referencing.operation.TransformException;
 import com.sun.media.imageio.stream.RawImageInputStream;
 import com.sun.media.imageioimpl.plugins.raw.RawImageReader;
 import com.sun.media.imageioimpl.plugins.raw.RawImageReaderSpi;
-import org.geotools.coverage.grid.io.OverviewPolicy;
 
 /**
  * This class provides a GridCoverageReader for the GTopo30Format.
@@ -276,8 +276,7 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 		// ///////////////////////////////////////////////////////////
 		header = new GT30Header(demHeaderURL);
 		// get information from the header
-		originalGridRange = new GeneralGridRange(new Rectangle(0, 0, header
-				.getNCols(), header.getNRows()));
+		originalGridRange = new GridEnvelope2D(new Rectangle(0, 0, header.getNCols(), header.getNRows()));
 		stats = new GT30Stats(this.statsURL);
 
 		// ///////////////////////////////////////////////////////////
@@ -426,8 +425,8 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 	 */
 	private GridCoverage2D getGridCoverage(GeneralEnvelope requestedEnvelope,
 			Rectangle dim, OverviewPolicy overviewPolicy) throws IOException {
-		int hrWidth = originalGridRange.getLength(0);
-		int hrHeight = originalGridRange.getLength(1);
+		int hrWidth = originalGridRange.getSpan(0);
+		int hrHeight = originalGridRange.getSpan(1);
 
 		// /////////////////////////////////////////////////////////////////////
 		//

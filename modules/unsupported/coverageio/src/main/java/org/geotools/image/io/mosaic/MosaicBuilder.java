@@ -21,30 +21,31 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.logging.Level;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ImageReaderSpi;
 
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.datum.PixelInCell;
-
-import org.geotools.math.XMath;
-import org.geotools.math.Fraction;
-import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.coverage.grid.GridRange2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.ImageGeometry;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.math.Fraction;
+import org.geotools.math.XMath;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.resources.XArray;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.image.ImageUtilities;
+import org.opengis.geometry.Envelope;
+import org.opengis.referencing.datum.PixelInCell;
 
 
 /**
@@ -853,7 +854,7 @@ public class MosaicBuilder {
          */
         if (mosaicEnvelope != null && !mosaicEnvelope.isNull()) {
             final GridToEnvelopeMapper mapper = createGridToEnvelopeMapper(output);
-            mapper.setGridRange(new GridRange2D(untiledBounds));
+            mapper.setGridRange(new GridEnvelope2D(untiledBounds));
             mapper.setEnvelope(mosaicEnvelope);
             output.setGridToCRS((AffineTransform) mapper.createTransform());
         }

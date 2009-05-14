@@ -57,8 +57,9 @@ import javax.media.jai.operator.ConstantDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 
 import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -432,7 +433,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 		}
 
 		// original gridrange (estimated)
-		originalGridRange = new GeneralGridRange(
+		originalGridRange = new GridEnvelope2D(
 				new Rectangle((int) Math.round(originalEnvelope.getLength(0)
 						/ highestRes[0]), (int) Math.round(originalEnvelope
 						.getLength(1)
@@ -1454,13 +1455,13 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 			// get the transform for going from world to grid
 			try {
 				final GridToEnvelopeMapper gridToEnvelopeMapper = new GridToEnvelopeMapper(
-						new GeneralGridRange(loadedTilePixelsBound),
+						new GridEnvelope2D(loadedTilePixelsBound),
 						loadedTilesBoundEnv);
 				gridToEnvelopeMapper.setGridType(PixelInCell.CELL_CORNER);
 				final MathTransform transform = gridToEnvelopeMapper
 						.createTransform().inverse();
-				final GeneralGridRange finalRange = new GeneralGridRange(CRS
-						.transform(transform, intersection));
+				final GeneralGridEnvelope finalRange = new GeneralGridEnvelope(CRS
+						.transform(transform, intersection),PixelInCell.CELL_CORNER);
 				// CROP
 				finalLayout.intersect(new Area(finalRange.toRectangle()));
 				final Rectangle tempRect = finalLayout.getBounds();

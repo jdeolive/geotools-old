@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -99,14 +99,14 @@ public final class ErdasImgTest extends AbstractErdasImgTestCase {
         final double cropFactor = 2.0;
         final int oldW = gc.getRenderedImage().getWidth();
         final int oldH = gc.getRenderedImage().getHeight();
-        final Rectangle range = reader.getOriginalGridRange().toRectangle();
+        final Rectangle range =  ((GridEnvelope2D)reader.getOriginalGridRange());
         final GeneralEnvelope oldEnvelope = reader.getOriginalEnvelope();
         final GeneralEnvelope cropEnvelope = new GeneralEnvelope(new double[] {
                     oldEnvelope.getLowerCorner().getOrdinate(0)
-                    + (oldEnvelope.getLength(0) / cropFactor),
+                    + (oldEnvelope.getSpan(0) / cropFactor),
                     
                 oldEnvelope.getLowerCorner().getOrdinate(1)
-                    + (oldEnvelope.getLength(1) / cropFactor)
+                    + (oldEnvelope.getSpan(1) / cropFactor)
                 },
                 new double[] {
                     oldEnvelope.getUpperCorner().getOrdinate(0),
@@ -117,7 +117,7 @@ public final class ErdasImgTest extends AbstractErdasImgTestCase {
         final ParameterValue gg = (ParameterValue) ((AbstractGridFormat) reader.getFormat()).READ_GRIDGEOMETRY2D
             .createValue();
         gg.setValue(new GridGeometry2D(
-                new GeneralGridRange(
+                new GridEnvelope2D(
                     new Rectangle(0,0,512,512)), oldEnvelope));
         gc = (GridCoverage2D) reader.read(new GeneralParameterValue[] { gg });
         forceDataLoading(gc);

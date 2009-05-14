@@ -46,23 +46,23 @@ import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
+import javax.measure.unit.Unit;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
-import javax.measure.unit.Unit;
 
 import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.PrjFileReader;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.parameter.Parameter;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
@@ -80,7 +80,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import com.vividsolutions.jts.io.InStream;
-import org.geotools.coverage.grid.io.OverviewPolicy;
 
 /**
  * This class can read an arc grid data source (ArcGrid or GRASS ASCII) and
@@ -381,9 +380,8 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 		// get the dimension of the hr image and build the model as well as
 		// computing the resolution
 		// //
-		final Rectangle actualDim = new Rectangle(0, 0, reader.getWidth(0),
-				reader.getHeight(0));
-		originalGridRange = new GeneralGridRange(actualDim);
+		final Rectangle actualDim = new Rectangle(0, 0, reader.getWidth(0),reader.getHeight(0));
+		originalGridRange = new GridEnvelope2D(actualDim);
 
 		// ///
 		//
@@ -622,12 +620,9 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 		// getting Grid Properties
 		child = child.getNextSibling();
 		attributes = child.getAttributes();
-		final int hrWidth = Integer.parseInt(attributes
-				.getNamedItem("nColumns").getNodeValue());
-		final int hrHeight = Integer.parseInt(attributes.getNamedItem("nRows")
-				.getNodeValue());
-		originalGridRange = new GeneralGridRange(new Rectangle(0, 0, hrWidth,
-				hrHeight));
+		final int hrWidth = Integer.parseInt(attributes.getNamedItem("nColumns").getNodeValue());
+		final int hrHeight = Integer.parseInt(attributes.getNamedItem("nRows").getNodeValue());
+		originalGridRange = new GridEnvelope2D(new Rectangle(0, 0, hrWidth,hrHeight));
 		final boolean pixelIsArea = attributes.getNamedItem("rasterSpaceType")
 				.getNodeValue().equalsIgnoreCase(
 						AsciiGridsImageMetadata.rasterSpaceTypes[1]);

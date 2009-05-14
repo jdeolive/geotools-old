@@ -29,8 +29,8 @@ import java.net.URL;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
@@ -39,7 +39,6 @@ import org.geotools.data.ServiceInfo;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.test.TestData;
-import org.opengis.coverage.grid.Format;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 
@@ -123,7 +122,7 @@ public final class MrSIDTest extends AbstractMrSIDTestCase {
         // /////////////////////////////////////////////////////////////////////
         final int originalW = gc.getRenderedImage().getWidth();
         final int originalH = gc.getRenderedImage().getHeight();
-        final Rectangle range = reader.getOriginalGridRange().toRectangle();
+        final Rectangle range =  ((GridEnvelope2D)reader.getOriginalGridRange());
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
         final GeneralEnvelope reducedEnvelope = new GeneralEnvelope(new double[] {
                 originalEnvelope.getLowerCorner().getOrdinate(0),
@@ -134,7 +133,7 @@ public final class MrSIDTest extends AbstractMrSIDTestCase {
 
         final ParameterValue gg = (ParameterValue) ((AbstractGridFormat) reader
                 .getFormat()).READ_GRIDGEOMETRY2D.createValue();
-        gg.setValue(new GridGeometry2D(new GeneralGridRange(new Rectangle(0, 0,
+        gg.setValue(new GridGeometry2D(new GridEnvelope2D(new Rectangle(0, 0,
                 (int) (range.width / 2.0),
                 (int) (range.height / 2.0))), reducedEnvelope));
         gc = (GridCoverage2D) reader.read(new GeneralParameterValue[] { gg });

@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageTypeSpecifier;
 
 import org.geotools.coverage.GridSampleDimension;
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
@@ -385,7 +385,7 @@ class RasterUtils {
 
         // create a raster to model transform, from this tile pixel space to the tile's geographic
         // extent
-        GeneralGridRange gridRange = new GeneralGridRange(reducedRange, 2);
+        GeneralGridEnvelope gridRange = new GeneralGridEnvelope(reducedRange, 2);
         GridToEnvelopeMapper geMapper = new GridToEnvelopeMapper(gridRange, levelEnvelope);
         geMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
 

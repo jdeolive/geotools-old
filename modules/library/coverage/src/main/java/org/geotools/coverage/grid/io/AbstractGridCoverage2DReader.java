@@ -38,7 +38,6 @@ import javax.media.jai.PlanarImage;
 
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.data.DataSourceException;
@@ -55,6 +54,7 @@ import org.geotools.util.logging.Logging;
 import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridRange;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -141,7 +141,7 @@ public abstract class AbstractGridCoverage2DReader implements
 	 * The original {@link GridRange} for the {@link GridCoverage2D} of this
 	 * reader.
 	 */
-	protected GeneralGridRange originalGridRange = null;
+	protected GridEnvelope originalGridRange = null;
 
 	/**
 	 * Input stream that can be used to initialize subclasses of
@@ -489,17 +489,17 @@ public abstract class AbstractGridCoverage2DReader implements
 			final int choice = imageChoice.intValue();
 			if (choice == 0) {
 				// highest resolution
-				w = originalGridRange.getLength(0);
-				h = originalGridRange.getLength(1);
+				w = originalGridRange.getSpan(0);
+				h = originalGridRange.getSpan(1);
 				selectedRes[0] = highestRes[0];
 				selectedRes[1] = highestRes[1];
 			} else {
 				// some overview
 				selectedRes[0] = overViewResolutions[choice - 1][0];
 				selectedRes[1] = overViewResolutions[choice - 1][1];
-				w = (int) Math.round(originalEnvelope.getLength(0)
+				w = (int) Math.round(originalEnvelope.getSpan(0)
 						/ selectedRes[0]);
-				h = (int) Math.round(originalEnvelope.getLength(1)
+				h = (int) Math.round(originalEnvelope.getSpan(1)
 						/ selectedRes[1]);
 
 			}
@@ -634,8 +634,8 @@ public abstract class AbstractGridCoverage2DReader implements
 					}
 				}
 				requestedRes = new double[2];
-				requestedRes[0] = envelope.getLength(0) / dim.getWidth();
-				requestedRes[1] = envelope.getLength(1) / dim.getHeight();
+				requestedRes[0] = envelope.getSpan(0) / dim.getWidth();
+				requestedRes[1] = envelope.getSpan(1) / dim.getHeight();
 			}
 			return requestedRes;
 		} catch (TransformException e) {
@@ -663,7 +663,7 @@ public abstract class AbstractGridCoverage2DReader implements
 	 * @return the {@link GeneralGridRange} that represents the raster grid
 	 *         dimensions of the highest resolution level in this dataset.
 	 */
-	public final GeneralGridRange getOriginalGridRange() {
+	public final GridEnvelope getOriginalGridRange() {
 		return originalGridRange;
 	}
 

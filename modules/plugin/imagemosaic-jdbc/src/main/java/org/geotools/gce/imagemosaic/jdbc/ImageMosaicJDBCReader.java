@@ -16,52 +16,15 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
-import com.vividsolutions.jts.geom.Envelope;
-
-import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GeneralGridRange;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
-import org.geotools.coverage.processing.Operations;
-
-import org.geotools.data.DataSourceException;
-
-import org.geotools.factory.Hints;
-
-import org.geotools.geometry.GeneralEnvelope;
-
-import org.geotools.parameter.Parameter;
-
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.operation.BufferedCoordinateOperationFactory;
-
-import org.opengis.coverage.grid.Format;
-import org.opengis.coverage.grid.GridCoverage;
-
-import org.opengis.parameter.GeneralParameterValue;
-
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.cs.AxisDirection;
-import org.opengis.referencing.cs.CoordinateSystem;
-import org.opengis.referencing.cs.CoordinateSystemAxis;
-import org.opengis.referencing.operation.CoordinateOperationFactory;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -71,8 +34,31 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageReadParam;
 
-import javax.media.jai.RenderedImageAdapter;
-import javax.media.jai.operator.MosaicDescriptor;
+import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.processing.Operations;
+import org.geotools.data.DataSourceException;
+import org.geotools.factory.Hints;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.parameter.Parameter;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.operation.BufferedCoordinateOperationFactory;
+import org.opengis.coverage.grid.Format;
+import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.AxisDirection;
+import org.opengis.referencing.cs.CoordinateSystem;
+import org.opengis.referencing.cs.CoordinateSystemAxis;
+import org.opengis.referencing.operation.CoordinateOperationFactory;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -238,7 +224,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
             overViewResolutions[i] = jdbcAccess.getLevelInfo(i + 1)
                                                .getResolution();
         
-        originalGridRange = new GeneralGridRange(new Rectangle(
+        originalGridRange = new GridEnvelope2D(new Rectangle(
                     (int) Math.round(
                         originalEnvelope.getSpan(0) / highestRes[0]),
                     (int) Math.round(

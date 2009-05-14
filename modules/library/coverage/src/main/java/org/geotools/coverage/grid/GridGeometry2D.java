@@ -20,22 +20,8 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
 import java.util.Locale;
-
-import org.opengis.coverage.CannotEvaluateException;
-import org.opengis.coverage.grid.GridRange;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.coverage.grid.GridGeometry;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform2D;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
-import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.geometry.Envelope;
-import org.opengis.geometry.MismatchedDimensionException;
 
 import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
@@ -44,8 +30,21 @@ import org.geotools.referencing.factory.ReferencingFactoryContainer;
 import org.geotools.referencing.operation.transform.DimensionFilter;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.Classes;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.opengis.coverage.CannotEvaluateException;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.geometry.Envelope;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransform2D;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
+import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -453,38 +452,6 @@ public class GridGeometry2D extends GeneralGridGeometry {
     }
 
     /**
-     * Constructs a new grid geometry from an envelope. The argument are passed unchanged to the
-     * {@linkplain GeneralGridGeometry#GeneralGridGeometry(GridEnvelope,Envelope,boolean[],boolean)
-     * super-class constructor}. However, they must obey to the same additional constraints than
-     * the {@linkplain #GridGeometry2D(GridEnvelope, MathTransform, CoordinateReferenceSystem) main
-     * constructor}.
-     *
-     * @param gridRange The valid coordinate range of a grid coverage.
-     * @param userRange The corresponding coordinate range in user coordinate.
-     * @param reverse   Tells for each axis in <cite>user</cite> space whatever or not its
-     *                  direction should be reversed. A {@code null} value reverse no axis.
-     * @param swapXY    If {@code true}, then the two first axis will be interchanged.
-     *
-     * @throws IllegalArgumentException if {@code gridRange} has more than 2 dimensions with
-     *         a {@linkplain GridEnvelope#getSpan span} larger than 1.
-     * @throws MismatchedDimensionException if the grid range and the CRS doesn't have
-     *         consistent dimensions.
-     *
-     * @since 2.2
-     *
-     * @deprecated Use {@link GridToEnvelopeMapper} instead, which provides more control.
-     */
-    @Deprecated
-    public GridGeometry2D(final GridEnvelope gridRange,
-                          final Envelope  userRange,
-                          final boolean[] reverse,
-                          final boolean   swapXY)
-            throws IllegalArgumentException, MismatchedDimensionException
-    {
-        this(gridRange, userRange, reverse, swapXY, false);
-    }
-
-    /**
      * Implementation of heuristic constructors.
      */
     private GridGeometry2D(final GridEnvelope gridRange,
@@ -525,7 +492,7 @@ public class GridGeometry2D extends GeneralGridGeometry {
      *                  of the last pixel.
      */
     public GridGeometry2D(final Rectangle gridRange, final Rectangle2D userRange) {
-        this(new GeneralGridRange(gridRange), getMathTransform(gridRange, userRange),
+        this(new GridEnvelope2D(gridRange), getMathTransform(gridRange, userRange),
              (CoordinateReferenceSystem) null);
     }
 
@@ -803,10 +770,10 @@ public class GridGeometry2D extends GeneralGridGeometry {
      *
      * @see #getGridRange
      */
-    public GridRange2D getGridRange2D() throws InvalidGridGeometryException {
+    public GridEnvelope2D getGridRange2D() throws InvalidGridGeometryException {
         if (gridRange != null) {
             assert isDefined(GRID_RANGE);
-            return new GridRange2D(gridRange.getLow (gridDimensionX),
+            return new GridEnvelope2D(gridRange.getLow (gridDimensionX),
                                    gridRange.getLow (gridDimensionY),
                                    gridRange.getSpan (gridDimensionX),
                                    gridRange.getSpan (gridDimensionY));
@@ -814,6 +781,8 @@ public class GridGeometry2D extends GeneralGridGeometry {
         assert !isDefined(GRID_RANGE);
         throw new InvalidGridGeometryException(ErrorKeys.UNSPECIFIED_IMAGE_SIZE);
     }
+    
+    
 
     /**
      * Returns a math transform for the two dimensional part. This is a convenience method for
@@ -909,34 +878,6 @@ public class GridGeometry2D extends GeneralGridGeometry {
     }
 
     /**
-     * Returns the specified position relative to the pixel center.
-     * This method returns a value from the following table:
-     * <p>
-     * <table>
-     *   <tr><th>Pixel orientation</th>                               <th>  x </th><th>  y </th></tr>
-     *   <tr><td>{@link PixelOrientation#CENTER      CENTER}</td>     <td> 0.0</td><td> 0.0</td></tr>
-     *   <tr><td>{@link PixelOrientation#UPPER_LEFT  UPPER_LEFT}</td> <td>-0.5</td><td>-0.5</td></tr>
-     *   <tr><td>{@link PixelOrientation#UPPER_RIGHT UPPER_RIGHT}</td><td>+0.5</td><td>-0.5</td></tr>
-     *   <tr><td>{@link PixelOrientation#LOWER_LEFT  LOWER_LEFT}</td> <td>-0.5</td><td>+0.5</td></tr>
-     *   <tr><td>{@link PixelOrientation#LOWER_RIGHT LOWER_RIGHT}</td><td>+0.5</td><td>+0.5</td></tr>
-     * </table>
-     *
-     * @param  orientation The pixel orientation.
-     * @return The position relative to the pixel center.
-     * @throws IllegalArgumentException if the specified orientation is not known.
-     * @since 2.4
-     *
-     * @deprecated Moved to {@link PixelTranslation#getPixelTranslation(PixelOrientation)}.
-     */
-    @Deprecated
-    public static Point2D getPixelTranslation(final PixelOrientation orientation)
-            throws IllegalArgumentException
-    {
-        final PixelTranslation offset = PixelTranslation.getPixelTranslation(orientation);
-        return new Point2D.Double(offset.dx, offset.dy);
-    }
-
-    /**
      * Transforms a point using the inverse of {@link #getGridToCRS2D()}.
      *
      * @param  point The point in logical coordinate system.
@@ -995,4 +936,41 @@ public class GridGeometry2D extends GeneralGridGeometry {
         }
         return false;
     }
+
+	/**
+	 * Checks if the bounding box of the specified image is consistents with the specified
+	 * grid geometry. If an inconsistency has been found, then an error string is returned.
+	 * This string will be typically used as a message in an exception to be thrown.
+	 * <p>
+	 * Note that a succesful check at construction time may fails later if the image is part
+	 * of a JAI chain (i.e. is a {@link javax.media.jai.RenderedOp}) and its bounds has been
+	 * edited (i.e the image node as been re-rendered). Since {@code GridCoverage2D} are immutable
+	 * by design, we are not allowed to propagate the image change here. The {@link #getGridGeometry}
+	 * method will thrown an {@link IllegalStateException} in this case.
+	 */
+	static String checkConsistency(final RenderedImage image, final GridGeometry2D grid) {
+	    final GridEnvelope range = grid.getGridRange();
+	    final int dimension = range.getDimension();
+	    for (int i=0; i<dimension; i++) {
+	        final int min, length;
+	        final Object label;
+	        if (i == grid.gridDimensionX) {
+	            min    = image.getMinX();
+	            length = image.getWidth();
+	            label  = "\"X\"";
+	        } else if (i == grid.gridDimensionY) {
+	            min    = image.getMinY();
+	            length = image.getHeight();
+	            label  = "\"Y\"";
+	        } else {
+	            min    = range.getLow(i);
+	            length = Math.min(Math.max(range.getHigh(i)+1, 0), 1);
+	            label  = Integer.valueOf(i);
+	        }
+	        if (range.getLow(i)!=min || range.getSpan(i)!=length) {
+	            return Errors.format(ErrorKeys.BAD_GRID_RANGE_$3, label, min, min + length);
+	        }
+	    }
+	    return null;
+	}
 }

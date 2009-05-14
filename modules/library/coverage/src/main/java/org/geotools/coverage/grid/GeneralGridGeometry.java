@@ -19,24 +19,22 @@ package org.geotools.coverage.grid;
 import java.awt.image.RenderedImage;
 import java.io.Serializable;
 
-import org.opengis.coverage.grid.GridRange;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.coverage.grid.GridGeometry;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.geometry.Envelope;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.util.Cloneable;
-
-import org.geotools.util.Utilities;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.resources.Classes;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.geometry.Envelope;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
+import org.opengis.util.Cloneable;
 
 
 /**
@@ -314,7 +312,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.BAD_TRANSFORM_$1,
                     Classes.getClass(gridToCRS)), exception);
         }
-        gridRange = new GeneralGridRange(transformed, anchor);
+        gridRange = new GeneralGridEnvelope(transformed, anchor);
     }
 
     /**
@@ -493,16 +491,11 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @see GridGeometry2D#getGridRange2D
      */
-    public GridRange getGridRange() throws InvalidGridGeometryException {
+    public GridEnvelope getGridRange() throws InvalidGridGeometryException {
         if (gridRange != null) {
             assert isDefined(GRID_RANGE);
-//            return clone(gridRange);
-            // TODO: uncomment the above line and delete following lines in this "if" block
-            //       when we will have replaced the GridRange return type by GridEnvelope.
-            if (gridRange instanceof GridRange) {
-                return (GridRange) clone(gridRange);
-            }
-            return new GeneralGridRange(gridRange);
+            return clone(gridRange);
+           
         }
         assert !isDefined(GRID_RANGE);
         throw new InvalidGridGeometryException(ErrorKeys.UNSPECIFIED_IMAGE_SIZE);

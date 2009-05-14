@@ -33,7 +33,7 @@ import javax.imageio.ImageTypeSpecifier;
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
@@ -73,7 +73,7 @@ class RasterInfo {
      */
     private GeneralEnvelope originalEnvelope;
 
-    private GeneralGridRange originalGridRange;
+    private GeneralGridEnvelope originalGridRange;
 
     private List<GridSampleDimension> gridSampleDimensions;
 
@@ -181,13 +181,13 @@ class RasterInfo {
     }
 
     public int getImageWidth() {
-        final GeneralGridRange originalGridRange = getOriginalGridRange();
+        final GeneralGridEnvelope originalGridRange = getOriginalGridRange();
         final int width = originalGridRange.getSpan(0);
         return width;
     }
 
     public int getImageHeight() {
-        final GeneralGridRange originalGridRange = getOriginalGridRange();
+        final GeneralGridEnvelope originalGridRange = getOriginalGridRange();
         final int height = originalGridRange.getSpan(1);
         return height;
     }
@@ -203,7 +203,7 @@ class RasterInfo {
      * @return the originalGridRange for the whole raster dataset, based on the first raster in the
      *         raster dataset
      */
-    public GeneralGridRange getOriginalGridRange() {
+    public GeneralGridEnvelope getOriginalGridRange() {
         if (originalGridRange == null) {
             final MathTransform modelToRaster;
             try {
@@ -239,7 +239,7 @@ class RasterInfo {
             int width = maxx - minx;
             int height = maxy - miny;
             Rectangle range = new Rectangle(0, 0, width, height);
-            originalGridRange = new GeneralGridRange(range);
+            originalGridRange = new GeneralGridEnvelope(range);
         }
         return originalGridRange;
     }
@@ -248,8 +248,6 @@ class RasterInfo {
 
         GeneralEnvelope firstRasterEnvelope = getGridEnvelope(0, 0);
         Rectangle firstRasterGridRange = getGridRange(0, 0);
-        // GridToEnvelopeMapper works upon GridEnvelope. GeneralGridEnvelope includes the border
-        // edges in computations, GeneralGridRange doesn't, so use a GeneralEnvelope instead
         GeneralGridEnvelope gridRange = new GeneralGridEnvelope(firstRasterGridRange, 2);
 
         // create a raster to model transform, from this tile pixel space to the tile's geographic

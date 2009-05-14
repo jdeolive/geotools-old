@@ -17,45 +17,14 @@
 package org.geotools.coverage.io;
 
 // J2SE dependencies
-import java.awt.Dimension;
-import java.awt.image.RenderedImage;
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 
-// OpenGIS dependencoes
-import org.opengis.coverage.grid.GridRange;
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-// Geotools dependencies
-import org.geotools.factory.Hints;
-import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
-import org.geotools.coverage.grid.GeneralGridRange;
-import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.image.io.RawBinaryImageReadParam;
-import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
-import org.geotools.io.LineWriter;
-import org.geotools.io.TableWriter;
-import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Vocabulary;
-import org.geotools.resources.i18n.VocabularyKeys;
+import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.geometry.Envelope;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 
 /**
@@ -155,7 +124,7 @@ public interface GridCoverageReader {
      * @throws IndexOutOfBoundsException if the supplied index is out of bounds.
      * @throws IOException if an error occurs reading the width information from the input source.
      */
-    GridRange getGridRange(int index) throws IOException;
+    GridEnvelope getGridRange(int index) throws IOException;
 
     /**
      * Returns the transform from {@linkplain #getGridRange grid range} to

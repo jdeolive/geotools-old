@@ -16,30 +16,8 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import org.geotools.coverage.grid.GeneralGridRange;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
-import org.geotools.coverage.grid.io.GridFormatFinder;
-
-import org.geotools.factory.Hints;
-
-import org.geotools.gce.imagemosaic.jdbc.Import.ImportTyp;
-import org.geotools.geometry.GeneralEnvelope;
-
-import org.geotools.referencing.CRS;
-
-import org.opengis.parameter.GeneralParameterValue;
-import org.opengis.parameter.ParameterValue;
-
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
 import java.awt.Color;
 import java.awt.Rectangle;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,13 +25,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -64,6 +39,22 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import javax.imageio.ImageIO;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.geotools.factory.Hints;
+import org.geotools.gce.imagemosaic.jdbc.Import.ImportTyp;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.CRS;
+import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.parameter.ParameterValue;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 
 public abstract class AbstractTest extends TestCase {
@@ -551,8 +542,7 @@ public abstract class AbstractTest extends TestCase {
         }
 
         gg.setValue(new GridGeometry2D(
-                new GeneralGridRange(new Rectangle(0, 0, width, heigth)),
-                envelope));
+                new GridEnvelope2D(new Rectangle(0, 0, width, heigth)),envelope));
 
         final ParameterValue outTransp = ImageMosaicJDBCFormat.OUTPUT_TRANSPARENT_COLOR.createValue();
         outTransp.setValue((bColor == null)

@@ -28,7 +28,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.spi.ImageReaderSpi;
 
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverageio.BaseGridCoverage2DReader;
 import org.geotools.data.DataSourceException;
@@ -209,7 +209,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
         //
         // //
         if (getCoverageGridRange() == null)
-            setCoverageGridRange(new GeneralGridRange(new Rectangle(0, 0,
+            setCoverageGridRange(new GridEnvelope2D(new Rectangle(0, 0,
                     metadata.getWidth(), metadata.getHeight())));
 
         // //
@@ -230,7 +230,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
                     // Envelope setting
                     setCoverageEnvelope(CRS.transform(ProjectiveTransform
                             .create(tempTransform), new GeneralEnvelope(
-                            getCoverageGridRange().toRectangle())));
+                            getCoverageGridRange())));
                 } catch (IllegalStateException e) {
                     if (LOGGER.isLoggable(Level.WARNING)) {
                         LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);

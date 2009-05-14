@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.JTS;
@@ -33,10 +33,10 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.MismatchedDimensionException;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.EngineeringCRS;
@@ -146,7 +146,7 @@ public final class RendererUtilities {
 		// //
             final GridToEnvelopeMapper m = (GridToEnvelopeMapper) gridToEnvelopeMappers.get();
 		try {
-            m.setGridRange(new GeneralGridRange(paintArea));
+            m.setGridRange(new GridEnvelope2D(paintArea));
             m.setEnvelope(genvelope);
             return m.createAffineTransform().createInverse();
 		} catch (MismatchedDimensionException e) {
@@ -669,7 +669,7 @@ public final class RendererUtilities {
         // transform (instead of creating a new one) if the grid
         // and envelope are the same one than during last invocation.
         final GridToEnvelopeMapper m = (GridToEnvelopeMapper) gridToEnvelopeMappers.get();
-        m.setGridRange(new GeneralGridRange(paintArea));
+        m.setGridRange(new GridEnvelope2D(paintArea));
         m.setEnvelope(newEnvelope);
         return (AffineTransform) (m.createTransform().inverse());
 

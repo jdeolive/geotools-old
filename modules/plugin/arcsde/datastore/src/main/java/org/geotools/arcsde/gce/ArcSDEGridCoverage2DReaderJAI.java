@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -61,7 +62,7 @@ import org.geotools.arcsde.pool.ArcSDEPooledConnection;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DefaultServiceInfo;
@@ -137,7 +138,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         super.originalEnvelope = rasterInfo.getOriginalEnvelope();
 
         GeneralGridEnvelope gridRange = rasterInfo.getOriginalGridRange();
-        super.originalGridRange = new GeneralGridRange(gridRange.toRectangle());
+        super.originalGridRange = new GridEnvelope2D(gridRange.toRectangle());
 
         super.coverageName = rasterInfo.getRasterTable();
         final int numLevels = rasterInfo.getNumPyramidLevels(0);
@@ -150,7 +151,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         // setting the higher resolution avalaible for this coverage
         //
         // ///
-        highestRes = super.getResolution(originalEnvelope, originalGridRange.toRectangle(), crs);
+        highestRes = super.getResolution(originalEnvelope, (Rectangle) originalGridRange, crs);
         // //
         //
         // get information for the successive images

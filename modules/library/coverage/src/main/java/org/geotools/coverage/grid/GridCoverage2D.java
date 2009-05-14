@@ -19,8 +19,8 @@ package org.geotools.coverage.grid;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.Raster;
 import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRenderedImage;
 import java.awt.image.renderable.RenderableImage;
@@ -31,14 +31,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+
 import javax.measure.unit.Unit;
 import javax.media.jai.Interpolation;
 import javax.media.jai.OperationNode;
@@ -46,29 +47,29 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedImageAdapter;
 import javax.media.jai.remote.SerializableRenderedImage;
 
+import org.geotools.coverage.AbstractCoverage;
+import org.geotools.coverage.GridSampleDimension;
+import org.geotools.factory.Hints;
+import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.TransformedDirectPosition;
+import org.geotools.resources.Classes;
+import org.geotools.resources.coverage.CoverageUtilities;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.LoggingKeys;
+import org.geotools.resources.i18n.Loggings;
 import org.opengis.coverage.CannotEvaluateException;
 import org.opengis.coverage.PointOutsideCoverageException;
 import org.opengis.coverage.SampleDimension;
 import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridRange;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
-
-import org.geotools.factory.Hints;
-import org.geotools.geometry.Envelope2D;
-import org.geotools.geometry.TransformedDirectPosition;
-import org.geotools.coverage.AbstractCoverage;
-import org.geotools.coverage.GridSampleDimension;
-import org.geotools.resources.coverage.CoverageUtilities;
-import org.geotools.resources.Classes;
-import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Loggings;
-import org.geotools.resources.i18n.LoggingKeys;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -175,11 +176,8 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
      * @param name The name for this coverage, or {@code null} for the same than {@code coverage}.
      * @param coverage The source grid coverage.
      *
-     * @deprecated Extends {@link Calculator2D} instead. This constructor will become
-     *             package-privated in a future GeoTools version.
      */
-    @Deprecated
-    protected GridCoverage2D(final CharSequence   name,
+    GridCoverage2D(final CharSequence   name,
                              final GridCoverage2D coverage)
     {
         super(name, coverage);
@@ -190,22 +188,6 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
         // Do not share the views, since subclasses will create different instances.
     }
 
-    /**
-     * @deprecated Use the constructor with a {@link Hints} argument instead.
-     *
-     * @since 2.2
-     */
-    @Deprecated
-    protected GridCoverage2D(final CharSequence             name,
-                             final PlanarImage             image,
-                                   GridGeometry2D   gridGeometry,
-                             final GridSampleDimension[]   bands,
-                             final GridCoverage[]        sources,
-                             final Map<?,?>           properties)
-            throws IllegalArgumentException
-    {
-        this(name, image, gridGeometry, bands, sources, properties, null);
-    }
 
     /**
      * Constructs a grid coverage with the specified {@linkplain GridGeometry2D grid geometry} and
@@ -268,7 +250,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
          */
         final int dimension = crs.getCoordinateSystem().getDimension();
         if (!gridGeometry.isDefined(GridGeometry2D.GRID_RANGE)) {
-            final GridRange r = new GeneralGridRange(image, dimension);
+            final GridEnvelope r = new GeneralGridEnvelope(image, dimension);
             if (gridGeometry.isDefined(GridGeometry2D.GRID_TO_CRS)) {
                 gridGeometry = new GridGeometry2D(r, PIXEL_IN_CELL,
                         gridGeometry.getGridToCRS(PIXEL_IN_CELL), crs, hints);
@@ -296,53 +278,16 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
          * Last argument checks. The image size must be consistent with the grid range
          * and the envelope must be non-empty.
          */
-        final String error = checkConsistency(image, gridGeometry);
+        final String error = GridGeometry2D.checkConsistency(image, gridGeometry);
         if (error != null) {
             throw new IllegalArgumentException(error);
         }
         if (dimension <= Math.max(gridGeometry.axisDimensionX,    gridGeometry.axisDimensionY)
-                             || !(gridGeometry.envelope.getLength(gridGeometry.axisDimensionX) > 0)
-                             || !(gridGeometry.envelope.getLength(gridGeometry.axisDimensionY) > 0))
+                             || !(gridGeometry.envelope.getSpan(gridGeometry.axisDimensionX) > 0)
+                             || !(gridGeometry.envelope.getSpan(gridGeometry.axisDimensionY) > 0))
         {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.EMPTY_ENVELOPE));
         }
-    }
-
-    /**
-     * Checks if the bounding box of the specified image is consistents with the specified
-     * grid geometry. If an inconsistency has been found, then an error string is returned.
-     * This string will be typically used as a message in an exception to be thrown.
-     * <p>
-     * Note that a succesful check at construction time may fails later if the image is part
-     * of a JAI chain (i.e. is a {@link javax.media.jai.RenderedOp}) and its bounds has been
-     * edited (i.e the image node as been re-rendered). Since {@code GridCoverage2D} are immutable
-     * by design, we are not allowed to propagate the image change here. The {@link #getGridGeometry}
-     * method will thrown an {@link IllegalStateException} in this case.
-     */
-    private static String checkConsistency(final RenderedImage image, final GridGeometry2D grid) {
-        final GridRange range = grid.getGridRange();
-        final int dimension = range.getDimension();
-        for (int i=0; i<dimension; i++) {
-            final int min, length;
-            final Object label;
-            if (i == grid.gridDimensionX) {
-                min    = image.getMinX();
-                length = image.getWidth();
-                label  = "\"X\"";
-            } else if (i == grid.gridDimensionY) {
-                min    = image.getMinY();
-                length = image.getHeight();
-                label  = "\"Y\"";
-            } else {
-                min    = range.getLower(i);
-                length = Math.min(Math.max(range.getUpper(i), 0), 1);
-                label  = Integer.valueOf(i);
-            }
-            if (range.getLower(i)!=min || range.getLength(i)!=length) {
-                return Errors.format(ErrorKeys.BAD_GRID_RANGE_$3, label, min, min + length);
-            }
-        }
-        return null;
     }
 
     /**
@@ -360,7 +305,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
      * includes the valid range of grid coordinates and the georeferencing.
      */
     public GridGeometry2D getGridGeometry() {
-        final String error = checkConsistency(image, gridGeometry);
+        final String error = GridGeometry2D.checkConsistency(image, gridGeometry);
         if (error != null) {
             throw new IllegalStateException(error);
         }

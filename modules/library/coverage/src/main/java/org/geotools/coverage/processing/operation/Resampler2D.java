@@ -55,9 +55,10 @@ import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.geometry.Envelope;
 
 import org.geotools.coverage.GridSampleDimension;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.processing.AbstractProcessor;
 import org.geotools.coverage.processing.CannotReprojectException;
@@ -352,7 +353,7 @@ final class Resampler2D extends GridCoverage2D {
                     Envelope gridRange;
                     gridRange = toEnvelope(sourceGG.getGridRange());
                     gridRange = CRS.transform(allSteps.inverse(), gridRange);
-                    targetGG  = new GridGeometry2D(new GeneralGridRange(gridRange,
+                    targetGG  = new GridGeometry2D(new GeneralGridEnvelope(gridRange,
                             PixelInCell.CELL_CORNER), step1, targetCRS);
                 }
             }
@@ -388,7 +389,7 @@ final class Resampler2D extends GridCoverage2D {
              */
             if (targetGG == null) {
                 final GridEnvelope targetGR;
-                targetGR = force2D ? new GeneralGridRange(sourceGG.getGridRange2D()) : sourceGG.getGridRange();
+                targetGR = force2D ? new GridEnvelope2D(sourceGG.getGridRange2D()) : sourceGG.getGridRange();
                 targetGG = new GridGeometry2D(targetGR, targetEnvelope);
                 step1    = targetGG.getGridToCRS(CORNER);
             } else if (!targetGG.isDefined(GridGeometry2D.GRID_TO_CRS)) {
@@ -399,7 +400,7 @@ final class Resampler2D extends GridCoverage2D {
                 if (!targetGG.isDefined(GridGeometry2D.GRID_RANGE)) {
                     GeneralEnvelope gridRange = CRS.transform(step1.inverse(), targetEnvelope);
                     // According OpenGIS specification, GridGeometry maps pixel's center.
-                    targetGG = new GridGeometry2D(new GeneralGridRange(gridRange,
+                    targetGG = new GridGeometry2D(new GeneralGridEnvelope(gridRange,
                             PixelInCell.CELL_CENTER), step1, targetCRS);
                 }
             }
@@ -651,7 +652,7 @@ final class Resampler2D extends GridCoverage2D {
         lower[targetGG.gridDimensionY] = targetImage.getMinY();
         upper[targetGG.gridDimensionX] = targetImage.getMaxX();
         upper[targetGG.gridDimensionY] = targetImage.getMaxY();
-        final GridEnvelope actualGR = new GeneralGridRange(lower, upper);
+        final GridEnvelope actualGR = new GeneralGridEnvelope(lower, upper);
         if (!targetGR.equals(actualGR)) {
             MathTransform gridToCRS = targetGG.getGridToCRS(CORNER);
             targetGG = new GridGeometry2D(actualGR, gridToCRS, targetCRS);

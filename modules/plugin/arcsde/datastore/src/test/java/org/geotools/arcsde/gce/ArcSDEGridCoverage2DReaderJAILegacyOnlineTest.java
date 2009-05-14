@@ -17,8 +17,8 @@ import javax.imageio.ImageIO;
 
 import org.geotools.arcsde.ArcSDERasterFormatFactory;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -110,10 +111,10 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
-        final GeneralGridRange originalGridRange = reader.getOriginalGridRange();
+        final GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
-        final int reqWidth = originalGridRange.getLength(0) / 50;
-        final int reqHeight = originalGridRange.getLength(1) / 50;
+        final int reqWidth = originalGridRange.getSpan(0) / 50;
+        final int reqHeight = originalGridRange.getSpan(1) / 50;
 
         GeneralEnvelope reqEnvelope = new GeneralEnvelope(originalEnvelope
                 .getCoordinateReferenceSystem());
@@ -142,10 +143,10 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
-        final GeneralGridRange originalGridRange = reader.getOriginalGridRange();
+        final GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
-        final int reqWidth = originalGridRange.getLength(0) / 20;
-        final int reqHeight = originalGridRange.getLength(1) / 20;
+        final int reqWidth = originalGridRange.getSpan(0) / 20;
+        final int reqHeight = originalGridRange.getSpan(1) / 20;
 
         GeneralEnvelope reqEnvelope = new GeneralEnvelope(originalEnvelope
                 .getCoordinateReferenceSystem());
@@ -176,10 +177,10 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
-        final GeneralGridRange originalGridRange = reader.getOriginalGridRange();
+        final GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
-        final int reqWidth = originalGridRange.getLength(0) / 200;
-        final int reqHeight = originalGridRange.getLength(1) / 200;
+        final int reqWidth = originalGridRange.getSpan(0) / 200;
+        final int reqHeight = originalGridRange.getSpan(1) / 200;
 
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, originalEnvelope);
         assertNotNull("read coverage returned null", coverage);
@@ -216,7 +217,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final CoordinateReferenceSystem crs = reader.getCrs();
 
         GridGeometry2D gg2d;
-        gg2d = new GridGeometry2D(new GeneralGridRange(new Rectangle(reqWidth, reqHeight)), reqEnv);
+        gg2d = new GridGeometry2D(new GridEnvelope2D(new Rectangle(reqWidth, reqHeight)), reqEnv);
 
         requestParams[0] = new Parameter<GridGeometry2D>(AbstractGridFormat.READ_GRIDGEOMETRY2D,
                 gg2d);

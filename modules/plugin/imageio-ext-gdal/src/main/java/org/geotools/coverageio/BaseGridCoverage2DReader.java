@@ -37,8 +37,8 @@ import javax.imageio.spi.ImageReaderSpi;
 import javax.media.jai.JAI;
 
 import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultResourceInfo;
@@ -132,7 +132,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
     /**
      * The base {@link GridRange} for the {@link GridCoverage2D} of this reader.
      */
-    private GeneralGridRange nativeGridRange = null;
+    private GridEnvelope2D nativeGridRange = null;
 
     /** Absolute path to the parent dir for this coverage. */
     private String parentPath;
@@ -368,7 +368,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
         final Rectangle originalDim = new Rectangle(0, 0, reader.getWidth(0),
                 reader.getHeight(0));
         if (getCoverageGridRange() == null) {
-            setCoverageGridRange(new GeneralGridRange(originalDim));
+            setCoverageGridRange(new GridEnvelope2D(originalDim));
         }
 
         // ///
@@ -501,7 +501,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
             MathTransform tempTransform =PixelTranslation.translate(raster2Model, PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER);
             try {
                 final Envelope gridRange = new GeneralEnvelope(
-                        getCoverageGridRange().toRectangle());
+                        getCoverageGridRange());
                 final GeneralEnvelope coverageEnvelope = CRS.transform(
                 		tempTransform, gridRange);
                 setCoverageEnvelope(coverageEnvelope);
@@ -631,14 +631,14 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
      * @param nativeGridRange
      *                the nativeGridRange to set
      */
-    protected void setCoverageGridRange(GeneralGridRange coverageGridRange) {
+    protected void setCoverageGridRange(GridEnvelope2D coverageGridRange) {
         this.nativeGridRange = coverageGridRange;
     }
 
     /**
      * @return the nativeGridRange
      */
-    protected GeneralGridRange getCoverageGridRange() {
+    protected GridEnvelope2D getCoverageGridRange() {
         return nativeGridRange;
     }
 

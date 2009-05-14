@@ -21,30 +21,24 @@ package org.geotools.gce.image;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageReadParam;
 import javax.media.jai.RenderedOp;
 
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.factory.Hints;
-import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.parameter.Parameter;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.test.TestData;
-import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -281,7 +275,7 @@ public class WorldImageReaderTest extends WorldImageBaseTestCase {
 		final Parameter readGG = new Parameter(
 				AbstractGridFormat.READ_GRIDGEOMETRY2D);
 
-		readGG.setValue(new GridGeometry2D(new GeneralGridRange(
+		readGG.setValue(new GridGeometry2D(new GridEnvelope2D(
 				new java.awt.Rectangle(size, (int) (164.0 / 125.0 * size))),
 				new ReferencedEnvelope(118.8, 134.56, 47.819, 63.142,
 						DefaultGeographicCRS.WGS84)));

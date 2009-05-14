@@ -35,8 +35,8 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 import org.geotools.coverage.AbstractCoverage;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -611,7 +611,7 @@ public class ImageMosaicReaderTest extends TestCase {
 				oldEnvelope.getUpperCorner().getOrdinate(0),
 				oldEnvelope.getUpperCorner().getOrdinate(1) });
 		cropEnvelope.setCoordinateReferenceSystem(reader.getCrs());
-		gg.setValue(new GridGeometry2D(new GeneralGridRange(new Rectangle(0, 0,
+		gg.setValue(new GridGeometry2D(new GridEnvelope2D(new Rectangle(0, 0,
 				600, 300)), cropEnvelope));
 		final ParameterValue outTransp = (ParameterValue) ImageMosaicFormat.OUTPUT_TRANSPARENT_COLOR
 				.createValue();

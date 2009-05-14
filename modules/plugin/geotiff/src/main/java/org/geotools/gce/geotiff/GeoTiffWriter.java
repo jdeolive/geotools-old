@@ -41,8 +41,8 @@ import javax.imageio.stream.ImageOutputStream;
 
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -64,7 +64,6 @@ import org.jdom.output.DOMOutputter;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageWriter;
-import org.opengis.coverage.grid.GridRange;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
@@ -190,10 +189,10 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 		//
 		// /////////////////////////////////////////////////////////////////////
 		final GridGeometry2D gg = (GridGeometry2D) gc.getGridGeometry();
-		GridRange range = gg.getGridRange2D();
+		GridEnvelope2D range = gg.getGridRange2D();
 		final Rectangle sourceRegion = gtParams.getSourceRegion();
 		if (sourceRegion != null)
-			range = new GeneralGridRange(sourceRegion);
+			range = new GridEnvelope2D(sourceRegion);
 		final AffineTransform tr = (AffineTransform) gg.getGridToCRS2D();
 		final CoordinateReferenceSystem crs = gg
 				.getCoordinateReferenceSystem2D();
@@ -202,7 +201,7 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 		
 		// /////////////////////////////////////////////////////////////////////
 		//
-		// we handle just projected andgeographic crs
+		// we handle just projected and geographic crs
 		//
 		// /////////////////////////////////////////////////////////////////////
 		if (crs instanceof ProjectedCRS || crs instanceof GeographicCRS) {
@@ -260,7 +259,7 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 	 */
 	private void setGeoReference(final CoordinateReferenceSystem crs,
 			final GeoTiffIIOMetadataEncoder metadata,
-			final AffineTransform rasterToModel, GridRange range)
+			final AffineTransform rasterToModel, GridEnvelope2D range)
 			throws IndexOutOfBoundsException, IOException {
 
 		// /////////////////////////////////////////////////////////////////////
@@ -270,7 +269,7 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 		//
 		// /////////////////////////////////////////////////////////////////////
 		final AffineTransform modifiedRasterToModel;
-		int minx = range.getLower(0), miny = range.getLower(1);
+		int minx = range.getLow(0), miny = range.getLow(1);
 		if (minx != 0 || miny != 0) {
 			// //
 			//

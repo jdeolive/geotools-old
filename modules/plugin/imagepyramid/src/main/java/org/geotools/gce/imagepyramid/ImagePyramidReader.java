@@ -34,8 +34,8 @@ import java.util.logging.Logger;
 import javax.imageio.ImageReadParam;
 
 import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -46,7 +46,6 @@ import org.geotools.factory.FactoryRegistryException;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.parameter.Parameter;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.util.SoftValueHashMap;
@@ -315,7 +314,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 			coverageName = properties.getProperty("Name");
 
 			// original gridrange (estimated)
-			originalGridRange = new GeneralGridRange(
+			originalGridRange = new GridEnvelope2D(
 					new Rectangle(
 							(int) Math.round(originalEnvelope.getLength(0)/ highestRes[0]), 
 							(int) Math.round(originalEnvelope.getLength(1)/ highestRes[1])

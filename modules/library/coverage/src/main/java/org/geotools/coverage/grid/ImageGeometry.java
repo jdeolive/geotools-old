@@ -20,12 +20,11 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.Serializable;
 
-import org.opengis.util.Cloneable;
-import org.opengis.coverage.grid.GridGeometry;
-
-import org.geotools.util.Utilities;
-import org.geotools.resources.Classes;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.resources.Classes;
+import org.geotools.util.Utilities;
+import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.util.Cloneable;
 
 
 /**
@@ -53,7 +52,7 @@ public class ImageGeometry implements GridGeometry, Serializable, Cloneable {
     /**
      * The grid range.
      */
-    private final GridRange2D gridRange;
+    private final GridEnvelope2D gridRange;
 
     /**
      * The <cite>grid to CRS</cite> affine transform.
@@ -68,14 +67,14 @@ public class ImageGeometry implements GridGeometry, Serializable, Cloneable {
      * @param gridToCRS The affine transform from pixel coordinates to "real world" coordinates.
      */
     public ImageGeometry(final Rectangle bounds, final AffineTransform gridToCRS) {
-        this.gridRange = new GridRange2D(bounds);
+        this.gridRange = new GridEnvelope2D(bounds);
         this.gridToCRS = new AffineTransform2D(gridToCRS);
     }
 
     /**
      * Returns the image bounds in pixel coordinates.
      */
-    public GridRange2D getGridRange() {
+    public GridEnvelope2D getGridRange() {
         return gridRange.clone();
     }
 

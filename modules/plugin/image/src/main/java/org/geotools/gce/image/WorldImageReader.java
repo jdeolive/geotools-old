@@ -44,7 +44,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 
 import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -288,7 +288,7 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 		int hrWidth = reader.getWidth(0);
 		int hrHeight = reader.getHeight(0);
 		final Rectangle actualDim = new Rectangle(0, 0, hrWidth, hrHeight);
-		originalGridRange = new GeneralGridRange(actualDim);
+		originalGridRange = new GridEnvelope2D(actualDim);
 
 		// /////////////////////////////////////////////////////////////////////
 		//
@@ -339,8 +339,8 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
 		if (numOverviews >=1) {
 			overViewResolutions = new double[numOverviews][2];
 			for (int i = 0; i < numOverviews; i++) {
-				overViewResolutions[i][0] = (highestRes[0]*this.originalGridRange.getLength(0))/reader.getWidth(i+1);
-				overViewResolutions[i][1] = (highestRes[1]*this.originalGridRange.getLength(1))/reader.getHeight(i+1);
+				overViewResolutions[i][0] = (highestRes[0]*this.originalGridRange.getSpan(0))/reader.getWidth(i+1);
+				overViewResolutions[i][1] = (highestRes[1]*this.originalGridRange.getSpan(1))/reader.getHeight(i+1);
 			}
 		} else
 			overViewResolutions = null;
@@ -494,8 +494,8 @@ public final class WorldImageReader extends AbstractGridCoverage2DReader
                 // image sizes.
                 //
                 // //
-                final double scaleX = originalGridRange.getLength(0) / (1.0 * ssWidth);
-                final double scaleY = originalGridRange.getLength(1) / (1.0 * ssHeight);
+                final double scaleX = originalGridRange.getSpan(0) / (1.0 * ssWidth);
+                final double scaleY = originalGridRange.getSpan(1) / (1.0 * ssHeight);
                 final AffineTransform tempRaster2Model = new AffineTransform((AffineTransform) raster2Model);
                 tempRaster2Model.concatenate(new AffineTransform(scaleX, 0, 0, scaleY, 0, 0));
                 return createImageCoverage(coverageRaster, ProjectiveTransform.create((AffineTransform) tempRaster2Model));

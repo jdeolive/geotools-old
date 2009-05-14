@@ -43,7 +43,7 @@ import javax.media.jai.Interpolation;
 
 import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
-import org.geotools.coverage.grid.GeneralGridRange;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
@@ -430,10 +430,8 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 		}
 
 		// new grid range
-		final GeneralGridRange newGridrange = new GeneralGridRange(new int[] {
-				0, 0 }, new int[] { Nx, Ny });
-		final GridGeometry2D newGridGeometry = new GridGeometry2D(newGridrange,
-				new GeneralEnvelope(gc.getEnvelope()));
+		final GeneralGridEnvelope newGridrange = new GeneralGridEnvelope(new int[] {0, 0 }, new int[] { Nx, Ny });
+		final GridGeometry2D newGridGeometry = new GridGeometry2D(newGridrange,new GeneralEnvelope(gc.getEnvelope()));
 
 		// /////////////////////////////////////////////////////////////////////
 		//
