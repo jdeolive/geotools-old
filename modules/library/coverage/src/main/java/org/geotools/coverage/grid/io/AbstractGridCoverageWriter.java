@@ -25,10 +25,7 @@ import javax.imageio.stream.ImageOutputStream;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.util.logging.Logging;
-import org.opengis.coverage.grid.Format;
-import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageWriter;
-import org.opengis.parameter.GeneralParameterValue;
 
 /**
  * An {@link AbstractGridCoverageWriter} is the base class for all
