@@ -92,7 +92,7 @@ public class MapLayerEvent extends EventObject {
         super(source);
         this.reason = reason;
 
-        if ((reason <= 0) || (reason > FILTER_CHANGED)) {
+        if ((reason <= 0) || (reason > SELECTION_CHANGED)) {
             throw new IllegalArgumentException();
         }
     }
