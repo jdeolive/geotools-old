@@ -175,6 +175,14 @@ public class GeologicUnitTest extends TestCase {
         DataAccess ccDataAccess = DataAccessFinder.getDataStore(dsParams);
         assertNotNull(ccDataAccess);
         
+        url = getClass().getResource(schemaBase + "MappedFeaturePropertyfile.xml");
+        assertNotNull(url);
+
+        dsParams.put("dbtype", "app-schema");
+        dsParams.put("url", url.toExternalForm());
+        DataAccess mfDataAccess = DataAccessFinder.getDataStore(dsParams);
+        assertNotNull(mfDataAccess);
+
         /*
          * Make sure there are 3 geological unit features
          */

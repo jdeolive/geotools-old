@@ -44,6 +44,7 @@ import org.geotools.feature.type.GeometryDescriptorImpl;
 import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
+import org.geotools.xlink.XLINK;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
@@ -80,6 +81,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * @since 2.4
  */
 public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterator<Feature> {
+    /**
+     * Name representation of xlink:href
+     */
+    public static final Name XLINK_HREF_NAME = Types.toTypeName(XLINK.HREF);
 
     /**
      * The mappings for the source and target schemas
@@ -110,6 +115,8 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
     final protected XPath xpathAttributeBuilder;
 
     protected FilterFactory namespaceAwareFilterFactory;
+
+    private NamespaceSupport namespaces;
 
     /**
      * maxFeatures restriction value as provided by query
@@ -185,7 +192,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
 
         xpathAttributeBuilder = new XPath();
         xpathAttributeBuilder.setFeatureFactory(attf);
-        NamespaceSupport namespaces = mapping.getNamespaces();
+        namespaces = mapping.getNamespaces();
         namespaceAwareFilterFactory = new FilterFactoryImplNamespaceAware(namespaces);
         xpathAttributeBuilder.setFilterFactory(namespaceAwareFilterFactory);
         this.maxFeatures = query.getMaxFeatures();
@@ -246,9 +253,10 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         return value;
     }
 
-    protected Object getValues(Expression expression, Object sourceFeature, boolean isNestedFeature) {
+    protected Object getValues(Expression expression, ComplexAttribute sourceFeature,
+            boolean isNestedFeature) {
         if (sourceFeature instanceof FeatureImpl && isNestedFeature) {
-            // RA: Feature Chaining HACK
+            // RA: Feature Chaining
             // complex features can have multiple nodes of the same attribute.. and if they are used
             // as input to an app-schema data access to be nested inside another feature type of a
             // different XML type, it has to be mapped like this:
@@ -264,42 +272,25 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
             // <isMultiple>true</isMultiple>
             // </AttributeMapping>
             // As there can be multiple nodes of mo:composition in this case, we need to retrieve
-            // all
-            // of them.. modifying FeaturePropertyAccessorFactory.get() to use
-            // JXPathContext.iterate()
-            // instead of JXPathContext.getValue() to get all matching nodes returns the same node
-            // multiple times.
-            // Even successfully, it could result in getting the children nodes that we don't want,
-            // eg. mo:form/.../.../mo:form/....
+            // all of them
             assert expression instanceof AttributeExpressionImpl;
             AttributeExpressionImpl attribExpression = ((AttributeExpressionImpl) expression);
-            ArrayList valueList = new ArrayList();
             String xpath = attribExpression.getPropertyName();
-            if (xpath.endsWith("]")) {
-                // get a particularly indexed path
-                return getValue(expression, sourceFeature);
-            }
-            Object value = getValue(expression, sourceFeature);
-            // starts with 2, since the first would've been returned above
-            int i = 2;
-            while (value != null) {
-                if (value instanceof Collection) {
-                    valueList.addAll((Collection) value);
-                } else {
-                    valueList.add(value);
+            StepList xpathSteps = XPath.steps(sourceFeature.getDescriptor(), xpath, namespaces);
+
+            ArrayList<Object> values = new ArrayList<Object>();
+            Collection<Property> properties = getProperties(sourceFeature, xpathSteps);
+            for (Property property : properties) {
+                Object value = property.getValue();
+                if (value != null) {
+                    if (value instanceof Collection) {
+                        values.addAll((Collection) property.getValue());
+                    } else {
+                        values.add(property.getValue());
+                    }
                 }
-                attribExpression.setPropertyName(xpath + "[" + i + "]");
-                try {
-                    value = getValue(attribExpression, sourceFeature);
-                } finally {
-                    // there's no clone method and there's no getter for hints
-                    // so use original attributeExpression and set the value back
-                    // to original after use
-                    attribExpression.setPropertyName(xpath);
-                }
-                i++;
             }
-            return valueList;
+            return values;
         }
         return getValue(expression, sourceFeature);
     }
@@ -319,9 +310,11 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         final Expression sourceExpression = attMapping.getSourceExpression();
         final AttributeType targetNodeType = attMapping.getTargetNodeInstance();
         final StepList xpath = attMapping.getTargetXPath();
+        Map<Name, Expression> clientPropsMappings = attMapping.getClientProperties();
 
         boolean isNestedFeature = attMapping.isNestedAttribute();
         Object value = getValues(sourceExpression, source, isNestedFeature);
+        boolean isHRefLink = isByReference(clientPropsMappings, isNestedFeature);
         if (isNestedFeature) {
             // get built feature based on link value
             if (value instanceof Collection) {
@@ -331,11 +324,32 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
                     while (val instanceof Attribute) {
                         val = ((Attribute) val).getValue();
                     }
-                    nestedFeatures.addAll(((NestedAttributeMapping) attMapping).getFeatures(val));
+                    if (isHRefLink) {
+                        // get the input features to avoid infinite loop in case the nested
+                        // feature type also have a reference back to this type
+                        // eg. gsml:GeologicUnit/gsml:occurence/gsml:MappedFeature
+                        // and gsml:MappedFeature/gsml:specification/gsml:GeologicUnit
+                        nestedFeatures.addAll(((NestedAttributeMapping) attMapping)
+                                .getInputFeatures(val));
+                    } else {
+                        nestedFeatures.addAll(((NestedAttributeMapping) attMapping)
+                                .getFeatures(val));
+                    }
                 }
                 value = nestedFeatures;
+            } else if (isHRefLink) {
+                // get the input features to avoid infinite loop in case the nested
+                // feature type also have a reference back to this type
+                // eg. gsml:GeologicUnit/gsml:occurence/gsml:MappedFeature
+                // and gsml:MappedFeature/gsml:specification/gsml:GeologicUnit
+                value = ((NestedAttributeMapping) attMapping).getInputFeatures(value);
             } else {
                 value = ((NestedAttributeMapping) attMapping).getFeatures(value);
+            }
+            if (isHRefLink) {
+                // only need to set the href link value, not the nested feature properties
+                setXlinkReference(target, clientPropsMappings, value, xpath, targetNodeType);
+                return;
             }
         }
         String id = null;
@@ -350,15 +364,66 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
                 ArrayList<Feature> valueList = new ArrayList<Feature>();
                 valueList.add((Feature) singleVal);
                 Attribute instance = xpathAttributeBuilder.set(target, xpath, valueList, id,
-                        targetNodeType);
-                Map<Name, Expression> clientPropsMappings = attMapping.getClientProperties();
+                        targetNodeType, false);
                 setClientProperties(instance, source, clientPropsMappings);
             }
         } else {
-            Attribute instance = xpathAttributeBuilder
-                    .set(target, xpath, value, id, targetNodeType);
-            Map<Name, Expression> clientPropsMappings = attMapping.getClientProperties();
+            Attribute instance = xpathAttributeBuilder.set(target, xpath, value, id,
+                    targetNodeType, false);
             setClientProperties(instance, source, clientPropsMappings);
+        }
+    }
+
+    /**
+     * Set xlink:href client property for multi-valued chained features. This has to be specially
+     * handled because we don't want to encode the nested features attributes, since it's already an
+     * xLink. Also we need to eliminate duplicates.
+     * 
+     * @param target
+     *            The target feature
+     * @param clientPropsMappings
+     *            Client properties mappings
+     * @param value
+     *            Nested features
+     * @param xpath
+     *            Attribute xPath where the client properties are to be set
+     * @param targetNodeType
+     *            Target node type
+     */
+    private void setXlinkReference(Feature target, Map<Name, Expression> clientPropsMappings,
+            Object value, StepList xpath, AttributeType targetNodeType) {
+        // Make sure the same value isn't already set
+        // in case it comes from a denormalized view for many-to-many relationship.
+        // (1) Get the first existing value
+        Property existingAttribute = getProperty(target, xpath);
+
+        if (existingAttribute != null) {
+            Object existingValue = existingAttribute.getUserData().get(Attributes.class);
+            if (existingValue != null) {
+                assert existingValue instanceof HashMap;
+                existingValue = ((Map) existingValue).get(XLINK_HREF_NAME);
+            }
+            if (existingValue != null) {
+                Expression linkExpression = clientPropsMappings.get(XLINK_HREF_NAME);
+                for (Object singleVal : (Collection) value) {
+                    assert singleVal instanceof Feature;
+                    assert linkExpression != null;
+                    Object hrefValue = linkExpression.evaluate(singleVal);
+                    if (hrefValue != null && hrefValue.equals(existingValue)) {
+                        // (2) if one of the new values matches the first existing value, 
+                        // that means this comes from a denormalized view,
+                        // and this set has already been set
+                        return;
+                    }
+                }
+            }
+        }
+
+        for (Object singleVal : (Collection) value) {
+            assert singleVal instanceof Feature;
+            Attribute instance = xpathAttributeBuilder.set(target, xpath, null, null,
+                    targetNodeType, true);
+            setClientProperties(instance, singleVal, clientPropsMappings);
         }
     }
 
@@ -533,5 +598,83 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
                 break;
             }
         }
+    }
+
+    /**
+     * Returns first matching attribute from provided root and xPath.
+     * 
+     * @param root
+     *            The root attribute to start searching from
+     * @param xpath
+     *            The xPath matching the attribute
+     * @return The first matching attribute
+     */
+    private Property getProperty(ComplexAttribute root, StepList xpath) {
+        Property property = root;
+
+        final StepList steps = new StepList(xpath);
+
+        Iterator<Step> stepsIterator = steps.iterator();
+
+        while (stepsIterator.hasNext()) {
+            if (!(property instanceof ComplexAttribute)) {
+                // throw exception
+            }
+            Step step = stepsIterator.next();
+            property = ((ComplexAttribute) property).getProperty(Types.toTypeName(step.getName()));
+            if (property == null) {
+                return null;
+            }
+        }
+        return property;
+    }
+
+    private Collection<Property> getProperties(ComplexAttribute root, StepList xpath) {
+
+        final StepList steps = new StepList(xpath);
+
+        Iterator<Step> stepsIterator = steps.iterator();
+        Collection<Property> properties = null;
+        Step step = null;
+        if (stepsIterator.hasNext()) {
+            step = stepsIterator.next();
+            properties = ((ComplexAttribute) root).getProperties(Types.toTypeName(step.getName()));
+        }
+
+        while (stepsIterator.hasNext()) {
+            step = stepsIterator.next();
+            Collection<Property> nestedProperties = new ArrayList<Property>();
+            for (Property property : properties) {
+                if (!(property instanceof ComplexAttribute)) {
+                    // throw exception
+                }
+                Collection<Property> tempProperties = ((ComplexAttribute) property)
+                        .getProperties(Types.toTypeName(step.getName()));
+                if (!tempProperties.isEmpty()) {
+                    nestedProperties.addAll(tempProperties);
+                }
+            }
+            if (nestedProperties.isEmpty()) {
+                return properties;
+            }
+            properties.clear();
+            properties.addAll(nestedProperties);
+        }
+        return properties;
+    }
+
+    /**
+     * Checks if client property has xlink:ref in it, if the attribute is for chained features.
+     * 
+     * @param clientPropsMappings
+     *            the client properties mappings
+     * @param isNested
+     *            true if we're dealing with chained/nested features
+     * @return
+     */
+    private boolean isByReference(Map<Name, Expression> clientPropsMappings, boolean isNested) {
+        // only care for chained features
+        return isNested ? (clientPropsMappings.isEmpty() ? false : (clientPropsMappings
+                .get(XLINK_HREF_NAME) == null) ? false : true) : false;
     }
 }

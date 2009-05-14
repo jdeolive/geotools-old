@@ -40,6 +40,7 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.xml.sax.Attributes;
 
 /**
  * This is the tests for feature chaining; nesting complex attributes (feature and non-feature)
@@ -407,7 +408,7 @@ public class FeatureChainingTest extends TestCase {
             assertEquals(realValues.containsAll(Arrays.asList(values)), true);
         }
         this.disposeDataAccesses();
-        
+
         guFeatures.close(guIterator);
     }
 
@@ -483,7 +484,7 @@ public class FeatureChainingTest extends TestCase {
                 .literal("Olivine basalt, tuff, microgabbro, minor sedimentary rocks");
         // <ogc:Function name="contains_text">
         Expression function = ff.function(CONTAINS_TEXT, property, string);
-        
+
         // <ogc:PropertyIsEqualTo>
         // <ogc:Literal>1</ogc:Literal>
         // </ogc:PropertyIsEqualTo>
@@ -509,6 +510,61 @@ public class FeatureChainingTest extends TestCase {
         filteredResults = guSource.getFeatures(filter);
         assertEquals(getCount(filteredResults), 3);
 
+        this.disposeDataAccesses();
+    }
+
+    /**
+     * Test chaining multi-valued by reference (xlink:href). It should result with multiple
+     * attributes with no nested attributes, but only client property with xlink:href.
+     * 
+     * @throws Exception
+     */
+    public void testMultiValuedPropertiesByRef() throws Exception {
+        final String MF_PREFIX = "urn:cgi:feature:MappedFeature:";
+        final String OCCURENCE = "occurence";
+        final Map<String, String> guToOccurenceMap = new HashMap<String, String>() {
+            {
+                put("gu.25699", "mf1");
+                put("gu.25678", "mf2;mf3");
+                put("gu.25682", "mf4");
+            }
+        };
+        
+        this.loadDataAccesses();
+
+        ArrayList<String> processedFeatureIds = new ArrayList<String>();
+
+        Iterator guIterator = guFeatures.iterator();
+        while (guIterator.hasNext()) {
+            Feature guFeature = (Feature) guIterator.next();
+            String guId = guFeature.getIdentifier().toString();
+            String[] mfIds = guToOccurenceMap.get(guId).split(";");
+            Collection<Property> properties = guFeature.getProperties(OCCURENCE);
+
+            assertEquals(properties.size(), mfIds.length);
+
+            int propertyIndex = 0;
+            for (Property property : properties) {
+                Object clientProps = property.getUserData().get(Attributes.class);
+                assertNotNull(clientProps);
+                assertEquals(clientProps instanceof HashMap, true);
+                Object hrefValue = ((Map) clientProps).get(MappingFeatureIterator.XLINK_HREF_NAME);
+
+                // ensure the right href:xlink is there
+                assertEquals(hrefValue, MF_PREFIX + mfIds[propertyIndex]);
+
+                // ensure no attributes would be encoded
+                assertEquals(((Collection)property.getValue()).isEmpty(), true);
+                propertyIndex++;
+            }
+            processedFeatureIds.add(guId);
+        }
+
+        assertEquals(processedFeatureIds.size(), guToOccurenceMap.size());
+        assertEquals(processedFeatureIds.containsAll(guToOccurenceMap.keySet()), true);
+
+        // clean ups
+        guFeatures.close(guIterator);
         this.disposeDataAccesses();
     }
 
@@ -668,7 +724,7 @@ public class FeatureChainingTest extends TestCase {
 
             final List params = this.getParameters();
             assertEquals(params.size(), getArgCount());
-            
+
             final Object arg1 = params.get(0);
             assertNotNull(arg1);
             final Object arg2 = params.get(1);

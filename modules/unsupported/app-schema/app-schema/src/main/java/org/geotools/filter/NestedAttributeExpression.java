@@ -27,6 +27,7 @@ import org.geotools.data.complex.AppSchemaDataAccessRegistry;
 import org.geotools.data.complex.AttributeMapping;
 import org.geotools.data.complex.FeatureTypeMapping;
 import org.geotools.data.complex.NestedAttributeMapping;
+import org.geotools.data.complex.filter.XPath;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
@@ -73,7 +74,7 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
         if (object == null) {
             return null;
         }
-            
+
         // only simple/complex features are supported
         if (!(object instanceof Feature)) {
             throw new UnsupportedOperationException(
@@ -92,8 +93,10 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
         } catch (IOException e) {
             throw new UnsupportedOperationException("Mapping not found for: '" + value + "' type!");
         }
+
+        String[] xPathSteps = this.attPath.split("/");
         // iterate through the expressions, starting from the first attribute
-        Collection<?> valueList = evaluate(rootList, 1, mappings);
+        Collection<?> valueList = evaluate(rootList, 1, mappings, xPathSteps);
 
         if (valueList.isEmpty()) {
             return null;
@@ -114,10 +117,12 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      *            Next index of expression to evaluate
      * @param mappings
      *            The feature type mapping of the features
+     * @param xPathSteps
+     *            Array representation of this attribute's broken up xpath steps
      * @return the values from the complex features as a list
      */
     private Collection<Object> evaluate(Collection<Feature> rootList, int nextIndex,
-            FeatureTypeMapping mappings) {
+            FeatureTypeMapping mappings, String[] xPathSteps) {
         Collection<Object> valueList = new ArrayList<Object>();
 
         if (nextIndex >= expressions.size()) {
@@ -155,22 +160,13 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
             }
             if (nextIndex < expressions.size() - 1) {
                 // if this is not the last, get the next feature type in the chain
-                List<AttributeMapping> attMappings = mappings
-                        .getAttributeMappingsByExpression(expression);
+                AttributeMapping mapping = mappings.getAttributeMapping(XPath.steps(mappings
+                        .getTargetFeature(), xPathSteps[nextIndex - 1], mappings.getNamespaces()));
 
-                if (attMappings.isEmpty()) {
+                if (mapping == null) {
                     throw new UnsupportedOperationException("Mapping not found for: '"
-                            + expression.toString() + "'");
+                            + xPathSteps[nextIndex - 1].toString() + "'");
                 }
-
-                if (attMappings.size() > 1) {
-                    // feature chaining only supports exact XPath with index so this shouldn't
-                    // happen
-                    throw new UnsupportedOperationException("Filtering attributes that map "
-                            + "to more than one source expressions is not supported yet");
-                }
-
-                AttributeMapping mapping = (AttributeMapping) attMappings.get(0);
                 assert mapping instanceof NestedAttributeMapping;
 
                 FeatureTypeMapping fMapping = null;
@@ -179,7 +175,8 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
 
                     // get the features by feature id values
                     for (Object val : attributeValues) {
-                        featureList.addAll(((NestedAttributeMapping) mapping).getInputFeatures(val));
+                        featureList
+                                .addAll(((NestedAttributeMapping) mapping).getInputFeatures(val));
                     }
 
                     // get the next attribute if there is any
@@ -201,7 +198,7 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
 
                         nextIndex++;
                         // then get the value of the next attribute
-                        valueList.addAll(evaluate(featureList, nextIndex, fMapping));
+                        valueList.addAll(evaluate(featureList, nextIndex, fMapping, xPathSteps));
                     }
                 } catch (IOException e) {
                     throw new UnsupportedOperationException(

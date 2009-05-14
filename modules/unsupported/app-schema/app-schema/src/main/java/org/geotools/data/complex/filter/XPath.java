@@ -447,26 +447,28 @@ public class XPath {
     }
 
     /**
-     * Sets the value of the attribute of <code>att</code> addressed by <code>xpath</code> and
-     * of type <code>targetNodeType</code> to be <code>value</code> with id <code>id</code>.
+     * Sets the value of the attribute of <code>att</code> addressed by <code>xpath</code> and of
+     * type <code>targetNodeType</code> to be <code>value</code> with id <code>id</code>.
      * 
      * @param att
-     *                the root attribute for which to set the child attribute value
+     *            the root attribute for which to set the child attribute value
      * @param xpath
-     *                the xpath expression that addresses the <code>att</code> child whose value
-     *                is to be set
+     *            the xpath expression that addresses the <code>att</code> child whose value is to
+     *            be set
      * @param value
-     *                the value of the attribute addressed by <code>xpath</code>
+     *            the value of the attribute addressed by <code>xpath</code>
      * @param id
      *            the identifier of the attribute addressed by <code>xpath</code>, might be
      *            <code>null</code>
      * @param targetNodeType
      *            the expected type of the attribute addressed by <code>xpath</code>, or
      *            <code>null</code> if unknown
+     * @param isXlinkRef
+     *            true if the attribute would only contain xlink:href client property
      * @return
      */
     public Attribute set(final Attribute att, final StepList xpath, Object value, String id,
-            AttributeType targetNodeType) {
+            AttributeType targetNodeType, boolean isXlinkRef) {
         if (XPath.LOGGER.isLoggable(Level.CONFIG)) {
             XPath.LOGGER.entering("XPath", "set", new Object[] { att, xpath, value, id,
                     targetNodeType });
@@ -572,13 +574,14 @@ public class XPath {
                 }
                 int index = currStep.getIndex();
                 Attribute attribute = setValue(currStepDescriptor, id, value, index, parent,
-                        targetNodeType);
+                        targetNodeType, isXlinkRef);
                 return attribute;
             } else {
                 // parent = appendComplexProperty(parent, currStep,
                 // currStepDescriptor);
                 int index = currStep.getIndex();
-                Attribute _parent = setValue(currStepDescriptor, null, null, index, parent, null);
+                Attribute _parent = setValue(currStepDescriptor, null, null, index, parent, null,
+                        isXlinkRef);
                 parent = (ComplexAttribute) _parent;
             }
         }
@@ -587,29 +590,34 @@ public class XPath {
 
     private Attribute setValue(final AttributeDescriptor descriptor, final String id,
             final Object value, final int index, final ComplexAttribute parent,
-            final AttributeType targetNodeType) {
+            final AttributeType targetNodeType, boolean isXlinkRef) {
         // adapt value to context
         Object convertedValue = convertValue(descriptor, value);
         Attribute leafAttribute = null;
         final Name attributeName = descriptor.getName();
         Object currStepValue = parent.getProperties(attributeName);
-        if (currStepValue instanceof Collection) {
-            List <Attribute> values = new ArrayList((Collection) currStepValue);
-            if (convertedValue == null && values.size() >= index) {
-                leafAttribute = (Attribute) values.get(index - 1);
-            }
-            for (Attribute stepValue : values) {
-                // eliminate duplicates in case the values come from denormalized view..
-                if (stepValue.getValue().equals(convertedValue)) {
-                    return stepValue;
+        if (!isXlinkRef) {
+            // skip this process if the attribute would only contain xlink:ref
+            // that is chained, because it won't contain any values, and we
+            // want to create a new empty leaf attribute
+            if (currStepValue instanceof Collection) {
+                List<Attribute> values = new ArrayList((Collection) currStepValue);
+                if (convertedValue == null && values.size() >= index) {
+                    leafAttribute = (Attribute) values.get(index - 1);
                 }
+                for (Attribute stepValue : values) {
+                    // eliminate duplicates in case the values come from denormalized view..
+                    if (stepValue.getValue().equals(convertedValue)) {
+                        return stepValue;
+                    }
+                }
+            } else if (currStepValue instanceof Attribute) {
+                leafAttribute = (Attribute) currStepValue;
+            } else if (currStepValue != null) {
+                throw new IllegalStateException("Unknown addressed object. Xpath:" + attributeName
+                        + ", addressed: " + currStepValue.getClass().getName() + " ["
+                        + currStepValue.toString() + "]");
             }
-        } else if (currStepValue instanceof Attribute) {
-            leafAttribute = (Attribute) currStepValue;
-        } else if (currStepValue != null) {
-            throw new IllegalStateException("Unknown addressed object. Xpath:" + attributeName
-                    + ", addressed: " + currStepValue.getClass().getName() + " ["
-                    + currStepValue.toString() + "]");
         }
         if (leafAttribute == null) {
             AttributeBuilder builder = new AttributeBuilder(featureFactory);

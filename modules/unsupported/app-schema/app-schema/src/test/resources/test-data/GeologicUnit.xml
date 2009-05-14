@@ -145,6 +145,22 @@
 					</sourceExpression>
 					<isMultiple>true</isMultiple>
 				</AttributeMapping>
+				<!-- Test multi-valued properties by reference -->
+				<AttributeMapping>
+				    <targetAttribute>
+			            gsml:occurence
+		            </targetAttribute>		
+		            <sourceExpression>
+						<OCQL>strTrim(getId())</OCQL>
+						<linkElement>gsml:MappedFeature</linkElement>
+						<linkField>gsml:specification</linkField>
+					</sourceExpression>					              
+		            <isMultiple>true</isMultiple>			            				
+		            <ClientProperty>
+		                <name>xlink:href</name>
+		                <value>strConcat('urn:cgi:feature:MappedFeature:', getId())</value>
+		            </ClientProperty>     	
+				</AttributeMapping>
 			</attributeMappings>
 		</FeatureTypeMapping>
 	</typeMappings>
