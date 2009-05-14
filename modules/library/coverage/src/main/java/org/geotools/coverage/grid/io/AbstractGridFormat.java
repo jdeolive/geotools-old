@@ -198,8 +198,7 @@ public abstract class AbstractGridFormat implements Format {
 	 *            The source object to parse.
 	 * @return A reader for this {@link Format} or null.
 	 */
-	@SuppressWarnings("deprecation")
-        abstract public GridCoverageReader getReader(Object source);
+	abstract public GridCoverageReader getReader(Object source);
 
 	/**
 	 * 
@@ -218,8 +217,7 @@ public abstract class AbstractGridFormat implements Format {
 	 *            reader.
 	 * @return A reader for this {@link Format} or null.
 	 */
-	@SuppressWarnings("deprecation")
-        abstract public GridCoverageReader getReader(Object source, Hints hints);
+	abstract public GridCoverageReader getReader(Object source, Hints hints);
 
 	/**
 	 * Retrieves a {@link GridCoverageWriter} suitable for writing to the
