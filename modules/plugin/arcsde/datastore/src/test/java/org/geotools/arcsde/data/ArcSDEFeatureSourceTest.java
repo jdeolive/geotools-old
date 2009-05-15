@@ -28,7 +28,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.pool.SessionPool;
@@ -44,6 +49,7 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -64,6 +70,7 @@ import org.opengis.filter.spatial.BBOX;
 
 import com.esri.sde.sdk.client.SeException;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.util.Stopwatch;
 
 /**
  * {@link ArcSdeFeatureSource} test cases
@@ -743,4 +750,126 @@ public class ArcSDEFeatureSourceTest {
         }
     }
 
+    class Time {
+        long getTypeNames, getCount, getBounds, getFeatures, iterate;
+
+        public void add(Time o) {
+            getTypeNames += o.getTypeNames;
+            getCount += o.getCount;
+            getBounds += o.getBounds;
+            getFeatures += o.getFeatures;
+            iterate += o.iterate;
+        }
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder("Time[");
+            sb.append("\n\tgetTypeNames=").append(getTypeNames).append("\ngetCount=\t").append(
+                    getCount).append("\ngetBounds\t").append(getBounds).append("\ngetFeatures=\t")
+                    .append(getFeatures).append("\niterate=\t").append(iterate).append("\n]");
+            return sb.toString();
+        }
+
+        public long getTotal() {
+            return getBounds + getCount + getFeatures + iterate;
+        }
+    }
+
+    int count;
+
+    /**
+     * NOTE: run it with pool.minConnections == pool.maxConnections to avoid the penalization of
+     * creating the connections to reach maxConnections while the test runs
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testConcurrencyPerformance() throws Exception {
+        final String table = testData.getTempTableName();
+
+        class TestCommand implements Callable<Time> {
+
+            public Time call() throws Exception {
+                int mine = ++count;
+                System.out.println("Starting execution " + count);
+                Stopwatch sw = new Stopwatch();
+                Time result = new Time();
+
+                store.getTypeNames();
+
+                FeatureSource<SimpleFeatureType, SimpleFeature> source;
+                source = store.getFeatureSource(table);
+
+                sw.start();
+                int fCount = source.getCount(Query.ALL);
+                sw.stop();
+                result.getCount = sw.getTime();
+                sw.reset();
+
+                sw.start();
+                ReferencedEnvelope bounds = source.getBounds();
+                sw.stop();
+                result.getBounds = sw.getTime();
+                sw.reset();
+
+                FeatureCollection<SimpleFeatureType, SimpleFeature> fcol;
+
+                sw.start();
+                fcol = source.getFeatures();
+                FeatureIterator<SimpleFeature> features = fcol.features();
+                sw.stop();
+                result.getFeatures = sw.getTime();
+                sw.reset();
+
+                sw.start();
+                while (features.hasNext()) {
+                    features.next();
+                }
+                sw.stop();
+                result.iterate = sw.getTime();
+                sw.reset();
+                features.close();
+
+                System.out.println("Finishing execution " + mine);
+                return result;
+            }
+        }
+
+        final int nThreads = 15;
+        final int nExecutions = 30;
+
+        // ignore initialization time
+        new TestCommand().call();
+
+        ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+
+        List<FutureTask<Time>> tasks = new ArrayList<FutureTask<Time>>(nExecutions);
+
+        for (int i = 0; i < nExecutions; i++) {
+            TestCommand command = new TestCommand();
+            FutureTask<Time> task = new FutureTask<Time>(command);
+            executor.execute(task);
+            tasks.add(task);
+        }
+
+        Time totalTime = new Time();
+        List<Time> results;
+        while (true) {
+            for (ListIterator<FutureTask<Time>> it = tasks.listIterator(); it.hasNext();) {
+                FutureTask<Time> next = it.next();
+                if (next.isDone()) {
+                    it.remove();
+                    Time taskTime = next.get();
+                    totalTime.add(taskTime);
+                }
+            }
+            if (tasks.size() == 0) {
+                break;
+            }
+            Thread.currentThread().sleep(1000);
+        }
+
+        System.out.println("\n\n" + nExecutions + " executions on " + nThreads + " threads "
+                + "\nexecuted in " + totalTime.getTotal() + "ms. " + totalTime + "\n avg: "
+                + (totalTime.getTotal() / nExecutions));
+    }
 }
