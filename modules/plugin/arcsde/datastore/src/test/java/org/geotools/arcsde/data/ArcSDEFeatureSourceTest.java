@@ -794,7 +794,11 @@ public class ArcSDEFeatureSourceTest {
                 Stopwatch sw = new Stopwatch();
                 Time result = new Time();
 
+                sw.start();
                 store.getTypeNames();
+                sw.stop();
+                result.getTypeNames = sw.getTime();
+                sw.reset();
 
                 FeatureSource<SimpleFeatureType, SimpleFeature> source;
                 source = store.getFeatureSource(table);
@@ -834,7 +838,7 @@ public class ArcSDEFeatureSourceTest {
             }
         }
 
-        final int nThreads = 15;
+        final int nThreads = 10;
         final int nExecutions = 30;
 
         // ignore initialization time
