@@ -770,7 +770,7 @@ public class ArcSDEFeatureSourceTest {
         }
 
         public long getTotal() {
-            return getBounds + getCount + getFeatures + iterate;
+            return getTypeNames + getBounds + getCount + getFeatures + iterate;
         }
     }
 
@@ -838,7 +838,7 @@ public class ArcSDEFeatureSourceTest {
             }
         }
 
-        final int nThreads = 10;
+        final int nThreads = 1;
         final int nExecutions = 30;
 
         // ignore initialization time
