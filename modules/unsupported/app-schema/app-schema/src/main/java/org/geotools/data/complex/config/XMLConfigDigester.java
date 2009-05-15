@@ -19,6 +19,7 @@ package org.geotools.data.complex.config;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @author Rini Angreani, Curtin University of Technology
+ * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
  * @version $Id$
  * @source $URL$
  * @since 2.4
@@ -89,12 +91,24 @@ public class XMLConfigDigester {
             throw new NullPointerException("datastore config url");
         }
 
-        InputStream configStream = dataStoreConfigUrl.openStream();
-
-        if (configStream == null) {
-            throw new IOException("Can't open datastore config file " + dataStoreConfigUrl);
+        // read mapping file into configString and interpolate properties
+        InputStream configStream = null;
+        String configString = null;
+        try {
+            configStream = dataStoreConfigUrl.openStream();
+            if (configStream == null) {
+                throw new IOException("Can't open datastore config file " + dataStoreConfigUrl);
+            } else {
+               configString = PropertyInterpolationUtils.interpolate(PropertyInterpolationUtils
+                        .loadProperties(AppSchemaDataAccessFactory.DBTYPE_STRING),
+                        PropertyInterpolationUtils.readAll(configStream));
+            }
+        } finally {
+            if (configStream != null) {
+                configStream.close();
+            }
         }
-
+        
         XMLConfigDigester.LOGGER.fine("parsing complex datastore config: "
                 + dataStoreConfigUrl.toExternalForm());
 
@@ -129,7 +143,7 @@ public class XMLConfigDigester {
         }
 
         try {
-            digester.parse(configStream);
+            digester.parse(new StringReader(configString));
         } catch (SAXException e) {
             e.printStackTrace();
             XMLConfigDigester.LOGGER.log(Level.SEVERE, "parsing " + dataStoreConfigUrl, e);
@@ -263,4 +277,5 @@ public class XMLConfigDigester {
         digester.addCallParam(ns + "/Namespace/uri", 1);
         digester.addSetNext(ns, "setNamespaces");
     }
+    
 }
