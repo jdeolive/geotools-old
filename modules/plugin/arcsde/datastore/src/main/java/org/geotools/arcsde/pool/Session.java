@@ -19,7 +19,6 @@ package org.geotools.arcsde.pool;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -77,18 +76,18 @@ class Session implements ISession {
             .getLogger("org.geotools.arcsde.pool");
 
     /** Actual SeConnection being protected */
-    SeConnection connection;
+    private final SeConnection connection;
 
     /**
      * ObjectPool used to manage open connections (shared).
      */
-    private ObjectPool pool;
+    private final ObjectPool pool;
 
-    private ArcSDEConnectionConfig config;
+    private final ArcSDEConnectionConfig config;
 
     private static int sessionCounter;
 
-    private int sessionId;
+    private final int sessionId;
 
     private boolean transactionInProgress;
 
@@ -329,7 +328,13 @@ class Session implements ISession {
                 if (!cachedLayers.containsKey(layerName)) {
                     synchronized (Session.this) {
                         if (!cachedLayers.containsKey(layerName)) {
-                            cacheLayers();
+                            SeTable table = getTable(layerName);
+                            String shapeColumn = getShapeColumn(table);
+                            if (shapeColumn == null) {
+                                return null;
+                            }
+                            SeLayer layer = new SeLayer(connection, layerName, shapeColumn);
+                            cachedLayers.put(layerName, layer);
                         }
                     }
                 }
@@ -340,6 +345,19 @@ class Session implements ISession {
                 return seLayer;
             }
         });
+    }
+
+    private String getShapeColumn(SeTable table) throws ArcSdeException {
+        try {
+            for (SeColumnDefinition aDef : table.describe()) {
+                if (aDef.getType() == SeColumnDefinition.TYPE_SHAPE) {
+                    return aDef.getName();
+                }
+            }
+        } catch (SeException e) {
+            throw new ArcSdeException("Exception describing table " + table.getName(), e);
+        }
+        return null;
     }
 
     /**
@@ -373,7 +391,14 @@ class Session implements ISession {
                 if (!cachedTables.containsKey(tableName)) {
                     synchronized (Session.this) {
                         if (!cachedTables.containsKey(tableName)) {
-                            cacheLayers();
+                            SeTable table = new SeTable(connection, tableName);
+                            try {
+                                table.describe();
+                            } catch (SeException e) {
+                                throw new NoSuchElementException("Table '" + tableName
+                                        + "' not found");
+                            }
+                            cachedTables.put(tableName, table);
                         }
                     }
                 }
@@ -384,32 +409,6 @@ class Session implements ISession {
                 return seTable;
             }
         });
-    }
-
-    /**
-     * Caches both tables and layers
-     * 
-     * @throws SeException
-     */
-    @SuppressWarnings("unchecked")
-    private void cacheLayers() throws IOException {
-        try {
-            Vector/* <SeLayer> */layers = connection.getLayers();
-            String qualifiedName;
-            SeLayer layer;
-            SeTable table;
-            cachedTables.clear();
-            cachedLayers.clear();
-            for (Iterator it = layers.iterator(); it.hasNext();) {
-                layer = (SeLayer) it.next();
-                qualifiedName = layer.getQualifiedName();
-                table = new SeTable(connection, qualifiedName);
-                cachedLayers.put(qualifiedName, layer);
-                cachedTables.put(qualifiedName, table);
-            }
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -748,10 +747,10 @@ class Session implements ISession {
      * @see ISession#fetch(com.esri.sde.sdk.client.SeQuery)
      */
     public SdeRow fetch(final SeQuery query) throws IOException {
-        return fetch(query, new SdeRow((GeometryFactory)null));
+        return fetch(query, new SdeRow((GeometryFactory) null));
     }
 
-    public SdeRow fetch(final SeQuery query, final SdeRow currentRow) throws IOException{
+    public SdeRow fetch(final SeQuery query, final SdeRow currentRow) throws IOException {
         return issue(new Command<SdeRow>() {
             @Override
             public SdeRow execute(final ISession session, final SeConnection connection)
@@ -759,14 +758,14 @@ class Session implements ISession {
                 SeRow row = query.fetch();
                 if (row == null) {
                     return null;
-                }else{
+                } else {
                     currentRow.setRow(row);
                 }
                 return currentRow;
             }
         });
     }
-    
+
     /**
      * @see ISession#close(com.esri.sde.sdk.client.SeState)
      */

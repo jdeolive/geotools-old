@@ -277,6 +277,7 @@ public class SessionPool {
             // caller = stackTrace[3].getClassName() + "." +
             // stackTrace[3].getMethodName();
             // }
+            
             Session connection = (Session) this.pool.borrowObject();
 
             if (LOGGER.isLoggable(Level.FINER)) {
@@ -316,7 +317,7 @@ public class SessionPool {
 
         final List<String> layerNames;
         try {
-            session = getSession();
+            session = getSession(Transaction.AUTO_COMMIT);
         } catch (UnavailableArcSDEConnectionException ex) {
             throw new DataSourceException("No free connection found to query the layers list", ex);
         }

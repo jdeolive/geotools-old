@@ -114,8 +114,7 @@ public interface ISession {
      * Return to the pool (may not close the internal connection, depends on pool settings).
      * 
      * @throws IllegalStateException
-     *             if close() is called while a transaction is in progress
-     * @see #destroy()
+     *             if dispose() is called while a transaction is in progress
      */
     public abstract void dispose() throws IllegalStateException;
 
