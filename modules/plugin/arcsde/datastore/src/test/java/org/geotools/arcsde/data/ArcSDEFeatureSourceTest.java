@@ -75,7 +75,7 @@ import com.vividsolutions.jts.util.Stopwatch;
 /**
  * {@link ArcSdeFeatureSource} test cases
  * 
- * @author Gabriel Roldan, Axios Engineering
+ * @author Gabriel Roldan
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/test/java
  *         /org/geotools/arcsde/data/ArcSDEDataStoreTest.java $
@@ -90,7 +90,7 @@ public class ArcSDEFeatureSourceTest {
     private static TestData testData;
 
     /** an ArcSDEDataStore created on setUp() to run tests against */
-    private DataStore store;
+    private static DataStore store;
 
     /** a filter factory for testing */
     FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
@@ -101,6 +101,7 @@ public class ArcSDEFeatureSourceTest {
         testData.setUp();
         final boolean insertTestData = true;
         testData.createTempTable(insertTestData);
+        store = testData.getDataStore();
     }
 
     @AfterClass
@@ -108,29 +109,9 @@ public class ArcSDEFeatureSourceTest {
         boolean cleanTestTable = false;
         boolean cleanPool = true;
         testData.tearDown(cleanTestTable, cleanPool);
+        store.dispose();
     }
 
-    /**
-     * loads {@code testData/testparams.properties} into a Properties object, wich is used to obtain
-     * test tables names and is used as parameter to find the DataStore
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
-     */
-    @Before
-    public void setUp() throws Exception {
-        // facilitates running a single test at a time (eclipse lets you do this
-        // and it's very useful)
-        if (testData == null) {
-            oneTimeSetUp();
-        }
-        this.store = testData.getDataStore();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        this.store = null;
-    }
 
     /**
      * This method tests the feature reader by opening various simultaneous FeatureReaders using the
@@ -838,7 +819,7 @@ public class ArcSDEFeatureSourceTest {
             }
         }
 
-        final int nThreads = 1;
+        final int nThreads = 20;
         final int nExecutions = 30;
 
         // ignore initialization time
