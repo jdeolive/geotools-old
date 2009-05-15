@@ -890,7 +890,7 @@ public class TestData {
         try {
             testData.setUp();
             // testData.createSimpleTestTables();
-            testData.createSampleLayers(2000);
+            testData.createSampleLayers(1500, 1);
             // testData.deleteSampleLayers(5000);
             System.err.println("test tables successfully created");
         } catch (Exception e) {
@@ -933,7 +933,7 @@ public class TestData {
      * This private method is used to create a lot of layers in the test database in order to fix
      * GEOT-1956
      */
-    private void createSampleLayers(final int numLayersToCreate) throws IOException {
+    private void createSampleLayers(final int numLayersToCreate, final int startFrom) throws IOException {
         final SessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
 
@@ -960,7 +960,7 @@ public class TestData {
             rowIdColName = "ROW_ID";
             shapeTypeMask = SeLayer.SE_POINT_TYPE_MASK;
             for (int count = 1; count <= numLayersToCreate; count++) {
-                tableName = "GT_MULTIPLE_LAYER_" + formatter.format(count);
+                tableName = "GT_MULTIPLE_LAYER_" + formatter.format(count + startFrom - 1);
                 System.err.println("Creating " + tableName);
 
                 Integer registrationType = registrationTypes.removeFirst();
@@ -969,6 +969,12 @@ public class TestData {
 
                 createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType,
                         shapeTypeMask);
+                try {
+                    Thread.currentThread().sleep(1500);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         } finally {
             session.dispose();
