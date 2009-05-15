@@ -20,6 +20,7 @@ package org.geotools.arcsde.data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -91,29 +92,16 @@ public class ArcSDEDataStore implements DataStore {
 
     final SessionPool connectionPool;
 
-    /**
-     * ArcSDE registered layers definitions
-     */
-    private final Map<String, FeatureTypeInfo> featureTypeInfos;
-
-    /**
-     * In process view definitions. This map is populated through
-     * {@link #registerView(String, PlainSelect)}
-     */
-    private final Map<String, FeatureTypeInfo> inProcessFeatureTypeInfos;
-
-    /**
-     * Namespace URI to construct FeatureTypes and AttributeTypes with
-     */
-    private String namespace;
+    final FeatureTypeInfoCache typeInfoCache;
 
     /**
      * Creates a new ArcSDE DataStore working over the given connection pool
      * 
      * @param connPool
      *            pool of {@link Session} this datastore works upon.
+     * @throws IOException
      */
-    public ArcSDEDataStore(final SessionPool connPool) {
+    public ArcSDEDataStore(final SessionPool connPool) throws IOException {
         this(connPool, null);
     }
 
@@ -125,12 +113,12 @@ public class ArcSDEDataStore implements DataStore {
      * @param namespaceUri
      *            namespace URI for the {@link SimpleFeatureType}s, {@link AttributeType}s, and
      *            {@link AttributeDescriptor}s created by this datastore. May be <code>null</code>.
+     * @throws IOException
      */
-    public ArcSDEDataStore(final SessionPool connPool, final String namespaceUri) {
+    public ArcSDEDataStore(final SessionPool connPool, final String namespaceUri)
+            throws IOException {
         this.connectionPool = connPool;
-        this.namespace = namespaceUri;
-        this.featureTypeInfos = new HashMap<String, FeatureTypeInfo>();
-        this.inProcessFeatureTypeInfos = new HashMap<String, FeatureTypeInfo>();
+        this.typeInfoCache = new FeatureTypeInfoCache(connectionPool, namespaceUri, 0);
     }
 
     public ISession getSession(final Transaction transaction) throws IOException {
@@ -170,7 +158,7 @@ public class ArcSDEDataStore implements DataStore {
      */
     public synchronized SimpleFeatureType getSchema(final String typeName)
             throws java.io.IOException {
-        FeatureTypeInfo typeInfo = getFeatureTypeInfo(typeName);
+        FeatureTypeInfo typeInfo = typeInfoCache.getFeatureTypeInfo(typeName);
         SimpleFeatureType schema = typeInfo.getFeatureType();
         return schema;
     }
@@ -186,8 +174,7 @@ public class ArcSDEDataStore implements DataStore {
      *             the backend, or while obtaining the full qualified name of one of them
      */
     public String[] getTypeNames() throws IOException {
-        List<String> layerNames = new ArrayList<String>(connectionPool.getAvailableLayerNames());
-        layerNames.addAll(inProcessFeatureTypeInfos.keySet());
+        List<String> layerNames = typeInfoCache.getTypeNames();
         return layerNames.toArray(new String[layerNames.size()]);
     }
 
@@ -206,6 +193,7 @@ public class ArcSDEDataStore implements DataStore {
      */
     public void dispose() {
         LOGGER.fine("Disposing " + connectionPool);
+        this.typeInfoCache.dispose();
         this.connectionPool.close();
         LOGGER.fine("Session pool disposed");
     }
@@ -282,7 +270,7 @@ public class ArcSDEDataStore implements DataStore {
 
         final String typeName = query.getTypeName();
 
-        final FeatureTypeInfo typeInfo = getFeatureTypeInfo(typeName, session);
+        final FeatureTypeInfo typeInfo = typeInfoCache.getFeatureTypeInfo(typeName, session);
         final SimpleFeatureType completeSchema = typeInfo.getFeatureType();
         final ArcSDEQuery sdeQuery;
 
@@ -338,7 +326,7 @@ public class ArcSDEDataStore implements DataStore {
         final String typeName = query.getTypeName();
         final String propertyNames[] = query.getPropertyNames();
 
-        final FeatureTypeInfo typeInfo = getFeatureTypeInfo(typeName);
+        final FeatureTypeInfo typeInfo = typeInfoCache.getFeatureTypeInfo(typeName);
         final SimpleFeatureType completeSchema = typeInfo.getFeatureType();
         final ArcSDEQuery sdeQuery;
 
@@ -363,7 +351,7 @@ public class ArcSDEDataStore implements DataStore {
      */
     public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(final String typeName)
             throws IOException {
-        final FeatureTypeInfo typeInfo = getFeatureTypeInfo(typeName);
+        final FeatureTypeInfo typeInfo = typeInfoCache.getFeatureTypeInfo(typeName);
         FeatureSource<SimpleFeatureType, SimpleFeature> fsource;
         if (typeInfo.isWritable()) {
             fsource = new ArcSdeFeatureStore(typeInfo, this);
@@ -394,7 +382,7 @@ public class ArcSDEDataStore implements DataStore {
             throws IOException {
         ArcSdeVersionHandler versionHandler = ArcSdeVersionHandler.NONVERSIONED_HANDLER;
         {
-            final FeatureTypeInfo featureTypeInfo = getFeatureTypeInfo(typeName);
+            final FeatureTypeInfo featureTypeInfo = typeInfoCache.getFeatureTypeInfo(typeName);
             final boolean versioned = featureTypeInfo.isVersioned();
 
             ArcTransactionState state = getState(transaction);
@@ -420,7 +408,7 @@ public class ArcSDEDataStore implements DataStore {
         final ISession session = getSession(transaction);
 
         try {
-            final FeatureTypeInfo typeInfo = getFeatureTypeInfo(typeName, session);
+            final FeatureTypeInfo typeInfo = typeInfoCache.getFeatureTypeInfo(typeName, session);
             if (!typeInfo.isWritable()) {
                 throw new DataSourceException(typeName + " is not writable");
             }
@@ -531,12 +519,7 @@ public class ArcSDEDataStore implements DataStore {
      * @see DataAccess#getNames()
      */
     public List<Name> getNames() throws IOException {
-        String[] typeNames = getTypeNames();
-        List<Name> names = new ArrayList<Name>(typeNames.length);
-        for (String typeName : typeNames) {
-            names.add(new NameImpl(typeName));
-        }
-        return names;
+        return typeInfoCache.getNames();
     }
 
     /**
@@ -614,81 +597,6 @@ public class ArcSDEDataStore implements DataStore {
     }
 
     /**
-     * Connection pool as provided during construction.
-     * 
-     * @return Connection Pool (as provided during construction)
-     * @deprecated use {@link #getSession(Transaction)}
-     */
-    // SessionPool getConnectionPool() {
-    // return this.connectionPool;
-    // }
-    /**
-     * Check inProcessFeatureTypeInfos and featureTypeInfos for the provided typeName, checking the
-     * ArcSDE server as a last resort.
-     * 
-     * @param typeName
-     * @return FeatureTypeInfo
-     * @throws java.io.IOException
-     */
-    FeatureTypeInfo getFeatureTypeInfo(final String typeName) throws java.io.IOException {
-        assert typeName != null;
-
-        // Check if we have a view
-        FeatureTypeInfo typeInfo = inProcessFeatureTypeInfos.get(typeName);
-        if (typeInfo != null) {
-            return typeInfo;
-        }
-        // Check if this is a known featureType
-        typeInfo = featureTypeInfos.get(typeName);
-        if (typeInfo != null) {
-            return typeInfo;
-        }
-
-        synchronized (featureTypeInfos) {
-            typeInfo = featureTypeInfos.get(typeName);
-            if (typeInfo == null) {
-                // typeInfo = ArcSDEAdapter.fetchSchema(typeName, this.namespace, connectionPool);
-                ISession session = getSession(Transaction.AUTO_COMMIT);
-                try {
-                    typeInfo = ArcSDEAdapter.fetchSchema(typeName, this.namespace, session);
-                } finally {
-                    session.dispose();
-                }
-                featureTypeInfos.put(typeName, typeInfo);
-            }
-        }
-        return typeInfo;
-    }
-
-    /**
-     * Used by feature reader and writer to get the schema information.
-     * <p>
-     * They are making use of this function because they already have their own Session to request
-     * the ftInfo if needed.
-     * </p>
-     * 
-     * @param typeName
-     * @param session
-     * @return
-     * @throws IOException
-     */
-    synchronized FeatureTypeInfo getFeatureTypeInfo(final String typeName, ISession session)
-            throws IOException {
-
-        FeatureTypeInfo ftInfo = inProcessFeatureTypeInfos.get(typeName);
-        if (ftInfo == null) {
-            synchronized (featureTypeInfos) {
-                ftInfo = featureTypeInfos.get(typeName);
-                if (ftInfo == null) {
-                    ftInfo = ArcSDEAdapter.fetchSchema(typeName, this.namespace, session);
-                    featureTypeInfos.put(typeName, ftInfo);
-                }
-            }
-        }
-        return ftInfo;
-    }
-
-    /**
      * Creates a given FeatureType on the ArcSDE instance this DataStore is running over.
      * <p>
      * This deviation from the {@link DataStore#createSchema(SimpleFeatureType)} API is to allow the
@@ -760,9 +668,9 @@ public class ArcSDEDataStore implements DataStore {
                 throw new ArcSdeException("Error Parsing select: " + qualifiedSelect, e);
             }
             FeatureTypeInfo typeInfo = ArcSDEAdapter.createInprocessViewSchema(session, typeName,
-                    namespace, qualifiedSelect, queryInfo);
+                    typeInfoCache.getNamesapceURI(), qualifiedSelect, queryInfo);
 
-            inProcessFeatureTypeInfos.put(typeName, typeInfo);
+            typeInfoCache.addInprocessViewInfo(typeInfo);
         } finally {
             session.dispose();
         }
