@@ -426,7 +426,7 @@ public class ArcSDEAdapter {
                 int seShapeType = sdeLayer.getShapeTypes();
                 typeClass = getGeometryTypeFromLayerMask(seShapeType);
                 isNilable = (seShapeType & SeLayer.SE_NIL_TYPE_MASK) == SeLayer.SE_NIL_TYPE_MASK;
-                defValue = ArcSDEGeometryBuilder.defaultValueFor(typeClass);
+                defValue = isNilable? null : ArcSDEGeometryBuilder.defaultValueFor(typeClass);
             } else {
                 typeClass = getJavaBinding(sdeType);
                 if (typeClass == null) {
