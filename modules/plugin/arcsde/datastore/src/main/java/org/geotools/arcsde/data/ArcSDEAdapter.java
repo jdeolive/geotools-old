@@ -445,10 +445,11 @@ public class ArcSDEAdapter {
                 // attributes
             }
             AttributeTypeBuilder b = new AttributeTypeBuilder();
+            //call setDefaultValue before setBinding
+            b.setDefaultValue(defValue);
             b.setBinding(typeClass);
             b.setName(attName);
             b.setNillable(isNilable);
-            b.setDefaultValue(defValue);
             if (fieldLen > 0) {
                 b.setLength(fieldLen);
             }

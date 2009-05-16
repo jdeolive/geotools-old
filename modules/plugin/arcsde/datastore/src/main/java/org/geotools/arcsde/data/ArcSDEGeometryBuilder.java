@@ -433,6 +433,9 @@ public abstract class ArcSDEGeometryBuilder {
      * @version $Id$
      */
     private static class GenericGeometryBuilder extends ArcSDEGeometryBuilder {
+        
+        private static Geometry EMPTY;
+        
         /** singleton for generic geometry building */
         private static final ArcSDEGeometryBuilder instance = new GenericGeometryBuilder();
 
@@ -453,7 +456,10 @@ public abstract class ArcSDEGeometryBuilder {
          */
         @Override
         protected Geometry getEmpty() {
-            return new PointBuilder().getEmpty();
+            if (EMPTY == null) {
+                EMPTY = new GeometryFactory().createGeometryCollection(new Geometry[] {});
+            }
+            return EMPTY;
         }
 
         /**
