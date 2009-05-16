@@ -16,37 +16,42 @@
  */
 package org.geotools.data;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.Name;
 
 
 /**
- * Provides a Repository of available FeatureTypes allowing Catalog metadata queries.
- *
+ * An adapter interface allowing a hosting application
+ * to advertise DataStore instances to GeoTools.
  * <p>
- * Currently GeoServer is providing requirements:
+ * GeoTools includes a really simple RepositoryImpl which you can use to
+ * manage DataStore in your own application; or if you have your own advanced
+ * "catalog" you can make your own implementation.
  * </p>
  *
- * <ul>
- * <li>
- * Manage cross DataStore concepts (like Locks)
- * </li>
- * <li>
- * Provide metadata information on FeatureType
- * </li>
  * </ul>
  * @source $URL$
  */
 public interface Repository {
     /**
+     * Search for the DataAccess (may be a DataStore) by name.
+     * 
+     * @param name The Name (namespace and name) to search for
+     * @return DataAccess
+     */
+    DataAccess<?,?> access( Name name );
+    
+    /**
+     * Search for the DataStore by name.
+     * 
+     * @param Name The typeName (namespace and name) to search for
+     * @return DataAccess api providing access to the indicatedTypeName (or null if not found)
+     */
+    DataStore dataStore( Name name );
+        
+    /**
      * All FeatureSources by typeRef ( aka dataStoreId:typeName)
      */
-    public SortedMap<String,FeatureSource<?,?>> getFeatureSources();
+    //public SortedMap<String,FeatureSource<?,?>> getFeatureSources();
 
     /**
      * Retrieve Set of Namespaces prefixes registered by DataStores in this
@@ -82,7 +87,7 @@ public interface Repository {
      *
      * @return Set of available Namespace prefixes.
      */
-    Set<String> getPrefixes() throws IOException;
+    //Set<String> getPrefixes() throws IOException;
 
     /**
      * The default Namespace prefix for this Catalog.
@@ -97,8 +102,7 @@ public interface Repository {
      * @param dataStoreId
      * @param typeName
      */
-    FeatureSource<?,?> source(String dataStoreId, String typeName)
-        throws IOException;
+    // FeatureSource<?,?> source(String dataStoreId, String typeName) throws IOException;
 
     /**
      * Registers all FeatureTypes provided by dataStore with this catalog
@@ -134,58 +138,6 @@ public interface Repository {
      *
      * @return Map of registered dataStoreId:DataStore
      */
-    Map<String,DataStore> getDataStores();
+    // Map<String,DataStore> getDataStores();
 
-    //
-    // Lock Management
-    //
-
-    /**
-     * Refresh feature lock as indicated by the WFS locking specification.
-     *
-     * <p>
-     * Refresh the indicated locks for each each DataStore managed by this
-     * Catalog.
-     * </p>
-     *
-     * @param lockID Authorization identifing lock
-     * @param transaction Transaction with authorization for lock
-     *
-     * @return true if lock was found and refreshed
-     *
-     * @throws IOException If a problem occurs
-     */
-    boolean lockRefresh(String lockID, Transaction transaction)
-        throws IOException;
-
-    /**
-     * Release feature lock by lockID.
-     * <p>
-     * Release the indicated locks for each each DataStore managed by this
-     * Catalog.
-     * </p>
-     *
-     * @param lockID Authorization identifing lock
-     * @param transaction Transaction with authorization for lock
-     *
-     * @return true if lock was found and released
-     *
-     * @throws IOException If a problem occurs
-     */
-    boolean lockRelease(String lockID, Transaction transaction)
-        throws IOException;
-
-    /**
-     * Tests if a lock exists in this Catalog.
-     *
-     * <p>
-     * This method will search all the DataStores to see if the indicated lock
-     * exists.
-     * </p>
-     *
-     * @param lockID Authorization identifing lock
-     *
-     * @return true if lock was found
-     */
-    boolean lockExists(String lockID);
 }
