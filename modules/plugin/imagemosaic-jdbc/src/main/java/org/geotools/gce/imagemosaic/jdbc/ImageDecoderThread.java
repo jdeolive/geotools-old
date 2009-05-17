@@ -97,10 +97,16 @@ class ImageDecoderThread extends AbstractThread {
 
             BufferedImage bufferedImage = null;
             
-            if (levelInfo.getCanImageIOReadFromInputStream())
+            boolean triedFromStream = false;
+            if (levelInfo.getCanImageIOReadFromInputStream()) {
             	bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
-            else           
+            	triedFromStream=true;
+            }
+            if (bufferedImage ==null) {
+            	if (triedFromStream) 
+            		LOGGER.warning("Could not read "+location+" from stream, switch to JAI");
             	bufferedImage = readImage2(imageBytes);
+            }	
                         
             if (requestEnvelope.contains(tileEnvelope, true) == false) {
                 GeneralEnvelope savedTileEnvelope = new GeneralEnvelope(tileEnvelope);
