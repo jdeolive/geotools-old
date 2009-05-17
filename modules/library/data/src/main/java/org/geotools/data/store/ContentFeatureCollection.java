@@ -138,28 +138,7 @@ public class ContentFeatureCollection implements FeatureCollection<SimpleFeature
 
     public void accepts(org.opengis.feature.FeatureVisitor visitor,
             org.opengis.util.ProgressListener progress) throws IOException {
-        if( progress == null ) progress = new NullProgressListener();
-        
-         FeatureReader<SimpleFeatureType, SimpleFeature> reader = featureSource.getReader(query);
-        try{
-            float size = size();
-            float position = 0;            
-            progress.started();
-            while( reader.hasNext() ){
-                if (size > 0) progress.progress( position++/size );
-                try {
-                    SimpleFeature feature = reader.next();
-                    visitor.visit(feature);
-                }
-                catch( Exception erp ){
-                    progress.exceptionOccurred( erp );
-                }
-            }            
-        }
-        finally {
-            progress.complete();            
-            reader.close();
-        }
+        featureSource.accepts( query, visitor, progress);
     }
     
     
