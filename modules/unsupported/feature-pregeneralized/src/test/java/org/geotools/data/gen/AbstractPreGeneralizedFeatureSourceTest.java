@@ -30,6 +30,7 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.Repository;
 import org.geotools.data.Transaction;
 import org.geotools.data.gen.info.GeneralizationInfos;
 import org.geotools.data.gen.info.GeneralizationInfosProvider;
@@ -76,13 +77,13 @@ public abstract class AbstractPreGeneralizedFeatureSourceTest extends TestCase {
         GeneralizationInfosProvider provider = new GeneralizationInfosProviderImpl();
         GeneralizationInfos ginfos = null;
         ginfos = provider.getGeneralizationInfos(configName);
-        ds = new PreGeneralizedDataStore(ginfos, getLookup());
+        ds = new PreGeneralizedDataStore(ginfos, getRepository());
         DSMap.put(configName, ds);
         return ds;
     }
 
-    protected DataStoreLookup getLookup() {
-        return TestSetup.DSLOOKUP;
+    protected Repository getRepository() {
+        return TestSetup.REPOSITORY;
     }
 
     protected void testGetCount(String configName) {

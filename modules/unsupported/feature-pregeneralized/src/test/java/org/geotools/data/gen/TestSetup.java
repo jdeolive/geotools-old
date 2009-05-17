@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.geotools.TestData;
-import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
+import org.geotools.data.DefaultRepository;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
@@ -56,7 +56,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 public class TestSetup {
 
-    static public DataStoreLookupImpl DSLOOKUP;
+    static public DefaultRepository REPOSITORY;
 
     static public Map<Double, Map<String, Integer>> POINTMAP;
 
@@ -70,7 +70,7 @@ public class TestSetup {
 
             createShapeFilePyramd();
 
-            DSLOOKUP = new DataStoreLookupImpl();
+            REPOSITORY = new DefaultRepository();
             POINTMAP = new HashMap<Double, Map<String, Integer>>();
             POINTMAP.put(0.0, new HashMap<String, Integer>());
             POINTMAP.put(5.0, new HashMap<String, Integer>());
@@ -84,7 +84,7 @@ public class TestSetup {
                     .createDataStore(url);
 
             String typeName = ds.getSchema().getTypeName();
-            DSLOOKUP.register("dsStreams", ds);
+            REPOSITORY.register("dsStreams", ds);
 
             MemoryDataStore dsStreams_5 = createMemStoreVertical(ds.getSchema(), "dsStreams_5",
                     "streams_5");
@@ -145,7 +145,7 @@ public class TestSetup {
                 typ.getDescription());
 
         memDS.createSchema(sft);
-        DSLOOKUP.register(name, memDS);
+        REPOSITORY.register(name, memDS);
         return memDS;
     }
 
@@ -164,7 +164,7 @@ public class TestSetup {
                 typ.getDescription());
 
         memDS.createSchema(sft);
-        DSLOOKUP.register(name, memDS);
+        REPOSITORY.register(name, memDS);
         return memDS;
     }
 
@@ -202,7 +202,7 @@ public class TestSetup {
                 typ.getDescription());
 
         memDS.createSchema(sft);
-        DSLOOKUP.register(name, memDS);
+        REPOSITORY.register(name, memDS);
         return memDS;
     }
 

@@ -32,6 +32,7 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
+import org.geotools.data.Repository;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.gen.info.GeneralizationInfo;
@@ -48,19 +49,18 @@ import org.opengis.filter.Filter;
 /**
  * @author Christian Mueller
  * 
- *         Datastore for multiple feature types with pregeneralized geometries
+ * Datastore for multiple feature types with pregeneralized geometries
  * 
- *         The data store is read only, all modifying methods throw an
- *         {@link UnsupportedOperationException}
+ * The data store is read only, all modifying methods throw an {@link UnsupportedOperationException}
  * 
- *         This data store does business as usual with the following exception:
+ * This data store does business as usual with the following exception:
  * 
- *         If a method has a {@link Query} parameter and {@link Query#getHints()} includes
- *         {@link Hints#GEOMETRY_DISTANCE} with a given distance, the datastore looks for the best
- *         fit pregeneralized geometries and returns these geometries instead of the original ones.
+ * If a method has a {@link Query} parameter and {@link Query#getHints()} includes
+ * {@link Hints#GEOMETRY_DISTANCE} with a given distance, the datastore looks for the best fit
+ * pregeneralized geometries and returns these geometries instead of the original ones.
  * 
- *         This process results in a lower memory usage, lower cpu usage for further processing and
- *         will decrease response time for the user.
+ * This process results in a lower memory usage, lower cpu usage for further processing and will
+ * decrease response time for the user.
  * 
  * 
  */
@@ -76,24 +76,24 @@ public class PreGeneralizedDataStore implements DataStore {
 
     /**
      * @param infos
-     * @param lookup
+     * @param repository
      * 
      */
-    public PreGeneralizedDataStore(GeneralizationInfos infos, DataStoreLookup lookup) {
-        this(infos, lookup, null);
+    public PreGeneralizedDataStore(GeneralizationInfos infos, Repository repository) {
+        this(infos, repository, null);
 
     }
 
     /**
      * @param infos
-     * @param lookup
+     * @param repository
      * @param namespace
      */
-    public PreGeneralizedDataStore(GeneralizationInfos infos, DataStoreLookup lookup, URI namespace) {
+    public PreGeneralizedDataStore(GeneralizationInfos infos, Repository repository, URI namespace) {
         this.namespace = namespace;
         featureSources = new HashMap<String, PreGeneralizedFeatureSource>();
         for (GeneralizationInfo gi : infos.getGeneralizationInfoCollection()) {
-            featureSources.put(gi.getFeatureName(), new PreGeneralizedFeatureSource(gi, lookup,
+            featureSources.put(gi.getFeatureName(), new PreGeneralizedFeatureSource(gi, repository,
                     this));
         }
 

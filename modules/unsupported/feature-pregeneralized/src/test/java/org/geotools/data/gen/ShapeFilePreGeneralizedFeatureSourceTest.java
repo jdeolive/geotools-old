@@ -17,13 +17,15 @@
 
 package org.geotools.data.gen;
 
+import org.geotools.data.Repository;
+
 public class ShapeFilePreGeneralizedFeatureSourceTest extends
         AbstractPreGeneralizedFeatureSourceTest {
 
     static final String ConfigName = "src/test/resources/geninfo_shapefile.xml";
 
-    protected DataStoreLookup getLookup() {
-        return new DataStoreLookupDSFinder();
+    protected Repository getRepository() {
+        return new DSFinderRepository();
     }
 
     public void testGetCount() {

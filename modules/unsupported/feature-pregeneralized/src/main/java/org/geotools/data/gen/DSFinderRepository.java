@@ -29,13 +29,16 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.data.DataAccess;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
+import org.geotools.data.Repository;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.opengis.feature.type.Name;
 
 /**
- * Implementation of {@link DataStoreLookup} This class interprets the data source name as a file
- * name or an URL for a property file containing the ds creation parameters
+ * Implementation of {@link Repository} This class interprets the data source name as a file name or
+ * an URL for a property file containing the ds creation parameters
  * 
  * For shape files ending with .shp or SHP, the shape file could be passed as name
  * 
@@ -43,7 +46,7 @@ import org.geotools.data.shapefile.ShapefileDataStoreFactory;
  * @author Christian Mueller
  * 
  */
-public class DataStoreLookupDSFinder implements DataStoreLookup {
+public class DSFinderRepository implements Repository {
 
     Map<String, DataStore> map = new HashMap<String, DataStore>();
 
@@ -51,27 +54,6 @@ public class DataStoreLookupDSFinder implements DataStoreLookup {
 
     public void clear() {
         map = new HashMap<String, DataStore>();
-    }
-
-    public DataStore getDataStoreFor(String name) {
-
-        return getDataStoreFor(null, name);
-    }
-
-    public DataStore getDataStoreFor(String namespace, String name) {
-        DataStore ds = map.get(name);
-        if (ds != null)
-            return ds;
-
-        try {
-            Map<String, Serializable> params = getMapFromPropetryLocation(name);
-            ds = DataStoreFinder.getDataStore(params);
-        } catch (IOException ex) {
-            log.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-        map.put(name, ds);
-        return ds;
     }
 
     protected URL getURLForLocation(String location) throws IOException {
@@ -116,5 +98,27 @@ public class DataStoreLookupDSFinder implements DataStoreLookup {
 
     public void initialize(Object source) {
         clear();
+    }
+
+    public DataAccess<?, ?> access(Name name) {
+        return dataStore(name);
+    }
+
+    public DataStore dataStore(Name name) {
+        String localName = name.getLocalPart();
+        DataStore ds = map.get(localName);
+        if (ds != null)
+            return ds;
+
+        try {
+            Map<String, Serializable> params = getMapFromPropetryLocation(localName);
+            ds = DataStoreFinder.getDataStore(params);
+        } catch (IOException ex) {
+            log.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+        map.put(localName, ds);
+        return ds;
+
     }
 }

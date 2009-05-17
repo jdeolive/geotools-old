@@ -42,12 +42,12 @@ import org.opengis.geometry.BoundingBox;
 /**
  * @author Christian Mueller
  * 
- *         Decorator Class for Simple Feature objects having pregeneralized geometries
+ * Decorator Class for Simple Feature objects having pregeneralized geometries
  * 
- *         This feature object is read only, modifying calls result in a
- *         {@link UnsupportedOperationException}
+ * This feature object is read only, modifying calls result in a
+ * {@link UnsupportedOperationException}
  * 
- *         The special thing is that a generalized geometry is returned.
+ * The special thing is that a generalized geometry is returned.
  * 
  */
 public class PreGeneralizedSimpleFeature implements SimpleFeature {

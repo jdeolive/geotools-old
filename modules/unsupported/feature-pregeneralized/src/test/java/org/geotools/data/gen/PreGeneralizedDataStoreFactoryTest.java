@@ -24,6 +24,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.geotools.data.DataStoreFinder;
+import org.geotools.data.DefaultRepository;
 import org.junit.Assert;
 
 public class PreGeneralizedDataStoreFactoryTest extends TestCase {
@@ -31,8 +32,8 @@ public class PreGeneralizedDataStoreFactoryTest extends TestCase {
 
         Map<String, Serializable> paramMap = new HashMap<String, Serializable>();
         try {
-            paramMap.put(PreGeneralizedDataStoreFactory.DATA_STORE_LOOKUP_CLASS.key,
-                    "org.geotools.data.gen.DataStoreLookupImpl");
+            paramMap.put(PreGeneralizedDataStoreFactory.REPOSITORY_CLASS.key,
+                    DefaultRepository.class.getName());
             assertNull(DataStoreFinder.getDataStore(paramMap));
 
             paramMap.clear();
@@ -41,8 +42,8 @@ public class PreGeneralizedDataStoreFactoryTest extends TestCase {
             assertNull(DataStoreFinder.getDataStore(paramMap));
 
             paramMap.clear();
-            paramMap.put(PreGeneralizedDataStoreFactory.DATA_STORE_LOOKUP_CLASS.key,
-                    "org.geotools.data.gen.DataStoreLookupImpl");
+            paramMap.put(PreGeneralizedDataStoreFactory.REPOSITORY_CLASS.key,
+                    DefaultRepository.class.getName());
             paramMap.put(PreGeneralizedDataStoreFactory.GENERALIZATION_INFOS_PROVIDER_CLASS.key,
                     "org.geotools.data.gen.info.GeneralizationInfosProviderImpl");
             paramMap.put(PreGeneralizedDataStoreFactory.GENERALIZATION_INFOS_PROVIDER_PARAM.key,
@@ -55,8 +56,8 @@ public class PreGeneralizedDataStoreFactoryTest extends TestCase {
         paramMap.clear();
         boolean error = false;
         try {
-            paramMap.put(PreGeneralizedDataStoreFactory.DATA_STORE_LOOKUP_CLASS.key,
-                    "org.geotools.data.gen.DataStoreLookupImpl");
+            paramMap.put(PreGeneralizedDataStoreFactory.REPOSITORY_CLASS.key,
+                    DefaultRepository.class.getName());
             paramMap.put(PreGeneralizedDataStoreFactory.GENERALIZATION_INFOS_PROVIDER_CLASS.key,
                     "org.geotools.data.gen.info.GeneralizationInfosProviderImpl");
             paramMap.put(PreGeneralizedDataStoreFactory.GENERALIZATION_INFOS_PROVIDER_PARAM.key,
@@ -70,7 +71,7 @@ public class PreGeneralizedDataStoreFactoryTest extends TestCase {
         paramMap.clear();
         error = false;
         try {
-            paramMap.put(PreGeneralizedDataStoreFactory.DATA_STORE_LOOKUP_CLASS.key, "XXX");
+            paramMap.put(PreGeneralizedDataStoreFactory.REPOSITORY_CLASS.key, "XXX");
             paramMap.put(PreGeneralizedDataStoreFactory.GENERALIZATION_INFOS_PROVIDER_CLASS.key,
                     "org.geotools.data.gen.info.GeneralizationInfosProviderImpl");
             paramMap.put(PreGeneralizedDataStoreFactory.GENERALIZATION_INFOS_PROVIDER_PARAM.key,

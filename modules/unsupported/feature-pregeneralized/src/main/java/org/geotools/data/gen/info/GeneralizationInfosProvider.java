@@ -22,20 +22,20 @@ import java.io.IOException;
 /**
  * @author Christian Mueller
  * 
- *         Interface for objects creating GeneralizsationInfos
+ * Interface for objects creating GeneralizsationInfos
  * 
  */
 public interface GeneralizationInfosProvider {
 
     /**
-     * @param source
-     *            , source of the info, concrete class depending on implementation
+     * @param source ,
+     *            source of the info, concrete class depending on implementation
      * @return a GeneralizationInfos object
      * @throws IOException
      *             in case of failure
      * 
-     *             An implementor of this method must call {@link GeneralizationInfos#validate()}
-     *             otherwise, behavior is unexpected
+     * An implementor of this method must call {@link GeneralizationInfos#validate()} otherwise,
+     * behavior is unexpected
      */
     public GeneralizationInfos getGeneralizationInfos(Object source) throws IOException;
 }

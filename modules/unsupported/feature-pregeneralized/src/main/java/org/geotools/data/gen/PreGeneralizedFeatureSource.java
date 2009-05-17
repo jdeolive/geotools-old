@@ -40,6 +40,7 @@ import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
+import org.geotools.data.Repository;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.gen.info.Generalization;
@@ -60,10 +61,10 @@ import org.opengis.filter.sort.SortBy;
 /**
  * @author Christian Mueller
  * 
- *         Feature source for a feature type with pregeneralized geometries
+ * Feature source for a feature type with pregeneralized geometries
  * 
- *         This featue store does business as usual with the exception described here
- *         {@link PreGeneralizedDataStore}
+ * This featue store does business as usual with the exception described here
+ * {@link PreGeneralizedDataStore}
  * 
  * 
  */
@@ -71,7 +72,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
 
     protected FeatureListenerManager listenerManager = new FeatureListenerManager();
 
-    protected DataStoreLookup lookup;
+    protected Repository repository;
 
     protected GeneralizationInfo info;
 
@@ -93,10 +94,10 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
 
     private DefaultResourceInfo ri = null;
 
-    public PreGeneralizedFeatureSource(GeneralizationInfo info, DataStoreLookup lookup,
+    public PreGeneralizedFeatureSource(GeneralizationInfo info, Repository repository,
             PreGeneralizedDataStore dataStore) {
         this.info = info;
-        this.lookup = lookup;
+        this.repository = repository;
         this.dataStore = dataStore;
         reset();
     }
@@ -123,8 +124,8 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
             throws IOException {
         if (baseFeatureSource != null)
             return baseFeatureSource;
-        DataStore ds = lookup.getDataStoreFor(info.getDataSourceNameSpace(), info
-                .getDataSourceName());
+        DataStore ds = repository.dataStore(new NameImpl(info.getDataSourceNameSpace(), info
+                .getDataSourceName()));
         if (ds == null)
             dsNotFoundException(info.getDataSourceNameSpace(), info.getDataSourceName());
         baseFeatureSource = ds.getFeatureSource(info.getBaseFeatureName());
@@ -277,7 +278,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
      * (non-Javadoc)
      * 
      * @see org.geotools.data.FeatureSource#getQueryCapabilities() A query capabilitiy is supported
-     * only if ALL backend feature sources support it
+     *      only if ALL backend feature sources support it
      */
     public QueryCapabilities getQueryCapabilities() {
         if (queryCapabilities != null)
@@ -340,8 +341,8 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
      * (non-Javadoc)
      * 
      * @see org.geotools.data.FeatureSource#getSchema() Schema derived from base feature schema 1)
-     * all generalized geom attributes removed 2) the default gemoetry propery is taken from the
-     * config
+     *      all generalized geom attributes removed 2) the default gemoetry propery is taken from
+     *      the config
      */
     public SimpleFeatureType getSchema() {
         if (featureTyp != null)
@@ -352,12 +353,12 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
             outer: for (AttributeDescriptor descr : baseType.getAttributeDescriptors()) {
                 for (Generalization di : info.getGeneralizations()) {
                     if (di.getDataSourceName().equals(info.getDataSourceName())) { // same
-                                                                                   // datasource
+                        // datasource
                         if (di.getFeatureName().equals(baseType.getName().getLocalPart())) { // same
-                                                                                             // feature
+                            // feature
                             if (di.getGeomPropertyName().equals(descr.getName().getLocalPart())) // is
-                                                                                                 // gneralized
-                                                                                                 // geom
+                                // gneralized
+                                // geom
                                 continue outer;
                         }
                     }
@@ -382,7 +383,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
      * (non-Javadoc)
      * 
      * @see org.geotools.data.FeatureSource#getSupportedHints() Calculates the supported hints as
-     * intersection of the the generalized features and adds Hints.GEOMETRY_DISTANCE
+     *      intersection of the the generalized features and adds Hints.GEOMETRY_DISTANCE
      */
     public Set<Key> getSupportedHints() {
         if (supportedHints != null)
@@ -393,7 +394,7 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
         // feature sources
         try {
             hints.addAll(getBaseFeatureSource().getSupportedHints()); // start with base feature
-                                                                      // source
+            // source
             for (Generalization di : info.getGeneralizations()) {
                 FeatureSource<SimpleFeatureType, SimpleFeature> fs = getFeatureSourceFor(di);
                 hints.retainAll(fs.getSupportedHints());
@@ -435,7 +436,8 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
         if (fs != null)
             return fs;
 
-        DataStore ds = lookup.getDataStoreFor(di.getDataSourceNameSpace(), di.getDataSourceName());
+        DataStore ds = repository.dataStore(new NameImpl(di.getDataSourceNameSpace(), di
+                .getDataSourceName()));
         if (ds == null)
             dsNotFoundException(di.getDataSourceNameSpace(), di.getDataSourceName());
         fs = ds.getFeatureSource(di.getFeatureName());
@@ -458,12 +460,12 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
         Double distance = getRequestedDistance(query);
 
         String geomPropertyName = info.getGeomPropertyName(); // the geometry for which we have
-                                                              // generalizations
+        // generalizations
         String[] queryProperyNames = query.getPropertyNames();
 
         if (queryProperyNames != null) {
             for (String prop : queryProperyNames) { // check if geom property name was specified in
-                                                    // the query
+                // the query
                 if (prop.equals(geomPropertyName))
                     return getFeatureSourceFor(distance);
             }
@@ -481,9 +483,8 @@ public class PreGeneralizedFeatureSource implements FeatureSource<SimpleFeatureT
      *            the backend feature surce
      * @return Proxy modified for backend feature source
      * 
-     *         create a proxy for the origianl query object 1) typeName has to be changed to backend
-     *         type name 2) geometry property name has tob be changed to backend geometry property
-     *         name
+     * create a proxy for the origianl query object 1) typeName has to be changed to backend type
+     * name 2) geometry property name has tob be changed to backend geometry property name
      * 
      */
 

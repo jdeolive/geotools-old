@@ -51,7 +51,7 @@ public class PreGeneralizedDataStoreTest extends TestCase {
         GeneralizationInfos ginfos = null;
         try {
             ginfos = provider.getGeneralizationInfos("src/test/resources/geninfo_only_base.xml");
-            PreGeneralizedDataStore ds = new PreGeneralizedDataStore(ginfos, TestSetup.DSLOOKUP);
+            PreGeneralizedDataStore ds = new PreGeneralizedDataStore(ginfos, TestSetup.REPOSITORY);
 
             String typeName = ds.getTypeNames()[0];
             assertTrue("GenStreams".equals(typeName));
@@ -98,7 +98,7 @@ public class PreGeneralizedDataStoreTest extends TestCase {
         String typeName = null;
         try {
             ginfos = provider.getGeneralizationInfos("src/test/resources/geninfo_only_base.xml");
-            ds = new PreGeneralizedDataStore(ginfos, TestSetup.DSLOOKUP);
+            ds = new PreGeneralizedDataStore(ginfos, TestSetup.REPOSITORY);
             typeName = ds.getTypeNames()[0];
         } catch (IOException ex) {
             ex.printStackTrace();

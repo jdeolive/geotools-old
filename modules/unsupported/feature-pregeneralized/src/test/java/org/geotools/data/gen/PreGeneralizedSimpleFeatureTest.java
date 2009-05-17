@@ -51,7 +51,7 @@ public class PreGeneralizedSimpleFeatureTest extends TestCase {
         String typeName = "GenStreams";
         try {
             ginfos = provider.getGeneralizationInfos("src/test/resources/geninfo_vertical.xml");
-            ds = new PreGeneralizedDataStore(ginfos, TestSetup.DSLOOKUP);
+            ds = new PreGeneralizedDataStore(ginfos, TestSetup.REPOSITORY);
             fCollection = ds.getFeatureSource(typeName).getFeatures();
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -107,7 +107,7 @@ public class PreGeneralizedSimpleFeatureTest extends TestCase {
                 .equals(feature1.getAttribute("CAT_ID")));
         assertTrue(feature1.getProperty("the_geom").getValue().equals(
                 feature1.getAttribute("the_geom")));
-        //assertFalse(feature1.getProperty("CAT_ID").getValue().equals(feature2.getAttribute("CAT_ID"
+        // assertFalse(feature1.getProperty("CAT_ID").getValue().equals(feature2.getAttribute("CAT_ID"
         // )));
         assertFalse(feature1.getProperty("the_geom").getValue().equals(
                 feature2.getAttribute("the_geom")));
@@ -136,7 +136,7 @@ public class PreGeneralizedSimpleFeatureTest extends TestCase {
         String typeName = "GenStreams";
         try {
             ginfos = provider.getGeneralizationInfos("src/test/resources/geninfo_vertical.xml");
-            ds = new PreGeneralizedDataStore(ginfos, TestSetup.DSLOOKUP);
+            ds = new PreGeneralizedDataStore(ginfos, TestSetup.REPOSITORY);
             fCollection = ds.getFeatureSource(typeName).getFeatures();
         } catch (IOException ex) {
             ex.printStackTrace();

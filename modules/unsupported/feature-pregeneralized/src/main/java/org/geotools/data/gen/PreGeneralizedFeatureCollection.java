@@ -38,10 +38,9 @@ import org.opengis.util.ProgressListener;
 /**
  * @author Christian Mueller
  * 
- *         Implementation of {@link FeatureCollection} for {@link PreGeneralizedSimpleFeature}
+ * Implementation of {@link FeatureCollection} for {@link PreGeneralizedSimpleFeature}
  * 
- *         This collection is read only, modifying methods result in
- *         {@link UnsupportedOperationException}
+ * This collection is read only, modifying methods result in {@link UnsupportedOperationException}
  */
 
 public class PreGeneralizedFeatureCollection implements
@@ -78,7 +77,7 @@ public class PreGeneralizedFeatureCollection implements
      * (non-Javadoc)
      * 
      * @see org.geotools.feature.FeatureCollection#accepts(org.opengis.feature.FeatureVisitor,
-     * org.opengis.util.ProgressListener) Logic copied from DefaultFeatureCollection class
+     *      org.opengis.util.ProgressListener) Logic copied from DefaultFeatureCollection class
      */
     public void accepts(FeatureVisitor visitor, ProgressListener progress) throws IOException {
         Iterator iterator = null;

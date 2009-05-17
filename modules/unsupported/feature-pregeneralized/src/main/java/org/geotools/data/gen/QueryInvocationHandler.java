@@ -25,10 +25,10 @@ import org.geotools.data.Query;
 /**
  * @author Christian Mueller
  * 
- *         This invocation handler is used for a query proxy passed to the backend feature sources.
+ * This invocation handler is used for a query proxy passed to the backend feature sources.
  * 
- *         The proxy object returns typeName and propertyNames fitting for the backendstore, leaving
- *         all other query data unchanged
+ * The proxy object returns typeName and propertyNames fitting for the backendstore, leaving all
+ * other query data unchanged
  * 
  */
 public class QueryInvocationHandler implements InvocationHandler {

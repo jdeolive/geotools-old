@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
-import org.geotools.data.DataAccessFactory.Param;
+import org.geotools.data.Repository;
 import org.geotools.data.gen.info.GeneralizationInfos;
 import org.geotools.data.gen.info.GeneralizationInfosProvider;
 import org.geotools.data.gen.info.GeneralizationInfosProviderImpl;
@@ -34,32 +34,26 @@ import org.geotools.data.gen.info.GeneralizationInfosProviderImpl;
 /**
  * @author Christian Mueller
  * 
- *         Factory for {@link PreGeneralizedDataStore} objects.
+ * Factory for {@link PreGeneralizedDataStore} objects.
  * 
- *         Params
+ * Params
  * 
  * 
- *         DataStoreLookupClassName (String,mandatory) Name of a class implementing
- *         {@link DataStoreLookup}
+ * RepositoryClassName (String,mandatory) Name of a class implementing {@link Repository}
  * 
- *         DataStoreLookupParam (Object,optional) Parameter object for
- *         {@link DataStoreLookup#initialize(Object)}
  * 
- *         GeneralizationInfosProviderClassName (String,mandatory) Name of a class implementing
- *         {@link GeneralizationInfosProvider}
+ * GeneralizationInfosProviderClassName (String,mandatory) Name of a class implementing
+ * {@link GeneralizationInfosProvider}
  * 
- *         GeneralizationInfosProviderProviderParam (Object,optional) Parameter object for
- *         {@link GeneralizationInfosProvider#getGeneralizationInfos(Object)}
+ * GeneralizationInfosProviderProviderParam (Object,optional) Parameter object for
+ * {@link GeneralizationInfosProvider#getGeneralizationInfos(Object)}
  */
 
 public class PreGeneralizedDataStoreFactory implements DataStoreFactorySpi {
 
-    public static final Param DATA_STORE_LOOKUP_CLASS = new Param("DataStoreLookupClassName",
-            String.class, "Class name for DataStoreLookup implementation", true,
-            DataStoreLookupDSFinder.class.getName());
-
-    public static final Param DATA_STORE_LOOKUP_PARAM = new Param("DataStoreLookupParam",
-            String.class, "Optional config parameter for DataStoreLookup implementation", false);
+    public static final Param REPOSITORY_CLASS = new Param("RepositoryClassName", String.class,
+            "Class name for data store repository implementation", true, DSFinderRepository.class
+                    .getName());
 
     public static final Param GENERALIZATION_INFOS_PROVIDER_CLASS = new Param(
             "GeneralizationInfosProviderClassName", String.class,
@@ -76,10 +70,9 @@ public class PreGeneralizedDataStoreFactory implements DataStoreFactorySpi {
     public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
 
         String providerClassName = (String) GENERALIZATION_INFOS_PROVIDER_CLASS.lookUp(params);
-        String lookupClassName = (String) DATA_STORE_LOOKUP_CLASS.lookUp(params);
+        String repositoryClassName = (String) REPOSITORY_CLASS.lookUp(params);
 
         String providerParam = (String) GENERALIZATION_INFOS_PROVIDER_PARAM.lookUp(params);
-        String lookupParam = (String) DATA_STORE_LOOKUP_PARAM.lookUp(params);
         URI namespace = (URI) NAMESPACEP.lookUp(params);
 
         try {
@@ -88,11 +81,10 @@ public class PreGeneralizedDataStoreFactory implements DataStoreFactorySpi {
                     .newInstance();
             GeneralizationInfos gInfos = provider.getGeneralizationInfos(providerParam);
 
-            Class lookupClass = Class.forName(lookupClassName);
-            DataStoreLookup lookup = (DataStoreLookup) lookupClass.newInstance();
-            lookup.initialize(lookupParam);
+            Class repositoryClass = Class.forName(repositoryClassName);
+            Repository repository = (Repository) repositoryClass.newInstance();
 
-            return new PreGeneralizedDataStore(gInfos, lookup, namespace);
+            return new PreGeneralizedDataStore(gInfos, repository, namespace);
         } catch (Exception ex) {
             throw new IOException(ex.getMessage());
         }
@@ -104,15 +96,15 @@ public class PreGeneralizedDataStoreFactory implements DataStoreFactorySpi {
     }
 
     public boolean canProcess(Map<String, Serializable> params) {
-        String lookupClass = null, providerClass = null;
+        String repositoryClass = null, providerClass = null;
         try {
-            lookupClass = (String) DATA_STORE_LOOKUP_CLASS.lookUp(params);
+            repositoryClass = (String) REPOSITORY_CLASS.lookUp(params);
             providerClass = (String) GENERALIZATION_INFOS_PROVIDER_CLASS.lookUp(params);
         } catch (IOException ex) {
             return false;
         }
 
-        if (lookupClass == null || providerClass == null) {
+        if (repositoryClass == null || providerClass == null) {
             return false;
         }
 
@@ -130,8 +122,8 @@ public class PreGeneralizedDataStoreFactory implements DataStoreFactorySpi {
     }
 
     public Param[] getParametersInfo() {
-        return new Param[] { DATA_STORE_LOOKUP_CLASS, DATA_STORE_LOOKUP_PARAM,
-                GENERALIZATION_INFOS_PROVIDER_CLASS, GENERALIZATION_INFOS_PROVIDER_PARAM };
+        return new Param[] { REPOSITORY_CLASS, GENERALIZATION_INFOS_PROVIDER_CLASS,
+                GENERALIZATION_INFOS_PROVIDER_PARAM, NAMESPACEP };
     }
 
     public boolean isAvailable() {

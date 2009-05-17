@@ -27,7 +27,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 /**
  * @author Christian Mueller
  * 
- *         Implementation of {@link FeatureReader} for {@link PreGeneralizedSimpleFeature}
+ * Implementation of {@link FeatureReader} for {@link PreGeneralizedSimpleFeature}
  */
 
 public class PreGeneralizedFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeature> {

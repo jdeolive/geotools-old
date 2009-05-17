@@ -40,10 +40,9 @@ import org.xml.sax.SAXException;
 /**
  * @author Christian Mueller
  * 
- *         The default implementation for GeneralizationInfosProvider, reading the info from an XML
- *         file.
+ * The default implementation for GeneralizationInfosProvider, reading the info from an XML file.
  * 
- *         The xml schema file is "/geninfos_1.0.xsd"
+ * The xml schema file is "/geninfos_1.0.xsd"
  * 
  * 
  */

@@ -47,7 +47,7 @@ public class PreGeneralizedFeatureCollectionTest extends TestCase {
         String typeName = null;
         try {
             ginfos = provider.getGeneralizationInfos("src/test/resources/geninfo_only_base.xml");
-            ds = new PreGeneralizedDataStore(ginfos, TestSetup.DSLOOKUP);
+            ds = new PreGeneralizedDataStore(ginfos, TestSetup.REPOSITORY);
             typeName = ds.getTypeNames()[0];
             fCollection = ds.getFeatureSource(typeName).getFeatures();
         } catch (IOException ex) {
@@ -95,15 +95,16 @@ public class PreGeneralizedFeatureCollectionTest extends TestCase {
             Assert.fail();
         }
 
-        error = true;
-        try {
-            fCollection.purge();
-        } catch (UnsupportedOperationException ex) {
-            error = false;
-        }
-        if (error) {
-            Assert.fail();
-        }
+        // purge is depricated
+        // error = true;
+        // try {
+        // fCollection.purge();
+        // } catch (UnsupportedOperationException ex) {
+        // error = false;
+        // }
+        // if (error) {
+        // Assert.fail();
+        // }
 
         error = true;
         try {

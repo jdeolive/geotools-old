@@ -26,7 +26,7 @@ import java.util.TreeSet;
 /**
  * @author Christian Mueller
  * 
- *         Container for for GeneralizationInfo objects
+ * Container for for GeneralizationInfo objects
  * 
  */
 public class GeneralizationInfos {

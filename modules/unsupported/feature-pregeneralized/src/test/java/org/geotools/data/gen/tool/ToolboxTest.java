@@ -18,6 +18,7 @@
 package org.geotools.data.gen.tool;
 
 import java.io.IOException;
+
 import junit.framework.TestCase;
 
 import org.junit.Assert;
