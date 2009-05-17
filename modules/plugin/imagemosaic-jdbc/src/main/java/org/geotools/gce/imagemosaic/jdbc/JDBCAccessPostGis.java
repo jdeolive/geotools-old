@@ -16,6 +16,18 @@
  */
 package org.geotools.gce.imagemosaic.jdbc;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.logging.Level;
+
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -23,252 +35,261 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 
-import org.geotools.geometry.GeneralEnvelope;
-
-import org.geotools.referencing.CRS;
-
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import java.io.IOException;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import java.text.MessageFormat;
-
-import java.util.logging.Level;
-
 /**
  * JDBCAccess implentation for PostGis
  * 
  * @author mcr
- *
+ * 
  */
 class JDBCAccessPostGis extends JDBCAccessBase {
-    static String SRSSelect = "select srid from geometry_columns where f_table_schema=? and f_table_name=? and f_geometry_column=? ";
-    static String CRSSelect = "select srtext from spatial_ref_sys where srid=?";
-    private String extentSelect = null;
-    private String allSelect = null;
-    private String allSelectJoined = null;
-    private String gridSelect = null;
-    private String gridSelectJoined = null;
+	static String SRSSelect = "select srid from geometry_columns where f_table_schema=? and f_table_name=? and f_geometry_column=? ";
 
-    JDBCAccessPostGis(Config config) throws IOException {
-        super(config);
-        initStatementStrings(config);
-    }
+	static String CRSSelect = "select srtext from spatial_ref_sys where srid=?";
 
-    /**
-     * Initialize needed sql statement strings
-     * 
-     * @param config
-     */
-    private void initStatementStrings(Config config) {
-        final String geomAttr = config.getGeomAttributeNameInSpatialTable();
-        extentSelect = "select st_extent(" + geomAttr + ") from {0}";
+	private String extentSelect = null;
 
-        // ////////////
-        final String spatialSelectClause = "select s." +
-            config.getKeyAttributeNameInSpatialTable() + "," +
-            "asbinary(st_envelope(s." + geomAttr + "))";
+	private String allSelect = null;
 
-        allSelect = spatialSelectClause + ",s." +
-            config.getBlobAttributeNameInTileTable() + " from {0} s";
-        allSelectJoined = spatialSelectClause + ",t." +
-            config.getBlobAttributeNameInTileTable() +
-            " from {0} s, {1} t  WHERE ";
-        allSelectJoined += (" s." + config.getKeyAttributeNameInSpatialTable() +
-        " = t." + config.getKeyAttributeNameInTileTable());
+	private String allSelectJoined = null;
 
-        String whereClause = "st_intersects(" + geomAttr + "," +
-            "GeomFromWKB(?,?))";
+	private String gridSelect = null;
 
-        gridSelect = allSelect + " WHERE " + whereClause;
-        gridSelectJoined = allSelectJoined + " AND " + whereClause;
-    }
+	private String gridSelectJoined = null;
 
-    /* (non-Javadoc)
-     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getExtentSelectStatment(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
-     */
-    @Override
-    protected String getExtentSelectStatment(ImageLevelInfo li) {
-        return MessageFormat.format(extentSelect,
-            new Object[] { li.getSpatialTableName() });
-    }
+	JDBCAccessPostGis(Config config) throws IOException {
+		super(config);
+		initStatementStrings(config);
+	}
 
-    /* (non-Javadoc)
-     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getExtent(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo, java.sql.Connection)
-     */
-    @Override
-    protected Envelope getExtent(ImageLevelInfo li, Connection con)
-        throws SQLException, IOException {
-        String extentSelect = getExtentSelectStatment(li);
+	/**
+	 * Initialize needed sql statement strings
+	 * 
+	 * @param config
+	 */
+	private void initStatementStrings(Config config) {
+		final String geomAttr = config.getGeomAttributeNameInSpatialTable();
+		extentSelect = "select st_extent(" + geomAttr + ") from {0}";
 
-        String statementString = MessageFormat.format(extentSelect,
-                new Object[] { li.getSpatialTableName() });
-        Envelope extent = null;
-        PreparedStatement s = con.prepareStatement(statementString);
-        ResultSet r = s.executeQuery();
+		// ////////////
+		final String spatialSelectClause = "select s."
+				+ config.getKeyAttributeNameInSpatialTable() + ","
+				+ "asbinary(st_envelope(s." + geomAttr + "))";
 
-        if (r.next()) {
-            Object o = r.getObject(1);
-            String pgString = o.toString();
+		allSelect = spatialSelectClause + ",s."
+				+ config.getBlobAttributeNameInTileTable() + " from {0} s";
+		allSelectJoined = spatialSelectClause + ",t."
+				+ config.getBlobAttributeNameInTileTable()
+				+ " from {0} s, {1} t  WHERE ";
+		allSelectJoined += (" s." + config.getKeyAttributeNameInSpatialTable()
+				+ " = t." + config.getKeyAttributeNameInTileTable());
 
-            int start = pgString.indexOf("(") + 1;
-            int end = pgString.indexOf(")");
-            pgString = pgString.substring(start, end);
+		String whereClause = "st_intersects(" + geomAttr + ","
+				+ "GeomFromWKB(?,?))";
 
-            String[] coords = pgString.split(",");
-            String[] lower = coords[0].split(" ");
-            String[] upper = coords[1].split(" ");
-            extent = new Envelope(new Coordinate(new Double(lower[0]),
-                        new Double(lower[1])),
-                    new Coordinate(new Double(upper[0]), new Double(upper[1])));
-        }
+		gridSelect = allSelect + " WHERE " + whereClause;
+		gridSelectJoined = allSelectJoined + " AND " + whereClause;
+	}
 
-        r.close();
-        s.close();
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getExtentSelectStatment(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+	 */
+	@Override
+	protected String getExtentSelectStatment(ImageLevelInfo li) {
+		return MessageFormat.format(extentSelect, new Object[] { li
+				.getSpatialTableName() });
+	}
 
-        return extent;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getExtent(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo,
+	 *      java.sql.Connection)
+	 */
+	@Override
+	protected Envelope getExtent(ImageLevelInfo li, Connection con)
+			throws SQLException, IOException {
+		String extentSelect = getExtentSelectStatment(li);
 
-    /* (non-Javadoc)
-     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getEnvelopeFromResultSet(java.sql.ResultSet)
-     */
-    @Override
-    protected Envelope getEnvelopeFromResultSet(ResultSet r)
-        throws SQLException {
-        byte[] bytes = r.getBytes(2);
-        WKBReader reader = new WKBReader();
-        Geometry bbox = null;
+		String statementString = MessageFormat.format(extentSelect,
+				new Object[] { li.getSpatialTableName() });
+		Envelope extent = null;
+		PreparedStatement s = con.prepareStatement(statementString);
+		ResultSet r = s.executeQuery();
 
-        try {
-            bbox = reader.read(bytes);
-        } catch (ParseException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new SQLException(e.getMessage());
-        }
+		if (r.next()) {
+			Object o = r.getObject(1);
+			String pgString = o.toString();
 
-        return bbox.getEnvelopeInternal();
-    }
+			int start = pgString.indexOf("(") + 1;
+			int end = pgString.indexOf(")");
+			pgString = pgString.substring(start, end);
 
-    /* (non-Javadoc)
-     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getRandomTileStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
-     */
-    @Override
-    protected String getRandomTileStatement(ImageLevelInfo li) {
-        if (li.isImplementedAsTableSplit()) {
-            return MessageFormat.format(allSelectJoined,
-                new Object[] { li.getSpatialTableName(), li.getTileTableName() });
-        } else {
-            return MessageFormat.format(allSelect,
-                new Object[] { li.getSpatialTableName() });
-        }
-    }
+			String[] coords = pgString.split(",");
+			String[] lower = coords[0].split(" ");
+			String[] upper = coords[1].split(" ");
+			extent = new Envelope(new Coordinate(new Double(lower[0]),
+					new Double(lower[1])), new Coordinate(new Double(upper[0]),
+					new Double(upper[1])));
+		}
 
-    /* (non-Javadoc)
-     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getGridSelectStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
-     */
-    @Override
-    protected String getGridSelectStatement(ImageLevelInfo li) {
-        if (li.isImplementedAsTableSplit()) {
-            return MessageFormat.format(gridSelectJoined,
-                new Object[] { li.getSpatialTableName(), li.getTileTableName() });
-        } else {
-            return MessageFormat.format(gridSelect,
-                new Object[] { li.getSpatialTableName() });
-        }
-    }
+		r.close();
+		s.close();
 
-    /* (non-Javadoc)
-     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#setGridSelectParams(java.sql.PreparedStatement, org.geotools.geometry.GeneralEnvelope, org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
-     */
-    @Override
-    protected void setGridSelectParams(PreparedStatement s,
-        GeneralEnvelope envelope, ImageLevelInfo li) throws SQLException {
-        WKBWriter w = new WKBWriter();
-        byte[] bytes = w.write(polyFromEnvelope(envelope));
-        s.setBytes(1, bytes);
-        s.setInt(2, li.getSrsId());
-    }
+		return extent;
+	}
 
-    /* (non-Javadoc)
-     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getSRSID(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo, java.sql.Connection)
-     */
-    @Override
-    protected Integer getSRSID(ImageLevelInfo li, Connection con)
-        throws IOException {
-        Integer result = null;
-        String schema = null;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getEnvelopeFromResultSet(java.sql.ResultSet)
+	 */
+	@Override
+	protected Envelope getEnvelopeFromResultSet(ResultSet r)
+			throws SQLException {
+		byte[] bytes = r.getBytes(2);
+		WKBReader reader = new WKBReader();
+		Geometry bbox = null;
 
-        try {
-            schema = getSchemaFromSpatialTable(li.getSpatialTableName());
+		try {
+			bbox = reader.read(bytes);
+		} catch (ParseException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new SQLException(e.getMessage());
+		}
 
-            PreparedStatement s = null;
+		return bbox.getEnvelopeInternal();
+	}
 
-            if (schema == null) {
-                schema = "public";
-            }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getRandomTileStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+	 */
+	@Override
+	protected String getRandomTileStatement(ImageLevelInfo li) {
+		if (li.isImplementedAsTableSplit()) {
+			return MessageFormat.format(allSelectJoined, new Object[] {
+					li.getSpatialTableName(), li.getTileTableName() });
+		} else {
+			return MessageFormat.format(allSelect, new Object[] { li
+					.getSpatialTableName() });
+		}
+	}
 
-            s = con.prepareStatement(SRSSelect);
-            s.setString(1, schema);
-            s.setString(2, li.getSpatialTableName());
-            s.setString(3, config.getGeomAttributeNameInSpatialTable());
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getGridSelectStatement(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+	 */
+	@Override
+	protected String getGridSelectStatement(ImageLevelInfo li) {
+		if (li.isImplementedAsTableSplit()) {
+			return MessageFormat.format(gridSelectJoined, new Object[] {
+					li.getSpatialTableName(), li.getTileTableName() });
+		} else {
+			return MessageFormat.format(gridSelect, new Object[] { li
+					.getSpatialTableName() });
+		}
+	}
 
-            ResultSet r = s.executeQuery();
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#setGridSelectParams(java.sql.PreparedStatement,
+	 *      org.geotools.geometry.GeneralEnvelope,
+	 *      org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo)
+	 */
+	@Override
+	protected void setGridSelectParams(PreparedStatement s,
+			GeneralEnvelope envelope, ImageLevelInfo li) throws SQLException {
+		WKBWriter w = new WKBWriter();
+		byte[] bytes = w.write(polyFromEnvelope(envelope));
+		s.setBytes(1, bytes);
+		s.setInt(2, li.getSrsId());
+	}
 
-            if (r.next()) {
-                result = (Integer) r.getObject(1);
-            }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getSRSID(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo,
+	 *      java.sql.Connection)
+	 */
+	@Override
+	protected Integer getSRSID(ImageLevelInfo li, Connection con)
+			throws IOException {
+		Integer result = null;
+		String schema = null;
 
-            r.close();
-            s.close();
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        }
+		try {
+			schema = getSchemaFromSpatialTable(li.getSpatialTableName());
 
-        if (result == null) {
-            String msg = MessageFormat.format("No entry in geometry_columns for {0},{1},{2}",
-                    new Object[] {
-                        schema, li.getSpatialTableName(),
-                        config.getGeomAttributeNameInSpatialTable()
-                    });
-            LOGGER.log(Level.SEVERE, msg);
-            throw new IOException(msg);
-        }
+			PreparedStatement s = null;
 
-        return result;
-    }
+			if (schema == null) {
+				schema = "public";
+			}
 
-    /* (non-Javadoc)
-     * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getCRS(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo, java.sql.Connection)
-     */
-    @Override
-    protected CoordinateReferenceSystem getCRS(ImageLevelInfo li, Connection con)
-        throws IOException {
-        CoordinateReferenceSystem result = null;
+			s = con.prepareStatement(SRSSelect);
+			s.setString(1, schema);
+			s.setString(2, li.getSpatialTableName());
+			s.setString(3, config.getGeomAttributeNameInSpatialTable());
 
-        try {
-            PreparedStatement s = con.prepareStatement(CRSSelect);
-            s.setInt(1, li.getSrsId());
+			ResultSet r = s.executeQuery();
 
-            ResultSet r = s.executeQuery();
+			if (r.next()) {
+				result = (Integer) r.getObject(1);
+			}
 
-            if (r.next()) {
-                String definition = r.getString(1);
-                result = CRS.parseWKT(definition);
-            }
+			r.close();
+			s.close();
+		} catch (SQLException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e.getMessage());
+		}
 
-            r.close();
-            s.close();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new IOException(e.getMessage());
-        }
+		if (result == null) {
+			String msg = MessageFormat.format(
+					"No entry in geometry_columns for {0},{1},{2}",
+					new Object[] { schema, li.getSpatialTableName(),
+							config.getGeomAttributeNameInSpatialTable() });
+			LOGGER.log(Level.SEVERE, msg);
+			throw new IOException(msg);
+		}
 
-        return result;
-    }
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geotools.gce.imagemosaic.jdbc.JDBCAccessBase#getCRS(org.geotools.gce.imagemosaic.jdbc.ImageLevelInfo,
+	 *      java.sql.Connection)
+	 */
+	@Override
+	protected CoordinateReferenceSystem getCRS(ImageLevelInfo li, Connection con)
+			throws IOException {
+		CoordinateReferenceSystem result = null;
+
+		try {
+			PreparedStatement s = con.prepareStatement(CRSSelect);
+			s.setInt(1, li.getSrsId());
+
+			ResultSet r = s.executeQuery();
+
+			if (r.next()) {
+				String definition = r.getString(1);
+				result = CRS.parseWKT(definition);
+			}
+
+			r.close();
+			s.close();
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			throw new IOException(e.getMessage());
+		}
+
+		return result;
+	}
 }
