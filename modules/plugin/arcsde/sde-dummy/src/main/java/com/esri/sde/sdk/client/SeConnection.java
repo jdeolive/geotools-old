@@ -6,7 +6,7 @@ public class SeConnection {
     public static /* GEOT-947 final*/ int SE_UNPROTECTED_POLICY = 0;
     public static int SE_ONE_THREAD_POLICY = 1;
 	
-	public SeConnection(String a, int i, String b, String c, String d) {
+	public SeConnection(String a, int i, String b, String c, String d) throws SeException{
 	    throw new UnsupportedOperationException("this is the dummy api");
 	}
 	
@@ -31,6 +31,13 @@ public class SeConnection {
 
     public String getSdeDbaName() throws SeException{
         return null;
+    }
+
+    public long getTimeSinceLastRT() {
+        return 0;
+    }
+
+    public void testServer(long testServerRoundtripIntervalSeconds) throws SeException{
     }
 
 }
