@@ -61,7 +61,9 @@ import com.esri.sde.sdk.client.SeLayer;
  * @author Gabriel Roldan
  * @version $Id$
  * @since 2.5.6
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/plugin/arcsde/datastore/src/main/java/org
+ *         /geotools/arcsde/data/FeatureTypeInfoCache.java $
  */
 final class FeatureTypeInfoCache {
 
@@ -70,13 +72,13 @@ final class FeatureTypeInfoCache {
     /**
      * ArcSDE registered layers definitions
      */
-    public Map<String, FeatureTypeInfo> featureTypeInfos;
+    private final Map<String, FeatureTypeInfo> featureTypeInfos;
 
     /**
      * In process view definitions. This map is populated through
      * {@link #registerView(String, PlainSelect)}
      */
-    public final Map<String, FeatureTypeInfo> inProcessFeatureTypeInfos;
+    private final Map<String, FeatureTypeInfo> inProcessFeatureTypeInfos;
 
     private final SessionPool sessionPool;
 
@@ -264,39 +266,42 @@ final class FeatureTypeInfoCache {
     private final class CacheUpdater implements Runnable {
 
         public void run() {
-            List<String> typeNames = null;
+            final List<String> typeNames;
+            final Set<String> removed;
             LOGGER.fine("FeatureTypeCache background process running...");
+
             try {
                 typeNames = sessionPool.getAvailableLayerNames();
-                {// just some logging..
-                    Set<String> added = new TreeSet<String>(typeNames);
-                    if (added.removeAll(availableLayerNames)) {
-                        LOGGER.finer("FeatureTypeCache: added the following layers: " + added);
-                    }
-                    Set<String> removed = new TreeSet<String>(availableLayerNames);
-                    if (removed.removeAll(typeNames)) {
-                        LOGGER.finer("FeatureTypeCache: the following layers are no "
-                                + "longer available: " + removed);
-                    }
-                }
-                availableLayerNames.clear();
-                availableLayerNames.addAll(typeNames);
-                LOGGER.fine("FeatureTypeCache: updated server layer list: " + typeNames);
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Updating TypeNameCache failed.", e);
+                LOGGER.log(Level.INFO, "Updating TypeNameCache failed.", e);
                 return;
             }
 
-            HashMap<String, FeatureTypeInfo> aNewCache = new HashMap<String, FeatureTypeInfo>(
-                    2 * typeNames.size());
-            cacheLock.readLock().lock();
-            for (String typeName : typeNames) {
-                aNewCache.put(typeName, featureTypeInfos.get(typeName));
+            {// just some logging..
+                Set<String> added = new TreeSet<String>(typeNames);
+                if (added.removeAll(availableLayerNames)) {
+                    LOGGER.finer("FeatureTypeCache: added the following layers: " + added);
+                }
+                removed = new TreeSet<String>(availableLayerNames);
+                if (removed.removeAll(typeNames)) {
+                    LOGGER.finer("FeatureTypeCache: the following layers are no "
+                            + "longer available: " + removed);
+                }
             }
-            cacheLock.readLock().unlock();
-
             cacheLock.writeLock().lock();
-            featureTypeInfos = aNewCache;
+
+            availableLayerNames.clear();
+            availableLayerNames.addAll(typeNames);
+
+            LOGGER.fine("FeatureTypeCache: updated server layer list: " + typeNames);
+
+            // discard any removed feature type
+            for (String typeName : removed) {
+                LOGGER.info("Removing FeatureTypeInfo for layer " + typeName
+                        + " since it does no longer exist on the database");
+                featureTypeInfos.remove(typeName);
+            }
+
             cacheLock.writeLock().unlock();
         }
     }
