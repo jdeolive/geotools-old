@@ -34,36 +34,32 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests de functionality of a pool of ArcSDE connection objects over a live ArcSDE database
+ * Tests the functionality of a pool of ArcSDE connection objects over a live ArcSDE database
  * 
- * @author Gabriel Roldan, Axios Engineering
+ * @author Gabriel Roldan
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/test/java
  *         /org/geotools/arcsde/pool/SessionPoolTest.java $
  * @version $Id$
  */
 public class SessionPoolTest {
-    /** DOCUMENT ME! */
+
     private static Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.data.sde");
 
-    /** DOCUMENT ME! */
     private Map connectionParameters;
 
-    /** DOCUMENT ME! */
     private ArcSDEConnectionConfig connectionConfig = null;
 
-    /** DOCUMENT ME! */
     private SessionPool pool = null;
 
     /**
      * loads {@code test-data/testparams.properties} to get connection parameters and sets up a
-     * ArcSDEConnectionConfig with them for tests to set up SessionPool's as requiered
+     * ArcSDEConnectionConfig with them for tests to set up SessionPool's as required
      * 
      * @throws Exception
-     *             DOCUMENT ME!
+     * 
      * @throws IllegalStateException
-     *             DOCUMENT ME!
      */
     @Before
     public void setUp() throws Exception {
@@ -98,7 +94,6 @@ public class SessionPoolTest {
      * closes the connection pool if it's still open
      * 
      * @throws Exception
-     *             DOCUMENT ME!
      */
     @After
     public void tearDown() throws Exception {
@@ -118,7 +113,7 @@ public class SessionPoolTest {
      * @param connParams
      *            a set of connection parameters from where the new SessionPool will connect to the
      *            SDE database and create connections
-     * @return DOCUMENT ME!
+     * @return
      * @throws IllegalArgumentException
      *             if the set of connection parameters are not propperly set
      * @throws NullPointerException
@@ -148,7 +143,6 @@ public class SessionPoolTest {
      * defined int testparams.properties, and a SessionPool can be properly setted up
      * 
      * @throws IOException
-     *             DOCUMENT ME!
      */
     @Test
     public void testConnect() throws IOException {
@@ -159,13 +153,13 @@ public class SessionPoolTest {
 
         congfig = new ArcSDEConnectionConfig(connectionParameters);
 
+        SessionPool connPool = null;
         try {
-            SessionPool connPool = pf.createSharedPool(congfig);
+            connPool = pf.createPool(congfig);
             LOGGER.fine("connection succeed " + connPool.getPoolSize() + " connections ready");
+            connPool.close();
         } catch (DataSourceException ex) {
             throw ex;
-        } finally {
-            pf.clear(); // close and remove all pools
         }
     }
 
@@ -173,9 +167,8 @@ public class SessionPoolTest {
      * Checks that after creation the pool has the specified initial number of connections.
      * 
      * @throws IOException
-     *             DOCUMENT ME!
+     * 
      * @throws UnavailableArcSDEConnectionException
-     *             DOCUMENT ME!
      */
     @Test
     public void testInitialCount() throws IOException, UnavailableArcSDEConnectionException {
@@ -205,6 +198,7 @@ public class SessionPoolTest {
      * @throws IOException
      * @throws UnavailableArcSDEConnectionException
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testChecksLimits() throws IOException, UnavailableArcSDEConnectionException {
         int MIN_CONNECTIONS = 2;
@@ -232,9 +226,8 @@ public class SessionPoolTest {
      * connection is freed, it is ready to be used again.
      * 
      * @throws IOException
-     *             DOCUMENT ME!
+     * 
      * @throws UnavailableArcSDEConnectionException
-     *             DOCUMENT ME!
      */
     @Test
     public void testMaxConnections() throws IOException, UnavailableArcSDEConnectionException {

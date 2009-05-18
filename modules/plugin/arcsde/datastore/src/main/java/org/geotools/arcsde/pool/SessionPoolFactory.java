@@ -18,14 +18,10 @@
 package org.geotools.arcsde.pool;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Singleton factory that maintains a single {@link SessionPool connection pool} per set of
- * {@link ArcSDEConnectionConfig connection parameters}.
+ * {@link SessionPool} factory.
  * 
  * @author Gabriel Roldan
  * @source $URL:
@@ -40,11 +36,6 @@ public class SessionPoolFactory {
 
     /** singleton pool factory */
     private static final SessionPoolFactory singleton = new SessionPoolFactory();
-
-    /**
-     * Map{ArcSDEConnectionConfig,SessionPool} with per config connection pool
-     */
-    private final Map currentPools = new HashMap();
 
     /**
      * Creates a new SdeConnectionPoolFactory object.
@@ -63,8 +54,7 @@ public class SessionPoolFactory {
     }
 
     /**
-     * Creates a connection pool factory for the given connection parameters, or returns the
-     * existing one if there already exists one for that set of connection params.
+     * Creates a connection pool factory for the given connection parameters.
      * 
      * @param config
      *             contains the connection parameters and pool preferences
@@ -73,59 +63,18 @@ public class SessionPoolFactory {
      * @throws IOException
      *             if the pool needs but can't be created
      */
-    public synchronized SessionPool createSharedPool(ArcSDEConnectionConfig config)
-            throws IOException {
-        SessionPool pool = (SessionPool) this.currentPools.get(config);
+    public synchronized SessionPool createPool(ArcSDEConnectionConfig config) throws IOException {
+        SessionPool pool;
 
-        if (pool == null) {
-            // the new pool will be populated with config.minConnections
-            // connections
-            if (config.getMaxConnections() != null && config.getMaxConnections() == 1) {
-                // engage experimental single connection mode!
-                pool = new ArcSDEConnectionReference(config);
-            } else {
-                pool = new SessionPool(config);
-            }
-            this.currentPools.put(config, pool);
+        // the new pool will be populated with config.minConnections
+        // connections
+        if (config.getMaxConnections() != null && config.getMaxConnections() == 1) {
+            // engage experimental single connection mode!
+            pool = new ArcSDEConnectionReference(config);
+        } else {
+            pool = new SessionPool(config);
         }
 
         return pool;
-    }
-
-    /**
-     * Creates a _new_ session pool.
-     * 
-     * @param config
-     * @return
-     * @throws IOException
-     */
-    public SessionPool createPool(ArcSDEConnectionConfig config) throws IOException {
-        return new SessionPool(config);
-    }
-
-    /**
-     * Closes and removes all the existing connection pools
-     */
-    public void clear() {
-        closeAll();
-        this.currentPools.clear();
-        LOGGER.fine("sde connection pools creared");
-    }
-
-    /**
-     * loses all the available connection pools
-     */
-    private void closeAll() {
-        for (Iterator it = this.currentPools.values().iterator(); it.hasNext();) {
-            ((SessionPool) it.next()).close();
-        }
-    }
-
-    /**
-     * Ensures proper closure of connection pools at this object's finalization stage.
-     */
-    @Override
-    protected void finalize() {
-        closeAll();
     }
 }
