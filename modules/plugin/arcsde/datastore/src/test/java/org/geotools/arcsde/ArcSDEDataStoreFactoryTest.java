@@ -156,6 +156,7 @@ public class ArcSDEDataStoreFactoryTest {
         DataStore store = dsFactory.createDataStore(workingParams);
         assertNotNull(store);
         assertTrue(store instanceof ArcSDEDataStore);
+        store.dispose();
     }
 
     /**
@@ -183,6 +184,7 @@ public class ArcSDEDataStoreFactoryTest {
         SimpleFeatureType viewType = store.getSchema(InProcessViewSupportTestData.typeName);
         assertNotNull(viewType);
         assertEquals(InProcessViewSupportTestData.typeName, viewType.getTypeName());
+        store.dispose();
     }
 
 }
