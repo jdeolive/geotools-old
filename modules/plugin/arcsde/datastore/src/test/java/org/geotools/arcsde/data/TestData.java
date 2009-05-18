@@ -161,9 +161,9 @@ public class TestData {
         if (cleanTestTable) {
             deleteTempTable();
         }
-        if (cleanPool) {
-            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
-            pfac.clear();
+        if (cleanPool && _pool != null) {
+            _pool.close();
+            _pool = null;
         }
     }
 
@@ -186,7 +186,7 @@ public class TestData {
      *             DOCUMENT ME!
      */
     public ArcSDEDataStore getDataStore() throws IOException {
-        SessionPool pool = getConnectionPool();
+        SessionPool pool = newSessionPool();
         ArcSDEDataStore dataStore = new ArcSDEDataStore(pool);
 
         return dataStore;
@@ -194,11 +194,15 @@ public class TestData {
 
     public SessionPool getConnectionPool() throws IOException {
         if (this._pool == null) {
-            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
-            ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(this.conProps);
-            this._pool = pfac.createSharedPool(config);
+            this._pool = newSessionPool();
         }
         return this._pool;
+    }
+
+    private SessionPool newSessionPool() throws IOException {
+        SessionPoolFactory pfac = SessionPoolFactory.getInstance();
+        ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(this.conProps);
+        return pfac.createPool(config);
     }
 
     /**
@@ -933,7 +937,8 @@ public class TestData {
      * This private method is used to create a lot of layers in the test database in order to fix
      * GEOT-1956
      */
-    private void createSampleLayers(final int numLayersToCreate, final int startFrom) throws IOException {
+    private void createSampleLayers(final int numLayersToCreate, final int startFrom)
+            throws IOException {
         final SessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
 
