@@ -75,6 +75,12 @@ class Session implements ISession {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.arcsde.pool");
 
+    /**
+     * How many seconds must have elapsed since the last connection round trip to the server for
+     * {@link #testServer()} to actually check the connection's validity
+     */
+    protected static final long TEST_SERVER_ROUNDTRIP_INTERVAL_SECONDS = 5;
+
     /** Actual SeConnection being protected */
     private final SeConnection connection;
 
@@ -257,6 +263,32 @@ class Session implements ISession {
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @see ISession#testServer()
+     */
+    public final void testServer() throws IOException {
+        /*
+         * This method is called often (every time a session is to be returned from the pool) to
+         * check if it's still valid. We can call getTimeSinceLastRT safely since it does not
+         * require a server roundtrip and hence there's no risk of violating thread safety. So we do
+         * it before issuing the command to avoid the perf penalty imposed by running the command if
+         * not needed.
+         */
+        final long secondsSinceLastServerRoundTrip = this.connection.getTimeSinceLastRT();
+
+        if (TEST_SERVER_ROUNDTRIP_INTERVAL_SECONDS < secondsSinceLastServerRoundTrip) {
+            issue(new Command<Void>() {
+                @Override
+                public Void execute(final ISession session, final SeConnection connection)
+                        throws SeException, IOException {
+                    connection.testServer(TEST_SERVER_ROUNDTRIP_INTERVAL_SECONDS);
+
+                    return null;
+                }
+            });
         }
     }
 
@@ -523,14 +555,12 @@ class Session implements ISession {
                 public Void execute(final ISession session, final SeConnection connection)
                         throws SeException, IOException {
                     connection.close();
+                    LOGGER.fine(session.toString() + " successfully closed");
                     return null;
                 }
             });
-            LOGGER.fine(toString() + " successfully closed");
         } catch (Exception e) {
-            LOGGER
-                    .log(Level.WARNING, "closing connection " + toString() + ": " + e.getMessage(),
-                            e);
+            LOGGER.log(Level.FINE, "closing connection " + toString(), e);
         }
     }
 

@@ -26,8 +26,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool.impl.GenericObjectPool.Config;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Transaction;
@@ -87,7 +87,7 @@ public class SessionPool {
     protected ArcSDEConnectionConfig config;
 
     /** Apache commons-pool used to pool arcsde connections */
-    protected ObjectPool pool;
+    protected GenericObjectPool pool;
 
     /**
      * Creates a new SdeConnectionPool object with the connection parameters holded by
@@ -112,14 +112,42 @@ public class SessionPool {
         this.seConnectionFactory = createConnectionFactory();
 
         int minConnections = config.getMinConnections().intValue();
-        int maxConnections = config.getMaxConnections().intValue();
-        // byte exhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_GROW;
-        byte exhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
-        long maxWait = config.getConnTimeOut().longValue();
 
-        this.pool = new GenericObjectPool(seConnectionFactory, maxConnections, exhaustedAction,
-                maxWait, true, true);
-        LOGGER.fine("Created ArcSDE connection pool for " + config);
+        {// configure connection pool
+
+            Config poolCfg = new Config();
+            // pool upper limit
+            poolCfg.maxActive = config.getMaxConnections().intValue();
+            poolCfg.minIdle = config.getMinConnections().intValue();
+
+            // how many connections may be idle at any time? -1 = no limit. We're running an
+            // eviction thread to take care of idle connections (see minEvictableIdleTimeMillis and
+            // timeBetweenEvictionRunsMillis)
+            poolCfg.maxIdle = -1;
+
+            // When reached the pool upper limit, block and wait for an idle connection for maxWait
+            // milliseconds before failing
+            poolCfg.maxWait = config.getConnTimeOut().longValue();
+            poolCfg.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
+
+            // check connection health at borrowObject()?
+            poolCfg.testOnBorrow = true;
+            // check connection health at returnObject()?
+            poolCfg.testOnReturn = false;
+            // check periodically the health of idle connections and discard them if can't be
+            // validated?
+            poolCfg.testWhileIdle = true;
+
+            // check health of idle connections every 30 seconds
+            poolCfg.timeBetweenEvictionRunsMillis = 30000;
+
+            // drop connections that have been idle for at least one minute
+            poolCfg.minEvictableIdleTimeMillis = 60000;
+
+            this.pool = new GenericObjectPool(seConnectionFactory, poolCfg);
+
+            LOGGER.fine("Created ArcSDE connection pool for " + config);
+        }
 
         ISession[] preload = new ISession[minConnections];
 
@@ -277,7 +305,7 @@ public class SessionPool {
             // caller = stackTrace[3].getClassName() + "." +
             // stackTrace[3].getMethodName();
             // }
-            
+
             Session connection = (Session) this.pool.borrowObject();
 
             if (LOGGER.isLoggable(Level.FINER)) {
@@ -310,7 +338,6 @@ public class SessionPool {
      *         database
      * @throws DataSourceException
      */
-    @SuppressWarnings("unchecked")
     public List<String> getAvailableLayerNames() throws IOException {
         checkOpen();
         final ISession session;
@@ -438,10 +465,12 @@ public class SessionPool {
                     if (LOGGER.isLoggable(Level.FINEST)) {
                         LOGGER.finest("    Validating SDE Connection " + session);
                     }
-                    String user = session.getUser();
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("    Connection validated, user: " + user);
-                    }
+                    /*
+                     * Validate the connection's health with testServer instead of getUser. The
+                     * former is lighter weight, getUser() forced a server round trip and under
+                     * heavy concurrency ate about 30% the time
+                     */
+                    session.testServer();
                 } catch (IOException e) {
                     LOGGER.info("Can't validate SeConnection, discarding it: " + session
                             + ". Reason: " + e.getMessage());

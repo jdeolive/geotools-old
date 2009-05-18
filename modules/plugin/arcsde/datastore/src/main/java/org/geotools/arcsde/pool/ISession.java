@@ -23,6 +23,7 @@ import java.util.List;
 import org.geotools.arcsde.data.SdeRow;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;
 import com.esri.sde.sdk.client.SeInsert;
@@ -51,6 +52,14 @@ public interface ISession {
      *             if an exception occurs handling any ArcSDE resource while executing the command
      */
     public abstract <T> T issue(final Command<T> command) throws IOException;
+
+    /**
+     * Performs a session sanity check to avoid stale connections to be returned from the pool.
+     * 
+     * @throws IOException
+     * @see {@link SeConnection#testServer(long)}
+     */
+    public void testServer() throws IOException;
 
     public abstract boolean isClosed();
 
@@ -179,10 +188,13 @@ public interface ISession {
 
     /**
      * Issues a command that fetches a row from an already executed SeQuery and returns the
-     * {@link SdeRow} object with its contents. <p> The point in returning an {@link SdeRow} instead
-     * of a plain {@link SeRow} is that the former prefetches the row values and this can be freely
-     * used outside a {@link Command}. Otherwise the SeRow should only be used inside a command as
-     * accessing its values implies using the connection. </p>
+     * {@link SdeRow} object with its contents.
+     * <p>
+     * The point in returning an {@link SdeRow} instead of a plain {@link SeRow} is that the former
+     * prefetches the row values and this can be freely used outside a {@link Command}. Otherwise
+     * the SeRow should only be used inside a command as accessing its values implies using the
+     * connection.
+     * </p>
      * 
      * @param query
      * @return
@@ -202,7 +214,10 @@ public interface ISession {
 
     /**
      * Creates an SeQuery to fetch the given propertyNames with the provided attribute based
-     * restrictions <p> This method shall only be called from inside a {@link Command} </p>
+     * restrictions
+     * <p>
+     * This method shall only be called from inside a {@link Command}
+     * </p>
      * 
      * @param propertyNames
      * @param sql

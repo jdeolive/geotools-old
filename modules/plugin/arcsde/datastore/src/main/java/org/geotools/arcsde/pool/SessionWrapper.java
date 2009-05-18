@@ -58,6 +58,13 @@ public class SessionWrapper implements ISession {
     }
 
     /**
+     * @see org.geotools.arcsde.pool.ISession#testServer()
+     */
+    public void testServer() throws IOException {
+        this.wrapped.testServer();
+    }
+
+    /**
      * @see org.geotools.arcsde.pool.ISession#close(com.esri.sde.sdk.client.SeState)
      */
     public void close(SeState state) throws IOException {
