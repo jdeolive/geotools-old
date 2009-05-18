@@ -18,10 +18,7 @@
 package org.geotools.arcsde.data;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +55,6 @@ import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.view.DefaultView;
 import org.geotools.feature.FeatureTypes;
-import org.geotools.feature.NameImpl;
 import org.geotools.feature.SchemaException;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
@@ -74,6 +70,10 @@ import com.esri.sde.sdk.client.SeQueryInfo;
 
 /**
  * DataStore implementation to work upon an ArcSDE spatial database gateway.
+ * <p>
+ * Takes ownership of the provided {@link SessionPool} so make sure to call {@link #dispose()} in
+ * order to release resources (ArcSDE connections).
+ * </p>
  * 
  * @author Gabriel Roldan (TOPP)
  * @source $URL:
@@ -118,7 +118,7 @@ public class ArcSDEDataStore implements DataStore {
     public ArcSDEDataStore(final SessionPool connPool, final String namespaceUri)
             throws IOException {
         this.connectionPool = connPool;
-        this.typeInfoCache = new FeatureTypeInfoCache(connectionPool, namespaceUri, 0);
+        this.typeInfoCache = new FeatureTypeInfoCache(connectionPool, namespaceUri, 30);
     }
 
     public ISession getSession(final Transaction transaction) throws IOException {
@@ -194,8 +194,15 @@ public class ArcSDEDataStore implements DataStore {
     public void dispose() {
         LOGGER.fine("Disposing " + connectionPool);
         this.typeInfoCache.dispose();
-        this.connectionPool.close();
+        if (!connectionPool.isClosed()) {
+            this.connectionPool.close();
+        }
         LOGGER.fine("Session pool disposed");
+    }
+
+    @Override
+    protected void finalize() {
+        dispose();
     }
 
     /**
