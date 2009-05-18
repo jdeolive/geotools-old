@@ -143,14 +143,20 @@ class Session implements ISession {
             public SeConnection execute(final ISession session, final SeConnection connection)
                     throws SeException, IOException {
                 String serverName = config.getServerName();
-                int intValue = config.getPortNumber().intValue();
+                int portNumber = config.getPortNumber().intValue();
                 String databaseName = config.getDatabaseName();
                 String userName = config.getUserName();
                 String userPassword = config.getUserPassword();
 
-                SeConnection conn = new SeConnection(serverName, intValue, databaseName, userName,
-                        userPassword);
-
+                SeConnection conn;
+                try {
+                    conn = new SeConnection(serverName, portNumber, databaseName, userName,
+                            userPassword);
+                } catch (SeException e) {
+                    throw new ArcSdeException("Can't create connection to " + serverName, e);
+                } catch (RuntimeException e) {
+                    throw new DataSourceException("Can't create connection to " + serverName, e);
+                }
                 conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
                 return conn;
             }

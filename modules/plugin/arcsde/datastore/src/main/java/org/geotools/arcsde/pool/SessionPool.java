@@ -118,6 +118,8 @@ public class SessionPool {
             Config poolCfg = new Config();
             // pool upper limit
             poolCfg.maxActive = config.getMaxConnections().intValue();
+
+            // minimum number of idle objects
             poolCfg.minIdle = config.getMinConnections().intValue();
 
             // how many connections may be idle at any time? -1 = no limit. We're running an

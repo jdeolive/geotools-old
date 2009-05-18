@@ -268,7 +268,7 @@ final class FeatureTypeInfoCache {
         public void run() {
             final List<String> typeNames;
             final Set<String> removed;
-            LOGGER.fine("FeatureTypeCache background process running...");
+            LOGGER.finer("FeatureTypeCache background process running...");
 
             try {
                 typeNames = sessionPool.getAvailableLayerNames();
@@ -279,12 +279,14 @@ final class FeatureTypeInfoCache {
 
             {// just some logging..
                 Set<String> added = new TreeSet<String>(typeNames);
-                if (added.removeAll(availableLayerNames)) {
-                    LOGGER.finer("FeatureTypeCache: added the following layers: " + added);
+                added.removeAll(availableLayerNames);
+                if (added.size() > 0) {
+                    LOGGER.finest("FeatureTypeCache: added the following layers: " + added);
                 }
                 removed = new TreeSet<String>(availableLayerNames);
-                if (removed.removeAll(typeNames)) {
-                    LOGGER.finer("FeatureTypeCache: the following layers are no "
+                removed.removeAll(typeNames);
+                if (removed.size() > 0) {
+                    LOGGER.finest("FeatureTypeCache: the following layers are no "
                             + "longer available: " + removed);
                 }
             }
@@ -293,15 +295,18 @@ final class FeatureTypeInfoCache {
             availableLayerNames.clear();
             availableLayerNames.addAll(typeNames);
 
-            LOGGER.fine("FeatureTypeCache: updated server layer list: " + typeNames);
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest("FeatureTypeCache: updated server layer list: " + typeNames);
+            }
 
             // discard any removed feature type
             for (String typeName : removed) {
-                LOGGER.info("Removing FeatureTypeInfo for layer " + typeName
+                LOGGER.fine("Removing FeatureTypeInfo for layer " + typeName
                         + " since it does no longer exist on the database");
                 featureTypeInfos.remove(typeName);
             }
 
+            LOGGER.finer("Finished updated type name cache");
             cacheLock.writeLock().unlock();
         }
     }
