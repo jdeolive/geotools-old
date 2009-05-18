@@ -67,6 +67,7 @@
     <module>epsg-hsql</module>
     <module>epsg-postgresql</module>
     <module>epsg-wkt</module>
+    <module>feature-pregeneralized</module>
     <module>geotiff</module>
     <module>gtopo30</module>
     <module>image</module>

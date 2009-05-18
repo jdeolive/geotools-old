@@ -15,7 +15,7 @@
 
   <parent>
     <groupId>org.geotools</groupId>
-    <artifactId>unsupported</artifactId>
+    <artifactId>plugin</artifactId>
     <version>2.6-SNAPSHOT</version>
   </parent>
 
@@ -26,14 +26,14 @@
   <groupId>org.geotools</groupId>
   <artifactId>gt-feature-pregeneralized</artifactId>
   <packaging>jar</packaging>
-  <name>GenFeatureSource</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/feature-pregeneralized</url>
+  <name>Feature-Pregeneralized</name>
+  <url>http://maven.geotools.fr/reports/modules/plugin/feature-pregeneralized</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/feature-pregeneralized/
+      scm:svn:http://svn.geotools.org/trunk/modules/plugin/feature-pregeneralized/
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/feature-pregeneralized/</url>
+    <url>http://svn.geotools.org/trunk/modules/plugin/feature-pregeneralized/</url>
   </scm>
 
   <description>
