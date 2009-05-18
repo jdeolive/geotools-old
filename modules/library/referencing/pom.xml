@@ -62,8 +62,8 @@
       <organizationUrl>http://www.geomatys.fr/</organizationUrl>
       <timezone>+1</timezone>
       <roles>
-        <role>Module Maintainer</role>
-        <role>Java Developer</role>
+        <role>Retired Module Maintainer</role>
+        <role>Retired Java Developer</role>
       </roles>
     </developer>
     <developer>
@@ -92,14 +92,17 @@
       </roles>
     </developer>
     <developer>
-      <name>Simone Giannecchinir</name>
+      <name>Simone Giannecchini</name>
       <id>simboss</id>
       <email>simone.giannecchini@geo-solutions.it</email>
       <organization>GeoSolutions S.A.S.</organization>
+      <organizationUrl>http://www.geo-solutions.it</organizationUrl>
       <roles>
-        <role>Java developper</role>
+        <role>Java Developer</role>
+        <role>Documentation</role>
+        <role>Module Maintainer</role>
       </roles>
-    </developer>
+    </developer> 
   </developers>
 
   <contributors>

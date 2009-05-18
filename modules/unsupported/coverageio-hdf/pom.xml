@@ -54,6 +54,18 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
+      <name>Simone Giannecchini</name>
+      <id>simboss</id>
+      <email>simone.giannecchini@geo-solutions.it</email>
+      <organization>GeoSolutions S.A.S.</organization>
+      <organizationUrl>http://www.geo-solutions.it</organizationUrl>
+      <roles>
+        <role>Java Developer</role>
+        <role>Documentation</role>
+        <role>Module Maintainer</role>
+      </roles>
+    </developer> 
+    <developer>
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
@@ -61,8 +73,8 @@
       <organizationUrl>http://www.geomatys.fr/</organizationUrl>
       <timezone>+1</timezone>
       <roles>
-        <role>Module Maintainer</role>
-        <role>Java Developer</role>
+        <role>retired Module Maintainer</role>
+        <role>retired Java Developer</role>
       </roles>
     </developer>
   </developers>

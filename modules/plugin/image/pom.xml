@@ -54,13 +54,17 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
-     <name>Simone Giannecchini</name>
-     <id>simboss</id>
-     <email>simboss_ml@tiscali.it</email>
-     <roles>
-       <role>Java Developer</role>
-     </roles>
-   </developer>
+      <name>Simone Giannecchini</name>
+      <id>simboss</id>
+      <email>simone.giannecchini@geo-solutions.it</email>
+      <organization>GeoSolutions S.A.S.</organization>
+      <organizationUrl>http://www.geo-solutions.it</organizationUrl>
+      <roles>
+        <role>Java Developer</role>
+        <role>Documentation</role>
+        <role>Module Maintainer</role>
+      </roles>
+    </developer> 
    <developer>
      <name>Alessio Fabiani</name>
      <id>alfa</id>
