@@ -50,9 +50,7 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.Feature;
@@ -111,7 +109,6 @@ public class ArcSDEFeatureSourceTest {
         testData.tearDown(cleanTestTable, cleanPool);
         store.dispose();
     }
-
 
     /**
      * This method tests the feature reader by opening various simultaneous FeatureReaders using the
@@ -744,9 +741,10 @@ public class ArcSDEFeatureSourceTest {
 
         public String toString() {
             StringBuilder sb = new StringBuilder("Time[");
-            sb.append("\n\tgetTypeNames=").append(getTypeNames).append("\ngetCount=\t").append(
-                    getCount).append("\ngetBounds\t").append(getBounds).append("\ngetFeatures=\t")
-                    .append(getFeatures).append("\niterate=\t").append(iterate).append("\n]");
+            sb.append("\n getTypeNames=").append(getTypeNames).append("\n getCount=\t").append(
+                    getCount).append("\n getBounds\t").append(getBounds)
+                    .append("\n getFeatures=\t").append(getFeatures).append("\n iterate=\t")
+                    .append(iterate).append("\n]");
             return sb.toString();
         }
 
@@ -758,20 +756,19 @@ public class ArcSDEFeatureSourceTest {
     int count;
 
     /**
-     * NOTE: run it with pool.minConnections == pool.maxConnections to avoid the penalization of
-     * creating the connections to reach maxConnections while the test runs
+     * NOTE: manually run it with pool.minConnections == pool.maxConnections to avoid the
+     * penalization of creating the connections to reach maxConnections while the test runs
      * 
      * @throws Exception
      */
-    @Test
-    public void testConcurrencyPerformance() throws Exception {
+    Time testConcurrencyPerformance(final int nExecutions, final int nThreads) throws Exception {
         final String table = testData.getTempTableName();
 
         class TestCommand implements Callable<Time> {
 
             public Time call() throws Exception {
                 int mine = ++count;
-                System.out.println("Starting execution " + count);
+                // System.out.println("Starting execution " + count);
                 Stopwatch sw = new Stopwatch();
                 Time result = new Time();
 
@@ -814,13 +811,10 @@ public class ArcSDEFeatureSourceTest {
                 sw.reset();
                 features.close();
 
-                System.out.println("Finishing execution " + mine);
+                // System.out.println("Finishing execution " + mine);
                 return result;
             }
         }
-
-        final int nThreads = 20;
-        final int nExecutions = 30;
 
         // ignore initialization time
         new TestCommand().call();
@@ -836,6 +830,8 @@ public class ArcSDEFeatureSourceTest {
             tasks.add(task);
         }
 
+        Thread.currentThread().sleep(10000);
+
         Time totalTime = new Time();
         List<Time> results;
         while (true) {
@@ -850,11 +846,48 @@ public class ArcSDEFeatureSourceTest {
             if (tasks.size() == 0) {
                 break;
             }
-            Thread.currentThread().sleep(1000);
+            Thread.currentThread().sleep(100);
         }
 
-        System.out.println("\n\n" + nExecutions + " executions on " + nThreads + " threads "
-                + "\nexecuted in " + totalTime.getTotal() + "ms. " + totalTime + "\n avg: "
-                + (totalTime.getTotal() / nExecutions));
+        return totalTime;
+    }
+
+    public static void main(String[] argv) {
+
+        final int nExecutions = 300;
+
+        final int[] testThreads = { 30 };
+
+        ArcSDEFeatureSourceTest test = new ArcSDEFeatureSourceTest();
+        try {
+
+            for (int threads : testThreads) {
+
+                ArcSDEFeatureSourceTest.oneTimeSetUp();
+                testData.getConProps().put("pool.minConnections", Integer.valueOf(threads));
+                testData.getConProps().put("pool.maxConnections", Integer.valueOf(threads));
+
+                testData.tearDown(false, true);
+                if (store != null) {
+                    store.dispose();
+                }
+                store = testData.getDataStore();
+
+                Time t = test.testConcurrencyPerformance(nExecutions, threads);
+
+                final int nConnections = testData.getConnectionPool().getPoolSize();
+                ArcSDEFeatureSourceTest.oneTimeTearDown();
+
+                System.out.println("\n\n" + nExecutions + " executions on " + threads + " threads "
+                        + " with " + nConnections + " connections \nexecuted in " + t.getTotal()
+                        + "ms. " + t + "\n avg: " + (t.getTotal() / nExecutions));
+
+            }
+
+            System.exit(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 }
