@@ -117,8 +117,7 @@ public class ArcSDEFeatureStoreTest {
     private static Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(ArcSDEFeatureStoreTest.class.getPackage().getName());
 
-    /** DOCUMENT ME! */
-    private static TestData testData;
+    private TestData testData;
 
     /**
      * Flag that indicates whether the underlying database is MS SQL Server.
@@ -132,8 +131,8 @@ public class ArcSDEFeatureStoreTest {
      */
     private static boolean databaseIsMsSqlServer;
 
-    @BeforeClass
-    public static void oneTimeSetUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         testData = new TestData();
         testData.setUp();
 
@@ -150,27 +149,11 @@ public class ArcSDEFeatureStoreTest {
         }
     }
 
-    @AfterClass
-    public static void oneTimeTearDown() {
+    @After
+    public void tearDown() {
         boolean cleanTestTable = false;
         boolean cleanPool = true;
         testData.tearDown(cleanTestTable, cleanPool);
-    }
-
-    /**
-     * loads {@code test-data/testparams.properties} into a Properties object, wich is used to
-     * obtain test tables names and is used as parameter to find the DataStore
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
-     */
-    @Before
-    public void setUp() throws Exception {
-        testData.truncateTempTable();
-    }
-
-    @After
-    public void tearDown() throws Exception {
     }
 
     /**
