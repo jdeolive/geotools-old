@@ -527,7 +527,7 @@ public class FeatureChainingTest extends TestCase {
         DataAccess<FeatureType, Feature> dataAccess = DataAccessFinder.getDataStore(dsParams);
         assertNotNull(dataAccess);
 
-        Name ns = Types.typeName("http://example.com", "parentFeature");
+        Name ns = Types.typeName("http://example.com", "ParentFeature");
         FeatureType featureType = dataAccess.getSchema(ns);
         assertNotNull(featureType);
 

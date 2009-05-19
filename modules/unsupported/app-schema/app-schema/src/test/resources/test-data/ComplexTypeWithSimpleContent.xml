@@ -32,13 +32,16 @@
 		<FeatureTypeMapping>
 			<sourceDataStore>SimpleContentDataDirectory</sourceDataStore>
 			<sourceType>ControlledConcept</sourceType>
-			<targetElement>ex:parentFeature</targetElement>
+			<targetElement>ex:ParentFeature</targetElement>			
 			<attributeMappings>
+			    <AttributeMapping>
+					<targetAttribute>ex:ParentFeature</targetAttribute>
+				</AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>ex:nestedFeature</targetAttribute>
 					<sourceExpression>
 						<OCQL>NAME</OCQL>
-						<linkElement>ex:nestedFeature</linkElement>
+						<linkElement>ex:SimpleContent</linkElement>
 						<linkField>ex:someAttribute</linkField>
 					</sourceExpression>
 					<isMultiple>true</isMultiple>
@@ -49,8 +52,11 @@
 		    <!-- This is testing chaining complex types with simple content -->
 		    <sourceDataStore>SimpleContentDataDirectory</sourceDataStore>
 			<sourceType>SimpleContent</sourceType>
-			<targetElement>ex:nestedFeature</targetElement>
+			<targetElement>ex:SimpleContent</targetElement>
 			<attributeMappings>
+			    <AttributeMapping>
+					<targetAttribute>ex:SimpleContent</targetAttribute>
+				</AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>ex:someAttribute</targetAttribute>
 					<sourceExpression>
