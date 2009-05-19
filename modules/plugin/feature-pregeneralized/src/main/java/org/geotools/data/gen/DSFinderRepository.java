@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,9 +122,16 @@ public class DSFinderRepository implements Repository {
         map.put(localName, ds);
         return ds;
     }
+
     
+    /* (non-Javadoc)
+     * @see org.geotools.data.Repository#getDataStores()
+     * 
+     * These datastores are for internal use only 
+     */
     public List<DataStore> getDataStores(){
-        List<DataStore> available = new ArrayList<DataStore>( this.map.values() );
-        return available;
+        return Collections.emptyList();
+//        List<DataStore> available = new ArrayList<DataStore>( this.map.values() );
+//        return available;
     }
 }
