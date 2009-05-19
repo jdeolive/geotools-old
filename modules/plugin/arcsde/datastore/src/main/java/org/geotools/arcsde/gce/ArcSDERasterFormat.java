@@ -101,6 +101,8 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
 
     private static final ArcSDERasterFormat instance = new ArcSDERasterFormat();
 
+    private boolean statisticsMandatory;
+
     /**
      * Creates an instance and sets the metadata.
      */
@@ -516,10 +518,10 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
                                 + rAtt.getRasterId().longValue() + " in " + rasterTable
                                 + " contains no raster attribtues");
                     }
-                    if (!rAtt.getBandInfo(1).hasStats()) {
-                        throw new IllegalArgumentException(
-                                rasterTable
-                                        + " has no statistics generated. Please use sderaster -o stats to create them before use");
+                    if (this.statisticsMandatory && !rAtt.getBandInfo(1).hasStats()) {
+                        throw new IllegalArgumentException(rasterTable
+                                + " has no statistics generated. "
+                                + "Please use sderaster -o stats to create them before use");
                     }
 
                     PyramidInfo pyramidInfo = new PyramidInfo(rAtt, coverageCrs);
@@ -874,5 +876,15 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
 
         assert dataIn.read() == -1 : "color map data should have been exausted";
         return buff;
+    }
+
+    /**
+     * Used by test code to indicate wether to fail when a raster lacks statistics, since we can't
+     * create statistics with the ArcSDE Java API
+     * 
+     * @param statisticsMandatory
+     */
+    void setStatisticsMandatory(final boolean statisticsMandatory) {
+        this.statisticsMandatory = statisticsMandatory;
     }
 }
