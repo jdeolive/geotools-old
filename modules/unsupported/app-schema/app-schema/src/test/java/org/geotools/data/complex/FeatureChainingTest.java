@@ -30,6 +30,7 @@ import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureImpl;
 import org.geotools.feature.Types;
 import org.geotools.filter.FunctionExpressionImpl;
 import org.geotools.filter.RegfuncFilterFactoryImpl;
@@ -511,6 +512,53 @@ public class FeatureChainingTest extends TestCase {
         assertEquals(getCount(filteredResults), 3);
 
         this.disposeDataAccesses();
+    }
+    
+    /**
+     * Test nesting features of a complex type with simple content. Previously didn't get encoded.
+     */
+    public void testComplexTypeWithSimpleContent() throws Exception {
+        Map dsParams = new HashMap();
+        URL url = getClass().getResource(schemaBase + "ComplexTypeWithSimpleContent.xml");
+        assertNotNull(url);
+
+        dsParams.put("dbtype", "app-schema");
+        dsParams.put("url", url.toExternalForm());
+        DataAccess<FeatureType, Feature> dataAccess = DataAccessFinder.getDataStore(dsParams);
+        assertNotNull(dataAccess);
+
+        Name ns = Types.typeName("http://example.com", "parentFeature");
+        FeatureType featureType = dataAccess.getSchema(ns);
+        assertNotNull(featureType);
+
+        FeatureSource fSource = (FeatureSource) dataAccess.getFeatureSource(ns);
+        FeatureCollection features = (FeatureCollection) fSource.getFeatures();
+
+        final int EXPECTED_RESULTS = 2;
+        assertEquals(getCount(features), EXPECTED_RESULTS);
+
+        Iterator<Feature> iterator = features.iterator();
+        while (iterator.hasNext()) {
+            Feature next = iterator.next();
+            Collection<Property> children = next.getProperties("nestedFeature");
+            if (next.getIdentifier().toString().equals("1")) {
+                // see ControlledConcept.properties where id = 1
+                assertEquals(children.size(), 3);
+            } else {
+                // see ControlledConcept.properties where id = 2
+                assertEquals(children.size(), 1);
+            }
+            for (Property nestedFeature : children) {
+                Object value = nestedFeature.getValue();
+                assertNotNull(value);
+                value = ((Collection) value).iterator().next();
+                assertEquals(value instanceof FeatureImpl, true);
+                Feature feature = (Feature) value;
+                assertNotNull(feature.getProperty("someAttribute").getValue());
+            }
+        }
+
+        dataAccess.dispose();
     }
 
     /**

@@ -64,7 +64,6 @@ import org.geotools.xs.XS;
 import org.geotools.xs.XSSchema;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureTypeFactory;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
@@ -584,8 +583,7 @@ public class EmfAppSchemaReader {
             XSDComplexTypeDefinition complexTypeDef;
             complexTypeDef = (XSDComplexTypeDefinition) typeDefinition;
             boolean includeParents = true;
-            List children;
-            children = Schemas.getChildElementDeclarations(typeDefinition, includeParents);
+            List children = Schemas.getChildElementDeclarations(typeDefinition, includeParents);
 
             final Collection schema = new ArrayList(children.size());
 
@@ -637,7 +635,6 @@ public class EmfAppSchemaReader {
         assert abstractFType != null;
 
         boolean isFeatureType = isDerivedFrom(typeDefinition, abstractFType.getName());
-        boolean isSimpleContent = isSimpleContent(schema);
 
         boolean isAbstract = false;// TODO
         List<Filter> restrictions = Collections.emptyList();
@@ -645,18 +642,8 @@ public class EmfAppSchemaReader {
 
         AttributeType type;
         if (isFeatureType) {
-            if (isSimpleContent) {
-                FeatureTypeFactory fac = new FeatureTypeFactoryImpl();
-                type = fac
-                        .createSimpleFeatureType(assignedName, new ArrayList(schema),
-                                (GeometryDescriptor) null, isAbstract, restrictions, superType,
-                                description);
-            } else {
-                type = typeFactory
-                        .createFeatureType(assignedName, schema, (GeometryDescriptor) null,
-                                isAbstract, restrictions, superType, description);
-
-            }
+            type = typeFactory.createFeatureType(assignedName, schema, (GeometryDescriptor) null,
+                    isAbstract, restrictions, superType, description);
         } else {
             boolean isIdentifiable = isIdentifiable((XSDComplexTypeDefinition) typeDefinition);
             type = typeFactory.createComplexType(assignedName, schema, isIdentifiable, isAbstract,
@@ -693,33 +680,6 @@ public class EmfAppSchemaReader {
             }
         }
         return false;
-    }
-
-    /**
-     * Returns true if all the AttributeDescriptors contained in <code>schema</code> are of a
-     * simple type and no one has maxOccurs > 1.
-     * <p>
-     * Note this method ignores the attributes from the GML namespace
-     * </p>
-     * 
-     * @param schema
-     * @return
-     */
-    private boolean isSimpleContent(Collection schema) {
-        AttributeDescriptor descriptor;
-        for (Iterator it = schema.iterator(); it.hasNext();) {
-            descriptor = (AttributeDescriptor) it.next();
-            if (GML.NAMESPACE.equals(descriptor.getName().getNamespaceURI())) {
-                continue;
-            }
-            if (descriptor.getMaxOccurs() > 1) {
-                return false;
-            }
-            if (descriptor.getType() instanceof ComplexType) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
