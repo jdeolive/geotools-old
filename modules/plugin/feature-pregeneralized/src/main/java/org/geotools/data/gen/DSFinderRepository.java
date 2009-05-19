@@ -23,7 +23,9 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -119,6 +121,10 @@ public class DSFinderRepository implements Repository {
         }
         map.put(localName, ds);
         return ds;
-
+    }
+    
+    public List<DataStore> getDataStores(){
+        List<DataStore> available = new ArrayList<DataStore>( this.map.values() );
+        return available;
     }
 }
