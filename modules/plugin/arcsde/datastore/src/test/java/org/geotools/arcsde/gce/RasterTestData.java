@@ -772,6 +772,7 @@ public class RasterTestData {
             final boolean skipLevelOne, final int interpolationType, final SeExtent extent,
             final ArcSDEPooledConnection conn) throws SeException, CloneNotSupportedException,
             ArcSdeException {
+        
         SeRasterAttr attr = new SeRasterAttr(true);
         attr.setImageSize(imageWidth, imageHeight, numberOfBands);
         int tileWidth = imageWidth >> 4;

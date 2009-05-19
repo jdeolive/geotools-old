@@ -626,6 +626,8 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
                 + config.getDatabaseName() + "#" + tableName;
 
         final ArcSDERasterFormat format = new ArcSDERasterFormatFactory().createFormat();
+        //we can't create statistics here so tell ArcSDERasterFormat not to fail
+        format.setStatisticsMandatory(false);
 
         AbstractGridCoverage2DReader reader = format.getReader(rgbUrl);
         return reader;
