@@ -376,16 +376,9 @@ class RasterUtils {
 
     public static MathTransform createRasterToModel(final Rectangle levelGridRange,
             final GeneralEnvelope levelEnvelope) {
-        /*
-         * GeneralGridRange range's is exclusive for the higher coords, so we contract it by one in
-         * both dimensions for the transform to produce matching mosaics
-         */
-        Rectangle reducedRange = new Rectangle(levelGridRange.x, levelGridRange.y,
-                levelGridRange.width - 1, levelGridRange.height - 1);
-
         // create a raster to model transform, from this tile pixel space to the tile's geographic
         // extent
-        GeneralGridEnvelope gridRange = new GeneralGridEnvelope(reducedRange, 2);
+        GeneralGridEnvelope gridRange = new GeneralGridEnvelope(levelGridRange, 2);
         GridToEnvelopeMapper geMapper = new GridToEnvelopeMapper(gridRange, levelEnvelope);
         geMapper.setPixelAnchor(PixelInCell.CELL_CORNER);
 
@@ -825,7 +818,7 @@ class RasterUtils {
         return matchingRasters;
     }
 
-    public static void fitRequestToRaster(final GeneralEnvelope requestedEnvelope,
+    public static void _fitRequestToRaster(final GeneralEnvelope requestedEnvelope,
             final RasterInfo rasterInfo, final QueryInfo query) {
 
         final int rasterIndex = query.getRasterIndex();
@@ -876,6 +869,90 @@ class RasterUtils {
         } catch (TransformException e) {
             throw new RuntimeException(e);
         }
+
+        final Rectangle matchingTiles;
+        final Rectangle levelTileRange;
+        final Rectangle tiledImageGridRange;
+        {
+            final Dimension tileSize = rasterInfo.getTileDimension(rasterIndex);
+            final int numTilesWide = rasterInfo.getNumTilesWide(rasterIndex, pyramidLevel);
+            final int numTilesHigh = rasterInfo.getNumTilesHigh(rasterIndex, pyramidLevel);
+            final Point tileOffset = rasterInfo.getTileOffset(rasterIndex, pyramidLevel);
+            levelTileRange = new Rectangle(0, 0, numTilesWide, numTilesHigh);
+            matchingTiles = findMatchingTiles(tileSize, numTilesWide, numTilesHigh, resultGridRange);
+
+            int tiledImageMinX = (matchingTiles.x * tileSize.width);
+            int tiledImageMinY = (matchingTiles.y * tileSize.height);
+
+            int tiledWidth = (matchingTiles.width * tileSize.width);
+            int tiledHeight = (matchingTiles.height * tileSize.height);
+
+            tiledImageGridRange = new Rectangle(tiledImageMinX, tiledImageMinY, tiledWidth,
+                    tiledHeight);
+        }
+
+        /*
+         * What is the grid range inside the whole level grid range that fits into the matching
+         * tiles
+         */
+        Rectangle resultDimensionInsideTiledImage;
+        resultDimensionInsideTiledImage = getResultDimensionForTileRange(tiledImageGridRange,
+                resultGridRange);
+
+        query.setResultEnvelope(resultEnvelope);
+        query.setResultDimensionInsideTiledImage(resultDimensionInsideTiledImage);
+        query.setTiledImageSize(tiledImageGridRange);
+        query.setLevelTileRange(levelTileRange);
+        query.setMatchingTiles(matchingTiles);
+    }
+
+    public static void fitRequestToRaster(final GeneralEnvelope requestedEnvelope,
+            final RasterInfo rasterInfo, final QueryInfo query) {
+
+        final int rasterIndex = query.getRasterIndex();
+        final int pyramidLevel = query.getPyramidLevel();
+        final Rectangle rasterGridRange = rasterInfo.getGridRange(rasterIndex, pyramidLevel);
+        final GeneralEnvelope rasterEnvelope = rasterInfo
+                .getGridEnvelope(rasterIndex, pyramidLevel);
+
+        double delta = requestedEnvelope.getMinimum(0) - rasterEnvelope.getMinimum(0);
+        double resX = rasterInfo.getResolution(rasterIndex, pyramidLevel)[0];
+        int xMinPixel = (int) Math.floor(delta / resX);
+
+        delta = requestedEnvelope.getMaximum(0) - rasterEnvelope.getMinimum(0);
+        int xMaxPixel = (int) Math.ceil(delta / resX);
+
+        delta = rasterEnvelope.getMaximum(1) - requestedEnvelope.getMaximum(1);
+        double resY = rasterInfo.getResolution(rasterIndex, pyramidLevel)[1];
+        // Distance in pixels from the top of the whole pyramid image to the top
+        // of our AOI.
+        // If we're off the top, this number will be negative.
+        int yMinPixel = (int) Math.floor(delta / resY);
+
+        delta = rasterEnvelope.getMaximum(1) - requestedEnvelope.getMinimum(1);
+        int yMaxPixel = (int) Math.ceil(delta / resY);
+
+        xMinPixel = Math.max(xMinPixel, rasterGridRange.x);
+        yMinPixel = Math.max(yMinPixel, rasterGridRange.y);
+        xMaxPixel = Math.min(xMaxPixel, rasterGridRange.x + rasterGridRange.width);
+        yMaxPixel = Math.min(yMaxPixel, rasterGridRange.y + rasterGridRange.height);
+        
+        final int widthPixel = xMaxPixel - xMinPixel;
+        final int heightPixel = yMaxPixel - yMinPixel;
+
+        final double xMinGeo = rasterEnvelope.getMinimum(0) + resX * xMinPixel;
+        final double yMinGeo = rasterEnvelope.getMaximum(1) - resY * (yMinPixel + heightPixel);
+        final double widthGeo = resX * widthPixel;
+        final double heightGeo = resY * heightPixel;
+
+        final Rectangle resultGridRange;
+        final GeneralEnvelope resultEnvelope;
+
+        resultEnvelope = new GeneralEnvelope(new double[] { xMinGeo, yMinGeo }, new double[] {
+                xMinGeo + widthGeo, yMinGeo + heightGeo });
+        resultEnvelope.setCoordinateReferenceSystem(rasterEnvelope.getCoordinateReferenceSystem());
+
+        resultGridRange = new Rectangle(xMinPixel, yMinPixel, widthPixel, heightPixel);
 
         final Rectangle matchingTiles;
         final Rectangle levelTileRange;

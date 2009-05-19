@@ -24,6 +24,8 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
+import org.geotools.gce.geotiff.GeoTiffWriter;
+import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.parameter.Parameter;
 import org.geotools.util.logging.Logging;
@@ -43,7 +45,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * 
  */
 @SuppressWarnings( { "deprecation", "nls" })
-@Ignore
+// @Ignore
 public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
     private static final String RASTER_TEST_DEBUG_TO_DISK = "raster.test.debugToDisk";
@@ -167,8 +169,6 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         RenderedImage image = coverage.getRenderedImage();
         writeToDisk(image, "testReadRasterCatalogOnline2");
     }
-    
-    
 
     @Test
     public void testReadRaster() throws Exception {
@@ -185,8 +185,71 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, originalEnvelope);
         assertNotNull("read coverage returned null", coverage);
 
-        RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(image, "testRead_" + tableName);
+        // RenderedImage image = coverage.getRenderedImage();
+        writeToDisk(coverage, "testRead_" + tableName);
+    }
+
+    @Test
+    public void testReadIMGCOQ_2001() throws Exception {
+        tableName = "SDE.IMG_COQ2001_CLIP_BOS_1";
+        final AbstractGridCoverage2DReader reader = getReader();
+        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
+
+        final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
+        GridEnvelope originalGridRange = reader.getOriginalGridRange();
+
+        final int reqWidth = originalGridRange.getSpan(0) / 4;
+        final int reqHeight = originalGridRange.getSpan(1) / 4;
+
+        Envelope reqEnvelope = originalEnvelope;
+        // GeneralEnvelope reqEnvelope = new GeneralEnvelope(originalEnvelope
+        // .getCoordinateReferenceSystem());
+        //
+        // final double reqMinx = 235901.26048201;
+        // final double reqMiny = 901552.0880242661;
+        // final double reqMaxx = 236781.26048201;
+        // final double reqMaxy = 902253.0880242661;
+        //
+        // reqEnvelope.setEnvelope(reqMinx, reqMiny, reqMaxx, reqMaxy);
+
+        final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
+        assertNotNull("read coverage returned null", coverage);
+
+        GridGeometry2D gg = coverage.getGridGeometry();
+        Envelope2D envelope2D = gg.getEnvelope2D();
+        GridEnvelope gridRange = gg.getGridRange();
+
+        System.out.println("requested size: " + reqWidth + "x" + reqHeight);
+        System.out.println("result size   : " + gridRange.getSpan(0) + "x" + gridRange.getSpan(1));
+
+        System.out.println("requested envelope: " + reqEnvelope);
+
+        System.out.println("result envelope   : " + envelope2D);
+
+        // RenderedImage image = coverage.getRenderedImage();
+        writeToDisk(coverage, "testRead_" + tableName);
+    }
+
+    private void writeToDisk(GridCoverage2D coverage, String fileName) throws Exception {
+        Object destination;
+        {
+            String file = System.getProperty("user.home");
+            file += File.separator + "arcsde_test" + File.separator + fileName + ".tiff";
+            File path = new File(file);
+            path.getParentFile().mkdirs();
+            destination = path;
+        }
+        GeoTiffWriter writer = new GeoTiffWriter(destination);
+
+        System.out.println("\n --- Writing to " + destination);
+        try {
+            long t = System.currentTimeMillis();
+            writer.write(coverage, null);
+            System.out.println(" - wrote in " + t + "ms" + destination);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private void writeToDisk(final RenderedImage image, String fileName) throws Exception {
@@ -198,6 +261,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         file += File.separator + "arcsde_test" + File.separator + fileName + ".tiff";
         File path = new File(file);
         path.getParentFile().mkdirs();
+
         System.out.println("\n --- Writing to " + file);
         try {
             long t = System.currentTimeMillis();

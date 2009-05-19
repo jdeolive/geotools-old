@@ -61,7 +61,9 @@ import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEPooledConnection;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
+import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.OverviewPolicy;
@@ -70,6 +72,7 @@ import org.geotools.data.ServiceInfo;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.util.logging.Logging;
+import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
@@ -307,11 +310,6 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             }
         }
 
-        /*
-         * BUILDING COVERAGE
-         */
-        final GridSampleDimension[] bands = rasterInfo.getGridSampleDimensions();
-
         geomLog.log(LoggingHelper.REQ_ENV);
         geomLog.log(LoggingHelper.RES_ENV);
         geomLog.log(LoggingHelper.MOSAIC_ENV);
@@ -319,12 +317,37 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
         final RenderedImage coverageRaster = createMosaic(queries);
 
-        // return coverageFactory.create(coverageName, coverageRaster, resultEnvelope, bands, null,
-        // null);
-        MathTransform rasterToModel = RasterUtils.createRasterToModel(mosaicDimension,
-                resultEnvelope);
-        return super.createImageCoverage(PlanarImage.wrapRenderedImage(coverageRaster),
-                rasterToModel);
+        /*
+         * BUILDING COVERAGE
+         */
+        GridSampleDimension[] bands = rasterInfo.getGridSampleDimensions();
+        {// may the image have been promoted? build the correct band info then
+            final int numBands = coverageRaster.getSampleModel().getNumBands();
+            if (bands.length == 1 && numBands > 1) {
+                LOGGER.fine(coverageName + " was promoted from 1 to "
+                        + coverageRaster.getSampleModel().getNumBands()
+                        + " bands, returning an appropriate set of GridSampleDimension");
+            }
+            // stolen from super.createCoverage:
+            final ColorModel cm = coverageRaster.getColorModel();
+            bands = new GridSampleDimension[numBands];
+
+            // setting bands names.
+            for (int i = 0; i < numBands; i++) {
+                final ColorInterpretation colorInterpretation;
+                colorInterpretation = TypeMap.getColorInterpretation(cm, i);
+                if (colorInterpretation == null) {
+                    throw new IOException("Unrecognized sample dimension type");
+                }
+                bands[i] = new GridSampleDimension(colorInterpretation.name()).geophysics(true);
+            }
+
+        }
+
+        GridCoverage2D resultCoverage = coverageFactory.create(coverageName, coverageRaster,
+                resultEnvelope, bands, null, null);
+
+        return resultCoverage;
     }
 
     /**
@@ -647,7 +670,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                         + (rAttr.getTilesPerColByLevel(pyramidLevel) - 1) + "]");
             }
             SDEPoint tileOrigin = rAttr.getTileOrigin();
-            System.out.println("tileOrigin = " + tileOrigin);
+
             Rectangle tiledImageSize = new Rectangle(0, 0, tileWidth * matchingTiles.width,
                     tileHeight * matchingTiles.height);
 
@@ -737,7 +760,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         pb.add(readerInstance);// Reader
 
         RenderedOp image = JAI.create("ImageRead", pb, hints);
-        image.getData();
+
         return image;
     }
 

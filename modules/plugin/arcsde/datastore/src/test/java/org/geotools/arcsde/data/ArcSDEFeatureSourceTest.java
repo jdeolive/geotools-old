@@ -88,7 +88,7 @@ public class ArcSDEFeatureSourceTest {
     private static TestData testData;
 
     /** an ArcSDEDataStore created on setUp() to run tests against */
-    private static DataStore store;
+    private static ArcSDEDataStore store;
 
     /** a filter factory for testing */
     FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
@@ -854,36 +854,45 @@ public class ArcSDEFeatureSourceTest {
 
     public static void main(String[] argv) {
 
-        final int nExecutions = 300;
+        final int nExecutions = 30;
 
-        final int[] testThreads = { 30 };
+        final int[] connections = { 10 };
+        final int[] testThreads = { 1, 5, 10, 15, 20 };
 
         ArcSDEFeatureSourceTest test = new ArcSDEFeatureSourceTest();
         try {
+            testData = new TestData();
+            testData.setUp();
+            final boolean insertTestData = true;
+            testData.createTempTable(insertTestData);
+            testData.getConnectionPool().close();
 
-            for (int threads : testThreads) {
+            for (int nConnections : connections) {
+                for (int threads : testThreads) {
 
-                ArcSDEFeatureSourceTest.oneTimeSetUp();
-                testData.getConProps().put("pool.minConnections", Integer.valueOf(threads));
-                testData.getConProps().put("pool.maxConnections", Integer.valueOf(threads));
+                    testData.getConProps().put("pool.minConnections", nConnections);
+                    testData.getConProps().put("pool.maxConnections", nConnections);
 
-                testData.tearDown(false, true);
-                if (store != null) {
+                    testData.tearDown(false, true);
+                    if (store != null) {
+                        store.dispose();
+                    }
+                    store = testData.getDataStore();
+
+                    Time t = test.testConcurrencyPerformance(nExecutions, threads);
+
+                    final int usedConnections = store.connectionPool.getPoolSize();
+
+                    testData.tearDown(false, false);
                     store.dispose();
+
+                    System.out.println("\n\n" + nExecutions + " executions on " + threads
+                            + " threads " + " with " + usedConnections
+                            + " connections \nexecuted in " + t.getTotal() + "ms. " + t
+                            + "\n avg: " + (t.getTotal() / nExecutions));
+
                 }
-                store = testData.getDataStore();
-
-                Time t = test.testConcurrencyPerformance(nExecutions, threads);
-
-                final int nConnections = testData.getConnectionPool().getPoolSize();
-                ArcSDEFeatureSourceTest.oneTimeTearDown();
-
-                System.out.println("\n\n" + nExecutions + " executions on " + threads + " threads "
-                        + " with " + nConnections + " connections \nexecuted in " + t.getTotal()
-                        + "ms. " + t + "\n avg: " + (t.getTotal() / nExecutions));
-
             }
-
             System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();

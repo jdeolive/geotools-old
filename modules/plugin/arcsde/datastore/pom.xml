@@ -135,6 +135,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-geotiff</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>javax.media</groupId>
       <artifactId>jai_core</artifactId>
       <scope>provided</scope>
