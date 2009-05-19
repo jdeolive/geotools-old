@@ -49,6 +49,17 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
+      <id>msidhoum</id>
+      <name>Mehdi Sidhoum</name>
+      <email>mehdi.sidhoum@geomatys.fr</email>
+      <organization>Geomatys</organization>
+      <organizationUrl>http://www.geomatys.fr/</organizationUrl>
+      <roles>
+        <role>Module Creator</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>Daniele Romagnoli</name>
       <id>danieler</id>
       <email>daniele.romagnoli@geo-solutions.it</email>
