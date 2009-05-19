@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Iterator;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -32,14 +33,21 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.GridFormatFactorySpi;
+import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverageio.gdal.BaseGDALGridCoverage2DReader;
+import org.geotools.coverageio.gdal.GDALTestCase;
 import org.geotools.coverageio.gdal.ecw.ECWReader;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.test.TestData;
+import org.junit.Assert;
+import org.junit.Test;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
 
 /**
  * @author Alex Petkov, Missoula Fire Sciences Laboratory
@@ -48,7 +56,7 @@ import org.opengis.parameter.ParameterValue;
  * 
  * Testing {@link ECWReader}
  */
-public final class EsriHdrTest extends AbstractEsriHdrTestCase {
+public final class EsriHdrTest extends GDALTestCase {
     /**
      * file name of a valid EHdr sample data to be used for tests.
      */
@@ -59,14 +67,12 @@ public final class EsriHdrTest extends AbstractEsriHdrTestCase {
      * 
      * @param name
      */
-    public EsriHdrTest(String name) {
-        super(name);
+    public EsriHdrTest() {
+        super("EHdr", new EsriHdrFormatFactory());
     }
 
-    public static final void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(EsriHdrTest.class);
-    }
 
+    @Test
     public void test() throws Exception {
         if (!testingEnabled()) {
             return;
@@ -97,7 +103,7 @@ public final class EsriHdrTest extends AbstractEsriHdrTestCase {
         final BaseGDALGridCoverage2DReader reader = new EsriHdrReader(source,
                 hints);
         // Testing the getSource method
-        assertEquals(reader.getSource(), source);
+        Assert.assertEquals(reader.getSource(), source);
 
         // /////////////////////////////////////////////////////////////////////
         //
@@ -115,14 +121,14 @@ public final class EsriHdrTest extends AbstractEsriHdrTestCase {
         final double cropFactor = 2.0;
         final int oldW = gc.getRenderedImage().getWidth();
         final int oldH = gc.getRenderedImage().getHeight();
-        final Rectangle range =  ((GridEnvelope2D)reader.getOriginalGridRange());
+        final Rectangle range =((GridEnvelope2D)reader.getOriginalGridRange());
         final GeneralEnvelope oldEnvelope = reader.getOriginalEnvelope();
         final GeneralEnvelope cropEnvelope = new GeneralEnvelope(new double[] {
                 oldEnvelope.getLowerCorner().getOrdinate(0)
-                        + (oldEnvelope.getSpan(0) / cropFactor),
+                        + (oldEnvelope.getLength(0) / cropFactor),
 
                 oldEnvelope.getLowerCorner().getOrdinate(1)
-                        + (oldEnvelope.getSpan(1) / cropFactor) },
+                        + (oldEnvelope.getLength(1) / cropFactor) },
                 new double[] { oldEnvelope.getUpperCorner().getOrdinate(0),
                         oldEnvelope.getUpperCorner().getOrdinate(1) });
         cropEnvelope.setCoordinateReferenceSystem(reader.getCrs());
@@ -133,9 +139,9 @@ public final class EsriHdrTest extends AbstractEsriHdrTestCase {
                 (int) (range.width / 4.0 / cropFactor),
                 (int) (range.height / 4.0 / cropFactor))), cropEnvelope));
         gc = (GridCoverage2D) reader.read(new GeneralParameterValue[] { gg });
-        assertNotNull(gc);
+        Assert.assertNotNull(gc);
         // NOTE: in some cases might be too restrictive
-        assertTrue(cropEnvelope.equals(gc.getEnvelope(), XAffineTransform
+        Assert.assertTrue(cropEnvelope.equals(gc.getEnvelope(), XAffineTransform
                 .getScale(((AffineTransform) ((GridGeometry2D) gc
                         .getGridGeometry()).getGridToCRS2D())) / 2, true));
 
@@ -146,8 +152,8 @@ public final class EsriHdrTest extends AbstractEsriHdrTestCase {
         // Attempt to read an envelope which doesn't intersect the dataset one
         //
         // /////////////////////////////////////////////////////////////////////
-        final double translate0 = oldEnvelope.getSpan(0) + 100;
-        final double translate1 = oldEnvelope.getSpan(1) + 100;
+        final double translate0 = oldEnvelope.getLength(0) + 100;
+        final double translate1 = oldEnvelope.getLength(1) + 100;
         final GeneralEnvelope wrongEnvelope = new GeneralEnvelope(new double[] {
                 oldEnvelope.getLowerCorner().getOrdinate(0) + translate0,
                 oldEnvelope.getLowerCorner().getOrdinate(1) + translate1 },
@@ -165,6 +171,33 @@ public final class EsriHdrTest extends AbstractEsriHdrTestCase {
                 0, (int) (range.width), (int) (range.height))), wrongEnvelope));
 
         gc = (GridCoverage2D) reader.read(new GeneralParameterValue[] { gg2 });
-        assertNull("Wrong envelope requested", gc);
+        Assert.assertNull("Wrong envelope requested", gc);
+    }
+    
+    @Test
+    public void testIsAvailable() throws NoSuchAuthorityCodeException, FactoryException {
+        if (!testingEnabled()) {
+            return;
+        }
+
+        GridFormatFinder.scanForPlugins();
+
+        Iterator list = GridFormatFinder.getAvailableFormats().iterator();
+        boolean found = false;
+        GridFormatFactorySpi fac = null;
+
+        while (list.hasNext()) {
+            fac = (GridFormatFactorySpi) list.next();
+
+            if (fac instanceof EsriHdrFormatFactory) {
+                found = true;
+
+                break;
+            }
+        }
+
+        Assert.assertTrue("EsriHdrFormatFactory not registered", found);
+        Assert.assertTrue("EsriHdrFormatFactory not available", fac.isAvailable());
+        Assert.assertNotNull(new EsriHdrFormatFactory().createFormat());
     }
 }

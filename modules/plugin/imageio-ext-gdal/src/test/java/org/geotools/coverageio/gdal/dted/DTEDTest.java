@@ -20,6 +20,7 @@ package org.geotools.coverageio.gdal.dted;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.io.File;
+import java.util.Iterator;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -28,12 +29,19 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.GridFormatFactorySpi;
+import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverageio.gdal.BaseGDALGridCoverage2DReader;
+import org.geotools.coverageio.gdal.GDALTestCase;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.test.TestData;
+import org.junit.Assert;
+import org.junit.Test;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
 
 /**
  * @author Daniele Romagnoli, GeoSolutions
@@ -41,25 +49,18 @@ import org.opengis.parameter.ParameterValue;
  *
  * Testing {@link DTEDReader}
  */
-public final class DTEDTest extends AbstractDTEDTestCase {
-    /**
+public final class DTEDTest extends GDALTestCase {
+
+	/**
      * file name of a valid DTED sample data to be used for tests. 
      */
     private final static String fileName = "n43.dt0";
 
-    /**
-     * Creates a new instance of {@code DTEDTest}
-     *
-     * @param name
-     */
-    public DTEDTest(String name) {
-        super(name);
-    }
-
-    public static final void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(DTEDTest.class);
-    }
-
+    public DTEDTest() {
+		super( "DTED", new DTEDFormatFactory());
+	}
+    
+    @Test
     public void test() throws Exception {
         if (!testingEnabled()) {
             return;
@@ -96,10 +97,10 @@ public final class DTEDTest extends AbstractDTEDTestCase {
         final GeneralEnvelope oldEnvelope = reader.getOriginalEnvelope();
         final GeneralEnvelope cropEnvelope = new GeneralEnvelope(new double[] {
                     oldEnvelope.getLowerCorner().getOrdinate(0)
-                    + (oldEnvelope.getSpan(0) / cropFactor),
+                    + (oldEnvelope.getLength(0) / cropFactor),
                     
                 oldEnvelope.getLowerCorner().getOrdinate(1)
-                    + (oldEnvelope.getSpan(1) / cropFactor)
+                    + (oldEnvelope.getLength(1) / cropFactor)
                 },
                 new double[] {
                     oldEnvelope.getUpperCorner().getOrdinate(0),
@@ -116,4 +117,31 @@ public final class DTEDTest extends AbstractDTEDTestCase {
         gc = (GridCoverage2D) reader.read(new GeneralParameterValue[] { gg });
         forceDataLoading(gc);
     }
+    
+    @Test
+	public void testService() throws NoSuchAuthorityCodeException, FactoryException {
+        if (!testingEnabled()) {
+            return;
+        }
+
+        GridFormatFinder.scanForPlugins();
+
+        Iterator<GridFormatFactorySpi> list = GridFormatFinder.getAvailableFormats().iterator();
+        boolean found = false;
+        GridFormatFactorySpi fac = null;
+
+        while (list.hasNext()) {
+            fac = (GridFormatFactorySpi) list.next();
+
+            if (fac instanceof DTEDFormatFactory) {
+                found = true;
+
+                break;
+            }
+        }
+
+        Assert.assertTrue("DTEDFormatFactory not registered", found);
+        Assert.assertTrue("DTEDFormatFactory not available", fac.isAvailable());
+        Assert.assertNotNull(new DTEDFormatFactory().createFormat());
+    }    
 }

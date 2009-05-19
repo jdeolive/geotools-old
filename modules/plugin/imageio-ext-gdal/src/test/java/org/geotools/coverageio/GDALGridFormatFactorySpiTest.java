@@ -18,34 +18,27 @@ package org.geotools.coverageio;
 
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
-
 import org.geotools.coverage.grid.io.UnknownFormat;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
  * 
- * Base testing class invoking BaseGridFormatFactorySpi methods.
+ * Test class invoking BaseGridFormatFactorySpi methods.
  */
-public class BaseGridFormatFactorySpiTest extends TestCase {
+public class GDALGridFormatFactorySpiTest {
 
     protected final static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.coverageio");
+            .getLogger(GDALGridFormatFactorySpiTest.class);
 
-    public BaseGridFormatFactorySpiTest(String name) {
-        super(name);
-    }
-
-    public static final void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(BaseGridFormatFactorySpiTest.class);
-    }
-
+    @Test
     public void test() throws Exception {
         final BaseGridFormatFactorySPI spi = new BaseGridFormatFactorySPI();
-        assertEquals(true, spi.createFormat() instanceof UnknownFormat);
-        assertEquals(false, spi.isAvailable());
-        assertEquals(true, spi.getImplementationHints().isEmpty());
+        Assert.assertEquals(true, spi.createFormat() instanceof UnknownFormat);
+        Assert.assertEquals(false, spi.isAvailable());
+        Assert.assertEquals(true, spi.getImplementationHints().isEmpty());
     }
 
 }

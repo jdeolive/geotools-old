@@ -16,17 +16,21 @@
  */
 package org.geotools.coverageio.gdal;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
-
-import junit.framework.TestCase;
+import javax.media.jai.widget.ScrollingImagePanel;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
 import org.geotools.test.TestData;
+import org.junit.Assert;
+import org.junit.Before;
 
 /**
  * @author Daniele Romagnoli, GeoSolutions
@@ -34,16 +38,25 @@ import org.geotools.test.TestData;
  *
  * Base testing class initializing JAI properties to be used during tests.
  */
-public class AbstractGDALBasedTestCase extends TestCase {
+@SuppressWarnings("deprecation")
+public class GDALTestCase  {
 
-    protected final static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.coverageio.gdal");
+    protected final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GDALTestCase.class);
 
-    protected static void forceDataLoading(final GridCoverage2D gc) {
-        assertNotNull(gc);
+	protected static void forceDataLoading(final GridCoverage2D gc) {
+    	Assert.assertNotNull(gc);
 
         if (TestData.isInteractiveTest()) {
-            gc.show();
+           final JFrame frame= new JFrame();
+           frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+           frame.getContentPane().add(new ScrollingImagePanel(gc.getRenderedImage(),800,800));
+           frame.pack();
+           SwingUtilities.invokeLater(new Runnable(){
+
+			public void run() {
+				frame.setVisible(true);
+				
+			}});
         } else {
             PlanarImage.wrapRenderedImage(gc.getRenderedImage()).getTiles();
         }
@@ -61,15 +74,13 @@ public class AbstractGDALBasedTestCase extends TestCase {
      */
     private GridFormatFactorySpi factorySpi;
 
-    public AbstractGDALBasedTestCase(String name, String supportedFormat,
-        GridFormatFactorySpi factorySpi) {
-        super(name);
+    public GDALTestCase(final String supportedFormat,final GridFormatFactorySpi factorySpi) {
         this.supportedFormat = supportedFormat;
         this.factorySpi = factorySpi;
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         ImageIO.setUseCache(false);
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(16 * 1024 * 1024);
         JAI.getDefaultInstance().getTileCache().setMemoryThreshold(1.0f);
@@ -77,6 +88,17 @@ public class AbstractGDALBasedTestCase extends TestCase {
         JAI.getDefaultInstance().getTileScheduler().setPrefetchParallelism(2);
         JAI.getDefaultInstance().getTileScheduler().setPrefetchPriority(5);
         JAI.getDefaultInstance().getTileScheduler().setPriority(5);
+        
+        try{
+        	final File file = TestData.file(this, "test.zip");
+
+            // unzip it
+            TestData.unzipFile(this, "test.zip"); 
+        }
+        catch (Exception e) {
+			// TODO: handle exception
+		}
+       
     }
 
     protected boolean testingEnabled() {
