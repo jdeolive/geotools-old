@@ -80,7 +80,6 @@
     <module>referencing3D</module>
     <module>shapefile</module>
     <module>wfs</module>
-    <module>wms</module>
   </modules>
 
 </project>
