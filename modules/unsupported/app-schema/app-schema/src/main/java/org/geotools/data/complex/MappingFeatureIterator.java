@@ -617,9 +617,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         Iterator<Step> stepsIterator = steps.iterator();
 
         while (stepsIterator.hasNext()) {
-            if (!(property instanceof ComplexAttribute)) {
-                // throw exception
-            }
+            assert property instanceof ComplexAttribute;
             Step step = stepsIterator.next();
             property = ((ComplexAttribute) property).getProperty(Types.toTypeName(step.getName()));
             if (property == null) {
@@ -629,6 +627,15 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         return property;
     }
 
+    /**
+     * Return all matching properties from provided root attribute and xPath.
+     * 
+     * @param root
+     *            The root attribute to start searching from
+     * @param xpath
+     *            The xPath matching the attribute
+     * @return The matching attributes collection
+     */
     private Collection<Property> getProperties(ComplexAttribute root, StepList xpath) {
 
         final StepList steps = new StepList(xpath);
@@ -645,9 +652,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
             step = stepsIterator.next();
             Collection<Property> nestedProperties = new ArrayList<Property>();
             for (Property property : properties) {
-                if (!(property instanceof ComplexAttribute)) {
-                    // throw exception
-                }
+                assert property instanceof ComplexAttribute;
                 Collection<Property> tempProperties = ((ComplexAttribute) property)
                         .getProperties(Types.toTypeName(step.getName()));
                 if (!tempProperties.isEmpty()) {
