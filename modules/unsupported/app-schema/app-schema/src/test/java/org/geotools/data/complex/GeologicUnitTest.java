@@ -32,6 +32,7 @@ import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
 import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
+import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
@@ -83,12 +84,7 @@ public class GeologicUnitTest extends TestCase {
      */
     private void loadSchema(final String location) throws IOException {
         final URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
-        final Catalog catalog = new ResolvingXMLReader().getCatalog();
-        catalog.getCatalogManager().setVerbosity(9);
-        catalog.parseCatalog(catalogLocation);
-
-        reader.setCatalog(catalog);
-
+        reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
         reader.parse(new URL(location));
     }
 

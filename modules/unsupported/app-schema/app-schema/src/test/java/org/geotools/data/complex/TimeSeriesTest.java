@@ -43,6 +43,7 @@ import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
 import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
+import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
@@ -131,12 +132,7 @@ public class TimeSeriesTest extends TestCase {
      */
     private void loadSchema(URL location) throws IOException {
         URL catalogLocation = getClass().getResource(schemaBase + "observations.oasis.xml");
-        Catalog catalog = new ResolvingXMLReader().getCatalog();
-        catalog.getCatalogManager().setVerbosity(9);
-        catalog.parseCatalog(catalogLocation);
-
-        reader.setCatalog(catalog);
-
+        reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
         reader.parse(location);
     }
 

@@ -37,9 +37,7 @@ public class CatalogApplicationSchemaConfigurationTest extends TestCase {
      */
     public void testCatalogSchemaResolution() throws Exception {
         URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
-        Catalog catalog = new ResolvingXMLReader().getCatalog();
-        catalog.getCatalogManager().setVerbosity(9);
-        catalog.parseCatalog(catalogLocation);
+        Catalog catalog = CatalogUtilities.buildPrivateCatalog(catalogLocation);
         String namespace = "http://www.cgi-iugs.org/xml/GeoSciML/2";
         String schemaLocation = "http://schemas.opengis.net/GeoSciML/geosciml.xsd";
         Configuration config = new CatalogApplicationSchemaConfiguration(namespace, schemaLocation,

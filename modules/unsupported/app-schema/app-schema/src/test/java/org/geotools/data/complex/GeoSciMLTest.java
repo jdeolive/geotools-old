@@ -37,6 +37,7 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
 import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
+import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
@@ -98,17 +99,8 @@ public class GeoSciMLTest extends TestCase {
      *            schema location path discoverable through getClass().getResource()
      */
     private void loadSchema(String location) throws IOException {
-        // load needed GML types directly from the gml schemas
-        // URL schemaLocation = getClass().getResource(location);
-        // assertNotNull(location, schemaLocation);
-
         URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
-        Catalog catalog = new ResolvingXMLReader().getCatalog();
-        catalog.getCatalogManager().setVerbosity(9);
-        catalog.parseCatalog(catalogLocation);
-
-        reader.setCatalog(catalog);
-
+        reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
         reader.parse(new URL(location));
     }
 

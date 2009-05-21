@@ -41,6 +41,7 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.apache.xml.resolver.Catalog;
+import org.apache.xml.resolver.CatalogManager;
 import org.apache.xml.resolver.tools.ResolvingXMLReader;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
@@ -426,35 +427,14 @@ public class AppSchemaDataAccessConfigurator {
     }
 
     private Catalog getCatalog() throws MalformedURLException, IOException {
-        Catalog oasisCatalog = null;
         String catalogLocation = config.getCatalog();
-        if (catalogLocation != null) {
-            final URL baseUrl = new URL(config.getBaseSchemasUrl());
-            final URL resolvedResourceLocation = resolveResourceLocation(baseUrl, catalogLocation);
-            catalogLocation = resolvedResourceLocation.toExternalForm();
-            boolean exists = resourceExists(resolvedResourceLocation);
-            if (!exists) {
-                throw new FileNotFoundException("Catalog file does not exists: " + catalogLocation);
-            }
-            final ResolvingXMLReader reader = new ResolvingXMLReader();
-            final Catalog catalog = reader.getCatalog();
-            catalog.getCatalogManager().setVerbosity(9);
-            catalog.getCatalogManager().setIgnoreMissingProperties(false);
-            catalog.parseCatalog(catalogLocation);
-            oasisCatalog = catalog;
+        if (catalogLocation == null) {
+            return null;
+        } else {
+            URL baseUrl = new URL(config.getBaseSchemasUrl());
+            URL resolvedCatalogLocation = resolveResourceLocation(baseUrl, catalogLocation);
+            return CatalogUtilities.buildPrivateCatalog(resolvedCatalogLocation);
         }
-        return oasisCatalog;
-    }
-
-    private boolean resourceExists(final URL resolvedResourceLocation) {
-        InputStream in;
-        try {
-            in = resolvedResourceLocation.openStream();
-            in.close();
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
     }
 
     private URL resolveResourceLocation(final URL baseUrl, String schemaLocation)
