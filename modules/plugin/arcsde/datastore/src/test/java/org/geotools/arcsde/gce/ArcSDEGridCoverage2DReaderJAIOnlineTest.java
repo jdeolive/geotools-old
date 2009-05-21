@@ -205,13 +205,13 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
     }
 
     @Test
-    public void testRead_16bit_S_ColorMapped() throws Exception {
+    public void testRead_16bit_U_ColorMapped() throws Exception {
         int[] ARGB = new int[65536];
         ColorUtilities.expand(new Color[] { Color.BLACK, Color.WHITE }, ARGB, 0, ARGB.length);
         IndexColorModel colorModel = ColorUtilities.getIndexColorModel(ARGB);
         tableName = rasterTestData.getRasterTableName(TYPE_16BIT_S, 1, true);
         rasterTestData.loadTestRaster(tableName, 1, TYPE_16BIT_S, colorModel);
-        testReadFullLevel0(TYPE_16BIT_S, 1, "testRead_16bit_S_ColorMapped");
+        testReadFullLevel0(TYPE_16BIT_U, 1, "testRead_16bit_U_ColorMapped");
     }
 
     @Test
@@ -259,7 +259,6 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         tableName = rasterTestData.loadRGBRaster();
         testReadFullLevel0(TYPE_8BIT_U, 3, "sampleRGB");
     }
-
 
     @Test
     public void testReadRasterCatalogFull() throws Exception {
@@ -395,6 +394,9 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
             case TYPE_8BIT_U:
                 assertEquals("8-bit indexed image should have been "
                         + "promoted to 16bit to account for no-data values", 16, sampleSize[0]);
+                break;
+            case TYPE_16BIT_U:
+                assertEquals(16, sampleSize[0]);
                 break;
             default:
                 throw new IllegalArgumentException(cellType.toString());
@@ -626,7 +628,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
                 + config.getDatabaseName() + "#" + tableName;
 
         final ArcSDERasterFormat format = new ArcSDERasterFormatFactory().createFormat();
-        //we can't create statistics here so tell ArcSDERasterFormat not to fail
+        // we can't create statistics here so tell ArcSDERasterFormat not to fail
         format.setStatisticsMandatory(false);
 
         AbstractGridCoverage2DReader reader = format.getReader(rgbUrl);
