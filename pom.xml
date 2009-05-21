@@ -544,17 +544,17 @@
       <dependency>
         <groupId>org.opengis</groupId>
         <artifactId>geoapi</artifactId>
-        <version>2.3-SNAPSHOT</version>
+        <version>2.3-M1</version>
       </dependency>
       <dependency>
         <groupId>org.opengis</groupId>
         <artifactId>geoapi-dummy-pending</artifactId>
-        <version>2.3-SNAPSHOT</version>
+        <version>2.3-M1</version>
       </dependency>
       <dependency>
         <groupId>org.opengis</groupId>
         <artifactId>geoapi-pending</artifactId>
-        <version>2.3-SNAPSHOT</version>
+        <version>2.3-M1</version>
       </dependency>
       <dependency>
         <groupId>net.java.dev.jsr-275</groupId>
