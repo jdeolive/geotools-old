@@ -23,6 +23,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
+import java.awt.geom.Point2D;
 import java.awt.image.BandedSampleModel;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -913,8 +914,8 @@ class RasterUtils {
         final int pyramidLevel = query.getPyramidLevel();
         final Rectangle rasterGridRange = rasterInfo.getGridRange(rasterIndex, pyramidLevel);
         final GeneralEnvelope rasterEnvelope = rasterInfo
-                .getGridEnvelope(rasterIndex, pyramidLevel);
-
+                .getGridEnvelope(rasterIndex, pyramidLevel);        
+        
         double delta = requestedEnvelope.getMinimum(0) - rasterEnvelope.getMinimum(0);
         double resX = rasterInfo.getResolution(rasterIndex, pyramidLevel)[0];
         int xMinPixel = (int) Math.floor(delta / resX);

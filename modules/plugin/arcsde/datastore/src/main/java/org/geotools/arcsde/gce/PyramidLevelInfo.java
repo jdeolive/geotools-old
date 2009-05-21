@@ -24,6 +24,7 @@ import java.awt.geom.Point2D;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Represents one level in an ArcSDE pyramid. Holds information about a given pyramid level, like
@@ -124,10 +125,23 @@ class PyramidLevelInfo {
     }
 
     /**
-     * @return The geographical area covered by this level of the pyramid
+     * The envelope covering the image grid range inside fully tiled image at this pyramid level
+     * 
+     * @return The geographical area covered by the {@link #getImageRange() grid range} of the
+     *         raster at this pyramid level
      */
-    public ReferencedEnvelope getEnvelope() {
-        return new ReferencedEnvelope(this.envelope);
+    public ReferencedEnvelope getImageEnvelope() {
+        final double deltaX = extentOffset.getX();
+        final double deltaY = extentOffset.getY();
+        double minx = this.envelope.getMinX() - deltaX;
+        double miny = this.envelope.getMinY() - deltaY;
+        double maxx = minx + this.envelope.getWidth();
+        double maxy = miny + this.envelope.getHeight();
+
+        CoordinateReferenceSystem crs = this.envelope.getCoordinateReferenceSystem();
+        ReferencedEnvelope imageExtent = new ReferencedEnvelope(minx, maxx, miny, maxy, crs);
+
+        return imageExtent;
     }
 
     /**
@@ -157,8 +171,8 @@ class PyramidLevelInfo {
     @Override
     public String toString() {
         return "[level: " + pyramidLevel + " size: " + size.width + "x" + size.height + "  xRes: "
-                + xRes + "  yRes: " + yRes + "  xOffset: " + getXOffset() + "  yOffset: " + getYOffset()
-                + "  extent: " + envelope + "  tilesWide: " + xTiles + "  tilesHigh: " + yTiles
-                + "]";
+                + xRes + "  yRes: " + yRes + "  xOffset: " + getXOffset() + "  yOffset: "
+                + getYOffset() + "  extent: " + envelope + "  tilesWide: " + xTiles
+                + "  tilesHigh: " + yTiles + "]";
     }
 }

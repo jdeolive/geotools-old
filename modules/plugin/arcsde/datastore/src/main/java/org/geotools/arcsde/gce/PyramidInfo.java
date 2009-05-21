@@ -100,8 +100,12 @@ class PyramidInfo {
                     continue;
                 }
 
-                // this extent corresponds to the actual image size inside the tiled grid. That is,
-                // to getImageWidth/Height by level and the image offset
+                /*
+                 * this extent corresponds to the actual image size inside the tiled grid. That is,
+                 * to getImageWidth/Height by level. The dimensions of this extent are correct, but
+                 * it needs to be shifted by SeRasterAttr.getExtentOffsetByLevel(level) the same way
+                 * the grid envelope does by SeRasterAttr.getImageOffsetByLevel(level)
+                 */
                 final SeExtent slExtent = rasterAttributes.getExtentByLevel(level);
 
                 final int levelWidth = rasterAttributes.getImageWidthByLevel(level);
@@ -110,7 +114,8 @@ class PyramidInfo {
                 Dimension levelImageSize = new Dimension(levelWidth, levelHeight);
 
                 Point imgOffset = new Point();
-                //extent offset equals imgOffset * pixel resolution (ie, if resx == 2 and offsetX = 10, extent offset x == 20)
+                // extent offset equals imgOffset * pixel resolution (ie, if resx == 2 and offsetX =
+                // 10, extent offset x == 20)
                 Point2D extOffset = new Point2D.Double();
                 {
                     SDEPoint imageOffset = rasterAttributes.getImageOffsetByLevel(level);
@@ -127,9 +132,8 @@ class PyramidInfo {
                 final int numTilesWide = rasterAttributes.getTilesPerRowByLevel(level);
                 final int numTileHigh = rasterAttributes.getTilesPerColByLevel(level);
 
-                ReferencedEnvelope levelExtent = new ReferencedEnvelope(crs);
-                levelExtent.expandToInclude(slExtent.getMinX(), slExtent.getMinY());
-                levelExtent.expandToInclude(slExtent.getMaxX(), slExtent.getMaxY());
+                ReferencedEnvelope levelExtent = new ReferencedEnvelope(slExtent.getMinX(),
+                        slExtent.getMaxX(), slExtent.getMinY(), slExtent.getMaxY(), crs);
 
                 addPyramidLevel(level, levelExtent, imgOffset, extOffset, numTilesWide,
                         numTileHigh, levelImageSize);
@@ -281,11 +285,14 @@ class PyramidInfo {
      * @param level
      *            the zero-based level index for the new level
      * @param extent
-     *            the geographical extent the level covers
+     *            the geographical extent the level covers, may need to be offsetted by {@code
+     *            extOffset}
      * @param imgOffset
-     *            the offset on the X axis of the actual image inside the tile space for this level
+     *            the offset on the X and Y axes of the actual image inside the tile space for this
+     *            level
      * @param extOffset
-     *            the offset on the Y axis of the actual image inside the tile space for this level
+     *            the offset on the X and Y axes of the actual image inside the tile space for this
+     *            level
      * @param numTilesWide
      *            the number of tiles that make up the level on the X axis
      * @param numTilesHigh

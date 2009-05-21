@@ -330,7 +330,7 @@ class RasterInfo {
 
     public GeneralEnvelope getGridEnvelope(final int rasterIndex, final int pyramidLevel) {
         PyramidLevelInfo level = getLevel(rasterIndex, pyramidLevel);
-        return new GeneralEnvelope(level.getEnvelope());
+        return new GeneralEnvelope(level.getImageEnvelope());
     }
 
     public Rectangle getGridRange(final int rasterIndex, final int pyramidLevel) {
