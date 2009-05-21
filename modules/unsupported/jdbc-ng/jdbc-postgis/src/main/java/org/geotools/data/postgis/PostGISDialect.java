@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -560,6 +561,11 @@ public class PostGISDialect extends BasicSQLDialect {
         if(value == null) {
             sql.append("NULL");
         } else {
+            if (value instanceof LinearRing) {
+                //postgis does not handle linear rings, convert to just a line string
+                value = value.getFactory().createLineString(((LinearRing) value).getCoordinateSequence());
+            }
+            
             sql.append("GeomFromText('" + value.toText() + "', " + srid + ")");
         }
     }

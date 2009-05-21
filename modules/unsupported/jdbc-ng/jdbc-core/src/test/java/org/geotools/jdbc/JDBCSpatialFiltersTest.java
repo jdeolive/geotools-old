@@ -109,7 +109,18 @@ public abstract class JDBCSpatialFiltersTest extends JDBCTestSupport {
         FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(is);
         checkSingleResult(features, "r1");
     }
-
+    
+    public void testIntersectsRingFilter() throws Exception {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+        // should match only "r1"
+        GeometryFactory gf = new GeometryFactory();
+        PackedCoordinateSequenceFactory sf = new PackedCoordinateSequenceFactory();
+        LineString ls = gf.createLinearRing(sf.create(new double[] { 2, 1, 2, 3, 0, 3, 2, 1}, 2));
+        Intersects is = ff.intersects(ff.property(aname("geom")), ff.literal(ls));
+        FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(is);
+        checkSingleResult(features, "r1");
+    }
+    
     public void testTouchesFilter() throws Exception {
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
         // should match only "r1"
@@ -133,7 +144,7 @@ public abstract class JDBCSpatialFiltersTest extends JDBCTestSupport {
         FeatureCollection features = dataStore.getFeatureSource(tname("road")).getFeatures(cs);
         checkSingleResult(features, "r2");
     }
-
+    
     /**
      * Same as contains, with roles reversed
      * 

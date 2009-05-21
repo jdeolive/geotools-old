@@ -17,6 +17,7 @@ import org.opengis.feature.type.GeometryDescriptor;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.io.WKBWriter;
 
 
@@ -146,6 +147,11 @@ public class PostGISPSDialect extends PreparedStatementSQLDialect {
     public void setGeometryValue(Geometry g, int srid, Class binding,
             PreparedStatement ps, int column) throws SQLException {
         if (g != null) {
+            if (g instanceof LinearRing ) {
+                //postgis does not handle linear rings, convert to just a line string
+                g = g.getFactory().createLineString(((LinearRing) g).getCoordinateSequence());
+            }
+            
             byte[] bytes = new WKBWriter().write(g);
             ps.setBytes(column, bytes);
         } else {
