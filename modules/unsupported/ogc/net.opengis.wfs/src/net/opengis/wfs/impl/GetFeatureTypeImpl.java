@@ -186,7 +186,7 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
      * @generated NOT
      * @ordered
      */
-    protected static final Map FORMAT_OPTIONS_EDEFAULT = new HashMap();
+    protected static final Map FORMAT_OPTIONS_EDEFAULT = null;
 
     /**
      * The cached value of the '{@link #getFormatOptions() <em>Format Options</em>}' attribute.
@@ -386,9 +386,12 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
 	/**
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
+     * @generated NOT
      */
     public Map getFormatOptions() {
+        if ( formatOptions == null ) {
+            formatOptions = new HashMap();
+        }
         return formatOptions;
     }
 
