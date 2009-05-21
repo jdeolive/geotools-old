@@ -1322,27 +1322,27 @@ public class WMSComplexTypes {
 //				}
 				
 				if (sameName(elems[1], value[i])) {
-					String address1 = (String) value[1].getValue();
+					String address1 = (String) value[i].getValue();
 					address.setDeliveryPoints(Collections.singleton(address1));
 				}
 				
 				if (sameName(elems[2], value[i])) {
-					String city = (String) value[2].getValue();
+					String city = (String) value[i].getValue();
 					address.setCity(new SimpleInternationalString(city));
 				}
 				
 				if (sameName(elems[3], value[i])) {
-					String state = (String) value[3].getValue();
+					String state = (String) value[i].getValue();
 					address.setAdministrativeArea(new SimpleInternationalString(state));
 				}
 				
 				if (sameName(elems[4], value[i])) {
-					String postalCode = (String) value[4].getValue();
+					String postalCode = (String) value[i].getValue();
 					address.setPostalCode(postalCode);
 				}
 				
 				if (sameName(elems[5], value[i])) {
-					String country = (String) value[5].getValue();
+					String country = (String) value[i].getValue();
 					address.setCountry(new SimpleInternationalString(country));
 				}
 			}
