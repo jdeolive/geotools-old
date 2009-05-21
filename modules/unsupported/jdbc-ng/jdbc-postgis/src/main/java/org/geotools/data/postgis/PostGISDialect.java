@@ -319,8 +319,12 @@ public class PostGISDialect extends BasicSQLDialect {
             String columnName, Connection cx) throws SQLException {
         Statement st = cx.createStatement();
         try {
-            String sql = "SELECT pg_get_serial_sequence('" + tableName + "', '"
-                    + columnName + "')";
+            // pg_get_serial_sequence oddity: table name needs to be
+            // escaped with "", whilst column name, doesn't...
+            String sql = "SELECT pg_get_serial_sequence('\"";
+            if(schemaName != null && !"".equals(schemaName))
+                sql += schemaName + "\".\"";
+            sql += tableName + "\"', '" + columnName + "')";
 
             dataStore.getLogger().fine(sql);
             ResultSet rs = st.executeQuery(sql);
