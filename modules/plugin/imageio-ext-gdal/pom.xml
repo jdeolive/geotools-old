@@ -19,10 +19,6 @@
     <version>2.6-SNAPSHOT</version>
   </parent>
 
-  <properties>
-    <imageio.ext.version>1.0.2</imageio.ext.version>
-  </properties>
-
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
@@ -98,47 +94,47 @@
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdalecw</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdaldted</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdalkakadujp2</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdalmrsidjp2</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdalecwjp2</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdalehdr</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdalerdasimg</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-gdalnitf</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
       <groupId>it.geosolutions.imageio-ext</groupId>
       <artifactId>imageio-ext-imagereadmt</artifactId>
-      <version>${imageio.ext.version}</version>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
    
     <!-- Test dependencies -->

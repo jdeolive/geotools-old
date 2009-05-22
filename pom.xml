@@ -71,6 +71,7 @@
     <stress.skip.pattern>**/*StressTest.java</stress.skip.pattern>
     <test.maxHeapSize>512M</test.maxHeapSize>
     <src.output>${basedir}/target</src.output>
+    <imageio.ext.version>1.0.2</imageio.ext.version>
   </properties>
 
   <!-- Profiles set on the command-line overwrite default properties. -->
@@ -578,7 +579,67 @@
         <artifactId>jai_imageio</artifactId>
         <version>1.1</version>
       </dependency>
-
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+  	<artifactId>imageio-ext-tiff</artifactId>
+        <version>1.0.2</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-arcgrid</artifactId>
+        <version>1.0.2</version>
+      </dependency>
+        <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-gdalmrsid</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-gdalecw</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-gdaldted</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-gdalkakadujp2</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-gdalmrsidjp2</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-gdalecwjp2</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-gdalehdr</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-gdalerdasimg</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-gdalnitf</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions.imageio-ext</groupId>
+        <artifactId>imageio-ext-imagereadmt</artifactId>
+        <version>${imageio.ext.version}</version>
+      </dependency>
+    
       <!-- Mathematic, geometries, SVG... -->
       <dependency>
         <groupId>java3d</groupId>
