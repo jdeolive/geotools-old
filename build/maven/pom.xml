@@ -70,7 +70,6 @@
   <!--     built and deployed separatly when needed.               -->
   <!-- =========================================================== -->
   <modules>
-    <module>archetype</module>
     <module>jar-collector</module>
     <module>javadoc</module>
     <module>javamaker</module>
