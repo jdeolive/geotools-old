@@ -75,7 +75,6 @@
      <profile>
        <id>archive</id>
        <modules>
-         <module>hsql</module>
          <module>geomedia</module>
          <module>ogr</module>
          <module>gml3</module>
