@@ -27,13 +27,13 @@
   <artifactId>gt-referencing</artifactId>
   <packaging>jar</packaging>
   <name>Referencing services</name>
-  
+  <url>http://maven.geotools.fr/reports/modules/library/referencing/</url>
 
   <scm>
     <connection>
       scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/referencing/
     </connection>
-    
+    <url>http://svn.osgeo.org/geotools/trunk/modules/library/referencing/</url>
   </scm>
 
   <description>
@@ -44,7 +44,7 @@
   <licenses>
     <license>
       <name>Lesser General Public License (LGPL)</name>
-      
+      <url>http://www.gnu.org/copyleft/lesser.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
