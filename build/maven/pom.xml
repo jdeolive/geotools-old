@@ -73,7 +73,6 @@
     <module>jar-collector</module>
     <module>javadoc</module>
     <module>jjtree-javacc</module>
-    <module>rmic</module>
     <module>xmlcodegen</module>
   </modules>
 
