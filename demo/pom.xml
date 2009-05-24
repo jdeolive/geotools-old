@@ -115,7 +115,7 @@
     <module>libraryJTS</module>
     <module>example</module>
     <module>svgsupport</module>
-    <module>xml-po</module>
+    <!--module>xml-po</module-->
   </modules>
   
 </project>
