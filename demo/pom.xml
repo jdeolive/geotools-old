@@ -99,15 +99,6 @@
   <!-- =========================================================== -->
 
   <profiles>
-    <profile>
-      <id>introduction</id>
-        <activation> 
-          <property><name>all</name></property>
-       </activation>
-       <modules>
-         <module>introduction</module>
-       </modules>
-    </profile>
 
     <profile>
       <id>mappane-use</id>
@@ -124,7 +115,7 @@
     <module>libraryJTS</module>
     <module>example</module>
     <module>svgsupport</module>
-    <!--module>xml-po</module--> <!-- what is this? -->
+    <module>xml-po</module>
   </modules>
   
 </project>
