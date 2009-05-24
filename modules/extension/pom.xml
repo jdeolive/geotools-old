@@ -48,7 +48,6 @@
     <module>graph</module>
     <module>shapefile-renderer</module>
     <module>validation</module>
-    <module>widgets-swing</module>
     <module>xsd</module>
     <module>wms</module>
   </modules>

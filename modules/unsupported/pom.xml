@@ -157,6 +157,7 @@
          <module>tiger</module>
          <module>vpf</module>
          <module>xml-gpx</module>
+         <module>widgets-swing</module>
        </modules>
      </profile>
   </profiles>
