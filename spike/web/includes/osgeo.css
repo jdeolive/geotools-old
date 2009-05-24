@@ -8,10 +8,10 @@ Smallbox Software.  Questions to davin@smallboxsoftware.net
 body {
 	font-family: Bitstream Vera Sans, Arial, Helvetica, sans-serif;
 	font-size: 9pt;
-	color: #555;
+	color: #000;
 	background-attachment: fixed;
 	background-color: #FFFFFF;
-	background-image: url(../images/background_lower.png);
+  background-image: url(../images/background_lower.png);
 /*background-image: url(../images/background.png);*/
 	background-repeat: no-repeat;
 	background-position: center bottom;
@@ -200,7 +200,7 @@ Breadcrumbs
 -----------------------------------------------------------------------------
 */
 #content #breadcrumbs {
- color:#555;
+ color:#004d87;
  font-size:90%;
 }
 #content #breadcrumbs a {
@@ -211,7 +211,7 @@ Breadcrumbs
 }
 #content #breadcrumbs a.active,
 #content #breadcrumbs a:hover {
- color:#666666;
+ color:#000;
  text-decoration:none;
 }
 
@@ -222,10 +222,10 @@ Tag redefinitions
 -----------------------------------------------------------------------------
 */
 h1,h2,h3,h4,h5,h6 {
- font-family: Bitstream Vera Sans Roman, Arial, Helvetica, sans-serif;
- font-weight:100;
+ font-family: Bitstream Vera Sans Bold, Arial, Helvetica, sans-serif;
  line-height:1.1em;
- color:#000000;
+ color:#004d87;
+ font-weight:bold;
  margin:0;
  padding:10px 0;
 }
@@ -269,7 +269,7 @@ ul {
  padding-left:1.5em;
 }
 a {
- color:#0074BC;
+ color:#004d87;
  text-decoration:none;
 }
 a:hover {
