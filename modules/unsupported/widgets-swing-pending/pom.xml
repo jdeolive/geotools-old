@@ -52,6 +52,21 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
+      <name>Jody Garnett</name>
+      <id>jive</id>
+      <email>jody.garnett@lisasoft.com</email>
+      <organization>LISAsoft</organization>
+      <organizationUrl>http://lisasoft.com/</organizationUrl>
+      <timezone>+10</timezone>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
+  
+  <contributors>  
+    <contributor>
       <id>johann.sorel</id>
       <name>Johann Sorel</name>
       <email>sorel.johann@inbox.com</email>
@@ -59,8 +74,8 @@
         <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
-    </developer>
-  </developers>
+    </contributor>
+  </contributors>
 
 
   <!-- =========================================================== -->

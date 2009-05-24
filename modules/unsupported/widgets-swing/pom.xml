@@ -15,7 +15,7 @@
 
   <parent>
     <groupId>org.geotools</groupId>
-    <artifactId>extension</artifactId>
+    <artifactId>unsupported</artifactId>
     <version>2.6-SNAPSHOT</version>
   </parent>
   
@@ -54,6 +54,21 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
+      <name>Jody Garnett</name>
+      <id>jive</id>
+      <email>jody.garnett@lisasoft.com</email>
+      <organization>LISAsoft</organization>
+      <organizationUrl>http://lisasoft.com/</organizationUrl>
+      <timezone>+10</timezone>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
+
+  <contributors>
+    <developer>
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
@@ -64,9 +79,6 @@
         <role>Java Developer</role>
       </roles>
     </developer>
-  </developers>
-
-  <contributors>
     <contributor>
       <name>Cédric Briançon</name>
       <organization>Geomatys</organization>
