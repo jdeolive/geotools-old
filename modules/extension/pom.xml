@@ -46,7 +46,6 @@
   <modules>
     <module>brewer</module>
     <module>graph</module>
-    <module>openoffice</module>
     <module>shapefile-renderer</module>
     <module>validation</module>
     <module>widgets-swing</module>
