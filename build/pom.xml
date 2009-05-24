@@ -45,7 +45,6 @@
   <!-- =========================================================== -->
   <modules>
     <module>maven</module>
-    <module>scm</module>
   </modules>
   
 
