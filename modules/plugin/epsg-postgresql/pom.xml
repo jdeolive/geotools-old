@@ -66,6 +66,15 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
+      <name>Andrea Aime</name>
+      <id>aaime</id>
+      <email>aaime@users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+        <role>Module Maintainer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>Didier Richard</name>
       <email>dgr@libertysurf.fr</email>
       <organization>Institut Géographique National - France</organization>
@@ -81,8 +90,8 @@
       <organizationUrl>http://www.geomatys.fr/</organizationUrl>
       <timezone>+1</timezone>
       <roles>
-        <role>Module Maintainer</role>
-        <role>Java Developer</role>
+        <role>Retired Module Maintainer</role>
+        <role>Retired Java Developer</role>
       </roles>
     </developer>
   </developers>

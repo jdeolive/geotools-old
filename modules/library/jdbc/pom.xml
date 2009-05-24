@@ -55,11 +55,20 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
+      <name>Andrea Aime</name>
+      <id>aaime</id>
+      <email>aaime@users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+        <role>Module Maintainer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>Cory Horner</name>
       <email>cory.horner@gmail.com</email>
       <roles>
-        <role>Module Maintainer</role>
-        <role>Java Developer</role>
+        <role>Retired module Maintainer</role>
+        <role>Retired Java Developer</role>
       </roles>
     </developer>
   </developers>

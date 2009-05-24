@@ -103,6 +103,15 @@
         <role>Module Maintainer</role>
       </roles>
     </developer> 
+    <developer>
+      <name>Andrea Aime</name>
+      <id>aaime</id>
+      <email>aaime@users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+        <role>Module Maintainer</role>
+      </roles>
+    </developer>
   </developers>
 
   <contributors>
