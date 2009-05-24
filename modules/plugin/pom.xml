@@ -62,7 +62,6 @@
     <module>arcsde</module>
     <module>db2</module>
     <module>charts</module>
-    <module>epsg-access</module>
     <module>epsg-extension</module>
     <module>epsg-hsql</module>
     <module>epsg-postgresql</module>

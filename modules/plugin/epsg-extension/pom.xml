@@ -41,7 +41,7 @@
     Those CRS are not defined in the official ESPG database, but are used widely
     enough to warant an optional plugin in Geotools. This plugin do not contains
     any definition already found in the official EPSG database - it is not a
-    replacement for epsg-access, epsg-hsql or epsg-postgresql. One of the above
+    replacement for epsg-hsql or epsg-postgresql. One of the above
     plugins (at user choice) should be in the classpath.
   </description>
 
