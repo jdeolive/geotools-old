@@ -58,7 +58,6 @@
          <module>coveragetools</module>
          <module>sql-datastore</module>
          <module>geometryless</module>
-         <module>notifying-collections</module>
        </modules>
      </profile>
      <profile>
