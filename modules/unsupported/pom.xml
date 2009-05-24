@@ -78,7 +78,6 @@
          <module>geomedia</module>
          <module>ogr</module>
          <module>gml3</module>
-         <module>tile</module>
        </modules>
      </profile>
 
@@ -164,7 +163,6 @@
 
   <modules>
     <module>ogc</module>
-    <module>repository</module>
     <module>mappane</module>
     <module>directory</module>
   </modules>
