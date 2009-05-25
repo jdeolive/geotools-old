@@ -37,8 +37,8 @@
   </scm>
 
   <description>
-    Google Summer of Code 2007 project : Caching data in uDig.
-    This project aims at providing utilities to cache features from remote DataStores in order to leverage subsequent related queries.
+    Originally a Google Summer of Code 2007 project (Caching data in uDig), 
+    this project aims at providing utilities to cache features from remote DataStores in order to leverage subsequent related queries.
     The other goal is to allow client to get data from place-holder DataStores in the low or no bandwidth scenario. 
   </description>
 
@@ -55,6 +55,17 @@
   <!--     Developers and Contributors                             -->
   <!-- =========================================================== -->
   <developers>
+    <developer>
+      <id>egouge</id>
+      <name>Emily Gouge</name>
+      <roles>
+        <role>Java developer</role>
+      </roles>
+      <organization>Refractions Research</organization>
+      <organizationUrl>http://www.refractions.net</organizationUrl>
+      <email>egouge@refractions.net</email>
+      <timezone>PDT</timezone>
+    </developer>
     <developer>
       <id>chrisr</id>
       <name>Christophe ROUSSON</name>
