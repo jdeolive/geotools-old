@@ -97,9 +97,9 @@
   <modules>
     <module>jdbc-core</module>
     <module>jdbc-h2</module>
-    <!--module>jdbc-mysql</module>
+    <module>jdbc-mysql</module>
     <module>jdbc-oracle</module>
     <module>jdbc-postgis</module>
-    <module>jdbc-db2</module-->
+    <module>jdbc-db2</module>
   </modules>
 </project>
