@@ -24,12 +24,14 @@ import java.util.logging.Logger;
 import org.geotools.data.Transaction;
 import org.geotools.data.Transaction.State;
 
-
+/**
+ * Responsible for flow control; issues commit and rollback on the managed connection.
+ */
 public final class JDBCTransactionState implements State {
     /**
-     * the datastore
+     * The datastore
      */
-    JDBCDataStore dataStore;
+    JDBCDataStore dataStore;    
     /**
      * the current transaction
      */
@@ -38,7 +40,7 @@ public final class JDBCTransactionState implements State {
      * The current connection
      */
     Connection cx;
-    
+
     public JDBCTransactionState(Connection cx, JDBCDataStore dataStore) {
         this.cx = cx;
         this.dataStore = dataStore;
@@ -78,7 +80,8 @@ public final class JDBCTransactionState implements State {
         } catch (SQLException e) {
             String msg = "Error occured on commit";
             throw (IOException) new IOException(msg).initCause(e);
-        }
+        }        
+        //state.fireBatchFeatureEvent( true );
     }
 
     public void rollback() throws IOException {
@@ -88,6 +91,7 @@ public final class JDBCTransactionState implements State {
             String msg = "Error occured on rollback";
             throw (IOException) new IOException(msg).initCause(e);
         }
+        //state.fireBatchFeatureEvent( false );
     }
     
     @Override

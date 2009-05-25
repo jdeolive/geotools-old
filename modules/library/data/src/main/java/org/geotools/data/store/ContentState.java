@@ -30,13 +30,11 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.Transaction;
 import org.geotools.data.FeatureEvent.Type;
 import org.geotools.data.Transaction.State;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.expression.ThisPropertyAccessorFactory;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.identity.FeatureId;
 
 /**
@@ -85,12 +83,13 @@ import org.opengis.filter.identity.FeatureId;
  * @author Justin Deoliveira, The Open Planning Project
  */
 public class ContentState {
-	
+
     /**
      * Transaction the state works from.
      */
     protected Transaction tx;
-	/**
+
+    /**
      * cached feature type
      */
     protected SimpleFeatureType featureType;
@@ -109,13 +108,13 @@ public class ContentState {
      * entry maintaining the state
      */
     protected ContentEntry entry;
-    
+
     /**
      * Even used for batch notification; used to collect the bounds and feature ids generated
      * over the course of a transaction.
      */
     protected BatchFeatureEvent batchFeatureEvent;
-    
+
     /**
      * observers
      */
@@ -273,10 +272,7 @@ public class ContentState {
             ReferencedEnvelope before) {
         if( listeners.isEmpty() && tx != Transaction.AUTO_COMMIT) return;
         
-        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        Set<FeatureId> fids = new HashSet<FeatureId>();
-        fids.add( feature.getIdentifier() );
-        Filter filter = ff.id( fids );
+        Filter filter = idFilter(feature);
         ReferencedEnvelope bounds = new ReferencedEnvelope( feature.getBounds() );
         bounds.expandToInclude( before );
         
@@ -292,10 +288,7 @@ public class ContentState {
     public final void fireFeatureAdded( FeatureSource<?,?> source, Feature feature ){
         if( listeners.isEmpty() && tx != Transaction.AUTO_COMMIT) return;
         
-        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        Set<FeatureId> fids = new HashSet<FeatureId>();
-        fids.add( feature.getIdentifier() );
-        Filter filter = ff.id( fids );
+        Filter filter = idFilter(feature);
         ReferencedEnvelope bounds = new ReferencedEnvelope( feature.getBounds() );
         
         FeatureEvent event = new FeatureEvent(source, Type.ADDED, bounds, filter );
@@ -306,15 +299,22 @@ public class ContentState {
     public void fireFeatureRemoved(FeatureSource<?,?> source, Feature feature) {
         if( listeners.isEmpty() && tx != Transaction.AUTO_COMMIT) return;
         
-        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        Set<FeatureId> fids = new HashSet<FeatureId>();
-        fids.add( feature.getIdentifier() );
-        Filter filter = ff.id( fids );
+        Filter filter = idFilter(feature);
         ReferencedEnvelope bounds = new ReferencedEnvelope( feature.getBounds() );
         
         FeatureEvent event = new FeatureEvent(source, Type.REMOVED, bounds, filter );
         
         fireFeatureEvent( event );        
+    }
+
+    /**
+     * Helper method or building fid filters.
+     */
+    Filter idFilter( Feature feature ) {
+        FilterFactory ff = this.entry.dataStore.getFilterFactory();
+        Set<FeatureId> fids = new HashSet<FeatureId>();
+        fids.add( feature.getIdentifier() );
+        return ff.id( fids );
     }
 
     /**

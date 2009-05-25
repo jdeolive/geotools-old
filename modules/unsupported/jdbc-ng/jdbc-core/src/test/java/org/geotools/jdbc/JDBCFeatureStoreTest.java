@@ -25,6 +25,8 @@ import java.util.List;
 
 import org.geotools.data.CollectionFeatureReader;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.FeatureEvent.Type;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -58,14 +60,18 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
         SimpleFeatureBuilder b = new SimpleFeatureBuilder(featureStore.getSchema());
         DefaultFeatureCollection collection = new DefaultFeatureCollection(null,
                 featureStore.getSchema());
-
+        
+        //Watcher watcher = new Watcher();
+        
         for (int i = 3; i < 6; i++) {
             b.set(aname("intProperty"), new Integer(i));
             b.set(aname("geometry"), new GeometryFactory().createPoint(new Coordinate(i, i)));
             collection.add(b.buildFeature(null));
         }
-
+        //featureStore.addFeatureListener( watcher );
         List<FeatureId> fids = featureStore.addFeatures(collection);
+        //assertEquals( watcher.bounds, collection.getBounds() );
+        
         assertEquals(3, fids.size());
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
@@ -135,12 +141,19 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
     }
 
     public void testModifyFeatures() throws IOException {
+        FeatureEventWatcher watcher = new FeatureEventWatcher();
         SimpleFeatureType t = featureStore.getSchema();
+        
+        featureStore.addFeatureListener( watcher );
         featureStore.modifyFeatures(new AttributeDescriptor[] { t.getDescriptor(aname("stringProperty")) },
             new Object[] { "foo" }, Filter.INCLUDE);
-
+        
+        assertTrue( "check that at least one event was issued", watcher.count > 0 );
+        assertEquals( "Should be an update event", Type.CHANGED, watcher.type );
+        assertEquals( Filter.INCLUDE, watcher.filter );
+        
         FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureStore.getFeatures();
-        Iterator i = features.iterator();
+        Iterator<SimpleFeature> i = features.iterator();
 
         assertTrue(i.hasNext());
 
@@ -148,7 +161,6 @@ public abstract class JDBCFeatureStoreTest extends JDBCTestSupport {
             SimpleFeature feature = (SimpleFeature) i.next();
             assertEquals("foo", feature.getAttribute(aname("stringProperty")));
         }
-
         features.close(i);
     }
     

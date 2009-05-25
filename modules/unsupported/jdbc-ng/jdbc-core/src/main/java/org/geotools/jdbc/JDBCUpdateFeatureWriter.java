@@ -26,7 +26,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.FeatureWriter;
+import org.geotools.data.store.ContentEntry;
+import org.geotools.data.store.ContentState;
 import org.geotools.factory.Hints;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -36,6 +39,7 @@ public class JDBCUpdateFeatureWriter extends JDBCFeatureReader implements
         FeatureWriter<SimpleFeatureType, SimpleFeature> {
 
     ResultSetFeature last;
+    ReferencedEnvelope lastBounds;
     
     public JDBCUpdateFeatureWriter(String sql, Connection cx,
             JDBCFeatureSource featureSource, Hints hints) throws SQLException, IOException {
@@ -64,13 +68,24 @@ public class JDBCUpdateFeatureWriter extends JDBCFeatureReader implements
      
         //reset next flag
         next = null;
-        
+    
+        if( this.featureSource.getEntry().getState(tx).hasListener() ){
+            // record bounds as we have a listener who will be interested
+            this.lastBounds = new ReferencedEnvelope( last.getBounds() );
+        }        
         return last;
     }
     
     public void remove() throws IOException {
         try {
             dataStore.delete(featureType, last.getID(), st.getConnection());
+            
+            // issue notification
+            ContentEntry entry = featureSource.getEntry();
+            ContentState state = entry.getState( this.tx );
+            if( state.hasListener() ){
+                state.fireFeatureRemoved( featureSource, last );
+            }
         } catch (SQLException e) {
             throw (IOException) new IOException().initCause(e);
         }
@@ -97,8 +112,15 @@ public class JDBCUpdateFeatureWriter extends JDBCFeatureReader implements
                 }
             }
 
-            //do the write
+            // do the write
             dataStore.update(featureType, changed, values, filter, st.getConnection());
+            
+            // issue notification
+            ContentEntry entry = featureSource.getEntry();
+            ContentState state = entry.getState( this.tx );
+            if( state.hasListener() ){
+                state.fireFeatureUpdated( featureSource, last, lastBounds );
+            }
         } catch (Exception e) {
             throw (IOException) new IOException().initCause(e);
         }

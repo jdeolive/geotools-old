@@ -1093,7 +1093,7 @@ public final class JDBCDataStore extends ContentDataStore
      * Gets a database connection for the specified feature store.
      */
     protected final Connection getConnection(JDBCState state) {
-     // short circuit this state, all auto commit transactions are using the same
+        // short circuit this state, all auto commit transactions are using the same
         if(state.getTransaction() == Transaction.AUTO_COMMIT) {
             Connection cx = createConnection();
             try {
@@ -1120,8 +1120,9 @@ public final class JDBCDataStore extends ContentDataStore
                 }
 
                 //add connection state to the transaction
-                state.setConnection(cx);
-                state.getTransaction().putState(state, new JDBCTransactionState( cx, this ) );    
+                state.setConnection(cx);                
+                // register a single JDBCTransactionState on this connection to handle commit/revert
+                state.getTransaction().putState(state, new JDBCTransactionState( cx, this ) );
             }
         }
         return cx;
