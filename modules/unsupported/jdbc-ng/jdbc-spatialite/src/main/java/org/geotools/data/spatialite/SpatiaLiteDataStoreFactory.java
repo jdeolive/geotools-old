@@ -1,14 +1,15 @@
 package org.geotools.data.spatialite;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Map;
-
-import org.geotools.data.DataStore;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
 
+/**
+ * DataStoreFactory for SpatiaLite database.
+ * 
+ * @author Justin Deoliveira, OpenGeo
+ *
+ */
 public class SpatiaLiteDataStoreFactory extends JDBCDataStoreFactory {
 
     @Override
