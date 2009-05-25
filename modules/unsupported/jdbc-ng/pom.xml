@@ -61,12 +61,45 @@
     </developer>
   </developers>
 
+  <dependencies>
+    <dependency>
+      <groupId>simple-jndi</groupId>
+      <artifactId>simple-jndi</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-surefire-plugin</artifactId>
+         <configuration>
+           <systemProperties>
+              <property>
+                 <name>java.naming.factory.initial</name>
+                 <value>org.osjava.sj.SimpleContextFactory</value>
+              </property>
+              <property>
+                 <name>org.osjava.sj.root</name>
+                 <value>file://${project.build.directory}/jndi</value>
+              </property>
+              <property>
+                 <name>org.osjava.jndi.delimiter</name>
+                 <value>/</value>
+              </property>
+          </systemProperties>
+         </configuration>
+       </plugin>
+     </plugins>
+  </build>
+
   <modules>
     <module>jdbc-core</module>
     <module>jdbc-h2</module>
-    <module>jdbc-mysql</module>
+    <!--module>jdbc-mysql</module>
     <module>jdbc-oracle</module>
     <module>jdbc-postgis</module>
-    <module>jdbc-db2</module>
+    <module>jdbc-db2</module-->
   </modules>
 </project>

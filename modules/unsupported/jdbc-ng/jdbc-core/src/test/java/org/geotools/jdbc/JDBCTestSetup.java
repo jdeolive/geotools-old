@@ -165,7 +165,7 @@ public abstract class JDBCTestSetup {
      * Creates a data source by reading properties from a file called 'db.properties', 
      * located paralell to the test setup instance.
      */
-    private DataSource createDataSource() throws IOException {
+    protected DataSource createDataSource() throws IOException {
         Properties db = new Properties();
         fillConnectionProperties(db);
 

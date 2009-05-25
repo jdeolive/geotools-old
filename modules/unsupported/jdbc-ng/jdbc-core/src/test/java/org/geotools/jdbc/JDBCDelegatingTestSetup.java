@@ -39,6 +39,11 @@ public class JDBCDelegatingTestSetup extends JDBCTestSetup {
         delegate.tearDown();
     }
     
+    @Override
+    protected void setUpData() throws Exception {
+        delegate.setUpData();
+    }
+    
     protected final void initializeDatabase() throws Exception {
         delegate.initializeDatabase();
     }
