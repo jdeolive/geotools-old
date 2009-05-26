@@ -122,6 +122,11 @@ public class RasterTestData {
         // String tableName = getRasterTableName(table);
         // testData.deleteTable(tableName);
         // }
+        testData.tearDown(false, true);
+        if (_pool != null) {
+            _pool.close();
+            _pool = null;
+        }
     }
 
     public void deleteTable(final String tableName) throws Exception {
@@ -772,7 +777,7 @@ public class RasterTestData {
             final boolean skipLevelOne, final int interpolationType, final SeExtent extent,
             final ArcSDEPooledConnection conn) throws SeException, CloneNotSupportedException,
             ArcSdeException {
-        
+
         SeRasterAttr attr = new SeRasterAttr(true);
         attr.setImageSize(imageWidth, imageHeight, numberOfBands);
         int tileWidth = imageWidth >> 4;

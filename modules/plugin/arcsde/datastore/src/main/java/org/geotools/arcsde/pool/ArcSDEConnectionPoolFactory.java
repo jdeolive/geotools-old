@@ -81,7 +81,7 @@ public class ArcSDEConnectionPoolFactory {
             throws DataSourceException {
         ArcSDEConnectionPool pool = (ArcSDEConnectionPool) this.currentPools.get(config);
 
-        if (pool == null) {
+        if (pool == null || pool.isClosed()) {
             // the new pool will be populated with config.minConnections
             // connections
             pool = new ArcSDEConnectionPool(config);

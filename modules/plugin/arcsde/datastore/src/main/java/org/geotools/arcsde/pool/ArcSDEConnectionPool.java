@@ -183,6 +183,10 @@ public class ArcSDEConnectionPool {
         }
     }
 
+    public boolean isClosed(){
+        return pool == null;
+    }
+    
     /**
      * Ensures proper closure of connection pool at this object's finalization stage.
      */

@@ -81,16 +81,16 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        rasterTestData = new RasterTestData();
-        rasterTestData.setUp();
-        DEBUG = Boolean
-                .valueOf(rasterTestData.getRasterTestDataProperty(RASTER_TEST_DEBUG_TO_DISK));
-        rasterTestData.setOverrideExistingTestTables(false);
+//        rasterTestData = new RasterTestData();
+//        rasterTestData.setUp();
+//        DEBUG = Boolean
+//                .valueOf(rasterTestData.getRasterTestDataProperty(RASTER_TEST_DEBUG_TO_DISK));
+//        rasterTestData.setOverrideExistingTestTables(false);
     }
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        rasterTestData.tearDown();
+        //rasterTestData.tearDown();
     }
 
     /**
@@ -98,7 +98,11 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
      */
     @Before
     public void setUp() throws Exception {
-        // nothing to do
+        rasterTestData = new RasterTestData();
+        rasterTestData.setUp();
+        DEBUG = Boolean
+                .valueOf(rasterTestData.getRasterTestDataProperty(RASTER_TEST_DEBUG_TO_DISK));
+        rasterTestData.setOverrideExistingTestTables(false);
     }
 
     /**
@@ -109,6 +113,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         try {
             LOGGER.info("tearDown: deleting " + tableName);
             rasterTestData.deleteTable(tableName);
+            rasterTestData.tearDown();
         } catch (Exception e) {
             LOGGER.log(Level.INFO, "Error deleting test table " + tableName, e);
         }
@@ -545,7 +550,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
                 + requestedEnvelope + "\n expected envelope  :" + expectedEnvelope
                 + "\n returned envelope  :" + returnedEnvelope);
 
-        assertEquals(51, image.getWidth());
+        assertEquals(50, image.getWidth());
         assertEquals(50, image.getHeight());
         // assertEquals(expectedEnvelope, returnedEnvelope);
     }
