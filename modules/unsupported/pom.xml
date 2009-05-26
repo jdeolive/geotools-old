@@ -158,6 +158,7 @@
          <module>vpf</module>
          <module>xml-gpx</module>
          <module>widgets-swing</module>
+         <module>caching</module>
        </modules>
      </profile>
   </profiles>
