@@ -155,7 +155,7 @@ public class DefaultConnectionFactory implements ConnectionFactory {
             synchronized (Authenticator.class) {
                 Authenticator.setDefault(auth);
                 connection.connect();
-                Authenticator.setDefault(null);
+//                Authenticator.setDefault(null);
             }
         }
 

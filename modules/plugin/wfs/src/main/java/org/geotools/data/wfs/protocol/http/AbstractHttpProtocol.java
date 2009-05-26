@@ -43,9 +43,9 @@ public abstract class AbstractHttpProtocol implements HTTPProtocol {
 
     private boolean tryGzip;
 
-    private String authUsername;
+    protected String authUsername;
 
-    private String authPassword;
+    protected String authPassword;
 
     protected int timeoutMillis = -1;
 

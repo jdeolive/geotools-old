@@ -25,6 +25,8 @@ import java.net.URL;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
+import sun.misc.BASE64Encoder;
+
 /**
  * An {@link HTTPProtocol} implementation that relies on plain {@link HttpURLConnection}
  * 
@@ -106,9 +108,8 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
         HttpURLConnection conn;
         try {
             conn = (HttpURLConnection) targetUrl.openConnection();
-        }
-        catch( ClassCastException wrongUrl ){
-            throw new IOException("HTTP connection required for "+targetUrl );
+        } catch (ClassCastException wrongUrl) {
+            throw new IOException("HTTP connection required for " + targetUrl);
         }
         if (0 < getTimeoutMillis()) {
             conn.setConnectTimeout(getTimeoutMillis());
@@ -125,6 +126,16 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
             conn.setRequestMethod("GET");
         }
         conn.setDoInput(true);
+
+        if (authUsername != null && authPassword != null) {
+            String userPassword = authUsername + ":" + authPassword;
+            byte[] encodedUserPassword = userPassword.getBytes();
+
+            BASE64Encoder encoder = new BASE64Encoder();
+            String base64UserAndPasswd = encoder.encode(encodedUserPassword);
+            conn.setRequestProperty("Authorization", "Basic " + base64UserAndPasswd);
+        }
+
         return conn;
     }
 }
