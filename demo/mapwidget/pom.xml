@@ -7,6 +7,16 @@
     <version>2.6-SNAPSHOT</version>
     <name>Geotools Map Display Demo</name>
     <url>http://maven.apache.org</url>
+    <developers>
+        <developer>
+            <name>Michael Bedward</name>
+            <id>mbedward</id>
+            <email>michael.bedward@gmail.com</email>
+            <organization>Dept Environment and Climate Change</organization>
+            <organizationUrl>http://www.environment.nsw.gov.au</organizationUrl>
+            <timezone>+10</timezone>
+        </developer>
+    </developers>
     <build>
         <plugins>
             <plugin>
@@ -50,17 +60,5 @@
             <version>3.7</version>
             <classifier>swing</classifier>
         </dependency>
-        <!--dependency>
-            <groupId>com.miglayout</groupId>
-            <artifactId>miglayout</artifactId>
-            <version>3.7</version>
-            <classifier>javadoc</classifier>
-        </dependency-->
-        <!--dependency>
-            <groupId>com.miglayout</groupId>
-            <artifactId>miglayout</artifactId>
-            <version>3.7</version>
-            <classifier>sources</classifier>
-        </dependency-->
     </dependencies>
 </project>
