@@ -1,6 +1,7 @@
 package org.geotools.data.postgis;
 
 import java.io.IOException;
+import java.util.logging.Level;
 
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.filter.FilterCapabilities;
@@ -13,7 +14,6 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BinarySpatialOperator;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 
 public class PostgisFilterToSQL extends FilterToSQL {
@@ -109,6 +109,48 @@ public class PostgisFilterToSQL extends FilterToSQL {
         helper.out = out;
         return helper.visitBinarySpatialOperator(filter, property, geometry,
                 swapped, extraData);
+    }
+    
+    /**
+     * Writes the SQL for the attribute Expression.
+     * 
+     * @param expression the attribute to turn to SQL.
+     *
+     * @throws RuntimeException for io exception with writer
+     */
+    public Object visit(PropertyName expression, Object extraData) throws RuntimeException {
+        LOGGER.finer("exporting PropertyName");
+        
+        try {
+            //first evaluate expression against feautre type get the attribute, 
+            //  this handles xpath
+            AttributeDescriptor attribute = null;
+            try {
+                attribute = (AttributeDescriptor) expression.evaluate(featureType);
+            }
+            catch( Exception e ) {
+                //just log and fall back on just encoding propertyName straight up
+                String msg = "Error occured mapping " + expression + " to feature type";
+                LOGGER.log( Level.WARNING, msg, e );
+            }
+            if ( attribute != null ) {
+                //use the name of the attribute
+                out.write(escapeName(attribute.getLocalName()));
+            }
+            else {
+                //fall back to just encoding the properyt name
+                out.write(escapeName(expression.getPropertyName()));
+            }
+            
+            // if we are comparing against a string, force a cast
+            // (needed for cite tests to pass, they try out a like comparison with a date field)
+            if(String.class.equals(extraData))
+                out.write("::text");
+            
+        } catch (java.io.IOException ioe) {
+            throw new RuntimeException("IO problems writing attribute exp", ioe);
+        }
+        return extraData;
     }
 
 }
