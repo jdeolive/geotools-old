@@ -115,6 +115,8 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
             conn.setConnectTimeout(getTimeoutMillis());
             conn.setReadTimeout(getTimeoutMillis());
         }
+        // remember to set the Accept-Encoding header before setting the authentication credentials
+        // or an IllegalStateException is thrown
         if (isTryGzip()) {
             conn.setRequestProperty("Accept-Encoding", "gzip");
         }
