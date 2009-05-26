@@ -18,6 +18,7 @@
 package org.geotools.arcsde.pool;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -28,7 +29,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.geotools.data.DataSourceException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +42,7 @@ import org.junit.Test;
  *         /org/geotools/arcsde/pool/SessionPoolTest.java $
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class SessionPoolTest {
 
     private static Logger LOGGER = org.geotools.util.logging.Logging
@@ -149,18 +150,32 @@ public class SessionPoolTest {
         LOGGER.fine("testing connection to the sde database");
 
         SessionPoolFactory pf = SessionPoolFactory.getInstance();
-        ArcSDEConnectionConfig congfig = null;
+        ArcSDEConnectionConfig config = null;
 
-        congfig = new ArcSDEConnectionConfig(connectionParameters);
+        config = new ArcSDEConnectionConfig(connectionParameters);
 
         SessionPool connPool = null;
+
+        connPool = pf.createPool(config);
+        LOGGER.fine("connection succeed " + connPool.getPoolSize() + " connections ready");
+        connPool.close();
+    }
+
+    @Test
+    public void testConnectFailure() throws IOException {
+        ArcSDEConnectionConfig config = null;
+
+        config = new ArcSDEConnectionConfig(connectionParameters);
+        config.serverName = "unreacheable-server-name";
+
         try {
-            connPool = pf.createPool(congfig);
-            LOGGER.fine("connection succeed " + connPool.getPoolSize() + " connections ready");
+            SessionPool connPool = new SessionPool(config);
             connPool.close();
-        } catch (DataSourceException ex) {
-            throw ex;
+            fail("Expected IOE for unreachable server");
+        } catch (IOException e) {
+            assertTrue(true);
         }
+
     }
 
     /**
@@ -198,7 +213,6 @@ public class SessionPoolTest {
      * @throws IOException
      * @throws UnavailableArcSDEConnectionException
      */
-    @SuppressWarnings("unchecked")
     @Test
     public void testChecksLimits() throws IOException, UnavailableArcSDEConnectionException {
         int MIN_CONNECTIONS = 2;
@@ -213,7 +227,8 @@ public class SessionPoolTest {
         // this MUST fail, since maxConnections is lower than minConnections
         try {
             LOGGER.fine("testing parameters' sanity check at pool creation time");
-            createPool(params);
+            SessionPool pool = createPool(params);
+            pool.close();
             fail("the connection pool creation must have failed since a wrong set of arguments was passed");
         } catch (IllegalArgumentException ex) {
             // it's ok, it is what's expected
@@ -225,12 +240,10 @@ public class SessionPoolTest {
      * tests that no more than pool.maxConnections connections can be created, and once one
      * connection is freed, it is ready to be used again.
      * 
-     * @throws IOException
-     * 
-     * @throws UnavailableArcSDEConnectionException
+     * @throws Exception
      */
     @Test
-    public void testMaxConnections() throws IOException, UnavailableArcSDEConnectionException {
+    public void testMaxConnections() throws Exception {
         final int MIN_CONNECTIONS = 2;
         final int MAX_CONNECTIONS = 2;
 
@@ -262,6 +275,7 @@ public class SessionPoolTest {
         ISession expected = sessions[0];
         expected.dispose();
 
+        Thread.currentThread().sleep(1000);
         ISession session = this.pool.getSession();
         assertEquals(expected, session);
     }

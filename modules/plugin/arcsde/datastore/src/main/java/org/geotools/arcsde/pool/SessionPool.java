@@ -146,7 +146,7 @@ public class SessionPool {
             // drop connections that have been idle for at least one minute
             poolCfg.minEvictableIdleTimeMillis = 60000;
 
-            this.pool = new GenericObjectPool(seConnectionFactory, poolCfg);
+            pool = new GenericObjectPool(seConnectionFactory, poolCfg);
 
             LOGGER.fine("Created ArcSDE connection pool for " + config);
         }
@@ -155,7 +155,7 @@ public class SessionPool {
 
         try {
             for (int i = 0; i < minConnections; i++) {
-                preload[i] = (ISession) this.pool.borrowObject();
+                preload[i] = (ISession) pool.borrowObject();
                 if (i == 0) {
                     SeRelease seRelease = preload[i].getRelease();
                     String sdeDesc = seRelease.getDesc();
@@ -168,12 +168,17 @@ public class SessionPool {
             }
 
             for (int i = 0; i < minConnections; i++) {
-                this.pool.returnObject(preload[i]);
+                pool.returnObject(preload[i]);
             }
-        } catch (IOException e) {
-            throw e;
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "can't connect to " + config, e);
+            try {
+                pool.close();
+            } catch (Exception closeEx) {
+                // ignore
+            }
+            if (e instanceof IOException) {
+                throw (IOException) e;
+            }
             throw new DataSourceException(e);
         }
     }
@@ -389,7 +394,7 @@ public class SessionPool {
      * @author Gabriel Roldan, Axios Engineering
      * @version $Id$
      */
-    protected class SeConnectionFactory extends BasePoolableObjectFactory {
+    protected final class SeConnectionFactory extends BasePoolableObjectFactory {
         /** DOCUMENT ME! */
         private ArcSDEConnectionConfig config;
 
