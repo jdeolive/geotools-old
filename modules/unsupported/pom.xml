@@ -165,7 +165,6 @@
 
   <modules>
     <module>ogc</module>
-    <module>mappane</module>
     <module>directory</module>
   </modules>
 
