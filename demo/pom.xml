@@ -98,20 +98,8 @@
   <!--     Modules included in the build                           -->
   <!-- =========================================================== -->
 
-  <profiles>
-
-    <profile>
-      <id>mappane-use</id>
-        <activation>
-          <property><name>all</name></property>
-       </activation>
-       <modules>
-         <module>mappane-use</module>
-       </modules>
-    </profile>
-  </profiles>
-
   <modules>
+    <module>mapwidget</module>
     <module>libraryJTS</module>
     <module>example</module>
     <module>svgsupport</module>
