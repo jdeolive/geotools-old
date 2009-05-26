@@ -54,13 +54,33 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
-      <name>David Zwiers</name>
-      <id>dzwiers</id>
-      <email>dzwiers@refractions.net</email>
-      <organization>Refractions Research</organization>
+      <name>Justin Deoliveira</name>
+      <id>jdeolive</id>
+      <email>jdeolive@opengeo.org</email>
+      <organization>OpenGeo</organization>
+      <organizationUrl>http://opengeo.org</organizationUrl>
       <roles>  
         <role>Module Maintainer</role>
         <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Gabriel Roldan</name>
+      <id>groldan</id>
+      <email>groldan@opengeo.org</email>
+      <organization>OpenGeo</organization>
+      <organizationUrl>http://opengeo.org</organizationUrl>
+      <roles>  
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>David Zwiers</name>
+      <id>dzwiers</id>
+      <email>david.zwiers@gmail.com</email>
+      <roles>  
+        <role>Retired Module Maintainer</role>
       </roles>
     </developer>
   </developers>
@@ -112,7 +132,7 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-	<dependency>
+    <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
     </dependency>
