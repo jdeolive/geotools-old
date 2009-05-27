@@ -64,6 +64,8 @@ public class DefaultMapContext implements MapContext {
 
 	List<MapLayer> layerList = new ArrayList<MapLayer>();
 
+	CoordinateReferenceSystem crs = null;
+
 	ReferencedEnvelope areaOfInterest = null;
 
 	/** Utility field used by event firing mechanism. */
@@ -114,123 +116,120 @@ public class DefaultMapContext implements MapContext {
 	/** Holds value of property title. */
 	protected String title;
 
+	private ReferencedEnvelope bounds = null;
+
 	/**
 	 * Creates a default empty map context
 	 * 
 	 * @deprecated
 	 */
 	public DefaultMapContext() {
-        this(DefaultGeographicCRS.WGS84);
+		this.crs = DefaultGeographicCRS.WGS84;
+		this.title = "";
+		this.abstracts = "";
+		this.contactInformation = "";
+		this.keywords = new String[0];
 	}
 
 	/**
 	 * Creates a default empty map context
-	 *
-     * @param crs the coordindate reference system to be used with this
-     * context (may be null and set later)
+	 * 
 	 */
 	public DefaultMapContext(final CoordinateReferenceSystem crs) {
-        this(null, crs);
+		this.crs = crs;
+		this.title = "";
+		this.abstracts = "";
+		this.contactInformation = "";
+		this.keywords = new String[0];
 	}
 
 	/**
-	 * Creates a map context with the provided layers
+	 * Creates a map context with the provided layers and title
 	 * 
-	 * @param layers an array of MapLayer objects (may be empty or null)
-     * to be added to this context
-     *
-     * @deprecated
+	 * @param layers
+	 *            DOCUMENT ME!
+	 * @deprecated
 	 */
 	public DefaultMapContext(MapLayer[] layers) {
-		this(layers, DefaultGeographicCRS.WGS84);
+		this();
+		setTitle(title);
+		addLayers(layers);
 	}
 
 	/**
-	 * Creates a map context with the provided layers and coordinate
-     * reference system
+	 * Creates a map context with the provided layers and title
 	 * 
-	 * @param layers an array of MapLayer objects (may be empty or null)
-     * to be added to this context
-
-     * @param crs the coordindate reference system to be used with this
-     * context (may be null and set later)
+	 * @param layers
+	 *            DOCUMENT ME!
 	 */
-	public DefaultMapContext(MapLayer[] layers, final CoordinateReferenceSystem crs) {
-        this(layers, null, null, null, null, crs);
+	public DefaultMapContext(MapLayer[] layers,
+			final CoordinateReferenceSystem crs) {
+		this();
+		this.crs = crs;
+		setTitle(title);
+		addLayers(layers);
 	}
 
 	/**
 	 * Creates a map context
 	 * 
-	 * @param layers an array of MapLayer objects (may be empty or null)
-     * to be added to this context
-     *
-     * @param title a title for this context (e.g. might be used by client-code
-     * that is displaying the context's layers); may be null or an empty string
-     *
-     * @param contextAbstract a short description of the context and its
-     * contents; may be null or an empty string
-     *
-     * @param contactInformation can be used, for example, to record the
-     * creators or custodians of the data that are, or will be, held by this context;
-     * may be null or an empty string
-     *
-     * @param keywords an optional array of key words pertaining to the
-     * data that are, or will be, held by this context;
-     * may be null or a zero-length String array
-     *
+	 * @param layers
+	 *            DOCUMENT ME!
+	 * @param title
+	 *            DOCUMENT ME!
+	 * @param contextAbstract
+	 *            DOCUMENT ME!
+	 * @param contactInformation
+	 *            DOCUMENT ME!
+	 * @param keywords
+	 *            DOCUMENT ME!
 	 * @deprecated
 	 */
 	public DefaultMapContext(MapLayer[] layers, String title,
 			String contextAbstract, String contactInformation, String[] keywords) {
-        this(layers, title, contextAbstract, contactInformation, keywords,
-             DefaultGeographicCRS.WGS84);
+		this(layers);
+		setTitle(title);
+		setAbstract(contextAbstract);
+		setContactInformation(contactInformation);
+		setKeywords(keywords);
 	}
 
 	/**
-	 * Creates a new map context
-     *
-	 * @param layers an array of MapLayer objects (may be empty or null)
-     * to be added to this context
-     *
-     * @param title a title for this context (e.g. might be used by client-code
-     * that is displaying the context's layers); may be null or an empty string
-     *
-     * @param contextAbstract a short description of the context and its
-     * contents; may be null or an empty string
-     *
-     * @param contactInformation can be used, for example, to record the
-     * creators or custodians of the data that are, or will be, held by this context;
-     * may be null or an empty string
-     *
-     * @param keywords an optional array of key words pertaining to the
-     * data that are, or will be, held by this context;
-     * may be null or a zero-length String array
-     *
-     * @param crs the coordindate reference system to be used with this
-     * context (may be null and set later)
+	 * Creates a map context
+	 * 
+	 * @param layers
+	 *            DOCUMENT ME!
+	 * @param title
+	 *            DOCUMENT ME!
+	 * @param contextAbstract
+	 *            DOCUMENT ME!
+	 * @param contactInformation
+	 *            DOCUMENT ME!
+	 * @param keywords
+	 *            DOCUMENT ME!
 	 */
 	public DefaultMapContext(MapLayer[] layers, String title,
 			String contextAbstract, String contactInformation,
 			String[] keywords, final CoordinateReferenceSystem crs) {
 
+		this(layers);
+		this.crs = crs;
 		setTitle(title);
 		setAbstract(contextAbstract);
 		setContactInformation(contactInformation);
 		setKeywords(keywords);
-        this.areaOfInterest = new ReferencedEnvelope(crs);
-        addLayers(layers);
 	}
 
 	/**
-	 * Add a new layer if not already present and trigger a {@linkplain MapLayerListEvent}
+	 * Add a new layer if not already present and trigger a {@link
+	 * LayerListEvent}.
 	 * 
-	 * @param index the position at which to insert the layer in the list of layers
-     * held by this context
-     *
-	 * @param layer the map layer to add
+	 * @param index
+	 *            DOCUMENT ME!
+	 * @param layer
+	 *            Then new layer that has been added.
 	 * 
-	 * @return true if the layer was added; false otherwise (layer was already present)
+	 * @return DOCUMENT ME!
 	 */
 	public boolean addLayer(int index, MapLayer layer) {
 		if (layerList.contains(layer)) {
@@ -238,21 +237,22 @@ public class DefaultMapContext implements MapContext {
 		}
 
 		layerList.add(index, layer);
+		// getLayerBounds();
 		layer.addMapLayerListener(layerListener);
-
-        fireMapLayerListListenerLayerAdded(new MapLayerListEvent(this, layer,
+		bounds = null;
+		fireMapLayerListListenerLayerAdded(new MapLayerListEvent(this, layer,
 				index));
 
 		return true;
 	}
 
 	/**
-	 * Add a new layer, if not already present, to the end of the list of layers held
-     * by this context and trigger a {@linkplain MapLayerListEvent}
-	 *
-	 * @param layer the map layer to add
-	 *
-	 * @return true if the layer was added; false otherwise (layer was already present)
+	 * Add a new layer and trigger a {@link LayerListEvent}.
+	 * 
+	 * @param layer
+	 *            Then new layer that has been added.
+	 * 
+	 * @return DOCUMENT ME!
 	 */
 	public boolean addLayer(MapLayer layer) {
 		if (layerList.contains(layer)) {
@@ -260,37 +260,27 @@ public class DefaultMapContext implements MapContext {
 		}
 
 		layerList.add(layer);
+		// getLayerBounds();
 		layer.addMapLayerListener(layerListener);
-
-        fireMapLayerListListenerLayerAdded(new MapLayerListEvent(this, layer,
+		bounds = null;
+		fireMapLayerListListenerLayerAdded(new MapLayerListEvent(this, layer,
 				indexOf(layer)));
 
 		return true;
 	}
 
 	/**
-	 * Add the given feature source as a new layer to the end of the list of layers held
-     * by this context and trigger a {@linkplain MapLayerListEvent}.
-     * This is a convenience method equivalent to
-     * {@linkplain #addLayer}(new DefaultMapLayer(featureSource, style).
-	 *
-	 * @param featureSource the source of the features for the new layer
-     * @param style a Style object to be used in rendering this layer
+	 * Add a new layer and trigger a {@link LayerListEvent}.
+	 * 
+	 * @param featureSource
+	 *            Then new layer that has been added.
+	 * @param style
+	 *            DOCUMENT ME!
 	 */
 	public void addLayer(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Style style) {
 		this.addLayer(new DefaultMapLayer(featureSource, style, ""));
 	}
-
-
-	/**
-	 * Add the given collection source as a new layer to the end of the list of layers held
-     * by this context and trigger a {@linkplain MapLayerListEvent}.
-     * This is a convenience method equivalent to
-     * {@linkplain #addLayer}(new DefaultMapLayer(source, style).
-	 *
-	 * @param source the source of the features for the new layer
-     * @param style a Style object to be used in rendering this layer
-	 */
+    
     public void addLayer(CollectionSource source, Style style) {
         // JG: for later when feature source extends source
 //        if( source instanceof FeatureSource){
@@ -302,13 +292,13 @@ public class DefaultMapContext implements MapContext {
     
 
 	/**
-     * Add a grid coverage as a new layer to the end of the list of layers held by
-     * this context.
-     *
-     * @param gc the grid coverage
-     * @param style a Style to be used when rendering the new layer
+	 * Add a new layer and trigger a {@link LayerListEvent}.
+	 * 
+	 * @param gc
+	 *            Then new layer that has been added.
+	 * @param style
+	 *            DOCUMENT ME!
 	 */
-    @SuppressWarnings("empty-statement")
 	public void addLayer(GridCoverage gc, Style style) {
 		try {
 			this.addLayer(FeatureUtilities.wrapGridCoverage((GridCoverage2D) gc), style);
@@ -325,11 +315,12 @@ public class DefaultMapContext implements MapContext {
 	}
 
 	/**
-     * Add a grid coverage data to be supplied by the given reader as a new layer
-     * to the end of the list of layers held by this context.
-     *
-     * @param reader the grid coverage reader
-     * @param style a Style to be used when rendering the new layer
+	 * Add a new layer and trigger a {@link LayerListEvent}.
+	 * 
+	 * @param reader
+	 *            a reader with the new layer to be added.
+	 * @param style
+	 *            DOCUMENT ME!
 	 */
 	public void addLayer(AbstractGridCoverage2DReader reader, Style style) {
 		try {
@@ -347,27 +338,16 @@ public class DefaultMapContext implements MapContext {
 	}
 
 	/**
-	 * Add the given feature collection as a new layer to the end of the list of layers held
-     * by this context and trigger a {@linkplain MapLayerListEvent}.
-     * This is a convenience method equivalent to
-     * {@linkplain #addLayer}(new DefaultMapLayer(collection, style).
-	 *
-	 * @param collection the collection of features for the new layer
-     * @param style a Style object to be used in rendering this layer
+	 * Add a new layer and trigger a {@link LayerListEvent}.
+	 * 
+	 * @param collection
+	 *            Then new layer that has been added.
+	 * @param style
+	 *            DOCUMENT ME!
 	 */
 	public void addLayer(FeatureCollection<SimpleFeatureType, SimpleFeature> collection, Style style) {
 		this.addLayer(new DefaultMapLayer(collection, style, ""));
 	}
-
-    /**
-	 * Add the given collection as a new layer to the end of the list of layers held
-     * by this context and trigger a {@linkplain MapLayerListEvent}.
-     * This is a convenience method equivalent to
-     * {@linkplain #addLayer}(new DefaultMapLayer(collection, style).
-	 *
-	 * @param collection the collection of features for the new layer
-     * @param style a Style object to be used in rendering this layer
-     */
     public void addLayer(Collection collection, Style style) {
         if( collection instanceof FeatureCollection){
             this.addLayer(new DefaultMapLayer((FeatureCollection<SimpleFeatureType, SimpleFeature>)collection, style, ""));
@@ -377,12 +357,12 @@ public class DefaultMapContext implements MapContext {
     }
 
 	/**
-	 * Remove the given layer from this context, if present, and
-     * trigger a {@linkplain MapLayerListEvent}
+	 * Remove a layer and trigger a {@link LayerListEvent}.
 	 * 
-	 * @param layer the layer to be removed
+	 * @param layer
+	 *            Then new layer that has been removed.
 	 * 
-	 * @return true if the layer was present; false otherwise
+	 * @return DOCUMENT ME!
 	 */
 	public boolean removeLayer(MapLayer layer) {
 		int index = indexOf(layer);
@@ -397,33 +377,31 @@ public class DefaultMapContext implements MapContext {
 	}
 
 	/**
-	 * Remove the layer at the given position in the list of
-     * layers held by this context. The position must be valid or
-     * an IndexOutOfBoundsException will result. CAlling this method
-     * triggers a {@linkplain MapLayerListEvent}.
-     *
-	 * @param index the position of the layer in this context's list of layers
+	 * DOCUMENT ME!
 	 * 
-	 * @return the layer that was removed
+	 * @param index
+	 *            DOCUMENT ME!
+	 * 
+	 * @return DOCUMENT ME!
 	 */
 	public MapLayer removeLayer(int index) {
-		MapLayer layer = layerList.remove(index);
+		MapLayer layer = (MapLayer) layerList.remove(index);
 		// getLayerBounds();
 		layer.removeMapLayerListener(layerListener);
-
-        fireMapLayerListListenerLayerRemoved(new MapLayerListEvent(this, layer,
+		bounds = null;
+		fireMapLayerListListenerLayerRemoved(new MapLayerListEvent(this, layer,
 				index));
 
 		return layer;
 	}
 
 	/**
-	 * Add an array of new layers to this context and trigger a {@link MapLayerListEvent}.
+	 * Add an array of new layers and trigger a {@link LayerListEvent}.
 	 * 
-	 * @param layers the new layers that are to be added.
+	 * @param layers
+	 *            The new layers that are to be added.
 	 * 
-	 * @return the number of new layers actually added (will be less than the
-     * length of the layers array if some layers were already present)
+	 * @return DOCUMENT ME!
 	 */
 	public int addLayers(MapLayer[] layers) {
 		if ((layers == null) || (layers.length == 0)) {
@@ -443,6 +421,7 @@ public class DefaultMapContext implements MapContext {
 		}
 
 		if (layerAdded > 0) {
+			bounds = null;
 			int fromIndex = layerList.size() - layerAdded;
 			int toIndex = layerList.size() - 1;
 
@@ -460,7 +439,7 @@ public class DefaultMapContext implements MapContext {
 	}
 
 	/**
-	 * Remove an array of layers, if present, and trigger a {@link MapLayerListEvent}.
+	 * Remove an array of layers and trigger a {@link LayerListEvent}.
 	 * 
 	 * @param layers
 	 *            The layers that are to be removed.
@@ -501,8 +480,8 @@ public class DefaultMapContext implements MapContext {
 				layers[i].removeMapLayerListener(layerListener);
 			}
 		}
-
-        // getLayerBounds();
+		bounds = null;
+		// getLayerBounds();
 		// fire event
 		fireMapLayerListListenerLayerRemoved(new MapLayerListEvent(this, null,
 				fromIndex, toIndex));
@@ -567,13 +546,12 @@ public class DefaultMapContext implements MapContext {
 	 * 
 	 */
 	public ReferencedEnvelope getLayerBounds() throws IOException {
-        if (areaOfInterest == null ||
-            areaOfInterest.getCoordinateReferenceSystem() == null) {
-            throw new IOException("Area of interest not set for this context; can't get layer bounds");
-        }
-
-        ReferencedEnvelope result = null;
-        CoordinateReferenceSystem crs = areaOfInterest.getCoordinateReferenceSystem();
+		if (this.bounds != null)
+			return this.bounds;
+		if (this.crs == null)
+			throw new IOException(
+					"CRS of this map context is null. Unable to get bounds.");
+		ReferencedEnvelope result = null;
 
 		final int length = layerList.size();
 		MapLayer layer;
@@ -581,7 +559,7 @@ public class DefaultMapContext implements MapContext {
 		ReferencedEnvelope env;
 		CoordinateReferenceSystem sourceCrs;
 		for (int i = 0; i < length; i++) {
-			layer = layerList.get(i);
+			layer = (MapLayer) layerList.get(i);
 			/*fs = layer.getFeatureSource();
 			sourceCrs = fs.getSchema().getDefaultGeometry()
 					.getCoordinateSystem();
@@ -595,7 +573,10 @@ public class DefaultMapContext implements MapContext {
 				try {
 
 					if ((sourceCrs != null)
-							&& !CRS.equalsIgnoreMetadata(sourceCrs, crs)) {
+							&& (crs != null)
+							&& !CRS.equalsIgnoreMetadata(sourceCrs,
+									crs)) {
+
 						env = env.transform(crs, true);
 					}
 
@@ -644,15 +625,19 @@ public class DefaultMapContext implements MapContext {
 			throw new IllegalArgumentException("Input arguments cannot be null");
 		}
 
-		final ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
+		final Envelope oldAreaOfInterest = this.areaOfInterest;
+		final CoordinateReferenceSystem oldCrs = this.crs;
 
 		this.areaOfInterest = new ReferencedEnvelope(areaOfInterest,
 				coordinateReferenceSystem);
+		this.crs = coordinateReferenceSystem;
+		// force computation of bounds next time someone asks them
+		bounds = null;
 
 		fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
 				MapBoundsEvent.AREA_OF_INTEREST_MASK
 						| MapBoundsEvent.COORDINATE_SYSTEM_MASK,
-				oldAreaOfInterest, this.areaOfInterest));
+				oldAreaOfInterest, oldCrs));
 	}
 
 	/**
@@ -670,20 +655,19 @@ public class DefaultMapContext implements MapContext {
 			throw new IllegalArgumentException("Input argument cannot be null");
 		}
 
-		final ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
+		final Envelope oldAreaOfInterest = this.areaOfInterest;
 		// this is a bad guess, I use the context crs, hopint that it is going
 		// to be the right one
-		this.areaOfInterest = new ReferencedEnvelope(areaOfInterest, 
-                oldAreaOfInterest.getCoordinateReferenceSystem());
+		this.areaOfInterest = new ReferencedEnvelope(areaOfInterest, this.crs);
 		LOGGER.info("USing a deprecated method!");
 
 		fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
-				MapBoundsEvent.AREA_OF_INTEREST_MASK, 
-                oldAreaOfInterest, this.areaOfInterest));
+				MapBoundsEvent.AREA_OF_INTEREST_MASK, oldAreaOfInterest,
+				this.crs));
 	}
 
 	/**
-	 * Gets the current area of interest. If no area of interest is set, the
+	 * Gets the current area of interest. If no area of interest is the, the
 	 * default is to fall back on the layer bounds
 	 * 
 	 * @return Current area of interest
@@ -694,7 +678,7 @@ public class DefaultMapContext implements MapContext {
 			try {
 				final Envelope e = getLayerBounds();
 				if (e != null)
-					areaOfInterest = new ReferencedEnvelope(e, getCoordinateReferenceSystem());
+					areaOfInterest = new ReferencedEnvelope(e, this.crs);
 				else
 					return null;
 			} catch (IOException e) {
@@ -716,28 +700,23 @@ public class DefaultMapContext implements MapContext {
 	}
 
 	/**
-	 * Get the current coordinate system of this context
+	 * Get the current coordinate system.
 	 * 
-	 * @return the coordinate system (may be null)
+	 * @return the coordinate system of this box.
 	 */
 	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
-        CoordinateReferenceSystem crs = null;
-
-        if (areaOfInterest != null) {
-                crs = areaOfInterest.getCoordinateReferenceSystem();
-        }
-
-        return crs;
+		return crs;
 	}
 
 	/**
-	 * Transform the current area of interest for this context using the provided transform.
-     * This may be useful for zooming and panning processes.
+	 * Transform the coordinates according to the provided transform. Useful for
+	 * zooming and panning processes.
 	 * 
-	 * @param transform  The transform to change area of interest.
+	 * @param transform
+	 *            The transform to change area of interest.
 	 */
 	public void transform(AffineTransform transform) {
-		ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
+		Envelope oldAreaOfInterest = this.areaOfInterest;
 
 		double[] coords = new double[4];
 		coords[0] = areaOfInterest.getMinX();
@@ -746,11 +725,11 @@ public class DefaultMapContext implements MapContext {
 		coords[3] = areaOfInterest.getMaxY();
 		transform.transform(coords, 0, coords, 0, 2);
 		this.areaOfInterest = new ReferencedEnvelope(coords[0], coords[2],
-				coords[1], coords[3], areaOfInterest.getCoordinateReferenceSystem());
+				coords[1], coords[3], this.crs);
 
 		fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
-				MapBoundsEvent.AREA_OF_INTEREST_MASK, 
-                oldAreaOfInterest, this.areaOfInterest));
+				MapBoundsEvent.AREA_OF_INTEREST_MASK, oldAreaOfInterest,
+				this.crs));
 	}
 
 	/**
@@ -793,6 +772,7 @@ public class DefaultMapContext implements MapContext {
 		}
 
 		layerList.clear();
+		bounds = null;
 		fireMapLayerListListenerLayerRemoved(new MapLayerListEvent(this, null,
 				0, 1));
 	}
@@ -821,10 +801,16 @@ public class DefaultMapContext implements MapContext {
 	 * @param abstractValue
 	 *            New value of property abstracts.
 	 * 
+	 * @throws NullPointerException
+	 *             DOCUMENT ME!
 	 */
 	public void setAbstract(String abstractValue) {
+		if (abstractValue == null) {
+			throw new NullPointerException();
+		}
+
 		String oldAbstracts = this.abstracts;
-		this.abstracts = (abstractValue == null ? "" : abstractValue);
+		this.abstracts = abstractValue;
 		propertyChangeSupport.firePropertyChange("abstract", oldAbstracts,
 				abstracts);
 	}
@@ -843,10 +829,17 @@ public class DefaultMapContext implements MapContext {
 	 * 
 	 * @param contactInformation
 	 *            New value of property contactInformation.
+	 * 
+	 * @throws NullPointerException
+	 *             DOCUMENT ME!
 	 */
 	public void setContactInformation(String contactInformation) {
+		if (contactInformation == null) {
+			throw new NullPointerException();
+		}
+
 		String oldContactInformation = this.contactInformation;
-		this.contactInformation = (contactInformation == null ? "" : contactInformation);
+		this.contactInformation = contactInformation;
 		propertyChangeSupport.firePropertyChange("contactInformation",
 				oldContactInformation, contactInformation);
 	}
@@ -872,10 +865,17 @@ public class DefaultMapContext implements MapContext {
 	 * 
 	 * @param keywords
 	 *            New value of property keywords.
+	 * 
+	 * @throws NullPointerException
+	 *             DOCUMENT ME!
 	 */
 	public void setKeywords(String[] keywords) {
+		if (keywords == null) {
+			throw new NullPointerException();
+		}
+
 		String[] oldKeywords = this.keywords;
-		this.keywords = (keywords == null ? new String[0] : keywords);
+		this.keywords = keywords;
 		propertyChangeSupport.firePropertyChange("keywords", oldKeywords,
 				keywords);
 	}
@@ -894,10 +894,17 @@ public class DefaultMapContext implements MapContext {
 	 * 
 	 * @param title
 	 *            New value of property title.
+	 * 
+	 * @throws NullPointerException
+	 *             DOCUMENT ME!
 	 */
 	public void setTitle(String title) {
+		if (title == null) {
+			throw new NullPointerException();
+		}
+
 		String oldTitle = this.title;
-		this.title = (title == null ? "" : title);
+		this.title = title;
 		propertyChangeSupport.firePropertyChange("title", oldTitle, title);
 	}
 
@@ -1121,19 +1128,24 @@ public class DefaultMapContext implements MapContext {
 			throw new IllegalArgumentException("Input argument cannot be null");
 		}
 
-        if (areaOfInterest.getCoordinateReferenceSystem() == null) {
+		final Envelope oldAreaOfInterest = this.areaOfInterest;
+		final CoordinateReferenceSystem tempCRS = areaOfInterest
+				.getCoordinateReferenceSystem();
+		if (tempCRS == null) {
 			throw new IllegalArgumentException(
 					"CRS of the provided AOI cannot be null");
 		}
-
-		ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
-
-        this.areaOfInterest = new ReferencedEnvelope(areaOfInterest);
+		final CoordinateReferenceSystem oldCRS = this.crs;
+		this.crs = tempCRS;
+		this.areaOfInterest = new ReferencedEnvelope((Envelope) areaOfInterest,
+				this.crs);
+		// force computation of bounds next time someone asks them
+		bounds = null;
 
 		fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
 				MapBoundsEvent.AREA_OF_INTEREST_MASK
 						| MapBoundsEvent.COORDINATE_SYSTEM_MASK,
-				oldAreaOfInterest, this.areaOfInterest));
+				oldAreaOfInterest, oldCRS));
 
 	}
 
@@ -1143,20 +1155,23 @@ public class DefaultMapContext implements MapContext {
 	 * 
 	 */
 	public void setCoordinateReferenceSystem(CoordinateReferenceSystem crs)
-            throws TransformException, FactoryException {
-        if (crs == null) {
-            throw new IllegalArgumentException("Input argument cannot be null");
-        }
+			throws TransformException, FactoryException {
+		if (crs == null) {
+			throw new IllegalArgumentException("Input argument cannot be null");
+		}
 
-        final ReferencedEnvelope oldAreaOfInterest = this.areaOfInterest;
-        if (this.areaOfInterest != null &&
-                !CRS.equalsIgnoreMetadata(crs, oldAreaOfInterest.getCoordinateReferenceSystem())) {
-            this.areaOfInterest = this.areaOfInterest.transform(crs, true);
+		final Envelope oldBounds = this.areaOfInterest;
+		final CoordinateReferenceSystem oldCRS = this.crs;
+		this.bounds = null;
+		if (!CRS.equalsIgnoreMetadata(crs, this.crs)
+				&& this.areaOfInterest != null)
+			this.areaOfInterest = this.areaOfInterest.transform(crs, true);
+		this.crs = crs;
+		this.bounds = null;
 
-            fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
-                    MapBoundsEvent.COORDINATE_SYSTEM_MASK,
-                    oldAreaOfInterest, this.areaOfInterest));
-        }
-    }
+		fireMapBoundsListenerMapBoundsChanged(new MapBoundsEvent(this,
+				MapBoundsEvent.COORDINATE_SYSTEM_MASK, oldBounds, oldCRS));
+
+	}
 
 }
