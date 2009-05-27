@@ -653,30 +653,43 @@ class ArcSDEQuery {
 
         LOGGER.fine("Building a new SeQuery to consult it's resulting envelope");
 
-        final SeQuery extentQuery = session.createSeQuery();
-        setQueryVersionState(extentQuery);
-
-        final String[] spatialCol = { schema.getGeometryDescriptor().getLocalName() };
-        final SeQueryInfo sdeQueryInfo = filters.getQueryInfo(spatialCol);
-        final SeFilter[] spatialConstraints = this.filters.getSpatialFilters();
-
-        if (LOGGER.isLoggable(Level.FINER)) {
-            String msg = "ArcSDE query is: " + toString(sdeQueryInfo);
-            LOGGER.finer(msg);
-        }
+        // if (LOGGER.isLoggable(Level.FINER)) {
+        // String msg = "ArcSDE query is: " + toString(sdeQueryInfo);
+        // LOGGER.finer(msg);
+        // }
         try {
             envelope = session.issue(new Command<Envelope>() {
                 @Override
                 public Envelope execute(ISession session, SeConnection connection)
                         throws SeException, IOException {
 
-                    // extentQuery.prepareQueryInfo(sdeQueryInfo);
+                    final String[] spatialCol = { schema.getGeometryDescriptor().getLocalName() };
+                    String whereClause = filters.getSeSqlConstruct().getWhere();
+                    if (whereClause == null) {
+                        /*
+                         * we really need a where clause or will get a famous -51 DATABASE LEVEL
+                         * ERROR with no other explanation on some oracle databases
+                         */
+                        whereClause = "1 = 1";
+                    }
+                    final SeFilter[] spatialConstraints = filters.getSpatialFilters();
+
+                    final SeQuery extentQuery = new SeQuery(connection);
+                    setQueryVersionState(extentQuery);
+
                     if (spatialConstraints.length > 0) {
                         extentQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false,
                                 spatialConstraints);
                     }
 
-                    SeExtent extent = extentQuery.calculateLayerExtent(sdeQueryInfo);
+                    SeSqlConstruct sqlCons = new SeSqlConstruct(schema.getTypeName());
+                    sqlCons.setWhere(whereClause);
+
+                    final SeQueryInfo seQueryInfo = new SeQueryInfo();
+                    seQueryInfo.setColumns(spatialCol);
+                    seQueryInfo.setConstruct(sqlCons);
+
+                    SeExtent extent = extentQuery.calculateLayerExtent(seQueryInfo);
 
                     Envelope envelope = new Envelope(extent.getMinX(), extent.getMaxX(), extent
                             .getMinY(), extent.getMaxY());
@@ -704,8 +717,6 @@ class ArcSDEQuery {
             LOGGER.log(Level.SEVERE, "***********************\ntables: " + tables + "\nfilter: "
                     + this.filters.getGeometryFilter() + "\nSQL: " + sql, ex);
             throw ex;
-        } finally {
-            close(extentQuery, session);
         }
 
         return envelope;

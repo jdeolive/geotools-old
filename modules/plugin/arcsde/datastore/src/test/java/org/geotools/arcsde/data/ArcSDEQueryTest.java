@@ -473,7 +473,7 @@ public class ArcSDEQueryTest {
     }
 
     private void assertEquals(Envelope e1, Envelope e2) {
-        final double tolerance = 1.0E-9;
+        final double tolerance = 1.0E-5;
         Assert.assertEquals(e1.getMinX(), e2.getMinX(), tolerance);
         Assert.assertEquals(e1.getMinY(), e2.getMinY(), tolerance);
         Assert.assertEquals(e1.getMaxX(), e2.getMaxX(), tolerance);
