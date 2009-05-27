@@ -21,7 +21,7 @@ import java.util.EventObject;
 import org.geotools.map.MapContext;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
 
 /**
@@ -43,11 +43,8 @@ public class MapBoundsEvent extends EventObject {
     /** Holds value of property type. */
     private int type;
 
-    /** Holds value of property oldCoordinateReferenceSystem. */
-    private CoordinateReferenceSystem oldCoordinateReferenceSystem;
-
-    /** Holds value of property oldAreaOfInterest. */
-    private Envelope oldAreaOfInterest;
+    private ReferencedEnvelope oldAreaOfInterest;
+    private ReferencedEnvelope newAreaOfInterest;
 
     /**
      * Creates a new instance of BoundsEvent
@@ -59,8 +56,8 @@ public class MapBoundsEvent extends EventObject {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public MapBoundsEvent(MapContext source, int type, Envelope oldAreaOfInterest,
-        CoordinateReferenceSystem oldCoordinateReferenceSystem) {
+    public MapBoundsEvent(MapContext source, int type,
+            ReferencedEnvelope oldAreaOfInterest, ReferencedEnvelope newAreaOfInterest) {
         super(source);
 
         if (type >= NEXT_FLAG) {
@@ -70,7 +67,7 @@ public class MapBoundsEvent extends EventObject {
 
         this.type = type;
         this.oldAreaOfInterest = oldAreaOfInterest;
-        this.oldCoordinateReferenceSystem = oldCoordinateReferenceSystem;
+        this.newAreaOfInterest = newAreaOfInterest;
     }
 
     /**
@@ -83,20 +80,38 @@ public class MapBoundsEvent extends EventObject {
     }
 
     /**
-     * Getter for property oldCoordinateReferenceSystem.
+     * Get the previous coordinate reference system. This is a convenience
+     * method equivalent to
+     * {@linkplain #getOldAreaOfInterest()}.getCoordinateReferenceSystem()
      *
-     * @return Value of property oldCoordinateReferenceSystem.
+     * @return the previous CoordinateReferenceSystem object
      */
     public CoordinateReferenceSystem getOldCoordinateReferenceSystem() {
-        return this.oldCoordinateReferenceSystem;
+        return oldAreaOfInterest.getCoordinateReferenceSystem();
     }
 
     /**
-     * Getter for property oldAreaOfInterest.
+     * Get the new coordinate reference system. This is a convenience
+     * method equivalent to
+     * {@linkplain #getNewAreaOfInterest()}.getCoordinateReferenceSystem()
      *
-     * @return Value of property oldAreaOfInterest.
+     * @return the new CoordinateReferenceSystem object
      */
-    public Envelope getOldAreaOfInterest() {
+    public CoordinateReferenceSystem getNewCoordinateReferenceSystem() {
+        return newAreaOfInterest.getCoordinateReferenceSystem();
+    }
+
+    /**
+     * Get the old area of interest
+     */
+    public ReferencedEnvelope getOldAreaOfInterest() {
         return this.oldAreaOfInterest;
     }
+
+    /**
+     * Get the new area of interest
+     */
+    public ReferencedEnvelope getNewAreaOfInterest() {
+        return this.newAreaOfInterest;
+}
 }
