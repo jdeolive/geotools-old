@@ -174,7 +174,7 @@ public class GML3EncodingUtils {
      * @param element the element to which XML attributes should be added
      */
     @SuppressWarnings("unchecked")
-    public static void encodeClientProperties(ComplexAttribute complex, Element element) {
+    public static void encodeClientProperties(Property complex, Element element) {
         Map<Name, Object> clientProperties = (Map<Name, Object>) complex.getUserData().get(
                 Attributes.class);
         if (clientProperties != null) {
