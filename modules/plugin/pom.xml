@@ -63,7 +63,6 @@
     <module>property</module>
     <module>referencing3D</module>
     <module>shapefile</module>
-    <module>wfs</module>
   </modules>
 
 </project>

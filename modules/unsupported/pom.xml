@@ -166,6 +166,7 @@
   <modules>
     <module>ogc</module>
     <module>directory</module>
+    <module>wfs</module>
   </modules>
 
 </project>
