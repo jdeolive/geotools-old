@@ -1469,6 +1469,7 @@ public class ShapefileRenderer implements GTRenderer {
     
     private void renderWithStreamingRenderer(MapLayer layer, Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope envelope, AffineTransform transform) {
 		MapContext context = null;
+		RenderListener listener = null;;
 		try {
 		    context = new DefaultMapContext(new MapLayer[]{layer}, envelope.getCoordinateReferenceSystem());
     		delegate = new StreamingRenderer();
@@ -1477,10 +1478,29 @@ public class ShapefileRenderer implements GTRenderer {
     		Map rendererHints2 = new HashMap(getRendererHints() != null ? getRendererHints() : Collections.EMPTY_MAP);
     		rendererHints2.put(LABEL_CACHE_KEY, new IntegratingLabelCache(labelCache));
     		delegate.setRendererHints(rendererHints2);
+    		
+    		// cascade events
+    		listener = new RenderListener() {
+            
+                public void featureRenderer(SimpleFeature feature) {
+                    fireFeatureRenderedEvent(feature);
+                }
+            
+                public void errorOccurred(Exception e) {
+                    fireErrorEvent(e);
+                }
+            };
+            delegate.addRenderListener(listener);
+    		
     		delegate.paint(graphics, paintArea, envelope, transform);
 		} finally {
+		    // cleanups to avoid circular references
 		    if(context != null)
 		        context.clearLayerList();
+		    if(listener != null && delegate != null)
+		        delegate.removeRenderListener(listener);
+		 
+		    
 		    delegate = null;
 		}
 	}
