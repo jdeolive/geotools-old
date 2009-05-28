@@ -23,6 +23,7 @@ import org.geotools.data.FeatureStore;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
 import org.geotools.map.FeatureSourceMapLayer;
@@ -42,7 +43,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
  */
 public class RenderNonShapefileTest extends TestCase {
-
+    
     public void testRender() throws Exception {
         MemoryDataStore store = new MemoryDataStore();
         IndexedShapefileDataStore polys = TestUtilites.getPolygons();
@@ -54,11 +55,11 @@ public class RenderNonShapefileTest extends TestCase {
         ((FeatureStore<SimpleFeatureType, SimpleFeature>) target).addFeatures(featureCollection);
         Style testStyle = TestUtilites.createTestStyle(target.getSchema().getTypeName(), null);
         MapLayer layer = new DefaultMapLayer(target, testStyle);
-        MapContext context = new DefaultMapContext(new MapLayer[] { layer });
+        MapContext context = new DefaultMapContext(new MapLayer[] { layer }, 
+                polys.getSchema().getCoordinateReferenceSystem());
         ShapefileRenderer renderer = new ShapefileRenderer(context);
-        Envelope env = context.getLayerBounds();
-        env = new Envelope(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
-        TestUtilites.showRender("testSimpleRender", renderer, 1000, env);
+        ReferencedEnvelope env = target.getBounds();
+        TestUtilites.showRender("testSimpleRender", renderer, 10000, env);
     }
 
     /**
@@ -77,7 +78,7 @@ public class RenderNonShapefileTest extends TestCase {
         ((FeatureStore<SimpleFeatureType, SimpleFeature>) target).addFeatures(featureCollection);
         Style testStyle = TestUtilites.createTestStyle(target.getSchema().getTypeName(), null);
         MapLayer layer = new FeatureSourceMapLayer(target, testStyle);
-        MapContext context = new DefaultMapContext(new MapLayer[] { layer });
+        MapContext context = new DefaultMapContext(new MapLayer[] { layer }, polys.getSchema().getCoordinateReferenceSystem());
         ShapefileRenderer renderer = new ShapefileRenderer(context);
         Envelope env = context.getLayerBounds();
         env = new Envelope(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
