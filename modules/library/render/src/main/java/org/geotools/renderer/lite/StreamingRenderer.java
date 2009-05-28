@@ -38,6 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -227,7 +228,7 @@ public final class StreamingRenderer implements GTRenderer {
 
 	private IndexedFeatureResults indexedFeatureResults;
 
-	private ListenerList renderListeners = new ListenerList();
+	private List<RenderListener> renderListeners = new CopyOnWriteArrayList<RenderListener>();
 
 	private RenderingHints java2dHints;
 
@@ -380,21 +381,13 @@ public final class StreamingRenderer implements GTRenderer {
         if( !(feature instanceof SimpleFeature)){
             return;
         }
-		final Object[] objects = renderListeners.getListeners();
-		final int length = objects.length;
-		RenderListener listener;
-		for (int i = 0; i < length; i++) {
-			listener = (RenderListener) objects[i];
+		for(RenderListener listener : renderListeners) {
 			listener.featureRenderer((SimpleFeature) feature);
 		}
 	}
 
 	private void fireErrorEvent(Exception e) {
-		Object[] objects = renderListeners.getListeners();
-		final int length = objects.length;
-		RenderListener listener;
-		for (int i = 0; i < length; i++) {
-			listener = (RenderListener) objects[i];
+	    for(RenderListener listener : renderListeners) {
 			listener.errorOccurred(e);
 		}
 	}
