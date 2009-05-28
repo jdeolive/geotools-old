@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.feature.type;
+package org.geotools.data.complex.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,9 +24,11 @@ import org.geotools.feature.NameImpl;
 import org.geotools.gml3.GMLSchema;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * This class represents the fake feature type needed for feature chaining for properties that are
@@ -35,16 +37,7 @@ import org.opengis.feature.type.PropertyDescriptor;
  * 
  * @author Rini Angreani, Curtin University of Technology
  */
-public class NonFeatureTypeProxy extends FeatureTypeImpl {
-    /**
-     * The real attribute type
-     */
-    private AttributeType type;
-
-    /**
-     * The attribute descriptors
-     */
-    private Collection<PropertyDescriptor> descriptors;
+public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType {
 
     /**
      * GML:name attribute needed to link a (non) feature to another
@@ -52,33 +45,34 @@ public class NonFeatureTypeProxy extends FeatureTypeImpl {
     public static final Name NAME = new NameImpl("http://www.opengis.net/gml", "name");
 
     /**
+     * The attribute descriptors
+     */
+    private final Collection<PropertyDescriptor> descriptors;
+
+    /**
+     * The real type
+     */
+    private final ComplexType subject;
+
+    /**
      * Sole constructor
      * 
      * @param type
      *            The underlying non feature type
      */
-    public NonFeatureTypeProxy(AttributeType type) {
-        super(type.getName(), ((ComplexType) type).getDescriptors(), (GeometryDescriptor) null,
-                type.isAbstract(), type.getRestrictions(), type.getSuper(), type.getDescription());
+    public NonFeatureTypeProxy(final AttributeType type) {
+        super(type.getName(), null);
 
-        this.type = type;
+        assert type instanceof ComplexType;
+        subject = (ComplexType) type;
 
         // initiate descriptors
         descriptors = new ArrayList<PropertyDescriptor>();
         descriptors.addAll(((ComplexType) type).getDescriptors());
 
         // Need to add gml:name for feature chaining
-        AttributeType abstractGMLType = GMLSchema.ABSTRACTGMLTYPE_TYPE;
+        final AttributeType abstractGMLType = GMLSchema.ABSTRACTGMLTYPE_TYPE;
         descriptors.add(((ComplexType) abstractGMLType).getDescriptor(NAME));
-    }
-
-    /**
-     * Return the real type
-     * 
-     * @return attribute type
-     */
-    public AttributeType getType() {
-        return type;
     }
 
     /**
@@ -93,23 +87,37 @@ public class NonFeatureTypeProxy extends FeatureTypeImpl {
      * @see org.geotools.feature.type.ComplexTypeImpl#getDescriptor(Name)
      */
     @Override
-    public PropertyDescriptor getDescriptor(Name name) {
+    public PropertyDescriptor getDescriptor(final Name name) {
         if (name.equals(NAME)) {
             return GMLSchema.ABSTRACTGMLTYPE_TYPE.getDescriptor(NAME);
-        } else {
-            return ((ComplexType) type).getDescriptor(name);
         }
+        return ((ComplexType) getSubject()).getDescriptor(name);
     }
 
     /**
      * @see org.geotools.feature.type.ComplexTypeImpl#getDescriptor(String)
      */
     @Override
-    public PropertyDescriptor getDescriptor(String name) {
+    public PropertyDescriptor getDescriptor(final String name) {
         if (new NameImpl(name).equals(NAME)) {
             return GMLSchema.ABSTRACTGMLTYPE_TYPE.getDescriptor(NAME);
-        } else {
-            return ((ComplexType) type).getDescriptor(name);
         }
+        return ((ComplexType) getSubject()).getDescriptor(name);
+    }
+
+    /**
+     * @see org.geotools.data.complex.config.ComplexTypeProxy#getSubject()
+     */
+    @Override
+    public AttributeType getSubject() {
+        return subject;
+    }
+
+    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+        return null;
+    }
+
+    public GeometryDescriptor getGeometryDescriptor() {
+        return null;
     }
 }

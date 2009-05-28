@@ -659,10 +659,10 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
                     nestedProperties.addAll(tempProperties);
                 }
             }
+            properties.clear();
             if (nestedProperties.isEmpty()) {
                 return properties;
             }
-            properties.clear();
             properties.addAll(nestedProperties);
         }
         return properties;

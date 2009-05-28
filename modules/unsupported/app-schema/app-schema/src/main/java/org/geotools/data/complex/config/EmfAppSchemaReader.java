@@ -363,7 +363,7 @@ public class EmfAppSchemaReader {
 
         final List xsdTypeDefinitions = xsdSchema.getTypeDefinitions();
         LOGGER.finer("Importing " + targetNamespace + " type definitions");
-        importXsdTypeDefinitions(xsdTypeDefinitions);
+        importXsdTypeDefinitions(xsdTypeDefinitions, xsdSchema);
 
         final List xsdElementDeclarations = xsdSchema.getElementDeclarations();
         LOGGER.finer("Importing " + targetNamespace + " element definitions");
@@ -377,7 +377,7 @@ public class EmfAppSchemaReader {
             LOGGER.finest("Creating attribute descriptor for " + elemDecl.getQName());
             AttributeDescriptor descriptor;
             try {
-                descriptor = createAttributeDescriptor(null, elemDecl);
+                descriptor = createAttributeDescriptor(null, elemDecl, null);
                 LOGGER.finest("Registering attribute descriptor " + descriptor.getName());
                 register(descriptor);
             } catch (NoSuchElementException e) {
@@ -400,14 +400,14 @@ public class EmfAppSchemaReader {
     }
 
     private AttributeDescriptor createAttributeDescriptor(final XSDComplexTypeDefinition container,
-            final XSDElementDeclaration elemDecl) {
+            final XSDElementDeclaration elemDecl, final XSDSchema xsdSchema) {
         String targetNamespace = elemDecl.getTargetNamespace();
         String name = elemDecl.getName();
         Name elemName = Types.typeName(targetNamespace, name);
 
         AttributeType type;
         try {
-            type = getTypeOf(elemDecl);
+            type = getTypeOf(elemDecl, xsdSchema);
         } catch (NoSuchElementException e) {
             String msg = "Type not found for " + elemName + " at type container "
                     + container.getTargetNamespace() + "#" + container.getName() + " at "
@@ -438,9 +438,10 @@ public class EmfAppSchemaReader {
      * type does not exists in the registry uses a proxy.
      * 
      * @param elemDecl
+     * @param xsdSchema
      * @return
      */
-    private AttributeType getTypeOf(XSDElementDeclaration elemDecl) {
+    private AttributeType getTypeOf(XSDElementDeclaration elemDecl, XSDSchema xsdSchema) {
         boolean hasToBeRegistered = false;
         XSDTypeDefinition typeDefinition;
 
@@ -468,14 +469,14 @@ public class EmfAppSchemaReader {
             Name typeName = Types.typeName(targetNamespace, name);
             type = getType(typeName);
             if (type == null) {
-                type = createType(typeName, typeDefinition);
+                type = createType(typeName, typeDefinition, xsdSchema);
                 register(type);// //////////
             }
         } else {
             String name = elemDecl.getName();
             String targetNamespace = elemDecl.getTargetNamespace();
             Name overrideName = Types.typeName(targetNamespace, name);
-            type = createType(overrideName, typeDefinition);
+            type = createType(overrideName, typeDefinition, xsdSchema);
         }
         return type;
     }
@@ -518,11 +519,11 @@ public class EmfAppSchemaReader {
         return isDerivedFrom(typeDefinition, typeName);
     }
 
-    private AttributeType createType(XSDTypeDefinition typeDefinition) {
+    private AttributeType createType(XSDTypeDefinition typeDefinition, XSDSchema xsdSchema) {
         String targetNamespace = typeDefinition.getTargetNamespace();
         String name = typeDefinition.getName();
         Name typeName = Types.typeName(targetNamespace, name);
-        return createType(typeName, typeDefinition);
+        return createType(typeName, typeDefinition, xsdSchema);
     }
 
     /**
@@ -540,9 +541,11 @@ public class EmfAppSchemaReader {
      * 
      * @param assignedName
      * @param typeDefinition
+     * @param xsdSchema
      * @return
      */
-    private AttributeType createType(final Name assignedName, final XSDTypeDefinition typeDefinition) {
+    private AttributeType createType(final Name assignedName,
+            final XSDTypeDefinition typeDefinition, final XSDSchema xsdSchema) {
 
         AttributeType attType;
         // /////////
@@ -564,7 +567,7 @@ public class EmfAppSchemaReader {
             String name = baseType.getName();
             superType = getType(targetNamespace, name);
             if (superType == null) {
-                superType = createType(baseType);
+                superType = createType(baseType, xsdSchema);
                 register(superType);
             }
         } else {
@@ -592,7 +595,7 @@ public class EmfAppSchemaReader {
             for (Iterator it = children.iterator(); it.hasNext();) {
                 childDecl = (XSDElementDeclaration) it.next();
                 try {
-                    descriptor = createAttributeDescriptor(complexTypeDef, childDecl);
+                    descriptor = createAttributeDescriptor(complexTypeDef, childDecl, xsdSchema);
                     schema.add(descriptor);
                 } catch (NoSuchElementException e) {
                     LOGGER.log(Level.WARNING, e.getMessage());
@@ -613,6 +616,7 @@ public class EmfAppSchemaReader {
         }
 
         attType.getUserData().put(XSDTypeDefinition.class, typeDefinition);
+        attType.getUserData().put(XSDSchema.class, xsdSchema);
 
         processingTypes.pop();
         return attType;
@@ -722,7 +726,7 @@ public class EmfAppSchemaReader {
         return type;
     }
 
-    private void importXsdTypeDefinitions(List typeDefinitions) {
+    private void importXsdTypeDefinitions(List typeDefinitions, XSDSchema xsdSchema) {
         XSDTypeDefinition typeDef;
         AttributeType attType;
         for (Iterator it = typeDefinitions.iterator(); it.hasNext();) {
@@ -733,7 +737,7 @@ public class EmfAppSchemaReader {
             attType = getType(targetNamespace, name);
             if (attType == null) {
                 LOGGER.finest("Creating attribute type " + typeDef.getQName());
-                attType = createType(typeDef);
+                attType = createType(typeDef, xsdSchema);
                 LOGGER.finest("Registering attribute type " + attType.getName());
                 register(attType);
             } else {
