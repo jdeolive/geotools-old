@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -195,7 +196,7 @@ public class ShapefileRenderer implements GTRenderer {
     private boolean concatTransforms;
     private MapContext context;
     LabelCache labelCache = new LabelCacheImpl();
-    private ListenerList renderListeners = new ListenerList();
+    private List<RenderListener> renderListeners = new CopyOnWriteArrayList<RenderListener>();
     /** If we are caching styles; by default this is false */
     boolean caching = false;
     private double scaleDenominator;
@@ -1088,23 +1089,15 @@ public class ShapefileRenderer implements GTRenderer {
     }
 
     private void fireFeatureRenderedEvent( SimpleFeature feature ) {
-        Object[] objects = renderListeners.getListeners();
-
-        for( int i = 0; i < objects.length; i++ ) {
-            RenderListener listener = (RenderListener) objects[i];
+        for(RenderListener listener : renderListeners)
             listener.featureRenderer(feature);
-        }
     }
 
     private void fireErrorEvent( Exception e ) {
-        Object[] objects = renderListeners.getListeners();
-
-        for( int i = 0; i < objects.length; i++ ) {
-            RenderListener listener = (RenderListener) objects[i];
+        for(RenderListener listener : renderListeners) {
             try {
                 listener.errorOccurred(e);
-            }
-            catch (RuntimeException ignore){
+            } catch (RuntimeException ignore){
                 LOGGER.fine("Provided RenderListener could not handle error message:"+ignore );
                 LOGGER.throwing( getClass().getName(), "fireErrorEvent", ignore );
             }
