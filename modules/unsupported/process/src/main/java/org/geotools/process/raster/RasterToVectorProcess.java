@@ -185,16 +185,22 @@ public class RasterToVectorProcess extends AbstractProcess {
     }
     
     /**
-     * Convert the input raster coverage to vector polygons. This is a package-access method.
-     * Client code should start the process via the 
-     * {@linkplain org.geotools.process.Process#execute } method.
+     * A static helper method that can be called directy to run the process.
+     * <p>
+     * The process interface is useful for advertising functionality to
+     * dynamic applications, but for 'hands on' coding this method is much more
+     * convenient than working via the {@linkplain org.geotools.process.Process#execute }.
      * 
      * @param gridCoverage
-     *            The input coverage
+     *            the input coverage
      * @param band
      *            the index of the band to be vectorized
-     * @param outside
+     *
+     * @param outsideValues
      *            a collection of one or more values which represent 'outside' or no data
+     *
+     * @param progress
+     *            an optional ProgressListener (may be null)
      *
      * @return a FeatureCollection containing simple polygon features
      * 
