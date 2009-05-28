@@ -21,7 +21,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.geotools.styling.Rule;
 
@@ -63,7 +63,7 @@ public final class LiteFeatureTypeStyle {
      public Rule[]                elseRules;
      public Graphics2D		  	   graphics;
     
-    public LiteFeatureTypeStyle (BufferedImage image,AffineTransform at,ArrayList ruleList, ArrayList elseRule,RenderingHints hints )
+    public LiteFeatureTypeStyle (BufferedImage image,AffineTransform at, List ruleList, List elseRule,RenderingHints hints )
     {
     	this.myImage =  image;
     	this.ruleList =  (Rule[])ruleList.toArray( new Rule[ruleList.size()] );
@@ -94,7 +94,7 @@ public final class LiteFeatureTypeStyle {
 	 * @param ruleList
 	 * @param elseRuleList
 	 */
-	public LiteFeatureTypeStyle(Graphics2D graphics, ArrayList ruleList, ArrayList elseRuleList) 
+	public LiteFeatureTypeStyle(Graphics2D graphics, List ruleList, List elseRuleList) 
 	{
 		
 		this.myImage =  null;

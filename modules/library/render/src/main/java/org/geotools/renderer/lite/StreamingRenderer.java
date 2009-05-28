@@ -116,13 +116,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * </ul>
  * Use this class if you need a stateless renderer that provides low memory
  * footprint and decent rendering performance on the first call but don't need
- * good optimal performance on subsequent calls on the same data. Notice: for
- * the time being, this class doesn't support GridCoverage stylers, that will be
- * rendered using the non geophisics version of the GridCoverage, if available,
- * with the geophisics one, otherwise.
+ * good optimal performance on subsequent calls on the same data.
  * 
  * <p>
- * At the moment the streaming renderer is not thread safe
+ * The streaming renderer is not thread safe
  * 
  * @author James Macgill
  * @author dblasby
@@ -1448,56 +1445,26 @@ public final class StreamingRenderer implements GTRenderer {
 
 		int itemNumber = 0;
 
-		Rule[] rules;
-		ArrayList ruleList = new ArrayList();
-		ArrayList elseRuleList = new ArrayList();
-		Rule r;
 		LiteFeatureTypeStyle lfts;
-		BufferedImage image;
-		int numOfRules;
-		FeatureTypeStyle fts;
-		final String typeName = ftype.getTypeName();
-		final int length = featureStyles.length;
-		for (int i = 0; i < length; i++)
-		// DJB: for each FeatureTypeStyle in the SLD (each on is drawn
-		// indpendently)
-		{
-			// getting feature styles
-			fts = featureStyles[i];
-
-			if ((typeName != null)
-					&& (typeName.equalsIgnoreCase(fts.getFeatureTypeName()) || 
-							FeatureTypes.isDecendedFrom(ftype, null, fts.getFeatureTypeName()))) {
+		for (FeatureTypeStyle fts : featureStyles) {
+			if (isFeatureTypeStyleActive(ftype, fts)) {
 				// DJB: this FTS is compatible with this FT.
 
 				// get applicable rules at the current scale
-				rules = fts.getRules();
-				ruleList = new ArrayList();
-				elseRuleList = new ArrayList();
+			    List[] splittedRules = splitRules(fts);
+				List ruleList = splittedRules[0];
+				List elseRuleList = splittedRules[1];
 
-				numOfRules = rules.length;
-				for (int j = 0; j < numOfRules; j++) {
-					// getting rule
-					r = rules[j];
-
-					if (isWithInScale(r)) {
-						if (r.hasElseFilter()) {
-							elseRuleList.add(r);
-						} else {
-							ruleList.add(r);
-						}
-					}
-				}
+				// if none, skip it
 				if ((ruleList.size() == 0) && (elseRuleList.size() == 0))
-					continue; // DJB: optimization - nothing to render, dont
-				// do anything!!
+					continue; 
 
 				if (itemNumber == 0 || !isOptimizedFTSRenderingEnabled()) // we can optimize this one!
 				{
 					lfts = new LiteFeatureTypeStyle(graphics, ruleList,
 							elseRuleList);
 				} else {
-					image = graphics
+					BufferedImage image = graphics
 							.getDeviceConfiguration()
 							.createCompatibleImage(screenSize.width,
 									screenSize.height, Transparency.TRANSLUCENT);
@@ -1512,6 +1479,86 @@ public final class StreamingRenderer implements GTRenderer {
 		}
 
 		return result;
+	}
+	
+	private boolean isFeatureTypeStyleActive(SimpleFeatureType ftype, FeatureTypeStyle fts) {
+	    return ((ftype.getTypeName() != null)
+                && (ftype.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName()) || 
+                        FeatureTypes.isDecendedFrom(ftype, null, fts.getFeatureTypeName())));
+    }
+	
+	private List[] splitRules(FeatureTypeStyle fts) {
+	    Rule[] rules;
+        List<Rule> ruleList = new ArrayList<Rule>();
+        List<Rule> elseRuleList = new ArrayList<Rule>();
+	    
+	    rules = fts.getRules();
+        ruleList = new ArrayList();
+        elseRuleList = new ArrayList();
+
+        for (int j = 0; j < rules.length; j++) {
+            // getting rule
+            Rule r = rules[j];
+
+            if (isWithInScale(r)) {
+                if (r.hasElseFilter()) {
+                    elseRuleList.add(r);
+                } else {
+                    ruleList.add(r);
+                }
+            }
+        }
+        
+        return new List[] {ruleList, elseRuleList};
+	}
+	
+	/**
+	 * When drawing in optimized mode a 32bit surface is created for each FeatureTypeStyle
+	 * other than the first in order to draw features in parallel while respecting the
+	 * feature draw ordering multiple FTS impose. This method allows to estimate how many
+	 * megabytes will be needed, in terms of back buffers, to draw the current {@link MapContext},
+	 * assuming the feature type style optimizations are turned on (in the case they are off,
+	 * no extra memory will be used).
+	 * @param width the image width
+	 * @param height the image height
+	 */
+	public int getMaxBackBufferMemory(int width, int height) {
+	    int maxBuffers = 0;
+	    for (MapLayer layer : context.getLayers()) {
+            if (!layer.isVisible()) {
+                // Only render layer when layer is visible
+                continue;
+            }
+
+            // skip layers that do have only one fts
+            if(layer.getStyle().getFeatureTypeStyles().length < 2)
+                continue;
+
+            // count how many lite feature type styles are active
+            int currCount = 0;
+            SimpleFeatureType ftype = (SimpleFeatureType) layer.getFeatureSource().getSchema();
+            for (FeatureTypeStyle fts : layer.getStyle().getFeatureTypeStyles()) {
+                if (isFeatureTypeStyleActive(ftype, fts)) {
+                    // get applicable rules at the current scale
+                    List[] splittedRules = splitRules(fts);
+                    List ruleList = splittedRules[0];
+                    List elseRuleList = splittedRules[1];
+
+                    // if none, skip this fts
+                    if ((ruleList.size() == 0) && (elseRuleList.size() == 0))
+                        continue; 
+                    
+                    currCount++;
+                }
+            }
+            // consider the first fts does not allocate a buffer
+            currCount--;
+            
+            if(currCount > maxBuffers)
+                maxBuffers = currCount;
+        }
+	    
+	    return maxBuffers * width * height * 4;
 	}
 
     /**
