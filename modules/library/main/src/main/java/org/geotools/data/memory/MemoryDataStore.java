@@ -49,6 +49,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -592,22 +593,22 @@ public class MemoryDataStore extends AbstractDataStore {
         Map contents = features(typeName);
         Iterator iterator = contents.values().iterator();
 
+        CoordinateReferenceSystem coordinateSystem = query.getCoordinateSystem();
         ReferencedEnvelope envelope = null;
-
-        if (iterator.hasNext()) {
-            int count = 1;
-            Filter filter = query.getFilter();
-            SimpleFeature first = (SimpleFeature) iterator.next();
-            Envelope env = ((Geometry) first.getDefaultGeometry()).getEnvelopeInternal();
-			envelope = new ReferencedEnvelope(env, first.getType().getCoordinateReferenceSystem());
-
-            while (iterator.hasNext() && (count < query.getMaxFeatures())) {
-                SimpleFeature feature = (SimpleFeature) iterator.next();
-
-                if (filter.evaluate(feature)) {
-                    count++;
-                    envelope.expandToInclude(((Geometry) feature.getDefaultGeometry()).getEnvelopeInternal());
+        
+        Filter filter = query.getFilter();
+        
+        int count = 0;
+        while(iterator.hasNext() && (count < query.getMaxFeatures())) {
+            count ++;
+            SimpleFeature feature = (SimpleFeature) iterator.next();
+            if(filter.evaluate(feature)) {
+                count++;
+                Envelope env = ((Geometry) feature.getDefaultGeometry()).getEnvelopeInternal();
+                if (null == envelope) {
+                    envelope = new ReferencedEnvelope(coordinateSystem);
                 }
+                envelope.expandToInclude(env);
             }
         }
 
