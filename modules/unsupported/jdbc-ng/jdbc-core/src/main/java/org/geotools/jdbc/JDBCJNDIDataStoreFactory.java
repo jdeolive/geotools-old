@@ -127,6 +127,7 @@ public abstract class JDBCJNDIDataStoreFactory extends JDBCDataStoreFactory {
         parameters.put(DBTYPE.key, new Param(DBTYPE.key, DBTYPE.type, DBTYPE.description,
                 DBTYPE.required, getDatabaseID()));
         parameters.put(JNDI_REFNAME.key, JNDI_REFNAME);
+        parameters.put(SCHEMA.key, SCHEMA);
         parameters.put(NAMESPACE.key, NAMESPACE);
 
     }
