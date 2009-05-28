@@ -202,6 +202,7 @@ public class ShapefileRenderer implements GTRenderer {
     DbaseFileHeader dbfheader;
     private Object defaultGeom;
     IndexInfo[] layerIndexInfo;
+    StreamingRenderer delegate;
 
     /**
      * Maps between the AttributeType index of the new generated FeatureType and the real
@@ -1124,6 +1125,14 @@ public class ShapefileRenderer implements GTRenderer {
      * <code>render</code> the rendering will be forcefully stopped before termination
      */
     public void stopRendering() {
+        try {
+            if(delegate != null)
+                delegate.stopRendering();
+        } catch(NullPointerException e) {
+            // Since stopRendering is called by another thread the null check may
+            // pass, and the method call can NPE nevertheless. It's ok, in that
+            // case rendering is done anyways
+        }
         renderingStopRequested = true;
         labelCache.stop();
     }
@@ -1469,16 +1478,17 @@ public class ShapefileRenderer implements GTRenderer {
 		MapContext context = null;
 		try {
 		    context = new DefaultMapContext(new MapLayer[]{layer}, envelope.getCoordinateReferenceSystem());
-    		StreamingRenderer renderer=new StreamingRenderer();
-    		renderer.setContext(context);
-    		renderer.setJava2DHints(getJava2DHints());
+    		delegate = new StreamingRenderer();
+    		delegate.setContext(context);
+    		delegate.setJava2DHints(getJava2DHints());
     		Map rendererHints2 = new HashMap(getRendererHints() != null ? getRendererHints() : Collections.EMPTY_MAP);
     		rendererHints2.put(LABEL_CACHE_KEY, new IntegratingLabelCache(labelCache));
-    		renderer.setRendererHints(rendererHints2);
-    		renderer.paint(graphics, paintArea, envelope, transform);
+    		delegate.setRendererHints(rendererHints2);
+    		delegate.paint(graphics, paintArea, envelope, transform);
 		} finally {
 		    if(context != null)
 		        context.clearLayerList();
+		    delegate = null;
 		}
 	}
 
