@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -267,7 +268,7 @@ public class ArcSDEFeatureStoreVersionedTest {
 
     @Test
     public void testEditVersionedTableTransactionConcurrently() throws Exception {
-        Properties conProps = testData.getConProps();
+        Map<String, String> conProps = testData.getConProps();
 
         final ArcSDEDataStore dataStore1 = (ArcSDEDataStore) DataStoreFinder.getDataStore(conProps);
         final ArcSDEDataStore dataStore2 = (ArcSDEDataStore) DataStoreFinder.getDataStore(conProps);

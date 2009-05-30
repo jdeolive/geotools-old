@@ -19,9 +19,12 @@ package org.geotools.arcsde.data;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -210,8 +213,8 @@ public class TestData {
      * 
      * @return Returns the conProps.
      */
-    public Properties getConProps() {
-        return this.conProps;
+    public Map<String, String> getConProps() {
+        return new HashMap<String, String>((Map) this.conProps);
     }
 
     public String getTempTableName() throws IOException {

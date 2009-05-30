@@ -105,8 +105,6 @@ public class RasterTestData {
 
     private ArcSDEConnectionPool _pool;
 
-    private Object overr;
-
     private boolean overrideExistingTables;
 
     public void setUp() throws IOException {
@@ -181,7 +179,7 @@ public class RasterTestData {
     }
 
     public String getRasterTestDataProperty(String propName) {
-        return testData.getConProps().getProperty(propName);
+        return testData.getConProps().get(propName);
     }
 
     // public void load1bitRaster() throws Exception {
@@ -214,7 +212,7 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(231000, 898000, 231000 + 500, 898000 + 500);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().getProperty("sampledata.onebitraster");
+        String rasterFilename = testData.getConProps().get("sampledata.onebitraster");
         ArcSDERasterProducer producer = new ArcSDERasterOneBitPerBandProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_1BIT, imgExtent,
@@ -241,7 +239,7 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(231000, 898000, 231000 + 501, 898000 + 501);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().getProperty("sampledata.rgbraster");
+        String rasterFilename = testData.getConProps().get("sampledata.rgbraster");
         ArcSDERasterProducer prod = new ArcSDERasterOneBytePerBandProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_8BIT_U, imgExtent,
@@ -264,8 +262,7 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(231000, 898000, 231000 + 500, 898000 + 500);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().getProperty(
-                "sampledata.rgbraster-colormapped");
+        String rasterFilename = testData.getConProps().get("sampledata.rgbraster-colormapped");
         ArcSDERasterProducer prod = new ArcSDERasterOneBytePerBandProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_8BIT_U, imgExtent,
@@ -286,8 +283,7 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(231000, 898000, 231000 + 500, 898000 + 500);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().getProperty(
-                "sampledata.onebyteonebandraster");
+        String rasterFilename = testData.getConProps().get("sampledata.onebyteonebandraster");
         ArcSDERasterProducer prod = new ArcSDERasterOneBytePerBandProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_8BIT_U, imgExtent,
@@ -309,7 +305,7 @@ public class RasterTestData {
 
         SeExtent imgExtent = new SeExtent(245900, 899600, 246300, 900000);
         SeCoordinateReference crs = getSeCRSFromPeProjectedCSId(PePCSDefs.PE_PCS_NAD_1983_HARN_MA_M);
-        String rasterFilename = testData.getConProps().getProperty("sampledata.floatraster");
+        String rasterFilename = testData.getConProps().get("sampledata.floatraster");
         ArcSDERasterProducer prod = new ArcSDERasterFloatProducerImpl();
 
         importRasterImage(tableName, crs, rasterFilename, SeRaster.SE_PIXEL_TYPE_32BIT_REAL,
@@ -1568,127 +1564,4 @@ public class RasterTestData {
                 isRasterPremultiplied, null);
         return compatibleImage;
     }
-
-    /**
-     * @deprecated
-     */
-    private static BufferedImage createColorMappedImage(final int width, final int height,
-            final RasterCellType cellType, final IndexColorModel colorMap) {
-        final boolean is8Bit = cellType == TYPE_8BIT_U || cellType == TYPE_8BIT_S;
-        final boolean is16Bit = cellType == TYPE_16BIT_S || cellType == TYPE_16BIT_U;
-        final BufferedImage compatibleImage;
-        if (is8Bit) {
-            // Hold on adding 8-bit colormapped support until we figure out the
-            // deadlock inside SeRasterBand.getColorMap()
-            if (true) {
-                throw new IllegalArgumentException(
-                        "8-bit colormapped raster layers are not supported");
-            }
-            LOGGER.fine("Discovered 8-bit single-band raster with colormap. "
-                    + " Using return image type: TYPE_BYTE_INDEX");
-            // cache the colormodel
-            compatibleImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_INDEXED,
-                    colorMap);
-
-        } else if (is16Bit) {
-            throw new IllegalArgumentException(
-                    "One-band 16-bit rasters with color map are not yet supported");
-        } else {
-            throw new IllegalArgumentException("Color mapped images with pixel type " + cellType
-                    + " are not supported (nor allowed by ArcSDE!!)");
-        }
-        return compatibleImage;
-    }
-
-    /**
-     * Create a one-band {@link BufferedImage} compatible with the {@code cellType} and
-     * IndexColorModel, if any.
-     * 
-     * @param width
-     * @param height
-     * @param cellType
-     * @param colorMap
-     *            if non-null, the color model for the buffered image
-     * @return
-     * @throws DataSourceException
-     * @deprecated
-     */
-    private static BufferedImage createSingleBandCompatibleImage(final int width, final int height,
-            final RasterCellType cellType, IndexColorModel colorMap) throws DataSourceException {
-
-        final BufferedImage compatibleImage;
-        final boolean hasColorMap = colorMap != null;
-        LOGGER.fine("creating compatible image with single-band " + cellType + " image with "
-                + (hasColorMap ? "" : "NO") + " Color Map");
-
-        if (hasColorMap) {
-            compatibleImage = RasterTestData.createColorMappedImage(width, height, cellType,
-                    colorMap);
-        } else if (cellType == TYPE_1BIT) {
-            compatibleImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
-        } else if (cellType == TYPE_8BIT_U) {
-            compatibleImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-        } else {
-            compatibleImage = RasterTestData.createSingleBandImageWithCustomColorModel(width,
-                    height, cellType);
-        }
-        return compatibleImage;
-    }
-
-    /**
-     * @deprecated
-     */
-    public static BufferedImage createInitialBufferedImage(final BufferedImage prototype,
-            final int width, final int height) throws DataSourceException {
-
-        final WritableRaster rasterPrototype = prototype.getRaster();
-        final WritableRaster newras = rasterPrototype.createCompatibleWritableRaster(width, height);
-        final BufferedImage ret = new BufferedImage(prototype.getColorModel(), newras, prototype
-                .isAlphaPremultiplied(), null);
-        // By default BufferedImages are created with all banks set to zero.
-        // That's an all-black, transparent image.
-        // Transparency is handled in the ArcSDERasterBandCopier. Blackness
-        // isn't. Let's fix that and set
-        // the image to white.
-        final int transparentWhite = 0x00ffffff;
-        int[] pixels = new int[width * height];
-        for (int i = 0; i < width * height; i++) {
-            pixels[i] = transparentWhite;
-        }
-        ret.setRGB(0, 0, width, height, pixels, 0, 1);
-
-        return ret;
-    }
-
-    /**
-     * @deprecated
-     */
-    public static BufferedImage createCompatibleBufferedImage(final int width, final int height,
-            final int numBands, final RasterCellType cellType, final IndexColorModel colorMap)
-            throws DataSourceException {
-        if (numBands == 1) {
-            return RasterTestData
-                    .createSingleBandCompatibleImage(width, height, cellType, colorMap);
-        }
-
-        if (numBands == 3 || numBands == 4) {
-            if (cellType != TYPE_8BIT_U) {
-                throw new IllegalArgumentException("3 or 4 band rasters are only supported"
-                        + " if they have pixel type 8-bit unsigned pixels.");
-            }
-            LOGGER.fine("Three or four banded non-colormapped raster detected.  Assuming "
-                    + "bands 1,2 and 3 constitue a 3-band RGB image.  Using return "
-                    + "image type: TYPE_INT_ARGB (alpha will be used to support "
-                    + "no-data pixels)");
-            return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        } else {
-            StringBuffer errmsg = new StringBuffer();
-            errmsg.append("ArcSDERasterReader doesn't support ");
-            errmsg.append(numBands);
-            errmsg.append("-banded images of type ");
-            errmsg.append(cellType);
-            throw new IllegalArgumentException(errmsg.toString());
-        }
-    }
-
 }

@@ -23,14 +23,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.data.DataAccess;
+import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
+import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.SchemaException;
@@ -41,7 +45,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -110,7 +116,7 @@ public class ArcSDEDataStoreTest {
     }
 
     @Test
-    public void testFinder() throws IOException {
+    public void testDataStoreFinderFindsIt() throws IOException {
         DataStore sdeDs = null;
 
         DataStoreFinder.scanForPlugins();
@@ -119,6 +125,38 @@ public class ArcSDEDataStoreTest {
         String failMsg = sdeDs + " is not an ArcSDEDataStore";
         assertTrue(failMsg, (sdeDs instanceof ArcSDEDataStore));
         LOGGER.fine("testFinder OK :" + sdeDs.getClass().getName());
+    }
+
+    @Test
+    public void testDataAccessFinderFindsIt() throws IOException {
+
+        Map<String, Serializable> params = new HashMap<String, Serializable>();
+        params.putAll(testData.getConProps());
+
+        DataAccess<? extends FeatureType, ? extends Feature> dataStore;
+        dataStore = DataAccessFinder.getDataStore(params);
+
+        assertNotNull(dataStore);
+        String failMsg = dataStore + " is not an ArcSDEDataStore";
+        assertTrue(failMsg, dataStore instanceof ArcSDEDataStore);
+    }
+
+    @Test
+    public void testGetInfo() {
+        ServiceInfo info = store.getInfo();
+        assertNotNull(info);
+        assertNotNull(info.getTitle());
+        assertNotNull(info.getDescription());
+        assertNotNull(info.getSchema());
+    }
+
+    @Test
+    public void testGet() {
+        ServiceInfo info = store.getInfo();
+        assertNotNull(info);
+        assertNotNull(info.getTitle());
+        assertNotNull(info.getDescription());
+        assertNotNull(info.getSchema());
     }
 
     /**

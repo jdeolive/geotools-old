@@ -18,6 +18,8 @@
 package org.geotools.arcsde.data;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -180,8 +182,14 @@ public class ArcSDEDataStore implements DataStore {
 
     public ServiceInfo getInfo() {
         DefaultServiceInfo info = new DefaultServiceInfo();
-        info.setDescription("Features from ArcSDE");
-        info.setSchema(FeatureTypes.DEFAULT_NAMESPACE);
+        info.setTitle("ArcSDE connection to " + connectionPool.getConfig().getServerName());
+        info.setDescription("GeoTools ArcSDE DataStore plugin");
+        try {
+            info.setSchema(typeInfoCache.getNamesapceURI() == null ? FeatureTypes.DEFAULT_NAMESPACE
+                    : new URI(typeInfoCache.getNamesapceURI()));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         return info;
     }
 

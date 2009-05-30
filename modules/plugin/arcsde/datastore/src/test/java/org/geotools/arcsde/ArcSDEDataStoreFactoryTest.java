@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
@@ -33,8 +34,11 @@ import org.geotools.arcsde.data.InProcessViewSupportTestData;
 import org.geotools.arcsde.data.TestData;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.data.DataAccessFactory;
+import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataStoreFinder;
 import org.junit.After;
 import org.junit.Before;
@@ -101,7 +105,7 @@ public class ArcSDEDataStoreFactoryTest {
     }
 
     @Test
-    public void testLookUp() throws IOException {
+    public void testGetDataStore() throws IOException {
         DataStore dataStore;
 
         try {
@@ -113,6 +117,35 @@ public class ArcSDEDataStoreFactoryTest {
         dataStore = DataStoreFinder.getDataStore(workingParams);
         assertNotNull(dataStore);
         assertTrue(dataStore instanceof ArcSDEDataStore);
+        dataStore.dispose();
+    }
+
+    @Test
+    public void testDataStoreFinderFindsIt() throws IOException {
+        Iterator<DataStoreFactorySpi> allFactories = DataStoreFinder.getAllDataStores();
+        ArcSDEDataStoreFactory sdeFac = null;
+        while (allFactories.hasNext()) {
+            DataAccessFactory next = allFactories.next();
+            if (next instanceof ArcSDEDataStoreFactory) {
+                sdeFac = (ArcSDEDataStoreFactory) next;
+                break;
+            }
+        }
+        assertNotNull(sdeFac);
+    }
+
+    @Test
+    public void testDataAccessFinderFindsIt() throws IOException {
+        Iterator<DataAccessFactory> allFactories = DataAccessFinder.getAllDataStores();
+        ArcSDEDataStoreFactory sdeFac = null;
+        while (allFactories.hasNext()) {
+            DataAccessFactory next = allFactories.next();
+            if (next instanceof ArcSDEDataStoreFactory) {
+                sdeFac = (ArcSDEDataStoreFactory) next;
+                break;
+            }
+        }
+        assertNotNull(sdeFac);
     }
 
     /**

@@ -870,8 +870,8 @@ public class ArcSDEFeatureSourceTest {
             for (int nConnections : connections) {
                 for (int threads : testThreads) {
 
-                    testData.getConProps().put("pool.minConnections", nConnections);
-                    testData.getConProps().put("pool.maxConnections", nConnections);
+                    testData.getConProps().put("pool.minConnections", String.valueOf(nConnections));
+                    testData.getConProps().put("pool.maxConnections", String.valueOf(nConnections));
 
                     testData.tearDown(false, true);
                     if (store != null) {
