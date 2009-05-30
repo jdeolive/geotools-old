@@ -58,7 +58,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
             .getLogger(ArcSDEDataStoreFactory.class.getName());
 
     /** friendly factory description */
-    private static final String FACTORY_DESCRIPTION = "ESRI(tm) ArcSDE 8.x and 9.x";
+    public static final String FACTORY_DESCRIPTION = "ESRI(tm) ArcSDE 9.2+ vector data store";
 
     /** DOCUMENT ME! */
     private static List<Param> paramMetadata = new ArrayList<Param>(10);
