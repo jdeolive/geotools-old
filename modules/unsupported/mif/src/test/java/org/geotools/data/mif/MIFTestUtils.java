@@ -30,8 +30,8 @@ import java.util.logging.Logger;
 import org.geotools.feature.AttributeTypes;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.filter.ExpressionBuilder;
-import org.geotools.filter.parser.ParseException;
+import org.geotools.filter.text.cql2.CQL;
+import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.test.TestData;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -250,12 +250,8 @@ public class MIFTestUtils {
      *
      * @return DOCUMENT ME!
      */
-    protected static Filter parseFilter(String expression) {
-        try {
-            return (Filter) ExpressionBuilder.parse(expression);
-        } catch (ParseException e) {
-            return Filter.EXCLUDE;
-        }
+    protected static Filter parseFilter(String expression) throws CQLException {
+        return (Filter) CQL.toFilter(expression);
     }
 
     /**

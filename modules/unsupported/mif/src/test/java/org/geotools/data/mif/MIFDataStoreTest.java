@@ -309,7 +309,7 @@ public class MIFDataStoreTest extends TestCase {
                     Transaction.AUTO_COMMIT);
             SimpleFeature f;
              FeatureReader<SimpleFeatureType, SimpleFeature> fr = getFeatureReader("grafo",
-                    "ID == 73690 || ID == 71045");
+                    "ID == 73690 OR ID == 71045");
 
             int counter = 0;
 
@@ -362,6 +362,7 @@ public class MIFDataStoreTest extends TestCase {
             fr.close();
             assertEquals(counter, 2);
         } catch (Exception e) {
+            e.printStackTrace();
             fail(e.getMessage());
         }
     }
@@ -425,7 +426,7 @@ public class MIFDataStoreTest extends TestCase {
     /**
      * DOCUMENT ME!
      */
-    public void testFeatureSource() {
+    public void testFeatureSource() throws Exception {
         String outmif = "mixed_fs";
 
         try {
@@ -462,7 +463,7 @@ public class MIFDataStoreTest extends TestCase {
 
         try {
             ((FeatureStore<SimpleFeatureType, SimpleFeature>) fs).removeFeatures(MIFTestUtils.parseFilter(
-                    "GEOMTYPE != 'NULL'"));
+                    "GEOMTYPE <> 'NULL'"));
         } catch (IOException e) {
             fail("Cannot delete Features: " + e.getMessage());
         }
@@ -530,6 +531,6 @@ public class MIFDataStoreTest extends TestCase {
      */
     protected  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(String featureTypeName)
         throws Exception {
-        return getFeatureReader(featureTypeName, "1=1");
+        return getFeatureReader(featureTypeName, "INCLUDE");
     }
 }
