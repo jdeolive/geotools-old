@@ -129,17 +129,6 @@
         </site>
       </distributionManagement>
     </profile>
-    <profile>
-      <id>site.atlas</id>
-      <distributionManagement>
-        <site>
-          <id>site-sigma</id>
-          <name>Web site for Maven reports</name>
-          <url>scp://atlas.openplans.org/home/aaime/public_html/gtsite2</url>
-        </site>
-      </distributionManagement>
-    </profile>  
-
   </profiles>
 
 
