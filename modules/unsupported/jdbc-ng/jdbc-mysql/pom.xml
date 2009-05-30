@@ -27,7 +27,7 @@
   <artifactId>gt-jdbc-mysql</artifactId>
   <packaging>jar</packaging>
   <name>MySQL DataStore</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/jdbc-ng/jdbc-mysql/</url>
+  
 
   <scm>
     <connection>

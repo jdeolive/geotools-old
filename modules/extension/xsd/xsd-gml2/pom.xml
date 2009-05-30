@@ -26,7 +26,7 @@
   <artifactId>gt-xsd-gml2</artifactId>
   <packaging>jar</packaging>
   <name>GML2 XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-gml2/</url>
+  
 
   <scm>
     <connection>

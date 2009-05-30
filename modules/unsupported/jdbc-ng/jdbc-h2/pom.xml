@@ -27,7 +27,7 @@
   <artifactId>gt-jdbc-h2</artifactId>
   <packaging>jar</packaging>
   <name>H2 DataStore</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/jdbc-ng/jdbc-h2/</url>
+  
 
   <scm>
     <connection>

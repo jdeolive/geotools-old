@@ -14,7 +14,7 @@
   <artifactId>gt-edigeo</artifactId>
   <packaging>jar</packaging>
   <name>EDIGEO format module</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/edigeo</url>
+  
   
   <scm>
     <connection>

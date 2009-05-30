@@ -27,7 +27,7 @@
   <artifactId>gt-cql</artifactId>
   <packaging>jar</packaging>
   <name>OGC CQL to Filter parser</name>
-  <url>http://maven.geotools.fr/reports/modules/library/cql/</url>
+  
 
   <scm>
     <connection>

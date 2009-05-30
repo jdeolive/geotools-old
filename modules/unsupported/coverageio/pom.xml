@@ -27,7 +27,7 @@
   <artifactId>gt-coverageio</artifactId>
   <packaging>jar</packaging>
   <name>Coverage I/O base classes</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/coverageio/</url>
+  
 
   <scm>
     <connection>

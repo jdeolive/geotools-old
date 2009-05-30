@@ -27,7 +27,7 @@
   <artifactId>gt-widgets-swing</artifactId>
   <packaging>jar</packaging>
   <name>Swing widgets</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/widgets-swing/</url>
+  
 
   <scm>
     <connection>

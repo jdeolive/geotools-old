@@ -27,7 +27,7 @@
   <artifactId>gt-db2</artifactId>
   <packaging>jar</packaging>
   <name>DB2 Spatial Extender module</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/db2/</url>
+  
 
   <scm>
     <connection>

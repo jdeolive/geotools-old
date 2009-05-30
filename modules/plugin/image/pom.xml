@@ -27,7 +27,7 @@
   <artifactId>gt-image</artifactId>
   <packaging>jar</packaging>
   <name>WorldImage datasource module</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/image/</url>
+  
 
   <scm>
     <connection>

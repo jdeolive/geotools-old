@@ -27,7 +27,7 @@
   <artifactId>gt-epsg-oracle</artifactId>
   <packaging>jar</packaging>
   <name>EPSG Authority Factory for Oracle</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/epsg-oracle/</url>
+  
 
   <scm>
     <connection>

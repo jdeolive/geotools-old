@@ -22,7 +22,7 @@
   <groupId>org.geotools</groupId>
   <artifactId>gt-app-schema</artifactId>
   <name>Application Schema DataAccess</name>
-  <url>http://maven.geotools.fr/reports/main/</url>
+  
   <scm>
     <connection>
       scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema

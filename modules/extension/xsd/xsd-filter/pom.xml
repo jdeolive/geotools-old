@@ -27,7 +27,7 @@
   <artifactId>gt-xsd-filter</artifactId>
   <packaging>jar</packaging>
   <name>Filter XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-filter/</url>
+  
 
   <scm>
     <connection>

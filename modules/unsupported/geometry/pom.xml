@@ -27,7 +27,6 @@
   <artifactId>gt-geometry</artifactId>
   <packaging>jar</packaging>
   <name>Geometries</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/geometry/</url>
 
   <scm>
     <connection>
@@ -156,36 +155,5 @@
 	    <scope>test</scope>
 	</dependency>       
   </dependencies>
-
-
-  <!-- =========================================================== -->
-  <!--     Repositories (ibiblio, refractions...).                 -->
-  <!--     This is where Maven looks for dependencies.             -->
-  <!-- =========================================================== -->
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>ibiblio</id>
-      <name>Ibiblio - the public's library and digital archive</name>
-      <url>http://www.ibiblio.org/maven2</url>
-    </repository>
-    
-    <repository>
-      <id>refractions</id>
-      <name>Refractions Research Maven 2 Repository</name>
-      <url>http://lists.refractions.net/m2</url>
-    </repository>
-    
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>geotools</id>
-      <name>Geotools repository</name>
-      <url>http://maven.geotools.fr/repository</url>
-    </repository>
-  </repositories>
 
 </project>

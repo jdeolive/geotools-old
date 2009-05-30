@@ -26,7 +26,7 @@
   <artifactId>gt-xsd-ows</artifactId>
   <packaging>jar</packaging>
   <name>OWS XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-ows/</url>
+  
 
   <scm>
     <connection>

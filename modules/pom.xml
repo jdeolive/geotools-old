@@ -110,11 +110,6 @@
           <maxmemory>512M</maxmemory>
             <!-- Specifies the encoding name of the source files.-->
           <encoding>UTF-8</encoding>
-            <!-- Whether to build an aggregated report at the root.-->
-          <aggregate>true</aggregate>
-            <!-- By default (false), generates javadoc with deprecated classes.
-                 Set to true in order to have a javadoc without deprecated classes.-->
-          <nodeprecated>false</nodeprecated>
             <!-- Set an additional parameter for the command line. -->
           <additionalparam>-keywords</additionalparam>
           <breakiterator>true</breakiterator>
@@ -265,10 +260,6 @@
               <packages>
                 org.geotools.factory*:org.geotools.io*:org.geotools.util*:org.geotools.math*:org.geotools.nature*:org.geotools.event*:org.geotools.index*
               </packages>
-            </group>
-            <group>
-              <title>Bridges to external applications</title>
-              <packages>org.geotools.openoffice*</packages>
             </group>
           </groups>
         </configuration>

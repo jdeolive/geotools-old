@@ -27,7 +27,7 @@
   <artifactId>gt-geometryless</artifactId>
   <packaging>jar</packaging>
   <name>Generic (geometryless) DataStore implementation</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/geometryless/</url>
+  
 
   <scm>
     <connection>

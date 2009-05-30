@@ -27,7 +27,7 @@
   <artifactId>gt-metadata</artifactId>
   <packaging>jar</packaging>
   <name>Metadata</name>
-  <url>http://maven.geotools.fr/reports/modules/library/metadata/</url>
+  
 
   <scm>
     <connection>

@@ -27,7 +27,7 @@
   <artifactId>gt-geomedia</artifactId>
   <packaging>jar</packaging>
   <name>GeoMedia datastore implementation</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/geomedia/</url>
+  
 
   <scm>
     <connection>

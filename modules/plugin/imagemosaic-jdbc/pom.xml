@@ -27,7 +27,7 @@
   <artifactId>gt-imagemosaic-jdbc</artifactId>
   <packaging>jar</packaging>
   <name>imagemosaic-jdbc module</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/imagemosaic-jdbc/</url>
+  
 
   <scm>
     <connection>

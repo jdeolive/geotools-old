@@ -27,7 +27,7 @@
   <artifactId>gt-vpf</artifactId>
   <packaging>jar</packaging>
   <name>VPF Plugin</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/vpf/</url>
+  
 
   <scm>
     <connection>

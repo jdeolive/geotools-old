@@ -27,7 +27,7 @@
   <artifactId>gt-directory</artifactId>
   <packaging>jar</packaging>
   <name>Directory module</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/directory/</url>
+  
 
   <scm>
     <connection>

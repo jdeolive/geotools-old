@@ -23,7 +23,7 @@
   <artifactId>app-schema</artifactId>
   <packaging>pom</packaging>
   <name>Geotools application schema support</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/community-schemas</url>
+  
   
   <scm>
     <connection>

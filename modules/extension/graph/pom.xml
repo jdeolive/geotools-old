@@ -27,7 +27,7 @@
   <artifactId>gt-graph</artifactId>
   <packaging>jar</packaging>
   <name>Feature Based Graphs and Networks</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/graph/</url>
+  
 
   <scm>
     <connection>

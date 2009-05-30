@@ -27,7 +27,7 @@
   <artifactId>gt-referencing3D</artifactId>
   <packaging>jar</packaging>
   <name>Vertical coordinate transformations</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/referencing3D/</url>
+  
 
   <scm>
     <connection>

@@ -27,7 +27,7 @@
   <artifactId>gt-sample-data</artifactId>
   <packaging>jar</packaging>
   <name>Sample data module</name>
-  <url>http://maven.geotools.fr/reports/modules/library/sample-data/</url>
+  
 
   <scm>
     <connection>

@@ -27,7 +27,7 @@
   <artifactId>gt-main</artifactId>
   <packaging>jar</packaging>
   <name>Main module</name>
-  <url>http://maven.geotools.fr/reports/modules/library/main/</url>
+  
 
   <scm>
     <connection>

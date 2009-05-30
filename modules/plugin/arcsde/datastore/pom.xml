@@ -24,7 +24,7 @@
   <artifactId>gt-arcsde</artifactId>
   <packaging>jar</packaging>
   <name>ArcSDE DataStore plugin</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/arcsde/datastore/</url>
+  
 
   <scm>
     <connection>

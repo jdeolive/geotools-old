@@ -27,7 +27,7 @@
   <artifactId>gt-coverage</artifactId>
   <packaging>jar</packaging>
   <name>Grid Coverage module</name>
-  <url>http://maven.geotools.fr/reports/modules/library/coverage/</url>
+  
 
   <scm>
     <connection>

@@ -28,7 +28,7 @@
   <packaging>jar</packaging>
   <name>Purchase Order XML Support</name>
 
-  <url>http://maven.geotools.fr/reports/demo/xml-po/</url>
+  
 
   <scm>
     <connection>

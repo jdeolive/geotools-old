@@ -27,7 +27,7 @@
   <artifactId>gt-sql-datastore</artifactId>
   <packaging>jar</packaging>
   <name>DataStore InProcess SQL View helper classes</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/sql-datastore/</url>
+  
 
   <scm>
     <connection>

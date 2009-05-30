@@ -27,7 +27,7 @@
   <artifactId>gt-jdbc-db2</artifactId>
   <packaging>jar</packaging>
   <name>DB2 DataStore</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/jdbc-ng/jdbc-db2</url>
+  
 
   <scm>
     <connection>

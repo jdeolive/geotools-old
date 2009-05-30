@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
 
   <name>Web Feature Service Model</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/ogc/net.opengis.wfs</url>
+  
 
   <scm>
     <connection>

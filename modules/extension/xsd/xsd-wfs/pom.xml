@@ -26,7 +26,7 @@
   <artifactId>gt-xsd-wfs</artifactId>
   <packaging>jar</packaging>
   <name>WFS XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-wfs/</url>
+  
 
   <scm>
     <connection>

@@ -13,7 +13,6 @@
     <packaging>jar</packaging>
     <version>2.6-SNAPSHOT</version>
     <name>Geotools Map Display Demo</name>
-    <url>http://maven.apache.org</url>
     <developers>
         <developer>
             <name>Michael Bedward</name>

@@ -27,7 +27,7 @@
   <artifactId>gt-referencing</artifactId>
   <packaging>jar</packaging>
   <name>Referencing services</name>
-  <url>http://maven.geotools.fr/reports/modules/library/referencing/</url>
+  
 
   <scm>
     <connection>

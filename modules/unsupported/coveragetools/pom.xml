@@ -27,7 +27,7 @@
   <artifactId>gt-coveragetools</artifactId>
   <packaging>jar</packaging>
   <name>Coverage tools</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/coveragetools/</url>
+  
 
   <scm>
     <connection>

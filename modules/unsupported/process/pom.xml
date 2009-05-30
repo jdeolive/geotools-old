@@ -60,7 +60,7 @@
   <artifactId>gt-process</artifactId>
   <packaging>jar</packaging>
   <name>Process</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/process/</url>
+  
 
   <scm>
     <connection>

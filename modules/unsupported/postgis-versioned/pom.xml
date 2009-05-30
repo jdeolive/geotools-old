@@ -27,7 +27,7 @@
   <artifactId>gt-postgis-versioned</artifactId>
   <packaging>jar</packaging>
   <name>Versioned PostGIS module</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/postgis-versioned/</url>
+  
 
   <scm>
     <connection>

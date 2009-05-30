@@ -27,7 +27,7 @@
   <artifactId>gt-imagepyramid</artifactId>
   <packaging>jar</packaging>
   <name>imagepyramid datasource module</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/imagepyramid/</url>
+  
 
   <scm>
     <connection>

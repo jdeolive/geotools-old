@@ -27,7 +27,7 @@
   <artifactId>gt-gml3</artifactId>
   <packaging>jar</packaging>
   <name>GML Data Store</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/gml3/</url>
+  
 
   <scm>
     <connection>

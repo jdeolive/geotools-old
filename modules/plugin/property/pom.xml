@@ -27,7 +27,7 @@
   <artifactId>gt-property</artifactId>
   <packaging>jar</packaging>
   <name>Property File DataStore</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/property/</url>
+  
 
   <scm>
     <connection>

@@ -27,7 +27,7 @@
   <artifactId>gt-xml</artifactId>
   <packaging>jar</packaging>
   <name>XML Parsing Support</name>
-  <url>http://maven.geotools.fr/reports/modules/library/xml/</url>
+  
 
   <scm>
     <connection>

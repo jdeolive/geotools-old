@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
 
   <name>Xlink Model</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/ogc/org.w3.xlink</url>
+  
 
   <scm>
     <connection>

@@ -27,7 +27,7 @@
   <artifactId>gt-epsg-hsql</artifactId>
   <packaging>jar</packaging>
   <name>EPSG Authority Service using HSQL database</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/epsg-hsql/</url>
+  
 
   <scm>
     <connection>

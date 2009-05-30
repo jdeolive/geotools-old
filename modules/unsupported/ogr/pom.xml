@@ -27,7 +27,7 @@
   <artifactId>gt-ogr</artifactId>
   <packaging>jar</packaging>
   <name>OGR datastore module</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/ogr/</url>
+  
 
   <scm>
     <connection>

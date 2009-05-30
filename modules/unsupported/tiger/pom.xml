@@ -27,7 +27,7 @@
   <artifactId>gt-tiger</artifactId>
   <packaging>jar</packaging>
   <name>TIGER/Line 2000 datastore implementation</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/tiger/</url>
+  
 
   <scm>
     <connection>

@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
 
   <name>Web Processing Service Model</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/ogc/net.opengis.wps</url>
+  
 
   <scm>
     <connection>

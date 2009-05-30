@@ -27,7 +27,7 @@
   <artifactId>gt-feature-pregeneralized</artifactId>
   <packaging>jar</packaging>
   <name>Feature-Pregeneralized</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/feature-pregeneralized</url>
+  
 
   <scm>
     <connection>

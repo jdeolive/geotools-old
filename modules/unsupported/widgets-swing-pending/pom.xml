@@ -27,7 +27,7 @@
   <artifactId>gt-widgets-swing-pending</artifactId>
   <packaging>jar</packaging>
   <name>Widgets-swing-pending</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/widgets-swing-pending/</url>
+  
 
   <scm>
     <connection>

@@ -27,7 +27,7 @@
   <artifactId>gt-validation</artifactId>
   <packaging>jar</packaging>
   <name>Validation Processor and Framework</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/validation/</url>
+  
 
   <scm>
     <connection>

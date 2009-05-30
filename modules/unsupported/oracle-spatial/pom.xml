@@ -27,7 +27,7 @@
   <artifactId>gt-oracle-spatial</artifactId>
   <packaging>jar</packaging>
   <name>Oracle Spatial Module</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/oracle-spatial/</url>
+  
 
   <scm>
     <connection>

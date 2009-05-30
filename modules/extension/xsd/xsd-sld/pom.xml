@@ -27,7 +27,7 @@
   <artifactId>gt-xsd-sld</artifactId>
   <packaging>jar</packaging>
   <name>SLD XML Support</name>
-  <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-sld/</url>
+  
 
   <scm>
     <connection>

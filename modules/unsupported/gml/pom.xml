@@ -27,7 +27,7 @@
   <artifactId>gt-gml</artifactId>
   <packaging>jar</packaging>
   <name>GML module</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/gml/</url>
+  
 
   <scm>
     <connection>

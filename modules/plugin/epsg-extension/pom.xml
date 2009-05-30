@@ -27,7 +27,7 @@
   <artifactId>gt-epsg-extension</artifactId>
   <packaging>jar</packaging>
   <name>Extensions to EPSG authority factory</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/epsg-extension/</url>
+  
 
   <scm>
     <connection>

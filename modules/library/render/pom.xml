@@ -27,7 +27,7 @@
   <artifactId>gt-render</artifactId>
   <packaging>jar</packaging>
   <name>Render</name>
-  <url>http://maven.geotools.fr/reports/modules/library/render/</url>
+  
 
   <scm>
     <connection>

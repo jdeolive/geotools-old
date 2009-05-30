@@ -27,7 +27,7 @@
   <artifactId>gt-sde-dummy</artifactId>
   <packaging>jar</packaging>
   <name>ArcSDE dummy api</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/arcsde/sde-dummy/</url>
+  
 
   <scm>
     <connection>

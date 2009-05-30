@@ -27,13 +27,12 @@
   <artifactId>gt-arcgrid</artifactId>
   <packaging>jar</packaging>
   <name>ArcGrid datasource module</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/arcgrid/</url>
+  
 
   <scm>
     <connection>
       scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/arcgrid/
     </connection>
-    <developerConnection>Simone Giannecchini</developerConnection>
     <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/arcgrid/</url>
   </scm>
 

@@ -27,7 +27,7 @@
   <artifactId>gt-mif</artifactId>
   <packaging>jar</packaging>
   <name>MapInfo MIF format module</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/mif/</url>
+  
 
   <scm>
     <connection>

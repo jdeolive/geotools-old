@@ -27,7 +27,7 @@
   <artifactId>gt-jdbc-core</artifactId>
   <packaging>jar</packaging>
   <name>JDBC DataStore Core</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/jdbc-ng/jdbc-core</url>
+  
 
   <scm>
     <connection>

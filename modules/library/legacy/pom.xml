@@ -27,7 +27,7 @@
   <artifactId>gt-legacy</artifactId>
   <packaging>jar</packaging>
   <name>Legacy API and implementation</name>
-  <url>http://maven.geotools.fr/reports/modules/library/legacy/</url>
+  
 
   <scm>
     <connection>

@@ -27,7 +27,7 @@
   <artifactId>gt-postgis</artifactId>
   <packaging>jar</packaging>
   <name>PostGIS module</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/postgis/</url>
+  
 
   <scm>
     <connection>

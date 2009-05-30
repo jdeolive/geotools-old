@@ -27,7 +27,7 @@
   <artifactId>gt-jdbc-spatialite</artifactId>
   <packaging>jar</packaging>
   <name>SpatiaLite DataStore</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/jdbc-ng/jdbc-spatialite/</url>
+  
 
   <scm>
     <connection>

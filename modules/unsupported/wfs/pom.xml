@@ -27,7 +27,7 @@
   <artifactId>gt-wfs</artifactId>
   <packaging>jar</packaging>
   <name>WFS client module</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/wfs/</url>
+  
 
   <scm>
     <connection>

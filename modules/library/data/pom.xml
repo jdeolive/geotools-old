@@ -27,7 +27,7 @@
   <artifactId>gt-data</artifactId>
   <packaging>jar</packaging>
   <name>DataStore Support</name>
-  <url>http://maven.geotools.fr/reports/modules/library/data/</url>
+  
 
   <scm>
     <connection>

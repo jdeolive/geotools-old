@@ -27,7 +27,7 @@
   <artifactId>gt-jdbc</artifactId>
   <packaging>jar</packaging>
   <name>JDBC DataStore Support</name>
-  <url>http://maven.geotools.fr/reports/modules/library/jdbc/</url>
+  
 
   <scm>
     <connection>

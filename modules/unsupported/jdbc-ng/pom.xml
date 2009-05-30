@@ -27,7 +27,7 @@
   <artifactId>gt-jdbc-ng</artifactId>
   <packaging>pom</packaging>
   <name>Next Generation JDBC DataStores</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/jdbc-ng/</url>
+  
 
   <scm>
     <connection>

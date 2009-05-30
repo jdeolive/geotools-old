@@ -26,7 +26,7 @@
   <artifactId>gt-libraryJTS</artifactId>
   <packaging>jar</packaging>
   <name>Geotools JTS Library Demo</name>
-  <url>http://maven.geotools.fr/reports/demo/libraryJTS/</url>
+  
 
   <scm>
     <connection>

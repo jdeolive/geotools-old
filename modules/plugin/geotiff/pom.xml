@@ -27,7 +27,7 @@
   <artifactId>gt-geotiff</artifactId>
   <packaging>jar</packaging>
   <name>GeoTIFF grid coverage exchange module</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/geotiff/</url>
+  
 
   <scm>
     <connection>

@@ -27,7 +27,7 @@
   <artifactId>gt-caching</artifactId>
   <packaging>jar</packaging>
   <name>Caching</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/caching/</url>
+  
 
   <scm>
     <connection>

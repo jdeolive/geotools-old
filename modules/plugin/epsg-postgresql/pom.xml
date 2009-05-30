@@ -27,7 +27,7 @@
   <artifactId>gt-epsg-postgresql</artifactId>
   <packaging>jar</packaging>
   <name>EPSG Authority Service using PostgreSQL database</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/epsg-postgresql/</url>
+  
 
   <scm>
     <connection>

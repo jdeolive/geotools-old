@@ -27,7 +27,7 @@
   <artifactId>gt-gtopo30</artifactId>
   <packaging>jar</packaging>
   <name>GTopo30 datasource module</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/gtopo30/</url>
+  
 
   <scm>
     <connection>

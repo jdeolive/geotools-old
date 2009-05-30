@@ -29,7 +29,7 @@
   <artifactId>gt-jts-wrapper</artifactId>
   <packaging>jar</packaging>
   <name>ISO 19107 implementation using JTS</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/jts-wrapper/</url>
+  
 
   <scm>
     <connection>

@@ -27,7 +27,7 @@
   <artifactId>gt-xml-gpx</artifactId>
   <packaging>jar</packaging>
   <name>GPS eXchange XML Bindings</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/xml-gpx/</url>
+  
 
   <scm>
     <connection>

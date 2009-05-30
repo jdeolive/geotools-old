@@ -27,7 +27,7 @@
   <artifactId>gt-coverageio-hdf</artifactId>
   <packaging>jar</packaging>
   <name>Coverage I/O for HDF format</name>
-  <url>http://maven.geotools.fr/reports/modules/unsupported/coverageio-hdf/</url>
+  
 
   <scm>
     <connection>
