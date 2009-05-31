@@ -1172,9 +1172,6 @@ public class ShapefileRenderer implements GTRenderer {
             } else if (shpFiles.exists(QIX)) {
                 info = new IndexInfo(IndexType.QIX, shpFiles);
                 LOGGER.fine("Using quad tree");
-            } else if (shpFiles.exists(GRX)) {
-                info = new IndexInfo(IndexType.EXPERIMENTAL_UNSUPPORTED_GRX, shpFiles);
-                LOGGER.fine("Using r-tree");
             } else {
                 info = new IndexInfo(IndexType.NONE, shpFiles);
                 LOGGER.fine("No indexing");

@@ -27,17 +27,12 @@ import org.geotools.data.shapefile.shp.IndexFile;
 import org.geotools.data.shapefile.shp.ShapefileHeader;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader.Record;
-import org.geotools.index.Data;
-import org.geotools.index.DataDefinition;
 import org.geotools.index.LockTimeoutException;
 import org.geotools.index.TreeException;
 import org.geotools.index.quadtree.QuadTree;
 import org.geotools.index.quadtree.StoreException;
 import org.geotools.index.quadtree.fs.FileSystemIndexStore;
 import org.geotools.index.quadtree.fs.IndexHeader;
-import org.geotools.index.rtree.PageStore;
-import org.geotools.index.rtree.RTree;
-import org.geotools.index.rtree.cachefs.FileSystemPageStore;
 import org.geotools.util.NullProgressListener;
 import org.opengis.util.ProgressListener;
 
@@ -54,7 +49,6 @@ public class ShapeFileIndexer implements FileWriter {
     private IndexType idxType;
     private int max = 50;
     private int min = 25;
-    private short split = PageStore.SPLIT_QUADRATIC;
     private String byteOrder;
 
     private ShpFiles shpFiles;
@@ -75,8 +69,6 @@ public class ShapeFileIndexer implements FileWriter {
                 idx.setMax(Integer.parseInt(args[++i]));
             } else if (args[i].equals("-m")) {
                 idx.setMin(Integer.parseInt(args[++i]));
-            } else if (args[i].equals("-s")) {
-                idx.setSplit(Short.parseShort(args[++i]));
             } else if (args[i].equals("-b")) {
                 idx.setByteOrder(args[++i]);
             } else {
@@ -168,9 +160,6 @@ public class ShapeFileIndexer implements FileWriter {
             reader = new ShapefileReader(shpFiles, true, false);
 
             switch (idxType) {
-            case EXPERIMENTAL_UNSUPPORTED_GRX:
-                cnt = this.buildRTree(reader, treeFile, verbose);
-                break;
             case QIX:
                 cnt = this.buildQuadTree(reader, treeFile, verbose);
                 break;
@@ -186,41 +175,6 @@ public class ShapeFileIndexer implements FileWriter {
 
         // Final index file
         storage.replaceOriginal();
-
-        return cnt;
-    }
-
-    private int buildRTree(ShapefileReader reader, File rtreeFile,
-            boolean verbose) throws TreeException, LockTimeoutException,
-            IOException {
-        DataDefinition keyDef = new DataDefinition("US-ASCII");
-        keyDef.addField(Integer.class);
-        keyDef.addField(Long.class);
-
-        FileSystemPageStore fps = new FileSystemPageStore(rtreeFile, keyDef,
-                this.max, this.min, this.split);
-        RTree rtree = new RTree(fps);
-
-        Record record = null;
-        Data data = null;
-
-        int cnt = 0;
-
-        while (reader.hasNext()) {
-            record = reader.nextRecord();
-            data = new Data(keyDef);
-            data.addValue(new Integer(++cnt));
-            data.addValue(new Long(record.offset()));
-
-            rtree.insert(new Envelope(record.minX, record.maxX, record.minY,
-                    record.maxY), data);
-
-            if (verbose && ((cnt % 500) == 0)) {
-                System.out.print('.');
-            }
-        }
-
-        rtree.close();
 
         return cnt;
     }
@@ -287,15 +241,6 @@ public class ShapeFileIndexer implements FileWriter {
      */
     public void setMin(int i) {
         min = i;
-    }
-
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param s
-     */
-    public void setSplit(short s) {
-        split = s;
     }
 
     /**

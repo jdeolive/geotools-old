@@ -73,7 +73,6 @@ import org.geotools.index.TreeException;
 import org.geotools.index.quadtree.QuadTree;
 import org.geotools.index.quadtree.StoreException;
 import org.geotools.index.quadtree.fs.FileSystemIndexStore;
-import org.geotools.index.rtree.RTree;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -107,8 +106,6 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     IndexType treeType;
 
     final boolean useIndex;
-
-    private RTree rtree;
 
     int maxDepth;
 
@@ -228,19 +225,6 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
      */
     public void createSpatialIndex() throws IOException {
         buildQuadTree(maxDepth);
-    }
-
-    protected void finalize() throws Throwable {
-        if (rtree != null) {
-            try {
-                rtree.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                LOGGER
-                        .severe("org.geotools.data.shapefile.indexed.IndexedShapeFileDataStore#finalize(): Error closing rtree. "
-                                + e.getLocalizedMessage());
-            }
-        }
     }
 
     protected Filter getUnsupportedFilter(String typeName, Filter filter) {
