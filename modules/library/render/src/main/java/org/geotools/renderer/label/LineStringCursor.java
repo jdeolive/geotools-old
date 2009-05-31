@@ -318,7 +318,7 @@ public class LineStringCursor {
      * @return
      */
     public LineStringCursor reverse() {
-        return new LineStringCursor(lineString.reverse());
+        return new LineStringCursor((LineString) lineString.reverse());
     }
 
     /**
