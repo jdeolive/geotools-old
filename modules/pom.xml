@@ -193,7 +193,7 @@
             <link>http://download.java.net/media/java3d/javadoc/1.5.1</link>
             <link>http://jscience.org/api/</link>
             <link>http://geoapi.sourceforge.net/snapshot/javadoc</link>
-            <link>http://www.jump-project.org/docs/jts/1.7/api</link>
+            <link>http://tsusiatsoftware.net/jts/javadoc/index.html</link>
           </links>
 
           <!-- Separates packages on the overview page into the    -->
