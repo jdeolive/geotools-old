@@ -132,35 +132,23 @@ class Session implements ISession {
         this.pool = pool;
         this.taskExecutor = Executors.newSingleThreadExecutor();
 
-        // grab command thread
+        // grab command thread, held by taskExecutor
         updateCommandThread();
 
-        // This ensures the connection runs always on the same thread. Will fail
-        // if its
-        // accessed by different threads
-        this.connection = issue(new Command<SeConnection>() {
-            @Override
-            public SeConnection execute(final ISession session, final SeConnection connection)
-                    throws SeException, IOException {
-                String serverName = config.getServerName();
-                int portNumber = config.getPortNumber().intValue();
-                String databaseName = config.getDatabaseName();
-                String userName = config.getUserName();
-                String userPassword = config.getUserPassword();
-
-                SeConnection conn;
-                try {
-                    conn = new SeConnection(serverName, portNumber, databaseName, userName,
-                            userPassword);
-                } catch (SeException e) {
-                    throw new ArcSdeException("Can't create connection to " + serverName, e);
-                } catch (RuntimeException e) {
-                    throw new DataSourceException("Can't create connection to " + serverName, e);
-                }
-                conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
-                return conn;
-            }
-        });
+        /*
+         * This ensures the connection runs always on the same thread. Will fail if its accessed by
+         * different threads
+         */
+        try {
+            this.connection = issue(new CreateSessionCommand(config));
+        } catch (IOException e) {
+            // make sure a connection creation failure does not leave a stale thread
+            this.taskExecutor.shutdownNow();
+            throw e;
+        } catch (RuntimeException shouldntHappen) {
+            this.taskExecutor.shutdownNow();
+            throw shouldntHappen;
+        }
 
         synchronized (Session.class) {
             sessionCounter++;
@@ -970,4 +958,33 @@ class Session implements ISession {
         });
     }
 
+    private static final class CreateSessionCommand extends Command<SeConnection> {
+        private final ArcSDEConnectionConfig config;
+
+        private CreateSessionCommand(final ArcSDEConnectionConfig config) {
+            this.config = config;
+        }
+
+        @Override
+        public SeConnection execute(final ISession session, final SeConnection connection)
+                throws SeException, IOException {
+            String serverName = config.getServerName();
+            int portNumber = config.getPortNumber().intValue();
+            String databaseName = config.getDatabaseName();
+            String userName = config.getUserName();
+            String userPassword = config.getUserPassword();
+
+            SeConnection conn;
+            try {
+                conn = new SeConnection(serverName, portNumber, databaseName, userName,
+                        userPassword);
+            } catch (SeException e) {
+                throw new ArcSdeException("Can't create connection to " + serverName, e);
+            } catch (RuntimeException e) {
+                throw new DataSourceException("Can't create connection to " + serverName, e);
+            }
+            conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
+            return conn;
+        }
+    }
 }

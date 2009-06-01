@@ -119,8 +119,10 @@ public class SessionPool {
             // pool upper limit
             poolCfg.maxActive = config.getMaxConnections().intValue();
 
-            // minimum number of idle objects
-            poolCfg.minIdle = config.getMinConnections().intValue();
+            // minimum number of idle objects. MAKE SURE this is 0, otherwise the pool will start
+            // trying to create connections permanently even if there's a connection failure,
+            // ultimately leading to the exhaustion of resources
+            poolCfg.minIdle = 0;
 
             // how many connections may be idle at any time? -1 = no limit. We're running an
             // eviction thread to take care of idle connections (see minEvictableIdleTimeMillis and
