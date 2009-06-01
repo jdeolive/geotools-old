@@ -66,7 +66,8 @@ import com.esri.sde.sdk.geom.GeometryFactory;
  * provides "safe" access to a connection.
  * <p>
  * 
- * @author Gabriel Roldan (TOPP)
+ * @author Gabriel Roldan
+ * @author Jody Garnett
  * @version $Id$
  * @since 2.3.x
  */
