@@ -74,44 +74,49 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     private static int JSDE_CLIENT_VERSION;
 
     static {
-        String description = "namespace associated to this data store";
-        paramMetadata.add(new Param("namespace", String.class, description, false));
+        Param NAMESPACE_PARAM = new Param(ArcSDEConnectionConfig.NAMESPACE_PARAM, String.class,
+                "namespace associated to this data store", false);
+        Param DBTYPE_PARAM = new Param(ArcSDEConnectionConfig.DBTYPE_PARAM, String.class,
+                "fixed value. Must be \"arcsde\"", true, "arcsde");
+        Param SERVER_PARAM = new Param(ArcSDEConnectionConfig.SERVER_NAME_PARAM, String.class,
+                "sever name where the ArcSDE gateway is running", true);
+        Param PORT_PARAM = new Param(
+                ArcSDEConnectionConfig.PORT_NUMBER_PARAM,
+                Integer.class,
+                "port number in wich the ArcSDE server is listening for connections.Generally it's 5151",
+                true, Integer.valueOf(5151));
+        Param INSTANCE_PARAM = new Param(ArcSDEConnectionConfig.INSTANCE_NAME_PARAM, String.class,
+                "the specific database to connect to. Only applicable to "
+                        + "certain databases. Value ignored if not applicable.", false);
+        Param USER_PARAM = new Param(ArcSDEConnectionConfig.USER_NAME_PARAM, String.class,
+                "name of a valid database user account.", true);
+        Param PASSWORD_PARAM = new Param(ArcSDEConnectionConfig.PASSWORD_PARAM, String.class,
+                new SimpleInternationalString("the database user's password."), false, null,
+                Collections.singletonMap(Parameter.IS_PASSWORD, Boolean.TRUE));
+        Param MIN_CONNECTIONS_PARAM = new Param(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM,
+                Integer.class, "Minimun number of open connections", false, Integer
+                        .valueOf(SessionPool.DEFAULT_CONNECTIONS));
 
-        description = "fixed value. Must be \"arcsde\"";
-        paramMetadata.add(new Param("dbtype", String.class, description, true, "arcsde"));
+        Param MAX_CONNECTIONS_PARAM = new Param(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM,
+                Integer.class, "Maximun number of open connections (will not work if < 2)", false,
+                Integer.valueOf(SessionPool.DEFAULT_MAX_CONNECTIONS));
 
-        description = "sever name where the ArcSDE gateway is running";
-        paramMetadata.add(new Param("server", String.class, description, true));
+        Param TIMEOUT_PARAM = new Param(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM,
+                Integer.class,
+                "Milliseconds to wait for an available connection before failing to connect",
+                false, Integer.valueOf(SessionPool.DEFAULT_MAX_WAIT_TIME));
 
-        description = "port number in wich the ArcSDE server is listening for connections.Generally it's 5151";
-        Integer DEFAULT_PORT = Integer.valueOf(5151);
-        paramMetadata.add(new Param("port", Integer.class, description, true, DEFAULT_PORT));
-
-        description = "the specific database to connect to. Only applicable to "
-                + "certain databases. Value ignored if not applicable.";
-        paramMetadata.add(new Param("instance", String.class, description, false));
-
-        description = "name of a valid database user account.";
-        paramMetadata.add(new Param("user", String.class, description, true));
-
-        description = "the database user's password.";
-        paramMetadata.add(new Param("password", String.class, new SimpleInternationalString(
-                description), false, null, Collections.singletonMap(Parameter.IS_PASSWORD,
-                Boolean.TRUE)));
-
+        paramMetadata.add(NAMESPACE_PARAM);
+        paramMetadata.add(DBTYPE_PARAM);
+        paramMetadata.add(SERVER_PARAM);
+        paramMetadata.add(PORT_PARAM);
+        paramMetadata.add(INSTANCE_PARAM);
+        paramMetadata.add(USER_PARAM);
+        paramMetadata.add(PASSWORD_PARAM);
         // optional parameters:
-        description = "Minimun number of open connections";
-        paramMetadata.add(new Param("pool.minConnections", Integer.class, description, false,
-                Integer.valueOf(SessionPool.DEFAULT_CONNECTIONS)));
-
-        description = "Maximun number of open connections (will not work if < 2)";
-        Integer MAX_CONNECTIONS = Integer.valueOf(SessionPool.DEFAULT_MAX_CONNECTIONS);
-        paramMetadata.add(new Param("pool.maxConnections", Integer.class, description, false,
-                MAX_CONNECTIONS));
-
-        description = "Milliseconds to wait for an available connection before failing to connect";
-        Integer TIMEOUT = Integer.valueOf(SessionPool.DEFAULT_MAX_WAIT_TIME);
-        paramMetadata.add(new Param("pool.timeOut", Integer.class, description, false, TIMEOUT));
+        paramMetadata.add(MIN_CONNECTIONS_PARAM);
+        paramMetadata.add(MAX_CONNECTIONS_PARAM);
+        paramMetadata.add(TIMEOUT_PARAM);
 
         // determine which JSDE api we're running against
         determineJsdeVersion();
@@ -171,7 +176,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
      */
     public DataStore createNewDataStore(java.util.Map map) {
         throw new UnsupportedOperationException(
-                "ArcSDE DataStore does not supports the creation of new databases. "
+                "ArcSDE DataStore does not support the creation of new databases. "
                         + "This should be done through database's specific tools");
     }
 
@@ -262,27 +267,6 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     public String getDisplayName() {
         return "ArcSDE";
     }
-
-    // /** Interpret connection params as a metadata entity */
-    // public DataSourceMetadataEnity createMetadata( Map params )
-    // throws IOException {
-    //
-    // ArcSDEConnectionConfig config;
-    // try {
-    // config = new ArcSDEConnectionConfig(params);
-    // } catch (NullPointerException ex) {
-    // throw new IOException( "Cannot use provided params to connect" );
-    // } catch (IllegalArgumentException ex) {
-    // throw new DataSourceException( "Cannot use provided params to
-    // connect:"+ex.getMessage(), ex );
-    // }
-    // String description =
-    // "Connection to "+config.getDatabaseName()+ " at
-    // "+config.getServerName()+":"+config.getPortNumber()+ " as "+
-    // config.getUserName();
-    // return new DataSourceMetadataEnity( config.getServerName(),
-    // config.getDatabaseName(), description );
-    // }
 
     /**
      * A human friendly name for this data source factory
