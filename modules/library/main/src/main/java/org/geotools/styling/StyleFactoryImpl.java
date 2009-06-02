@@ -18,6 +18,7 @@
  */
 package org.geotools.styling;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -439,19 +440,23 @@ public class StyleFactoryImpl extends AbstractStyleFactory
         symbols = symbols != null ? symbols : new Symbol[0];
         graphic.setSymbols(symbols);
         
-        externalGraphics = externalGraphics != null ? externalGraphics : new ExternalGraphic[0];
-        graphic.setExternalGraphics(externalGraphics);
-        
-        marks = marks != null ? marks : new Mark[0];
-        graphic.setMarks(marks);
-
+        //externalGraphics = externalGraphics != null ? externalGraphics : new ExternalGraphic[0];
+        //graphic.setExternalGraphics(externalGraphics);        
+        if( externalGraphics != null ){
+            graphic.graphicalSymbols().addAll( Arrays.asList( externalGraphics ) );
+        }        
+        // marks = marks != null ? marks : new Mark[0];
+        // graphic.setMarks(marks);
+        if( marks != null ){
+            graphic.graphicalSymbols().addAll( Arrays.asList( marks ) );
+        }
         if (opacity == null) {
-        	opacity = Graphic.DEFAULT.getOpacity();
+            opacity = Graphic.DEFAULT.getOpacity();
         }
         graphic.setOpacity(opacity);
 
         if (size == null) {
-        	size = Graphic.DEFAULT.getSize();
+            size = Graphic.DEFAULT.getSize();
         }
         graphic.setSize(size);
 

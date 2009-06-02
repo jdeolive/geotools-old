@@ -89,7 +89,7 @@ public class GraphicImpl implements Graphic, Cloneable {
     }
 
     public List<GraphicalSymbol> graphicalSymbols() {
-        return Collections.unmodifiableList(graphics);
+        return graphics;
     }
 
     /**
@@ -184,7 +184,13 @@ public class GraphicImpl implements Graphic, Cloneable {
      */
     @Deprecated
     public Symbol[] getSymbols() {
-        return graphics.toArray(new Symbol[0]);
+        ArrayList<Symbol> symbols = new ArrayList<Symbol>();
+        for( GraphicalSymbol graphic : graphics ){
+            if( graphic instanceof Symbol ){
+                symbols.add( (Symbol) graphic );
+            }
+        }
+        return symbols.toArray(new Symbol[0]);
     }
     
 //    public List<Symbol> graphicalSymbols() {
