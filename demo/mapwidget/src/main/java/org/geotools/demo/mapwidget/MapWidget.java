@@ -23,7 +23,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javax.swing.ButtonGroup;
@@ -38,6 +41,10 @@ import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
 import net.miginfocom.swing.MigLayout;
+
+import org.geotools.data.DataStore;
+import org.geotools.data.DefaultRepository;
+import org.geotools.data.Repository;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.gui.swing.JMapPane;
@@ -88,7 +95,7 @@ public class MapWidget extends JFrame {
     private JMapPane mapPane;
     private MapLayerTable mapLayerTable;
     private StatusBar statusBar;
-
+    private DefaultRepository repository = new DefaultRepository();    
     private MapContext context;
 
     private File cwd;
@@ -249,7 +256,7 @@ public class MapWidget extends JFrame {
     public void loadShapefile() throws IOException {
         File file = showOpenShapefileDialog();
         if (file != null) {
-            addShapefile(file.toURL(), true);
+        	addShapefile(file.toURL(), true);
             setWorkingDir(file.getParentFile());
         }
     }
@@ -312,15 +319,20 @@ public class MapWidget extends JFrame {
         if (shapefileURL == null) {
             throw new IllegalArgumentException(stringRes.getString("null_arg_error"));
         }
-
         ShapefileDataStore dstore = null;
-
-        try {
-            dstore = new ShapefileDataStore(shapefileURL);
-        } catch (MalformedURLException urlEx) {
-            throw new RuntimeException(urlEx);
+        
+        DataStore found = repository.dataStore( shapefileURL.toString());
+        if( found != null && found instanceof ShapefileDataStore){
+        	dstore = (ShapefileDataStore) found;
         }
-
+        else {
+	        try {
+	            dstore = new ShapefileDataStore(shapefileURL);
+	        } catch (MalformedURLException urlEx) {
+	            throw new RuntimeException(urlEx);
+	        }
+	        repository.register( shapefileURL.toString(), dstore );
+        }
         /*
          * Before doing anything else we attempt to connect to the 
          * shapefile to check that it exists and is reachable. An
@@ -381,15 +393,20 @@ public class MapWidget extends JFrame {
         if (shapefileURL == null || style == null) {
             throw new IllegalArgumentException(stringRes.getString("null_arg_error"));
         }
-
         ShapefileDataStore dstore = null;
-
-        try {
-            dstore = new ShapefileDataStore(shapefileURL);
-        } catch (MalformedURLException urlEx) {
-            throw new RuntimeException(urlEx);
+        
+        DataStore found = repository.dataStore( shapefileURL.toString());
+        if( found != null && found instanceof ShapefileDataStore){
+        	dstore = (ShapefileDataStore) found;
         }
-
+        else {
+	        try {
+	            dstore = new ShapefileDataStore(shapefileURL);
+	        } catch (MalformedURLException urlEx) {
+	            throw new RuntimeException(urlEx);
+	        }
+	        repository.register( shapefileURL.toString(), dstore );
+        }        
         /*
          * Before doing anything else we attempt to connect to the
          * shapefile to check that it exists and is reachable. An
@@ -419,40 +436,58 @@ public class MapWidget extends JFrame {
      */
     public URL getShapefileSLD(URL shapefileURL) {
         URL sldURL = null;
-
-        File shapefile = new File(shapefileURL.getPath());
+        
+        File shapefile;
+		try {			
+			shapefile = new File( shapefileURL.toURI() );
+		} catch (URISyntaxException e) {
+			shapefile = new File( shapefileURL.getPath() );
+		}
         String fileName = shapefile.getName();
 
         int lastDot = fileName.lastIndexOf('.');
         if (lastDot > 0) {
-            StringBuilder sb = new StringBuilder();
-            String dirName = shapefile.getParent();
-            if (dirName != null) {
-                sb.append(dirName);
-                sb.append(File.separator);
-            }
-            
-            sb.append(fileName.substring(0, lastDot) + ".sld");
-            
+            File directory = shapefile.getParentFile();
+            String sldname1 = fileName.substring(0, lastDot) + ".sld";
+            String sldname2 = fileName.substring(0, lastDot) + ".SLD";
+            InputStream input=null;
             try {
-                sldURL = new URL(shapefileURL, sb.toString());
-                
+            	File sldFile1 = new File( directory, sldname1 );
+            	File sldFile2 = new File( directory, sldname2 );
+            	if( sldFile1.exists() && sldFile1.canRead() ){
+            		sldURL = sldFile1.toURL();	
+            	}
+            	else if( sldFile1.exists() && sldFile1.canRead() ){
+            		sldURL = sldFile2.toURL();	
+            	}
+            	else {
+            		/*
+                     * The SLD file can't be opened so we return null
+                     */
+                    return null;
+            	}
                 /*
                  * Now we check to see if the url that we have created
                  * corresponds to an existing and accessible SLD file.
                  * If it doesn't, this call to openStream() will provoke
                  * an IOException
                  */
-                sldURL.openStream();
-
+                input = sldURL.openStream();
             } catch (MalformedURLException urlEx) {
                 throw new RuntimeException(urlEx);
-
             } catch (IOException ioEx) {
                 /*
                  * The SLD file can't be opened so we return null
                  */
                 return null;
+            }
+            finally {
+            	if( input != null) {
+            		try {
+						input.close();
+					} catch (IOException e) {
+					}
+            	}
             }
         }
 
