@@ -17,11 +17,17 @@
  */
 package org.geotools.arcsde.data;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
+import org.geotools.util.logging.Logging;
 
+import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeShape;
@@ -38,7 +44,9 @@ import com.esri.sde.sdk.geom.GeometryFactory;
  * @since 2.4.0
  */
 public class SdeRow {
-
+    /** Logger for ths class' package */
+    private static final Logger LOGGER = Logging.getLogger(SdeRow.class.getName());
+    
     /** cached SeRow values */
     private Object[] values;
 
@@ -68,7 +76,7 @@ public class SdeRow {
         setRow(row);
     }
 
-    public void setRow(SeRow row) throws ArcSdeException {
+    public void setRow(SeRow row) throws IOException {
         final int ncols = row.getNumColumns();
         if (this.nCols != ncols) {
             this.nCols = ncols;
@@ -93,6 +101,50 @@ public class SdeRow {
                         values[i] = row.getGeometry(geometryFactory, i);
                     } else {
                         values[i] = row.getObject(i);
+                    }
+                    /*
+                     * ML: I'm adding checks here for the [n] clob object that are returned as null by
+                     * getObject, but are reported as Strings. We can suck those out of
+                     * ByteArrayStreams
+                     */
+                    if (values[i] == null) {
+                        BufferedReader reader = null;
+                        try {
+                            int type = row.getColumnDef(i).getType();
+
+                            if (type == SeColumnDefinition.TYPE_NCLOB) {
+                                reader = new BufferedReader(new InputStreamReader(row.getNClob(i),
+                                        "UTF-16"));
+                            } else if (type == SeColumnDefinition.TYPE_CLOB) {
+                                reader = new BufferedReader(new InputStreamReader(row.getClob(i),
+                                        "UTF-16"));
+                            }
+                            if (reader != null) {
+                                StringBuffer buf = new StringBuffer();
+                                String snip = reader.readLine();
+                                while (snip != null) {
+                                    if (buf.length() != 0)
+                                        buf.append('\n');
+                                    buf.append(snip);
+                                    snip = reader.readLine();
+                                }
+                                if (buf.length() > 0)
+                                    values[i] = buf.toString();
+                            }
+                        } catch (IOException e) {
+                            LOGGER.log(Level.FINEST,
+                                    "Issue decoding CLOB/NCLOB into a String:" + e, e);
+                            // value will remain null
+                        } finally {
+                            if (reader != null) {
+                                try {
+                                    reader.close();
+                                } catch (IOException ignore) {
+                                    LOGGER.log(Level.FINEST, "Issue cleaning up after CLOB/NCLOB:"
+                                            + ignore, ignore);
+                                }
+                            }
+                        }
                     }
                 }
             }
