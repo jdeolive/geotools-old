@@ -882,7 +882,9 @@ public class SLDStyleFactory {
      * @return DOCUMENT ME!
      */
     public TexturePaint getTexturePaint(org.geotools.styling.Graphic gr, Object feature) {
-        BufferedImage image = getImage(gr, feature, -1);
+        // -1 to have the image use its natural size if none was provided by the user
+        int graphicSize = evalToInt(gr.getSize(), feature, -1);
+        BufferedImage image = getImage(gr, feature, graphicSize);
         boolean isImage = false;
 
         int size;
