@@ -66,7 +66,7 @@ public class OracleFilterToSqlTest extends TestCase {
         BBOX bbox = ff.bbox("GEOM", -180, -90, 180, 90, "ESPG:4326");
         encoder.setLooseBBOXEnabled(true);
         String encoded = encoder.encodeToString(bbox);
-        assertEquals("WHERE SDO_FILTER(\"GEOM\", ?) = 'TRUE' ", encoded);
+        assertEquals("WHERE SDO_FILTER(\"GEOM\", ?, 'mask=anyinteract querytype=WINDOW') = 'TRUE' ", encoded);
     }
 
     public void testContainsFilter() throws Exception {

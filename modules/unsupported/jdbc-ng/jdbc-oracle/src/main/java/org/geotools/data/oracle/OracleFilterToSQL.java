@@ -212,7 +212,8 @@ public class OracleFilterToSQL extends PreparedFilterToSQL {
         property.accept(this, extraData);
         out.write(", ");
         geometry.accept(this, extraData);
-        out.write(") = 'TRUE' ");
+        // for backwards compatibility with Oracle 9 we add the mask and querytypes params
+        out.write(", 'mask=anyinteract querytype=WINDOW') = 'TRUE' ");
     }
     
     /**
