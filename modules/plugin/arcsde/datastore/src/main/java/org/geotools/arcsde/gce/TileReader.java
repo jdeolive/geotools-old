@@ -93,7 +93,7 @@ final class TileReader {
         this.pixelsPerTile = tileSize.width * tileSize.height;
         this.tileDataLength = (int) Math
                 .ceil(((double) pixelsPerTile * (double) bitsPerSample) / 8D);
-        this.bitmaskDataLength = (int) Math.ceil(pixelsPerTile / bitsPerSample);
+        this.bitmaskDataLength = (int) Math.ceil(pixelsPerTile / 8D);
     }
 
     /**
