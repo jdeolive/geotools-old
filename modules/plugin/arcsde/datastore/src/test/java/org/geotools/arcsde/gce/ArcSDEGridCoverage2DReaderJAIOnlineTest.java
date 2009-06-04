@@ -14,6 +14,7 @@ import static org.geotools.arcsde.gce.RasterCellType.TYPE_64BIT_REAL;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_S;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_U;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -21,7 +22,9 @@ import static org.junit.Assert.fail;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -29,6 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.operator.FormatDescriptor;
 
 import org.geotools.arcsde.ArcSDERasterFormatFactory;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
@@ -40,6 +44,7 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
+import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -81,16 +86,16 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-//        rasterTestData = new RasterTestData();
-//        rasterTestData.setUp();
-//        DEBUG = Boolean
-//                .valueOf(rasterTestData.getRasterTestDataProperty(RASTER_TEST_DEBUG_TO_DISK));
-//        rasterTestData.setOverrideExistingTestTables(false);
+        // rasterTestData = new RasterTestData();
+        // rasterTestData.setUp();
+        // DEBUG = Boolean
+        // .valueOf(rasterTestData.getRasterTestDataProperty(RASTER_TEST_DEBUG_TO_DISK));
+        // rasterTestData.setOverrideExistingTestTables(false);
     }
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        //rasterTestData.tearDown();
+        // rasterTestData.tearDown();
     }
 
     /**
@@ -117,15 +122,6 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         } catch (Exception e) {
             LOGGER.log(Level.INFO, "Error deleting test table " + tableName, e);
         }
-    }
-
-    /**
-     * Test method for {@link org.geotools.arcsde.gce.ArcSDEGridCoverage2DReaderJAI#getInfo()}.
-     */
-    @Test
-    @Ignore
-    public void testGetInfo() {
-        fail("Not yet implemented");
     }
 
     @Test
@@ -166,6 +162,34 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
     @Test
     public void testRead_08bit_U_1Band() throws Exception {
         testReadFullLevel0(TYPE_8BIT_U, 1);
+    }
+
+    @Test
+    public void testRead_08bit_U_4Band() throws Exception {
+        GridCoverage2D coverage = testReadFullLevel0(TYPE_8BIT_U, 4);
+
+        final RenderedImage image = coverage.view(ViewType.GEOPHYSICS).getRenderedImage();
+        assertEquals(DataBuffer.TYPE_BYTE, image.getSampleModel().getTransferType());
+
+        ColorModel colorModel = image.getColorModel();
+
+        assertEquals(ColorSpace.TYPE_RGB, colorModel.getColorSpace().getType());
+        assertEquals(4, colorModel.getNumComponents());
+        assertTrue(colorModel.hasAlpha());
+    }
+
+    @Test
+    public void testRead_08bit_U_3Band() throws Exception {
+        GridCoverage2D coverage = testReadFullLevel0(TYPE_8BIT_U, 3);
+
+        final RenderedImage image = coverage.view(ViewType.GEOPHYSICS).getRenderedImage();
+        assertEquals(DataBuffer.TYPE_BYTE, image.getSampleModel().getTransferType());
+
+        ColorModel colorModel = image.getColorModel();
+
+        assertEquals(ColorSpace.TYPE_RGB, colorModel.getColorSpace().getType());
+        assertEquals(3, colorModel.getNumComponents());
+        assertFalse(colorModel.hasAlpha());
     }
 
     @Test
@@ -311,8 +335,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
         assertNotNull("read coverage returned null", coverage);
 
-        RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(image, "testReadRasterCatalogSubset");
+        writeToDisk(coverage, "testReadRasterCatalogSubset");
     }
 
     @Test
@@ -340,16 +363,15 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
         assertNotNull("read coverage returned null", coverage);
 
-        RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(image, "testReadRasterCatalog2");
+        writeToDisk(coverage, "testReadRasterCatalog2");
     }
 
-    private void testReadFullLevel0(final RasterCellType cellType, final int numBands)
+    private GridCoverage2D testReadFullLevel0(final RasterCellType cellType, final int numBands)
             throws Exception {
 
         tableName = rasterTestData.getRasterTableName(cellType, numBands, false);
         rasterTestData.loadTestRaster(tableName, numBands, cellType, null);
-        testReadFullLevel0(cellType, numBands, tableName + "_" + numBands + "-Band");
+        return testReadFullLevel0(cellType, numBands, tableName + "_" + numBands + "-Band");
     }
 
     private GridCoverage2D testReadFullLevel0(final RasterCellType cellType, final int numBands,
@@ -385,12 +407,12 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         // ///////////////////////////////////////////////////////////assertEquals(originalGridRange,
         // gridGeometry.getGridRange());
 
-        final RenderedImage image = coverage.view(ViewType.GEOPHYSICS).getRenderedImage();
-        assertNotNull(image);
+        final RenderedImage geophysics = coverage.view(ViewType.GEOPHYSICS).getRenderedImage();
+        assertNotNull(geophysics);
 
         // ////assertEquals(cellType.getDataBufferType(), image.getSampleModel().getDataType());
-        final int[] sampleSize = image.getSampleModel().getSampleSize();
-        final ColorModel colorModel = image.getColorModel();
+        final int[] sampleSize = geophysics.getSampleModel().getSampleSize();
+        final ColorModel colorModel = geophysics.getColorModel();
         if (colorModel instanceof IndexColorModel) {
             switch (cellType) {
             case TYPE_1BIT:
@@ -413,7 +435,12 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         }
 
         final String fileName = "testReadFullLevel0_" + fileNamePostFix;
-        writeToDisk(image, fileName);
+
+        if (!(geophysics.getColorModel() instanceof IndexColorModel)) {
+            // not sure why, but the geotiff writer goes OOM if it's an indexed image
+            writeToDisk(coverage, fileName);
+        }
+        writeToDisk(geophysics, fileName);
 
         return coverage;
     }
@@ -460,7 +487,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
         final RenderedImage image = coverage.view(ViewType.GEOPHYSICS).getRenderedImage();
         assertNotNull(image);
-        writeToDisk(image, fileName);
+        writeToDisk(coverage, fileName);
 
         assertSame(originalCrs, crs);
 
@@ -525,7 +552,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
         final RenderedImage image = coverage.view(ViewType.GEOPHYSICS).getRenderedImage();
         assertNotNull(image);
-        writeToDisk(image, fileName);
+        writeToDisk(coverage, fileName);
 
         final Envelope returnedEnvelope = coverage.getEnvelope();
 
@@ -584,21 +611,45 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         }
     }
 
+    private void writeToDisk(GridCoverage2D coverage, String fileName) throws Exception {
+        Object destination;
+        {
+            String file = System.getProperty("user.home");
+            file += File.separator + "arcsde_test" + File.separator + fileName + ".tiff";
+            File path = new File(file);
+            path.getParentFile().mkdirs();
+            destination = path;
+        }
+        GeoTiffWriter writer = new GeoTiffWriter(destination);
+
+        System.out.println("\n --- Writing to " + destination);
+        try {
+            long t = System.currentTimeMillis();
+            writer.write(coverage, null);
+            System.out.println(" - wrote in " + t + "ms" + destination);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     private void writeToDisk(final RenderedImage image, String fileName) throws Exception {
         if (!DEBUG) {
             LOGGER.fine("DEBUG == false, not writing image to disk");
             return;
         }
         String file = System.getProperty("user.home");
-        file += File.separator + "arcsde_test" + File.separator + fileName + ".tiff";
-        File path = new File(file);
-        path.getParentFile().mkdirs();
+        file += File.separator + "arcsde_test" + File.separator + fileName;
+        File geophysics = new File(file + "_geophysics.tiff");
+        File rendered = new File(file + "_rendered.tiff");
+        geophysics.getParentFile().mkdirs();
         System.out.println("\n --- Writing to " + file);
+
         try {
-            long t = System.currentTimeMillis();
-            ImageIO.write(image, "TIFF", path);
-            t = System.currentTimeMillis() - t;
-            System.out.println(" - wrote in " + t + "ms" + file);
+            ImageIO.write(image, "TIFF", geophysics);
+
+            ImageIO.write(FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE),
+                    null), "TIFF", rendered);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

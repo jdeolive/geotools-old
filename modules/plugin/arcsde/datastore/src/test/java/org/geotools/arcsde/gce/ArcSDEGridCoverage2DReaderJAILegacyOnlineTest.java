@@ -9,17 +9,21 @@ import static org.junit.Assert.fail;
 
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
+import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 
 import org.geotools.arcsde.ArcSDERasterFormatFactory;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
@@ -45,7 +49,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * 
  */
 @SuppressWarnings( { "deprecation", "nls" })
-@Ignore
 public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
     private static final String RASTER_TEST_DEBUG_TO_DISK = "raster.test.debugToDisk";
@@ -187,6 +190,57 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
         // RenderedImage image = coverage.getRenderedImage();
         writeToDisk(coverage, "testRead_" + tableName);
+    }
+
+    @Test
+    public void testReadIMGCOQ_2005() throws Exception {
+        tableName = "SDE.IMG_COQ2005_CLIP_BOS";
+
+        final AbstractGridCoverage2DReader reader = getReader();
+        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
+
+        final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
+        GridEnvelope originalGridRange = reader.getOriginalGridRange();
+
+        final int reqWidth = originalGridRange.getSpan(0) / 2;
+        final int reqHeight = originalGridRange.getSpan(1) / 2;
+
+        Envelope reqEnvelope = originalEnvelope;
+
+        final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
+        assertNotNull("read coverage returned null", coverage);
+
+        GridGeometry2D gg = coverage.getGridGeometry();
+        Envelope2D envelope2D = gg.getEnvelope2D();
+        GridEnvelope gridRange = gg.getGridRange();
+
+        System.out.println("requested size: " + reqWidth + "x" + reqHeight);
+        System.out.println("result size   : " + gridRange.getSpan(0) + "x" + gridRange.getSpan(1));
+
+        System.out.println("requested envelope: " + reqEnvelope);
+
+        System.out.println("result envelope   : " + envelope2D);
+
+        // RenderedImage image = coverage.getRenderedImage();
+        writeToDisk(coverage, "testRead_" + tableName);
+
+        RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
+        // writeToDisk(image, tableName);
+
+        writeBand(image, new int[] { 0 }, "red");
+        writeBand(image, new int[] { 1 }, "green");
+        writeBand(image, new int[] { 2 }, "blue");
+        writeBand(image, new int[] { 3 }, "alpha");
+
+        writeBand(image, new int[] { 0, 1, 2 }, "rgb");
+    }
+
+    private void writeBand(RenderedImage image, int[] bands, String channel) throws Exception {
+        ParameterBlock pb = new ParameterBlock();
+        pb.addSource(image);
+        pb.add(bands);
+        PlanarImage alpha = JAI.create("bandSelect", pb);
+        writeToDisk(alpha, tableName + "_" + channel);
     }
 
     @Test
