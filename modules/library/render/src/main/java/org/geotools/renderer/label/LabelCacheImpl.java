@@ -794,7 +794,7 @@ public final class LabelCacheImpl implements LabelCache {
                     // try to paint the label, the condition under which this
                     // happens are complex
                     if (displayArea.contains(labelEnvelope)
-                            && !paintedBounds.labelsWithinDistance(labelEnvelope, extraSpace)
+                            && !(labelItem.isConflictResolutionEnabled() && paintedBounds.labelsWithinDistance(labelEnvelope, extraSpace))
                             && !groupLabels.labelsWithinDistance(labelEnvelope, minDistance)) {
                         if (labelItem.isFollowLineEnabled()) {
                             // for curved labels we never paint in case of
@@ -989,7 +989,8 @@ public final class LabelCacheImpl implements LabelCache {
         Rectangle2D transformed = tempTransform
                 .createTransformedShape(painter.getFullLabelBounds()).getBounds2D();
         if (!displayArea.contains(transformed)
-                || glyphs.labelsWithinDistance(transformed, labelItem.getSpaceAround())) {
+                || (labelItem.isConflictResolutionEnabled() && 
+                        glyphs.labelsWithinDistance(transformed, labelItem.getSpaceAround()))) {
             return false;
         } else {
             // painter.graphics.setStroke(new BasicStroke());
@@ -1040,7 +1041,8 @@ public final class LabelCacheImpl implements LabelCache {
         Rectangle2D transformed = tempTransform
                 .createTransformedShape(painter.getFullLabelBounds()).getBounds2D();
         if (!displayArea.contains(transformed)
-                || glyphs.labelsWithinDistance(transformed, labelItem.getSpaceAround())
+                || (labelItem.isConflictResolutionEnabled() 
+                        && glyphs.labelsWithinDistance(transformed, labelItem.getSpaceAround()))
                 || goodnessOfFit(painter, transformed, geom) < painter.getLabel().getGoodnessOfFit())
             return false;
 
