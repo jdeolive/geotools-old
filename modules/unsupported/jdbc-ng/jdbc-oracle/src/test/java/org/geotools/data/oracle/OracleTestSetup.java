@@ -16,6 +16,9 @@
  */
 package org.geotools.data.oracle;
 
+import java.io.IOException;
+import java.util.Properties;
+
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.JDBCTestSetup;
@@ -41,7 +44,13 @@ public class OracleTestSetup extends JDBCTestSetup {
         // tests do assume the dialect is working in non loose mode
         ((OracleDialect) dataStore.getSQLDialect()).setLooseBBOXEnabled(false);
         
-        dataStore.setDatabaseSchema( "SPATIAL" );
+        try {
+            Properties props = new Properties();
+            fillConnectionProperties(props);
+            dataStore.setDatabaseSchema(props.getProperty("username").toUpperCase());
+        } catch(IOException e) {
+            throw new RuntimeException("Failed to read the connection property file", e);
+        }
     }
     
     @Override

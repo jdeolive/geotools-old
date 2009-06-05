@@ -112,6 +112,10 @@ public class OracleDialect extends PreparedStatementSQLDialect {
      */
     SoftValueHashMap<Integer, Boolean> geodeticCache = new SoftValueHashMap<Integer, Boolean>(20);
     
+    /**
+     * Remembers whether the USER_SDO_* views could be accessed or not
+     */
+    Boolean canAccessUserViews;
 
     public OracleDialect(JDBCDataStore dataStore) {
         super(dataStore);
@@ -123,6 +127,35 @@ public class OracleDialect extends PreparedStatementSQLDialect {
 
     public void setLooseBBOXEnabled(boolean looseBBOXEnabled) {
         this.looseBBOXEnabled = looseBBOXEnabled;
+    }
+    
+    /**
+     * Checks the user has permissions to read from the USER_SDO_INDEX_METADATA and
+     * USER_SDO_GEOM_METADATA. The code can use this information to decide to access the
+     * ALL_SDO_INDEX_METADATA and ALL_SOD_GEOM_METADATA views instead.
+     * @param cx
+     * @return
+     */
+    boolean canAccessUserViews(Connection cx) {
+        if (canAccessUserViews == null) {
+            Statement st = null;
+            ResultSet rs = null;
+            try {
+                st = cx.createStatement();
+                rs = st.executeQuery("SELECT * FROM MDSYS.USER_SDO_INDEX_METADATA WHERE ROWNUM < 2");
+                dataStore.closeSafe(rs);
+                rs = st.executeQuery("SELECT * FROM MDSYS.USER_SDO_GEOM_METADATA WHERE ROWNUM < 2");
+                dataStore.closeSafe(rs);
+
+                canAccessUserViews = true;
+            } catch (SQLException e) {
+                canAccessUserViews = false;
+            } finally {
+                dataStore.closeSafe(st);
+                dataStore.closeSafe(rs);
+            }
+        }
+        return canAccessUserViews;
     }
     
     
@@ -139,18 +172,31 @@ public class OracleDialect extends PreparedStatementSQLDialect {
 	        try {
 	            String tableName = columnMetaData.getString(TABLE_NAME);
 	            String columnName = columnMetaData.getString(COLUMN_NAME);
-	            
+
 	            // Oracle 9 compatible query
-                String sqlStatement = "SELECT META.SDO_LAYER_GTYPE\n" + 
-                		"FROM ALL_INDEXES INFO\n" + 
-                		"INNER JOIN MDSYS.USER_SDO_INDEX_METADATA META\n" + 
-                		"ON INFO.INDEX_NAME = META.SDO_INDEX_NAME\n" + 
-                		"WHERE INFO.TABLE_NAME = '" + tableName + "'\n" + 
-                		"AND REPLACE(meta.sdo_column_name, '\"') = '" + columnName + "'\n"; 
-                String schema = dataStore.getDatabaseSchema();
-                if(schema != null && !"".equals(schema)) {
-                    sqlStatement += " AND INFO.TABLE_OWNER = '" + schema + "'";
-                }
+	            String sqlStatement;
+	            if(canAccessUserViews(cx)) {
+	                sqlStatement = "SELECT META.SDO_LAYER_GTYPE\n" + 
+	            		"FROM ALL_INDEXES INFO\n" + 
+	            		"INNER JOIN MDSYS.USER_SDO_INDEX_METADATA META\n" + 
+	            		"ON INFO.INDEX_NAME = META.SDO_INDEX_NAME\n" + 
+	            		"WHERE INFO.TABLE_NAME = '" + tableName + "'\n" + 
+	            		"AND REPLACE(meta.sdo_column_name, '\"') = '" + columnName + "'\n";
+	            } else {
+	                sqlStatement = "SELECT META.SDO_LAYER_GTYPE\n" + 
+                    "FROM ALL_INDEXES INFO\n" + 
+                    "INNER JOIN MDSYS.ALL_SDO_INDEX_METADATA META\n" + 
+                    "ON INFO.INDEX_NAME = META.SDO_INDEX_NAME\n" + 
+                    "WHERE INFO.TABLE_NAME = '" + tableName + "'\n" + 
+                    "AND REPLACE(meta.sdo_column_name, '\"') = '" + columnName + "'\n";
+	            }
+	            String schema = dataStore.getDatabaseSchema();
+	            if(schema != null && !"".equals(schema)) {
+	                sqlStatement += " AND INFO.TABLE_OWNER = '" + schema + "'";
+	                if(!canAccessUserViews(cx)) {
+	                    sqlStatement += " AND META.SDO_INDEX_OWNER = '" + schema + "'";
+	                }
+	            }
 	            
 	            LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
 	            statement = cx.createStatement();
@@ -377,9 +423,18 @@ public class OracleDialect extends PreparedStatementSQLDialect {
     public Integer getGeometrySRID(String schemaName, String tableName,
             String columnName, Connection cx) throws SQLException {
         
-        StringBuffer sql = new StringBuffer("SELECT SRID FROM USER_SDO_GEOM_METADATA WHERE ");
-        sql.append( "TABLE_NAME='").append( tableName.toUpperCase() ).append("' AND ");
-        sql.append( "COLUMN_NAME='").append( columnName.toUpperCase() ).append( "'");
+        StringBuffer sql;
+        if(canAccessUserViews(cx)) {
+            sql = new StringBuffer("SELECT SRID FROM MDSYS.USER_SDO_GEOM_METADATA WHERE ");
+            sql.append( "TABLE_NAME='").append( tableName.toUpperCase() ).append("' AND ");
+            sql.append( "COLUMN_NAME='").append( columnName.toUpperCase() ).append( "'");
+        } else {
+            sql = new StringBuffer("SELECT SRID FROM MDSYS.ALL_SDO_GEOM_METADATA WHERE ");
+            sql.append( "TABLE_NAME='").append( tableName.toUpperCase() ).append("' AND ");
+            sql.append( "COLUMN_NAME='").append( columnName.toUpperCase() ).append( "'");
+            if(schemaName != null)
+                sql.append(" AND OWNER='" + schemaName + "'");
+        }
         
         Statement st = cx.createStatement();
         try {
@@ -398,8 +453,7 @@ public class OracleDialect extends PreparedStatementSQLDialect {
             finally {
                 dataStore.closeSafe( rs );
             }
-        }
-        finally {
+        } finally {
             dataStore.closeSafe( st );
         }
     }
