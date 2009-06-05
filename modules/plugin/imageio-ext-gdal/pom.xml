@@ -68,9 +68,10 @@
       <developer>
       <name>Daniele Romagnoli</name>
       <id>danieler</id>
-      <email>dany.geotools@gmail.com</email>
+      <email>daniele.romagnoli@geo-solutions.it</email>
       <organization>GeoSolutions</organization>
       <roles>
+        <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
     </developer>

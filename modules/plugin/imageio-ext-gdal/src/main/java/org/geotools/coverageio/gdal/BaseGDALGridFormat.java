@@ -92,7 +92,7 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
      * representing the suggested tileHeight.
      */
     public static final DefaultParameterDescriptor<String> SUGGESTED_TILE_SIZE = new DefaultParameterDescriptor<String>(
-            SUGGESTED_TILESIZE, String.class, null, "");
+            SUGGESTED_TILESIZE, String.class, null, "512,512");
 
     public static final String TILE_SIZE_SEPARATOR = ",";
 

@@ -198,12 +198,19 @@ class RasterLayerRequest {
         if (params != null) {
             for (GeneralParameterValue gParam : params) {
                 final ParameterValue<?> param = (ParameterValue<?>) gParam;
-                final ReferenceIdentifier name = param.getDescriptor()
-                        .getName();
+                final ReferenceIdentifier name = param.getDescriptor().getName();
                 extractParameter(param, name);
             }
         }
+        setDefaultParameters();
         setBaseParameters(reader);
+    }
+
+    private void setDefaultParameters() {
+        // set the tile size
+        if(layout == null)
+            setTileSize(BaseGDALGridFormat.SUGGESTED_TILE_SIZE.createValue());
+                       
     }
 
     /**
@@ -271,39 +278,40 @@ class RasterLayerRequest {
         //
         // //
         if (name.equals(BaseGDALGridFormat.SUGGESTED_TILE_SIZE.getName())) {
+            setTileSize(param);
+        }
+    }
+
+    /**
+     * @param param
+     */
+    private void setTileSize(ParameterValue<?> param) {
             final String suggestedTileSize = (String) param.getValue();
-
             // Preliminary checks on parameter value
-            if ((suggestedTileSize != null)
-                    && (suggestedTileSize.trim().length() > 0)) {
-
-                if (suggestedTileSize
-                        .contains(BaseGDALGridFormat.TILE_SIZE_SEPARATOR)) {
-                    final String[] tilesSize = suggestedTileSize
-                            .split(BaseGDALGridFormat.TILE_SIZE_SEPARATOR);
+            if ((suggestedTileSize != null)&& (suggestedTileSize.trim().length() > 0)) {
+    
+                if (suggestedTileSize.contains(BaseGDALGridFormat.TILE_SIZE_SEPARATOR)) {
+                    final String[] tilesSize = suggestedTileSize.split(BaseGDALGridFormat.TILE_SIZE_SEPARATOR);
                     if (tilesSize.length == 2) {
                         try {
                             // Getting suggested tile size
-                            final int tileWidth = Integer.parseInt(tilesSize[0]
-                                    .trim());
-                            final int tileHeight = Integer
-                                    .parseInt(tilesSize[1].trim());
+                            final int tileWidth = Integer.parseInt(tilesSize[0].trim());
+                            final int tileHeight = Integer.parseInt(tilesSize[1].trim());
                             layout = new ImageLayout();
-                            layout.setTileGridXOffset(0).setTileGridYOffset(0)
-                                    .setTileHeight(tileHeight).setTileWidth(
-                                            tileWidth);
+                            layout.setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(tileHeight).setTileWidth(tileWidth);
                         } catch (NumberFormatException nfe) {
+                            //reset previously set layout
+                            layout=null;
                             if (LOGGER.isLoggable(Level.WARNING)) {
-                                LOGGER.log(Level.WARNING, "Unable to parse "
-                                        + "suggested tile size parameter");
+                                LOGGER.log(Level.WARNING, "Unable to parse "+ "suggested tile size parameter",nfe);
                             }
                         }
                     }
                 }
             }
-        }
     }
-
+    
+    
     /**
      * Compute this specific request settings all the parameters needed by a
      * visiting {@link RasterLayerResponse} object.
