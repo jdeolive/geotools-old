@@ -8,7 +8,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.awt.Rectangle;
+import java.awt.image.ColorModel;
+import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.util.logging.Level;
@@ -233,6 +236,68 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         writeBand(image, new int[] { 3 }, "alpha");
 
         writeBand(image, new int[] { 0, 1, 2 }, "rgb");
+    }
+
+    @Test
+    public void testReadNOAA_13006_1() throws Exception {
+        tableName = "SDE.NOAA_13006_1";
+
+        final AbstractGridCoverage2DReader reader = getReader();
+        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
+
+        final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
+        GridEnvelope originalGridRange = reader.getOriginalGridRange();
+
+        final int reqWidth = 800;//originalGridRange.getSpan(0) / 8;
+        final int reqHeight = 595;//originalGridRange.getSpan(1) / 8;
+
+        GeneralEnvelope reqEnvelope = new GeneralEnvelope(new double[] { 274059, 837434 },
+                new double[] { 355782, 898216 });
+        reqEnvelope.setCoordinateReferenceSystem(originalEnvelope.getCoordinateReferenceSystem());
+
+        final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
+        assertNotNull("read coverage returned null", coverage);
+
+        GridGeometry2D gg = coverage.getGridGeometry();
+        Envelope2D envelope2D = gg.getEnvelope2D();
+        GridEnvelope gridRange = gg.getGridRange();
+
+        System.out.println("requested size: " + reqWidth + "x" + reqHeight);
+        System.out.println("result size   : " + gridRange.getSpan(0) + "x" + gridRange.getSpan(1));
+
+        System.out.println("requested envelope: " + reqEnvelope);
+
+        System.out.println("result envelope   : " + envelope2D);
+
+        writeToDisk(coverage, "testRead_" + tableName);
+
+        RenderedImage image = coverage.getRenderedImage();
+        ColorModel colorModel = image.getColorModel();
+        SampleModel sampleModel = image.getSampleModel();
+
+        assertTrue(colorModel instanceof IndexColorModel);
+        IndexColorModel cm = ((IndexColorModel) colorModel);
+
+        int numComponents = cm.getMapSize();
+        byte[] r = new byte[numComponents];
+        byte[] g = new byte[numComponents];
+        byte[] b = new byte[numComponents];
+        byte[] a = new byte[numComponents];
+        cm.getReds(r);
+        cm.getGreens(g);
+        cm.getBlues(b);
+        cm.getAlphas(a);
+        for (int i = 0; i < numComponents; i++) {
+            System.out.print(i + " = ");
+            System.out.print((int) r[i] & 0xFF);
+            System.out.print(',');
+            System.out.print((int) g[i] & 0xFF);
+            System.out.print(',');
+            System.out.print((int) b[i] & 0xFF);
+            System.out.print(',');
+            System.out.print((int) a[i] & 0xFF);
+            System.out.print('\n');
+        }
     }
 
     private void writeBand(RenderedImage image, int[] bands, String channel) throws Exception {

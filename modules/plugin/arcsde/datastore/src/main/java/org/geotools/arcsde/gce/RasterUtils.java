@@ -481,6 +481,50 @@ class RasterUtils {
 
     /**
      * Creates an IndexColorModel out of a DataBuffer obtained from an ArcSDE's raster color map.
+     * 
+     * @param colorMapData
+     * @return
+     */
+    public static IndexColorModel sdeColorMapToJavaColorModel(final DataBuffer colorMapData,
+            final int bitsPerSample) {
+        if (colorMapData == null) {
+            throw new NullPointerException("colorMapData");
+        }
+
+        if (colorMapData.getNumBanks() < 3 || colorMapData.getNumBanks() > 4) {
+            throw new IllegalArgumentException("colorMapData shall have 3 or 4 banks: "
+                    + colorMapData.getNumBanks());
+        }
+
+        if (bitsPerSample != 8 && bitsPerSample != 16) {
+            throw new IllegalAccessError("bits per sample shall be either 8 or 16. Got "
+                    + bitsPerSample);
+        }
+
+        final int transferType = colorMapData.getDataType();
+        final int numBanks = colorMapData.getNumBanks();
+        final int mapSize = colorMapData.getSize();
+        final int maxMapSize = DataBuffer.TYPE_USHORT == transferType ? 65536 : 256;
+
+        byte[] r = new byte[maxMapSize];
+        byte[] g = new byte[maxMapSize];
+        byte[] b = new byte[maxMapSize];
+        byte[] a = new byte[maxMapSize];
+
+        for (int i = 0; i < mapSize; i++) {
+            r[i] = (byte) (colorMapData.getElem(0, i) & 0xFF);
+            g[i] = (byte) (colorMapData.getElem(1, i) & 0xFF);
+            b[i] = (byte) (colorMapData.getElem(2, i) & 0xFF);
+            a[i] = (byte) (numBanks == 3 ? 255 : colorMapData.getElem(3, i));
+        }
+
+        IndexColorModel colorModel = new IndexColorModel(bitsPerSample, mapSize, r, g, b, a);
+
+        return colorModel;
+    }
+
+    /**
+     * Creates an IndexColorModel out of a DataBuffer obtained from an ArcSDE's raster color map.
      * <p>
      * The resulting IndexColorModel has always four components, whether the original color map has
      * alpha channel or not. In case the original color map has no alpha channel, the fourth
@@ -498,7 +542,7 @@ class RasterUtils {
      * @param colorMapData
      * @return
      */
-    public static IndexColorModel sdeColorMapToJavaColorModel(final DataBuffer colorMapData,
+    public static IndexColorModel _sdeColorMapToJavaColorModel(final DataBuffer colorMapData,
             final int bitsPerSample) {
         if (colorMapData == null) {
             throw new NullPointerException("colorMapData");
