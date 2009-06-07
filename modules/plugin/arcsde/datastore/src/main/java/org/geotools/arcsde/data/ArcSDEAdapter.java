@@ -431,7 +431,7 @@ public class ArcSDEAdapter {
             // didn't found in the ArcSDE Java API the way of knowing
             // if an SeColumnDefinition is nillable
             attName = colDef.getName();
-            isNilable = true;
+            isNilable = colDef.allowsNulls();
             defValue = null;
             fieldLen = colDef.getSize();
 

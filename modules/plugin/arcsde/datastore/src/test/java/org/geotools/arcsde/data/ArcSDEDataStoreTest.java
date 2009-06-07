@@ -17,7 +17,9 @@
  */
 package org.geotools.arcsde.data;
 
+import static org.geotools.arcsde.data.TestData.TEST_TABLE_COLS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -263,7 +265,13 @@ public class ArcSDEDataStoreTest {
         schema = store.getSchema(testData.getTempTableName());
         assertNotNull(schema);
         // ROW_ID is not included in TEST_TABLE_COLS
-        assertEquals(TestData.TEST_TABLE_COLS.length, schema.getAttributeCount());
+        assertEquals(TEST_TABLE_COLS.length, schema.getAttributeCount());
+
+        for (int i = 0; i < TEST_TABLE_COLS.length; i++) {
+            assertEquals("at index" + i, TEST_TABLE_COLS[i], schema.getDescriptor(i).getLocalName());
+        }
+        assertFalse(schema.getDescriptor(0).isNillable());
+        assertTrue(schema.getDescriptor(1).isNillable());
     }
 
     /**

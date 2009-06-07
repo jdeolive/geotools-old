@@ -19,7 +19,6 @@ package org.geotools.arcsde.data;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -444,7 +443,7 @@ public class TestData {
                         false);
 
                 colDefs[1] = new SeColumnDefinition(TEST_TABLE_COLS[0],
-                        SeColumnDefinition.TYPE_INT32, 10, 0, isNullable);
+                        SeColumnDefinition.TYPE_INT32, 10, 0, false);
                 colDefs[2] = new SeColumnDefinition(TEST_TABLE_COLS[1],
                         SeColumnDefinition.TYPE_INT16, 4, 0, isNullable);
                 colDefs[3] = new SeColumnDefinition(TEST_TABLE_COLS[2],
