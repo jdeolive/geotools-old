@@ -387,6 +387,9 @@ public class OracleDialect extends PreparedStatementSQLDialect {
      *
      */
     OracleConnection unwrapConnection( Connection cx ) throws SQLException {
+        if(cx == null)
+            return null;
+        
         if ( cx instanceof OracleConnection ) {
             return (OracleConnection) cx;
         }
@@ -404,7 +407,7 @@ public class OracleDialect extends PreparedStatementSQLDialect {
                     "Could not obtain native oracle connection.").initCause(e);
         }
         
-        throw new SQLException( "Could not obtain native oracle connection.");
+        throw new SQLException( "Could not obtain native oracle connection for " + cx.getClass());
     }
     
     public FilterToSQL createFilterToSQL() {
