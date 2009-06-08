@@ -19,16 +19,16 @@ package org.geotools.util;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryCreator;
 import org.geotools.factory.FactoryRegistry;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.resources.LazySet;
+import org.geotools.util.logging.Logging;
 
 /**
  * Convenience class for converting an object from one type to an object of another.
@@ -37,6 +37,8 @@ import org.geotools.resources.LazySet;
  * @since 2.4
  */
 public final class Converters {
+    
+    private static final Logger LOGGER = Logging.getLogger(Converters.class); 
 
 	/**
 	 * Cached list of converter factories
@@ -152,9 +154,9 @@ public final class Converters {
 					if ( converted != null ) {
 						return converted;
 					}
-				}
-				catch (Exception e) {
-					//TODO: perhaps log this
+				} catch (Exception e) {
+				    if(LOGGER.isLoggable(Level.FINER))
+				        LOGGER.log(Level.FINER, "Error applying the converter " + converter.getClass() + " on (" + source + "," + target + ")", e);
 				}
 			}
 		}
