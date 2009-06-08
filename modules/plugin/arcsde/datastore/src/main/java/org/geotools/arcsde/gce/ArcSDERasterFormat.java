@@ -85,7 +85,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *         /org/geotools/arcsde/gce/ArcSDERasterFormat.java $
  */
 @SuppressWarnings( { "nls", "deprecation" })
-public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
+public final class ArcSDERasterFormat extends AbstractGridFormat implements Format {
 
     protected static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
@@ -95,7 +95,7 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
      * {@link ArcSDERasterGridCoverage2DReader}'s externalized state, so it is not needed to gather
      * the raster properties each time.
      */
-    private static final Map<String, RasterInfo> rasterInfos = new WeakHashMap<String, RasterInfo>();
+    private static final Map<String, RasterDatasetInfo> rasterInfos = new WeakHashMap<String, RasterDatasetInfo>();
 
     private static final Map<String, ArcSDEConnectionConfig> connectionConfigs = new WeakHashMap<String, ArcSDEConnectionConfig>();
 
@@ -160,7 +160,7 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
 
             ArcSDEConnectionPool connectionPool = setupConnectionPool(connectionConfig);
 
-            RasterInfo rasterInfo = getRasterInfo(coverageUrl, connectionPool);
+            RasterDatasetInfo rasterInfo = getRasterInfo(coverageUrl, connectionPool);
 
             // return new ArcSDERasterGridCoverage2DReader(connectionPool, rasterInfo, hints);
             return new ArcSDEGridCoverage2DReaderJAI(this, connectionPool, rasterInfo, hints);
@@ -172,10 +172,10 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
         }
     }
 
-    private RasterInfo getRasterInfo(final String coverageUrl, ArcSDEConnectionPool connectionPool)
+    private RasterDatasetInfo getRasterInfo(final String coverageUrl, ArcSDEConnectionPool connectionPool)
             throws IOException {
 
-        RasterInfo rasterInfo = rasterInfos.get(coverageUrl);
+        RasterDatasetInfo rasterInfo = rasterInfos.get(coverageUrl);
         if (rasterInfo == null) {
             synchronized (rasterInfos) {
                 rasterInfo = rasterInfos.get(coverageUrl);
@@ -435,7 +435,7 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
      *             if the raster has no CRS, contains no raster attributes, has no pyramids, no
      *             bands or no statistics
      */
-    private RasterInfo gatherCoverageMetadata(final ArcSDEPooledConnection scon,
+    private RasterDatasetInfo gatherCoverageMetadata(final ArcSDEPooledConnection scon,
             final String coverageUrl) throws IOException {
         LOGGER.fine("Gathering raster dataset metadata for " + coverageUrl);
         String rasterTable;
@@ -455,7 +455,7 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
         }
 
         final String[] rasterColumns = getRasterColumns(scon, rasterTable);
-        final List<PyramidInfo> rastersLayoutInfo = new ArrayList<PyramidInfo>();
+        final List<RasterInfo> rastersLayoutInfo = new ArrayList<RasterInfo>();
         {
             final List<SeRasterAttr> rasterAttributes;
             rasterAttributes = getSeRasterAttr(scon, rasterTable, rasterColumns);
@@ -524,7 +524,7 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
                                 + "Please use sderaster -o stats to create them before use");
                     }
 
-                    PyramidInfo pyramidInfo = new PyramidInfo(rAtt, coverageCrs);
+                    RasterInfo pyramidInfo = new RasterInfo(rAtt, coverageCrs);
                     rastersLayoutInfo.add(pyramidInfo);
 
                     final GeneralEnvelope originalEnvelope;
@@ -539,7 +539,7 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
             }
         }
 
-        RasterInfo rasterInfo = new RasterInfo();
+        RasterDatasetInfo rasterInfo = new RasterDatasetInfo();
         rasterInfo.setRasterTable(rasterTable);
         rasterInfo.setRasterColumns(rasterColumns);
         rasterInfo.setPyramidInfo(rastersLayoutInfo);

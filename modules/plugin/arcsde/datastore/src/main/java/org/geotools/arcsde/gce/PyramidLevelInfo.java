@@ -33,7 +33,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @author sfarber
  * 
  */
-class PyramidLevelInfo {
+final class PyramidLevelInfo {
     private int pyramidLevel, xTiles, yTiles;
 
     Point2D extentOffset;

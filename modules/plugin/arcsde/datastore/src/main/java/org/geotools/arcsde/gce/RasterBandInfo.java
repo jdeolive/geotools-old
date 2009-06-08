@@ -31,7 +31,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @version $Id$
  * @source $URL$
  */
-class RasterBandInfo {
+final class RasterBandInfo {
 
     long bandId;
 

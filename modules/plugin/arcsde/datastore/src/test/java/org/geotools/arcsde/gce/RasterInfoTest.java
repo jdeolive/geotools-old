@@ -28,8 +28,6 @@ import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -54,20 +52,10 @@ import com.esri.sde.sdk.client.SeSqlConstruct;
  *         /org/geotools/arcsde/gce/ArcSDEPyramidTest.java $
  * @version $Id$
  */
-public class ArcSDEPyramidTest {
-
-    @BeforeClass
-    public static void oneTimeSetUp() throws Exception {
-
-    }
-
-    @AfterClass
-    public static void oneTimeTearDown() throws Exception {
-
-    }
+public class RasterInfoTest {
 
     /**
-     * test case for {@link PyramidInfo#pickOptimalRasterLevel(ReferencedEnvelope, Rectangle)}
+     * test case for {@link RasterInfo#pickOptimalRasterLevel(ReferencedEnvelope, Rectangle)}
      */
     @Test
     public void testPickOptimalPyramidLevel() {
@@ -92,9 +80,9 @@ public class ArcSDEPyramidTest {
      * 
      * @return
      */
-    private PyramidInfo createPyramid() {
+    private RasterInfo createPyramid() {
 
-        PyramidInfo pyramid = new PyramidInfo(1013, 1021);
+        RasterInfo pyramid = new RasterInfo(1013, 1021);
 
         final CoordinateReferenceSystem crs = DefaultEngineeringCRS.CARTESIAN_2D;
 
@@ -130,7 +118,7 @@ public class ArcSDEPyramidTest {
 
     @Test
     public void testArcSDEPyramidHypothetical() throws Exception {
-        PyramidInfo pyramid = createPyramid();
+        RasterInfo pyramid = createPyramid();
         System.out.println(pyramid);
 
         RasterTestData testData = new RasterTestData();
@@ -160,7 +148,7 @@ public class ArcSDEPyramidTest {
         CoordinateReferenceSystem crs = CRS.parseWKT(coordRefWKT); // CRS.decode(testData.
         // getRasterTestDataProperty
         // ("tableCRS"));
-        pyramid = new PyramidInfo(rAttr, crs);
+        pyramid = new RasterInfo(rAttr, crs);
         conn.close();
 
         System.out.println(pyramid);

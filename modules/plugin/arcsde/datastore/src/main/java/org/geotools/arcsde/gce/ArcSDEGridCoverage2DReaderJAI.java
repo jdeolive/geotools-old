@@ -113,12 +113,12 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
     private final ArcSDEConnectionPool connectionPool;
 
-    private final RasterInfo rasterInfo;
+    private final RasterDatasetInfo rasterInfo;
 
     private DefaultServiceInfo serviceInfo;
 
     public ArcSDEGridCoverage2DReaderJAI(final ArcSDERasterFormat parent,
-            final ArcSDEConnectionPool connectionPool, final RasterInfo rasterInfo,
+            final ArcSDEConnectionPool connectionPool, final RasterDatasetInfo rasterInfo,
             final Hints hints) throws IOException {
         // check it's a supported format
         {

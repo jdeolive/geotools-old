@@ -617,7 +617,7 @@ class RasterUtils {
         return colorModel;
     }
 
-    public static ImageTypeSpecifier createFullImageTypeSpecifier(final RasterInfo rasterInfo,
+    public static ImageTypeSpecifier createFullImageTypeSpecifier(final RasterDatasetInfo rasterInfo,
             final int rasterIndex) {
 
         final int numberOfBands = rasterInfo.getNumBands();
@@ -756,7 +756,7 @@ class RasterUtils {
         return its;
     }
 
-    private static ImageTypeSpecifier createOneOrFoutBitImageSpec(final RasterInfo rasterInfo,
+    private static ImageTypeSpecifier createOneOrFoutBitImageSpec(final RasterDatasetInfo rasterInfo,
             final int numberOfBands, int sampleImageWidth, int sampleImageHeight,
             final int bitsPerSample, final int dataType) {
         final ColorModel colorModel;
@@ -775,7 +775,7 @@ class RasterUtils {
         return its;
     }
 
-    private static ImageTypeSpecifier createColorMappedImageSpec(final RasterInfo rasterInfo,
+    private static ImageTypeSpecifier createColorMappedImageSpec(final RasterDatasetInfo rasterInfo,
             final int rasterIndex, int sampleImageWidth, int sampleImageHeight) {
 
         final ColorModel colorModel;
@@ -877,7 +877,7 @@ class RasterUtils {
      * @param results
      * @return
      */
-    public static Rectangle setMosaicLocations(final RasterInfo rasterInfo,
+    public static Rectangle setMosaicLocations(final RasterDatasetInfo rasterInfo,
             final GeneralEnvelope resultEnvelope, final List<QueryInfo> results) {
         final Rectangle mosaicDimension;
         final MathTransform modelToRaster;
@@ -941,7 +941,7 @@ class RasterUtils {
      * @param overviewPolicy
      * @return
      */
-    public static List<QueryInfo> findMatchingRasters(final RasterInfo rasterInfo,
+    public static List<QueryInfo> findMatchingRasters(final RasterDatasetInfo rasterInfo,
             final GeneralEnvelope requestedEnvelope, final Rectangle requestedDim,
             final OverviewPolicy overviewPolicy) {
 
@@ -971,7 +971,7 @@ class RasterUtils {
     }
 
     public static void fitRequestToRaster(final GeneralEnvelope requestedEnvelope,
-            final RasterInfo rasterInfo, final QueryInfo query) {
+            final RasterDatasetInfo rasterInfo, final QueryInfo query) {
 
         final int rasterIndex = query.getRasterIndex();
         final int pyramidLevel = query.getPyramidLevel();
