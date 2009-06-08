@@ -1652,7 +1652,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
         return true;
     }
 	public void testGeneralization() throws Exception {
-		FeatureSource<SimpleFeatureType, SimpleFeature> fs = dataStore.getFeatureSource("lake");
+		FeatureSource<SimpleFeatureType, SimpleFeature> fs = dataStore.getFeatureSource(tname("lake"));
 		
 		if (fs.getSupportedHints().contains(Hints.GEOMETRY_GENERALIZATION)==false)
 			return;
@@ -1681,7 +1681,7 @@ public abstract class JDBCDataStoreAPITest extends JDBCTestSupport {
 	}
 
 	public void testSimplification() throws Exception {
-		FeatureSource<SimpleFeatureType, SimpleFeature> fs = dataStore.getFeatureSource("road");
+		FeatureSource<SimpleFeatureType, SimpleFeature> fs = dataStore.getFeatureSource(tname("road"));
 		
 		if (fs.getSupportedHints().contains(Hints.GEOMETRY_SIMPLIFICATION)==false)
 			return;
