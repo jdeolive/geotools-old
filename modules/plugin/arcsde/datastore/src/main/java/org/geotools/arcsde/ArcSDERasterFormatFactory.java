@@ -46,7 +46,6 @@ public class ArcSDERasterFormatFactory implements GridFormatFactorySpi {
     protected static final Logger LOGGER = Logging.getLogger(ArcSDERasterFormatFactory.class
             .getName());
 
-
     /**
      * @see GridFormatFactorySpi#isAvailable()
      */

@@ -110,14 +110,15 @@ public class FIDReaderTest {
         assertNotNull(fidReader);
         assertTrue(fidReader instanceof FIDReader.ShapeFidReader);
         assertEquals(-1, fidReader.getColumnIndex());
-        //use toUpperCase, case may be different depending on the backend rdbms
+        // use toUpperCase, case may be different depending on the backend rdbms
         assertEquals("GEOM.FID", fidReader.getFidColumn().toUpperCase());
     }
 
     private FIDReader getFidReader(String tableName) throws IOException {
         FIDReader fidReader;
         String dbName = session.getDatabaseName();
-        tableName = ((dbName == null || "".equals(dbName)) ? "" : (dbName + ".")) + session.getUser() + "." + tableName;
+        tableName = ((dbName == null || "".equals(dbName)) ? "" : (dbName + "."))
+                + session.getUser() + "." + tableName;
         tableName = tableName.toUpperCase();
 
         SeTable table = session.getTable(tableName);

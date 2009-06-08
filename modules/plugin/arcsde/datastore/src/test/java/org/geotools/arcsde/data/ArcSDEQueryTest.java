@@ -376,13 +376,13 @@ public class ArcSDEQueryTest {
         }
         Assert.assertEquals(FILTERING_COUNT, calculated);
     }
-    
+
     @Test
     public void testCalculateResultCountSpatialFilter() throws Exception {
         ISession session = dstore.getSession(Transaction.AUTO_COMMIT);
         FeatureTypeInfo fti = ArcSDEAdapter.fetchSchema(typeName, null, session);
-        
-        //same filter than ArcSDEJavaApiTest.testCalculateCountSpatialFilter
+
+        // same filter than ArcSDEJavaApiTest.testCalculateCountSpatialFilter
         Filter filter = CQL.toFilter("BBOX(SHAPE, -180, -90, -170, -80)");
         filteringQuery = new DefaultQuery(typeName, filter);
         ArcSDEQuery q = ArcSDEQuery.createQuery(session, ftype, filteringQuery, fti
@@ -396,12 +396,12 @@ public class ArcSDEQueryTest {
         }
         Assert.assertEquals(2, calculated);
     }
-    
+
     @Test
     public void testCalculateResultCountMixedFilter() throws Exception {
         ISession session = dstore.getSession(Transaction.AUTO_COMMIT);
         FeatureTypeInfo fti = ArcSDEAdapter.fetchSchema(typeName, null, session);
-        
+
         Filter filter = CQL.toFilter("INT32_COL < 5 AND BBOX(SHAPE, -180, -90, -170, -80)");
         filteringQuery = new DefaultQuery(typeName, filter);
         ArcSDEQuery q = ArcSDEQuery.createQuery(session, ftype, filteringQuery, fti
@@ -415,7 +415,7 @@ public class ArcSDEQueryTest {
         }
         Assert.assertEquals(1, calculated);
     }
-    
+
     @Test
     public void testCalculateQueryExtent() throws Exception {
         {

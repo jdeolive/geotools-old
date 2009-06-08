@@ -586,7 +586,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         // FIDReader
         final SeTable table = getTable();
         // ArcSDE JavaDoc only says: "Returns a range of row id values"
-        //http://edndoc.esri.com/arcsde/9.1/java_api/docs/com/esri/sde/sdk/client/setable.html#getIds
+        // http://edndoc.esri.com/arcsde/9.1/java_api/docs/com/esri/sde/sdk/client/setable.html#getIds
         // (int)
         // I've checked empirically it is to return a range of available ids
         final SeTableIdRange ids = table.getIds(1);

@@ -195,8 +195,8 @@ final class TileReader {
             LOGGER.finest(" >> Fetching " + tile + " - bitmask: " + bitMaskData.length
                     + " has more: " + hasNext());
         }
-        
-        assert bitMaskData.length == 0? true : bitmaskDataLength == bitMaskData.length;
+
+        assert bitMaskData.length == 0 ? true : bitmaskDataLength == bitMaskData.length;
 
         final int numPixels = tile.getNumPixels();
 
@@ -217,16 +217,16 @@ final class TileReader {
                 NO_DATA_MASK = (byte) 0xFF;
             }
             Arrays.fill(tileData, NO_DATA_MASK);
-            
-            //mark the whole tile as no data... 
+
+            // mark the whole tile as no data...
             bitMaskData = new byte[bitmaskDataLength];
-            Arrays.fill(bitMaskData, (byte)0x00);
+            Arrays.fill(bitMaskData, (byte) 0x00);
         } else if (pixelsPerTile == numPixels) {
-            
+
             final byte[] rawTileData = tile.getPixelData();
 
             System.arraycopy(rawTileData, 0, tileData, 0, tileDataLength);
-            
+
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("returning " + numPixels + " pixels data packaged into "
                         + tileDataLength + " bytes for tile [" + tile.getColumnIndex() + ","

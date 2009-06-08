@@ -288,8 +288,8 @@ public class ArcSDEAdapter {
             });
             final boolean hasWritePermissions = userHasWritePermissions(permMask.intValue());
             canDoTransactions = hasWritePermissions
-                    && (fidStrategy instanceof FIDReader.SdeManagedFidReader || fidStrategy instanceof FIDReader.UserManagedFidReader) &&
-                    !hasReadOnlyColumn(seColumns);
+                    && (fidStrategy instanceof FIDReader.SdeManagedFidReader || fidStrategy instanceof FIDReader.UserManagedFidReader)
+                    && !hasReadOnlyColumn(seColumns);
             if (hasWritePermissions && !canDoTransactions) {
                 LOGGER.fine(typeName + " is writable bu has no primary key, thus we're using it "
                         + "read-only as can't get a propper feature id out of it");
@@ -300,20 +300,20 @@ public class ArcSDEAdapter {
         return typeInfo;
 
     }
+
     /**
      * Check if any of the column types are read-only (such as CLOB).
      * <p>
-     * This check should be temporary; currently writing CLOB types is producing
-     * a segmentation fault (gasp!) in ArcSDE 9.3. We imagine the java encoding
-     * is not quite what ArcSDE expected.
+     * This check should be temporary; currently writing CLOB types is producing a segmentation
+     * fault (gasp!) in ArcSDE 9.3. We imagine the java encoding is not quite what ArcSDE expected.
      * 
      * @param seColumns
      * @return true if any of the columns are read-only
      */
     private static boolean hasReadOnlyColumn(SeColumnDefinition[] seColumns) {
-        for(SeColumnDefinition col : seColumns) {
-            if(col.getType() == SeColumnDefinition.TYPE_CLOB ||
-                    col.getType() == SeColumnDefinition.TYPE_NCLOB) {
+        for (SeColumnDefinition col : seColumns) {
+            if (col.getType() == SeColumnDefinition.TYPE_CLOB
+                    || col.getType() == SeColumnDefinition.TYPE_NCLOB) {
                 return true;
             }
         }
@@ -446,7 +446,7 @@ public class ArcSDEAdapter {
                 int seShapeType = sdeLayer.getShapeTypes();
                 typeClass = getGeometryTypeFromLayerMask(seShapeType);
                 isNilable = (seShapeType & SeLayer.SE_NIL_TYPE_MASK) == SeLayer.SE_NIL_TYPE_MASK;
-                defValue = isNilable? null : ArcSDEGeometryBuilder.defaultValueFor(typeClass);
+                defValue = isNilable ? null : ArcSDEGeometryBuilder.defaultValueFor(typeClass);
             } else {
                 typeClass = getJavaBinding(sdeType);
                 if (typeClass == null) {
@@ -465,7 +465,7 @@ public class ArcSDEAdapter {
                 // attributes
             }
             AttributeTypeBuilder b = new AttributeTypeBuilder();
-            //call setDefaultValue before setBinding
+            // call setDefaultValue before setBinding
             b.setDefaultValue(defValue);
             b.setBinding(typeClass);
             b.setName(attName);
@@ -976,7 +976,7 @@ public class ArcSDEAdapter {
 
                     if (unqualifiedTypeName.indexOf('.') == -1) {
                         // Use the already parsed name (unqualifiedTypeName)
-                        qualifiedName = connection.getUser() + "." + unqualifiedTypeName; //featureType.getTypeName();
+                        qualifiedName = connection.getUser() + "." + unqualifiedTypeName; // featureType.getTypeName();
                         LOGGER.finer("new full qualified type name: " + qualifiedName);
                     } else {
                         qualifiedName = unqualifiedTypeName;

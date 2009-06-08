@@ -22,7 +22,8 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class SeToJTSGeometryFactory implements GeometryFactory {
 
-    protected static com.vividsolutions.jts.geom.GeometryFactory gf = new com.vividsolutions.jts.geom.GeometryFactory(new LiteCoordinateSequenceFactory());
+    protected static com.vividsolutions.jts.geom.GeometryFactory gf = new com.vividsolutions.jts.geom.GeometryFactory(
+            new LiteCoordinateSequenceFactory());
 
     private SeToJTSGeometryFactory delegate;
 
@@ -30,9 +31,9 @@ public class SeToJTSGeometryFactory implements GeometryFactory {
 
     public void init(int type, int numParts, int numPoints) {
         if (type != lastGeomType) {
-            if(type == SeShape.TYPE_POLYGON){
+            if (type == SeShape.TYPE_POLYGON) {
                 delegate = new PolygonFactory();
-            }else if(type == SeShape.TYPE_MULTI_POLYGON){
+            } else if (type == SeShape.TYPE_MULTI_POLYGON) {
                 delegate = new MultiPolygonFactory();
             }
             throw new IllegalArgumentException("Unhandled geometry type: " + type);

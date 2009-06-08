@@ -325,7 +325,7 @@ public class ArcSDEJavaApiTest {
             throw e;
         }
     }
-    
+
     @Test
     public void testCalculateCountSpatialFilter() throws Exception {
         try {

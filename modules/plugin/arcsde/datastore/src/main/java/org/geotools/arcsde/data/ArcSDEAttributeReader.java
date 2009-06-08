@@ -251,7 +251,7 @@ final class ArcSDEAttributeReader implements AttributeReader {
             } catch (SeException e) {
                 throw new ArcSdeException(e);
             }
-        }else if(value instanceof Geometry){
+        } else if (value instanceof Geometry) {
             if (!this.schemaGeometryClass.isAssignableFrom(value.getClass())) {
                 value = adaptGeometry((Geometry) value, schemaGeometryClass);
             }

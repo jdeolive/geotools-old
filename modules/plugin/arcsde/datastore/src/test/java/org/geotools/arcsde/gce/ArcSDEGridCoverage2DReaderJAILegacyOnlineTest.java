@@ -248,8 +248,8 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
         GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
-        final int reqWidth = 800;//originalGridRange.getSpan(0) / 8;
-        final int reqHeight = 595;//originalGridRange.getSpan(1) / 8;
+        final int reqWidth = 800;// originalGridRange.getSpan(0) / 8;
+        final int reqHeight = 595;// originalGridRange.getSpan(1) / 8;
 
         GeneralEnvelope reqEnvelope = new GeneralEnvelope(new double[] { 274059, 837434 },
                 new double[] { 355782, 898216 });

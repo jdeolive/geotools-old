@@ -33,526 +33,517 @@ import com.vividsolutions.jts.io.WKTReader;
 public class ClobTestData {
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(TestData.class
             .getPackage().getName());
-	   public static SeColumnDefinition[] TEST_TABLE_COLS;
-	    /*
-	     * The first column definition must be an SDE managed row id.
-	     */
-	    public static SeColumnDefinition[] getTestTableCols() throws SeException {
-	    	if(TEST_TABLE_COLS == null) {
-	    		TEST_TABLE_COLS = new SeColumnDefinition[] {
-	    				new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INTEGER, 10, 0, false),
-	    				new SeColumnDefinition("CLOB_COL", SeColumnDefinition.TYPE_CLOB, 1000, 0, true),
-	    		};
-	    	}
-	    	return TEST_TABLE_COLS;
-	    }
-	   
-	    private SeColumnDefinition[] tempTableColumns;
 
-	    /**
-	     * the set of test parameters loaded from
-	     * {@code test-data/testparams.properties}
-	     */
-	    private Properties conProps = null;
+    public static SeColumnDefinition[] TEST_TABLE_COLS;
 
-	    /**
-	     * the name of a table that can be manipulated without risk of loosing
-	     * important data
-	     */
-	    private String temp_table;
+    /*
+     * The first column definition must be an SDE managed row id.
+     */
+    public static SeColumnDefinition[] getTestTableCols() throws SeException {
+        if (TEST_TABLE_COLS == null) {
+            TEST_TABLE_COLS = new SeColumnDefinition[] {
+                    new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INTEGER, 10, 0, false),
+                    new SeColumnDefinition("CLOB_COL", SeColumnDefinition.TYPE_CLOB, 1000, 0, true), };
+        }
+        return TEST_TABLE_COLS;
+    }
 
-	    /** the configuration keyword to use when creating layers and tables */
-	    private String configKeyword;
+    private SeColumnDefinition[] tempTableColumns;
 
-	    private SessionPool _pool;
+    /**
+     * the set of test parameters loaded from {@code test-data/testparams.properties}
+     */
+    private Properties conProps = null;
 
-	    /**
-	     * Creates a new TestData object.
-	     * 
-	     * @throws IOException
-	     *             DOCUMENT ME!
-	     */
-	    public ClobTestData() {
-	        // intentionally blank
-	    }
+    /**
+     * the name of a table that can be manipulated without risk of loosing important data
+     */
+    private String temp_table;
 
-	    /**
-	     * Must be called from inside the test's setUp() method. Loads the test
-	     * fixture from <code>testparams.properties</code>, besides that, does
-	     * not creates any connection nor any other costly resource.
-	     * 
-	     * @throws IOException
-	     *             if the test fixture can't be loaded
-	     * @throws IllegalArgumentException
-	     *             if some required parameter is not found on the test fixture
-	     */
-	    public void setUp() throws IOException {
-	        if (ArcSDEDataStoreFactory.getSdeClientVersion() == ArcSDEDataStoreFactory.JSDE_VERSION_DUMMY) {
-	            throw new RuntimeException("Don't run the test-suite with the dummy jar.  "
-	                    + "Make sure the real ArcSDE jars are on your classpath.");
-	        }
+    /** the configuration keyword to use when creating layers and tables */
+    private String configKeyword;
 
-	        this.conProps = new Properties();
+    private SessionPool _pool;
 
-	        String propsFile = "testparams.properties";
-	        InputStream in = org.geotools.test.TestData.openStream(null, propsFile);
+    /**
+     * Creates a new TestData object.
+     * 
+     * @throws IOException
+     *             DOCUMENT ME!
+     */
+    public ClobTestData() {
+        // intentionally blank
+    }
 
-	        // The line above should never returns null. It should thow a
-	        // FileNotFoundException instead if the resource is not available.
+    /**
+     * Must be called from inside the test's setUp() method. Loads the test fixture from
+     * <code>testparams.properties</code>, besides that, does not creates any connection nor any
+     * other costly resource.
+     * 
+     * @throws IOException
+     *             if the test fixture can't be loaded
+     * @throws IllegalArgumentException
+     *             if some required parameter is not found on the test fixture
+     */
+    public void setUp() throws IOException {
+        if (ArcSDEDataStoreFactory.getSdeClientVersion() == ArcSDEDataStoreFactory.JSDE_VERSION_DUMMY) {
+            throw new RuntimeException("Don't run the test-suite with the dummy jar.  "
+                    + "Make sure the real ArcSDE jars are on your classpath.");
+        }
 
-	        this.conProps.load(in);
-	        in.close();
+        this.conProps = new Properties();
 
-	        this.temp_table = this.conProps.getProperty("temp_table");
-	        this.configKeyword = this.conProps.getProperty("configKeyword");
-	        if (this.configKeyword == null) {
-	            this.configKeyword = "DEFAULTS";
-	        }
+        String propsFile = "testparams.properties";
+        InputStream in = org.geotools.test.TestData.openStream(null, propsFile);
 
-	        if (this.temp_table == null) {
-	            throw new IllegalArgumentException("temp_table not defined in " + propsFile);
-	        }
-	    }
+        // The line above should never returns null. It should thow a
+        // FileNotFoundException instead if the resource is not available.
 
-	    /**
-	     * Must be called from inside the test's tearDown() method.
-	     */
-	    public void tearDown(boolean cleanTestTable, boolean cleanPool) {
-	        if (cleanTestTable) {
-	            deleteTempTable();
-	        }
-	        if (cleanPool) {
-	            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
-	        }
-	    }
+        this.conProps.load(in);
+        in.close();
 
-	    public SeTable getTempTable(ISession session) throws IOException {
-	        final String tempTableName = getTempTableName();
-	        return session.getTable(tempTableName);
-	    }
+        this.temp_table = this.conProps.getProperty("temp_table");
+        this.configKeyword = this.conProps.getProperty("configKeyword");
+        if (this.configKeyword == null) {
+            this.configKeyword = "DEFAULTS";
+        }
 
-	    public SeLayer getTempLayer(ISession session) throws IOException {
-	        final String tempTableName = getTempTableName();
-	        return session.getLayer(tempTableName);
-	    }
+        if (this.temp_table == null) {
+            throw new IllegalArgumentException("temp_table not defined in " + propsFile);
+        }
+    }
 
-	    /**
-	     * creates an ArcSDEDataStore using {@code test-data/testparams.properties}
-	     * as holder of datastore parameters
-	     * 
-	     * @return DOCUMENT ME!
-	     * @throws IOException
-	     *             DOCUMENT ME!
-	     */
-	    public ArcSDEDataStore getDataStore() throws IOException {
-	        SessionPool pool = getConnectionPool();
-	        ArcSDEDataStore dataStore = new ArcSDEDataStore(pool);
+    /**
+     * Must be called from inside the test's tearDown() method.
+     */
+    public void tearDown(boolean cleanTestTable, boolean cleanPool) {
+        if (cleanTestTable) {
+            deleteTempTable();
+        }
+        if (cleanPool) {
+            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
+        }
+    }
 
-	        return dataStore;
-	    }
+    public SeTable getTempTable(ISession session) throws IOException {
+        final String tempTableName = getTempTableName();
+        return session.getTable(tempTableName);
+    }
 
-	    public SessionPool getConnectionPool() throws IOException {
-	        if (this._pool == null) {
-	            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
-	            ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(this.conProps);
-	            this._pool = pfac.createPool(config);
-	        }
-	        return this._pool;
-	    }
+    public SeLayer getTempLayer(ISession session) throws IOException {
+        final String tempTableName = getTempTableName();
+        return session.getLayer(tempTableName);
+    }
 
-	    /**
-	     * DOCUMENT ME!
-	     * 
-	     * @return Returns the conProps.
-	     */
-	    public Properties getConProps() {
-	        return this.conProps;
-	    }
+    /**
+     * creates an ArcSDEDataStore using {@code test-data/testparams.properties} as holder of
+     * datastore parameters
+     * 
+     * @return DOCUMENT ME!
+     * @throws IOException
+     *             DOCUMENT ME!
+     */
+    public ArcSDEDataStore getDataStore() throws IOException {
+        SessionPool pool = getConnectionPool();
+        ArcSDEDataStore dataStore = new ArcSDEDataStore(pool);
 
-	    public String getTempTableName() throws IOException {
-	        ISession session = getConnectionPool().getSession();
-	        String tempTableName;
-	        try {
-	            tempTableName = getTempTableName(session);
-	        } finally {
-	            session.dispose();
-	        }
-	        return tempTableName;
-	    }
+        return dataStore;
+    }
 
-	    /**
-	     * *Stolen as is from TestData*
-	     * @return Returns the temp_table.
-	     * @throws SeException
-	     */
-	    public String getTempTableName(ISession session) throws IOException {
-	        String dbName = session.getDatabaseName();
-	        String user = session.getUser();
-	        StringBuffer sb = new StringBuffer();
-	        if (dbName != null && dbName.length() > 0) {
-	            sb.append(dbName).append(".");
-	        }
-	        if (user != null && user.length() > 0) {
-	            sb.append(user).append(".");
-	        }
-	        sb.append(this.temp_table);
-	        return sb.toString().toUpperCase();
-	    }
+    public SessionPool getConnectionPool() throws IOException {
+        if (this._pool == null) {
+            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
+            ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(this.conProps);
+            this._pool = pfac.createPool(config);
+        }
+        return this._pool;
+    }
 
-	    public String getConfigKeyword() {
-	        return this.configKeyword;
-	    }
+    /**
+     * DOCUMENT ME!
+     * 
+     * @return Returns the conProps.
+     */
+    public Properties getConProps() {
+        return this.conProps;
+    }
 
-	    /**
-	     * Gracefully deletes the temp table hiding any exception (no problem if it
-	     * does not exist)
-	     */
-	    public void deleteTempTable() {
-	        // only if the datastore was used
-	        if (this._pool != null) {
-	            try {
-	                _pool = getConnectionPool();
-	                deleteTempTable(_pool);
-	            } catch (Exception e) {
-	                LOGGER.fine(e.getMessage());
-	            }
-	        }
-	    }
+    public String getTempTableName() throws IOException {
+        ISession session = getConnectionPool().getSession();
+        String tempTableName;
+        try {
+            tempTableName = getTempTableName(session);
+        } finally {
+            session.dispose();
+        }
+        return tempTableName;
+    }
 
-	    public void deleteTable(final String typeName) throws IOException,
-	            UnavailableArcSDEConnectionException {
-	        SessionPool connectionPool = getConnectionPool();
-	        deleteTable(connectionPool, typeName);
-	    }
+    /**
+     * *Stolen as is from TestData*
+     * 
+     * @return Returns the temp_table.
+     * @throws SeException
+     */
+    public String getTempTableName(ISession session) throws IOException {
+        String dbName = session.getDatabaseName();
+        String user = session.getUser();
+        StringBuffer sb = new StringBuffer();
+        if (dbName != null && dbName.length() > 0) {
+            sb.append(dbName).append(".");
+        }
+        if (user != null && user.length() > 0) {
+            sb.append(user).append(".");
+        }
+        sb.append(this.temp_table);
+        return sb.toString().toUpperCase();
+    }
 
-	    /**
-	     * Gracefully deletes the temp table hiding any exception (no problem if it
-	     * does not exist)
-	     * *Stolen as is from TestData*
-	     * 
-	     * @param connPool
-	     *            to get the connection to use in deleting
-	     *            {@link #getTempTableName()}
-	     */
-	    public void deleteTempTable(SessionPool connPool) {
-	        try {
-	            deleteTable(connPool, getTempTableName());
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
-	    }
+    public String getConfigKeyword() {
+        return this.configKeyword;
+    }
 
-	    private static void deleteTable(final SessionPool connPool, final String tableName)
-	            throws IOException, UnavailableArcSDEConnectionException {
+    /**
+     * Gracefully deletes the temp table hiding any exception (no problem if it does not exist)
+     */
+    public void deleteTempTable() {
+        // only if the datastore was used
+        if (this._pool != null) {
+            try {
+                _pool = getConnectionPool();
+                deleteTempTable(_pool);
+            } catch (Exception e) {
+                LOGGER.fine(e.getMessage());
+            }
+        }
+    }
 
-	        final ISession session = connPool.getSession();
+    public void deleteTable(final String typeName) throws IOException,
+            UnavailableArcSDEConnectionException {
+        SessionPool connectionPool = getConnectionPool();
+        deleteTable(connectionPool, typeName);
+    }
 
-	        // final SeTable layer = session.createSeTable(tableName);
+    /**
+     * Gracefully deletes the temp table hiding any exception (no problem if it does not exist)
+     * *Stolen as is from TestData*
+     * 
+     * @param connPool
+     *            to get the connection to use in deleting {@link #getTempTableName()}
+     */
+    public void deleteTempTable(SessionPool connPool) {
+        try {
+            deleteTable(connPool, getTempTableName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	        final Command<Void> deleteCmd = new Command<Void>() {
+    private static void deleteTable(final SessionPool connPool, final String tableName)
+            throws IOException, UnavailableArcSDEConnectionException {
 
-	            @Override
-	            public Void execute(ISession session, SeConnection connection) throws SeException,
-	                    IOException {
-	                // try {
-	                // layer.delete();
-	                // } catch (NoSuchElementException e) {
-	                // // nothing to do
-	                // } catch (SeException e) {
-	                // // LOGGER.log(Level.WARNING, "while deleteing layer " +
-	                // tableName + " got '" +
-	                // // e.getSeError().getErrDesc() + "'");
-	                // }
-	                SeTable table = new SeTable(connection, tableName);
-	                try {
-	                    table.delete();
-	                } catch (SeException ignorable) {
-	                    // table did not already exist
-	                }
-	                return null;
-	            }
-	        };
+        final ISession session = connPool.getSession();
 
-	        session.issue(deleteCmd);
-	        session.dispose();
-	    }
+        // final SeTable layer = session.createSeTable(tableName);
 
-	    /**
-	     * Creates an ArcSDE feature type names as <code>getTemp_table()</code> on
-	     * the underlying database and if <code>insertTestData == true</code> also
-	     * inserts some sample values.
-	     * *Stolen as is from TestData*
-	     * 
-	     * @param insertTestData
-	     *            wether to insert some sample rows or not
-	     * @throws Exception
-	     *             for any error
-	     */
-	    public void createTempTable(final boolean insertTestData) throws Exception {
-	        SessionPool connPool = getConnectionPool();
+        final Command<Void> deleteCmd = new Command<Void>() {
 
-	        deleteTempTable(connPool);
+            @Override
+            public Void execute(ISession session, SeConnection connection) throws SeException,
+                    IOException {
+                // try {
+                // layer.delete();
+                // } catch (NoSuchElementException e) {
+                // // nothing to do
+                // } catch (SeException e) {
+                // // LOGGER.log(Level.WARNING, "while deleteing layer " +
+                // tableName + " got '" +
+                // // e.getSeError().getErrDesc() + "'");
+                // }
+                SeTable table = new SeTable(connection, tableName);
+                try {
+                    table.delete();
+                } catch (SeException ignorable) {
+                    // table did not already exist
+                }
+                return null;
+            }
+        };
 
-	        ISession session = connPool.getSession();
+        session.issue(deleteCmd);
+        session.dispose();
+    }
 
-	        try {
-	            /*
-	             * Create a qualified table name with current user's name and the
-	             * name of the table to be created, "EXAMPLE".
-	             */
-	            final String tableName = getTempTableName(session);
+    /**
+     * Creates an ArcSDE feature type names as <code>getTemp_table()</code> on the underlying
+     * database and if <code>insertTestData == true</code> also inserts some sample values. *Stolen
+     * as is from TestData*
+     * 
+     * @param insertTestData
+     *            wether to insert some sample rows or not
+     * @throws Exception
+     *             for any error
+     */
+    public void createTempTable(final boolean insertTestData) throws Exception {
+        SessionPool connPool = getConnectionPool();
 
-	            final SeTable tempTable = session.createSeTable(tableName);
-	            final SeLayer tempTableLayer = session.issue(new Command<SeLayer>() {
-	                @Override
-	                public SeLayer execute(ISession session, SeConnection connection)
-	                        throws SeException, IOException {
-	                    SeLayer tempTableLayer = new SeLayer(connection);
-	                    tempTableLayer.setTableName(tableName);
-	                    return tempTableLayer;
-	                }
-	            });
+        deleteTempTable(connPool);
 
-	            tempTableColumns = createBaseTable(session, tempTable, tempTableLayer, configKeyword);
+        ISession session = connPool.getSession();
 
-	            if (insertTestData) {
-	                insertData(tempTableLayer, session, tempTableColumns);
-	            }
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            throw e;
-	        } finally {
-	            session.dispose();
-	        }
-	    }
+        try {
+            /*
+             * Create a qualified table name with current user's name and the name of the table to
+             * be created, "EXAMPLE".
+             */
+            final String tableName = getTempTableName(session);
 
-	    /**
-	     * Truncates the temp layer and populates it with fresh data. This method
-	     * cannot be called if {@link #createTempTable(boolean)} has not been called
-	     * first, no matter if the table already exists, it needs instance state
-	     * initialized by createTempTable
-	     * *Stolen as is from TestData*
-	     * 
-	     * @throws Exception
-	     */
-	    public void insertTestData() throws Exception {
-	        truncateTempTable();
-	        SessionPool connPool = getConnectionPool();
-	        ISession session = connPool.getSession();
-	        try {
-	            SeLayer tempTableLayer = getTempLayer(session);
-	            insertData(tempTableLayer, session, tempTableColumns);
-	        } finally {
-	            session.dispose();
-	        }
-	    }
+            final SeTable tempTable = session.createSeTable(tableName);
+            final SeLayer tempTableLayer = session.issue(new Command<SeLayer>() {
+                @Override
+                public SeLayer execute(ISession session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeLayer tempTableLayer = new SeLayer(connection);
+                    tempTableLayer.setTableName(tableName);
+                    return tempTableLayer;
+                }
+            });
 
-	    public void truncateTempTable() throws IOException {
-	        final SessionPool connPool = getConnectionPool();
-	        final ISession session = connPool.getSession();
-	        final String tempTableName = getTempTableName(session);
+            tempTableColumns = createBaseTable(session, tempTable, tempTableLayer, configKeyword);
 
-	        try {
-	            session.issue(new Command<Void>() {
-	                @Override
-	                public Void execute(ISession session, SeConnection connection) throws SeException,
-	                        IOException {
-	                    SeTable table;
-	                    try {
-	                        table = session.getTable(tempTableName);
-	                    } catch (IOException e) {
-	                        // table does not exist, its ok.
-	                        return null;
-	                    }
-	                    table.truncate();
-	                    return null;
-	                }
-	            });
-	        } finally {
-	            session.dispose();
-	        }
-	    }
+            if (insertTestData) {
+                insertData(tempTableLayer, session, tempTableColumns);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            session.dispose();
+        }
+    }
 
-	    /**
+    /**
+     * Truncates the temp layer and populates it with fresh data. This method cannot be called if
+     * {@link #createTempTable(boolean)} has not been called first, no matter if the table already
+     * exists, it needs instance state initialized by createTempTable *Stolen as is from TestData*
+     * 
+     * @throws Exception
+     */
+    public void insertTestData() throws Exception {
+        truncateTempTable();
+        SessionPool connPool = getConnectionPool();
+        ISession session = connPool.getSession();
+        try {
+            SeLayer tempTableLayer = getTempLayer(session);
+            insertData(tempTableLayer, session, tempTableColumns);
+        } finally {
+            session.dispose();
+        }
+    }
+
+    public void truncateTempTable() throws IOException {
+        final SessionPool connPool = getConnectionPool();
+        final ISession session = connPool.getSession();
+        final String tempTableName = getTempTableName(session);
+
+        try {
+            session.issue(new Command<Void>() {
+                @Override
+                public Void execute(ISession session, SeConnection connection) throws SeException,
+                        IOException {
+                    SeTable table;
+                    try {
+                        table = session.getTable(tempTableName);
+                    } catch (IOException e) {
+                        // table does not exist, its ok.
+                        return null;
+                    }
+                    table.truncate();
+                    return null;
+                }
+            });
+        } finally {
+            session.dispose();
+        }
+    }
+
+    /**
 	     * 
 	     * 
 	     */
-	    private static SeColumnDefinition[] createBaseTable(final ISession session,
-	            final SeTable table, final SeLayer layer, final String configKeyword)
-	            throws IOException {
+    private static SeColumnDefinition[] createBaseTable(final ISession session,
+            final SeTable table, final SeLayer layer, final String configKeyword)
+            throws IOException {
 
-	        Command<SeColumnDefinition[]> createTableCmd = new Command<SeColumnDefinition[]>() {
+        Command<SeColumnDefinition[]> createTableCmd = new Command<SeColumnDefinition[]>() {
 
-	            @Override
-	            public SeColumnDefinition[] execute(ISession session, SeConnection connection)
-	                    throws SeException, IOException {
+            @Override
+            public SeColumnDefinition[] execute(ISession session, SeConnection connection)
+                    throws SeException, IOException {
 
-	                SeColumnDefinition[] colDefs = getTestTableCols();
+                SeColumnDefinition[] colDefs = getTestTableCols();
 
-	                /*
-	                 * Define the columns and their attributes for the table to be
-	                 * created. NOTE: The valid range/values of size and scale
-	                 * parameters vary from one database to another.
-	                 */
-	                boolean isNullable = true;
+                /*
+                 * Define the columns and their attributes for the table to be created. NOTE: The
+                 * valid range/values of size and scale parameters vary from one database to
+                 * another.
+                 */
+                boolean isNullable = true;
 
-	                try {
-	                    table.delete();
-	                } catch (Exception e) {
-	                    // ignore
-	                }
-	                /*
-	                 * Create the table using the DBMS default configuration
-	                 * keyword. Valid keywords are defined in the dbtune table.
-	                 */
-	                table.create(colDefs, configKeyword);
+                try {
+                    table.delete();
+                } catch (Exception e) {
+                    // ignore
+                }
+                /*
+                 * Create the table using the DBMS default configuration keyword. Valid keywords are
+                 * defined in the dbtune table.
+                 */
+                table.create(colDefs, configKeyword);
 
-	                /*
-	                 * Register the column to be used as feature id and managed by
-	                 * sde
-	                 */
-	                SeRegistration reg = new SeRegistration(connection, table.getName());
-	                LOGGER.fine("setting rowIdColumnName to ROW_ID in table " + reg.getTableName());
-	                reg.setRowIdColumnName("ROW_ID");
-	                final int rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
-	                reg.setRowIdColumnType(rowIdColumnType);
-	                reg.alter();
+                /*
+                 * Register the column to be used as feature id and managed by sde
+                 */
+                SeRegistration reg = new SeRegistration(connection, table.getName());
+                LOGGER.fine("setting rowIdColumnName to ROW_ID in table " + reg.getTableName());
+                reg.setRowIdColumnName("ROW_ID");
+                final int rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
+                reg.setRowIdColumnType(rowIdColumnType);
+                reg.alter();
 
-	                /*
-	                 * Define the attributes of the spatial column
-	                 */
-	                layer.setSpatialColumnName("SHAPE");
+                /*
+                 * Define the attributes of the spatial column
+                 */
+                layer.setSpatialColumnName("SHAPE");
 
-	                /*
-	                 * Set the type of shapes that can be inserted into the layer.
-	                 * Shape type can be just one or many. NOTE: Layers that contain
-	                 * more than one shape type can only be accessed through the C
-	                 * and Java APIs and Arc Explorer Java 3.x. They cannot be seen
-	                 * from ArcGIS desktop applications.
-	                 */
-	                layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
-	                        | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
-	                        | SeLayer.SE_AREA_TYPE_MASK | SeLayer.SE_MULTIPART_TYPE_MASK);
-	                layer.setGridSizes(1100.0, 0.0, 0.0);
-	                layer.setDescription("Layer Example");
+                /*
+                 * Set the type of shapes that can be inserted into the layer. Shape type can be
+                 * just one or many. NOTE: Layers that contain more than one shape type can only be
+                 * accessed through the C and Java APIs and Arc Explorer Java 3.x. They cannot be
+                 * seen from ArcGIS desktop applications.
+                 */
+                layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
+                        | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
+                        | SeLayer.SE_AREA_TYPE_MASK | SeLayer.SE_MULTIPART_TYPE_MASK);
+                layer.setGridSizes(1100.0, 0.0, 0.0);
+                layer.setDescription("Layer Example");
 
-	                /*
-	                 * Define the layer's Coordinate Reference
-	                 */
-	                SeCoordinateReference coordref = getGenericCoordRef();
+                /*
+                 * Define the layer's Coordinate Reference
+                 */
+                SeCoordinateReference coordref = getGenericCoordRef();
 
-	                // SeExtent ext = new SeExtent(-1000000.0, -1000000.0,
-	                // 1000000.0,
-	                // 1000000.0);
-	                SeExtent ext = coordref.getXYEnvelope();
-	                layer.setExtent(ext);
-	                layer.setCoordRef(coordref);
+                // SeExtent ext = new SeExtent(-1000000.0, -1000000.0,
+                // 1000000.0,
+                // 1000000.0);
+                SeExtent ext = coordref.getXYEnvelope();
+                layer.setExtent(ext);
+                layer.setCoordRef(coordref);
 
-	                layer.setCreationKeyword(configKeyword);
+                layer.setCreationKeyword(configKeyword);
 
-	                /*
-	                 * Spatially enable the new table...
-	                 */
-	                layer.create(3, 4);
+                /*
+                 * Spatially enable the new table...
+                 */
+                layer.create(3, 4);
 
-	                return colDefs;
-	            }
-	        };
-	        SeColumnDefinition[] colDefs = session.issue(createTableCmd);
-	        return colDefs;
-	    }
+                return colDefs;
+            }
+        };
+        SeColumnDefinition[] colDefs = session.issue(createTableCmd);
+        return colDefs;
+    }
 
-	    /**
-	     * Inserts two data rows, creating weak geometries and short clobs.
-	     * @throws ParseException
-	     */
-	    private void insertData(final SeLayer layer, final ISession session,
-	            final SeColumnDefinition[] colDefs) throws Exception {
-	        WKTReader reader = new WKTReader();
-	        Geometry[] geoms = new Geometry[2];
-	        geoms[0] = reader.read("POINT(0 0)");
-	        geoms[1] = reader.read("POINT(0 0)");
-	        
-	        final byte[][] strings = new byte[2][];
-	        strings[0] = new byte[] {0x00, 0x48, 0x00, 0x65, 0x00, 0x6C, 0x00, 0x6C, 0x00, 0x6F}; 
-	        strings[1] = new byte[] {0x00, 0x57, 0x00, 0x6F, 0x00, 0x72, 0x00, 0x6C, 0x00, 0x64};
-	        
-	        final SeCoordinateReference coordref = layer.getCoordRef();
-	        final SeShape shapes[] = new SeShape[2];
-	        for (int i = 0; i < shapes.length; i++) {
-	            Geometry geom = geoms[i];
-	            SeShape shape;
-	            if (geom == null) {
-	                shape = null;
-	            } else {
-	                ArcSDEGeometryBuilder builder = ArcSDEGeometryBuilder.builderFor(geom.getClass());
-	                shape = builder.constructShape(geom, coordref);
-	            }
-	            shapes[i] = shape;
-	        }
-	        /*
-	         * Define the names of the columns that data is to be inserted into.
-	         */
-	        final String[] columns = new String[colDefs.length];
+    /**
+     * Inserts two data rows, creating weak geometries and short clobs.
+     * 
+     * @throws ParseException
+     */
+    private void insertData(final SeLayer layer, final ISession session,
+            final SeColumnDefinition[] colDefs) throws Exception {
+        WKTReader reader = new WKTReader();
+        Geometry[] geoms = new Geometry[2];
+        geoms[0] = reader.read("POINT(0 0)");
+        geoms[1] = reader.read("POINT(0 0)");
 
-	        // Column one will be the row_id
-	        for (int j = 1; j < colDefs.length; j++) {
-	        	columns[j-1] = colDefs[j].getName(); // INT32 column
-	        }
-	        columns[colDefs.length - 1] = "SHAPE"; // Shape column
+        final byte[][] strings = new byte[2][];
+        strings[0] = new byte[] { 0x00, 0x48, 0x00, 0x65, 0x00, 0x6C, 0x00, 0x6C, 0x00, 0x6F };
+        strings[1] = new byte[] { 0x00, 0x57, 0x00, 0x6F, 0x00, 0x72, 0x00, 0x6C, 0x00, 0x64 };
 
-	        Command<Void> insertDataCmd = new Command<Void>() {
-	            @Override
-	            public Void execute(ISession session, SeConnection connection) throws SeException,
-	                    IOException {
+        final SeCoordinateReference coordref = layer.getCoordRef();
+        final SeShape shapes[] = new SeShape[2];
+        for (int i = 0; i < shapes.length; i++) {
+            Geometry geom = geoms[i];
+            SeShape shape;
+            if (geom == null) {
+                shape = null;
+            } else {
+                ArcSDEGeometryBuilder builder = ArcSDEGeometryBuilder.builderFor(geom.getClass());
+                shape = builder.constructShape(geom, coordref);
+            }
+            shapes[i] = shape;
+        }
+        /*
+         * Define the names of the columns that data is to be inserted into.
+         */
+        final String[] columns = new String[colDefs.length];
 
-	                SeInsert insert = new SeInsert(connection);
-	                insert.intoTable(layer.getName(), columns);
-	                insert.setWriteMode(true);
+        // Column one will be the row_id
+        for (int j = 1; j < colDefs.length; j++) {
+            columns[j - 1] = colDefs[j].getName(); // INT32 column
+        }
+        columns[colDefs.length - 1] = "SHAPE"; // Shape column
 
+        Command<Void> insertDataCmd = new Command<Void>() {
+            @Override
+            public Void execute(ISession session, SeConnection connection) throws SeException,
+                    IOException {
 
-	                try {
-	                    for (int i = 0; i < shapes.length; i++) {
-	                    	SeRow row = insert.getRowToSet();
-	                    	row.setClob(0, new ByteArrayInputStream(strings[i]));
+                SeInsert insert = new SeInsert(connection);
+                insert.intoTable(layer.getName(), columns);
+                insert.setWriteMode(true);
 
-	                        SeShape seShape = shapes[i];
-	                        row.setShape(tempTableColumns.length - 1, seShape);
-	                    	
-	                        insert.execute();
-	                    }
-	                } finally {
-	                    insert.close();
-	                }
-	                return null;
-	            }
-	        };
+                try {
+                    for (int i = 0; i < shapes.length; i++) {
+                        SeRow row = insert.getRowToSet();
+                        row.setClob(0, new ByteArrayInputStream(strings[i]));
 
-	        session.issue(insertDataCmd);
+                        SeShape seShape = shapes[i];
+                        row.setShape(tempTableColumns.length - 1, seShape);
 
-	    } // End method insertData
-	  
-	    /**
-	     * Creates and returns a <code>SeCoordinateReference</code> CRS, though
-	     * based on WGS84, is inclusive enough (in terms of valid coordinate range
-	     * and presicion) to deal with most coordintates.
-	     * <p>
-	     * Actually tested to deal with coordinates with 0.0002 units of separation
-	     * as well as with large coordinates such as UTM (values greater than
-	     * 500,000.00)
-	     * </p>
-	     * 
-	     * @return DOCUMENT ME!
-	     * @throws SeException
-	     *             DOCUMENT ME!
-	     */
-	    public static SeCoordinateReference getGenericCoordRef() throws SeException {
+                        insert.execute();
+                    }
+                } finally {
+                    insert.close();
+                }
+                return null;
+            }
+        };
 
-	        SeCoordinateReference seCRS = new SeCoordinateReference();
-	        final String wgs84WKT = DefaultGeographicCRS.WGS84.toWKT();
-	        seCRS.setCoordSysByDescription(wgs84WKT);
-	        // seCRS.setPrecision(1000);
-	        seCRS.setXYByEnvelope(new SeExtent(-180, -90, 180, 90));
-	        return seCRS;
-	    }
+        session.issue(insertDataCmd);
+
+    } // End method insertData
+
+    /**
+     * Creates and returns a <code>SeCoordinateReference</code> CRS, though based on WGS84, is
+     * inclusive enough (in terms of valid coordinate range and presicion) to deal with most
+     * coordintates.
+     * <p>
+     * Actually tested to deal with coordinates with 0.0002 units of separation as well as with
+     * large coordinates such as UTM (values greater than 500,000.00)
+     * </p>
+     * 
+     * @return DOCUMENT ME!
+     * @throws SeException
+     *             DOCUMENT ME!
+     */
+    public static SeCoordinateReference getGenericCoordRef() throws SeException {
+
+        SeCoordinateReference seCRS = new SeCoordinateReference();
+        final String wgs84WKT = DefaultGeographicCRS.WGS84.toWKT();
+        seCRS.setCoordSysByDescription(wgs84WKT);
+        // seCRS.setPrecision(1000);
+        seCRS.setXYByEnvelope(new SeExtent(-180, -90, 180, 90));
+        return seCRS;
+    }
 }

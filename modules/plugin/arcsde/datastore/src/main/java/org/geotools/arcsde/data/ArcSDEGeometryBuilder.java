@@ -433,9 +433,9 @@ public abstract class ArcSDEGeometryBuilder {
      * @version $Id$
      */
     private static class GenericGeometryBuilder extends ArcSDEGeometryBuilder {
-        
+
         private static Geometry EMPTY;
-        
+
         /** singleton for generic geometry building */
         private static final ArcSDEGeometryBuilder instance = new GenericGeometryBuilder();
 

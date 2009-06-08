@@ -45,7 +45,7 @@ import com.esri.sde.sdk.geom.GeometryFactory;
 public class SdeRow {
     /** Logger for ths class' package */
     private static final Logger LOGGER = Logging.getLogger(SdeRow.class.getName());
-    
+
     /** cached SeRow values */
     private Object[] values;
 
@@ -102,8 +102,8 @@ public class SdeRow {
                         values[i] = row.getObject(i);
                     }
                     /*
-                     * ML: I'm adding checks here for the [n] clob object that are returned as null by
-                     * getObject, but are reported as Strings. We can suck those out of
+                     * ML: I'm adding checks here for the [n] clob object that are returned as null
+                     * by getObject, but are reported as Strings. We can suck those out of
                      * ByteArrayStreams
                      */
                     if (values[i] == null) {
