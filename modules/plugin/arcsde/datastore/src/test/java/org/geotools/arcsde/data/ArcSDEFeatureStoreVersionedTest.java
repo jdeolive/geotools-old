@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
