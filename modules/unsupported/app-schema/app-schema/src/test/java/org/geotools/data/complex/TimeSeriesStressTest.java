@@ -140,7 +140,7 @@ public class TimeSeriesStressTest extends OnlineTestCase {
             schemaLocation = new URL(location);
         }
         assertNotNull(location, schemaLocation);
-        reader.parse(schemaLocation);
+        reader.parse(schemaLocation, null);
     }
 
     private Name name(String ns, String localName) {

@@ -18,9 +18,7 @@
 package org.geotools.data.complex.config;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,8 +39,6 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.apache.xml.resolver.Catalog;
-import org.apache.xml.resolver.CatalogManager;
-import org.apache.xml.resolver.tools.ResolvingXMLReader;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataSourceException;
@@ -84,6 +80,8 @@ public class AppSchemaDataAccessConfigurator {
 
     /** DOCUMENT ME! */
     private AppSchemaDataAccessDTO config;
+    
+    private Map<String,String> resolvedSchemaLocations;
 
     private Map typeRegistry;
 
@@ -114,6 +112,7 @@ public class AppSchemaDataAccessConfigurator {
         this.config = config;
         namespaces = new NamespaceSupport();
         inputDataAccessIds = new ArrayList <String>();
+        resolvedSchemaLocations = new HashMap <String, String>();
         Map nsMap = config.getNamespaces();
         for (Iterator it = nsMap.entrySet().iterator(); it.hasNext();) {
             Map.Entry entry = (Entry) it.next();
@@ -186,6 +185,15 @@ public class AppSchemaDataAccessConfigurator {
 
             FeatureSource featureSource = getFeatureSource(dto);
             AttributeDescriptor target = getTargetDescriptor(dto);
+            
+            // set schema location for describeFeatureType
+            String nsURI = target.getName().getNamespaceURI();
+            if (nsURI != null) {
+                String schemaURI = resolvedSchemaLocations.get(nsURI);
+                if (schemaURI != null) {
+                    target.getType().getUserData().put("schemaURI", schemaURI);
+                }
+            }
             List attMappings = getAttributeMappings(target, dto.getAttributeMappings());
 
             FeatureTypeMapping mapping;
@@ -419,7 +427,7 @@ public class AppSchemaDataAccessConfigurator {
             AppSchemaDataAccessConfigurator.LOGGER.fine("parsing schema "
                     + schemaUrl.toExternalForm());
 
-            schemaParser.parse(schemaUrl);
+            schemaParser.parse(schemaUrl, resolvedSchemaLocations);
         }
 
         typeRegistry = schemaParser.getTypeRegistry();

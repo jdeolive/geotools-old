@@ -85,7 +85,7 @@ public class GeologicUnitTest extends TestCase {
     private void loadSchema(final String location) throws IOException {
         final URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
         reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
-        reader.parse(new URL(location));
+        reader.parse(new URL(location), null);
     }
 
     /**

@@ -133,7 +133,7 @@ public class TimeSeriesTest extends TestCase {
     private void loadSchema(URL location) throws IOException {
         URL catalogLocation = getClass().getResource(schemaBase + "observations.oasis.xml");
         reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
-        reader.parse(location);
+        reader.parse(location, null);
     }
 
     /**

@@ -671,7 +671,7 @@ public class DataAccessIntegrationTest extends TestCase {
                     .getFeatures();
             reader = EmfAppSchemaReader.newInstance();
             reader.parse(new URL(schemaBase.toString() + File.separator
-                    + "commonSchemas_new/mineralOccurrence/mineralOccurrence.xsd"));
+                    + "commonSchemas_new/mineralOccurrence/mineralOccurrence.xsd"), null);
 
             Map typeRegistry = reader.getTypeRegistry();
             ComplexType complexType = (ComplexType) typeRegistry.get(EARTH_RESOURCE_TYPE);
