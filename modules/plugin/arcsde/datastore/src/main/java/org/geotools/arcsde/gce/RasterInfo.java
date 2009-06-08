@@ -52,7 +52,7 @@ import org.opengis.referencing.operation.TransformException;
  * @version $Id$
  * @source $URL$
  */
-@SuppressWarnings( { "nls", "deprecation" })
+@SuppressWarnings( { "nls" })
 class RasterInfo {
 
     /** The name of the raster table we're pulling images from in this reader * */
@@ -220,7 +220,6 @@ class RasterInfo {
             final int rasterCount = getNumRasters();
             for (int rasterN = 0; rasterN < rasterCount; rasterN++) {
                 final GeneralEnvelope rasterEnvelope = getGridEnvelope(rasterN, 0);
-                final Rectangle rasterGridRange = getGridRange(rasterN, 0);
                 GeneralEnvelope rasterGridRangeInDataSet;
                 try {
                     rasterGridRangeInDataSet = CRS.transform(modelToRaster, rasterEnvelope);
