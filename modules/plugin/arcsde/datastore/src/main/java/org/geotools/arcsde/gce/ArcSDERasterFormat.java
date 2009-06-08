@@ -42,6 +42,7 @@ import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.pool.ArcSDEPooledConnection;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.util.ArcSDEUtils;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
@@ -172,8 +173,8 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         }
     }
 
-    private RasterDatasetInfo getRasterInfo(final String coverageUrl, ArcSDEConnectionPool connectionPool)
-            throws IOException {
+    private RasterDatasetInfo getRasterInfo(final String coverageUrl,
+            ArcSDEConnectionPool connectionPool) throws IOException {
 
         RasterDatasetInfo rasterInfo = rasterInfos.get(coverageUrl);
         if (rasterInfo == null) {
@@ -492,7 +493,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
                             + " has no coordinate reference system set");
                 }
                 LOGGER.finer("Looking CRS for raster column " + rasterTable);
-                coverageCrs = RasterUtils.findCompatibleCRS(seCoordRef);
+                coverageCrs = ArcSDEUtils.findCompatibleCRS(seCoordRef);
                 if (DefaultEngineeringCRS.CARTESIAN_2D == coverageCrs) {
                     LOGGER.warning("Raster " + rasterTable
                             + " has not CRS set, using DefaultEngineeringCRS.CARTESIAN_2D");

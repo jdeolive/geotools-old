@@ -34,7 +34,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageTypeSpecifier;
@@ -44,16 +43,13 @@ import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
-import org.geotools.data.DataSourceException;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.resources.image.ColorUtilities;
 import org.geotools.resources.image.ComponentColorModelJAI;
 import org.geotools.util.logging.Logging;
-import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterNotFoundException;
@@ -65,12 +61,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
-import com.esri.sde.sdk.client.SeCoordinateReference;
-import com.esri.sde.sdk.pe.PeCoordinateSystem;
-import com.esri.sde.sdk.pe.PeFactory;
-import com.esri.sde.sdk.pe.PeGeographicCS;
-import com.esri.sde.sdk.pe.PeProjectedCS;
-import com.esri.sde.sdk.pe.PeProjectionException;
 import com.sun.imageio.plugins.common.BogusColorSpace;
 
 /**
@@ -80,7 +70,7 @@ import com.sun.imageio.plugins.common.BogusColorSpace;
  * @version $Id$
  * @source $URL$
  */
-@SuppressWarnings( { "nls", "deprecation" })
+@SuppressWarnings( { "nls" })
 class RasterUtils {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
@@ -121,79 +111,6 @@ class RasterUtils {
             }
         }
         return reqEnv;
-    }
-
-    /**
-     * Gets the coordinate system that will be associated to the {@link GridCoverage}.
-     * 
-     * @param rasterAttributes
-     * @return if {@code seCoordRef.getcoordSys()} is {@code null} returns
-     *         {@link DefaultEngineeringCRS#CARTESIAN_2D}, otherwise an equivalent CRS from the EPSG
-     *         database if found, or a CRS built from the seCoordRef WKT otherwise.
-     */
-    public static CoordinateReferenceSystem findCompatibleCRS(final SeCoordinateReference seCoordRef)
-            throws DataSourceException {
-
-        if (seCoordRef == null) {
-            LOGGER.fine("SeCoordinateReference is null, "
-                    + "using DefaultEngineeringCRS.CARTESIAN_2D");
-            return DefaultEngineeringCRS.CARTESIAN_2D;
-        }
-
-        final PeCoordinateSystem coordSys = seCoordRef.getCoordSys();
-
-        if (coordSys == null) {
-            LOGGER.fine("SeCoordinateReference.getCoordSys() is null, "
-                    + "using DefaultEngineeringCRS.CARTESIAN_2D");
-            return DefaultEngineeringCRS.CARTESIAN_2D;
-        }
-
-        try {
-            int epsgCode = -1;
-            final int[] seEpsgCodes;
-            if (coordSys instanceof PeGeographicCS) {
-                seEpsgCodes = PeFactory.geogcsCodelist();
-            } else if (coordSys instanceof PeProjectedCS) {
-                seEpsgCodes = PeFactory.projcsCodelist();
-            } else {
-                throw new RuntimeException("Shouldnt happen!: Unnkown SeCoordSys type: "
-                        + coordSys.getClass().getName());
-            }
-            int seEpsgCode;
-            PeCoordinateSystem candidate;
-            for (int i = 0; i < seEpsgCodes.length; i++) {
-                try {
-                    seEpsgCode = seEpsgCodes[i];
-                    candidate = (PeCoordinateSystem) PeFactory.factory(seEpsgCode);
-                    // in ArcSDE 9.2, if the PeFactory doesn't support a projection it claimed to
-                    // support, it returns 'null'. So check for it.
-                    if (candidate != null && candidate.getName().trim().equals(coordSys.getName())) {
-                        epsgCode = seEpsgCode;
-                        break;
-                    }
-                } catch (PeProjectionException pe) {
-                    // Strangely SDE includes codes in the projcsCodeList() that
-                    // it doesn't actually support.
-                    // Catch the exception and skip them here.
-                }
-            }
-
-            CoordinateReferenceSystem crs;
-            if (epsgCode == -1) {
-                ArcSDERasterFormat.LOGGER.warning("Couldn't determine EPSG code for this raster."
-                        + "  Using SDE's WKT-like coordSysDescription() instead.");
-                crs = CRS.parseWKT(seCoordRef.getCoordSysDescription());
-            } else {
-                crs = CRS.decode("EPSG:" + epsgCode);
-            }
-            return crs;
-        } catch (FactoryException e) {
-            ArcSDERasterFormat.LOGGER.log(Level.SEVERE, "", e);
-            throw new DataSourceException(e);
-        } catch (PeProjectionException e) {
-            ArcSDERasterFormat.LOGGER.log(Level.SEVERE, "", e);
-            throw new DataSourceException(e);
-        }
     }
 
     public static class QueryInfo {
@@ -617,8 +534,8 @@ class RasterUtils {
         return colorModel;
     }
 
-    public static ImageTypeSpecifier createFullImageTypeSpecifier(final RasterDatasetInfo rasterInfo,
-            final int rasterIndex) {
+    public static ImageTypeSpecifier createFullImageTypeSpecifier(
+            final RasterDatasetInfo rasterInfo, final int rasterIndex) {
 
         final int numberOfBands = rasterInfo.getNumBands();
         final RasterCellType pixelType = rasterInfo.getCellType();
@@ -756,9 +673,9 @@ class RasterUtils {
         return its;
     }
 
-    private static ImageTypeSpecifier createOneOrFoutBitImageSpec(final RasterDatasetInfo rasterInfo,
-            final int numberOfBands, int sampleImageWidth, int sampleImageHeight,
-            final int bitsPerSample, final int dataType) {
+    private static ImageTypeSpecifier createOneOrFoutBitImageSpec(
+            final RasterDatasetInfo rasterInfo, final int numberOfBands, int sampleImageWidth,
+            int sampleImageHeight, final int bitsPerSample, final int dataType) {
         final ColorModel colorModel;
         final SampleModel sampleModel;
         if (numberOfBands != 1) {
@@ -775,8 +692,9 @@ class RasterUtils {
         return its;
     }
 
-    private static ImageTypeSpecifier createColorMappedImageSpec(final RasterDatasetInfo rasterInfo,
-            final int rasterIndex, int sampleImageWidth, int sampleImageHeight) {
+    private static ImageTypeSpecifier createColorMappedImageSpec(
+            final RasterDatasetInfo rasterInfo, final int rasterIndex, int sampleImageWidth,
+            int sampleImageHeight) {
 
         final ColorModel colorModel;
         final SampleModel sampleModel;

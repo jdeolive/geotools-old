@@ -19,7 +19,6 @@ package org.geotools.arcsde.gce;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Transparency;
@@ -28,51 +27,9 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferUShort;
 import java.awt.image.IndexColorModel;
 
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.junit.Test;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.esri.sde.sdk.client.SeCoordinateReference;
-import com.esri.sde.sdk.client.SeObjectId;
 
 public class RasterUtilsTest {
-
-    @Test
-    public void testFindCompatibleCRS_Projected() throws Exception {
-
-        SeCoordinateReference seCoordRefSys = new SeCoordinateReference();
-        seCoordRefSys.setCoordSysByID(new SeObjectId(23030));
-
-        CoordinateReferenceSystem expectedCRS = CRS.decode("EPSG:23030");
-        CoordinateReferenceSystem compatibleCRS = RasterUtils.findCompatibleCRS(seCoordRefSys);
-
-        assertSame(expectedCRS, compatibleCRS);
-    }
-
-    @Test
-    public void testFindCompatibleCRS_Geographic() throws Exception {
-        SeCoordinateReference seCoordRefSys = new SeCoordinateReference();
-        seCoordRefSys.setCoordSysByID(new SeObjectId(4326));
-
-        CoordinateReferenceSystem expectedCRS = CRS.decode("EPSG:4326");
-        CoordinateReferenceSystem compatibleCRS = RasterUtils.findCompatibleCRS(seCoordRefSys);
-
-        assertSame(expectedCRS, compatibleCRS);
-    }
-
-    @Test
-    public void testFindCompatibleCRS_Null() throws Exception {
-        CoordinateReferenceSystem compatibleCRS = RasterUtils.findCompatibleCRS(null);
-
-        assertSame(DefaultEngineeringCRS.CARTESIAN_2D, compatibleCRS);
-
-        SeCoordinateReference seCoordRefSys = new SeCoordinateReference();
-
-        compatibleCRS = RasterUtils.findCompatibleCRS(seCoordRefSys);
-
-        assertSame(DefaultEngineeringCRS.CARTESIAN_2D, compatibleCRS);
-    }
 
     @Test
     public void testSdeColormapToJavaColorModel() {
