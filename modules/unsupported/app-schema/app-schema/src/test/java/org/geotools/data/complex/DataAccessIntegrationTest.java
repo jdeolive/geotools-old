@@ -14,7 +14,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-
 package org.geotools.data.complex;
 
 import java.awt.RenderingHints.Key;
@@ -24,6 +23,7 @@ import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,9 +41,9 @@ import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.ServiceInfo;
+import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.property.PropertyDataStore;
-import org.geotools.factory.Hints;
 import org.geotools.feature.AttributeImpl;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.ComplexAttributeImpl;
@@ -54,12 +54,9 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.feature.type.FeatureTypeImpl;
-import org.geotools.filter.AttributeExpressionImpl;
-import org.geotools.filter.RegfuncFilterFactoryImpl;
-import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
+import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml3.GMLSchema;
-import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.Property;
@@ -73,28 +70,23 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
-import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.util.ProgressListener;
+import org.xml.sax.helpers.NamespaceSupport;
 
 import junit.framework.TestCase;
 
 /**
- * This is to test the integration of a data access (which does not necessarily have to be an
- * app-schema data access) as an input to an app-schema data access. The main purpose of such
- * configuration is so that we could use a data access that produces complex features in an XML
- * form, and re-map them to produce complex features of another XML form. Additionally, once the
- * features have been re-mapped, they could also chain/be chained by other features of the mapped
- * XML form. See FeatureChainingTest.java for details.
+ * This is to test integration of a non-app-schema data access with an app-schema data access. An
+ * app-schema data access can chain features from a non-app-schema data access.
  * 
  * @author Rini Angreani, Curtin University of Technology
  */
 public class DataAccessIntegrationTest extends TestCase {
+
     static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
 
     static final String GMLNS = "http://www.opengis.net/gml";
-
-    static final String MO = "urn:cgi:xmlns:GGIC:MineralOccurrence:1.0";
 
     static final Name MAPPED_FEATURE_TYPE = Types.typeName(GSMLNS, "MappedFeatureType");
 
@@ -108,103 +100,87 @@ public class DataAccessIntegrationTest extends TestCase {
 
     static final Name COMPOSITION_PART = Types.typeName(GSMLNS, "CompositionPart");
 
-    static final Name EARTH_RESOURCE = Types.typeName(MO, "EarthResource");
-
-    static final Name EARTH_RESOURCE_TYPE = Types.typeName(MO, "EarthResourceType");
-
-    static final Name MINERAL_DEPOSIT_TYPE = Types.typeName(MO, "MineralDepositModelType");
-
-    static final Name MINERAL_DEPOSIT_PROPERTY_TYPE = Types.typeName(MO,
-            "MineralDepositModelPropertyType");
-
     static final String schemaBase = "/test-data/";
-
-    /**
-     * Filter factory instance
-     */
-    static FilterFactory ff = new RegfuncFilterFactoryImpl(null);
-
-    /**
-     * The input data access in MO form
-     */
-    private DataAccess<FeatureType, Feature> minOccDataAccess;
-
-    /**
-     * The converted Geologic Unit data access in GSML form
-     */
-    private DataAccess<FeatureType, Feature> mappedGUDataAccess;
-
-    /**
-     * Mapped Feature data access in GSML form
-     */
-    private DataAccess<FeatureType, Feature> mfDataAccess;
-
-    /**
-     * Composition Part data access in GSML form
-     */
-    private DataAccess<FeatureType, Feature> cpDataAccess;
-
-    /**
-     * CGI Value data access in GSML Form
-     */
-    private DataAccess<FeatureType, Feature> cgiDataAccess;
 
     /**
      * App schema config reader
      */
-    private static EmfAppSchemaReader reader;
+    protected static EmfAppSchemaReader reader;
+
+    /**
+     * Mapped Feature data access in GSML form
+     */
+    protected DataAccess<FeatureType, Feature> mfDataAccess;
+
+    /**
+     * Composition Part data access in GSML form
+     */
+    protected DataAccess<FeatureType, Feature> cpDataAccess;
+
+    /**
+     * CGI Value data access in GSML Form
+     */
+    protected DataAccess<FeatureType, Feature> cgiDataAccess;
 
     /**
      * GSML:geologicUnit feature source coming from the mapped data access
      */
-    private FeatureSource<FeatureType, Feature> guFeatureSource;
+    protected FeatureSource<FeatureType, Feature> guFeatureSource;
 
     /**
      * Collection of MO:earthResource complex features
      */
-    private static ArrayList<Feature> minOccFeatures;
+    protected static ArrayList<Feature> inputFeatures;
 
     /**
      * Collection of GSML:compositionPart complex features
      */
-    private ArrayList<Feature> cpFeatures;
+    protected ArrayList<Feature> cpFeatures;
 
     /**
      * Collection of GSML:mappedFeature complex features
      */
-    private ArrayList<Feature> mfFeatures;
+    protected ArrayList<Feature> mfFeatures;
+
+    /**
+     * Filter factory instance
+     */
+    static FilterFactory ff;
+
+    /**
+     * The input data access in MO form
+     */
+    protected DataAccess<FeatureType, Feature> inputDataAccess;
 
     /**
      * Create the input data access containing complex features of MO form.
      */
     protected void setUp() throws Exception {
-        Map<String, Serializable> moParams = new HashMap<String, Serializable>();
-        moParams.put("dbtype", "mo-data-access");
-        moParams.put("directory", getClass().getResource(schemaBase));
-        minOccDataAccess = DataAccessFinder.getDataStore(moParams);
-        loadDataAccesses();
+        setFilterFactory();
+        loadDataAccesses("MappedFeaturePropertyfile.xml");
     }
 
     /**
-     * Create complex features of type MO:EarthResource
+     * Create Geologic Unit complex features from the simple features and complex type.
      * 
      * @param fCollection
-     *            Simple features collection
-     * @param earthResourceType
-     *            Earth Resource schema
-     * @return MO:EarthResource features
+     * @param geologicUnitType
+     * @return
+     * @throws IOException
      */
-    private static ArrayList<Feature> getEarthResourceFeatures(
+    private static ArrayList<Feature> getInputFeatures(
             FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection,
-            FeatureType earthResourceType) {
+            FeatureType geologicUnitType) throws IOException {
         ArrayList<Feature> features = new ArrayList<Feature>();
 
-        AttributeDescriptor featureDesc = new AttributeDescriptorImpl(earthResourceType,
-                EARTH_RESOURCE, 0, -1, false, null);
-        ComplexType mineralDepositType = (ComplexType) reader.getTypeRegistry().get(
-                MINERAL_DEPOSIT_TYPE);
-        ComplexType mineralDepositPropertyType = (ComplexType) reader.getTypeRegistry().get(
-                MINERAL_DEPOSIT_PROPERTY_TYPE);
+        AttributeDescriptor featureDesc = new AttributeDescriptorImpl(geologicUnitType,
+                GEOLOGIC_UNIT, 0, -1, false, null);
+        // gml:description
+        AttributeDescriptor descriptionDescriptor = (AttributeDescriptor) geologicUnitType
+                .getDescriptor(Types.typeName(GMLNS, "description"));
+        // gml:name
+        AttributeDescriptor nameDescriptor = (AttributeDescriptor) GMLSchema.ABSTRACTGMLTYPE_TYPE
+                .getDescriptor(Types.typeName(GMLNS, "name"));
         // for simple string properties
         Name name = new NameImpl(null, "simpleContent");
         AttributeType simpleContentType = (AttributeType) reader.getTypeRegistry().get(
@@ -215,58 +191,44 @@ public class DataAccessIntegrationTest extends TestCase {
         while (simpleFeatures.hasNext()) {
             SimpleFeature next = simpleFeatures.next();
             Collection<Property> properties = new ArrayList<Property>();
-
-            // mo:form
-            String propertyName = "FORM";
-            properties.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
-                    (AttributeDescriptor) earthResourceType.getDescriptor(Types
-                            .typeName(MO, "form")), null));
-
-            // mo:classification
-            propertyName = "CLASSIFICATION";
-            ComplexAttributeImpl classification = new ComplexAttributeImpl(
-                    new ArrayList<Property>(), (AttributeDescriptor) earthResourceType
-                            .getDescriptor(Types.typeName(MO, "classification")), null);
-
-            // mo:classification/mo:MineralDepositModel/mo:mineralDepositGroup
-            Name leafAttribute = Types.typeName(MO, "mineralDepositGroup");
-            AttributeImpl mineralDepositGroup = new AttributeImpl(next.getProperty(propertyName)
-                    .getValue(), (AttributeDescriptor) mineralDepositType
-                    .getDescriptor(leafAttribute), null);
+            // description
+            String propertyName = "TEXTDESCRIPTION";
             ArrayList<Property> value = new ArrayList<Property>();
-            value.add(mineralDepositGroup);
+            value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
+                    stringDescriptor, null));
+            properties.add(new ComplexAttributeImpl(value, descriptionDescriptor, null));
 
-            // mo:classification/mo:MineralDepositModel
-            ComplexAttributeImpl mineralDepositModel = new ComplexAttributeImpl(value,
-                    (AttributeDescriptor) mineralDepositPropertyType.getDescriptor(Types.typeName(
-                            MO, "MineralDepositModel")), null);
+            // name 1
+            propertyName = "NAME";
             value = new ArrayList<Property>();
-            value.add(mineralDepositModel);
-            classification.setValue(value);
-            properties.add(classification);
+            value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
+                    stringDescriptor, null));
+            ComplexAttributeImpl name1 = new ComplexAttributeImpl(value, nameDescriptor, null);
+            properties.add(name1);
 
-            // mo:composition
-            propertyName = "COMPOSITION";
-            String[] cpIds = next.getProperty(propertyName).getValue().toString().split(",");
-            for (String cpId : cpIds) {
-                Collection<Property> cpProperties = new ArrayList<Property>(cpIds.length);
-                cpProperties.add(new AttributeImpl(cpId, stringDescriptor, null));
-                properties.add(new AttributeImpl(cpProperties,
-                        (AttributeDescriptor) earthResourceType.getDescriptor(Types.typeName(MO,
-                                "composition")), null));
-            }
+            // composition part
+            Map typeRegistry = reader.getTypeRegistry();
+            ComplexType cpType = (ComplexType) typeRegistry.get(COMPOSITION_PART_TYPE);
 
-            // mo:commodityDescription
-            propertyName = "COMMODITYDESCRIPTION";
+            ArrayList<Property> compositionParts = new ArrayList<Property>();
+            compositionParts.add(name1);
 
-            String[] mfIds = next.getProperty(propertyName).getValue().toString().split(",");
-            for (String mfId : mfIds) {
-                ArrayList<Property> mfProperties = new ArrayList<Property>();
-                mfProperties.add(new AttributeImpl(mfId, stringDescriptor, null));
-                properties.add(new AttributeImpl(mfProperties,
-                        (AttributeDescriptor) earthResourceType.getDescriptor(Types.typeName(MO,
-                                "commodityDescription")), null));
-            }
+            value = new ArrayList<Property>();
+            value.add(new ComplexAttributeImpl(compositionParts, cpType, null));
+            properties.add(new ComplexAttributeImpl(value, (AttributeDescriptor) geologicUnitType
+                    .getDescriptor(Types.typeName(GSMLNS, "composition")), null));
+
+            // name 2
+            value = new ArrayList<Property>();
+            value.add(new AttributeImpl(next.getID(), stringDescriptor, null));
+            properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
+
+            // name 3
+            value = new ArrayList<Property>();
+            propertyName = "ABBREVIATION";
+            value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
+                    stringDescriptor, null));
+            properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
 
             features.add(new FeatureImpl(properties, featureDesc, next.getIdentifier()));
         }
@@ -276,22 +238,138 @@ public class DataAccessIntegrationTest extends TestCase {
     }
 
     /**
-     * Dispose all the data accesses so that there is no mapping conflicts for other tests
+     * Test that mapping geologic unit inside mapped feature type is successful.
+     * 
+     * @throws IOException
      */
-    protected void tearDown() {
-        minOccDataAccess.dispose();
-        mappedGUDataAccess.dispose();
-        mfDataAccess.dispose();
-        cpDataAccess.dispose();
-        cgiDataAccess.dispose();
+    public void testMappings() throws IOException {
+
+        Iterator<Feature> mfIterator = mfFeatures.iterator();
+
+        Iterator<Feature> guIterator = inputFeatures.iterator();
+
+        // Extract all geological unit features into a map by id
+        Map<String, Feature> guMap = new HashMap<String, Feature>();
+        Feature guFeature;
+        while (guIterator.hasNext()) {
+            guFeature = (Feature) guIterator.next();
+            String guId = guFeature.getIdentifier().getID();
+            if (!guMap.containsKey(guId)) {
+                guMap.put(guId, guFeature);
+            }
+        }
+        Feature mfFeature;
+        Collection<Property> nestedGuFeatures;
+        String guId;
+        final String NESTED_LINK = "specification";
+        while (mfIterator.hasNext()) {
+            mfFeature = (Feature) mfIterator.next();
+            String mfId = mfFeature.getIdentifier().toString();
+            String[] guIds = FeatureChainingTest.mfToGuMap.get(mfId).split(";");
+
+            // make sure we have the right number of nested features
+            nestedGuFeatures = (Collection<Property>) mfFeature.getProperties(NESTED_LINK);
+            assertEquals(guIds.length, nestedGuFeatures.size());
+
+            ArrayList<String> nestedGuIds = new ArrayList<String>();
+
+            for (Property property : nestedGuFeatures) {
+                Object value = property.getValue();
+                assertNotNull(value);
+                assertEquals(value instanceof Collection, true);
+                assertEquals(((Collection) value).size(), 1);
+
+                Feature nestedGuFeature = (Feature) ((Collection) value).iterator().next();
+                /**
+                 * Test geological unit
+                 */
+                // make sure each of the nested geologic unit is valid
+                guId = nestedGuFeature.getIdentifier().toString();
+                assertEquals(true, guMap.containsKey(guId));
+
+                nestedGuIds.add(guId);
+
+                // make sure the nested geologic unit feature has the right properties
+                guFeature = guMap.get(guId.toString());
+                Collection<Property> guProperties = guFeature.getProperties();
+                assertEquals(guProperties, nestedGuFeature.getProperties());
+            }
+            // make sure all the nested geological unit features are there
+            assertEquals(nestedGuIds.containsAll(Arrays.asList(guIds)), true);
+        }
     }
 
-    private void loadDataAccesses() throws IOException {
+    /**
+     * Make sure filters are working.
+     * 
+     * @throws IOException
+     */
+    public void testFilters() throws IOException {
+
+        // make sure filter query can be made on MappedFeature based on GU properties
+        //
+        // <ogc:Filter>
+        // <ogc:PropertyIsEqualTo>
+        // <ogc:Function name="contains_text">
+        // <ogc:PropertyName>
+        // gsml:specification/gsml:GeologicUnit/gml:description
+        // </ogc:PropertyName>
+        // <ogc:Literal>Olivine basalt, tuff, microgabbro, minor sedimentary rocks</ogc:Literal>
+        // </ogc:Function>
+        // <ogc:Literal>1</ogc:Literal>
+        // </ogc:PropertyIsEqualTo>
+        // </ogc:Filter>
+
+        // <ogc:PropertyName>
+        // gsml:specification/gsml:GeologicUnit/gml:description
+        Expression property = ff.property("gsml:specification/gsml:GeologicUnit/gml:description");
+        // </ogc:PropertyName>
+        // <ogc:Literal>Olivine basalt, tuff, microgabbro, minor sedimentary rocks</ogc:Literal>
+        Expression string = ff
+                .literal("Olivine basalt, tuff, microgabbro, minor sedimentary rocks");
+        // <ogc:Function name="contains_text">
+        Expression function = ff.function(FeatureChainingTest.CONTAINS_TEXT, property, string);
+
+        // <ogc:PropertyIsEqualTo>
+        // <ogc:Literal>1</ogc:Literal>
+        // </ogc:PropertyIsEqualTo>
+        Filter filter = ff.equals(function, ff.literal(1));
+
+        FeatureCollection<FeatureType, Feature> filteredResults = mfDataAccess.getFeatureSource(
+                MAPPED_FEATURE).getFeatures(filter);
+
+        assertEquals(FeatureChainingTest.getCount(filteredResults), 3);
+    }
+
+    /**
+     * Load non-app-schema Geologic Unit data access.
+     * 
+     * @throws IOException
+     */
+    public void loadGeologicUnitDataAccess() throws IOException {
+        Map<String, Serializable> moParams = new HashMap<String, Serializable>();
+        moParams.put("dbtype", "input-data-access");
+        inputDataAccess = DataAccessFinder.getDataStore(moParams);
+        guFeatureSource = inputDataAccess.getFeatureSource(GEOLOGIC_UNIT);
+    }
+
+    /**
+     * Load all the data accesses.
+     * 
+     * @param mfMappingFile
+     *            Mapped feature mapping file with geologic unit as specification
+     * @throws IOException
+     */
+    protected void loadDataAccesses(String mfMappingFile) throws IOException {
         /**
-         * Load mapped feature as occurrence data access
+         * Load geologic unit data access
+         */
+        loadGeologicUnitDataAccess();
+        /**
+         * Load mapped feature data access
          */
         Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
-        URL url = getClass().getResource(schemaBase + "MappedFeatureAsOccurrence.xml");
+        URL url = getClass().getResource(schemaBase + mfMappingFile);
         assertNotNull(url);
 
         dsParams.put("dbtype", "app-schema");
@@ -311,22 +389,6 @@ public class DataAccessIntegrationTest extends TestCase {
             mfFeatures.add(mfIterator.next());
         }
         mfCollection.close(mfIterator);
-
-        /**
-         * Load geologic unit data access mapped from the input MO data access
-         */
-
-        url = getClass().getResource(schemaBase + "EarthResourceToGeologicUnit.xml");
-        assertNotNull(url);
-
-        dsParams.put("url", url.toExternalForm());
-
-        mappedGUDataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(mappedGUDataAccess);
-
-        guFeatureSource = mappedGUDataAccess.getFeatureSource(GEOLOGIC_UNIT);
-
-        assertNotNull(guFeatureSource);
 
         /**
          * Load composition part data access
@@ -373,317 +435,61 @@ public class DataAccessIntegrationTest extends TestCase {
     }
 
     /**
-     * Test that the app-schema data access with MO data access input loads successfully.
-     * 
-     * @throws IOException
-     * @throws URISyntaxException
+     * Dispose all the data accesses so that there is no mapping conflicts for other tests
      */
-    public void testLoadDataAccess() throws IOException, URISyntaxException {
-        // get the re-mapped geologic unit features
-        FeatureCollection<FeatureType, Feature> guFeatures = guFeatureSource.getFeatures();
-        Iterator<Feature> guIterator = guFeatures.iterator();
-        ArrayList<String> guIds = new ArrayList<String>();
-        while (guIterator.hasNext()) {
-            guIds.add(guIterator.next().getIdentifier().toString());
-        }
-        guFeatures.close(guIterator);
-
-        // get the simple earth resource features
-        File dir = new File(getClass().getResource(schemaBase).toURI());
-        PropertyDataStore dataStore = new PropertyDataStore(dir);
-        FeatureSource<SimpleFeatureType, SimpleFeature> simpleFeatureSource = dataStore
-                .getFeatureSource(EARTH_RESOURCE);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> moFeatures = simpleFeatureSource
-                .getFeatures();
-        Iterator<SimpleFeature> moIterator = moFeatures.iterator();
-        ArrayList<String> moIds = new ArrayList<String>();
-        while (moIterator.hasNext()) {
-            moIds.add(moIterator.next().getIdentifier().toString());
-        }
-        moFeatures.close(moIterator);
-
-        // compare the feature ids and make sure that the features are all there
-        assertEquals(guIds.size(), moIds.size());
-        assertEquals(guIds.containsAll(moIds), true);
+    protected void tearDown() {
+        inputDataAccess.dispose();
+        mfDataAccess.dispose();
+        cpDataAccess.dispose();
+        cgiDataAccess.dispose();
     }
 
     /**
-     * Test that the re-mapping from MO:EarthResource to GSML:GeologicUnit is successful. This also
-     * tests feature chaining for the mapped GU features.
-     * 
-     * @throws IOException
-     */
-    public void testMappings() throws IOException {
-        FeatureCollection<FeatureType, Feature> guCollection = (FeatureCollection<FeatureType, Feature>) guFeatureSource
-                .getFeatures();
-        // mo:EarthResource -> gsml:GeologicUnit output iterator
-        MappingFeatureIterator iterator = (MappingFeatureIterator) guCollection.iterator();
-        FeatureTypeMapping guSchema = AppSchemaDataAccessRegistry.getMapping(GEOLOGIC_UNIT);
-        Hints hints = new Hints(FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, guSchema
-                .getNamespaces());
-        // find attribute mappings for chained features
-        final String composition = "composition";
-        final String occurrence = "occurence";
-        final String commodity = "commodityDescription";
-        List<AttributeMapping> nonFeatureMappings = new ArrayList<AttributeMapping>();
-        AttributeMapping compositionMapping = null;
-        AttributeMapping occurrenceMapping = null;
-        for (AttributeMapping attMapping : guSchema.getAttributeMappings()) {
-            String attName = attMapping.getTargetXPath().toString();
-            if (attName.equals("gsml:" + composition)) {
-                compositionMapping = attMapping;
-            } else if (attName.equals("gsml:" + occurrence)) {
-                occurrenceMapping = attMapping;
-            } else {
-                // normal inline attribute mappings (not chained)
-                nonFeatureMappings.add(attMapping);
-            }
-        }
-        // make sure all the mappings are there
-        assertNotNull(occurrenceMapping);
-        assertNotNull(compositionMapping);
-        assertEquals(nonFeatureMappings.size(), guSchema.getAttributeMappings().size() - 2);
-
-        int guCount = 0;
-        ArrayList<Feature> guFeatures = new ArrayList<Feature>();
-        while (iterator.hasNext()) {
-            Feature next = (Feature) iterator.next();
-            FeatureId fId = next.getIdentifier();
-            Feature moFeature = null;
-            // find matching input MO feature to compare the values with
-            for (Feature inputFeature : minOccFeatures) {
-                if (iterator.featureFidMapping.evaluate(inputFeature).equals(fId)) {
-                    moFeature = inputFeature;
-                }
-            }
-            assertNotNull(moFeature);
-
-            /**
-             * Check Feature Chaining : Composition Part as composition
-             */
-            Collection<Property> gsmlCompositions = (Collection<Property>) next
-                    .getProperties(composition);
-            Collection<Property> moCompositions = (Collection<Property>) moFeature
-                    .getProperties(composition);
-            Collection<String> cpIds = new ArrayList<String>();
-            for (Property inputProperty : moCompositions) {
-                Collection<Attribute> values = (Collection<Attribute>) inputProperty.getValue();
-                for (Attribute attrib : values) {
-                    cpIds.add(attrib.getValue().toString());
-                }
-            }
-            assertEquals(cpIds.size() > 0, true);
-            assertEquals(gsmlCompositions.size(), cpIds.size());
-            ArrayList<String> nestedCpIds = new ArrayList<String>(cpIds.size());
-            for (Property outputProperty : gsmlCompositions) {
-                Collection<Feature> values = (Collection<Feature>) outputProperty.getValue();
-                Feature compositionPart = values.iterator().next();
-                // check the values
-                assertEquals(cpFeatures.contains(compositionPart), true);
-                nestedCpIds.add(compositionPart.getIdentifier().toString());
-            }
-
-            // check the feature has the correct id
-            assertEquals(cpIds.containsAll(nestedCpIds), true);
-
-            /**
-             * Check Feature Chaining : Mapped Feature as occurrence
-             */
-            Collection<Property> occurrences = (Collection<Property>) next
-                    .getProperties(occurrence);
-            Collection<Property> commodities = (Collection<Property>) moFeature
-                    .getProperties(commodity);
-            Collection<String> mfIds = new ArrayList<String>();
-            for (Property property : commodities) {
-                Collection<Attribute> values = (Collection<Attribute>) property.getValue();
-                for (Attribute attrib : values) {
-                    mfIds.add(attrib.getValue().toString());
-                }
-            }
-            assertEquals(mfIds.size() > 0, true);
-            assertEquals(occurrences.size(), mfIds.size());
-            ArrayList<String> nestedMfIds = new ArrayList<String>(mfIds.size());
-            for (Property mf : occurrences) {
-                Collection<Feature> values = (Collection<Feature>) mf.getValue();
-                Feature mfFeature = values.iterator().next();
-                // check the values
-                assertEquals(mfFeatures.contains(mfFeature), true);
-                nestedMfIds.add(mfFeature.getIdentifier().toString());
-            }
-
-            // check the feature has the correct id
-            assertEquals(mfIds.containsAll(nestedMfIds), true);
-
-            /**
-             * Check normal in-line attribute mappings
-             */
-            for (AttributeMapping attMapping : nonFeatureMappings) {
-                Expression sourceExpr = attMapping.getSourceExpression();
-                // make sure the mapping has the right values
-                if (!(sourceExpr instanceof AttributeExpressionImpl)) {
-                    // ignore attributes that aren't mapped from the input features, such as id
-                    continue;
-                }
-                AttributeExpressionImpl outputExpr = new AttributeExpressionImpl(attMapping
-                        .getTargetXPath().toString(), hints);
-                Object inputValue = sourceExpr.evaluate(moFeature);
-                while (inputValue instanceof Attribute) {
-                    inputValue = ((Attribute) inputValue).getValue();
-                }
-                Object outputValue = outputExpr.evaluate(next);
-                while (outputValue instanceof Attribute) {
-                    outputValue = ((Attribute) outputValue).getValue();
-                }
-                assertEquals(inputValue, outputValue);
-            }
-            guFeatures.add(next);
-            guCount++;
-        }
-        // make sure number of re-mapped features is consistent with input complex features
-        assertEquals(guCount, minOccFeatures.size());
-
-        /**
-         * Feature chaining : Make sure the features can be chained as well. The re-mapped Geologic
-         * Unit features are chained inside Mapped Features as specification.
-         */
-        mfDataAccess.dispose();
-        // recreate mapped features from another mapping file to avoid circular reference
-        Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
-        URL url = getClass().getResource(schemaBase + "MappedFeaturePropertyfile.xml");
-        assertNotNull(url);
-        dsParams.put("dbtype", "app-schema");
-        dsParams.put("url", url.toExternalForm());
-        mfDataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(mfDataAccess);
-        FeatureType mappedFeatureType = mfDataAccess.getSchema(MAPPED_FEATURE);
-        assertNotNull(mappedFeatureType);
-        FeatureSource<FeatureType, Feature> mfSource = mfDataAccess
-                .getFeatureSource(MAPPED_FEATURE);
-        FeatureCollection<FeatureType, Feature> mfCollection = mfSource.getFeatures();
-        Iterator<Feature> mfIterator = mfCollection.iterator();
-
-        while (mfIterator.hasNext()) {
-            Feature mf = mfIterator.next();
-            Property spec = mf.getProperty("specification");
-            assertNotNull(spec);
-            Object guObject = spec.getValue();
-            assertNotNull(guObject);
-            assertEquals(guObject instanceof Collection, true);
-            assertEquals(((Collection<Feature>) guObject).size(), 1);
-            guObject = ((Collection<Feature>) guObject).iterator().next();
-            assertEquals(guObject instanceof Feature, true);
-            Feature guFeature = (Feature) guObject;
-            // make sure this is the re-mapped geologic unit feature
-            assertEquals(guFeatures.contains(guFeature), true);
-            String propertyGuId = FeatureChainingTest.mfToGuMap.get(mf.getIdentifier().toString())
-                    .split("gu.")[1];
-            assertEquals(((Feature) guObject).getIdentifier().toString(), propertyGuId);
-        }
-        mfCollection.close(mfIterator);
-
-        mfDataAccess.dispose();
-    }
-
-    /**
-     * Test filters on the re-mapped geologic unit features, as well as the features that chain
-     * them.
-     * 
-     * @throws IOException
-     */
-    public void testFilters() throws IOException {
-        // Filtering on re-mapped geologic unit features
-        // Composition is a multi-valued property chained inside geologic unit.
-        // We're testing that we can get a geologic unit which has a composition part with a
-        // significant proportion value
-        Expression property = ff
-                .property("gsml:composition/gsml:CompositionPart/gsml:proportion/gsml:CGI_TermValue/gsml:value");
-        Expression string = ff.literal("significant");
-        Expression function = ff.function(FeatureChainingTest.CONTAINS_TEXT, property, string);
-        Filter filter = ff.equals(function, ff.literal(1));
-        FeatureCollection<FeatureType, Feature> filteredResults = guFeatureSource
-                .getFeatures(filter);
-        // see CompositionPart.properties:
-        // cp.167775491936278812=interbedded component|significant
-        // cp.167775491936278844=interbedded component|significant
-        // EarthResource.properties:
-        // _=FORM:String,COMPOSITION:String
-        // 25699=strataform|cp.167775491936278844,cp.167775491936278812,cp.167775491936278856
-        // 25682=cross-cutting|cp.167775491936278812
-        assertEquals(FeatureChainingTest.getCount(filteredResults), 2);
-
-        // Filtering on mapped feature features that chain the re-mapped geologic unit features
-        // First we need to recreate the mapping with a mapping file where gsml:specification exists
-        mfDataAccess.dispose();
-        Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
-        URL url = getClass().getResource(schemaBase + "MappedFeaturePropertyfile.xml");
-        assertNotNull(url);
-        dsParams.put("dbtype", "app-schema");
-        dsParams.put("url", url.toExternalForm());
-        mfDataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(mfDataAccess);
-        FeatureSource<FeatureType, Feature> mfSource = mfDataAccess
-                .getFeatureSource(MAPPED_FEATURE);
-        property = ff
-                .property("gsml:specification/gsml:GeologicUnit/gsml:bodyMorphology/gsml:CGI_TermValue/gsml:value");
-        string = ff.literal("vein");
-        function = ff.function(FeatureChainingTest.CONTAINS_TEXT, property, string);
-        filter = ff.equals(function, ff.literal(1));
-        filteredResults = mfSource.getFeatures(filter);
-
-        // see EarthResource.properties file:
-        // _=FORM:String,COMPOSITION:String,CLASSIFICATION:String,COMMODITYDESCRIPTION:String
-        // 25678=vein|cp.167775491936278856|urn:cgi:classifierScheme:GSV:GeologicalUnitType|mf2,mf3
-        // There are 2 mapped features: mf2 and mf3.
-        // You can verify by looking at MappedFeaturePropertiesFile.properties as well
-        assertEquals(FeatureChainingTest.getCount(filteredResults), 2);
-    }
-
-    /**
-     * This is a test data access factory to create non-app-schema MO data access as an input for
-     * the tests above.
+     * This is a test data access factory to create non-app-schema data access as an input for the
+     * tests above.
      * 
      * @author ang05a
      */
-    public static class MinOccDataAccessFactory implements DataAccessFactory {
-        public MinOccDataAccessFactory() {
+    public static class InputDataAccessFactory implements DataAccessFactory {
+        public InputDataAccessFactory() {
         }
 
         public boolean canProcess(Map<String, Serializable> params) {
             Object dbType = params.get("dbtype");
-            return dbType == null ? false : dbType.equals("mo-data-access");
+            return dbType == null ? false : dbType.equals("input-data-access");
         }
 
         public DataAccess<? extends FeatureType, ? extends Feature> createDataStore(
                 Map<String, Serializable> params) throws IOException {
-            URL schemaBase = (URL) params.get("directory");
+            URL schemaURL = getClass().getResource(schemaBase);
             File dir;
             try {
-                dir = new File(schemaBase.toURI());
+                dir = new File(schemaURL.toURI());
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
+            // get geologic unit properties file
             PropertyDataStore dataStore = new PropertyDataStore(dir);
             FeatureSource<SimpleFeatureType, SimpleFeature> simpleFeatureSource = dataStore
-                    .getFeatureSource(EARTH_RESOURCE);
-
-            // get the simple features from EarthResource.properties file
+                    .getFeatureSource(GEOLOGIC_UNIT);
             FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection = simpleFeatureSource
                     .getFeatures();
             reader = EmfAppSchemaReader.newInstance();
-            reader.parse(new URL(schemaBase.toString() + File.separator
-                    + "commonSchemas_new/mineralOccurrence/mineralOccurrence.xsd"), null);
-
+            // set catalog
+            URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
+            reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
+            // set schema URI
+            reader.parse(new URL(schemaURL.toString() + File.separator
+                    + "commonSchemas_new/GeoSciML/geologicUnit.xsd"), null);
+            // get simple features
             Map typeRegistry = reader.getTypeRegistry();
-            ComplexType complexType = (ComplexType) typeRegistry.get(EARTH_RESOURCE_TYPE);
-
-            // extend from abstract feature type
-            FeatureType earthResourceType = new FeatureTypeImpl(complexType.getName(), complexType
-                    .getDescriptors(), null, true, complexType.getRestrictions(),
-                    GMLSchema.ABSTRACTFEATURETYPE_TYPE, null);
-
-            minOccFeatures = getEarthResourceFeatures(fCollection, earthResourceType);
-
-            return new MinOccDataAccess(minOccFeatures, simpleFeatureSource.getSchema());
+            FeatureType simpleType = (FeatureType) typeRegistry.get(GEOLOGIC_UNIT_TYPE);
+            inputFeatures = getInputFeatures(fCollection, simpleType);
+            // create complex feature type
+            FeatureType guSchema = new FeatureTypeImpl(GEOLOGIC_UNIT, simpleType.getDescriptors(),
+                    null, true, simpleType.getRestrictions(), GMLSchema.ABSTRACTFEATURETYPE_TYPE,
+                    null);
+            return new InputDataAccess(inputFeatures, guSchema);
         }
 
         public String getDescription() {
@@ -711,14 +517,14 @@ public class DataAccessIntegrationTest extends TestCase {
          * 
          * @author ang05a
          */
-        private class MinOccDataAccess implements DataAccess<FeatureType, Feature> {
+        class InputDataAccess implements DataAccess<FeatureType, Feature> {
             private FeatureSource<FeatureType, Feature> fSource;
 
             private ArrayList<Name> names = new ArrayList<Name>();
 
-            public MinOccDataAccess(Collection<Feature> features, FeatureType schema) {
-                MinOccFeatureCollection fCollection = new MinOccFeatureCollection(schema, features);
-                fSource = new MinOccFeatureSource(fCollection, this);
+            public InputDataAccess(Collection<Feature> features, FeatureType schema) {
+                InputFeatureCollection fCollection = new InputFeatureCollection(schema, features);
+                fSource = new InputFeatureSource(fCollection, this);
                 names.add(fSource.getName());
                 DataAccessRegistry.register(this);
             }
@@ -760,12 +566,12 @@ public class DataAccessIntegrationTest extends TestCase {
          * 
          * @author ang05a
          */
-        private class MinOccFeatureSource implements FeatureSource<FeatureType, Feature> {
+        private class InputFeatureSource implements FeatureSource<FeatureType, Feature> {
             private FeatureCollection<FeatureType, Feature> fCollection;
 
             private DataAccess<FeatureType, Feature> dataAccess;
 
-            public MinOccFeatureSource(FeatureCollection<FeatureType, Feature> fCollection,
+            public InputFeatureSource(FeatureCollection<FeatureType, Feature> fCollection,
                     DataAccess<FeatureType, Feature> dataAccess) {
                 this.fCollection = fCollection;
                 this.dataAccess = dataAccess;
@@ -835,12 +641,12 @@ public class DataAccessIntegrationTest extends TestCase {
          * 
          * @author ang05a
          */
-        private class MinOccFeatureCollection implements FeatureCollection<FeatureType, Feature> {
+        private class InputFeatureCollection implements FeatureCollection<FeatureType, Feature> {
             private ArrayList<Feature> fList = new ArrayList<Feature>();
 
             private FeatureType schema;
 
-            public MinOccFeatureCollection(FeatureType schema, Collection<Feature> features) {
+            public InputFeatureCollection(FeatureType schema, Collection<Feature> features) {
                 this.schema = schema;
                 this.addAll(features);
             }
@@ -876,7 +682,7 @@ public class DataAccessIntegrationTest extends TestCase {
             }
 
             public void close(Iterator<Feature> close) {
-                ((MinOccFeatureIterator) close).close();
+                ((InputFeatureIterator) close).close();
             }
 
             public boolean contains(Object o) {
@@ -888,7 +694,7 @@ public class DataAccessIntegrationTest extends TestCase {
             }
 
             public FeatureIterator<Feature> features() {
-                return new MinOccFeatureIterator(fList);
+                return new InputFeatureIterator(fList);
             }
 
             public ReferencedEnvelope getBounds() {
@@ -943,7 +749,7 @@ public class DataAccessIntegrationTest extends TestCase {
                 if (filter == Filter.INCLUDE) {
                     return this;
                 }
-                FeatureCollection<FeatureType, Feature> fCollection = new MinOccFeatureCollection(
+                FeatureCollection<FeatureType, Feature> fCollection = new InputFeatureCollection(
                         this.schema, new ArrayList<Feature>());
 
                 for (Feature feature : this.fList) {
@@ -968,10 +774,10 @@ public class DataAccessIntegrationTest extends TestCase {
          * 
          * @author ang05a
          */
-        private class MinOccFeatureIterator implements Iterator<Feature>, FeatureIterator<Feature> {
+        private class InputFeatureIterator implements Iterator<Feature>, FeatureIterator<Feature> {
             Iterator<Feature> iterator;
 
-            public MinOccFeatureIterator(ArrayList<Feature> features) {
+            public InputFeatureIterator(ArrayList<Feature> features) {
                 iterator = features.iterator();
             }
 
@@ -991,5 +797,15 @@ public class DataAccessIntegrationTest extends TestCase {
                 iterator.remove();
             }
         }
+    }
+
+    /**
+     * Set filter factory with name spaces
+     */
+    public void setFilterFactory() {
+        NamespaceSupport namespaces = new NamespaceSupport();
+        namespaces.declarePrefix("gsml", GSMLNS);
+        namespaces.declarePrefix("gml", GMLNS);
+        ff = new FilterFactoryImplNamespaceAware(namespaces);
     }
 }

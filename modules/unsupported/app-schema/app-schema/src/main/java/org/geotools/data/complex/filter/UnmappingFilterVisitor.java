@@ -96,14 +96,14 @@ import org.xml.sax.helpers.NamespaceSupport;
  * Usage:
  * 
  * <pre>
- * <code>
+ * &lt;code&gt;
  *    Filter filterOnTargetType = ...
  *    FeatureTypeMappings schemaMapping = ....
  *                       
  *    UnMappingFilterVisitor visitor = new UnmappingFilterVisitor(schemaMapping);
  *    Filter filterOnSourceType = (Filter)filterOnTargetType.accept(visitor, null);
  *    
- * </code>
+ * &lt;/code&gt;
  * </pre>
  * 
  * </p>
@@ -111,7 +111,9 @@ import org.xml.sax.helpers.NamespaceSupport;
  * @author Gabriel Roldan, Axios Engineering
  * @author Rini Angreani, Curtin University of Technology
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/main
+ *         /java/org/geotools/data/complex/filter/UnmappingFilterVisitor.java $
  * @since 2.4
  */
 public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor, ExpressionVisitor {
@@ -152,8 +154,8 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
     }
 
     /**
-     * Returns a CompareFilter of the same type than <code>filter</code>, but built on the
-     * unmapped expressions pointing to the surrogate type attributes.
+     * Returns a CompareFilter of the same type than <code>filter</code>, but built on the unmapped
+     * expressions pointing to the surrogate type attributes.
      * 
      * @return the scalar product of the evaluation of both expressions
      */
@@ -729,8 +731,8 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
 
     /**
      * @todo: support function arguments that map to more than one source expression. For example,
-     *        if the argumen <code>gml:name</code> maps to source expressions <code>name</code>
-     *        and <code>description</code> because the mapping has attribute mappings for both
+     *        if the argumen <code>gml:name</code> maps to source expressions <code>name</code> and
+     *        <code>description</code> because the mapping has attribute mappings for both
      *        <code>gml:name[1] = name</code> and <code>gml:name[2] = description</code>.
      */
     public Object visit(Function function, Object arg1) {
@@ -830,18 +832,28 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                         // add to nestedMappings : feature type name, followed by the attribute name
                         nestedMappings.add(ff.literal(featureTypeName));
                         nestedMappings.add(mapping.getSourceExpression());
-                        
+
                         if (firstIndex < simplifiedSteps.size() - 1) {
                             // if this is not the last element and it's chained, we need to get its
                             // feature type mapping for the next attribute
                             try {
-                                Step nextRootStep = simplifiedSteps.get(firstIndex + processedSteps.size());
-                                featureTypeName = new NameImpl(nextRootStep.getName().getNamespaceURI(),
-                                        nextRootStep.getName().getLocalPart());
-                                fMapping = AppSchemaDataAccessRegistry.getMapping(featureTypeName);
-                                root = fMapping.getTargetFeature();
+                                Step nextRootStep = simplifiedSteps.get(firstIndex
+                                        + processedSteps.size());
+                                featureTypeName = new NameImpl(nextRootStep.getName()
+                                        .getNamespaceURI(), nextRootStep.getName().getLocalPart());
+                                if (AppSchemaDataAccessRegistry.hasName(featureTypeName)) {
+                                    fMapping = AppSchemaDataAccessRegistry
+                                            .getMapping(featureTypeName);
+                                } else {
+                                    // not configured inside an app-schema data access
+                                    // therefore simple features may not be available
+                                    // so we will just evaluate the complex features
+                                    // and we don't need the source expression
+                                    break;
+                                }
                             } catch (IOException e) {
-                                throw new IllegalArgumentException("Don't know how to map " + targetXPath);
+                                throw new IllegalArgumentException("Don't know how to map "
+                                        + targetXPath);
                             }
                         }
                     } else {
@@ -869,7 +881,6 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                         break;
                     }
 
-                    
                 }
                 // try without the last attribute in case the expression is an inline attribute
                 if (processedSteps.size() > 1) {
@@ -890,7 +901,8 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                 // we should only go on if the path legitimately has a chained feature
                 // otherwise the mapping is invalid and continue to throw exception below as
                 // the mapping is not found
-                matchingMappings.add(new NestedAttributeExpression(targetXPath, nestedMappings));
+                matchingMappings.add(new NestedAttributeExpression(targetXPath, nestedMappings,
+                        namespaces));
             }
         }
 
@@ -915,7 +927,7 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
      * @param simplifiedSteps
      * @return
      */
-    private List <Expression> findMappingsFor(FeatureTypeMapping mappings,
+    private List<Expression> findMappingsFor(FeatureTypeMapping mappings,
             final StepList propertyName) {
         // collect all the mappings for the given property
         List candidates;
@@ -925,7 +937,7 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
         if (!propertyName.toString().contains("[")) {
             candidates = mappings.getAttributeMappingsIgnoreIndex(propertyName);
         } else {
-            candidates = new ArrayList <AttributeMapping>();
+            candidates = new ArrayList<AttributeMapping>();
             AttributeMapping mapping = mappings.getAttributeMapping(propertyName);
             if (mapping != null) {
                 candidates.add(mapping);

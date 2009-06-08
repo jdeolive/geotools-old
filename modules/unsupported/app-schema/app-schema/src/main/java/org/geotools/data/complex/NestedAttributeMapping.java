@@ -25,14 +25,17 @@ import java.util.Map;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.filter.XPath.StepList;
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.filter.FilterFactoryImplNamespaceAware;
+import org.geotools.filter.NestedAttributeExpression;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.PropertyName;
+import org.xml.sax.helpers.NamespaceSupport;
 
 /**
  * This class represents AttributeMapping for attributes that are nested inside another complex
@@ -69,10 +72,12 @@ public class NestedAttributeMapping extends AttributeMapping {
      */
     private Expression nestedSourceExpression;
 
+    private NamespaceSupport namespaces;
+
     /**
      * Filter factory
      */
-    private FilterFactory filterFac = CommonFactoryFinder.getFilterFactory(null);
+    private FilterFactory filterFac;
 
     /**
      * Sole constructor
@@ -93,10 +98,13 @@ public class NestedAttributeMapping extends AttributeMapping {
      */
     public NestedAttributeMapping(Expression idExpression, Expression parentExpression,
             StepList targetXPath, boolean isMultiValued, Map<Name, Expression> clientProperties,
-            Name sourceElement, StepList sourcePath) throws IOException {
+            Name sourceElement, StepList sourcePath, NamespaceSupport namespaces)
+            throws IOException {
         super(idExpression, parentExpression, targetXPath, null, isMultiValued, clientProperties);
         this.nestedTargetXPath = sourcePath;
         this.nestedFeatureType = sourceElement;
+        this.namespaces = namespaces;
+        this.filterFac = new FilterFactoryImplNamespaceAware(namespaces);
     }
 
     @Override
@@ -166,18 +174,36 @@ public class NestedAttributeMapping extends AttributeMapping {
             mappingSource = DataAccessRegistry.getFeatureSource(nestedFeatureType);
         }
         assert mappingSource != null;
+        Filter filter;
 
-        Filter filter = filterFac.equals(filterFac.property(this.nestedTargetXPath.toString()),
-                filterFac.literal(foreignKeyValue));
+        ArrayList<Feature> matchingFeatures = new ArrayList<Feature>();
+        PropertyName propertyName = null;
+
+        if (!(mappingSource instanceof MappingFeatureSource)) {
+            // non app-schema source.. may not have simple feature source behind it
+            // so we need to filter straight on the complex features
+            propertyName = new NestedAttributeExpression(this.nestedTargetXPath.toString(),
+                    namespaces);
+        } else {
+            propertyName = filterFac.property(this.nestedTargetXPath.toString());
+        }
+        filter = filterFac.equals(propertyName, filterFac.literal(foreignKeyValue));
+
         // get all the mapped nested features based on the link values
         FeatureCollection<FeatureType, Feature> fCollection = mappingSource.getFeatures(filter);
         Iterator<Feature> iterator = fCollection.iterator();
-        ArrayList<Feature> matchingFeatures = new ArrayList<Feature>();
         while (iterator.hasNext()) {
             matchingFeatures.add(iterator.next());
         }
         fCollection.close(iterator);
 
         return matchingFeatures;
+    }
+
+    /**
+     * @return the nested feature type name
+     */
+    public Name getNestedFeatureType() {
+        return this.nestedFeatureType;
     }
 }

@@ -70,7 +70,9 @@ import org.xml.sax.helpers.NamespaceSupport;
  * @author Gabriel Roldan, Axios Engineering
  * @author Rini Angreani, Curtin University of Technology
  * @version $Id$
- * @source $URL$
+ * @source $URL:
+ *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/main
+ *         /java/org/geotools/data/complex/config/AppSchemaDataAccessConfigurator.java $
  * @since 2.4
  */
 public class AppSchemaDataAccessConfigurator {
@@ -80,8 +82,8 @@ public class AppSchemaDataAccessConfigurator {
 
     /** DOCUMENT ME! */
     private AppSchemaDataAccessDTO config;
-    
-    private Map<String,String> resolvedSchemaLocations;
+
+    private Map<String, String> resolvedSchemaLocations;
 
     private Map typeRegistry;
 
@@ -94,11 +96,12 @@ public class AppSchemaDataAccessConfigurator {
      * mapping file.
      */
     private NamespaceSupport namespaces;
+
     /**
-     * This holds the data access ids when isDataAccess is specified in the mapping connection 
-     * parameters. A data access differs from a data store where it produces complex
-     * features, instead of simple features. This requires the data access to be registered, so
-     * that its complex feature source can later be retrieved via the DataAccessRegistry.
+     * This holds the data access ids when isDataAccess is specified in the mapping connection
+     * parameters. A data access differs from a data store where it produces complex features,
+     * instead of simple features. This requires the data access to be registered, so that its
+     * complex feature source can later be retrieved via the DataAccessRegistry.
      */
     private ArrayList<String> inputDataAccessIds;
 
@@ -111,8 +114,8 @@ public class AppSchemaDataAccessConfigurator {
     private AppSchemaDataAccessConfigurator(AppSchemaDataAccessDTO config) {
         this.config = config;
         namespaces = new NamespaceSupport();
-        inputDataAccessIds = new ArrayList <String>();
-        resolvedSchemaLocations = new HashMap <String, String>();
+        inputDataAccessIds = new ArrayList<String>();
+        resolvedSchemaLocations = new HashMap<String, String>();
         Map nsMap = config.getNamespaces();
         for (Iterator it = nsMap.entrySet().iterator(); it.hasNext();) {
             Map.Entry entry = (Entry) it.next();
@@ -185,7 +188,7 @@ public class AppSchemaDataAccessConfigurator {
 
             FeatureSource featureSource = getFeatureSource(dto);
             AttributeDescriptor target = getTargetDescriptor(dto);
-            
+
             // set schema location for describeFeatureType
             String nsURI = target.getName().getNamespaceURI();
             if (nsURI != null) {
@@ -231,7 +234,8 @@ public class AppSchemaDataAccessConfigurator {
      * 
      * @return
      */
-    private List getAttributeMappings(final AttributeDescriptor root, final List attDtos) throws IOException {
+    private List getAttributeMappings(final AttributeDescriptor root, final List attDtos)
+            throws IOException {
         List attMappings = new LinkedList();
 
         for (Iterator it = attDtos.iterator(); it.hasNext();) {
@@ -264,7 +268,7 @@ public class AppSchemaDataAccessConfigurator {
             final Expression sourceExpression = (inputXPath == null) ? parseOgcCqlExpression(sourceExpr)
                     : new AttributeExpressionImpl(inputXPath, new Hints(
                             FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, this.namespaces));
-            
+
             final AttributeType expectedInstanceOf;
 
             final Map clientProperties = getClientProperties(attDto);
@@ -293,7 +297,7 @@ public class AppSchemaDataAccessConfigurator {
                 // a nested feature
                 attMapping = new NestedAttributeMapping(idExpression, sourceExpression,
                         targetXPathSteps, isMultiValued, clientProperties,
-                        degloseTypeName(sourceElement), sourceFieldSteps);
+                        degloseTypeName(sourceElement), sourceFieldSteps, namespaces);
             } else {
                 attMapping = new AttributeMapping(idExpression, sourceExpression, targetXPathSteps,
                         expectedInstanceOf, isMultiValued, clientProperties);
@@ -486,12 +490,12 @@ public class AppSchemaDataAccessConfigurator {
         String id;
 
         for (Iterator it = dsParams.iterator(); it.hasNext();) {
-            SourceDataStore dsconfig = (SourceDataStore) it.next();            
-            id = dsconfig.getId();    
-            
+            SourceDataStore dsconfig = (SourceDataStore) it.next();
+            id = dsconfig.getId();
+
             if (dsconfig.isDataAccess()) {
                 inputDataAccessIds.add(id);
-            } 
+            }
 
             Map datastoreParams = dsconfig.getParams();
 
