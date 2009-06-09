@@ -139,8 +139,8 @@ public class StrokeImpl implements Stroke, Cloneable {
             System.arraycopy(dashArray, 0, ret, 0, dashArray.length);
         } else {
         	final float[] defaultDashArray = Stroke.DEFAULT.getDashArray();
-        	
-        	assert defaultDashArray != null;
+        	if(defaultDashArray == null)
+        	    return null;
         	
         	ret = new float[defaultDashArray.length];
         	System.arraycopy(defaultDashArray, 0, ret, 0, defaultDashArray.length);

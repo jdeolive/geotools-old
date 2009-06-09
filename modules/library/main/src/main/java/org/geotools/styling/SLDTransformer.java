@@ -245,16 +245,16 @@ public class SLDTransformer extends TransformerBase {
 
             float[] dash = stroke.getDashArray();
 
-            //            if (dash != null) {
-            StringBuffer sb = new StringBuffer();
-
-            for (int i = 0; i < dash.length; i++) {
-                sb.append(dash[i] + " ");
+            if (dash != null) {
+                StringBuffer sb = new StringBuffer();
+    
+                for (int i = 0; i < dash.length; i++) {
+                    sb.append(dash[i] + " ");
+                }
+    
+                encodeCssParam("stroke-dasharray", sb.toString());
+    
             }
-
-            encodeCssParam("stroke-dasharray", sb.toString());
-
-            //            }
             end("Stroke");
         }
 

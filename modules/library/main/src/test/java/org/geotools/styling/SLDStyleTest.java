@@ -267,7 +267,7 @@ public class SLDStyleTest extends TestCase {
 //        assertTrue(result);
         
         //everything is equal
-        assertTrue(sld2.equals(sld));
+        assertEquals(sld2, sld);
     }
 
     public void testSLDTransformerIndentation() throws Exception {

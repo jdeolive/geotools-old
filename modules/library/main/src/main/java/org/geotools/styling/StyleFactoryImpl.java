@@ -595,17 +595,15 @@ public class StyleFactoryImpl extends AbstractStyleFactory
 
     public Stroke getDefaultStroke() {
         try {
-            Stroke stroke = createStroke(filterFactory.literal(
-                        "#000000"),
+            Stroke stroke = createStroke(filterFactory.literal("#000000"),
                     filterFactory.literal(new Integer(1)));
 
             stroke.setDashOffset(filterFactory.literal(
                     new Integer(0)));
-            stroke.setDashArray(new float[0]);
+            stroke.setDashArray(Stroke.DEFAULT.getDashArray());
             stroke.setLineCap(filterFactory.literal("butt"));
             stroke.setLineJoin(filterFactory.literal("miter"));
-            stroke.setOpacity(filterFactory.literal(
-                    new Integer(1)));
+            stroke.setOpacity(filterFactory.literal(new Integer(1)));
 
             return stroke;
         } catch (org.geotools.filter.IllegalFilterException ife) {
