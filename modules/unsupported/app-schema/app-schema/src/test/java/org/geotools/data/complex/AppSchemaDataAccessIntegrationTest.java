@@ -95,6 +95,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
     protected void setUp() throws Exception {
         Map<String, Serializable> moParams = new HashMap<String, Serializable>();
         moParams.put("dbtype", "mo-data-access");
+        moParams.put("directory", getClass().getResource(schemaBase));
         // get original non-app-schema data access
         inputDataAccess = DataAccessFinder.getDataStore(moParams);
         super.setFilterFactory();
@@ -415,7 +416,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         FeatureSource<FeatureType, Feature> mfSource = mfDataAccess
                 .getFeatureSource(MAPPED_FEATURE);
         FeatureCollection<FeatureType, Feature> mfCollection = mfSource.getFeatures();
-
+        
         Iterator<Feature> mfIterator = mfCollection.iterator();
         while (mfIterator.hasNext()) {
             Feature mf = mfIterator.next();
@@ -495,21 +496,21 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
     }
 
     /**
-     * Non app-schema data access factory producing min-occ XML output.
+     * Non app-schema data access factory producing min-occ XML output. 
      */
     public static class MinOccDataAccessFactory extends InputDataAccessFactory {
         public DataAccess<? extends FeatureType, ? extends Feature> createDataStore(
                 Map<String, Serializable> params) throws IOException {
             String schemaLocation = "commonSchemas_new/mineralOccurrence/mineralOccurrence.xsd";
             String typeName = EARTH_RESOURCE.getLocalPart();
-            URL schemaDir = getClass().getResource(schemaBase);
-            File dir;
+            URL schemaDir = (URL) params.get("directory");
+            File fileDir;
             try {
-                dir = new File(schemaDir.toURI());
+                fileDir = new File(schemaDir.toURI());
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
-            PropertyDataStore dataStore = new PropertyDataStore(dir);
+            PropertyDataStore dataStore = new PropertyDataStore(fileDir);
 
             FeatureSource<SimpleFeatureType, SimpleFeature> simpleFeatureSource = dataStore
                     .getFeatureSource(typeName);
