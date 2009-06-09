@@ -53,7 +53,6 @@ import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.gce.RasterUtils.QueryInfo;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEPooledConnection;
 import org.geotools.coverage.CoverageFactoryFinder;
@@ -211,7 +210,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
          * For each raster in the raster dataset, obtain the tiles, pixel range, and resulting
          * envelope
          */
-        final List<QueryInfo> queries;
+        final List<RasterQueryInfo> queries;
         queries = findMatchingRasters(requestedEnvelope, requestedDim, overviewPolicy);
         if (queries.isEmpty()) {
             /*
@@ -243,8 +242,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         try {
             preparedQuery.execute();
 
-            final Map<Long, QueryInfo> byRasterdIdQueries = new HashMap<Long, QueryInfo>();
-            for (QueryInfo q : queries) {
+            final Map<Long, RasterQueryInfo> byRasterdIdQueries = new HashMap<Long, RasterQueryInfo>();
+            for (RasterQueryInfo q : queries) {
                 byRasterdIdQueries.put(q.getRasterId(), q);
             }
 
@@ -257,7 +256,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
                 if (byRasterdIdQueries.containsKey(rasterId)) {
 
-                    final QueryInfo rasterQueryInfo = byRasterdIdQueries.get(rasterId);
+                    final RasterQueryInfo rasterQueryInfo = byRasterdIdQueries.get(rasterId);
 
                     LOGGER.finer(rasterQueryInfo.toString());
                     geomLog.appendLoggingGeometries(LoggingHelper.MOSAIC_EXPECTED, rasterQueryInfo
@@ -366,10 +365,10 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         return coverageFactory.create(coverageName, image, requestedEnvelope);
     }
 
-    private List<QueryInfo> findMatchingRasters(final GeneralEnvelope requestedEnvelope,
+    private List<RasterQueryInfo> findMatchingRasters(final GeneralEnvelope requestedEnvelope,
             final Rectangle requestedDim, final OverviewPolicy overviewPolicy) {
 
-        final List<QueryInfo> matchingQueries;
+        final List<RasterQueryInfo> matchingQueries;
         matchingQueries = RasterUtils.findMatchingRasters(rasterInfo, requestedEnvelope,
                 requestedDim, overviewPolicy);
 
@@ -377,17 +376,17 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             return matchingQueries;
         }
 
-        for (QueryInfo match : matchingQueries) {
+        for (RasterQueryInfo match : matchingQueries) {
             RasterUtils.fitRequestToRaster(requestedEnvelope, rasterInfo, match);
         }
         return matchingQueries;
     }
 
-    private GeneralEnvelope getResultEnvelope(final List<QueryInfo> queryInfos) {
+    private GeneralEnvelope getResultEnvelope(final List<RasterQueryInfo> queryInfos) {
 
         GeneralEnvelope finalEnvelope = null;
 
-        for (QueryInfo rasterQueryInfo : queryInfos) {
+        for (RasterQueryInfo rasterQueryInfo : queryInfos) {
             // gather resulting envelope
             if (finalEnvelope == null) {
                 finalEnvelope = new GeneralEnvelope(rasterQueryInfo.getResultEnvelope());
@@ -409,7 +408,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
      * @return
      * @throws IOException
      */
-    private RenderedImage createMosaic(final List<QueryInfo> queries) throws IOException {
+    private RenderedImage createMosaic(final List<RasterQueryInfo> queries) throws IOException {
         // if (queries.size() == 1) {
         // // no need to mosaic at all
         // return queries.get(0).getResultImage();
@@ -427,7 +426,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                     + " colormapped rasters. The mosaic tiles will be expanded to "
                     + "\nRGB space and the resulting mosaic reduced to a new IndexColorModel");
         }
-        for (QueryInfo query : queries) {
+        for (RasterQueryInfo query : queries) {
             RenderedImage image = query.getResultImage();
             _log(image, query.getRasterId(), "01_original");
 
@@ -543,7 +542,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
     private RenderedImage getRasterMatchingTileRange(int pyramidLevelChoice,
             final SeQuery preparedQuery, SeRow row, final SeRasterAttr rAttr,
-            final QueryInfo rasterQueryInfo) throws IOException {
+            final RasterQueryInfo rasterQueryInfo) throws IOException {
 
         /*
          * Create the prepared query (not executed) stream to fetch the tiles from

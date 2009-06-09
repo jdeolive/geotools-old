@@ -35,7 +35,6 @@ import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
-import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,187 +116,6 @@ class RasterUtils {
             }
         }
         return reqEnv;
-    }
-
-    public static class QueryInfo {
-
-        private GeneralEnvelope requestedEnvelope;
-
-        private Rectangle requestedDim;
-
-        private int pyramidLevel;
-
-        /**
-         * The two-dimensional range of tile indices whose envelope intersect the requested extent.
-         * Will have negative width and height if none of the tiles do.
-         */
-        private Rectangle matchingTiles;
-
-        private GeneralEnvelope resultEnvelope;
-
-        private Rectangle resultDimension;
-
-        private Long rasterId;
-
-        private Rectangle mosaicLocation;
-
-        private RenderedImage resultImage;
-
-        private Rectangle tiledImageSize;
-
-        private double[] resolution;
-
-        private int rasterIndex;
-
-        /**
-         * The full tile range for the matching pyramid level
-         */
-        private Rectangle levelTileRange;
-
-        public QueryInfo() {
-            setResultDimensionInsideTiledImage(new Rectangle(0, 0, 0, 0));
-            setMatchingTiles(new Rectangle(0, 0, 0, 0));
-            setResultEnvelope(null);
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder s = new StringBuilder("[Raster query info:");
-            s.append("\n\tRaster ID            : ").append(getRasterId());
-            s.append("\n\tPyramid level        : ").append(getPyramidLevel());
-            s.append("\n\tResolution           : ").append(
-                    getResolution()[0] + "," + getResolution()[1]);
-            s.append("\n\tRequested envelope   : ").append(getRequestedEnvelope());
-            s.append("\n\tRequested dimension  : ").append(getRequestedDim());
-            Rectangle mt = getMatchingTiles();
-            Rectangle ltr = getLevelTileRange();
-            String matching = "x=" + mt.x + "-" + (mt.width - 1) + ", y=" + mt.y + "-"
-                    + (mt.height - 1);
-            String level = "x=" + ltr.x + "-" + (ltr.width - 1) + ", y=" + ltr.y + "-"
-                    + (ltr.height - 1);
-            s.append("\n\tMatching tiles       : ").append(matching).append(" out of ").append(
-                    level);
-            s.append("\n\tTiled image size     : ").append(getTiledImageSize());
-            s.append("\n\tResult dimension     : ").append(getResultDimensionInsideTiledImage());
-            s.append("\n\tMosaiced dimension   : ").append(getMosaicLocation());
-            s.append("\n\tResult envelope      : ").append(getResultEnvelope());
-            s.append("\n]");
-            return s.toString();
-        }
-
-        /**
-         * @return the rasterId (as in SeRaster.getId()) for the raster in the raster dataset this
-         *         query works upon
-         */
-        public Long getRasterId() {
-            return rasterId;
-        }
-
-        public GeneralEnvelope getRequestedEnvelope() {
-            return requestedEnvelope;
-        }
-
-        public Rectangle getRequestedDim() {
-            return requestedDim;
-        }
-
-        public int getPyramidLevel() {
-            return pyramidLevel;
-        }
-
-        public Rectangle getMatchingTiles() {
-            return matchingTiles;
-        }
-
-        public GeneralEnvelope getResultEnvelope() {
-            return resultEnvelope;
-        }
-
-        public Rectangle getResultDimensionInsideTiledImage() {
-            return resultDimension;
-        }
-
-        void setRasterId(Long rasterId) {
-            this.rasterId = rasterId;
-        }
-
-        void setPyramidLevel(int pyramidLevel) {
-            this.pyramidLevel = pyramidLevel;
-        }
-
-        void setRequestedEnvelope(GeneralEnvelope requestedEnvelope) {
-            this.requestedEnvelope = requestedEnvelope;
-        }
-
-        void setRequestedDim(Rectangle requestedDim) {
-            this.requestedDim = requestedDim;
-        }
-
-        void setResultEnvelope(GeneralEnvelope resultEnvelope) {
-            this.resultEnvelope = resultEnvelope;
-        }
-
-        void setMatchingTiles(Rectangle matchingTiles) {
-            this.matchingTiles = matchingTiles;
-        }
-
-        void setResultDimensionInsideTiledImage(Rectangle resultDimension) {
-            this.resultDimension = resultDimension;
-        }
-
-        void setMosaicLocation(Rectangle rasterMosaicLocation) {
-            this.mosaicLocation = rasterMosaicLocation;
-        }
-
-        public Rectangle getMosaicLocation() {
-            return mosaicLocation;
-        }
-
-        public void setResultImage(RenderedImage rasterImage) {
-            this.resultImage = rasterImage;
-            if (rasterImage.getWidth() != tiledImageSize.width
-                    || rasterImage.getHeight() != tiledImageSize.height) {
-                LOGGER.warning("Result image and expected dimensions don't match: image="
-                        + resultImage.getWidth() + "x" + resultImage.getHeight() + ", expected="
-                        + tiledImageSize.width + "x" + tiledImageSize.height);
-            }
-        }
-
-        public RenderedImage getResultImage() {
-            return resultImage;
-        }
-
-        void setTiledImageSize(Rectangle tiledImageSize) {
-            this.tiledImageSize = tiledImageSize;
-        }
-
-        public Rectangle getTiledImageSize() {
-            return tiledImageSize;
-        }
-
-        void setResolution(double[] resolution) {
-            this.resolution = resolution;
-        }
-
-        public double[] getResolution() {
-            return resolution == null ? new double[] { -1, -1 } : resolution;
-        }
-
-        void setRasterIndex(int rasterN) {
-            this.rasterIndex = rasterN;
-        }
-
-        public int getRasterIndex() {
-            return rasterIndex;
-        }
-
-        void setLevelTileRange(Rectangle levelTileRange) {
-            this.levelTileRange = levelTileRange;
-        }
-
-        public Rectangle getLevelTileRange() {
-            return levelTileRange;
-        }
     }
 
     public static MathTransform createRasterToModel(final Rectangle levelGridRange,
@@ -698,7 +516,7 @@ class RasterUtils {
     }
 
     /**
-     * Given a collection of {@link QueryInfo} instances holding information about how a request
+     * Given a collection of {@link RasterQueryInfo} instances holding information about how a request
      * fits for each individual raster composing a catalog, figure out where their resulting images
      * fit into the overall mosaic that's gonna be the result of the request.
      * 
@@ -708,7 +526,7 @@ class RasterUtils {
      * @return
      */
     public static Rectangle setMosaicLocations(final RasterDatasetInfo rasterInfo,
-            final GeneralEnvelope resultEnvelope, final List<QueryInfo> results) {
+            final GeneralEnvelope resultEnvelope, final List<RasterQueryInfo> results) {
         final Rectangle mosaicDimension;
         final MathTransform modelToRaster;
         final MathTransform rasterToModel;
@@ -719,7 +537,7 @@ class RasterUtils {
              * which are buggy and produce repeated patterns over the x axis instead of just scaling
              * up the image.
              */
-            QueryInfo dimensionChoice = findLowestResolution(results);
+            RasterQueryInfo dimensionChoice = findLowestResolution(results);
             Long rasterId = dimensionChoice.getRasterId();
             int pyramidLevel = dimensionChoice.getPyramidLevel();
             int rasterIndex = rasterInfo.getRasterIndex(rasterId);
@@ -734,7 +552,7 @@ class RasterUtils {
             mosaicDimension = getTargetGridRange(modelToRaster, resultEnvelope);
         }
 
-        for (QueryInfo rasterResultInfo : results) {
+        for (RasterQueryInfo rasterResultInfo : results) {
             final GeneralEnvelope rasterResultEnvelope = rasterResultInfo.getResultEnvelope();
 
             final Rectangle targetRasterGridRange;
@@ -746,12 +564,12 @@ class RasterUtils {
         return mosaicDimension;
     }
 
-    private static QueryInfo findLowestResolution(List<QueryInfo> results) {
+    private static RasterQueryInfo findLowestResolution(List<RasterQueryInfo> results) {
         double[] prev = { Double.MIN_VALUE, Double.MIN_VALUE };
-        QueryInfo lowestResQuery = null;
+        RasterQueryInfo lowestResQuery = null;
 
         double[] curr;
-        for (QueryInfo query : results) {
+        for (RasterQueryInfo query : results) {
             curr = query.getResolution();
             if (curr[0] > prev[0]) {
                 prev = curr;
@@ -771,12 +589,12 @@ class RasterUtils {
      * @param overviewPolicy
      * @return
      */
-    public static List<QueryInfo> findMatchingRasters(final RasterDatasetInfo rasterInfo,
+    public static List<RasterQueryInfo> findMatchingRasters(final RasterDatasetInfo rasterInfo,
             final GeneralEnvelope requestedEnvelope, final Rectangle requestedDim,
             final OverviewPolicy overviewPolicy) {
 
         final int numRasters = rasterInfo.getNumRasters();
-        List<QueryInfo> matchingRasters = new ArrayList<QueryInfo>(numRasters);
+        List<RasterQueryInfo> matchingRasters = new ArrayList<RasterQueryInfo>(numRasters);
 
         int optimalPyramidLevel;
         GeneralEnvelope gridEnvelope;
@@ -786,7 +604,7 @@ class RasterUtils {
             gridEnvelope = rasterInfo.getGridEnvelope(rasterN, optimalPyramidLevel);
             final boolean edgesInclusive = true;
             if (requestedEnvelope.intersects(gridEnvelope, edgesInclusive)) {
-                QueryInfo match = new QueryInfo();
+                RasterQueryInfo match = new RasterQueryInfo();
                 match.setRequestedEnvelope(requestedEnvelope);
                 match.setRequestedDim(requestedDim);
 
@@ -801,7 +619,7 @@ class RasterUtils {
     }
 
     public static void fitRequestToRaster(final GeneralEnvelope requestedEnvelope,
-            final RasterDatasetInfo rasterInfo, final QueryInfo query) {
+            final RasterDatasetInfo rasterInfo, final RasterQueryInfo query) {
 
         final int rasterIndex = query.getRasterIndex();
         final int pyramidLevel = query.getPyramidLevel();
