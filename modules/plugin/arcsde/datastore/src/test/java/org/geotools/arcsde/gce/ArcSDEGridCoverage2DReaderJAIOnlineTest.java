@@ -410,6 +410,15 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         final RenderedImage geophysics = coverage.view(ViewType.GEOPHYSICS).getRenderedImage();
         assertNotNull(geophysics);
 
+        final String fileName = "testReadFullLevel0_" + fileNamePostFix;
+
+        if (!(geophysics.getColorModel() instanceof IndexColorModel)) {
+            // not sure why, but the geotiff writer goes OOM if it's an indexed image
+            writeToDisk(coverage, fileName);
+        }
+        writeToDisk(geophysics, fileName);
+
+        
         // ////assertEquals(cellType.getDataBufferType(), image.getSampleModel().getDataType());
         final int[] sampleSize = geophysics.getSampleModel().getSampleSize();
         final ColorModel colorModel = geophysics.getColorModel();
@@ -434,14 +443,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
             }
         }
 
-        final String fileName = "testReadFullLevel0_" + fileNamePostFix;
-
-        if (!(geophysics.getColorModel() instanceof IndexColorModel)) {
-            // not sure why, but the geotiff writer goes OOM if it's an indexed image
-            writeToDisk(coverage, fileName);
-        }
-        writeToDisk(geophysics, fileName);
-
+        
         return coverage;
     }
 

@@ -45,7 +45,26 @@ final class RasterBandInfo {
 
     boolean hasColorMap;
 
+    /**
+     * the color map as it is on the database, except that we always create a color map with alpha
+     * channel regardless of whether the native on has alpha or not, to account for the no-data
+     * pixel to be a transparent one where appropriate
+     */
+    IndexColorModel nativeColorMap;
+
+    /**
+     * The color map as it is going to be used by this library. May differ from the native one
+     * either in the number of elements (when the native color map is not full and it has no
+     * transparent pixel to be used as no-data value), or in the pixel depth (when the native
+     * colormap is full, has no no-data pixel, and hence it needs to be promoted to a higher
+     * transfer type to make room for a no-data index)
+     */
     IndexColorModel colorMap;
+
+    /**
+     * The band's no-data value.
+     */
+    Number noDataValue;
 
     CompressionType compressionType;
 
@@ -164,6 +183,10 @@ final class RasterBandInfo {
         return tileOrigin;
     }
 
+    public IndexColorModel getNativeColorMap() {
+        return nativeColorMap;
+    }
+
     public IndexColorModel getColorMap() {
         return colorMap;
     }
@@ -182,6 +205,10 @@ final class RasterBandInfo {
 
     public double getStatsStdDev() {
         return statsStdDev;
+    }
+
+    public Number getNoDataValue() {
+        return noDataValue;
     }
 
     @SuppressWarnings("nls")

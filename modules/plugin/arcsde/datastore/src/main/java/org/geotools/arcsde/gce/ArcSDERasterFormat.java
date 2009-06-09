@@ -675,10 +675,12 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         if (bandInfo.hasColorMap) {
             IndexColorModel colorMap = colorMaps.get(Long.valueOf(bandInfo.bandId));
             LOGGER.finest("Setting band's color map: " + colorMap);
-            bandInfo.colorMap = colorMap;
+            bandInfo.nativeColorMap = colorMap;
+            bandInfo.colorMap = RasterUtils.ensureNoDataPixelIsAvailable(colorMap);
         } else {
-            bandInfo.colorMap = null;
+            bandInfo.nativeColorMap = null;
         }
+
         bandInfo.compressionType = CompressionType.valueOf(band.getCompressionType());
         SeExtent extent = band.getExtent();
         bandInfo.bandExtent = new Envelope(extent.getMinX(), extent.getMaxX(), extent.getMinY(),
@@ -705,6 +707,12 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             bandInfo.statsMax = java.lang.Double.NaN;
             bandInfo.statsMean = java.lang.Double.NaN;
             bandInfo.statsStdDev = java.lang.Double.NaN;
+        }
+        if (bandInfo.getColorMap() != null) {
+            bandInfo.noDataValue = RasterUtils.determineNoDataValue(bandInfo.getColorMap());
+        } else {
+            bandInfo.noDataValue = RasterUtils.determineNoDataValue(bandInfo.getStatsMin(),
+                    bandInfo.getStatsMax(), bandInfo.getCellType());
         }
         bandInfo.tileWidth = band.getTileWidth();
         bandInfo.tileHeight = band.getTileHeight();

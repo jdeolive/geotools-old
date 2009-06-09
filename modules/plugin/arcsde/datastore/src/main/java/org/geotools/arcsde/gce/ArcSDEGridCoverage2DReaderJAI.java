@@ -24,7 +24,6 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
-import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
@@ -534,6 +533,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
     private void _log(RenderedImage image, Long rasterId, String fileName) throws IOException {
         if (DEBUG) {
+            LOGGER.warning("BEWARE THE DEBUG FLAG IS TURNED ON! "
+                    + "IF IN PRODUCTION THIS IS A SEVERE MISTAKE!!!");
             ImageIO.write(FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE),
                     null), "TIFF", new File(debugDir, rasterId.longValue() + fileName + ".tiff"));
         }
@@ -548,6 +549,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
          * Create the prepared query (not executed) stream to fetch the tiles from
          */
         final Rectangle matchingTiles = rasterQueryInfo.getMatchingTiles();
+        final int rasterIndex = rasterQueryInfo.getRasterIndex();
+        final Point imageLocation = rasterQueryInfo.getTiledImageSize().getLocation();
 
         // covers an area of full tiles
         final RenderedImage fullTilesRaster;
@@ -555,9 +558,9 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         /*
          * Create the tiled raster covering the full area of the matching tiles
          */
+
         fullTilesRaster = createTiledRaster(preparedQuery, row, rAttr, matchingTiles,
-                pyramidLevelChoice, rasterQueryInfo.getTiledImageSize().getLocation(),
-                rasterQueryInfo.getRasterIndex());
+                pyramidLevelChoice, imageLocation, rasterIndex);
 
         /*
          * REVISIT: This is odd, we need to force the data to be loaded so we're free to release the
@@ -644,10 +647,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         final int tileWidth;
         final int tileHeight;
         final int numberOfBands;
-        final RasterCellType pixelType;
         try {
             numberOfBands = rAttr.getNumBands();
-            pixelType = RasterCellType.valueOf(rAttr.getPixelType());
             tileWidth = rAttr.getTileWidth();
             tileHeight = rAttr.getTileHeight();
 
@@ -668,10 +669,12 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             }
             SDEPoint tileOrigin = rAttr.getTileOrigin();
 
-            Rectangle tiledImageSize = new Rectangle(0, 0, tileWidth * matchingTiles.width,
-                    tileHeight * matchingTiles.height);
+            if (LOGGER.isLoggable(Level.FINE)) {
+                Rectangle tiledImageSize = new Rectangle(0, 0, tileWidth * matchingTiles.width,
+                        tileHeight * matchingTiles.height);
 
-            LOGGER.fine("Tiled image size: " + tiledImageSize);
+                LOGGER.fine("Tiled image size: " + tiledImageSize);
+            }
 
             final int interleaveType = SeRaster.SE_RASTER_INTERLEAVE_BIP;
 
@@ -687,35 +690,44 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             throw new ArcSdeException(se);
         }
 
-        final TileReader tileReader = TileReader.getInstance(row, pixelType.getBitsPerSample(),
-                numberOfBands, matchingTiles, new Dimension(tileWidth, tileHeight));
+        final TileReader tileReader;
+        final RasterCellType nativeCellType = rasterInfo.getNativeCellType();
 
-        final int tiledImageWidth = tileReader.getTilesWide() * tileReader.getTileWidth();
-        final int tiledImageHeight = tileReader.getTilesHigh() * tileReader.getTileHeight();
+        {
+            final int nativeBitsPerSample = nativeCellType.getBitsPerSample();
+            final Dimension tileSize = new Dimension(tileWidth, tileHeight);
+            tileReader = TileReader.getInstance(row, nativeBitsPerSample, numberOfBands,
+                    matchingTiles, tileSize);
+        }
 
         // Prepare temporary colorModel and sample model, needed to build the final
         // ArcSDEPyramidLevel level;
+        final Dimension tiledImageSize;
         final ColorModel colorModel;
         final SampleModel sampleModel;
         {
+            final int tiledImageWidth = tileReader.getTilesWide() * tileReader.getTileWidth();
+            final int tiledImageHeight = tileReader.getTilesHigh() * tileReader.getTileHeight();
+            tiledImageSize = new Dimension(tiledImageWidth, tiledImageHeight);
+
             final ImageTypeSpecifier fullImageSpec = rasterInfo.getRenderedImageSpec(rasterIndex);
             colorModel = fullImageSpec.getColorModel();
             sampleModel = fullImageSpec.getSampleModel(tiledImageWidth, tiledImageHeight);
         }
 
-        final long[] imageOffsets = new long[] { 0 };
-        final Dimension[] imageDimensions = new Dimension[] { new Dimension(tiledImageWidth,
-                tiledImageHeight) };
-
-        final ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
-
         // Finally, build the image input stream
         final RawImageInputStream raw;
         {
+            final long[] imageOffsets = new long[] { 0 };
+            final Dimension[] imageDimensions = new Dimension[] { tiledImageSize };
+
+            final ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
+
+            final RasterCellType targetCellType = rasterInfo.getTargetCellType(rasterIndex);
             final ImageInputStream tiledImageInputStream;
-            final boolean promoted = (colorModel instanceof IndexColorModel)
-                    && ((IndexColorModel) colorModel).getPixelSize() == 16
-                    && pixelType.getBitsPerSample() == 8;
+
+            final boolean promoted = nativeCellType != targetCellType;
+
             tiledImageInputStream = new ArcSDETiledImageInputStream(tileReader, promoted);
 
             raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets, imageDimensions);
@@ -726,8 +738,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         {
             int minX = imageLocation.x;
             int minY = imageLocation.y;
-            int width = tiledImageWidth;
-            int height = tiledImageHeight;
+            int width = tiledImageSize.width;
+            int height = tiledImageSize.height;
 
             int tileGridXOffset = imageLocation.x;
             int tileGridYOffset = imageLocation.y;

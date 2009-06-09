@@ -290,7 +290,7 @@ final class RasterDatasetInfo {
         sb.append(", Raster columns: ").append(Arrays.asList(getRasterColumns()));
         sb.append(", Num bands: ").append(getNumBands());
         sb.append(", Dimension: ").append(getImageWidth()).append("x").append(getImageHeight());
-        sb.append(", Pixel type: ").append(getCellType());
+        sb.append(", Pixel type: ").append(getNativeCellType());
         sb.append(", Has Color Map: ").append(isColorMapped());
         for (int rasterIndex = 0; rasterIndex < getNumRasters(); rasterIndex++) {
             RasterInfo pyramid = getRasterInfo(rasterIndex);
@@ -394,8 +394,12 @@ final class RasterDatasetInfo {
         return bandOne.isColorMapped();
     }
 
-    public RasterCellType getCellType() {
+    public RasterCellType getNativeCellType() {
         return getBand(0, 0).getCellType();
+    }
+
+    public RasterCellType getTargetCellType(final int rasterIndex) {
+        return RasterUtils.determineTargetCellType(this, rasterIndex);
     }
 
     public Long getRasterId(final int rasterIndex) {
@@ -440,4 +444,9 @@ final class RasterDatasetInfo {
         return new Point(level.getXOffset(), level.getYOffset());
     }
 
+    public Number getNoDataValue(final int rasterIndex, final int bandIndex) {
+        RasterBandInfo band = getBand(rasterIndex, bandIndex);
+        Number noDataValue = band.getNoDataValue();
+        return noDataValue;
+    }
 }

@@ -17,6 +17,11 @@
  */
 package org.geotools.arcsde.gce;
 
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_S;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_U;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_32BIT_S;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_32BIT_U;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_64BIT_REAL;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_U;
 
 import java.awt.Color;
@@ -49,6 +54,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.resources.image.ColorUtilities;
 import org.geotools.resources.image.ComponentColorModelJAI;
+import org.geotools.util.NumberRange;
 import org.geotools.util.logging.Logging;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
@@ -440,105 +446,11 @@ class RasterUtils {
         return colorModel;
     }
 
-    /**
-     * Creates an IndexColorModel out of a DataBuffer obtained from an ArcSDE's raster color map.
-     * <p>
-     * The resulting IndexColorModel has always four components, whether the original color map has
-     * alpha channel or not. In case the original color map has no alpha channel, the fourth
-     * component will be all opaque.
-     * </p>
-     * <p>
-     * The no-data value to be used for this color model will always be the last element in the
-     * resulting map. If needed, the map's gonna be extended in capacity to make room for the
-     * no-data value, as well as the color model's transfer type may be promoted to the next higher
-     * one (ie, from 8bit to 16bit). Further processing may take into account this possible
-     * difference between the actual data pixel depth and the colormap's one to perform the
-     * necessary conversion.
-     * </p>
-     * 
-     * @param colorMapData
-     * @return
-     */
-    public static IndexColorModel _sdeColorMapToJavaColorModel(final DataBuffer colorMapData,
-            final int bitsPerSample) {
-        if (colorMapData == null) {
-            throw new NullPointerException("colorMapData");
-        }
-
-        if (colorMapData.getNumBanks() < 3 || colorMapData.getNumBanks() > 4) {
-            throw new IllegalArgumentException("colorMapData shall have 3 or 4 banks: "
-                    + colorMapData.getNumBanks());
-        }
-
-        int[] ARGB = null;
-        final int numBanks = colorMapData.getNumBanks();
-        {
-            final int mapSize = colorMapData.getSize();
-            ARGB = new int[mapSize];
-            int r;
-            int g;
-            int b;
-            int a;
-            for (int i = 0; i < mapSize; i++) {
-                r = colorMapData.getElem(0, i);
-                g = colorMapData.getElem(1, i);
-                b = colorMapData.getElem(2, i);
-                a = numBanks == 4 ? colorMapData.getElem(3, i) : 255;
-                int rgba = ColorUtilities.getIntFromColor(r, g, b, a);
-                ARGB[i] = rgba;
-            }
-        }
-        /*
-         * Now check if the map need to be expanded and/or the transfer type promoted to the next
-         * higher level in order to make room for the no-data value
-         */
-        int transferType = colorMapData.getDataType();
-        int finalBitsPerSample = bitsPerSample;
-        {
-            int mapSize = ARGB.length;
-            switch (bitsPerSample) {
-            case 8:
-                if (mapSize >= 256) {
-                    LOGGER.finer("Promoting transfer type from 8 to 16 bits per sample");
-                    transferType = DataBuffer.TYPE_USHORT;
-                    finalBitsPerSample = 16;
-                    int[] tmp = new int[65536];
-                    System.arraycopy(ARGB, 0, tmp, 0, ARGB.length);
-                    ARGB = tmp;
-                    // HACK set the largest value as the no data value. I need to get rid of this
-                    // hack by properly setting a no-data value being just one more index than the
-                    // maximum one instead of 65535, but for that we need proper format promotion
-                    // with parameterizable no-data value for TileReader
-                    int nodataValue = ColorUtilities.getIntFromColor(0, 0, 0, 0);
-                    ARGB[ARGB.length - 1] = nodataValue;
-                } else {
-                    finalBitsPerSample = 8;
-                }
-                break;
-            case 16:
-                transferType = DataBuffer.TYPE_USHORT;
-                finalBitsPerSample = 16;
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown pixel depth to compute color map: "
-                        + bitsPerSample);
-            }
-        }
-
-        final boolean hasAlpha = true;
-        final int transparency = Transparency.TRANSLUCENT;
-
-        IndexColorModel colorModel = new IndexColorModel(finalBitsPerSample, ARGB.length, ARGB, 0,
-                hasAlpha, transparency, transferType);
-
-        return colorModel;
-    }
-
     public static ImageTypeSpecifier createFullImageTypeSpecifier(
             final RasterDatasetInfo rasterInfo, final int rasterIndex) {
 
         final int numberOfBands = rasterInfo.getNumBands();
-        final RasterCellType pixelType = rasterInfo.getCellType();
+        final RasterCellType pixelType = rasterInfo.getTargetCellType(rasterIndex);
 
         // Prepare temporary colorModel and sample model, needed to build the final
         // ArcSDEPyramidLevel level;
@@ -970,5 +882,213 @@ class RasterUtils {
         query.setTiledImageSize(tiledImageGridRange);
         query.setLevelTileRange(levelTileRange);
         query.setMatchingTiles(matchingTiles);
+    }
+
+    /**
+     * Returns a color model based on {@code colorMap} that's guaranteed to have at least one
+     * transparent pixel whose index can be used as no-data value for colormapped rasters, even if
+     * the returned IndexColorModel needs to be of a higher sample depth (ie, 16 instead of 8 bit)
+     * to satisfy that.
+     * 
+     * @param colorMap
+     *            the raster's native color map the returned one will be based on
+     * @return the same {@code colorMap} if it has a transparent pixel, another, possibly of a
+     *         higher depth one if not, containing all the colors from {@code colorMap} and a newly
+     *         allocated cell for the transparent pixel if necessary
+     */
+    public static IndexColorModel ensureNoDataPixelIsAvailable(final IndexColorModel colorMap) {
+        int transparentPixel = colorMap.getTransparentPixel();
+        if (transparentPixel > -1) {
+            return colorMap;
+        }
+
+        final int transferType = colorMap.getTransferType();
+        final int mapSize = colorMap.getMapSize();
+        final int maxSize = 65536;// true for either transfer type
+
+        if (mapSize == maxSize) {
+            LOGGER.fine("There's no room for a new transparent pixel, "
+                    + "returning the original colorMap as is");
+            return colorMap;
+        }
+
+        /*
+         * The original map size is lower than the maximum allowed by a UShort color map, so expand
+         * the colormap by one and make that new entry transparent
+         */
+        final int newMapSize = mapSize + 1;
+        final int[] argb = new int[newMapSize];
+        colorMap.getRGBs(argb);
+
+        // set the last entry as transparent
+        argb[newMapSize - 1] = ColorUtilities.getIntFromColor(0, 0, 0, 0);
+
+        IndexColorModel targetColorModel;
+        final int significantBits;
+        final int newTransferType;
+
+        {
+            if (DataBuffer.TYPE_BYTE == transferType && newMapSize <= 256) {
+                /*
+                 * REVISIT: check if this needs to be promoted depending on whether I decide to
+                 * treat 1 and 4 bit images as indexed with 1 and 4 significant bits respectively
+                 */
+                significantBits = colorMap.getPixelSize();
+                newTransferType = DataBuffer.TYPE_BYTE;
+            } else {
+                // it's either being promoted or was already 16-bit
+                significantBits = 16;
+                newTransferType = DataBuffer.TYPE_USHORT;
+            }
+        }
+
+        final int transparentPixelIndex = newMapSize - 1;
+        final boolean hasalpha = true;
+        final int startIndex = 0;
+
+        targetColorModel = new IndexColorModel(significantBits, newMapSize, argb, startIndex,
+                hasalpha, transparentPixelIndex, newTransferType);
+
+        return targetColorModel;
+    }
+
+    /**
+     * For a color-mapped raster, the no-data value is set to the
+     * {@link IndexColorModel#getTransparentPixel() transparent pixel}
+     * 
+     * @param colorMap
+     * @return the index in the colorMap that's the transparent pixel as is to be used as no-data
+     *         value
+     */
+    public static Number determineNoDataValue(IndexColorModel colorMap) {
+        int noDataPixel = colorMap.getTransparentPixel();
+        if (-1 == noDataPixel) {
+            // there were no room for a transparent pixel, find out the closest match
+            noDataPixel = ColorUtilities.getTransparentPixel(colorMap);
+        }
+        return Integer.valueOf(noDataPixel);
+    }
+
+    /**
+     * 
+     * @param statsMin
+     *            the minimum sample value for the band as reported by the band's statistics, or
+     *            {@code NaN}
+     * @param statsMax
+     *            the maximum sample value for the band as reported by the band's statistics, or
+     *            {@code NaN}
+     * @param cellType
+     *            the band's native cell type
+     * @return
+     */
+    public static Number determineNoDataValue(final double statsMin, final double statsMax,
+            final RasterCellType cellType) {
+
+        final Number nodata;
+
+        final NumberRange<?> sampleValueRange = cellType.getSampleValueRange();
+
+        double lower;
+        double upper;
+        if (Double.isNaN(statsMin) || Double.isNaN(statsMax)) {
+            // no way to know, there's no statistics generated, so we need to promote just to be
+            // safe
+            if (cellType.getBitsPerSample() == 64) {
+                // can't promote a double to a higher depth
+                nodata = Double.valueOf(Double.MAX_VALUE);
+                return nodata;
+            }
+            lower = Math.ceil(sampleValueRange.getMinimum(true) - 1);
+            upper = Math.floor(sampleValueRange.getMaximum(true) + 1);
+        } else {
+            lower = Math.ceil(statsMin - 1);
+            upper = Math.floor(statsMax + 1);
+        }
+
+        if (sampleValueRange.contains((Number) Double.valueOf(lower))) {
+            // lower is ok
+            nodata = lower;
+        } else if (sampleValueRange.contains((Number) Double.valueOf(upper))) {
+            // upper is ok
+            nodata = upper;
+        } else if (sampleValueRange.getMinimum(true) == 0) {
+            // need to set no-data to the higher value, floor is zero
+            nodata = upper;
+        } else {
+            // no-data as the lower value is ok, floor is non zero (the celltype is signed)
+            nodata = lower;
+        }
+
+        return nodata;
+    }
+
+    public static RasterCellType determineTargetCellType(final RasterDatasetInfo info,
+            final int rasterIndex) {
+
+        if (info.isColorMapped()) {
+            final IndexColorModel targetColorMap = info.getColorMap(rasterIndex);
+            final int transferType = targetColorMap.getTransferType();
+            switch (transferType) {
+            case DataBuffer.TYPE_BYTE:
+                return RasterCellType.TYPE_8BIT_U;
+            case DataBuffer.TYPE_USHORT:
+                return RasterCellType.TYPE_16BIT_U;
+            default:
+                throw new IllegalArgumentException("DataBuffer transfer type in"
+                        + " IndexColorModel is not recognized: " + transferType);
+            }
+        }
+
+        // find a cell type that's deep enough for all the bands in the given raster
+        double noDataMin = Double.MAX_VALUE, noDataMax = Double.MIN_VALUE;
+        {
+            final int numBands = info.getNumBands();
+            Number noDataValue;
+            for (int bandN = 0; bandN < numBands; bandN++) {
+                noDataValue = info.getNoDataValue(rasterIndex, bandN);
+                noDataMin = Math.min(noDataMin, noDataValue.doubleValue());
+                noDataMax = Math.max(noDataMax, noDataValue.doubleValue());
+            }
+        }
+        final RasterCellType nativeCellType = info.getNativeCellType();
+        final NumberRange<Double> sampleValueRange;
+        sampleValueRange = nativeCellType.getSampleValueRange().castTo(Double.class);
+
+        final RasterCellType targetCellType;
+
+        if (sampleValueRange.contains((Number) Double.valueOf(noDataMin))
+                && sampleValueRange.contains((Number) Double.valueOf(noDataMax))) {
+            /*
+             * The native cell type can hold the no-data values for all bands in the raster
+             */
+            targetCellType = nativeCellType;
+        } else {
+            targetCellType = promote(nativeCellType);
+        }
+        return targetCellType;
+    }
+
+    private static RasterCellType promote(final RasterCellType nativeCellType) {
+        switch (nativeCellType) {
+        case TYPE_1BIT:
+        case TYPE_4BIT:
+            return TYPE_8BIT_U;
+        case TYPE_8BIT_U:
+            return TYPE_16BIT_U;
+        case TYPE_8BIT_S:
+            return TYPE_16BIT_S;
+        case TYPE_16BIT_U:
+            return TYPE_32BIT_U;
+        case TYPE_16BIT_S:
+            return TYPE_32BIT_S;
+        case TYPE_32BIT_S:
+        case TYPE_32BIT_REAL:
+        case TYPE_32BIT_U:
+            return TYPE_64BIT_REAL;
+        default:
+            throw new IllegalArgumentException(
+                    "Can't promote a raster of type 64-bit-real, there's "
+                            + "no higher pixel depth than that!");
+        }
     }
 }

@@ -102,6 +102,13 @@ final class TileReader {
     }
 
     /**
+     * @return number of samples per tile
+     */
+    public int getPixelsPerTile() {
+        return pixelsPerTile;
+    }
+
+    /**
      * @return numbre of bands being fetched
      */
     public int getNumberOfBands() {
