@@ -18,7 +18,6 @@
 package org.geotools.arcsde.gce;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageInputStreamImpl;
@@ -39,21 +38,14 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
 
     private final byte[] currTileData;
 
-    private final byte[] actualTileData;
-
     private int currTileDataIndex;
 
-    private final boolean promote;
-
-    public ArcSDETiledImageInputStream(final TileReader tileReader,
-            final boolean promoteByteToUshort) {
+    public ArcSDETiledImageInputStream(final TileReader tileReader) {
         super();
         this.tileReader = tileReader;
-        this.promote = promoteByteToUshort;
         final int bytesPerTile = tileReader.getBytesPerTile();
-        this.tileDataLength = (promoteByteToUshort ? 2 : 1) * bytesPerTile;
+        this.tileDataLength = bytesPerTile;
         this.currTileData = new byte[bytesPerTile];
-        this.actualTileData = new byte[tileDataLength];
         // force load at the first read invocation
         this.currTileDataIndex = tileDataLength;
     }
@@ -71,9 +63,7 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
         // final int bitsPerSample = tileReader.getBitsPerSample();
 
         int length = bytesPerTile * tilesWide * tilesHigh * numberOfBands;
-        if (promote) {
-            length = 2 * length;
-        }
+
         return length;
     }
 
@@ -119,35 +109,10 @@ final class ArcSDETiledImageInputStream extends ImageInputStreamImpl implements 
                 return null;
             }
 
-            final byte[] currBitmaskData;
             currTileDataIndex = 0;
-            if (promote) {
-                currBitmaskData = tileReader.next(currTileData);
-                final int numSamples = currTileData.length;
-                Arrays.fill(actualTileData, (byte) 0x0);
-                int pixArrayOffset;
-                boolean isNoData;
-
-                for (int sampleN = 0; sampleN < numSamples; sampleN++) {
-                    isNoData = (currBitmaskData.length > 0)
-                            && (((currBitmaskData[sampleN / 8] >> (7 - (sampleN % 8))) & 0x01) == 0x00);
-                    pixArrayOffset = 2 * sampleN;
-                    if (isNoData) {
-                        /*
-                         * The promoted index color model has the last entry set as transparent, so
-                         * set the sample value to match the entry
-                         */
-                        actualTileData[pixArrayOffset] = (byte) ((65535 >>> 8) & 0xFF);
-                        actualTileData[pixArrayOffset + 1] = (byte) ((65535 >>> 0) & 0xFF);
-                    } else {
-                        actualTileData[pixArrayOffset + 1] = (byte) ((currTileData[sampleN] >>> 0) & 0xFF);
-                    }
-                }
-            } else {
-                tileReader.next(actualTileData);
-            }
+            tileReader.next(currTileData);
         }
-        return actualTileData;
+        return currTileData;
     }
 
     @Override

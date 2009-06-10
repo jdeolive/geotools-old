@@ -348,7 +348,7 @@ final class RasterInfo {
     }
 
     public RasterBandInfo getBand(final int index) {
-        return bands.get(0);
+        return bands.get(index);
     }
 
     public CoordinateReferenceSystem getCoordinateReferenceSystem() {

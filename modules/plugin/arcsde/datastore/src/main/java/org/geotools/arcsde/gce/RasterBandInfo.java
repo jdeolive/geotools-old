@@ -20,7 +20,6 @@ package org.geotools.arcsde.gce;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.awt.image.IndexColorModel;
-import java.io.IOException;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -100,7 +99,7 @@ final class RasterBandInfo {
 
     double statsStdDev;
 
-    public RasterBandInfo() throws IOException {
+    public RasterBandInfo() {
         // do nothing
     }
 

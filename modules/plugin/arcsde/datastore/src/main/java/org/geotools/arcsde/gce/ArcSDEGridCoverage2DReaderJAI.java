@@ -690,13 +690,10 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         }
 
         final TileReader tileReader;
-        final RasterCellType nativeCellType = rasterInfo.getNativeCellType();
-
         {
-            final int nativeBitsPerSample = nativeCellType.getBitsPerSample();
             final Dimension tileSize = new Dimension(tileWidth, tileHeight);
-            tileReader = TileReader.getInstance(row, nativeBitsPerSample, numberOfBands,
-                    matchingTiles, tileSize);
+            tileReader = TileReaderFactory.getInstance(row, rasterInfo, rasterIndex, matchingTiles,
+                    tileSize);
         }
 
         // Prepare temporary colorModel and sample model, needed to build the final
@@ -722,12 +719,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
             final ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
 
-            final RasterCellType targetCellType = rasterInfo.getTargetCellType(rasterIndex);
             final ImageInputStream tiledImageInputStream;
-
-            final boolean promoted = nativeCellType != targetCellType;
-
-            tiledImageInputStream = new ArcSDETiledImageInputStream(tileReader, promoted);
+            tiledImageInputStream = new ArcSDETiledImageInputStream(tileReader);
 
             raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets, imageDimensions);
         }

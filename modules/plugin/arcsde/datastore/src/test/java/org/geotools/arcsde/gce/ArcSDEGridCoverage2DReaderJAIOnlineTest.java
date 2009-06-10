@@ -238,8 +238,8 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         int[] ARGB = new int[65536];
         ColorUtilities.expand(new Color[] { Color.BLACK, Color.WHITE }, ARGB, 0, ARGB.length);
         IndexColorModel colorModel = ColorUtilities.getIndexColorModel(ARGB);
-        tableName = rasterTestData.getRasterTableName(TYPE_16BIT_S, 1, true);
-        rasterTestData.loadTestRaster(tableName, 1, TYPE_16BIT_S, colorModel);
+        tableName = rasterTestData.getRasterTableName(TYPE_16BIT_U, 1, true);
+        rasterTestData.loadTestRaster(tableName, 1, TYPE_16BIT_U, colorModel);
         testReadFullLevel0(TYPE_16BIT_U, 1, "testRead_16bit_U_ColorMapped");
     }
 

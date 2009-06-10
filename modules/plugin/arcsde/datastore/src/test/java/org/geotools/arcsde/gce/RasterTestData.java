@@ -37,7 +37,6 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.ComponentSampleModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferFloat;
 import java.awt.image.DataBufferShort;
 import java.awt.image.DataBufferUShort;
 import java.awt.image.IndexColorModel;
@@ -877,7 +876,11 @@ public class RasterTestData {
                 DataBuffer dataBuffer;
                 if (DataBuffer.TYPE_BYTE == dataType) {
                     dataBuffer = new DataBufferByte(numEntries, numBanks);
-                } else if (DataBuffer.TYPE_SHORT == dataType) {
+                } else if (DataBuffer.TYPE_USHORT == dataType) {
+                    /*
+                     * beware we're using DataBufferShort instead of DataBufferUShort as that's what
+                     * the esri api expects
+                     */
                     dataBuffer = new DataBufferShort(numEntries, numBanks);
                 } else {
                     throw new IllegalArgumentException("data type: " + pixelType);
@@ -1517,51 +1520,4 @@ public class RasterTestData {
         this.overrideExistingTables = override;
     }
 
-    /**
-     * @deprecated
-     */
-    private static BufferedImage createSingleBandImageWithCustomColorModel(final int width,
-            final int height, final RasterCellType cellType) {
-        final int dataType;
-        final DataBuffer dataBuffer;
-        switch (cellType) {
-        case TYPE_16BIT_U:
-            dataType = DataBuffer.TYPE_USHORT;
-            dataBuffer = new DataBufferUShort(width * height);
-            break;
-        case TYPE_16BIT_S:
-            dataType = DataBuffer.TYPE_SHORT;
-            dataBuffer = new DataBufferShort(width * height);
-            break;
-        case TYPE_32BIT_REAL:
-            dataType = DataBuffer.TYPE_FLOAT;
-            dataBuffer = new DataBufferFloat(width * height);
-            break;
-        default:
-            throw new IllegalArgumentException(
-                    "Don't know how to create a single-band image for pixel type " + cellType);
-        }
-        final WritableRaster raster;
-        final ColorModel colorModel;
-        {
-            final int pixelStride = 1;
-            final int scanLineStride = width;
-            final int[] bandOffsets = new int[] { 0 };
-            final SampleModel sampleModel = new ComponentSampleModel(dataType, width, height,
-                    pixelStride, scanLineStride, bandOffsets);
-            raster = Raster.createWritableRaster(sampleModel, dataBuffer, null);
-        }
-        {
-            final ColorSpace colorSpace = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-            final boolean hasAlpha = false;
-            final boolean isAlphaPremultiplied = true;
-            colorModel = new ComponentColorModel(colorSpace, hasAlpha, isAlphaPremultiplied,
-                    Transparency.OPAQUE, dataType);
-        }
-
-        final boolean isRasterPremultiplied = false;
-        BufferedImage compatibleImage = new BufferedImage(colorModel, raster,
-                isRasterPremultiplied, null);
-        return compatibleImage;
-    }
 }

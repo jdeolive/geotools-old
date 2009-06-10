@@ -21,6 +21,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferShort;
+import java.awt.image.DataBufferUShort;
 import java.awt.image.IndexColorModel;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -871,7 +872,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         } else if (buffType == SeRaster.SE_COLORMAP_DATA_SHORT) {
             LOGGER.finest("Creating Short data buffer for " + numBanks + " banks and " + numElems
                     + " elements per bank");
-            buff = new DataBufferShort(numElems, numBanks);
+            buff = new DataBufferUShort(numElems, numBanks);
             for (int elem = 0; elem < numElems; elem++) {
                 for (int bank = 0; bank < numBanks; bank++) {
                     int val = dataIn.readShort();

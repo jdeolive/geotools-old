@@ -858,14 +858,14 @@ class RasterUtils {
         }
 
         // find a cell type that's deep enough for all the bands in the given raster
-        double noDataMin = Double.MAX_VALUE, noDataMax = Double.MIN_VALUE;
+        double noDataMin = Double.POSITIVE_INFINITY, noDataMax = Double.NEGATIVE_INFINITY;
         {
             final int numBands = info.getNumBands();
-            Number noDataValue;
+            double noDataValue;
             for (int bandN = 0; bandN < numBands; bandN++) {
-                noDataValue = info.getNoDataValue(rasterIndex, bandN);
-                noDataMin = Math.min(noDataMin, noDataValue.doubleValue());
-                noDataMax = Math.max(noDataMax, noDataValue.doubleValue());
+                noDataValue = info.getNoDataValue(rasterIndex, bandN).doubleValue();
+                noDataMin = Math.min(noDataMin, noDataValue);
+                noDataMax = Math.max(noDataMax, noDataValue);
             }
         }
         final RasterCellType nativeCellType = info.getNativeCellType();
