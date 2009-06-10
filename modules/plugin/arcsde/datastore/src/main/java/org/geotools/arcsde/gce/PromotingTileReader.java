@@ -1,5 +1,9 @@
 package org.geotools.arcsde.gce;
 
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_U;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_1BIT;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_U;
+
 import java.io.IOException;
 
 final class PromotingTileReader implements TileReader {
@@ -70,10 +74,13 @@ final class PromotingTileReader implements TileReader {
         final boolean hasNoDataPixels = bitmaskData.length > 0;
         final Long bandId = tileInfo.getBandId();
 
-        if (tileInfo.getNumPixelsRead() == 0) {
+        final int numPixelsRead = tileInfo.getNumPixelsRead();
+        if (numPixelsRead == 0) {
             noData.setAll(bandId, tileData);
         } else {
             final int numSamples = getPixelsPerTile();
+            assert numPixelsRead == numSamples;
+
             for (int sampleN = 0; sampleN < numSamples; sampleN++) {
                 if (hasNoDataPixels && noData.isNoData(sampleN, bitmaskData)) {
                     noData.setNoData(bandId, sampleN, tileData);
@@ -93,7 +100,9 @@ final class PromotingTileReader implements TileReader {
         public static SampleDepthPromoter createFor(final RasterCellType source,
                 final RasterCellType target) {
 
-            if (source == RasterCellType.TYPE_8BIT_U && target == RasterCellType.TYPE_16BIT_U) {
+            if (source == TYPE_1BIT && target == RasterCellType.TYPE_8BIT_U) {
+                return new OneBitToUchar();
+            } else if (source == TYPE_8BIT_U && target == TYPE_16BIT_U) {
                 return new UcharToUshort();
             }
 
@@ -110,4 +119,17 @@ final class PromotingTileReader implements TileReader {
             tileData[pixArrayOffset + 1] = (byte) ((nativeTileData[sampleN] >>> 0) & 0xFF);
         }
     }
+
+    private static class OneBitToUchar extends SampleDepthPromoter {
+
+        @Override
+        public void promote(int sampleN, byte[] nativeTileData, byte[] tileData) {
+            int pixArrayOffset = sampleN / 8;
+            int bit = sampleN % 8;
+            int _byte = nativeTileData[pixArrayOffset];
+            byte ucharvalue = (byte) ((_byte >> (7 - bit)) & 0x01);
+            tileData[sampleN] = ucharvalue;
+        }
+    }
+
 }

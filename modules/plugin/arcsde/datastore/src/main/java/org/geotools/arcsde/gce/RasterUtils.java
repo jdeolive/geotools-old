@@ -19,8 +19,10 @@ package org.geotools.arcsde.gce;
 
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_S;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_U;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_1BIT;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_32BIT_S;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_32BIT_U;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_4BIT;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_64BIT_REAL;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_U;
 
@@ -268,6 +270,7 @@ class RasterUtils {
             final RasterDatasetInfo rasterInfo, final int rasterIndex) {
 
         final int numberOfBands = rasterInfo.getNumBands();
+        final RasterCellType nativePixelType = rasterInfo.getNativeCellType();
         final RasterCellType pixelType = rasterInfo.getTargetCellType(rasterIndex);
 
         // Prepare temporary colorModel and sample model, needed to build the final
@@ -282,15 +285,20 @@ class RasterUtils {
         final boolean hasColorMap = rasterInfo.isColorMapped();
 
         if (hasColorMap) {
-            // special case, a single band colormapped imaged
-            its = createColorMappedImageSpec(rasterInfo, rasterIndex, sampleImageWidth,
-                    sampleImageHeight);
+            // special case, a single band colormapped image
+            IndexColorModel colorMap = rasterInfo.getColorMap(rasterIndex);
+            its = createColorMappedImageSpec(colorMap, sampleImageWidth, sampleImageHeight);
 
-        } else if (bitsPerSample == 1 || bitsPerSample == 4) {
-            // special case, a single band 1-bit or 4-bit image
-            its = createOneOrFoutBitImageSpec(rasterInfo, numberOfBands, sampleImageWidth,
-                    sampleImageHeight, bitsPerSample, dataType);
+        } else if (nativePixelType == TYPE_1BIT && numberOfBands == 1) {
+            byte noDataValue = rasterInfo.getNoDataValue(rasterIndex, 0).byteValue();
+            // special case, a single band 1-bit
+            its = createOneBitColorMappedImageSpec(sampleImageWidth, sampleImageHeight, noDataValue);
 
+        } else if (nativePixelType == TYPE_4BIT && numberOfBands == 1) {
+            byte noDataValue = rasterInfo.getNoDataValue(rasterIndex, 0).byteValue();
+            // special case, a single band 4-bit
+            its = createFourBitColorMappedImageSpec(sampleImageWidth, sampleImageHeight,
+                    noDataValue);
         } else if (numberOfBands == 1) {
             // special case, a single band grayscale image, no matter the pixel depth
             its = createGrayscaleImageSpec(sampleImageWidth, sampleImageHeight, dataType,
@@ -336,6 +344,52 @@ class RasterUtils {
             its = new ImageTypeSpecifier(colorModel, sampleModel);
         }
 
+        return its;
+    }
+
+    private static ImageTypeSpecifier createFourBitColorMappedImageSpec(int sampleImageWidth,
+            int sampleImageHeight, byte noDataValue) {
+
+        int maxValue = (int) TYPE_4BIT.getSampleValueRange().getMaximum();
+
+        int mapSize = noDataValue > maxValue ? noDataValue : maxValue + 1;
+
+        int[] cmap = new int[mapSize];
+        ColorUtilities.expand(new Color[] { Color.BLACK, Color.WHITE }, cmap, 0, maxValue);
+
+        for (int i = maxValue; i < mapSize; i++) {
+            cmap[i] = ColorUtilities.getIntFromColor(0, 0, 0, 0);
+        }
+
+        int transparentPixel = noDataValue;
+        IndexColorModel colorModel = new IndexColorModel(8, mapSize, cmap, 0, true,
+                transparentPixel, DataBuffer.TYPE_BYTE);
+
+        SampleModel sampleModel = colorModel.createCompatibleSampleModel(sampleImageWidth,
+                sampleImageHeight);
+        ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
+        return its;
+    }
+
+    private static ImageTypeSpecifier createOneBitColorMappedImageSpec(int sampleImageWidth,
+            int sampleImageHeight, byte noDataValue) {
+
+        int mapSize = noDataValue > 2 ? noDataValue : 3;
+        int[] cmap = new int[mapSize];
+        cmap[0] = ColorUtilities.getIntFromColor(255, 255, 255, 255);
+        cmap[1] = ColorUtilities.getIntFromColor(0, 0, 0, 255);
+
+        for (int i = 2; i < mapSize; i++) {
+            cmap[i] = ColorUtilities.getIntFromColor(0, 0, 0, 0);
+        }
+
+        int transparentPixel = noDataValue;
+        IndexColorModel colorModel = new IndexColorModel(8, mapSize, cmap, 0, true,
+                transparentPixel, DataBuffer.TYPE_BYTE);
+
+        SampleModel sampleModel = colorModel.createCompatibleSampleModel(sampleImageWidth,
+                sampleImageHeight);
+        ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
         return its;
     }
 
@@ -403,9 +457,9 @@ class RasterUtils {
         return its;
     }
 
-    private static ImageTypeSpecifier createOneOrFoutBitImageSpec(
-            final RasterDatasetInfo rasterInfo, final int numberOfBands, int sampleImageWidth,
-            int sampleImageHeight, final int bitsPerSample, final int dataType) {
+    private static ImageTypeSpecifier createOneBitImageSpec(final RasterDatasetInfo rasterInfo,
+            final int numberOfBands, int sampleImageWidth, int sampleImageHeight,
+            final int bitsPerSample, final int dataType) {
         final ColorModel colorModel;
         final SampleModel sampleModel;
         if (numberOfBands != 1) {
@@ -422,15 +476,12 @@ class RasterUtils {
         return its;
     }
 
-    private static ImageTypeSpecifier createColorMappedImageSpec(
-            final RasterDatasetInfo rasterInfo, final int rasterIndex, int sampleImageWidth,
-            int sampleImageHeight) {
+    private static ImageTypeSpecifier createColorMappedImageSpec(final IndexColorModel colorModel,
+            int sampleImageWidth, int sampleImageHeight) {
 
-        final ColorModel colorModel;
         final SampleModel sampleModel;
         final ImageTypeSpecifier its;
         LOGGER.fine("Found single-band colormapped raster, using its index color model");
-        colorModel = rasterInfo.getColorMap(rasterIndex);
         sampleModel = colorModel.createCompatibleSampleModel(sampleImageWidth, sampleImageHeight);
         its = new ImageTypeSpecifier(colorModel, sampleModel);
         return its;
@@ -516,9 +567,9 @@ class RasterUtils {
     }
 
     /**
-     * Given a collection of {@link RasterQueryInfo} instances holding information about how a request
-     * fits for each individual raster composing a catalog, figure out where their resulting images
-     * fit into the overall mosaic that's gonna be the result of the request.
+     * Given a collection of {@link RasterQueryInfo} instances holding information about how a
+     * request fits for each individual raster composing a catalog, figure out where their resulting
+     * images fit into the overall mosaic that's gonna be the result of the request.
      * 
      * @param rasterInfo
      * @param resultEnvelope

@@ -4,13 +4,20 @@ import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_U;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_1BIT;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_4BIT;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_U;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.geotools.arcsde.gce.BitmaskToNoDataConverter.Unsigned8bitConverter;
@@ -20,7 +27,7 @@ import org.junit.Test;
 public class BitmaskToNoDataConverterTest {
 
     @Test
-    public void testGetInstance8BitU() {
+    public void testGetInstance8BitU() throws IOException {
         RasterDatasetInfo rasterInfo;
         BitmaskToNoDataConverter noData;
 
@@ -37,10 +44,56 @@ public class BitmaskToNoDataConverterTest {
 
         noDataValue = 255;
         statsMin = 0;
-        statsMax = 255;
+        statsMax = 254;
         rasterInfo = createRasterInfo(TYPE_8BIT_U, noDataValue, statsMin, statsMax);
         noData = BitmaskToNoDataConverter.getInstance(rasterInfo, 0);
         assertNotNull(noData);
+        assertTrue(noData instanceof BitmaskToNoDataConverter.Unsigned8bitConverter);
+
+        final int samplesPerTile = rasterInfo.getTileDimension(0).width
+                * rasterInfo.getTileDimension(0).height;
+
+        /*
+         * bulk set, a whole no-data tile
+         */
+        byte[] tileData = new byte[samplesPerTile];
+        noData.setAll(1L, tileData);
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(tileData));
+        for (int sampleN = 0; sampleN < samplesPerTile; sampleN++) {
+            assertEquals(255, in.readByte() & 0xFF);
+        }
+
+        /*
+         * bitmask data states the first 8 and last 8 samples are no-data
+         */
+        byte[] bitmaskData = new byte[(int) Math.ceil(samplesPerTile / 8D)];
+        Arrays.fill(bitmaskData, (byte) 0xFF);
+        // set the first 8 and last 8 samples to no-data
+        bitmaskData[0] = 0x00;
+        bitmaskData[bitmaskData.length - 1] = 0x00;
+
+        final byte dataValue = 5;
+        byte[] expected = new byte[samplesPerTile];
+        Arrays.fill(expected, dataValue);
+        Arrays.fill(expected, 0, 8, (byte) noDataValue);
+        Arrays.fill(expected, expected.length - 8, expected.length, (byte) noDataValue);
+
+        tileData = new byte[samplesPerTile];
+        Arrays.fill(tileData, dataValue);
+        noData.setNoData(1L, tileData, bitmaskData);
+        assertTrue("Arrays differ, expected:" + Arrays.toString(expected) + ", actual:"
+                + Arrays.toString(tileData), Arrays.equals(expected, tileData));
+
+        /*
+         * set individual sample
+         */
+        tileData = new byte[samplesPerTile];
+        noData.setNoData(1L, 0, tileData);
+        assertEquals(noDataValue, tileData[0] & 0xFF);
+        noData.setNoData(1L, 5, tileData);
+        assertEquals(noDataValue, tileData[5] & 0xFF);
+        noData.setNoData(1L, tileData.length - 1, tileData);
+        assertEquals(noDataValue, tileData[tileData.length - 1] & 0xFF);
     }
 
     @Test
@@ -106,32 +159,80 @@ public class BitmaskToNoDataConverterTest {
     }
 
     @Test
-    public void testGetInstance16BitU() {
+    public void testGetInstance16BitU() throws IOException {
         RasterDatasetInfo rasterInfo;
         BitmaskToNoDataConverter noData;
 
-        int noDataValue;
+        final int noDataValue = (int) TYPE_16BIT_U.getSampleValueRange().getMaximum();
         double statsMin;
         double statsMax;
 
         statsMin = TYPE_16BIT_U.getSampleValueRange().getMinimum();
         statsMax = TYPE_16BIT_U.getSampleValueRange().getMaximum() - 1;
-        noDataValue = (int) TYPE_16BIT_U.getSampleValueRange().getMaximum();
-
         rasterInfo = createRasterInfo(TYPE_16BIT_U, noDataValue, statsMin, statsMax);
         noData = BitmaskToNoDataConverter.getInstance(rasterInfo, 0);
         assertNotNull(noData);
 
-        statsMax = TYPE_16BIT_U.getSampleValueRange().getMaximum();
-        noDataValue = (int) TYPE_16BIT_U.getSampleValueRange().getMaximum() + 1;
+        final int samplesPerTile = rasterInfo.getTileDimension(0).width
+                * rasterInfo.getTileDimension(0).height;
 
-        rasterInfo = createRasterInfo(TYPE_16BIT_U, noDataValue, statsMin, statsMax);
-        noData = BitmaskToNoDataConverter.getInstance(rasterInfo, 0);
-        assertNotNull(noData);
-        // make sure promotion from 16 to 32 bit is being taking place here and hence we got a
-        // 32-bit-u
-        // no-data setter
-        assertTrue(noData instanceof Unsigned8bitConverter);
+        final int dataValue = 5;
+
+        byte[] tileData = new byte[TYPE_16BIT_U.getBitsPerSample() * samplesPerTile];
+        noData.setAll(1L, tileData);
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(tileData));
+        for (int sampleN = 0; sampleN < samplesPerTile; sampleN++) {
+            assertEquals(noDataValue, in.readUnsignedShort());
+        }
+
+        byte[] bitmaskData = new byte[(int) Math.ceil(samplesPerTile / 8D)];
+        Arrays.fill(bitmaskData, (byte) 0xFF);
+        // set the first 8 and last 8 samples to no-data
+        bitmaskData[0] = 0x00;
+        bitmaskData[bitmaskData.length - 1] = 0x00;
+
+        byte[] expected;
+        {
+            ByteArrayOutputStream actualOut = new ByteArrayOutputStream();
+            DataOutputStream actualWriter = new DataOutputStream(actualOut);
+
+            ByteArrayOutputStream expectedOut = new ByteArrayOutputStream();
+            DataOutputStream expectedWriter = new DataOutputStream(expectedOut);
+            for (int i = 0; i < samplesPerTile; i++) {
+                actualWriter.writeShort(dataValue);
+
+                if (i < 8 || i >= samplesPerTile - 8) {
+                    expectedWriter.writeShort(noDataValue);
+                } else {
+                    expectedWriter.writeShort(dataValue);
+                }
+            }
+            tileData = actualOut.toByteArray();
+            expected = expectedOut.toByteArray();
+        }
+
+        noData.setNoData(1L, tileData, bitmaskData);
+        assertTrue("Arrays differ, expected:" + Arrays.toString(expected) + ", actual:"
+                + Arrays.toString(tileData), Arrays.equals(expected, tileData));
+
+        /*
+         * set individual sample
+         */
+        final int bitsPerSample = TYPE_16BIT_U.getBitsPerSample();
+        tileData = new byte[bitsPerSample * samplesPerTile];
+
+        in = new DataInputStream(new ByteArrayInputStream(tileData));
+        noData.setNoData(1L, 0, tileData);
+        assertEquals(noDataValue, in.readUnsignedShort());
+
+        in = new DataInputStream(new ByteArrayInputStream(tileData, 5 * (bitsPerSample / 8), 2));
+        noData.setNoData(1L, 5, tileData);
+        assertEquals(noDataValue, in.readUnsignedShort());
+
+        in = new DataInputStream(new ByteArrayInputStream(tileData, (samplesPerTile - 1)
+                * (bitsPerSample / 8), 2));
+        noData.setNoData(1L, samplesPerTile - 1, tileData);
+        assertEquals(noDataValue, in.readUnsignedShort());
     }
 
     private RasterDatasetInfo createRasterInfo(RasterCellType nativeType, Number noDataValue,
@@ -140,7 +241,9 @@ public class BitmaskToNoDataConverterTest {
         RasterDatasetInfo datasetInfo = new RasterDatasetInfo();
 
         List<RasterInfo> datasetRasters = new ArrayList<RasterInfo>();
-        RasterInfo rasterInfo = new RasterInfo(128, 128);
+        // fake a 3x8 pixel raster so it's a matrix of 24 elements and it matches a full bitmask
+        // array (no unused bitmask bits)
+        RasterInfo rasterInfo = new RasterInfo(3, 8);
         datasetRasters.add(rasterInfo);
 
         rasterInfo.addPyramidLevel(0, new ReferencedEnvelope(), new Point(), new Point(), 10, 10,
@@ -163,26 +266,6 @@ public class BitmaskToNoDataConverterTest {
         datasetInfo.setPyramidInfo(datasetRasters);
 
         return datasetInfo;
-    }
-
-    @Test
-    public void testIsNoData() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testSetNoData() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testSetAll() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testSet() {
-        fail("Not yet implemented");
     }
 
 }

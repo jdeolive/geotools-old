@@ -196,7 +196,9 @@ final class NativeTileReader implements TileReader {
         final Long bandId = Long.valueOf(tile.getBandId().longValue());
 
         if (0 == numPixels) {
-            LOGGER.finer("tile contains no pixel data, skipping: " + tile);
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.finer("tile contains no pixel data, skipping: " + tile);
+            }
             noData.setAll(bandId, tileData);
         } else if (pixelsPerTile == numPixels) {
 
