@@ -5,8 +5,13 @@ import static org.geotools.arcsde.gce.RasterCellType.TYPE_1BIT;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_U;
 
 import java.io.IOException;
+import java.util.logging.Logger;
+
+import org.geotools.util.logging.Logging;
 
 final class PromotingTileReader implements TileReader {
+
+    private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
     private final TileReader nativeReader;
 
@@ -26,7 +31,8 @@ final class PromotingTileReader implements TileReader {
         this.noData = noData;
         this.nativeTileData = new byte[nativeTileReader.getBytesPerTile()];
         this.promoter = SampleDepthPromoter.createFor(sourceType, targetType);
-
+        LOGGER.fine("Using sample depth promoting tile reader, from " + sourceType + " to "
+                + targetType);
     }
 
     public int getBitsPerSample() {
@@ -116,6 +122,7 @@ final class PromotingTileReader implements TileReader {
         @Override
         public void promote(int sampleN, byte[] nativeTileData, byte[] tileData) {
             int pixArrayOffset = 2 * sampleN;
+            tileData[pixArrayOffset] = 0;
             tileData[pixArrayOffset + 1] = (byte) ((nativeTileData[sampleN] >>> 0) & 0xFF);
         }
     }
