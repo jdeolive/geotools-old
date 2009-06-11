@@ -429,8 +429,8 @@ class RasterUtils {
         boolean isAlphaPremultiplied = false;
         int transparency = Transparency.OPAQUE;
         int transferType = dataType;
-        ColorModel colorModel = new ComponentColorModel(colorSpace, hasAlpha, isAlphaPremultiplied,
-                transparency, transferType);
+        ColorModel colorModel = new ComponentColorModel(colorSpace, new int[] { 8, 8, 8 },
+                hasAlpha, isAlphaPremultiplied, transparency, transferType);
 
         SampleModel sampleModel = new BandedSampleModel(dataType, sampleImageWidth,
                 sampleImageHeight, 3);
@@ -857,8 +857,11 @@ class RasterUtils {
 
         final NumberRange<?> sampleValueRange = cellType.getSampleValueRange();
 
+        final double minimumSample = sampleValueRange.getMinimum(true);
+        final double maximumSample = sampleValueRange.getMaximum(true);
+
         double lower;
-        double upper;
+        double greater;
         if (Double.isNaN(statsMin) || Double.isNaN(statsMax)) {
             // no way to know, there's no statistics generated, so we need to promote just to be
             // safe
@@ -867,25 +870,38 @@ class RasterUtils {
                 nodata = Double.valueOf(Double.MAX_VALUE);
                 return nodata;
             }
-            lower = Math.ceil(sampleValueRange.getMinimum(true) - 1);
-            upper = Math.floor(sampleValueRange.getMaximum(true) + 1);
+            lower = Math.ceil(minimumSample - 1);
+            greater = Math.floor(maximumSample + 1);
         } else {
             lower = Math.ceil(statsMin - 1);
-            upper = Math.floor(statsMax + 1);
+            greater = Math.floor(statsMax + 1);
         }
+
+        final boolean isUnsigned = minimumSample == 0;
 
         if (sampleValueRange.contains((Number) Double.valueOf(lower))) {
             // lower is ok
             nodata = lower;
-        } else if (sampleValueRange.contains((Number) Double.valueOf(upper))) {
+        } else if (sampleValueRange.contains((Number) Double.valueOf(greater))) {
             // upper is ok
-            nodata = upper;
-        } else if (sampleValueRange.getMinimum(true) == 0) {
+            nodata = greater;
+        } else if (isUnsigned) {
             // need to set no-data to the higher value, floor is zero
-            nodata = upper;
+            if (cellType == TYPE_1BIT || cellType == TYPE_4BIT) {
+                nodata = greater;
+            } else {
+                // best guess without promoting. We don't actually want to promote a raster that is
+                // non
+                // colormapped and either has no statistics or it's range is full to preserve the
+                // cases
+                // were it may affect badly the visualization (for example, a 3 band 8bit raster
+                // promoted to 3 band 16bit is gonna look almost black
+                nodata = maximumSample;
+            }
         } else {
             // no-data as the lower value is ok, floor is non zero (the celltype is signed)
-            nodata = lower;
+            // nodata = lower;
+            nodata = minimumSample;
         }
 
         return nodata;
