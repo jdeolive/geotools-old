@@ -88,6 +88,16 @@ public class DataAccessRegistry extends ArrayList<DataAccess<FeatureType, Featur
         registry.remove(dataAccess);
     }
 
+    /**
+     * Unregister all data accesses in the registry. This is may be needed to prevent unit tests
+     * from conflicting with data accesses with the same type name registered for other tests.
+     */
+    public static synchronized void unregisterAll() {
+        if (registry != null) {
+            registry.clear();
+        }
+    }
+    
     public static boolean hasName(Name featureTypeName) throws IOException {
         if (registry == null) {
             // nothing's been registered, but it's OK, return false
