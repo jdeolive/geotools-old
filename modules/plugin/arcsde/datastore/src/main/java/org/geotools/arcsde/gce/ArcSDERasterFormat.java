@@ -20,7 +20,6 @@ package org.geotools.arcsde.gce;
 import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferShort;
 import java.awt.image.DataBufferUShort;
 import java.awt.image.IndexColorModel;
 import java.io.ByteArrayInputStream;

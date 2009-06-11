@@ -128,6 +128,5 @@ public class RasterUtilsTest {
         }
         return colorMapData;
     }
-    
-    
+
 }

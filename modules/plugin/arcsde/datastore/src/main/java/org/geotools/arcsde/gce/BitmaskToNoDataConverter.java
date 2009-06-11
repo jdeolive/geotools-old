@@ -1,6 +1,7 @@
 package org.geotools.arcsde.gce;
 
-import static org.geotools.arcsde.gce.RasterCellType.*;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_U;
+
 import java.awt.Dimension;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;

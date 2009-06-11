@@ -418,7 +418,6 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
         }
         writeToDisk(geophysics, fileName);
 
-        
         // ////assertEquals(cellType.getDataBufferType(), image.getSampleModel().getDataType());
         final int[] sampleSize = geophysics.getSampleModel().getSampleSize();
         final ColorModel colorModel = geophysics.getColorModel();
@@ -443,7 +442,6 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
             }
         }
 
-        
         return coverage;
     }
 
