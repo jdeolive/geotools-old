@@ -19,7 +19,10 @@ package org.geotools.renderer.lite;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -193,7 +196,10 @@ public class GridCoverageRendererTest  {
         renderer.addRenderListener(counter);
         renderer.setRendererHints(Collections.singletonMap(StreamingRenderer.OPTIMIZED_DATA_LOADING_KEY, Boolean.TRUE));
         renderer.setContext(context);
-        RendererBaseTest.showRender("testGridCoverage", renderer, 1000, context.getLayerBounds());
+        BufferedImage image = new BufferedImage(300, 300, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D g2d = (Graphics2D) image.getGraphics();
+        renderer.paint(g2d, new Rectangle(0,0,300,300), context.getLayerBounds());
+        g2d.dispose();
         // make sure no errors and one features
         assertEquals(0, counter.errors);
         assertEquals(1, counter.features);
