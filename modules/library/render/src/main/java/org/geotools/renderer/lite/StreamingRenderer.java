@@ -1294,7 +1294,7 @@ public final class StreamingRenderer implements GTRenderer {
 	 */
 	private Filter createBBoxFilters(SimpleFeatureType schema, String[] attributes,
 			Envelope bbox) throws IllegalFilterException {
-		Filter filter = null;
+		Filter filter = Filter.INCLUDE;
 		final int length = attributes.length;
 		AttributeDescriptor attType;
 		
@@ -1317,7 +1317,7 @@ public final class StreamingRenderer implements GTRenderer {
 			if (attType instanceof GeometryDescriptor) {                                
                 BBOX gfilter = filterFactory.bbox( attType.getLocalName(), bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY(), null );
                 
-				if (filter == null) {
+				if (filter == Filter.INCLUDE) {
 					filter = gfilter;
 				} else {
 					filter = filterFactory.or( filter, gfilter );

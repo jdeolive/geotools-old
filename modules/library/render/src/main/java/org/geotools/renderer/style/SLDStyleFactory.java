@@ -1006,6 +1006,7 @@ public class SLDStyleFactory {
                 LOGGER.log(Level.FINE, "Error occurred evaluating external graphic", e);
             }
         }
+        
         return null;
     }
     
