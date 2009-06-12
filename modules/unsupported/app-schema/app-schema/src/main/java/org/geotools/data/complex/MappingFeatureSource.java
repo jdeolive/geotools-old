@@ -32,6 +32,7 @@ import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
@@ -112,7 +113,19 @@ class MappingFeatureSource implements FeatureSource<FeatureType, Feature> {
     public int getCount(Query query) throws IOException {
         DefaultQuery namedQuery = namedQuery(query);
         int count = store.getCount(namedQuery);
-        return count;
+        if (count >= 0) {
+            // normal case
+            return count;
+        } else {
+            // count < 0 indicates broken a datastore, such as PropertyDataStore.
+            // If the data store cannot count its own features, we have to do it.
+            int featureCount = 0;
+            for (FeatureIterator<Feature> features = getFeatures(namedQuery).features(); features
+                    .hasNext(); features.next()) {
+                featureCount++;
+            }
+            return featureCount;
+        }
     }
 
     public DataAccess<FeatureType, Feature> getDataStore() {

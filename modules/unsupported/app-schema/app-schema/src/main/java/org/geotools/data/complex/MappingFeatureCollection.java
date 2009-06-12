@@ -291,7 +291,20 @@ public class MappingFeatureCollection implements FeatureCollection<FeatureType, 
      */
     public int size() {
         try {
-            return store.getCount(query);
+            int count = store.getCount(query);
+            if (count >= 0) {
+                // normal case
+                return count;
+            } else {
+                // count < 0 indicates broken a datastore, such as PropertyDataStore.
+                // If the data store cannot count its own features, we have to do it.
+                int featureCount = 0;
+                for (FeatureIterator<Feature> features = features(); features.hasNext(); features
+                        .next()) {
+                    featureCount++;
+                }
+                return featureCount;
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
