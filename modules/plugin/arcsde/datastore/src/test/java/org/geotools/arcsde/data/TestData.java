@@ -56,6 +56,7 @@ import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeShape;
 import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeTable;
+import com.esri.sde.sdk.client.SeVersion;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -1163,6 +1164,51 @@ public class TestData {
         };
 
         session.issue(cmd);
+    }
+
+    /**
+     * Creates an ArcSDE version named {@code versionName} if it doesn't already exist
+     * 
+     * @param session
+     * @param versionName
+     * @throws IOException
+     */
+    public void createVersion(final ISession session, final String versionName) throws IOException {
+        session.issue(new Command<Void>() {
+
+            @Override
+            public Void execute(ISession session, SeConnection connection) throws SeException,
+                    IOException {
+
+                String where = "name = '" + versionName + "'";
+                SeVersion[] versionList = connection.getVersionList(where);
+                if (versionList != null && versionList.length > 0) {
+                    return null;
+                }
+
+                final SeVersion defaultVersion = session.getDefaultVersion();
+
+                SeVersion newVersion = new SeVersion(connection,
+                        SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
+                // newVersion.getInfo();
+                newVersion.setName(connection.getUser() + "." + versionName);
+                newVersion.setParentName(defaultVersion.getName());
+                newVersion.setDescription(defaultVersion.getName()
+                        + " child for GeoTools ArcSDE unit tests");
+                // do not require ArcSDE to create a unique name if the
+                // required
+                // version already exists
+                boolean uniqueName = false;
+                try {
+                    newVersion.create(uniqueName, newVersion);
+                    newVersion.getInfo();
+                } catch (SeException e) {
+                    throw new ArcSdeException(e);
+                }
+                return null;
+            }
+        });
+
     }
 
     /**

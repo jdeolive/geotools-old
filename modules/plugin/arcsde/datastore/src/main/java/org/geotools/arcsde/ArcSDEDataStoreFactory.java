@@ -17,7 +17,9 @@
  */
 package org.geotools.arcsde;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +28,7 @@ import java.util.logging.Logger;
 import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.ViewRegisteringFactoryHelper;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.ArcSDEConnectionReference;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.arcsde.pool.SessionPoolFactory;
@@ -39,7 +41,9 @@ import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeRelease;
+import com.esri.sde.sdk.client.SeVersion;
 import com.esri.sde.sdk.pe.PeCoordinateSystem;
 import com.esri.sde.sdk.pe.PeFactory;
 
@@ -52,6 +56,7 @@ import com.esri.sde.sdk.pe.PeFactory;
  *         /org/geotools/arcsde/ArcSDEDataStoreFactory.java $
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     /** package's logger */
     protected static final Logger LOGGER = Logging
@@ -106,6 +111,9 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
                 "Milliseconds to wait for an available connection before failing to connect",
                 false, Integer.valueOf(SessionPool.DEFAULT_MAX_WAIT_TIME));
 
+        Param VERSION_PARAM = new Param(ArcSDEConnectionConfig.VERSION_PARAM, String.class,
+                "The ArcSDE database version to use.", false);
+
         paramMetadata.add(NAMESPACE_PARAM);
         paramMetadata.add(DBTYPE_PARAM);
         paramMetadata.add(SERVER_PARAM);
@@ -117,6 +125,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         paramMetadata.add(MIN_CONNECTIONS_PARAM);
         paramMetadata.add(MAX_CONNECTIONS_PARAM);
         paramMetadata.add(TIMEOUT_PARAM);
+        paramMetadata.add(VERSION_PARAM);
 
         // determine which JSDE api we're running against
         determineJsdeVersion();
@@ -211,10 +220,9 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         // create a new session pool to be used only by this datastore
         final SessionPool connPool = poolFactory.createPool(config);
 
-        // check to see if our sdk is compatible with this arcsde instance
-        ISession session = null;
+        final ISession session = connPool.getSession(Transaction.AUTO_COMMIT);
         try {
-            session = connPool.getSession(Transaction.AUTO_COMMIT);
+            // check to see if our sdk is compatible with this arcsde instance
             SeRelease releaseInfo = session.getRelease();
             int majVer = releaseInfo.getMajor();
             int minVer = releaseInfo.getMinor();
@@ -239,20 +247,33 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
                                 + "9.2 or higher.  See http://docs.codehaus.org/display/GEOTOOLS/ArcSDE+Plugin\n"
                                 + "**************************\n\n");
             }
+
+            // if a version was specified, verify it exists
+            final String versionName = config.getVersion();
+            if (versionName != null) {
+                session.issue(new Command<Void>() {
+                    @Override
+                    public Void execute(ISession session, SeConnection connection)
+                            throws SeException, IOException {
+                        final String where = "name = '" + versionName + "'";
+                        SeVersion[] versionList = connection.getVersionList(where);
+                        if (versionList == null || versionList.length == 0) {
+                            throw new DataSourceException(
+                                    "Specified ArcSDE version does not exist: '" + versionName
+                                            + "'");
+                        }
+                        LOGGER.info("Version " + versionName + " found. Proceeding. "
+                                + Arrays.toString(versionList));
+                        return null;
+                    }
+                });
+            }
         } finally {
-            if (session != null)
-                session.dispose();
+            session.dispose();
         }
 
-        String namespaceUri = config.getNamespaceUri();
-        if (connPool instanceof ArcSDEConnectionReference) {
-            // notice we check the pool rather than the config? that is because
-            // another user may of been in ahead of us and create connection pool
-            //
-            sdeDStore = new ArcSDEDataStore(connPool, namespaceUri);
-        } else {
-            sdeDStore = new ArcSDEDataStore(connPool, namespaceUri);
-        }
+        final String namespaceUri = config.getNamespaceUri();
+        sdeDStore = new ArcSDEDataStore(connPool, namespaceUri);
 
         ViewRegisteringFactoryHelper.registerSqlViews(sdeDStore, params);
 

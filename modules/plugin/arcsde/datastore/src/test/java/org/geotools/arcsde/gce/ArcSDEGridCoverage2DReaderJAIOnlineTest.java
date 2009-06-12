@@ -27,6 +27,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -245,7 +246,24 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
     @Test
     public void testRead_32bit_REAL_1Band() throws Exception {
-        testReadFullLevel0(TYPE_32BIT_REAL, 1);
+        GridCoverage2D coverage = testReadFullLevel0(TYPE_32BIT_REAL, 1);
+
+        RenderedImage geophysics = coverage.geophysics(true).getRenderedImage();
+        RenderedImage rendered = coverage.geophysics(false).getRenderedImage();
+
+        ColorModel gpCm = geophysics.getColorModel();
+        SampleModel gpSm = geophysics.getSampleModel();
+
+        ColorModel rCm = rendered.getColorModel();
+        SampleModel rSm = geophysics.getSampleModel();
+
+        System.out.println("Geophysics: \t" + gpCm + "\n\t" + gpSm);
+        System.out.println("Rendered  : \t" + rCm + "\n\t" + rSm);
+        
+        System.out.println(Float.NaN);
+        Float valueOf = Float.valueOf("NaN");
+        System.out.println(valueOf);
+        System.out.println(valueOf.floatValue());
     }
 
     @Test

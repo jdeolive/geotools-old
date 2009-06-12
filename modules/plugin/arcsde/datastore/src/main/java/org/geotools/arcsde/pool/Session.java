@@ -201,14 +201,23 @@ class Session implements ISession {
                     try {
                         return command.execute(Session.this, connection);
                     } catch (Exception e) {
+                        if (LOGGER.isLoggable(Level.FINEST)) {
+                            LOGGER.log(Level.FINEST, "Command execution failed for Session "
+                                    + Session.this.sessionId + " in thread "
+                                    + currentThread.getId(), e);
+                        } else if (LOGGER.isLoggable(Level.FINE)) {
+                            LOGGER.fine("Command execution failed for Session "
+                                    + Session.this.sessionId + " in thread "
+                                    + currentThread.getId());
+                        }
+
                         if (e instanceof SeException) {
                             e = new ArcSdeException((SeException) e);
+                        } else if (e instanceof IOException) {
+                            throw e;
                         }
-                        LOGGER
-                                .log(Level.SEVERE, "Command execution failed for Session "
-                                        + Session.this.sessionId + " in thread "
-                                        + currentThread.getId(), e);
-                        throw e;
+                        throw new RuntimeException("Command execution failed for Session "
+                                + Session.this.sessionId + " in thread " + currentThread.getId(), e);
                     }
                 }
             });

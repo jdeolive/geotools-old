@@ -17,7 +17,6 @@
  */
 package org.geotools.arcsde.pool;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -33,6 +32,7 @@ import java.util.logging.Logger;
  *         /org/geotools/arcsde/pool/ArcSDEConnectionConfig.java $
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class ArcSDEConnectionConfig {
     /**
      * Shared package's logger
@@ -46,7 +46,6 @@ public class ArcSDEConnectionConfig {
     private static final String NULL_ARGUMENTS_MSG = "Illegal arguments. At least one of them was null. Check to pass "
             + "correct values to dbtype, server, port, database, user and password parameters";
 
-    /** DOCUMENT ME! */
     private static final String ILLEGAL_ARGUMENT_MSG = " is not valid for parameter ";
 
     /** must equals to <code>"arcsde"</code> */
@@ -73,14 +72,13 @@ public class ArcSDEConnectionConfig {
     /** ArcSDE database user password parameter name */
     public static final String PASSWORD_PARAM = "password";
 
-    /** DOCUMENT ME! */
     public static final String MIN_CONNECTIONS_PARAM = "pool.minConnections";
 
-    /** DOCUMENT ME! */
     public static final String MAX_CONNECTIONS_PARAM = "pool.maxConnections";
 
-    /** DOCUMENT ME! */
     public static final String CONNECTION_TIMEOUT_PARAM = "pool.timeOut";
+
+    public static final String VERSION_PARAM = "version";
 
     /**
      * parameter name who's value represents the feature class for wich an
@@ -118,6 +116,9 @@ public class ArcSDEConnectionConfig {
     /** time to hold onto an idle connection before cleaning it up */
     Integer connTimeOut = null;
 
+    /** ArcSDE database version name, or null for DEFAULT version */
+    String version;
+
     /**
      * Configure arcsde connection information from supplied connection parameters.
      * 
@@ -129,38 +130,6 @@ public class ArcSDEConnectionConfig {
      *             if at least one mandatory parameter is present but does not have a "valid" value.
      */
     public ArcSDEConnectionConfig(Map params) throws NullPointerException, IllegalArgumentException {
-        init(params);
-    }
-
-    /**
-     * Define arcsde connection information.
-     * 
-     * @param dbType
-     * @param serverName
-     *            host or ip address of server
-     * @param portNumber
-     *            port number the server is listenting on
-     * @param databaseName
-     *            database to connect to
-     * @param userName
-     *            user name for arcsde
-     * @param userPassword
-     *            user password for arcsde
-     * @throws NullPointerException
-     *             If any of the parameters are null
-     * @throws IllegalArgumentException
-     *             If any of the paramters is not valid
-     */
-    public ArcSDEConnectionConfig(String dbType, String serverName, String portNumber,
-            String databaseName, String userName, String userPassword) throws NullPointerException,
-            IllegalArgumentException {
-        Map params = new HashMap();
-        params.put(DBTYPE_PARAM, dbType);
-        params.put(SERVER_NAME_PARAM, serverName);
-        params.put(PORT_NUMBER_PARAM, portNumber);
-        params.put(INSTANCE_NAME_PARAM, databaseName);
-        params.put(USER_NAME_PARAM, userName);
-        params.put(PASSWORD_PARAM, userPassword);
         init(params);
     }
 
@@ -210,6 +179,8 @@ public class ArcSDEConnectionConfig {
                 SessionPool.DEFAULT_MAX_CONNECTIONS);
         this.connTimeOut = getInt(params.get(CONNECTION_TIMEOUT_PARAM),
                 SessionPool.DEFAULT_MAX_WAIT_TIME);
+
+        this.version = (String) params.get(VERSION_PARAM);
 
         if (this.minConnections.intValue() <= 0) {
             exceptionMsg += MIN_CONNECTIONS_PARAM + " must be a positive integer. ";
@@ -451,33 +422,34 @@ public class ArcSDEConnectionConfig {
     }
 
     /**
+     * @return the ArcSDE version name to connect to
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
      * @return a human friendly description of this parameter holder contents (password is masked),
      *         mostly usefull for stack traces
      */
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer(getClass().getName() + "[");
-        sb.append("dbtype=");
-        sb.append(ArcSDEConnectionConfig.DBTYPE_PARAM_VALUE);
-        sb.append(", server=");
-        sb.append(this.serverName);
-        sb.append(", port=");
-        sb.append(this.portNumber);
-        sb.append(", instance=");
-        sb.append(this.databaseName);
-        sb.append(", user=");
-        sb.append(this.userName);
+        sb.append("dbtype=").append(ArcSDEConnectionConfig.DBTYPE_PARAM_VALUE);
+        sb.append(", server=").append(this.serverName);
+        sb.append(", port=").append(this.portNumber);
+        sb.append(", instance=").append(this.databaseName);
+        sb.append(", user=").append(this.userName);
+        sb.append(", version='").append(version == null ? "[DEFAULT]" : version).append("'");
         // hidding password as the result of this method
         // is probably going to end up in a stack trace
         sb.append(", password=*****");
-        sb.append(", minConnections=");
-        sb.append(this.minConnections);
-        sb.append(", maxConnections=");
-        sb.append(this.maxConnections);
-        sb.append(", connTimeOut=");
-        sb.append(this.connTimeOut);
+        sb.append(", minConnections=").append(this.minConnections);
+        sb.append(", maxConnections=").append(this.maxConnections);
+        sb.append(", connTimeOut=").append(this.connTimeOut);
         sb.append("]");
 
         return sb.toString();
     }
+
 }

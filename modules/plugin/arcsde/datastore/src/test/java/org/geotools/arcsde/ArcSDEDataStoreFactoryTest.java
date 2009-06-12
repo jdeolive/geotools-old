@@ -17,6 +17,7 @@
  */
 package org.geotools.arcsde;
 
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -57,6 +58,7 @@ import com.esri.sde.sdk.client.SeException;
  * @version $Id$
  * @since 2.4.x
  */
+@SuppressWarnings("unchecked")
 public class ArcSDEDataStoreFactoryTest {
 
     /**
@@ -220,4 +222,23 @@ public class ArcSDEDataStoreFactoryTest {
         store.dispose();
     }
 
+    @Test
+    public void testVersionParamCheck() throws IOException {
+        ISession session = testData.getConnectionPool().getSession();
+        final String versionName = "testVersionParamCheck";
+        try {
+            testData.createVersion(session, versionName);
+        } finally {
+            session.dispose();
+        }
+
+        Map paramsWithVersion = new HashMap(workingParams);
+        try {
+            paramsWithVersion.put(VERSION_PARAM, "Non existent version name");
+            dsFactory.createDataStore(paramsWithVersion);
+        } catch (IOException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith(
+                    "Specified ArcSDE version does not exist"));
+        }
+    }
 }

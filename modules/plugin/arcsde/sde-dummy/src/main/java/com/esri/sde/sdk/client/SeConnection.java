@@ -40,4 +40,8 @@ public class SeConnection {
     public void testServer(long testServerRoundtripIntervalSeconds) throws SeException{
     }
 
+    public SeVersion[] getVersionList(String where) throws SeException{
+        return null;
+    }
+
 }

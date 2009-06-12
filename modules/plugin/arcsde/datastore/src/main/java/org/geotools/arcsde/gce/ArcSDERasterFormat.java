@@ -17,6 +17,14 @@
  */
 package org.geotools.arcsde.gce;
 
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.DBTYPE_PARAM;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.DBTYPE_PARAM_VALUE;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PASSWORD_PARAM;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PORT_NUMBER_PARAM;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.SERVER_NAME_PARAM;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.USER_NAME_PARAM;
+
 import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
@@ -421,8 +429,15 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         sdeDBName = sdeUrl.substring(1, idx).toString();
         sdeUrl.delete(0, idx);
 
-        return new ArcSDEConnectionConfig("arcsde", sdeHost, sdePort + "", sdeDBName, sdeUser,
-                sdePass);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(DBTYPE_PARAM, DBTYPE_PARAM_VALUE);
+        params.put(SERVER_NAME_PARAM, sdeHost);
+        params.put(PORT_NUMBER_PARAM, String.valueOf(sdePort));
+        params.put(INSTANCE_NAME_PARAM, sdeDBName);
+        params.put(USER_NAME_PARAM, sdeUser);
+        params.put(PASSWORD_PARAM, sdePass);
+        
+        return new ArcSDEConnectionConfig(params);
     }
 
     /**
