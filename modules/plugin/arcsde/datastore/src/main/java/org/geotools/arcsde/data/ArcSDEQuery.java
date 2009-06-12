@@ -661,7 +661,11 @@ class ArcSDEQuery {
                         throws SeException, IOException {
 
                     final String[] spatialCol = { schema.getGeometryDescriptor().getLocalName() };
-                    String whereClause = filters.getSeSqlConstruct().getWhere();
+                    // fullConstruct may hold information about multiple tables in case of an
+                    // in-process view
+                    final SeSqlConstruct fullConstruct = filters.getQueryInfo(spatialCol)
+                            .getConstruct();
+                    String whereClause = fullConstruct.getWhere();
                     if (whereClause == null) {
                         /*
                          * we really need a where clause or will get a famous -51 DATABASE LEVEL
@@ -679,7 +683,8 @@ class ArcSDEQuery {
                                 spatialConstraints);
                     }
 
-                    SeSqlConstruct sqlCons = new SeSqlConstruct(schema.getTypeName());
+                    SeSqlConstruct sqlCons = new SeSqlConstruct();
+                    sqlCons.setTables(fullConstruct.getTables());
                     sqlCons.setWhere(whereClause);
 
                     final SeQueryInfo seQueryInfo = new SeQueryInfo();
