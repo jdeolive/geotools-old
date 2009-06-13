@@ -856,6 +856,8 @@ public class ArcSDEFeatureSourceTest {
 
         final int nExecutions = 30;
 
+        // how many connections to use for the tests. Make sure pool.maxConnections is set to a
+        // large enough value on testparams.properties
         final int[] connections = { 10 };
         final int[] testThreads = { 1, 5, 10, 15, 20 };
 

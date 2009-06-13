@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.data.versioning.TransactionDefaultVersionHandler;
+import org.geotools.arcsde.data.versioning.TransactionVersionHandler;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
@@ -89,22 +89,25 @@ final class ArcTransactionState implements Transaction.State {
         this.listenerManager = listenerManager;
     }
 
-    private void setupVersioningHandling() throws IOException {
+    private void setupVersioningHandling(final String versionName) throws IOException {
         // create a versioned handler only if not already settled up, as this method
         // may be called for each layer inside a transaction
         if (versionHandler == ArcSdeVersionHandler.NONVERSIONED_HANDLER) {
             ISession session = getConnection();
-            versionHandler = new TransactionDefaultVersionHandler(session);
+            versionHandler = new TransactionVersionHandler(session, versionName);
         }
     }
 
     /**
+     * @param versioName
+     *            the name of the version to work against
      * @return
      * @throws IOException
      */
-    public ArcSdeVersionHandler getVersionHandler(final boolean ftIsVersioned) throws IOException {
+    public ArcSdeVersionHandler getVersionHandler(final boolean ftIsVersioned,
+            final String versionName) throws IOException {
         if (ftIsVersioned) {
-            setupVersioningHandling();
+            setupVersioningHandling(versionName);
         }
         return versionHandler;
     }

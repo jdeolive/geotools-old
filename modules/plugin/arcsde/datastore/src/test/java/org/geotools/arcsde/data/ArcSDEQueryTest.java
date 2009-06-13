@@ -31,7 +31,7 @@ import java.util.Set;
 
 import org.geotools.arcsde.data.ArcSDEQuery.FilterSet;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.data.versioning.AutoCommitDefaultVersionHandler;
+import org.geotools.arcsde.data.versioning.AutoCommitVersionHandler;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
@@ -63,6 +63,7 @@ import org.opengis.filter.PropertyIsGreaterThan;
 import org.opengis.filter.identity.Identifier;
 import org.opengis.filter.spatial.BBOX;
 
+import com.esri.sde.sdk.client.SeVersion;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -290,7 +291,8 @@ public class ArcSDEQueryTest {
         ISession session = dstore.getSession(Transaction.AUTO_COMMIT);
         FeatureTypeInfo fti = ArcSDEAdapter.fetchSchema(typeName, null, session);
         this.queryFiltered = ArcSDEQuery.createQuery(session, ftype, filteringQuery, fti
-                .getFidStrategy(), new AutoCommitDefaultVersionHandler());
+                .getFidStrategy(), new AutoCommitVersionHandler(
+                SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME));
         return this.queryFiltered;
     }
 
@@ -386,7 +388,8 @@ public class ArcSDEQueryTest {
         Filter filter = CQL.toFilter("BBOX(SHAPE, -180, -90, -170, -80)");
         filteringQuery = new DefaultQuery(typeName, filter);
         ArcSDEQuery q = ArcSDEQuery.createQuery(session, ftype, filteringQuery, fti
-                .getFidStrategy(), new AutoCommitDefaultVersionHandler());
+                .getFidStrategy(), new AutoCommitVersionHandler(
+                SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME));
         int calculated;
         try {
             calculated = q.calculateResultCount();
@@ -405,7 +408,8 @@ public class ArcSDEQueryTest {
         Filter filter = CQL.toFilter("INT32_COL < 5 AND BBOX(SHAPE, -180, -90, -170, -80)");
         filteringQuery = new DefaultQuery(typeName, filter);
         ArcSDEQuery q = ArcSDEQuery.createQuery(session, ftype, filteringQuery, fti
-                .getFidStrategy(), new AutoCommitDefaultVersionHandler());
+                .getFidStrategy(), new AutoCommitVersionHandler(
+                SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME));
         int calculated;
         try {
             calculated = q.calculateResultCount();

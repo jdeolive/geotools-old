@@ -194,12 +194,22 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
      * <p>
      * Expected parameters are:
      * <ul>
-     * <li><b>dbtype </b>: MUST be <code>"arcsde"</code></li>
-     * <li><b>server </b>: machine name where ArcSDE is running</li>
-     * <li><b>port </b>: port number where ArcSDE listens for connections on server</li>
-     * <li><b>instance </b>: database instance name to connect to</li>
-     * <li><b>user </b>: database user name with at least reading privileges over SDE instance</li>
-     * <li><b>password </b>: database user password</li>
+     * <li>{@code dbtype}: MUST be <code>"arcsde"</code></li>
+     * <li>{@code server}: machine name where ArcSDE is running</li>
+     * <li>{@code port}: port number where ArcSDE listens for connections on server</li>
+     * <li>{@code instance}: database instance name to connect to</li>
+     * <li>{@code user}: database user name with at least reading privileges over SDE instance</li>
+     * <li>{@code password}: database user password</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Optional parameters:
+     * <ul>
+     * <li>{@code pool.minConnections}: how many connections to open when the datastore is created
+     * <li>{@code pool.maxConnections}: max limit of connections for the connection pool
+     * <li>{@code pool.timeOut}: how many milliseconds to wait for a free connection before failing
+     * to execute a request
+     * <li>{@code version}: name of the ArcSDE version for the data store to work upon
      * </ul>
      * </p>
      * 
@@ -273,7 +283,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         }
 
         final String namespaceUri = config.getNamespaceUri();
-        sdeDStore = new ArcSDEDataStore(connPool, namespaceUri);
+        sdeDStore = new ArcSDEDataStore(connPool, namespaceUri, config.getVersion());
 
         ViewRegisteringFactoryHelper.registerSqlViews(sdeDStore, params);
 

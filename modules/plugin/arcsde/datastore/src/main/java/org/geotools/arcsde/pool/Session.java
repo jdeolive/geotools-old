@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 import org.apache.commons.pool.ObjectPool;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.SdeRow;
+import org.geotools.arcsde.pool.Commands.GetVersionCommand;
 import org.geotools.data.DataSourceException;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
@@ -891,16 +892,7 @@ class Session implements ISession {
      * @see ISession#getDefaultVersion()
      */
     public SeVersion getDefaultVersion() throws IOException {
-        return issue(new Command<SeVersion>() {
-            @Override
-            public SeVersion execute(final ISession session, final SeConnection connection)
-                    throws SeException, IOException {
-                SeVersion defaultVersion = new SeVersion(connection,
-                        SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
-                defaultVersion.getInfo();
-                return defaultVersion;
-            }
-        });
+        return issue(new GetVersionCommand(SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME));
     }
 
     /**

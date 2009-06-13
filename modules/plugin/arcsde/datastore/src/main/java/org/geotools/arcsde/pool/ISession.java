@@ -141,7 +141,6 @@ public interface ISession {
      * @return
      * @throws IOException
      */
-    @SuppressWarnings("unchecked")
     public abstract List<SeLayer> getLayers() throws IOException;
 
     public abstract String getUser() throws IOException;

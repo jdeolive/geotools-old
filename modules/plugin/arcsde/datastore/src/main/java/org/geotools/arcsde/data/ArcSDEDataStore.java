@@ -31,7 +31,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.data.versioning.AutoCommitDefaultVersionHandler;
+import org.geotools.arcsde.data.versioning.AutoCommitVersionHandler;
 import org.geotools.arcsde.data.view.QueryInfoParser;
 import org.geotools.arcsde.data.view.SelectQualifier;
 import org.geotools.arcsde.pool.ISession;
@@ -69,6 +69,7 @@ import org.opengis.filter.Filter;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeQueryInfo;
+import com.esri.sde.sdk.client.SeVersion;
 
 /**
  * DataStore implementation to work upon an ArcSDE spatial database gateway.
@@ -97,6 +98,13 @@ public class ArcSDEDataStore implements DataStore {
     final FeatureTypeInfoCache typeInfoCache;
 
     /**
+     * Name of the arcsde version to work upon
+     * 
+     * @see #getVersionHandler(String, Transaction)
+     */
+    private String version;
+
+    /**
      * Creates a new ArcSDE DataStore working over the given connection pool
      * 
      * @param connPool
@@ -104,7 +112,7 @@ public class ArcSDEDataStore implements DataStore {
      * @throws IOException
      */
     public ArcSDEDataStore(final SessionPool connPool) throws IOException {
-        this(connPool, null);
+        this(connPool, null, null);
     }
 
     /**
@@ -114,12 +122,17 @@ public class ArcSDEDataStore implements DataStore {
      *            pool of {@link Session} this datastore works upon.
      * @param namespaceUri
      *            namespace URI for the {@link SimpleFeatureType}s, {@link AttributeType}s, and
-     *            {@link AttributeDescriptor}s created by this datastore. May be <code>null</code>.
+     *            {@link AttributeDescriptor}s created by this datastore. May be {@code null}.
+     * @param the
+     *            name of the ArcSDE version to work upon, or {@code null} for the
+     *            {@link SeVersion#SE_QUALIFIED_DEFAULT_VERSION_NAME DEFAULT} version
      * @throws IOException
      */
-    public ArcSDEDataStore(final SessionPool connPool, final String namespaceUri)
-            throws IOException {
+    public ArcSDEDataStore(final SessionPool connPool, final String namespaceUri,
+            final String versionName) throws IOException {
         this.connectionPool = connPool;
+        this.version = versionName == null ? SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME
+                : versionName;
         this.typeInfoCache = new FeatureTypeInfoCache(connectionPool, namespaceUri, 30);
     }
 
@@ -403,10 +416,10 @@ public class ArcSDEDataStore implements DataStore {
             ArcTransactionState state = getState(transaction);
             if (null == state) {
                 if (versioned) {
-                    versionHandler = new AutoCommitDefaultVersionHandler();
+                    versionHandler = new AutoCommitVersionHandler(version);
                 }
             } else {
-                versionHandler = state.getVersionHandler(versioned);
+                versionHandler = state.getVersionHandler(versioned, version);
             }
         }
         return versionHandler;

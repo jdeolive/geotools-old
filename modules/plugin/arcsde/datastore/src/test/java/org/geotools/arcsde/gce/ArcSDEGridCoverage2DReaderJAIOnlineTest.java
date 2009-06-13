@@ -259,7 +259,7 @@ public class ArcSDEGridCoverage2DReaderJAIOnlineTest {
 
         System.out.println("Geophysics: \t" + gpCm + "\n\t" + gpSm);
         System.out.println("Rendered  : \t" + rCm + "\n\t" + rSm);
-        
+
         System.out.println(Float.NaN);
         Float valueOf = Float.valueOf("NaN");
         System.out.println(valueOf);

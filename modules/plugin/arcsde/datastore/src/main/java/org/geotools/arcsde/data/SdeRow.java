@@ -18,6 +18,7 @@
 package org.geotools.arcsde.data;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
@@ -107,18 +108,21 @@ public class SdeRow {
                      * ByteArrayStreams
                      */
                     if (values[i] == null) {
+                        ByteArrayInputStream clobIn = null;
                         BufferedReader reader = null;
                         try {
                             int type = row.getColumnDef(i).getType();
-
                             if (type == SeColumnDefinition.TYPE_NCLOB) {
-                                reader = new BufferedReader(new InputStreamReader(row.getNClob(i),
-                                        "UTF-16"));
+                                clobIn = row.getNClob(i);
                             } else if (type == SeColumnDefinition.TYPE_CLOB) {
-                                reader = new BufferedReader(new InputStreamReader(row.getClob(i),
-                                        "UTF-16"));
+                                /*
+                                 * Warning! this line throws an NPE with the 9.2 java api, but works
+                                 * with the 9.3 jars
+                                 */
+                                clobIn = row.getClob(i);
                             }
-                            if (reader != null) {
+                            if (clobIn != null) {
+                                reader = new BufferedReader(new InputStreamReader(clobIn, "UTF-16"));
                                 StringBuffer buf = new StringBuffer();
                                 String snip = reader.readLine();
                                 while (snip != null) {

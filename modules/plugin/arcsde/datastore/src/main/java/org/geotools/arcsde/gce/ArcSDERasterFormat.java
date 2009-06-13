@@ -436,7 +436,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         params.put(INSTANCE_NAME_PARAM, sdeDBName);
         params.put(USER_NAME_PARAM, sdeUser);
         params.put(PASSWORD_PARAM, sdePass);
-        
+
         return new ArcSDEConnectionConfig(params);
     }
 

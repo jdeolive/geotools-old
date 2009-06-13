@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.pool.Commands.GetVersionCommand;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeConnection;
@@ -34,24 +35,29 @@ import com.esri.sde.sdk.client.SeVersion;
 
 /**
  * Handles a versioned table when in auto commit mode, meaning it sets up streams to edit directly
- * the default version.
+ * the version indicated by the provided version name.
  * 
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
  * @since 2.5.x
  * @source $URL:
  *         http://svn.geotools.org/trunk/modules/plugin/arcsde/datastore/src/main/java/org/geotools
- *         /arcsde/data/versioning/AutoCommitDefaultVersionHandler.java $
+ *         /arcsde/data/versioning/AutoCommitVersionHandler.java $
  */
-public class AutoCommitDefaultVersionHandler implements ArcSdeVersionHandler {
+public class AutoCommitVersionHandler implements ArcSdeVersionHandler {
 
-    private static final Logger LOGGER = Logging.getLogger(AutoCommitDefaultVersionHandler.class
-            .getName());
+    private static final Logger LOGGER = Logging
+            .getLogger(AutoCommitVersionHandler.class.getName());
 
-    private SeVersion defaultVersion;
+    private SeVersion version;
 
-    public AutoCommitDefaultVersionHandler() throws IOException {
-        //
+    private final GetVersionCommand getVersionCommand;
+
+    private final String versionName;
+
+    public AutoCommitVersionHandler(final String versionName) throws IOException {
+        this.versionName = versionName;
+        this.getVersionCommand = new GetVersionCommand(versionName);
     }
 
     public void setUpStream(final ISession session, final SeStreamOp streamOperation)
@@ -62,18 +68,13 @@ public class AutoCommitDefaultVersionHandler implements ArcSdeVersionHandler {
             public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("setting up stream for default version in "
+                    LOGGER.finest("setting up stream for version " + versionName + " in "
                             + streamOperation.getClass().getName());
                 }
 
-                if (defaultVersion == null) {
-                    LOGGER.finer("Acquiring default version");
-                    defaultVersion = new SeVersion(connection,
-                            SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
+                if (version == null) {
+                    version = session.issue(getVersionCommand);
                 }
-
-                LOGGER.finest("Refreshing default version info");
-                defaultVersion.getInfo();
 
                 if (!(streamOperation instanceof SeQuery)) {
                     LOGGER.finer("StreamOp is not query, verifying an SeState can be used");
@@ -81,11 +82,11 @@ public class AutoCommitDefaultVersionHandler implements ArcSdeVersionHandler {
                     // create a new state for the operation only if its not a
                     // simple query
                     final SeState currentState;
-                    final SeObjectId currStateId = defaultVersion.getStateId();
+                    final SeObjectId currStateId = version.getStateId();
                     currentState = new SeState(connection, currStateId);
 
                     if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.finer("Default Version state: " + currStateId.longValue()
+                        LOGGER.finer(versionName + " version state: " + currStateId.longValue()
                                 + ", parent: " + currentState.getParentId().longValue()
                                 + ", open: " + currentState.isOpen() + ", owner: "
                                 + currentState.getOwner() + ", current user: "
@@ -95,21 +96,20 @@ public class AutoCommitDefaultVersionHandler implements ArcSdeVersionHandler {
                     final String currUser = connection.getUser();
                     final String stateOwner = currentState.getOwner();
 
-                    if (currentState.isOpen() && currUser.equals(stateOwner)) {
-                        LOGGER.finer("Default version state is open and belongs "
-                                + "to the current user, using it as is");
-                    } else {
+                    if (!(currentState.isOpen() && currUser.equals(stateOwner))) {
                         LOGGER.finer("Creating new state for the operation");
                         SeState newState = session.createChildState(currStateId.longValue());
-                        LOGGER.finer("Setting default version to new state "
-                                + newState.getId().longValue());
-                        defaultVersion.changeState(newState.getId());
+                        if (LOGGER.isLoggable(Level.FINER)) {
+                            LOGGER.finer("Setting version " + versionName + "to new state "
+                                    + newState.getId().longValue());
+                        }
+                        version.changeState(newState.getId());
                     }
                 }
 
                 SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
-                // defaultVersion.getInfo();
-                SeObjectId currentStateId = defaultVersion.getStateId();
+                // version.getInfo();
+                SeObjectId currentStateId = version.getStateId();
                 streamOperation.setState(currentStateId, differencesId,
                         SeState.SE_STATE_DIFF_NOCHECK);
                 return null;
