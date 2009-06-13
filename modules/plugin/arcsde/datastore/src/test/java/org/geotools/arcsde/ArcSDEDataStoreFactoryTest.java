@@ -241,4 +241,40 @@ public class ArcSDEDataStoreFactoryTest {
                     "Specified ArcSDE version does not exist"));
         }
     }
+
+    @Test
+    public void testVersioned() throws IOException {
+        ISession session = testData.getConnectionPool().getSession();
+        final String versionName = "testVersioned";
+        try {
+            testData.createVersion(session, versionName);
+        } finally {
+            session.dispose();
+        }
+
+        Map paramsWithVersion = new HashMap(workingParams);
+        paramsWithVersion.put(VERSION_PARAM, versionName);
+        DataStore ds = dsFactory.createDataStore(paramsWithVersion);
+        assertNotNull(ds);
+        ds.dispose();
+
+        String qualifiedVersionName = session.getUser() + "." + versionName;
+        paramsWithVersion.put(VERSION_PARAM, qualifiedVersionName);
+        ds = dsFactory.createDataStore(paramsWithVersion);
+        assertNotNull(ds);
+        ds.dispose();
+
+        //version name should be case insensitive
+        qualifiedVersionName = qualifiedVersionName.toUpperCase();
+        paramsWithVersion.put(VERSION_PARAM, qualifiedVersionName);
+        ds = dsFactory.createDataStore(paramsWithVersion);
+        assertNotNull(ds);
+        ds.dispose();
+
+        qualifiedVersionName = qualifiedVersionName.toLowerCase();
+        paramsWithVersion.put(VERSION_PARAM, qualifiedVersionName);
+        ds = dsFactory.createDataStore(paramsWithVersion);
+        assertNotNull(ds);
+        ds.dispose();
+    }
 }

@@ -29,6 +29,7 @@ import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.ViewRegisteringFactoryHelper;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.Command;
+import org.geotools.arcsde.pool.Commands;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.arcsde.pool.SessionPoolFactory;
@@ -261,22 +262,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
             // if a version was specified, verify it exists
             final String versionName = config.getVersion();
             if (versionName != null) {
-                session.issue(new Command<Void>() {
-                    @Override
-                    public Void execute(ISession session, SeConnection connection)
-                            throws SeException, IOException {
-                        final String where = "name = '" + versionName + "'";
-                        SeVersion[] versionList = connection.getVersionList(where);
-                        if (versionList == null || versionList.length == 0) {
-                            throw new DataSourceException(
-                                    "Specified ArcSDE version does not exist: '" + versionName
-                                            + "'");
-                        }
-                        LOGGER.info("Version " + versionName + " found. Proceeding. "
-                                + Arrays.toString(versionList));
-                        return null;
-                    }
-                });
+                session.issue(new Commands.GetVersionCommand(versionName));
             }
         } finally {
             session.dispose();
