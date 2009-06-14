@@ -17,9 +17,7 @@
  */
 package org.geotools.arcsde;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +26,6 @@ import java.util.logging.Logger;
 import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.ViewRegisteringFactoryHelper;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Commands;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
@@ -42,9 +39,7 @@ import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeConnection;
-import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeRelease;
-import com.esri.sde.sdk.client.SeVersion;
 import com.esri.sde.sdk.pe.PeCoordinateSystem;
 import com.esri.sde.sdk.pe.PeFactory;
 
@@ -261,15 +256,22 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
 
             // if a version was specified, verify it exists
             final String versionName = config.getVersion();
-            if (versionName != null) {
+            if (versionName != null && !("".equals(versionName.trim()))) {
                 session.issue(new Commands.GetVersionCommand(versionName));
             }
         } finally {
             session.dispose();
         }
 
-        final String namespaceUri = config.getNamespaceUri();
-        sdeDStore = new ArcSDEDataStore(connPool, namespaceUri, config.getVersion());
+        String namespaceUri = config.getNamespaceUri();
+        if (namespaceUri != null && "".equals(namespaceUri.trim())) {
+            namespaceUri = null;
+        }
+        String versionName = config.getVersion();
+        if (versionName != null && "".equals(versionName.trim())) {
+            versionName = null;
+        }
+        sdeDStore = new ArcSDEDataStore(connPool, namespaceUri, versionName);
 
         ViewRegisteringFactoryHelper.registerSqlViews(sdeDStore, params);
 
