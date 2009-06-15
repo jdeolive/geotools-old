@@ -32,8 +32,8 @@ import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
+import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.ecql.ECQL;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -152,9 +152,11 @@ public class ArcSDEDataStoreVersioningTest {
         assertEquals(initialCount, count(storeV1));
         assertEquals(initialCount, count(storeV2));
 
-        delete(storeDefault, "INT32_COL IN (1)");
-        delete(storeV1, "INT32_COL IN (1, 2)");
-        delete(storeV2, "INT32_COL IN (1, 2, 3)");
+        // can't use INT32_COL IN(1,2,...) for backward compatibility with 2.5.x. That's ECQL syntax
+        // and doesn't exist on 2.5.x
+        delete(storeDefault, "INT32_COL = 1");
+        delete(storeV1, "INT32_COL = 1 OR INT32_COL = 2");
+        delete(storeV2, "INT32_COL = 1 OR INT32_COL = 2 OR INT32_COL = 3");
 
         assertEquals(initialCount - 1, count(storeDefault));
         assertEquals(initialCount - 2, count(storeV1));
@@ -173,7 +175,7 @@ public class ArcSDEDataStoreVersioningTest {
 
         Filter filter;
         try {
-            filter = ECQL.toFilter(ecqlPredicate);
+            filter = CQL.toFilter(ecqlPredicate);
         } catch (CQLException e) {
             throw new DataSourceException(e);
         }
