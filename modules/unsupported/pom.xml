@@ -139,6 +139,15 @@
          <module>wps</module>
        </modules>
      </profile>
+     <profile>
+       <id>epsg-h2</id>
+       <activation>
+         <property><name>all</name></property>
+       </activation>
+       <modules>
+         <module>epsg-h2</module>
+       </modules>
+     </profile>
 
      <profile>
        <id>unsupported</id>
@@ -147,6 +156,7 @@
        </activation>
        <modules>
          <module>epsg-oracle</module>
+         <module>epsg-h2</module>
          <module>gml</module>    
          <module>gpx</module>
          <module>jdbc-ng</module>
