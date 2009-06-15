@@ -342,17 +342,6 @@ public class WFS_1_0_0_DataStore extends AbstractDataStore implements WFSDataSto
             // t.getAncestors(),
             // t.getDefaultGeometry());
         }
-        try {
-            URL url = protocolHandler.getDescribeFeatureTypeURLGet(typeName);
-            if (url != null) {
-                SimpleFeatureTypeBuilder build = new SimpleFeatureTypeBuilder();
-                build.init(featureType);
-                build.setNamespaceURI(url.toURI());
-                featureType = build.buildFeatureType();
-            }
-        } catch (URISyntaxException e) {
-            throw (RuntimeException) new RuntimeException(e);
-        }
         if (featureType != null) {
             featureTypeCache.put(typeName, featureType);
         }
