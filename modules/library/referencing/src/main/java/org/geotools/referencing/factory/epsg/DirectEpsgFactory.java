@@ -1668,10 +1668,14 @@ public abstract class DirectEpsgFactory extends DirectAuthorityFactory
                 } catch (NoSuchElementException exception) {
                     if (orientation.equalsIgnoreCase("Geocentre > equator/PM")) {
                         direction = AxisDirection.OTHER; // TODO: can we choose a more accurate direction?
-                    } else if (orientation.equalsIgnoreCase("Geocentre > equator/90dE")) {
-                        direction = AxisDirection.EAST;
+                    } else if (orientation.equalsIgnoreCase("Geocentre > equator/90dE") || 
+                            orientation.equalsIgnoreCase("Geocentre > equator/90°E")) {
+                        direction = AxisDirection.GEOCENTRIC_Y;
+                    } else if (orientation.equalsIgnoreCase("Geocentre > equator/0dE") || 
+                            orientation.equalsIgnoreCase("Geocentre > equator/0°E")) {
+                        direction = AxisDirection.GEOCENTRIC_X;
                     } else if (orientation.equalsIgnoreCase("Geocentre > north pole")) {
-                        direction = AxisDirection.NORTH;
+                        direction = AxisDirection.GEOCENTRIC_Z;
                     } else {
                         throw new FactoryException(exception);
                     }
