@@ -175,7 +175,7 @@ class Session implements ISession {
                 throw new ArcSdeException(e);
             }
         } else {
-            //StackTraceElement ste = callingThread.getStackTrace()[3];
+            // StackTraceElement ste = callingThread.getStackTrace()[3];
             // System.err.println("executing command " + ste.getClassName() +
             // "."
             // + ste.getMethodName() + ":" + ste.getLineNumber() + " ("

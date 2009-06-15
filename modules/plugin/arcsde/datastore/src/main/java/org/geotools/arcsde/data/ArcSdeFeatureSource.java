@@ -287,6 +287,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      * @return singleton with {@link Hints#FEATURE_DETACHED}
      * @see FeatureSource#getSupportedHints()
      */
+    @SuppressWarnings("unchecked")
     public final Set getSupportedHints() {
         return Collections.singleton(Hints.FEATURE_DETACHED);
     }

@@ -32,10 +32,12 @@ import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.Command;
+import org.geotools.arcsde.pool.Commands;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.arcsde.pool.SessionPoolFactory;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.pool.Commands.GetVersionCommand;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -1145,7 +1147,7 @@ public class TestData {
         session.issue(createCmd);
     }
 
-    private void makeVersioned(final ISession session, final String tableName) throws IOException {
+    public void makeVersioned(final ISession session, final String tableName) throws IOException {
 
         Command<Void> cmd = new Command<Void>() {
 
@@ -1171,29 +1173,37 @@ public class TestData {
      * 
      * @param session
      * @param versionName
+     * @param parentVersion
      * @throws IOException
      */
-    public void createVersion(final ISession session, final String versionName) throws IOException {
+    public void createVersion(final ISession session, final String versionName,
+            final String parentVersionName) throws IOException {
+
         session.issue(new Command<Void>() {
 
             @Override
             public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
 
-                String where = "name = '" + versionName + "'";
-                SeVersion[] versionList = connection.getVersionList(where);
-                if (versionList != null && versionList.length > 0) {
+                final SeVersion parentVersion = session.issue(new GetVersionCommand(
+                        parentVersionName));
+                SeVersion version = null;
+                try {
+                    version = session.issue(new GetVersionCommand(versionName));
+                } catch (ArcSdeException e) {
+                    // ignore
+                }
+                if (version != null) {
+                    // already exists, no need to create it
                     return null;
                 }
 
-                final SeVersion defaultVersion = session.getDefaultVersion();
-
-                SeVersion newVersion = new SeVersion(connection,
-                        SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
+                SeVersion newVersion = new SeVersion(connection, parentVersionName);
                 // newVersion.getInfo();
-                newVersion.setName(connection.getUser() + "." + versionName);
-                newVersion.setParentName(defaultVersion.getName());
-                newVersion.setDescription(defaultVersion.getName()
+                newVersion.setName(versionName);
+                newVersion.setOwner(session.getUser());
+                newVersion.setParentName(parentVersionName);
+                newVersion.setDescription(parentVersion.getName()
                         + " child for GeoTools ArcSDE unit tests");
                 // do not require ArcSDE to create a unique name if the
                 // required
@@ -1201,6 +1211,7 @@ public class TestData {
                 boolean uniqueName = false;
                 try {
                     newVersion.create(uniqueName, newVersion);
+                    // newVersion.alter();
                     newVersion.getInfo();
                 } catch (SeException e) {
                     throw new ArcSdeException(e);
@@ -1209,6 +1220,31 @@ public class TestData {
             }
         });
 
+    }
+
+    public void deleteVersion(final ISession s, final String versionName) throws IOException {
+
+        s.issue(new Command<Void>() {
+
+            @Override
+            public Void execute(ISession session, SeConnection connection) throws SeException,
+                    IOException {
+
+                final SeVersion version;
+                try {
+                    version = session.issue(new Commands.GetVersionCommand(versionName));
+                } catch (IOException e) {
+                    // version does not exist, we're ok...
+                    return null;
+                }
+
+                LOGGER.fine("Deleting version " + versionName);
+                version.delete();
+                LOGGER.fine("Version " + versionName + " deleted!");
+
+                return null;
+            }
+        });
     }
 
     /**
@@ -1324,4 +1360,5 @@ public class TestData {
             }
         });
     }
+
 }

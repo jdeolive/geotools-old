@@ -47,6 +47,7 @@ import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeVersion;
 
 /**
  * Test suite for {@link ArcSDEDataStoreFactory}
@@ -227,7 +228,8 @@ public class ArcSDEDataStoreFactoryTest {
         ISession session = testData.getConnectionPool().getSession();
         final String versionName = "testVersionParamCheck";
         try {
-            testData.createVersion(session, versionName);
+            testData.createVersion(session, versionName,
+                    SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
         } finally {
             session.dispose();
         }
@@ -247,7 +249,8 @@ public class ArcSDEDataStoreFactoryTest {
         ISession session = testData.getConnectionPool().getSession();
         final String versionName = "testVersioned";
         try {
-            testData.createVersion(session, versionName);
+            testData.createVersion(session, versionName,
+                    SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
         } finally {
             session.dispose();
         }
@@ -264,7 +267,7 @@ public class ArcSDEDataStoreFactoryTest {
         assertNotNull(ds);
         ds.dispose();
 
-        //version name should be case insensitive
+        // version name should be case insensitive
         qualifiedVersionName = qualifiedVersionName.toUpperCase();
         paramsWithVersion.put(VERSION_PARAM, qualifiedVersionName);
         ds = dsFactory.createDataStore(paramsWithVersion);

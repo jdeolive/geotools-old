@@ -1,6 +1,7 @@
 package org.geotools.arcsde.pool;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
@@ -34,12 +35,24 @@ public class Commands {
             final SeVersion version;
             try {
                 version = new SeVersion(connection, versionName);
-            } catch (SeException e) {
-                if (e.getSeError().getSdeError() == -126) {
-                    throw new ArcSdeException("Specified ArcSDE version does not exist: "
-                            + versionName, e);
+            } catch (SeException cause) {
+
+                if (cause.getSeError().getSdeError() == -126) {
+                    ArrayList<String> available = new ArrayList<String>();
+                    try {
+                        SeVersion[] versionList = connection.getVersionList(null);
+                        for (SeVersion v : versionList) {
+                            available.add(v.getName());
+                        }
+                        throw new ArcSdeException("Specified ArcSDE version does not exist: "
+                                + versionName + ". Available versions are: " + available, cause);
+                    } catch (SeException ignorable) {
+                        // hum... ignore
+                        throw new ArcSdeException("Specified ArcSDE version does not exist: "
+                                + versionName, cause);
+                    }
                 } else {
-                    throw e;
+                    throw cause;
                 }
             }
             version.getInfo();
