@@ -78,7 +78,7 @@ public class ArcSDEConnectionConfig {
 
     public static final String CONNECTION_TIMEOUT_PARAM = "pool.timeOut";
 
-    public static final String VERSION_PARAM = "version";
+    public static final String VERSION_PARAM = "database.version";
 
     /**
      * parameter name who's value represents the feature class for wich an
