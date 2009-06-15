@@ -195,7 +195,8 @@ public class ArcSDEDataStore implements DataStore {
 
     public ServiceInfo getInfo() {
         DefaultServiceInfo info = new DefaultServiceInfo();
-        info.setTitle("ArcSDE connection to " + connectionPool.getConfig().getServerName());
+        info.setTitle("ArcSDE connection to " + connectionPool.getConfig().getServerName()
+                + " using database version '" + version + "'");
         info.setDescription("GeoTools ArcSDE DataStore plugin");
         try {
             info.setSchema(typeInfoCache.getNamesapceURI() == null ? FeatureTypes.DEFAULT_NAMESPACE
