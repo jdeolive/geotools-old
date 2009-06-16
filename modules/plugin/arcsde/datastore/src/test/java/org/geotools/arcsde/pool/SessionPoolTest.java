@@ -165,8 +165,9 @@ public class SessionPoolTest {
     public void testConnectFailure() throws IOException {
         ArcSDEConnectionConfig config = null;
 
+        connectionParameters.put(ArcSDEConnectionConfig.SERVER_NAME_PARAM,
+                "unreacheable-server-name");
         config = new ArcSDEConnectionConfig(connectionParameters);
-        config.serverName = "unreacheable-server-name";
 
         try {
             SessionPool connPool = new SessionPool(config);

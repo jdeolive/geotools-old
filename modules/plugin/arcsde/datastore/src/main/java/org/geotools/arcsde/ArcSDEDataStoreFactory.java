@@ -110,6 +110,10 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         Param VERSION_PARAM = new Param(ArcSDEConnectionConfig.VERSION_PARAM, String.class,
                 "The ArcSDE database version to use.", false);
 
+        Param ALLOW_NON_SPATIAL_PARAM = new Param(
+                ArcSDEConnectionConfig.ALLOW_NON_SPATIAL_TABLES_PARAM, Boolean.class,
+                "If enabled, registered non-spatial tables are also published.", false);
+
         paramMetadata.add(NAMESPACE_PARAM);
         paramMetadata.add(DBTYPE_PARAM);
         paramMetadata.add(SERVER_PARAM);
@@ -122,6 +126,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         paramMetadata.add(MAX_CONNECTIONS_PARAM);
         paramMetadata.add(TIMEOUT_PARAM);
         paramMetadata.add(VERSION_PARAM);
+        paramMetadata.add(ALLOW_NON_SPATIAL_PARAM);
 
         // determine which JSDE api we're running against
         determineJsdeVersion();
@@ -271,7 +276,8 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         if (versionName != null && "".equals(versionName.trim())) {
             versionName = null;
         }
-        sdeDStore = new ArcSDEDataStore(connPool, namespaceUri, versionName);
+        boolean allowNonSpatialTables = config.isAllowNonSpatialTables();
+        sdeDStore = new ArcSDEDataStore(connPool, namespaceUri, versionName, allowNonSpatialTables);
 
         ViewRegisteringFactoryHelper.registerSqlViews(sdeDStore, params);
 

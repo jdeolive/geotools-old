@@ -122,8 +122,7 @@ final class FeatureTypeInfoCache {
     public FeatureTypeInfoCache(final SessionPool sessionPool, final String namespace,
             final int cacheUpdateFreqSecs) throws IOException {
 
-        availableLayerNames = new TreeSet<String>(sessionPool.getAvailableLayerNames());
-
+        availableLayerNames = new TreeSet<String>();
         featureTypeInfos = new HashMap<String, FeatureTypeInfo>();
         inProcessFeatureTypeInfos = new HashMap<String, FeatureTypeInfo>();
         this.sessionPool = sessionPool;
@@ -133,6 +132,8 @@ final class FeatureTypeInfoCache {
         if (cacheUpdateFreqSecs > 0) {
             cacheUpdateScheduler = Executors.newScheduledThreadPool(1);
             CacheUpdater cacheUpdater = new CacheUpdater();
+            // run now, populate table name cache and then register for periodic running
+            cacheUpdater.run();
             LOGGER.info("Scheduling the layer name cache to be updated every "
                     + cacheUpdateFreqSecs + " seconds.");
             cacheUpdateScheduler.scheduleWithFixedDelay(cacheUpdater, cacheUpdateFreqSecs,
@@ -269,12 +270,24 @@ final class FeatureTypeInfoCache {
             final List<String> typeNames;
             final Set<String> removed;
             LOGGER.finer("FeatureTypeCache background process running...");
-
-            try {
-                typeNames = sessionPool.getAvailableLayerNames();
-            } catch (Exception e) {
-                LOGGER.log(Level.INFO, "Updating TypeNameCache failed.", e);
-                return;
+            {
+                final List<SeLayer> layers;
+                ISession session = null;
+                try {
+                    session = sessionPool.getSession(Transaction.AUTO_COMMIT);
+                    layers = session.getLayers();
+                    typeNames = new ArrayList<String>(layers.size());
+                    for (SeLayer l : layers) {
+                        typeNames.add(l.getQualifiedName());
+                    }
+                } catch (Exception e) {
+                    LOGGER.log(Level.INFO, "Updating TypeNameCache failed.", e);
+                    return;
+                } finally {
+                    if (session != null) {
+                        session.dispose();
+                    }
+                }
             }
 
             {// just some logging..

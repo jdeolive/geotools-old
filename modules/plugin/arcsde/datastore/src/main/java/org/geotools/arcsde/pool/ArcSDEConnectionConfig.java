@@ -80,6 +80,8 @@ public class ArcSDEConnectionConfig {
 
     public static final String VERSION_PARAM = "database.version";
 
+    public static final String ALLOW_NON_SPATIAL_TABLES_PARAM = "datastore.allowNonSpatialTables";
+
     /**
      * parameter name who's value represents the feature class for wich an
      * <code>SdeDataSource</code> will be created
@@ -90,34 +92,37 @@ public class ArcSDEConnectionConfig {
     protected static final String TABLE_NAME_PARAM = "table";
 
     /** namespace URI assigned to datastore */
-    String namespaceUri;
+    private String namespaceUri;
 
     /** name or IP of the ArcSDE server to connect to */
-    String serverName;
+    private String serverName;
 
     /** port number where the ArcSDE instance listens for connections */
-    Integer portNumber;
+    private Integer portNumber;
 
     /** name of the ArcSDE database to connect to */
-    String databaseName;
+    private String databaseName;
 
     /** database user name to connect as */
-    String userName;
+    private String userName;
 
     /** database user password */
-    String userPassword;
+    private String userPassword;
 
     /** minimum number of connection held in reserve, often 0 */
-    Integer minConnections = null;
+    private Integer minConnections = null;
 
     /** maximum number of connections */
-    Integer maxConnections = null;
+    private Integer maxConnections = null;
 
     /** time to hold onto an idle connection before cleaning it up */
-    Integer connTimeOut = null;
+    private Integer connTimeOut = null;
 
     /** ArcSDE database version name, or null for DEFAULT version */
-    String version;
+    private String version;
+
+    /** whether to publish arcsde registered, non-spatial tables */
+    private boolean allowNonSpatialTables;
 
     /**
      * Configure arcsde connection information from supplied connection parameters.
@@ -181,6 +186,10 @@ public class ArcSDEConnectionConfig {
                 SessionPool.DEFAULT_MAX_WAIT_TIME);
 
         this.version = (String) params.get(VERSION_PARAM);
+
+        Object nonSpatial = params.get(ALLOW_NON_SPATIAL_TABLES_PARAM);
+        this.allowNonSpatialTables = nonSpatial == null ? false : Boolean.valueOf(String
+                .valueOf(nonSpatial));
 
         if (this.minConnections.intValue() <= 0) {
             exceptionMsg += MIN_CONNECTIONS_PARAM + " must be a positive integer. ";
@@ -429,6 +438,13 @@ public class ArcSDEConnectionConfig {
     }
 
     /**
+     * @return whether to publish ArcSDE registered, non-spatial tables
+     */
+    public boolean isAllowNonSpatialTables() {
+        return allowNonSpatialTables;
+    }
+
+    /**
      * @return a human friendly description of this parameter holder contents (password is masked),
      *         mostly usefull for stack traces
      */
@@ -440,10 +456,11 @@ public class ArcSDEConnectionConfig {
         sb.append(", port=").append(this.portNumber);
         sb.append(", instance=").append(this.databaseName);
         sb.append(", user=").append(this.userName);
-        sb.append(", version='").append(version == null ? "[DEFAULT]" : version).append("'");
         // hidding password as the result of this method
         // is probably going to end up in a stack trace
         sb.append(", password=*****");
+        sb.append(", version='").append(version == null ? "[DEFAULT]" : version).append("'");
+        sb.append(", non-spatial:").append(allowNonSpatialTables);
         sb.append(", minConnections=").append(this.minConnections);
         sb.append(", maxConnections=").append(this.maxConnections);
         sb.append(", connTimeOut=").append(this.connTimeOut);

@@ -18,9 +18,6 @@
 package org.geotools.arcsde.pool;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,9 +29,7 @@ import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Transaction;
 
-import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
-import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeRelease;
 
 /**
@@ -338,46 +333,6 @@ public class SessionPool {
             throw new DataSourceException(
                     "Unknown problem fetching connection from connection pool", e);
         }
-    }
-
-    /**
-     * Gets the list of available layer names on the database
-     * 
-     * @return a <code>List&lt;String&gt;</code> with the registered featureclasses on the ArcSDE
-     *         database
-     * @throws DataSourceException
-     */
-    public List<String> getAvailableLayerNames() throws IOException {
-        checkOpen();
-        final ISession session;
-
-        final List<String> layerNames;
-        try {
-            session = getSession(Transaction.AUTO_COMMIT);
-        } catch (UnavailableArcSDEConnectionException ex) {
-            throw new DataSourceException("No free connection found to query the layers list", ex);
-        }
-
-        try {
-            layerNames = session.issue(new Command<List<String>>() {
-                @Override
-                public List<String> execute(ISession session, SeConnection connection)
-                        throws SeException, IOException {
-                    final List<String> layerNames = new LinkedList<String>();
-                    final List<SeLayer> layers = session.getLayers();
-                    SeLayer layer;
-                    for (Iterator<SeLayer> it = layers.iterator(); it.hasNext();) {
-                        layer = it.next();
-                        layerNames.add(layer.getQualifiedName());
-                    }
-                    return layerNames;
-                }
-            });
-        } finally {
-            session.dispose();
-        }
-
-        return layerNames;
     }
 
     /**

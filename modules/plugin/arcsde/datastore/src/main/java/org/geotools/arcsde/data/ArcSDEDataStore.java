@@ -112,7 +112,7 @@ public class ArcSDEDataStore implements DataStore {
      * @throws IOException
      */
     public ArcSDEDataStore(final SessionPool connPool) throws IOException {
-        this(connPool, null, null);
+        this(connPool, null, null, false);
     }
 
     /**
@@ -123,13 +123,15 @@ public class ArcSDEDataStore implements DataStore {
      * @param namespaceUri
      *            namespace URI for the {@link SimpleFeatureType}s, {@link AttributeType}s, and
      *            {@link AttributeDescriptor}s created by this datastore. May be {@code null}.
-     * @param the
-     *            name of the ArcSDE version to work upon, or {@code null} for the
+     * @param versionName
+     *            the name of the ArcSDE version to work upon, or {@code null} for the
      *            {@link SeVersion#SE_QUALIFIED_DEFAULT_VERSION_NAME DEFAULT} version
+     * @param allowNonSpatialTables
+     *            whether ArcSDE registered, non-spatial tables are to be published
      * @throws IOException
      */
     public ArcSDEDataStore(final SessionPool connPool, final String namespaceUri,
-            final String versionName) throws IOException {
+            final String versionName, final boolean allowNonSpatialTables) throws IOException {
         this.connectionPool = connPool;
         this.version = versionName == null ? SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME
                 : versionName;

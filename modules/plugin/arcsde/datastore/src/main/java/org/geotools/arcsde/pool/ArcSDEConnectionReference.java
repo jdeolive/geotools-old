@@ -56,7 +56,7 @@ public class ArcSDEConnectionReference extends SessionPool {
 
     protected ArcSDEConnectionReference(ArcSDEConnectionConfig config) throws IOException {
         super(config);
-        if (config.maxConnections.intValue() != 1) {
+        if (config.getMaxConnections().intValue() != 1) {
             throw new IllegalArgumentException(
                     "ConnectionReference is only allowed to manage one connection.");
         }
