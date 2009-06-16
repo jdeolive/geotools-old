@@ -38,7 +38,6 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.SchemaNotFoundException;
 import org.geotools.data.ServiceInfo;
-import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.NonFeatureTypeProxy;
 import org.geotools.data.complex.filter.UnmappingFilterVisitor;
 import org.geotools.data.complex.filter.XPath;
@@ -95,35 +94,9 @@ public class AppSchemaDataAccess implements DataAccess<FeatureType, Feature> {
             // a fake feature type, so attributes can be chained/nested
             AttributeType type = mapping.getTargetFeature().getType();
             if (!(type instanceof FeatureType)) {
-                createNonFeatureTypeProxy(type, mapping);
+                type = new NonFeatureTypeProxy((ComplexType) type, mapping);
             }
         }
-    }
-
-    /**
-     * Wrap a non feature type with a fake feature type, so they can be nested/chained.
-     * 
-     * @param type
-     *            Non feature attribute type
-     * @param mapping
-     *            Feature type mapping
-     */
-    private void createNonFeatureTypeProxy(AttributeType type, final FeatureTypeMapping mapping) {
-        assert type instanceof ComplexType;
-
-        EmfAppSchemaReader reader = EmfAppSchemaReader.newInstance();
-        AttributeType fakeFeatureType = new NonFeatureTypeProxy(type);
-
-        int maxOccurs = mapping.getTargetFeature().getMaxOccurs();
-        int minOccurs = mapping.getTargetFeature().getMinOccurs();
-        boolean nillable = mapping.getTargetFeature().isNillable();
-        Object defaultValue = mapping.getTargetFeature().getDefaultValue();
-        Name name = mapping.getTargetFeature().getName();
-
-        // create a new descriptor with the wrapped type and set it to the mapping
-        AttributeDescriptor descriptor = reader.getTypeFactory().createAttributeDescriptor(
-                fakeFeatureType, name, minOccurs, maxOccurs, nillable, defaultValue);
-        mapping.setTargetFeature(descriptor);
     }
 
     /**

@@ -20,8 +20,9 @@ package org.geotools.data.complex.config;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.geotools.feature.NameImpl;
-import org.geotools.gml3.GMLSchema;
+import org.geotools.data.complex.FeatureTypeMapping;
+import org.geotools.feature.type.ComplexFeatureTypeImpl;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
@@ -40,11 +41,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType {
 
     /**
-     * GML:name attribute needed to link a (non) feature to another
-     */
-    public static final Name NAME = new NameImpl("http://www.opengis.net/gml", "name");
-
-    /**
      * The attribute descriptors
      */
     private final Collection<PropertyDescriptor> descriptors;
@@ -60,49 +56,28 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
      * @param type
      *            The underlying non feature type
      */
-    public NonFeatureTypeProxy(final AttributeType type) {
+    public NonFeatureTypeProxy(final ComplexType type, final FeatureTypeMapping mapping) {
         super(type.getName(), null);
 
-        assert type instanceof ComplexType;
-        subject = (ComplexType) type;
+        subject = type;
 
-        // initiate descriptors
-        descriptors = new ArrayList<PropertyDescriptor>();
-        descriptors.addAll(((ComplexType) type).getDescriptors());
+        int maxOccurs = mapping.getTargetFeature().getMaxOccurs();
+        int minOccurs = mapping.getTargetFeature().getMinOccurs();
+        boolean nillable = mapping.getTargetFeature().isNillable();
+        Object defaultValue = mapping.getTargetFeature().getDefaultValue();
+        Name name = mapping.getTargetFeature().getName();
+        EmfAppSchemaReader reader = EmfAppSchemaReader.newInstance();
 
-        // Need to add gml:name for feature chaining
-        final AttributeType abstractGMLType = GMLSchema.ABSTRACTGMLTYPE_TYPE;
-        descriptors.add(((ComplexType) abstractGMLType).getDescriptor(NAME));
-    }
-
-    /**
-     * @see org.geotools.feature.type.ComplexTypeImpl#getDescriptors()
-     */
-    @Override
-    public Collection<PropertyDescriptor> getDescriptors() {
-        return descriptors;
-    }
-
-    /**
-     * @see org.geotools.feature.type.ComplexTypeImpl#getDescriptor(Name)
-     */
-    @Override
-    public PropertyDescriptor getDescriptor(final Name name) {
-        if (name.equals(NAME)) {
-            return GMLSchema.ABSTRACTGMLTYPE_TYPE.getDescriptor(NAME);
-        }
-        return ((ComplexType) getSubject()).getDescriptor(name);
-    }
-
-    /**
-     * @see org.geotools.feature.type.ComplexTypeImpl#getDescriptor(String)
-     */
-    @Override
-    public PropertyDescriptor getDescriptor(final String name) {
-        if (new NameImpl(name).equals(NAME)) {
-            return GMLSchema.ABSTRACTGMLTYPE_TYPE.getDescriptor(NAME);
-        }
-        return ((ComplexType) getSubject()).getDescriptor(name);
+        // create a new descriptor with the wrapped type and set it to the mapping
+        AttributeDescriptor descriptor = reader.getTypeFactory().createAttributeDescriptor(this,
+                name, minOccurs, maxOccurs, nillable, defaultValue);
+        mapping.setTargetFeature(descriptor);
+        // smuggle FEATURE_LINK descriptor
+        descriptors = new ArrayList<PropertyDescriptor>(subject.getDescriptors()) {
+            {
+                add(ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK);
+            }
+        };
     }
 
     /**
@@ -111,6 +86,27 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
     @Override
     public AttributeType getSubject() {
         return subject;
+    }
+
+    @Override
+    public PropertyDescriptor getDescriptor(Name name) {
+        if (name.equals(ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK_NAME)) {
+            return ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK;
+        }
+        return super.getDescriptor(name);
+    }
+
+    @Override
+    public Collection<PropertyDescriptor> getDescriptors() {
+        return descriptors;
+    }
+
+    /**
+     * Return only the schema descriptors
+     * @return
+     */
+    public Collection<PropertyDescriptor> getTypeDescriptors() {
+        return subject.getDescriptors();
     }
 
     public CoordinateReferenceSystem getCoordinateReferenceSystem() {

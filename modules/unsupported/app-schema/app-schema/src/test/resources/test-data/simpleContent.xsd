@@ -36,5 +36,21 @@
   </xs:complexType>
   
   <xs:element name="ParentFeature" substitutionGroup="gml:_Feature" type="ex:parentFeatureType"/>
+  
+  <xs:complexType name="firstParentFeatureType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:complexContent>    
+      <xs:extension base="ex:parentFeatureType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:element name="FirstParentFeature" substitutionGroup="gml:_Feature" type="ex:firstParentFeatureType"/>
+  
+  <xs:complexType name="secondParentFeatureType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:complexContent>    
+      <xs:extension base="ex:parentFeatureType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:element name="SecondParentFeature" substitutionGroup="gml:_Feature" type="ex:secondParentFeatureType"/>
 
 </xs:schema>

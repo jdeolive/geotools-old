@@ -46,7 +46,7 @@ import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDSimpleTypeDefinition;
 import org.eclipse.xsd.XSDTypeDefinition;
 import org.geotools.feature.Types;
-import org.geotools.feature.type.FeatureTypeFactoryImpl;
+import org.geotools.feature.type.ComplexFeatureTypeFactoryImpl;
 import org.geotools.gml3.ApplicationSchemaConfiguration;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.GMLConfiguration;
@@ -129,7 +129,7 @@ public class EmfAppSchemaReader {
     private Catalog oasisCatalog;
 
     private EmfAppSchemaReader() {
-        typeFactory = new FeatureTypeFactoryImpl();
+        typeFactory = new ComplexFeatureTypeFactoryImpl();
         
         // RA: I moved the following chunk of code from parse(configuration)
         // method so we can have multiple schemas in the registry, instead of

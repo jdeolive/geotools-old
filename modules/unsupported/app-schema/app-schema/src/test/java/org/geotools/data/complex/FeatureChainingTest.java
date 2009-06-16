@@ -444,11 +444,10 @@ public class FeatureChainingTest extends TestCase {
             Collection<Property> names = next.getProperties("name");
             if (next.getIdentifier().toString().equals("1")) {
                 // see ControlledConcept.properties where id = 1
-                // 3 values in NAME + 1 for COMPOSITION_ID (gml:name[2] in ControlledConcept.xml)
-                assertEquals(names.size(), 4);
+                assertEquals(names.size(), 3);
             } else {
                 // see ControlledConcept.properties where id = 2
-                assertEquals(names.size(), 2);
+                assertEquals(names.size(), 1);
             }
         }
 
@@ -513,9 +512,13 @@ public class FeatureChainingTest extends TestCase {
 
         this.disposeDataAccesses();
     }
-    
+
     /**
      * Test nesting features of a complex type with simple content. Previously didn't get encoded.
+     * Also making sure that a feature type can have multiple FEATURE_LINK to be referred by
+     * different types.
+     * 
+     * @throws Exception
      */
     public void testComplexTypeWithSimpleContent() throws Exception {
         Map dsParams = new HashMap();
@@ -527,11 +530,18 @@ public class FeatureChainingTest extends TestCase {
         DataAccess<FeatureType, Feature> dataAccess = DataAccessFinder.getDataStore(dsParams);
         assertNotNull(dataAccess);
 
-        Name ns = Types.typeName("http://example.com", "ParentFeature");
-        FeatureType featureType = dataAccess.getSchema(ns);
+        // <AttributeMapping>
+        // <targetAttribute>FEATURE_LINK[1]</targetAttribute>
+        // <sourceExpression>
+        // <OCQL>LINK_ONE</OCQL>
+        // </sourceExpression>
+        // </AttributeMapping>
+
+        Name typeName = Types.typeName("http://example.com", "FirstParentFeature");
+        FeatureType featureType = dataAccess.getSchema(typeName);
         assertNotNull(featureType);
 
-        FeatureSource fSource = (FeatureSource) dataAccess.getFeatureSource(ns);
+        FeatureSource fSource = (FeatureSource) dataAccess.getFeatureSource(typeName);
         FeatureCollection features = (FeatureCollection) fSource.getFeatures();
 
         final int EXPECTED_RESULTS = 2;
@@ -542,11 +552,51 @@ public class FeatureChainingTest extends TestCase {
             Feature next = iterator.next();
             Collection<Property> children = next.getProperties("nestedFeature");
             if (next.getIdentifier().toString().equals("1")) {
-                // see ControlledConcept.properties where id = 1
+                // _=STRING:String,LINK_ONE:String,LINK_TWO:String
+                // 1=string_one|1|2
+                // 2=string_two|1|2
+                // 3=string_three|NULL|2
+                assertEquals(children.size(), 2);
+            } else {
+                assertEquals(children.size(), 0);
+            }
+            for (Property nestedFeature : children) {
+                Object value = nestedFeature.getValue();
+                assertNotNull(value);
+                value = ((Collection) value).iterator().next();
+                assertEquals(value instanceof FeatureImpl, true);
+                Feature feature = (Feature) value;
+                assertNotNull(feature.getProperty("someAttribute").getValue());
+            }
+        }
+
+        // <AttributeMapping>
+        // <targetAttribute>FEATURE_LINK[2]</targetAttribute>
+        // <sourceExpression>
+        // <OCQL>LINK_TWO</OCQL>
+        // </sourceExpression>
+        // </AttributeMapping>
+        typeName = Types.typeName("http://example.com", "SecondParentFeature");
+        featureType = dataAccess.getSchema(typeName);
+        assertNotNull(featureType);
+
+        fSource = (FeatureSource) dataAccess.getFeatureSource(typeName);
+        features = (FeatureCollection) fSource.getFeatures();
+
+        assertEquals(getCount(features), EXPECTED_RESULTS);
+
+        iterator = features.iterator();
+        while (iterator.hasNext()) {
+            Feature next = iterator.next();
+            Collection<Property> children = next.getProperties("nestedFeature");
+            if (next.getIdentifier().toString().equals("2")) {
+                // _=STRING:String,LINK_ONE:String,LINK_TWO:String
+                // 1=string_one|1|2
+                // 2=string_two|1|2
+                // 3=string_three|NULL|2
                 assertEquals(children.size(), 3);
             } else {
-                // see ControlledConcept.properties where id = 2
-                assertEquals(children.size(), 1);
+                assertEquals(children.size(), 0);
             }
             for (Property nestedFeature : children) {
                 Object value = nestedFeature.getValue();
@@ -577,7 +627,7 @@ public class FeatureChainingTest extends TestCase {
                 put("gu.25682", "mf4");
             }
         };
-        
+
         this.loadDataAccesses();
 
         ArrayList<String> processedFeatureIds = new ArrayList<String>();
@@ -602,7 +652,7 @@ public class FeatureChainingTest extends TestCase {
                 assertEquals(hrefValue, MF_PREFIX + mfIds[propertyIndex]);
 
                 // ensure no attributes would be encoded
-                assertEquals(((Collection)property.getValue()).isEmpty(), true);
+                assertEquals(((Collection) property.getValue()).isEmpty(), true);
                 propertyIndex++;
             }
             processedFeatureIds.add(guId);

@@ -81,15 +81,11 @@
 				</AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>
-			            gml:name[1]
+			            FEATURE_LINK
   		            </targetAttribute>
 					<sourceExpression>
 						<OCQL>strTrim(getId())</OCQL>
 					</sourceExpression>
-					<ClientProperty>
-						<name>codeSpace</name>
-						<value>'urn:ietf:rfc:2141'</value>
-					</ClientProperty>
 				</AttributeMapping>
 			</attributeMappings>
 		</FeatureTypeMapping>

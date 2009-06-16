@@ -42,6 +42,7 @@ import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
+import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.xlink.XLINK;
 import org.opengis.feature.Attribute;
@@ -149,7 +150,7 @@ public class BoreholeTest extends TestCase {
         Map typeRegistry = reader.getTypeRegistry();
 
         Name typeName = Types.typeName(XMMLNS, "BoreholeType");
-        ComplexType borehole = (ComplexType) typeRegistry.get(typeName);
+        ComplexFeatureTypeImpl borehole = (ComplexFeatureTypeImpl) typeRegistry.get(typeName);
         assertNotNull(borehole);
         assertTrue(borehole instanceof FeatureType);
 
@@ -160,7 +161,7 @@ public class BoreholeTest extends TestCase {
         assertTrue(superType instanceof FeatureType);
 
         // ensure all needed types were parsed and aren't just empty proxies
-        Collection properties = borehole.getDescriptors();
+        Collection properties = borehole.getTypeDescriptors();
         assertEquals(16, properties.size());
         Map expectedNamesAndTypes = new HashMap();
         // from gml:AbstractFeatureType

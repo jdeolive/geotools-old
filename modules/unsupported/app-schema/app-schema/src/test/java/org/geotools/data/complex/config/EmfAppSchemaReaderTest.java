@@ -28,6 +28,7 @@ import org.eclipse.xsd.XSDComplexTypeDefinition;
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDTypeDefinition;
 import org.geotools.feature.Types;
+import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.geotools.gml3.GML;
 import org.geotools.xs.XS;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -88,7 +89,7 @@ public class EmfAppSchemaReaderTest extends TestCase {
         assertEquals("simpleFeatureType", local);
         assertEquals(NS_URI, uri);
 
-        List attributes = Arrays.asList(ft.getDescriptors().toArray());
+        List attributes = Arrays.asList(((ComplexFeatureTypeImpl) ft).getTypeDescriptors().toArray());
         assertEquals(8, attributes.size());
         AttributeDescriptor descriptor;
 
@@ -157,7 +158,7 @@ public class EmfAppSchemaReaderTest extends TestCase {
         typeName = Types.typeName(GML.NAMESPACE, GML.AbstractFeatureType.getLocalPart());
         assertEquals(typeName, wq_plus_Type.getSuper().getName());
         assertNotNull(wq_plus_Type.getDescriptors());
-        assertEquals(8, wq_plus_Type.getDescriptors().size());
+        assertEquals(8, ((ComplexFeatureTypeImpl) wq_plus_Type).getTypeDescriptors().size());
 
         Name name = Types.typeName(NS_URI, "wq_plus");
         AttributeDescriptor wqPlusDescriptor = (AttributeDescriptor) descriptorRegistry.get(name);

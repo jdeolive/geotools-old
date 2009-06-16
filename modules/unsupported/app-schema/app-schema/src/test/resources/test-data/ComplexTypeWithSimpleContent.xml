@@ -32,22 +32,41 @@
 		<FeatureTypeMapping>
 			<sourceDataStore>SimpleContentDataDirectory</sourceDataStore>
 			<sourceType>ControlledConcept</sourceType>
-			<targetElement>ex:ParentFeature</targetElement>			
+			<targetElement>ex:FirstParentFeature</targetElement>			
 			<attributeMappings>
 			    <AttributeMapping>
-					<targetAttribute>ex:ParentFeature</targetAttribute>
+					<targetAttribute>ex:FirstParentFeature</targetAttribute>
 				</AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>ex:nestedFeature</targetAttribute>
 					<sourceExpression>
-						<OCQL>NAME</OCQL>
+						<OCQL>strTrim(getID())</OCQL>
 						<linkElement>ex:SimpleContent</linkElement>
-						<linkField>ex:someAttribute</linkField>
+						<linkField>FEATURE_LINK[1]</linkField>
 					</sourceExpression>
 					<isMultiple>true</isMultiple>
 				</AttributeMapping>
 			</attributeMappings>				
-		</FeatureTypeMapping>		
+		</FeatureTypeMapping>	
+		<FeatureTypeMapping>
+			<sourceDataStore>SimpleContentDataDirectory</sourceDataStore>
+			<sourceType>ControlledConcept</sourceType>
+			<targetElement>ex:SecondParentFeature</targetElement>			
+			<attributeMappings>
+			    <AttributeMapping>
+					<targetAttribute>ex:SecondParentFeature</targetAttribute>
+				</AttributeMapping>
+				<AttributeMapping>
+					<targetAttribute>ex:nestedFeature</targetAttribute>
+					<sourceExpression>
+						<OCQL>strTrim(getID())</OCQL>
+						<linkElement>ex:SimpleContent</linkElement>
+						<linkField>FEATURE_LINK[2]</linkField>
+					</sourceExpression>
+					<isMultiple>true</isMultiple>
+				</AttributeMapping>
+			</attributeMappings>				
+		</FeatureTypeMapping>			
 		<FeatureTypeMapping>
 		    <!-- This is testing chaining complex types with simple content -->
 		    <sourceDataStore>SimpleContentDataDirectory</sourceDataStore>
@@ -61,6 +80,19 @@
 					<targetAttribute>ex:someAttribute</targetAttribute>
 					<sourceExpression>
 						<OCQL>STRING</OCQL>
+					</sourceExpression>
+				</AttributeMapping>
+				<!-- This is testing multiple FEATURE_LINKs are possible -->
+				<AttributeMapping>
+					<targetAttribute>FEATURE_LINK[1]</targetAttribute>
+					<sourceExpression>
+						<OCQL>LINK_ONE</OCQL>
+					</sourceExpression>
+				</AttributeMapping>
+				<AttributeMapping>
+					<targetAttribute>FEATURE_LINK[2]</targetAttribute>
+					<sourceExpression>
+						<OCQL>LINK_TWO</OCQL>
 					</sourceExpression>
 				</AttributeMapping>
 			</attributeMappings>

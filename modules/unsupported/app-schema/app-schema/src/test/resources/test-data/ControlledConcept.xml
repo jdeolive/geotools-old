@@ -57,7 +57,7 @@
 					<isMultiple>true</isMultiple>
 				</AttributeMapping>
 				<AttributeMapping>
-					<targetAttribute>gml:name[2]</targetAttribute>
+					<targetAttribute>FEATURE_LINK</targetAttribute>
 					<sourceExpression>
 						<OCQL>COMPOSITION_ID</OCQL>
 					</sourceExpression>

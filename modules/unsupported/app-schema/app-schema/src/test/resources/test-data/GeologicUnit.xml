@@ -98,7 +98,7 @@
 				</AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>
-		                gml:name[3]
+		                gml:name[2]
 		            </targetAttribute>
 					<sourceExpression>
 						<OCQL>ABBREVIATION</OCQL>
@@ -106,7 +106,7 @@
 				</AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>
-		                gml:name[2]
+		                FEATURE_LINK
 		            </targetAttribute>
 					<sourceExpression>
 						<OCQL>strTrim(getId())</OCQL>
@@ -119,7 +119,7 @@
 					<sourceExpression>
 						<OCQL>COMPONENTPART_ID</OCQL>
 						<linkElement>gsml:CompositionPart</linkElement>
-						<linkField>gml:name</linkField>
+						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>
 					<isMultiple>true</isMultiple>
 				</AttributeMapping>
@@ -130,7 +130,7 @@
 					<sourceExpression>
 						<OCQL>EXPOSURE_COLOR</OCQL>
 						<linkElement>gsml:CGI_TermValue</linkElement>
-						<linkField>gml:name</linkField>
+						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>
 					<isMultiple>true</isMultiple>
 				</AttributeMapping>
@@ -141,7 +141,7 @@
 					<sourceExpression>
 						<OCQL>OUTCROP_CHARACTER</OCQL>
 						<linkElement>gsml:CGI_TermValue</linkElement>
-						<linkField>gml:name</linkField>
+						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>
 					<isMultiple>true</isMultiple>
 				</AttributeMapping>

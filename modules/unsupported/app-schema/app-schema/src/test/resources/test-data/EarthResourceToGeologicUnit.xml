@@ -65,7 +65,7 @@
 						This is used for chaining geological unit inside mapped feature as
 						specification
 					-->
-					<targetAttribute>gml:name[2]</targetAttribute>
+					<targetAttribute>FEATURE_LINK</targetAttribute>
 					<sourceExpression>
 						<OCQL>strConcat('gu.', getID())</OCQL>
 					</sourceExpression>
@@ -101,7 +101,7 @@
 					<sourceExpression>
 						<inputAttribute>mo:composition</inputAttribute>
 						<linkElement>gsml:CompositionPart</linkElement>
-						<linkField>gml:name</linkField>
+						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>
 					<isMultiple>true</isMultiple>
 				</AttributeMapping>

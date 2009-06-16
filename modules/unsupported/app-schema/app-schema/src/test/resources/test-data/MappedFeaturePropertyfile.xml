@@ -51,7 +51,7 @@
 					</targetAttribute>
 				</AttributeMapping>
 				<AttributeMapping>
-					<targetAttribute>gml:name[1]</targetAttribute>
+					<targetAttribute>gml:name</targetAttribute>
 					<sourceExpression>
 						<OCQL>LEX_D</OCQL>
 					</sourceExpression>
@@ -67,7 +67,7 @@
 					<sourceExpression>
 						<OCQL>GEOLOGIC_UNIT_ID</OCQL>
 						<linkElement>gsml:GeologicUnit</linkElement>
-						<linkField>gml:name[2]</linkField>
+						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>
 				</AttributeMapping>
 			</attributeMappings>

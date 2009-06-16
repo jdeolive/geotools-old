@@ -34,6 +34,7 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.ValidatingFeatureFactoryImpl;
 import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.util.CheckedArrayList;
 import org.geotools.xs.XSSchema;
@@ -182,6 +183,8 @@ public class XPath {
 
         private boolean isXmlAttribute;
 
+        private boolean isIndexed;
+
         /**
          * Creates a "property" xpath step (i.e. isXmlAttribute() == false).
          * 
@@ -189,7 +192,28 @@ public class XPath {
          * @param index
          */
         public Step(final QName name, final int index) {
-            this(name, index, false);
+            this(name, index, false, false);
+        }
+        
+        /**
+         * Creates an xpath step for the given qualified name and index; and the given flag to
+         * indicate if it it an "attribute" or "property" step.
+         * 
+         * @param name
+         *            the qualified name of the step (name should include prefix to be reflected in
+         *            toString())
+         * @param index
+         *            the index (indexing starts at 1 for Xpath) of the step
+         * @param isXmlAttribute
+         *            whether the step referers to an "attribute" or a "property" (like for
+         *            attributes and elements in xml)
+         * @throws NullPointerException
+         *             if <code>name==null</code>
+         * @throws IllegalArgumentException
+         *             if <code>index &lt; 1</code>
+         */
+        public Step(final QName name, final int index, boolean isXmlAttribute) {
+            this(name, index, isXmlAttribute, false);
         }
 
         /**
@@ -197,19 +221,22 @@ public class XPath {
          * indicate if it it an "attribute" or "property" step.
          * 
          * @param name
-         *                the qualified name of the step (name should include prefix to be reflected
-         *                in toString())
+         *            the qualified name of the step (name should include prefix to be reflected in
+         *            toString())
          * @param index
-         *                the index (indexing starts at 1 for Xpath) of the step
+         *            the index (indexing starts at 1 for Xpath) of the step
          * @param isXmlAttribute
-         *                whether the step referers to an "attribute" or a "property" (like for
-         *                attributes and elements in xml)
+         *            whether the step referers to an "attribute" or a "property" (like for
+         *            attributes and elements in xml)
+         * @param isIndexed
+         *            whether or not the index is to be shown in the string representation even if
+         *            index = 1
          * @throws NullPointerException
-         *                 if <code>name==null</code>
+         *             if <code>name==null</code>
          * @throws IllegalArgumentException
-         *                 if <code>index &lt; 1</code>
+         *             if <code>index &lt; 1</code>
          */
-        public Step(final QName name, final int index, boolean isXmlAttribute) {
+        public Step(final QName name, final int index, boolean isXmlAttribute, boolean isIndexed) {
             if (name == null) {
                 throw new NullPointerException("name");
             }
@@ -219,6 +246,7 @@ public class XPath {
             this.attributeName = name;
             this.index = index;
             this.isXmlAttribute = isXmlAttribute;
+            this.isIndexed = isIndexed;
         }
 
         /**
@@ -251,7 +279,11 @@ public class XPath {
                 sb.append(attributeName.getPrefix()).append(':');
             }
             sb.append(attributeName.getLocalPart());
-            if (index > 1) {
+            if (isIndexed || index > 1) {
+                // we want to print index = 1 as well if specified
+                // so filtering on the first index doesn't return all
+                // e.g. gml:name[1] doesn't get translated to
+                // gml:name i.e. all gml:name instances
                 sb.append("[").append(index).append("]");
             }
             return sb.toString();
@@ -271,7 +303,7 @@ public class XPath {
         }
 
         public Object clone() {
-            return new Step(this.attributeName, this.index, this.isXmlAttribute);
+            return new Step(this.attributeName, this.index, this.isXmlAttribute, this.isIndexed);
         }
 
         /**
@@ -351,19 +383,21 @@ public class XPath {
             } else {
                 int index = 1;
                 boolean isXmlAttribute = false;
+                boolean isIndexed = false;
                 String stepName = step;
                 if (step.indexOf('[') != -1) {
                     int start = step.indexOf('[');
                     int end = step.indexOf(']');
                     stepName = step.substring(0, start);
                     index = Integer.parseInt(step.substring(start + 1, end));
+                    isIndexed = true;
                 }
                 if (step.charAt(0) == '@') {
                     isXmlAttribute = true;
                     stepName = stepName.substring(1);
                 }
                 QName qName = deglose(stepName, root, namespaces);
-                steps.add(new Step(qName, index, isXmlAttribute));
+                steps.add(new Step(qName, index, isXmlAttribute, isIndexed));
             }
             //            
             // if (step.indexOf('[') != -1) {
@@ -412,14 +446,16 @@ public class XPath {
         final String prefix;
         final String namespaceUri;
         final String localName;
-        final Name rootName = root.getName();
-        final String defaultNamespace = rootName.getNamespaceURI() == null ? XMLConstants.NULL_NS_URI
-                : rootName.getNamespaceURI();
 
         int prefixIdx = prefixedName.indexOf(':');
 
         if (prefixIdx == -1) {
             localName = prefixedName;
+            final Name rootName = root.getName();
+            final String defaultNamespace = (localName
+                    .equals(ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK_NAME.getLocalPart()) || rootName
+                    .getNamespaceURI() == null) ? XMLConstants.NULL_NS_URI : rootName
+                    .getNamespaceURI();
             namespaceUri = defaultNamespace;
             if (XMLConstants.NULL_NS_URI.equals(defaultNamespace)) {
                 prefix = XMLConstants.DEFAULT_NS_PREFIX;

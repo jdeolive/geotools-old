@@ -36,8 +36,6 @@ import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.apache.xml.resolver.Catalog;
-import org.apache.xml.resolver.tools.ResolvingXMLReader;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
@@ -337,9 +335,7 @@ public class TimeSeriesTest extends TestCase {
 
         attMapping = (AttributeMapping) attributeMappings.get(1);
         assertNotNull(attMapping);
-        // note the mapping says SiteSinglePhenomTimeSeries/gml:name[1] but
-        // attMapping.getTargetXPath().toString() results in a simplyfied form
-        assertEquals("gml:name", attMapping.getTargetXPath().toString());
+        assertEquals("gml:name[1]", attMapping.getTargetXPath().toString());
 
         attMapping = (AttributeMapping) attributeMappings.get(2);
         assertNotNull(attMapping);

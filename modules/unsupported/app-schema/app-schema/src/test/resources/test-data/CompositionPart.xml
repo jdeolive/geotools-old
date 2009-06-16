@@ -89,7 +89,7 @@
 					<sourceExpression>
 						<OCQL>PROPORTION</OCQL>
 						<linkElement>gsml:CGI_TermValue</linkElement>
-						<linkField>gml:name</linkField>
+						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>
 				</AttributeMapping>
 				<AttributeMapping>
@@ -97,13 +97,13 @@
 					<sourceExpression>
 						<OCQL>strTrim(getId())</OCQL>
 						<linkElement>gsml:ControlledConcept</linkElement>
-						<linkField>gml:name[2]</linkField>
+						<linkField>FEATURE_LINK</linkField>
 					</sourceExpression>
 					<isMultiple>true</isMultiple>
 				</AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>
-					    gml:name
+					    FEATURE_LINK
 		            </targetAttribute>
 					<sourceExpression>
 						<OCQL>strTrim(getId())</OCQL>

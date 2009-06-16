@@ -53,6 +53,7 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
 import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.geotools.feature.type.FeatureTypeImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -206,6 +207,13 @@ public class DataAccessIntegrationTest extends TestCase {
             ComplexAttributeImpl name1 = new ComplexAttributeImpl(value, nameDescriptor, null);
             properties.add(name1);
 
+            // name 2
+            value = new ArrayList<Property>();
+            propertyName = "ABBREVIATION";
+            value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
+                    stringDescriptor, null));
+            properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
+
             // composition part
             Map typeRegistry = reader.getTypeRegistry();
             ComplexType cpType = (ComplexType) typeRegistry.get(COMPOSITION_PART_TYPE);
@@ -218,17 +226,9 @@ public class DataAccessIntegrationTest extends TestCase {
             properties.add(new ComplexAttributeImpl(value, (AttributeDescriptor) geologicUnitType
                     .getDescriptor(Types.typeName(GSMLNS, "composition")), null));
 
-            // name 2
-            value = new ArrayList<Property>();
-            value.add(new AttributeImpl(next.getID(), stringDescriptor, null));
-            properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
-
-            // name 3
-            value = new ArrayList<Property>();
-            propertyName = "ABBREVIATION";
-            value.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
-                    stringDescriptor, null));
-            properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
+            // feature chaining link
+            properties.add(new AttributeImpl(next.getID(),
+                    (AttributeDescriptor) ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK, null));
 
             features.add(new FeatureImpl(properties, featureDesc, next.getIdentifier()));
         }
