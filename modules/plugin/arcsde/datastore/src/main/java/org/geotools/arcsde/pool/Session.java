@@ -213,7 +213,7 @@ class Session implements ISession {
                         }
 
                         if (e instanceof SeException) {
-                            e = new ArcSdeException((SeException) e);
+                            throw new ArcSdeException((SeException) e);
                         } else if (e instanceof IOException) {
                             throw e;
                         }
