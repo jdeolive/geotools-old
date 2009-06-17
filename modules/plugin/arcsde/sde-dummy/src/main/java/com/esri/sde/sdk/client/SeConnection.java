@@ -1,5 +1,8 @@
 package com.esri.sde.sdk.client;
 
+import java.util.List;
+import java.util.Vector;
+
 public class SeConnection {
 
     public static int SE_TRYLOCK_POLICY = 0;
@@ -41,6 +44,10 @@ public class SeConnection {
     }
 
     public SeVersion[] getVersionList(String where) throws SeException{
+        return null;
+    }
+
+    public Vector getTables(int se_select_privilege) throws SeException{
         return null;
     }
 
