@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.data.DataSourceException;
@@ -42,7 +43,13 @@ import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 
+import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeDefs;
+import com.esri.sde.sdk.client.SeError;
+import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeLayer;
+import com.esri.sde.sdk.client.SeRegistration;
+import com.esri.sde.sdk.client.SeTable;
 
 /**
  * Maintains a cache of {@link FeatureTypeInfo} objects for fast retrieval of ArcSDE vector layer
@@ -104,6 +111,8 @@ final class FeatureTypeInfoCache {
      */
     private final ReentrantReadWriteLock cacheLock;
 
+    private final boolean allowNonSpatialTables;
+
     /**
      * Creates a FeatureTypeInfoCache
      * <p>
@@ -117,15 +126,18 @@ final class FeatureTypeInfoCache {
      *            the namespace {@link FeatureType}s are created with, may be {@code null}
      * @param cacheUpdateFreqSecs
      *            layer name cache update frequency, in seconds. {@code <= 0} means do never update.
+     * @param allowNonSpatialTables
+     *            whether non spatial table names are requested
      * @throws IOException
      */
     public FeatureTypeInfoCache(final SessionPool sessionPool, final String namespace,
-            final int cacheUpdateFreqSecs) throws IOException {
+            final int cacheUpdateFreqSecs, boolean allowNonSpatialTables) throws IOException {
 
         availableLayerNames = new TreeSet<String>();
         featureTypeInfos = new HashMap<String, FeatureTypeInfo>();
         inProcessFeatureTypeInfos = new HashMap<String, FeatureTypeInfo>();
         this.sessionPool = sessionPool;
+        this.allowNonSpatialTables = allowNonSpatialTables;
         this.namespace = namespace;
         this.cacheLock = new ReentrantReadWriteLock();
 
@@ -267,30 +279,19 @@ final class FeatureTypeInfoCache {
     private final class CacheUpdater implements Runnable {
 
         public void run() {
-            final List<String> typeNames;
-            final Set<String> removed;
             LOGGER.finer("FeatureTypeCache background process running...");
-            {
-                final List<SeLayer> layers;
-                ISession session = null;
-                try {
-                    session = sessionPool.getSession(Transaction.AUTO_COMMIT);
-                    layers = session.getLayers();
-                    typeNames = new ArrayList<String>(layers.size());
-                    for (SeLayer l : layers) {
-                        typeNames.add(l.getQualifiedName());
-                    }
-                } catch (Exception e) {
-                    LOGGER.log(Level.INFO, "Updating TypeNameCache failed.", e);
-                    return;
-                } finally {
-                    if (session != null) {
-                        session.dispose();
-                    }
-                }
+
+            List<String> typeNames;
+            try {
+                typeNames = fetchRegistrations();
+            } catch (Exception e) {
+                LOGGER.log(Level.INFO, "Updating TypeNameCache failed.", e);
+                return;
             }
 
+            final Set<String> removed;
             {// just some logging..
+                cacheLock.readLock().lock();
                 Set<String> added = new TreeSet<String>(typeNames);
                 added.removeAll(availableLayerNames);
                 if (added.size() > 0) {
@@ -302,6 +303,7 @@ final class FeatureTypeInfoCache {
                     LOGGER.finest("FeatureTypeCache: the following layers are no "
                             + "longer available: " + removed);
                 }
+                cacheLock.readLock().unlock();
             }
             cacheLock.writeLock().lock();
 
@@ -321,6 +323,88 @@ final class FeatureTypeInfoCache {
 
             LOGGER.finer("Finished updated type name cache");
             cacheLock.writeLock().unlock();
+        }
+
+        private List<String> fetchRegistrations() throws Exception {
+            final List<String> typeNames;
+            final ISession session = sessionPool.getSession(Transaction.AUTO_COMMIT);
+            try {
+                typeNames = session.issue(new FetchRegistrationsCommand(allowNonSpatialTables));
+            } finally {
+                session.dispose();
+            }
+            return typeNames;
+        }
+    }
+
+    private static final class FetchRegistrationsCommand extends Command<List<String>> {
+
+        private final boolean allowNonSpatialTables;
+
+        public FetchRegistrationsCommand(boolean allowNonSpatialTables) {
+            this.allowNonSpatialTables = allowNonSpatialTables;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public List<String> execute(ISession session, SeConnection connection) throws SeException,
+                IOException {
+            /*
+             * Note we could do almost the same by calling
+             * connection.getRegisteredTables():Vector<SeRegistration> but SeRegistration does not
+             * have a getQualifiedName() method so I fear we can loose ability to serve feature
+             * types from different users. So first getting the list of all the tables with select
+             * privilege and then checking if it's registered...
+             */
+            final List<SeTable> registeredTables = connection.getTables(SeDefs.SE_SELECT_PRIVILEGE);
+
+            final List<String> typeNames = new ArrayList<String>(registeredTables.size());
+            for (SeTable table : registeredTables) {
+                String tableName = table.getQualifiedName().toUpperCase();
+                SeRegistration reg;
+                try {
+                    reg = new SeRegistration(connection, tableName);
+                    reg.getInfo();
+                } catch (SeException e) {
+                    if (e.getSeError().getSdeError() == SeError.SE_TABLE_NOREGISTERED) {
+                        LOGGER.finest("Ignoring non registered table " + tableName);
+                        continue;
+                    }
+                    throw e;
+                }
+
+                boolean isSystemTable = reg.getRowIdAllocation() == SeRegistration.SE_REGISTRATION_ROW_ID_ALLOCATION_SINGLE;
+                if (isSystemTable) {
+                    LOGGER.finer("Ignoring ArcSDE registered table " + tableName
+                            + " as it is a system table");
+                    continue;
+                }
+
+                if (reg.isHidden()) {
+                    LOGGER.finer("Ignoring ArcSDE registered table " + tableName
+                            + " as it is hidden");
+                    continue;
+                }
+                boolean hasLayer = reg.hasLayer();
+
+                if (!hasLayer) {
+                    if (!allowNonSpatialTables) {
+                        LOGGER.finer("Ignoring ArcSDE registered table " + tableName
+                                + " as it is non spatial");
+                        continue;
+                    }
+                    if (reg.getRowIdColumnType() == SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE) {
+                        LOGGER.finer("Ignoring ArcSDE registered table " + tableName
+                                + " as it has no row id column");
+                        continue;
+                    }
+
+                }
+
+                typeNames.add(tableName);
+            }
+
+            return typeNames;
         }
     }
 
