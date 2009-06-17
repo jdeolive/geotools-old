@@ -48,6 +48,7 @@ import org.geotools.filter.visitor.SimplifyingFilterVisitor.FIDValidator;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 
 import com.esri.sde.sdk.client.SeConnection;
@@ -164,10 +165,16 @@ class ArcSDEQuery {
         LOGGER.fine("Creating new ArcSDEQuery");
 
         final String typeName = fullSchema.getTypeName();
-        final SeLayer sdeLayer = session.getLayer(typeName);
+        final SeTable sdeTable = session.getTable(typeName);
+        final SeLayer sdeLayer;
+        if (fullSchema.getGeometryDescriptor() == null) {
+            sdeLayer = null;
+        } else {
+            sdeLayer = session.getLayer(typeName);
+        }
         final SimpleFeatureType querySchema = getQuerySchema(query, fullSchema);
         // create the set of filters to work over
-        final ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(sdeLayer, filter,
+        final ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(sdeTable, sdeLayer, filter,
                 querySchema, null, null, fidReader);
 
         final ArcSDEQuery sdeQuery;
@@ -191,7 +198,6 @@ class ArcSDEQuery {
 
         final Filter filter = query.getFilter();
         final FIDReader fidReader = FIDReader.NULL_READER;
-        final SeLayer sdeLayer;
 
         // the first table has to be the main layer
         final SeSqlConstruct construct;
@@ -210,11 +216,17 @@ class ArcSDEQuery {
         if (layerName.indexOf(" AS") > 0) {
             layerName = layerName.substring(0, layerName.indexOf(" AS"));
         }
-        sdeLayer = session.getLayer(layerName);
+        final SeTable sdeTable = session.getTable(layerName);
+        final SeLayer sdeLayer;
+        if (fullSchema.getGeometryDescriptor() == null) {
+            sdeLayer = null;
+        } else {
+            sdeLayer = session.getLayer(layerName);
+        }
 
         final SimpleFeatureType querySchema = getQuerySchema(query, fullSchema);
         // create the set of filters to work over
-        final ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(sdeLayer, filter,
+        final ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(sdeTable, sdeLayer, filter,
                 querySchema, definitionQuery, viewSelectStatement, fidReader);
 
         final ArcSDEQuery sdeQuery;
@@ -304,12 +316,15 @@ class ArcSDEQuery {
         return this.fidReader;
     }
 
-    public static ArcSDEQuery.FilterSet createFilters(SeLayer layer, SimpleFeatureType schema,
-            Filter filter, SeQueryInfo qInfo, PlainSelect viewSelect, FIDReader fidReader)
-            throws NoSuchElementException, IOException {
+    public static ArcSDEQuery.FilterSet createFilters(SeTable table, SeLayer layer,
+            SimpleFeatureType schema, Filter filter, SeQueryInfo qInfo, PlainSelect viewSelect,
+            FIDReader fidReader) throws NoSuchElementException, IOException {
+        assert table != null;
+        assert schema != null;
+        assert filter != null;
 
-        ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(layer, filter, schema, qInfo,
-                viewSelect, fidReader);
+        ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(table, layer, filter, schema,
+                qInfo, viewSelect, fidReader);
 
         return filters;
     }
@@ -510,7 +525,11 @@ class ArcSDEQuery {
             final ArcSdeVersionHandler versioningHandler) throws IOException {
 
         final SimpleFeatureType fullSchema = typeInfo.getFeatureType();
-        final String defaultGeomAttName = fullSchema.getGeometryDescriptor().getLocalName();
+        final GeometryDescriptor geometryDescriptor = fullSchema.getGeometryDescriptor();
+        if (geometryDescriptor == null) {
+            return null;
+        }
+        final String defaultGeomAttName = geometryDescriptor.getLocalName();
 
         // we're calculating the bounds, so we'd better be sure and add the
         // spatial column to the query's propertynames
@@ -563,8 +582,15 @@ class ArcSDEQuery {
             @Override
             public Integer execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
-                final String colName = ArcSDEQuery.this.schema.getGeometryDescriptor().getName()
-                        .getLocalPart();
+                final SimpleFeatureType schema = ArcSDEQuery.this.schema;
+                final GeometryDescriptor geometryDescriptor = schema.getGeometryDescriptor();
+
+                final String colName;
+                if (geometryDescriptor == null) {
+                    colName = schema.getDescriptor(0).getLocalName();
+                } else {
+                    colName = geometryDescriptor.getLocalName();
+                }
                 final SeQueryInfo qInfo = filters.getQueryInfo(new String[] { colName });
 
                 final SeFilter[] spatialFilters = filters.getSpatialFilters();
@@ -867,26 +893,23 @@ class ArcSDEQuery {
      * @version $Revision: 1.9 $
      */
     public static class FilterSet {
-        /** DOCUMENT ME! */
+
         private SeQueryInfo definitionQuery;
 
         private PlainSelect layerSelectStatement;
 
         private FIDReader fidReader;
 
-        /** DOCUMENT ME! */
         private final SeLayer sdeLayer;
 
-        /** DOCUMENT ME! */
+        private final SeTable sdeTable;
+
         private final Filter sourceFilter;
 
-        /** DOCUMENT ME! */
         private Filter _sqlFilter;
 
-        /** DOCUMENT ME! */
         private Filter geometryFilter;
 
-        /** DOCUMENT ME! */
         private Filter unsupportedFilter;
 
         private FilterToSQLSDE _sqlEncoder;
@@ -913,12 +936,16 @@ class ArcSDEQuery {
          * @param sourceFilter
          *            DOCUMENT ME!
          */
-        public FilterSet(SeLayer sdeLayer, Filter sourceFilter, SimpleFeatureType ft,
-                SeQueryInfo definitionQuery, PlainSelect layerSelectStatement, FIDReader fidReader) {
-            assert sdeLayer != null;
+        public FilterSet(SeTable table, SeLayer sdeLayer, Filter sourceFilter,
+                SimpleFeatureType ft, SeQueryInfo definitionQuery,
+                PlainSelect layerSelectStatement, FIDReader fidReader) {
+            assert table != null;
+            // sdeLayer may be null if it is a registered, non spatial table
+            // assert sdeLayer != null;
             assert sourceFilter != null;
             assert ft != null;
 
+            this.sdeTable = table;
             this.sdeLayer = sdeLayer;
             this.sourceFilter = sourceFilter;
             this.featureType = ft;
@@ -993,7 +1020,7 @@ class ArcSDEQuery {
 
             try {
                 if (definitionQuery == null) {
-                    tables = new String[] { this.sdeLayer.getQualifiedName() };
+                    tables = new String[] { this.sdeTable.getQualifiedName() };
                 } else {
                     tables = definitionQuery.getConstruct().getTables();
                     String joinWhere = definitionQuery.getConstruct().getWhere();
@@ -1051,14 +1078,8 @@ class ArcSDEQuery {
          */
         public SeSqlConstruct getSeSqlConstruct() throws DataSourceException {
             if (this.sdeSqlConstruct == null) {
-                final String layerName;
-                try {
-                    layerName = this.sdeLayer.getQualifiedName();
-                    this.sdeSqlConstruct = new SeSqlConstruct(layerName);
-                } catch (SeException e) {
-                    throw new ArcSdeException("Can't create SQL construct for "
-                            + sdeLayer.getName(), e);
-                }
+                final String layerName = this.sdeTable.getQualifiedName();
+                this.sdeSqlConstruct = new SeSqlConstruct(layerName);
 
                 Filter sqlFilter = getSqlFilter();
 
@@ -1143,13 +1164,7 @@ class ArcSDEQuery {
 
         private FilterToSQLSDE getSqlEncoder() {
             if (_sqlEncoder == null) {
-                final String layerName;
-                try {
-                    layerName = sdeLayer.getQualifiedName();
-                } catch (SeException e) {
-                    throw (RuntimeException) new RuntimeException(
-                            "error getting layer's qualified name").initCause(e);
-                }
+                final String layerName = sdeTable.getQualifiedName();
                 String fidColumn = fidReader.getFidColumn();
                 _sqlEncoder = new FilterToSQLSDE(layerName, fidColumn, featureType,
                         layerSelectStatement);
