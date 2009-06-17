@@ -38,6 +38,7 @@ import org.geotools.arcsde.pool.SessionPool;
 import org.geotools.arcsde.pool.SessionPoolFactory;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.arcsde.pool.Commands.GetVersionCommand;
+import org.geotools.data.DataSourceException;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -204,7 +205,7 @@ public class TestData {
         return this._pool;
     }
 
-    private SessionPool newSessionPool() throws IOException {
+    public SessionPool newSessionPool() throws IOException {
         SessionPoolFactory pfac = SessionPoolFactory.getInstance();
         ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(this.conProps);
         return pfac.createPool(config);
@@ -393,9 +394,15 @@ public class TestData {
     }
 
     public void truncateTempTable() throws IOException {
+        final String tempTableName = getTempTableName();
+
+        truncateTestTable(tempTableName);
+    }
+
+    public void truncateTestTable(final String tempTableName) throws IOException,
+            DataSourceException, UnavailableArcSDEConnectionException {
         final SessionPool connPool = getConnectionPool();
         final ISession session = connPool.getSession();
-        final String tempTableName = getTempTableName(session);
 
         try {
             session.issue(new Command<Void>() {
@@ -977,7 +984,7 @@ public class TestData {
                 rowIdColumnType = registrationType.intValue();
                 registrationTypes.addLast(registrationType);
 
-                createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType,
+                createTestTable(session, tableName, rowIdColName, rowIdColumnType, true,
                         shapeTypeMask);
                 try {
                     Thread.currentThread().sleep(1500);
@@ -1006,51 +1013,55 @@ public class TestData {
 
             tableName = "GT_TEST_POINT_ROWID_USER";
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_USER;
-            createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
+            createTestTable(session, tableName, rowIdColName, rowIdColumnType, true, shapeTypeMask);
 
             tableName = "GT_TEST_POINT_ROWID_SDE";
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
-            createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
+            createTestTable(session, tableName, rowIdColName, rowIdColumnType, true, shapeTypeMask);
 
             tableName = "GT_TEST_POINT_ROWID_NONE";
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
-            createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
+            createTestTable(session, tableName, rowIdColName, rowIdColumnType, true, shapeTypeMask);
 
             shapeTypeMask = SeLayer.SE_LINE_TYPE_MASK;
 
             tableName = "GT_TEST_LINE_ROWID_USER";
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_USER;
-            createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
+            createTestTable(session, tableName, rowIdColName, rowIdColumnType, true, shapeTypeMask);
 
             tableName = "GT_TEST_LINE_ROWID_SDE";
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
-            createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
+            createTestTable(session, tableName, rowIdColName, rowIdColumnType, true, shapeTypeMask);
 
             tableName = "GT_TEST_LINE_ROWID_NONE";
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
-            createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
+            createTestTable(session, tableName, rowIdColName, rowIdColumnType, true, shapeTypeMask);
 
             shapeTypeMask = SeLayer.SE_AREA_TYPE_MASK;
 
             tableName = "GT_TEST_POLYGON_ROWID_USER";
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_USER;
-            createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
+            createTestTable(session, tableName, rowIdColName, rowIdColumnType, true, shapeTypeMask);
 
             tableName = "GT_TEST_POLYGON_ROWID_SDE";
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
-            createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
+            createTestTable(session, tableName, rowIdColName, rowIdColumnType, true, shapeTypeMask);
 
             tableName = "GT_TEST_POLYGON_ROWID_NONE";
             rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
-            createSimpleTestTable(session, tableName, rowIdColName, rowIdColumnType, shapeTypeMask);
+            createTestTable(session, tableName, rowIdColName, rowIdColumnType, true, shapeTypeMask);
         } finally {
             session.dispose();
         }
     }
 
-    private void createSimpleTestTable(final ISession session, final String tableName,
-            final String rowIdColName, final int rowIdColumnType, final int shapeTypeMask)
-            throws IOException {
+    /**
+     * Creates and registers a table, optionally creating a layer for it
+     */
+    public void createTestTable(final ISession session, final String tableName,
+            final String rowIdColName, final int rowIdColumnType, final boolean createLayer,
+            final int shapeTypeMask) throws IOException {
+
         LOGGER.fine("Creating layer " + tableName);
 
         final Command<Void> createCmd = new Command<Void>() {
@@ -1058,7 +1069,6 @@ public class TestData {
             @Override
             public Void execute(ISession session, SeConnection connection) throws SeException,
                     IOException {
-                final SeLayer layer = new SeLayer(connection);
                 final SeTable table = new SeTable(connection, tableName);
 
                 try {
@@ -1066,7 +1076,6 @@ public class TestData {
                 } catch (SeException e) {
                     LOGGER.fine("table " + tableName + " does not already exist");
                 }
-                layer.setTableName(tableName);
 
                 final boolean isNullable = true;
 
@@ -1110,36 +1119,40 @@ public class TestData {
                     makeVersioned(session, tableName);
                 }
 
-                /*
-                 * Define the attributes of the spatial column
-                 */
-                layer.setSpatialColumnName("GEOM");
+                if (createLayer) {
+                    final SeLayer layer = new SeLayer(connection);
+                    layer.setTableName(tableName);
+                    /*
+                     * Define the attributes of the spatial column
+                     */
+                    layer.setSpatialColumnName("GEOM");
 
-                /*
-                 * Set the type of shapes that can be inserted into the layer.
-                 */
-                layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | shapeTypeMask);
-                layer.setGridSizes(1100.0, 0.0, 0.0);
-                layer.setDescription("GeoTools test table");
+                    /*
+                     * Set the type of shapes that can be inserted into the layer.
+                     */
+                    layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | shapeTypeMask);
+                    layer.setGridSizes(1100.0, 0.0, 0.0);
+                    layer.setDescription("GeoTools test table");
 
-                /*
-                 * Define the layer's Coordinate Reference
-                 */
-                SeCoordinateReference coordref = getGenericCoordRef();
+                    /*
+                     * Define the layer's Coordinate Reference
+                     */
+                    SeCoordinateReference coordref = getGenericCoordRef();
 
-                // SeExtent ext = new SeExtent(-1000000.0, -1000000.0,
-                // 1000000.0,
-                // 1000000.0);
-                SeExtent ext = coordref.getXYEnvelope();
-                layer.setExtent(ext);
-                layer.setCoordRef(coordref);
+                    // SeExtent ext = new SeExtent(-1000000.0, -1000000.0,
+                    // 1000000.0,
+                    // 1000000.0);
+                    SeExtent ext = coordref.getXYEnvelope();
+                    layer.setExtent(ext);
+                    layer.setCoordRef(coordref);
 
-                layer.setCreationKeyword(configKeyword);
+                    layer.setCreationKeyword(configKeyword);
 
-                /*
-                 * Spatially enable the new table...
-                 */
-                layer.create(3, 4);
+                    /*
+                     * Spatially enable the new table...
+                     */
+                    layer.create(3, 4);
+                }
                 return null;
             }
         };
