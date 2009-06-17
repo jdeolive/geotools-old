@@ -103,6 +103,7 @@
     <module>libraryJTS</module>
     <module>example</module>
     <module>svgsupport</module>
+    <module>gmlparsing</module>
     <!--module>xml-po</module-->
   </modules>
   
