@@ -459,8 +459,8 @@ public class ArcSDEAdapter {
                 // Set restrictions = Restrictions.createLength(name, typeClass,
                 // fieldLen);
             }
-            int rowIdType = colDef.getRowIdType();
-            if (colDef.getRowIdType() == SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE) {
+            final int rowIdType = colDef.getRowIdType();
+            if (rowIdType == SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE) {
                 continue; // skip over things we cannot edit modify or otherwise treat as
                 // attributes
             }

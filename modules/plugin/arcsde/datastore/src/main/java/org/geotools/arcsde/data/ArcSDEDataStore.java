@@ -69,6 +69,7 @@ import org.opengis.filter.Filter;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeQueryInfo;
+import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeVersion;
 
 /**
@@ -87,6 +88,13 @@ import com.esri.sde.sdk.client.SeVersion;
 public class ArcSDEDataStore implements DataStore {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.data");
+
+    /**
+     * Default value for how often, in seconds, to update the feature type name cache.
+     * 
+     * @see FeatureTypeInfoCache
+     */
+    private static final int DEFAULT_LAYER_NAMES_CACHE_UPDATE_FREQ_SECS = 60;
 
     /**
      * Manages listener lists for FeatureSource<SimpleFeatureType, SimpleFeature> implementation
@@ -135,7 +143,8 @@ public class ArcSDEDataStore implements DataStore {
         this.connectionPool = connPool;
         this.version = versionName == null ? SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME
                 : versionName;
-        this.typeInfoCache = new FeatureTypeInfoCache(connectionPool, namespaceUri, 30);
+        this.typeInfoCache = new FeatureTypeInfoCache(connectionPool, namespaceUri,
+                DEFAULT_LAYER_NAMES_CACHE_UPDATE_FREQ_SECS, allowNonSpatialTables);
     }
 
     public ISession getSession(final Transaction transaction) throws IOException {
@@ -173,8 +182,7 @@ public class ArcSDEDataStore implements DataStore {
      * 
      * @see DataStore#getSchema(String)
      */
-    public synchronized SimpleFeatureType getSchema(final String typeName)
-            throws java.io.IOException {
+    public SimpleFeatureType getSchema(final String typeName) throws java.io.IOException {
         FeatureTypeInfo typeInfo = typeInfoCache.getFeatureTypeInfo(typeName);
         SimpleFeatureType schema = typeInfo.getFeatureType();
         return schema;
@@ -586,7 +594,7 @@ public class ArcSDEDataStore implements DataStore {
     private org.opengis.filter.Filter getUnsupportedFilter(final FeatureTypeInfo typeInfo,
             final Filter filter, final ISession session) {
         try {
-            SeLayer layer;
+            SeTable table;
             SeQueryInfo qInfo;
 
             if (typeInfo.isInProcessView()) {
@@ -597,9 +605,9 @@ public class ArcSDEDataStore implements DataStore {
                 } catch (SeException e) {
                     throw new ArcSdeException(e);
                 }
-                layer = session.getLayer(mainLayerName);
+                table = session.getTable(mainLayerName);
             } else {
-                layer = session.getLayer(typeInfo.getFeatureTypeName());
+                table = session.getTable(typeInfo.getFeatureTypeName());
                 qInfo = null;
             }
 
@@ -607,9 +615,12 @@ public class ArcSDEDataStore implements DataStore {
 
             SimpleFeatureType schema = typeInfo.getFeatureType();
             PlainSelect viewSelectStatement = typeInfo.getDefinitionQuery();
-
-            ArcSDEQuery.FilterSet filters = ArcSDEQuery.createFilters(layer, schema, filter, qInfo,
-                    viewSelectStatement, fidReader);
+            SeLayer layer = null;
+            if (schema.getGeometryDescriptor() != null) {
+                layer = session.getLayer(table.getQualifiedName());
+            }
+            ArcSDEQuery.FilterSet filters = ArcSDEQuery.createFilters(table, layer, schema, filter,
+                    qInfo, viewSelectStatement, fidReader);
 
             Filter result = filters.getUnsupportedFilter();
 
