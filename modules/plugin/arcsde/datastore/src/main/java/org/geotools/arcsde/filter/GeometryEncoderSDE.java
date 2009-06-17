@@ -128,18 +128,6 @@ public class GeometryEncoderSDE implements FilterVisitor {
     /**
      * DOCUMENT ME!
      * 
-     * @param layer
-     *            DOCUMENT ME!
-     * @deprecated remove when the old data api dissapear
-     */
-    @Deprecated
-    public void setLayer(SeLayer layer) {
-        this.sdeLayer = layer;
-    }
-
-    /**
-     * DOCUMENT ME!
-     * 
      * @return DOCUMENT ME!
      */
     public static FilterCapabilities getCapabilities() {
