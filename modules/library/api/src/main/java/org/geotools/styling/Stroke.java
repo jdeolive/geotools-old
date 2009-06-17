@@ -110,7 +110,7 @@ public interface Stroke extends org.opengis.style.Stroke {
             }
 
             public float[] getDashArray() {
-                return new float[] { 1, 0 };
+                return null;
             }
 
             public Expression getDashOffset() {
