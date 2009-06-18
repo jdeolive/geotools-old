@@ -34,6 +34,7 @@ import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
@@ -227,14 +228,9 @@ public class ArcSDEDataStoreNonSpatialTest {
     }
 
     @Test
-    public void testFeatureWriter_RowIDSDE_AutoCommit() throws IOException {
+    public void testFeatureWriter_RowIDSDE_AutoCommit() throws Exception {
         final String tableName = seRowidSdeTable;
-        final Transaction transaction = Transaction.AUTO_COMMIT;
-        FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
-
-        writer = addFeatures(tableName, transaction);
-        writer.close();
-        assertEquals(2, ds.getFeatureSource(tableName).getCount(Query.ALL));
+        testFeatureWriterAutoCommit(tableName);
     }
 
     @Test
@@ -256,14 +252,38 @@ public class ArcSDEDataStoreNonSpatialTest {
     }
 
     @Test
-    public void testFeatureWriter_RowID_USER_AutoCommit() throws IOException {
+    public void testFeatureWriter_RowID_USER_AutoCommit() throws Exception {
         final String tableName = seRowidUserTable;
+        testFeatureWriterAutoCommit(tableName);
+    }
+
+    private void testFeatureWriterAutoCommit(final String tableName) throws IOException,
+            CQLException {
         final Transaction transaction = Transaction.AUTO_COMMIT;
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
 
         writer = addFeatures(tableName, transaction);
         writer.close();
         assertEquals(2, ds.getFeatureSource(tableName).getCount(Query.ALL));
+
+        DefaultQuery query = new DefaultQuery(tableName, CQL.toFilter("STRING_COL = 'modified'"));
+        assertEquals(0, ds.getFeatureSource(tableName).getCount(query));
+
+        Filter f = CQL.toFilter("INT_COL = 1000");
+        writer = ds.getFeatureWriter(tableName, f, transaction);
+        assertTrue(writer.hasNext());
+        writer.next().setAttribute("STRING_COL", "modified");
+        writer.write();
+        writer.close();
+
+        assertEquals(1, ds.getFeatureSource(tableName).getCount(query));
+
+        writer = ds.getFeatureWriter(tableName, f, transaction);
+        assertTrue(writer.hasNext());
+        assertNotNull(writer.next());
+        writer.remove();
+        assertFalse(writer.hasNext());
+        writer.close();
     }
 
     @Test

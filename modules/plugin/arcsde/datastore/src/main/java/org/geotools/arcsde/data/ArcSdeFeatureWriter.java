@@ -725,15 +725,19 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
             final String typeName = this.featureType.getTypeName();
             final SeColumnDefinition[] columnDefinitions = session.describe(typeName);
             final String shapeAttributeName;
-
-            shapeAttributeName = session.issue(new Command<String>() {
-                @Override
-                public String execute(ISession session, SeConnection connection)
-                        throws SeException, IOException {
-                    SeLayer layer = session.getLayer(typeName);
-                    return layer.getShapeAttributeName(SeLayer.SE_SHAPE_ATTRIBUTE_FID);
-                }
-            });
+            if (this.featureType.getGeometryDescriptor() == null) {
+                // no geometry column, it's a non sptial registered table
+                shapeAttributeName = null;
+            } else {
+                shapeAttributeName = session.issue(new Command<String>() {
+                    @Override
+                    public String execute(ISession session, SeConnection connection)
+                            throws SeException, IOException {
+                        SeLayer layer = session.getLayer(typeName);
+                        return layer.getShapeAttributeName(SeLayer.SE_SHAPE_ATTRIBUTE_FID);
+                    }
+                });
+            }
 
             // use LinkedHashMap to respect column order
             LinkedHashMap<Integer, String> columnList = new LinkedHashMap<Integer, String>();
