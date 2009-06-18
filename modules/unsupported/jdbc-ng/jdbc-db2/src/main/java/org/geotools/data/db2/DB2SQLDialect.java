@@ -49,7 +49,6 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
 
 
 public class DB2SQLDialect extends SQLDialect  {
@@ -243,7 +242,7 @@ public class DB2SQLDialect extends SQLDialect  {
         byte[] wkb = rs.getBytes(column);
 
         try {
-            Polygon polygon = (Polygon) new WKBReader().read(wkb);            
+            Polygon polygon = (Polygon) new DB2WKBReader().read(wkb);            
             return polygon.getEnvelopeInternal();
         } catch (ParseException e) {
             String msg = "Error decoding wkb for envelope";
@@ -260,7 +259,7 @@ public class DB2SQLDialect extends SQLDialect  {
         if (bytes==null) return null;
         
         try {
-            return new WKBReader(factory).read(bytes);
+            return new DB2WKBReader(factory).read(bytes);
         } catch (ParseException e) {
             String msg = "Error decoding wkb";
             throw (IOException) new IOException(msg).initCause(e);

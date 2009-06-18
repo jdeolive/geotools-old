@@ -21,11 +21,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Map;
 import java.util.Set;
 
-import org.geotools.factory.Hints;
 import org.geotools.factory.Hints.Key;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.PreparedFilterToSQL;
@@ -37,7 +35,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.WKBWriter;
 
 
 public class DB2SQLDialectPrepared extends PreparedStatementSQLDialect {
@@ -156,7 +153,7 @@ public class DB2SQLDialectPrepared extends PreparedStatementSQLDialect {
 			ps.setBytes(column, null);
 			return;
 		}
-		WKBWriter w = new WKBWriter();
+		DB2WKBWriter w = new DB2WKBWriter();
 		byte[] bytes = w.write(g);
 		ps.setBytes(column, bytes);		
 	}

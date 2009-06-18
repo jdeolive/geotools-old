@@ -45,7 +45,7 @@ public class DB23DTestSetup extends JDBC3DTestSetup {
         con.prepareStatement("INSERT INTO "+DB2TestUtil.SCHEMA_QUOTED+"."+tableNameQuoted+"(\"id\",\"name\",\"geom\") VALUES ( 0,'l1', " +
         	"db2gse.ST_LineFromText('LINESTRING Z( 1 1 0, 2 2 0, 4 2 1, 5 1 1)',"+SRID+"))").execute();
         con.prepareStatement("INSERT INTO "+DB2TestUtil.SCHEMA_QUOTED+"."+tableNameQuoted+"(\"id\",\"name\",\"geom\") VALUES ( 1,'l2', " +
-       		"db2gse.ST_LineFromText('LINESTRING Z( 3 0 1, 3 2 2, 3 3 3, 3 4 5)',"+SRID+"))").execute();
+       		"db2gse.ST_LineFromText('LINESTRING Z( 3 0 1 , 3 2 2 , 3 3 3 , 3 4 5 )',"+SRID+"))").execute();
         con.close();
     	
     }
