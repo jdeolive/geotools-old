@@ -73,15 +73,18 @@ public class PostgisFeatureWriter extends JDBCTextFeatureWriter {
         this.byteaWKB = byteaWKB;
         this.sqlBuilder = sqlBuilder;
     }
-
+    
     protected String getGeometryInsertText(Geometry geom, int srid) throws IOException {
+        return getGeometryInsertText(geom, srid, 2);
+    }
+
+    protected String getGeometryInsertText(Geometry geom, int srid, int dimension) throws IOException {
     	if( geom == null ) {
     		return "null";
     	}
     	
         if(WKBEnabled) {
-            //String wkb = WKBEncoder.encodeGeometryHex(geom);
-            String wkb = WKBWriter.bytesToHex( new WKBWriter().write( geom ) );
+            String wkb = WKBWriter.bytesToHex( new WKBWriter(dimension).write( geom ) );
             if (byteaWKB)
             	return "setSRID('"+wkb+"'::geometry,"+srid+")";
 	        else

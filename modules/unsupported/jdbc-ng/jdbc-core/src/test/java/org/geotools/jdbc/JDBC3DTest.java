@@ -16,8 +16,8 @@
  */
 package org.geotools.jdbc;
 
-import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.geotools.data.DataUtilities;
@@ -37,12 +37,13 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.SingleCRS;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -57,7 +58,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * @author Andrea Aime - OpenGeo
  */
 public abstract class JDBC3DTest extends JDBCTestSupport {
-
+    
     protected static final String LINE3D = "line3d";
 
     protected static final String POLY3D = "poly3d";
@@ -75,32 +76,34 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
     protected SimpleFeatureType poly3DType;
 
     protected SimpleFeatureType line3DType;
-
-    protected SingleCRS horizontal;
+    
+    protected CoordinateReferenceSystem epsg4326;
 
     protected abstract JDBC3DTestSetup createTestSetup();
+    
+    
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        // we use 4359 because it's using degrees, 4327 uses dms
         line3DType = DataUtilities.createType(dataStore.getNamespaceURI() + "." + tname(LINE3D),
-                aname(ID) + ":0," + aname(GEOM) + ":LineString:srid=4359," + aname(NAME)
+                aname(ID) + ":0," + aname(GEOM) + ":LineString:srid=4326," + aname(NAME)
                         + ":String");
+        line3DType.getGeometryDescriptor().getUserData().put(Hints.COORDINATE_DIMENSION, 3);
         poly3DType = DataUtilities.createType(dataStore.getNamespaceURI() + "." + tname(POLY3D),
-                aname(ID) + ":0," + aname(GEOM) + ":Polygon:srid=4359," + aname(NAME) + ":String");
-
-        // get the horizontal component of 4359
-        horizontal = CRS.getHorizontalCRS(CRS.decode("EPSG:4359"));
+                aname(ID) + ":0," + aname(GEOM) + ":Polygon:srid=4326," + aname(NAME) + ":String");
+        poly3DType.getGeometryDescriptor().getUserData().put(Hints.COORDINATE_DIMENSION, 3);
+        
+        epsg4326 = CRS.decode("EPSG:4326");
     }
 
     public void testSchema() throws Exception {
         SimpleFeatureType schema = dataStore.getSchema(tname(LINE3D));
         CoordinateReferenceSystem crs = schema.getGeometryDescriptor()
                 .getCoordinateReferenceSystem();
-        assertEquals(new Integer(4359), CRS.lookupEpsgCode(crs, false));
-        assertEquals(new Integer(4359), schema.getGeometryDescriptor().getUserData().get(
+        assertEquals(new Integer(4326), CRS.lookupEpsgCode(crs, false));
+        assertEquals(new Integer(4326), schema.getGeometryDescriptor().getUserData().get(
                 JDBCDataStore.JDBC_NATIVE_SRID));
     }
 
@@ -109,7 +112,7 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
         FeatureIterator<SimpleFeature> fr = fc.features();
         assertTrue(fr.hasNext());
         Point p = (Point) fr.next().getDefaultGeometry();
-        assertEquals(new Coordinate(1, 1, 1), p.getCoordinate());
+        assertTrue(new Coordinate(1, 1, 1).equals(p.getCoordinate()));
         fr.close();
     }
 
@@ -120,10 +123,10 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
         LineString ls = (LineString) fr.next().getDefaultGeometry();
         // 1 1 0, 2 2 0, 4 2 1, 5 1 1
         assertEquals(4, ls.getCoordinates().length);
-        assertEquals(new Coordinate(1, 1, 0), ls.getCoordinateN(0));
-        assertEquals(new Coordinate(2, 2, 0), ls.getCoordinateN(1));
-        assertEquals(new Coordinate(4, 2, 1), ls.getCoordinateN(2));
-        assertEquals(new Coordinate(5, 1, 1), ls.getCoordinateN(3));
+        assertTrue(new Coordinate(1, 1, 0).equals3D(ls.getCoordinateN(0)));
+        assertTrue(new Coordinate(2, 2, 0).equals3D(ls.getCoordinateN(1)));
+        assertTrue(new Coordinate(4, 2, 1).equals3D(ls.getCoordinateN(2)));
+        assertTrue(new Coordinate(5, 1, 1).equals3D(ls.getCoordinateN(3)));
         fr.close();
     }
 
@@ -162,7 +165,7 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
         dataStore.createSchema(poly3DType);
         SimpleFeatureType actualSchema = dataStore.getSchema(tname(POLY3D));
         assertFeatureTypesEqual(poly3DType, actualSchema);
-        assertEquals(new Integer(4359), actualSchema.getGeometryDescriptor().getUserData().get(
+        assertEquals(new Integer(4326), actualSchema.getGeometryDescriptor().getUserData().get(
                 JDBCDataStore.JDBC_NATIVE_SRID));
 
         // build a 3d polygon (ordinates in ccw order)
@@ -186,7 +189,11 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
                 new DefaultQuery(tname(POLY3D)), Transaction.AUTO_COMMIT);
         assertTrue(fr.hasNext());
         f = fr.next();
+        // this unfortunately checks only the first 2d, but at the same time
+        // a coordinate by coordinate check is not possible since the ring orientation
+        // can be modified by the store
         assertTrue(poly.equals((Geometry) f.getDefaultGeometry()));
+        
         fr.close();
     }
 
@@ -202,10 +209,11 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
         Envelope expected = new Envelope(1, 5, 0, 4);
         assertEquals(expected, env);
 
-        // check the srs is the 2d part of the native one
-        assertEquals(horizontal, env.getCoordinateReferenceSystem());
+        // check the srs the expected one
+        assertEquals(epsg4326, env.getCoordinateReferenceSystem());
     }
 
+    // disabled as the liter coordinate sequence has still not been updated to support 3d data
     public void testRendererBehaviour() throws Exception {
         // make sure the hints are supported
         ContentFeatureSource fs = dataStore.getFeatureSource(tname(LINE3D));
@@ -216,16 +224,12 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
         Hints hints = new Hints(Hints.JTS_COORDINATE_SEQUENCE_FACTORY,
                 new LiteCoordinateSequenceFactory());
         q.setHints(hints);
-        q.setCoordinateSystemReproject(horizontal);
 
-        // check the srs you get is the flat one 
-        // this does not work now due to http://jira.codehaus.org/browse/GEOT-2026
-        // FeatureCollection fc = fs.getFeatures(q);
-        // assertEquals(horizontal,
-        // fc.getSchema().getCoordinateReferenceSystem());
-        // assertEquals(horizontal,
-        // fc.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem
-        // ());
+        // check the srs you get is the expected one 
+         FeatureCollection fc = fs.getFeatures(q);
+         FeatureType fcSchema = fc.getSchema();
+        assertEquals(epsg4326, fcSchema.getCoordinateReferenceSystem());
+         assertEquals(epsg4326, fcSchema.getGeometryDescriptor().getCoordinateReferenceSystem());
 
         // build up the reference 2d line, the 3d one is (1 1 0, 2 2 0, 4 2 1, 5
         // 1 1)
@@ -235,8 +239,8 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
 
         // check feature reader and the schema
         FeatureReader<SimpleFeatureType, SimpleFeature> fr = dataStore.getFeatureReader(q, Transaction.AUTO_COMMIT);
-        assertEquals(horizontal, fr.getFeatureType().getCoordinateReferenceSystem());
-        assertEquals(horizontal, fr.getFeatureType().getGeometryDescriptor()
+        assertEquals(epsg4326, fr.getFeatureType().getCoordinateReferenceSystem());
+        assertEquals(epsg4326, fr.getFeatureType().getGeometryDescriptor()
                 .getCoordinateReferenceSystem());
         assertTrue(fr.hasNext());
         SimpleFeature f = fr.next();

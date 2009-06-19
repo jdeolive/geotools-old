@@ -61,8 +61,8 @@ public abstract class JDBC3DTestSetup extends JDBCDelegatingTestSetup {
      * </p>
      * <p>
      * The table should be populated with the following data (assume 3d coordinates):
-     *  0 | LINESTRING( 1 1 0, 2 2 0, 4 2 1, 5 1 1);srid=4359 | "l1"
-     *  1 | LINESTRING( 3 0 1, 3 2 2, 3 3 3, 3 4 5);srid=4359 | "l2"
+     *  0 | LINESTRING( 1 1 0, 2 2 0, 4 2 1, 5 1 1);srid=4326 | "l1"
+     *  1 | LINESTRING( 3 0 1, 3 2 2, 3 3 3, 3 4 5);srid=4326 | "l2"
      * </p>
      */
     protected abstract void createLine3DTable() throws Exception;
@@ -74,8 +74,8 @@ public abstract class JDBC3DTestSetup extends JDBCDelegatingTestSetup {
      * </p>
      * <p>
      * The table should be populated with the following data (assume 3d coordinates):
-     *  0 | POINT(1 1 1);srid=4359 | "p1"
-     *  1 | POINT(3 0 1);srid=4359 | "p2"
+     *  0 | POINT(1 1 1);srid=4326 | "p1"
+     *  1 | POINT(3 0 1);srid=4326 | "p2"
      * </p>
      */
     protected abstract void createPoint3DTable() throws Exception;

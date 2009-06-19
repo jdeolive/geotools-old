@@ -37,6 +37,7 @@ import org.geotools.data.jdbc.datasource.UnWrapper;
 import org.geotools.data.oracle.sdo.GeometryConverter;
 import org.geotools.data.oracle.sdo.SDOSqlDumper;
 import org.geotools.data.oracle.sdo.TT;
+import org.geotools.factory.Hints;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.PreparedFilterToSQL;
 import org.geotools.jdbc.PreparedStatementSQLDialect;
@@ -71,6 +72,10 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class OracleDialect extends PreparedStatementSQLDialect {
     
+    private static final int DEFAULT_AXIS_MAX = 1000000;
+
+    private static final int DEFAULT_AXIS_MIN = -10000000;
+
     /**
      * A map from JTS Geometry type to Oracle geometry type. See Oracle Spatial documentation,
      * Table 2-1, Valid SDO_GTYPE values.
@@ -527,18 +532,27 @@ public class OracleDialect extends PreparedStatementSQLDialect {
                     String[] axisNames;
                     if(geom.getCoordinateReferenceSystem() != null) {
                         CoordinateSystem cs = geom.getCoordinateReferenceSystem().getCoordinateSystem();
-                        dims = cs.getDimension();
+                        if(geom.getUserData().get(Hints.COORDINATE_DIMENSION) != null) {
+                            dims = ((Number) geom.getUserData().get(Hints.COORDINATE_DIMENSION)).intValue();
+                        } else {
+                            dims = cs.getDimension();
+                        }
                         min = new double[dims];
                         max = new double[dims];
                         axisNames = new String[dims];
                         double extent = Double.MAX_VALUE;
                         for (int i = 0; i < dims; i++) {
-                            CoordinateSystemAxis axis = cs.getAxis(i);
-                            axisNames[i] = axis.getAbbreviation();
-                            min[i] = Double.isInfinite(axis.getMinimumValue()) ? -10000000 : axis.getMinimumValue();
-                            max[i] = Double.isInfinite(axis.getMaximumValue()) ? 1000000 : axis.getMaximumValue();
-                            if(max[i] - min[i] < extent)
-                                extent = max[i] - min[i];
+                            if(i < cs.getDimension()) {
+                                CoordinateSystemAxis axis = cs.getAxis(i);
+                                axisNames[i] = axis.getAbbreviation();
+                                min[i] = Double.isInfinite(axis.getMinimumValue()) ? DEFAULT_AXIS_MIN : axis.getMinimumValue();
+                                max[i] = Double.isInfinite(axis.getMaximumValue()) ? DEFAULT_AXIS_MAX : axis.getMaximumValue();
+                                if(max[i] - min[i] < extent)
+                                    extent = max[i] - min[i];
+                            } else {
+                                min[i] = DEFAULT_AXIS_MIN;
+                                max[i] = 10000000;
+                            }
                         }
                         // 1/10M of the extent
                         tolerance = extent / 10000000;
@@ -549,8 +563,8 @@ public class OracleDialect extends PreparedStatementSQLDialect {
                         min = new double[2];
                         max = new double[2];
                         axisNames[0] = "X"; axisNames[1] = "Y";
-                        min[0] = -10000000;
-                        min[1] = -10000000;
+                        min[0] = DEFAULT_AXIS_MIN;
+                        min[1] = DEFAULT_AXIS_MIN;
                         max[0]= 10000000;
                         max[1] = 10000000;
                         tolerance = 0.01;

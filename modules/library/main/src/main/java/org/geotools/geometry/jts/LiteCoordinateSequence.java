@@ -39,6 +39,33 @@ public class LiteCoordinateSequence extends PackedCoordinateSequence{
      * (a profile shows 2 million calls when rendering 90.000 linear features)
      */
     private int size;
+    
+    /**
+     * Builds a new packed coordinate sequence
+     *
+     * @param coords
+     * 
+     */
+    public LiteCoordinateSequence(double[] coords, int dimensions) {
+      init(coords, dimensions);
+    }
+
+    /**
+     * Private initializer, allows sharing code between constructors
+     * @param coords
+     * @param dimensions
+     */
+    void init(double[] coords, int dimensions) {
+        this.dimension=dimensions;
+          if(dimensions < 2)
+              throw new IllegalArgumentException("Invalid dimensions, must be at least 2");
+          if (coords.length % dimension != 0) {
+            throw new IllegalArgumentException("Packed array does not contain "
+                + "an integral number of coordinates");
+          }
+          this.coords = coords;
+          this.size = coords.length / dimension;
+    }
 
     /**
      * Builds a new packed coordinate sequence
@@ -47,13 +74,20 @@ public class LiteCoordinateSequence extends PackedCoordinateSequence{
      * 
      */
     public LiteCoordinateSequence(double[] coords) {
-      this.dimension=2;
-      if (coords.length % dimension != 0) {
-        throw new IllegalArgumentException("Packed array does not contain "
-            + "an integral number of coordinates");
+      init(coords, 2);
+    }
+    
+    /**
+     * Builds a new packed coordinate sequence out of a float coordinate array
+     *
+     * @param coordinates
+     */
+    public LiteCoordinateSequence(float[] coordinates, int dimension) {
+      double[] dcoords = new double[coordinates.length];
+      for (int i = 0; i < coordinates.length; i++) {
+        dcoords[i] = coordinates[i];
       }
-      this.coords = coords;
-      this.size = coords.length / dimension;
+      init(dcoords, dimension);
     }
 
     /**
@@ -62,12 +96,7 @@ public class LiteCoordinateSequence extends PackedCoordinateSequence{
      * @param coordinates
      */
     public LiteCoordinateSequence(float[] coordinates) {
-      this.coords = new double[coordinates.length];
-      this.dimension=2;
-      this.size = coords.length / dimension;
-      for (int i = 0; i < coordinates.length; i++) {
-        this.coords[i] = coordinates[i];
-      }
+      this(coordinates, 2);
     }
 
     /**
@@ -97,9 +126,7 @@ public class LiteCoordinateSequence extends PackedCoordinateSequence{
      * 
      */
     public LiteCoordinateSequence(int size, int dimension) {
-    	if( dimension!=2 )
-    		throw new IllegalArgumentException("This type of sequence is always 2 dimensional");
-    	this.dimension=2;
+    	this.dimension=dimension;
     	coords = new double[size * this.dimension];
     	this.size = coords.length / dimension;
     	

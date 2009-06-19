@@ -574,6 +574,13 @@ public class Hints extends RenderingHints {
 
      */
     public static final Key GEOMETRY_SIMPLIFICATION = new Key(Double.class);
+    
+    
+    /**
+     * The actual coordinate dimensions of the geometry (to be used in
+     * the GeometryDescriptor user map) 
+     */
+    public static final Key COORDINATE_DIMENSION = new Key(Integer.class);
 
 
     /**

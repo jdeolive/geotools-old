@@ -33,13 +33,14 @@ import org.opengis.referencing.operation.TransformException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 // Geotools dependencies
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
-// JUnit dependencies
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+// Junit dependencies
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 
 
 /**
@@ -50,30 +51,16 @@ import junit.framework.TestSuite;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class CoordinateSequenceTransformerTest extends TestCase {
+public class CoordinateSequenceTransformerTest {
     /**
      * The coordinate sequence factory to use.
      */
     private final CoordinateSequenceFactory csFactory = DefaultCoordinateSequenceFactory.instance();
 
     /**
-     * Run the suite from the command line.
-     */
-    public static void main(String[] args) {
-        org.geotools.util.logging.Logging.GEOTOOLS.forceMonolineConsoleOutput();
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(CoordinateSequenceTransformerTest.class);
-    }
-
-    /**
      * Compares the current implementation with a simplier one.
      */
+    @Test
     public void testTransform() throws FactoryException, TransformException {
         final MathTransform2D t;
         final CoordinateReferenceSystem crs;
@@ -108,6 +95,22 @@ public class CoordinateSequenceTransformerTest extends TestCase {
                 assertEquals(targetCS.getCoordinate(i), testCS.getCoordinate(i));
             }
         }
+    }
+    
+    @Test
+    public void testTransformExtraMZ() throws Exception {
+        LiteCoordinateSequence cs = new LiteCoordinateSequence(1, 4);
+        cs.setArray(new double[] {1000000, 4000000, 25, 48});
+        CoordinateReferenceSystem sourceCrs = CRS.parseWKT(JTSTest.UTM_ZONE_10N);
+        CoordinateReferenceSystem destCrs = DefaultGeographicCRS.WGS84;
+        
+        DefaultCoordinateSequenceTransformer cst;
+        cst = new DefaultCoordinateSequenceTransformer(new LiteCoordinateSequenceFactory());
+        MathTransform tx = CRS.findMathTransform(sourceCrs, destCrs, true);
+        LiteCoordinateSequence transformed = (LiteCoordinateSequence) cst.transform(cs, tx);
+        
+        assertEquals(25.0, transformed.getOrdinate(0, 2), 0.0);
+        assertEquals(48.0, transformed.getOrdinate(0, 3), 0.0);
     }
 
     /**

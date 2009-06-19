@@ -75,6 +75,8 @@ import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 
@@ -630,7 +632,7 @@ public abstract class JDBC1DataStore implements DataStore {
 		AttributeDescriptor[] attrTypes = null;
 
 		try {
-			attrTypes = getAttributeTypes(typeName, propertyNames);
+			attrTypes = getAttributeTypes(typeName, propertyNames, query.getHints());
 		} catch (SchemaException schemaException) {
 			throw new DataSourceException(
 					"Some Attribute Names were specified that"
@@ -666,21 +668,16 @@ public abstract class JDBC1DataStore implements DataStore {
 		FeatureReader<SimpleFeatureType, SimpleFeature> reader;
 		reader = createFeatureReader(schema, postFilter, queryData);
 
-		if (requestedNames.length < propertyNames.length) {
-			// need to scale back to what the user asked for
-			// (remove the attribtues only used for postFilter)
-			//
-			try {
-				SimpleFeatureType requestType = DataUtilities.createSubType(schema,
-						requestedNames);
-				if ( !requestType.equals( reader.getFeatureType() ) ) {
-                    reader = new ReTypeFeatureReader(reader, requestType, false);
-				}
-			} catch (SchemaException schemaException) {
-				throw new DataSourceException("Could not handle query",
-						schemaException);
-			}
-		}
+		try {
+			SimpleFeatureType requestType = DataUtilities.createSubType(schema,
+					requestedNames);
+			if ( !FeatureTypes.equalsExact(requestType, reader.getFeatureType()) ) {
+                reader = new ReTypeFeatureReader(reader, requestType, false);
+            }
+        } catch (SchemaException schemaException) {
+            throw new DataSourceException("Could not handle query",
+                    schemaException);
+        }
 
         // chorner: this is redundant, since we've already created the reader with the post filter attached		
         // if (postFilter != null && !postFilter.equals(Filter.INCLUDE)) {
@@ -1569,7 +1566,7 @@ public abstract class JDBC1DataStore implements DataStore {
 
 		try {
 			sqlQuery = constructQuery(query, getAttributeTypes(typeName,
-					propertyNames(query)));
+					propertyNames(query), null));
 		} catch (SchemaException e) {
 			throw new DataSourceException(
 					"Some Attribute Names were specified that"
@@ -1657,7 +1654,7 @@ public abstract class JDBC1DataStore implements DataStore {
 	 *             type's schema.
 	 */
 	protected final AttributeDescriptor[] getAttributeTypes(String typeName,
-			String[] propertyNames) throws IOException, SchemaException {
+			String[] propertyNames, Hints hints) throws IOException, SchemaException {
 		SimpleFeatureType schema = getSchema(typeName);
 		AttributeDescriptor[] types = new AttributeDescriptor[propertyNames.length];
 
@@ -1668,6 +1665,19 @@ public abstract class JDBC1DataStore implements DataStore {
 				throw new SchemaException(typeName
 						+ " does not contain requested " + propertyNames[i]
 						+ " attribute");
+			}
+			
+			// if we are asked to return a 2d feature make sure to return the
+			// proper coordinate dimension
+			if(hints != null && hints.containsKey(Hints.FEATURE_2D) 
+			        && Boolean.TRUE.equals(hints.get(Hints.FEATURE_2D))
+			        && types[i] instanceof GeometryDescriptor &&
+			        !Integer.valueOf(2).equals(types[i].getUserData().get(Hints.COORDINATE_DIMENSION))) {
+			    AttributeTypeBuilder builder = new AttributeTypeBuilder();
+			    builder.init(types[i]);
+			    builder.userData(Hints.COORDINATE_DIMENSION, 2);
+			    GeometryType type = builder.buildGeometryType();
+			    types[i] = builder.buildDescriptor(types[i].getName(), type);
 			}
 		}
 

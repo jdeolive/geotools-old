@@ -65,6 +65,10 @@ public class DefaultCoordinateSequenceTransformer implements CoordinateSequenceT
     public DefaultCoordinateSequenceTransformer() {
         csFactory = DefaultCoordinateSequenceFactory.instance();
     }
+    
+    public DefaultCoordinateSequenceTransformer(CoordinateSequenceFactory csFactory) {
+        this.csFactory = csFactory;
+    }
 
     /**
      * {@inheritDoc}
@@ -78,7 +82,12 @@ public class DefaultCoordinateSequenceTransformer implements CoordinateSequenceT
         final int bufferCapacity = buffer.length / Math.max(sourceDim, targetDim);
         int remainingBeforeFlush = Math.min(bufferCapacity, size);
         int ib = 0; // Index in the buffer array.
-        int it = 0; // Index in the target array.
+        int it = 0; // Index in the target sequence.
+        
+        // create a target CS so that the dimensions not contemplated in the source CS  
+        // are copied over (think Z or M with a 2d CRS)
+        CoordinateSequence result =  csFactory.create(sequence.size(), 
+                targetDim + (sequence.getDimension() - sourceDim));
 
         for (int i = 0; i < size; i++) {
             switch (sourceDim) {
@@ -113,33 +122,17 @@ public class DefaultCoordinateSequenceTransformer implements CoordinateSequenceT
 
                 for (int j = 0; j < n; j++) {
                     final Coordinate t;
-
-                    switch (targetDim) {
-                    default:
-                        throw new MismatchedDimensionException();
-
-                    case 3:
-                        t = new Coordinate(buffer[ib++], buffer[ib++], buffer[ib++]);
-
-                        break;
-
-                    case 2:
-                        t = new Coordinate(buffer[ib++], buffer[ib++]);
-
-                        break;
-
-                    case 1:
-                        t = new Coordinate(buffer[ib++], Double.NaN);
-
-                        break;
-
-                    case 0:
-                        t = new Coordinate(Double.NaN, Double.NaN);
-
-                        break;
+                    
+                    // copy the transformed portion
+                    int oi = 0;
+                    for (; oi < targetDim; oi++) {
+                        result.setOrdinate(it, oi, buffer[ib++]);   
                     }
-
-                    tcs[it++] = t;
+                    // copy over the non transformed portion
+                    for (; oi < result.getDimension(); oi++) {
+                        result.setOrdinate(it, oi, sequence.getOrdinate(it, oi + (targetDim - sourceDim)));   
+                    }
+                    it++;
                 }
                 assert ib == (n * targetDim);
                 ib = 0;
@@ -148,6 +141,6 @@ public class DefaultCoordinateSequenceTransformer implements CoordinateSequenceT
         }
         assert it == tcs.length : tcs.length - it;
 
-        return csFactory.create(tcs);
+        return result;
     }
 }

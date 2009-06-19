@@ -152,6 +152,7 @@
         <configuration>
           <excludes>
             <!-- the following tests either fail, or do not extend PostgisOnlineTestCase -->
+            <exclude>**/Postgis3DTest.java</exclude>
             <exclude>**/PostgisFeatureCollectionOnlineTest.java</exclude>
             <exclude>**/PostgisAlternateSchemaOnlineTest.java</exclude>
             <exclude>**/PostgisDataStoreAPIOnlineTest.java</exclude>

@@ -56,4 +56,11 @@ public class LiteCoordinateSequenceFactory implements CoordinateSequenceFactory 
 	public CoordinateSequence create(double[] points) {
 		return new LiteCoordinateSequence(points);
 	}
+	
+	/**
+     * @param points
+     */
+    public CoordinateSequence create(double[] points, int dimension) {
+        return new LiteCoordinateSequence(points, dimension);
+    }
 }
