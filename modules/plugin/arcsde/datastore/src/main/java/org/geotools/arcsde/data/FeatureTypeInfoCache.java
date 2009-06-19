@@ -364,7 +364,9 @@ final class FeatureTypeInfoCache {
                 SeRegistration reg;
                 try {
                     reg = new SeRegistration(connection, tableName);
-                    reg.getInfo();
+                    // do not call getInfo or it failst with tables owned by other user than the
+                    // connection one
+                    // reg.getInfo();
                 } catch (SeException e) {
                     if (e.getSeError().getSdeError() == SeError.SE_TABLE_NOREGISTERED) {
                         LOGGER.finest("Ignoring non registered table " + tableName);
