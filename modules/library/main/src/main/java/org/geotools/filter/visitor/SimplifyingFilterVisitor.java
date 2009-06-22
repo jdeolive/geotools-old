@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
+import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.identity.GmlObjectId;
@@ -215,5 +216,15 @@ public class SimplifyingFilterVisitor extends DuplicatingFilterVisitor {
             validIdFilter = getFactory(extraData).id(validFids);
         }
         return validIdFilter;
+    }
+    
+    public Object visit(Not filter, Object extraData) {
+    	if(filter.getFilter() instanceof Not) {
+    		// simplify out double negation
+    		Not inner = (Not) filter.getFilter();
+    		return inner.getFilter().accept(this, extraData);
+    	} else {
+    		return super.visit(filter, extraData);
+    	}
     }
 }
