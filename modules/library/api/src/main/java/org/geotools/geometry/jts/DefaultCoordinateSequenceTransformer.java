@@ -86,8 +86,8 @@ public class DefaultCoordinateSequenceTransformer implements CoordinateSequenceT
         
         // create a target CS so that the dimensions not contemplated in the source CS  
         // are copied over (think Z or M with a 2d CRS)
-        CoordinateSequence result =  csFactory.create(sequence.size(), 
-                targetDim + (sequence.getDimension() - sourceDim));
+        int targetCSDim = targetDim + (sequence.getDimension() - sourceDim);
+		CoordinateSequence result =  csFactory.create(sequence.size(), targetCSDim);
 
         for (int i = 0; i < size; i++) {
             switch (sourceDim) {
@@ -129,8 +129,14 @@ public class DefaultCoordinateSequenceTransformer implements CoordinateSequenceT
                         result.setOrdinate(it, oi, buffer[ib++]);   
                     }
                     // copy over the non transformed portion
-                    for (; oi < result.getDimension(); oi++) {
+                    for (; oi < targetCSDim; oi++) {
                         result.setOrdinate(it, oi, sequence.getOrdinate(it, oi + (targetDim - sourceDim)));   
+                    }
+                    // force to NaN eventual extra ordinates the sequence has (some are fixed size, wont'
+                    // care about us trying to tell them a size). This works around a bug in the default
+                    // JTS coordinate sequence implementation
+                    for (; oi < result.getDimension(); oi++) {
+                        result.setOrdinate(it, oi, Double.NaN);   
                     }
                     it++;
                 }

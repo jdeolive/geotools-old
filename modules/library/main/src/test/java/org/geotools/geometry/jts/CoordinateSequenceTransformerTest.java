@@ -24,6 +24,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.DefaultCoordinateSequenceFactory;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 // OpenGIS dependencies
 import org.opengis.referencing.FactoryException;
@@ -111,6 +112,25 @@ public class CoordinateSequenceTransformerTest {
         
         assertEquals(25.0, transformed.getOrdinate(0, 2), 0.0);
         assertEquals(48.0, transformed.getOrdinate(0, 3), 0.0);
+    }
+    
+    @Test
+    public void testLiteToStandard() throws Exception {
+        LiteCoordinateSequence cs = new LiteCoordinateSequence(1, 2);
+        cs.setArray(new double[] {1000000, 4000000});
+        CoordinateReferenceSystem sourceCrs = CRS.parseWKT(JTSTest.UTM_ZONE_10N);
+        CoordinateReferenceSystem destCrs = DefaultGeographicCRS.WGS84;
+        
+        DefaultCoordinateSequenceTransformer cst;
+        cst = new DefaultCoordinateSequenceTransformer(/* standard cs factory */);
+        MathTransform tx = CRS.findMathTransform(sourceCrs, destCrs, true);
+        CoordinateSequence transformed = cst.transform(cs, tx);
+        CoordinateSequence reference = transform(cs, tx);
+        
+        
+        assertEquals(reference.getOrdinate(0, 0), transformed.getOrdinate(0, 0), 0.0);
+        assertEquals(reference.getOrdinate(0, 1), transformed.getOrdinate(0, 1), 0.0);
+        assertEquals(Double.NaN, transformed.getOrdinate(0, 2), 0.0);
     }
 
     /**
