@@ -141,13 +141,19 @@ public class DB2WKBReader {
       if (byteOrder == WKBConstants.wkbNDR)
         dis.setOrder(ByteOrderValues.LITTLE_ENDIAN);
 
-      int typeInt = dis.readInt();
-      
-      
-      if (DB2WKBConstants.zTypes.contains(typeInt))
+      int geometryType = dis.readInt();
+                  
+      if (DB2WKBConstants.zTypes.contains(geometryType)) {
           inputDimension=3;
-            
-      int geometryType = typeInt % 10;
+          if (geometryType==DB2WKBConstants.wkbPointZ) geometryType=DB2WKBConstants.wkbPoint2D;
+          if (geometryType==DB2WKBConstants.wkbLineStringZ) geometryType=DB2WKBConstants.wkbLineString2D;
+          if (geometryType==DB2WKBConstants.wkbPolygonZ) geometryType=DB2WKBConstants.wkbPolygon2D;
+          if (geometryType==DB2WKBConstants.wkbMultiPointZ) geometryType=DB2WKBConstants.wkbMultiPoint2D;
+          if (geometryType==DB2WKBConstants.wkbMultiLineStringZ) geometryType=DB2WKBConstants.wkbMultiLineString2D;
+          if (geometryType==DB2WKBConstants.wkbMultiPolygonZ) geometryType=DB2WKBConstants.wkbMultiPolygon2D;
+          if (geometryType==DB2WKBConstants.wkbGeomCollectionZ) geometryType=DB2WKBConstants.wkbGeomCollection2D;
+      }  
+      
             
       
 

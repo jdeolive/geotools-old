@@ -48,6 +48,27 @@ import com.vividsolutions.jts.util.Assert;
 
 public class DB2WKBWriter {
     
+    
+    
+    /**
+     * returns the coordinate dimension for a geometry
+     * @param Geometry g
+     * @return if there is one z value != NaN, then 3 else 2
+     */
+    public static final int guessCoorinateDims(Geometry g) {
+        int dims = 2;
+        final Coordinate[] cs = g.getCoordinates();
+        for (int t = cs.length - 1; t >= 0; t--) {
+            if (!(Double.isNaN(cs[t].z))) {
+                dims = 3;
+                break;
+            }
+        }
+        return dims;
+    }
+
+    
+    
     public static String bytesToHex(byte[] bytes)
     {
       StringBuffer buf = new StringBuffer();
@@ -217,8 +238,15 @@ public class DB2WKBWriter {
         throws IOException
     {
       int typeInt = geometryType;  
-      if (outputDimension==3)   // DB2 specific for z support
-          typeInt+=3000000;
+      if (outputDimension==3) {  // DB2 specific for z support
+          if (geometryType==DB2WKBConstants.wkbPoint2D) typeInt=DB2WKBConstants.wkbPointZ;
+          if (geometryType==DB2WKBConstants.wkbLineString2D) typeInt=DB2WKBConstants.wkbLineStringZ;
+          if (geometryType==DB2WKBConstants.wkbPolygon2D) typeInt=DB2WKBConstants.wkbPolygonZ;
+          if (geometryType==DB2WKBConstants.wkbMultiPoint2D) typeInt=DB2WKBConstants.wkbMultiPointZ;
+          if (geometryType==DB2WKBConstants.wkbMultiLineString2D) typeInt=DB2WKBConstants.wkbMultiLineStringZ;
+          if (geometryType==DB2WKBConstants.wkbMultiPolygon2D) typeInt=DB2WKBConstants.wkbMultiPolygonZ;
+          if (geometryType==DB2WKBConstants.wkbGeomCollection2D) typeInt=DB2WKBConstants.wkbGeomCollectionZ;
+      }
       writeInt(typeInt, os);
     }
 
