@@ -816,31 +816,8 @@ public class ShapefileDataStore extends AbstractFileDataStore {
 
         ShapefileWriter writer = new ShapefileWriter(shpChannel, shxChannel);
         try {
-        	// try to get the domain first
-        	final org.opengis.geometry.Envelope domain=CRS.getEnvelope(crs); 
-        	if(domain!=null)
-        		writer.writeHeaders(new ReferencedEnvelope(domain), shapeType, 0, 100);
-        	else
-        	{
-        		// try to reproject the single overall envelope keeping poles out of the way
-        		ReferencedEnvelope env = new ReferencedEnvelope(new Envelope(-179,179, -89, 89), DefaultGeographicCRS.WGS84);
-        		ReferencedEnvelope transformedBounds;
-	            if (crs != null) {
-	                try {
-	                    transformedBounds = env.transform(crs, true);
-	                } catch (Throwable t) {
-	                	if(LOGGER.isLoggable(Level.WARNING))
-	                		LOGGER.log(Level.WARNING,t.getLocalizedMessage(),t);
-	                    transformedBounds = env;
-	                    crs=null;
-	                }
-	            } else {
-	                transformedBounds = env;
-	            }
-	            
-	            writer.writeHeaders(transformedBounds, shapeType, 0, 100);
-	            
-        	}
+        	// by spec, if the file is empty, the shape envelope should be ignored
+        	writer.writeHeaders(new Envelope(), shapeType, 0, 100);
         } finally {
             writer.close();
             assert !shpChannel.isOpen();
