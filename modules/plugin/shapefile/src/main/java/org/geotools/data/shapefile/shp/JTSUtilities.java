@@ -256,6 +256,9 @@ public class JTSUtilities {
 
     public static Geometry convertToCollection(Geometry geom, ShapeType type) {
         Geometry retVal = null;
+        
+        if(geom == null)
+        	return null;
 
         if (type.isPointType()) {
             if ((geom instanceof Point)) {

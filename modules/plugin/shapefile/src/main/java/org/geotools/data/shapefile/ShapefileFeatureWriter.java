@@ -370,14 +370,19 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
         g = JTSUtilities.convertToCollection(g, shapeType);
 
         // bounds calculations
-        Envelope b = g.getEnvelopeInternal();
-
-        if (!b.isNull()) {
-            bounds.expandToInclude(b);
+        if(g != null) {
+	        Envelope b = g.getEnvelopeInternal();
+	
+	        if (!b.isNull()) {
+	            bounds.expandToInclude(b);
+	        }
         }
 
         // file length update
-        shapefileLength += (handler.getLength(g) + 8);
+        if(g != null)
+        	shapefileLength += (handler.getLength(g) + 8);
+        else
+        	shapefileLength += (4 + 8);
 
         // write it
         shpWriter.writeGeometry(g);
