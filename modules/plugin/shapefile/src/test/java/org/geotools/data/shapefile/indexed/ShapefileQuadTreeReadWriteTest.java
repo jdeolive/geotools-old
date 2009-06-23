@@ -103,6 +103,7 @@ public class ShapefileQuadTreeReadWriteTest extends TestCaseSupport {
         CloseableCollection<Data> coll = ds.queryQuadTree(new Envelope(-62, 23, -61, 22));
         assertNotNull(coll);
         assertTrue(coll.isEmpty());
+        coll.close();
     }
 
     public void testWriteTwice() throws Exception {
