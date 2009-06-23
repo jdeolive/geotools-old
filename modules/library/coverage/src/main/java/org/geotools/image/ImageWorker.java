@@ -749,17 +749,41 @@ public class ImageWorker {
         final int length = extrema[0].length;
         final double[] scale  = new double[length];
         final double[] offset = new double[length];
+        boolean computeRescale=false;
         for (int i=0; i<length; i++) {
             final double delta = extrema[1][i] - extrema[0][i];
-            scale [i] = 255 / delta;
-            offset[i] = -scale[i] * extrema[0][i];
+            if(Math.abs(delta)>1E-6			//maximum and minimum does not coincide
+            		&&
+              ((extrema[1][i]-255>1E-6)		//the maximum is greater than 255
+              		|| 
+              (extrema[0][i]<-1E-6)))		//the minimum is smaller than 0
+            {
+            	// we need to rescale
+            	computeRescale=true;
+            	
+            	// rescale factors
+                scale [i] = 255 / delta;
+                offset[i] = -scale[i] * extrema[0][i];            	
+            }
+            else
+            {
+            	// we do not rescale explicitly bu in case we have to, we relay on the clamping capabilities of the format operator
+                scale [i] = 1;
+                offset[i] = 0; 
+            }
         }
         final RenderingHints hints = getRenderingHints(DataBuffer.TYPE_BYTE);
-        image = RescaleDescriptor.create(
-                image,      // The source image.
-                scale,      // The per-band constants to multiply by.
-                offset,     // The per-band offsets to be added.
-                hints);     // The rendering hints.
+        if(computeRescale)
+	        image = RescaleDescriptor.create(
+	                image,      // The source image.
+	                scale,      // The per-band constants to multiply by.
+	                offset,     // The per-band offsets to be added.
+	                hints);     // The rendering hints.
+        else
+        	image= FormatDescriptor.create(
+        			image,      			// The source image.
+        			DataBuffer.TYPE_BYTE,	// The destination image data type (BYTE)
+        			hints);					// The rendering hints.
         invalidateStatistics(); // Extremas are no longer valid.
 
         // All post conditions for this method contract.

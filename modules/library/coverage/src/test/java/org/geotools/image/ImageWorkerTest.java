@@ -25,22 +25,32 @@ import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.RasterFactory;
+import javax.media.jai.operator.BandMergeDescriptor;
+import javax.media.jai.operator.ConstantDescriptor;
 
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.Viewer;
+import org.geotools.resources.image.ComponentColorModelJAI;
 import org.geotools.test.TestData;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,6 +73,30 @@ public final class ImageWorkerTest {
      * {@code true} if the image should be visualized.
      */
     private static final boolean SHOW = TestData.isInteractiveTest();
+    
+	/**
+	 * Creates a simple 128x128 {@link RenderedImage} for testing purposes.
+	 * 
+	 * @param maximum
+	 * @return
+	 */
+	private static RenderedImage getSynthetic(final double maximum) {
+		final int width = 128;
+		final int height = 128;
+		final WritableRaster raster = RasterFactory.createBandedRaster(
+				DataBuffer.TYPE_DOUBLE, width, height, 1, null);
+		final Random random = new Random();
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				raster.setSample(x, y, 0,Math.ceil(random.nextDouble()*maximum) );
+			}
+		}
+		final ColorModel cm = new ComponentColorModelJAI(ColorSpace
+				.getInstance(ColorSpace.CS_GRAY), false, false,
+				Transparency.OPAQUE, DataBuffer.TYPE_DOUBLE);
+		final BufferedImage image = new BufferedImage(cm, raster, false, null);
+		return image;
+	}    
 
     /**
      * Loads the image (if not already loaded) and creates the worker instance.
@@ -275,6 +309,93 @@ public final class ImageWorkerTest {
         }
         show(worker, "RGB translucent");
     }
+    
+    /**
+     * Tests the {@link #rescaleToBytes()} operation.
+     */
+    @Test
+    public void rescaleToBytes(){
+
+        assertTrue("Assertions should be enabled.", ImageWorker.class.desiredAssertionStatus());
+        
+    	// set up synthetic images for testing
+    	final RenderedImage test1= ConstantDescriptor.create(128.0f, 128.0f, new Double[]{20000.0}, null);
+    	final RenderedImage test2= ConstantDescriptor.create(128.0f, 128.0f, new Double[]{255.0}, null);
+    	final RenderedImage test3= getSynthetic(20000);
+    	final RenderedImage test4= getSynthetic(255);
+    	
+    	// starting to check the results
+    	
+    	// single band value exceed the byte upper bound and is constant
+    	final ImageWorker test1I=new ImageWorker(test1).rescaleToBytes();
+    	Assert.assertEquals("Format",test1I.getRenderedOperation().getOperationName());
+    	final double[] maximums1 = test1I.getMaximums();
+    	Assert.assertTrue(maximums1.length==1);
+    	Assert.assertEquals(255.0,maximums1[0],1E-10);
+    	final double[] minimums1 = test1I.getMinimums();
+    	Assert.assertTrue(minimums1.length==1);
+    	Assert.assertEquals(255.0,minimums1[0],1E-10);
+    	
+    	
+    	// single band value does not exceed the byte upper bound and is constant
+    	final ImageWorker test2I=new ImageWorker(test2).rescaleToBytes();
+    	Assert.assertEquals("Format",test2I.getRenderedOperation().getOperationName());
+    	final double[] maximums2 = test1I.getMaximums();
+    	Assert.assertTrue(maximums2.length==1);
+    	Assert.assertEquals(255.0,maximums2[0],1E-10);    	
+    	final double[] minimums2 = test1I.getMinimums();
+    	Assert.assertTrue(minimums2.length==1);
+    	Assert.assertEquals(255.0,minimums2[0],1E-10);    	
+    	
+    	// single band value exceed the byte upper bound
+    	ImageWorker test3I=new ImageWorker(test3);
+    	final double[] maximums3a = test3I.getMaximums();
+    	final double[] minimums3a = test3I.getMinimums();
+    	test3I.rescaleToBytes();
+    	Assert.assertEquals("Rescale",test3I.getRenderedOperation().getOperationName());
+    	final double[] maximums3b = test3I.getMaximums();
+    	final double[] minimums3b = test3I.getMinimums();
+
+    	if(maximums3a[0]>255)
+    	{
+    		Assert.assertTrue(Math.abs(maximums3a[0]-maximums3b[0])>1E-10); 
+    		Assert.assertEquals(255.0,maximums3b[0],1E-10);
+    	}
+    	
+    	if(minimums3a[0]<0)
+    	{
+    		Assert.assertEquals(0.0,minimums3b[0],1E-10);
+    		Assert.assertEquals(0.0,minimums3b[0],1E-10);
+    	}
+    	
+    	// single band value does not exceed the byte upper bound
+    	ImageWorker test4I=new ImageWorker(test4);
+    	final double[] maximums4a = test4I.getMaximums();
+    	final double[] minimums4a = test4I.getMinimums();
+    	test4I.rescaleToBytes();
+    	Assert.assertEquals("Format",test4I.getRenderedOperation().getOperationName());
+    	final double[] maximums4b = test4I.getMaximums();
+    	final double[] minimums4b = test4I.getMinimums();
+    	Assert.assertEquals(maximums4a[0],maximums4b[0],1E-10);
+    	Assert.assertEquals(minimums4a[0],minimums4b[0],1E-10);
+    	
+    	// now test multibands case
+    	final RenderedImage multiband=BandMergeDescriptor.create(test2, test3, null);
+    	ImageWorker testmultibandI=new ImageWorker(multiband);
+    	final double[] maximums5a = testmultibandI.getMaximums();
+    	final double[] minimums5a = testmultibandI.getMinimums();    
+    	testmultibandI.rescaleToBytes();
+    	final double[] maximums5b = testmultibandI.getMaximums();
+    	final double[] minimums5b = testmultibandI.getMinimums();
+    	Assert.assertEquals(maximums5a[0],maximums5b[0],1E-10);
+    	Assert.assertEquals(minimums5a[0],minimums5b[0],1E-10);    
+
+    	Assert.assertTrue(Math.abs(maximums5a[1]-maximums5b[1])>1E-10);
+    	Assert.assertTrue(Math.abs(minimums5a[1]-minimums5b[1])>1E-10);    
+    	
+    	
+    }
+    
     /**
      * Tests the {@link ImageWorker#makeColorTransparent} methods.
      * Some trivial tests are performed before.
