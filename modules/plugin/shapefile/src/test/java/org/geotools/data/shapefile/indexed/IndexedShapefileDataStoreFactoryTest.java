@@ -60,8 +60,6 @@ public class IndexedShapefileDataStoreFactoryTest extends TestCaseSupport {
      * 'org.geotools.data.shapefile.indexed.IndexedShapefileDataStoreFactory.createDataStore(Map)'
      */
     public void testCreateDataStoreMap() throws Exception {
-        testCreateDataStore(true);
-
         ShapefileDataStore ds1 = testCreateDataStore(true, true);
         ShapefileDataStore ds2 = testCreateDataStore(true, true);
 
