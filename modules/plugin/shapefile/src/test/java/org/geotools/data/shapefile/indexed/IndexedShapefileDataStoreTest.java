@@ -104,8 +104,9 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         if (q == null) {
             q = new DefaultQuery();
         }
-
-        URL url = TestData.url(resource);
+        
+        File shpFile = copyShapefiles(resource);
+        URL url = shpFile.toURL();
         IndexedShapefileDataStore s = new IndexedShapefileDataStore(url);
         FeatureSource<SimpleFeatureType, SimpleFeature> fs = s.getFeatureSource(s.getTypeNames()[0]);
 
@@ -120,7 +121,8 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
             Query q) throws Exception {
         if (q == null)
             q = new DefaultQuery();
-        URL url = TestData.url(resource);
+        File shpFile = copyShapefiles(resource);
+        URL url = shpFile.toURL();
         ShapefileDataStore s = new IndexedShapefileDataStore(url, null, false,
                 true, IndexType.QIX, charset);
         FeatureSource<SimpleFeatureType, SimpleFeature> fs = s.getFeatureSource(s.getTypeNames()[0]);
