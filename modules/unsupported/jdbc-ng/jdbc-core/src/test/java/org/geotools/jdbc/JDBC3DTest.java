@@ -98,12 +98,17 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
         epsg4326 = CRS.decode("EPSG:4326");
     }
 
+    
+    protected Integer getNativeSRID() {
+        return new Integer(4326);
+    }
+    
     public void testSchema() throws Exception {
         SimpleFeatureType schema = dataStore.getSchema(tname(LINE3D));
         CoordinateReferenceSystem crs = schema.getGeometryDescriptor()
                 .getCoordinateReferenceSystem();
         assertEquals(new Integer(4326), CRS.lookupEpsgCode(crs, false));
-        assertEquals(new Integer(4326), schema.getGeometryDescriptor().getUserData().get(
+        assertEquals(getNativeSRID(), schema.getGeometryDescriptor().getUserData().get(
                 JDBCDataStore.JDBC_NATIVE_SRID));
     }
 
@@ -165,7 +170,7 @@ public abstract class JDBC3DTest extends JDBCTestSupport {
         dataStore.createSchema(poly3DType);
         SimpleFeatureType actualSchema = dataStore.getSchema(tname(POLY3D));
         assertFeatureTypesEqual(poly3DType, actualSchema);
-        assertEquals(new Integer(4326), actualSchema.getGeometryDescriptor().getUserData().get(
+        assertEquals(getNativeSRID(), actualSchema.getGeometryDescriptor().getUserData().get(
                 JDBCDataStore.JDBC_NATIVE_SRID));
 
         // build a 3d polygon (ordinates in ccw order)
