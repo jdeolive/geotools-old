@@ -611,7 +611,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
      * @throws TreeException
      *                 DOCUMENT ME!
      */
-    private CloseableCollection<Data> queryQuadTree(Envelope bbox)
+    protected CloseableCollection<Data> queryQuadTree(Envelope bbox)
             throws DataSourceException, IOException, TreeException {
         CloseableCollection<Data> tmp = null;
 
@@ -620,18 +620,15 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             if ((quadTree != null)
                     && !bbox.contains(quadTree.getRoot().getBounds())) {
                 tmp = quadTree.search(bbox);
-
-                if (tmp == null || !tmp.isEmpty())
-                    return tmp;
             }
-            if (quadTree != null) {
+            if (tmp == null && quadTree != null) {
                 quadTree.close();
             }
         } catch (Exception e) {
             throw new DataSourceException("Error querying QuadTree", e);
         }
 
-        return null;
+        return tmp;
     }
 
     /**

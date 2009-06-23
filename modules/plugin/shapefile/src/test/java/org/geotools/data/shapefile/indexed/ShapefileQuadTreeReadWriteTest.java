@@ -39,6 +39,8 @@ import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.index.CloseableCollection;
+import org.geotools.index.Data;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
@@ -91,6 +93,16 @@ public class ShapefileQuadTreeReadWriteTest extends TestCaseSupport {
         Throwable fail = new AssertionFailedError(message);
         fail.initCause(cause);
         throw fail;
+    }
+    
+    public void testReadOutside() throws Exception {
+        copyShapefiles("shapes/statepop.shp");
+        ShapefileDataStoreFactory fac = new ShapefileDataStoreFactory();
+        IndexedShapefileDataStore ds = (IndexedShapefileDataStore) createDataStore(fac, 
+        		TestData.url(TestCaseSupport.class, "shapes/statepop.shp"), true);
+        CloseableCollection<Data> coll = ds.queryQuadTree(new Envelope(-62, 23, -61, 22));
+        assertNotNull(coll);
+        assertTrue(coll.isEmpty());
     }
 
     public void testWriteTwice() throws Exception {
