@@ -15,19 +15,19 @@ import javax.measure.unit.Unit;
 
 import junit.framework.Assert;
 
-import org.geotools.coverage.io.impl.range.DefaultAxis;
 import org.geotools.coverage.io.impl.range.EnumMeasure;
+import org.geotools.coverage.io.range.Axis;
 import org.geotools.feature.NameImpl;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
 import org.geotools.referencing.cs.DefaultLinearCS;
 import org.geotools.referencing.datum.DefaultEngineeringDatum;
 import org.geotools.util.SimpleInternationalString;
+import org.junit.Test;
 import org.opengis.coverage.SampleDimension;
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.datum.EngineeringDatum;
-import org.junit.Test;
 /**
  * @author Simone Giannecchini, GeoSolutions
  *
@@ -60,8 +60,8 @@ public class EnumMeasureTest extends Assert {
 		
 		List<Measure<Band, Dimensionless>> keys = EnumMeasure.valueOf( Band.class );
 		
-		DefaultAxis<Band, Dimensionless> axis =
-			new DefaultAxis<Band,Dimensionless>(
+		Axis<Band, Dimensionless> axis =
+			new Axis<Band,Dimensionless>(
 				new NameImpl("Bands"),
 				new SimpleInternationalString("Landsat bands by wavelength"),
 				keys,

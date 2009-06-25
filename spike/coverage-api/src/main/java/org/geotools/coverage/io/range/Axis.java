@@ -16,6 +16,8 @@
  */
 package org.geotools.coverage.io.range;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.measure.Measurable;
@@ -23,6 +25,8 @@ import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
+import org.geotools.feature.NameImpl;
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.crs.SingleCRS;
 import org.opengis.util.InternationalString;
@@ -30,7 +34,7 @@ import org.opengis.util.InternationalString;
 /**
  * Definition of one axis in a field for which we have some
  * measurements/observations/forecasts. The {@link Axis} data structure
- * describes the nature of each control variable for a certain {@link FieldType},
+ * describes the nature of each control variable for a certain {@link Field},
  * moreover it indicates as {@link Measurable}s the keys used to control each
  * Field subset.
  * 
@@ -42,51 +46,33 @@ import org.opengis.util.InternationalString;
  * @param V Value being used to define this Axis
  * @param QA Quantity being represented by this Axis
  */
-public interface Axis<V,QA extends Quantity> {
-    /**
-     * Retrieves the {@link Axis} name
-     * 
-     * @return {@link org.opengis.feature.type.Name} of the {@link Axis}s
-     */
-    public Name getName();
-
-    /**
-     * Retrieves the description of the {@link Axis}
-     * 
-     * @return description of the {@link Axis}
-     */
-    public InternationalString getDescription();
-
-    /**
-     * Retrieves the list of keys for this {@link Axis}.
-     * 
-     * @return Retrieves the list of keys for this {@link Axis}.
-     */
-    public List<? extends Measure<V, QA>> getKeys();
-
-    /**
-     * Retrieves the number of keys for this {@link Axis}.
-     * 
-     * @return Retrieves the number of keys for this {@link Axis}.
-     */
-    public int getNumKeys();
-
-    /**
-     * Retrieves a specific key for this {@link Axis}.
-     * 
-     * @return Retrieves a specific key for this {@link Axis}.
-     */
-    public Measure<V, QA> getKey(final int keyIndex);
-
-    /**
-     * Retrieves the Unit of measure for the various keys of this axis.
-     * 
-     * In case this {@link Axis} is not made of measurable quantities
-     * 
-     * @return the Unit of measure for the various keys of this axis.
-     */
-    public Unit<QA> getUnitOfMeasure();
-
+public class Axis<V,Q extends Quantity>{
+	private SingleCRS crs;
+	private InternationalString description;
+	private List<Measure<V,Q>> keys;
+	private Name name;
+	private Unit<Q> unit;
+	
+	public Axis( String name, Measure<V,Q> key, Unit<Q> unit){
+		this( new NameImpl( name ), new SimpleInternationalString( name ), Collections.singletonList(key), unit, null );
+	}
+	
+	public Axis( String name, List<Measure<V,Q>> keys, Unit<Q> unit){
+		this( new NameImpl( name ), new SimpleInternationalString( name ), keys, unit, null );
+	}
+	
+	public Axis( Name name, InternationalString description, List<? extends Measure<V,Q>> keys, Unit<Q> unit){
+		this( name, description, keys, unit, null );
+	}
+	
+	public Axis( Name name, InternationalString description, List<? extends Measure<V,Q>> keys, Unit<Q> unit, SingleCRS crs ){
+		this.name = name;
+		this.unit = unit;
+		this.description = description;
+		this.keys = new ArrayList<Measure<V,Q>>( keys );
+		this.crs = crs;
+	}
+	
     /**
      * Retrieves the coordinate reference system for this {@link Axis}.
      * 
@@ -99,6 +85,64 @@ public interface Axis<V,QA extends Quantity> {
      *         <code>null</code>, if no coordinate reference system is know
      *         or applicable.
      */
-    public SingleCRS getCoordinateReferenceSystem();
+	public SingleCRS getCoordinateReferenceSystem() {
+		return crs;
+	}
 
+	/**
+     * Retrieves the description of the {@link Axis}
+     * 
+     * @return description of the {@link Axis}
+     */
+	public InternationalString getDescription() {
+		return description;
+	}
+
+    /**
+     * Retrieves a specific key for this {@link Axis}.
+     * 
+     * @return Retrieves a specific key for this {@link Axis}.
+     */
+	public Measure<V, Q> getKey(int keyIndex) {
+		return keys.get( keyIndex );
+	}
+
+    /**
+     * Retrieves the list of keys for this {@link Axis}.
+     * 
+     * @return Retrieves the list of keys for this {@link Axis}.
+     */
+	public List<? extends Measure<V, Q>> getKeys() {
+		return Collections.unmodifiableList(keys);
+	}
+
+    /**
+     * Retrieves the {@link Axis} name
+     * 
+     * @return {@link org.opengis.feature.type.Name} of the {@link Axis}s
+     */
+	public Name getName() {
+		return name;
+	}
+
+    /**
+     * Retrieves the number of keys for this {@link Axis}.
+     * 
+     * @return Retrieves the number of keys for this {@link Axis}.
+     */
+	public int getNumKeys() {
+		return keys.size();
+	}
+
+    /**
+     * Retrieves the Unit of measure for the various keys of this axis.
+     * 
+     * In case this {@link Axis} is not made of measurable quantities
+     * 
+     * @return the Unit of measure for the various keys of this axis.
+     */
+	public Unit<Q> getUnitOfMeasure() {
+		return unit;
+	}
+	
 }

@@ -1,6 +1,7 @@
 package org.geotools.coverage.io.range.impl;
 
 import javax.measure.Measure;
+import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.Unit;
 
 import junit.framework.Assert;
@@ -30,8 +31,9 @@ public class DimensionlessAxisTest extends Assert {
 				new SimpleInternationalString("Toy Example"));		
 		
 		assertEquals( Unit.ONE, TOY.getUnitOfMeasure() );
-		BandIndexMeasure key = TOY.getKey(0);
+		Measure<String, Dimensionless> key = TOY.getKey(0);
 		assertEquals( "A", key.getValue() );		
+		assertTrue(key instanceof BandIndexMeasure );
 		assertNull( TOY.getCoordinateReferenceSystem() );
 	}
 	
@@ -42,13 +44,14 @@ public class DimensionlessAxisTest extends Assert {
 	public void testElevation(){
 		DimensionlessAxis HEIGHT = new DimensionlessAxis(1, new NameImpl("height"), new SimpleInternationalString("Height from sealevel"));
 		assertEquals( Unit.ONE, HEIGHT.getUnitOfMeasure() );
-		BandIndexMeasure key = HEIGHT.getKey(0);
+		Measure<String, Dimensionless> key = HEIGHT.getKey(0);
+		assertTrue(key instanceof BandIndexMeasure );
 		assertEquals( "0", key.getValue() );
 		
 		// Make sure we can discover everything we need via the Axis API
-		Axis axis = HEIGHT; 
+		Axis<String, Dimensionless> axis = HEIGHT; 
 		assertEquals( Unit.ONE, axis.getUnitOfMeasure() );
-		Measure measure = axis.getKey(0);
+		Measure<String, Dimensionless> measure = axis.getKey(0);
 		assertEquals( Unit.ONE, measure.getUnit() );
 		assertEquals( "0", key.getValue() );
 	}

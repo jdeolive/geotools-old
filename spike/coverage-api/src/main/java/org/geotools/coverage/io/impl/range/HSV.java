@@ -6,6 +6,7 @@ import java.util.List;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.Unit;
 
+import org.geotools.coverage.io.range.Axis;
 import org.opengis.util.CodeList;
 
 /**
@@ -39,13 +40,13 @@ public class HSV extends CodeList<HSV> {
 	/**
 	 * Axis covering the full {@link HSV} range.
 	 */
-	public static final DefaultAxis<HSV,Dimensionless> AXIS
-    	= new DefaultAxis<HSV,Dimensionless>("Additive Color", CodeMeasure.valueOf( ALL ), Unit.ONE );
+	public static final Axis<HSV,Dimensionless> AXIS
+    	= new Axis<HSV,Dimensionless>("Additive Color", CodeMeasure.valueOf( ALL ), Unit.ONE );
 
 	/**
 	 * Axis around {@link #KEY }.
 	 */
-	public static final DefaultAxis<HSV,Dimensionless> INTENSITY_AXIS =
-		new DefaultAxis<HSV,Dimensionless>("Intensity", CodeMeasure.valueOf(VALUE), Unit.ONE );
+	public static final Axis<HSV,Dimensionless> INTENSITY_AXIS =
+		new Axis<HSV,Dimensionless>("Intensity", CodeMeasure.valueOf(VALUE), Unit.ONE );
 
 }

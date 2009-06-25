@@ -5,7 +5,6 @@ package org.geotools.coverage.io.range.impl;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,21 +17,19 @@ import javax.measure.unit.Unit;
 import junit.framework.Assert;
 
 import org.geotools.coverage.io.impl.range.CodeMeasure;
-import org.geotools.coverage.io.impl.range.DefaultAxis;
-import org.geotools.coverage.io.impl.range.WavelengthAxis.Band;
+import org.geotools.coverage.io.range.Axis;
 import org.geotools.feature.NameImpl;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
 import org.geotools.referencing.cs.DefaultLinearCS;
 import org.geotools.referencing.datum.DefaultEngineeringDatum;
 import org.geotools.util.SimpleInternationalString;
-import org.opengis.coverage.SampleDimension;
+import org.junit.Test;
 import org.opengis.referencing.crs.SingleCRS;
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.datum.EngineeringDatum;
 import org.opengis.util.CodeList;
-import org.junit.Test;
 /**
  * @author Simone Giannecchini, GeoSolutions
  *
@@ -82,8 +79,8 @@ public class CodeMeasureTest extends Assert {
 		
 		List<Measure<Code,Dimensionless>> keys = CodeMeasure.valueOf( codes );
 		
-		DefaultAxis<Code,Dimensionless> axis =
-			new DefaultAxis<Code,Dimensionless>(
+		Axis<Code,Dimensionless> axis =
+			new Axis<Code,Dimensionless>(
 					new NameImpl("Bands"),
 					new SimpleInternationalString("Expressed in wavelengths"),
 					keys,

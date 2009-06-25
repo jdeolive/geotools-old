@@ -27,7 +27,7 @@ import org.opengis.referencing.datum.EngineeringDatum;
 import org.opengis.util.InternationalString;
 
 
-public class WavelengthAxis<V> implements Axis<V,Length>{
+public class WavelengthAxis<V> extends Axis<V,Length>{
 	/**
 	 * A single band.
 	 */
@@ -168,7 +168,7 @@ public class WavelengthAxis<V> implements Axis<V,Length>{
 		CoordinateSystemAxis csAxis = new DefaultCoordinateSystemAxis(
 				new SimpleInternationalString("Light"),
 				"\u03BB", // LAMBDA
-				AxisDirection.OTHER,
+				AxisDirection.OTHER, 	
 				SI.MICRO(SI.METER));
 		DefaultLinearCS lightCS = new DefaultLinearCS("Light",csAxis);
 		Map<String,Object> datumProperties = new HashMap<String,Object>();
@@ -179,8 +179,7 @@ public class WavelengthAxis<V> implements Axis<V,Length>{
 	}
 	
 	public WavelengthAxis(String name, final List<? extends Measure<V, Length>> keys) {
-		this.keys= new ArrayList<Measure<V, Length>>(keys);
-		this.name= new NameImpl(name);
+		super(new NameImpl(name),new SimpleInternationalString(name),keys,Length.UNIT);
 	}
 	/**
 	 * These are units of length; as such the are

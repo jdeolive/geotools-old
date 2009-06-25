@@ -16,7 +16,7 @@
  */
 package org.geotools.coverage.io;
 
-import org.geotools.coverage.io.CoverageAccess.AccessType;
+import org.geotools.coverage.io.RasterStorage.AccessType;
 
 /**
  * Describes the capabilities of a {@link CoverageSource}.

@@ -29,8 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.coverage.io.CoverageAccess;
-import org.geotools.coverage.io.Driver;
+import org.geotools.coverage.io.RasterStorage;
+import org.geotools.coverage.io.driver.Driver;
+import org.geotools.coverage.io.driver.FileBasedDriver;
 import org.geotools.data.Parameter;
 import org.geotools.factory.Hints;
 import org.geotools.util.SimpleInternationalString;
@@ -39,7 +40,7 @@ import org.opengis.util.ProgressListener;
 /**
  * Base class extending {@link BaseDriver} leveraging on URLs.
  */
-public abstract class BaseFileDriver extends BaseDriver implements Driver {
+public abstract class BaseFileDriver extends BaseDriver implements FileBasedDriver {
 	/**
 	 * Parameter "url" used to indicate to a local file or remote resource being
 	 * accessed as a coverage.
@@ -147,11 +148,11 @@ public abstract class BaseFileDriver extends BaseDriver implements Driver {
 		return info;
 	}
 	/**
-	 * Open up a connection to a {@link CoverageAccess}.
+	 * Open up a connection to a {@link RasterStorage}.
 	 * 
 	 * <p>
 	 * Note that, by mean of the <code>canCreate</code> parameter we can ask
-	 * this method whether to fail or not in case the {@link CoverageAccess} we
+	 * this method whether to fail or not in case the {@link RasterStorage} we
 	 * are trying to access does not exist.
 	 * 
 	 * @param params
@@ -166,12 +167,12 @@ public abstract class BaseFileDriver extends BaseDriver implements Driver {
 	 *            for the driver you are using
 	 * @param listener
 	 *            Used to report on progress during the conneciton process
-	 * @return a {@link CoverageAccess} allowing data acess to the source
+	 * @return a {@link RasterStorage} allowing data acess to the source
 	 *         provided
 	 * @throws IOException
 	 *             in case something wrong happens during the connection.
 	 */
-	public abstract CoverageAccess connect(URL source,
+	public abstract RasterStorage connect(URL source,
 			Map<String, Serializable> params, Hints hints,
 			final ProgressListener listener) throws IOException;
 	
@@ -190,31 +191,31 @@ public abstract class BaseFileDriver extends BaseDriver implements Driver {
 	}
 
 	/**
-	 * Create a {@link CoverageAccess}.
+	 * Create a {@link RasterStorage}.
 	 * 
 	 * The {@link Driver} will attempt to create the named
-	 * {@link CoverageAccess} in a format specific fashion. Full featured
+	 * {@link RasterStorage} in a format specific fashion. Full featured
 	 * drivers will create all associated files, database objects, or whatever
 	 * is appropriate.
 	 * 
 	 * 
 	 * @param params
 	 *            Map of <key,value> pairs used to specify how to create the
-	 *            target {@link CoverageAccess}.
+	 *            target {@link RasterStorage}.
 	 * @param hints
 	 *            map of <key,value> pairs which can be used to control the
 	 *            behaviour of the entire library.
 	 * @param listener
 	 *            which can be used to listen for progresses on this operation.
 	 *            It can be <code>null</code>.
-	 * @return a {@link CoverageAccess} instance which is connected to the newly
+	 * @return a {@link RasterStorage} instance which is connected to the newly
 	 *         created coverage storage.
 	 * @throws IOException
 	 *             in case something bad happens.
 	 */
-	public CoverageAccess create(URL source, Map<String, Serializable> params,
+	public RasterStorage create(URL source, Map<String, Serializable> params,
 			Hints hints, final ProgressListener listener) throws IOException {
-		if (isCreateSupported()) {
+		if (isActionSupported()) {
 			throw new UnsupportedOperationException(getTitle()
 					+ " does not implement create operation");
 		} else {
@@ -238,38 +239,38 @@ public abstract class BaseFileDriver extends BaseDriver implements Driver {
 	}
 
 	/**
-	 * Delete a certain {@link CoverageAccess}.
+	 * Delete a certain {@link RasterStorage}.
 	 * 
 	 * The {@link Driver} will attempt to delete the indicated
-	 * {@link CoverageAccess} in a format specific fashion. Full featured
+	 * {@link RasterStorage} in a format specific fashion. Full featured
 	 * drivers will delete all associated files, database objects, as
 	 * appropriate. The default behavior when no driver specific behavior is
 	 * provided is to attempt to delete source file.
 	 * 
 	 * <p>
-	 * It is unwise to have open {@link CoverageAccess} handles on this
-	 * {@link CoverageAccess} when it is deleted.
+	 * It is unwise to have open {@link RasterStorage} handles on this
+	 * {@link RasterStorage} when it is deleted.
 	 * 
 	 * <p>
-	 * In case the underlying {@link CoverageAccess} is not present we can
+	 * In case the underlying {@link RasterStorage} is not present we can
 	 * instruct the {@link Driver} to fail with an {@link IOException} or to
 	 * simply silent ignore that an return.
 	 * 
 	 * @param params
 	 *            Map of <key,param> pairs used to specify how to connect to the
-	 *            target {@link CoverageAccess}.
+	 *            target {@link RasterStorage}.
 	 * @param listener
 	 *            which can be used to listen for progresses on this operation.
 	 *            It can be <code>null</code>.
 	 * @param failIfNotExists
 	 *            tells this {@link Driver} to fail in case the underlying
-	 *            {@link CoverageAccess} does not exist. Default behaviour is to
+	 *            {@link RasterStorage} does not exist. Default behaviour is to
 	 *            do nothing.
 	 * @return <code>true</code> if everything goes fine, <code>false</code>
 	 *         otherwise.
 	 * @throws IOException
 	 *             in case an error is encountered while trying to delete the
-	 *             underlying {@link CoverageAccess}.
+	 *             underlying {@link RasterStorage}.
 	 */
 	public boolean delete(URL source, Map<String, Serializable> params,
 			final ProgressListener listener, boolean failIfNotExists)

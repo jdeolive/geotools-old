@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.measure.Measure;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.Unit;
 import javax.media.jai.IHSColorSpace;
@@ -51,16 +52,28 @@ import org.opengis.util.InternationalString;
  *       {@link SampleModel}
  */
 @SuppressWarnings("deprecation")
-public class DimensionlessAxis implements Axis<String,Dimensionless> {
+public class DimensionlessAxis extends Axis<String,Dimensionless> {
 
-    /**
-     * Textual representation for the various bands in this {@link Axis}.
-     */
-    private String[] bandsKeys = null;
+	private static List<Measure<String, Dimensionless>> bandsNumberToList(final int bandsNumber) {
+		final List<Measure<String, Dimensionless>> bins= new ArrayList<Measure<String, Dimensionless>>(bandsNumber);
+        for (int i = 0; i < bandsNumber; i++)
+        	bins.add(new BandIndexMeasure(i,Integer.toString(i)));
+        return bins;
+	}
+	
+	private static List<Measure<String, Dimensionless>> bandsToList(final String[] bands) {
+		final List<Measure<String, Dimensionless>> bins= new ArrayList<Measure<String, Dimensionless>>(bands.length);
+        for (int i = 0; i < bands.length; i++)
+        	bins.add(new BandIndexMeasure(i,bands[i]));
+        return bins;
+	}
 
-    private Name name = null;
+    private static List<Measure<String, Dimensionless>> bandsToList(List<String> bandsKeys) {
 
-    private InternationalString description;
+        if (bandsKeys==null || bandsKeys.isEmpty())
+            throw new IllegalArgumentException("Specified band keys list is invalid");  
+		return bandsToList(bandsKeys.toArray(new String[bandsKeys.size()]));
+	}
     
     
     /**
@@ -194,85 +207,33 @@ public class DimensionlessAxis implements Axis<String,Dimensionless> {
     /**
      * 
      */
-    public DimensionlessAxis(final int bandsNumber, final Name name,
-            final InternationalString description) {
-        String[] bandsKeys = new String[bandsNumber];
-        for (int i = 0; i < bandsNumber; i++)
-            bandsKeys[i] = Integer.toString(i);
-        init(bandsKeys, name, description);
+    public DimensionlessAxis(final int bandsNumber, final Name name,final InternationalString description) {
+    	super(name,description,bandsNumberToList(bandsNumber),Unit.ONE );
     }
 
     /**
      * 
      */
-    public DimensionlessAxis(final String[] bands, final Name name,
-            final InternationalString description) {
-        init(bands, name, description);
+    public DimensionlessAxis(final String[] bands, final Name name,final InternationalString description) {
+    	super(name,description,bandsToList(bands),Unit.ONE );
     }
 
     /**
      * 
      */
-    public DimensionlessAxis(final List<String> bandsKeys, final Name name,
-            final InternationalString description) {
-        if (bandsKeys==null || bandsKeys.isEmpty())
-            throw new IllegalArgumentException("Specified band keys list is invalid");
-        init((String[])bandsKeys.toArray(new String[bandsKeys.size()]), name, description);
+    public DimensionlessAxis(final List<String> bandsKeys, final Name name,final InternationalString description) {
+    	super(name,description,bandsToList(bandsKeys),Unit.ONE );
     }
 
-    private void init(String[] bandsKeys, final Name name,
-            final InternationalString description) {
-        this.name = name;
-        this.description = description;
-        this.bandsKeys = bandsKeys;
-    }
     
-    /**
+
+	/**
      * @see org.geotools.coverage.io.range.Axis#getCoordinateReferenceSystem()
      */
     public SingleCRS getCoordinateReferenceSystem() {
         return null;
     }
 
-    /**
-     * @see org.geotools.coverage.io.range.Axis#getDescription()
-     */
-    public InternationalString getDescription() {
-        return this.description;
-    }
-
-    /**
-     * @see org.geotools.coverage.io.range.Axis#getKey(int)
-     */
-    public BandIndexMeasure getKey(int keyIndex) {
-        return new BandIndexMeasure(keyIndex, this.bandsKeys[keyIndex]);
-    }
-
-    /**
-     * @see org.geotools.coverage.io.range.Axis#getKeys()
-     */
-    public List<BandIndexMeasure> getKeys() {
-        List<BandIndexMeasure> list = new ArrayList<BandIndexMeasure>(
-                this.bandsKeys.length);
-        int i = 0;
-        for (String band : this.bandsKeys)
-            list.add(new BandIndexMeasure(i++, band));
-        return list;
-    }
-
-    /**
-     * @see org.geotools.coverage.io.range.Axis#getName()
-     */
-    public Name getName() {
-        return this.name;
-    }
-
-    /**
-     * @see org.geotools.coverage.io.range.Axis#getNumKeys()
-     */
-    public int getNumKeys() {
-        return bandsKeys.length;
-    }
 
     /**
      * @see org.geotools.coverage.io.range.Axis#getUnitOfMeasure()

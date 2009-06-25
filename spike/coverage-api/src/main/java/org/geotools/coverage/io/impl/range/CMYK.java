@@ -3,6 +3,8 @@ package org.geotools.coverage.io.impl.range;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.Unit;
 
+import org.geotools.coverage.io.range.Axis;
+
 /**
  * Process Color is a subtractive model used when working with pigment. This
  * model is often used when printing.
@@ -19,13 +21,13 @@ public enum CMYK {
 	/**
 	 * Axis covering the full {@link CMYK} range.
 	 */
-	public static final DefaultAxis<CMYK,Dimensionless> AXIS
-		= new DefaultAxis<CMYK,Dimensionless>("Process Color", EnumMeasure.valueOf( CMYK.class ), Unit.ONE );
+	public static final Axis<CMYK,Dimensionless> AXIS
+		= new Axis<CMYK,Dimensionless>("Process Color", EnumMeasure.valueOf( CMYK.class ), Unit.ONE );
 
 	/**
 	 * Axis around {@link #KEY }.
 	 */
-	public static final DefaultAxis<CMYK,Dimensionless> BLACK_AXIS =
-		new DefaultAxis<CMYK,Dimensionless>("Process Black", EnumMeasure.valueOf(KEY), Unit.ONE );
+	public static final Axis<CMYK,Dimensionless> BLACK_AXIS =
+		new Axis<CMYK,Dimensionless>("Process Black", EnumMeasure.valueOf(KEY), Unit.ONE );
     
 }

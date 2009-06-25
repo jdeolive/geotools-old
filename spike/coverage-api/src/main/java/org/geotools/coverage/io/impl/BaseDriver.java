@@ -22,8 +22,8 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-import org.geotools.coverage.io.CoverageAccess;
-import org.geotools.coverage.io.Driver;
+import org.geotools.coverage.io.RasterStorage;
+import org.geotools.coverage.io.driver.Driver;
 import org.geotools.data.Parameter;
 import org.geotools.factory.Hints;
 import org.geotools.util.SimpleInternationalString;
@@ -75,7 +75,7 @@ public abstract class BaseDriver implements Driver {
     }
 
 
-    public synchronized Map<String, Parameter<?>> getConnectParameterInfo() {
+    public synchronized Map<String, Parameter<?>> getParameterInfo() {
 		if( connectParameterInfo == null ){
 			connectParameterInfo = defineConnectParameterInfo();
 			if( connectParameterInfo == null ){
@@ -98,7 +98,7 @@ public abstract class BaseDriver implements Driver {
      * Subclass can override to support create operations.
      * @return false - subclass can override when create is implemented
      */
-    public boolean isCreateSupported() {
+    public boolean isActionSupported() {
     	return false;
     }
     
@@ -131,9 +131,9 @@ public abstract class BaseDriver implements Driver {
     	return false;
     }
     /** Subclass can override to support create operations */
-    public CoverageAccess create(Map<String, Serializable> params, Hints hints,
+    public RasterStorage create(Map<String, Serializable> params, Hints hints,
     		ProgressListener listener) throws IOException {
-    	if( isCreateSupported()){    		
+    	if( isActionSupported()){    		
     		throw new UnsupportedOperationException( getTitle()+" does not implement create operation");
     	}
     	else {
