@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.ConcurrentModificationException;
+import java.util.logging.Logger;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -44,7 +45,7 @@ public final class SoftValueHashMapTest {
      */
     @Test
     public void testStrongReferences() {
-        final Random random = new Random();
+        final Random random = getRandom();
         for (int pass=0; pass<4; pass++) {
             final SoftValueHashMap<Integer,Integer> softMap = new SoftValueHashMap<Integer,Integer>();
             final HashMap<Integer,Integer>        strongMap = new HashMap<Integer,Integer>();
@@ -78,7 +79,7 @@ public final class SoftValueHashMapTest {
      */
     @Test
     public void testSoftReferences() throws InterruptedException {
-        final Random random = new Random();
+        final Random random = getRandom();
         final SoftValueHashMap<Integer,Integer> softMap = new SoftValueHashMap<Integer,Integer>();
         final HashMap<Integer,Integer> strongMap = new HashMap<Integer,Integer>();
         for (int pass=0; pass<2; pass++) {
@@ -143,5 +144,12 @@ public final class SoftValueHashMapTest {
                 assertNotNull(value);
             }
         }
+    }
+    
+    private Random getRandom() {
+    	long seed = System.currentTimeMillis() + hashCode();
+    	Random random = new Random(seed);
+    	Logger.getLogger(this.getClass().getName()).info("Using Random Seed: "+seed);
+    	return random;
     }
 }
