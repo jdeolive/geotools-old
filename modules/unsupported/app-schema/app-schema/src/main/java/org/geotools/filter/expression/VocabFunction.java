@@ -23,7 +23,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.geotools.factory.CommonFactoryFinder;
@@ -121,12 +123,23 @@ public class VocabFunction implements Function {
         }
         return Converters.convert( lookup.get(key), context );        
     }
-
-    Properties lookup( String urn ){
+    
+    static Map<String,Properties> cache = Collections.synchronizedMap(new HashMap<String,Properties>());
+    
+    public static synchronized Properties lookup( String urn ){
         // We should look up in our Registery 
         // (or in a perfrect world JNDI directory)
         // for this stuff
-        Properties properties = new Properties();        
+        Properties properties;
+
+        if( cache.containsKey(urn)){
+            properties = cache.get( urn );
+            if( properties == null){
+                throw new RuntimeException("Could not find file for lookup table "+urn );
+            }
+            return properties;
+        }
+        properties = new Properties();
         File file = new File( urn );
         if( file.exists() ){
             try {
@@ -138,6 +151,7 @@ public class VocabFunction implements Function {
             }
         }
         else {
+            cache.put(urn,null); // don't check again and waste our time
             return null;
         }
         return properties;
