@@ -17,6 +17,7 @@
 package org.geotools.styling;
 
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.StyleVisitor;
@@ -88,5 +89,37 @@ public class SelectedChannelTypeImpl implements SelectedChannelType {
      public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
+
+     @Override
+     public int hashCode() {
+         final int PRIME = 1000003;
+         int result = 0;
+
+         if (name != null){
+             result = (PRIME * result) + name.hashCode();
+         }
+
+         if (contrastEnhancement != null) {
+             result = (PRIME * result) + contrastEnhancement.hashCode();
+         }
+         
+         return result;
+     }
+     
+     @Override
+     public boolean equals(Object obj) {
+     	if (this == obj) {
+             return true;
+         }
+
+         if (obj instanceof SelectedChannelTypeImpl) {
+        	 SelectedChannelTypeImpl other = (SelectedChannelTypeImpl) obj;
+
+             return Utilities.equals(name, other.name)
+             && Utilities.equals(contrastEnhancement, other.contrastEnhancement);
+         }
+
+         return false;
+     }
 
 }

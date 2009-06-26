@@ -18,6 +18,8 @@ package org.geotools.styling;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.geotools.util.Utilities;
 import org.opengis.filter.expression.Function;
 import org.opengis.style.StyleVisitor;
 
@@ -92,4 +94,41 @@ public class ColorMapImpl implements ColorMap {
         visitor.visit(this);
     }
     
+   
+    @Override
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+
+        if (function != null){
+            result = (PRIME * result) + function.hashCode();
+        }
+
+        if (list != null) {
+            result = (PRIME * result) + list.hashCode();
+        }
+        
+        result = (PRIME * result) + type;
+        result = (PRIME * result) + (extendedColors ? 1 : 0);
+        
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof ColorMapImpl) {
+        	ColorMapImpl other = (ColorMapImpl) obj;
+
+            return Utilities.equals(function, other.function)
+            && Utilities.equals(list, other.list)
+            && Utilities.equals(type, other.type)
+            && Utilities.equals(extendedColors, other.extendedColors);
+        }
+
+        return false;
+    }
 }

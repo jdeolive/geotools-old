@@ -117,7 +117,13 @@ public class GraphicImpl implements Graphic, Cloneable {
 
     @Deprecated
     public void setExternalGraphics(ExternalGraphic[] externalGraphics) {
-        graphics.clear();
+    	Collection<GraphicalSymbol> currExternalGraphics = new ArrayList<GraphicalSymbol>();
+    	for(GraphicalSymbol s : graphics){
+            if (s instanceof ExternalGraphic){
+                currExternalGraphics.add(s);
+            }
+        }
+    	graphics.removeAll(currExternalGraphics);
         
         for(ExternalGraphic g : externalGraphics){
             graphics.add(g);
@@ -153,7 +159,13 @@ public class GraphicImpl implements Graphic, Cloneable {
 
     @Deprecated
     public void setMarks(Mark[] marks) {
-        graphics.clear();
+    	Collection<GraphicalSymbol> currMarks = new ArrayList<GraphicalSymbol>();
+    	for(GraphicalSymbol s : graphics){
+            if (s instanceof Mark){
+                currMarks.add(s);
+            }
+        }
+    	graphics.removeAll(currMarks);
         
         for(Mark g : marks){
             graphics.add(g);

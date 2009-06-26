@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import org.geotools.util.Utilities;
 import org.opengis.style.StyleVisitor;
 
 
@@ -116,4 +117,47 @@ public class ChannelSelectionImpl
 	public void accept(org.opengis.style.StyleVisitor visitor) {
 		visitor.visit( this,null );
 	}
+	
+    @Override
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+
+        if (gray != null){
+            result = (PRIME * result) + gray.hashCode();
+        }
+
+        if (red != null) {
+            result = (PRIME * result) + red.hashCode();
+        }
+        
+        if (blue != null) {
+            result = (PRIME * result) + blue.hashCode();
+        }
+
+        if (green != null) {
+            result = (PRIME * result) + green.hashCode();
+        }
+        
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof ChannelSelectionImpl) {
+        	ChannelSelectionImpl other = (ChannelSelectionImpl) obj;
+
+            return Utilities.equals(gray, other.gray)
+            && Utilities.equals(red, other.red)
+            && Utilities.equals(blue, other.blue)
+            && Utilities.equals(green, other.green);
+        }
+
+        return false;
+    }
+
 }

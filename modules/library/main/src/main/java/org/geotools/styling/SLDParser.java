@@ -86,6 +86,10 @@ public class SLDParser {
     private static final String colorMapQuantityString = "quantity";
 
     private static final String colorMapLabelString = "label";
+
+    private static final String strokeString = "Stroke";
+    
+    private static final String uomString = "uom";
     
     private static final Pattern WHITESPACES = Pattern.compile("\\s+", Pattern.MULTILINE);
     private static final Pattern LEADING_WHITESPACES = Pattern.compile("^\\s+");
@@ -462,7 +466,7 @@ public class SLDParser {
                 .toArray(new FeatureTypeConstraint[featureTypeConstraints.size()]);
     }
 
-    private FeatureTypeConstraint parseFeatureTypeConstraint(Node root) {
+    protected FeatureTypeConstraint parseFeatureTypeConstraint(Node root) {
         FeatureTypeConstraint ftc = new FeatureTypeConstraintImpl();
 
         NodeList children = root.getChildNodes();
@@ -486,7 +490,7 @@ public class SLDParser {
             return ftc;
     }
 
-    private RemoteOWS parseRemoteOWS(Node root) {
+    protected RemoteOWS parseRemoteOWS(Node root) {
         RemoteOWS ows = new RemoteOWSImpl();
 
         NodeList children = root.getChildNodes();
@@ -712,7 +716,8 @@ public class SLDParser {
         return style;
     }
 
-    private FeatureTypeStyle parseFeatureTypeStyle(Node style) {
+    /** Internal parse method - made protected for unit testing */
+    protected FeatureTypeStyle parseFeatureTypeStyle(Node style) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("Parsing featuretype style " + style.getLocalName());
         }
@@ -760,7 +765,8 @@ public class SLDParser {
         return ft;
     }
 
-    private Rule parseRule(Node ruleNode) {
+    /** Internal parse method - made protected for unit testing */
+    protected Rule parseRule(Node ruleNode) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("Parsing rule " + ruleNode.getLocalName());
         }
@@ -834,7 +840,8 @@ public class SLDParser {
         return rule;
     }
 
-    private Filter parseFilter(Node child) {
+    /** Internal parse method - made protected for unit testing */
+    protected Filter parseFilter(Node child) {
         // this sounds stark raving mad, but this is actually how the dom parser
         // works...
         // instead of passing in the parent element, pass in the first child and
@@ -857,8 +864,17 @@ public class SLDParser {
      * 
      * @return the linesymbolizer
      */
-    private LineSymbolizer parseLineSymbolizer(Node root) {
+    protected LineSymbolizer parseLineSymbolizer(Node root) {
         LineSymbolizer symbol = factory.createLineSymbolizer();
+
+        NamedNodeMap namedNodeMap = root.getAttributes();
+        Node uomNode = namedNodeMap.getNamedItem(uomString);
+        if(uomNode != null)
+        {
+       		UomOgcMapping uomMapping = UomOgcMapping.get(uomNode.getNodeValue());
+       		symbol.setUnitOfMeasure(uomMapping.getUnit());
+        }
+
         NodeList children = root.getChildNodes();
         final int length = children.getLength();
         for (int i = 0; i < length; i++) {
@@ -873,7 +889,7 @@ public class SLDParser {
             }
             if (childName.equalsIgnoreCase(geomString)) {
                 symbol.setGeometryPropertyName(parseGeometryName(child));
-            } else if (childName.equalsIgnoreCase("Stroke")) {
+            } else if (childName.equalsIgnoreCase(strokeString)) {
                 symbol.setStroke(parseStroke(child));
             }
         }
@@ -889,10 +905,18 @@ public class SLDParser {
      * 
      * @return the polygon symbolizer
      */
-    private PolygonSymbolizer parsePolygonSymbolizer(Node root) {
+    protected PolygonSymbolizer parsePolygonSymbolizer(Node root) {
         PolygonSymbolizer symbol = factory.createPolygonSymbolizer();
         symbol.setFill((Fill) null);
         symbol.setStroke((Stroke) null);
+
+        NamedNodeMap namedNodeMap = root.getAttributes();
+        Node uomNode = namedNodeMap.getNamedItem(uomString);
+        if(uomNode != null)
+        {
+       		UomOgcMapping uomMapping = UomOgcMapping.get(uomNode.getNodeValue());
+       		symbol.setUnitOfMeasure(uomMapping.getUnit());
+        }
 
         NodeList children = root.getChildNodes();
         final int length = children.getLength();
@@ -908,7 +932,7 @@ public class SLDParser {
             }
             if (childName.equalsIgnoreCase(geomString)) {
                 symbol.setGeometryPropertyName(parseGeometryName(child));
-            } else if (childName.equalsIgnoreCase("Stroke")) {
+            } else if (childName.equalsIgnoreCase(strokeString)) {
                 symbol.setStroke(parseStroke(child));
             } else if (childName.equalsIgnoreCase(fillSt)) {
                 symbol.setFill(parseFill(child));
@@ -926,9 +950,17 @@ public class SLDParser {
      * 
      * @return the TextSymbolizer
      */
-    private TextSymbolizer parseTextSymbolizer(Node root) {
+    protected TextSymbolizer parseTextSymbolizer(Node root) {
         TextSymbolizer symbol = factory.createTextSymbolizer();
         symbol.setFill(null);
+
+        NamedNodeMap namedNodeMap = root.getAttributes();
+        Node uomNode = namedNodeMap.getNamedItem(uomString);
+        if(uomNode != null)
+        {
+       		UomOgcMapping uomMapping = UomOgcMapping.get(uomNode.getNodeValue());
+       		symbol.setUnitOfMeasure(uomMapping.getUnit());
+        }
 
         List<Font> fonts = new ArrayList<Font>();
         NodeList children = root.getChildNodes();
@@ -1001,7 +1033,7 @@ public class SLDParser {
         return symbol;
     }
 
-    private OtherText parseOtherText(Node root) {
+    protected OtherText parseOtherText(Node root) {
         // TODO: add methods to the factory to create OtherText instances
         OtherText ot = new OtherTextImpl();
         final Node targetAttribute = root.getAttributes().getNamedItem("target");
@@ -1037,8 +1069,17 @@ public class SLDParser {
      * 
      * @return the TextSymbolizer
      */
-    private RasterSymbolizer parseRasterSymbolizer(Node root) {
+    protected RasterSymbolizer parseRasterSymbolizer(Node root) {
         final RasterSymbolizer symbol = factory.getDefaultRasterSymbolizer();
+
+        NamedNodeMap namedNodeMap = root.getAttributes();
+        Node uomNode = namedNodeMap.getNamedItem(uomString);
+        if(uomNode != null)
+        {
+       		UomOgcMapping uomMapping = UomOgcMapping.get(uomNode.getNodeValue());
+       		symbol.setUnitOfMeasure(uomMapping.getUnit());
+        }
+        
         NodeList children = root.getChildNodes();
         final int length = children.getLength();
         for (int i = 0; i < length; i++) {
@@ -1143,7 +1184,8 @@ public class SLDParser {
         }
     }
 
-    private ColorMapEntry parseColorMapEntry(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected ColorMapEntry parseColorMapEntry(Node root) {
         ColorMapEntry symbol = factory.createColorMapEntry();
         NamedNodeMap atts = root.getAttributes();
         if (atts.getNamedItem(colorMapLabelString) != null) {
@@ -1164,7 +1206,8 @@ public class SLDParser {
         return symbol;
     }
 
-    private ColorMap parseColorMap(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected ColorMap parseColorMap(Node root) {
         ColorMap symbol = factory.createColorMap();
 
         if (root.hasAttributes()) {
@@ -1206,7 +1249,8 @@ public class SLDParser {
         return symbol;
     }
 
-    private SelectedChannelType parseSelectedChannel(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected SelectedChannelType parseSelectedChannel(Node root) {
         SelectedChannelType symbol = new SelectedChannelTypeImpl();
 
         NodeList children = root.getChildNodes();
@@ -1240,7 +1284,8 @@ public class SLDParser {
         return symbol;
     }
 
-    private ChannelSelection parseChannelSelection(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected ChannelSelection parseChannelSelection(Node root) {
         List<SelectedChannelType> channels = new ArrayList<SelectedChannelType>();
 
         NodeList children = root.getChildNodes();
@@ -1271,7 +1316,8 @@ public class SLDParser {
         return dap;
     }
 
-    private ContrastEnhancement parseContrastEnhancement(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected ContrastEnhancement parseContrastEnhancement(Node root) {
         ContrastEnhancement symbol = new ContrastEnhancementImpl();
 
         NodeList children = root.getChildNodes();
@@ -1309,7 +1355,8 @@ public class SLDParser {
         return symbol;
     }
 
-    private ShadedRelief parseShadedRelief(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected ShadedRelief parseShadedRelief(Node root) {
         ShadedRelief symbol = new ShadedReliefImpl();
 
         NodeList children = root.getChildNodes();
@@ -1349,9 +1396,17 @@ public class SLDParser {
      * 
      * @return the pointsymbolizer
      */
-    private PointSymbolizer parsePointSymbolizer(Node root) {
+    protected PointSymbolizer parsePointSymbolizer(Node root) {
         PointSymbolizer symbol = factory.getDefaultPointSymbolizer();
         // symbol.setGraphic(null);
+        
+        NamedNodeMap namedNodeMap = root.getAttributes();
+        Node uomNode = namedNodeMap.getNamedItem(uomString);
+        if(uomNode != null)
+        {
+       		UomOgcMapping uomMapping = UomOgcMapping.get(uomNode.getNodeValue());
+       		symbol.setUnitOfMeasure(uomMapping.getUnit());
+        }
 
         NodeList children = root.getChildNodes();
         final int length = children.getLength();
@@ -1376,7 +1431,8 @@ public class SLDParser {
         return symbol;
     }
 
-    private Graphic parseGraphic(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected Graphic parseGraphic(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing graphic " + root);
         }
@@ -1418,7 +1474,8 @@ public class SLDParser {
         return graphic;
     }
 
-    private String parseGeometryName(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected String parseGeometryName(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             if (LOGGER.isLoggable(Level.FINEST))
                 LOGGER.finest("parsing GeometryName");
@@ -1439,7 +1496,8 @@ public class SLDParser {
         return ret;
     }
 
-    private Mark parseMark(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected Mark parseMark(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing mark");
         }
@@ -1461,7 +1519,7 @@ public class SLDParser {
                 childName = child.getNodeName();
             }
 
-            if (childName.equalsIgnoreCase("Stroke")) {
+            if (childName.equalsIgnoreCase(strokeString)) {
                 mark.setStroke(parseStroke(child));
             } else if (childName.equalsIgnoreCase(fillSt)) {
                 mark.setFill(parseFill(child));
@@ -1475,7 +1533,8 @@ public class SLDParser {
         return mark;
     }
 
-    private ExternalGraphic parseExternalGraphic(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected ExternalGraphic parseExternalGraphic(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing external graphic ");
         }
@@ -1530,6 +1589,12 @@ public class SLDParser {
                             + sourceUrl.toExternalForm());
                 }
             }
+            if (url == null)
+            {
+            	url = getClass().getResource(uri);
+            	if (url == null)
+            		LOGGER.warning("can't parse " + uri + " as a java resource present in the classpath");
+            }
         }
 
         ExternalGraphic extgraph;
@@ -1542,7 +1607,8 @@ public class SLDParser {
         return extgraph;
     }
 
-    private String parseOnlineResource(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected String parseOnlineResource(Node root) {
         Element param = (Element) root;
         org.w3c.dom.NamedNodeMap map = param.getAttributes();
         final int length = map.getLength();
@@ -1559,7 +1625,7 @@ public class SLDParser {
             }
 
             // TODO: process the name space properly
-            if (name.equalsIgnoreCase("xlink:href")) {
+            if (name.equalsIgnoreCase("xlink:href") || name.equalsIgnoreCase("href")) {
                 if (LOGGER.isLoggable(Level.FINEST))
                     LOGGER.finest("seting ExtGraph uri " + res);
                 return res;
@@ -1568,7 +1634,8 @@ public class SLDParser {
         return null;
     }
 
-    private Stroke parseStroke(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected Stroke parseStroke(Node root) {
         Stroke stroke = factory.getDefaultStroke();
         NodeList list = findElements(((Element) root), "GraphicFill");
         int length = list.getLength();
@@ -1652,7 +1719,7 @@ public class SLDParser {
                 }
                 // process the css entry
                 //
-                if (res.equalsIgnoreCase("stroke")) {
+                if (res.equalsIgnoreCase(strokeString)) {
                     Expression color = parseParameterValueExpression(child, false);
                     stroke.setColor(color);
                 } else if (res.equalsIgnoreCase("width") || res.equalsIgnoreCase("stroke-width")) {
@@ -1692,7 +1759,8 @@ public class SLDParser {
         return stroke;
     }
 
-    private Fill parseFill(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected Fill parseFill(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing fill ");
         }
@@ -1946,7 +2014,10 @@ public class SLDParser {
         return ret;
     }
 
-    private Font parseFont(Node root) {
+    /**
+     * Internal method to parse a Font Node; protected to allow for unit testing
+     */
+    protected Font parseFont(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing font");
         }
@@ -1982,7 +2053,8 @@ public class SLDParser {
         return font;
     }
 
-    private LabelPlacement parseLabelPlacement(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected LabelPlacement parseLabelPlacement(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing labelPlacement");
         }
@@ -2010,7 +2082,8 @@ public class SLDParser {
         return ret;
     }
 
-    private PointPlacement parsePointPlacement(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected PointPlacement parsePointPlacement(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing pointPlacement");
         }
@@ -2050,7 +2123,8 @@ public class SLDParser {
         return dpp;
     }
 
-    private LinePlacement parseLinePlacement(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected LinePlacement parseLinePlacement(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing linePlacement");
         }
@@ -2077,8 +2151,12 @@ public class SLDParser {
 
         return dlp;
     }
-
-    private AnchorPoint parseAnchorPoint(Node root) {
+    /**
+     * Internal method to parse an AnchorPoint node; protected visibility for testing.
+     * @param root
+     * @return
+     */
+    protected AnchorPoint parseAnchorPoint(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing anchorPoint");
         }
@@ -2110,7 +2188,8 @@ public class SLDParser {
         return dap;
     }
 
-    private Displacement parseDisplacement(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected Displacement parseDisplacement(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing displacment");
         }
@@ -2143,13 +2222,8 @@ public class SLDParser {
         return dd;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param root
-     * 
-     */
-    private Halo parseHalo(Node root) {
+    /** Internal parse method - made protected for unit testing */
+    protected Halo parseHalo(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing halo");
         }
@@ -2172,9 +2246,10 @@ public class SLDParser {
             } else if (childName.equalsIgnoreCase("Radius")) {
                 halo.setRadius(parseCssParameter(child));
             }
+            
         }
 
         return halo;
+        
     }
-
 }

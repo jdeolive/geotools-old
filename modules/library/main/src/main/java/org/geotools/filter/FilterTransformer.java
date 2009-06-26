@@ -16,7 +16,6 @@
  */
 package org.geotools.filter;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,9 +24,9 @@ import javax.xml.transform.TransformerException;
 
 import org.geotools.gml.producer.GeometryTransformer;
 import org.geotools.xml.transform.TransformerBase;
-import org.opengis.filter.Filter;
 import org.opengis.filter.And;
 import org.opengis.filter.ExcludeFilter;
+import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.IncludeFilter;
 import org.opengis.filter.Not;
@@ -62,9 +61,7 @@ import org.opengis.filter.spatial.Intersects;
 import org.opengis.filter.spatial.Overlaps;
 import org.opengis.filter.spatial.Touches;
 import org.opengis.filter.spatial.Within;
-import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -138,13 +135,11 @@ public class FilterTransformer extends TransformerBase {
 
         public Object visit(Id filter, Object extraData) {
             Set<Identifier> fids = filter.getIdentifiers();
-            start("Filter");
             for (Identifier fid : fids ) {
                 AttributesImpl atts = new AttributesImpl();
                 atts.addAttribute( null, "fid", "fid",  null, fid.toString() );
                 element("FeatureId", null, atts );
             }
-            end("Filter");
             return extraData;
         }
 

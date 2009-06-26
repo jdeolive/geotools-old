@@ -26,6 +26,9 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import javax.measure.quantity.Length;
+import javax.measure.unit.Unit;
+
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
@@ -278,7 +281,13 @@ public class SLDTransformer extends TransformerBase {
                 return;
             }
 
-            start("TextSymbolizer");
+            // adds the uom attribute according to the OGC SE specification
+            AttributesImpl atts = new AttributesImpl();
+        	Unit<Length> uom = text.getUnitOfMeasure();
+			if(uom != null)
+				atts.addAttribute("", "uom", "uom", "", UomOgcMapping.get(uom).getSEString());
+
+            start("TextSymbolizer", atts);
 
             if (text.getGeometryPropertyName() != null) {
                 encodeGeometryProperty(text.getGeometryPropertyName());
@@ -333,7 +342,13 @@ public class SLDTransformer extends TransformerBase {
 				return;
 			}
 
-			start("RasterSymbolizer");
+			// adds the uom attribute according to the OGC SE specification
+            AttributesImpl atts = new AttributesImpl();
+        	Unit<Length> uom = raster.getUnitOfMeasure();
+			if(uom != null)
+				atts.addAttribute("", "uom", "uom", "", UomOgcMapping.get(uom).getSEString());
+
+			start("RasterSymbolizer", atts);
 
 			if (raster.getGeometryPropertyName() != null) {
 				encodeGeometryProperty(raster.getGeometryPropertyName());
@@ -452,7 +467,14 @@ public class SLDTransformer extends TransformerBase {
         }
 
         public void visit(PolygonSymbolizer poly) {
-            start("PolygonSymbolizer");
+        	
+        	// adds the uom attribute according to the OGC SE specification
+            AttributesImpl atts = new AttributesImpl();
+        	Unit<Length> uom = poly.getUnitOfMeasure();
+			if(uom != null)
+				atts.addAttribute("", "uom", "uom", "", UomOgcMapping.get(uom).getSEString());
+
+            start("PolygonSymbolizer", atts);
             encodeGeometryProperty(poly.getGeometryPropertyName());
 
             if (poly.getFill() != null) {
@@ -485,8 +507,14 @@ public class SLDTransformer extends TransformerBase {
         }
 
         public void visit(LineSymbolizer line) {
-            start("LineSymbolizer");
 
+        	// adds the uom attribute according to the OGC SE specification
+            AttributesImpl atts = new AttributesImpl();
+        	Unit<Length> uom = line.getUnitOfMeasure();
+			if(uom != null)
+				atts.addAttribute("", "uom", "uom", "", UomOgcMapping.get(uom).getSEString());
+
+        	start("LineSymbolizer", atts);
             encodeGeometryProperty(line.getGeometryPropertyName());
 
             if( line.getStroke() != null ){
@@ -577,7 +605,14 @@ public class SLDTransformer extends TransformerBase {
         }
 
         public void visit(PointSymbolizer ps) {
-            start("PointSymbolizer");
+
+            // adds the uom attribute according to the OGC SE specification
+            AttributesImpl atts = new AttributesImpl();
+        	Unit<Length> uom = ps.getUnitOfMeasure();
+			if(uom != null)
+				atts.addAttribute("", "uom", "uom", "", UomOgcMapping.get(uom).getSEString());
+
+            start("PointSymbolizer", atts);
 
             encodeGeometryProperty(ps.getGeometryPropertyName());
 

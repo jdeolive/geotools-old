@@ -18,11 +18,12 @@
  */
 package org.geotools.styling;
 
+import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-
+import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Description;
@@ -40,7 +41,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     
     private final Description description;
     private final String name;
-    private final Unit uom;
+    private Unit<Length> uom;
     private final OverlapBehavior behavior;
     
     // TODO: make container ready
@@ -62,7 +63,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
         this(factory,null,null,null,null);   
     }
     
-    public RasterSymbolizerImpl(FilterFactory factory, Description desc, String name, Unit uom, OverlapBehavior behavior) {
+    public RasterSymbolizerImpl(FilterFactory factory, Description desc, String name, Unit<Length> uom, OverlapBehavior behavior) {
         this.filterFactory = factory;
         this.opacity = filterFactory.literal(1.0);
         this.overlap = filterFactory.literal(OverlapBehavior.RANDOM);
@@ -81,21 +82,79 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
         return description;
     }
     
-    public Unit getUnitOfMeasure() {
+    public Unit<Length> getUnitOfMeasure() {
         return uom;
     }
     
-    public int hashcode() {
-        int key = 0;
-        key = channelSelection.hashCode();
-        key = (key * 13) + colorMap.hashCode();
-        key = (key * 13) + contrastEnhancement.hashCode();
-        key = (key * 13) + shadedRelief.hashCode();
-        key = (key * 13) + opacity.hashCode();
-        key = (key * 13) + overlap.hashCode();
-        key = (key * 13) + geometryName.hashCode();
+    public void setUnitOfMeasure(Unit<Length> uom) {
+    	this.uom = uom;
+	}
 
-        return key;
+    @Override
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+
+        if (geometryName != null){
+            result = (PRIME * result) +  geometryName.hashCode();
+        }
+
+        if (channelSelection != null) {
+            result = (PRIME * result) + channelSelection.hashCode();
+        }
+        
+        if (colorMap != null) {
+            result = (PRIME * result) + colorMap.hashCode();
+        }
+
+        if (contrastEnhancement != null) {
+            result = (PRIME * result) + contrastEnhancement.hashCode();
+        }
+
+        if(shadedRelief != null){
+            result = (PRIME * result) +  shadedRelief.hashCode();
+        }
+        
+        if(opacity != null){
+            result = (PRIME * result) +  opacity.hashCode();
+        }
+        
+        if(overlap != null){
+            result = (PRIME * result) +  overlap.hashCode();
+        }
+        
+        if(description != null){
+            result = (PRIME * result) +  description.hashCode();
+        }
+        
+        if(uom != null){
+            result = (PRIME * result) +  uom.hashCode();
+        }
+        
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof RasterSymbolizerImpl) {
+        	RasterSymbolizerImpl other = (RasterSymbolizerImpl) obj;
+
+            return Utilities.equals(this.geometryName, other.geometryName)
+            && Utilities.equals(channelSelection, other.channelSelection)
+            && Utilities.equals(colorMap, other.colorMap)
+            && Utilities.equals(contrastEnhancement, other.contrastEnhancement)
+            && Utilities.equals(shadedRelief, other.shadedRelief)
+            && Utilities.equals(opacity, other.opacity)
+            && Utilities.equals(overlap, other.overlap)
+            && Utilities.equals(description, other.description)
+            && Utilities.equals(uom, other.uom);
+        }
+
+        return false;
     }
 
     /**

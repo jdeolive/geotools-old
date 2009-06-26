@@ -17,6 +17,9 @@
  */
 package org.geotools.styling;
 
+import javax.measure.quantity.Length;
+import javax.measure.unit.Unit;
+
 
 
 /**
@@ -60,4 +63,22 @@ package org.geotools.styling;
  */
 public interface Symbolizer extends org.opengis.style.Symbolizer{
     void accept(org.geotools.styling.StyleVisitor visitor);
+    
+    /**
+     * Defines a measure unit for the symbolizer.
+     * This parameter is inherited from GML.
+     * Renderers shall use the unit to correctly render symbols.
+     *
+     * Recommended uom definitions are :
+     * <p>
+     * <ul>
+     *     <li>{@code metre}</li>
+     *     <li>{@code foot}</li>
+     *     <li>{@code pixel}</li>
+     * </ul>
+     * <p>
+     * 
+     * @param uom can be null, which indicates usage of the pixel unit. 
+     */
+    void setUnitOfMeasure(Unit<Length> uom);
 }

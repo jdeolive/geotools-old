@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import junit.framework.TestCase;
 
 import org.geotools.factory.CommonFactoryFinder;
@@ -31,6 +34,8 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.Rule;
 import org.opengis.style.Symbolizer;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 /**
  * This test case captures specific problems encountered with the SLDTransformer code.
@@ -173,52 +178,47 @@ public class SLDTransformerTest extends TestCase {
 
     /**
      * SLD Fragment reported to produce error on user list - no related Jira.
+     * 
      * @throws Exception
      */
     public void testTextSymbolizerLabelPalcement() throws Exception {
         String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"
-            +"<StyledLayerDescriptor version=\"1.0.0\" "
-            +"              xsi:schemaLocation=\"http://www.opengis.net/sld StyledLayerDescriptor.xsd\" "
-            +"              xmlns=\"http://www.opengis.net/sld\" "
-            +"              xmlns:ogc=\"http://www.opengis.net/ogc\" "
-            +"              xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
-            +"              xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
-            +"      <NamedLayer>"
-            +"              <Name>Default Line</Name>"
-            +"              <UserStyle>"
-            +"                      <Title>A boring default style</Title>"
-            +"                      <Abstract>A sample style that just prints out a blue line</Abstract>"
-            +"                              <FeatureTypeStyle>"
-            +"                              <Rule>"
-            +"                                      <Name>Rule 1</Name>"
-            +"                                      <Title>Blue Line</Title>"
-            +"                                      <Abstract>A blue line with a 1 pixel width</Abstract>"
-            +"                                      <LineSymbolizer>"
-            +"                                              <Stroke>"
-            +"                                                      <CssParameter name=\"stroke\">#0000ff</CssParameter>"
-            +"                                              </Stroke>"
-            +"                                      </LineSymbolizer>"
-            +"                              </Rule>"
-            +"                              <Rule>"
-            +"                              <TextSymbolizer>"
-            +"                <Label><ogc:PropertyName>name</ogc:PropertyName></Label>"
-            +"                <Font>"
-            +"                    <CssParameter name=\"font-family\">Arial</CssParameter>"
-            +"                    <CssParameter name=\"font-style\">normal</CssParameter>"
-            +"                    <CssParameter name=\"font-size\">12</CssParameter>"
-            +"                    <CssParameter name=\"font-weight\">normal</CssParameter>"
-            +"                </Font>"
-            +"                <LabelPlacement>"
-            +"                      <LinePlacement>"
-            +"                              <PerpendicularOffset>0</PerpendicularOffset>"
-            +"                      </LinePlacement>"
-            +"                </LabelPlacement>"
-            +"                </TextSymbolizer>"
-            +"                              </Rule>"
-            +"                  </FeatureTypeStyle>"
-            +"              </UserStyle>"
-            +"      </NamedLayer>"
-            +"</StyledLayerDescriptor>";
+                + "<StyledLayerDescriptor version=\"1.0.0\" "
+                + "              xsi:schemaLocation=\"http://www.opengis.net/sld StyledLayerDescriptor.xsd\" "
+                + "              xmlns=\"http://www.opengis.net/sld\" "
+                + "              xmlns:ogc=\"http://www.opengis.net/ogc\" "
+                + "              xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
+                + "              xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
+                + "      <NamedLayer>"
+                + "              <Name>Default Line</Name>"
+                + "              <UserStyle>"
+                + "                      <Title>A boring default style</Title>"
+                + "                      <Abstract>A sample style that just prints out a blue line</Abstract>"
+                + "                              <FeatureTypeStyle>"
+                + "                              <Rule>"
+                + "                                      <Name>Rule 1</Name>"
+                + "                                      <Title>Blue Line</Title>"
+                + "                                      <Abstract>A blue line with a 1 pixel width</Abstract>"
+                + "                                      <LineSymbolizer>"
+                + "                                              <Stroke>"
+                + "                                                      <CssParameter name=\"stroke\">#0000ff</CssParameter>"
+                + "                                              </Stroke>"
+                + "                                      </LineSymbolizer>"
+                + "                              </Rule>" + "                              <Rule>"
+                + "                              <TextSymbolizer>"
+                + "                <Label><ogc:PropertyName>name</ogc:PropertyName></Label>"
+                + "                <Font>"
+                + "                    <CssParameter name=\"font-family\">Arial</CssParameter>"
+                + "                    <CssParameter name=\"font-style\">normal</CssParameter>"
+                + "                    <CssParameter name=\"font-size\">12</CssParameter>"
+                + "                    <CssParameter name=\"font-weight\">normal</CssParameter>"
+                + "                </Font>" + "                <LabelPlacement>"
+                + "                      <LinePlacement>"
+                + "                              <PerpendicularOffset>0</PerpendicularOffset>"
+                + "                      </LinePlacement>" + "                </LabelPlacement>"
+                + "                </TextSymbolizer>" + "                              </Rule>"
+                + "                  </FeatureTypeStyle>" + "              </UserStyle>"
+                + "      </NamedLayer>" + "</StyledLayerDescriptor>";
 
         StringReader reader = new StringReader(xml);
         SLDParser sldParser = new SLDParser(sf, reader);
@@ -238,6 +238,7 @@ public class SLDTransformerTest extends TestCase {
         assertNotNull("color", value);
         assertEquals("blue", Color.BLUE, value);
     }
+
     /**
      * Another bug reported from uDig 1.2; we are trying to save a LineSymbolizer (and then restore
      * it) and the stroke is comming back black and with width 1 all the time.
@@ -327,11 +328,11 @@ public class SLDTransformerTest extends TestCase {
         assertNotNull(style);
         Rule rule = style.featureTypeStyles().get(0).rules().get(0);
         List<? extends Symbolizer> symbolizers = rule.symbolizers();
-        assertEquals( 1, symbolizers.size() );
+        assertEquals(1, symbolizers.size());
         PointSymbolizer symbolize = (PointSymbolizer) symbolizers.get(0);
         Graphic graphic = symbolize.getGraphic();
         List<GraphicalSymbol> symbols = graphic.graphicalSymbols();
-        assertEquals( 1, symbols.size() );
+        assertEquals(1, symbols.size());
         Mark mark = (Mark) symbols.get(0);
         Expression color = mark.getFill().getColor();
         Color value = color.evaluate(null, Color.class);
@@ -372,5 +373,254 @@ public class SLDTransformerTest extends TestCase {
         } finally {
             logger.setLevel(before);
         }
+    }
+
+    public void testUOMEncodingPointSymbolizer() throws Exception {
+
+        // simple default line symbolizer
+        PointSymbolizer pointSymbolizer = sf.createPointSymbolizer();
+        pointSymbolizer.setUnitOfMeasure(UomOgcMapping.FOOT.getUnit());
+        String xmlFragment = transformer.transform(pointSymbolizer);
+        assertNotNull(xmlFragment);
+
+        SLDParser parser = new SLDParser(sf);
+
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+            Document dom = null;
+            DocumentBuilder db = null;
+
+            db = dbf.newDocumentBuilder();
+            dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+            PointSymbolizer pointSymbolizer2 = 
+                parser.parsePointSymbolizer( dom.getFirstChild());
+            
+            assertTrue(pointSymbolizer.getUnitOfMeasure().equals(
+                    pointSymbolizer2.getUnitOfMeasure()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void testUOMEncodingPolygonSymbolizer() throws Exception {
+
+        // simple default line symbolizer
+        PolygonSymbolizer polygonSymbolizer = sf.createPolygonSymbolizer();
+        polygonSymbolizer.setUnitOfMeasure(UomOgcMapping.METRE.getUnit());
+        String xmlFragment = transformer.transform(polygonSymbolizer);
+        assertNotNull(xmlFragment);
+
+        SLDParser parser = new SLDParser(sf);
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        Document dom = null;
+        DocumentBuilder db = null;
+
+        db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+        PolygonSymbolizer polygonSymbolizer2 = 
+            parser.parsePolygonSymbolizer(dom.getFirstChild());
+        
+        assertTrue(polygonSymbolizer.getUnitOfMeasure().equals(
+                polygonSymbolizer2.getUnitOfMeasure()));
+    }
+
+    public void testUOMEncodingRasterSymbolizer2() throws Exception {
+
+        // simple default line symbolizer
+        RasterSymbolizer rasterSymbolizer = sf.createRasterSymbolizer();
+        rasterSymbolizer.setUnitOfMeasure(UomOgcMapping.PIXEL.getUnit());
+        String xmlFragment = transformer.transform(rasterSymbolizer);
+        assertNotNull(xmlFragment);
+
+        SLDParser parser = new SLDParser(sf);
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        Document dom = null;
+        DocumentBuilder db = null;
+
+        db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+        RasterSymbolizer rasterSymbolizer2 = 
+            parser.parseRasterSymbolizer(dom.getFirstChild());
+
+        assertTrue(rasterSymbolizer.getUnitOfMeasure().equals(rasterSymbolizer2.getUnitOfMeasure()));
+    }
+
+    public void testUOMEncodingLineSymbolizer() throws Exception {
+
+        // simple default line symbolizer
+        LineSymbolizer lineSymbolizer = sf.createLineSymbolizer();
+        lineSymbolizer.setUnitOfMeasure(UomOgcMapping.METRE.getUnit());
+        String xmlFragment = transformer.transform(lineSymbolizer);
+        assertNotNull(xmlFragment);
+
+        SLDParser parser = new SLDParser(sf);
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        Document dom = null;
+        DocumentBuilder db = null;
+
+        db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+        LineSymbolizer lineSymbolizer2 = 
+            parser.parseLineSymbolizer(dom.getFirstChild());
+        
+        assertTrue(lineSymbolizer.getUnitOfMeasure().equals(lineSymbolizer2.getUnitOfMeasure()));
+
+    }
+
+    public void testUOMEncodingTextSymbolizer() throws Exception {
+
+        // simple default text symbolizer
+        TextSymbolizer textSymbolizer = sf.createTextSymbolizer();
+        textSymbolizer.setUnitOfMeasure(UomOgcMapping.FOOT.getUnit());
+        String xmlFragment = transformer.transform(textSymbolizer);
+
+        assertNotNull(xmlFragment);
+
+        xmlFragment = transformer.transform(textSymbolizer);
+        System.out.println(xmlFragment);
+
+        assertNotNull(xmlFragment);
+        SLDParser parser = new SLDParser(sf);
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        Document dom = null;
+        DocumentBuilder db = null;
+
+        db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+        TextSymbolizer textSymbolizer2 = 
+            parser.parseTextSymbolizer( dom.getFirstChild());
+
+        assertTrue(textSymbolizer.getUnitOfMeasure().equals(textSymbolizer2.getUnitOfMeasure()));
+    }
+
+    public void testNullUOMEncodingPointSymbolizer() throws Exception {
+
+        // simple default line symbolizer
+        PointSymbolizer pointSymbolizer = sf.createPointSymbolizer();
+        String xmlFragment = transformer.transform(pointSymbolizer);
+        assertNotNull(xmlFragment);
+
+        SLDParser parser = new SLDParser(sf);
+
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+            Document dom = null;
+            DocumentBuilder db = null;
+
+            db = dbf.newDocumentBuilder();
+            dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+            PointSymbolizer pointSymbolizer2 = parser.parsePointSymbolizer(dom.getFirstChild());
+
+            assertTrue(pointSymbolizer2.getUnitOfMeasure() == null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void testNullUOMEncodingPolygonSymbolizer() throws Exception {
+
+        // simple default line symbolizer
+        PolygonSymbolizer polygonSymbolizer = sf.createPolygonSymbolizer();
+        String xmlFragment = transformer.transform(polygonSymbolizer);
+        assertNotNull(xmlFragment);
+
+        SLDParser parser = new SLDParser(sf);
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        Document dom = null;
+        DocumentBuilder db = null;
+
+        db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+        PolygonSymbolizer polygonSymbolizer2 = parser.parsePolygonSymbolizer(dom.getFirstChild());
+
+        assertTrue(polygonSymbolizer2.getUnitOfMeasure() == null);
+    }
+
+    public void testNullUOMEncodingRasterSymbolizer2() throws Exception {
+
+        // simple default line symbolizer
+        RasterSymbolizer rasterSymbolizer = sf.createRasterSymbolizer();
+        String xmlFragment = transformer.transform(rasterSymbolizer);
+        assertNotNull(xmlFragment);
+
+        SLDParser parser = new SLDParser(sf);
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        Document dom = null;
+        DocumentBuilder db = null;
+
+        db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+        RasterSymbolizer rasterSymbolizer2 = parser.parseRasterSymbolizer(dom.getFirstChild());
+
+        assertTrue(rasterSymbolizer2.getUnitOfMeasure() == null);
+    }
+
+    public void testNullUOMEncodingLineSymbolizer() throws Exception {
+
+        // simple default line symbolizer
+        LineSymbolizer lineSymbolizer = sf.createLineSymbolizer();
+        String xmlFragment = transformer.transform(lineSymbolizer);
+        assertNotNull(xmlFragment);
+
+        SLDParser parser = new SLDParser(sf);
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        Document dom = null;
+        DocumentBuilder db = null;
+
+        db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+        LineSymbolizer lineSymbolizer2 = parser.parseLineSymbolizer(dom.getFirstChild());
+
+        assertTrue(lineSymbolizer2.getUnitOfMeasure() == null);
+
+    }
+
+    public void testNullUOMEncodingTextSymbolizer() throws Exception {
+
+        // simple default text symbolizer
+        TextSymbolizer textSymbolizer = sf.createTextSymbolizer();
+        String xmlFragment = transformer.transform(textSymbolizer);
+        assertNotNull(xmlFragment);
+
+        SLDParser parser = new SLDParser(sf);
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        Document dom = null;
+        DocumentBuilder db = null;
+
+        db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(xmlFragment)));
+
+        TextSymbolizer textSymbolizer2 = parser.parseTextSymbolizer(dom.getFirstChild());
+
+        assertTrue(textSymbolizer2.getUnitOfMeasure() == null);
     }
 }

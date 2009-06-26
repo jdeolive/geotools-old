@@ -89,38 +89,45 @@ public class FunctionFinder {
 
         try {
             // load the caches at first access
-        	synchronized (this) {
-			
-	            if (functionExpressionCache == null) {
-	                functionExpressionCache = new HashMap();
-	                functionImplCache = new HashMap();
-	                functionCache = new HashMap();
-	                
-	                Set functions = CommonFactoryFinder.getFunctionExpressions( null );                
-	                for (Iterator it = functions.iterator(); it.hasNext();) {
-	                    FunctionExpression function = (FunctionExpression) it.next();
-	                    functionExpressionCache.put(function.getName().toLowerCase(), (Class<FunctionExpression>) function.getClass());
-	                }
-	
-	                functions = CommonFactoryFinder.getFunctions( null );                                
-	                for (Iterator i = functions.iterator(); i.hasNext();) {
-	                    Function function = (Function) i.next();
-	                    String functionName = function.getName().toLowerCase();
-						Class functionImplementation = function.getClass();
-						if( function instanceof FunctionImpl){
-							functionImplCache.put(functionName, (Class<FunctionImpl>) functionImplementation );
-						}
-						else if( function instanceof FunctionExpression){
-							if( !functionExpressionCache.containsKey( functionName )){
-								functionExpressionCache.put( functionName, functionImplementation );
-							}							
-						}
-						else {
-							functionCache.put(functionName, (Class<Function>) functionImplementation );
-						}
-	                }
-	            }
-        	}
+            synchronized (this) {
+
+                if (functionExpressionCache == null) {
+                    // scan for all the functions on the classpath
+
+                    functionExpressionCache = new HashMap();
+                    functionImplCache = new HashMap();
+                    functionCache = new HashMap();
+
+                    // Get all the GeoTools FunctionExpression implementations
+                    // and store in functionExpressionCache
+                    // (these are implementations of the legacy GeoTools FunctionExpression
+                    // interface)
+                    Set functions = CommonFactoryFinder.getFunctionExpressions(null);
+                    for (Iterator it = functions.iterator(); it.hasNext();) {
+                        FunctionExpression function = (FunctionExpression) it.next();
+                        functionExpressionCache.put(function.getName().toLowerCase(),
+                                (Class<FunctionExpression>) function.getClass());
+                    }
+                    // Get all the GeoAPI Function implementations
+                    functions = CommonFactoryFinder.getFunctions(null);
+                    for (Iterator i = functions.iterator(); i.hasNext();) {
+                        Function function = (Function) i.next();
+                        String functionName = function.getName().toLowerCase();
+                        Class functionImplementation = function.getClass();
+                        if (function instanceof FunctionImpl) {
+                            functionImplCache.put(functionName,
+                                    (Class<FunctionImpl>) functionImplementation);
+                        } else if (function instanceof FunctionExpression) {
+                            if (!functionExpressionCache.containsKey(functionName)) {
+                                functionExpressionCache.put(functionName, functionImplementation);
+                            }
+                        } else {
+                            functionCache.put(functionName,
+                                    (Class<Function>) functionImplementation);
+                        }
+                    }
+                }
+            }
             
             // cache lookup
             Class clazz = (Class) functionExpressionCache.get(name.toLowerCase());

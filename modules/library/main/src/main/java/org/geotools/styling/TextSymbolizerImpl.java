@@ -18,12 +18,13 @@ package org.geotools.styling;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.util.Utilities;
-
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.Description;
@@ -44,7 +45,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
     
     private final Description desc;
     private final String name;
-    private final Unit uom;
+    private Unit<Length> uom;
     private Font font;
     
     private final FilterFactory filterFactory;
@@ -71,7 +72,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         this(factory,null,null,null);
     }
     
-    protected TextSymbolizerImpl( FilterFactory factory, Description desc, String name, Unit uom ) {
+    protected TextSymbolizerImpl( FilterFactory factory, Description desc, String name, Unit<Length> uom ) {
         this.filterFactory = factory;
         this.desc = desc;
         this.uom = uom;
@@ -90,9 +91,13 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         return desc;
     }
     
-    public Unit getUnitOfMeasure() {
+    public Unit<Length> getUnitOfMeasure() {
         return uom;
     }
+
+    public void setUnitOfMeasure(Unit<Length> uom) {
+    	this.uom = uom;
+	}
 
     /**
      * This property defines the geometry to be used for styling.<br>

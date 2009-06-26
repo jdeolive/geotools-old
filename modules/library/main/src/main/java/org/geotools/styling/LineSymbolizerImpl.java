@@ -17,6 +17,7 @@
 package org.geotools.styling;
 
 
+import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
 import org.geotools.util.Utilities;
@@ -41,8 +42,8 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     private final Description description;
     private final String name;
     private final Expression offset;
-    private final Unit uom;
     
+    private Unit<Length> uom = null;
     private Stroke stroke = null;
     private String geometryName = null;
 
@@ -53,7 +54,7 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         this(null,null,null,null,null,null);
     }
     
-    protected LineSymbolizerImpl(Stroke stroke, Expression offset, Unit uom, String geom, String name, Description desc){
+    protected LineSymbolizerImpl(Stroke stroke, Expression offset, Unit<Length> uom, String geom, String name, Description desc){
         this.stroke = stroke;
         this.offset = offset;
         this.uom = uom;
@@ -104,11 +105,15 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         geometryName = name;
     }
 
-    public Unit getUnitOfMeasure() {
+    public Unit<Length> getUnitOfMeasure() {
         return uom;
     }
 
-    public Expression getPerpendicularOffset() {
+    public void setUnitOfMeasure(Unit<Length> uom) {
+    	this.uom = uom;
+	}
+
+	public Expression getPerpendicularOffset() {
         return offset;
     }
 
@@ -269,6 +274,8 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         StringBuffer buf = new StringBuffer();
         buf.append("<LineSymbolizerImp property=");
         buf.append( geometryName );
+        buf.append( " uom=");
+        buf.append( uom );
         buf.append( " stroke=");
         buf.append( stroke );
         buf.append(">");

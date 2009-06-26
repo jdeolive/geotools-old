@@ -17,6 +17,7 @@
 package org.geotools.styling;
 
 
+import javax.measure.quantity.Length;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
@@ -41,7 +42,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
     
     private final Description description;
     private final String name;
-    private final Unit uom;
+    private Unit<Length> uom;
     private String geometryPropertyName = null;
     private Graphic graphic = new GraphicImpl();
 
@@ -50,7 +51,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
      */
     protected PointSymbolizerImpl() {
         this(new GraphicImpl(), 
-                NonSI.PIXEL,
+                null,
                 null,
                 null,
                 new DescriptionImpl(
@@ -58,7 +59,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
                     new SimpleInternationalString("abstract")));
     }
 
-    protected PointSymbolizerImpl(Graphic graphic, Unit uom, String geom, String name, Description desc){
+    protected PointSymbolizerImpl(Graphic graphic, Unit<Length> uom, String geom, String name, Description desc){
         this.graphic = graphic;
         this.uom = uom;
         this.geometryPropertyName = geom;
@@ -101,9 +102,13 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         geometryPropertyName = name;
     }
 
-    public Unit getUnitOfMeasure() {
+    public Unit<Length> getUnitOfMeasure() {
         return uom;
     }
+
+    public void setUnitOfMeasure(Unit<Length> uom) {
+    	this.uom = uom;
+	}
 
     /**
      * Provides the graphical-symbolization parameter to use for the point
