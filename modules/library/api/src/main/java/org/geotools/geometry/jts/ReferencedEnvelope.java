@@ -58,33 +58,75 @@ import org.geotools.resources.i18n.Errors;
  */
 public class ReferencedEnvelope extends Envelope implements org.opengis.geometry.Envelope,
     BoundingBox {
-	/** A ReferencedEnvelope containing "everything" */
-	public static ReferencedEnvelope EVERYTHING = new ReferencedEnvelope(
-			Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY,
-			Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY,null){
-	    private static final long serialVersionUID = -3188702602373537164L;		
-		public boolean contains(BoundingBox bbox) {
-			return true;
-		}
-		public boolean contains(Coordinate p) {
-			return true;			
-		}
-		public boolean contains(DirectPosition pos) {
-			return true;
-		}
-		public boolean contains(double x, double y) {
-			return true;
-		}
-		public boolean contains(Envelope other) {
-			return true;
-		}	
-		public boolean isEmpty() {
-			return false;
-		}
-		public boolean isNull() {
-			return true;
-		}		
-	};
+    
+    /** A ReferencedEnvelope containing "everything" */
+    public static ReferencedEnvelope EVERYTHING = new ReferencedEnvelope(Double.NEGATIVE_INFINITY,
+            Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, null) {
+        private static final long serialVersionUID = -3188702602373537164L;
+
+        public boolean contains(BoundingBox bbox) {
+            return true;
+        }
+
+        public boolean contains(Coordinate p) {
+            return true;
+        }
+
+        public boolean contains(DirectPosition pos) {
+            return true;
+        }
+
+        public boolean contains(double x, double y) {
+            return true;
+        }
+
+        public boolean contains(Envelope other) {
+            return true;
+        }
+
+        public boolean isEmpty() {
+            return false;
+        }
+
+        public boolean isNull() {
+            return true;
+        }
+        
+        public double getArea() {
+            //return super.getArea();
+            return Double.POSITIVE_INFINITY;
+        }
+        
+        public void setBounds(BoundingBox arg0) {
+            throw new IllegalStateException("Cannot modify ReferencedEnvelope.EVERYTHING");
+        }
+        public Coordinate centre() {
+            return new Coordinate();
+        }
+        public void setToNull() {
+            // um ignore this as we are already "null"
+        }
+        public boolean equals(Object obj) {
+            if( obj == EVERYTHING ){
+                return true;
+            }
+            if( obj instanceof ReferencedEnvelope ){
+                ReferencedEnvelope other = (ReferencedEnvelope) obj;
+                if( other.crs != EVERYTHING.crs ) return false;
+                if( other.getMinX() != EVERYTHING.getMinX() ) return false;
+                if( other.getMinY() != EVERYTHING.getMinY() ) return false;
+                if( other.getMaxX() != EVERYTHING.getMaxX() ) return false;
+                if( other.getMaxY() != EVERYTHING.getMaxY() ) return false;
+                
+                return true;
+            }
+            return super.equals(obj);
+        }
+        
+        public String toString() {
+            return "ReferencedEnvelope.EVERYTHING";
+        }
+    };
     /**
      * Serial number for compatibility with different versions.
      */
@@ -218,9 +260,12 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
      * Returns the specified bounding box as a JTS envelope.
      */
     private static Envelope getJTSEnvelope(final BoundingBox bbox) {
+        if( bbox == null ){
+            throw new NullPointerException("Provided bbox envelope was null");
+        }
         if (bbox instanceof Envelope) {
             return (Envelope) bbox;
-        }
+        }        
         return new ReferencedEnvelope(bbox);
     }
 
