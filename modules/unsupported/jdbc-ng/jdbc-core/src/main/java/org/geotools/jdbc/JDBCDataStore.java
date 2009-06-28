@@ -814,11 +814,17 @@ public final class JDBCDataStore extends ContentDataStore
     
             //2. Has a sequence?
             if (col == null) {
-                //TODO: look for a sequence
-                String sequenceName = dialect.getSequenceForColumn( databaseSchema,
-                        tableName, columnName, cx );
-                if ( sequenceName != null ) {
-                    col = new SequencedPrimaryKeyColumn( columnName, columnType, sequenceName );
+                try {
+                    String sequenceName = dialect.getSequenceForColumn( databaseSchema,
+                            tableName, columnName, cx );
+                    if ( sequenceName != null ) {
+                        col = new SequencedPrimaryKeyColumn( columnName, columnType, sequenceName );
+                    }
+                }
+                catch( Exception e ) {
+                    //log the exception , and continue on
+                    LOGGER.log( Level.WARNING, "Error occured determining sequence for "
+                        + columnName + ", " + tableName, e );
                 }
             }
     
