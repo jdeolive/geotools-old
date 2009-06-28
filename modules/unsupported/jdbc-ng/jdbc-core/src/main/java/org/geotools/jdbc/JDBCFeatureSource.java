@@ -112,6 +112,9 @@ public class JDBCFeatureSource extends ContentFeatureSource {
      * Builds the feature type from database metadata.
      */
     protected SimpleFeatureType buildFeatureType() throws IOException {
+        //grab the primary key
+        PrimaryKey pkey = getDataStore().getPrimaryKey(entry);
+        
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         AttributeTypeBuilder ab = new AttributeTypeBuilder();
 
@@ -168,30 +171,13 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                     String name = columns.getString("COLUMN_NAME");
 
                     //do not include primary key in the type
-                    /*
-                     *        <LI><B>TABLE_CAT</B> String => table catalog (may be <code>null</code>)
-                     *        <LI><B>TABLE_SCHEM</B> String => table schema (may be <code>null</code>)
-                     *        <LI><B>TABLE_NAME</B> String => table name
-                     *        <LI><B>COLUMN_NAME</B> String => column name
-                     *        <LI><B>KEY_SEQ</B> short => sequence number within primary key
-                     *        <LI><B>PK_NAME</B> String => primary key name (may be <code>null</code>)
-                     */
-                    ResultSet primaryKeys = metaData.getPrimaryKeys(null, databaseSchema, tableName);
-
-                    try {
-                        while (primaryKeys.next()) {
-                            String keyName = primaryKeys.getString("COLUMN_NAME");
-
-                            if (name.equals(keyName)) {
-                                name = null;
-
-                                break;
-                            }
+                    for ( PrimaryKeyColumn pkeycol : pkey.getColumns() ) {
+                        if ( name.equals( pkeycol.getName() ) ) {
+                            name = null;
+                            break;
                         }
-                    } finally {
-                        getDataStore().closeSafe(primaryKeys);
                     }
-
+                 
                     if (name == null) {
                         continue;
                     }
