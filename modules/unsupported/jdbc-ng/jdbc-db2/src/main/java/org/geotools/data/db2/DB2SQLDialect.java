@@ -230,10 +230,15 @@ public class DB2SQLDialect extends SQLDialect  {
 
     @Override
     public void encodeGeometryEnvelope(String tableName,String geometryColumn, StringBuffer sql) {
-        sql.append("db2gse.ST_AsBinary(");
-        sql.append("db2gse.ST_Envelope(");
+
+        sql.append("db2gse.ST_AsBinary(db2gse.ST_GetAggrResult(MAX(db2gse.ST_BuildMBRAggr(");
         encodeColumnName(geometryColumn, sql);
-        sql.append("))");
+        sql.append("))))");
+        
+//        sql.append("db2gse.ST_AsBinary(");
+//        sql.append("db2gse.ST_Envelope(");
+//        encodeColumnName(geometryColumn, sql);
+//        sql.append("))");
     }
 
     @Override
@@ -242,8 +247,12 @@ public class DB2SQLDialect extends SQLDialect  {
         byte[] wkb = rs.getBytes(column);
 
         try {
-            Polygon polygon = (Polygon) new DB2WKBReader().read(wkb);            
-            return polygon.getEnvelopeInternal();
+            if (wkb!=null) {
+                Geometry geom  =  new DB2WKBReader().read(wkb);            
+                return geom.getEnvelopeInternal();
+            } else {
+                return new Envelope();
+            }
         } catch (ParseException e) {
             String msg = "Error decoding wkb for envelope";
             throw (IOException) new IOException(msg).initCause(e);
