@@ -61,15 +61,48 @@ class JDBCAccessPostGis extends JDBCAccessBase {
 		initStatementStrings(config);
 	}
 
+	
+	/**
+	 * @return the postigs function name for calculating extents, 
+	 * newer versions offer 'st_extent'
+	 * older versions provide 'extent', which is depricated
+	 */
+	private String getExtentFunctionName() {
+            String extentFunctionName="st_extent";
+            Connection con=null;
+            ResultSet rs = null;
+            PreparedStatement ps = null;
+            try {
+                con = dataSource.getConnection();
+                ps = con.prepareStatement("select proname  from pg_proc where proname='"+extentFunctionName+"'");
+                rs = ps.executeQuery();
+            
+                if (rs.next()==false) { 
+                    extentFunctionName="extent";
+                    LOGGER.info("Using depricated postgis function 'extent' instead of 'st_extent'");
+                }               
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "could not verify existence of postgis function 'st_extent', falling back to depricated 'extent'");
+                extentFunctionName="extent";
+            }
+            finally {
+                try { if (rs!=null) rs.close(); } catch (SQLException ex) {};
+                try { if (ps!=null) ps.close(); } catch (SQLException ex) {};
+                try { if (con!=null) ps.close(); } catch (SQLException ex) {};
+                    
+            }
+	    return extentFunctionName;
+	}
+	
 	/**
 	 * Initialize needed sql statement strings
 	 * 
 	 * @param config
 	 */
 	private void initStatementStrings(Config config) {
-		final String geomAttr = config.getGeomAttributeNameInSpatialTable();
-		extentSelect = "select st_extent(" + geomAttr + ") from {0}";
-
+		final String geomAttr = config.getGeomAttributeNameInSpatialTable();					        
+		extentSelect = "select "+getExtentFunctionName()+"(" + geomAttr + ") from {0}";
+		
 		// ////////////
 		final String spatialSelectClause = "select s."
 				+ config.getKeyAttributeNameInSpatialTable() + ","
