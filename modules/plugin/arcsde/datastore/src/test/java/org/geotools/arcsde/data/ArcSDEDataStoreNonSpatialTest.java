@@ -24,7 +24,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.geotools.arcsde.pool.Command;
@@ -44,6 +46,7 @@ import org.geotools.data.Transaction;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.junit.After;
@@ -166,6 +169,12 @@ public class ArcSDEDataStoreNonSpatialTest {
         assertTrue(seRowidUserTable, typeNames.contains(seRowidUserTable));
 
         assertTrue(seRowidSdeTable, typeNames.contains(seRowidSdeTable));
+
+        typeNames = new ArrayList<String>(typeNames);
+        Collections.sort(typeNames);
+        for (String s : typeNames) {
+            System.out.println(s);
+        }
     }
 
     @Test
@@ -417,5 +426,29 @@ public class ArcSDEDataStoreNonSpatialTest {
         assertNotNull(fids);
         assertEquals(1, fids.size());
         return fids;
+    }
+
+    @Test
+    public void testCreateGeometrylessSchema() throws Exception {
+        final String typeName = testData.getTempTableName() + "_CREATE_GEOMLESS";
+        testData.deleteTable(typeName);
+        try {
+            SimpleFeatureTypeBuilder b = new SimpleFeatureTypeBuilder();
+            b.setName(typeName);
+
+            b.add("STRING_COL", String.class);
+            b.add("INT_COL", Integer.class);
+            b.add("LONG_COL", Long.class);
+
+            final SimpleFeatureType type = b.buildFeatureType();
+
+            ds.createSchema(type);
+
+            SimpleFeatureType schema = ds.getSchema(typeName);
+            assertNotNull(schema);
+            assertEquals(3, schema.getAttributeCount());
+        } finally {
+            // testData.deleteTable(typeName);
+        }
     }
 }

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -170,11 +171,25 @@ public class ArcSDEDataStore implements DataStore {
     }
 
     /**
+     * Creates a new ArcSDE FeatureClass if {@code featureType} has at least one geometry attribute,
+     * or an ObjectClass (aka, non spatial registered table) if this data store instance allows non
+     * spatial tables and there's no geometry attribute in {@code featureType}.
+     * <p>
+     * The new arcsde table created will have an SDE managed column to be used as primary key.
+     * <p>
+     * 
      * @see DataStore#createSchema(SimpleFeatureType)
      * @see #createSchema(SimpleFeatureType, Map)
      */
     public void createSchema(final SimpleFeatureType featureType) throws IOException {
-        createSchema(featureType, null);
+        Map<String, String> hints = new HashMap<String, String>();
+        hints.put("rowid.column.type", "SDE");
+        String rowIdName = "SDE_ROW_ID";
+        while (featureType.getDescriptor(rowIdName) != null) {
+            rowIdName += "2";
+        }
+        hints.put("rowid.column.name", rowIdName);
+        createSchema(featureType, hints);
     }
 
     /**
@@ -367,7 +382,6 @@ public class ArcSDEDataStore implements DataStore {
 
         final FeatureTypeInfo typeInfo = typeInfoCache.getFeatureTypeInfo(typeName);
         final SimpleFeatureType completeSchema = typeInfo.getFeatureType();
-        final ArcSDEQuery sdeQuery;
 
         SimpleFeatureType featureType = completeSchema;
 
@@ -664,12 +678,19 @@ public class ArcSDEDataStore implements DataStore {
      */
     public void createSchema(final SimpleFeatureType featureType, final Map<String, String> hints)
             throws IOException, IllegalArgumentException {
+
+        if (featureType.getGeometryDescriptor() == null && !typeInfoCache.isAllowNonSpatialTables()) {
+            throw new DataSourceException("This DataStore does not allow FeatureTypes with no "
+                    + "geometry attributes");
+        }
+
         final ISession session = getSession(Transaction.AUTO_COMMIT);
         try {
             ArcSDEAdapter.createSchema(featureType, hints, session);
         } finally {
             session.dispose();
         }
+        typeInfoCache.reset();
     }
 
     /**
@@ -757,11 +778,12 @@ public class ArcSDEDataStore implements DataStore {
      * @param errors
      * @param construct
      */
+    @SuppressWarnings("unchecked")
     private void verifyUnsupportedSqlConstruct(List<Object> errors, Object construct) {
         if (construct instanceof List) {
-            List constructsList = (List) construct;
+            List<Object> constructsList = (List<Object>) construct;
             if (constructsList.size() > 0) {
-                errors.add(constructsList);
+                errors.addAll(constructsList);
             }
         } else if (construct != null) {
             errors.add(construct);

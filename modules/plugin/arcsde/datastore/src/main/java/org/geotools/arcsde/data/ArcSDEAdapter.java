@@ -919,11 +919,6 @@ public class ArcSDEAdapter {
             throw new NullPointerException("You have to provide a FeatureType instance");
         }
 
-        if (featureType.getGeometryDescriptor() == null) {
-            throw new IllegalArgumentException(
-                    "FeatureType must have at least one geometry attribute");
-        }
-
         final Command<Void> createSchemaCmd = new Command<Void>() {
             @Override
             public Void execute(ISession session, SeConnection connection) throws SeException,
@@ -944,26 +939,24 @@ public class ArcSDEAdapter {
                 int rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
                 String rowIdColumn = null;
                 String configKeyword = "DEFAULTS";
-                if (hints != null) {
-                    if (hints.get("configuration.keyword") instanceof String) {
-                        configKeyword = (String) hints.get("configuration.keyword");
+                if (hints.containsKey("configuration.keyword")) {
+                    configKeyword = String.valueOf(hints.get("configuration.keyword"));
+                }
+                if (hints.get("rowid.column.type") instanceof String) {
+                    String rowIdStr = (String) hints.get("rowid.column.type");
+                    if (rowIdStr.equalsIgnoreCase("NONE")) {
+                        rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
+                    } else if (rowIdStr.equalsIgnoreCase("USER")) {
+                        rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_USER;
+                    } else if (rowIdStr.equalsIgnoreCase("SDE")) {
+                        rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
+                    } else {
+                        throw new DataSourceException(
+                                "createSchema hint 'rowid.column.type' must be one of 'NONE', 'USER' or 'SDE'");
                     }
-                    if (hints.get("rowid.column.type") instanceof String) {
-                        String rowIdStr = (String) hints.get("rowid.column.type");
-                        if (rowIdStr.equalsIgnoreCase("NONE")) {
-                            rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
-                        } else if (rowIdStr.equalsIgnoreCase("USER")) {
-                            rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_USER;
-                        } else if (rowIdStr.equalsIgnoreCase("SDE")) {
-                            rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
-                        } else {
-                            throw new DataSourceException(
-                                    "createSchema hint 'rowid.column.type' must be one of 'NONE', 'USER' or 'SDE'");
-                        }
-                    }
-                    if (hints.get("rowid.column.name") instanceof String) {
-                        rowIdColumn = (String) hints.get("rowid.column.name");
-                    }
+                }
+                if (hints.get("rowid.column.name") instanceof String) {
+                    rowIdColumn = (String) hints.get("rowid.column.name");
                 }
 
                 // placeholder to a catched exception to know in the finally block

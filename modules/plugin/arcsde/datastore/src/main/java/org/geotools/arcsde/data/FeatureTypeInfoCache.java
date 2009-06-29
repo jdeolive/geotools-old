@@ -104,7 +104,7 @@ final class FeatureTypeInfoCache {
     /**
      * Scheduler for cache updating.
      */
-    private final ScheduledExecutorService cacheUpdateScheduler;
+    private ScheduledExecutorService cacheUpdateScheduler;
 
     /**
      * Lock for protecting featureTypeInfos cache.
@@ -112,6 +112,8 @@ final class FeatureTypeInfoCache {
     private final ReentrantReadWriteLock cacheLock;
 
     private final boolean allowNonSpatialTables;
+
+    private final long cacheUpdateFreqSecs;
 
     /**
      * Creates a FeatureTypeInfoCache
@@ -140,19 +142,30 @@ final class FeatureTypeInfoCache {
         this.allowNonSpatialTables = allowNonSpatialTables;
         this.namespace = namespace;
         this.cacheLock = new ReentrantReadWriteLock();
+        this.cacheUpdateFreqSecs = cacheUpdateFreqSecs;
 
+        reset();
+    }
+
+    public void reset() {
+        dispose();
+
+        CacheUpdater cacheUpdater = new CacheUpdater();
+        // run now, populate table name cache and then register for periodic running
+        cacheUpdater.run();
         if (cacheUpdateFreqSecs > 0) {
             cacheUpdateScheduler = Executors.newScheduledThreadPool(1);
-            CacheUpdater cacheUpdater = new CacheUpdater();
-            // run now, populate table name cache and then register for periodic running
-            cacheUpdater.run();
             LOGGER.info("Scheduling the layer name cache to be updated every "
-                    + cacheUpdateFreqSecs + " seconds.");
-            cacheUpdateScheduler.scheduleWithFixedDelay(cacheUpdater, cacheUpdateFreqSecs,
-                    cacheUpdateFreqSecs, TimeUnit.SECONDS);
+                    + this.cacheUpdateFreqSecs + " seconds.");
+            cacheUpdateScheduler.scheduleWithFixedDelay(cacheUpdater, this.cacheUpdateFreqSecs,
+                    this.cacheUpdateFreqSecs, TimeUnit.SECONDS);
         } else {
             cacheUpdateScheduler = null;
         }
+    }
+
+    public boolean isAllowNonSpatialTables() {
+        return allowNonSpatialTables;
     }
 
     public void dispose() {
