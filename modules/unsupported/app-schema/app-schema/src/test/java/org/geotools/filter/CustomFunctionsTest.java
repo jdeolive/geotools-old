@@ -17,12 +17,11 @@
 
 package org.geotools.filter;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import junit.framework.TestCase;
 
-import org.geotools.TestData;
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Function;
@@ -34,9 +33,11 @@ import org.opengis.filter.expression.Function;
 public class CustomFunctionsTest extends TestCase {
 
     public void testVocabFunction() throws IOException{
-        File file = TestData.file(CustomFunctionsTest.class,"minoc_lithology_mapping.properties");
+        URL file = getClass().getResource("/test-data/minoc_lithology_mapping.properties");
+        assertNotNull(file);
+        
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        Function function = ff.function("Vocab", ff.literal("1LIST"), ff.literal(file.toString()) );
+        Function function = ff.function("Vocab", ff.literal("1LIST"), ff.literal(file.getPath()));
         
         Object value = function.evaluate(null);
         assertEquals( "urn:cgi:classifier:CGI:SimpleLithology:2008:calcareous_carbonate_sedimentary_rock", value );
