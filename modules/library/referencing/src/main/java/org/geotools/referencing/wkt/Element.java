@@ -408,6 +408,21 @@ public final class Element {
      * @throws ParseException if no more string is available.
      */
     public String pullString(final String key) throws ParseException {
+    	String optionalString = pullOptionalString(key);
+    	if (optionalString != null) {
+    		return optionalString;
+    	}
+        throw missingParameter(key);
+    }
+
+    /**
+     * Removes the next {@link String} from the list and returns it.
+     * @param key The parameter name. Used for formatting
+     *         an error message if no number are found.
+     * @return The next {@link String} on the list 
+	 *         or {@code null} if no more element is available.
+     */
+    public String pullOptionalString(final String key) {
         final Iterator iterator = list.iterator();
         while (iterator.hasNext()) {
             final Object object = iterator.next();
@@ -416,7 +431,7 @@ public final class Element {
                 return (String)object;
             }
         }
-        throw missingParameter(key);
+        return null;
     }
 
     /**

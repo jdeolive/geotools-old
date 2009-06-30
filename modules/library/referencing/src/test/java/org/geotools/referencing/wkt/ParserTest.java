@@ -371,4 +371,14 @@ public final class ParserTest {
         }
         reader.close();
     }
+    
+    /**
+     * Test if the parser handles string and number coded Authority code-values. 
+     * @throws IOException
+     * @throws ParseException
+     */
+    @Test
+    public void testAuthorityCodeParsing() throws IOException, ParseException {
+        testParsing(new Parser(), "wkt/AuthorityCode.txt");
+    }    
 }

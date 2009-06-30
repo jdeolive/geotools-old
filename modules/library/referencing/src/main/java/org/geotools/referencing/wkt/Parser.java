@@ -312,7 +312,11 @@ public class Parser extends MathTransformParser {
      * This element has the following pattern:
      *
      * <blockquote><code>
-     * AUTHORITY["<name>", "<code>"]
+     * AUTHORITY["&lt;name&gt;", "&lt;code&gt;"]
+     * </code></blockquote>
+     * or even
+     * <blockquote><code>
+     * AUTHORITY["&lt;name&gt;", &lt;code&gt;]
      * </code></blockquote>
      *
      * @param  parent The parent element.
@@ -335,7 +339,12 @@ public class Parser extends MathTransformParser {
             }
         } else {
             final String auth = element.pullString("name");
-            final String code = element.pullString("code");
+            // the code can be annotation marked but could be a number to
+            String code = element.pullOptionalString("code");
+            if (code == null) {
+            	int codeNumber = element.pullInteger("code");
+            	code = String.valueOf(codeNumber);
+            }
             element.close();
             final Citation authority = Citations.fromName(auth);
             properties = new HashMap<String,Object>(4);
