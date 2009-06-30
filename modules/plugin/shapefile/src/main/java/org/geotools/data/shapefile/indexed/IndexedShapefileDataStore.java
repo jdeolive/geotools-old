@@ -60,7 +60,6 @@ import org.geotools.data.shapefile.dbf.IndexedDbaseFileReader;
 import org.geotools.data.shapefile.shp.IndexFile;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader.Record;
-import org.geotools.factory.Hints;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.visitor.IdCollectorFilterVisitor;
 import org.geotools.filter.FilterAttributeExtractor;
@@ -82,9 +81,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.identity.Identifier;
 
-import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * A DataStore implementation which allows reading and writing from Shapefiles.
@@ -327,7 +324,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             }
 
             return createFeatureReader(typeName, getAttributesReader(readDbf,
-                    readGeometry, query), newSchema);
+                    readGeometry, query.getFilter()), newSchema);
         } catch (SchemaException se) {
             throw new DataSourceException("Error creating schema", se);
         }
@@ -371,12 +368,11 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
      * @throws IOException
      */
     protected IndexedShapefileAttributeReader getAttributesReader(
-            boolean readDbf, boolean readGeometry, Query query)
+            boolean readDbf, boolean readGeometry, Filter filter)
             throws IOException {
         Envelope bbox = new ReferencedEnvelope(); // will be bbox.isNull() to
         // start
 
-        Filter filter = query != null ? query.getFilter() : null;
         CloseableCollection<Data> goodRecs = null;
         if (filter instanceof Id && shpFiles.isLocal() && shpFiles.exists(FIX)) {
             Id fidFilter = (Id) filter;
@@ -426,8 +422,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
             dbfR = (IndexedDbaseFileReader) openDbfReader();
         }
 
-        Hints hints = query != null ? query.getHints() : null;
-        return new IndexedShapefileAttributeReader(atts, openShapeReader(getGeometryFactory(hints)),
+        return new IndexedShapefileAttributeReader(atts, openShapeReader(),
                 dbfR, goodRecs);
     }
 
@@ -793,26 +788,8 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
 
         if (records.isEmpty())
             return null;
-        
-        // grab a geometry factory... check for a special hint
-        Hints hints = query.getHints(); 
-        GeometryFactory geometryFactory = (GeometryFactory) hints.get(Hints.JTS_GEOMETRY_FACTORY);
-        if (geometryFactory == null) {
-            // look for a coordinate sequence factory
-            CoordinateSequenceFactory csFactory = 
-                (CoordinateSequenceFactory) hints.get(Hints.JTS_COORDINATE_SEQUENCE_FACTORY);
 
-            if (csFactory != null) {
-                geometryFactory = new GeometryFactory(csFactory);
-            }
-        }
-
-        if (geometryFactory == null) {
-            // fall back on the default one
-            geometryFactory = new GeometryFactory();
-        }
-
-        ShapefileReader reader = new ShapefileReader(shpFiles, false, false, geometryFactory);
+        ShapefileReader reader = new ShapefileReader(shpFiles, false, false);
         try {
             ret = new ReferencedEnvelope(getSchema().getCoordinateReferenceSystem());
             for (Iterator iter = records.iterator(); iter.hasNext();) {

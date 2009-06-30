@@ -18,8 +18,6 @@ package org.geotools.data.shapefile.shp;
 
 import java.nio.ByteBuffer;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-
 /**
  * A ShapeHandler defines what is needed to construct and persist geometries
  * based upon the shapefile specification.
@@ -73,5 +71,4 @@ public interface ShapeHandler {
      * @return The number of <b>bytes</b> the shape will take up.
      */
     public int getLength(Object geometry);
-    
 }

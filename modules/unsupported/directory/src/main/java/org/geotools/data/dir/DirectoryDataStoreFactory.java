@@ -173,6 +173,7 @@ public class DirectoryDataStoreFactory implements DataStoreFactorySpi {
         	File f = new File( url.getFile() );
             String[] str = (String[]) CREATE_SUFFIX_ORDER.lookUp(params);
 
+            //return ((f != null) && (str != null) && f.isDirectory());
             return (f != null) && (str != null);
         } catch (Exception e) {
             return false;

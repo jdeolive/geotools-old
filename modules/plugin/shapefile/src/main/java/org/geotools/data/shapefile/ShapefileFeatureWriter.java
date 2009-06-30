@@ -44,7 +44,6 @@ import org.opengis.feature.type.GeometryDescriptor;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * A FeatureWriter for ShapefileDataStore. Uses a write and annotate technique
@@ -100,8 +99,6 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
     private FileChannel dbfChannel;
 
     private Charset dbfCharset;
-    
-    private GeometryFactory gf = new GeometryFactory();
 
     public ShapefileFeatureWriter(String typeName, ShpFiles shpFiles,
             ShapefileAttributeReader attsReader,  FeatureReader<SimpleFeatureType, SimpleFeature> featureReader,
@@ -150,7 +147,7 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
             attReader.shp.disableShxUsage();
             if(attReader.hasNext()) {
                 shapeType = attReader.shp.getHeader().getShapeType();
-                handler = shapeType.getShapeHandler(new GeometryFactory());
+                handler = shapeType.getShapeHandler();
                 shpWriter.writeHeaders(bounds, shapeType, records, shapefileLength);
             }
         }
@@ -229,7 +226,7 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
         // before the end of the file
         if (attReader != null && attReader.hasNext()) {
             shapeType = attReader.shp.getHeader().getShapeType();
-            handler = shapeType.getShapeHandler(gf);
+            handler = shapeType.getShapeHandler();
 
             // handle the case where zero records have been written, but the
             // stream is closed and the headers
@@ -363,7 +360,7 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
 
                 // we must go back and annotate this after writing
                 shpWriter.writeHeaders(new Envelope(), shapeType, 0, 0);
-                handler = shapeType.getShapeHandler(gf);
+                handler = shapeType.getShapeHandler();
             } catch (ShapefileException se) {
                 throw new RuntimeException("Unexpected Error", se);
             }

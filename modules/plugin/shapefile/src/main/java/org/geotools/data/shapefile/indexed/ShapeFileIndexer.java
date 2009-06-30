@@ -37,7 +37,6 @@ import org.geotools.util.NullProgressListener;
 import org.opengis.util.ProgressListener;
 
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * Utility class for Shapefile spatial indexing
@@ -158,7 +157,7 @@ public class ShapeFileIndexer implements FileWriter {
         File treeFile = storage.getFile();
 
         try {
-            reader = new ShapefileReader(shpFiles, true, false, new GeometryFactory());
+            reader = new ShapefileReader(shpFiles, true, false);
 
             switch (idxType) {
             case QIX:

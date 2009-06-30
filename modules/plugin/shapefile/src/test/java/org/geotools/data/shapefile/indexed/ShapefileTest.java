@@ -26,7 +26,6 @@ import org.geotools.data.shapefile.shp.ShapefileReader;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * @source $URL:
@@ -44,7 +43,7 @@ public class ShapefileTest extends org.geotools.data.shapefile.ShapefileTest {
     public void testShapefileReaderRecord() throws Exception {
         File file = copyShapefiles(STATEPOP);
         ShpFiles shpFiles = new ShpFiles(file.toURI().toURL());
-        ShapefileReader reader = new ShapefileReader(shpFiles, false, false, new GeometryFactory());
+        ShapefileReader reader = new ShapefileReader(shpFiles, false, false);
         ArrayList offsets = new ArrayList();
 
         while (reader.hasNext()) {
@@ -58,7 +57,7 @@ public class ShapefileTest extends org.geotools.data.shapefile.ShapefileTest {
         }
         reader.close();
         copyShapefiles(STATEPOP);
-        reader = new ShapefileReader(shpFiles, false, false, new GeometryFactory());
+        reader = new ShapefileReader(shpFiles, false, false);
 
         for (int i = 0, ii = offsets.size(); i < ii; i++) {
             reader.shapeAt(((Integer) offsets.get(i)).intValue());
@@ -69,7 +68,7 @@ public class ShapefileTest extends org.geotools.data.shapefile.ShapefileTest {
 
     protected void loadShapes(String resource, int expected) throws Exception {
         ShpFiles shpFiles = new ShpFiles(TestData.url(resource));
-        ShapefileReader reader = new ShapefileReader(shpFiles, false, false, new GeometryFactory());
+        ShapefileReader reader = new ShapefileReader(shpFiles, false, false);
         int cnt = 0;
         try {
             while (reader.hasNext()) {
@@ -86,7 +85,7 @@ public class ShapefileTest extends org.geotools.data.shapefile.ShapefileTest {
     protected void loadMemoryMapped(String resource, int expected)
             throws Exception {
         ShpFiles shpFiles = new ShpFiles(TestData.url(resource));
-        ShapefileReader reader = new ShapefileReader(shpFiles, false, false, new GeometryFactory());
+        ShapefileReader reader = new ShapefileReader(shpFiles, false, false);
         int cnt = 0;
         try {
             while (reader.hasNext()) {

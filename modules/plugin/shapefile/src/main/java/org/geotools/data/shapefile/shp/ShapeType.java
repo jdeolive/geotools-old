@@ -16,8 +16,6 @@
  */
 package org.geotools.data.shapefile.shp;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-
 /**
  * Not much but a type safe enumeration of file types as ints and names. The
  * descriptions can easily be tied to a ResourceBundle if someone wants to do
@@ -187,28 +185,28 @@ public final class ShapeType {
      *                 If the ShapeType is bogus.
      * @return The correct handler for this ShapeType. Returns a new one.
      */
-    public ShapeHandler getShapeHandler(GeometryFactory gf) throws ShapefileException {
+    public ShapeHandler getShapeHandler() throws ShapefileException {
         ShapeHandler handler;
         switch (id) {
         case 1:
         case 11:
         case 21:
-            handler = new PointHandler(this, gf);
+            handler = new PointHandler(this);
             break;
         case 3:
         case 13:
         case 23:
-            handler = new MultiLineHandler(this, gf);
+            handler = new MultiLineHandler(this);
             break;
         case 5:
         case 15:
         case 25:
-            handler = new PolygonHandler(this, gf);
+            handler = new PolygonHandler(this);
             break;
         case 8:
         case 18:
         case 28:
-            handler = new MultiPointHandler(this, gf);
+            handler = new MultiPointHandler(this);
             break;
         default:
             handler = null;

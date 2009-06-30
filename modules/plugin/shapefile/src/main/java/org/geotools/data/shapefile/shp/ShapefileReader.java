@@ -34,8 +34,6 @@ import org.geotools.data.shapefile.StreamLogging;
 import org.geotools.resources.NIOUtilities;
 import org.geotools.util.logging.Logging;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-
 /**
  * The general use of this class is: <CODE><PRE>
  * 
@@ -140,14 +138,6 @@ public class ShapefileReader implements FileReader {
     private IndexFile shxReader;
     
     private StreamLogging streamLogger = new StreamLogging("Shapefile Reader");
-    
-    /**
-     * @deprecated Use {@link #ShapefileReader(ShpFiles, boolean, boolean, GeometryFactory)} instead
-     */
-    public ShapefileReader(ShpFiles shapefileFiles, boolean strict,
-            boolean useMemoryMapped) throws IOException, ShapefileException {
-        this(shapefileFiles, strict, useMemoryMapped, new GeometryFactory());
-    }
 
     /**
      * Creates a new instance of ShapeFile.
@@ -163,7 +153,7 @@ public class ShapefileReader implements FileReader {
      *                 If for some reason the file contains invalid records.
      */
     public ShapefileReader(ShpFiles shapefileFiles, boolean strict,
-            boolean useMemoryMapped, GeometryFactory gf) throws IOException, ShapefileException {
+            boolean useMemoryMapped) throws IOException, ShapefileException {
         this.channel = shapefileFiles.getReadChannel(ShpFileType.SHP, this);
         this.useMemoryMappedBuffer = useMemoryMapped;
         streamLogger.open();
@@ -175,7 +165,7 @@ public class ShapefileReader implements FileReader {
             		"assuming the .shp file is not sparse", e);
             currentShape = UNKNOWN;
         }
-        init(strict, gf);
+        init(strict);
     }
     
     /**
@@ -261,10 +251,10 @@ public class ShapefileReader implements FileReader {
         return r;
     }
 
-    private void init(boolean strict, GeometryFactory gf) throws IOException, ShapefileException {
+    private void init(boolean strict) throws IOException, ShapefileException {
         header = readHeader(channel, strict);
         fileShapeType = header.getShapeType();
-        handler = fileShapeType.getShapeHandler(gf);
+        handler = fileShapeType.getShapeHandler();
 
         // recordHeader = ByteBuffer.allocateDirect(8);
         // recordHeader.order(ByteOrder.BIG_ENDIAN);
@@ -393,7 +383,7 @@ public class ShapefileReader implements FileReader {
             return this.toBufferOffset(record.end);
         }
     }
-    
+
     /**
      * Transfer (by bytes) the data at the current record to the
      * ShapefileWriter.
@@ -603,7 +593,6 @@ public class ShapefileReader implements FileReader {
      */
     public Object shapeAt(int offset) throws IOException,
             UnsupportedOperationException {
-        disableShxUsage();
         if (randomAccessEnabled) {
             this.goTo(offset);
             return nextRecord().shape();

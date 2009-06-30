@@ -37,7 +37,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * Allows access the the ShapefileReaders.
@@ -62,7 +61,7 @@ public class ShapefileRendererUtil {
      */
     public static ShapefileReader getShpReader( ShapefileDataStore ds, Envelope bbox, 
             Rectangle screenSize, MathTransform mt, boolean hasOpacity, boolean returnJTS ) throws IOException, TransformException {
-        ShapefileReader reader = ds.openShapeReader(new GeometryFactory());
+        ShapefileReader reader = ds.openShapeReader();
         ShapeType type = reader.getHeader().getShapeType();
 
         if ((type == ShapeType.ARC) || (type == ShapeType.ARCM) || (type == ShapeType.ARCZ)) {
