@@ -19,18 +19,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.Converters;
-import org.opengis.filter.FilterFactory2;
+import org.geotools.util.SoftValueHashMap;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.ExpressionVisitor;
@@ -124,7 +121,7 @@ public class VocabFunction implements Function {
         return Converters.convert( lookup.get(key), context );        
     }
     
-    static Map<String,Properties> cache = Collections.synchronizedMap(new HashMap<String,Properties>());
+    static Map<String,Properties> cache = Collections.synchronizedMap(new SoftValueHashMap<String,Properties>());
     
     public static synchronized Properties lookup( String urn ){
         // We should look up in our Registery 
