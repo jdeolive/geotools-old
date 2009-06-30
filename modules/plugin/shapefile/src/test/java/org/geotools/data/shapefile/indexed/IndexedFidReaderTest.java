@@ -127,6 +127,11 @@ public class IndexedFidReaderTest extends FIDTestCase {
         assertTrue(expectedCount > 0);
         assertEquals(expectedCount, reader.getCount());
         
+        while (reader.hasNext()) {
+            System.out.println(reader.next());
+        }
+        
+        
         assertFalse("findFid for archsites.5 returned -1",-1 == reader.findFid("archsites.5"));
         assertFalse("findFid for archsites.25 returned -1",-1 == reader.findFid("archsites.25"));
 

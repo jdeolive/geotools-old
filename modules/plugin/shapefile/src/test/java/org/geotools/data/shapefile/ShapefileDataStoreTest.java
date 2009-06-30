@@ -571,7 +571,9 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
 
     public void testGeometriesWriting() throws Exception {
 
-        String[] wktResources = new String[] { "point", "multipoint", "line",
+//        String[] wktResources = new String[] { "point", "multipoint", "line",
+//                "multiline", "polygon", "multipolygon" };
+        String[] wktResources = new String[] { "line",
                 "multiline", "polygon", "multipolygon" };
 
         for (int i = 0; i < wktResources.length; i++) {
@@ -772,10 +774,8 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         Transaction t= new DefaultTransaction();
         FeatureWriter<SimpleFeatureType, SimpleFeature> writer = s.getFeatureWriter(s.getTypeNames()[0], t);
         SimpleFeature feature1 = writer.next();
-        
-        
     }
-
+    
     /**
      * This is useful to dump a UTF16 character to an UT16 escape sequence,
      * basically the only way to represent the chars we don't have on the
