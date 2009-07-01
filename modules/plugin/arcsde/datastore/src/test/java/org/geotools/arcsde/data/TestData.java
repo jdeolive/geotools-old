@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
+import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Commands;
 import org.geotools.arcsde.pool.ISession;
@@ -207,7 +207,7 @@ public class TestData {
 
     public SessionPool newSessionPool() throws IOException {
         SessionPoolFactory pfac = SessionPoolFactory.getInstance();
-        ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(this.conProps);
+        ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(this.conProps);
         return pfac.createPool(config);
     }
 

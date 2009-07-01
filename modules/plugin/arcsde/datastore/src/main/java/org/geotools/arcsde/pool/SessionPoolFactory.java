@@ -63,7 +63,7 @@ public class SessionPoolFactory {
      * @throws IOException
      *             if the pool needs but can't be created
      */
-    public synchronized SessionPool createPool(ArcSDEConnectionConfig config) throws IOException {
+    public synchronized SessionPool createPool(ArcSDEDataStoreConfig config) throws IOException {
         SessionPool pool;
 
         // the new pool will be populated with config.minConnections

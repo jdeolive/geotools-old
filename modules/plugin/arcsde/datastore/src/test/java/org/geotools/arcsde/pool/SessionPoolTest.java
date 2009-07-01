@@ -17,6 +17,10 @@
  */
 package org.geotools.arcsde.pool;
 
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -50,7 +54,7 @@ public class SessionPoolTest {
 
     private Map connectionParameters;
 
-    private ArcSDEConnectionConfig connectionConfig = null;
+    private ArcSDEDataStoreConfig connectionConfig = null;
 
     private SessionPool pool = null;
 
@@ -84,7 +88,7 @@ public class SessionPoolTest {
 
         // test that mandatory connection parameters are set
         try {
-            connectionConfig = new ArcSDEConnectionConfig(conProps);
+            connectionConfig = new ArcSDEDataStoreConfig(conProps);
         } catch (Exception ex) {
             throw new IllegalStateException("No valid connection parameters found in "
                     + conParamsSource.toExternalForm() + ": " + ex.getMessage());
@@ -125,7 +129,7 @@ public class SessionPoolTest {
      */
     private SessionPool createPool(Map connParams) throws IllegalArgumentException,
             NullPointerException, IOException {
-        this.connectionConfig = new ArcSDEConnectionConfig(connParams);
+        this.connectionConfig = new ArcSDEDataStoreConfig(connParams);
         LOGGER.fine("creating a new SessionPool with " + connectionConfig);
 
         if (this.pool != null) {
@@ -150,9 +154,9 @@ public class SessionPoolTest {
         LOGGER.fine("testing connection to the sde database");
 
         SessionPoolFactory pf = SessionPoolFactory.getInstance();
-        ArcSDEConnectionConfig config = null;
+        ArcSDEDataStoreConfig config = null;
 
-        config = new ArcSDEConnectionConfig(connectionParameters);
+        config = new ArcSDEDataStoreConfig(connectionParameters);
 
         SessionPool connPool = null;
 
@@ -163,11 +167,10 @@ public class SessionPoolTest {
 
     @Test
     public void testConnectFailure() throws IOException {
-        ArcSDEConnectionConfig config = null;
+        ArcSDEDataStoreConfig config = null;
 
-        connectionParameters.put(ArcSDEConnectionConfig.SERVER_NAME_PARAM,
-                "unreacheable-server-name");
-        config = new ArcSDEConnectionConfig(connectionParameters);
+        connectionParameters.put(SERVER_NAME_PARAM_NAME, "unreacheable-server-name");
+        config = new ArcSDEDataStoreConfig(connectionParameters);
 
         try {
             SessionPool connPool = new SessionPool(config);
@@ -195,8 +198,8 @@ public class SessionPoolTest {
         // the configured parameters to test the connections' pool
         // availability
         Map params = new HashMap(this.connectionParameters);
-        params.put(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM, Integer.valueOf(MIN_CONNECTIONS));
-        params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM, Integer.valueOf(MAX_CONNECTIONS));
+        params.put(MIN_CONNECTIONS_PARAM_NAME, Integer.valueOf(MIN_CONNECTIONS));
+        params.put(MAX_CONNECTIONS_PARAM_NAME, Integer.valueOf(MAX_CONNECTIONS));
 
         createPool(params);
 
@@ -222,8 +225,8 @@ public class SessionPoolTest {
         // the configured parameters to test the connections' pool
         // availability
         Map params = new HashMap(this.connectionParameters);
-        params.put(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM, Integer.valueOf(MIN_CONNECTIONS));
-        params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM, Integer.valueOf(1));
+        params.put(MIN_CONNECTIONS_PARAM_NAME, Integer.valueOf(MIN_CONNECTIONS));
+        params.put(MAX_CONNECTIONS_PARAM_NAME, Integer.valueOf(1));
 
         // this MUST fail, since maxConnections is lower than minConnections
         try {
@@ -249,8 +252,8 @@ public class SessionPoolTest {
         final int MAX_CONNECTIONS = 2;
 
         Map params = new HashMap(this.connectionParameters);
-        params.put(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM, Integer.valueOf(MIN_CONNECTIONS));
-        params.put(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM, Integer.valueOf(MAX_CONNECTIONS));
+        params.put(MIN_CONNECTIONS_PARAM_NAME, Integer.valueOf(MIN_CONNECTIONS));
+        params.put(MAX_CONNECTIONS_PARAM_NAME, Integer.valueOf(MAX_CONNECTIONS));
 
         createPool(params);
 
@@ -289,7 +292,7 @@ public class SessionPoolTest {
     @Test
     public void testCreateWithNullDBName() throws IOException {
         Map params = new HashMap(this.connectionParameters);
-        params.remove(ArcSDEConnectionConfig.INSTANCE_NAME_PARAM);
+        params.remove(INSTANCE_NAME_PARAM_NAME);
         createPool(params);
     }
 
@@ -301,7 +304,7 @@ public class SessionPoolTest {
     @Test
     public void testCreateWithEmptyDBName() throws IOException {
         Map params = new HashMap(this.connectionParameters);
-        params.put(ArcSDEConnectionConfig.INSTANCE_NAME_PARAM, "");
+        params.put(INSTANCE_NAME_PARAM_NAME, "");
         createPool(params);
     }
 }

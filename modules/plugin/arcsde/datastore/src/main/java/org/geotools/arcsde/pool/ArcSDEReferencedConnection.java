@@ -29,7 +29,7 @@ import org.apache.commons.pool.ObjectPool;
  */
 public class ArcSDEReferencedConnection extends Session {
 
-    public ArcSDEReferencedConnection(ObjectPool pool, ArcSDEConnectionConfig config)
+    public ArcSDEReferencedConnection(ObjectPool pool, ArcSDEDataStoreConfig config)
             throws IOException {
         super(pool, config);
     }

@@ -17,7 +17,7 @@
  */
 package org.geotools.arcsde;
 
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.VERSION_PARAM;
+import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.VERSION_PARAM_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -34,6 +34,7 @@ import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.InProcessViewSupportTestData;
 import org.geotools.arcsde.data.TestData;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
+import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataAccessFactory;
 import org.geotools.data.DataAccessFinder;
@@ -94,10 +95,10 @@ public class ArcSDEDataStoreFactoryTest {
         workingParams = testData.getConProps();
 
         nonWorkingParams = new HashMap(workingParams);
-        nonWorkingParams.put(ArcSDEConnectionConfig.SERVER_NAME_PARAM, "non-existent-server");
+        nonWorkingParams.put(ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME, "non-existent-server");
 
         illegalParams = new HashMap(workingParams);
-        illegalParams.put(ArcSDEConnectionConfig.DBTYPE_PARAM, "non-existent-db-type");
+        illegalParams.put(ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME, "non-existent-db-type");
 
         dsFactory = new ArcSDEDataStoreFactory();
     }
@@ -236,7 +237,7 @@ public class ArcSDEDataStoreFactoryTest {
 
         Map paramsWithVersion = new HashMap(workingParams);
         try {
-            paramsWithVersion.put(VERSION_PARAM, "Non existent version name");
+            paramsWithVersion.put(VERSION_PARAM_NAME, "Non existent version name");
             dsFactory.createDataStore(paramsWithVersion);
         } catch (IOException e) {
             assertTrue(e.getMessage(), e.getMessage().startsWith(
@@ -256,26 +257,26 @@ public class ArcSDEDataStoreFactoryTest {
         }
 
         Map paramsWithVersion = new HashMap(workingParams);
-        paramsWithVersion.put(VERSION_PARAM, versionName);
+        paramsWithVersion.put(VERSION_PARAM_NAME, versionName);
         DataStore ds = dsFactory.createDataStore(paramsWithVersion);
         assertNotNull(ds);
         ds.dispose();
 
         String qualifiedVersionName = session.getUser() + "." + versionName;
-        paramsWithVersion.put(VERSION_PARAM, qualifiedVersionName);
+        paramsWithVersion.put(VERSION_PARAM_NAME, qualifiedVersionName);
         ds = dsFactory.createDataStore(paramsWithVersion);
         assertNotNull(ds);
         ds.dispose();
 
         // version name should be case insensitive
         qualifiedVersionName = qualifiedVersionName.toUpperCase();
-        paramsWithVersion.put(VERSION_PARAM, qualifiedVersionName);
+        paramsWithVersion.put(VERSION_PARAM_NAME, qualifiedVersionName);
         ds = dsFactory.createDataStore(paramsWithVersion);
         assertNotNull(ds);
         ds.dispose();
 
         qualifiedVersionName = qualifiedVersionName.toLowerCase();
-        paramsWithVersion.put(VERSION_PARAM, qualifiedVersionName);
+        paramsWithVersion.put(VERSION_PARAM_NAME, qualifiedVersionName);
         ds = dsFactory.createDataStore(paramsWithVersion);
         assertNotNull(ds);
         ds.dispose();

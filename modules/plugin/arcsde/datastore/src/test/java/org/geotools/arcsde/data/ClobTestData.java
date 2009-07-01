@@ -7,7 +7,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
-import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
+import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
@@ -153,7 +153,7 @@ public class ClobTestData {
     public SessionPool getConnectionPool() throws IOException {
         if (this._pool == null) {
             SessionPoolFactory pfac = SessionPoolFactory.getInstance();
-            ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(this.conProps);
+            ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(this.conProps);
             this._pool = pfac.createPool(config);
         }
         return this._pool;

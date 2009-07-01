@@ -17,13 +17,13 @@
  */
 package org.geotools.arcsde.gce;
 
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.DBTYPE_PARAM;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.DBTYPE_PARAM_VALUE;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PASSWORD_PARAM;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PORT_NUMBER_PARAM;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.SERVER_NAME_PARAM;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.USER_NAME_PARAM;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.DBTYPE_PARAM_VALUE;
 
 import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
@@ -45,9 +45,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
+import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.pool.ArcSDEPooledConnection;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.arcsde.util.ArcSDEUtils;
@@ -106,7 +106,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      */
     private static final Map<String, RasterDatasetInfo> rasterInfos = new WeakHashMap<String, RasterDatasetInfo>();
 
-    private static final Map<String, ArcSDEConnectionConfig> connectionConfigs = new WeakHashMap<String, ArcSDEConnectionConfig>();
+    private static final Map<String, ArcSDEDataStoreConfig> connectionConfigs = new WeakHashMap<String, ArcSDEDataStoreConfig>();
 
     private static final ArcSDERasterFormat instance = new ArcSDERasterFormat();
 
@@ -165,7 +165,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             // this will be our connection string
             final String coverageUrl = parseCoverageUrl(source);
 
-            final ArcSDEConnectionConfig connectionConfig = getConnectionConfig(coverageUrl);
+            final ArcSDEDataStoreConfig connectionConfig = getConnectionConfig(coverageUrl);
 
             ArcSDEConnectionPool connectionPool = setupConnectionPool(connectionConfig);
 
@@ -208,8 +208,8 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         return rasterInfo;
     }
 
-    private ArcSDEConnectionConfig getConnectionConfig(final String coverageUrl) {
-        ArcSDEConnectionConfig sdeConfig;
+    private ArcSDEDataStoreConfig getConnectionConfig(final String coverageUrl) {
+        ArcSDEDataStoreConfig sdeConfig;
         sdeConfig = connectionConfigs.get(coverageUrl);
         if (sdeConfig == null) {
             synchronized (connectionConfigs) {
@@ -343,7 +343,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      *            to this {@link ArcSDERasterGridCoverage2DReader}.
      * @throws IOException
      */
-    private ArcSDEConnectionPool setupConnectionPool(ArcSDEConnectionConfig sdeConfig)
+    private ArcSDEConnectionPool setupConnectionPool(ArcSDEDataStoreConfig sdeConfig)
             throws IOException {
 
         if (LOGGER.isLoggable(Level.FINE)) {
@@ -361,7 +361,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      *            'sde://user:pass@sdehost:[port]/[dbname]
      * @return a ConnectionConfig object representing these parameters
      */
-    static ArcSDEConnectionConfig sdeURLToConnectionConfig(StringBuffer sdeUrl) {
+    static ArcSDEDataStoreConfig sdeURLToConnectionConfig(StringBuffer sdeUrl) {
         // annoyingly, geoserver currently stores the user-entered SDE string as
         // a File, and passes us the
         // File object. The File object strips the 'sde://user...' into a
@@ -430,14 +430,14 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         sdeUrl.delete(0, idx);
 
         Map<String, String> params = new HashMap<String, String>();
-        params.put(DBTYPE_PARAM, DBTYPE_PARAM_VALUE);
-        params.put(SERVER_NAME_PARAM, sdeHost);
-        params.put(PORT_NUMBER_PARAM, String.valueOf(sdePort));
-        params.put(INSTANCE_NAME_PARAM, sdeDBName);
-        params.put(USER_NAME_PARAM, sdeUser);
-        params.put(PASSWORD_PARAM, sdePass);
+        params.put(DBTYPE_PARAM_NAME, DBTYPE_PARAM_VALUE);
+        params.put(SERVER_NAME_PARAM_NAME, sdeHost);
+        params.put(PORT_NUMBER_PARAM_NAME, String.valueOf(sdePort));
+        params.put(INSTANCE_NAME_PARAM_NAME, sdeDBName);
+        params.put(USER_NAME_PARAM_NAME, sdeUser);
+        params.put(PASSWORD_PARAM_NAME, sdePass);
 
-        return new ArcSDEConnectionConfig(params);
+        return new ArcSDEDataStoreConfig(params);
     }
 
     /**

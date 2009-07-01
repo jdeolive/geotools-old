@@ -91,7 +91,7 @@ class Session implements ISession {
      */
     private final ObjectPool pool;
 
-    private final ArcSDEConnectionConfig config;
+    private final ArcSDEDataStoreConfig config;
 
     private static int sessionCounter;
 
@@ -129,7 +129,7 @@ class Session implements ISession {
      * @throws SeException
      *             If we cannot connect
      */
-    Session(final ObjectPool pool, final ArcSDEConnectionConfig config) throws IOException {
+    Session(final ObjectPool pool, final ArcSDEDataStoreConfig config) throws IOException {
         this.config = config;
         this.pool = pool;
         this.taskExecutor = Executors.newSingleThreadExecutor();
@@ -961,9 +961,9 @@ class Session implements ISession {
     }
 
     private static final class CreateSessionCommand extends Command<SeConnection> {
-        private final ArcSDEConnectionConfig config;
+        private final ArcSDEDataStoreConfig config;
 
-        private CreateSessionCommand(final ArcSDEConnectionConfig config) {
+        private CreateSessionCommand(final ArcSDEDataStoreConfig config) {
             this.config = config;
         }
 

@@ -17,6 +17,20 @@
  */
 package org.geotools.arcsde;
 
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.ALLOW_NON_SPATIAL_TABLES_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.NAMESPACE_PARAM_NAME;
+import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.VERSION_PARAM_NAME;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +39,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.ViewRegisteringFactoryHelper;
-import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
+import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.pool.Commands;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.arcsde.pool.SessionPool;
@@ -74,46 +88,51 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
 
     private static int JSDE_CLIENT_VERSION;
 
+    static final Param NAMESPACE_PARAM = new Param(NAMESPACE_PARAM_NAME, String.class,
+            "namespace associated to this data store", false);
+
+    static final Param DBTYPE_PARAM = new Param(DBTYPE_PARAM_NAME, String.class,
+            "fixed value. Must be \"arcsde\"", true, "arcsde");
+
+    static final Param SERVER_PARAM = new Param(SERVER_NAME_PARAM_NAME, String.class,
+            "sever name where the ArcSDE gateway is running", true);
+
+    static final Param PORT_PARAM = new Param(
+            PORT_NUMBER_PARAM_NAME,
+            Integer.class,
+            "port number in wich the ArcSDE server is listening for connections.Generally it's 5151",
+            true, Integer.valueOf(5151));
+
+    static final Param INSTANCE_PARAM = new Param(INSTANCE_NAME_PARAM_NAME, String.class,
+            "the specific database to connect to. Only applicable to "
+                    + "certain databases. Value ignored if not applicable.", false);
+
+    static final Param USER_PARAM = new Param(USER_NAME_PARAM_NAME, String.class,
+            "name of a valid database user account.", true);
+
+    static final Param PASSWORD_PARAM = new Param(PASSWORD_PARAM_NAME, String.class,
+            new SimpleInternationalString("the database user's password."), false, null,
+            Collections.singletonMap(Parameter.IS_PASSWORD, Boolean.TRUE));
+
+    static final Param MIN_CONNECTIONS_PARAM = new Param(MIN_CONNECTIONS_PARAM_NAME, Integer.class,
+            "Minimun number of open connections", false, Integer
+                    .valueOf(SessionPool.DEFAULT_CONNECTIONS));
+
+    static final Param MAX_CONNECTIONS_PARAM = new Param(MAX_CONNECTIONS_PARAM_NAME, Integer.class,
+            "Maximun number of open connections (will not work if < 2)", false, Integer
+                    .valueOf(SessionPool.DEFAULT_MAX_CONNECTIONS));
+
+    static final Param TIMEOUT_PARAM = new Param(CONNECTION_TIMEOUT_PARAM_NAME, Integer.class,
+            "Milliseconds to wait for an available connection before failing to connect", false,
+            Integer.valueOf(SessionPool.DEFAULT_MAX_WAIT_TIME));
+
+    static final Param VERSION_PARAM = new Param(VERSION_PARAM_NAME, String.class,
+            "The ArcSDE database version to use.", false);
+
+    static final Param ALLOW_NON_SPATIAL_PARAM = new Param(ALLOW_NON_SPATIAL_TABLES_PARAM_NAME,
+            Boolean.class, "If enabled, registered non-spatial tables are also published.", false);
+
     static {
-        Param NAMESPACE_PARAM = new Param(ArcSDEConnectionConfig.NAMESPACE_PARAM, String.class,
-                "namespace associated to this data store", false);
-        Param DBTYPE_PARAM = new Param(ArcSDEConnectionConfig.DBTYPE_PARAM, String.class,
-                "fixed value. Must be \"arcsde\"", true, "arcsde");
-        Param SERVER_PARAM = new Param(ArcSDEConnectionConfig.SERVER_NAME_PARAM, String.class,
-                "sever name where the ArcSDE gateway is running", true);
-        Param PORT_PARAM = new Param(
-                ArcSDEConnectionConfig.PORT_NUMBER_PARAM,
-                Integer.class,
-                "port number in wich the ArcSDE server is listening for connections.Generally it's 5151",
-                true, Integer.valueOf(5151));
-        Param INSTANCE_PARAM = new Param(ArcSDEConnectionConfig.INSTANCE_NAME_PARAM, String.class,
-                "the specific database to connect to. Only applicable to "
-                        + "certain databases. Value ignored if not applicable.", false);
-        Param USER_PARAM = new Param(ArcSDEConnectionConfig.USER_NAME_PARAM, String.class,
-                "name of a valid database user account.", true);
-        Param PASSWORD_PARAM = new Param(ArcSDEConnectionConfig.PASSWORD_PARAM, String.class,
-                new SimpleInternationalString("the database user's password."), false, null,
-                Collections.singletonMap(Parameter.IS_PASSWORD, Boolean.TRUE));
-        Param MIN_CONNECTIONS_PARAM = new Param(ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM,
-                Integer.class, "Minimun number of open connections", false, Integer
-                        .valueOf(SessionPool.DEFAULT_CONNECTIONS));
-
-        Param MAX_CONNECTIONS_PARAM = new Param(ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM,
-                Integer.class, "Maximun number of open connections (will not work if < 2)", false,
-                Integer.valueOf(SessionPool.DEFAULT_MAX_CONNECTIONS));
-
-        Param TIMEOUT_PARAM = new Param(ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM,
-                Integer.class,
-                "Milliseconds to wait for an available connection before failing to connect",
-                false, Integer.valueOf(SessionPool.DEFAULT_MAX_WAIT_TIME));
-
-        Param VERSION_PARAM = new Param(ArcSDEConnectionConfig.VERSION_PARAM, String.class,
-                "The ArcSDE database version to use.", false);
-
-        Param ALLOW_NON_SPATIAL_PARAM = new Param(
-                ArcSDEConnectionConfig.ALLOW_NON_SPATIAL_TABLES_PARAM, Boolean.class,
-                "If enabled, registered non-spatial tables are also published.", false);
-
         paramMetadata.add(NAMESPACE_PARAM);
         paramMetadata.add(DBTYPE_PARAM);
         paramMetadata.add(SERVER_PARAM);
@@ -221,13 +240,22 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
      * @throws java.io.IOException
      *             if something goes wrong creating the datastore.
      */
-    public DataStore createDataStore(Map params) throws java.io.IOException {
+    public DataStore createDataStore(final Map params) throws java.io.IOException {
         if (JSDE_CLIENT_VERSION == JSDE_VERSION_DUMMY) {
             throw new DataSourceException("Can't connect to ArcSDE with the dummy jar.");
         }
 
         ArcSDEDataStore sdeDStore = null;
-        ArcSDEConnectionConfig config = new ArcSDEConnectionConfig(params);
+        ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(params);
+        sdeDStore = createDataStore(config);
+
+        ViewRegisteringFactoryHelper.registerSqlViews(sdeDStore, params);
+
+        return sdeDStore;
+    }
+
+    ArcSDEDataStore createDataStore(ArcSDEDataStoreConfig config) throws IOException {
+        ArcSDEDataStore sdeDStore;
         // create a new session pool to be used only by this datastore
         final SessionPool connPool = poolFactory.createPool(config);
 
@@ -278,9 +306,6 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         }
         boolean allowNonSpatialTables = config.isAllowNonSpatialTables();
         sdeDStore = new ArcSDEDataStore(connPool, namespaceUri, versionName, allowNonSpatialTables);
-
-        ViewRegisteringFactoryHelper.registerSqlViews(sdeDStore, params);
-
         return sdeDStore;
     }
 
@@ -314,7 +339,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         boolean canProcess = true;
 
         try {
-            new ArcSDEConnectionConfig(params);
+            new ArcSDEDataStoreConfig(params);
         } catch (NullPointerException ex) {
             canProcess = false;
         } catch (IllegalArgumentException ex) {

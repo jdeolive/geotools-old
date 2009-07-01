@@ -79,7 +79,7 @@ public class SessionPool {
     private SeConnectionFactory seConnectionFactory;
 
     /** this connection pool connection's parameters */
-    protected ArcSDEConnectionConfig config;
+    protected ArcSDEDataStoreConfig config;
 
     /** Apache commons-pool used to pool arcsde connections */
     protected GenericObjectPool pool;
@@ -96,7 +96,7 @@ public class SessionPool {
      * @throws NullPointerException
      *             If config is null
      */
-    protected SessionPool(ArcSDEConnectionConfig config) throws IOException {
+    protected SessionPool(ArcSDEDataStoreConfig config) throws IOException {
         if (config == null) {
             throw new NullPointerException("parameter config can't be null");
         }
@@ -340,7 +340,7 @@ public class SessionPool {
      * 
      * @return DOCUMENT ME!
      */
-    public ArcSDEConnectionConfig getConfig() {
+    public ArcSDEDataStoreConfig getConfig() {
         return this.config;
     }
 
@@ -353,7 +353,7 @@ public class SessionPool {
      */
     protected final class SeConnectionFactory extends BasePoolableObjectFactory {
         /** DOCUMENT ME! */
-        private ArcSDEConnectionConfig config;
+        private ArcSDEDataStoreConfig config;
 
         /**
          * Creates a new SeConnectionFactory object.
@@ -361,7 +361,7 @@ public class SessionPool {
          * @param config
          *            DOCUMENT ME!
          */
-        public SeConnectionFactory(ArcSDEConnectionConfig config) {
+        public SeConnectionFactory(ArcSDEDataStoreConfig config) {
             super();
             this.config = config;
         }

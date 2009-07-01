@@ -26,7 +26,7 @@ import org.geotools.data.DataSourceException;
 
 /**
  * Singleton factory that maintains a single {@link ArcSDEConnectionPool connection pool} per set of
- * {@link ArcSDEConnectionConfig connection parameters}.
+ * {@link ArcSDEDataStoreConfig connection parameters}.
  * 
  * @author Gabriel Roldan
  * @source $URL:
@@ -77,7 +77,7 @@ public class ArcSDEConnectionPoolFactory {
      * @throws DataSourceException
      *             if the pool needs but can't be created
      */
-    public synchronized ArcSDEConnectionPool createPool(ArcSDEConnectionConfig config)
+    public synchronized ArcSDEConnectionPool createPool(ArcSDEDataStoreConfig config)
             throws DataSourceException {
         ArcSDEConnectionPool pool = (ArcSDEConnectionPool) this.currentPools.get(config);
 

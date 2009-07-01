@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
-import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
+import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.pool.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
@@ -113,10 +113,10 @@ public class ArcSDEDataStoreVersioningTest {
         ArcSDEDataStoreFactory factory = new ArcSDEDataStoreFactory();
         defaultVersionDataStore = factory.createDataStore(params);
 
-        params.put(ArcSDEConnectionConfig.VERSION_PARAM, version1);
+        params.put(ArcSDEDataStoreConfig.VERSION_PARAM_NAME, version1);
         version1DataStore = factory.createDataStore(params);
 
-        params.put(ArcSDEConnectionConfig.VERSION_PARAM, version2);
+        params.put(ArcSDEDataStoreConfig.VERSION_PARAM_NAME, version2);
         version2DataStore = factory.createDataStore(params);
     }
 

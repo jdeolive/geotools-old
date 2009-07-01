@@ -50,7 +50,7 @@ public class ArcSDEPooledConnection extends SeConnection {
 
     private ObjectPool pool;
 
-    private ArcSDEConnectionConfig config;
+    private ArcSDEDataStoreConfig config;
 
     private static int connectionCounter;
 
@@ -64,8 +64,7 @@ public class ArcSDEPooledConnection extends SeConnection {
 
     private Map<String, SeRasterColumn> cachedRasters = new HashMap<String, SeRasterColumn>();
 
-    public ArcSDEPooledConnection(ObjectPool pool, ArcSDEConnectionConfig config)
-            throws SeException {
+    public ArcSDEPooledConnection(ObjectPool pool, ArcSDEDataStoreConfig config) throws SeException {
         super(config.getServerName(), config.getPortNumber().intValue(), config.getDatabaseName(),
                 config.getUserName(), config.getUserPassword());
         this.config = config;

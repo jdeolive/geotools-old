@@ -93,7 +93,7 @@ public class ArcSDEConnectionPool {
     private SeConnectionFactory seConnectionFactory;
 
     /** this connection pool connection's parameters */
-    private ArcSDEConnectionConfig config;
+    private ArcSDEDataStoreConfig config;
 
     /** Apache commons-pool used to pool arcsde connections */
     private ObjectPool pool;
@@ -111,7 +111,7 @@ public class ArcSDEConnectionPool {
      * @throws NullPointerException
      *             DOCUMENT ME!
      */
-    protected ArcSDEConnectionPool(ArcSDEConnectionConfig config) throws DataSourceException {
+    protected ArcSDEConnectionPool(ArcSDEDataStoreConfig config) throws DataSourceException {
         if (config == null) {
             throw new NullPointerException("parameter config can't be null");
         }
@@ -314,7 +314,7 @@ public class ArcSDEConnectionPool {
      * 
      * @return DOCUMENT ME!
      */
-    public ArcSDEConnectionConfig getConfig() {
+    public ArcSDEDataStoreConfig getConfig() {
         return this.config;
     }
 
@@ -327,7 +327,7 @@ public class ArcSDEConnectionPool {
      */
     class SeConnectionFactory extends BasePoolableObjectFactory {
         /** DOCUMENT ME! */
-        private ArcSDEConnectionConfig config;
+        private ArcSDEDataStoreConfig config;
 
         private List/* <SeConnection> */invalidConnections = new ArrayList/* <SeConnection> */(2);
 
@@ -337,7 +337,7 @@ public class ArcSDEConnectionPool {
          * @param config
          *            DOCUMENT ME!
          */
-        public SeConnectionFactory(ArcSDEConnectionConfig config) {
+        public SeConnectionFactory(ArcSDEDataStoreConfig config) {
             super();
             this.config = config;
         }

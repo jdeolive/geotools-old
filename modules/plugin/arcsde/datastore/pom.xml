@@ -164,6 +164,11 @@
       <artifactId>jai_imageio</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>simple-jndi</groupId>
+      <artifactId>simple-jndi</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 

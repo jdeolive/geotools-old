@@ -43,7 +43,7 @@ public class UnavailableArcSDEConnectionException extends IOException {
      * @param config
      *            DOCUMENT ME!
      */
-    public UnavailableArcSDEConnectionException(int usedConnections, ArcSDEConnectionConfig config) {
+    public UnavailableArcSDEConnectionException(int usedConnections, ArcSDEDataStoreConfig config) {
         super("The maximun of " + usedConnections + " to " + config.toString()
                 + " has been reached");
     }
