@@ -209,11 +209,16 @@ public class FilterMockData {
     }
 
     static Element and(Document document, Node parent) {
+        return and(document,parent,false);
+    }
+    
+    static Element and(Document document, Node parent, boolean empty) {
         Element and = element(document, parent, OGC.And);
 
-        propertyIsEqualTo(document, and);
-        propertyIsNotEqualTo(document, and);
-
+        if( !empty ) {
+            propertyIsEqualTo(document, and);
+            propertyIsNotEqualTo(document, and);
+        }
         return and;
     }
 
