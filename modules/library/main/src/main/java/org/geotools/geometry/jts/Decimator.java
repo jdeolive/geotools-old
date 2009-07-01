@@ -275,7 +275,7 @@ public final class Decimator {
 				// double[] newCoordsXformed2 = new double[2];
 			    if(transform != null) {
 			        transform.transform(coords, 0, coords, 0, 1);
-			        seq.setArray(coords);
+			        seq.setArray(coords, 2);
 			    }
 				return;
 			} else
@@ -288,7 +288,7 @@ public final class Decimator {
             // do the xform if needed
             if ((transform != null) && (!transform.isIdentity())) {
                 transform.transform(coords, 0, coords, 0, ncoords);
-                seq.setArray(coords);
+                seq.setArray(coords, 2);
             }
             return;
         }
@@ -351,9 +351,9 @@ public final class Decimator {
 		if(actualCoordsGen * 2 < coords.length) {
 		    double[] seqDouble = new double[2 * actualCoordsGen];
 		    System.arraycopy(coords, 0, seqDouble, 0, actualCoordsGen * 2);
-		    seq.setArray(seqDouble);
+		    seq.setArray(seqDouble, 2);
 		} else {
-		    seq.setArray(coords);
+		    seq.setArray(coords, 2);
 		}
 	}
 

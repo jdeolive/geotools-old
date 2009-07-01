@@ -170,7 +170,7 @@ public class LiteCoordinateSequence extends PackedCoordinateSequence{
     public Object clone() {
       double[] clone = new double[coords.length];
       System.arraycopy(coords, 0, clone, 0, coords.length);
-      return new LiteCoordinateSequence(clone);
+      return new LiteCoordinateSequence(clone, dimension);
     }
 
     /**
@@ -240,6 +240,13 @@ public class LiteCoordinateSequence extends PackedCoordinateSequence{
 	 */
 	public void setArray(double[] coords2) {
 		coords = coords2;
+		size = coords.length / dimension;
+		coordRef = null;
+	}
+	
+	public void setArray(double[] coords2, int dimension) {
+		coords = coords2;
+		this.dimension = dimension;
 		size = coords.length / dimension;
 		coordRef = null;
 	}
