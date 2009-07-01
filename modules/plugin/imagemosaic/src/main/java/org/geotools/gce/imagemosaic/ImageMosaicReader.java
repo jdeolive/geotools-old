@@ -136,6 +136,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 */
 	public synchronized void dispose() {
 		super.dispose();
+		index.clear();
 	}
 
 	/** Logger. */
