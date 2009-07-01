@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.widget.ScrollingImagePanel;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -374,44 +375,67 @@ public class ImageMosaicReaderTest extends TestCase {
         try{
         	AbstractCoverage coverage = (AbstractCoverage) reader.read(new GeneralParameterValue[]{});
         	assertNotNull(coverage);
+			((GridCoverage2D) coverage).dispose(true);
+			reader.dispose();
         }catch (Throwable e){
         	assertTrue(false);
         }
 	}
-
+	
 	public void testErrors() {
-		//error for location attribute
-		try{
-			((AbstractGridFormat) GridFormatFinder
-			.findFormat(rgbURL)).getReader(rgbURL,new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE,"aaaa"));
-			assertTrue(false);
-		}catch (Throwable e) {
+		////
+		//
+		// MOSAIC_LOCATION_ATTRIBUTE
+		//
+		////
+		// error for location attribute
+		AbstractGridCoverage2DReader reader=null;
+		try {
+			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "aaaa"));
+			assertNull(reader);
+		} catch (Throwable e) {
+			fail(e.getLocalizedMessage());
+		}
+
+		try {
+			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "location"));
+			assertNotNull(reader);
+			reader.dispose();
+			assertTrue(true);
+		} catch (Throwable e) {
+			fail(e.getLocalizedMessage());
+		}
+
+		////
+		//
+		// MAX_ALLOWED_TILES
+		//
+		////
+		// error for num tiles
+		try {
+			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL,new Hints(Hints.MAX_ALLOWED_TILES, Integer.valueOf(2)));
+			assertNotNull(reader);
 			
-		}
-		
-		try{
-			((AbstractGridFormat) GridFormatFinder
-					.findFormat(rgbURL)).getReader(rgbURL,new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE,"location"));
-			assertTrue(true);
-		}catch (Throwable e) {
-			assertTrue(false);
-		}
-		
-		//error for num tiles
-		try{
-			((AbstractGridFormat) GridFormatFinder
-					.findFormat(rgbURL)).getReader(rgbURL,new Hints(Hints.MAX_ALLOWED_TILES,new Integer(2))).read(null);
-			assertTrue(false);
-		}catch (Throwable e) {
+			//read the coverage
+			@SuppressWarnings("unused")
+			GridCoverage2D gc = (GridCoverage2D) reader.read(null);
+			fail("MAX_ALLOWED_TILES was not respected");
+		} catch (Throwable e) {
+
+			reader.dispose();
 			assertTrue(true);
 		}
-		
-		try{
-			((AbstractGridFormat) GridFormatFinder
-					.findFormat(rgbURL)).getReader(rgbURL,new Hints(Hints.MAX_ALLOWED_TILES,new Integer(1000))).read(null);
+
+		try {
+			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL,new Hints(Hints.MAX_ALLOWED_TILES,Integer.valueOf(1000)));
+			assertNotNull(reader);
+			//read the coverage
+			GridCoverage2D gc = (GridCoverage2D) reader.read(null);
 			assertTrue(true);
-		}catch (Exception e) {
-		    fail( e.getLocalizedMessage() );
+			gc.dispose(true);
+			reader.dispose();
+		} catch (Exception e) {
+			fail(e.getLocalizedMessage());
 		}
 	}
 
@@ -496,7 +520,12 @@ public class ImageMosaicReaderTest extends TestCase {
 		if (TestData.isInteractiveTest())
 			show(((GridCoverage2D) coverage).getRenderedImage(), title);
 		else
-			((GridCoverage2D) coverage).getRenderedImage().getData();
+		{
+			PlanarImage.wrapRenderedImage(((GridCoverage2D) coverage).getRenderedImage()).getTiles();
+			((GridCoverage2D) coverage).dispose(true);
+			reader.dispose();
+			
+		}
 	}
 
 	/**
