@@ -382,29 +382,21 @@ public class ImageMosaicReaderTest extends TestCase {
         }
 	}
 	
-	public void testErrors() {
+	public void testErrors() throws IOException {
 		////
 		//
 		// MOSAIC_LOCATION_ATTRIBUTE
 		//
 		////
 		// error for location attribute
-		AbstractGridCoverage2DReader reader=null;
-		try {
-			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "aaaa"));
-			assertNull(reader);
-		} catch (Throwable e) {
-			fail(e.getLocalizedMessage());
-		}
+		AbstractGridCoverage2DReader reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "aaaa"));
+		assertNull("reader was not null even though the location attribute was invalid",reader);
 
-		try {
-			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "location"));
-			assertNotNull(reader);
-			reader.dispose();
-			assertTrue(true);
-		} catch (Throwable e) {
-			fail(e.getLocalizedMessage());
-		}
+
+		reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL, new Hints(Hints.MOSAIC_LOCATION_ATTRIBUTE, "location"));
+		assertNotNull(reader);
+		reader.dispose();
+		assertTrue(true);
 
 		////
 		//
@@ -426,17 +418,14 @@ public class ImageMosaicReaderTest extends TestCase {
 			assertTrue(true);
 		}
 
-		try {
-			reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL,new Hints(Hints.MAX_ALLOWED_TILES,Integer.valueOf(1000)));
-			assertNotNull(reader);
-			//read the coverage
-			GridCoverage2D gc = (GridCoverage2D) reader.read(null);
-			assertTrue(true);
-			gc.dispose(true);
-			reader.dispose();
-		} catch (Exception e) {
-			fail(e.getLocalizedMessage());
-		}
+		reader=(AbstractGridCoverage2DReader) ((AbstractGridFormat) GridFormatFinder.findFormat(rgbURL)).getReader(rgbURL,new Hints(Hints.MAX_ALLOWED_TILES,Integer.valueOf(1000)));
+		assertNotNull(reader);
+		//read the coverage
+		GridCoverage2D gc = (GridCoverage2D) reader.read(null);
+		assertTrue(true);
+		gc.dispose(true);
+		reader.dispose();
+
 	}
 
 	/**
