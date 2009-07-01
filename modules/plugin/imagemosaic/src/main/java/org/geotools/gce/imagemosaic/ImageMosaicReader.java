@@ -71,7 +71,6 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
@@ -137,12 +136,6 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 */
 	public synchronized void dispose() {
 		super.dispose();
-		try {
-			tileIndexStore.dispose();
-		} catch (Throwable e) {
-			if (LOGGER.isLoggable(Level.FINE))
-				LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-		}
 	}
 
 	/** Logger. */
@@ -155,20 +148,9 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 */
 	private final URL sourceURL;
 
-	/** {@link DataStore} pointed to the index shapefile. */
-	private final DataStore tileIndexStore;
 
 	/** {@link SoftReference} to the index holding the tiles' envelopes. */
-	private SoftReference<MemorySpatialIndex> index;
-
-	/**
-	 * The typename of the chems inside the {@link ShapefileDataStore} that
-	 * contains the index for this {@link ImageMosaicReader}.
-	 */
-	private final String typeName;
-
-	/** {@link FeatureSource} for the shape index. */
-	private final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+	private SoftReference<MemorySpatialIndex> index= new SoftReference<MemorySpatialIndex>(null);
 
 	private boolean expandMe;
 
@@ -220,12 +202,12 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 		if (this.hints.containsKey(Hints.MAX_ALLOWED_TILES))
 			this.maxAllowedTiles = ((Integer) this.hints
 					.get(Hints.MAX_ALLOWED_TILES)).intValue();
-		if (this.hints.containsKey(Hints.MOSAIC_LOCATION_ATTRIBUTE))
-			this.locationAttributeName = ((String) this.hints
-					.get(Hints.MOSAIC_LOCATION_ATTRIBUTE));
 		if (this.hints.containsKey(Hints.MOSAIC_BANDSELECTION_ATTRIBUTE))
 			this.bandSelectAttributeName = ((String) this.hints
 					.get(Hints.MOSAIC_BANDSELECTION_ATTRIBUTE));
+		if (this.hints.containsKey(Hints.MOSAIC_LOCATION_ATTRIBUTE))
+			this.locationAttributeName = ((String) this.hints
+					.get(Hints.MOSAIC_LOCATION_ATTRIBUTE));		
 		if (this.hints.containsKey(Hints.MOSAIC_COLORCORRECTION_ATTRIBUTE))
 			this.colorCorrectionAttributeName = ((String)this.hints.get(Hints.MOSAIC_COLORCORRECTION_ATTRIBUTE));
 
@@ -284,8 +266,9 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 		// reused
 		//
 		// /////////////////////////////////////////////////////////////////////
-		ShapefileDataStoreFactory sf = new ShapefileDataStoreFactory();	
-		tileIndexStore = sf.createDataStore(this.sourceURL);
+		DataStore tileIndexStore=null;
+		try{
+		tileIndexStore =new ShapefileDataStore(this.sourceURL);
 		
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine("Connected mosaic reader to its data store "
@@ -295,8 +278,8 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 			throw new IllegalArgumentException(
 					"Problems when opening the index, no typenames for the schema are defined");
 
-		typeName = typeNames[0];
-		featureSource = tileIndexStore.getFeatureSource(typeName);
+		final String typeName = typeNames[0];
+		final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
 		
 		// //
 		//
@@ -350,13 +333,17 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 			throw new DataSourceException(
 					"The provided name for the location attribute is invalid.");
 
+		}
+		finally{
+			if(tileIndexStore!=null)
+				try {
+					tileIndexStore.dispose();
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
+		}
 		
-		// //
-		//
-		// Load all the features inside the index
-		//
-		// //
-		createIndex();
 	}
 
 	/**
@@ -448,13 +435,13 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 				.parseBoolean(properties.getProperty("", "False"));
 
 		// locationAttribute
-		locationAttributeName = properties.getProperty("LocationAttribute");
+		locationAttributeName = properties.getProperty("LocationAttribute",locationAttributeName);
 
 		// band selection attribute
-		bandSelectAttributeName = properties.getProperty("ChannelSelectAttribute");
+		bandSelectAttributeName = properties.getProperty("ChannelSelectAttribute",bandSelectAttributeName);
 		
 		//the color correction attribute
-		colorCorrectionAttributeName = properties.getProperty("ColorCorrectionAttribute");
+		colorCorrectionAttributeName = properties.getProperty("ColorCorrectionAttribute",colorCorrectionAttributeName);
 	}
 
 	/**
@@ -1323,12 +1310,10 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 * @throws IOException
 	 *             In case loading the needed features failes.
 	 */
-	private List<SimpleFeature> getFeaturesFromIndex(final Envelope envelope)
+	private  List<SimpleFeature> getFeaturesFromIndex(final Envelope envelope)
 			throws IOException {
-		List<SimpleFeature> features = null;
-		Object o;
-
-		synchronized (index) {			
+		MemorySpatialIndex o=null;
+		synchronized(this){
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Trying to  use the index...");
 			o = index.get();
@@ -1338,19 +1323,23 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 				//the date the shapefile was last modified
 				File f = new File(this.sourceURL.getFile());
 				if (((MemorySpatialIndex) o).getCreatedDate().before(new Date(f.lastModified()))) {
-					o = createIndex();
+					createIndex();
+					o = index.get();
 				} else if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.fine("Index does not need to be created...");
 
 			} else {
 				if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.fine("Index needa to be recreated...");
-				o = new MemorySpatialIndex(featureSource.getFeatures());
+				createIndex();
+				o = index.get();
 			}
 			if (LOGGER.isLoggable(Level.FINE))
 				LOGGER.fine("Index Loaded");
 		}
-		features = ((MemorySpatialIndex) o).findFeatures(envelope);
+		if(o==null)
+			throw new IllegalStateException("Unable to get the memory index!!!");
+		List<SimpleFeature> features = ((MemorySpatialIndex) o).findFeatures(envelope);
 		if (features != null)
 			return features;
 		else
@@ -1360,23 +1349,54 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	/*
 	 * Builds the shapefile index
 	 */
-	private Object createIndex() throws IOException {
-		MemorySpatialIndex o;
+	private void createIndex() throws IOException {
+		
+		assert Thread.holdsLock(this);
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine("About to create index");
-		// compare the created date of the index with the date on
-		// the shapefile
-		o = new MemorySpatialIndex(featureSource.getFeatures());
+		// /////////////////////////////////////////////////////////////////////
+		//
+		// Load tiles informations, especially the bounds, which will be
+		// reused
+		//
+		// /////////////////////////////////////////////////////////////////////
+		DataStore tileIndexStore=null;
+		MemorySpatialIndex o=null;
+		try{
+		tileIndexStore =new ShapefileDataStore(this.sourceURL);
+		
+		if (LOGGER.isLoggable(Level.FINE))
+			LOGGER.fine("Connected mosaic reader to its data store "
+					+ sourceURL.toString());
+		final String[] typeNames = tileIndexStore.getTypeNames();
+		if (typeNames.length <= 0)
+			throw new IllegalArgumentException(
+					"Problems when opening the index, no typenames for the schema are defined");
 
-		if (index == null){
-			index = new SoftReference<MemorySpatialIndex>(o);
-		}
+		final String typeName = typeNames[0];
+		final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
+
+		
+		o= new MemorySpatialIndex(featureSource.getFeatures());
+		index = new SoftReference<MemorySpatialIndex>(o);
+		
 		hasBandSelectAttribute = featureSource.getSchema().getDescriptor(bandSelectAttributeName) != null;
 		hasColorCorrectionAttribute = featureSource.getSchema().getDescriptor(colorCorrectionAttributeName) != null;
 		
+		}
+		finally{
+			if(tileIndexStore!=null)
+				try {
+					tileIndexStore.dispose();
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
+		}		
+
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine("Created index");
-		return o;
+		
 	}
 
 	/**
@@ -1788,51 +1808,89 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 * @param newbands - a 3 element array containing the band index of the red, green and blue channels
 	 * @param colorCorr - a 3 element array of color correction value to apply to the red, green, and blue channels
 	 */
-	public void updateBandSelection(Filter filter, int[] newbands, double colorCorr[]) {
-	
-		// first check if the current shapefile has the necessary attributes
-		AttributeDescriptor bandDescriptor = featureSource.getSchema().getDescriptor(this.bandSelectAttributeName);
-		AttributeDescriptor colorCorrDescription = featureSource.getSchema().getDescriptor(this.colorCorrectionAttributeName);
+	public synchronized void updateBandSelection(Filter filter, int[] newbands, double colorCorr[]) {
 		
-		if (bandDescriptor == null || colorCorrDescription == null) {
-			// cannot update
-			return;
-		}
-		
-		// convert bands & color correction to a string
-		StringBuilder newb = new StringBuilder();
-		StringBuilder newcolor = new StringBuilder();
-		for (int i = 0; i < newbands.length - 1; i++) {
-			newb.append(newbands[i]);
-			newb.append(",");
+		DataStore tileIndexStore=null;
+		Transaction t= new DefaultTransaction();
+		FeatureStore<SimpleFeatureType, SimpleFeature> featureStore=null;
+		try{
+			tileIndexStore =new ShapefileDataStore(this.sourceURL);
 			
-			newcolor.append(colorCorr[i]);
-			newcolor.append(",");
-		}
-		if (newbands.length > 0) {
-			newb.append(newbands[newbands.length - 1]);
-			newcolor.append(colorCorr[newbands.length - 1]);
-		}
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.fine("Connected mosaic reader to its data store "
+						+ sourceURL.toString());
+			final String[] typeNames = tileIndexStore.getTypeNames();
+			if (typeNames.length <= 0)
+				throw new IllegalArgumentException(
+						"Problems when opening the index, no typenames for the schema are defined");
+	
+			final String typeName = typeNames[0];
+			final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
+	
 
-		synchronized (index) {
-			//update features in transaction block
-			Transaction t= new DefaultTransaction();
-			FeatureStore<SimpleFeatureType, SimpleFeature> featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) featureSource;
-			try {
-				featureStore.setTransaction(t);
-				featureStore.modifyFeatures(new AttributeDescriptor[]{bandDescriptor, colorCorrDescription}, new Object[]{newb.toString(), newcolor.toString()}, filter);
-				t.commit();
-			} catch (Exception ex) {
-					try {
-						t.rollback();
-					} catch (IOException e) {
-						LOGGER.log(Level.SEVERE, "Cannot update feature store.");
-					}
-				LOGGER.log(Level.SEVERE, "Error updating feature store", ex);
-			}finally{
-				featureStore.setTransaction(Transaction.AUTO_COMMIT);
+		
+			// first check if the current shapefile has the necessary attributes
+			AttributeDescriptor bandDescriptor = featureSource.getSchema().getDescriptor(this.bandSelectAttributeName);
+			AttributeDescriptor colorCorrDescription = featureSource.getSchema().getDescriptor(this.colorCorrectionAttributeName);
+			
+			if (bandDescriptor == null || colorCorrDescription == null) {
+				// cannot update
+				return;
 			}
+			
+			// convert bands & color correction to a string
+			StringBuilder newb = new StringBuilder();
+			StringBuilder newcolor = new StringBuilder();
+			for (int i = 0; i < newbands.length - 1; i++) {
+				newb.append(newbands[i]);
+				newb.append(",");
+				
+				newcolor.append(colorCorr[i]);
+				newcolor.append(",");
+			}
+			if (newbands.length > 0) {
+				newb.append(newbands[newbands.length - 1]);
+				newcolor.append(colorCorr[newbands.length - 1]);
+			}
+	
+			
+			//update features in transaction block
+			featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) featureSource;
+			featureStore.setTransaction(t);
+			featureStore.modifyFeatures(new AttributeDescriptor[]{bandDescriptor, colorCorrDescription}, new Object[]{newb.toString(), newcolor.toString()}, filter);
+			t.commit();
+			
+		} catch (Throwable ex) {
+				try {
+					t.rollback();
+				} catch (IOException e) {
+					LOGGER.log(Level.SEVERE, "Cannot update feature store.");
+				}
+			LOGGER.log(Level.SEVERE, "Error updating feature store", ex);
 		}
+		finally{
+			if(featureStore!=null)
+				try {
+					featureStore.setTransaction(Transaction.AUTO_COMMIT);
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
+				
+			if(tileIndexStore!=null)
+				try {
+					tileIndexStore.dispose();
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
+			try {
+				t.close();
+			} catch (IOException e) {
+				LOGGER.log(Level.FINE, "Problem in closing transaction.");
+			}				
+		}			
+		
 	}
 
 	/**
@@ -1843,42 +1901,66 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 * @return the first file associated with the first feature that matched the
 	 * filter or <code>null</code> if no file matches the provided criteria
 	 */
-	public File getImageFile(Filter filter) throws IOException {
+	public synchronized File getImageFile(Filter filter) throws IOException {
 		if (filter==null)
 			throw new IllegalArgumentException("The provided filter argument is null");
 		
-		FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(filter);
-		
-		if (features.size() == 0) {
-			return null;
-		} else {
-			FeatureIterator<SimpleFeature> it = features.features();
-			try {
-				SimpleFeature f = it.next();
-				String location = (String) f.getAttribute(this.locationAttributeName);
+		DataStore tileIndexStore=null;
+		try{
+			tileIndexStore =new ShapefileDataStore(this.sourceURL);
+			
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.fine("Connected mosaic reader to its data store "
+						+ sourceURL.toString());
+			final String[] typeNames = tileIndexStore.getTypeNames();
+			if (typeNames.length <= 0)
+				throw new IllegalArgumentException(
+						"Problems when opening the index, no typenames for the schema are defined");
+	
+			final String typeName = typeNames[0];
+			final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
 
-				final String parentLocation = (new File(this.sourceURL
-						.getFile())).getParent();
-				File imageFile = new File(absolutePath ? location
-						: new StringBuffer(parentLocation).append(
-								File.separatorChar).append(location).toString());
-
-				if (imageFile.exists() && imageFile.canRead()
-						&& imageFile.isFile()) {
-					return imageFile;
-				} else if (!absolutePath) {
-					imageFile = new File(location);
+			FeatureCollection<SimpleFeatureType, SimpleFeature> features = featureSource.getFeatures(filter);
+			
+			if (features.size() == 0) {
+				return null;
+			} else {
+				FeatureIterator<SimpleFeature> it = features.features();
+				try {
+					SimpleFeature f = it.next();
+					String location = (String) f.getAttribute(this.locationAttributeName);
+	
+					final String parentLocation = (new File(this.sourceURL
+							.getFile())).getParent();
+					File imageFile = new File(absolutePath ? location
+							: new StringBuffer(parentLocation).append(
+									File.separatorChar).append(location).toString());
+	
 					if (imageFile.exists() && imageFile.canRead()
 							&& imageFile.isFile()) {
 						return imageFile;
+					} else if (!absolutePath) {
+						imageFile = new File(location);
+						if (imageFile.exists() && imageFile.canRead()
+								&& imageFile.isFile()) {
+							return imageFile;
+						}
 					}
+				} finally {
+					it.close();
 				}
-			} finally {
-				it.close();
 			}
 		}
-		
-		// cannot file a file for given feature
+		finally{
+			if(tileIndexStore!=null)
+				try {
+					tileIndexStore.dispose();
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
+		}
+		// cannot find a file for given feature
 		return null;
 	}
 
@@ -1911,14 +1993,43 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	 * @return true if the particular shapefile index has the band 
 	 * selection and color correction attributes 
 	 */
-	public boolean hasBandColorAttributes(){
-		if (this.colorCorrectionAttributeName != null
-				&& this.bandSelectAttributeName != null
-				&& featureSource.getSchema().getDescriptor(
-						this.bandSelectAttributeName) != null
-				&& featureSource.getSchema().getDescriptor(
-						this.colorCorrectionAttributeName) != null) {
-			return true;
+	public synchronized boolean hasBandColorAttributes(){
+		DataStore tileIndexStore=null;
+		try{
+			tileIndexStore =new ShapefileDataStore(this.sourceURL);
+			
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.fine("Connected mosaic reader to its data store "
+						+ sourceURL.toString());
+			final String[] typeNames = tileIndexStore.getTypeNames();
+			if (typeNames.length <= 0)
+				throw new IllegalArgumentException(
+						"Problems when opening the index, no typenames for the schema are defined");
+	
+			final String typeName = typeNames[0];
+			final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = tileIndexStore.getFeatureSource(typeName);
+			
+			if (this.colorCorrectionAttributeName != null
+					&& this.bandSelectAttributeName != null
+					&& featureSource.getSchema().getDescriptor(
+							this.bandSelectAttributeName) != null
+					&& featureSource.getSchema().getDescriptor(
+							this.colorCorrectionAttributeName) != null) {
+				return true;
+			}
+		}
+		catch (Throwable e) {
+			if(LOGGER.isLoggable(Level.SEVERE))
+				LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+		}
+		finally{
+			if(tileIndexStore!=null)
+				try {
+					tileIndexStore.dispose();
+				} catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+				}
 		}
 		return false;
 	}
