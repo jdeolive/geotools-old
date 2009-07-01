@@ -19,6 +19,8 @@ package org.geotools.jdbc;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -40,11 +42,13 @@ import org.opengis.parameter.ParameterDescriptorGroup;
  */
 public abstract class JDBCJNDIDataStoreFactory extends JDBCDataStoreFactory {
 
+    
+    public final static String J2EERootContext="java:comp/env/";
     /**
      * JNDI data source name
      */
     public static final Param JNDI_REFNAME = new Param("jndiReferenceName", String.class,
-            "JNDI data source", true, "java:comp/env/jdbc/mydatabase");
+            "JNDI data source", true, J2EERootContext+"jdbc/mydatabase");
 
     /**
      * regular datastore factory to delegate to.
@@ -90,17 +94,37 @@ public abstract class JDBCJNDIDataStoreFactory extends JDBCDataStoreFactory {
         if (jndiName == null)
             throw new IOException("Missing " + JNDI_REFNAME.description);
 
-        Context ctx;
-        DataSource ds = null;
+        Context ctx = null;
+        DataSource ds = null;        
+        
         try {
             ctx = GeoTools.getInitialContext(GeoTools.getDefaultHints());
-            ds = (DataSource) ctx.lookup(jndiName);
-            if (ds == null)
-                throw new IOException("Cannot find JNDI data source: " + jndiName);
         } catch (NamingException e) {
-            throw (IOException) new IOException(e.getMessage()).initCause(e);
+            throw new RuntimeException(e);
         }
-        return ds;
+            
+        try {    
+            ds = (DataSource) ctx.lookup(jndiName);
+        } catch (NamingException e1) {
+            // check if the user did not specify "java:comp/env" 
+            // and this code is running in a J2EE environment
+            try {
+                if (jndiName.startsWith(J2EERootContext)==false)  {
+                    ds = (DataSource) ctx.lookup(J2EERootContext+jndiName);
+                    // success --> issue a waring
+                    Logger.getLogger(this.getClass().getName()).log(
+                		Level.WARNING,"Using "+J2EERootContext+jndiName+" instead of " +
+                		jndiName+ " would avoid an unnecessary JNDI lookup");
+                }    
+            } catch (NamingException e2) {
+                // do nothing, was only a try
+            }                            
+        }    
+        
+        if (ds == null)
+            throw new IOException("Cannot find JNDI data source: " + jndiName);
+        else
+            return ds;
     }
 
     /**
