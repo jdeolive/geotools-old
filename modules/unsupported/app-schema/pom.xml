@@ -52,6 +52,7 @@
       <module>app-schema</module>
       <module>jdbc-regfunc</module>
       <module>sample-data-access</module>
+      <!-- <module>sample-data-access-isogeom</module> -->
   </modules>
   
 </project>
