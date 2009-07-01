@@ -162,17 +162,8 @@ public class SimpleFeatureImpl implements SimpleFeature {
                defaultGeometry = getAttribute(defaultGeomIndex.intValue());
            }
        }
-//        // not found? Ok, let's do a lookup then...
-//        if ( defaultGeometry == null ) {
-//            for ( Object o : values ) {
-//                if ( o instanceof Geometry ) {
-//                    defaultGeometry = o;
-//                    break;
-//                }
-//            }
-//        }
-        
-        return defaultGeometry;
+    
+       return defaultGeometry;
     }
 
     public SimpleFeatureType getFeatureType() {
