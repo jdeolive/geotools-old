@@ -154,7 +154,7 @@ public class ClobTestData {
         if (this._pool == null) {
             SessionPoolFactory pfac = SessionPoolFactory.getInstance();
             ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(this.conProps);
-            this._pool = pfac.createPool(config);
+            this._pool = pfac.createPool(config.getSessionConfig());
         }
         return this._pool;
     }

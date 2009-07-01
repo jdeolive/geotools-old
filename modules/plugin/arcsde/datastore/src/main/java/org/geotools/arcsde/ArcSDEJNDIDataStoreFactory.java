@@ -33,6 +33,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
+import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
@@ -101,8 +102,18 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
             throw new IOException("Cannot find JNDI data source: " + jndiName);
         }
 
-        ArcSDEDataStoreConfig config = (ArcSDEDataStoreConfig) lookup;
-        ArcSDEDataStore dataStore = delegateFactory.createDataStore(config);
+        ArcSDEConnectionConfig config = (ArcSDEConnectionConfig) lookup;
+
+        String nsUri = (String) NAMESPACE_PARAM.lookUp(params);
+        String version = (String) VERSION_PARAM.lookUp(params);
+        Boolean allowNonSpatialTables = (Boolean) ALLOW_NON_SPATIAL_PARAM.lookUp(params);
+
+        boolean nonSpatial = allowNonSpatialTables == null ? false : allowNonSpatialTables
+                .booleanValue();
+
+        ArcSDEDataStoreConfig dsconfig = new ArcSDEDataStoreConfig(config, nsUri, version,
+                nonSpatial);
+        ArcSDEDataStore dataStore = delegateFactory.createDataStore(dsconfig);
         return dataStore;
     }
 

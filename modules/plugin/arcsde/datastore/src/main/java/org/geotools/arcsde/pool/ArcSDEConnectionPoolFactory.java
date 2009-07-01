@@ -77,7 +77,7 @@ public class ArcSDEConnectionPoolFactory {
      * @throws DataSourceException
      *             if the pool needs but can't be created
      */
-    public synchronized ArcSDEConnectionPool createPool(ArcSDEDataStoreConfig config)
+    public synchronized ArcSDEConnectionPool createPool(ArcSDEConnectionConfig config)
             throws DataSourceException {
         ArcSDEConnectionPool pool = (ArcSDEConnectionPool) this.currentPools.get(config);
 

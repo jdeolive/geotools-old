@@ -45,6 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
@@ -165,7 +166,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             // this will be our connection string
             final String coverageUrl = parseCoverageUrl(source);
 
-            final ArcSDEDataStoreConfig connectionConfig = getConnectionConfig(coverageUrl);
+            final ArcSDEConnectionConfig connectionConfig = getConnectionConfig(coverageUrl);
 
             ArcSDEConnectionPool connectionPool = setupConnectionPool(connectionConfig);
 
@@ -208,7 +209,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         return rasterInfo;
     }
 
-    private ArcSDEDataStoreConfig getConnectionConfig(final String coverageUrl) {
+    private ArcSDEConnectionConfig getConnectionConfig(final String coverageUrl) {
         ArcSDEDataStoreConfig sdeConfig;
         sdeConfig = connectionConfigs.get(coverageUrl);
         if (sdeConfig == null) {
@@ -220,7 +221,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
                 }
             }
         }
-        return sdeConfig;
+        return sdeConfig.getSessionConfig();
     }
 
     /**
@@ -343,7 +344,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      *            to this {@link ArcSDERasterGridCoverage2DReader}.
      * @throws IOException
      */
-    private ArcSDEConnectionPool setupConnectionPool(ArcSDEDataStoreConfig sdeConfig)
+    private ArcSDEConnectionPool setupConnectionPool(ArcSDEConnectionConfig sdeConfig)
             throws IOException {
 
         if (LOGGER.isLoggable(Level.FINE)) {

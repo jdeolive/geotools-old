@@ -54,7 +54,7 @@ public class SessionPoolTest {
 
     private Map connectionParameters;
 
-    private ArcSDEDataStoreConfig connectionConfig = null;
+    private ArcSDEConnectionConfig connectionConfig = null;
 
     private SessionPool pool = null;
 
@@ -88,7 +88,7 @@ public class SessionPoolTest {
 
         // test that mandatory connection parameters are set
         try {
-            connectionConfig = new ArcSDEDataStoreConfig(conProps);
+            connectionConfig = new ArcSDEDataStoreConfig(conProps).getSessionConfig();
         } catch (Exception ex) {
             throw new IllegalStateException("No valid connection parameters found in "
                     + conParamsSource.toExternalForm() + ": " + ex.getMessage());
@@ -129,7 +129,7 @@ public class SessionPoolTest {
      */
     private SessionPool createPool(Map connParams) throws IllegalArgumentException,
             NullPointerException, IOException {
-        this.connectionConfig = new ArcSDEDataStoreConfig(connParams);
+        this.connectionConfig = new ArcSDEDataStoreConfig(connParams).getSessionConfig();
         LOGGER.fine("creating a new SessionPool with " + connectionConfig);
 
         if (this.pool != null) {
@@ -160,7 +160,7 @@ public class SessionPoolTest {
 
         SessionPool connPool = null;
 
-        connPool = pf.createPool(config);
+        connPool = pf.createPool(config.getSessionConfig());
         LOGGER.fine("connection succeed " + connPool.getPoolSize() + " connections ready");
         connPool.close();
     }
@@ -173,7 +173,7 @@ public class SessionPoolTest {
         config = new ArcSDEDataStoreConfig(connectionParameters);
 
         try {
-            SessionPool connPool = new SessionPool(config);
+            SessionPool connPool = new SessionPool(config.getSessionConfig());
             connPool.close();
             fail("Expected IOE for unreachable server");
         } catch (IOException e) {

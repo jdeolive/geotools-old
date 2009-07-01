@@ -64,7 +64,6 @@ public class SessionPool {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.arcsde.pool");
 
-    /** DOCUMENT ME! */
     protected static final Level INFO_LOG_LEVEL = Level.WARNING;
 
     /** default number of connections a pool creates at first population */
@@ -75,11 +74,10 @@ public class SessionPool {
 
     public static final int DEFAULT_MAX_WAIT_TIME = 500;
 
-    /** DOCUMENT ME! */
     private SeConnectionFactory seConnectionFactory;
 
     /** this connection pool connection's parameters */
-    protected ArcSDEDataStoreConfig config;
+    protected ArcSDEConnectionConfig config;
 
     /** Apache commons-pool used to pool arcsde connections */
     protected GenericObjectPool pool;
@@ -96,7 +94,7 @@ public class SessionPool {
      * @throws NullPointerException
      *             If config is null
      */
-    protected SessionPool(ArcSDEDataStoreConfig config) throws IOException {
+    protected SessionPool(ArcSDEConnectionConfig config) throws IOException {
         if (config == null) {
             throw new NullPointerException("parameter config can't be null");
         }
@@ -196,7 +194,6 @@ public class SessionPool {
      * returns the number of actual connections held by this connection pool. In other words, the
      * sum of used and available connections, regardless
      * 
-     * @return DOCUMENT ME!
      */
     public int getPoolSize() {
         checkOpen();
@@ -245,9 +242,7 @@ public class SessionPool {
     }
 
     /**
-     * TODO: Document this method!
-     * 
-     * @return DOCUMENT ME!
+     * Returns the number of idle connections
      */
     public synchronized int getAvailableCount() {
         checkOpen();
@@ -335,12 +330,7 @@ public class SessionPool {
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
-     */
-    public ArcSDEDataStoreConfig getConfig() {
+    public ArcSDEConnectionConfig getConfig() {
         return this.config;
     }
 
@@ -352,16 +342,15 @@ public class SessionPool {
      * @version $Id$
      */
     protected final class SeConnectionFactory extends BasePoolableObjectFactory {
-        /** DOCUMENT ME! */
-        private ArcSDEDataStoreConfig config;
+
+        private ArcSDEConnectionConfig config;
 
         /**
          * Creates a new SeConnectionFactory object.
          * 
          * @param config
-         *            DOCUMENT ME!
          */
-        public SeConnectionFactory(ArcSDEDataStoreConfig config) {
+        public SeConnectionFactory(ArcSDEConnectionConfig config) {
             super();
             this.config = config;
         }

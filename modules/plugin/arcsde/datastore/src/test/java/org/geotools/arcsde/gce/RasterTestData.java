@@ -64,6 +64,7 @@ import org.geotools.arcsde.gce.producer.ArcSDERasterFloatProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterOneBitPerBandProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterOneBytePerBandProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterProducer;
+import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
@@ -133,7 +134,8 @@ public class RasterTestData {
     public ArcSDEConnectionPool getConnectionPool() throws DataSourceException {
         if (this._pool == null) {
             ArcSDEConnectionPoolFactory pfac = ArcSDEConnectionPoolFactory.getInstance();
-            ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(testData.getConProps());
+            ArcSDEConnectionConfig config = new ArcSDEDataStoreConfig(testData.getConProps())
+                    .getSessionConfig();
             this._pool = pfac.createPool(config);
         }
         return this._pool;
@@ -170,8 +172,8 @@ public class RasterTestData {
     }
 
     public String createCoverageUrl(final String rasterTableName) throws IOException {
-        final ArcSDEDataStoreConfig config = getConnectionPool().getConfig();
-        String url = "sde://" + config.getUserName() + ":" + config.getUserPassword() + "@"
+        final ArcSDEConnectionConfig config = getConnectionPool().getConfig();
+        String url = "sde://" + config.getUserName() + ":" + config.getPassword() + "@"
                 + config.getServerName() + ":" + config.getPortNumber() + "/"
                 + config.getDatabaseName() + "#" + rasterTableName;
         return url;

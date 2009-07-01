@@ -6,6 +6,7 @@ package org.geotools.arcsde;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
 
 import javax.naming.NamingException;
 
+import org.geotools.arcsde.data.TestData;
 import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.factory.GeoTools;
 import org.geotools.util.logging.Logging;
@@ -34,6 +36,8 @@ public class ArcSDEJNDIDataStoreFactoryTest {
 
     private static ArcSDEJNDIDataStoreFactory factory;
 
+    private static TestData testData;
+
     /**
      * @throws java.lang.Exception
      */
@@ -41,6 +45,9 @@ public class ArcSDEJNDIDataStoreFactoryTest {
     public static void setUpBeforeClass() throws Exception {
         factory = new ArcSDEJNDIDataStoreFactory();
         setupJNDIEnvironment();
+        testData = new TestData();
+        testData.setUp();
+        testData.getConProps();
     }
 
     /**
@@ -80,8 +87,11 @@ public class ArcSDEJNDIDataStoreFactoryTest {
     public void testGetParametersInfo() {
         Param[] parametersInfo = factory.getParametersInfo();
         assertNotNull(parametersInfo);
-        assertEquals(1, parametersInfo.length);
-        assertEquals(ArcSDEJNDIDataStoreFactory.JNDI_REFNAME, parametersInfo[0]);
+        assertEquals(4, parametersInfo.length);
+        assertSame(ArcSDEJNDIDataStoreFactory.JNDI_REFNAME, parametersInfo[0]);
+        assertSame(ArcSDEDataStoreFactory.NAMESPACE_PARAM, parametersInfo[1]);
+        assertSame(ArcSDEDataStoreFactory.VERSION_PARAM, parametersInfo[2]);
+        assertSame(ArcSDEDataStoreFactory.ALLOW_NON_SPATIAL_PARAM, parametersInfo[3]);
     }
 
     /**

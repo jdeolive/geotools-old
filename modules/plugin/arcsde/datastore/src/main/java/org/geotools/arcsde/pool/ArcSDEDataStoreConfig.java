@@ -81,6 +81,10 @@ public class ArcSDEDataStoreConfig {
 
     private ArcSDEConnectionConfig sessionConfig = new ArcSDEConnectionConfig();
 
+    public ArcSDEConnectionConfig getSessionConfig() {
+        return sessionConfig;
+    }
+
     /**
      * Configure arcsde connection information from supplied connection parameters.
      * 

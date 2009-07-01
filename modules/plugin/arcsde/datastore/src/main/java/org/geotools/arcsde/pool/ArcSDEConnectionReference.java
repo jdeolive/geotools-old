@@ -54,7 +54,7 @@ public class ArcSDEConnectionReference extends SessionPool {
      */
     Transaction transaction = Transaction.AUTO_COMMIT;
 
-    protected ArcSDEConnectionReference(ArcSDEDataStoreConfig config) throws IOException {
+    protected ArcSDEConnectionReference(ArcSDEConnectionConfig config) throws IOException {
         super(config);
         if (config.getMaxConnections().intValue() != 1) {
             throw new IllegalArgumentException(

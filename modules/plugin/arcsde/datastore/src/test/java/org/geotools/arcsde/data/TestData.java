@@ -208,7 +208,7 @@ public class TestData {
     public SessionPool newSessionPool() throws IOException {
         SessionPoolFactory pfac = SessionPoolFactory.getInstance();
         ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(this.conProps);
-        return pfac.createPool(config);
+        return pfac.createPool(config.getSessionConfig());
     }
 
     /**

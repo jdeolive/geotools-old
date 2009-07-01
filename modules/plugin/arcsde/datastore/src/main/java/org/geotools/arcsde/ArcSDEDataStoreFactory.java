@@ -130,7 +130,8 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
             "The ArcSDE database version to use.", false);
 
     static final Param ALLOW_NON_SPATIAL_PARAM = new Param(ALLOW_NON_SPATIAL_TABLES_PARAM_NAME,
-            Boolean.class, "If enabled, registered non-spatial tables are also published.", false);
+            Boolean.class, "If enabled, registered non-spatial tables are also published.", false,
+            Boolean.FALSE);
 
     static {
         paramMetadata.add(NAMESPACE_PARAM);
@@ -257,7 +258,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     ArcSDEDataStore createDataStore(ArcSDEDataStoreConfig config) throws IOException {
         ArcSDEDataStore sdeDStore;
         // create a new session pool to be used only by this datastore
-        final SessionPool connPool = poolFactory.createPool(config);
+        final SessionPool connPool = poolFactory.createPool(config.getSessionConfig());
 
         final ISession session = connPool.getSession(Transaction.AUTO_COMMIT);
         try {
