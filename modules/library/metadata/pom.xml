@@ -126,9 +126,9 @@
       <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
-      <groupId>net.java.dev.jsr-275</groupId>
-      <artifactId>jsr-275</artifactId>
-      <!-- The version number is specified in the parent POM. -->
+	    <groupId>javax.measure</groupId>
+	    <artifactId>jsr-275</artifactId>
+	    <version>1.0.0</version>
     </dependency>
 
     <!--
