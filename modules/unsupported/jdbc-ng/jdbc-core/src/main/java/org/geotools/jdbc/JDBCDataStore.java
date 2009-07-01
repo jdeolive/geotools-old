@@ -125,8 +125,15 @@ public final class JDBCDataStore extends ContentDataStore
     
     /**
      * The native SRID associated to a certain descriptor
+     * TODO: qualify this key with 'org.geotools.jdbc'
      */
     public static final String JDBC_NATIVE_SRID = "nativeSRID";
+    
+    /**
+     * The key for attribute descriptor user data which specifies the original database column data 
+     * type.
+     */
+    public static final String JDBC_NATIVE_TYPENAME = "org.geotools.jdbc.nativeTypeName";
     
     /**
      * name of table to use to store geometries when {@link #associations}

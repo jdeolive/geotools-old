@@ -719,6 +719,42 @@ public abstract class SQLDialect {
     public void postCreateTable(String schemaName, SimpleFeatureType featureType, Connection cx)
         throws SQLException {
     }
+    
+    /**
+     * Callback which executes after an attribute descriptor has been built from a table column.
+     * <p>
+     * The result set <tt>columnMetadata</tt> should not be modified in any way (including scrolling)
+     * , it should only be read from.
+     * </p>
+     * <p>
+     * This base implementation does nothing, subclasses should override as need be.
+     * </p>
+     * @param att The built attribute descriptor.
+     * @param columnMetadata The database metadata about the column.
+     * @param tableName The name of the table containing the column
+     * @param schemaName The name of the database scheam containing the table containing the column
+     * @param cx The database connection.
+     */
+    public void postCreateAttribute(AttributeDescriptor att, ResultSet columnMetadata, String tableName, 
+        String schemaName, Connection cx ) throws SQLException {
+        
+    }
+    
+    /**
+     * Callback which executes after a feature type has been built from a database table.
+     * <p>
+     * This base implementation does nothing, subclasses should override as need be.
+     * </p>
+     * @param featureType The build feature type.
+     * @param metadata The database metadata.
+     * @param schemaName The name of the database scheam containing the table containing the column
+     * @param cx The database connection.
+     */
+    public void postCreateFeatureType(SimpleFeatureType featureType, DatabaseMetaData metadata, 
+        String schemaName, Connection cx) 
+        throws SQLException {
+        
+    }
 
     /**
      * Obtains the next value of the primary key of a column.

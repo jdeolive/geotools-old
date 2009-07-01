@@ -50,6 +50,7 @@ import org.geotools.referencing.CRS;
 import org.opengis.feature.Association;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -216,7 +217,8 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                     }
 
                     //figure out the type mapping
-
+                    String nativeTypeName = columns.getString("TYPE_NAME");
+                    
                     //first ask the dialect
                     Class binding = dialect.getMapping(columns, cx);
 
@@ -228,8 +230,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
 
                     if (binding == null) {
                         //determine from type name mappings
-                        String typeName = columns.getString("TYPE_NAME");
-                        binding = getDataStore().getMapping(typeName);
+                        binding = getDataStore().getMapping(nativeTypeName);
                     }
 
                     //if still not found, resort to Object
@@ -237,12 +238,17 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                         getDataStore().getLogger().warning("Could not find mapping for:" + name);
                         binding = Object.class;
                     }
+                    
+                    //store the native database type in the attribute descriptor user data
+                    ab.addUserData(JDBCDataStore.JDBC_NATIVE_TYPENAME, nativeTypeName);
 
                     //nullability
                     if ( "NO".equalsIgnoreCase( columns.getString( "IS_NULLABLE" ) ) ) {
                         ab.nillable(false);
                         ab.minOccurs(1);
                     }
+                    
+                    AttributeDescriptor att = null;
                     
                     //determine if this attribute is a geometry or not
                     if (Geometry.class.isAssignableFrom(binding)) {
@@ -265,16 +271,25 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                         ab.setCRS(crs);
                         if(srid != null)
                             ab.addUserData(JDBCDataStore.JDBC_NATIVE_SRID, srid);
-                        tb.add(ab.buildDescriptor(name, ab.buildGeometryType()));
+                        att = ab.buildDescriptor(name, ab.buildGeometryType());
                     } else {
                         //add the attribute
                         ab.setName(name);
                         ab.setBinding(binding);
-                        tb.add(ab.buildDescriptor(name, ab.buildType()));
+                        att = ab.buildDescriptor(name, ab.buildType());
                     }
+                    
+                    //call dialect callback
+                    dialect.postCreateAttribute( att, columns, tableName, databaseSchema, cx);
+                    tb.add(att);
                 }
 
-                return tb.buildFeatureType();
+                //build the final type
+                SimpleFeatureType ft = tb.buildFeatureType();
+
+                //call dialect callback
+                dialect.postCreateFeatureType(ft, metaData, databaseSchema, cx);
+                return ft;
             } finally {
                 getDataStore().closeSafe(columns);
             }
