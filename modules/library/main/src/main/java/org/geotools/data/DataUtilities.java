@@ -240,8 +240,16 @@ public class DataUtilities {
      * @return a File that corresponds to the URL's location
      */
     public static File urlToFile(URL url) {
-        String string = url.toExternalForm();
-
+        if( !"file".equals(url.getProtocol())){
+            return null; // not a File URL
+        }
+        String string = url.toExternalForm();        
+        if( string.contains("+")){
+            // this represents an invalid URL created using either
+            // file.toURL(); or
+            // file.toURI().toURL() on a specific version of Java 5 on Mac
+            string = string.replace("+","%2B");
+        }        
         try {
             string = URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {

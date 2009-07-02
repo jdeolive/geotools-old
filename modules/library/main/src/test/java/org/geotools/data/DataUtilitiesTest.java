@@ -104,11 +104,10 @@ public class DataUtilitiesTest extends DataTestCase {
                 handleFile("\\\\host\\share\\file");
         } else {
             handleFile(slashOne);
-
             handleFile(one);
             handleFile(slashoneTwoThree);
-        }
-        
+            handleFile("/hello world/this++().file");
+        }        
         String prefix = "file://";
         assertURL(one, prefix+one);
         assertURL(slashOne, prefix+slashOne);
@@ -117,7 +116,9 @@ public class DataUtilitiesTest extends DataTestCase {
         assertURL(replaceSlashes(cOneTwo), prefix+replaceSlashes(cOneTwo));
         assertURL(replaceSlashes(cOneTwoThreeSpace), prefix+replaceSlashes(cOneTwoThreeSpace));
         
-        
+        File file = File.createTempFile("hello","world");
+        handleFile(file.getAbsolutePath() );
+        handleFile(file.getPath() );        
     }
     private String replaceSlashes(String string) {
         return string.replaceAll("\\\\", "/");
@@ -136,8 +137,7 @@ public class DataUtilitiesTest extends DataTestCase {
                 expectedFilePath = expectedFilePath.substring(0,expectedFilePath.length()-1);
             }
             assertEquals( expectedFilePath, file.getPath());
-        }
-        
+        }        
     }
 
     public void handleFile( String path ) throws Exception {
@@ -148,10 +148,10 @@ public class DataUtilitiesTest extends DataTestCase {
         
         assertEquals( "jdk contract", file.getAbsoluteFile(), new File( uri ));
 
-        File toFile = DataUtilities.urlToFile( url );        
+        File toFile = DataUtilities.urlToFile( url );
         assertEquals( path+":url", file.getAbsoluteFile(), toFile);
 
-        File toFile2 = DataUtilities.urlToFile( url2 );        
+        File toFile2 = DataUtilities.urlToFile( url2 );
         assertEquals( path+":url2", file.getAbsoluteFile(), toFile2 );
     }
     /**

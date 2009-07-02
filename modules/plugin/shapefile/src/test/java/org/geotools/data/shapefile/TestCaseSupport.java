@@ -173,7 +173,9 @@ public class TestCaseSupport extends TestCase {
      * test suite.
      */
     protected File getTempFile() throws IOException {
-        File tmpFile = File.createTempFile("test-shp", ".shp");
+        // force in some valid but weird chars into teh path to be on par with OSX that does it
+        // on its own
+        File tmpFile = File.createTempFile("test-+()shp", ".shp");
         tmpFile.deleteOnExit();
         assertTrue(tmpFile.isFile());
 

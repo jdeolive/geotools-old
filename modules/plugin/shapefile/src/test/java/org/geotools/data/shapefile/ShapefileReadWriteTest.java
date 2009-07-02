@@ -20,8 +20,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.AssertionFailedError;
 
@@ -200,8 +203,10 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
 
         ShapefileDataStore shapefile;
         String typeName;
-        shapefile = (ShapefileDataStore) maker.createDataStore(tmp.toURL(),
-                memorymapped);
+        Map<String,Serializable> params = new HashMap<String,Serializable>();
+        params.put(ShapefileDataStoreFactory.URLP.key, tmp.toURI().toURL());
+        params.put(ShapefileDataStoreFactory.MEMORY_MAPPED.key, memorymapped);
+        shapefile = (ShapefileDataStore) maker.createDataStore(params);
         if(charset != null)
             shapefile.setStringCharset(charset);
 
