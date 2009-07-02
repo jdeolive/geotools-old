@@ -17,18 +17,18 @@
  */
 package org.geotools.arcsde;
 
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.ALLOW_NON_SPATIAL_TABLES_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.NAMESPACE_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.VERSION_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.ALLOW_NON_SPATIAL_TABLES_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.NAMESPACE_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.VERSION_PARAM_NAME;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,11 +39,11 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.ViewRegisteringFactoryHelper;
-import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
-import org.geotools.arcsde.pool.Commands;
-import org.geotools.arcsde.pool.ISession;
-import org.geotools.arcsde.pool.SessionPool;
-import org.geotools.arcsde.pool.SessionPoolFactory;
+import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
+import org.geotools.arcsde.session.Commands;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.SessionPoolFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;

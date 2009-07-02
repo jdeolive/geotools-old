@@ -25,9 +25,9 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.data.versioning.TransactionVersionHandler;
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
-import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SessionPool;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.Transaction;
 import org.geotools.util.logging.Logging;

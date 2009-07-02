@@ -32,7 +32,7 @@ import java.util.Set;
 import org.geotools.arcsde.data.ArcSDEQuery.FilterSet;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.data.versioning.AutoCommitVersionHandler;
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;

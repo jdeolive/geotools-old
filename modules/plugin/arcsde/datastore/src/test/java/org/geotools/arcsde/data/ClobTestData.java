@@ -7,12 +7,12 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
-import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
-import org.geotools.arcsde.pool.SessionPool;
-import org.geotools.arcsde.pool.SessionPoolFactory;
-import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.SessionPoolFactory;
+import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;

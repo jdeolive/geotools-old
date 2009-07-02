@@ -31,8 +31,8 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;

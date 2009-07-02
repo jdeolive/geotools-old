@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.arcsde.pool;
+package org.geotools.arcsde.session;
 
 import java.io.IOException;
 import java.util.List;
@@ -58,35 +58,35 @@ public class SessionWrapper implements ISession {
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#testServer()
+     * @see org.geotools.arcsde.session.ISession#testServer()
      */
     public void testServer() throws IOException {
         this.wrapped.testServer();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#close(com.esri.sde.sdk.client.SeState)
+     * @see org.geotools.arcsde.session.ISession#close(com.esri.sde.sdk.client.SeState)
      */
     public void close(SeState state) throws IOException {
         wrapped.close(state);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#close(com.esri.sde.sdk.client.SeStreamOp)
+     * @see org.geotools.arcsde.session.ISession#close(com.esri.sde.sdk.client.SeStreamOp)
      */
     public void close(SeStreamOp stream) throws IOException {
         wrapped.close(stream);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#commitTransaction()
+     * @see org.geotools.arcsde.session.ISession#commitTransaction()
      */
     public void commitTransaction() throws IOException {
         wrapped.commitTransaction();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createAndExecuteQuery(java.lang.String[],
+     * @see org.geotools.arcsde.session.ISession#createAndExecuteQuery(java.lang.String[],
      *      com.esri.sde.sdk.client.SeSqlConstruct)
      */
     public SeQuery createAndExecuteQuery(String[] propertyNames, SeSqlConstruct sql)
@@ -95,35 +95,35 @@ public class SessionWrapper implements ISession {
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeDelete()
+     * @see org.geotools.arcsde.session.ISession#createSeDelete()
      */
     public SeDelete createSeDelete() throws IOException {
         return wrapped.createSeDelete();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeInsert()
+     * @see org.geotools.arcsde.session.ISession#createSeInsert()
      */
     public SeInsert createSeInsert() throws IOException {
         return wrapped.createSeInsert();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeLayer()
+     * @see org.geotools.arcsde.session.ISession#createSeLayer()
      */
     public SeLayer createSeLayer() throws IOException {
         return wrapped.createSeLayer();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeQuery()
+     * @see org.geotools.arcsde.session.ISession#createSeQuery()
      */
     public SeQuery createSeQuery() throws IOException {
         return wrapped.createSeQuery();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeQuery(java.lang.String[],
+     * @see org.geotools.arcsde.session.ISession#createSeQuery(java.lang.String[],
      *      com.esri.sde.sdk.client.SeSqlConstruct)
      */
     public SeQuery createSeQuery(String[] propertyNames, SeSqlConstruct sql) throws IOException {
@@ -131,175 +131,175 @@ public class SessionWrapper implements ISession {
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeRasterColumn()
+     * @see org.geotools.arcsde.session.ISession#createSeRasterColumn()
      */
     public SeRasterColumn createSeRasterColumn() throws IOException {
         return wrapped.createSeRasterColumn();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeRasterColumn(com.esri.sde.sdk.client.SeObjectId)
+     * @see org.geotools.arcsde.session.ISession#createSeRasterColumn(com.esri.sde.sdk.client.SeObjectId)
      */
     public SeRasterColumn createSeRasterColumn(SeObjectId rasterColumnId) throws IOException {
         return wrapped.createSeRasterColumn(rasterColumnId);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeRegistration(java.lang.String)
+     * @see org.geotools.arcsde.session.ISession#createSeRegistration(java.lang.String)
      */
     public SeRegistration createSeRegistration(String typeName) throws IOException {
         return wrapped.createSeRegistration(typeName);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeTable(java.lang.String)
+     * @see org.geotools.arcsde.session.ISession#createSeTable(java.lang.String)
      */
     public SeTable createSeTable(String qualifiedName) throws IOException {
         return wrapped.createSeTable(qualifiedName);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createSeUpdate()
+     * @see org.geotools.arcsde.session.ISession#createSeUpdate()
      */
     public SeUpdate createSeUpdate() throws IOException {
         return wrapped.createSeUpdate();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#createState(com.esri.sde.sdk.client.SeObjectId)
+     * @see org.geotools.arcsde.session.ISession#createState(com.esri.sde.sdk.client.SeObjectId)
      */
     public SeState createState(SeObjectId stateId) throws IOException {
         return wrapped.createState(stateId);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#describe(java.lang.String)
+     * @see org.geotools.arcsde.session.ISession#describe(java.lang.String)
      */
     public SeColumnDefinition[] describe(String tableName) throws IOException {
         return wrapped.describe(tableName);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#describe(com.esri.sde.sdk.client.SeTable)
+     * @see org.geotools.arcsde.session.ISession#describe(com.esri.sde.sdk.client.SeTable)
      */
     public SeColumnDefinition[] describe(SeTable table) throws IOException {
         return wrapped.describe(table);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#dispose()
+     * @see org.geotools.arcsde.session.ISession#dispose()
      */
     public void dispose() throws IllegalStateException {
         wrapped.dispose();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#fetch(com.esri.sde.sdk.client.SeQuery)
+     * @see org.geotools.arcsde.session.ISession#fetch(com.esri.sde.sdk.client.SeQuery)
      */
     public SdeRow fetch(SeQuery query) throws IOException {
         return wrapped.fetch(query);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#fetch(SeQuery, SdeRow)
+     * @see org.geotools.arcsde.session.ISession#fetch(SeQuery, SdeRow)
      */
     public SdeRow fetch(SeQuery query, SdeRow currentRow) throws IOException {
         return wrapped.fetch(query, currentRow);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#getDatabaseName()
+     * @see org.geotools.arcsde.session.ISession#getDatabaseName()
      */
     public String getDatabaseName() throws IOException {
         return wrapped.getDatabaseName();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#getDBMSInfo()
+     * @see org.geotools.arcsde.session.ISession#getDBMSInfo()
      */
     public SeDBMSInfo getDBMSInfo() throws IOException {
         return wrapped.getDBMSInfo();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#getLayer(java.lang.String)
+     * @see org.geotools.arcsde.session.ISession#getLayer(java.lang.String)
      */
     public SeLayer getLayer(String layerName) throws IOException {
         return wrapped.getLayer(layerName);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#getLayers()
+     * @see org.geotools.arcsde.session.ISession#getLayers()
      */
     public List<SeLayer> getLayers() throws IOException {
         return wrapped.getLayers();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#getRasterColumn(java.lang.String)
+     * @see org.geotools.arcsde.session.ISession#getRasterColumn(java.lang.String)
      */
     public SeRasterColumn getRasterColumn(String rasterName) throws IOException {
         return wrapped.getRasterColumn(rasterName);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#getRelease()
+     * @see org.geotools.arcsde.session.ISession#getRelease()
      */
     public SeRelease getRelease() throws IOException {
         return wrapped.getRelease();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#getTable(java.lang.String)
+     * @see org.geotools.arcsde.session.ISession#getTable(java.lang.String)
      */
     public SeTable getTable(String tableName) throws IOException {
         return wrapped.getTable(tableName);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#getUser()
+     * @see org.geotools.arcsde.session.ISession#getUser()
      */
     public String getUser() throws IOException {
         return wrapped.getUser();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#isClosed()
+     * @see org.geotools.arcsde.session.ISession#isClosed()
      */
     public boolean isClosed() {
         return wrapped.isClosed();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#isDisposed()
+     * @see org.geotools.arcsde.session.ISession#isDisposed()
      */
     public boolean isDisposed() {
         return wrapped.isDisposed();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#isTransactionActive()
+     * @see org.geotools.arcsde.session.ISession#isTransactionActive()
      */
     public boolean isTransactionActive() {
         return wrapped.isTransactionActive();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#issue(org.geotools.arcsde.pool.Command)
+     * @see org.geotools.arcsde.session.ISession#issue(org.geotools.arcsde.session.Command)
      */
     public <T> T issue(Command<T> command) throws IOException {
         return wrapped.issue(command);
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#rollbackTransaction()
+     * @see org.geotools.arcsde.session.ISession#rollbackTransaction()
      */
     public void rollbackTransaction() throws IOException {
         wrapped.rollbackTransaction();
     }
 
     /**
-     * @see org.geotools.arcsde.pool.ISession#startTransaction()
+     * @see org.geotools.arcsde.session.ISession#startTransaction()
      */
     public void startTransaction() throws IOException {
         wrapped.startTransaction();

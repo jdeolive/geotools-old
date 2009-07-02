@@ -15,12 +15,12 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.pool;
+package org.geotools.arcsde.session;
 
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -33,6 +33,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import org.geotools.arcsde.session.ArcSDEConnectionConfig;
+import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.SessionPoolFactory;
+import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -20,9 +20,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
-import org.geotools.arcsde.pool.Commands.GetVersionCommand;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.Commands.GetVersionCommand;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeConnection;

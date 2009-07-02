@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.session.SessionPool;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;

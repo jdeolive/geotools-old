@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.pool;
+package org.geotools.arcsde.session;
 
 /**
  * Represents a set of ArcSDE database connection parameters.

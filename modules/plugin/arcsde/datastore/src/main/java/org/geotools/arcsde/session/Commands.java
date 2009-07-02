@@ -1,4 +1,4 @@
-package org.geotools.arcsde.pool;
+package org.geotools.arcsde.session;
 
 import java.io.IOException;
 import java.util.ArrayList;

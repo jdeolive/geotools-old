@@ -22,7 +22,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 
 import org.geotools.arcsde.ArcSDERasterFormatFactory;
-import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
+import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;

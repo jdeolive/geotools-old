@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import net.sf.jsqlparser.schema.Table;
 
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 
 /**
  * Utility used to qualify table names

@@ -33,8 +33,8 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
-import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
+import org.geotools.arcsde.session.ArcSDEConnectionConfig;
+import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.factory.GeoTools;

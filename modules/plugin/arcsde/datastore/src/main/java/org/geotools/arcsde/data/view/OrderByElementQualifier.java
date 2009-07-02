@@ -23,7 +23,7 @@ import net.sf.jsqlparser.statement.select.ColumnReference;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.OrderByVisitor;
 
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 
 /**
  * Qualifies a column reference in an order by clause

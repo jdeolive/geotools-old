@@ -28,10 +28,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
-import org.geotools.arcsde.pool.SessionPool;
-import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.junit.After;
 import org.junit.AfterClass;

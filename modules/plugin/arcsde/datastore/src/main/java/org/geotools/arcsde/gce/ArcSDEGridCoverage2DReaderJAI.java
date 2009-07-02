@@ -53,8 +53,8 @@ import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ArcSDEPooledConnection;
+import org.geotools.arcsde.session.ArcSDEConnectionPool;
+import org.geotools.arcsde.session.ArcSDEPooledConnection;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;

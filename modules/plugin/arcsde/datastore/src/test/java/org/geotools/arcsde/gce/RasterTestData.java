@@ -64,12 +64,12 @@ import org.geotools.arcsde.gce.producer.ArcSDERasterFloatProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterOneBitPerBandProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterOneBytePerBandProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterProducer;
-import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
-import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
-import org.geotools.arcsde.pool.ArcSDEPooledConnection;
-import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.ArcSDEConnectionConfig;
+import org.geotools.arcsde.session.ArcSDEConnectionPool;
+import org.geotools.arcsde.session.ArcSDEConnectionPoolFactory;
+import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
+import org.geotools.arcsde.session.ArcSDEPooledConnection;
+import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.util.logging.Logging;
 

@@ -18,7 +18,7 @@ package org.geotools.arcsde.data.versioning;
 
 import java.io.IOException;
 
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 
 import com.esri.sde.sdk.client.SeStreamOp;
 

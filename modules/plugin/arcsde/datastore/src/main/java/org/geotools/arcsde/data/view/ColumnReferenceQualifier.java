@@ -24,7 +24,7 @@ import net.sf.jsqlparser.statement.select.ColumnIndex;
 import net.sf.jsqlparser.statement.select.ColumnReference;
 import net.sf.jsqlparser.statement.select.ColumnReferenceVisitor;
 
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 
 /**
  * Qualifies a column reference (aliased) the ArcSDE "table.user." prefix as required by the ArcSDE

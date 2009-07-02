@@ -33,9 +33,9 @@ import java.util.logging.Logger;
 
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
-import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SessionPool;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Transaction;
 import org.geotools.feature.NameImpl;

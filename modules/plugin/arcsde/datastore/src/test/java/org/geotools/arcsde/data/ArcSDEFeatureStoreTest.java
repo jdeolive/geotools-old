@@ -39,9 +39,9 @@ import java.util.logging.Logger;
 import junit.framework.AssertionFailedError;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
-import org.geotools.arcsde.pool.SessionPool;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SessionPool;
 import org.geotools.data.BatchFeatureEvent;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;

@@ -22,7 +22,7 @@ import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 
 /**
  * Fully qualifies a table names.

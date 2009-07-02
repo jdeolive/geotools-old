@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;

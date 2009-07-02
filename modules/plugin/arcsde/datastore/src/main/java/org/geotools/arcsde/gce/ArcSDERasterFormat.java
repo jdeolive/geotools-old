@@ -17,13 +17,13 @@
  */
 package org.geotools.arcsde.gce;
 
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEDataStoreConfig.DBTYPE_PARAM_VALUE;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.DBTYPE_PARAM_VALUE;
 
 import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
@@ -45,12 +45,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
-import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
-import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
-import org.geotools.arcsde.pool.ArcSDEPooledConnection;
-import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.ArcSDEConnectionConfig;
+import org.geotools.arcsde.session.ArcSDEConnectionPool;
+import org.geotools.arcsde.session.ArcSDEConnectionPoolFactory;
+import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
+import org.geotools.arcsde.session.ArcSDEPooledConnection;
+import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.arcsde.util.ArcSDEUtils;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;

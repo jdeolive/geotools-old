@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.pool;
+package org.geotools.arcsde.session;
 
 import java.util.HashMap;
 import java.util.Iterator;

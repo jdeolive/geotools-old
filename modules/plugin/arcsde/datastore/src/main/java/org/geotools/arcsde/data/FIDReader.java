@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 

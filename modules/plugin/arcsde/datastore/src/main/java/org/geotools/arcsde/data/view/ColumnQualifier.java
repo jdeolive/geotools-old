@@ -22,7 +22,7 @@ import java.util.Map;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 
 /**
  * Qualifies a column name with the ArcSDE "table.user." prefix as required by the ArcSDE java api

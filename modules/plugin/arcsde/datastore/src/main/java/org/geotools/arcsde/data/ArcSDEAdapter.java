@@ -32,8 +32,8 @@ import java.util.logging.Logger;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.Command;
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;

@@ -24,7 +24,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.ArcSDEConnectionPool;
+import org.geotools.arcsde.session.ArcSDEConnectionPool;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;

@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
-import org.geotools.arcsde.pool.ArcSDEDataStoreConfig;
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
+import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultTransaction;

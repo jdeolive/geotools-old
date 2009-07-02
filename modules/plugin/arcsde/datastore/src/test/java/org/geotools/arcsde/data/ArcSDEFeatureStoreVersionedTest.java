@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;

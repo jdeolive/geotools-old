@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.pool;
+package org.geotools.arcsde.session;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 import org.apache.commons.pool.ObjectPool;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.SdeRow;
-import org.geotools.arcsde.pool.Commands.GetVersionCommand;
+import org.geotools.arcsde.session.Commands.GetVersionCommand;
 import org.geotools.data.DataSourceException;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
@@ -159,7 +159,7 @@ class Session implements ISession {
     }
 
     /**
-     * @see ISession#issue(org.geotools.arcsde.pool.Command)
+     * @see ISession#issue(org.geotools.arcsde.session.Command)
      */
     public <T> T issue(final Command<T> command) throws IOException {
         final Thread callingThread = Thread.currentThread();

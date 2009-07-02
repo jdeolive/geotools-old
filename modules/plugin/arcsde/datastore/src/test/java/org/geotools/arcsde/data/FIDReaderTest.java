@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-import org.geotools.arcsde.pool.ISession;
+import org.geotools.arcsde.session.ISession;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -86,7 +86,7 @@ public class FIDReaderTest {
 
     /**
      * Test method for
-     * {@link org.geotools.arcsde.data.FIDReader#getFidReader(org.geotools.arcsde.pool.ISession, com.esri.sde.sdk.client.SeTable, com.esri.sde.sdk.client.SeLayer, com.esri.sde.sdk.client.SeRegistration)}
+     * {@link org.geotools.arcsde.data.FIDReader#getFidReader(org.geotools.arcsde.session.ISession, com.esri.sde.sdk.client.SeTable, com.esri.sde.sdk.client.SeLayer, com.esri.sde.sdk.client.SeRegistration)}
      * .
      * 
      * @throws IOException

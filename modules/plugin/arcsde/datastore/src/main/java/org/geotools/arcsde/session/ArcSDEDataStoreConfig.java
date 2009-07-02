@@ -15,16 +15,16 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.pool;
+package org.geotools.arcsde.session;
 
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
-import static org.geotools.arcsde.pool.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.MIN_CONNECTIONS_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
 
 import java.util.Map;
 import java.util.logging.Logger;
