@@ -279,7 +279,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 	 * 
 	 * @see org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter.GeneralParameterValue[])
 	 */
-	public GridCoverage read(GeneralParameterValue[] params) throws IOException {
+	public synchronized GridCoverage read(GeneralParameterValue[] params) throws IOException {
 		logRequestParams(params);
 
 		Date start = new Date();
