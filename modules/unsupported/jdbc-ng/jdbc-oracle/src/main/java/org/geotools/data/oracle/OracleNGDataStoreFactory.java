@@ -65,6 +65,10 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
     protected JDBCDataStore createDataStoreInternal(JDBCDataStore dataStore, Map params)
         throws IOException {
         
+        // make the schema uppercase if it's not already
+        if(dataStore.getDatabaseSchema() != null)
+            dataStore.setDatabaseSchema(dataStore.getDatabaseSchema().toUpperCase());
+        
         // setup loose bbox
         OracleDialect dialect = (OracleDialect) dataStore.getSQLDialect();
         Boolean loose = (Boolean) LOOSEBBOX.lookUp(params);
@@ -75,43 +79,6 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
         
         return dataStore;
     }
-    
-//    @Override
-//    protected DataSource createDataSource(Map params) throws IOException {
-//        BasicDataSource dataSource = new BasicDataSource();
-//
-//        //driver
-//        dataSource.setDriverClassName(getDriverClassName());
-//
-//        //jdbc url
-//        
-//        dataSource.setUrl(dbUrl);
-//
-//        //username
-//        String user = (String) USER.lookUp(params);
-//        dataSource.setUsername(user);
-//
-//        //password
-//        String passwd = (String) PASSWD.lookUp(params);
-//
-//        if (passwd != null) {
-//            dataSource.setPassword(passwd);
-//        }
-//
-//        // setup pooling
-//        dataSource.setMinIdle(4);
-//        dataSource.setMaxActive(20);
-//        dataSource.setAccessToUnderlyingConnectionAllowed(true);
-//        dataSource.setPoolPreparedStatements(true);
-//        dataSource.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-//        
-//        // check connections?
-//        Boolean validate = (Boolean) VALIDATECONN.lookUp(params);
-//        if(Boolean.TRUE.equals(validate))
-//            dataSource.setValidationQuery("select sysdate from dual");
-//        
-//        return dataSource;
-//    }
     
     @Override
     protected String getJDBCUrl(Map params) throws IOException {
