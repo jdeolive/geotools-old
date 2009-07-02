@@ -954,15 +954,6 @@
 
 
     <plugins>
-        <!-- Eclipse integration -->
-	<plugin>
-          <artifactId>maven-eclipse-plugin</artifactId>
-          <configuration>
-            <!-- Use a different build directory, see GEOT-2576 -->
-            <buildOutputDirectory>./bin</buildOutputDirectory>
-          </configuration>
-        </plugin>
-
         <plugin>
           <!-- groupId org.apache.maven.plugins is the default -->
           <artifactId>maven-assembly-plugin</artifactId>
