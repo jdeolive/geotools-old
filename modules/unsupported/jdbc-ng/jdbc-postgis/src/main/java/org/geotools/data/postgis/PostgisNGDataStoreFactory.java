@@ -29,6 +29,9 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
     
     /** parameter for database port */
     public static final Param PORT = new Param("port", Integer.class, "Port", true, 5432);
+    
+    /** parameter for database schema */
+    public static final Param SCHEMA = new Param("schema", String.class, "Schema", false, "public");
 
     /**
      * Wheter a prepared statements based dialect should be used, or not
@@ -79,6 +82,7 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
     @Override
     protected void setupParameters(Map parameters) {
         super.setupParameters(parameters);
+        parameters.put(SCHEMA.key, SCHEMA);
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
         parameters.put(PORT.key, PORT);
         parameters.put(PREPARED_STATEMENTS.key, PREPARED_STATEMENTS);
