@@ -38,6 +38,7 @@ import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.geotools.feature.type.FeatureTypeFactoryImpl;
 import org.geotools.util.CheckedArrayList;
 import org.geotools.xs.XSSchema;
+import org.opengis.feature.Association;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.FeatureFactory;
@@ -540,9 +541,11 @@ public class XPath {
             final QName stepName = currStep.getName();
             final Name attributeName = Types.toName(stepName);
 
+            final boolean isLastStep = !stepsIterator.hasNext();
+
             AttributeDescriptor currStepDescriptor = null;
 
-            if (targetNodeType == null) {
+            if (!isLastStep || targetNodeType == null) {
                 if (null == attributeName.getNamespaceURI()) {
                     currStepDescriptor = (AttributeDescriptor) Types.descriptor(parentType,
                             attributeName.getLocalPart());
@@ -600,8 +603,7 @@ public class XPath {
                         + parentType.getName().getLocalPart() + " properties: " + parentAtts);
             }
 
-            final boolean isLastStep = !stepsIterator.hasNext();
-
+ 
             if (isLastStep) {
                 // reached the leaf
                 if (currStepDescriptor == null) {
@@ -657,7 +659,31 @@ public class XPath {
         }
         if (leafAttribute == null) {
             AttributeBuilder builder = new AttributeBuilder(featureFactory);
-            builder.init(parent);
+//            Object dummy = parent.getProperty("simpleContent");
+//            if ( dummy != null )
+//            	parent.getValue().remove(dummy);
+//            
+//            builder.init(parent);
+            builder.setDescriptor(parent.getDescriptor());
+            //check for mapped type override
+
+            builder.setType(parent.getType());
+            if (parent instanceof ComplexAttribute) {
+                ComplexAttribute complex = (ComplexAttribute) parent;
+                Collection properties = (Collection) complex.getValue();
+                for (Iterator itr = properties.iterator(); itr.hasNext();) {
+                    Property property = (Property) itr.next();
+                    if (property instanceof Attribute && ! property.getName().getLocalPart().equals("simpleContent")) {
+                        Attribute att = (Attribute) property;
+                        builder.add(att.getIdentifier() == null ? null : att.getIdentifier().toString(), att
+                                .getValue(), att.getName());
+                    } else if (property instanceof Association) {
+                        Association assoc = (Association) property;
+                        builder.associate(assoc.getValue(), assoc.getName());
+                    }
+                }
+            }
+
             if (targetNodeType != null) {
                 leafAttribute = builder.add(id, convertedValue, attributeName, targetNodeType);
             } else {

@@ -332,6 +332,20 @@ public class AppSchemaDataAccessTest extends TestCase {
         assertEquals(Point.class, fromNode.getType().getBinding());
         assertEquals(Point.class, toNode.getType().getBinding());
 
+        // test to see if the mapping can successfully substitute a valid narrower type 
+        Name subName = Types.typeName(nsUri, "broadTypeEl");
+        
+        descriptor = (AttributeDescriptor) Types.descriptor(type, subName);
+
+        ComplexType subbedType = (ComplexType) descriptor.getType();
+
+        AttributeDescriptor sub = (AttributeDescriptor) Types
+                .descriptor(subbedType, subName);
+ //       assertNotNull(sub);
+
+ //       assertEquals(Point.class, fromNode.getType().getBinding());
+ 
+
         FeatureCollection<FeatureType, Feature> content = source.getFeatures();
         Iterator<Feature> features = content.iterator();
         int count = 0;
