@@ -110,6 +110,26 @@ public class JDBCFeatureSource extends ContentFeatureSource {
     }
     
     /**
+     * Sets the flag which will expose columns which compose a tables identifying or primary key,
+     * through feature type attributes. 
+     * <p>
+     * Note: setting this flag which affect all feature sources created from or working against 
+     * the current transaction.
+     * </p>
+     */
+    public void setExposePrimaryKeyColumns(boolean exposePrimaryKeyColumns) {
+        ((JDBCState)entry.getState(transaction)).setExposePrimaryKeyColumns(exposePrimaryKeyColumns);
+    }
+    
+    /**
+     * The flag which will expose columns which compose a tables identifying or primary key,
+     * through feature type attributes.
+     */
+    public boolean isExposePrimaryKeyColumns() {
+        return ((JDBCState)entry.getState(transaction)).isExposePrimaryKeyColumns();
+    }
+    
+    /**
      * Builds the feature type from database metadata.
      */
     protected SimpleFeatureType buildFeatureType() throws IOException {
@@ -131,11 +151,14 @@ public class JDBCFeatureSource extends ContentFeatureSource {
             tb.setNamespaceURI(getDataStore().getNamespaceURI());
         }
 
+        //grab the state
+        JDBCState state = getState();
+        
         //grab the schema
         String databaseSchema = getDataStore().getDatabaseSchema();
 
         //ensure we have a connection
-        Connection cx = getDataStore().getConnection(getState());
+        Connection cx = getDataStore().getConnection(state);
 
         //get metadata about columns from database
         try {
@@ -171,11 +194,13 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 while (columns.next()) {
                     String name = columns.getString("COLUMN_NAME");
 
-                    //do not include primary key in the type
-                    for ( PrimaryKeyColumn pkeycol : pkey.getColumns() ) {
-                        if ( name.equals( pkeycol.getName() ) ) {
-                            name = null;
-                            break;
+                    //do not include primary key in the type if not exposing primary key columns
+                    if ( !state.isExposePrimaryKeyColumns() ) {
+                        for ( PrimaryKeyColumn pkeycol : pkey.getColumns() ) {
+                            if ( name.equals( pkeycol.getName() ) ) {
+                                name = null;
+                                break;
+                            }
                         }
                     }
                  
@@ -298,7 +323,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
             throw (IOException) new IOException().initCause(e);
         }
         finally {
-            getDataStore().releaseConnection( cx, getState() );
+            getDataStore().releaseConnection( cx, state );
         }
     }
 

@@ -171,4 +171,14 @@ public abstract class JDBCPrimaryKeyTest extends JDBCTestSupport {
         
         assertPrimaryKeyValues(features,4);
     }
+    
+    public void testExposePrimaryKeyColumns() throws Exception {
+        JDBCFeatureStore fs = (JDBCFeatureStore) dataStore.getFeatureSource(tname("auto"));
+        assertEquals( 2, fs.getSchema().getAttributeCount() );
+        
+        fs = (JDBCFeatureStore) dataStore.getFeatureSource(tname("auto"));
+        fs.setExposePrimaryKeyColumns(true);
+        assertEquals( 3, fs.getSchema().getAttributeCount() );
+        
+    }
 }

@@ -216,6 +216,12 @@ public final class JDBCDataStore extends ContentDataStore
      * to 0 to disable fetch size limit and grab all the records in one shot.
      */
     protected int fetchSize;
+    
+    /**
+     * flag controlling wether primary key columns of a table are exposed via the 
+     * feature type.
+     */
+    protected boolean exposePrimaryKeyColumns = false;
 
     /**
      * The current fetch size. The fetch size influences how many records are read from the
@@ -236,6 +242,22 @@ public final class JDBCDataStore extends ContentDataStore
         this.fetchSize = fetchSize;
     }
 
+    /**
+     * Determines if the datastore creates feature types which include those columns / attributes
+     * which compose the primary key.
+     */
+    public boolean isExposePrimaryKeyColumns() {
+        return exposePrimaryKeyColumns;
+    }
+    
+    /**
+     * Sets the flag controlling if the datastore creates feature types which include those columns 
+     * / attributes which compose the primary key.
+     */
+    public void setExposePrimaryKeyColumns(boolean exposePrimaryKeyColumns) {
+        this.exposePrimaryKeyColumns = exposePrimaryKeyColumns;
+    }
+    
     /**
      * The dialect the datastore uses to generate sql statements in order to
      * communicate with the underlying database.
@@ -618,7 +640,7 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected ContentState createContentState(ContentEntry entry) {
         JDBCState state = new JDBCState(entry);
-
+        state.setExposePrimaryKeyColumns(exposePrimaryKeyColumns);
         return state;
     }
     

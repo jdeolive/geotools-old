@@ -140,6 +140,26 @@ public final class JDBCFeatureStore extends ContentFeatureStore {
         return delegate.getPrimaryKey();
     }
 
+    /**
+     * Sets the flag which will expose columns which compose a tables identifying or primary key,
+     * through feature type attributes. 
+     * <p>
+     * Note: setting this flag which affect all feature sources created from or working against 
+     * the current transaction.
+     * </p>
+     */
+    public void setExposePrimaryKeyColumns(boolean exposePrimaryKeyColumns) {
+        delegate.setExposePrimaryKeyColumns(exposePrimaryKeyColumns);
+    }
+    
+    /**
+     * The flag which will expose columns which compose a tables identifying or primary key,
+     * through feature type attributes.
+     */
+    public boolean isExposePrimaryKeyColumns() {
+        return delegate.isExposePrimaryKeyColumns();
+    }
+    
     @Override
     protected SimpleFeatureType buildFeatureType() throws IOException {
         return delegate.buildFeatureType();

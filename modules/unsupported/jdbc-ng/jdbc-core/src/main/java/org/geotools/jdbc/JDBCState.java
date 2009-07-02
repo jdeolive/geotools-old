@@ -40,7 +40,13 @@ public final class JDBCState extends ContentState {
      * cached primary key
      */
     private PrimaryKey primaryKey;
-
+    
+    /**
+     * flag indicating wether columns which are part of the primary key 
+     * are exposed.
+     */
+    private boolean exposePrimaryKeyColumns;
+    
     /**
      * Creates the state from an existing one.
      */
@@ -49,7 +55,8 @@ public final class JDBCState extends ContentState {
 
         //copy the primary key
         primaryKey = state.getPrimaryKey();
-
+        exposePrimaryKeyColumns = state.isExposePrimaryKeyColumns();
+        
         //do not copy the connection
         //connection = state.getConnection();
     }
@@ -90,6 +97,26 @@ public final class JDBCState extends ContentState {
         this.primaryKey = primaryKey;
     }
 
+    /**
+     * Returns the flag indicating if columns which compose the primary key are exposed 
+     * via the feature type.
+     */
+    public boolean isExposePrimaryKeyColumns() {
+        return exposePrimaryKeyColumns;
+    }
+    
+    /**
+     * Sets the flag indicating if columns which compose the primary key are exposed 
+     * via the feature type.
+     */
+    public void setExposePrimaryKeyColumns(boolean exposePrimaryKeyColumns) {
+        if ( exposePrimaryKeyColumns != this.exposePrimaryKeyColumns ) {
+            //need to clear the feature type cache, as it will need to be rebuilt
+            featureType = null;
+        }
+        this.exposePrimaryKeyColumns = exposePrimaryKeyColumns;
+    }
+    
     /**
      * Flushes all cached state.
      */
