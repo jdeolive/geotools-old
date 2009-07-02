@@ -140,12 +140,12 @@ public class ArcSDEConnectionConfig {
     public String toString() {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append("[server=").append(serverName);
-        sb.append(", port=)").append(portNumber);
+        sb.append(", port=").append(portNumber);
         sb.append(", database=").append(databaseName);
-        sb.append(", user=)").append(userName);
-        sb.append(", minConnections=)").append(minConnections);
-        sb.append(", maxConnections=)").append(maxConnections);
-        sb.append(", timeout=)").append(connTimeOut);
+        sb.append(", user=").append(userName);
+        sb.append(", minConnections=").append(minConnections);
+        sb.append(", maxConnections=").append(maxConnections);
+        sb.append(", timeout=").append(connTimeOut);
         sb.append("]");
 
         return sb.toString();
