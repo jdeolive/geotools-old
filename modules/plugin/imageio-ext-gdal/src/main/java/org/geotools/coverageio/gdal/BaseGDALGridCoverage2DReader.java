@@ -101,19 +101,25 @@ public abstract class BaseGDALGridCoverage2DReader extends
                     "Unexpected error! Metadata should be an instance of the expected class:"
                             + " GDALCommonIIOImageMetadata.");
         }
+        parseCommonMetadata((GDALCommonIIOImageMetadata) metadata);
 
-        getPropertiesFromCommonMetadata((GDALCommonIIOImageMetadata) metadata);
-
-
-
+        // //
+        //
+        // Envelope and CRS checks
+        //
+        // //
         if (getCoverageCRS() == null) {
             LOGGER.info("crs not found, proceeding with EPSG:4326");
             setCoverageCRS(AbstractGridFormat.getDefaultCRS());
         }
+        
+        
+        if (getCoverageEnvelope() == null) {
+            throw new DataSourceException(
+                    "Unable to compute the envelope for this coverage");
+        }
 
-
-
-        // setting the coordinate reference system for the envelope
+        // setting the coordinate reference system for the envelope, just to make sure we set it
         getCoverageEnvelope().setCoordinateReferenceSystem(getCoverageCRS());
 
         // Additional settings due to "final" methods getOriginalXXX
@@ -130,7 +136,7 @@ public abstract class BaseGDALGridCoverage2DReader extends
      *                a {@link GDALCommonIIOImageMetadata} metadata instance
      *                from where to search needed properties.
      */
-    private void getPropertiesFromCommonMetadata(
+    private void parseCommonMetadata(
             GDALCommonIIOImageMetadata metadata) {
 
         // ////////////////////////////////////////////////////////////////////
@@ -143,46 +149,36 @@ public abstract class BaseGDALGridCoverage2DReader extends
         // 1) CRS
         //
         // //
+        // //
+        //
+        // Let the prj file override the internal representation for the undelrying source of information.
+        //
+        // //
+        parsePRJFile();
+        // if there was not prj or the envelope could not be created easily, let's go with the standard metadata.
         if (getCoverageCRS() == null) {
-        	
-            // //
-            //
-            // If common metadata doesn't have sufficient information to set CRS
-            // envelope, try other ways, such as looking for a PRJ
-            //
-            // //
-        	parsePRJFile();
-            if (getCoverageCRS() == null) {
-            	final String wkt = metadata.getProjection();
+            final String wkt = metadata.getProjection();
 
-                if ((wkt != null) && !(wkt.equalsIgnoreCase(""))) {
-                    try {
-                        setCoverageCRS(CRS.parseWKT(wkt));
-                        final Integer epsgCode = CRS.lookupEpsgCode(getCoverageCRS(), true);
-
-                        // Force the creation of the CRS directly from the
-                        // retrieved EPSG code in order to prevent weird transformation
-                        // between "same" CRSs having slight differences.
-                        // TODO: cache epsgCode-CRSs
-                        if (epsgCode != null) {
-                            setCoverageCRS(CRS.decode("EPSG:" + epsgCode));
-                        }
-                    } catch (FactoryException fe) {
-                        // unable to get CRS from WKT
-                        if (LOGGER.isLoggable(Level.FINE)) {
-                            // LOGGER.log(Level.WARNING,
-                            // fe.getLocalizedMessage(), fe);
-                            LOGGER.log(Level.FINE,
-                                    "Unable to get CRS from WKT contained in metadata."
-                                            + " Looking for a PRJ.");
-                        }
-
-                        setCoverageCRS(null);
+            if ((wkt != null) && !(wkt.equalsIgnoreCase(""))) {
+                try {
+                    setCoverageCRS(CRS.parseWKT(wkt));
+                    final Integer epsgCode = CRS.lookupEpsgCode(getCoverageCRS(), true);
+                    // Force the creation of the CRS directly from the
+                    // retrieved EPSG code in order to prevent weird transformation
+                    // between "same" CRSs having slight differences.
+                    // TODO: cache epsgCode-CRSs
+                    if (epsgCode != null) {
+                        setCoverageCRS(CRS.decode("EPSG:" + epsgCode));
                     }
+                } catch (FactoryException fe) {
+                    // unable to get CRS from WKT
+                    if (LOGGER.isLoggable(Level.FINE)) {
+                        LOGGER.log(Level.FINE,"Unable to get CRS from WKT contained in metadata. Looking for a PRJ.");
+                    }
+                    //reset crs 
+                    setCoverageCRS(null);
                 }
             }
-            
-            
         }
         // //
         //
@@ -198,17 +194,11 @@ public abstract class BaseGDALGridCoverage2DReader extends
         // 3) Envelope
         //
         // //
-        // //
         //
-        // If no sufficient information have been found to set the
-        // envelope, try other ways, such as looking for a WorldFile
+        // Let's look for a world file first.
         //
-        // //
         parseWorldFile();
         if (getCoverageEnvelope() == null) {
-	            
-	           
-	        
 	        final double[] geoTransform = metadata.getGeoTransformation();
 	        if ((geoTransform != null) && (geoTransform.length == 6)) {
 	            final AffineTransform tempTransform = new AffineTransform(
