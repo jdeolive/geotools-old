@@ -30,9 +30,7 @@
   
 
   <scm>
-    <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/metadata/
-    </connection>
+    <connection>scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/metadata/</connection>
     <url>http://svn.osgeo.org/geotools/trunk/modules/library/metadata/</url>
   </scm>
 
@@ -126,9 +124,9 @@
       <!-- The version number is specified in the parent POM. -->
     </dependency>
     <dependency>
-	    <groupId>javax.measure</groupId>
-	    <artifactId>jsr-275</artifactId>
-	    <version>1.0.0</version>
+      <groupId>net.java.dev.jsr-275</groupId>
+      <artifactId>jsr-275</artifactId>
+      <!-- The version number is specified in the parent POM. -->
     </dependency>
 
     <!--
