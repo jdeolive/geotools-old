@@ -14,12 +14,23 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.TestData;
+import org.geotools.arcsde.session.ArcSDEConnectionConfig;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.data.DataAccessFactory;
+import org.geotools.data.DataAccessFinder;
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFactorySpi;
+import org.geotools.data.DataStoreFinder;
+import org.geotools.data.Transaction;
 import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.factory.GeoTools;
 import org.geotools.util.logging.Logging;
@@ -50,12 +61,62 @@ public class ArcSDEJNDIDataStoreFactoryTest {
         testData.getConProps();
     }
 
+    @Test
+    public void testDataStoreFinderFindsIt() throws IOException {
+        Iterator<DataStoreFactorySpi> allFactories = DataStoreFinder.getAllDataStores();
+        ArcSDEJNDIDataStoreFactory sdeFac = null;
+        while (allFactories.hasNext()) {
+            DataAccessFactory next = allFactories.next();
+            if (next instanceof ArcSDEJNDIDataStoreFactory) {
+                sdeFac = (ArcSDEJNDIDataStoreFactory) next;
+                break;
+            }
+        }
+        assertNotNull(sdeFac);
+    }
+
+    @Test
+    public void testDataAccessFinderFindsIt() throws IOException {
+        Iterator<DataAccessFactory> allFactories = DataAccessFinder.getAllDataStores();
+        ArcSDEJNDIDataStoreFactory sdeFac = null;
+        while (allFactories.hasNext()) {
+            DataAccessFactory next = allFactories.next();
+            if (next instanceof ArcSDEJNDIDataStoreFactory) {
+                sdeFac = (ArcSDEJNDIDataStoreFactory) next;
+                break;
+            }
+        }
+        assertNotNull(sdeFac);
+    }
+
     /**
      * Test method for {@link ArcSDEJNDIDataStoreFactory#createDataStore(java.util.Map)}.
+     * 
+     * @throws IOException
      */
     @Test
-    public void testCreateDataStore() {
-        fail("Not yet implemented");
+    public void testCreateDataStore() throws IOException {
+        String jndiRef = "java:comp/env/MyArcSdeResource";
+        Map<String, Serializable> params = new HashMap<String, Serializable>();
+        params.put(ArcSDEJNDIDataStoreFactory.JNDI_REFNAME.key, jndiRef);
+
+        ArcSDEConnectionConfig config = testData.getConnectionPool().getConfig();
+        try {
+            InitialContext initialContext = GeoTools.getInitialContext(GeoTools.getDefaultHints());
+            initialContext.createSubcontext("java:comp/env").bind(jndiRef, config);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+
+        ArcSDEDataStore dataStore = (ArcSDEDataStore) factory.createDataStore(params);
+        assertNotNull(dataStore);
+        ISession session = dataStore.getSession(Transaction.AUTO_COMMIT);
+        assertNotNull(session);
+        try {
+            assertEquals(config.getUserName().toUpperCase(), session.getUser().toUpperCase());
+        } finally {
+            session.dispose();
+        }
     }
 
     /**
@@ -68,15 +129,6 @@ public class ArcSDEJNDIDataStoreFactoryTest {
         assertFalse(factory.canProcess(params));
         String jndiRef = "java:comp/env/MyArcSdeResource";
         params.put(ArcSDEJNDIDataStoreFactory.JNDI_REFNAME.key, jndiRef);
-
-        try {
-            // bind any object to the lookup name, canProcess only checks there's something there
-            GeoTools.getInitialContext(GeoTools.getDefaultHints()).bind(jndiRef,
-                    "AnythingNonNullIsEnoughForCanProcess");
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-
         assertTrue(factory.canProcess(params));
     }
 

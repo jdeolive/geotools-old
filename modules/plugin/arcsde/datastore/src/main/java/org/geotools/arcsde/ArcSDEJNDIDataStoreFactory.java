@@ -24,7 +24,6 @@ import java.awt.RenderingHints.Key;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.naming.Context;
@@ -37,7 +36,6 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
-import org.geotools.factory.GeoTools;
 import org.geotools.util.logging.Logging;
 
 /**
@@ -75,7 +73,8 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
         final Context ctx;
 
         try {
-            ctx = GeoTools.getInitialContext(GeoTools.getDefaultHints());
+            Context initialContext = new InitialContext();
+            ctx = (Context) initialContext.lookup("java:comp/env");
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -118,6 +117,11 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
     }
 
     /**
+     * Returns whether this factory <i>could</i> process the given parameters. That is, it does not
+     * check the validity of the parameter, it only asserts the {@link #JNDI_REFNAME} parameter is
+     * present. That is so so any failure is handled by {@link #createDataStore(Map)} instead of
+     * getting client code silently failing (as this method does not throw an exception)
+     * 
      * @see org.geotools.data.DataAccessFactory#canProcess(java.util.Map)
      */
     public boolean canProcess(Map<String, Serializable> params) {
@@ -133,15 +137,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
         if (lookUpKey == null) {
             return false;
         }
-        try {
-            Context ctx;
-            ctx = GeoTools.getInitialContext(GeoTools.getDefaultHints());
-            Object lookup = ctx.lookup(lookUpKey);
-            return lookup != null;
-        } catch (NamingException e) {
-            LOGGER.log(Level.INFO, "Error in context look up for arcsde JNDI path", e);
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -176,11 +172,11 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
      */
     public boolean isAvailable() {
         try {
-            InitialContext context = GeoTools.getInitialContext(GeoTools.getDefaultHints());
-            return context != null && delegateFactory.isAvailable();
+            new InitialContext();
         } catch (NamingException e) {
             return false;
         }
+        return delegateFactory.isAvailable();
     }
 
     /**
