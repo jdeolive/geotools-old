@@ -173,10 +173,10 @@ public abstract class JDBCPrimaryKeyTest extends JDBCTestSupport {
     }
     
     public void testExposePrimaryKeyColumns() throws Exception {
-        JDBCFeatureStore fs = (JDBCFeatureStore) dataStore.getFeatureSource(tname("auto"));
+        JDBCFeatureStore fs = (JDBCFeatureStore) dataStore.getFeatureSource(tname("noninc"));
         assertEquals( 2, fs.getSchema().getAttributeCount() );
         
-        fs = (JDBCFeatureStore) dataStore.getFeatureSource(tname("auto"));
+        fs = (JDBCFeatureStore) dataStore.getFeatureSource(tname("noninc"));
         fs.setExposePrimaryKeyColumns(true);
         assertEquals( 3, fs.getSchema().getAttributeCount() );
         
