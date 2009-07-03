@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.data;
+package org.geotools.arcsde.session;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -25,7 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeException;
@@ -45,7 +44,7 @@ import com.esri.sde.sdk.geom.GeometryFactory;
  */
 public class SdeRow {
     /** Logger for ths class' package */
-    private static final Logger LOGGER = Logging.getLogger(SdeRow.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SdeRow.class.getName());
 
     /** cached SeRow values */
     private Object[] values;

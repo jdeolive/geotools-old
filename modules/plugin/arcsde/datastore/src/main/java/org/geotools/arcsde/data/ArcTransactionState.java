@@ -27,7 +27,6 @@ import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.data.versioning.TransactionVersionHandler;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.Transaction;
 import org.geotools.util.logging.Logging;
@@ -52,12 +51,12 @@ final class ArcTransactionState implements Transaction.State {
     private static final Logger LOGGER = Logging.getLogger(ArcTransactionState.class.getName());
 
     /**
-     * ConnectionPool we can use to look up a Session for our Transaction.
+     * ArcSDEDataStore we can use to look up a Session for our Transaction.
      * <p>
      * The ConnectionPool will hold this connection open for us until commit(), rollback() or
      * close() is called.
      */
-    private SessionPool pool;
+    private ArcSDEDataStore dataStore;
 
     private Transaction transaction;
 
@@ -80,12 +79,12 @@ final class ArcTransactionState implements Transaction.State {
      * Creates a new ArcTransactionState object.
      * 
      * @param listenerManager
-     * @param pool
+     * @param arcSDEDataStore
      *            connection pool where to grab a connection and hold it while there's a transaction
      *            open (signaled by any use of {@link #getConnection()}
      */
-    ArcTransactionState(SessionPool pool, final FeatureListenerManager listenerManager) {
-        this.pool = pool;
+    ArcTransactionState(ArcSDEDataStore dataStore, final FeatureListenerManager listenerManager) {
+        this.dataStore = dataStore;
         this.listenerManager = listenerManager;
     }
 
@@ -241,7 +240,7 @@ final class ArcTransactionState implements Transaction.State {
      *             if the transaction state has been closed.
      */
     private void failIfClosed() throws IllegalStateException {
-        if (pool == null) {
+        if (dataStore == null) {
             throw new IllegalStateException("This transaction state has already been closed");
         }
     }
@@ -250,10 +249,10 @@ final class ArcTransactionState implements Transaction.State {
      * Releases resources and invalidates this state (signaled by setting the connection to null)
      */
     private void close() {
-        if (pool == null) {
+        if (dataStore == null) {
             return;
         }
-        pool = null;
+        dataStore = null;
     }
 
     /**
@@ -266,7 +265,7 @@ final class ArcTransactionState implements Transaction.State {
     ISession getConnection() throws IOException {
         failIfClosed();
         // the pool is keeping track of connection according to transaction for us
-        return pool.getSession(transaction);
+        return dataStore.getSession(transaction);
     }
 
     public Transaction getTransaction() {

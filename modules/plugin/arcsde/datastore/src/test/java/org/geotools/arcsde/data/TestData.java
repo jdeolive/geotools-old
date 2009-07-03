@@ -30,11 +30,10 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.Commands;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SessionPoolFactory;
 import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.arcsde.session.Commands.GetVersionCommand;
@@ -110,7 +109,7 @@ public class TestData {
     /** the configuration keyword to use when creating layers and tables */
     private String configKeyword;
 
-    private SessionPool _pool;
+    private ISessionPool _pool;
 
     /**
      * Creates a new TestData object.
@@ -192,20 +191,20 @@ public class TestData {
      *             DOCUMENT ME!
      */
     public ArcSDEDataStore getDataStore() throws IOException {
-        SessionPool pool = newSessionPool();
+        ISessionPool pool = newSessionPool();
         ArcSDEDataStore dataStore = new ArcSDEDataStore(pool);
 
         return dataStore;
     }
 
-    public SessionPool getConnectionPool() throws IOException {
+    public ISessionPool getConnectionPool() throws IOException {
         if (this._pool == null) {
             this._pool = newSessionPool();
         }
         return this._pool;
     }
 
-    public SessionPool newSessionPool() throws IOException {
+    public ISessionPool newSessionPool() throws IOException {
         SessionPoolFactory pfac = SessionPoolFactory.getInstance();
         ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(this.conProps);
         return pfac.createPool(config.getSessionConfig());
@@ -275,7 +274,7 @@ public class TestData {
 
     public void deleteTable(final String typeName, final boolean ignoreFailure) throws IOException,
             UnavailableArcSDEConnectionException {
-        SessionPool connectionPool = getConnectionPool();
+        ISessionPool connectionPool = getConnectionPool();
         deleteTable(connectionPool, typeName, ignoreFailure);
     }
 
@@ -285,11 +284,11 @@ public class TestData {
      * @param connPool
      *            to get the connection to use in deleting {@link #getTempTableName()}
      */
-    public void deleteTempTable(SessionPool connPool) throws IOException {
+    public void deleteTempTable(ISessionPool connPool) throws IOException {
         deleteTable(connPool, getTempTableName(), true);
     }
 
-    private static void deleteTable(final SessionPool connPool, final String tableName,
+    private static void deleteTable(final ISessionPool connPool, final String tableName,
             final boolean ignoreFailure) throws IOException, UnavailableArcSDEConnectionException {
 
         final ISession session = connPool.getSession();
@@ -337,7 +336,7 @@ public class TestData {
      *             for any error
      */
     public void createTempTable(final boolean insertTestData) throws Exception {
-        SessionPool connPool = getConnectionPool();
+        ISessionPool connPool = getConnectionPool();
 
         deleteTempTable(connPool);
 
@@ -383,7 +382,7 @@ public class TestData {
      */
     public void insertTestData() throws Exception {
         truncateTempTable();
-        SessionPool connPool = getConnectionPool();
+        ISessionPool connPool = getConnectionPool();
         ISession session = connPool.getSession();
         try {
             SeLayer tempTableLayer = getTempLayer(session);
@@ -401,7 +400,7 @@ public class TestData {
 
     public void truncateTestTable(final String tempTableName) throws IOException,
             DataSourceException, UnavailableArcSDEConnectionException {
-        final SessionPool connPool = getConnectionPool();
+        final ISessionPool connPool = getConnectionPool();
         final ISession session = connPool.getSession();
 
         try {
@@ -918,7 +917,7 @@ public class TestData {
     }
 
     private void deleteSampleLayers(final int numLayersToCreate) throws IOException {
-        final SessionPool connectionPool = getConnectionPool();
+        final ISessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
         final NumberFormat formatter = NumberFormat.getInstance();
         formatter.setMinimumIntegerDigits(4);
@@ -951,7 +950,7 @@ public class TestData {
      */
     private void createSampleLayers(final int numLayersToCreate, final int startFrom)
             throws IOException {
-        final SessionPool connectionPool = getConnectionPool();
+        final ISessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
 
         String tableName;
@@ -1000,7 +999,7 @@ public class TestData {
     }
 
     public void createSimpleTestTables() throws IOException {
-        final SessionPool connectionPool = getConnectionPool();
+        final ISessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
 
         String tableName;

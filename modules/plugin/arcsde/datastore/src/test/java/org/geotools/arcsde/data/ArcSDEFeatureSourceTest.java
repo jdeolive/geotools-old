@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
@@ -595,7 +595,7 @@ public class ArcSDEFeatureSourceTest {
 
         ArcSDEDataStore ds = testData.getDataStore();
 
-        SessionPool pool = testData.getConnectionPool();
+        ISessionPool pool = testData.getConnectionPool();
         final int initialAvailableCount = pool.getAvailableCount();
         final int initialPoolSize = pool.getPoolSize();
 

@@ -2,18 +2,14 @@ package org.geotools.arcsde.session;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeVersion;
 
 public class Commands {
-
-    private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.data");
 
     /**
      * Command to fetch a version.

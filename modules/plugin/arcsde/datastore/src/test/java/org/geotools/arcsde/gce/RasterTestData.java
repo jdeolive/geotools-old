@@ -59,6 +59,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.data.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.data.TestData;
 import org.geotools.arcsde.gce.producer.ArcSDERasterFloatProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterOneBitPerBandProducerImpl;
@@ -67,7 +68,6 @@ import org.geotools.arcsde.gce.producer.ArcSDERasterProducer;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ArcSDEConnectionPool;
 import org.geotools.arcsde.session.ArcSDEConnectionPoolFactory;
-import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.session.ArcSDEPooledConnection;
 import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;

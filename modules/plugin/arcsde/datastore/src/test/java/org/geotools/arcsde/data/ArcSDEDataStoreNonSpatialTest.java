@@ -31,7 +31,7 @@ import java.util.List;
 
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
@@ -106,7 +106,7 @@ public class ArcSDEDataStoreNonSpatialTest {
         seRowidSdeTable = baseTypeName + "_ROWID_SDE";
         seRowidUserTable = baseTypeName + "_ROWID_USER";
 
-        SessionPool sessionPool = testData.getConnectionPool();
+        ISessionPool sessionPool = testData.getConnectionPool();
         ISession session = sessionPool.getSession();
         try {
             SeDBMSInfo dbInfo = session.getDBMSInfo();
@@ -148,7 +148,7 @@ public class ArcSDEDataStoreNonSpatialTest {
 
     @Before
     public void setUp() throws Exception {
-        SessionPool sessionPool = testData.newSessionPool();
+        ISessionPool sessionPool = testData.newSessionPool();
         final boolean allowNonSpatialTables = true;
         ds = new ArcSDEDataStore(sessionPool, null, null, allowNonSpatialTables);
     }

@@ -17,6 +17,10 @@
  */
 package org.geotools.arcsde;
 
+import static org.geotools.arcsde.data.ArcSDEDataStoreConfig.ALLOW_NON_SPATIAL_TABLES_PARAM_NAME;
+import static org.geotools.arcsde.data.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
+import static org.geotools.arcsde.data.ArcSDEDataStoreConfig.NAMESPACE_PARAM_NAME;
+import static org.geotools.arcsde.data.ArcSDEDataStoreConfig.VERSION_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.MAX_CONNECTIONS_PARAM_NAME;
@@ -25,10 +29,6 @@ import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PASSWORD_PARAM_
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
-import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.ALLOW_NON_SPATIAL_TABLES_PARAM_NAME;
-import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
-import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.NAMESPACE_PARAM_NAME;
-import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.VERSION_PARAM_NAME;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,17 +38,16 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
+import org.geotools.arcsde.data.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.data.ViewRegisteringFactoryHelper;
-import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.session.Commands;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SessionPoolFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.Parameter;
-import org.geotools.data.Transaction;
 import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.logging.Logging;
 
@@ -116,15 +115,15 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
 
     static final Param MIN_CONNECTIONS_PARAM = new Param(MIN_CONNECTIONS_PARAM_NAME, Integer.class,
             "Minimun number of open connections", false, Integer
-                    .valueOf(SessionPool.DEFAULT_CONNECTIONS));
+                    .valueOf(ArcSDEDataStoreConfig.DEFAULT_CONNECTIONS));
 
     static final Param MAX_CONNECTIONS_PARAM = new Param(MAX_CONNECTIONS_PARAM_NAME, Integer.class,
             "Maximun number of open connections (will not work if < 2)", false, Integer
-                    .valueOf(SessionPool.DEFAULT_MAX_CONNECTIONS));
+                    .valueOf(ArcSDEDataStoreConfig.DEFAULT_MAX_CONNECTIONS));
 
     static final Param TIMEOUT_PARAM = new Param(CONNECTION_TIMEOUT_PARAM_NAME, Integer.class,
             "Milliseconds to wait for an available connection before failing to connect", false,
-            Integer.valueOf(SessionPool.DEFAULT_MAX_WAIT_TIME));
+            Integer.valueOf(ArcSDEDataStoreConfig.DEFAULT_MAX_WAIT_TIME));
 
     static final Param VERSION_PARAM = new Param(VERSION_PARAM_NAME, String.class,
             "The ArcSDE database version to use.", false);
@@ -258,9 +257,9 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     ArcSDEDataStore createDataStore(ArcSDEDataStoreConfig config) throws IOException {
         ArcSDEDataStore sdeDStore;
         // create a new session pool to be used only by this datastore
-        final SessionPool connPool = poolFactory.createPool(config.getSessionConfig());
+        final ISessionPool connPool = poolFactory.createPool(config.getSessionConfig());
 
-        final ISession session = connPool.getSession(Transaction.AUTO_COMMIT);
+        final ISession session = connPool.getSession();
         try {
             // check to see if our sdk is compatible with this arcsde instance
             SeRelease releaseInfo = session.getRelease();

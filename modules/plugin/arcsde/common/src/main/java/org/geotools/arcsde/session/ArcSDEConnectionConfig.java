@@ -17,6 +17,8 @@
  */
 package org.geotools.arcsde.session;
 
+import java.util.Map;
+
 /**
  * Represents a set of ArcSDE database connection parameters.
  * 
@@ -149,5 +151,23 @@ public class ArcSDEConnectionConfig {
         sb.append("]");
 
         return sb.toString();
+    }
+
+    public static ArcSDEConnectionConfig fromMap(final Map<String, String> map) {
+        ArcSDEConnectionConfig config = new ArcSDEConnectionConfig();
+        config.setDatabaseName(map.get(INSTANCE_NAME_PARAM_NAME));
+        config.setPassword(map.get(PASSWORD_PARAM_NAME));
+        config.setPortNumber(Integer.valueOf(map.get(PORT_NUMBER_PARAM_NAME)));
+        config.setServerName(map.get(SERVER_NAME_PARAM_NAME));
+        config.setUserName(map.get(USER_NAME_PARAM_NAME));
+
+        config.setConnTimeOut(Integer.valueOf(String
+                .valueOf(map.get(CONNECTION_TIMEOUT_PARAM_NAME))));
+        config.setMaxConnections(Integer.valueOf(String
+                .valueOf(map.get(MAX_CONNECTIONS_PARAM_NAME))));
+        config.setMinConnections(Integer.valueOf(String
+                .valueOf(map.get(MIN_CONNECTIONS_PARAM_NAME))));
+
+        return config;
     }
 }

@@ -33,12 +33,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.session.ArcSDEConnectionConfig;
-import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
-import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
-import org.geotools.arcsde.session.SessionPoolFactory;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,14 +49,13 @@ import org.junit.Test;
 @SuppressWarnings("unchecked")
 public class SessionPoolTest {
 
-    private static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.data.sde");
+    private static Logger LOGGER = Logger.getLogger("org.geotools.data.sde");
 
-    private Map connectionParameters;
+    private Map<String, String> connectionParameters;
 
     private ArcSDEConnectionConfig connectionConfig = null;
 
-    private SessionPool pool = null;
+    private ISessionPool pool = null;
 
     /**
      * loads {@code test-data/testparams.properties} to get connection parameters and sets up a
@@ -90,11 +83,14 @@ public class SessionPoolTest {
 
         conProps.load(in);
         in.close();
-        connectionParameters = conProps;
+        connectionParameters = new HashMap<String, String>();
+        for (Map.Entry e : conProps.entrySet()) {
+            connectionParameters.put((String) e.getKey(), (String) e.getValue());
+        }
 
         // test that mandatory connection parameters are set
         try {
-            connectionConfig = new ArcSDEDataStoreConfig(conProps).getSessionConfig();
+            connectionConfig = ArcSDEConnectionConfig.fromMap(connectionParameters);
         } catch (Exception ex) {
             throw new IllegalStateException("No valid connection parameters found in "
                     + conParamsSource.toExternalForm() + ": " + ex.getMessage());
@@ -133,9 +129,9 @@ public class SessionPoolTest {
      *             if the pool can't create the connections with the passed arguments (i.e. can't
      *             connect to SDE database)
      */
-    private SessionPool createPool(Map connParams) throws IllegalArgumentException,
-            NullPointerException, IOException {
-        this.connectionConfig = new ArcSDEDataStoreConfig(connParams).getSessionConfig();
+    private ISessionPool createPool(Map<String, String> connParams)
+            throws IllegalArgumentException, NullPointerException, IOException {
+        this.connectionConfig = ArcSDEConnectionConfig.fromMap(connParams);
         LOGGER.fine("creating a new SessionPool with " + connectionConfig);
 
         if (this.pool != null) {
@@ -160,26 +156,23 @@ public class SessionPoolTest {
         LOGGER.fine("testing connection to the sde database");
 
         SessionPoolFactory pf = SessionPoolFactory.getInstance();
-        ArcSDEDataStoreConfig config = null;
+        ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(connectionParameters);
 
-        config = new ArcSDEDataStoreConfig(connectionParameters);
+        ISessionPool connPool = null;
 
-        SessionPool connPool = null;
-
-        connPool = pf.createPool(config.getSessionConfig());
+        connPool = pf.createPool(config);
         LOGGER.fine("connection succeed " + connPool.getPoolSize() + " connections ready");
         connPool.close();
     }
 
     @Test
     public void testConnectFailure() throws IOException {
-        ArcSDEDataStoreConfig config = null;
 
         connectionParameters.put(SERVER_NAME_PARAM_NAME, "unreacheable-server-name");
-        config = new ArcSDEDataStoreConfig(connectionParameters);
+        ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(connectionParameters);
 
         try {
-            SessionPool connPool = new SessionPool(config.getSessionConfig());
+            ISessionPool connPool = new SessionPool(config);
             connPool.close();
             fail("Expected IOE for unreachable server");
         } catch (IOException e) {
@@ -237,7 +230,7 @@ public class SessionPoolTest {
         // this MUST fail, since maxConnections is lower than minConnections
         try {
             LOGGER.fine("testing parameters' sanity check at pool creation time");
-            SessionPool pool = createPool(params);
+            ISessionPool pool = createPool(params);
             pool.close();
             fail("the connection pool creation must have failed since a wrong set of arguments was passed");
         } catch (IllegalArgumentException ex) {

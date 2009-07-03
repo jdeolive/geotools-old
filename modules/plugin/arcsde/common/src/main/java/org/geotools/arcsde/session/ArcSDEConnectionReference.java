@@ -18,10 +18,6 @@
 package org.geotools.arcsde.session;
 
 import java.io.IOException;
-import java.util.logging.Logger;
-
-import org.geotools.data.DataSourceException;
-import org.geotools.data.Transaction;
 
 /**
  * This SessionPool makes a maximum of *one* Connection available to the calling application.
@@ -40,19 +36,10 @@ import org.geotools.data.Transaction;
  * @since 2.5
  */
 public class ArcSDEConnectionReference extends SessionPool {
-    /** package's logger */
-    private static final Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.arcsde.pool");
-
     /**
      * Our "cached" session used to issue read only commands.
      */
     ISession cached;
-
-    /**
-     * Current Transaction used to track what our single connection is up to.
-     */
-    Transaction transaction = Transaction.AUTO_COMMIT;
 
     protected ArcSDEConnectionReference(ArcSDEConnectionConfig config) throws IOException {
         super(config);
@@ -63,7 +50,7 @@ public class ArcSDEConnectionReference extends SessionPool {
     }
 
     @Override
-    public ISession getSession() throws DataSourceException, UnavailableArcSDEConnectionException {
+    public ISession getSession() throws IOException, UnavailableArcSDEConnectionException {
         if (cached == null) {
             ISession session = super.getSession(); // this will block if session is already in use
             this.cached = new SessionWrapper(session) {

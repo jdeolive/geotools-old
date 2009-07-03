@@ -18,7 +18,6 @@
 package org.geotools.arcsde.session;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * {@link SessionPool} factory.
@@ -30,9 +29,6 @@ import java.util.logging.Logger;
  * @version $Id$
  */
 public class SessionPoolFactory {
-    /** package logger */
-    private static final Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.arcsde.pool");
 
     /** singleton pool factory */
     private static final SessionPoolFactory singleton = new SessionPoolFactory();
@@ -63,8 +59,8 @@ public class SessionPoolFactory {
      * @throws IOException
      *             if the pool needs but can't be created
      */
-    public synchronized SessionPool createPool(ArcSDEConnectionConfig config) throws IOException {
-        SessionPool pool;
+    public synchronized ISessionPool createPool(ArcSDEConnectionConfig config) throws IOException {
+        ISessionPool pool;
 
         // the new pool will be populated with config.minConnections
         // connections

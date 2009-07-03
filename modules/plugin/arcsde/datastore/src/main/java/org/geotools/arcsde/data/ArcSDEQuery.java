@@ -35,6 +35,7 @@ import org.geotools.arcsde.filter.GeometryEncoderException;
 import org.geotools.arcsde.filter.GeometryEncoderSDE;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SdeRow;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;

@@ -35,9 +35,8 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.Transaction;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.FeatureType;
@@ -87,7 +86,7 @@ final class FeatureTypeInfoCache {
      */
     private final Map<String, FeatureTypeInfo> inProcessFeatureTypeInfos;
 
-    private final SessionPool sessionPool;
+    private final ISessionPool sessionPool;
 
     /**
      * list of available featureclasses in the database. Does not contain in-process view type
@@ -118,7 +117,7 @@ final class FeatureTypeInfoCache {
     /**
      * Creates a FeatureTypeInfoCache
      * <p>
-     * The provided {@link SessionPool} is used to grab an {@link ISession} when the list of
+     * The provided {@link ISessionPool} is used to grab an {@link ISession} when the list of
      * available layers needs to be updated. This update happens at this class' construction time
      * and, optionally, every {@code cacheUpdateFreqSecs} seconds.
      * </p>
@@ -132,7 +131,7 @@ final class FeatureTypeInfoCache {
      *            whether non spatial table names are requested
      * @throws IOException
      */
-    public FeatureTypeInfoCache(final SessionPool sessionPool, final String namespace,
+    public FeatureTypeInfoCache(final ISessionPool sessionPool, final String namespace,
             final int cacheUpdateFreqSecs, boolean allowNonSpatialTables) throws IOException {
 
         availableLayerNames = new TreeSet<String>();
@@ -221,7 +220,7 @@ final class FeatureTypeInfoCache {
             return typeInfo;
         }
 
-        ISession session = sessionPool.getSession(Transaction.AUTO_COMMIT);
+        ISession session = sessionPool.getSession();
         try {
             typeInfo = getFeatureTypeInfo(typeName, session);
         } finally {
@@ -340,7 +339,7 @@ final class FeatureTypeInfoCache {
 
         private List<String> fetchRegistrations() throws Exception {
             final List<String> typeNames;
-            final ISession session = sessionPool.getSession(Transaction.AUTO_COMMIT);
+            final ISession session = sessionPool.getSession();
             try {
                 typeNames = session.issue(new FetchRegistrationsCommand(allowNonSpatialTables));
             } finally {

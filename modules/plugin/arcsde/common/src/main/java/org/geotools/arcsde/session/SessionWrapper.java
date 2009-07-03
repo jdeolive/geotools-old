@@ -20,8 +20,6 @@ package org.geotools.arcsde.session;
 import java.io.IOException;
 import java.util.List;
 
-import org.geotools.arcsde.data.SdeRow;
-
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeDBMSInfo;
 import com.esri.sde.sdk.client.SeDelete;

@@ -17,7 +17,7 @@
  */
 package org.geotools.arcsde;
 
-import static org.geotools.arcsde.session.ArcSDEDataStoreConfig.VERSION_PARAM_NAME;
+import static org.geotools.arcsde.data.ArcSDEDataStoreConfig.VERSION_PARAM_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -31,10 +31,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
+import org.geotools.arcsde.data.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.data.InProcessViewSupportTestData;
 import org.geotools.arcsde.data.TestData;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
-import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataAccessFactory;
 import org.geotools.data.DataAccessFinder;

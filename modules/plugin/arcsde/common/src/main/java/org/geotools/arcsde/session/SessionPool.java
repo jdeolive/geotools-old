@@ -26,8 +26,6 @@ import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.data.DataSourceException;
-import org.geotools.data.Transaction;
 
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeRelease;
@@ -59,20 +57,11 @@ import com.esri.sde.sdk.client.SeRelease;
  * @author Gabriel Roldan
  * @version $Id$
  */
-public class SessionPool {
+class SessionPool implements ISessionPool {
     /** package's logger */
-    private static final Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.arcsde.pool");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.arcsde.pool");
 
     protected static final Level INFO_LOG_LEVEL = Level.WARNING;
-
-    /** default number of connections a pool creates at first population */
-    public static final int DEFAULT_CONNECTIONS = 2;
-
-    /** default number of maximun allowable connections a pool can hold */
-    public static final int DEFAULT_MAX_CONNECTIONS = 6;
-
-    public static final int DEFAULT_MAX_WAIT_TIME = 500;
 
     private SeConnectionFactory seConnectionFactory;
 
@@ -104,8 +93,11 @@ public class SessionPool {
 
         this.seConnectionFactory = createConnectionFactory();
 
-        int minConnections = config.getMinConnections().intValue();
-
+        final int minConnections = config.getMinConnections().intValue();
+        final int maxConnections = config.getMaxConnections().intValue();
+        if (minConnections > maxConnections) {
+            throw new IllegalArgumentException("pool.minConnections > pool.maxConnections");
+        }
         {// configure connection pool
 
             Config poolCfg = new Config();
@@ -174,7 +166,7 @@ public class SessionPool {
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
-            throw new DataSourceException(e);
+            throw new IOException(e);
         }
     }
 
@@ -190,10 +182,10 @@ public class SessionPool {
         return new SeConnectionFactory(this.config);
     }
 
-    /**
-     * returns the number of actual connections held by this connection pool. In other words, the
-     * sum of used and available connections, regardless
+    /*
+     * (non-Javadoc)
      * 
+     * @see org.geotools.arcsde.session.ISessionPool#getPoolSize()
      */
     public int getPoolSize() {
         checkOpen();
@@ -202,9 +194,10 @@ public class SessionPool {
         }
     }
 
-    /**
-     * closes all connections in this pool. The first call closes all SeConnections, further calls
-     * have no effect.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.geotools.arcsde.session.ISessionPool#close()
      */
     public void close() {
         if (pool != null) {
@@ -218,10 +211,10 @@ public class SessionPool {
         }
     }
 
-    /**
-     * Returns whether this pool is closed
+    /*
+     * (non-Javadoc)
      * 
-     * @return
+     * @see org.geotools.arcsde.session.ISessionPool#isClosed()
      */
     public boolean isClosed() {
         return pool == null;
@@ -241,60 +234,32 @@ public class SessionPool {
         close();
     }
 
-    /**
-     * Returns the number of idle connections
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.geotools.arcsde.session.ISessionPool#getAvailableCount()
      */
     public synchronized int getAvailableCount() {
         checkOpen();
         return this.pool.getNumIdle();
     }
 
-    /**
-     * Number of active sessions.
+    /*
+     * (non-Javadoc)
      * 
-     * @return Number of active session; used to monitor the live pool.
+     * @see org.geotools.arcsde.session.ISessionPool#getInUseCount()
      */
     public synchronized int getInUseCount() {
         checkOpen();
         return this.pool.getNumActive();
     }
 
-    /**
-     * Retrieve the connection for the provided transaction.
-     * <p>
-     * The connection is held open until while the transaction is underway. A a Transaction.State is
-     * registered for this SessionPool in order to hold the session.
-     * </p>
+    /*
+     * (non-Javadoc)
      * 
-     * @param transaction
-     * @return the session associated with the transaction
+     * @see org.geotools.arcsde.session.ISessionPool#getSession()
      */
-    public ISession getSession(Transaction transaction) throws IOException {
-        final ISession session;
-        checkOpen();
-        if (Transaction.AUTO_COMMIT.equals(transaction)) {
-            session = getSession();
-        } else {
-            SessionTransactionState state;
-            state = SessionTransactionState.getState(transaction, this);
-            session = state.getConnection();
-        }
-        return session;
-    }
-
-    /**
-     * Grab a session from the pool, this session is the responsibility of the calling code and must
-     * be closed after use.
-     * 
-     * @return A Session, when close() is called it will be recycled into the pool
-     * @throws DataSourceException
-     *             If we could not get a connection
-     * @throws UnavailableArcSDEConnectionException
-     *             If we are out of connections
-     * @throws IllegalStateException
-     *             If pool has been closed.
-     */
-    public ISession getSession() throws DataSourceException, UnavailableArcSDEConnectionException {
+    public ISession getSession() throws IOException, UnavailableArcSDEConnectionException {
         checkOpen();
         try {
             // String caller = null;
@@ -325,11 +290,16 @@ public class SessionPool {
             throw sdee;
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Unknown problem getting connection: " + e.getMessage(), e);
-            throw new DataSourceException(
-                    "Unknown problem fetching connection from connection pool", e);
+            throw (IOException) new IOException(
+                    "Unknown problem fetching connection from connection pool").initCause(e);
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.geotools.arcsde.session.ISessionPool#getConfig()
+     */
     public ArcSDEConnectionConfig getConfig() {
         return this.config;
     }
@@ -375,9 +345,9 @@ public class SessionPool {
                     cause = nase;
                 }
             }
-            throw new DataSourceException(
-                    "Couldn't create ArcSDE Session because of strange SDE internal exception.  Tried 3 times, giving up.",
-                    cause);
+            throw (IOException) new IOException(
+                    "Couldn't create ArcSDE Session because of strange SDE internal exception. "
+                            + " Tried 3 times, giving up.").initCause(cause);
         }
 
         /**

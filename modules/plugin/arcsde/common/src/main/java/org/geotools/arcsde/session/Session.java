@@ -34,9 +34,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.pool.ObjectPool;
 import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.data.SdeRow;
 import org.geotools.arcsde.session.Commands.GetVersionCommand;
-import org.geotools.data.DataSourceException;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeConnection;
@@ -74,8 +72,7 @@ import com.esri.sde.sdk.geom.GeometryFactory;
  */
 class Session implements ISession {
 
-    private static final Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.arcsde.pool");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.arcsde.pool");
 
     /**
      * How many seconds must have elapsed since the last connection round trip to the server for
@@ -239,7 +236,7 @@ class Session implements ISession {
                     } else if (cause instanceof SeException) {
                         throw new ArcSdeException((SeException) cause);
                     }
-                    throw new DataSourceException(cause);
+                    throw new IOException(cause);
                 }
 
             }
@@ -406,7 +403,8 @@ class Session implements ISession {
             try {
                 cacheRasters();
             } catch (SeException e) {
-                throw new DataSourceException("Can't obtain raster " + rasterName, e);
+                throw (IOException) new IOException("Can't obtain raster " + rasterName)
+                        .initCause(e);
             }
         }
         SeRasterColumn raster = cachedRasters.get(rasterName);
@@ -983,7 +981,8 @@ class Session implements ISession {
             } catch (SeException e) {
                 throw new ArcSdeException("Can't create connection to " + serverName, e);
             } catch (RuntimeException e) {
-                throw new DataSourceException("Can't create connection to " + serverName, e);
+                throw (IOException) new IOException("Can't create connection to " + serverName)
+                        .initCause(e);
             }
             conn.setConcurrency(SeConnection.SE_ONE_THREAD_POLICY);
             return conn;

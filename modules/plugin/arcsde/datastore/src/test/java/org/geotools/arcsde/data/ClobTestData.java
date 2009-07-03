@@ -7,10 +7,9 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
-import org.geotools.arcsde.session.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SessionPoolFactory;
 import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -63,7 +62,7 @@ public class ClobTestData {
     /** the configuration keyword to use when creating layers and tables */
     private String configKeyword;
 
-    private SessionPool _pool;
+    private ISessionPool _pool;
 
     /**
      * Creates a new TestData object.
@@ -144,13 +143,13 @@ public class ClobTestData {
      *             DOCUMENT ME!
      */
     public ArcSDEDataStore getDataStore() throws IOException {
-        SessionPool pool = getConnectionPool();
+        ISessionPool pool = getConnectionPool();
         ArcSDEDataStore dataStore = new ArcSDEDataStore(pool);
 
         return dataStore;
     }
 
-    public SessionPool getConnectionPool() throws IOException {
+    public ISessionPool getConnectionPool() throws IOException {
         if (this._pool == null) {
             SessionPoolFactory pfac = SessionPoolFactory.getInstance();
             ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(this.conProps);
@@ -220,7 +219,7 @@ public class ClobTestData {
 
     public void deleteTable(final String typeName) throws IOException,
             UnavailableArcSDEConnectionException {
-        SessionPool connectionPool = getConnectionPool();
+        ISessionPool connectionPool = getConnectionPool();
         deleteTable(connectionPool, typeName);
     }
 
@@ -231,7 +230,7 @@ public class ClobTestData {
      * @param connPool
      *            to get the connection to use in deleting {@link #getTempTableName()}
      */
-    public void deleteTempTable(SessionPool connPool) {
+    public void deleteTempTable(ISessionPool connPool) {
         try {
             deleteTable(connPool, getTempTableName());
         } catch (Exception e) {
@@ -239,7 +238,7 @@ public class ClobTestData {
         }
     }
 
-    private static void deleteTable(final SessionPool connPool, final String tableName)
+    private static void deleteTable(final ISessionPool connPool, final String tableName)
             throws IOException, UnavailableArcSDEConnectionException {
 
         final ISession session = connPool.getSession();
@@ -285,7 +284,7 @@ public class ClobTestData {
      *             for any error
      */
     public void createTempTable(final boolean insertTestData) throws Exception {
-        SessionPool connPool = getConnectionPool();
+        ISessionPool connPool = getConnectionPool();
 
         deleteTempTable(connPool);
 
@@ -331,7 +330,7 @@ public class ClobTestData {
      */
     public void insertTestData() throws Exception {
         truncateTempTable();
-        SessionPool connPool = getConnectionPool();
+        ISessionPool connPool = getConnectionPool();
         ISession session = connPool.getSession();
         try {
             SeLayer tempTableLayer = getTempLayer(session);
@@ -342,7 +341,7 @@ public class ClobTestData {
     }
 
     public void truncateTempTable() throws IOException {
-        final SessionPool connPool = getConnectionPool();
+        final ISessionPool connPool = getConnectionPool();
         final ISession session = connPool.getSession();
         final String tempTableName = getTempTableName(session);
 

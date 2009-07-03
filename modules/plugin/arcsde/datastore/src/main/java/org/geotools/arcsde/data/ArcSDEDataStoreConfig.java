@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.session;
+package org.geotools.arcsde.data;
 
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.CONNECTION_TIMEOUT_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
@@ -28,6 +28,8 @@ import static org.geotools.arcsde.session.ArcSDEConnectionConfig.USER_NAME_PARAM
 
 import java.util.Map;
 import java.util.logging.Logger;
+
+import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 
 /**
  * Represents a set of ArcSDE database connection parameters. Instances of this class are used to
@@ -69,6 +71,14 @@ public class ArcSDEDataStoreConfig {
     public static final String VERSION_PARAM_NAME = "database.version";
 
     public static final String ALLOW_NON_SPATIAL_TABLES_PARAM_NAME = "datastore.allowNonSpatialTables";
+
+    /** default number of connections a pool creates at first population */
+    public static final int DEFAULT_CONNECTIONS = 2;
+
+    /** default number of maximum allowable connections a pool can hold */
+    public static final int DEFAULT_MAX_CONNECTIONS = 6;
+
+    public static final int DEFAULT_MAX_WAIT_TIME = 500;
 
     /** namespace URI assigned to datastore */
     private String namespaceUri;
@@ -148,12 +158,11 @@ public class ArcSDEDataStoreConfig {
 
         this.namespaceUri = ns == null ? null : String.valueOf(ns);
 
-        Integer minConnections = getInt(params.get(MIN_CONNECTIONS_PARAM_NAME),
-                SessionPool.DEFAULT_CONNECTIONS);
+        Integer minConnections = getInt(params.get(MIN_CONNECTIONS_PARAM_NAME), DEFAULT_CONNECTIONS);
         Integer maxConnections = getInt(params.get(MAX_CONNECTIONS_PARAM_NAME),
-                SessionPool.DEFAULT_MAX_CONNECTIONS);
+                DEFAULT_MAX_CONNECTIONS);
         Integer connTimeOut = getInt(params.get(CONNECTION_TIMEOUT_PARAM_NAME),
-                SessionPool.DEFAULT_MAX_WAIT_TIME);
+                DEFAULT_MAX_WAIT_TIME);
 
         this.version = (String) params.get(VERSION_PARAM_NAME);
 

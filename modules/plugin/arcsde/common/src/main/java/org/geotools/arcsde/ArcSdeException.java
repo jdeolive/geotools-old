@@ -16,7 +16,7 @@
  */
 package org.geotools.arcsde;
 
-import org.geotools.data.DataSourceException;
+import java.io.IOException;
 
 import com.esri.sde.sdk.client.SeError;
 import com.esri.sde.sdk.client.SeException;
@@ -32,7 +32,7 @@ import com.esri.sde.sdk.client.SeException;
  *      http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java
  *      /org/geotools/arcsde/ArcSdeException.java $
  */
-public class ArcSdeException extends DataSourceException {
+public class ArcSdeException extends IOException {
 
     private static final long serialVersionUID = -1392514883217797825L;
 

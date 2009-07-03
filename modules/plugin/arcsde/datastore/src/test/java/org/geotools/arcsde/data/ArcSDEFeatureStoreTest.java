@@ -41,7 +41,8 @@ import junit.framework.AssertionFailedError;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.SdeRow;
 import org.geotools.data.BatchFeatureEvent;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
@@ -377,7 +378,7 @@ public class ArcSDEFeatureStoreTest {
             }
         }
 
-        SessionPool connectionPool = testData.getConnectionPool();
+        ISessionPool connectionPool = testData.getConnectionPool();
         ISession session = connectionPool.getSession();
         SeQuery seQuery;
         try {

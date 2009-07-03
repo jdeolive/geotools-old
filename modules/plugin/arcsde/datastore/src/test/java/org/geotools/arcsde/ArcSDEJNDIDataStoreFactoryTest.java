@@ -27,7 +27,6 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.data.DataAccessFactory;
 import org.geotools.data.DataAccessFinder;
-import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.Transaction;

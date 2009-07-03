@@ -36,7 +36,7 @@ import org.geotools.arcsde.data.versioning.AutoCommitVersionHandler;
 import org.geotools.arcsde.data.view.QueryInfoParser;
 import org.geotools.arcsde.data.view.SelectQualifier;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SessionWrapper;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
@@ -76,7 +76,7 @@ import com.esri.sde.sdk.client.SeVersion;
 /**
  * DataStore implementation to work upon an ArcSDE spatial database gateway.
  * <p>
- * Takes ownership of the provided {@link SessionPool} so make sure to call {@link #dispose()} in
+ * Takes ownership of the provided {@link ISessionPool} so make sure to call {@link #dispose()} in
  * order to release resources (ArcSDE connections).
  * </p>
  * 
@@ -102,7 +102,7 @@ public class ArcSDEDataStore implements DataStore {
      */
     final FeatureListenerManager listenerManager = new FeatureListenerManager();
 
-    final SessionPool connectionPool;
+    final ISessionPool connectionPool;
 
     final FeatureTypeInfoCache typeInfoCache;
 
@@ -120,7 +120,7 @@ public class ArcSDEDataStore implements DataStore {
      *            pool of {@link Session} this datastore works upon.
      * @throws IOException
      */
-    public ArcSDEDataStore(final SessionPool connPool) throws IOException {
+    public ArcSDEDataStore(final ISessionPool connPool) throws IOException {
         this(connPool, null, null, false);
     }
 
@@ -139,7 +139,7 @@ public class ArcSDEDataStore implements DataStore {
      *            whether ArcSDE registered, non-spatial tables are to be published
      * @throws IOException
      */
-    public ArcSDEDataStore(final SessionPool connPool, final String namespaceUri,
+    public ArcSDEDataStore(final ISessionPool connPool, final String namespaceUri,
             final String versionName, final boolean allowNonSpatialTables) throws IOException {
         this.connectionPool = connPool;
         this.version = versionName == null ? SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME
@@ -148,13 +148,29 @@ public class ArcSDEDataStore implements DataStore {
                 DEFAULT_LAYER_NAMES_CACHE_UPDATE_FREQ_SECS, allowNonSpatialTables);
     }
 
-    public ISession getSession(final Transaction transaction) throws IOException {
+    /**
+     * Retrieve the connection for the provided transaction.
+     * <p>
+     * The connection is held open until while the transaction is underway. A a Transaction.State is
+     * registered for this SessionPool in order to hold the session.
+     * </p>
+     * 
+     * @param transaction
+     * @return the session associated with the transaction
+     */
+    public ISession getSession(Transaction transaction) throws IOException {
         if (transaction == null) {
             throw new NullPointerException(
                     "transaction can't be null. Did you mean Transaction.AUTO_COMMIT?");
         }
-        final ISession session = connectionPool.getSession(transaction);
-
+        final ISession session;
+        if (Transaction.AUTO_COMMIT.equals(transaction)) {
+            session = connectionPool.getSession();
+        } else {
+            SessionTransactionState state;
+            state = SessionTransactionState.getState(transaction, this.connectionPool);
+            session = state.getConnection();
+        }
         return session;
     }
 
@@ -164,7 +180,7 @@ public class ArcSDEDataStore implements DataStore {
         }
         ArcTransactionState state = (ArcTransactionState) transaction.getState(this);
         if (state == null) {
-            state = new ArcTransactionState(this.connectionPool, listenerManager);
+            state = new ArcTransactionState(this, listenerManager);
             transaction.putState(this, state);
         }
         return state;

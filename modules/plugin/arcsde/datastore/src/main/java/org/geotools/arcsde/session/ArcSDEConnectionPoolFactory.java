@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.geotools.arcsde.data.ArcSDEDataStoreConfig;
 import org.geotools.data.DataSourceException;
 
 /**

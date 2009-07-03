@@ -15,12 +15,17 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.arcsde.session;
+package org.geotools.arcsde.data;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.arcsde.session.Command;
+import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.SessionWrapper;
+import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Transaction;
 
@@ -237,32 +242,29 @@ final class SessionTransactionState implements Transaction.State {
     }
 
     /**
-     * Grab the ArcTransactionState (when not using AUTO_COMMIT).
+     * Grab the SessionTransactionState (when not using AUTO_COMMIT).
      * <p>
      * As of GeoTools 2.5 we store the TransactionState using the connection pool as a key.
      * </p>
      * 
-     * @param transaction
-     *            non autocommit transaction
-     * @param listenerManager
-     * @param versioned
-     *            True will update database wide version once per operation, false once per commit
-     * @return the ArcTransactionState stored in the transaction with <code>connectionPool</code> as
-     *         key.
+     * @return the SessionTransactionState stored in the transaction with
+     *         <code>connectionPool</code> as key.
      */
     public static SessionTransactionState getState(final Transaction transaction,
-            final SessionPool connectionPool) throws IOException {
+            final ISessionPool pool) throws IOException {
         SessionTransactionState state;
+
         if (transaction == Transaction.AUTO_COMMIT) {
             LOGGER.log(Level.SEVERE,
                     "Should not request ArcTransactionState when using AUTO_COMMITback connection");
             return null;
         }
+
         synchronized (SessionTransactionState.class) {
-            state = (SessionTransactionState) transaction.getState(connectionPool);
+            state = (SessionTransactionState) transaction.getState(pool);
             if (state == null) {
                 // start a transaction
-                final ISession session = connectionPool.getSession();
+                final ISession session = pool.getSession();
                 try {
                     session.startTransaction();
                 } catch (IOException e) {
@@ -275,7 +277,7 @@ final class SessionTransactionState implements Transaction.State {
                             e);
                 }
                 state = new SessionTransactionState(session);
-                transaction.putState(connectionPool, state);
+                transaction.putState(pool, state);
             }
         }
         return state;

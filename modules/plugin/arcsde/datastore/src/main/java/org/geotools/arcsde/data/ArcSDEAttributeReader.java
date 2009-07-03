@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SdeRow;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.DataSourceException;
 import org.geotools.util.logging.Logging;

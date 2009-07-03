@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SdeRow;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.junit.After;

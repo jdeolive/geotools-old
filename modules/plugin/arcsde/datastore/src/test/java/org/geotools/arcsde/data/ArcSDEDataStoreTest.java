@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataStore;
@@ -295,7 +295,7 @@ public class ArcSDEDataStoreTest {
     public void testCreateSchema() throws IOException, SchemaException, SeException {
         final String typeName;
         {
-            SessionPool connectionPool = testData.getConnectionPool();
+            ISessionPool connectionPool = testData.getConnectionPool();
             ISession session = connectionPool.getSession();
             final String user;
             user = session.getUser();

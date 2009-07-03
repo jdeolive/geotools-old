@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.SdeRow;
 import org.geotools.data.DataSourceException;
 import org.junit.After;
 import org.junit.Assert;

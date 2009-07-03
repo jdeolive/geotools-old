@@ -30,7 +30,8 @@ import java.util.logging.Logger;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.SessionPool;
+import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.SdeRow;
 import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.junit.After;
@@ -85,7 +86,7 @@ public class ArcSDEJavaApiTest {
 
     private ISession session;
 
-    private SessionPool pool;
+    private ISessionPool pool;
 
     @BeforeClass
     public static void oneTimeSetUp() throws Exception {
@@ -1082,7 +1083,7 @@ public class ArcSDEJavaApiTest {
         testData.truncateTempTable();
 
         {
-            final SessionPool connPool = testData.getConnectionPool();
+            final ISessionPool connPool = testData.getConnectionPool();
             transSession = connPool.getSession();
             // start a transaction on transConn
             transSession.startTransaction();
