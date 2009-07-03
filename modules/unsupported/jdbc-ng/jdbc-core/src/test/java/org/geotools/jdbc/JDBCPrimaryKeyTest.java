@@ -51,12 +51,7 @@ public abstract class JDBCPrimaryKeyTest extends JDBCTestSupport {
         
         FeatureCollection features = fs.getFeatures();
         assertPrimaryKeyValues(features, 3);
-        
-        SimpleFeatureBuilder b = new SimpleFeatureBuilder( (SimpleFeatureType) fs.getSchema() );
-        b.add("four");
-        b.add(new GeometryFactory().createPoint( new Coordinate(4,4) ));
-        features.add( b.buildFeature(null) );
-        
+        addFeature(fs.getSchema(),features);
         assertPrimaryKeyValues(features,4);
     }
     
@@ -68,12 +63,7 @@ public abstract class JDBCPrimaryKeyTest extends JDBCTestSupport {
         
         FeatureCollection features = fs.getFeatures();
         assertPrimaryKeyValues(features, 3);
-        
-        SimpleFeatureBuilder b = new SimpleFeatureBuilder( (SimpleFeatureType) fs.getSchema() );
-        b.add("four");
-        b.add(new GeometryFactory().createPoint( new Coordinate(4,4) ));
-        features.add( b.buildFeature(null) );
-        
+        addFeature(fs.getSchema(),features);
         assertPrimaryKeyValues(features,4);
     }
 
@@ -85,13 +75,20 @@ public abstract class JDBCPrimaryKeyTest extends JDBCTestSupport {
         
         FeatureCollection features = fs.getFeatures();
         assertPrimaryKeyValues(features, 3);
-        
-        SimpleFeatureBuilder b = new SimpleFeatureBuilder( (SimpleFeatureType) fs.getSchema() );
+        addFeature(fs.getSchema(),features);
+        assertPrimaryKeyValues(features,4);
+    }
+    
+    void addFeature( SimpleFeatureType featureType, FeatureCollection features ) throws Exception {
+        SimpleFeatureBuilder b = new SimpleFeatureBuilder( featureType );
         b.add("four");
         b.add( new GeometryFactory().createPoint( new Coordinate(4,4) ) );
-        features.add( b.buildFeature(null) );
         
-        assertPrimaryKeyValues(features,4);
+        SimpleFeature f = b.buildFeature(null); 
+        features.add( f );
+        
+        //pattern match to handle the multi primary key case
+        assertTrue(((String)f.getUserData().get( "fid" )).matches( tname(featureType.getTypeName()) + ".4(\\..*)?"));
     }
     
     void assertPrimaryKeyValues( FeatureCollection features, int count ) throws Exception {
@@ -125,10 +122,7 @@ public abstract class JDBCPrimaryKeyTest extends JDBCTestSupport {
         }
         features.close( i );
         
-        SimpleFeatureBuilder b = new SimpleFeatureBuilder( (SimpleFeatureType) fs.getSchema() );
-        b.add("four");
-        b.add(new GeometryFactory().createPoint(new Coordinate(4,4)));
-        features.add( b.buildFeature(null) );
+        addFeature(fs.getSchema(),features);
         
         i = features.features();
         for ( int j = 0; j < 3; j++ ) {
@@ -163,12 +157,7 @@ public abstract class JDBCPrimaryKeyTest extends JDBCTestSupport {
         
         FeatureCollection features = fs.getFeatures();
         assertPrimaryKeyValues(features, 3);
-        
-        SimpleFeatureBuilder b = new SimpleFeatureBuilder( (SimpleFeatureType) fs.getSchema() );
-        b.add("four");
-        b.add(new GeometryFactory().createPoint( new Coordinate(4,4) ));
-        features.add( b.buildFeature(null) );
-        
+        addFeature(fs.getSchema(),features);
         assertPrimaryKeyValues(features,4);
     }
     

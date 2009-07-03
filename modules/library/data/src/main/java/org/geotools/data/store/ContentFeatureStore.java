@@ -210,6 +210,9 @@ public abstract class ContentFeatureStore extends ContentFeatureSource implement
                 
                 //add the id to the set of inserted
                 ids.add( toWrite.getIdentifier() );
+                
+                //copy any metadata from teh feature that was actually written
+                feature.getUserData().putAll( toWrite.getUserData() );
             }
         } 
         finally {
