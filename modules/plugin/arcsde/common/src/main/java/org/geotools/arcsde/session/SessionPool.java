@@ -166,7 +166,7 @@ class SessionPool implements ISessionPool {
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
-            throw new IOException(e);
+            throw (IOException)new IOException().initCause(e);
         }
     }
 

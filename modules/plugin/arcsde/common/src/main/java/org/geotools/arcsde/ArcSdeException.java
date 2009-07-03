@@ -41,7 +41,10 @@ public class ArcSdeException extends IOException {
     }
 
     public ArcSdeException(String msg, SeException cause) {
-        super(msg, cause);
+        super(msg);
+        if (cause != null) {
+            this.initCause(cause);
+        }
     }
 
     @Override

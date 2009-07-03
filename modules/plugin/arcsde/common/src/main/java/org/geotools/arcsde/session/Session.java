@@ -236,7 +236,7 @@ class Session implements ISession {
                     } else if (cause instanceof SeException) {
                         throw new ArcSdeException((SeException) cause);
                     }
-                    throw new IOException(cause);
+                    throw (IOException)new IOException().initCause(cause);
                 }
 
             }
