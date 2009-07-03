@@ -112,6 +112,14 @@ import junit.framework.Assert;
 		ps.execute();
 		ps.close();
 	}
+	 
+	 static  void dropView(String schemaName, String tableName, Connection con) throws SQLException {
+			if (existsTable(schemaName, tableName, con)==false) return;
+			PreparedStatement ps = con.prepareStatement("drop view \""+schemaName+"\".\""+tableName+"\"");
+			ps.execute();
+			ps.close();
+		}
+	 
 	
 	 static  void dropIndex(String schemaName, String indexName, Connection con) throws SQLException {
 		if (existsIndex(schemaName, indexName, con)==false) return;
