@@ -541,7 +541,7 @@ public final class LabelCacheImpl implements LabelCache {
         for (LabelCacheItem labelItem : items) {
             if (stop)
                 return;
-
+            
             painter.setLabel(labelItem);
             try {
                 // LabelCacheItem labelItem = (LabelCacheItem)
@@ -689,7 +689,8 @@ public final class LabelCacheImpl implements LabelCache {
 
         // pre compute some labelling params
         final Rectangle2D textBounds = painter.getFullLabelBounds();
-        final double step = painter.getAscent();
+        // ... use at least a 2 pixel step, no matter what the label length is
+        final double step = painter.getAscent() > 2 ? painter.getAscent() : 2;
         int space = labelItem.getSpaceAround();
         int haloRadius = Math.round(labelItem.getTextStyle().getHaloFill() != null ? labelItem
                 .getTextStyle().getHaloRadius() : 0);
