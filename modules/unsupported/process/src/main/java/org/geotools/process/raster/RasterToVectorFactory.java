@@ -19,11 +19,9 @@ package org.geotools.process.raster;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.Parameter;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.process.Process;
 import org.geotools.process.ProcessFactory;
 import org.geotools.text.Text;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -33,6 +31,7 @@ import org.opengis.util.InternationalString;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.Collections;
 import java.util.TreeMap;
+import org.geotools.coverage.grid.GridCoverage2D;
 
 
 /**

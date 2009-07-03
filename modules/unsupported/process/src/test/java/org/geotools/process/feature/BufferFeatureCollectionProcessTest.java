@@ -54,8 +54,9 @@ public class BufferFeatureCollectionProcessTest extends TestCase {
         Map<String,Object> input = new HashMap();
         input.put( BufferFeatureCollectionFactory.FEATURES.key, features );
         input.put( BufferFeatureCollectionFactory.BUFFER.key, 10d );
-        
-        BufferFeatureCollectionProcess process = new BufferFeatureCollectionProcess();
+
+        BufferFeatureCollectionFactory factory = new BufferFeatureCollectionFactory();
+        BufferFeatureCollectionProcess process = factory.create();
         Map<String,Object> output = process.execute( input, null );
         
         FeatureCollection buffered = (FeatureCollection) output.get( BufferFeatureCollectionFactory.RESULT.key );

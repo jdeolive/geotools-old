@@ -16,21 +16,16 @@
  */
 package org.geotools.process;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 import org.geotools.factory.FactoryCreator;
 import org.geotools.factory.FactoryFinder;
 import org.geotools.factory.FactoryRegistry;
-import org.geotools.factory.FactoryRegistryException;
 import org.geotools.resources.LazySet;
 import org.geotools.util.NullProgressListener;
 
@@ -61,12 +56,9 @@ public class Processors extends FactoryFinder {
      * time this method is invoked.
      */
     private static FactoryRegistry getServiceRegistry() {
-        if (registry == null) {
-            synchronized ( Processors.class ) {
-                if ( registry == null ) {
-                    registry = new FactoryCreator(Arrays.asList(new Class<?>[] {
-                            ProcessFactory.class}));    
-                }
+        synchronized (Processors.class) {
+            if (registry == null) {
+                registry = new FactoryCreator(Arrays.asList(new Class<?>[]{ProcessFactory.class}));
             }
         }
         return registry;

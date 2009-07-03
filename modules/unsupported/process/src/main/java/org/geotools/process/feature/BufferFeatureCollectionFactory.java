@@ -29,7 +29,7 @@ import org.opengis.util.InternationalString;
  * @author Justin Deoliveira, OpenGEO
  * @since 2.6
  */
-public class BufferFeatureCollectionFactory extends AbstractFeatureCollectionProcessFactory {
+public class BufferFeatureCollectionFactory extends FeatureToFeatureProcessFactory {
 
     /** Buffer amount */
     static final Parameter<Double> BUFFER = new Parameter<Double>("buffer",
@@ -48,7 +48,7 @@ public class BufferFeatureCollectionFactory extends AbstractFeatureCollectionPro
         parameters.put(BUFFER.key, BUFFER);
     }
     
-    public Process create() throws IllegalArgumentException {
-        return new BufferFeatureCollectionProcess();
+    public BufferFeatureCollectionProcess create() throws IllegalArgumentException {
+        return new BufferFeatureCollectionProcess(this);
     }
 }

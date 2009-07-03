@@ -14,23 +14,29 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.process.impl;
 
-
-import org.geotools.process.Process;
-import org.geotools.process.ProcessFactory;
+package org.geotools.process;
 
 /**
- * Provide an implementation of the process method to implement your own Process.
- * <p>
- * This is a straight forward abstract process that has all the fields filled in.
- * </p>
- * @author gdavis
+ * An exception class for processes
+ * 
+ * @author Michael Bedward
+ * @since 2.6
  */
-public abstract class AbstractProcess implements Process {   
-    protected ProcessFactory factory;
-    protected AbstractProcess( ProcessFactory factory ){
-        this.factory = factory;
-    }    
-     
+public class ProcessException extends Exception {
+
+    public ProcessException(Throwable cause) {
+        super(cause);
+    }
+
+    public ProcessException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ProcessException(String message) {
+        super(message);
+    }
+
 }
+
+

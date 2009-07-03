@@ -1,6 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
  */
 
 package org.geotools.process.raster;
@@ -12,6 +24,7 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,6 +41,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.ProgressListener;
 import static org.junit.Assert.*;
@@ -109,7 +123,7 @@ public class RasterToVectorProcessTest {
      * Test of convert method, of class RasterToVectorProcess.
      */
     @Test
-    public void testConvert() {
+    public void testConvert() throws Exception {
         System.out.println("Vectorizing test grid coverage...");
         int band = 0;
         Set<Double> outsideValues = new HashSet<Double>();
@@ -146,6 +160,31 @@ public class RasterToVectorProcessTest {
         System.out.println("Total feature perimeter: expected " + PERIMETER + " got " + (int)Math.round(perimeter));
 
         assertTrue(AREA == (int)Math.round(area) && PERIMETER == (int)Math.round(perimeter));
+    }
+
+    @Test
+    public void testExecute() {
+        System.out.println("execute");
+        Map<String, Object> input = null;
+        ProgressListener monitor = null;
+        RasterToVectorProcess instance = null;
+        Map<String, Object> expResult = null;
+        Map<String, Object> result = instance.execute(input, monitor);
+        assertEquals(expResult, result);
+        fail("The test case is a prototype.");
+    }
+
+    @Test
+    public void testProcess() {
+        System.out.println("process");
+        GridCoverage2D gridCoverage = null;
+        int band = 0;
+        Collection<Double> outsideValues = null;
+        ProgressListener progress = null;
+        FeatureCollection<SimpleFeatureType, SimpleFeature> expResult = null;
+        FeatureCollection<SimpleFeatureType, SimpleFeature> result = RasterToVectorProcess.process(gridCoverage, band, outsideValues, progress);
+        assertEquals(expResult, result);
+        fail("The test case is a prototype.");
     }
 
 }

@@ -16,37 +16,24 @@
  */
 package org.geotools.gui.swing.process;
 
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.geotools.data.Parameter;
 import org.geotools.gui.swing.ProgressWindow;
 import org.geotools.process.Process;
 import org.geotools.process.ProcessFactory;
-import org.geotools.process.Processors;
-import org.geotools.process.literal.IntersectionFactory;
 import org.geotools.text.Text;
 import org.opengis.util.ProgressListener;
 
 import com.vividsolutions.jts.geom.Geometry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.geotools.process.ProcessException;
 
 
 /**
@@ -91,8 +78,14 @@ public class ProcessRunPage extends JPage {
 		
 		Process process = this.factory.create();
 		
-		final ProgressListener progress = new ProgressWindow(this.getJProcessWizard());		
-		Map<String, Object> resultMap = process.execute(paramMap, progress );
+		final ProgressListener progress = new ProgressWindow(this.getJProcessWizard());	
+        Map<String, Object> resultMap;
+        try {
+            resultMap = process.execute(paramMap, progress );
+        } catch (ProcessException ex) {
+            Logger.getLogger(ProcessRunPage.class.getName()).log(Level.SEVERE, "Error preparing panel", ex);
+            return;
+        }
 
 		// when we get here, the processing is over so show the result
         JLabel title = new JLabel(factory.getTitle().toString());

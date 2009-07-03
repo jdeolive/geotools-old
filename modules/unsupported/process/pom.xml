@@ -7,17 +7,14 @@
                                                                                 
         Version: $Id$              
      ======================================================================= -->
-  <project xmlns="http://maven.apache.org/POM/4.0.0" 
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
-                               http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.geotools</groupId>
-    <artifactId>unsupported</artifactId>
-    <version>2.6-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.geotools</groupId>
+        <artifactId>unsupported</artifactId>
+        <version>2.6-SNAPSHOT</version>
+    </parent>
 
 
   <!-- =========================================================== -->
@@ -62,24 +59,17 @@
   <name>Process</name>
   
 
-  <scm>
-    <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/process/
-    </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/process/</url>
-  </scm>
+    <scm>
+        <connection>scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/process/</connection>
+        <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/process/</url>
+    </scm>
 
-  <description>
-    This is an API for creating processes/operations.
-  </description>
+    <description>This is an API for creating processes/operations.</description>
   
-  <organization>
-    <name></name>
-    <url></url>
-  </organization>
+    <organization>
+    </organization>
   
   <!-- for your project. -->
-  <inceptionYear></inceptionYear>
 
   <!-- Pick your license. -->
   <!--
@@ -96,71 +86,84 @@
   <!-- =========================================================== -->
   <!--     Developers and Contributors                             -->
   <!-- =========================================================== -->
-  <developers>
-    <developer>
-      <id>gdavis</id>
-      <name>Graham Davis</name>
-      <email>gdavis@refractions.net</email>
-      <organization>Refractions Research</organization>
-      <roles>
-        <role>Module Maintainer</role>
-        <role>Java Developer</role>
-      </roles>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <id>gdavis</id>
+            <name>Graham Davis</name>
+            <email>gdavis@refractions.net</email>
+            <organization>Refractions Research</organization>
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>mbedward</id>
+            <name>Michael Bedward</name>
+            <email>michael.bedward@gmail.com</email>
+            <organization>Dept Environment and Climate Change</organization>
+            <organizationUrl>http://www.environment.nsw.gov.au</organizationUrl>
+            <timezone>+10</timezone>
+        </developer>
+    </developers>
 
 
   <!-- =========================================================== -->
   <!--     Dependency Mangement                                    -->
   <!-- =========================================================== -->
-  <dependencies>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-main</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-postgis</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-coverage</artifactId>
-      <version>${project.version}</version>
-    </dependency>    
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-coverage</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-postgis</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 
   <!-- =========================================================== -->
   <!--     Build Configuration                                     -->
   <!--         copies all JARs in a single directory.              -->
   <!-- =========================================================== -->
-  <build>
+    <build>
 
-    <plugins>
+        <plugins>
       <!-- ====    Compilation      ============================== -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
           <!-- ====    Switch commenting to skip tests    = -->
-          <skip>${allow.test.skip}</skip>
+                    <skip>${allow.test.skip}</skip>
           <!-- skip>true</skip> -->
-          <includes>
-            <include></include>
-          </includes>
-          <excludes>
-            <exclude></exclude>
-          </excludes>
-        </configuration>
-      </plugin>
+                    <includes>
+                        <include></include>
+                    </includes>
+                    <excludes>
+                        <exclude></exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
 
       <!-- ====    Testing          ============================== -->
       <!-- ====    Code Formatting  ============================== -->
@@ -191,8 +194,8 @@
         </executions>
       </plugin>
       -->
-    </plugins>
+        </plugins>
 
-  </build>
+    </build>
 
 </project>

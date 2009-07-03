@@ -28,7 +28,16 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Justin Deoliveira, OpenGEO
  * @since 2.6
  */
-public class BufferFeatureCollectionProcess extends AbstractFeatureCollectionProcess {
+public class BufferFeatureCollectionProcess extends FeatureToFeatureProcess {
+
+    /**
+     * Constructor
+     *
+     * @param factory
+     */
+    public BufferFeatureCollectionProcess(BufferFeatureCollectionFactory factory) {
+        super(factory);
+    }
 
     @Override
     protected void processFeature(SimpleFeature feature, Map<String, Object> input) throws Exception {
