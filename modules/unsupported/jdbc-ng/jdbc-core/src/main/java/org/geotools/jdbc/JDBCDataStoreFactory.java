@@ -262,7 +262,7 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
      * Subclasses may override, this implementation returns <code>null</code>.
      * </p>
      */
-    public Map getImplementationHints() {
+    public Map<java.awt.RenderingHints.Key, ?> getImplementationHints() {
         return null;
     }
 
