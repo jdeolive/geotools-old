@@ -1,5 +1,4 @@
 /*
- *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
  *    (C) 2002-2009, Open Source Geospatial Foundation (OSGeo)
@@ -26,7 +25,10 @@ import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PORT_NUMBER_PAR
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.USER_NAME_PARAM_NAME;
 
+import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -35,6 +37,9 @@ import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
+import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.ISessionPoolFactory;
+import org.geotools.arcsde.session.SessionPoolFactory;
 
 /**
  * A JNDI {@link ObjectFactory} to create a
@@ -45,6 +50,10 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
  */
 public class ArcSDEConnectionFactory implements ObjectFactory {
 
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.arcsde.jndi");
+
+    private ISessionPoolFactory closablePoolFactory = SessionPoolFactory.getInstance();
+
     /**
      * @see ObjectFactory#getObjectInstance(Object, Name, Context, Hashtable)
      */
@@ -53,51 +62,81 @@ public class ArcSDEConnectionFactory implements ObjectFactory {
 
         final Reference ref = (Reference) obj;
 
-        System.out.println("\n\tArcSDEConnectionFactory: ref is " + ref);
+        LOGGER.info("ArcSDEConnectionFactory: ref is " + ref);
 
         final String className = ref.getClassName();
 
-        System.out.println("\n\tArcSDEConnectionFactory: className is " + className);
+        LOGGER.info("ArcSDEConnectionFactory: className is " + className);
+
+        // may an alternate SessionPoolFactory being set?
+        checkAlternateSessionPoolFactory(ref);
 
         Object dereferencedObject = null;
         if (ArcSDEConnectionConfig.class.getName().equals(className)) {
             ArcSDEConnectionConfig config = createConfig(ref);
 
-            System.out.println("\n\tArcSDEConnectionFactory: config is " + config);
             dereferencedObject = config;
+        } else if (ISessionPool.class.getName().equals(className)) {
+            ArcSDEConnectionConfig config = createConfig(ref);
+            LOGGER.info("ArcSDEConnectionFactory: config is " + config);
+
+            ISessionPool sharedPool = getSharedPool(config);
+            LOGGER.info("ArcSDEConnectionFactory: shared pool is " + sharedPool);
+
+            dereferencedObject = sharedPool;
         } else {
-            System.out.println("\n\tArcSDEConnectionFactory: not a config");
+            LOGGER.info("ArcSDEConnectionFactory: not a config");
         }
 
         return dereferencedObject;
     }
 
+    public ISessionPool getInstance(Map<String, String> properties) throws IOException {
+        ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(properties);
+        validate(config);
+        ISessionPool sharedPool = getSharedPool(config);
+        return sharedPool;
+    }
+
+    private void checkAlternateSessionPoolFactory(final Reference ref) {
+        String poolFactoryClassName = getProperty(ref, "sessionPoolFactory", null);
+        if (poolFactoryClassName == null) {
+            return;
+        }
+
+        LOGGER.info("Using alternate session pool factory " + poolFactoryClassName);
+        final ISessionPoolFactory newFactory;
+        try {
+            Class<?> factoryClass = Class.forName(poolFactoryClassName);
+            newFactory = (ISessionPoolFactory) factoryClass.newInstance();
+
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Alternate SessionPoolFactory class not found: "
+                    + poolFactoryClassName);
+        } catch (InstantiationException e) {
+            throw new IllegalArgumentException(e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        }
+        setClosableSessionPoolFactory(newFactory);
+    }
+
+    public void setClosableSessionPoolFactory(final ISessionPoolFactory newFactory) {
+        this.closablePoolFactory = newFactory;
+    }
+
+    private ISessionPool getSharedPool(final ArcSDEConnectionConfig config) throws IOException {
+        ISessionPool sharedPool = SharedSessionPool.getInstance(config, closablePoolFactory);
+        return sharedPool;
+    }
+
     private ArcSDEConnectionConfig createConfig(final Reference ref) {
-        System.out.println("\n\tArcSDEConnectionFactory: creating config");
+        LOGGER.info("ArcSDEConnectionFactory: creating config");
+
         String server = getProperty(ref, SERVER_NAME_PARAM_NAME, null);
         String port = getProperty(ref, PORT_NUMBER_PARAM_NAME, null);
         String user = getProperty(ref, USER_NAME_PARAM_NAME, null);
         String password = getProperty(ref, PASSWORD_PARAM_NAME, null);
-
-        if (server == null) {
-            throw new IllegalArgumentException("Missing param: " + SERVER_NAME_PARAM_NAME);
-        }
-        if (port == null) {
-            throw new IllegalArgumentException("Missing param: " + PORT_NUMBER_PARAM_NAME);
-        } else {
-            try {
-                Integer.valueOf(port);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("port shall be a number: " + port);
-            }
-        }
-        if (user == null) {
-            throw new IllegalArgumentException("Missing param: " + USER_NAME_PARAM_NAME);
-        }
-
-        if (password == null) {
-            throw new IllegalArgumentException("Missing param: " + PASSWORD_PARAM_NAME);
-        }
 
         String instance = getProperty(ref, INSTANCE_NAME_PARAM_NAME, null);
         String minConnections = getProperty(ref, MIN_CONNECTIONS_PARAM_NAME, "1");
@@ -113,7 +152,27 @@ public class ArcSDEConnectionFactory implements ObjectFactory {
         config.setMinConnections(Integer.parseInt(minConnections));
         config.setMaxConnections(Integer.parseInt(maxConnections));
         config.setConnTimeOut(Integer.parseInt(connTimeout));
+
+        validate(config);
+
         return config;
+    }
+
+    private void validate(ArcSDEConnectionConfig config) {
+        if (config.getServerName() == null) {
+            throw new IllegalArgumentException("Missing param: " + SERVER_NAME_PARAM_NAME);
+        }
+        if (config.getPortNumber() == null) {
+            throw new IllegalArgumentException("Missing param: " + PORT_NUMBER_PARAM_NAME);
+        }
+
+        if (config.getUserName() == null) {
+            throw new IllegalArgumentException("Missing param: " + USER_NAME_PARAM_NAME);
+        }
+
+        if (config.getPassword() == null) {
+            throw new IllegalArgumentException("Missing param: " + PASSWORD_PARAM_NAME);
+        }
     }
 
     protected String getProperty(final Reference ref, final String propName, final String defValue) {

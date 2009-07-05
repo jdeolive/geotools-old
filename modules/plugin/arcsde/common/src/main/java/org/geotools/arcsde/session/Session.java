@@ -172,12 +172,6 @@ class Session implements ISession {
                 throw new ArcSdeException(e);
             }
         } else {
-            // StackTraceElement ste = callingThread.getStackTrace()[3];
-            // System.err.println("executing command " + ste.getClassName() +
-            // "."
-            // + ste.getMethodName() + ":" + ste.getLineNumber() + " ("
-            // + callingThread.getName() + ")");
-
             final FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
                 public T call() throws Exception {
                     final Thread currentThread = Thread.currentThread();
@@ -188,11 +182,6 @@ class Session implements ISession {
                         commandThread = currentThread;
 
                     }
-
-                    // System.err.println(" -executing command for Session "
-                    // + Session.this.connectionId + " in thread " +
-                    // currentThread.getId());
-
                     if (currentThread != commandThread) {
                         throw new IllegalStateException("currentThread != commandThread");
                     }
@@ -236,7 +225,7 @@ class Session implements ISession {
                     } else if (cause instanceof SeException) {
                         throw new ArcSdeException((SeException) cause);
                     }
-                    throw (IOException)new IOException().initCause(cause);
+                    throw (IOException) new IOException().initCause(cause);
                 }
 
             }
@@ -528,12 +517,6 @@ class Session implements ISession {
         try {
             this.pool.returnObject(this);
             if (LOGGER.isLoggable(Level.FINER)) {
-                // StackTraceElement[] stackTrace =
-                // Thread.currentThread().getStackTrace();
-                // String caller = stackTrace[3].getClassName() + "." +
-                // stackTrace[3].getMethodName();
-                // System.err.println("<- " + caller + " returning " +
-                // toString() + " to pool");
                 LOGGER.finer("<-- " + toString() + " retured to pool. Active: "
                         + pool.getNumActive() + ", idle: " + pool.getNumIdle());
             }

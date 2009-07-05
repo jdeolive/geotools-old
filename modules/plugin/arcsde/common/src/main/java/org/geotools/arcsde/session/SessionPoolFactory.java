@@ -28,10 +28,10 @@ import java.io.IOException;
  *         /java/org/geotools/arcsde/pool/SessionPoolFactory.java $
  * @version $Id$
  */
-public class SessionPoolFactory {
+public class SessionPoolFactory implements ISessionPoolFactory {
 
     /** singleton pool factory */
-    private static final SessionPoolFactory singleton = new SessionPoolFactory();
+    private static final ISessionPoolFactory singleton = new SessionPoolFactory();
 
     /**
      * Creates a new SdeConnectionPoolFactory object.
@@ -45,19 +45,12 @@ public class SessionPoolFactory {
      * 
      * @return the connection pool factory singleton
      */
-    public synchronized static SessionPoolFactory getInstance() {
+    public synchronized static ISessionPoolFactory getInstance() {
         return singleton;
     }
 
-    /**
-     * Creates a connection pool factory for the given connection parameters.
-     * 
-     * @param config
-     *             contains the connection parameters and pool preferences
-     * @return a pool for the given connection parameters, wether it already existed or had to be
-     *         created.
-     * @throws IOException
-     *             if the pool needs but can't be created
+    /* (non-Javadoc)
+     * @see org.geotools.arcsde.session.ISessionPoolFactory#createPool(org.geotools.arcsde.session.ArcSDEConnectionConfig)
      */
     public synchronized ISessionPool createPool(ArcSDEConnectionConfig config) throws IOException {
         ISessionPool pool;

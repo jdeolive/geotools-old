@@ -10,6 +10,7 @@ import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.ISessionPoolFactory;
 import org.geotools.arcsde.session.SessionPoolFactory;
 import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -120,7 +121,7 @@ public class ClobTestData {
             deleteTempTable();
         }
         if (cleanPool) {
-            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
+            ISessionPoolFactory pfac = SessionPoolFactory.getInstance();
         }
     }
 
@@ -151,7 +152,7 @@ public class ClobTestData {
 
     public ISessionPool getConnectionPool() throws IOException {
         if (this._pool == null) {
-            SessionPoolFactory pfac = SessionPoolFactory.getInstance();
+            ISessionPoolFactory pfac = SessionPoolFactory.getInstance();
             ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(this.conProps);
             this._pool = pfac.createPool(config.getSessionConfig());
         }

@@ -43,7 +43,9 @@ import org.geotools.arcsde.data.ViewRegisteringFactoryHelper;
 import org.geotools.arcsde.session.Commands;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.ISessionPoolFactory;
 import org.geotools.arcsde.session.SessionPoolFactory;
+import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
@@ -66,7 +68,7 @@ import com.esri.sde.sdk.pe.PeFactory;
  * @version $Id$
  */
 @SuppressWarnings("unchecked")
-public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
+public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     /** package's logger */
     protected static final Logger LOGGER = Logging
             .getLogger(ArcSDEDataStoreFactory.class.getName());
@@ -185,7 +187,7 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     }
 
     /** factory of connection pools to different SDE databases */
-    private static final SessionPoolFactory poolFactory = SessionPoolFactory.getInstance();
+    private static final ISessionPoolFactory poolFactory = SessionPoolFactory.getInstance();
 
     /**
      * empty constructor
@@ -254,11 +256,17 @@ public class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
         return sdeDStore;
     }
 
-    ArcSDEDataStore createDataStore(ArcSDEDataStoreConfig config) throws IOException {
+    final ArcSDEDataStore createDataStore(ArcSDEDataStoreConfig config) throws IOException {
         ArcSDEDataStore sdeDStore;
         // create a new session pool to be used only by this datastore
         final ISessionPool connPool = poolFactory.createPool(config.getSessionConfig());
 
+        return createDataStore(config, connPool);
+    }
+
+    final ArcSDEDataStore createDataStore(ArcSDEDataStoreConfig config, final ISessionPool connPool)
+            throws IOException, UnavailableArcSDEConnectionException {
+        ArcSDEDataStore sdeDStore;
         final ISession session = connPool.getSession();
         try {
             // check to see if our sdk is compatible with this arcsde instance

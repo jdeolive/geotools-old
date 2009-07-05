@@ -139,6 +139,7 @@ public class ArcSDEConnectionConfig {
         this.connTimeOut = connTimeOut;
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append("[server=").append(serverName);
@@ -153,6 +154,38 @@ public class ArcSDEConnectionConfig {
         return sb.toString();
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (!(o instanceof ArcSDEConnectionConfig)) {
+            return false;
+        }
+
+        ArcSDEConnectionConfig c = (ArcSDEConnectionConfig) o;
+        boolean equals = equals(serverName, c.serverName) && equals(portNumber, c.portNumber)
+                && equals(databaseName, c.databaseName) && equals(userName, c.userName)
+                && equals(password, c.password) && equals(minConnections, c.minConnections)
+                && equals(maxConnections, c.maxConnections) && equals(connTimeOut, c.connTimeOut);
+
+        return equals;
+    }
+
+    private static boolean equals(Object o1, Object o2) {
+        return o1 == null ? (o2 == null) : o1.equals(o2);
+    }
+
+    @Override
+    public int hashCode() {
+        int prime = 17;
+        int hash = prime
+                * (hash(serverName) + hash(portNumber) + hash(databaseName) + hash(userName)
+                        + hash(password) + hash(minConnections) + hash(maxConnections) + hash(connTimeOut));
+        return hash;
+    }
+
+    private static int hash(Object o) {
+        return o == null ? 1 : String.valueOf(o).hashCode();
+    }
+
     public static ArcSDEConnectionConfig fromMap(final Map<String, String> map) {
         ArcSDEConnectionConfig config = new ArcSDEConnectionConfig();
         config.setDatabaseName(map.get(INSTANCE_NAME_PARAM_NAME));
@@ -161,6 +194,7 @@ public class ArcSDEConnectionConfig {
         config.setServerName(map.get(SERVER_NAME_PARAM_NAME));
         config.setUserName(map.get(USER_NAME_PARAM_NAME));
 
+        
         config.setConnTimeOut(Integer.valueOf(String
                 .valueOf(map.get(CONNECTION_TIMEOUT_PARAM_NAME))));
         config.setMaxConnections(Integer.valueOf(String

@@ -35,7 +35,7 @@ import java.io.IOException;
  * @author Jody Garnett
  * @since 2.5
  */
-public class ArcSDEConnectionReference extends SessionPool {
+final class ArcSDEConnectionReference extends SessionPool {
     /**
      * Our "cached" session used to issue read only commands.
      */

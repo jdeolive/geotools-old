@@ -166,7 +166,7 @@ class SessionPool implements ISessionPool {
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
-            throw (IOException)new IOException().initCause(e);
+            throw (IOException) new IOException().initCause(e);
         }
     }
 
@@ -262,18 +262,9 @@ class SessionPool implements ISessionPool {
     public ISession getSession() throws IOException, UnavailableArcSDEConnectionException {
         checkOpen();
         try {
-            // String caller = null;
-            // if (LOGGER.isLoggable(Level.FINER)) {
-            // StackTraceElement[] stackTrace =
-            // Thread.currentThread().getStackTrace();
-            // caller = stackTrace[3].getClassName() + "." +
-            // stackTrace[3].getMethodName();
-            // }
-
             Session connection = (Session) this.pool.borrowObject();
 
             if (LOGGER.isLoggable(Level.FINER)) {
-                // System.err.println("-> " + caller + " got " + connection);
                 LOGGER.finer("-->" + connection + " out of connection pool. Active: "
                         + pool.getNumActive() + ", idle: " + pool.getNumIdle());
             }
@@ -419,15 +410,17 @@ class SessionPool implements ISessionPool {
 
     @Override
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder(getClass().getSimpleName());
+        ret.append("[config=").append(getConfig());
         if (pool == null) {
             ret.append("[Session pool is disposed]");
         } else {
             ret.append("[ACTIVE: ");
             ret.append(pool.getNumActive() + "/" + ((GenericObjectPool) pool).getMaxActive());
-            ret.append("  INACTIVE: ");
+            ret.append(" INACTIVE: ");
             ret.append(pool.getNumIdle() + "/" + ((GenericObjectPool) pool).getMaxIdle() + "]");
         }
+        ret.append("]");
         return ret.toString();
     }
 

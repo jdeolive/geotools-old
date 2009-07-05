@@ -23,17 +23,20 @@ import static org.geotools.arcsde.ArcSDEDataStoreFactory.VERSION_PARAM;
 import java.awt.RenderingHints.Key;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.sql.DataSource;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.ArcSDEDataStoreConfig;
+import org.geotools.arcsde.jndi.ArcSDEConnectionFactory;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
+import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.util.logging.Logging;
@@ -55,7 +58,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
     public static final Param JNDI_REFNAME = new Param("jndiReferenceName", String.class,
             "JNDI context path", true, "java:comp/env/geotools/arcsde");
 
-    private static final String J2EERootContext = "java:comp/env";
+    private static final String J2EERootContext = "java:comp/env/";
 
     public ArcSDEJNDIDataStoreFactory() {
         this.delegateFactory = new ArcSDEDataStoreFactory();
@@ -64,6 +67,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
     /**
      * @see org.geotools.data.DataStoreFactorySpi#createDataStore(java.util.Map)
      */
+    @SuppressWarnings("unchecked")
     public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
         final String jndiName = (String) JNDI_REFNAME.lookUp(params);
         if (jndiName == null) {
@@ -87,7 +91,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
             // and this code is running in a J2EE environment
             try {
                 if (jndiName.startsWith(J2EERootContext) == false) {
-                    lookup = (DataSource) ctx.lookup(J2EERootContext + jndiName);
+                    lookup = ctx.lookup(J2EERootContext + jndiName);
                     // success --> issue a waring
                     LOGGER.warning("Using " + J2EERootContext + jndiName + " instead of "
                             + jndiName + " would avoid an unnecessary JNDI lookup");
@@ -101,8 +105,6 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
             throw new IOException("Cannot find JNDI data source: " + jndiName);
         }
 
-        ArcSDEConnectionConfig config = (ArcSDEConnectionConfig) lookup;
-
         String nsUri = (String) NAMESPACE_PARAM.lookUp(params);
         String version = (String) VERSION_PARAM.lookUp(params);
         Boolean allowNonSpatialTables = (Boolean) ALLOW_NON_SPATIAL_PARAM.lookUp(params);
@@ -110,9 +112,55 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
         boolean nonSpatial = allowNonSpatialTables == null ? false : allowNonSpatialTables
                 .booleanValue();
 
-        ArcSDEDataStoreConfig dsconfig = new ArcSDEDataStoreConfig(config, nsUri, version,
-                nonSpatial);
-        ArcSDEDataStore dataStore = delegateFactory.createDataStore(dsconfig);
+        final ArcSDEDataStore dataStore;
+
+        if (lookup instanceof ArcSDEConnectionConfig) {
+            LOGGER.info("Creating JNDI ArcSDE DataStore with own session pool for " + lookup);
+
+            ArcSDEConnectionConfig config = (ArcSDEConnectionConfig) lookup;
+
+            ArcSDEDataStoreConfig dsConfig = new ArcSDEDataStoreConfig(config, nsUri, version,
+                    nonSpatial);
+
+            dataStore = delegateFactory.createDataStore(dsConfig);
+
+        } else if (lookup instanceof ISessionPool) {
+            LOGGER.info("Creating JNDI ArcSDE DataStore with shared session pool for " + lookup);
+
+            ISessionPool connPool = (ISessionPool) lookup;
+            ArcSDEConnectionConfig connConfig = connPool.getConfig();
+
+            ArcSDEDataStoreConfig dsConfig = new ArcSDEDataStoreConfig(connConfig, nsUri, version,
+                    nonSpatial);
+
+            dataStore = delegateFactory.createDataStore(dsConfig, connPool);
+        } else if (lookup instanceof Map) {
+            Map<String, String> map = new HashMap<String, String>();
+            {
+                Map<Object, Object> props = (Map<Object, Object>) lookup;
+                String key;
+                Object value;
+                for (Map.Entry<Object, Object> e : props.entrySet()) {
+                    key = String.valueOf(e.getKey());
+                    value = e.getValue();
+                    map.put(key, value == null ? null : String.valueOf(e.getValue()));
+                }
+            }
+            ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(map);
+            ArcSDEConnectionFactory factory = new ArcSDEConnectionFactory();
+            ISessionPool sessionPool = factory.getInstance(map);
+
+            ArcSDEDataStoreConfig dsConfig = new ArcSDEDataStoreConfig(config, nsUri, version,
+                    nonSpatial);
+
+            dataStore = delegateFactory.createDataStore(dsConfig, sessionPool);
+        } else {
+            throw new DataSourceException("Unknown JNDI resource on path " + jndiName
+                    + ". Expected one of [" + ArcSDEConnectionConfig.class.getName() + ", "
+                    + ISessionPool.class.getName() + "] but got " + lookup.getClass().getName()
+                    + " (" + lookup + ")");
+        }
+
         return dataStore;
     }
 

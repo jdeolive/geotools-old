@@ -34,6 +34,7 @@ import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.Commands;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.ISessionPoolFactory;
 import org.geotools.arcsde.session.SessionPoolFactory;
 import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
 import org.geotools.arcsde.session.Commands.GetVersionCommand;
@@ -205,7 +206,7 @@ public class TestData {
     }
 
     public ISessionPool newSessionPool() throws IOException {
-        SessionPoolFactory pfac = SessionPoolFactory.getInstance();
+        ISessionPoolFactory pfac = SessionPoolFactory.getInstance();
         ArcSDEDataStoreConfig config = new ArcSDEDataStoreConfig(this.conProps);
         return pfac.createPool(config.getSessionConfig());
     }

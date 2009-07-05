@@ -155,7 +155,7 @@ public class SessionPoolTest {
     public void testConnect() throws IOException {
         LOGGER.fine("testing connection to the sde database");
 
-        SessionPoolFactory pf = SessionPoolFactory.getInstance();
+        ISessionPoolFactory pf = SessionPoolFactory.getInstance();
         ArcSDEConnectionConfig config = ArcSDEConnectionConfig.fromMap(connectionParameters);
 
         ISessionPool connPool = null;
