@@ -154,7 +154,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
           <!-- ====    Switch commenting to skip tests    = -->
-                    <!--skip>${allow.test.skip}</skip-->
+                    <skip>${allow.test.skip}</skip>
                     <includes>
                         <include></include>
                     </includes>
