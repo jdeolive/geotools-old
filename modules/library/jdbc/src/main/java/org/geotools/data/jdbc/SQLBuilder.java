@@ -32,6 +32,8 @@ import org.opengis.filter.sort.SortBy;
  * 
  *  @author Sean Geoghegan, Defence Science and Technology Organisation.
  * @source $URL$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public interface SQLBuilder {
 

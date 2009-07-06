@@ -58,6 +58,8 @@ import org.opengis.util.ProgressListener;
 /**
  * @since 2.2.0
  * @source $URL$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class JDBCFeatureCollection extends DefaultFeatureResults {
     /** The logger for the filter module. */

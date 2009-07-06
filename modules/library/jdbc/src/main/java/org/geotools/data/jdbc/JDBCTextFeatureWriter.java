@@ -64,6 +64,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author chorner
  * @source $URL$
  * @version $Id$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public abstract class JDBCTextFeatureWriter extends JDBCFeatureWriter {
     /** The logger for the jdbc module. */

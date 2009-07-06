@@ -27,6 +27,7 @@ package org.geotools.data.jdbc;
  * @see QueryData
  * @see QueryDataListener
  * @see JDBCDataStore 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public interface QueryDataObserver {
 

@@ -53,6 +53,7 @@ import java.util.logging.Logger;
  *
  * @author Andrea Aime
  * @source $URL$
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class DefaultFIDMapperFactory implements FIDMapperFactory {
     /** The logger for the filter module. */

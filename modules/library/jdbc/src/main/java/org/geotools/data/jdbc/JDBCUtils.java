@@ -31,7 +31,9 @@ import org.geotools.data.Transaction;
  * @author $Author: seangeo $
  * @source $URL$
  * @version $Id$
- * Last Modified: $Date: 2003/11/28 08:49:51 $ 
+ * Last Modified: $Date: 2003/11/28 08:49:51 $
+ * 
+ *  @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class JDBCUtils {
 

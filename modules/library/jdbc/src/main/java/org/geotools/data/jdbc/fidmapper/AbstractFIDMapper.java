@@ -27,6 +27,7 @@ package org.geotools.data.jdbc.fidmapper;
  *
  * @author wolf
  * @source $URL$
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public abstract class AbstractFIDMapper implements FIDMapper {
     protected boolean[] autoIncrement = new boolean[1];

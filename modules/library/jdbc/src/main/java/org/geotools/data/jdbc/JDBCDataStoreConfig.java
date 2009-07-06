@@ -27,6 +27,8 @@ import java.util.Map;
  * @author $Author: aaime $
  * @source $URL$
  * @version $Id$ Last Modified: $Date: 2004/04/18 09:19:43 $
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class JDBCDataStoreConfig {
     public static final String FID_GEN_INSERT_NULL = "INSERT_NULL";

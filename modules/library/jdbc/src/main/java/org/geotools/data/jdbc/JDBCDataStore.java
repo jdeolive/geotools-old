@@ -110,6 +110,8 @@ import org.opengis.filter.Filter;
  * @author Andrea Aime
  * @source $URL$
  * @version $Id$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public abstract class JDBCDataStore extends JDBC2DataStore {
 	protected JDBCDataStore( DataSource dataSource, JDBCDataStoreConfig config ) throws IOException {

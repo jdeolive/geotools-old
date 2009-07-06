@@ -41,6 +41,7 @@ import java.util.logging.Logger;
  *
  * @author aaime
  * @source $URL$
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class MaxIncFIDMapper extends AbstractFIDMapper {
 	private static final long serialVersionUID = 5719859796485477701L;

@@ -14,8 +14,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.geotools</groupId>
-    <artifactId>gt-jdbc-ng</artifactId>
+    <groupId>org.geotools.jdbc</groupId>
+    <artifactId>gt-jdbc</artifactId>
     <version>2.6-SNAPSHOT</version>
   </parent>
 
@@ -23,21 +23,21 @@
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
-  <groupId>org.geotools</groupId>
-  <artifactId>gt-jdbc-h2</artifactId>
+  <groupId>org.geotools.jdbc</groupId>
+  <artifactId>gt-jdbc-postgis</artifactId>
   <packaging>jar</packaging>
-  <name>H2 DataStore</name>
+  <name>PostGIS DataStore</name>
   
 
   <scm>
     <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-h2/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/jdbc/jdbc-postgis
     </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-h2/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/jdbc/jdbc-postgis</url>
   </scm>
 
   <description>
-	DataStore for H2 Database.
+	DataStore for PostGIS Database.
   </description>
 
   <licenses>
@@ -48,11 +48,20 @@
     </license>
   </licenses>
 
-
   <!-- =========================================================== -->
   <!--     Developers and Contributors                             -->
   <!-- =========================================================== -->
   <developers>
+    <developer>
+      <name>Andrea Aime</name>
+      <id>aaime</id>
+      <email>aaime@users.sourceforge.net</email>
+      <organization>TOPP</organization>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     <developer>
       <name>Justin Deoliveira</name>
       <id>jdeolive</id>
@@ -67,25 +76,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-jdbc-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.h2database</groupId>
-      <artifactId>h2</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-jdbc-core</artifactId>
-      <version>${project.version}</version>
-      <classifier>tests</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-epsg-hsql</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
     </dependency>
   </dependencies>
 

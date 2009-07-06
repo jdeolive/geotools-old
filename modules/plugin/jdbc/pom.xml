@@ -15,7 +15,7 @@
 
   <parent>
     <groupId>org.geotools</groupId>
-    <artifactId>gt-jdbc-ng</artifactId>
+    <artifactId>plugin</artifactId>
     <version>2.6-SNAPSHOT</version>
   </parent>
 
@@ -23,22 +23,17 @@
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
-  <groupId>org.geotools</groupId>
-  <artifactId>gt-jdbc-postgis</artifactId>
-  <packaging>jar</packaging>
-  <name>PostGIS DataStore</name>
-  
+  <groupId>org.geotools.jdbc</groupId>
+  <artifactId>gt-jdbc</artifactId>
+  <packaging>pom</packaging>
+  <name>JDBC DataStore Plugins</name>
 
   <scm>
     <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-postgis
+      scm:svn:http://svn.geotools.org/trunk/modules/plugin/jdbc/
     </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-postgis</url>
+    <url>http://svn.geotools.org/trunk/modules/plugin/jdbc/</url>
   </scm>
-
-  <description>
-	DataStore for  Database.
-  </description>
 
   <licenses>
     <license>
@@ -68,18 +63,19 @@
   <dependencies>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-jdbc-core</artifactId>
+      <artifactId>gt-jdbc</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>postgresql</groupId>
-      <artifactId>postgresql</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-jdbc-core</artifactId>
+      <artifactId>gt-jdbc</artifactId>
       <version>${project.version}</version>
       <classifier>tests</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-sample-data</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -88,6 +84,42 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>simple-jndi</groupId>
+      <artifactId>simple-jndi</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-surefire-plugin</artifactId>
+         <configuration>
+           <systemProperties>
+              <property>
+                 <name>java.naming.factory.initial</name>
+                 <value>org.osjava.sj.SimpleContextFactory</value>
+              </property>
+              <property>
+                 <name>org.osjava.sj.root</name>
+                 <value>file://${project.build.directory}/jndi</value>
+              </property>
+              <property>
+                 <name>org.osjava.jndi.delimiter</name>
+                 <value>/</value>
+              </property>
+          </systemProperties>
+         </configuration>
+       </plugin>
+     </plugins>
+  </build>
+
+  <modules>
+    <module>jdbc-h2</module>
+    <module>jdbc-oracle</module>
+    <module>jdbc-postgis</module>
+    <module>jdbc-db2</module>
+  </modules>
 </project>

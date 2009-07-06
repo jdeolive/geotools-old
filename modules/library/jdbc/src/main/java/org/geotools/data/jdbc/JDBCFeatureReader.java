@@ -35,6 +35,8 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author aaime
  * @source $URL$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, SimpleFeature> {
     SimpleFeatureType featureType;

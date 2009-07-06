@@ -146,6 +146,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Andrea Aime
  * @source $URL$
  * @version $Id$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public abstract class JDBC1DataStore implements DataStore {
 

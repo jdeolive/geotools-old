@@ -7,27 +7,36 @@
                                                                                 
         Version: $Id$              
      ======================================================================= -->
-  <project xmlns="http://maven.apache.org/POM/4.0.0" 
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                                http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.geotools</groupId>
-    <artifactId>modules</artifactId>
+    <groupId>org.geotools.jdbc</groupId>
+    <artifactId>gt-jdbc</artifactId>
     <version>2.6-SNAPSHOT</version>
   </parent>
+
 
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
-  <artifactId>plugin</artifactId>
-  <packaging>pom</packaging>
-  <name>Geotools plugins</name>
+  <artifactId>gt-jdbc-db2</artifactId>
+  <packaging>jar</packaging>
+  <name>DB2 DataStore</name>
+
+  <scm>
+    <connection>
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/jdbc/jdbc-db2/
+    </connection>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/jdbc/jdbc-db2/</url>
+  </scm>
+
   <description>
-    Geotools plugins.
+	DataStore for DB2 Database.
   </description>
 
   <licenses>
@@ -40,31 +49,19 @@
 
 
   <!-- =========================================================== -->
-  <!--     Modules included in the build                           -->
-  <!-- =========================================================== --> 
-  <modules>
-    <module>arcgrid</module>
-    <module>arcsde</module>
-    <module>db2</module>
-    <module>charts</module>
-    <module>epsg-extension</module>
-    <module>epsg-hsql</module>
-    <module>epsg-postgresql</module>
-    <module>epsg-wkt</module>
-    <module>feature-pregeneralized</module>
-    <module>geotiff</module>
-    <module>gtopo30</module>
-    <module>image</module>
-    <module>imagemosaic</module>
-    <module>imageio-ext-gdal</module>
-    <module>imagepyramid</module>
-    <module>imagemosaic-jdbc</module>
-    <module>jdbc</module>
-    <module>postgis</module>
-    <module>property</module>
-    <module>referencing3D</module>
-    <module>shapefile</module>
-  </modules>
+  <!--     Developers and Contributors                             -->
+  <!-- =========================================================== -->
+  <developers>
+    <developer>
+      <name>Christian Mueller</name>
+      <id>christian.mueller@nvoe.at</id>
+      <email>christian.mueller@nvoe.at</email>
+      <organization>TOPP</organization>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
 
 </project>
-

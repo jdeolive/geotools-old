@@ -36,6 +36,7 @@ import org.opengis.feature.simple.SimpleFeature;
  *
  * @author wolf
  * @source $URL$
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class AutoIncrementFIDMapper extends AbstractFIDMapper {
     private static final long serialVersionUID = 1L;

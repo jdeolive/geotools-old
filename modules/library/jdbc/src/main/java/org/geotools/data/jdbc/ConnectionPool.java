@@ -46,6 +46,8 @@ import org.geotools.data.jdbc.datasource.DataSourceUtil;
  * @source $URL$
  * @version $Id$
  * @deprecated Use {@link DataSource}, {@link DataSourceUtil} and {@link DataSourceFinder} instead
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public final class ConnectionPool {
     /** A logger */

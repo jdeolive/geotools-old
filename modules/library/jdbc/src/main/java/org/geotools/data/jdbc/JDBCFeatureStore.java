@@ -61,6 +61,8 @@ import org.opengis.filter.identity.FeatureId;
  *       the beginings of a smart idea in mind. Similar to
  *       SwingUtilities.runLater...
  * @source $URL$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore<SimpleFeatureType, SimpleFeature> {
     

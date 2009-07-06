@@ -56,6 +56,8 @@ import org.opengis.feature.type.GeometryDescriptor;
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation.
  * @source $URL$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class GeoAPISQLBuilder implements SQLBuilder {
     // The instance of the encoder to be used to generate the WHERE clause

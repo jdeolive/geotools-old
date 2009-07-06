@@ -36,6 +36,7 @@ import java.sql.Statement;
  *
  * @author wolf
  * @source $URL$
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class MultiColumnFIDMapper extends AbstractFIDMapper {
     private static final long serialVersionUID = 1L;

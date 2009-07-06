@@ -31,6 +31,8 @@ import org.opengis.filter.identity.FeatureId;
  * @source $URL$
  * @version $Id$
  * Last Modified: $Date: 2004/04/09 15:30:52 $ 
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class MutableFIDFeature extends SimpleFeatureImpl {
 

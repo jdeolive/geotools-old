@@ -85,6 +85,8 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author Jody Garnett, Refractions Research
  * @source $URL$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, SimpleFeature> {
     /** The logger for the filter module. */

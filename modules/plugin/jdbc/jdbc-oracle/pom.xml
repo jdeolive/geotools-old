@@ -14,8 +14,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.geotools</groupId>
-    <artifactId>gt-jdbc-ng</artifactId>
+    <groupId>org.geotools.jdbc</groupId>
+    <artifactId>gt-jdbc</artifactId>
     <version>2.6-SNAPSHOT</version>
   </parent>
 
@@ -23,17 +23,16 @@
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
-  <groupId>org.geotools</groupId>
+  <groupId>org.geotools.jdbc</groupId>
   <artifactId>gt-jdbc-oracle</artifactId>
   <packaging>jar</packaging>
   <name>Oracle DataStore</name>
-  
 
   <scm>
     <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-oracle/
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/plugin/jdbc/jdbc-oracle/
     </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/jdbc-ng/jdbc-oracle/</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/plugin/jdbc/jdbc-oracle/</url>
   </scm>
 
   <description>
@@ -54,16 +53,6 @@
   <!-- =========================================================== -->
   <developers>
     <developer>
-      <name>Justin Deoliveira</name>
-      <id>jdeolive</id>
-      <email>jdeolive@users.sourceforge.net</email>
-      <organization>TOPP</organization>
-      <roles>
-        <role>Module Maintainer</role>
-        <role>Java Developer</role>
-      </roles>
-    </developer>
-    <developer>
       <name>Andrea Aime</name>
       <id>aaime</id>
       <email>aaime@users.sourceforge.net</email>
@@ -76,11 +65,6 @@
   </developers>
 
   <dependencies>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-jdbc-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!--dependency>
       <groupId>com.oracle</groupId>
       <artifactId>ojdbc14</artifactId>
@@ -90,19 +74,6 @@
       <artifactId>dummy_spatial</artifactId>
       <version>8.1.8</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-jdbc-core</artifactId>
-      <version>${project.version}</version>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-epsg-hsql</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 

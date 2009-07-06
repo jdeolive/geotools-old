@@ -56,6 +56,8 @@ import org.opengis.filter.sort.SortOrder;
  * @author Sean Geoghegan, Defence Science and Technology Organisation.
  * @source $URL$
  * @deprecated Use GeoAPISQLBuilder instead
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class DefaultSQLBuilder implements SQLBuilder {
     // The instance of the encoder to be used to generate the WHERE clause

@@ -44,6 +44,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  *
  * @author aaime
  * @source $URL$
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 public class JDBCFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFeature> {
     /** The logger for the jdbc module. */

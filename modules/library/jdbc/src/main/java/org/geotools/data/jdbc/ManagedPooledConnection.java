@@ -34,6 +34,8 @@ import javax.sql.PooledConnection;
  * @author $Author: cholmesny $
  * @source $URL$
  * @version $Id$ Last Modified: $Date: 2003/09/22 18:54:39 $
+ * 
+ * @deprecated scheduled for removal in 2.7, use classes in org.geotools.jdbc
  */
 final class ManagedPooledConnection {
     /** The timestamp the last use of the connection */
