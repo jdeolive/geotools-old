@@ -42,7 +42,37 @@ import org.geotools.arcsde.session.ISessionPoolFactory;
 import org.geotools.arcsde.session.SessionPoolFactory;
 
 /**
- * A JNDI {@link ObjectFactory} to create a
+ * A {@link ObjectFactory} to create an ArcSDE {@link ISessionPool connection pool} to be JNDI
+ * managed.
+ * <p>
+ * This factory creates an {@link ISessionPool} out of the following mandatory parameters:
+ * <ul>
+ * <li> {@link ArcSDEConnectionConfig#SERVER_NAME_PARAM_NAME server} (String) the arcsde server name
+ * or IP address
+ * <li> {@link ArcSDEConnectionConfig#PORT_NUMBER_PARAM_NAME port} (Integer) the TCP/IP port number
+ * where ArcSDE is listening for connection requests
+ * <li> {@link ArcSDEConnectionConfig#INSTANCE_NAME_PARAM_NAME instance} (String) the name of the
+ * arcsde database
+ * <li> {@link ArcSDEConnectionConfig#USER_NAME_PARAM_NAME user} (String) the database user name to
+ * connect as
+ * <li> {@link ArcSDEConnectionConfig#PASSWORD_PARAM_NAME password} (String) the database user
+ * password
+ * </ul>
+ * And the following optional parameters:
+ * <ul>
+ * <li> {@link ArcSDEConnectionConfig#MIN_CONNECTIONS_PARAM_NAME pool.minConnections} (Integer) how
+ * many connections the connection pool shall be populated with at creation time
+ * <li> {@link ArcSDEConnectionConfig#MAX_CONNECTIONS_PARAM_NAME pool.maxConnections} (Integer) the
+ * maximum number of connections allowed to be held on the pool at any time
+ * <li> {@link ArcSDEConnectionConfig#CONNECTION_TIMEOUT_PARAM_NAME pool.timeOut} (Integer) how long
+ * to wait for an available connection before {@link ISessionPool#getSession()} fails, in
+ * milliseconds.
+ * </ul>
+ * </p>
+ * <p>
+ * See the package documentation for further information on how to configure JNDI resources for
+ * ArcSDE on GeoTools.
+ * </p>
  * 
  * @author Gabriel Roldan (OpenGeo)
  * @version $Id$
@@ -55,6 +85,8 @@ public class ArcSDEConnectionFactory implements ObjectFactory {
     private ISessionPoolFactory closablePoolFactory = SessionPoolFactory.getInstance();
 
     /**
+     * @return an {@link ISessionPool} ready to be shared (ie, per connection option singleton).
+     *         Whether shared or not is a matter of external JNDI configuration.
      * @see ObjectFactory#getObjectInstance(Object, Name, Context, Hashtable)
      */
     public Object getObjectInstance(final Object obj, final Name name, final Context nameCtx,
@@ -72,11 +104,7 @@ public class ArcSDEConnectionFactory implements ObjectFactory {
         checkAlternateSessionPoolFactory(ref);
 
         Object dereferencedObject = null;
-        if (ArcSDEConnectionConfig.class.getName().equals(className)) {
-            ArcSDEConnectionConfig config = createConfig(ref);
-
-            dereferencedObject = config;
-        } else if (ISessionPool.class.getName().equals(className)) {
+        if (ISessionPool.class.getName().equals(className)) {
             ArcSDEConnectionConfig config = createConfig(ref);
             LOGGER.info("ArcSDEConnectionFactory: config is " + config);
 
