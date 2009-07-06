@@ -19,8 +19,8 @@ package org.geotools.arcsde.jndi;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
@@ -50,7 +50,7 @@ final class SharedSessionPool implements ISessionPool {
     private final ISessionPool delegate;
 
     private static final Map<ArcSDEConnectionConfig, SharedSessionPool> instances = Collections
-            .synchronizedMap(new HashMap<ArcSDEConnectionConfig, SharedSessionPool>());
+            .synchronizedMap(new WeakHashMap<ArcSDEConnectionConfig, SharedSessionPool>());
 
     protected SharedSessionPool(final ISessionPool delegate) throws IOException {
         this.delegate = delegate;
