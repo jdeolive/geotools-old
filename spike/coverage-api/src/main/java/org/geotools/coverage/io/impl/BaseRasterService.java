@@ -17,22 +17,21 @@
 package org.geotools.coverage.io.impl;
 
 import java.awt.RenderingHints.Key;
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.geotools.coverage.io.service.RasterService;
+import org.geotools.coverage.io.service.RasterServiceAction;
 import org.geotools.data.Parameter;
 import org.geotools.factory.Hints;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.util.InternationalString;
-import org.opengis.util.ProgressListener;
 
 /**
  * Base Implementation for the {@link RasterService} interface.
  */
-public abstract class BaseRasterService<T> implements RasterService<T> {
+public  abstract class BaseRasterService implements RasterService {
 
     private String name;
 
@@ -42,12 +41,23 @@ public abstract class BaseRasterService<T> implements RasterService<T> {
 
     private Map<Key, ?> implementationHints;
 
-    private Map<String, Parameter<?>> connectParameterInfo;
-	private Map<String, Parameter<?>> createParameterInfo;
+    private Map<String, Parameter<?>> readerParameterInfo;
+	private Map<String, Parameter<?>> writerParameterInfo;
 
-    protected BaseRasterService(final String name, final String description,
-            final String title, final Hints implementationHints) {
+	private EnumSet<RasterServiceAction> capabilities;
+
+	private String vendor;
+
+	private String version;
+
+    protected BaseRasterService(
+    		final String name, 
+    		final String description,
+            final String title, 
+            final Hints implementationHints,
+            final EnumSet<RasterServiceAction> capabilities) {
         this.name = name;
+        this.capabilities=capabilities;
         this.description = new SimpleInternationalString(description);
         this.title = new SimpleInternationalString(title);
     }
@@ -75,13 +85,13 @@ public abstract class BaseRasterService<T> implements RasterService<T> {
 
 
     public synchronized Map<String, Parameter<?>> getParameterInfo() {
-		if( connectParameterInfo == null ){
-			connectParameterInfo = defineParameterInfo();
-			if( connectParameterInfo == null ){
-				connectParameterInfo = Collections.emptyMap();
+		if( readerParameterInfo == null ){
+			readerParameterInfo = defineReaderParameterInfo();
+			if( readerParameterInfo == null ){
+				readerParameterInfo = Collections.emptyMap();
 			}
 		}
-		return connectParameterInfo;
+		return readerParameterInfo;
 	}
 
 	/**
@@ -91,23 +101,47 @@ public abstract class BaseRasterService<T> implements RasterService<T> {
 	 * indicating the parameters they require.
 	 * </p>
 	 */
-    protected abstract Map<String, Parameter<?>> defineParameterInfo();
+    protected abstract Map<String, Parameter<?>> defineReaderParameterInfo();
+    
+    protected abstract Map<String, Parameter<?>> defineWriterParameterInfo();
 
-    public synchronized Map<String, Parameter<?>> getCreateParameterInfo() {
-		if( createParameterInfo == null ){
-			createParameterInfo = defineParameterInfo();
-			if( createParameterInfo == null ){
-				createParameterInfo = Collections.emptyMap();
+    public synchronized Map<String, Parameter<?>> getDefaultWriterParameter() {
+		if( writerParameterInfo == null ){
+			writerParameterInfo = defineWriterParameterInfo();
+			if( writerParameterInfo == null ){
+				writerParameterInfo = Collections.emptyMap();
 			}
 		}
-		return createParameterInfo;
+		return writerParameterInfo;
+	}
+    
+    public synchronized Map<String, Parameter<?>> getDefaultReaderParameter() {
+		if( readerParameterInfo == null ){
+			readerParameterInfo = defineReaderParameterInfo();
+			if( readerParameterInfo == null ){
+				readerParameterInfo = Collections.emptyMap();
+			}
+		}
+		return readerParameterInfo;
 	}
 
-	/** Subclass can override to support create operations */
-    public T createInstance(final Map<String, Serializable>  parameters, Hints hints,
-    		ProgressListener listener)throws IOException{
-    	throw new UnsupportedOperationException( getTitle()+" does not support create operation");
-    	
-    }
+	public EnumSet<RasterServiceAction> getCapabilities() {
+		return (EnumSet<RasterServiceAction>) Collections.unmodifiableSet(capabilities);
+	}
+
+
+
+
+	public String getVendor() {
+		return vendor;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public boolean isAvailable() {
+		return false;
+	}
   
 }

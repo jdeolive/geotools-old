@@ -19,12 +19,12 @@ package org.geotools.coverage.io.impl.range;
 import java.util.Collections;
 
 import org.geotools.coverage.io.range.Axis;
-import org.geotools.coverage.io.range.Field;
+import org.geotools.coverage.io.range.FieldType;
 import org.opengis.feature.type.Name;
 import org.opengis.util.InternationalString;
 
 /**
- * Implementation of a simple {@link Axis} which can be used when modeling scalar {@link Field}s like
+ * Implementation of a simple {@link Axis} which can be used when modeling scalar {@link FieldType}s like
  * temperature or pressure which do need extra {@link Axis} instances to describe their codomain.
  * 
  * @author Simone Giannecchini, GeoSolutions

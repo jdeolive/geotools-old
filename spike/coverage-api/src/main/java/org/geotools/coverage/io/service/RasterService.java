@@ -18,10 +18,14 @@ package org.geotools.coverage.io.service;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.Map;
 
+import org.geotools.coverage.io.RasterDatasetReader;
+import org.geotools.coverage.io.RasterDatasetWriter;
 import org.geotools.coverage.io.request.CoverageReadRequest;
 import org.geotools.data.Parameter;
+import org.geotools.data.ServiceInfo;
 import org.geotools.factory.Factory;
 import org.geotools.factory.Hints;
 import org.geotools.factory.OptionalFactory;
@@ -55,8 +59,10 @@ import org.opengis.util.ProgressListener;
  * 
  * 
  */
-public interface RasterService<T> extends Factory, OptionalFactory {
-	
+public interface RasterService extends Factory, OptionalFactory {
+
+
+
 	/**
      * Unique name (non human readable) that can be used to refer to this
      * implementation.
@@ -119,7 +125,9 @@ public interface RasterService<T> extends Factory, OptionalFactory {
     public Map<String, Parameter<?>> getParameterInfo();
 
 
-    public T createInstance(final Map<String, Serializable>  parameters, Hints hints,ProgressListener listener)throws IOException;
+    public RasterDatasetReader createReader(final Map<String, Serializable>  parameters, Hints hints,ProgressListener listener)throws IOException;
+    
+    public RasterDatasetWriter createWriter(final Map<String, Serializable>  parameters, Hints hints,ProgressListener listener)throws IOException;
     
     /**
      * TODO Improve me
@@ -129,13 +137,25 @@ public interface RasterService<T> extends Factory, OptionalFactory {
      * @return
      * @throws IOException
      */
-    public boolean accepts(final Map<String, Serializable>  parameters, Hints hints)throws IOException;
+    public boolean canCreateReader(final Map<String, Serializable>  parameters, Hints hints)throws IOException;
 
+    public boolean canCreateWriter(final Map<String, Serializable>  parameters, Hints hints)throws IOException;
+    
 	/**
 	 * Describes the required (and optional) parameters that
 	 * can be passed to the {@link #createInstance(Map, Hints, ProgressListener)} and {@link #accepts(Map, Hints)} methods.
 	 * <p>
 	 * @return Param a {@link Map} describing the {@link Map} for {@link #update(CoverageReadRequest, ProgressListener)}.
 	 */
-	public Map<String, Parameter<?>> getDefaultParameterInfo();
+	public Map<String, Parameter<?>> getDefaultReaderParameter();
+	
+	public Map<String, Parameter<?>> getDefaultWriterParameter();
+	
+	public String getVendor();
+	
+	public String getVersion();
+	
+	public ServiceInfo getServiceInfo();
+	
+	public EnumSet<RasterServiceAction> getCapabilities();
 }

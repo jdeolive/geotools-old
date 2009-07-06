@@ -16,8 +16,7 @@ import javax.measure.unit.Unit;
  * 
  * @author Simone Giannecchini, GeoSolutions
  */
-public class BandIndexMeasure extends Measure<String, Dimensionless>
-		implements Measurable<Dimensionless> {
+public class BandIndexMeasure extends Measure<String, Dimensionless>implements Measurable<Dimensionless> {
 	private static final long serialVersionUID = 3895010709415779953L;
 
 	private Long index = null;

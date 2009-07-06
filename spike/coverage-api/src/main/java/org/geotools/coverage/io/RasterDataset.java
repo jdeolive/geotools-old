@@ -21,7 +21,7 @@ import java.util.Set;
 
 import org.geotools.coverage.io.domain.RasterDatasetDomainManager;
 import org.geotools.coverage.io.metadata.MetadataNode;
-import org.geotools.coverage.io.range.RangeManager;
+import org.geotools.coverage.io.range.FieldType;
 import org.geotools.data.ResourceInfo;
 import org.geotools.util.Range;
 import org.omg.CORBA.DomainManager;
@@ -72,7 +72,7 @@ public interface RasterDataset {
 	 * 			codomain for the underlying coverage.
 	 * @throws IOException in case something bad occurs
 	 */
-	public RangeManager getRangeManager(final ProgressListener listener) throws IOException;
+	public FieldType getRangeDescription(final ProgressListener listener) throws IOException;
 	
 	public DomainManager getDomainManager(final ProgressListener listener) throws IOException;
 

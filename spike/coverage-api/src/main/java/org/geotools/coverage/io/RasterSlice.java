@@ -1,10 +1,11 @@
 package org.geotools.coverage.io;
 
 import java.io.IOException;
-import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 
-import org.geotools.coverage.io.range.RangeManager;
+import org.geotools.coverage.io.range.Band;
+import org.geotools.coverage.io.range.BandType;
 import org.geotools.coverage.io.request.CoverageReadRequest;
 import org.geotools.coverage.io.request.CoverageRequest;
 import org.geotools.coverage.io.request.CoverageResponse;
@@ -30,7 +31,9 @@ public interface RasterSlice {
 	 * 			codomain for the underlying coverage.
 	 * @throws IOException in case something bad occurs
 	 */
-	public RangeManager getRangeManager(final ProgressListener listener) throws IOException;
+	public List<Band> getBands(final ProgressListener listener) throws IOException;
+	
+	public Band getRangeSubset(final List<BandType>bands,final ProgressListener listener) throws IOException;
 
 	public DomainManager getDomainManager(final ProgressListener listener) throws IOException;
 
@@ -63,19 +66,4 @@ public interface RasterSlice {
 	 * hence calling a method on it may have unpredictable results.
 	 */
 	public void close();
-
-	/**
-	 * Set of supported {@link CoverageCapabilities} which can be used to discover
-	 * capabilities of a certain {@link RasterDataset}.
-	 * <p>
-	 * You can use set membership to quickly test abilities:<code><pre>
-	 * if( getCapabilities().contains( CoverageCapabilities.READ_SUBSAMPLING ) ){
-	 *     ...
-	 * }
-	 * </code></pre>
-	 * @return a {@link EnumSet} of CoverageCapabilities which can be used to discover
-	 * capabilities of this {@link RasterDataset}.
-	 */
-	public EnumSet<CoverageCapabilities> getCapabilities();
-
 }

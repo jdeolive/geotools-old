@@ -31,9 +31,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.coverage.io.RasterStorage;
+import org.geotools.coverage.io.RasterDatasetReader;
+import org.geotools.coverage.io.RasterDatasetWriter;
 import org.geotools.coverage.io.service.RasterService;
-import org.geotools.coverage.io.service.RasterService.Action;
 import org.geotools.factory.FactoryCreator;
 import org.geotools.factory.FactoryRegistry;
 import org.geotools.factory.Hints;
@@ -84,14 +84,20 @@ public class RasterIO{
      * @return boolean true if and only if this factory can process the resource indicated by the
      *         param set and all the required params are present.
      */
-    public static boolean canConnect(java.util.Map<String, Serializable> params) {
-        for (RasterService driver : getAvailableDrivers()) {
+    public static boolean findService(
+    		final java.util.Map<String, Serializable> params,
+    		final boolean read,
+    		final Hints hints) {
+        for (RasterService service : getAvailableServices()) {
 
             boolean canProcess = false;
             try {
-                canProcess = driver.canPerform(Action.CONNECT,params);
+            	if(read)
+            		canProcess = service.canCreateReader(params,hints);
+            	else
+            		canProcess = service.canCreateWriter(params,hints);
             } catch (Throwable t) {
-                LOGGER.log(Level.WARNING, "Error asking " + driver.getTitle()
+                LOGGER.log(Level.WARNING, "Error asking " + service.getTitle()
                         + " if it can process request", t);
                 // Protect against DataStores that don't carefully code
                 // canProcess
@@ -100,23 +106,16 @@ public class RasterIO{
             if (canProcess) {
                 boolean isAvailable = false;
                 try {
-                    isAvailable = driver.isAvailable();
+                    isAvailable = service.isAvailable();
                 } catch (Throwable t) {
-                    LOGGER.log(Level.WARNING, "Error when checking if " + driver.getTitle()
+                    LOGGER.log(Level.WARNING, "Error when checking if " + service.getTitle()
                             + " is available" , t);
                     // Protect against Drivers that don't carefully code
                     // isAvailable
                     continue;
                 }
-                if (isAvailable) {
-                    try {
-                        if( driver.canPerform(Action.CONNECT,params))
-                        	return true;
-                    } catch (Exception couldNotConnect) {
-                        LOGGER.log(Level.WARNING, driver.getTitle()
-                                + " could not connect", couldNotConnect);
-                    }
-                } 
+                return true;
+
             }
         }
         return false;
@@ -124,14 +123,16 @@ public class RasterIO{
     
     
 
-    public static RasterStorage connect(Map<String, Serializable> params,Hints hints, final ProgressListener listener)throws IOException{
-        for (RasterService driver : getAvailableDrivers()) {
-
-            boolean canProcess = false;
+    public static RasterDatasetReader aquireReader(
+    		final Map<String, Serializable> parameters,
+    		final Hints hints, 
+    		final ProgressListener listener)throws IOException{
+        for (RasterService service : getAvailableServices()) {
+        	boolean canProcess = false;
             try {
-            	canProcess = driver.canPerform(Action.CONNECT,params);
+            	canProcess = service.canCreateReader(parameters,hints);
             } catch (Throwable t) {
-                LOGGER.log(Level.WARNING, "Error asking " + driver.getTitle()
+                LOGGER.log(Level.WARNING, "Error asking " + service.getTitle()
                         + " if it can process request", t);
                 // Protect against DataStores that don't carefully code
                 // canProcess
@@ -140,29 +141,52 @@ public class RasterIO{
             if (canProcess) {
                 boolean isAvailable = false;
                 try {
-                    isAvailable = driver.isAvailable();
+                    isAvailable = service.isAvailable();
                 } catch (Throwable t) {
-                    LOGGER.log(Level.WARNING, "Error when checking if " + driver.getTitle()
+                    LOGGER.log(Level.WARNING, "Error when checking if " + service.getTitle()
                             + " is available" , t);
                     // Protect against Drivers that don't carefully code
                     // isAvailable
                     continue;
                 }
-                if (isAvailable) {
-                    try {
-                        return driver.performAction(Action.CONNECT,params, hints, listener);
-                    } catch (IOException couldNotConnect) {
-                        LOGGER.log(Level.WARNING, driver.getTitle()
-                                + " could not connect", couldNotConnect);
-                    }
-                } 
+                return service.createReader(parameters, hints, listener);
+
             }
         }
         return null;
     }
-    public static RasterStorage connect(Map<String, Serializable> params)
-            throws IOException {
-    	return RasterIO.connect(params,null,null);
+    
+    public static RasterDatasetWriter aquireWriter(
+    		final Map<String, Serializable> parameters,
+    		final Hints hints, 
+    		final ProgressListener listener)throws IOException{
+        for (RasterService service : getAvailableServices()) {
+        	boolean canProcess = false;
+            try {
+            	canProcess = service.canCreateReader(parameters,hints);
+            } catch (Throwable t) {
+                LOGGER.log(Level.WARNING, "Error asking " + service.getTitle()
+                        + " if it can process request", t);
+                // Protect against DataStores that don't carefully code
+                // canProcess
+                continue;
+            }
+            if (canProcess) {
+                boolean isAvailable = false;
+                try {
+                    isAvailable = service.isAvailable();
+                } catch (Throwable t) {
+                    LOGGER.log(Level.WARNING, "Error when checking if " + service.getTitle()
+                            + " is available" , t);
+                    // Protect against Drivers that don't carefully code
+                    // isAvailable
+                    continue;
+                }
+                return service.createWriter(parameters, hints, listener);
+
+            }
+        }
+        return null;
     }
 
     /**
@@ -172,7 +196,7 @@ public class RasterIO{
      * @return An unmodifiable {@link Set} of all discovered drivers which have registered
      *         factories, and whose available method returns true.
      */
-    public static synchronized Set<RasterService> getAvailableDrivers() {
+    public static synchronized Set<RasterService> getAvailableServices() {
         // get all RasterService implementations
         scanForPlugins();
         final Iterator<RasterService> it = getServiceRegistry().getServiceProviders(RasterService.class, true);
@@ -224,7 +248,7 @@ public class RasterIO{
      * @return an array with all available {@link RasterService} implementations.
      */
     public static RasterService[] getAvailableDriversArray() {
-        final Set<? extends RasterService> drivers = RasterIO.getAvailableDrivers();
+        final Set<? extends RasterService> drivers = RasterIO.getAvailableServices();
         final List<RasterService> driverSet = new ArrayList<RasterService>(drivers.size());
         for (Iterator<? extends RasterService> iter = drivers.iterator(); iter.hasNext();) {
             final RasterService element = (RasterService) iter.next();
@@ -239,11 +263,14 @@ public class RasterIO{
      * 
      * @param url
      *                is the object to search a {@link RasterService} that is able to read
+     * @param read 
      * @return an unmodifiable {@link Set} comprising all the {@link RasterService} that can read the
      *         {@link URL} url.
      */
-    public static Set<RasterService> findDrivers(URL url) {
-        final Set<? extends RasterService> availaibleDrivers = RasterIO.getAvailableDrivers();
+    public static Set<RasterService> findServices(
+    		final URL url,
+    		final boolean read) {
+        final Set<? extends RasterService> availaibleDrivers = RasterIO.getAvailableServices();
         final Set<RasterService> drivers = new HashSet<RasterService>();
         final Iterator<? extends RasterService> it = availaibleDrivers.iterator();
         while (it.hasNext()) {
@@ -252,8 +279,26 @@ public class RasterIO{
             // check if we can accept it
             Map<String, Serializable> params = new HashMap<String, Serializable>();
             params.put("url", url);
-            if (spi.isAvailable() && spi.canPerform(Action.CONNECT,params))
-                drivers.add(spi);
+            
+            //is it available?
+            if (!spi.isAvailable())
+            	continue;
+            try{
+	        	if(read)
+	        	{
+	        		if(spi.canCreateReader(params, null))
+	        			drivers.add(spi);
+	        	}        			
+	        	else{
+	        		if(spi.canCreateWriter(params, null))
+	        			drivers.add(spi);        		
+	        	}
+            }catch (Throwable e) {
+				if(LOGGER.isLoggable(Level.FINE))
+					LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+			}
+            
+            
 
         }
 
@@ -269,8 +314,10 @@ public class RasterIO{
      * @return a {@link RasterService} that has stated to accept this {@link URL} o or <code>null</code>
      *         in no plugins was able to accept it.
      */
-    public static RasterService findDriver(URL url) {
-        final Set<RasterService> drivers = findDrivers(url);
+    public static RasterService findService(
+    		final URL url,
+    		final boolean read) {
+        final Set<RasterService> drivers = findServices(url,read);
         final Iterator<RasterService> it = drivers.iterator();
         if (it.hasNext())
             return (RasterService) it.next();

@@ -3,20 +3,23 @@ package org.geotools.coverage.io;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.geotools.coverage.io.metadata.MetadataNode;
 import org.geotools.coverage.io.service.RasterService;
+import org.geotools.coverage.io.service.RasterServiceAction;
+import org.geotools.data.ServiceInfo;
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.factory.Hints;
 import org.opengis.feature.type.Name;
 import org.opengis.geometry.Envelope;
 import org.opengis.metadata.extent.Extent;
 import org.opengis.util.ProgressListener;
 
-public interface RasterDatasetReader extends RasterDatasetIO {
-
+public interface RasterDatasetReader {
 	/**
 	 * Names of the available Coverages.
 	 * <p>
@@ -39,24 +42,6 @@ public interface RasterDatasetReader extends RasterDatasetIO {
 	public int getRasterDatasetMinimumIndex(final ProgressListener listener);
 
 	/**
-	 * Returns the {@link RasterService} which has been used to connect to this
-	 * RasterStorage.
-	 * 
-	 * @return {@link RasterService} used to connect
-	 */
-	public RasterService<? extends RasterDatasetReader> getRasterService();
-
-	/**
-	 * Retrieves the parameters used to connect to this live instance of
-	 * {@link RasterStorage}.
-	 * 
-	 * 
-	 * @return the parameters used to connect to this live instance of
-	 *         {@link RasterStorage}.
-	 */
-	public Map<String, Serializable> getRasterServiceParameters();
-	
-	/**
 	 * This method can be used to acquire a rough description of a coverage
 	 * spatiotemporal domain.
 	 * 
@@ -70,9 +55,9 @@ public interface RasterDatasetReader extends RasterDatasetIO {
 	 */
 	public Envelope getExtent(Name coverageName, final ProgressListener listener);
 
-	public MetadataNode getMetadata(String metadataDomain);
+	public MetadataNode getStorageMetadata(String metadataDomain);
 
-	public Set<Name> getMetadataDomains();
+	public Set<Name> getStorageMetadataDomains();
 
 	/**
 	 * Retrieve a {@link RasterDataset} to access a Named Coverage.
@@ -101,5 +86,51 @@ public interface RasterDatasetReader extends RasterDatasetIO {
 	public RasterDataset acquire(int index, Map<String, Serializable> params, Hints hints, ProgressListener listener)throws IOException;
 
 	public void setTargetLocation(URI location)throws IOException;
+
+	/**
+	 * This will free any cached info object or header information.
+	 * <p>
+	 * Often a {@link RasterStorage} will keep a file channel open, this will
+	 * clean that sort of thing up.
+	 * 
+	 * <p>
+	 * Once a {@link RasterStorage} has been disposed it can be seen as being
+	 * in unspecified state, hence calling a method on it may have unpredictable
+	 * results.
+	 * 
+	 */
+	public void close();
+
+	/**
+	 * Description of the RasterStorage we are connected to here.
+	 * <p>
+	 * @todo TODO think about the equivalence with StreamMetadata once we define
+	 *       them
+	 * 
+	 * @return Description of the RasterStorage we are connected to here.
+	 */
+	public ServiceInfo getInfo(final ProgressListener listener);
+
+	/**
+	 * Returns the {@link RasterService} which has been used to connect to this
+	 * RasterStorage.
+	 * 
+	 * @return {@link RasterService} used to connect
+	 */
+	public RasterService getRasterService();
+
+	/**
+	 * Retrieves the parameters used to connect to this live instance of
+	 * {@link RasterStorage}.
+	 * 
+	 * 
+	 * @return the parameters used to connect to this live instance of
+	 *         {@link RasterStorage}.
+	 */
+	public Map<String, Serializable> getRasterServiceParameters();
+
+	public Map<String, Param> getDefaultParameters(RasterServiceAction action);
+
+	public EnumSet<RasterDatasetAccessorCapabilities> getCapabilities();
 
 }
