@@ -24,10 +24,7 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -35,9 +32,7 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.Envelope2D;
-import org.geotools.process.Process;
 import org.geotools.referencing.CRS;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
@@ -47,6 +42,7 @@ import org.opengis.util.ProgressListener;
 import static org.junit.Assert.*;
 
 /**
+ * TODO: Rewrite and extend tests
  *
  * @author Michael Bedward <michael.bedward@gmail.com>
  */
@@ -115,10 +111,6 @@ public class RasterToVectorProcessTest {
         grid = factory.create("testcov", raster, envelope);
     }
 
-    @After
-    public void tearDown() {
-    }
-
     /**
      * Test of convert method, of class RasterToVectorProcess.
      */
@@ -130,20 +122,10 @@ public class RasterToVectorProcessTest {
         outsideValues.add(0d);
         
         ProgressListener progress = null;
-        Process r2v = (new RasterToVectorFactory()).create();
-        
-        Map<String, Object> input = new HashMap<String, Object>();
-        input.put(RasterToVectorFactory.RASTER.key, grid);
-        input.put(RasterToVectorFactory.BAND.key, band);
-        input.put(RasterToVectorFactory.OUTSIDE.key, outsideValues);
-
-        //FeatureCollection result =
-        Map<String, Object> result = r2v.execute(input, progress);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = RasterToVectorProcess.process(grid, 0, outsideValues, progress);
         
         double perimeter = 0;
         double area = 0;
-
-        FeatureCollection fc = (FeatureCollection) result.get(RasterToVectorFactory.RESULT_FEATURES);
         FeatureIterator iter = fc.features();
         try {
             while (iter.hasNext()) {
@@ -160,31 +142,6 @@ public class RasterToVectorProcessTest {
         System.out.println("Total feature perimeter: expected " + PERIMETER + " got " + (int)Math.round(perimeter));
 
         assertTrue(AREA == (int)Math.round(area) && PERIMETER == (int)Math.round(perimeter));
-    }
-
-    @Test
-    public void testExecute() {
-        System.out.println("execute");
-        Map<String, Object> input = null;
-        ProgressListener monitor = null;
-        RasterToVectorProcess instance = null;
-        Map<String, Object> expResult = null;
-        Map<String, Object> result = instance.execute(input, monitor);
-        assertEquals(expResult, result);
-        fail("The test case is a prototype.");
-    }
-
-    @Test
-    public void testProcess() {
-        System.out.println("process");
-        GridCoverage2D gridCoverage = null;
-        int band = 0;
-        Collection<Double> outsideValues = null;
-        ProgressListener progress = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> expResult = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> result = RasterToVectorProcess.process(gridCoverage, band, outsideValues, progress);
-        assertEquals(expResult, result);
-        fail("The test case is a prototype.");
     }
 
 }
