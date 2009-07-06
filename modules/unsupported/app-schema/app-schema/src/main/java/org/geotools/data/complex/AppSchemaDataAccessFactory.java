@@ -17,9 +17,12 @@
 
 package org.geotools.data.complex;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,6 +68,26 @@ public class AppSchemaDataAccessFactory implements DataAccessFactory {
         URL configFileUrl = (URL) AppSchemaDataAccessFactory.URL.lookUp(params);
         XMLConfigDigester configReader = new XMLConfigDigester();
         AppSchemaDataAccessDTO config = configReader.parse(configFileUrl);
+        
+        // load related types that are mapped separately, and not visible on their own
+        // this is when the related types are not feature types, so they don't appear
+        // on getCapabilities, and getFeature also shouldn't return anything etc. 
+        List<String> includes = config.getIncludes();
+        for (Iterator<String> it = includes.iterator(); it.hasNext();) {
+            String parentLocation = new File(configFileUrl.getPath()).getParent();
+            File includedConfig = new File(parentLocation, it.next());
+            if (!includedConfig.exists()) {
+                throw new RuntimeException(
+                        "Please check that the includedTypes location is correct: \n '"
+                                + includedConfig.getPath() + "' doesn't exist!");
+            }
+
+            URL relatedConfigURL = includedConfig.toURL();
+            params.put("url", relatedConfigURL);
+            // this will register the related data access, to enable feature chaining
+            createDataStore(params);
+        }
+
         mappings = AppSchemaDataAccessConfigurator.buildMappings(config);
 
         dataStore = new AppSchemaDataAccess(mappings);

@@ -68,6 +68,12 @@ public class AppSchemaDataAccessDTO implements Serializable {
      * {@link #baseSchemasUrl}
      */
     private List targetSchemasUris = Collections.EMPTY_LIST;
+    
+    /**
+     * List of the paths of other related types that are mapped separately that shouldn't be visible
+     * on their own, thus included in "include" statement
+     */
+    private List<String> includes = Collections.emptyList();
 
     private String oasisCatalogUri;
 
@@ -118,6 +124,25 @@ public class AppSchemaDataAccessDTO implements Serializable {
         return new HashMap(namespaces);
     }
 
+    /**
+     * Set the path of other related types that are mapped separately
+     * @param includes
+     */
+    public void setIncludedTypes(ArrayList<String> includes) {
+        if (includes != null) {
+            this.includes = new CheckedArrayList(String.class);
+            this.includes.addAll(includes);
+        }       
+    }
+    
+    /**
+     * Return the list of paths of related types that are mapped separately
+     * @return
+     */
+    public List<String> getIncludes() {
+        return includes;
+    }
+    
     /**
      * DOCUMENT ME!
      * 

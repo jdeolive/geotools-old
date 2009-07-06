@@ -130,6 +130,8 @@ public class XMLConfigDigester {
         try {
             setNamespacesRules(digester);
 
+            setIncludedTypesRules(digester);
+            
             setSourceDataStoresRules(digester);
 
             setTargetSchemaUriRules(digester);
@@ -278,4 +280,13 @@ public class XMLConfigDigester {
         digester.addSetNext(ns, "setNamespaces");
     }
     
+    private void setIncludedTypesRules(Digester digester) {
+        final String includes = "AppSchemaDataAccess/includedTypes";
+        digester.addObjectCreate(includes, XMLConfigDigester.CONFIG_NS_URI, ArrayList.class);
+        // point to related type config path relative to this mapping file location
+        final String includePath = includes + "/Include";
+        digester.addCallMethod(includePath, "add", 1);
+        digester.addCallParam(includePath, 0);
+        digester.addSetNext(includes, "setIncludedTypes");
+    }
 }

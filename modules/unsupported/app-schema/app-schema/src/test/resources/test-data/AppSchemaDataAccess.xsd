@@ -22,6 +22,7 @@
     </annotation>
     <sequence>
       <element name="namespaces" type="as:NamespacesPropertyType" />
+      <element name="includedTypes" type="as:IncludesPropertyType" minOccurs="0" />
       <element name="sourceDataStores" type="as:SourceDataStoresPropertyType" />
       <element name="catalog" type="string" minOccurs="0">
         <annotation>
@@ -81,6 +82,29 @@
         </complexType>
       </element>
     </sequence>
+  </complexType>
+  
+  <complexType name="IncludesPropertyType">
+	<annotation>
+		<documentation>
+        <![CDATA[
+      This is only needed if this type has related types that do not have their own 
+      Geoserver configuration, ie. not published in Geoserver. The type might be
+      mapped separately so they can be reusable (feature chaining concept), e.g. 
+      If feature type A contains data type B, and feature type C also contains
+      data type B, we only want to have one mapping file for data type B. 
+ 
+      The purpose of this is so that the parent type (this mapping) can find the
+      related features.
+      The type might not be visible on their own because it's not a feature type
+      (e.g. a data type), therefore shouldn't appear in requests such as GetCapabilities,
+      DescribeFeatureType etc. 
+    ]]>
+		</documentation>
+	</annotation>
+	<sequence>
+		<element name="Include" minOccurs="0" maxOccurs="unbounded" />
+	</sequence>
   </complexType>
 
   <complexType name="SourceDataStoresPropertyType">

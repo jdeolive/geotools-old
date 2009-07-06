@@ -66,6 +66,8 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
 
     static final Name CGI_TERM_VALUE_TYPE = Types.typeName(GSMLNS, "CGI_TermValueType");
 
+    static final Name CONTROLLED_CONCEPT = Types.typeName(GSMLNS, "ControlledConcept");
+
     final String schemaBase = "/test-data/";
 
     /**
@@ -89,6 +91,11 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
     private AppSchemaDataAccess cgiDataAccess;
 
     /**
+     * Controlled Concept data access
+     */
+    private AppSchemaDataAccess ccDataAccess;
+
+    /**
      * Test registering all data accesses works.
      * 
      * @throws Exception
@@ -100,6 +107,7 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         this.checkRegisteredDataAccess(guDataAccess, GEOLOGIC_UNIT, false);
         this.checkRegisteredDataAccess(cpDataAccess, COMPOSITION_PART, true);
         this.checkRegisteredDataAccess(cgiDataAccess, CGI_TERM_VALUE, true);
+        this.checkRegisteredDataAccess(ccDataAccess, CONTROLLED_CONCEPT, true);
 
         disposeDataAccesses();
     }
@@ -116,6 +124,7 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         unregister(guDataAccess, GEOLOGIC_UNIT);
         unregister(cpDataAccess, COMPOSITION_PART);
         unregister(cgiDataAccess, CGI_TERM_VALUE);
+        unregister(ccDataAccess, CONTROLLED_CONCEPT);
 
         disposeDataAccesses();
     }
@@ -135,7 +144,7 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         } catch (DataSourceException e) {
             String message = e.getMessage();
             LOGGER.info(e.toString());
-            assertEquals("Count number of available type names in exception message", 4, message
+            assertEquals("Count number of available type names in exception message", 5, message
                     .split("Available:")[1].split(",").length);
             handledException = true;
         }
@@ -171,22 +180,22 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         assertNotNull(guDataAccess);
 
         /**
-         * Load Compositional Part data access
+         * Find Compositional Part data access
          */
-        url = getClass().getResource(schemaBase + "CompositionPart.xml");
-        assertNotNull(url);
-        dsParams.put("url", url.toExternalForm());
-        cpDataAccess = (AppSchemaDataAccess) DataAccessFinder.getDataStore(dsParams);
+        cpDataAccess = (AppSchemaDataAccess) DataAccessRegistry.getDataAccess(COMPOSITION_PART);
         assertNotNull(cpDataAccess);
 
         /**
-         * Load CGI Term Value data access
+         * Find CGI Term Value data access
          */
-        url = getClass().getResource(schemaBase + "CGITermValue.xml");
-        assertNotNull(url);
-        dsParams.put("url", url.toExternalForm());
-        cgiDataAccess = (AppSchemaDataAccess) DataAccessFinder.getDataStore(dsParams);
+        cgiDataAccess = (AppSchemaDataAccess) DataAccessRegistry.getDataAccess(CGI_TERM_VALUE);
         assertNotNull(cgiDataAccess);
+
+        /**
+         * Find ControlledConcept data access
+         */
+        ccDataAccess = (AppSchemaDataAccess) DataAccessRegistry.getDataAccess(CONTROLLED_CONCEPT);
+        assertNotNull(ccDataAccess);
     }
 
     /**
@@ -260,7 +269,7 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
      */
     private void disposeDataAccesses() {
         if (mfDataAccess == null || guDataAccess == null || cpDataAccess == null
-                || cgiDataAccess == null) {
+                || cgiDataAccess == null || ccDataAccess == null) {
             throw new UnsupportedOperationException(
                     "This is to be called after data accesses are created!");
         }
@@ -268,5 +277,6 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         guDataAccess.dispose();
         cpDataAccess.dispose();
         cgiDataAccess.dispose();
+        ccDataAccess.dispose();
     }
 }

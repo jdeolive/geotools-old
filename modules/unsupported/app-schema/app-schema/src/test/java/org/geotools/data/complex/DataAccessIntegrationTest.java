@@ -100,6 +100,8 @@ public class DataAccessIntegrationTest extends TestCase {
     static final Name COMPOSITION_PART_TYPE = Types.typeName(GSMLNS, "CompositionPartType");
 
     static final Name COMPOSITION_PART = Types.typeName(GSMLNS, "CompositionPart");
+    
+    static final Name CONTROLLED_CONCEPT = Types.typeName(GSMLNS, "ControlledConcept");
 
     static final String schemaBase = "/test-data/";
 
@@ -418,11 +420,7 @@ public class DataAccessIntegrationTest extends TestCase {
         /**
          * Load Controlled Concept data access
          */
-        url = getClass().getResource(schemaBase + "ControlledConcept.xml");
-        assertNotNull(url);
-
-        dsParams.put("url", url.toExternalForm());
-        DataAccess<FeatureType, Feature> ccDataAccess = DataAccessFinder.getDataStore(dsParams);
+        DataAccess<FeatureType, Feature> ccDataAccess = DataAccessRegistry.getDataAccess(CONTROLLED_CONCEPT);
         assertNotNull(ccDataAccess);
 
         cpFeatures = new ArrayList<Feature>();

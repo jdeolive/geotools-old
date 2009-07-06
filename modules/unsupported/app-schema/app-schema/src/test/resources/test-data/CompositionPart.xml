@@ -45,6 +45,9 @@
 			<uri>http://www.opengis.net/sensorML/1.0.1</uri>
 		</Namespace>
 	</namespaces>
+	<includedTypes>
+        <Include>ControlledConcept.xml</Include>
+    </includedTypes>
 	<sourceDataStores>
 		<DataStore>
 			<id>CompositionPart</id>

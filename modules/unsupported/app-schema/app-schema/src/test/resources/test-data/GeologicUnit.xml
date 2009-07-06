@@ -45,6 +45,10 @@
 			<uri>http://www.opengis.net/sensorML/1.0.1</uri>
 		</Namespace>
 	</namespaces>
+    <includedTypes>
+        <Include>CompositionPart.xml</Include>
+        <Include>CGITermValue.xml</Include>
+    </includedTypes>	
 	<sourceDataStores>
 		<DataStore>
 			<id>GeologicUnit</id>

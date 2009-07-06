@@ -307,10 +307,11 @@ public class FeatureChainingTest extends TestCase {
         // get controlled concept features on their own
         MappingFeatureIterator iterator = (MappingFeatureIterator) ccFeatures.iterator();
         int count = 0;
-        ArrayList<Feature> featureList = new ArrayList<Feature>();
+        Map<String, Feature> featureList = new HashMap<String, Feature>();
         try {
             while (iterator.hasNext()) {
-                featureList.add(iterator.next());
+                Feature f = iterator.next();
+                featureList.put(f.getIdentifier().getID(), f);
                 count++;
             }
         } finally {
@@ -330,12 +331,16 @@ public class FeatureChainingTest extends TestCase {
                 // 1=name_c|cp.167775491936278812
                 // 2=name_2|cp.167775491936278812
                 assertEquals(((Collection) lithologies).size(), EXPECTED_RESULT_COUNT);
-                Collection<Feature> lithologyFeatures = new ArrayList<Feature>();
+                Collection<String> lithologyIds = new ArrayList<String>();
                 for (Property lithologyProperty : lithologies) {
-                    lithologyFeatures.add((Feature) ((Collection) lithologyProperty.getValue())
-                            .iterator().next());
+                    Feature nestedFeature = (Feature) ((Collection) lithologyProperty.getValue())
+                            .iterator().next();
+                    String fId = nestedFeature.getIdentifier().getID();
+                    lithologyIds.add(fId);
+                    Feature lithology = featureList.get(fId);
+                    assertEquals(lithology.getProperties(), nestedFeature.getProperties());
                 }
-                assertEquals(featureList.containsAll(lithologyFeatures), true);
+                assertEquals(featureList.keySet().containsAll(lithologyIds), true);
             } else {
                 assertEquals(lithologies.isEmpty(), true);
             }
@@ -709,48 +714,22 @@ public class FeatureChainingTest extends TestCase {
         guFeatures = (FeatureCollection) guSource.getFeatures();
 
         /**
-         * Load composition part data access
+         * Non-feature types that are included in geologicUnit.xml should be loaded when geologic
+         * unit data access is created
          */
-        url = getClass().getResource(schemaBase + "CompositionPart.xml");
-        assertNotNull(url);
-
-        dsParams.put("url", url.toExternalForm());
-        cpDataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(cpDataAccess);
-
-        FeatureType cpType = cpDataAccess.getSchema(COMPOSITION_PART);
-        assertNotNull(cpType);
-
-        FeatureSource<FeatureType, Feature> cpSource = (FeatureSource) cpDataAccess
+        // Composition Part
+        cpDataAccess = DataAccessRegistry.getDataAccess(COMPOSITION_PART);
+        FeatureSource<FeatureType, Feature> cpSource = cpDataAccess
                 .getFeatureSource(COMPOSITION_PART);
         cpFeatures = (FeatureCollection<FeatureType, Feature>) cpSource.getFeatures();
-
-        /**
-         * Load CGI Term Value data access
-         */
-        url = getClass().getResource(schemaBase + "CGITermValue.xml");
-        assertNotNull(url);
-
-        dsParams.put("url", url.toExternalForm());
-        cgiDataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(cgiDataAccess);
-
-        FeatureType cgiType = cgiDataAccess.getSchema(CGI_TERM_VALUE);
-        assertNotNull(cgiType);
-
-        FeatureSource<FeatureType, Feature> cgiSource = (FeatureSource) cgiDataAccess
+        // CGI TermValue
+        cgiDataAccess = DataAccessRegistry.getDataAccess(CGI_TERM_VALUE);
+        FeatureSource<FeatureType, Feature> cgiSource = cgiDataAccess
                 .getFeatureSource(CGI_TERM_VALUE);
         FeatureCollection<FeatureType, Feature> cgiFeatures = (FeatureCollection<FeatureType, Feature>) cgiSource
                 .getFeatures();
-
-        /**
-         * Load Controlled Concept data access
-         */
-        url = getClass().getResource(schemaBase + "ControlledConcept.xml");
-        assertNotNull(url);
-
-        dsParams.put("url", url.toExternalForm());
-        ccDataAccess = DataAccessFinder.getDataStore(dsParams);
+        // ControlledConcept
+        ccDataAccess = DataAccessRegistry.getDataAccess(CONTROLLED_CONCEPT);
         assertNotNull(ccDataAccess);
 
         int EXPECTED_RESULT_COUNT = 4;
@@ -775,14 +754,14 @@ public class FeatureChainingTest extends TestCase {
      */
     private void disposeDataAccesses() {
         if (mfDataAccess == null || guDataAccess == null || cpDataAccess == null
-                || cgiDataAccess == null) {
+                || cgiDataAccess == null || ccDataAccess == null) {
             throw new UnsupportedOperationException(
                     "This is to be called after data accesses are created!");
         }
         mfDataAccess.dispose();
         guDataAccess.dispose();
-        cpDataAccess.dispose();
         cgiDataAccess.dispose();
+        cpDataAccess.dispose();
         ccDataAccess.dispose();
     }
 
