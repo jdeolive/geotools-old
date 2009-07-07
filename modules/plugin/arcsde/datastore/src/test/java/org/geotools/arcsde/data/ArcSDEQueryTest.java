@@ -85,7 +85,7 @@ public class ArcSDEQueryTest {
     private ArcSDEQuery _queryAll;
 
     /**
-     * do not access it directly, use {@link #getQueryFiltered()}
+     * do not access it directly, use {@link #createFilteringQuery()}
      */
     private ArcSDEQuery queryFiltered;
 
@@ -173,7 +173,7 @@ public class ArcSDEQueryTest {
                 .toFilter("STRING_COL = strConcat('string', STRING_COL) AND STRING_COL > 'String2' AND BBOX(SHAPE, 10.0,20.0,30.0,40.0)");
         filteringQuery = new DefaultQuery(typeName, filter);
         // filteringQuery based on the above filter...
-        ArcSDEQuery sdeQuery = getQueryFiltered();
+        ArcSDEQuery sdeQuery = createFilteringQuery();
 
         FilterSet filters;
         try {
@@ -200,7 +200,7 @@ public class ArcSDEQueryTest {
 
         filteringQuery = new DefaultQuery(typeName, filter);
         // filteringQuery based on the above filter...
-        sdeQuery = getQueryFiltered();
+        sdeQuery = createFilteringQuery();
 
         try {
             filters = sdeQuery.getFilters();
@@ -226,7 +226,7 @@ public class ArcSDEQueryTest {
 
         filteringQuery = new DefaultQuery(typeName, filter);
         // filteringQuery based on the above filter...
-        sdeQuery = getQueryFiltered();
+        sdeQuery = createFilteringQuery();
 
         try {
             filters = sdeQuery.getFilters();
@@ -260,7 +260,7 @@ public class ArcSDEQueryTest {
         Filter filter = ff.id(ids);
         filteringQuery = new DefaultQuery(typeName, filter);
         // filteringQuery based on the above filter...
-        ArcSDEQuery sdeQuery = getQueryFiltered();
+        ArcSDEQuery sdeQuery = createFilteringQuery();
 
         FilterSet filters;
         try {
@@ -287,7 +287,7 @@ public class ArcSDEQueryTest {
         return this._queryAll;
     }
 
-    private ArcSDEQuery getQueryFiltered() throws IOException {
+    private ArcSDEQuery createFilteringQuery() throws IOException {
         ISession session = dstore.getSession(Transaction.AUTO_COMMIT);
         FeatureTypeInfo fti = ArcSDEAdapter.fetchSchema(typeName, null, session);
         this.queryFiltered = ArcSDEQuery.createQuery(session, ftype, filteringQuery, fti
@@ -368,7 +368,7 @@ public class ArcSDEQueryTest {
 
     @Test
     public void testCalculateResultCountNonSpatialFilter() throws Exception {
-        ArcSDEQuery q = getQueryFiltered();
+        ArcSDEQuery q = createFilteringQuery();
         int calculated;
         try {
             calculated = q.calculateResultCount();
@@ -463,7 +463,7 @@ public class ArcSDEQueryTest {
                 featureReader.close();
             }
 
-            ArcSDEQuery queryFiltered = getQueryFiltered();
+            ArcSDEQuery queryFiltered = createFilteringQuery();
             Envelope actual;
             try {
                 actual = queryFiltered.calculateQueryExtent();
