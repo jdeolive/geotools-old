@@ -1,5 +1,94 @@
 <class-diagram version="0.9.82" icons="true" always-add-relationships="true" generalizations="true" realizations="true" 
   associations="true" dependencies="true" nesting-relationships="true">  
+  <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterDatasetWriter" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetWriter.java" binary="false">    
+    <position x="165" y="139" width="141" height="45"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterDatasetReader" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetReader.java" binary="false">    
+    <position x="327" y="54" width="146" height="45"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterDataset" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false">    
+    <position x="327" y="224" width="110" height="45"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterSlice" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterSlice.java" binary="false">    
+    <position x="327" y="309" width="110" height="45"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <enumeration corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterDatasetAccessorCapabilities" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetAccessorCapabilities.java" 
+    binary="false">    
+    <position x="367" y="139" width="226" height="45"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </enumeration>  
+  <dependency>    
+    <bendpoint x="336" y="139"/>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetReader" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetReader.java" 
+      binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>  
+  </dependency>  
+  <dependency>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetWriter" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetWriter.java" 
+      binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>  
+  </dependency>  
+  <dependency>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetReader" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetReader.java" 
+      binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetAccessorCapabilities" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetAccessorCapabilities.java" 
+      binary="false"/>  
+  </dependency>  
+  <dependency>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterSlice" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterSlice.java" binary="false"/>  
+  </dependency>  
+  <generalization>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetWriter" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetWriter.java" 
+      binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetReader" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetReader.java" 
+      binary="false"/>  
+  </generalization>  
+  <dependency>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterSlice" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterSlice.java" binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>  
+  </dependency>  
   <classifier-display autosize="true" package="true" initial-value="true" signature="true" visibility="true">    
     <attributes public="false" package="false" protected="false" private="false"/>    
     <operations public="false" package="false" protected="false" private="false"/>  

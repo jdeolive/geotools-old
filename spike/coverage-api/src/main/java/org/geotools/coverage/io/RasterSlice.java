@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.quantity.Quantity;
+
 import org.geotools.coverage.io.range.Band;
 import org.geotools.coverage.io.range.BandType;
 import org.geotools.coverage.io.request.CoverageReadRequest;
@@ -13,13 +15,7 @@ import org.geotools.coverage.io.request.CoverageRequest.RequestType;
 import org.geotools.data.Parameter;
 import org.omg.CORBA.DomainManager;
 import org.opengis.util.ProgressListener;
-/**
- * A {@link RasterSlice} is a 2D element in space/time/elevation with a certain number of Bands.
- * It may also have its own pyramid.
- * 
- * @author Simone Giannecchini, GeoSolutions SAS
- *
- */
+
 public interface RasterSlice {
 
 	/**
@@ -33,7 +29,7 @@ public interface RasterSlice {
 	 */
 	public List<Band> getBands(final ProgressListener listener) throws IOException;
 	
-	public Band getRangeSubset(final List<BandType>bands,final ProgressListener listener) throws IOException;
+	public <V, Q extends Quantity> List<Band> getRangeSubset(final List<BandType.BandKey<V, Q>>bands,final ProgressListener listener) throws IOException;
 
 	public DomainManager getDomainManager(final ProgressListener listener) throws IOException;
 

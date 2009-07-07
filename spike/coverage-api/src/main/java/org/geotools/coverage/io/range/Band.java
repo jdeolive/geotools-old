@@ -1,17 +1,22 @@
 package org.geotools.coverage.io.range;
 
-import java.util.Set;
 
 import javax.media.jai.Histogram;
 
 import org.geotools.coverage.io.metadata.MetadataNode;
 import org.geotools.util.Range;
-import org.opengis.annotation.Extension;
+import org.opengis.coverage.ColorInterpretation;
+import org.opengis.coverage.SampleDimensionType;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.operation.MathTransform1D;
 import org.opengis.util.InternationalString;
 import org.opengis.util.ProgressListener;
-
+/**
+ * 
+ * @author Simone Giannecchini, GeoSolutions
+ *
+ */
+@SuppressWarnings("deprecation")
 public abstract class Band {
 	
 	
@@ -80,9 +85,10 @@ public abstract class Band {
 	 * @param metadataDomain
 	 * @return
 	 */
-	public MetadataNode getMetadata(String metadataDomain){
-		return null;
-		
-	}
+	public abstract MetadataNode getMetadata(String metadataDomain);
+
+	public abstract ColorInterpretation getColorInterpretation() ;
+
+	public abstract SampleDimensionType getSampleDimensionType() ;
 	
 }

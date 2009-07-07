@@ -19,6 +19,8 @@ package org.geotools.coverage.io;
 import java.io.IOException;
 import java.util.Set;
 
+import javax.measure.quantity.Quantity;
+
 import org.geotools.coverage.io.domain.RasterDatasetDomainManager;
 import org.geotools.coverage.io.metadata.MetadataNode;
 import org.geotools.coverage.io.range.FieldType;
@@ -72,7 +74,7 @@ public interface RasterDataset {
 	 * 			codomain for the underlying coverage.
 	 * @throws IOException in case something bad occurs
 	 */
-	public FieldType getRangeDescription(final ProgressListener listener) throws IOException;
+	public <V, QA extends Quantity> FieldType<V, QA> getRangeDescription(final ProgressListener listener) throws IOException;
 	
 	public DomainManager getDomainManager(final ProgressListener listener) throws IOException;
 

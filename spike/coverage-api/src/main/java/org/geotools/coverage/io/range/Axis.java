@@ -16,16 +16,11 @@
  */
 package org.geotools.coverage.io.range;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.measure.Measurable;
-import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
 import org.geotools.feature.NameImpl;
+import org.geotools.referencing.CRS;
 import org.geotools.util.SimpleInternationalString;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.crs.SingleCRS;
@@ -34,46 +29,50 @@ import org.opengis.util.InternationalString;
 /**
  * Definition of one axis in a field for which we have some
  * measurements/observations/forecasts. The {@link Axis} data structure
- * describes the nature of each control variable for a certain {@link Field},
- * moreover it indicates as {@link Measurable}s the keys used to control each
- * Field subset.
+ * describes the nature of each control variable for a certain {@link FieldType}
  * 
- * <p>
- * Note that in order to comply with the WCS spec we need to have the
- * possibility to encode {@link Measurable}s as {@link String}s.
  * 
  * @author Simone Giannecchini, GeoSolutions
- * @param V Value being used to define this Axis
- * @param QA Quantity being represented by this Axis
  */
-public class Axis<V,Q extends Quantity>{
+public class Axis<Q extends Quantity>{
+
+
+
 	private SingleCRS crs;
 	private InternationalString description;
-	private List<Measure<V,Q>> keys;
 	private Name name;
 	private Unit<Q> unit;
 	
-	public Axis( String name, Measure<V,Q> key, Unit<Q> unit){
-		this( new NameImpl( name ), new SimpleInternationalString( name ), Collections.singletonList(key), unit, null );
+	public Axis( String name, Unit<Q> unit){
+		this( new NameImpl( name ), new SimpleInternationalString( name ),unit );
 	}
 	
-	public Axis( String name, List<Measure<V,Q>> keys, Unit<Q> unit){
-		this( new NameImpl( name ), new SimpleInternationalString( name ), keys, unit, null );
-	}
-	
-	public Axis( Name name, InternationalString description, List<? extends Measure<V,Q>> keys, Unit<Q> unit){
-		this( name, description, keys, unit, null );
-	}
-	
-	public Axis( Name name, InternationalString description, List<? extends Measure<V,Q>> keys, Unit<Q> unit, SingleCRS crs ){
+	public Axis( Name name, InternationalString description, Unit<Q> unit){
 		this.name = name;
 		this.unit = unit;
 		this.description = description;
-		this.keys = new ArrayList<Measure<V,Q>>( keys );
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Axis( Name name, InternationalString description, SingleCRS crs ){
+		this(name, description,  getUoM(crs));
 		this.crs = crs;
 	}
 	
-    /**
+	public Axis( String name, String description, SingleCRS crs ){
+		this(new NameImpl(name), new SimpleInternationalString(description),  crs);
+	}
+	
+	public Axis( String name, SingleCRS crs ){
+		this(new NameImpl(name), new SimpleInternationalString(name),  crs);
+	}
+	
+	@SuppressWarnings("unchecked")
+    private static Unit getUoM(SingleCRS crs) {
+		return crs.getCoordinateSystem().getAxis(0).getUnit();
+	}
+
+	/**
      * Retrieves the coordinate reference system for this {@link Axis}.
      * 
      * <p>
@@ -99,39 +98,12 @@ public class Axis<V,Q extends Quantity>{
 	}
 
     /**
-     * Retrieves a specific key for this {@link Axis}.
-     * 
-     * @return Retrieves a specific key for this {@link Axis}.
-     */
-	public Measure<V, Q> getKey(int keyIndex) {
-		return keys.get( keyIndex );
-	}
-
-    /**
-     * Retrieves the list of keys for this {@link Axis}.
-     * 
-     * @return Retrieves the list of keys for this {@link Axis}.
-     */
-	public List<? extends Measure<V, Q>> getKeys() {
-		return Collections.unmodifiableList(keys);
-	}
-
-    /**
      * Retrieves the {@link Axis} name
      * 
      * @return {@link org.opengis.feature.type.Name} of the {@link Axis}s
      */
 	public Name getName() {
 		return name;
-	}
-
-    /**
-     * Retrieves the number of keys for this {@link Axis}.
-     * 
-     * @return Retrieves the number of keys for this {@link Axis}.
-     */
-	public int getNumKeys() {
-		return keys.size();
 	}
 
     /**
@@ -145,4 +117,67 @@ public class Axis<V,Q extends Quantity>{
 		return unit;
 	}
 	
+	public <V> boolean isBinCompatible(final AxisBin<V, Q> bin){
+		return bin.getAxis().equals(this);
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder builder= new StringBuilder();
+		builder.append("Axis description").append("\n");
+		builder.append("Name:").append("\t\t\t\t\t").append(name.toString()).append("\n");
+		builder.append("Description:").append("\t\t\t\t").append(description.toString()).append("\n");
+		builder.append("Unit:").append("\t\t\t\t\t").append(unit!=null?unit.toString():"null uom").append("\n");
+		builder.append("crs:").append("\t\t\t\t\t").append(crs!=null?crs.toString():"null crs").append("\n");
+		return builder.toString();
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((crs == null) ? 0 : crs.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		Axis that = (Axis) obj;
+		
+		if (crs == null) {
+			if (that.crs != null)
+				return false;
+		} else if (!CRS.equalsIgnoreMetadata(crs,that.crs))
+			return false;
+		
+		if (description == null) {
+			if (that.description != null)
+				return false;
+		} else if (!description.toString().equalsIgnoreCase(that.description.toString()))
+			return false;
+		
+		if (name == null) {
+			if (that.name != null)
+				return false;
+		} else if (!name.toString().equalsIgnoreCase(that.name.toString()))
+			return false;
+		
+		if (unit == null) {
+			if (that.unit != null)
+				return false;
+		} else if (!unit.equals(that.unit))
+			return false;
+		return true;
+	}
 }

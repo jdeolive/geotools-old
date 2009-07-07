@@ -2,7 +2,6 @@ package org.geotools.coverage.io;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URI;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.Set;
 import org.geotools.coverage.io.metadata.MetadataNode;
 import org.geotools.coverage.io.service.RasterService;
 import org.geotools.coverage.io.service.RasterServiceAction;
-import org.geotools.data.ServiceInfo;
 import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.factory.Hints;
 import org.opengis.feature.type.Name;
@@ -85,8 +83,6 @@ public interface RasterDatasetReader {
 	 */
 	public RasterDataset acquire(int index, Map<String, Serializable> params, Hints hints, ProgressListener listener)throws IOException;
 
-	public void setTargetLocation(URI location)throws IOException;
-
 	/**
 	 * This will free any cached info object or header information.
 	 * <p>
@@ -100,16 +96,6 @@ public interface RasterDatasetReader {
 	 * 
 	 */
 	public void close();
-
-	/**
-	 * Description of the RasterStorage we are connected to here.
-	 * <p>
-	 * @todo TODO think about the equivalence with StreamMetadata once we define
-	 *       them
-	 * 
-	 * @return Description of the RasterStorage we are connected to here.
-	 */
-	public ServiceInfo getInfo(final ProgressListener listener);
 
 	/**
 	 * Returns the {@link RasterService} which has been used to connect to this

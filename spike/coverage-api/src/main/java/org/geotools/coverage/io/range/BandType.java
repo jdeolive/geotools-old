@@ -1,14 +1,15 @@
 package org.geotools.coverage.io.range;
 
+
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
 
-import org.geotools.util.Range;
+import org.geotools.feature.NameImpl;
+import org.geotools.util.NumberRange;
+import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.Utilities;
-import org.opengis.annotation.Extension;
 import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.SampleDimensionType;
@@ -35,17 +36,24 @@ import org.opengis.util.InternationalString;
  *   </TD></TR>
  * </TABLE>
  *
- * @version <A HREF="http://www.opengis.org/docs/01-004.pdf">Grid Coverage specification 1.0</A>
- * @author  Martin Desruisseaux (IRD)
- * @since   GeoAPI 1.0
+ * @author Simone Giannecchini, GeoSolutions S.A.S.
  */
-public interface BandType {
-    public static class BandKey<V,QA extends Quantity> {
+@SuppressWarnings("deprecation")
+public class BandType {	
+
+	/**
+	 * 
+	 * @author Simone Giannecchini, GeoSolutions S.A.S.
+	 *
+	 * @param <V>
+	 * @param <QA>
+	 */
+	public static class BandKey<V,QA extends Quantity> {
 		
-		private final List<Measure<V,QA>> bins;
+		private final List<AxisBin<V,QA>> bins;
 	
-		public BandKey(final List<Measure<V, QA>> bins) {
-			this.bins = bins;
+		public BandKey(final List<? extends AxisBin<V, QA>> bins) {
+			this.bins = new ArrayList<AxisBin<V,QA>>(bins);
 		}
 	
 	
@@ -69,8 +77,8 @@ public interface BandType {
 		public String toString() {
 			final StringBuilder builder= new StringBuilder();
 			builder.append("Description of band key:").append("\n");
-			for(Measure<V,QA> bin:bins){
-				builder.append("Description of bin:\t\t").append(bin.toString()).append("\n");
+			for(AxisBin<V,QA> bin:bins){
+				builder.append("Description of bin:\n").append(bin.toString()).append("\n");
 			}
 			return builder.toString();
 		}
@@ -78,90 +86,73 @@ public interface BandType {
 		
 	}
 
-	/**
-     * Sample dimension title or description.
-     * This string may be null or empty if no description is present.
-     *
-     * @return A description for this sample dimension.
-     */
-    InternationalString getDescription();
-    
-    public Name getName() ;
+	public BandType(ColorInterpretation colorInterpretation,
+			double[] defaultNoDatavalues, NumberRange<Double> defaultRange,
+			MathTransform1D defaultSampleTransformation, String name,
+			String description,
+			SampleDimensionType sampleDimensionType) {
+		super();
+		this.defaultColorInterpretation = colorInterpretation;
+		this.defaultNoDatavalues = defaultNoDatavalues;
+		this.defaultRange = defaultRange;
+		this.defaultSampleTransformation = defaultSampleTransformation;
+		this.name = new NameImpl(name);
+		this.description = new SimpleInternationalString(description);
+		this.defaultSampleDimensionType = sampleDimensionType;
+	}
+	public BandType(ColorInterpretation colorInterpretation,
+			double[] defaultNoDatavalues, NumberRange<Double> defaultRange,
+			MathTransform1D defaultSampleTransformation, Name name,
+			InternationalString description,
+			SampleDimensionType sampleDimensionType) {
+		super();
+		this.defaultColorInterpretation = colorInterpretation;
+		this.defaultNoDatavalues = defaultNoDatavalues;
+		this.defaultRange = defaultRange;
+		this.defaultSampleTransformation = defaultSampleTransformation;
+		this.name = name;
+		this.description = description;
+		this.defaultSampleDimensionType = sampleDimensionType;
+	}
+	public ColorInterpretation getDefaultColorInterpretation() {
+		return defaultColorInterpretation;
+	}
 
-    /**
-     * A code value indicating grid value data type.
-     * This will also indicate the number of bits for the data type.
-     *
-     * @return A code value indicating grid value data type.
-     * TODO convert me into enum
-     */
-    SampleDimensionType getSampleDimensionType();
+	public double[] getDefaultNoDatavalues() {
+		return defaultNoDatavalues;
+	}
 
+	public NumberRange<Double> getDefaultRange() {
+		return defaultRange;
+	}
 
-    /**
-     * Color interpretation of the sample dimension.
-     * A sample dimension can be an index into a color palette or be a color model
-     * component. If the sample dimension is not assigned a color interpretation the
-     * value is {@link ColorInterpretation#UNDEFINED UNDEFINED}.
-     *
-     * @return The color interpretation of the sample dimension.
-     *
-     * @deprecated No replacement.
-     * TODO convert me into enum
-     */
-    ColorInterpretation getColorInterpretation();
+	public MathTransform1D getDefaultSampleTransformation() {
+		return defaultSampleTransformation;
+	}
 
-    /**
-     * Values to indicate no data values for the sample dimension.
-     * For low precision sample dimensions, this will often be no data values.
-     *
-     * @return The values to indicate no data values for the sample dimension.
-     *
-     * @see #getMinimumValue
-     * @see #getMaximumValue
-     */
-    double[] getDefaultNoDataValues();
+	public Name getName() {
+		return name;
+	}
 
-    /**
-     * The minimum value occurring in the sample dimension.
-     * If this value is not available, this value can be determined from the
-     * {@link org.opengis.coverage.processing.GridAnalysis#getMinValue} operation.
-     * This value can be empty if this value is not provided by the implementation.
-     *
-     * @return The minimum value occurring in the sample dimension.
-     *
-     * @see #getMaximumValue
-     * @see #getNoDataValues
-     */
-    Range<Double> getDefaultRange();
+	public InternationalString getDescription() {
+		return description;
+	}
 
+	private ColorInterpretation defaultColorInterpretation;
+	
+	private double[] defaultNoDatavalues;
+	
+	private NumberRange<Double> defaultRange;
+	
+	private MathTransform1D defaultSampleTransformation;
+	
+	private Name name;
+	
+	private InternationalString description;
+	
+	private SampleDimensionType defaultSampleDimensionType;
 
-    /**
-     * The unit information for this sample dimension.
-     * This interface typically is provided with grid coverages which represent
-     * digital elevation data.
-     * This value will be {@code null} if no unit information is available.
-     *
-     * @return The unit information for this sample dimension.
-     */
-    Unit<?> getUnit();
-
-    /**
-     * The transform which is applied to grid values for this sample dimension.
-     * This transform is often defined as
-     * <var>y</var> = {@linkplain #getOffset offset} + {@link #getScale scale}&times;<var>x</var> where
-     * <var>x</var> is the grid value and <var>y</var> is the geophysics value.
-     * However, this transform may also defines more complex relationship, for
-     * example a logarithmic one. In order words, this transform is a generalization of
-     * {@link #getScale}, {@link #getOffset} and {@link #getNoDataValues} methods.
-     *
-     * @return The transform from sample to geophysics values, or {@code null} if
-     *         it doesn't apply.
-     *
-     * @see #getScale
-     * @see #getOffset
-     * @see #getNoDataValues
-     */
-    @Extension
-    MathTransform1D getDefaultSampleTransformation();
+	public SampleDimensionType getDefaultSampleDimensionType() {
+		return defaultSampleDimensionType;
+	}
 }
