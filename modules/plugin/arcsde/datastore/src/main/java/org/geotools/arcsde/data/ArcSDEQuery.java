@@ -545,7 +545,8 @@ class ArcSDEQuery {
             boundsQuery = createInprocessViewQuery(session, fullSchema, realQuery, definitionQuery,
                     viewSelectStatement);
         } else {
-            boundsQuery = createQuery(session, fullSchema, realQuery, FIDReader.NULL_READER,
+            final FIDReader fidStrategy = typeInfo.getFidStrategy();
+            boundsQuery = createQuery(session, fullSchema, realQuery, fidStrategy,
                     versioningHandler);
         }
 
