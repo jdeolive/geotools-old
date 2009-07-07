@@ -188,7 +188,7 @@ public class SLDStyleFactory {
     /**
      * Whether to turn all line widths less than 1.5 pixels to 0 to speed up line rendering.
      */
-    private boolean lineOptimizationEnabled = true;
+    private boolean lineOptimizationEnabled = false;
 
     private long hits;
 
