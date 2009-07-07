@@ -25,7 +25,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import javax.media.jai.iterator.RectIter;
@@ -40,8 +39,6 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.opengis.feature.Feature;
-import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -201,19 +198,5 @@ public class VectorToRasterProcessTest {
             iter.startPixels();
             System.out.println();
         } while (!iter.nextLineDone());
-    }
-
-    private static class Visitor implements FeatureVisitor {
-
-        ArrayList<Integer> values = new ArrayList<Integer>();
-        Point2D.Double pos;
-
-        public void visit(Feature f) {
-            SimpleFeature sf = (SimpleFeature)f;
-            if (sf.getBounds().contains(pos.x, pos.y)) {
-                values.add((Integer) sf.getAttribute("value"));
-            }
-        }
-
     }
 }
