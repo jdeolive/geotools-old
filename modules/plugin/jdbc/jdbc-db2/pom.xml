@@ -23,7 +23,7 @@
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
-  <groupId>org.geotools</groupId>
+  <groupId>org.geotools.jdbc</groupId>
   <artifactId>gt-jdbc-db2</artifactId>
   <packaging>jar</packaging>
   <name>DB2 DataStore</name>
