@@ -713,7 +713,7 @@ public class XPath {
         final AttributeType type = descriptor.getType();
         Class<?> binding = type.getBinding();
         if (type instanceof ComplexType && binding == Collection.class) {
-            if (isSimpleContentType(type)) {
+            if (!(value instanceof Collection) && isSimpleContentType(type)) {
                 ArrayList<Property> list = new ArrayList<Property>();
                 list.add(buildSimpleContent(type, value));
                 return list;

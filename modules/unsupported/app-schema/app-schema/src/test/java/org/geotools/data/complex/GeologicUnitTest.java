@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import junit.framework.TestCase;
 
-import org.apache.xml.resolver.Catalog;
-import org.apache.xml.resolver.tools.ResolvingXMLReader;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
@@ -74,6 +72,7 @@ public class GeologicUnitTest extends TestCase {
      */
     protected void tearDown() throws Exception {
         super.tearDown();
+        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -216,12 +215,6 @@ public class GeologicUnitTest extends TestCase {
         resultCount = getCount(cgiFeatures);
 
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
-
-        // Dispose data stores
-        guDataStore.dispose();
-        cpDataStore.dispose();
-        cgiDataAccess.dispose();
-        ccDataAccess.dispose();
     }
 
     /**

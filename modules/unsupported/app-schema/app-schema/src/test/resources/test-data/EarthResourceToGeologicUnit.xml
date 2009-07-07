@@ -55,10 +55,12 @@
 					<targetAttribute>gsml:GeologicUnit</targetAttribute>
 				</AttributeMapping>
 				<AttributeMapping>
+				    <!-- All instances of gml:name should be mapped, how many is not known -->
 					<targetAttribute>gml:name</targetAttribute>
 					<sourceExpression>
-						<OCQL>strConcat('er.', getID())</OCQL>
+					  	<inputAttribute>gml:name</inputAttribute>
 					</sourceExpression>
+					<isMultiple>true</isMultiple>
 				</AttributeMapping>
 				<AttributeMapping>
 					<!--

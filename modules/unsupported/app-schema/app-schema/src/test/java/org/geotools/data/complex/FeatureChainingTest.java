@@ -143,29 +143,9 @@ public class FeatureChainingTest extends TestCase {
     private FeatureCollection<FeatureType, Feature> cpFeatures;
 
     /**
-     * Geological unit data access
+     * Generated controlled concept fake "features"
      */
-    private DataAccess<FeatureType, Feature> guDataAccess;
-
-    /**
-     * Compositional part data access
-     */
-    private DataAccess<FeatureType, Feature> cpDataAccess;
-
-    /**
-     * Mapped feature data access
-     */
-    private DataAccess<FeatureType, Feature> mfDataAccess;
-
-    /**
-     * CGI Term Value data access
-     */
-    private DataAccess<FeatureType, Feature> cgiDataAccess;
-
-    /**
-     * Controlled Concept data access
-     */
-    private DataAccess<?, Feature> ccDataAccess;
+    private FeatureCollection<FeatureType, Feature> ccFeatures;
 
     /**
      * Test that chaining works
@@ -280,7 +260,7 @@ public class FeatureChainingTest extends TestCase {
         guFeatures.close(guIterator);
         cpFeatures.close(cpIterator);
 
-        disposeDataAccesses();
+        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -293,14 +273,6 @@ public class FeatureChainingTest extends TestCase {
     public void testManyOnChainedSide() throws Exception {
 
         this.loadDataAccesses();
-
-        FeatureType ccType = ccDataAccess.getSchema(CONTROLLED_CONCEPT);
-        assertNotNull(ccType);
-
-        FeatureSource<FeatureType, Feature> ccSource = (FeatureSource<FeatureType, Feature>) ccDataAccess
-                .getFeatureSource(CONTROLLED_CONCEPT);
-        FeatureCollection<FeatureType, Feature> ccFeatures = (FeatureCollection<FeatureType, Feature>) ccSource
-                .getFeatures();
 
         final String LITHOLOGY = "lithology";
         final int EXPECTED_RESULT_COUNT = 2;
@@ -345,8 +317,7 @@ public class FeatureChainingTest extends TestCase {
                 assertEquals(lithologies.isEmpty(), true);
             }
         }
-
-        disposeDataAccesses();
+        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -413,8 +384,7 @@ public class FeatureChainingTest extends TestCase {
             assertEquals(realValues.size(), values.length);
             assertEquals(realValues.containsAll(Arrays.asList(values)), true);
         }
-        this.disposeDataAccesses();
-
+        DataAccessRegistry.unregisterAll();
         guFeatures.close(guIterator);
     }
 
@@ -515,7 +485,7 @@ public class FeatureChainingTest extends TestCase {
         filteredResults = guSource.getFeatures(filter);
         assertEquals(getCount(filteredResults), 3);
 
-        this.disposeDataAccesses();
+        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -668,7 +638,7 @@ public class FeatureChainingTest extends TestCase {
 
         // clean ups
         guFeatures.close(guIterator);
-        this.disposeDataAccesses();
+        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -687,7 +657,7 @@ public class FeatureChainingTest extends TestCase {
 
         dsParams.put("dbtype", "app-schema");
         dsParams.put("url", url.toExternalForm());
-        mfDataAccess = DataAccessFinder.getDataStore(dsParams);
+        DataAccess<FeatureType, Feature> mfDataAccess = DataAccessFinder.getDataStore(dsParams);
         assertNotNull(mfDataAccess);
 
         FeatureType mappedFeatureType = mfDataAccess.getSchema(MAPPED_FEATURE);
@@ -703,7 +673,7 @@ public class FeatureChainingTest extends TestCase {
         assertNotNull(url);
 
         dsParams.put("url", url.toExternalForm());
-        guDataAccess = DataAccessFinder.getDataStore(dsParams);
+        DataAccess<FeatureType, Feature> guDataAccess = DataAccessFinder.getDataStore(dsParams);
         assertNotNull(guDataAccess);
 
         FeatureType guType = guDataAccess.getSchema(GEOLOGIC_UNIT);
@@ -718,19 +688,12 @@ public class FeatureChainingTest extends TestCase {
          * unit data access is created
          */
         // Composition Part
-        cpDataAccess = DataAccessRegistry.getDataAccess(COMPOSITION_PART);
-        FeatureSource<FeatureType, Feature> cpSource = cpDataAccess
-                .getFeatureSource(COMPOSITION_PART);
-        cpFeatures = (FeatureCollection<FeatureType, Feature>) cpSource.getFeatures();
+        cpFeatures = DataAccessRegistry.getFeatureSource(COMPOSITION_PART).getFeatures();
         // CGI TermValue
-        cgiDataAccess = DataAccessRegistry.getDataAccess(CGI_TERM_VALUE);
-        FeatureSource<FeatureType, Feature> cgiSource = cgiDataAccess
-                .getFeatureSource(CGI_TERM_VALUE);
-        FeatureCollection<FeatureType, Feature> cgiFeatures = (FeatureCollection<FeatureType, Feature>) cgiSource
-                .getFeatures();
+        FeatureCollection<FeatureType, Feature> cgiFeatures = DataAccessRegistry.getFeatureSource(
+                CGI_TERM_VALUE).getFeatures();
         // ControlledConcept
-        ccDataAccess = DataAccessRegistry.getDataAccess(CONTROLLED_CONCEPT);
-        assertNotNull(ccDataAccess);
+        ccFeatures = DataAccessRegistry.getFeatureSource(CONTROLLED_CONCEPT).getFeatures();
 
         int EXPECTED_RESULT_COUNT = 4;
 
@@ -747,22 +710,6 @@ public class FeatureChainingTest extends TestCase {
         EXPECTED_RESULT_COUNT = 8;
         resultCount = getCount(cgiFeatures);
         assertEquals(EXPECTED_RESULT_COUNT, resultCount);
-    }
-
-    /**
-     * Dispose all data accesses
-     */
-    private void disposeDataAccesses() {
-        if (mfDataAccess == null || guDataAccess == null || cpDataAccess == null
-                || cgiDataAccess == null || ccDataAccess == null) {
-            throw new UnsupportedOperationException(
-                    "This is to be called after data accesses are created!");
-        }
-        mfDataAccess.dispose();
-        guDataAccess.dispose();
-        cgiDataAccess.dispose();
-        cpDataAccess.dispose();
-        ccDataAccess.dispose();
     }
 
     protected static int getCount(FeatureCollection<FeatureType, Feature> features) {

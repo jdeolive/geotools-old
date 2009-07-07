@@ -100,7 +100,7 @@ public class DataAccessIntegrationTest extends TestCase {
     static final Name COMPOSITION_PART_TYPE = Types.typeName(GSMLNS, "CompositionPartType");
 
     static final Name COMPOSITION_PART = Types.typeName(GSMLNS, "CompositionPart");
-    
+
     static final Name CONTROLLED_CONCEPT = Types.typeName(GSMLNS, "ControlledConcept");
 
     static final String schemaBase = "/test-data/";
@@ -114,16 +114,6 @@ public class DataAccessIntegrationTest extends TestCase {
      * Mapped Feature data access in GSML form
      */
     protected DataAccess<FeatureType, Feature> mfDataAccess;
-
-    /**
-     * Composition Part data access in GSML form
-     */
-    protected DataAccess<FeatureType, Feature> cpDataAccess;
-
-    /**
-     * CGI Value data access in GSML Form
-     */
-    protected DataAccess<FeatureType, Feature> cgiDataAccess;
 
     /**
      * GSML:geologicUnit feature source coming from the mapped data access
@@ -149,11 +139,6 @@ public class DataAccessIntegrationTest extends TestCase {
      * Filter factory instance
      */
     static FilterFactory ff;
-
-    /**
-     * The input data access in MO form
-     */
-    protected DataAccess<FeatureType, Feature> inputDataAccess;
 
     /**
      * Create the input data access containing complex features of MO form.
@@ -351,7 +336,7 @@ public class DataAccessIntegrationTest extends TestCase {
     public void loadGeologicUnitDataAccess() throws IOException {
         Map<String, Serializable> moParams = new HashMap<String, Serializable>();
         moParams.put("dbtype", "input-data-access");
-        inputDataAccess = DataAccessFinder.getDataStore(moParams);
+        DataAccess<FeatureType, Feature> inputDataAccess = DataAccessFinder.getDataStore(moParams);
         guFeatureSource = inputDataAccess.getFeatureSource(GEOLOGIC_UNIT);
     }
 
@@ -400,7 +385,7 @@ public class DataAccessIntegrationTest extends TestCase {
 
         dsParams.put("dbtype", "app-schema");
         dsParams.put("url", url.toExternalForm());
-        cpDataAccess = DataAccessFinder.getDataStore(dsParams);
+        DataAccess<FeatureType, Feature> cpDataAccess = DataAccessFinder.getDataStore(dsParams);
         assertNotNull(cpDataAccess);
         FeatureSource<FeatureType, Feature> cpSource = cpDataAccess
                 .getFeatureSource(COMPOSITION_PART);
@@ -414,13 +399,14 @@ public class DataAccessIntegrationTest extends TestCase {
         assertNotNull(url);
 
         dsParams.put("url", url.toExternalForm());
-        cgiDataAccess = DataAccessFinder.getDataStore(dsParams);
+        DataAccess<FeatureType, Feature> cgiDataAccess = DataAccessFinder.getDataStore(dsParams);
         assertNotNull(cgiDataAccess);
 
         /**
          * Load Controlled Concept data access
          */
-        DataAccess<FeatureType, Feature> ccDataAccess = DataAccessRegistry.getDataAccess(CONTROLLED_CONCEPT);
+        DataAccess<FeatureType, Feature> ccDataAccess = DataAccessRegistry
+                .getDataAccess(CONTROLLED_CONCEPT);
         assertNotNull(ccDataAccess);
 
         cpFeatures = new ArrayList<Feature>();
@@ -436,10 +422,7 @@ public class DataAccessIntegrationTest extends TestCase {
      * Dispose all the data accesses so that there is no mapping conflicts for other tests
      */
     protected void tearDown() {
-        inputDataAccess.dispose();
-        mfDataAccess.dispose();
-        cpDataAccess.dispose();
-        cgiDataAccess.dispose();
+        DataAccessRegistry.unregisterAll();
     }
 
     /**

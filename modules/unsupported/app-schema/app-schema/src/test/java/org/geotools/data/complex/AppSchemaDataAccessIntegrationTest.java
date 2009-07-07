@@ -97,7 +97,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         moParams.put("dbtype", "mo-data-access");
         moParams.put("directory", getClass().getResource(schemaBase));
         // get original non-app-schema data access
-        inputDataAccess = DataAccessFinder.getDataStore(moParams);
+        DataAccessFinder.getDataStore(moParams);
         super.setFilterFactory();
         // load app-schema data access instances
         loadDataAccesses("MappedFeatureAsOccurrence.xml");
@@ -109,7 +109,6 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
     @Override
     protected void tearDown() {
         super.tearDown();
-        newGuDataAccess.dispose();
     }
 
     @Override
@@ -164,6 +163,10 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         AttributeDescriptor stringDescriptor = new AttributeDescriptorImpl(simpleContentType, name,
                 1, 1, true, (Object) null);
         Iterator<SimpleFeature> simpleFeatures = fCollection.iterator();
+        // gml:name descriptor
+        AttributeDescriptor nameDescriptor = (AttributeDescriptor) GMLSchema.ABSTRACTGMLTYPE_TYPE
+                .getDescriptor(Types.typeName(GMLNS, "name"));
+
         while (simpleFeatures.hasNext()) {
             SimpleFeature next = simpleFeatures.next();
             Collection<Property> properties = new ArrayList<Property>();
@@ -173,6 +176,18 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             properties.add(new AttributeImpl(next.getProperty(propertyName).getValue(),
                     (AttributeDescriptor) earthResourceType.getDescriptor(Types.typeName(MO_URI,
                             "form")), null));
+
+            // gml:name[1]
+            ArrayList value = new ArrayList<Property>();
+            value.add(new AttributeImpl("gu." + next.getID(), stringDescriptor, null));
+            ComplexAttributeImpl name1 = new ComplexAttributeImpl(value, nameDescriptor, null);
+            properties.add(name1);
+
+            // gml:name[2]
+            value = new ArrayList<Property>();
+            value.add(new AttributeImpl("er." + next.getID(), stringDescriptor, null));
+            ComplexAttributeImpl name2 = new ComplexAttributeImpl(value, nameDescriptor, null);
+            properties.add(name2);
 
             // mo:classification
             propertyName = "CLASSIFICATION";
@@ -185,7 +200,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             AttributeImpl mineralDepositGroup = new AttributeImpl(next.getProperty(propertyName)
                     .getValue(), (AttributeDescriptor) mineralDepositType
                     .getDescriptor(leafAttribute), null);
-            ArrayList<Property> value = new ArrayList<Property>();
+            value = new ArrayList<Property>();
             value.add(mineralDepositGroup);
 
             // mo:classification/mo:MineralDepositModel
@@ -281,7 +296,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         final String composition = "composition";
         final String occurrence = "occurence";
         final String commodity = "commodityDescription";
-        List<AttributeMapping> nonFeatureMappings = new ArrayList<AttributeMapping>();
+        List<AttributeMapping> otherMappings = new ArrayList<AttributeMapping>();
         AttributeMapping compositionMapping = null;
         AttributeMapping occurrenceMapping = null;
         for (AttributeMapping attMapping : guSchema.getAttributeMappings()) {
@@ -292,13 +307,13 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
                 occurrenceMapping = attMapping;
             } else {
                 // normal inline attribute mappings (not chained)
-                nonFeatureMappings.add(attMapping);
+                otherMappings.add(attMapping);
             }
         }
         // make sure all the mappings are there
         assertNotNull(occurrenceMapping);
         assertNotNull(compositionMapping);
-        assertEquals(nonFeatureMappings.size(), guSchema.getAttributeMappings().size() - 2);
+        assertEquals(otherMappings.size(), guSchema.getAttributeMappings().size() - 2);
 
         int guCount = 0;
         ArrayList<Feature> guFeatures = new ArrayList<Feature>();
@@ -370,10 +385,22 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             // check the feature has the correct id
             assertEquals(mfIds.containsAll(nestedMfIds), true);
 
+            // check multi-valued properties are all mapped
+            // there should be 2 gml:name attributes, although only mapped once
+            // <AttributeMapping>
+            // <!-- All instances of gml:name should be mapped, how many is not known -->
+            // <targetAttribute>gml:name</targetAttribute>
+            // <sourceExpression>
+            // <inputAttribute>gml:name</inputAttribute>
+            // </sourceExpression>
+            // <isMultiple>true</isMultiple>
+            // </AttributeMapping>
+            assertEquals(next.getProperties("name").size(), 2);
+
             /**
              * Check normal in-line attribute mappings
              */
-            for (AttributeMapping attMapping : nonFeatureMappings) {
+            for (AttributeMapping attMapping : otherMappings) {
                 Expression sourceExpr = attMapping.getSourceExpression();
                 // make sure the mapping has the right values
                 if (!(sourceExpr instanceof AttributeExpressionImpl)) {
@@ -416,7 +443,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         FeatureSource<FeatureType, Feature> mfSource = mfDataAccess
                 .getFeatureSource(MAPPED_FEATURE);
         FeatureCollection<FeatureType, Feature> mfCollection = mfSource.getFeatures();
-        
+
         Iterator<Feature> mfIterator = mfCollection.iterator();
         while (mfIterator.hasNext()) {
             Feature mf = mfIterator.next();
@@ -496,7 +523,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
     }
 
     /**
-     * Non app-schema data access factory producing min-occ XML output. 
+     * Non app-schema data access factory producing min-occ XML output.
      */
     public static class MinOccDataAccessFactory extends InputDataAccessFactory {
         public DataAccess<? extends FeatureType, ? extends Feature> createDataStore(

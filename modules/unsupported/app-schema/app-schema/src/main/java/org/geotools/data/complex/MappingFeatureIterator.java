@@ -253,9 +253,10 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         return value;
     }
 
-    protected Object getValues(Expression expression, ComplexAttribute sourceFeature,
-            boolean isNestedFeature) {
-        if (sourceFeature instanceof FeatureImpl && isNestedFeature) {
+    protected Object getValues(boolean isMultiValued, Expression expression,
+            ComplexAttribute sourceFeature) {
+        if (isMultiValued && sourceFeature instanceof FeatureImpl
+                && expression instanceof AttributeExpressionImpl) {
             // RA: Feature Chaining
             // complex features can have multiple nodes of the same attribute.. and if they are used
             // as input to an app-schema data access to be nested inside another feature type of a
@@ -273,7 +274,6 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
             // </AttributeMapping>
             // As there can be multiple nodes of mo:composition in this case, we need to retrieve
             // all of them
-            assert expression instanceof AttributeExpressionImpl;
             AttributeExpressionImpl attribExpression = ((AttributeExpressionImpl) expression);
             String xpath = attribExpression.getPropertyName();
             StepList xpathSteps = XPath.steps(sourceFeature.getDescriptor(), xpath, namespaces);
@@ -313,7 +313,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         Map<Name, Expression> clientPropsMappings = attMapping.getClientProperties();
 
         boolean isNestedFeature = attMapping.isNestedAttribute();
-        Object value = getValues(sourceExpression, source, isNestedFeature);
+        Object value = getValues(attMapping.isMultiValued(), sourceExpression, source);
         boolean isHRefLink = isByReference(clientPropsMappings, isNestedFeature);
         if (isNestedFeature) {
             // get built feature based on link value
@@ -358,11 +358,13 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         }
         if (isNestedFeature) {
             assert (value instanceof Collection);
+        }
+        if (value instanceof Collection) {
             // nested feature type could have multiple instances as the whole purpose
             // of feature chaining is to cater for multi-valued properties
             for (Object singleVal : (Collection) value) {
-                ArrayList<Feature> valueList = new ArrayList<Feature>();
-                valueList.add((Feature) singleVal);
+                ArrayList<Property> valueList = new ArrayList<Property>();
+                valueList.add((Property) singleVal);
                 Attribute instance = xpathAttributeBuilder.set(target, xpath, valueList, id,
                         targetNodeType, false);
                 setClientProperties(instance, source, clientPropsMappings);
