@@ -1,5 +1,18 @@
-/**
- * 
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2002-2009, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
  */
 package org.geotools.arcsde;
 
@@ -23,8 +36,8 @@ import javax.naming.NamingException;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
 import org.geotools.arcsde.data.TestData;
-import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.data.DataAccessFactory;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataStoreFactorySpi;
@@ -37,8 +50,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author groldan
- * 
+ * @author Gabriel Roldan (OpenGeo)
+ * @version $Id$
+ * @since 2.5.7
  */
 public class ArcSDEJNDIDataStoreFactoryTest {
 
@@ -94,15 +108,16 @@ public class ArcSDEJNDIDataStoreFactoryTest {
      * @throws IOException
      */
     @Test
-    public void testCreateDataStore() throws IOException {
-        String jndiRef = "java:comp/env/MyArcSdeResource";
+    public void testCreateDataStore_MapParams() throws IOException {
+        String jndiRef = "MyArcSdeResource";
         Map<String, Serializable> params = new HashMap<String, Serializable>();
         params.put(ArcSDEJNDIDataStoreFactory.JNDI_REFNAME.key, jndiRef);
 
-        ArcSDEConnectionConfig config = testData.getConnectionPool().getConfig();
+        Map<String, String> config = testData.getConProps();
         try {
             InitialContext initialContext = GeoTools.getInitialContext(GeoTools.getDefaultHints());
-            initialContext.createSubcontext("java:comp/env").bind(jndiRef, config);
+            initialContext.bind(jndiRef, config);
+            assertNotNull(initialContext.lookup(jndiRef));
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -112,10 +127,32 @@ public class ArcSDEJNDIDataStoreFactoryTest {
         ISession session = dataStore.getSession(Transaction.AUTO_COMMIT);
         assertNotNull(session);
         try {
-            assertEquals(config.getUserName().toUpperCase(), session.getUser().toUpperCase());
+            assertEquals(config.get("user").toUpperCase(), session.getUser().toUpperCase());
         } finally {
             session.dispose();
         }
+    }
+
+    @Test
+    public void testCreateDataStore_SessionPool() throws IOException {
+        String jndiRef = "MyArcSdeResource_SessionPool";
+        Map<String, Serializable> params = new HashMap<String, Serializable>();
+        params.put(ArcSDEJNDIDataStoreFactory.JNDI_REFNAME.key, jndiRef);
+
+        ISessionPool pool = testData.getConnectionPool();
+        try {
+            InitialContext initialContext = GeoTools.getInitialContext(GeoTools.getDefaultHints());
+            initialContext.bind(jndiRef, pool);
+            assertNotNull(initialContext.lookup(jndiRef));
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+
+        ArcSDEDataStore dataStore = (ArcSDEDataStore) factory.createDataStore(params);
+        assertNotNull(dataStore);
+        ISession session = dataStore.getSession(Transaction.AUTO_COMMIT);
+        assertNotNull(session);
+        session.dispose();
     }
 
     /**

@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.geotools.arcsde.data.ArcSDEDataStore;
@@ -36,23 +35,23 @@ import org.geotools.arcsde.data.ArcSDEDataStoreConfig;
 import org.geotools.arcsde.jndi.ArcSDEConnectionFactory;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ISessionPool;
-import org.geotools.arcsde.session.SessionPoolFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
+import org.geotools.factory.GeoTools;
 import org.geotools.util.logging.Logging;
 
 /**
- * A GeoTools {@link DataStore} factory to access an ArcSDE database by grabbing either the
- * connection parameters or the connection pool from a JNDI reference.
+ * A GeoTools {@link DataStore} factory to access an ArcSDE database by grabbing the connection pool
+ * from a JNDI reference.
  * <p>
  * This DataStore factory expects the arcsde connection information to be given as a JNDI resource
  * path through the {@link #JNDI_REFNAME jndiRefName} parameter at {@link #createDataStore(Map)}.
  * The resource provided by the JNDI context at that location may be either:
  * <ul>
  * <li>a {@code java.util.Map<String, String>} with the connection parameters from
- * {@link ArcSDEConnectionConfig}</li>
- * <li>an {@link ArcSDEConnectionConfig} instance itself</li>
+ * {@link ArcSDEConnectionConfig}. If so, the {@link ISessionPool session pool} will be taken from
+ * {@link ArcSDEConnectionFactory#getInstance(Map)}</li>
  * <li>a {@link ISessionPool} instance</li>
  * </ul>
  * </p>
@@ -80,7 +79,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
     public static final Param JNDI_REFNAME = new Param("jndiReferenceName", String.class,
             "JNDI context path", true, "java:comp/env/geotools/arcsde");
 
-    private static final String J2EERootContext = "java:comp/env/";
+    private static final String J2EE_ROOT_CONTEXT = "java:comp/env/";
 
     public ArcSDEJNDIDataStoreFactory() {
         this.delegateFactory = new ArcSDEDataStoreFactory();
@@ -128,13 +127,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
 
         final ISessionPool sessionPool;
 
-        if (lookup instanceof ArcSDEConnectionConfig) {
-
-            LOGGER.info("Creating JNDI ArcSDE DataStore with own session pool for " + lookup);
-            final ArcSDEConnectionConfig connectionConfig = (ArcSDEConnectionConfig) lookup;
-            sessionPool = SessionPoolFactory.getInstance().createPool(connectionConfig);
-
-        } else if (lookup instanceof ISessionPool) {
+        if (lookup instanceof ISessionPool) {
 
             LOGGER.info("Creating JNDI ArcSDE DataStore with shared session pool for " + lookup);
             sessionPool = (ISessionPool) lookup;
@@ -182,8 +175,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
         final Context ctx;
 
         try {
-            Context initialContext = new InitialContext();
-            ctx = (Context) initialContext.lookup("java:comp/env");
+            ctx = GeoTools.getInitialContext(GeoTools.getDefaultHints());
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -195,10 +187,10 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
             // check if the user did not specify "java:comp/env"
             // and this code is running in a J2EE environment
             try {
-                if (jndiName.startsWith(J2EERootContext) == false) {
-                    lookup = ctx.lookup(J2EERootContext + jndiName);
+                if (jndiName.startsWith(J2EE_ROOT_CONTEXT) == false) {
+                    lookup = ctx.lookup(J2EE_ROOT_CONTEXT + jndiName);
                     // success --> issue a waring
-                    LOGGER.warning("Using " + J2EERootContext + jndiName + " instead of "
+                    LOGGER.warning("Using " + J2EE_ROOT_CONTEXT + jndiName + " instead of "
                             + jndiName + " would avoid an unnecessary JNDI lookup");
                 }
             } catch (NamingException e2) {
@@ -285,7 +277,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
      */
     public boolean isAvailable() {
         try {
-            new InitialContext();
+            GeoTools.getInitialContext(GeoTools.getDefaultHints());
         } catch (NamingException e) {
             return false;
         }
