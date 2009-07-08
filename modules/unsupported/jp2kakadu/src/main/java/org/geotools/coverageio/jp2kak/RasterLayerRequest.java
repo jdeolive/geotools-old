@@ -91,7 +91,11 @@ class RasterLayerRequest {
     /** Requesting a multithreading read */
     private boolean useMultithreading;
 
-    /**
+    public boolean isUseMultithreading() {
+		return useMultithreading;
+	}
+
+	/**
      * Set to {@code true} if this request will produce an empty result, and the
      * coverageResponse will produce a {@code null} coverage.
      */
@@ -130,11 +134,11 @@ class RasterLayerRequest {
 
 	private Dimension tileDimensions;
 
-	private boolean multithreadingAllowed;
+//	private boolean multithreadingAllowed;
 
-	public boolean isMultithreadingAllowed() {
-		return multithreadingAllowed;
-	}
+//	public boolean isMultithreadingAllowed() {
+//		return multithreadingAllowed;
+//	}
 
 	/**
      * Build a new {@code CoverageRequest} given a set of input parameters.
@@ -230,7 +234,18 @@ class RasterLayerRequest {
 	            readType = ((Boolean)value)? ReadType.JAI_IMAGEREAD: ReadType.DIRECT_READ;
 	            continue;
 	        }
-	
+	        
+	        // //
+	        //
+	        // Use Multithreading parameter
+	        //
+	        // //
+	        if (name.equals(JP2KFormat.USE_MULTITHREADING.getName())) {
+	        	if(value==null)
+	        		continue;
+	            useMultithreading = ((Boolean) value).booleanValue();
+	            continue;
+	        }
 	
 	        // //
 	        //
@@ -286,14 +301,14 @@ class RasterLayerRequest {
 //				maximumNumberOfGranules=(Integer)value;
 //				continue;
 //			}	 
-			
-			
-			if (name.equals(JP2KFormat.ALLOW_MULTITHREADING.getName())) {
-	        	if(value==null)
-	        		continue;
-				multithreadingAllowed = ((Boolean) value).booleanValue();
-				continue;
-			}	 		
+//			
+//			
+//			if (name.equals(JP2KFormat.ALLOW_MULTITHREADING.getName())) {
+//	        	if(value==null)
+//	        		continue;
+//				multithreadingAllowed = ((Boolean) value).booleanValue();
+//				continue;
+//			}	 		
 	       
 	        // //
 	        //
@@ -454,15 +469,15 @@ class RasterLayerRequest {
 //			maximumNumberOfGranules=param.intValue();
 //			return;
 //		}	 
-		
-		
-		if (name.equals(JP2KFormat.ALLOW_MULTITHREADING.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
-			multithreadingAllowed = ((Boolean) param.getValue()).booleanValue();
-			return;
-		}	 		
+//		
+//		
+//		if (name.equals(JP2KFormat.ALLOW_MULTITHREADING.getName())) {
+//        	final Object value = param.getValue();
+//        	if(value==null)
+//        		return;
+//			multithreadingAllowed = ((Boolean) param.getValue()).booleanValue();
+//			return;
+//		}	 		
        
         // //
         //
@@ -601,7 +616,7 @@ class RasterLayerRequest {
         if (readType != ReadType.UNSPECIFIED){
         	if (readType == ReadType.JAI_IMAGEREAD && useMultithreading){
         		readType = ReadType.JAI_IMAGEREAD_MT;
-        		multithreadingAllowed = false;
+//        		multithreadingAllowed = false;
         	}
         	return ;
         }

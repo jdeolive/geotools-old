@@ -31,8 +31,7 @@ import org.geotools.resources.i18n.Errors;
  *
  */
 enum ReadType {
-
-
+	
     DIRECT_READ{
     	RenderedImage read(
     			final ImageReadParam readP,

@@ -92,7 +92,7 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
      * representing the suggested tileHeight.
      */
     public static final DefaultParameterDescriptor<String> SUGGESTED_TILE_SIZE = new DefaultParameterDescriptor<String>(
-            SUGGESTED_TILESIZE, String.class, null, "");
+            SUGGESTED_TILESIZE, String.class, null, "512,512");
 
     public static final String TILE_SIZE_SEPARATOR = ",";
 
@@ -100,13 +100,9 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
     public static final ParameterDescriptor<Color> INPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
             "InputTransparentColor", Color.class, null, null);
 
-    /** Control the transparency of the output coverage. */
-//    public static final ParameterDescriptor<Color> OUTPUT_TRANSPARENT_COLOR = new DefaultParameterDescriptor<Color>(
-//            "OutputTransparentColor", Color.class, null, null);
-
-    /** Control the threading behavior for this plugin. This parameter contains the number of thread that we should use to load the granules. Default value is 0 which means not additional thread, max value is 8.*/
-    public static final ParameterDescriptor<Boolean> ALLOW_MULTITHREADING = new DefaultParameterDescriptor<Boolean>(
-            "AllowMultithreading", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.FALSE);
+//    /** Control the threading behavior for this plugin. This parameter contains the number of thread that we should use to load the granules. Default value is 0 which means not additional thread, max value is 8.*/
+//    public static final ParameterDescriptor<Boolean> ALLOW_MULTITHREADING = new DefaultParameterDescriptor<Boolean>(
+//            "AllowMultithreading", Boolean.class, new Boolean[]{Boolean.TRUE,Boolean.FALSE}, Boolean.FALSE);
     
     /** Control the background values for the output coverage */
     public static final ParameterDescriptor<double[]> BACKGROUND_VALUES = new DefaultParameterDescriptor<double[]>(
@@ -147,7 +143,8 @@ public final class JP2KFormat extends AbstractGridFormat implements Format {
                 USE_MULTITHREADING,
                 BACKGROUND_VALUES,
                 SUGGESTED_TILE_SIZE,
-                ALLOW_MULTITHREADING}));
+//                ALLOW_MULTITHREADING
+                }));
     }
 
     /**

@@ -21,6 +21,8 @@ import java.util.Iterator;
 
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
 import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.junit.Assert;
+import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 
@@ -32,17 +34,13 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
  * @author Simone Giannecchini (simboss), GeoSolutions
  *
  */
-public class ServiceTest extends AbstractJP2KTestCase {
-    public ServiceTest(java.lang.String testName) {
-        super(testName);
+public class ServiceTest extends Assert {
+    public ServiceTest() {
     }
 
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(ServiceTest.class);
-    }
-
+    @Test
     public void testIsAvailable() throws NoSuchAuthorityCodeException, FactoryException {
-        if (!testingEnabled()) {
+        if (!JP2KTest.testingEnabled()) {
             return;
         }
 

@@ -16,6 +16,8 @@
  */
 package org.geotools.coverageio.jp2kak;
 
+import it.geosolutions.imageio.imageioimpl.imagereadmt.ImageReadDescriptorMT;
+import it.geosolutions.imageio.utilities.ImageIOUtilities;
 import it.geosolutions.util.KakaduUtilities;
 
 import java.awt.RenderingHints;
@@ -23,6 +25,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.imageio.spi.ImageReaderSpi;
+import javax.media.jai.JAI;
+import javax.media.jai.ParameterBlockJAI;
 
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
 import org.opengis.coverage.grid.Format;
@@ -41,6 +47,34 @@ public final class JP2KFormatFactory implements GridFormatFactorySpi {
     /** Logger. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
             "org.geotools.coverageio.jp2kak");
+    
+    static{
+    	try{
+    		new ParameterBlockJAI("ImageReadMT");
+    	} catch (final Exception e){
+    		try{
+    			ImageReadDescriptorMT.register(JAI.getDefaultInstance());
+    		} catch (final Exception e1){
+    			//TODO: Log a message
+    		}
+    	}
+    	
+    	try{
+			//check if our jp2k plugin is in the path
+			final String kakaduJp2Name=it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReaderSpi.class.getName();
+			Class.forName(kakaduJp2Name);
+
+			// imageio jp2k reader
+			final String standardJp2Name=com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi.class.getName();
+			final String jp2CodecLibName=com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderCodecLibSpi.class.getName();
+			
+			ImageIOUtilities.replaceProvider(ImageReaderSpi.class, kakaduJp2Name, standardJp2Name, "JPEG2000");
+			ImageIOUtilities.replaceProvider(ImageReaderSpi.class, kakaduJp2Name, jp2CodecLibName, "JPEG2000");
+	        
+		} catch (ClassNotFoundException e) {
+			LOGGER.log(Level.SEVERE,"Unable to load specific JP2K reader spi",e);
+		} 
+    }
 
     /**
      * Tells me if the coverage plugin to access JP2K is available or not.
@@ -81,7 +115,7 @@ public final class JP2KFormatFactory implements GridFormatFactorySpi {
      *
      * @return A {@link JP2KFormat}.;
      */
-    public Format createFormat() {
+    public JP2KFormat createFormat() {
         return new JP2KFormat();
     }
 

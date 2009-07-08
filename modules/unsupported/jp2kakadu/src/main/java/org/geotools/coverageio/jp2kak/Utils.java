@@ -3,6 +3,8 @@
  */
 package org.geotools.coverageio.jp2kak;
 
+import it.geosolutions.imageio.imageioimpl.imagereadmt.CloneableImageReadParam;
+import it.geosolutions.imageio.imageioimpl.imagereadmt.DefaultCloneableImageReadParam;
 import it.geosolutions.imageio.stream.input.FileImageInputStreamExt;
 
 import java.awt.Color;
@@ -40,13 +42,20 @@ import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.referencing.datum.PixelInCell;
 
 /**
- * Sparse utilities for the various mosaic classes. I use them to extract
+ * Sparse utilities for the various classes. I use them to extract
  * complex code from other places.
  * 
  * @author Simone Giannecchini, GeoSolutions S.A.S.
  * 
  */
 class Utils {
+	
+	/**
+	 * Logger.
+	 */
+	final static Logger LOGGER = org.geotools.util.logging.Logging
+			.getLogger(Utils.class.toString());
+	
 	/**
 	 * {@link AffineTransform} that can be used to go from an image datum placed
 	 * at the center of pixels to one that is placed at ULC.
@@ -66,11 +75,6 @@ class Utils {
 					-PixelTranslation
 							.getPixelTranslation(PixelInCell.CELL_CORNER));
 
-	/**
-	 * Logger.
-	 */
-	final static Logger LOGGER = org.geotools.util.logging.Logging
-			.getLogger(Utils.class.toString());
 	/**
 	 * Defaut wildcard for creating mosaics.
 	 */
@@ -207,7 +211,7 @@ class Utils {
 		// in which there is not a special ImageReadparam used.
 
 		// Create a new ImageReadParam instance.
-		ImageReadParam newParam = new ImageReadParam();
+		CloneableImageReadParam newParam = new DefaultCloneableImageReadParam();
 
 		// Set all fields which need to be set.
 

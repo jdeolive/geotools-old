@@ -410,7 +410,7 @@ class RasterManager {
 
 	public RasterManager(final JP2KReader reader) throws DataSourceException {
 		
-		Utils.ensureNonNull("ImageMosaicReader", reader);
+		Utils.ensureNonNull("JP2KReader", reader);
 		this.parent=reader;
 		this.expandMe=parent.expandMe;
         inputURL = reader.sourceURL;

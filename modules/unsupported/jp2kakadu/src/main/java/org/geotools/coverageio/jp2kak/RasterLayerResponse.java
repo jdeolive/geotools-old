@@ -21,13 +21,15 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
+import java.awt.image.MultiPixelPackedSampleModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -99,6 +101,7 @@ class RasterLayerResponse{
 				final Granule granule,
 				final Dimension tilesDimension) {
 			super();
+			
 			this.readParameters = Utils.cloneImageReadParam(readParameters);
 			this.imageIndex = imageIndex;
 			this.cropBBox = cropBBox;
@@ -190,10 +193,10 @@ class RasterLayerResponse{
 			//
 			//create a granule loader
 			final GranuleLoader loader = new GranuleLoader(baseReadParameters, imageChoice, bbox, finalWorldToGridCorner,granule,request.getTileDimensions());
-			if(!multithreadingAllowed)
+//			if(!multithreadingAllowed)
 				tasks.add(new FutureTask<RenderedImage>(loader));
-			else
-				tasks.add(JP2KReader.multiThreadedLoader.submit(loader));
+//			else
+//				tasks.add(JP2KReader.multiThreadedLoader.submit(loader));
 			
 			granulesNumber++;
 		}
@@ -211,12 +214,12 @@ class RasterLayerResponse{
 			for (Future<RenderedImage> future :tasks) {
 				final RenderedImage loadedImage;
 				try {
-					if(!multithreadingAllowed)
-					{
+//					if(!multithreadingAllowed)
+//					{
 						//run the loading in this thread
-						final FutureTask<RenderedImage> task=(FutureTask<RenderedImage>) future;
-						task.run();
-					}
+					final FutureTask<RenderedImage> task=(FutureTask<RenderedImage>) future;
+					task.run();
+//					}
 					loadedImage=future.get();
 					if(loadedImage==null)
 					{
@@ -341,7 +344,9 @@ class RasterLayerResponse{
 
 	private ImageReadParam baseReadParameters= new ImageReadParam();
 
-	private boolean multithreadingAllowed=false;
+	private boolean useMultithreading = false;
+	
+//	private boolean multithreadingAllowed=false;
 	
 	private boolean alphaIn=false;
 
@@ -365,20 +370,24 @@ class RasterLayerResponse{
 			final RasterManager rasterManager) {
 		this.request = request;
 		inputURL = rasterManager.getInputURL();
-		File tempFile;
+		File tempFile = null;
 		try {
-			tempFile = new File(this.inputURL.toURI());
-		} catch (URISyntaxException e) {
+			if (inputURL.getProtocol().equalsIgnoreCase("file"))
+                    tempFile = new File(URLDecoder.decode(inputURL.getFile(),
+                            "UTF-8"));
+			else
+				throw new IllegalArgumentException("unsupported input:" + inputURL.toString());
+		}
+		catch (UnsupportedEncodingException e) {
 			throw new IllegalArgumentException(e);
-		}// TODO improve me
+		}
+		
 		location = tempFile.getAbsolutePath();
 		coverageEnvelope = rasterManager.getCoverageEnvelope();
 		this.coverageFactory = rasterManager.getCoverageFactory();
 		this.rasterManager = rasterManager;
 		transparentColor=request.getInputTransparentColor();
-//		finalTransparentColor=request.getOutputTransparentColor();
-		// are we doing multithreading?
-		multithreadingAllowed= request.isMultithreadingAllowed();
+		useMultithreading = request.isUseMultithreading();
 
 	}
 
@@ -431,10 +440,10 @@ class RasterLayerResponse{
 		// assemble granules
 		final RenderedImage image = assembleGranules();
 		
-//		RenderedImage finalRaster = postProcessRaster(image);
+		RenderedImage finalRaster = postProcessRaster(image);
 		
 		//create the coverage
-		gridCoverage=prepareCoverage(image);
+		gridCoverage=prepareCoverage(finalRaster);
 		
 		//freeze
 		frozen = true;
@@ -690,5 +699,19 @@ class RasterLayerResponse{
 		// DECIMATION ON READING
 		rasterManager.decimationController.performDecimation(imageChoice,readParams, request);
 		return imageChoice;
+	}
+
+	private RenderedImage postProcessRaster(RenderedImage mosaic) {
+		// alpha on the final mosaic
+		if (transparentColor != null) {
+			if (LOGGER.isLoggable(Level.FINE))
+				LOGGER.fine("Support for alpha on final mosaic");
+			final ImageWorker w = new ImageWorker(mosaic);
+			if (mosaic.getSampleModel() instanceof MultiPixelPackedSampleModel)
+				w.forceComponentColorModel();
+			return w.makeColorTransparent(transparentColor).getRenderedImage();
+	
+		}
+		return mosaic;
 	}
 }

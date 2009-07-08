@@ -20,7 +20,6 @@ import it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReaderSpi;
 import it.geosolutions.imageio.plugins.jp2k.JP2KStreamMetadata;
 import it.geosolutions.imageio.plugins.jp2k.box.UUIDBox;
 import it.geosolutions.imageio.plugins.jp2k.box.UUIDBoxMetadataNode;
-import it.geosolutions.imageio.utilities.ImageIOUtilities;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -33,10 +32,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +39,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
-import javax.imageio.spi.ImageReaderSpi;
 
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GeneralGridRange;
@@ -59,8 +53,8 @@ import org.geotools.data.PrjFileReader;
 import org.geotools.data.WorldFileReader;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.operation.LinearTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.opengis.coverage.grid.Format;
@@ -70,6 +64,7 @@ import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -91,8 +86,6 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(JP2KReader.class);
 
-	final static ExecutorService multiThreadedLoader= new ThreadPoolExecutor(4,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
-
 	/** The system-dependent default name-separator character. */
     private final static char SEPARATOR = File.separatorChar;
 	
@@ -100,25 +93,6 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
             0xbd, 0x08, 0x3d, 0x4b, 0x43, 0xa5, 0xae, 0x8c, 0xd7, 0xd5, 0xa6,
             0xce, 0x03 };
 
-    static{
-		try{
-			//check if our tiff plugin is in the path
-			final String kakaduJp2Name=it.geosolutions.imageio.plugins.jp2k.JP2KKakaduImageReaderSpi.class.getName();
-			Class.forName(kakaduJp2Name);
-
-			// imageio tiff reader
-			final String standardJp2Name=com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi.class.getName();
-			
-			final boolean succeeded=ImageIOUtilities.replaceProvider(ImageReaderSpi.class, kakaduJp2Name, standardJp2Name, "JPEG2000");
-        	if(!succeeded)
-        		LOGGER.warning("Unable to set ordering between tiff readers spi");	
-	        
-		} catch (ClassNotFoundException e) {
-			LOGGER.log(Level.SEVERE,"Unable to load specific TIFF reader spi",e);
-		} 
-        
-	}
-    
     /**
      * Creates a new instance of a {@link JP2KReader}. I assume nothing about
      * file extension.
@@ -543,17 +517,13 @@ public final class JP2KReader extends AbstractGridCoverage2DReader implements
             // CELL_CENTER condition
             //
             // //
-            final AffineTransform tempTransform = new AffineTransform(
-                    (AffineTransform) raster2Model);
-            tempTransform.preConcatenate(Utils.CENTER_TO_CORNER);
-
+            
+            MathTransform tempTransform =PixelTranslation.translate(raster2Model, PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER);
             try {
-                final LinearTransform gridToWorldTransform = ProjectiveTransform
-                        .create(tempTransform);
                 final Envelope gridRange = new GeneralEnvelope(
                         originalGridRange.toRectangle());
                 final GeneralEnvelope coverageEnvelope = CRS.transform(
-                        gridToWorldTransform, gridRange);
+                		tempTransform, gridRange);
                 originalEnvelope = coverageEnvelope;
             } catch (TransformException e) {
                 if (LOGGER.isLoggable(Level.WARNING)) {
