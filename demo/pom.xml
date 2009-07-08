@@ -104,6 +104,7 @@
     <module>example</module>
     <module>svgsupport</module>
     <module>gmlparsing</module>
+    <module>jdbc</module>
     <!--module>xml-po</module-->
   </modules>
   
