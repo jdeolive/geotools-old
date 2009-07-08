@@ -81,6 +81,7 @@ public class FeatureBufferFactory extends AbstractProcessFactory
 	    return Text.text("FeatureBuffer");
 	}
 
+    @Override
 	public String getName()
 	{
 		return "FeatureBuffer";

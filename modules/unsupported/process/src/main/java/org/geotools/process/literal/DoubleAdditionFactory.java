@@ -82,6 +82,7 @@ public class DoubleAdditionFactory extends AbstractProcessFactory
 	    return new DoubleAdditionProcess(this);
 	}
 
+    @Override
 	public String getName()
 	{
 		return "DoubleAddition";

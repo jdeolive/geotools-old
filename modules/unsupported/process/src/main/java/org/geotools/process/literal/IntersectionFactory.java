@@ -22,10 +22,8 @@ import java.util.TreeMap;
 
 import org.geotools.data.Parameter;
 import org.geotools.process.Process;
-import org.geotools.process.ProcessFactory;
 import org.geotools.process.impl.AbstractProcessFactory;
 import org.geotools.text.Text;
-import org.geotools.util.SimpleInternationalString;
 import org.opengis.util.InternationalString;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -98,6 +96,7 @@ public class IntersectionFactory extends AbstractProcessFactory {
 	    return Text.text("Intersection");
 	}
 
+    @Override
 	public String getName() {
 		return "Intersect";
 	}

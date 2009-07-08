@@ -94,6 +94,7 @@ public class BufferFactory extends AbstractProcessFactory {
 	    return new BufferProcess( this );
 	}
 
+    @Override
 	public String getName() {
 		return "buffer";
 	}

@@ -182,6 +182,7 @@ public class ProgressTask implements Runnable, Progress {
         /**
          * Implements AQS base acquire to succeed if ran or canceled
          */
+        @Override
         protected int tryAcquireShared(int ignore) {
             return innerIsDone()? 1 : -1;
         }
@@ -190,6 +191,7 @@ public class ProgressTask implements Runnable, Progress {
          * Implements AQS base release to always signal after setting
          * final done status by nulling the runningThread.
          */
+        @Override
         protected boolean tryReleaseShared(int ignore) {
             runningThread = null;
             return true; 
@@ -326,6 +328,7 @@ public class ProgressTask implements Runnable, Progress {
             innerSetException( t );
         }
 
+        @Deprecated
         public String getDescription() {
             return getTask().toString();
         }
@@ -350,6 +353,7 @@ public class ProgressTask implements Runnable, Progress {
             innerCancel( stop );
         }
 
+        @Deprecated
         public void setDescription( String description ) {
             processName = new SimpleInternationalString( description );
         }

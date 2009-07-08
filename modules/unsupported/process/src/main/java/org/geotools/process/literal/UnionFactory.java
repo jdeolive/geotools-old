@@ -94,6 +94,7 @@ public class UnionFactory extends AbstractProcessFactory {
 	    return Text.text("Union");
 	}
 
+    @Override
 	public String getName() {
 		return "Union";
 	}
