@@ -66,6 +66,7 @@ public final class JP2MrSIDTest extends GDALTestCase {
 	            if (driverecw != null)
 	                skipDriver.append("JP2ECW");
 	            gdal.SetConfigOption("GDAL_SKIP", skipDriver.toString());
+	            gdal.AllRegister();
 	        }
 	    } catch (UnsatisfiedLinkError e) {
 	        if (LOGGER.isLoggable(Level.WARNING))
