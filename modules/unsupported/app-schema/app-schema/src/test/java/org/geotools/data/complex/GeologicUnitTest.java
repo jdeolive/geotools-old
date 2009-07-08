@@ -147,29 +147,6 @@ public class GeologicUnitTest extends TestCase {
         FeatureType geologicUnitType = guDataStore.getSchema(FeatureChainingTest.GEOLOGIC_UNIT);
         assertNotNull(geologicUnitType);
 
-        url = getClass().getResource(schemaBase + "CompositionPart.xml");
-        assertNotNull(url);
-        dsParams.put("url", url.toExternalForm());
-        DataAccess cpDataStore = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(cpDataStore);
-        FeatureType cpType = cpDataStore.getSchema(FeatureChainingTest.COMPOSITION_PART);
-        assertNotNull(cpType);
-
-        url = getClass().getResource(schemaBase + "CGITermValue.xml");
-        assertNotNull(url);
-        dsParams.put("url", url.toExternalForm());
-        DataAccess cgiDataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(cgiDataAccess);
-        FeatureType cgiType = cgiDataAccess.getSchema(FeatureChainingTest.CGI_TERM_VALUE);
-        assertNotNull(cgiType);
-
-        url = getClass().getResource(schemaBase + "ControlledConcept.xml");
-        assertNotNull(url);
-
-        dsParams.put("url", url.toExternalForm());
-        DataAccess ccDataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(ccDataAccess);
-        
         url = getClass().getResource(schemaBase + "MappedFeaturePropertyfile.xml");
         assertNotNull(url);
 
@@ -194,7 +171,7 @@ public class GeologicUnitTest extends TestCase {
         /*
          * Make sure there are 3 compositional part features
          */
-        FeatureSource cpSource = (FeatureSource) cpDataStore
+        FeatureSource cpSource = DataAccessRegistry
                 .getFeatureSource(FeatureChainingTest.COMPOSITION_PART);
 
         FeatureCollection cpFeatures = (FeatureCollection) cpSource.getFeatures();
@@ -208,7 +185,7 @@ public class GeologicUnitTest extends TestCase {
          */
         EXPECTED_RESULT_COUNT = 8;
 
-        FeatureSource cgiSource = (FeatureSource) cgiDataAccess
+        FeatureSource cgiSource = DataAccessRegistry
                 .getFeatureSource(FeatureChainingTest.CGI_TERM_VALUE);
         FeatureCollection cgiFeatures = (FeatureCollection) cgiSource.getFeatures();
 

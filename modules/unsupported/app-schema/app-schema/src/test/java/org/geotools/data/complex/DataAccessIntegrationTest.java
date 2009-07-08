@@ -375,7 +375,17 @@ public class DataAccessIntegrationTest extends TestCase {
         while (mfIterator.hasNext()) {
             mfFeatures.add(mfIterator.next());
         }
-        mfCollection.close(mfIterator);
+        mfCollection.close(mfIterator);      
+
+        /**
+         * Load CGI Term Value data access
+         */
+        url = getClass().getResource(schemaBase + "CGITermValue.xml");
+        assertNotNull(url);
+
+        dsParams.put("url", url.toExternalForm());
+        DataAccess<FeatureType, Feature> cgiDataAccess = DataAccessFinder.getDataStore(dsParams);
+        assertNotNull(cgiDataAccess);
 
         /**
          * Load composition part data access
@@ -392,30 +402,11 @@ public class DataAccessIntegrationTest extends TestCase {
         FeatureCollection<FeatureType, Feature> cpCollection = cpSource.getFeatures();
         Iterator<Feature> cpIterator = cpCollection.iterator();
 
-        /**
-         * Load CGI Term Value data access
-         */
-        url = getClass().getResource(schemaBase + "CGITermValue.xml");
-        assertNotNull(url);
-
-        dsParams.put("url", url.toExternalForm());
-        DataAccess<FeatureType, Feature> cgiDataAccess = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(cgiDataAccess);
-
-        /**
-         * Load Controlled Concept data access
-         */
-        DataAccess<FeatureType, Feature> ccDataAccess = DataAccessRegistry
-                .getDataAccess(CONTROLLED_CONCEPT);
-        assertNotNull(ccDataAccess);
-
         cpFeatures = new ArrayList<Feature>();
         while (cpIterator.hasNext()) {
             cpFeatures.add(cpIterator.next());
         }
         cpCollection.close(cpIterator);
-
-        ccDataAccess.dispose();
     }
 
     /**

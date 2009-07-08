@@ -109,7 +109,7 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         this.checkRegisteredDataAccess(cgiDataAccess, CGI_TERM_VALUE, true);
         this.checkRegisteredDataAccess(ccDataAccess, CONTROLLED_CONCEPT, true);
 
-        disposeDataAccesses();
+        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -126,7 +126,7 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         unregister(cgiDataAccess, CGI_TERM_VALUE);
         unregister(ccDataAccess, CONTROLLED_CONCEPT);
 
-        disposeDataAccesses();
+        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -150,7 +150,7 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         }
         assertTrue("Expected a DataSourceException to have been thrown and handled",
                 handledException);
-        disposeDataAccesses();
+        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -262,21 +262,5 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         if (!notFound) {
             fail("Expecting DataSourceException but didn't occur. Deregistering data access fails.");
         }
-    }
-
-    /**
-     * Dispose all the data accesses after use
-     */
-    private void disposeDataAccesses() {
-        if (mfDataAccess == null || guDataAccess == null || cpDataAccess == null
-                || cgiDataAccess == null || ccDataAccess == null) {
-            throw new UnsupportedOperationException(
-                    "This is to be called after data accesses are created!");
-        }
-        mfDataAccess.dispose();
-        guDataAccess.dispose();
-        cpDataAccess.dispose();
-        cgiDataAccess.dispose();
-        ccDataAccess.dispose();
     }
 }
