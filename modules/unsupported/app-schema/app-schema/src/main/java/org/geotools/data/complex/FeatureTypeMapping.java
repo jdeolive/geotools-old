@@ -153,10 +153,6 @@ public class FeatureTypeMapping {
         this.target = feature;
     }
 
-    public void setSource() {
-        this.source = source;
-    }
-
     public AttributeDescriptor getTargetFeature() {
         return this.target;
     }
