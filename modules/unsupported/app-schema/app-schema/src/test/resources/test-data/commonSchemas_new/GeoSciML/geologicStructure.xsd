@@ -8,9 +8,7 @@
 		<xs:documentation>2007-07-12 : Minor fixes and changes to fit new version of model - Eric Boisvert</xs:documentation>
 	</xs:annotation>
 	<xs:import namespace="http://www.opengis.net/gml" schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd"/>
-	<xs:include schemaLocation="Gsml.xsd"/>
 	<xs:include schemaLocation="geologicUnit.xsd"/>
-	<xs:include schemaLocation="CGI_Value.xsd"/>
 	<xs:complexType name="GeologicStructureType">
 		<xs:complexContent>
 			<xs:extension base="gsml:GeologicFeatureType">

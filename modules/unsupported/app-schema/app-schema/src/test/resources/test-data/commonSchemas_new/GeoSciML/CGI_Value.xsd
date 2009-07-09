@@ -18,7 +18,6 @@
 	<!--=======================-->
 	<!--=======================-->
 	<import namespace="http://www.opengis.net/gml" schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd"/>
-	<include schemaLocation="geosciml.xsd"/>
 	<annotation>
 		<documentation>stupid XML Spy does not validate even if geosciml already included CGI_BasicType</documentation>
 	</annotation>
