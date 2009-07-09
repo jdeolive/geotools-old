@@ -588,12 +588,11 @@ public class DefaultMapContext implements MapContext {
 			env = new ReferencedEnvelope(fs.getBounds(), sourceCrs);*/
 			
 			env = layer.getBounds();
-			sourceCrs = env.getCoordinateReferenceSystem();
 			if (env == null) {
 				continue;
 			} else {
 				try {
-
+					sourceCrs = env.getCoordinateReferenceSystem();
 					if ((sourceCrs != null)
 							&& !CRS.equalsIgnoreMetadata(sourceCrs, crs)) {
 						env = env.transform(crs, true);
