@@ -106,8 +106,8 @@ public class CatalogUtilities {
     public static Catalog buildPrivateCatalog(URL catalogLocation) {
         CatalogManager catalogManager = new CatalogManager();
         catalogManager.setUseStaticCatalog(false);
-        catalogManager.setVerbosity(9);
-        catalogManager.setIgnoreMissingProperties(false);
+        catalogManager.setVerbosity(0);
+        catalogManager.setIgnoreMissingProperties(true);
         Catalog catalog = catalogManager.getCatalog();
         try {
             catalog.parseCatalog(catalogLocation);
