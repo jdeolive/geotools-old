@@ -25,15 +25,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import junit.framework.TestCase;
+
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureImpl;
 import org.geotools.feature.Types;
+import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionExpressionImpl;
-import org.geotools.filter.RegfuncFilterFactoryImpl;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.FeatureType;
@@ -72,7 +74,7 @@ public class FeatureChainingTest extends TestCase {
 
     static final Name CONTROLLED_CONCEPT = Types.typeName(GSMLNS, "ControlledConcept");
 
-    static FilterFactory ff = new RegfuncFilterFactoryImpl(null);
+    static FilterFactory ff = new FilterFactoryImpl(null);
 
     /**
      * Map of geological unit values to mapped feature objects based on

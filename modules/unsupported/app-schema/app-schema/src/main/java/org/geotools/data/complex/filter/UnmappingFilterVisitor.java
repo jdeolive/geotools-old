@@ -36,9 +36,9 @@ import org.geotools.data.complex.FeatureTypeMapping;
 import org.geotools.data.complex.NestedAttributeMapping;
 import org.geotools.data.complex.filter.XPath.Step;
 import org.geotools.data.complex.filter.XPath.StepList;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.Types;
-import org.geotools.filter.RegfuncFilterFactoryImpl;
 import org.geotools.filter.NestedAttributeExpression;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
@@ -122,11 +122,8 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
 
     private FeatureTypeMapping mappings;
 
-    // private static final FilterFactory2 ff = (FilterFactory2) CommonFactoryFinder
-    // .getFilterFactory(null);
-    // TODO: once Regfunc stuff pulled up into FilterFactoryImpl
-    // the code below can be replaced by the original above.
-    private static final FilterFactory2 ff = new RegfuncFilterFactoryImpl(null);
+    private static final FilterFactory2 ff = (FilterFactory2) CommonFactoryFinder
+            .getFilterFactory(null);
 
     /**
      * visit(*Expression) holds the unmapped expression here. Package visible just for unit tests
