@@ -29,7 +29,7 @@ import org.opengis.util.InternationalString;
 /**
  * Definition of one axis in a field for which we have some
  * measurements/observations/forecasts. The {@link Axis} data structure
- * describes the nature of each control variable for a certain {@link FieldType}
+ * describes the nature of each control variable for a certain {@link RangeDescription}
  * 
  * 
  * @author Simone Giannecchini, GeoSolutions
@@ -43,23 +43,23 @@ public class Axis<Q extends Quantity>{
 	private Name name;
 	private Unit<Q> unit;
 	
-	public Axis( String name, Unit<Q> unit){
+	public Axis( final String name, final Unit<Q> unit){
 		this( new NameImpl( name ), new SimpleInternationalString( name ),unit );
 	}
 	
-	public Axis( Name name, InternationalString description, Unit<Q> unit){
+	public Axis( final Name name, final InternationalString description, final Unit<Q> unit){
 		this.name = name;
 		this.unit = unit;
 		this.description = description;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Axis( Name name, InternationalString description, SingleCRS crs ){
+	public Axis( final Name name, final InternationalString description, SingleCRS crs ){
 		this(name, description,  getUoM(crs));
 		this.crs = crs;
 	}
 	
-	public Axis( String name, String description, SingleCRS crs ){
+	public Axis( final String name, final String description, SingleCRS crs ){
 		this(new NameImpl(name), new SimpleInternationalString(description),  crs);
 	}
 	
@@ -179,5 +179,27 @@ public class Axis<Q extends Quantity>{
 		} else if (!unit.equals(that.unit))
 			return false;
 		return true;
+	}
+	@SuppressWarnings("unchecked")
+	public boolean compatibleWith(final Axis that){
+		// if the two axis are equals then we have compatibility
+		if(equals(that))
+			return true;
+
+		// if the crs and the uom is the same thing, the axis are compatible
+		if (crs == null) {
+			if (that.crs != null)
+				return false;
+		} else if (!CRS.equalsIgnoreMetadata(crs,that.crs))
+			return false;
+		
+		
+		if (unit == null) {
+			if (that.unit != null)
+				return false;
+		} else if (!unit.equals(that.unit))
+			return false;
+		
+		return false;
 	}
 }

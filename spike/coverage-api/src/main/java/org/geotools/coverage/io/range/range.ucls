@@ -1,19 +1,39 @@
-<class-diagram version="0.9.82" icons="true" always-add-relationships="true" generalizations="true" realizations="true" 
-  associations="true" dependencies="true" nesting-relationships="true">  
-  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.RangeManager" 
+<class-diagram version="0.9.82" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.BandDescription" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeManager.java" binary="false">    
-    <position x="148" y="322" width="-1" height="-1"/>    
-    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescription.java" 
+    binary="false">    
+    <position x="577" y="372" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.AxisBin" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/AxisBin.java" binary="false">    
+    <position x="60" y="286" width="136" height="43"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.Field" 
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.Band" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Field.java" binary="false">    
-    <position x="363" y="273" width="-1" height="-1"/>    
-    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Band.java" binary="false">    
+    <position x="808" y="172" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.RangeDescriptionription" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeDescription.java" 
+    binary="false">    
+    <position x="217" y="37" width="136" height="43"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
@@ -21,80 +41,39 @@
   <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.Axis" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
     file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Axis.java" binary="false">    
-    <position x="703" y="128" width="-1" height="-1"/>    
-    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+    <position x="217" y="369" width="136" height="43"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <interface corner="BOTTOM_RIGHT" language="java" name="org.opengis.coverage.SampleDimension" 
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.RangeUtilities" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/media/ext_hd_01/work/maven_repo/org/opengis/geoapi-pending/2.3-M1/geoapi-pending-2.3-M1.jar" binary="true">    
-    <position x="616" y="429" width="-1" height="-1"/>    
-    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeUtilities.java" binary="false">    
+    <position x="393" y="37" width="136" height="43"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
-  </interface>  
-  <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterDataset" 
-    project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false">    
-    <position x="224" y="184" width="-1" height="-1"/>    
-    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
-      <attributes public="false" package="false" protected="false" private="false"/>      
-      <operations public="false" package="false" protected="false" private="false"/>    
-    </display>  
-  </interface>  
-  <enumeration corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterStorage.Action" 
-    project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterStorage.java" binary="false">    
-    <position x="186" y="74" width="-1" height="-1"/>    
-    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
-      <attributes public="false" package="false" protected="false" private="false"/>      
-      <operations public="false" package="false" protected="false" private="false"/>    
-    </display>  
-  </enumeration>  
-  <enumeration corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterStorage.AccessType" 
-    project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterStorage.java" binary="false">    
-    <position x="342" y="74" width="-1" height="-1"/>    
-    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
-      <attributes public="false" package="false" protected="false" private="false"/>      
-      <operations public="false" package="false" protected="false" private="false"/>    
-    </display>  
-  </enumeration>  
-  <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterStorage" 
-    project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterStorage.java" binary="false">    
-    <position x="281" y="-9" width="-1" height="-1"/>    
-    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
-      <attributes public="false" package="false" protected="false" private="false"/>      
-      <operations public="false" package="false" protected="false" private="false"/>    
-    </display>  
-  </interface>  
+  </class>  
   <association>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.RangeManager" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeManager.java" binary="false" 
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.AxisBin" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/AxisBin.java" binary="false" 
       navigable="false">      
-      <attribute name="fields"/>      
-      <multiplicity minimum="0" maximum="2147483647"/>    
+      <attribute name="axis"/>      
+      <multiplicity minimum="0" maximum="1"/>    
     </source>    
-    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Field" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Field.java" binary="false" 
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Axis" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Axis.java" binary="false" 
       navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <dependency>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>    
-    <tarorg.geotools.coverage.io.range.RangeManagername="org.geotools.coverage.io.range.RangeManager" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeManager.java" 
-      binary="false"/>  
-  </dependency>  
   <association>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Field" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Field.java" binary="false" 
-      navigable="false">      
+    <bendpoint x="282" y="120"/>    
+    <bendpoint x="285" y="277"/>    
+    <source project="gt-coverage-api-2org.geotools.coverage.io.range.RangeDescription.io.range.RangeDescription" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeDescription.java" 
+      binary="false" navigable="false">      
       <attribute name="axes"/>      
       <multiplicity minimum="0" maximum="2147483647"/>    
     </source>    
@@ -103,37 +82,7 @@
       navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <nesting>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterStorage" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterStorage.java" binary="false"/>    
-    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterStorage.Action" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterStorage.java" binary="false"/>  
-  </nesting>  
-  <nesting>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterStorage" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterStorage.java" binary="false"/>    
-    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterStorage.AccessType" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterStorage.java" binary="false"/>  
-  </nesting>  
-  <dependency>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterStorage" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterStorage.java" binary="false"/>    
-    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>  
-  </dependency>  
-  <association>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Field" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Field.java" binary="false" 
-      navigable="false">      
-      <attribute name="keysSampleDimensionsMap"/>      
-      <multiplicity minimum="0" maximum="2147483647"/>    
-    </source>    
-    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.opengis.coverage.SampleDimension" 
-      file="/media/ext_hd_01/work/maven_repo/org/opengis/geoapi-pending/2.3-M1/geoapi-pending-2.3-M1.jar" binary="true" 
-      navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <classifier-display autosize="true" package="true" initial-value="true" signature="true" visibility="true">    
+  <classifier-display autosize="true" package="true" initial-value="false" signature="true" visibility="true">    
     <attributes public="false" package="false" protected="false" private="false"/>    
     <operations public="false" package="false" protected="false" private="false"/>  
   </classifier-display>  

@@ -1,16 +1,13 @@
 package org.geotools.coverage.io.range;
 
 
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.measure.quantity.Quantity;
+
+import java.util.Set;
 
 import org.geotools.feature.NameImpl;
 import org.geotools.util.NumberRange;
 import org.geotools.util.SimpleInternationalString;
-import org.geotools.util.Utilities;
-import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.SampleDimensionType;
 import org.opengis.feature.type.Name;
@@ -38,84 +35,61 @@ import org.opengis.util.InternationalString;
  *
  * @author Simone Giannecchini, GeoSolutions S.A.S.
  */
-@SuppressWarnings("deprecation")
-public class BandType {	
-
-	/**
-	 * 
-	 * @author Simone Giannecchini, GeoSolutions S.A.S.
-	 *
-	 * @param <V>
-	 * @param <QA>
-	 */
-	public static class BandKey<V,QA extends Quantity> {
-		
-		private final List<AxisBin<V,QA>> bins;
-	
-		public BandKey(final List<? extends AxisBin<V, QA>> bins) {
-			this.bins = new ArrayList<AxisBin<V,QA>>(bins);
-		}
-	
-	
-		@SuppressWarnings("unchecked")
-		@Override
-		public boolean equals(Object obj) {
-			if(this==obj)
-				return true;
-			if(!(obj instanceof BandKey))
-				return false;
-			final BandKey that=(BandKey) obj;
-			return Utilities.deepEquals(this.bins, that.bins);
-		}
-	
-		@Override
-		public int hashCode() {
-			return Utilities.deepHashCode(this.bins);
-		}
-	
-		@Override
-		public String toString() {
-			final StringBuilder builder= new StringBuilder();
-			builder.append("Description of band key:").append("\n");
-			for(AxisBin<V,QA> bin:bins){
-				builder.append("Description of bin:\n").append(bin.toString()).append("\n");
-			}
-			return builder.toString();
-		}
-		
-		
+public class BandDescription {
+	public enum BandInterpretation{
+		PHYSICAL_PARAMETER_OBSERVATION,
+		PHYSICAL_PARAMETER_PREDICTION,
+		STATISTICAL_PARAMETER,
+		SYNTHETIC_VALUE;
 	}
+	
+	private BandInterpretation defaultBandInterpretation;
+	
+	private double[] defaultNoDatavalues;
+	
+	private NumberRange<Double> defaultRange;
+	
+	private MathTransform1D defaultSampleTransformation;
+	
+	private Name name;
+	
+	private InternationalString description;
+	
+	private Set<SampleDimensionType> defaultSampleDimensionTypes;
+	
 
-	public BandType(ColorInterpretation colorInterpretation,
+	public BandDescription(
+			final BandInterpretation bandInterpretation,
 			double[] defaultNoDatavalues, NumberRange<Double> defaultRange,
 			MathTransform1D defaultSampleTransformation, String name,
 			String description,
-			SampleDimensionType sampleDimensionType) {
+			final Set<SampleDimensionType> sampleDimensionTypes) {
 		super();
-		this.defaultColorInterpretation = colorInterpretation;
+		this.defaultBandInterpretation = bandInterpretation;
 		this.defaultNoDatavalues = defaultNoDatavalues;
 		this.defaultRange = defaultRange;
 		this.defaultSampleTransformation = defaultSampleTransformation;
 		this.name = new NameImpl(name);
 		this.description = new SimpleInternationalString(description);
-		this.defaultSampleDimensionType = sampleDimensionType;
+		this.defaultSampleDimensionTypes = sampleDimensionTypes;
 	}
-	public BandType(ColorInterpretation colorInterpretation,
+	public BandDescription(
+			final BandInterpretation bandInterpretation,
 			double[] defaultNoDatavalues, NumberRange<Double> defaultRange,
 			MathTransform1D defaultSampleTransformation, Name name,
 			InternationalString description,
-			SampleDimensionType sampleDimensionType) {
+			final Set<SampleDimensionType> sampleDimensionTypes) {
 		super();
-		this.defaultColorInterpretation = colorInterpretation;
+		this.defaultBandInterpretation = bandInterpretation;
 		this.defaultNoDatavalues = defaultNoDatavalues;
 		this.defaultRange = defaultRange;
 		this.defaultSampleTransformation = defaultSampleTransformation;
 		this.name = name;
 		this.description = description;
-		this.defaultSampleDimensionType = sampleDimensionType;
+		this.defaultSampleDimensionTypes = sampleDimensionTypes;
 	}
-	public ColorInterpretation getDefaultColorInterpretation() {
-		return defaultColorInterpretation;
+	public BandInterpretation getDefaultColorInterpretation() {
+		return defaultBandInterpretation;
 	}
 
 	public double[] getDefaultNoDatavalues() {
@@ -138,21 +112,7 @@ public class BandType {
 		return description;
 	}
 
-	private ColorInterpretation defaultColorInterpretation;
-	
-	private double[] defaultNoDatavalues;
-	
-	private NumberRange<Double> defaultRange;
-	
-	private MathTransform1D defaultSampleTransformation;
-	
-	private Name name;
-	
-	private InternationalString description;
-	
-	private SampleDimensionType defaultSampleDimensionType;
-
-	public SampleDimensionType getDefaultSampleDimensionType() {
-		return defaultSampleDimensionType;
+	public Set<SampleDimensionType> getDefaultSampleDimensionTypes() {
+		return defaultSampleDimensionTypes;
 	}
 }

@@ -2,15 +2,11 @@ package org.geotools.coverage.io.range;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
-import org.geotools.coverage.io.range.BandType.BandKey;
-import org.opengis.coverage.SampleDimension;
 import org.opengis.feature.type.Name;
 import org.opengis.util.InternationalString;
 /**
@@ -20,35 +16,35 @@ import org.opengis.util.InternationalString;
  * @param <V>
  * @param <QA>
  */
-public class FieldType<V,QA extends Quantity> {
+public class RangeDescription<V,QA extends Quantity> {
 
 	/**
-	 * The {@link List} of {@link Axis} for this {@link FieldType}.
+	 * The {@link List} of {@link Axis} for this {@link RangeDescription}.
 	 */
 	private List <Axis<QA>>axes;
 	
 	/**
-	 * The {@link Name} for this {@link FieldType}.
+	 * The {@link Name} for this {@link RangeDescription}.
 	 */
 	private Name name;
 	
 	/**
-	 * The {@link Unit} for this {@link FieldType}.
+	 * The {@link Unit} for this {@link RangeDescription}.
 	 */
 	private Unit<QA> uom;
 	
 	/**
-	 * The list of {@link Name}s for the {@link Axis} instances of this {@link FieldType}.
+	 * The list of {@link Name}s for the {@link Axis} instances of this {@link RangeDescription}.
 	 */
 	private List<Name> axesNames;
 	
 	/**
-	 * The description for this {@link FieldType}.
+	 * The description for this {@link RangeDescription}.
 	 */
 	private InternationalString description;
 
 	
-	private HashMap<BandKey<V, QA>,BandType> bandTypes;
+	private BandDescription bandDescription;
 
 
 	/**
@@ -59,18 +55,18 @@ public class FieldType<V,QA extends Quantity> {
 	 * @param axes
 	 * @param samples
 	 */
-	public FieldType(
+	public RangeDescription(
 			final Name fieldName,
 	        final InternationalString fieldDescription,
 	        final Unit<QA> UoM,
 	        final List<Axis<QA>> axes,		// axes definitions cannot be repeated
-	        final Map<? extends BandKey<V, QA>,? extends BandType> bands 		
+	        final BandDescription band 		
 	        ) {
 	    this.name = fieldName;
 	    this.description = fieldDescription;
 	    this.axes = new ArrayList<Axis<QA>>(axes);
 	    this.uom = UoM;
-        this.bandTypes = new HashMap<BandKey<V, QA>,BandType>(bands);
+        this.bandDescription = band;
 	    axesNames = new ArrayList<Name>(axes.size());
 	    for (Axis<QA> axis : axes) {
 	        axesNames.add(axis.getName());
@@ -78,10 +74,10 @@ public class FieldType<V,QA extends Quantity> {
 	}
 
 	/**
-	 * {@link List} of all the axes of the {@link FieldType}
+	 * {@link List} of all the axes of the {@link RangeDescription}
 	 * 
 	 * @return a {@link List} of all the {@link Axis} instances for this
-	 *         {@link FieldType}
+	 *         {@link RangeDescription}
 	 */
 	public List<? extends Axis<QA>> getAxes() {
 		return Collections.unmodifiableList(axes);
@@ -116,14 +112,14 @@ public class FieldType<V,QA extends Quantity> {
 	}
 
 	/**
-	 * Retrieves the Unit of measure for the values described by this FieldType.
+	 * Retrieves the Unit of measure for the values described by this RangeDescription.
 	 *  
 	 * <p>
-	 * In case this {@link FieldType} is not made of measurable quantities we
+	 * In case this {@link RangeDescription} is not made of measurable quantities we
 	 * return <code>null</code>
 	 * 
-	 * @return the Unit of measure for the values described by this FieldType or
-	 *         <code>null</code> in case this {@link FieldType} is not made of
+	 * @return the Unit of measure for the values described by this RangeDescription or
+	 *         <code>null</code> in case this {@link RangeDescription} is not made of
 	 *         measurable quantities
 	 */
 	public Unit<? extends Quantity> getUnitOfMeasure() {
@@ -144,57 +140,25 @@ public class FieldType<V,QA extends Quantity> {
 	    for (Axis<QA> axis : axes) {
 	        sb.append(axis.toString()).append(lineSeparator);
 	    }
-        
-        sb.append("BandTypes:").append(lineSeparator);
-        for (BandKey<V,QA> bk :  bandTypes.keySet()){
-            sb.append("BandKey: ").append(bk.toString());
-            sb.append("BandType: ").append(bandTypes.get(bk).toString());
-            sb.append(lineSeparator);
-        }	    
+        sb.append("BandDescription: ").append(bandDescription.toString());
+        sb.append(lineSeparator);    
 	    return sb.toString();
 	}
 
 	/**
-	 * Get the description of the {@link FieldType}
+	 * Get the description of the {@link RangeDescription}
 	 * 
-	 * @return description of the {@link FieldType}
+	 * @return description of the {@link RangeDescription}
 	 */
 	public InternationalString getDescription() {
 		return description;
 	}
 
-	/**
-	 * Look up the SampleDimension by key (as described by Axis)
-	 * 
-	 * @param key
-	 *                key of the SampleDimension
-	 * TODO improve me
-	 * @return {@link SampleDimension} instance or null if not found
-	 */
-	public BandType getBandType(final Name name) {
-		for(BandType type:bandTypes.values())
-		{
-			if(type.getName().equals(name))
-				return type;
-		}
-		throw new IllegalArgumentException("Unable to find SampleDimension for the specified key.");
-	}
 	
-	public  BandType getBandType(final BandKey<V, QA> key) {
-		if(bandTypes.containsKey(key))
-			return bandTypes.get(key);
-		throw new IllegalArgumentException("Unable to find SampleDimension for the specified key.");
+	public  BandDescription getBandType() {
+		return bandDescription;
 	}
 	
 
-	/**
-	 * List the SampleDimensions of the measure.
-	 * 
-	 * @return Set of {@link SampleDimension} instances
-	 */
-	
-	public Map<BandKey<V, QA>,BandType> getBandTypes() {
-	    return bandTypes;
-	}
 
 }
