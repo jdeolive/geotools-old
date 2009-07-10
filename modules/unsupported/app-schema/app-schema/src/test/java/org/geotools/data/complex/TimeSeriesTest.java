@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -488,12 +489,18 @@ public class TimeSeriesTest extends TestCase {
                 Object valueContent = geom.getValue();
                 Date sampleTimePosition = (Date) valueContent;
                 Calendar cal = Calendar.getInstance();
+                // property file dates appear to be parsed as being in UTC
+                cal.setTimeZone(TimeZone.getTimeZone("UTC"));
                 cal.setTime(sampleTimePosition);
                 // see row TS2.22
                 assertEquals(2007, cal.get(Calendar.YEAR));
                 assertEquals(Calendar.JANUARY, cal.get(Calendar.MONTH));
                 assertEquals(21, cal.get(Calendar.DAY_OF_MONTH));
-            }
+                // sanity (timezone handling has been bungled one time too many)
+                assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
+                assertEquals(0, cal.get(Calendar.MINUTE));
+                assertEquals(0, cal.get(Calendar.SECOND));
+           }
         }
 
         mappingDataStore.dispose();
