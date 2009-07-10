@@ -60,12 +60,6 @@
          <module>geometryless</module>
        </modules>
      </profile>
-     <profile>
-       <id>app-schema</id>
-       <modules>
-         <module>app-schema</module>
-       </modules>
-     </profile>
 
      <!-- ================================================== -->
      <!--     Modules kicked out of the build                -->
@@ -155,6 +149,7 @@
          <property><name>all</name></property>
        </activation>
        <modules>
+         <module>app-schema</module>
          <module>epsg-oracle</module>
          <module>epsg-h2</module>
          <module>gml</module>    
