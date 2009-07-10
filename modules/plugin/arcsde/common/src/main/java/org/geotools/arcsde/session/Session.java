@@ -210,24 +210,21 @@ class Session implements ISession {
             });
 
             T result;
-            synchronized (config) {
-                taskExecutor.execute(task);
-                try {
-                    result = task.get();
-                } catch (InterruptedException e) {
-                    updateCommandThread();
-                    throw new RuntimeException("Command execution abruptly interrupted", e);
-                } catch (ExecutionException e) {
-                    updateCommandThread();
-                    Throwable cause = e.getCause();
-                    if (cause instanceof IOException) {
-                        throw (IOException) cause;
-                    } else if (cause instanceof SeException) {
-                        throw new ArcSdeException((SeException) cause);
-                    }
-                    throw (IOException) new IOException().initCause(cause);
+            taskExecutor.execute(task);
+            try {
+                result = task.get();
+            } catch (InterruptedException e) {
+                updateCommandThread();
+                throw new RuntimeException("Command execution abruptly interrupted", e);
+            } catch (ExecutionException e) {
+                updateCommandThread();
+                Throwable cause = e.getCause();
+                if (cause instanceof IOException) {
+                    throw (IOException) cause;
+                } else if (cause instanceof SeException) {
+                    throw new ArcSdeException((SeException) cause);
                 }
-
+                throw (IOException) new IOException().initCause(cause);
             }
             return result;
         }
@@ -252,7 +249,6 @@ class Session implements ISession {
         try {
             task.get();
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -344,12 +340,12 @@ class Session implements ISession {
      */
     public SeLayer getLayer(final String layerName) throws IOException {
         checkActive();
-        return issue(new Command<SeLayer>() {
-            @Override
-            public SeLayer execute(final ISession session, final SeConnection connection)
-                    throws SeException, IOException {
-                if (!cachedLayers.containsKey(layerName)) {
-                    synchronized (Session.this) {
+        if (!cachedLayers.containsKey(layerName)) {
+            issue(new Command<Void>() {
+                @Override
+                public Void execute(final ISession session, final SeConnection connection)
+                        throws SeException, IOException {
+                    synchronized (cachedLayers) {
                         if (!cachedLayers.containsKey(layerName)) {
                             SeTable table = getTable(layerName);
                             String shapeColumn = getShapeColumn(table);
@@ -360,14 +356,17 @@ class Session implements ISession {
                             cachedLayers.put(layerName, layer);
                         }
                     }
+                    return null;
                 }
-                SeLayer seLayer = cachedLayers.get(layerName);
-                if (seLayer == null) {
-                    throw new NoSuchElementException("Layer '" + layerName + "' not found");
-                }
-                return seLayer;
-            }
-        });
+            });
+        }
+        
+        SeLayer seLayer = cachedLayers.get(layerName);
+        if (seLayer == null) {
+            throw new NoSuchElementException("Layer '" + layerName + "' not found");
+        }
+        return seLayer;
+
     }
 
     private String getShapeColumn(SeTable table) throws ArcSdeException {
@@ -408,12 +407,12 @@ class Session implements ISession {
      */
     public SeTable getTable(final String tableName) throws IOException {
         checkActive();
-        return issue(new Command<SeTable>() {
-            @Override
-            public SeTable execute(final ISession session, final SeConnection connection)
-                    throws SeException, IOException {
-                if (!cachedTables.containsKey(tableName)) {
-                    synchronized (Session.this) {
+        if (!cachedTables.containsKey(tableName)) {
+            issue(new Command<Void>() {
+                @Override
+                public Void execute(final ISession session, final SeConnection connection)
+                        throws SeException, IOException {
+                    synchronized (cachedTables) {
                         if (!cachedTables.containsKey(tableName)) {
                             SeTable table = new SeTable(connection, tableName);
                             try {
@@ -425,14 +424,16 @@ class Session implements ISession {
                             cachedTables.put(tableName, table);
                         }
                     }
+                    return null;
                 }
-                SeTable seTable = (SeTable) cachedTables.get(tableName);
-                if (seTable == null) {
-                    throw new NoSuchElementException("Table '" + tableName + "' not found");
-                }
-                return seTable;
-            }
-        });
+            });
+        }
+
+        SeTable seTable = (SeTable) cachedTables.get(tableName);
+        if (seTable == null) {
+            throw new NoSuchElementException("Table '" + tableName + "' not found");
+        }
+        return seTable;
     }
 
     @SuppressWarnings("unchecked")
