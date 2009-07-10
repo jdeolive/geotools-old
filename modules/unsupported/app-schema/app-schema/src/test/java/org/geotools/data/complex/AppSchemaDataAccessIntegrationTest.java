@@ -17,6 +17,9 @@
 
 package org.geotools.data.complex;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -31,6 +34,7 @@ import java.util.Map;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
 import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.property.PropertyDataStore;
@@ -46,6 +50,9 @@ import org.geotools.feature.type.FeatureTypeImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
 import org.geotools.gml3.GMLSchema;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
@@ -72,52 +79,49 @@ import org.opengis.filter.identity.FeatureId;
  */
 public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTest {
 
-    static final String MO_URI = "urn:cgi:xmlns:GGIC:MineralOccurrence:1.0";
+    private static final String MO_URI = "urn:cgi:xmlns:GGIC:MineralOccurrence:1.0";
 
-    static final String MO_PREFIX = "mo";
+    private static final Name EARTH_RESOURCE = Types.typeName(MO_URI, "EarthResource");
 
-    static final Name EARTH_RESOURCE = Types.typeName(MO_URI, "EarthResource");
+    private static final Name EARTH_RESOURCE_TYPE = Types.typeName(MO_URI, "EarthResourceType");
 
-    static final Name EARTH_RESOURCE_TYPE = Types.typeName(MO_URI, "EarthResourceType");
+    private static final Name MINERAL_DEPOSIT_TYPE = Types.typeName(MO_URI, "MineralDepositModelType");
 
-    static final Name MINERAL_DEPOSIT_TYPE = Types.typeName(MO_URI, "MineralDepositModelType");
-
-    static final Name MINERAL_DEPOSIT_PROPERTY_TYPE = Types.typeName(MO_URI,
+    private static final Name MINERAL_DEPOSIT_PROPERTY_TYPE = Types.typeName(MO_URI,
             "MineralDepositModelPropertyType");
 
     /**
      * Remapped Geologic Unit data access in GSML form
      */
-    protected DataAccess<FeatureType, Feature> newGuDataAccess;
+    private static DataAccess<FeatureType, Feature> newGuDataAccess;
 
     /**
      * Create the input data access containing complex features of MO form.
      */
-    @Override
-    protected void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         /*
         Map<String, Serializable> moParams = new HashMap<String, Serializable>();
         moParams.put("dbtype", "mo-data-access");
-        moParams.put("directory", getClass().getResource(schemaBase));
+        moParams.put("directory", AppSchemaDataAccessIntegrationTest.class.getResource(schemaBase));
         // get original non-app-schema data access
         DataAccessFinder.getDataStore(moParams);
-        super.setFilterFactory();
+        DataAccessIntegrationTest.setFilterFactory();
         // load app-schema data access instances
-        loadDataAccesses("MappedFeatureAsOccurrence.xml");
-        */
+        loadGeologicUnitDataAccess();
+        loadDataAccesses("MappedFeatureAsOccurrence.xml");    */    
     }
 
     /**
      * Dispose all the data accesses so that there is no mapping conflicts for other tests
      */
-    @Override
-    protected void tearDown() {
-        super.tearDown();
+    @AfterClass
+    public static void tearDown() {
+        DataAccessRegistry.unregisterAll();
     }
-
-    @Override
-    public void loadGeologicUnitDataAccess() throws IOException {
-        URL url = getClass().getResource(schemaBase + "EarthResourceToGeologicUnit.xml");
+    
+    private static void loadGeologicUnitDataAccess() throws IOException {
+        URL url = AppSchemaDataAccessIntegrationTest.class.getResource(schemaBase + "EarthResourceToGeologicUnit.xml");
         assertNotNull(url);
 
         Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
@@ -252,6 +256,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
      * @throws IOException
      * @throws URISyntaxException
      */
+    @Test
     public void testLoadDataAccess() throws IOException, URISyntaxException {
         if(true)return;
         // get the re-mapped geologic unit features
@@ -289,6 +294,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
      * @throws IOException
      */
     @Override
+    @Test
     public void testMappings() throws IOException {
         if(true)return;
         FeatureCollection<FeatureType, Feature> guCollection = (FeatureCollection<FeatureType, Feature>) guFeatureSource
@@ -552,12 +558,13 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             // get the simple features from EarthResource.properties file
             FeatureCollection<SimpleFeatureType, SimpleFeature> fCollection = simpleFeatureSource
                     .getFeatures();
-            EmfAppSchemaReader reader = EmfAppSchemaReader.newInstance();
-            FeatureTypeRegistry typeRegistry = new FeatureTypeRegistry();
-            SchemaIndex schemaIndex = reader.parse(new URL(schemaDir.toExternalForm() + File.separator + "commonSchemas_new/GeoSciML/Gsml.xsd"), null);
-            typeRegistry.addSchemas(schemaIndex);
+            reader = EmfAppSchemaReader.newInstance();
+            // set catalog
+            URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
+            reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));       
+            reader.parse(new URL(schemaDir.toString() + schemaLocation), null);
 
-            schemaIndex = reader.parse(new URL(schemaDir.toExternalForm() + File.separator + schemaLocation), null);
+            SchemaIndex schemaIndex = reader.parse(new URL(schemaDir.toExternalForm() + schemaLocation), null);
             typeRegistry.addSchemas(schemaIndex);
             
             ComplexType complexType = (ComplexType) typeRegistry.getAttributeType(EARTH_RESOURCE_TYPE);
