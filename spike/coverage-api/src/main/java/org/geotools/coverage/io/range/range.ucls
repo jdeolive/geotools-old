@@ -1,19 +1,18 @@
-<class-diagram version="0.9.82" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
-  associations="true" dependencies="false" nesting-relationships="true">  
-  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.BandDescription" 
+<class-diagram version="0.9.82" icons="true" always-add-relationships="true" generalizations="true" realizations="true" 
+  associations="true" dependencies="true" nesting-relationships="true">  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.Band.BandKey" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescription.java" 
-    binary="false">    
-    <position x="577" y="372" width="-1" height="-1"/>    
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Band.java" binary="false">    
+    <position x="399" y="120" width="136" height="43"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true"/>      
+      <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
   <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.AxisBin" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
     file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/AxisBin.java" binary="false">    
-    <position x="60" y="286" width="136" height="43"/>    
+    <position x="399" y="203" width="136" height="43"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
@@ -22,17 +21,25 @@
   <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.Band" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
     file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Band.java" binary="false">    
-    <position x="808" y="172" width="-1" height="-1"/>    
+    <position x="399" y="37" width="136" height="43"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.RangeDescriptor" 
+  <enumeration corner="BOTTOM_RIGHT" language="java" 
+    name="org.geotools.coverage.io.range.BandDescriptor.BandInterpretation" project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescriptor.java" binary="false">    
+    <position x="83" y="164" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </enumeration>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.BandDescriptor" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeDescriptor.java" 
-    binary="false">    
-    <position x="217" y="37" width="136" height="43"/>    
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescriptor.java" binary="false">    
+    <position x="223" y="120" width="136" height="43"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
@@ -41,7 +48,7 @@
   <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.Axis" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
     file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Axis.java" binary="false">    
-    <position x="217" y="369" width="136" height="43"/>    
+    <position x="394" y="336" width="-1" height="-1"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
@@ -50,12 +57,45 @@
   <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.RangeUtilities" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
     file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeUtilities.java" binary="false">    
-    <position x="393" y="37" width="136" height="43"/>    
+    <position x="41" y="37" width="136" height="43"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
+  <association>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Band.BandKey" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Band.java" binary="false" 
+      navigable="false">      
+      <attribute name="bins"/>      
+      <multiplicity minimum="0" maximum="2147483647"/>    
+    </source>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.AxisBin" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/AxisBin.java" binary="false" 
+      navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <bendpoint x="176" y="255"/>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.BandDescriptor" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescriptor.java" 
+      binary="false" navigable="false">      
+      <attribute name="defaultBandInterpretation"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" 
+      name="org.geotools.coverage.io.range.BandDescriptor.BandInterpretation" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescriptor.java" 
+      binary="false" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Band" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Band.java" binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.BandDescriptor" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescriptor.java" 
+      binary="false"/>  
+  </dependency>  
   <association>    
     <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.AxisBin" 
       file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/AxisBin.java" binary="false" 
@@ -68,6 +108,35 @@
       navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
+  <association>    
+    <bendpoint x="289" y="293"/>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.BandDescriptor" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescriptor.java" 
+      binary="false" navigable="false">      
+      <attribute name="axes"/>      
+      <multiplicity minimum="0" maximum="2147483647"/>    
+    </source>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Axis" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Axis.java" binary="false" 
+      navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting>    
+    <bendpoint x="148" y="144"/>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.BandDescriptor" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescriptor.java" 
+      binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" 
+      name="org.geotools.coverage.io.range.BandDescriptor.BandInterpretation" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/BandDescriptor.java" 
+      binary="false"/>  
+  </nesting>  
+  <nesting>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Band" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Band.java" binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Band.BandKey" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Band.java" binary="false"/>  
+  </nesting>  
   <classifier-display autosize="true" package="true" initial-value="false" signature="true" visibility="true">    
     <attributes public="false" package="false" protected="false" private="false"/>    
     <operations public="false" package="false" protected="false" private="false"/>  

@@ -24,7 +24,7 @@ public class RangeDescriptor<QA extends Quantity> {
 	private InternationalString description;
 
 	
-	private BandDescription<QA> bandDescriptor;
+	private BandDescriptor<QA> bandDescriptor;
 
 
 	/**
@@ -38,7 +38,7 @@ public class RangeDescriptor<QA extends Quantity> {
 	public RangeDescriptor(
 			final Name fieldName,
 	        final InternationalString fieldDescription,
-	        final BandDescription<QA> band 		
+	        final BandDescriptor<QA> band 		
 	        ) {
 	    this.name = fieldName;
 	    this.description = fieldDescription;
@@ -68,7 +68,7 @@ public class RangeDescriptor<QA extends Quantity> {
 	}
 
 	
-	public  BandDescription<? extends Quantity> getBandDescriptor() {
+	public  BandDescriptor<QA> getBandDescriptor() {
 		return bandDescriptor;
 	}
 	

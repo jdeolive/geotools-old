@@ -11,9 +11,7 @@ import java.util.Set;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
-import org.geotools.feature.NameImpl;
 import org.geotools.util.NumberRange;
-import org.geotools.util.SimpleInternationalString;
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.SampleDimensionType;
 import org.opengis.feature.type.Name;
@@ -41,7 +39,7 @@ import org.opengis.util.InternationalString;
  *
  * @author Simone Giannecchini, GeoSolutions S.A.S.
  */
-public class BandDescription<Q extends Quantity> {
+public abstract class BandDescriptor<Q extends Quantity>{
 	public enum BandInterpretation{
 		PHYSICAL_PARAMETER_OBSERVATION,
 		PHYSICAL_PARAMETER_PREDICTION,
@@ -71,27 +69,19 @@ public class BandDescription<Q extends Quantity> {
 	/**
 	 * The {@link List} of {@link Axis} for this {@link RangeDescriptor}.
 	 */
-	private List <Axis<Q>>axes;
+	private List <? extends Axis<? extends Quantity>>axes;
 
 	/**
 	 * The list of {@link Name}s for the {@link Axis} instances of this {@link RangeDescriptor}.
 	 */
 	private List<Name> axesNames;
-	
 
-	public BandDescription(
-			final BandInterpretation bandInterpretation,
-			double[] defaultNoDatavalues, NumberRange<Double> defaultRange,
-			MathTransform1D defaultSampleTransformation, 
-			String name,
-			String description,
-			final Set<SampleDimensionType> sampleDimensionTypes,
-	        final List<Axis<Q>> axes		// axes definitions cannot be repeated
-		) {
-		this(bandInterpretation, defaultNoDatavalues, defaultRange, defaultSampleTransformation, new NameImpl(name), new SimpleInternationalString(description), sampleDimensionTypes, axes);
-		
-	}
-	public BandDescription(
+	private Q quantity;
+
+	private  List<? extends AxisBin <?, ? extends Quantity>> defaultAxisBins;
+
+	public BandDescriptor(
+			final Q quantity,												// quantity that this band holds
 			final BandInterpretation bandInterpretation,
 			double[] defaultNoDatavalues, 
 			NumberRange<Double> defaultRange,
@@ -99,8 +89,10 @@ public class BandDescription<Q extends Quantity> {
 			Name name,
 			InternationalString description,
 			final Set<SampleDimensionType> sampleDimensionTypes,
-	        final List<Axis<Q>> axes		// axes definitions cannot be repeated
+	        final List<? extends Axis<? extends Quantity>> axes,	
+	        final List<? extends AxisBin <?, ? extends Quantity>>  defaultAxisBins
 	    	) {
+		this.quantity=quantity;
 		this.defaultBandInterpretation = bandInterpretation;
 		this.defaultNoDatavalues = defaultNoDatavalues;
 		this.defaultRange = defaultRange;
@@ -108,13 +100,12 @@ public class BandDescription<Q extends Quantity> {
 		this.name = name;
 		this.description = description;
 		this.defaultSampleDimensionTypes = sampleDimensionTypes;
-
-
 	    this.axes = axes;
 	    axesNames = new ArrayList<Name>(axes.size());
-	    for (Axis<Q> axis : axes) {
+	    for (Axis<? extends Quantity> axis : axes) {
 	        axesNames.add(axis.getName());
 	    }
+	    this.defaultAxisBins=defaultAxisBins;
 	}
 	
 	public BandInterpretation getDefaultColorInterpretation() {
@@ -164,7 +155,7 @@ public class BandDescription<Q extends Quantity> {
 	 * @return a {@link List} of all the {@link Axis} instances for this
 	 *         {@link RangeDescriptor}
 	 */
-	public List<? extends Axis<Q>> getAxes() {
+	public List<? extends Axis<? extends Quantity>> getAxes() {
 		return Collections.unmodifiableList(axes);
 	}
 	/**
@@ -185,8 +176,8 @@ public class BandDescription<Q extends Quantity> {
 	 * TODO improve me             
 	 * @return Axis instance or null if not found
 	 */
-	public Axis<Q> getAxis(Name name) {
-	    for (Axis<Q> axis : axes) {
+	public Axis<? extends Quantity> getAxis(Name name) {
+	    for (Axis<? extends Quantity> axis : axes) {
 	        if (axis.getName().toString().equalsIgnoreCase(name.toString()) ||
 	                axis.getName().getLocalPart().equalsIgnoreCase(name.getLocalPart()))
 	            return  axis;
@@ -198,12 +189,24 @@ public class BandDescription<Q extends Quantity> {
 	public String toString() {
 	    final StringBuilder sb = new StringBuilder();
 	    final String lineSeparator = System.getProperty("line.separator", "\n");
-	    sb.append("BandDescription:").append(lineSeparator);
+	    sb.append("BandDescriptor:").append(lineSeparator);
 	    sb.append("Name:").append("\t\t").append(name.toString()).append(lineSeparator);
 	    sb.append("Description:").append("\t").append(description.toString()).append(lineSeparator);
-	    for (Axis<Q> axis : axes) {
+	    sb.append("Quantity:").append("\t").append(quantity.toString()).append(lineSeparator);
+	    sb.append("UoM:").append("\t").append(uom.toString()).append(lineSeparator);
+	    sb.append("Default band interpretation:").append("\t").append(defaultBandInterpretation.toString()).append(lineSeparator);
+	    for (Axis<? extends Quantity> axis : axes) {
 	        sb.append(axis.toString()).append(lineSeparator);
 	    }
         sb.append(lineSeparator);    
-	    return sb.toString();			}
+	    return sb.toString();			
+	}
+	
+	public List<? extends AxisBin <?, ? extends Quantity> > getDefaultAxisBins(){
+		return this.defaultAxisBins;		
+	}
+	
+	public Q getQuantity() {
+		return quantity;
+	}
 }

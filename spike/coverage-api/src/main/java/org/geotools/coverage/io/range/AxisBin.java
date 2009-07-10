@@ -1,11 +1,19 @@
 package org.geotools.coverage.io.range;
 
+import java.awt.image.SampleModel;
+
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Length;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
+import org.geotools.coverage.io.range.Axis.WavelengthAxis;
 import org.geotools.feature.NameImpl;
+import org.geotools.util.MeasurementRange;
 import org.geotools.util.SimpleInternationalString;
+import org.opengis.coverage.SampleDimension;
 import org.opengis.feature.type.Name;
+import org.opengis.referencing.crs.SingleCRS;
 import org.opengis.util.InternationalString;
 
 /**
@@ -17,7 +25,91 @@ import org.opengis.util.InternationalString;
  */
 public abstract class AxisBin<V, QA extends Quantity>{
 
+	/**
+	 * Implementation of {@link Axis} for multibands images.
+	 * 
+	 * <p>
+	 * This implementation of Axis can be seen as a stub implementation since in
+	 * this case we do not really have an {@link Axis} for this kind of data, or
+	 * rather we have an axis that just represents an ordinal or a certain set of .
+	 * 
+	 * @author Simone Giannecchini, GeoSolutions
+	 * @todo add convenience constructor based on {@link SampleDimension} and or
+	 *       {@link SampleModel}
+	 */
+	public static class DimensionlessAxisBin extends AxisBin<String,Dimensionless> {
 
+	    /**
+	     * 
+	     */
+	    public DimensionlessAxisBin(final Name name,final InternationalString description,final Axis<Dimensionless> axis, final String bandName) {
+	    	super(name,description,axis,bandName );
+	    }
+
+
+	    
+
+		/**
+	     * @see org.geotools.coverage.io.range.Axis#getCoordinateReferenceSystem()
+	     */
+	    public SingleCRS getCoordinateReferenceSystem() {
+	        return null;
+	    }
+
+
+	    /**
+	     * @see org.geotools.coverage.io.range.Axis#getUnitOfMeasure()
+	     */
+	    public Unit<Dimensionless> getUnitOfMeasure() {
+	        return Unit.ONE;
+	    }
+
+	}
+
+	 /**
+	 * A bin for the wavelength axis
+	 */
+	public static class WavelengthBin extends AxisBin<MeasurementRange<Double>,Length>{
+				
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -3977921692927799401L;
+		
+		public WavelengthBin( Name name, double value, InternationalString description, WavelengthAxis axis ){
+			super(
+					name,
+					description,
+					axis,
+					MeasurementRange.create(value, value, axis.getUnitOfMeasure()));
+			
+		}
+	
+		public WavelengthBin( String name, double value, String description, WavelengthAxis axis ){
+			super(
+					new NameImpl(name),
+					new SimpleInternationalString(description),
+					axis,
+					MeasurementRange.create(value, value, axis.getUnitOfMeasure()));
+			
+		}		
+		
+		
+		public WavelengthBin( Name name, double from, double to, InternationalString description, WavelengthAxis axis ) {
+			super(
+					name,
+					description,
+					axis,
+					MeasurementRange.create(from, to, axis.getUnitOfMeasure()));
+		}
+		public WavelengthBin( String name, double from, double to, String description, WavelengthAxis axis ) {
+			super(
+					new NameImpl(name),
+					new SimpleInternationalString(description),
+					axis,
+					MeasurementRange.create(from, to, axis.getUnitOfMeasure()));
+		}		
+	}
 
 	/**
 	 * 

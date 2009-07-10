@@ -95,7 +95,7 @@ public abstract class Band {
 	 */
 	public abstract double[] getApproximatedExtrema();
 	
-	public abstract BandDescription<? extends Quantity> getType();
+	public abstract BandDescriptor<? extends Quantity> getType();
 
 	/**
 	 * Values to indicate no data values for the sample dimension.
