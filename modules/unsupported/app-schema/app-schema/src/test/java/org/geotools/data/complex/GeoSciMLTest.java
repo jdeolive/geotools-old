@@ -17,6 +17,10 @@
 
 package org.geotools.data.complex;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -27,10 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
-
-import org.apache.xml.resolver.Catalog;
-import org.apache.xml.resolver.tools.ResolvingXMLReader;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DefaultQuery;
@@ -43,6 +43,9 @@ import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.ComplexType;
@@ -59,7 +62,7 @@ import org.opengis.feature.type.Name;
  *         /community-schema-ds/src/test/java/org/geotools/data/complex/BoreholeTest.java $
  * @since 2.4
  */
-public class GeoSciMLTest extends TestCase {
+public class GeoSciMLTest {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(GeoSciMLTest.class.getPackage().getName());
 
@@ -67,32 +70,29 @@ public class GeoSciMLTest extends TestCase {
 
     private static final String GMLNS = "http://www.opengis.net/gml";
 
-    final String schemaBase = "/test-data/";
+    private static final String schemaBase = "/test-data/";
 
-    EmfAppSchemaReader reader;
+    private static EmfAppSchemaReader reader;
 
     private FeatureSource source;
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+    private static DataAccess<FeatureType, Feature> mappingDataStore;
+
+    @BeforeClass
+    public static void oneTimeSetUp() throws IOException {
+        final Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
+        final URL url = GeoSciMLTest.class.getResource(schemaBase + "mappedPolygons.xml");
+        dsParams.put("dbtype", "app-schema");
+        dsParams.put("url", url.toExternalForm());
+        mappingDataStore = DataAccessFinder.getDataStore(dsParams);
+
         reader = EmfAppSchemaReader.newInstance();
         // Logging.GEOTOOLS.forceMonolineConsoleOutput(Level.FINEST);
     }
-
-    /**
-     * DOCUMENT ME!
-     * 
-     * @throws Exception
-     *             DOCUMENT ME!
-     */
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    
+    @AfterClass
+    public static void oneTimeTearDown() {
+        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -113,6 +113,7 @@ public class GeoSciMLTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testParseSchema() throws Exception {
         SchemaIndex schemaIndex;
         try {
@@ -182,6 +183,7 @@ public class GeoSciMLTest extends TestCase {
          */
     }
 
+    @Test
     public void testLoadMappingsConfig() throws Exception {
         XMLConfigDigester reader = new XMLConfigDigester();
         final URL url = getClass().getResource(schemaBase + "mappedPolygons.xml");
@@ -194,18 +196,10 @@ public class GeoSciMLTest extends TestCase {
         assertEquals(1, mappings.size());
     }
 
+    @Test
     public void testDataStore() throws Exception {
         try {
-            final Map dsParams = new HashMap();
-            final URL url = getClass().getResource(schemaBase + "mappedPolygons.xml");
-            assertNotNull(url);
-            dsParams.put("dbtype", "app-schema");
-            dsParams.put("url", url.toExternalForm());
-
             final Name typeName = Types.typeName(GSMLNS, "MappedFeature");
-
-            DataAccess mappingDataStore = DataAccessFinder.getDataStore(dsParams);
-            assertNotNull(mappingDataStore);
             FeatureType boreholeType = mappingDataStore.getSchema(typeName);
             assertNotNull(boreholeType);
 
@@ -227,8 +221,6 @@ public class GeoSciMLTest extends TestCase {
             }
             features.close(it);
 
-            mappingDataStore.dispose();
-
             assertEquals(EXPECTED_RESULT_COUNT, count);
         } catch (Exception e) {
             e.printStackTrace();
@@ -241,13 +233,9 @@ public class GeoSciMLTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testFeatureSourceHonoursQueryNamespace() throws Exception {
-        final Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
-        final URL url = getClass().getResource(schemaBase + "mappedPolygons.xml");
-        dsParams.put("dbtype", "app-schema");
-        dsParams.put("url", url.toExternalForm());
         final Name typeName = Types.typeName(GSMLNS, "MappedFeature");
-        DataAccess<FeatureType, Feature> mappingDataStore = DataAccessFinder.getDataStore(dsParams);
         FeatureSource<FeatureType, Feature> source = mappingDataStore.getFeatureSource(typeName);
         DefaultQuery query = new DefaultQuery();
         query.setNamespace(new URI(typeName.getNamespaceURI()));
@@ -255,8 +243,6 @@ public class GeoSciMLTest extends TestCase {
         FeatureCollection<FeatureType, Feature> features = source.getFeatures(query);
         assertNotNull(features);
         assertEquals(2, features.size());
-        
-        mappingDataStore.dispose();
     }
 
     private int getCount(FeatureCollection features) {

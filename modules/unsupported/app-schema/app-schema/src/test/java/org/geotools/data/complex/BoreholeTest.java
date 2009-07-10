@@ -29,7 +29,10 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
@@ -46,6 +49,9 @@ import org.geotools.feature.Types;
 import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.xlink.XLINK;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
@@ -72,7 +78,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  *         http://svn.geotools.org/geotools/branches/2.4.x/modules/unsupported/community-schemas/community-schema-ds/src/test/java/org/geotools/data/complex/BoreholeTest.java $
  * @since 2.4
  */
-public class BoreholeTest extends TestCase {
+public class BoreholeTest {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(BoreholeTest.class.getPackage().getName());
 
@@ -88,36 +94,35 @@ public class BoreholeTest extends TestCase {
 
     private static final String GEONS = "http://www.seegrid.csiro.au/xml/geometry";
 
-    final String schemaBase = "/test-data/";
+    private static final String schemaBase = "/test-data/";
 
     final Name typeName = new NameImpl(XMMLNS, "Borehole");
 
-    EmfAppSchemaReader reader;
+    private static EmfAppSchemaReader reader;
 
     private FeatureSource source;
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @throws Exception
-     *                 DOCUMENT ME!
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+    private static DataAccess<FeatureType, Feature> mappingDataStore;
+    
+    @BeforeClass
+    public static void oneTimeSetUp() throws IOException {
+        System.out.println("beforeclass");
+        final Map dsParams = new HashMap();
+        final URL url = BoreholeTest.class.getResource(schemaBase + "BoreholeTest_properties.xml");
+        dsParams.put("dbtype", "app-schema");
+        dsParams.put("url", url.toExternalForm());
+
+        mappingDataStore = DataAccessFinder.getDataStore(dsParams);
+        assertNotNull(mappingDataStore);
+
         reader = EmfAppSchemaReader.newInstance();
-        // Logging.GEOTOOLS.forceMonolineConsoleOutput(Level.FINEST);
     }
-
-    /**
-     * DOCUMENT ME!
-     * 
-     * @throws Exception
-     *                 DOCUMENT ME!
-     */
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    
+    @AfterClass
+    public static void oneTimeTearDown() throws IOException {
+        DataAccessRegistry.unregisterAll();
     }
-
+    
     /**
      * 
      * @param location
@@ -136,6 +141,7 @@ public class BoreholeTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testParseBoreholeSchema() throws Exception {
         /*
          * not found types and elements:
@@ -231,6 +237,7 @@ public class BoreholeTest extends TestCase {
         return new NameImpl(ns, localName);
     }
 
+    @Test
     public void testLoadMappingsConfig() throws Exception {
         XMLConfigDigester reader = new XMLConfigDigester();
         URL url = getClass().getResource(schemaBase + "BoreholeTest_properties.xml");
@@ -276,15 +283,13 @@ public class BoreholeTest extends TestCase {
         assertEquals(Expression.NIL, attMapping.getSourceExpression());
     }
 
+    @Test
     public void testGetDataStore() throws Exception {
-        DataAccess<FeatureType, Feature> mappingDataStore = getDataStore();
-        assertNotNull(mappingDataStore);
         assertNotNull(mappingDataStore.getSchema(typeName));
-        mappingDataStore.dispose();
     }
 
+    @Test
     public void testDataStore() throws Exception {
-        DataAccess<FeatureType, Feature> mappingDataStore = getDataStore();
         FeatureSource<FeatureType, Feature> fSource = (FeatureSource<FeatureType, Feature>) mappingDataStore
                 .getFeatureSource(typeName);
 
@@ -310,12 +315,11 @@ public class BoreholeTest extends TestCase {
             count++;
         }
         features.close(it);
-        mappingDataStore.dispose();
         assertEquals(EXPECTED_RESULT_COUNT, count);
     }
 
+    @Test
     public void testQueryXlinkProperty() throws Exception {
-        final DataAccess<FeatureType, Feature> mappingDataStore = getDataStore();
         final FeatureSource<FeatureType, Feature> fSource = (FeatureSource<FeatureType, Feature>) mappingDataStore
                 .getFeatureSource(typeName);
         final String queryProperty = "sa:shape/geo:LineByVector/geo:origin/@xlink:href";
@@ -350,8 +354,6 @@ public class BoreholeTest extends TestCase {
         // String obtainedValue = (String) propertyName.evaluate(feature);
         // assertNotNull(obtainedValue);
         // assertEquals(queryLiteral, obtainedValue);
-
-        mappingDataStore.dispose();
     }
 
     /**
@@ -359,8 +361,8 @@ public class BoreholeTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testTraverseDeep() throws Exception {
-        final DataAccess<FeatureType, Feature> mappingDataStore = getDataStore();
         final FeatureSource<FeatureType, Feature> fSource = (FeatureSource<FeatureType, Feature>) mappingDataStore
                 .getFeatureSource(typeName);
         final String queryProperty = "sa:shape/geo:LineByVector/geo:origin/@xlink:href";
@@ -375,7 +377,6 @@ public class BoreholeTest extends TestCase {
                 .getFeatures();
         Feature f = (Feature) features.iterator().next();
         traverse(f);
-        mappingDataStore.dispose();
     }
 
     private void traverse(Attribute f) {
@@ -389,17 +390,6 @@ public class BoreholeTest extends TestCase {
                 traverse(att);
             }
         }
-    }
-
-    private DataAccess<FeatureType, Feature> getDataStore() throws IOException {
-        final Map dsParams = new HashMap();
-        final URL url = getClass().getResource(schemaBase + "BoreholeTest_properties.xml");
-        dsParams.put("dbtype", "app-schema");
-        dsParams.put("url", url.toExternalForm());
-
-        DataAccess<FeatureType, Feature> mappingDataStore = DataAccessFinder.getDataStore(dsParams);
-        assertNotNull(mappingDataStore);
-        return mappingDataStore;
     }
 
     private int getCount(FeatureCollection features) {

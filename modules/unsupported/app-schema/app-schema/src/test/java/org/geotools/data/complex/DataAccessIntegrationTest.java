@@ -16,6 +16,9 @@
  */
 package org.geotools.data.complex;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.awt.RenderingHints.Key;
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +62,9 @@ import org.geotools.feature.type.FeatureTypeImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml3.GMLSchema;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
@@ -77,35 +83,29 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.util.ProgressListener;
 import org.xml.sax.helpers.NamespaceSupport;
 
-import junit.framework.TestCase;
-
 /**
  * This is to test integration of a non-app-schema data access with an app-schema data access. An
  * app-schema data access can chain features from a non-app-schema data access.
  * 
  * @author Rini Angreani, Curtin University of Technology
  */
-public class DataAccessIntegrationTest extends TestCase {
+public class DataAccessIntegrationTest {
 
-    static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
+    private static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
 
-    static final String GMLNS = "http://www.opengis.net/gml";
+    protected static final String GMLNS = "http://www.opengis.net/gml";
 
-    static final Name MAPPED_FEATURE_TYPE = Types.typeName(GSMLNS, "MappedFeatureType");
+    protected static final Name MAPPED_FEATURE = Types.typeName(GSMLNS, "MappedFeature");
 
-    static final Name MAPPED_FEATURE = Types.typeName(GSMLNS, "MappedFeature");
+    private static final Name GEOLOGIC_UNIT_TYPE = Types.typeName(GSMLNS, "GeologicUnitType");
 
-    static final Name GEOLOGIC_UNIT_TYPE = Types.typeName(GSMLNS, "GeologicUnitType");
+    protected static final Name GEOLOGIC_UNIT = Types.typeName(GSMLNS, "GeologicUnit");
 
-    static final Name GEOLOGIC_UNIT = Types.typeName(GSMLNS, "GeologicUnit");
+    private static final Name COMPOSITION_PART_TYPE = Types.typeName(GSMLNS, "CompositionPartType");
 
-    static final Name COMPOSITION_PART_TYPE = Types.typeName(GSMLNS, "CompositionPartType");
+    private static final Name COMPOSITION_PART = Types.typeName(GSMLNS, "CompositionPart");
 
-    static final Name COMPOSITION_PART = Types.typeName(GSMLNS, "CompositionPart");
-
-    static final Name CONTROLLED_CONCEPT = Types.typeName(GSMLNS, "ControlledConcept");
-
-    static final String schemaBase = "/test-data/";
+    protected static final String schemaBase = "/test-data/";
 
     /**
      * App schema config reader
@@ -116,12 +116,12 @@ public class DataAccessIntegrationTest extends TestCase {
     /**
      * Mapped Feature data access in GSML form
      */
-    protected DataAccess<FeatureType, Feature> mfDataAccess;
+    protected static DataAccess<FeatureType, Feature> mfDataAccess;
 
     /**
      * GSML:geologicUnit feature source coming from the mapped data access
      */
-    protected FeatureSource<FeatureType, Feature> guFeatureSource;
+    protected static FeatureSource<FeatureType, Feature> guFeatureSource;
 
     /**
      * Collection of MO:earthResource complex features
@@ -131,23 +131,25 @@ public class DataAccessIntegrationTest extends TestCase {
     /**
      * Collection of GSML:compositionPart complex features
      */
-    protected ArrayList<Feature> cpFeatures;
+    protected static ArrayList<Feature> cpFeatures;
 
     /**
      * Collection of GSML:mappedFeature complex features
      */
-    protected ArrayList<Feature> mfFeatures;
+    protected static ArrayList<Feature> mfFeatures;
 
     /**
      * Filter factory instance
      */
-    static FilterFactory ff;
+    protected static FilterFactory ff;
 
     /**
      * Create the input data access containing complex features of MO form.
      */
-    protected void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         setFilterFactory();
+        loadGeologicUnitDataAccess();
         loadDataAccesses("MappedFeaturePropertyfile.xml");
     }
 
@@ -205,7 +207,6 @@ public class DataAccessIntegrationTest extends TestCase {
             properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
 
             // composition part
-            //Map typeRegistry = reader.getTypeRegistry();
             ComplexType cpType = (ComplexType) typeRegistry.getAttributeType(COMPOSITION_PART_TYPE);
 
             ArrayList<Property> compositionParts = new ArrayList<Property>();
@@ -232,6 +233,7 @@ public class DataAccessIntegrationTest extends TestCase {
      * 
      * @throws IOException
      */
+    @Test
     public void testMappings() throws IOException {
 
         Iterator<Feature> mfIterator = mfFeatures.iterator();
@@ -294,6 +296,7 @@ public class DataAccessIntegrationTest extends TestCase {
      * 
      * @throws IOException
      */
+    @Test
     public void testFilters() throws IOException {
 
         // make sure filter query can be made on MappedFeature based on GU properties
@@ -336,7 +339,7 @@ public class DataAccessIntegrationTest extends TestCase {
      * 
      * @throws IOException
      */
-    public void loadGeologicUnitDataAccess() throws IOException {
+    private static void loadGeologicUnitDataAccess() throws IOException {
         Map<String, Serializable> moParams = new HashMap<String, Serializable>();
         moParams.put("dbtype", "input-data-access");
         DataAccess<FeatureType, Feature> inputDataAccess = DataAccessFinder.getDataStore(moParams);
@@ -350,16 +353,12 @@ public class DataAccessIntegrationTest extends TestCase {
      *            Mapped feature mapping file with geologic unit as specification
      * @throws IOException
      */
-    protected void loadDataAccesses(String mfMappingFile) throws IOException {
-        /**
-         * Load geologic unit data access
-         */
-        loadGeologicUnitDataAccess();
+    protected static void loadDataAccesses(String mfMappingFile) throws IOException {
         /**
          * Load mapped feature data access
          */
         Map<String, Serializable> dsParams = new HashMap<String, Serializable>();
-        URL url = getClass().getResource(schemaBase + mfMappingFile);
+        URL url = DataAccessIntegrationTest.class.getResource(schemaBase + mfMappingFile);
         assertNotNull(url);
 
         dsParams.put("dbtype", "app-schema");
@@ -383,7 +382,7 @@ public class DataAccessIntegrationTest extends TestCase {
         /**
          * Load CGI Term Value data access
          */
-        url = getClass().getResource(schemaBase + "CGITermValue.xml");
+        url = DataAccessIntegrationTest.class.getResource(schemaBase + "CGITermValue.xml");
         assertNotNull(url);
 
         dsParams.put("url", url.toExternalForm());
@@ -393,7 +392,7 @@ public class DataAccessIntegrationTest extends TestCase {
         /**
          * Load composition part data access
          */
-        url = getClass().getResource(schemaBase + "CompositionPart.xml");
+        url = DataAccessIntegrationTest.class.getResource(schemaBase + "CompositionPart.xml");
         assertNotNull(url);
 
         dsParams.put("dbtype", "app-schema");
@@ -415,7 +414,8 @@ public class DataAccessIntegrationTest extends TestCase {
     /**
      * Dispose all the data accesses so that there is no mapping conflicts for other tests
      */
-    protected void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         DataAccessRegistry.unregisterAll();
     }
 
@@ -779,7 +779,7 @@ public class DataAccessIntegrationTest extends TestCase {
     /**
      * Set filter factory with name spaces
      */
-    public void setFilterFactory() {
+    public static void setFilterFactory() {
         NamespaceSupport namespaces = new NamespaceSupport();
         namespaces.declarePrefix("gsml", GSMLNS);
         namespaces.declarePrefix("gml", GMLNS);

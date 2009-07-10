@@ -16,13 +16,16 @@
  */
 package org.geotools.data.complex;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import junit.framework.TestCase;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
@@ -30,6 +33,9 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.config.NonFeatureTypeProxy;
 import org.geotools.feature.Types;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
@@ -41,92 +47,74 @@ import org.opengis.feature.type.Name;
  * 
  * @author Rini Angreani, Curtin Universtiy of Technology
  */
-public class AppSchemaDataAccessRegistryTest extends TestCase {
+public class AppSchemaDataAccessRegistryTest {
 
     public static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.data.complex");
 
-    static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
+    private static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
 
-    static final String GMLNS = "http://www.opengis.net/gml";
+    private static final Name MAPPED_FEATURE = Types.typeName(GSMLNS, "MappedFeature");
 
-    static final Name MAPPED_FEATURE_TYPE = Types.typeName(GSMLNS, "MappedFeatureType");
+    private static final Name GEOLOGIC_UNIT = Types.typeName(GSMLNS, "GeologicUnit");
 
-    static final Name MAPPED_FEATURE = Types.typeName(GSMLNS, "MappedFeature");
+    private static final Name COMPOSITION_PART = Types.typeName(GSMLNS, "CompositionPart");
 
-    static final Name GEOLOGIC_UNIT_TYPE = Types.typeName(GSMLNS, "GeologicUnitType");
+    private static final Name CGI_TERM_VALUE = Types.typeName(GSMLNS, "CGI_TermValue");
 
-    static final Name GEOLOGIC_UNIT = Types.typeName(GSMLNS, "GeologicUnit");
+    private static final Name CONTROLLED_CONCEPT = Types.typeName(GSMLNS, "ControlledConcept");
 
-    static final Name COMPOSITION_PART_TYPE = Types.typeName(GSMLNS, "CompositionPartType");
-
-    static final Name COMPOSITION_PART = Types.typeName(GSMLNS, "CompositionPart");
-
-    static final Name CGI_TERM_VALUE = Types.typeName(GSMLNS, "CGI_TermValue");
-
-    static final Name CGI_TERM_VALUE_TYPE = Types.typeName(GSMLNS, "CGI_TermValueType");
-
-    static final Name CONTROLLED_CONCEPT = Types.typeName(GSMLNS, "ControlledConcept");
-
-    final String schemaBase = "/test-data/";
+    private static final String schemaBase = "/test-data/";
 
     /**
      * Geological unit data access
      */
-    private AppSchemaDataAccess guDataAccess;
+    private static AppSchemaDataAccess guDataAccess;
 
     /**
      * Compositional part data access
      */
-    private AppSchemaDataAccess cpDataAccess;
+    private static AppSchemaDataAccess cpDataAccess;
 
     /**
      * Mapped feature data access
      */
-    private AppSchemaDataAccess mfDataAccess;
+    private static AppSchemaDataAccess mfDataAccess;
 
     /**
      * CGI Term Value data access
      */
-    private AppSchemaDataAccess cgiDataAccess;
+    private static AppSchemaDataAccess cgiDataAccess;
 
     /**
      * Controlled Concept data access
      */
-    private AppSchemaDataAccess ccDataAccess;
+    private static AppSchemaDataAccess ccDataAccess;
 
     /**
-     * Test registering all data accesses works.
+     * Test registering and unregistering all data accesses works.
      * 
      * @throws Exception
      */
-    public void testRegisterDataAccess() throws Exception {
-        this.loadDataAccesses();
-
+    @Test
+    public void testRegisterAndUnregisterDataAccess() throws Exception {
+        /**
+         * Check that data access are registered
+         */
         this.checkRegisteredDataAccess(mfDataAccess, MAPPED_FEATURE, false);
         this.checkRegisteredDataAccess(guDataAccess, GEOLOGIC_UNIT, false);
         this.checkRegisteredDataAccess(cpDataAccess, COMPOSITION_PART, true);
         this.checkRegisteredDataAccess(cgiDataAccess, CGI_TERM_VALUE, true);
         this.checkRegisteredDataAccess(ccDataAccess, CONTROLLED_CONCEPT, true);
 
-        DataAccessRegistry.unregisterAll();
-    }
-
-    /**
-     * Test unregistering all data accesses works.
-     * 
-     * @throws Exception
-     */
-    public void testUnregisterDataAccess() throws Exception {
-        this.loadDataAccesses();
-
+        /**
+         * Now unregister, and see if they're successful
+         */
         unregister(mfDataAccess, MAPPED_FEATURE);
         unregister(guDataAccess, GEOLOGIC_UNIT);
         unregister(cpDataAccess, COMPOSITION_PART);
         unregister(cgiDataAccess, CGI_TERM_VALUE);
         unregister(ccDataAccess, CONTROLLED_CONCEPT);
-
-        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -135,22 +123,18 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testThrowDataSourceException() throws Exception {
-        loadDataAccesses();
         Name typeName = Types.typeName(GSMLNS, "DoesNotExist");
         boolean handledException = false;
         try {
             AppSchemaDataAccessRegistry.getMapping(typeName);
         } catch (DataSourceException e) {
-            String message = e.getMessage();
             LOGGER.info(e.toString());
-            assertEquals("Count number of available type names in exception message", 5, message
-                    .split("Available:")[1].split(",").length);
             handledException = true;
         }
         assertTrue("Expected a DataSourceException to have been thrown and handled",
                 handledException);
-        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -158,12 +142,13 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
      * 
      * @throws Exception
      */
-    private void loadDataAccesses() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         /**
          * Load Mapped Feature data access
          */
         Map dsParams = new HashMap();
-        URL url = getClass().getResource(schemaBase + "MappedFeaturePropertyfile.xml");
+        URL url = AppSchemaDataAccessRegistryTest.class.getResource(schemaBase + "MappedFeaturePropertyfile.xml");
         assertNotNull(url);
         dsParams.put("dbtype", "app-schema");
         dsParams.put("url", url.toExternalForm());
@@ -173,7 +158,7 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
         /**
          * Load Geological Unit data access
          */
-        url = getClass().getResource(schemaBase + "GeologicUnit.xml");
+        url = AppSchemaDataAccessRegistryTest.class.getResource(schemaBase + "GeologicUnit.xml");
         assertNotNull(url);
         dsParams.put("url", url.toExternalForm());
         guDataAccess = (AppSchemaDataAccess) DataAccessFinder.getDataStore(dsParams);
@@ -196,6 +181,14 @@ public class AppSchemaDataAccessRegistryTest extends TestCase {
          */
         ccDataAccess = (AppSchemaDataAccess) DataAccessRegistry.getDataAccess(CONTROLLED_CONCEPT);
         assertNotNull(ccDataAccess);
+    }
+    
+    /**
+     * Clean the registry so it doesn't affect other tests
+     */
+    @AfterClass
+    public static void tearDown() {
+        DataAccessRegistry.unregisterAll();
     }
 
     /**

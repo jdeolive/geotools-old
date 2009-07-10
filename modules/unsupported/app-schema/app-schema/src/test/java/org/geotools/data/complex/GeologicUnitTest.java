@@ -17,13 +17,16 @@
 
 package org.geotools.data.complex;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import junit.framework.TestCase;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
@@ -36,6 +39,9 @@ import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
@@ -47,13 +53,13 @@ import org.opengis.feature.type.Name;
  * 
  * @author Rini Angreani, Curtin University of Technology
  */
-public class GeologicUnitTest extends TestCase {
+public class GeologicUnitTest {
 
     private static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
 
-    final String schemaBase = "/test-data/";
+    private static final String schemaBase = "/test-data/";
 
-    EmfAppSchemaReader reader;
+    private static EmfAppSchemaReader reader;
 
     /**
      * Set up the reader
@@ -61,8 +67,8 @@ public class GeologicUnitTest extends TestCase {
      * @throws Exception
      *             If any exception occurs
      */
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() throws Exception {
         reader = EmfAppSchemaReader.newInstance();
     }
 
@@ -72,8 +78,8 @@ public class GeologicUnitTest extends TestCase {
      * @throws Exception
      *             If any exception occurs
      */
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @AfterClass
+    public static void tearDown() throws Exception {
         DataAccessRegistry.unregisterAll();
     }
 
@@ -96,6 +102,7 @@ public class GeologicUnitTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testParseSchema() throws Exception {
         SchemaIndex schemaIndex = loadSchema("http://schemas.opengis.net/GeoSciML/Gsml.xsd");
 
@@ -119,6 +126,7 @@ public class GeologicUnitTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testLoadMappingsConfig() throws Exception {
         XMLConfigDigester reader = new XMLConfigDigester();
         final URL url = getClass().getResource(schemaBase + "GeologicUnit.xml");
@@ -136,6 +144,7 @@ public class GeologicUnitTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testGetFeatures() throws Exception {
         /*
          * Initiate data accesses and make sure they have the mappings
