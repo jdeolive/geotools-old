@@ -13,6 +13,9 @@
 	<xs:import namespace="http://www.opengis.net/gml" schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd"/>
 	<xs:import namespace="http://www.opengis.net/sampling/1.0" schemaLocation="http://schemas.opengis.net/sampling/1.0.0/sampling.xsd"/>
 	<xs:include schemaLocation="geosciml.xsd"/>
+	<xs:include schemaLocation="CGI_Value.xsd"/>
+	<xs:include schemaLocation="vocabulary.xsd"/>
+	<xs:include schemaLocation="earthMaterial.xsd"/>
 	<xs:complexType name="MappedFeatureType">
 		<xs:complexContent>
 			<xs:extension base="gml:AbstractFeatureType">

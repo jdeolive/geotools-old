@@ -5,6 +5,10 @@
 		<xs:documentation>Encoded by Eric Boisvert (May 2007) Geological Survey of Canada</xs:documentation>
 	</xs:annotation>
 	<xs:import namespace="http://www.opengis.net/gml" schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd"/>
+	<xs:include schemaLocation="CGI_Value.xsd"/>
+	<xs:include schemaLocation="vocabulary.xsd"/>
+	<xs:include schemaLocation="fossil.xsd"/>
+	<xs:include schemaLocation="Gsml.xsd"/>
 	<xs:include schemaLocation="geologicUnit.xsd"/>
 	<xs:complexType name="EarthMaterialType">
 		<xs:complexContent>

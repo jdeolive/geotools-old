@@ -17,6 +17,9 @@ covering concepts, vocabularies and relations</documentation>
 	</annotation>
 	<!--=======================-->
 	<import namespace="http://www.opengis.net/gml" schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd"/>
+	<include schemaLocation="CGI_basicTypes.xsd"/>
+	<include schemaLocation="CGI_Value.xsd"/>
+	<include schemaLocation="earthMaterial.xsd"/>
 	<include schemaLocation="Gsml.xsd"/>
 	<!--=======================-->
 	<complexType name="GeologicVocabularyType">
