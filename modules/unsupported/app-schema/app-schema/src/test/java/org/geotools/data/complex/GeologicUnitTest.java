@@ -32,9 +32,11 @@ import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
 import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
 import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
+import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
+import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
@@ -80,11 +82,12 @@ public class GeologicUnitTest extends TestCase {
      * 
      * @param location
      *            schema location path that can be found through getClass().getResource()
+     * @return 
      */
-    private void loadSchema(final String location) throws IOException {
+    private SchemaIndex loadSchema(final String location) throws IOException {
         final URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
         reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
-        reader.parse(new URL(location), null);
+        return reader.parse(new URL(location), null);
     }
 
     /**
@@ -94,12 +97,13 @@ public class GeologicUnitTest extends TestCase {
      * @throws Exception
      */
     public void testParseSchema() throws Exception {
-        loadSchema("http://schemas.opengis.net/GeoSciML/Gsml.xsd");
+        SchemaIndex schemaIndex = loadSchema("http://schemas.opengis.net/GeoSciML/Gsml.xsd");
 
-        Map typeRegistry = reader.getTypeRegistry();
+        FeatureTypeRegistry typeRegistry = new FeatureTypeRegistry();
+        typeRegistry.addSchemas(schemaIndex);
 
         Name typeName = Types.typeName(GSMLNS, "GeologicUnitType");
-        ComplexType mf = (ComplexType) typeRegistry.get(typeName);
+        ComplexType mf = (ComplexType) typeRegistry.getAttributeType(typeName);
         assertNotNull(mf);
         assertTrue(mf instanceof FeatureType);
 

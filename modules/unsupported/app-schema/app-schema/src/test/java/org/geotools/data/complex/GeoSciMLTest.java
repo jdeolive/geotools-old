@@ -39,9 +39,11 @@ import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
 import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
 import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
+import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Types;
+import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
@@ -97,11 +99,12 @@ public class GeoSciMLTest extends TestCase {
      * 
      * @param location
      *            schema location path discoverable through getClass().getResource()
+     * @return 
      */
-    private void loadSchema(String location) throws IOException {
+    private SchemaIndex loadSchema(String location) throws IOException {
         URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
         reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
-        reader.parse(new URL(location), null);
+        return reader.parse(new URL(location), null);
     }
 
     /**
@@ -111,24 +114,26 @@ public class GeoSciMLTest extends TestCase {
      * @throws Exception
      */
     public void testParseSchema() throws Exception {
+        SchemaIndex schemaIndex;
         try {
             // loadSchema(schemaBase + "commonSchemas_new/GeoSciML/Gsml.xsd");
             // use the absolute URL and let the Oasis Catalog resolve it to the local FS
-            loadSchema("http://schemas.opengis.net/GeoSciML/Gsml.xsd");
+            schemaIndex = loadSchema("http://schemas.opengis.net/GeoSciML/Gsml.xsd");
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
 
-        Map typeRegistry = reader.getTypeRegistry();
+        FeatureTypeRegistry typeRegistry = new FeatureTypeRegistry();
+        typeRegistry.addSchemas(schemaIndex);
 
         Name typeName = Types.typeName(GSMLNS, "MappedFeatureType");
-        ComplexType mf = (ComplexType) typeRegistry.get(typeName);
+        ComplexType mf = (ComplexType) typeRegistry.getAttributeType(typeName);
         assertNotNull(mf);
         assertTrue(mf instanceof FeatureType);
 
         typeName = Types.typeName("http://www.opengis.net/sampling/1.0", "SamplingFeatureType");
-        mf = (ComplexType) typeRegistry.get(typeName);
+        mf = (ComplexType) typeRegistry.getAttributeType(typeName);
         assertNotNull(mf);
         assertTrue(mf instanceof FeatureType);
         /*

@@ -56,6 +56,7 @@ import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.expression.FeaturePropertyAccessorFactory;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Name;
@@ -85,9 +86,7 @@ public class AppSchemaDataAccessConfigurator {
 
     private Map<String, String> resolvedSchemaLocations;
 
-    private Map typeRegistry;
-
-    private Map descriptorRegistry;
+    private FeatureTypeRegistry typeRegistry;
 
     private Map sourceDataStores;
 
@@ -209,15 +208,10 @@ public class AppSchemaDataAccessConfigurator {
     }
 
     private AttributeDescriptor getTargetDescriptor(TypeMapping dto) throws IOException {
-        if (descriptorRegistry == null) {
-            throw new IllegalStateException("schemas not yet parsed");
-        }
-
         String prefixedTargetName = dto.getTargetElementName();
         Name targetNodeName = degloseName(prefixedTargetName);
 
-        AttributeDescriptor targetDescriptor;
-        targetDescriptor = (AttributeDescriptor) descriptorRegistry.get(targetNodeName);
+        AttributeDescriptor targetDescriptor = typeRegistry.getDescriptor(targetNodeName);
         if (targetDescriptor == null) {
             throw new NoSuchElementException("descriptor " + targetNodeName
                     + " not found in parsed schema");
@@ -274,9 +268,8 @@ public class AppSchemaDataAccessConfigurator {
             final Map clientProperties = getClientProperties(attDto);
 
             if (expectedInstanceTypeName != null) {
-                Name expectedNodeTypeName = null;
-                expectedNodeTypeName = degloseTypeName(expectedInstanceTypeName);
-                expectedInstanceOf = (AttributeType) typeRegistry.get(expectedNodeTypeName);
+                Name expectedNodeTypeName = degloseTypeName(expectedInstanceTypeName);
+                expectedInstanceOf = typeRegistry.getAttributeType(expectedNodeTypeName);
                 if (expectedInstanceOf == null) {
                     String msg = "mapping expects and instance of " + expectedNodeTypeName
                             + " for attribute " + targetXPath
@@ -425,17 +418,20 @@ public class AppSchemaDataAccessConfigurator {
         schemaParser = EmfAppSchemaReader.newInstance();
         schemaParser.setCatalog(oasisCatalog);
 
+        //create a single type registry for all the schemas in the config
+        typeRegistry = new FeatureTypeRegistry();
+
         for (Iterator it = schemaFiles.iterator(); it.hasNext();) {
             String schemaLocation = (String) it.next();
             final URL schemaUrl = resolveResourceLocation(baseUrl, schemaLocation);
             AppSchemaDataAccessConfigurator.LOGGER.fine("parsing schema "
                     + schemaUrl.toExternalForm());
 
-            schemaParser.parse(schemaUrl, resolvedSchemaLocations);
+            SchemaIndex schemaIndex = schemaParser.parse(schemaUrl, resolvedSchemaLocations);
+            // add the resolved EMF schema so typeRegistry can find the needed type tree when it's
+            // asked for the mapped FeatureType
+            typeRegistry.addSchemas(schemaIndex);
         }
-
-        typeRegistry = schemaParser.getTypeRegistry();
-        descriptorRegistry = schemaParser.getDescriptorRegistry();
     }
 
     private Catalog getCatalog() throws MalformedURLException, IOException {

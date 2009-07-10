@@ -44,6 +44,7 @@ import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
 import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
 import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
+import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.NameImpl;
@@ -51,6 +52,7 @@ import org.geotools.feature.Types;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.gml3.GML;
 import org.geotools.xlink.XLINK;
+import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -125,14 +127,15 @@ public class TimeSeriesTest extends TestCase {
      * 
      * @param location
      *            schema location path discoverable through getClass().getResource()
+     * @return 
      * 
      * @throws IOException
      *             DOCUMENT ME!
      */
-    private void loadSchema(URL location) throws IOException {
+    private SchemaIndex loadSchema(URL location) throws IOException {
         URL catalogLocation = getClass().getResource(schemaBase + "observations.oasis.xml");
         reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
-        reader.parse(location, null);
+        return reader.parse(location, null);
     }
 
     /**
@@ -142,27 +145,22 @@ public class TimeSeriesTest extends TestCase {
      * @throws Exception
      */
     public void testParseSchema() throws Exception {
+        SchemaIndex schemaIndex;
         try {
             String schemaLocation = schemaBase + "commonSchemas_new/awdip.xsd";
             URL location = getClass().getResource(schemaLocation);
             assertNotNull(location);
-            loadSchema(location);
+            schemaIndex = loadSchema(location);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
 
-        final Map typeRegistry = reader.getTypeRegistry();
+        final FeatureTypeRegistry typeRegistry = new FeatureTypeRegistry();
+        typeRegistry.addSchemas(schemaIndex);
 
         final Name typeName = Types.typeName(AWNS, "SiteSinglePhenomTimeSeriesType");
-        final ComplexType testType = (ComplexType) typeRegistry.get(typeName);
-
-        List names = new ArrayList(typeRegistry.keySet());
-        Collections.sort(names, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                return o1.toString().compareTo(o2.toString());
-            }
-        });
+        final ComplexType testType = (ComplexType) typeRegistry.getAttributeType(typeName);
 
         assertNotNull(testType);
         assertTrue(testType instanceof FeatureType);

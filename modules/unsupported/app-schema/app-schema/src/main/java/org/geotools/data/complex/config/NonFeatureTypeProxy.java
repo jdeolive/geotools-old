@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.geotools.data.complex.FeatureTypeMapping;
+import org.geotools.feature.type.ComplexFeatureTypeFactoryImpl;
 import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
@@ -66,10 +67,10 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
         boolean nillable = mapping.getTargetFeature().isNillable();
         Object defaultValue = mapping.getTargetFeature().getDefaultValue();
         Name name = mapping.getTargetFeature().getName();
-        EmfAppSchemaReader reader = EmfAppSchemaReader.newInstance();
 
         // create a new descriptor with the wrapped type and set it to the mapping
-        AttributeDescriptor descriptor = reader.getTypeFactory().createAttributeDescriptor(this,
+        ComplexFeatureTypeFactoryImpl typeFactory = new ComplexFeatureTypeFactoryImpl();
+        AttributeDescriptor descriptor = typeFactory.createAttributeDescriptor(this,
                 name, minOccurs, maxOccurs, nillable, defaultValue);
         mapping.setTargetFeature(descriptor);
         // smuggle FEATURE_LINK descriptor

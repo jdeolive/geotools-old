@@ -43,6 +43,7 @@ import org.geotools.data.ResourceInfo;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.complex.config.CatalogUtilities;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
+import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.property.PropertyDataStore;
 import org.geotools.feature.AttributeImpl;
 import org.geotools.feature.CollectionListener;
@@ -58,6 +59,7 @@ import org.geotools.feature.type.FeatureTypeImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml3.GMLSchema;
+import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.Property;
@@ -110,6 +112,7 @@ public class DataAccessIntegrationTest extends TestCase {
      */
     protected static EmfAppSchemaReader reader;
 
+    protected static FeatureTypeRegistry typeRegistry;
     /**
      * Mapped Feature data access in GSML form
      */
@@ -171,8 +174,8 @@ public class DataAccessIntegrationTest extends TestCase {
                 .getDescriptor(Types.typeName(GMLNS, "name"));
         // for simple string properties
         Name name = new NameImpl(null, "simpleContent");
-        AttributeType simpleContentType = (AttributeType) reader.getTypeRegistry().get(
-                Types.typeName("http://www.w3.org/2001/XMLSchema", "string"));
+        AttributeType simpleContentType = typeRegistry.getAttributeType(Types.typeName(
+                "http://www.w3.org/2001/XMLSchema", "string"));
         AttributeDescriptor stringDescriptor = new AttributeDescriptorImpl(simpleContentType, name,
                 1, 1, true, (Object) null);
         Iterator<SimpleFeature> simpleFeatures = fCollection.iterator();
@@ -202,8 +205,8 @@ public class DataAccessIntegrationTest extends TestCase {
             properties.add(new ComplexAttributeImpl(value, nameDescriptor, null));
 
             // composition part
-            Map typeRegistry = reader.getTypeRegistry();
-            ComplexType cpType = (ComplexType) typeRegistry.get(COMPOSITION_PART_TYPE);
+            //Map typeRegistry = reader.getTypeRegistry();
+            ComplexType cpType = (ComplexType) typeRegistry.getAttributeType(COMPOSITION_PART_TYPE);
 
             ArrayList<Property> compositionParts = new ArrayList<Property>();
             compositionParts.add(name1);
@@ -451,11 +454,13 @@ public class DataAccessIntegrationTest extends TestCase {
             URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
             reader.setCatalog(CatalogUtilities.buildPrivateCatalog(catalogLocation));
             // set schema URI
-            reader.parse(new URL(schemaURL.toString() + File.separator
+            SchemaIndex schemaIndex = reader.parse(new URL(schemaURL.toString() + File.separator
                     + "commonSchemas_new/GeoSciML/geologicUnit.xsd"), null);
+            typeRegistry = new FeatureTypeRegistry();
+            typeRegistry.addSchemas(schemaIndex);
+            
             // get simple features
-            Map typeRegistry = reader.getTypeRegistry();
-            FeatureType simpleType = (FeatureType) typeRegistry.get(GEOLOGIC_UNIT_TYPE);
+            FeatureType simpleType = (FeatureType) typeRegistry.getAttributeType(GEOLOGIC_UNIT_TYPE);
             inputFeatures = getInputFeatures(fCollection, simpleType);
             // create complex feature type
             FeatureType guSchema = new FeatureTypeImpl(GEOLOGIC_UNIT, simpleType.getDescriptors(),

@@ -37,6 +37,7 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
 import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
 import org.geotools.data.complex.config.EmfAppSchemaReader;
+import org.geotools.data.complex.config.FeatureTypeRegistry;
 import org.geotools.data.complex.config.XMLConfigDigester;
 import org.geotools.data.complex.filter.XPath.StepList;
 import org.geotools.feature.FeatureCollection;
@@ -45,6 +46,7 @@ import org.geotools.feature.Types;
 import org.geotools.feature.type.ComplexFeatureTypeImpl;
 import org.geotools.filter.FilterFactoryImplNamespaceAware;
 import org.geotools.xlink.XLINK;
+import org.geotools.xml.SchemaIndex;
 import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
@@ -121,11 +123,11 @@ public class BoreholeTest extends TestCase {
      * @param location
      *                schema location path discoverable through getClass().getResource()
      */
-    private void loadSchema(String location) throws IOException {
+    private SchemaIndex loadSchema(String location) throws IOException {
         // load needed GML types directly from the gml schemas
         URL schemaLocation = getClass().getResource(location);
         assertNotNull(location, schemaLocation);
-        reader.parse(schemaLocation, null);
+        return reader.parse(schemaLocation, null);
     }
 
     /**
@@ -140,17 +142,19 @@ public class BoreholeTest extends TestCase {
          */
 
         // load geosciml schema
+        SchemaIndex schemaIndex;
         try {
-            loadSchema(schemaBase + "commonSchemas/XMML/1/borehole.xsd");
+            schemaIndex = loadSchema(schemaBase + "commonSchemas/XMML/1/borehole.xsd");
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
 
-        Map typeRegistry = reader.getTypeRegistry();
+        FeatureTypeRegistry typeRegistry = new FeatureTypeRegistry();
+        typeRegistry.addSchemas(schemaIndex);
 
         Name typeName = Types.typeName(XMMLNS, "BoreholeType");
-        ComplexFeatureTypeImpl borehole = (ComplexFeatureTypeImpl) typeRegistry.get(typeName);
+        ComplexFeatureTypeImpl borehole = (ComplexFeatureTypeImpl) typeRegistry.getAttributeType(typeName);
         assertNotNull(borehole);
         assertTrue(borehole instanceof FeatureType);
 
@@ -214,7 +218,7 @@ public class BoreholeTest extends TestCase {
         }
 
         Name tcl = Types.typeName(SWENS, "TypedCategoryListType");
-        AttributeType typedCategoryListType = (AttributeType) typeRegistry.get(tcl);
+        AttributeType typedCategoryListType = (AttributeType) typeRegistry.getAttributeType(tcl);
         assertNotNull(typedCategoryListType);
         assertFalse(typedCategoryListType instanceof ComplexType);
     }
