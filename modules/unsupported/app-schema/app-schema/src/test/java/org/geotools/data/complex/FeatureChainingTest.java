@@ -17,6 +17,9 @@
 
 package org.geotools.data.complex;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,8 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.FeatureSource;
@@ -36,6 +37,9 @@ import org.geotools.feature.FeatureImpl;
 import org.geotools.feature.Types;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionExpressionImpl;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.type.FeatureType;
@@ -45,13 +49,15 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.xml.sax.Attributes;
 
+import com.vividsolutions.jts.util.Stopwatch;
+
 /**
  * This is the tests for feature chaining; nesting complex attributes (feature and non-feature)
  * inside another complex attribute.
  * 
  * @author Rini Angreani, Curtin University of Technology
  */
-public class FeatureChainingTest extends TestCase {
+public class FeatureChainingTest {
     static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
 
     static final String GMLNS = "http://www.opengis.net/gml";
@@ -125,38 +131,52 @@ public class FeatureChainingTest extends TestCase {
         }
     };
 
-    final String schemaBase = "/test-data/";
+    private static final String schemaBase = "/test-data/";
 
-    private FeatureSource<FeatureType, Feature> mfSource;
+    private static FeatureSource<FeatureType, Feature> mfSource;
 
     /**
      * Generated mapped features
      */
-    private FeatureCollection<FeatureType, Feature> mfFeatures;
+    private static FeatureCollection<FeatureType, Feature> mfFeatures;
 
     /**
      * Generated geological unit features
      */
-    private FeatureCollection<FeatureType, Feature> guFeatures;
+    private static FeatureCollection<FeatureType, Feature> guFeatures;
 
     /**
      * Generated compositional part fake "features"
      */
-    private FeatureCollection<FeatureType, Feature> cpFeatures;
+    private static FeatureCollection<FeatureType, Feature> cpFeatures;
 
     /**
      * Generated controlled concept fake "features"
      */
-    private FeatureCollection<FeatureType, Feature> ccFeatures;
+    private static FeatureCollection<FeatureType, Feature> ccFeatures;
 
+    
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception{
+        Stopwatch sw = new Stopwatch();
+        sw.start();
+        loadDataAccesses();
+        sw.stop();
+        System.out.println("Set up time: " + sw.getTimeString());
+    }
+    
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception{
+        DataAccessRegistry.unregisterAll();
+    }
+    
     /**
      * Test that chaining works
      * 
      * @throws Exception
      */
+    @Test
     public void testFeatureChaining() throws Exception {
-        this.loadDataAccesses();
-
         Iterator<Feature> mfIterator = mfFeatures.iterator();
 
         Iterator<Feature> guIterator = guFeatures.iterator();
@@ -261,8 +281,6 @@ public class FeatureChainingTest extends TestCase {
         mfFeatures.close(mfIterator);
         guFeatures.close(guIterator);
         cpFeatures.close(cpIterator);
-
-        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -272,9 +290,8 @@ public class FeatureChainingTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testManyOnChainedSide() throws Exception {
-
-        this.loadDataAccesses();
 
         final String LITHOLOGY = "lithology";
         final int EXPECTED_RESULT_COUNT = 2;
@@ -319,7 +336,6 @@ public class FeatureChainingTest extends TestCase {
                 assertEquals(lithologies.isEmpty(), true);
             }
         }
-        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -329,8 +345,8 @@ public class FeatureChainingTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testMultipleMultiValuedProperties() throws Exception {
-        this.loadDataAccesses();
         Iterator guIterator = guFeatures.iterator();
 
         Feature guFeature;
@@ -386,7 +402,6 @@ public class FeatureChainingTest extends TestCase {
             assertEquals(realValues.size(), values.length);
             assertEquals(realValues.containsAll(Arrays.asList(values)), true);
         }
-        DataAccessRegistry.unregisterAll();
         guFeatures.close(guIterator);
     }
 
@@ -395,6 +410,7 @@ public class FeatureChainingTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testMultiValuedSimpleProperties() throws Exception {
         // Controlled Concept can have many gml:name
         Map dsParams = new HashMap();
@@ -436,8 +452,8 @@ public class FeatureChainingTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testFilters() throws Exception {
-        this.loadDataAccesses();
         // make sure filter query can be made on MappedFeature based on GU properties
         //
         // <ogc:Filter>
@@ -487,7 +503,6 @@ public class FeatureChainingTest extends TestCase {
         filteredResults = guSource.getFeatures(filter);
         assertEquals(getCount(filteredResults), 3);
 
-        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -497,6 +512,7 @@ public class FeatureChainingTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testComplexTypeWithSimpleContent() throws Exception {
         Map dsParams = new HashMap();
         URL url = getClass().getResource(schemaBase + "ComplexTypeWithSimpleContent.xml");
@@ -594,6 +610,7 @@ public class FeatureChainingTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testMultiValuedPropertiesByRef() throws Exception {
         final String MF_PREFIX = "urn:cgi:feature:MappedFeature:";
         final String OCCURENCE = "occurence";
@@ -604,8 +621,6 @@ public class FeatureChainingTest extends TestCase {
                 put("gu.25682", "mf4");
             }
         };
-
-        this.loadDataAccesses();
 
         ArrayList<String> processedFeatureIds = new ArrayList<String>();
 
@@ -640,7 +655,6 @@ public class FeatureChainingTest extends TestCase {
 
         // clean ups
         guFeatures.close(guIterator);
-        DataAccessRegistry.unregisterAll();
     }
 
     /**
@@ -649,12 +663,12 @@ public class FeatureChainingTest extends TestCase {
      * @return
      * @throws Exception
      */
-    private void loadDataAccesses() throws Exception {
+    private static void loadDataAccesses() throws Exception {
         /**
          * Load mapped feature data access
          */
         Map dsParams = new HashMap();
-        URL url = getClass().getResource(schemaBase + "MappedFeaturePropertyfile.xml");
+        URL url = FeatureChainingTest.class.getResource(schemaBase + "MappedFeaturePropertyfile.xml");
         assertNotNull(url);
 
         dsParams.put("dbtype", "app-schema");
@@ -671,7 +685,7 @@ public class FeatureChainingTest extends TestCase {
         /**
          * Load geologic unit data access
          */
-        url = getClass().getResource(schemaBase + "GeologicUnit.xml");
+        url = FeatureChainingTest.class.getResource(schemaBase + "GeologicUnit.xml");
         assertNotNull(url);
 
         dsParams.put("url", url.toExternalForm());
