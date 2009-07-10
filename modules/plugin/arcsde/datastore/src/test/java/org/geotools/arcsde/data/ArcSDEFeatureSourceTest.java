@@ -36,7 +36,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
-import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
@@ -587,67 +586,6 @@ public class ArcSDEFeatureSourceTest {
             assertTrue(iterator.hasNext());
         } finally {
             iterator.close();
-        }
-    }
-
-    @Test
-    public void testStress() throws Exception {
-
-        ArcSDEDataStore ds = testData.getDataStore();
-
-        ISessionPool pool = testData.getConnectionPool();
-        final int initialAvailableCount = pool.getAvailableCount();
-        final int initialPoolSize = pool.getPoolSize();
-
-        String typeName = testData.getTempTableName();
-
-        FeatureSource<SimpleFeatureType, SimpleFeature> source;
-        source = ds.getFeatureSource(typeName);
-
-        assertEquals(initialAvailableCount, pool.getAvailableCount());
-        assertEquals(initialPoolSize, pool.getPoolSize());
-
-        SimpleFeatureType schema = source.getSchema();
-
-        assertEquals("After getSchema()", initialAvailableCount, pool.getAvailableCount());
-        assertEquals("After getSchema()", initialPoolSize, pool.getPoolSize());
-
-        final Envelope layerBounds = source.getBounds();
-
-        assertEquals("After getBounds()", initialAvailableCount, pool.getAvailableCount());
-        assertEquals("After getBounds()", initialPoolSize, pool.getPoolSize());
-
-        source.getCount(Query.ALL);
-
-        assertEquals("After size()", initialAvailableCount, pool.getAvailableCount());
-        assertEquals("After size()", initialPoolSize, pool.getPoolSize());
-
-        BBOX bbox = ff.bbox(schema.getGeometryDescriptor().getLocalName(),
-                layerBounds.getMinX() + 10, layerBounds.getMinY() + 10, layerBounds.getMaxX() - 10,
-                layerBounds.getMaxY() - 10, schema.getCoordinateReferenceSystem().getName()
-                        .getCode());
-
-        for (int i = 0; i < 20; i++) {
-            LOGGER.fine("Running iteration #" + i);
-
-            FeatureCollection<SimpleFeatureType, SimpleFeature> res;
-            res = source.getFeatures(bbox);
-            FeatureIterator<SimpleFeature> reader = res.features();
-            try {
-                assertNotNull(reader.next());
-
-                assertTrue(0 < res.size());
-                assertNotNull(res.getBounds());
-
-                assertNotNull(reader.next());
-
-                assertTrue(0 < res.size());
-                assertNotNull(res.getBounds());
-
-                assertNotNull(reader.next());
-            } finally {
-                reader.close();
-            }
         }
     }
 
