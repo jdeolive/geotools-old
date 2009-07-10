@@ -115,7 +115,7 @@ public class ArcSDEDataStoreFactoryTest {
         try {
             DataStoreFinder.getDataStore(nonWorkingParams);
             fail("should have failed with non working parameters");
-        } catch (DataSourceException e) {
+        } catch (IOException e) {
             assertTrue(true);
         }
         dataStore = DataStoreFinder.getDataStore(workingParams);
