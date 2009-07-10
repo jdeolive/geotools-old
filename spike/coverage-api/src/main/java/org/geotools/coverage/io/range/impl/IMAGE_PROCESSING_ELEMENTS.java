@@ -16,7 +16,7 @@ import javax.media.jai.IHSColorSpace;
 import org.geotools.coverage.TypeMap;
 import org.geotools.coverage.io.range.Axis;
 import org.geotools.coverage.io.range.BandDescription;
-import org.geotools.coverage.io.range.RangeDescription;
+import org.geotools.coverage.io.range.RangeDescriptor;
 import org.geotools.coverage.io.range.Band.BandKey;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.SimpleInternationalString;
@@ -910,7 +910,7 @@ public enum IMAGE_PROCESSING_ELEMENTS{
 		}
 	}
 	
-	public static RangeDescription<String,Dimensionless> getFieldTypeFromRenderedImage(final RenderedImage raster){
+	public static RangeDescriptor<String,Dimensionless> getFieldTypeFromRenderedImage(final RenderedImage raster){
 		if(raster==null)
 			throw new NullPointerException("Provided null input image");
 		
@@ -1034,14 +1034,14 @@ public enum IMAGE_PROCESSING_ELEMENTS{
 				break;			
 				
 			default:
-				throw new IllegalArgumentException("Unable to create RangeDescription for this rendered image");
+				throw new IllegalArgumentException("Unable to create RangeDescriptor for this rendered image");
 			
 			}
 		}
 		//build the field type
-		return new RangeDescription<String, Dimensionless>(
+		return new RangeDescriptor<String, Dimensionless>(
 				new NameImpl("RenderedImageFieldType"),
-				new SimpleInternationalString("RangeDescription for rendered image"),
+				new SimpleInternationalString("RangeDescriptor for rendered image"),
 				Unit.ONE,
 				band);
 	}

@@ -28,9 +28,9 @@
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.RangeDescriptionription" 
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.range.RangeDescriptor" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
-    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeDescription.java" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeDescriptor.java" 
     binary="false">    
     <position x="217" y="37" width="136" height="43"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
@@ -62,20 +62,6 @@
       navigable="false">      
       <attribute name="axis"/>      
       <multiplicity minimum="0" maximum="1"/>    
-    </source>    
-    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Axis" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Axis.java" binary="false" 
-      navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association>    
-    <bendpoint x="282" y="120"/>    
-    <bendpoint x="285" y="277"/>    
-    <source project="gt-coverage-api-2org.geotools.coverage.io.range.RangeDescription.io.range.RangeDescription" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/RangeDescription.java" 
-      binary="false" navigable="false">      
-      <attribute name="axes"/>      
-      <multiplicity minimum="0" maximum="2147483647"/>    
     </source>    
     <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.range.Axis" 
       file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/range/Axis.java" binary="false" 

@@ -3,7 +3,13 @@ package org.geotools.coverage.io.range;
 
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
 
 import org.geotools.feature.NameImpl;
 import org.geotools.util.NumberRange;
@@ -35,7 +41,7 @@ import org.opengis.util.InternationalString;
  *
  * @author Simone Giannecchini, GeoSolutions S.A.S.
  */
-public class BandDescription {
+public class BandDescription<Q extends Quantity> {
 	public enum BandInterpretation{
 		PHYSICAL_PARAMETER_OBSERVATION,
 		PHYSICAL_PARAMETER_PREDICTION,
@@ -56,30 +62,45 @@ public class BandDescription {
 	private InternationalString description;
 	
 	private Set<SampleDimensionType> defaultSampleDimensionTypes;
+
+	/**
+	 * The {@link Unit} for this {@link RangeDescriptor}.
+	 */
+	private Unit<Q> uom;
+
+	/**
+	 * The {@link List} of {@link Axis} for this {@link RangeDescriptor}.
+	 */
+	private List <Axis<Q>>axes;
+
+	/**
+	 * The list of {@link Name}s for the {@link Axis} instances of this {@link RangeDescriptor}.
+	 */
+	private List<Name> axesNames;
 	
 
 	public BandDescription(
 			final BandInterpretation bandInterpretation,
 			double[] defaultNoDatavalues, NumberRange<Double> defaultRange,
-			MathTransform1D defaultSampleTransformation, String name,
+			MathTransform1D defaultSampleTransformation, 
+			String name,
 			String description,
-			final Set<SampleDimensionType> sampleDimensionTypes) {
-		super();
-		this.defaultBandInterpretation = bandInterpretation;
-		this.defaultNoDatavalues = defaultNoDatavalues;
-		this.defaultRange = defaultRange;
-		this.defaultSampleTransformation = defaultSampleTransformation;
-		this.name = new NameImpl(name);
-		this.description = new SimpleInternationalString(description);
-		this.defaultSampleDimensionTypes = sampleDimensionTypes;
+			final Set<SampleDimensionType> sampleDimensionTypes,
+	        final List<Axis<Q>> axes		// axes definitions cannot be repeated
+		) {
+		this(bandInterpretation, defaultNoDatavalues, defaultRange, defaultSampleTransformation, new NameImpl(name), new SimpleInternationalString(description), sampleDimensionTypes, axes);
+		
 	}
 	public BandDescription(
 			final BandInterpretation bandInterpretation,
-			double[] defaultNoDatavalues, NumberRange<Double> defaultRange,
-			MathTransform1D defaultSampleTransformation, Name name,
+			double[] defaultNoDatavalues, 
+			NumberRange<Double> defaultRange,
+			MathTransform1D defaultSampleTransformation, 
+			Name name,
 			InternationalString description,
-			final Set<SampleDimensionType> sampleDimensionTypes) {
-		super();
+			final Set<SampleDimensionType> sampleDimensionTypes,
+	        final List<Axis<Q>> axes		// axes definitions cannot be repeated
+	    	) {
 		this.defaultBandInterpretation = bandInterpretation;
 		this.defaultNoDatavalues = defaultNoDatavalues;
 		this.defaultRange = defaultRange;
@@ -87,7 +108,15 @@ public class BandDescription {
 		this.name = name;
 		this.description = description;
 		this.defaultSampleDimensionTypes = sampleDimensionTypes;
+
+
+	    this.axes = axes;
+	    axesNames = new ArrayList<Name>(axes.size());
+	    for (Axis<Q> axis : axes) {
+	        axesNames.add(axis.getName());
+	    }
 	}
+	
 	public BandInterpretation getDefaultColorInterpretation() {
 		return defaultBandInterpretation;
 	}
@@ -115,4 +144,66 @@ public class BandDescription {
 	public Set<SampleDimensionType> getDefaultSampleDimensionTypes() {
 		return defaultSampleDimensionTypes;
 	}
+	/**
+	 * Retrieves the Unit of measure for the values described by this RangeDescriptor.
+	 *  
+	 * <p>
+	 * In case this {@link RangeDescriptor} is not made of measurable quantities we
+	 * return <code>null</code>
+	 * 
+	 * @return the Unit of measure for the values described by this RangeDescriptor or
+	 *         <code>null</code> in case this {@link RangeDescriptor} is not made of
+	 *         measurable quantities
+	 */
+	public Unit<Q> getUnitOfMeasure() {
+		return uom; 
+	}
+	/**
+	 * {@link List} of all the axes of the {@link RangeDescriptor}
+	 * 
+	 * @return a {@link List} of all the {@link Axis} instances for this
+	 *         {@link RangeDescriptor}
+	 */
+	public List<? extends Axis<Q>> getAxes() {
+		return Collections.unmodifiableList(axes);
+	}
+	/**
+	 * {@link List} of all the {@link Axis} instances
+	 * {@link org.opengis.feature.type.Name}s.
+	 * 
+	 * @return a {@link List} of all the {@link Axis} instances
+	 *         {@link org.opengis.feature.type.Name}s.
+	 */
+	public List<Name> getAxesNames() {
+	    return Collections.unmodifiableList(axesNames);
+	}
+	/**
+	 * Get the Axis by name
+	 * 
+	 * @param name
+	 *                name of the Axis
+	 * TODO improve me             
+	 * @return Axis instance or null if not found
+	 */
+	public Axis<Q> getAxis(Name name) {
+	    for (Axis<Q> axis : axes) {
+	        if (axis.getName().toString().equalsIgnoreCase(name.toString()) ||
+	                axis.getName().getLocalPart().equalsIgnoreCase(name.getLocalPart()))
+	            return  axis;
+	    }
+	    throw new IllegalArgumentException("Unable to find axis for the specified name.");
+	}
+	
+	@Override
+	public String toString() {
+	    final StringBuilder sb = new StringBuilder();
+	    final String lineSeparator = System.getProperty("line.separator", "\n");
+	    sb.append("BandDescription:").append(lineSeparator);
+	    sb.append("Name:").append("\t\t").append(name.toString()).append(lineSeparator);
+	    sb.append("Description:").append("\t").append(description.toString()).append(lineSeparator);
+	    for (Axis<Q> axis : axes) {
+	        sb.append(axis.toString()).append(lineSeparator);
+	    }
+        sb.append(lineSeparator);    
+	    return sb.toString();			}
 }

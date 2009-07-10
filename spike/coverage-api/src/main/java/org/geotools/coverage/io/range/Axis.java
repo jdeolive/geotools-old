@@ -29,7 +29,7 @@ import org.opengis.util.InternationalString;
 /**
  * Definition of one axis in a field for which we have some
  * measurements/observations/forecasts. The {@link Axis} data structure
- * describes the nature of each control variable for a certain {@link RangeDescription}
+ * describes the nature of each control variable for a certain {@link RangeDescriptor}
  * 
  * 
  * @author Simone Giannecchini, GeoSolutions
