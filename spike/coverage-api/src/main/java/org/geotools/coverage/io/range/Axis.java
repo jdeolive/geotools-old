@@ -30,6 +30,7 @@ import javax.measure.quantity.Quantity;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
+import org.geotools.coverage.io.range.AxisBin.WavelengthBin;
 import org.geotools.feature.NameImpl;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
@@ -100,51 +101,7 @@ public class Axis<Q extends Quantity>{
 		 */
 		public final static WavelengthAxis WAVELENGTH_AXIS_NM= new WavelengthAxis("WAVELENGTH_AXIS_NM",RangeUtilities.WAVELENGTH_UOM);
 		
-	    /**
-		 * A bin for the wavelength axis
-		 */
-		public static class WavelengthBin extends AxisBin<MeasurementRange<Double>,Length>{
-					
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -3977921692927799401L;
-			
-			public WavelengthBin( Name name, double value, InternationalString description, WavelengthAxis axis ){
-				super(
-						name,
-						description,
-						axis,
-						MeasurementRange.create(value, value, RangeUtilities.WAVELENGTH_UOM));
-				
-			}
-		
-			public WavelengthBin( String name, double value, String description, WavelengthAxis axis ){
-				super(
-						new NameImpl(name),
-						new SimpleInternationalString(description),
-						axis,
-						MeasurementRange.create(value, value, RangeUtilities.WAVELENGTH_UOM));
-				
-			}		
-			
-			
-			public WavelengthBin( Name name, double from, double to, InternationalString description, WavelengthAxis axis ) {
-				super(
-						name,
-						description,
-						axis,
-						MeasurementRange.create(from, to, RangeUtilities.WAVELENGTH_UOM));
-			}
-			public WavelengthBin( String name, double from, double to, String description, WavelengthAxis axis ) {
-				super(
-						new NameImpl(name),
-						new SimpleInternationalString(description),
-						axis,
-						MeasurementRange.create(from, to, RangeUtilities.WAVELENGTH_UOM));
-			}		
-		}
-
+	   
 		/**
 		 * Keys for this {@link Axis}.
 		 */
