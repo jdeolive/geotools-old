@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.measure.quantity.Quantity;
 import javax.media.jai.Histogram;
 
 import org.geotools.coverage.io.metadata.MetadataNode;
@@ -33,12 +32,12 @@ public abstract class Band {
 	 * @param <V>
 	 * @param <QA>
 	 */
-	public static class BandKey<V,QA extends Quantity> {
+	public static class BandKey {
 		
-		private final Set<AxisBin<V,QA>> bins;
+		private final Set<RangeAxisBin<?>> bins;
 	
-		public BandKey(final Collection<? extends AxisBin<V, QA>> bins) {
-			this.bins = new HashSet<AxisBin<V,QA>>(bins);
+		public BandKey(final Collection<? extends RangeAxisBin<?>> bins) {
+			this.bins = new HashSet<RangeAxisBin<?>>(bins);
 		}
 	
 		@Override
@@ -53,16 +52,12 @@ public abstract class Band {
 		public String toString() {
 			final StringBuilder builder= new StringBuilder();
 			builder.append("Description of band key:").append("\n");
-			for(AxisBin<V,QA> bin:bins){
+			for(RangeAxisBin<?> bin:bins){
 				builder.append("Description of bin:\n").append(bin.toString()).append("\n");
 			}
 			return builder.toString();
 		}
 
-
-
-
-		@SuppressWarnings("unchecked")
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -95,7 +90,7 @@ public abstract class Band {
 	 */
 	public abstract double[] getApproximatedExtrema();
 	
-	public abstract BandDescriptor<? extends Quantity> getType();
+	public abstract BandDescriptor getType();
 
 	/**
 	 * Values to indicate no data values for the sample dimension.

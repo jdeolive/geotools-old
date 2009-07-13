@@ -9,13 +9,12 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageTypeSpecifier;
-import javax.measure.quantity.Dimensionless;
 import javax.media.jai.IHSColorSpace;
 
 import org.geotools.coverage.TypeMap;
-import org.geotools.coverage.io.range.Axis;
-import org.geotools.coverage.io.range.Axis.DimensionlessAxis;
-import org.geotools.coverage.io.range.AxisBin.DimensionlessAxisBin;
+import org.geotools.coverage.io.range.RangeAxis;
+import org.geotools.coverage.io.range.RangeAxis.DimensionlessAxis;
+import org.geotools.coverage.io.range.RangeAxisBin.StringAxisBin;
 import org.geotools.coverage.io.range.Band.BandKey;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.SimpleInternationalString;
@@ -26,7 +25,7 @@ import org.opengis.coverage.ColorInterpretation;
  * model is often used when printing.
  * <p>
  * This is a normal Java 5 enum capturing the closed set of CMYK names. It is
- * used as a basis for the definition of an Axis built around these constants.
+ * used as a basis for the definition of an RangeAxis built around these constants.
  * <p>
  * Please understand that this is not the only possible subtractive color model
  * - a commercial alternative is the Pantone (tm)) colors.
@@ -37,413 +36,413 @@ public enum IMAGE_BAND_UTILITIES{
 
 	X {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return X_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},		
 	Y {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return Y_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},		
 	Z {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return Z_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},	
 	A {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return A_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},		
 	B {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return B_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},		
 	LIGHTNESS {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return LIGHTNESS_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},
 	U {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return U_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},		
 	V {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return V_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},	
 	LUMA {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return LUMA_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},
 	CHROMA_A {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return CHROMA_A_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},		
 	CHROMA_B {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return CHROMA_B_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},
 	INTENSITY {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return INTENSITY_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},
 	ALPHA {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return ALPHA_BIN;
 		}
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},		
 	GRAY {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return GRAY_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},	
 	UNDEFINED {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return UNDEFINED_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},	
 	PALETTE {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return PALETTE_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},		
 	BLUE {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return BLUE_BIN;
 		}
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},	
 	GREEN {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return GREEN_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},	
 	RED {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return RED_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},	
 	VALUE {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return SATURATION_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},
 	SATURATION {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return SATURATION_BIN;
 		}
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},
 	HUE {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return HUE_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	},
 	CYAN {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return CYAN_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	}, MAGENTA {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return MAGENTA_BIN;
 		}
 
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	}, YELLOW {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return 						
 				YELLOW_BIN;
 		}
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	}, KEY {
 		@Override
-		public DimensionlessAxisBin getAxisBin() {
+		public StringAxisBin getAxisBin() {
 			return 					
 			KEY_BIN;
 		}
 		@Override
-		public BandKey<String, Dimensionless> getBandKey() {
-			return new BandKey<String, Dimensionless>(Arrays.asList(getAxisBin()));
+		public BandKey getBandKeys() {
+			return new BandKey(Arrays.asList(getAxisBin()));
 		}
 	};
 
 	/**
 	 * Specific axis for controlling bins that looks up photographic bands, like RGB, CMYK, HSV, etc...
 	 */
-	public static final Axis<Dimensionless> PHOTOGRAPHIC_BANDS_AXIS= new DimensionlessAxis("SyntheticColorAxis" );
+	public static final RangeAxis PHOTOGRAPHIC_BANDS_AXIS= new DimensionlessAxis("SyntheticColorAxis" );
 	
 	
-	private static final DimensionlessAxisBin KEY_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin KEY_BIN = new StringAxisBin(
 						new NameImpl("BLACK"),
 						new SimpleInternationalString("BLACK bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"BLACK");
-	private static final DimensionlessAxisBin YELLOW_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin YELLOW_BIN = new StringAxisBin(
 						new NameImpl("YELLOW"),
 						new SimpleInternationalString("YELLOW bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"YELLOW");
-	private static final DimensionlessAxisBin MAGENTA_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin MAGENTA_BIN = new StringAxisBin(
 						new NameImpl("MAGENTA"),
 						new SimpleInternationalString("Magenta bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"MAGENTA");
-	private static final DimensionlessAxisBin CYAN_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin CYAN_BIN = new StringAxisBin(
 						new NameImpl("CYAN"),
 						new SimpleInternationalString("CYAN bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"CYAN");
-	private static final DimensionlessAxisBin HUE_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin HUE_BIN = new StringAxisBin(
 						new NameImpl("HUE"),
 						new SimpleInternationalString("HUE bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"HUE");
-	private static final DimensionlessAxisBin SATURATION_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin SATURATION_BIN = new StringAxisBin(
 						new NameImpl("SATURATION"),
 						new SimpleInternationalString("SATURATION bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"SATURATION");
-	private static final DimensionlessAxisBin GREEN_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin GREEN_BIN = new StringAxisBin(
 						new NameImpl("RED"),
 						new SimpleInternationalString("RED bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"RED");
-	private static final DimensionlessAxisBin BLUE_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin BLUE_BIN = new StringAxisBin(
 						new NameImpl("BLUE"),
 						new SimpleInternationalString("BLUE bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"BLUE");
-	private static final DimensionlessAxisBin RED_BIN = GREEN_BIN;
-	private static final DimensionlessAxisBin PALETTE_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin RED_BIN = GREEN_BIN;
+	private static final StringAxisBin PALETTE_BIN = new StringAxisBin(
 						new NameImpl("VALUE"),
 						new SimpleInternationalString("VALUE bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"VALUE");
-	private static final DimensionlessAxisBin UNDEFINED_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin UNDEFINED_BIN = new StringAxisBin(
 						new NameImpl("UNDEFINED"),
 						new SimpleInternationalString("UNDEFINED bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"UNDEFINED");
-	private static final DimensionlessAxisBin GRAY_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin GRAY_BIN = new StringAxisBin(
 						new NameImpl("GRAY"),
 						new SimpleInternationalString("GRAY bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"GRAY");
-	private static final DimensionlessAxisBin ALPHA_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin ALPHA_BIN = new StringAxisBin(
 						new NameImpl("ALPHA"),
 						new SimpleInternationalString("ALPHA bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"ALPHA");
-	private static final DimensionlessAxisBin INTENSITY_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin INTENSITY_BIN = new StringAxisBin(
 						new NameImpl("INTENSITY"),
 						new SimpleInternationalString("INTENSITY bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"INTENSITY");
-	private static final DimensionlessAxisBin CHROMA_B_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin CHROMA_B_BIN = new StringAxisBin(
 						new NameImpl("CHROMA-B"),
 						new SimpleInternationalString("CHROMA-B bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"CHROMA-B");
-	private static final DimensionlessAxisBin CHROMA_A_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin CHROMA_A_BIN = new StringAxisBin(
 						new NameImpl("CHROMA-A"),
 						new SimpleInternationalString("CHROMA-A bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"CHROMA-A");
-	private static final DimensionlessAxisBin LUMA_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin LUMA_BIN = new StringAxisBin(
 						new NameImpl("LUMA"),
 						new SimpleInternationalString("LUMA bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"LUMA");
-	private static final DimensionlessAxisBin V_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin V_BIN = new StringAxisBin(
 						new NameImpl("V"),
 						new SimpleInternationalString("V bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"V");
-	private static final DimensionlessAxisBin U_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin U_BIN = new StringAxisBin(
 						new NameImpl("U"),
 						new SimpleInternationalString("U bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"U");
-	private static final DimensionlessAxisBin LIGHTNESS_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin LIGHTNESS_BIN = new StringAxisBin(
 						new NameImpl("LIGHTNESS"),
 						new SimpleInternationalString("LIGHTNESS bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"LIGHTNESS");
-	private static final DimensionlessAxisBin B_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin B_BIN = new StringAxisBin(
 						new NameImpl("B"),
 						new SimpleInternationalString("B bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"B");
-	private static final DimensionlessAxisBin A_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin A_BIN = new StringAxisBin(
 						new NameImpl("A"),
 						new SimpleInternationalString("A bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"A");
-	private static final DimensionlessAxisBin Z_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin Z_BIN = new StringAxisBin(
 						new NameImpl("Z"),
 						new SimpleInternationalString("Z bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"Z");
-	private static final DimensionlessAxisBin Y_BIN = new DimensionlessAxisBin(
+	private static final StringAxisBin Y_BIN = new StringAxisBin(
 						new NameImpl("Y"),
 						new SimpleInternationalString("Y bin"),
 						PHOTOGRAPHIC_BANDS_AXIS,
 						"Y");
 
-	public abstract DimensionlessAxisBin getAxisBin();
+	public abstract StringAxisBin getAxisBin();
 	
-	public abstract BandKey<String, Dimensionless> getBandKey();
+	public abstract BandKey getBandKeys();
 	
-	public static List<DimensionlessAxisBin> getBinsFromRenderedImage(final ColorModel cm, final SampleModel sm){
+	public static List<StringAxisBin> getBinsFromRenderedImage(final ColorModel cm, final SampleModel sm){
 		if(cm==null)
 			throw new IllegalArgumentException("Provided input image with null color model");	
 		if(sm==null)
@@ -587,7 +586,7 @@ public enum IMAGE_BAND_UTILITIES{
 	 * @param raster a {@link RenderedImage} implementation from which to extract needed info, usually {@link ColorModel} and {@link SampleModel}.
 	 * @return a {@link DimensionlessAxis} or null if an unsupported {@link ColorModel} is provided.
 	 */
-	public static List<DimensionlessAxisBin> getBinsFromRenderedImage(final RenderedImage raster){
+	public static List<StringAxisBin> getBinsFromRenderedImage(final RenderedImage raster){
 		if(raster==null)
 			throw new NullPointerException("Provided null input image");
 		final ColorModel cm= raster.getColorModel();
@@ -598,7 +597,7 @@ public enum IMAGE_BAND_UTILITIES{
 		
 	}
 	
-	public static List<DimensionlessAxisBin> getBinsFromRenderedImage(final ImageTypeSpecifier it){
+	public static List<StringAxisBin> getBinsFromRenderedImage(final ImageTypeSpecifier it){
 		if(it==null)
 			throw new NullPointerException("Provided null input ImageTypeSpecifier");
 		final ColorModel cm= it.getColorModel();
@@ -625,7 +624,7 @@ public enum IMAGE_BAND_UTILITIES{
 //		final ColorInterpretation firstBandCI = TypeMap.getColorInterpretation(cm, 0);
 //		
 //		// get axis for this fieldtype and prepare the map for the band type
-//		final HashMap<BandKey<String, Dimensionless>, BandDescriptor> bands= new HashMap<BandKey<String,Dimensionless>, BandDescriptor>();
+//		final HashMap<BandKey, BandDescriptor> bands= new HashMap<BandKey<String,Dimensionless>, BandDescriptor>();
 //		
 //		
 //		//		CMY - CMYK
@@ -746,7 +745,7 @@ public enum IMAGE_BAND_UTILITIES{
 //				band);
 //	}
 	
-	private final static DimensionlessAxisBin X_BIN=new DimensionlessAxisBin(
+	private final static StringAxisBin X_BIN=new StringAxisBin(
 			new NameImpl("X"),
 			new SimpleInternationalString("X bin"),
 			PHOTOGRAPHIC_BANDS_AXIS,

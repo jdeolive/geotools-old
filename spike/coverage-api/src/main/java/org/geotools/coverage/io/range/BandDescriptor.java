@@ -3,9 +3,6 @@ package org.geotools.coverage.io.range;
 
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import javax.measure.quantity.Quantity;
@@ -39,7 +36,7 @@ import org.opengis.util.InternationalString;
  *
  * @author Simone Giannecchini, GeoSolutions S.A.S.
  */
-public abstract class BandDescriptor<Q extends Quantity>{
+public abstract class BandDescriptor{
 	public enum BandInterpretation{
 		PHYSICAL_PARAMETER_OBSERVATION,
 		PHYSICAL_PARAMETER_PREDICTION,
@@ -64,24 +61,9 @@ public abstract class BandDescriptor<Q extends Quantity>{
 	/**
 	 * The {@link Unit} for this {@link RangeDescriptor}.
 	 */
-	private Unit<Q> uom;
+	private Unit<?> uom;
 
-	/**
-	 * The {@link List} of {@link Axis} for this {@link RangeDescriptor}.
-	 */
-	private List <? extends Axis<? extends Quantity>>axes;
-
-	/**
-	 * The list of {@link Name}s for the {@link Axis} instances of this {@link RangeDescriptor}.
-	 */
-	private List<Name> axesNames;
-
-	private Q quantity;
-
-	private  List<? extends AxisBin <?, ? extends Quantity>> defaultAxisBins;
-
-	public BandDescriptor(
-			final Q quantity,												// quantity that this band holds
+	public BandDescriptor(											
 			final BandInterpretation bandInterpretation,
 			double[] defaultNoDatavalues, 
 			NumberRange<Double> defaultRange,
@@ -89,10 +71,8 @@ public abstract class BandDescriptor<Q extends Quantity>{
 			Name name,
 			InternationalString description,
 			final Set<SampleDimensionType> sampleDimensionTypes,
-	        final List<? extends Axis<? extends Quantity>> axes,	
-	        final List<? extends AxisBin <?, ? extends Quantity>>  defaultAxisBins
+	        final Unit<? extends Quantity> unit
 	    	) {
-		this.quantity=quantity;
 		this.defaultBandInterpretation = bandInterpretation;
 		this.defaultNoDatavalues = defaultNoDatavalues;
 		this.defaultRange = defaultRange;
@@ -100,12 +80,7 @@ public abstract class BandDescriptor<Q extends Quantity>{
 		this.name = name;
 		this.description = description;
 		this.defaultSampleDimensionTypes = sampleDimensionTypes;
-	    this.axes = axes;
-	    axesNames = new ArrayList<Name>(axes.size());
-	    for (Axis<? extends Quantity> axis : axes) {
-	        axesNames.add(axis.getName());
-	    }
-	    this.defaultAxisBins=defaultAxisBins;
+	    this.uom=unit;
 	}
 	
 	public BandInterpretation getDefaultColorInterpretation() {
@@ -146,45 +121,9 @@ public abstract class BandDescriptor<Q extends Quantity>{
 	 *         <code>null</code> in case this {@link RangeDescriptor} is not made of
 	 *         measurable quantities
 	 */
-	public Unit<Q> getUnitOfMeasure() {
+	public Unit<?> getUnitOfMeasure() {
 		return uom; 
 	}
-	/**
-	 * {@link List} of all the axes of the {@link RangeDescriptor}
-	 * 
-	 * @return a {@link List} of all the {@link Axis} instances for this
-	 *         {@link RangeDescriptor}
-	 */
-	public List<? extends Axis<? extends Quantity>> getAxes() {
-		return Collections.unmodifiableList(axes);
-	}
-	/**
-	 * {@link List} of all the {@link Axis} instances
-	 * {@link org.opengis.feature.type.Name}s.
-	 * 
-	 * @return a {@link List} of all the {@link Axis} instances
-	 *         {@link org.opengis.feature.type.Name}s.
-	 */
-	public List<Name> getAxesNames() {
-	    return Collections.unmodifiableList(axesNames);
-	}
-	/**
-	 * Get the Axis by name
-	 * 
-	 * @param name
-	 *                name of the Axis
-	 * TODO improve me             
-	 * @return Axis instance or null if not found
-	 */
-	public Axis<? extends Quantity> getAxis(Name name) {
-	    for (Axis<? extends Quantity> axis : axes) {
-	        if (axis.getName().toString().equalsIgnoreCase(name.toString()) ||
-	                axis.getName().getLocalPart().equalsIgnoreCase(name.getLocalPart()))
-	            return  axis;
-	    }
-	    throw new IllegalArgumentException("Unable to find axis for the specified name.");
-	}
-	
 	@Override
 	public String toString() {
 	    final StringBuilder sb = new StringBuilder();
@@ -192,21 +131,9 @@ public abstract class BandDescriptor<Q extends Quantity>{
 	    sb.append("BandDescriptor:").append(lineSeparator);
 	    sb.append("Name:").append("\t\t").append(name.toString()).append(lineSeparator);
 	    sb.append("Description:").append("\t").append(description.toString()).append(lineSeparator);
-	    sb.append("Quantity:").append("\t").append(quantity.toString()).append(lineSeparator);
-	    sb.append("UoM:").append("\t").append(uom.toString()).append(lineSeparator);
+	    sb.append("UoM:").append("\t").append(uom!=null?uom.toString():"null").append(lineSeparator);
 	    sb.append("Default band interpretation:").append("\t").append(defaultBandInterpretation.toString()).append(lineSeparator);
-	    for (Axis<? extends Quantity> axis : axes) {
-	        sb.append(axis.toString()).append(lineSeparator);
-	    }
         sb.append(lineSeparator);    
 	    return sb.toString();			
-	}
-	
-	public List<? extends AxisBin <?, ? extends Quantity> > getDefaultAxisBins(){
-		return this.defaultAxisBins;		
-	}
-	
-	public Q getQuantity() {
-		return quantity;
 	}
 }
