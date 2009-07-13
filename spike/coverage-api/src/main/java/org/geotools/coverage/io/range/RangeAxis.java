@@ -24,15 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.measure.Measure;
-import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
-import javax.measure.quantity.Quantity;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
-import org.geotools.coverage.io.range.AxisBin.WavelengthBin;
+import org.geotools.coverage.io.range.RangeAxisBin.WavelengthBin;
 import org.geotools.feature.NameImpl;
-import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
 import org.geotools.referencing.cs.DefaultLinearCS;
@@ -49,27 +46,27 @@ import org.opengis.util.InternationalString;
 
 /**
  * Definition of one axis in a field for which we have some
- * measurements/observations/forecasts. The {@link Axis} data structure
+ * measurements/observations/forecasts. The {@link RangeAxis} data structure
  * describes the nature of each control variable for a certain {@link RangeDescriptor}
  * 
  * 
  * @author Simone Giannecchini, GeoSolutions
  */
-public class Axis<Q extends Quantity>{
+public class RangeAxis{
 
 	/**
-	 * Implementation of {@link Axis} for multibands images.
+	 * Implementation of {@link RangeAxis} for multibands images.
 	 * 
 	 * <p>
-	 * This implementation of Axis can be seen as a stub implementation since in
-	 * this case we do not really have an {@link Axis} for this kind of data, or
+	 * This implementation of RangeAxis can be seen as a stub implementation since in
+	 * this case we do not really have an {@link RangeAxis} for this kind of data, or
 	 * rather we have an axis that just represents an ordinal or a certain set of .
 	 * 
 	 * @author Simone Giannecchini, GeoSolutions
 	 * @todo add convenience constructor based on {@link SampleDimension} and or
 	 *       {@link SampleModel}
 	 */
-	public static class DimensionlessAxis extends Axis<Dimensionless> {
+	public static class DimensionlessAxis extends RangeAxis {
 		
 
 		/**
@@ -94,7 +91,7 @@ public class Axis<Q extends Quantity>{
 	    }
 
 	}
-	public static class WavelengthAxis extends Axis<Length>{
+	public static class WavelengthAxis extends RangeAxis{
 		
 		/**
 		 * Singleton instance of a {@link WavelengthAxis} that measures in nanometers.
@@ -103,7 +100,7 @@ public class Axis<Q extends Quantity>{
 		
 	   
 		/**
-		 * Keys for this {@link Axis}.
+		 * Keys for this {@link RangeAxis}.
 		 */
 		private ArrayList<Measure<MeasurementRange<Double>, Length>> keys;
 		
@@ -134,7 +131,7 @@ public class Axis<Q extends Quantity>{
 		public static  final WavelengthBin GREEN_AXIS_BIN= new WavelengthBin( "GREEN", 520, 610, "penetrates clear water fairly well, and gives excellent contrast between clear and turbid (muddy) water.",WavelengthAxis.WAVELENGTH_AXIS_NM);
 
 		/** LANDSAT7 definition of NIR */	
-		public static  final WavelengthBin NIR_AXIS_BIN =new WavelengthBin("NIR", 750, 900, " good for mapping shorelines and biomass content",WavelengthAxis.WAVELENGTH_AXIS_NM);
+		public static  final WavelengthBin NIR_AXIS_BIN =new WavelengthBin("NIR", 775, 900, " good for mapping shorelines and biomass content",WavelengthAxis.WAVELENGTH_AXIS_NM);
 
 		/** LANDSAT7 definition of RED */	
 		public static  final WavelengthBin RED_AXIS_BIN= new WavelengthBin("RED",  630, 690, "useful for identifying vegetation types, soils, and urban (city and town) features",WavelengthAxis.WAVELENGTH_AXIS_NM);
@@ -143,7 +140,7 @@ public class Axis<Q extends Quantity>{
 		public static  final WavelengthBin SWIR_AXIS_BIN =new WavelengthBin("SWIR", 1550, 17560, "useful to measure the moisture content of soil and vegetation",WavelengthAxis.WAVELENGTH_AXIS_NM);
 
 		/** LANDSAT7 definition of SWIR2 */
-		public static  final WavelengthBin SWIR2_AXIS_BIN= new WavelengthBin("SWIR2", 2080, 23500, "useful to measure the moisture content of soil and vegetation",WavelengthAxis.WAVELENGTH_AXIS_NM);
+		public static  final WavelengthBin SWIR2_AXIS_BIN= new WavelengthBin("SWIR2", 2090, 23500, "useful to measure the moisture content of soil and vegetation",WavelengthAxis.WAVELENGTH_AXIS_NM);
 
 		/** LANDSAT7 definition of TIR */
 		public static  final WavelengthBin TIR_AXIS_BIN= new WavelengthBin("TIR", 10400, 12500, "useful to observe temperature",WavelengthAxis.WAVELENGTH_AXIS_NM);
@@ -201,69 +198,39 @@ public class Axis<Q extends Quantity>{
 			return SI.MICRO(SI.METER);
 		}
 	}
-	private SingleCRS crs;
 	private InternationalString description;
 	private Name name;
-	private Unit<Q> unit;
-	
-	public Axis( final String name, final Unit<Q> unit){
+	private Unit<?> unit;	
+//	private Direction direction;
+//	private Domain defaultDomain;
+		
+	public RangeAxis( final String name, final Unit<?> unit){
 		this( new NameImpl( name ), new SimpleInternationalString( name ),unit );
 	}
 	
-	public Axis( final Name name, final InternationalString description, final Unit<Q> unit){
+	public RangeAxis( final String name,  final String description,final Unit<?> unit){
+		this( new NameImpl( name ), new SimpleInternationalString( description ),unit );
+	}
+	
+	public RangeAxis( final Name name, final InternationalString description, final Unit<?> unit){
 		this.name = name;
 		this.unit = unit;
 		this.description = description;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public Axis( final Name name, final InternationalString description, SingleCRS crs ){
-		this(name, description,  getUoM(crs));
-		this.crs = crs;
-	}
-	
-	public Axis( final String name, final String description, SingleCRS crs ){
-		this(new NameImpl(name), new SimpleInternationalString(description),  crs);
-	}
-	
-	public Axis( String name, SingleCRS crs ){
-		this(new NameImpl(name), new SimpleInternationalString(name),  crs);
-	}
-	
-	@SuppressWarnings("unchecked")
-    private static Unit getUoM(SingleCRS crs) {
-		return crs.getCoordinateSystem().getAxis(0).getUnit();
-	}
 
 	/**
-     * Retrieves the coordinate reference system for this {@link Axis}.
+     * Retrieves the description of the {@link RangeAxis}
      * 
-     * <p>
-     * In case the coordinate reference system is present the Unit of measure
-     * for its single coordinate axis should conform to the global {@link Unit}
-     * for this {@link Axis}.
-     * 
-     * @return the coordinate reference system for this {@link Axis} or
-     *         <code>null</code>, if no coordinate reference system is know
-     *         or applicable.
-     */
-	public SingleCRS getCoordinateReferenceSystem() {
-		return crs;
-	}
-
-	/**
-     * Retrieves the description of the {@link Axis}
-     * 
-     * @return description of the {@link Axis}
+     * @return description of the {@link RangeAxis}
      */
 	public InternationalString getDescription() {
 		return description;
 	}
 
     /**
-     * Retrieves the {@link Axis} name
+     * Retrieves the {@link RangeAxis} name
      * 
-     * @return {@link org.opengis.feature.type.Name} of the {@link Axis}s
+     * @return {@link org.opengis.feature.type.Name} of the {@link RangeAxis}s
      */
 	public Name getName() {
 		return name;
@@ -272,26 +239,25 @@ public class Axis<Q extends Quantity>{
     /**
      * Retrieves the Unit of measure for the various keys of this axis.
      * 
-     * In case this {@link Axis} is not made of measurable quantities
+     * In case this {@link RangeAxis} is not made of measurable quantities
      * 
      * @return the Unit of measure for the various keys of this axis.
      */
-	public Unit<Q> getUnitOfMeasure() {
+	public Unit<?> getUnitOfMeasure() {
 		return unit;
 	}
 	
-	public <V> boolean isBinCompatible(final AxisBin<V, Q> bin){
+	public <V> boolean isBinCompatible(final RangeAxisBin<V> bin){
 		return bin.getAxis().equals(this);
 	}
 
 	@Override
 	public String toString() {
 		final StringBuilder builder= new StringBuilder();
-		builder.append("Axis description").append("\n");
+		builder.append("RangeAxis description").append("\n");
 		builder.append("Name:").append("\t\t\t\t\t").append(name.toString()).append("\n");
 		builder.append("Description:").append("\t\t\t\t").append(description.toString()).append("\n");
 		builder.append("Unit:").append("\t\t\t\t\t").append(unit!=null?unit.toString():"null uom").append("\n");
-		builder.append("crs:").append("\t\t\t\t\t").append(crs!=null?crs.toString():"null crs").append("\n");
 		return builder.toString();
 	}
 	
@@ -299,14 +265,11 @@ public class Axis<Q extends Quantity>{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((crs == null) ? 0 : crs.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
 		return result;
 	}
-
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -316,13 +279,8 @@ public class Axis<Q extends Quantity>{
 		if (getClass() != obj.getClass())
 			return false;
 		
-		Axis that = (Axis) obj;
-		
-		if (crs == null) {
-			if (that.crs != null)
-				return false;
-		} else if (!CRS.equalsIgnoreMetadata(crs,that.crs))
-			return false;
+		RangeAxis that = (RangeAxis) obj;
+
 		
 		if (description == null) {
 			if (that.description != null)
@@ -343,19 +301,12 @@ public class Axis<Q extends Quantity>{
 			return false;
 		return true;
 	}
-	@SuppressWarnings("unchecked")
-	public boolean compatibleWith(final Axis that){
+	
+	
+	public boolean compatibleWith(final RangeAxis that){
 		// if the two axis are equals then we have compatibility
 		if(equals(that))
 			return true;
-
-		// if the crs and the uom is the same thing, the axis are compatible
-		if (crs == null) {
-			if (that.crs != null)
-				return false;
-		} else if (!CRS.equalsIgnoreMetadata(crs,that.crs))
-			return false;
-		
 		
 		if (unit == null) {
 			if (that.unit != null)

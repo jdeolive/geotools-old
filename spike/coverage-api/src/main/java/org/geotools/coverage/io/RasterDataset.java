@@ -19,11 +19,9 @@ package org.geotools.coverage.io;
 import java.io.IOException;
 import java.util.Set;
 
-import javax.measure.quantity.Quantity;
-
 import org.geotools.coverage.io.domain.RasterDatasetDomainManager;
 import org.geotools.coverage.io.metadata.MetadataNode;
-import org.geotools.coverage.io.range.FieldType;
+import org.geotools.coverage.io.range.BandDescriptor;
 import org.geotools.data.ResourceInfo;
 import org.geotools.util.Range;
 import org.omg.CORBA.DomainManager;
@@ -74,7 +72,7 @@ public interface RasterDataset {
 	 * 			codomain for the underlying coverage.
 	 * @throws IOException in case something bad occurs
 	 */
-	public <V, QA extends Quantity> FieldType<V, QA> getRangeDescription(final ProgressListener listener) throws IOException;
+	public BandDescriptor getBandDescriptor(final ProgressListener listener) throws IOException;
 	
 	public DomainManager getDomainManager(final ProgressListener listener) throws IOException;
 

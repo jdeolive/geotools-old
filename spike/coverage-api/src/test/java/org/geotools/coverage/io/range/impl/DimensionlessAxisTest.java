@@ -8,7 +8,7 @@
 //
 //import org.geotools.coverage.io.impl.range.BandIndexMeasure;
 //import org.geotools.coverage.io.impl.range.DimensionlessAxis;
-//import org.geotools.coverage.io.range.Axis;
+//import org.geotools.coverage.io.range.RangeAxis;
 //import org.geotools.feature.NameImpl;
 //import org.geotools.util.SimpleInternationalString;
 //import org.junit.Test;
@@ -16,7 +16,7 @@
 //public class DimensionlessAxisTest extends Assert {
 //
 //	/**
-//	 * Toy Axis consisting of three bands named A, B and C.
+//	 * Toy RangeAxis consisting of three bands named A, B and C.
 //	 * <p>
 //	 * This really is a toy example; if you have a formal
 //	 * fixed data dictionary consider the use of a Java Enumeration
@@ -48,8 +48,8 @@
 //		assertTrue(key instanceof BandIndexMeasure );
 //		assertEquals( "0", key.getValue() );
 //		
-//		// Make sure we can discover everything we need via the Axis API
-//		Axis<String, Dimensionless> axis = HEIGHT; 
+//		// Make sure we can discover everything we need via the RangeAxis API
+//		RangeAxis<String, Dimensionless> axis = HEIGHT; 
 //		assertEquals( Unit.ONE, axis.getUnitOfMeasure() );
 //		Measure<String, Dimensionless> measure = axis.getKey(0);
 //		assertEquals( Unit.ONE, measure.getUnit() );

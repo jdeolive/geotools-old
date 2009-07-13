@@ -1,4 +1,4 @@
-<class-diagram version="0.9.82" icons="true" always-add-relationships="true" generalizations="true" realizations="true" 
+<class-diagram version="0.9.86" icons="true" always-add-relationships="true" generalizations="true" realizations="true" 
   associations="true" dependencies="true" nesting-relationships="true">  
   <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterDatasetWriter" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
@@ -21,7 +21,7 @@
   <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterDataset" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
     file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false">    
-    <position x="327" y="224" width="110" height="45"/>    
+    <position x="454" y="242" width="-1" height="-1"/>    
     <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
@@ -30,7 +30,7 @@
   <interface corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.RasterSlice" 
     project="gt-coverage-api-2.6-SNAPSHOT" 
     file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterSlice.java" binary="false">    
-    <position x="327" y="309" width="110" height="45"/>    
+    <position x="509" y="344" width="-1" height="-1"/>    
     <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
@@ -40,14 +40,104 @@
     project="gt-coverage-api-2.6-SNAPSHOT" 
     file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetAccessorCapabilities.java" 
     binary="false">    
-    <position x="367" y="139" width="226" height="45"/>    
+    <position x="615" y="113" width="-1" height="-1"/>    
     <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false"/>      
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
   </enumeration>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.domain.RasterDatasetDomainManager" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+    binary="false">    
+    <position x="3" y="199" width="202" height="45"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" name="org.geotools.coverage.io.domain.RasterLayout" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterLayout.java" binary="false">    
+    <position x="45" y="361" width="143" height="45"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" 
+    name="org.geotools.coverage.io.domain.RasterDatasetDomainManager.HorizontalDomain" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+    binary="false">    
+    <position x="103" y="295" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" 
+    name="org.geotools.coverage.io.domain.RasterDatasetDomainManager.TemporalDomain" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+    binary="false">    
+    <position x="260" y="300" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class corner="BOTTOM_RIGHT" language="java" 
+    name="org.geotools.coverage.io.domain.RasterDatasetDomainManager.VerticalDomain" 
+    project="gt-coverage-api-2.6-SNAPSHOT" 
+    file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+    binary="false">    
+    <position x="-53" y="292" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="true" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
   <dependency>    
-    <bendpoint x="336" y="139"/>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" 
+      name="org.geotools.coverage.io.domain.RasterDatasetDomainManager.HorizontalDomain" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+      binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.domain.RasterLayout" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterLayout.java" 
+      binary="false"/>  
+  </dependency>  
+  <nesting>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.domain.RasterDatasetDomainManager" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+      binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" 
+      name="org.geotools.coverage.io.domain.RasterDatasetDomainManager.TemporalDomain" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+      binary="false"/>  
+  </nesting>  
+  <dependency>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterSlice" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterSlice.java" binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>  
+  </dependency>  
+  <nesting>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.domain.RasterDatasetDomainManager" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+      binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" 
+      name="org.geotools.coverage.io.domain.RasterDatasetDomainManager.VerticalDomain" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+      binary="false"/>  
+  </nesting>  
+  <dependency>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterSlice" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterSlice.java" binary="false"/>  
+  </dependency>  
+  <dependency>    
     <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetReader" 
       file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetReader.java" 
       binary="false"/>    
@@ -55,11 +145,11 @@
       file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>  
   </dependency>  
   <dependency>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetWriter" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetWriter.java" 
-      binary="false"/>    
-    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>  
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.domain.RasterDatasetDomainManager" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+      binary="false"/>  
   </dependency>  
   <dependency>    
     <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetReader" 
@@ -69,12 +159,15 @@
       file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetAccessorCapabilities.java" 
       binary="false"/>  
   </dependency>  
-  <dependency>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>    
-    <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterSlice" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterSlice.java" binary="false"/>  
-  </dependency>  
+  <nesting>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.domain.RasterDatasetDomainManager" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+      binary="false"/>    
+    <target project="gt-coverage-api-2.6-SNAPSHOT" 
+      name="org.geotools.coverage.io.domain.RasterDatasetDomainManager.HorizontalDomain" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/domain/RasterDatasetDomainManager.java" 
+      binary="false"/>  
+  </nesting>  
   <generalization>    
     <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetWriter" 
       file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetWriter.java" 
@@ -84,8 +177,9 @@
       binary="false"/>  
   </generalization>  
   <dependency>    
-    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterSlice" 
-      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterSlice.java" binary="false"/>    
+    <source project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDatasetWriter" 
+      file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDatasetWriter.java" 
+      binary="false"/>    
     <target project="gt-coverage-api-2.6-SNAPSHOT" name="org.geotools.coverage.io.RasterDataset" 
       file="/gt-coverage-api-2.6-SNAPSHOT/src/main/java/org/geotools/coverage/io/RasterDataset.java" binary="false"/>  
   </dependency>  

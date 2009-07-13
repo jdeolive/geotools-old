@@ -25,7 +25,7 @@ import java.util.TreeSet;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.io.RasterDataset;
-import org.geotools.coverage.io.range.FieldType;
+import org.geotools.coverage.io.range.RangeDescriptor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
@@ -67,7 +67,7 @@ public class CoverageReadRequest   {
 	 * The subset of the original    {@link RangeManager}    we want to obtain.
 	 * TODO use generics
 	 */
-	private FieldType rangeSubset;
+	private RangeDescriptor rangeSubset;
 
 	/**
 	 * The vertical positions for which we want to get some data.
@@ -84,7 +84,7 @@ public class CoverageReadRequest   {
 	/**
 	 * @see org.geotools.coverage.io.request.CoverageReadRequest#getRangeSubset()
 	 */
-	public FieldType getRangeSubset(){
+	public RangeDescriptor getRangeSubset(){
 		return this.rangeSubset;
 	}
 
@@ -157,7 +157,7 @@ public class CoverageReadRequest   {
 	/**
 	 * @see org.geotools.coverage.io.request.CoverageReadRequest#setRangeSubset(org.geotools.coverage.io.range.RangeManager)
 	 */
-	public void setRangeSubset(final FieldType value) {
+	public void setRangeSubset(final RangeDescriptor value) {
 		this.rangeSubset = value;
 	}
 	/**

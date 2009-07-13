@@ -3,11 +3,9 @@ package org.geotools.coverage.io.range;
 import java.awt.image.SampleModel;
 
 import javax.measure.quantity.Dimensionless;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
-import org.geotools.coverage.io.range.Axis.WavelengthAxis;
+import org.geotools.coverage.io.range.RangeAxis.WavelengthAxis;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.MeasurementRange;
 import org.geotools.util.SimpleInternationalString;
@@ -23,34 +21,34 @@ import org.opengis.util.InternationalString;
  * @param <V>
  * @param <QA>
  */
-public abstract class AxisBin<V, QA extends Quantity>{
+public abstract class RangeAxisBin<V> {//implements Comparable<RangeAxisBin<V>>{
 
 	/**
-	 * Implementation of {@link Axis} for multibands images.
+	 * Implementation of {@link RangeAxis} for multibands images.
 	 * 
 	 * <p>
-	 * This implementation of Axis can be seen as a stub implementation since in
-	 * this case we do not really have an {@link Axis} for this kind of data, or
-	 * rather we have an axis that just represents an ordinal or a certain set of .
+	 * This implementation of RangeAxis can be seen as a stub implementation since in
+	 * this case we do not really have an {@link RangeAxis} for this kind of data, or
+	 * rather we have an rangeAxis that just represents an ordinal or a certain set of .
 	 * 
 	 * @author Simone Giannecchini, GeoSolutions
 	 * @todo add convenience constructor based on {@link SampleDimension} and or
 	 *       {@link SampleModel}
 	 */
-	public static class DimensionlessAxisBin extends AxisBin<String,Dimensionless> {
+	public static class StringAxisBin extends RangeAxisBin<String> {
 
 	    /**
 	     * 
 	     */
-	    public DimensionlessAxisBin(final Name name,final InternationalString description,final Axis<Dimensionless> axis, final String bandName) {
-	    	super(name,description,axis,bandName );
+	    public StringAxisBin(final Name name,final InternationalString description,final RangeAxis rangeAxis, final String bandName) {
+	    	super(name,description,rangeAxis,bandName );
 	    }
 
 
 	    
 
 		/**
-	     * @see org.geotools.coverage.io.range.Axis#getCoordinateReferenceSystem()
+	     * @see org.geotools.coverage.io.range.RangeAxis#getCoordinateReferenceSystem()
 	     */
 	    public SingleCRS getCoordinateReferenceSystem() {
 	        return null;
@@ -58,7 +56,7 @@ public abstract class AxisBin<V, QA extends Quantity>{
 
 
 	    /**
-	     * @see org.geotools.coverage.io.range.Axis#getUnitOfMeasure()
+	     * @see org.geotools.coverage.io.range.RangeAxis#getUnitOfMeasure()
 	     */
 	    public Unit<Dimensionless> getUnitOfMeasure() {
 	        return Unit.ONE;
@@ -67,10 +65,18 @@ public abstract class AxisBin<V, QA extends Quantity>{
 	}
 
 	 /**
-	 * A bin for the wavelength axis
-	 */
-	public static class WavelengthBin extends AxisBin<MeasurementRange<Double>,Length>{
+	  * A special {@link RangeAxisBin} that can be used to indicate bin over a {@link WavelengthAxis}.
+	  * 
+	  * @author Simone Giannecchini, GeoSolutions SAS
+	  *
+	  */
+	public static class WavelengthBin extends RangeAxisBin<MeasurementRange<Double>>{
 				
+//		public int compareTo(RangeAxisBin<MeasurementRange<Double>> o) {
+//			if(!o.value.getUnits().isCompatible(this.getUnit()))
+//				throw new IllegalArgumentException();
+//			return 0;
+//		}
 		/**
 		 * 
 		 */
@@ -117,41 +123,41 @@ public abstract class AxisBin<V, QA extends Quantity>{
 	private static final long serialVersionUID = 227920699316120413L;
 	
 	/**
-	 * The {@link AxisBin} instance that is used as a reference by this {@link AxisBin}.
+	 * The {@link RangeAxisBin} instance that is used as a reference by this {@link RangeAxisBin}.
 	 */
-	private Axis<QA> axis;
+	private RangeAxis rangeAxis;
 
-	public AxisBin(
+	public RangeAxisBin(
 			final Name name, 
 			final InternationalString description, 
-			final Axis<QA> axis,
+			final RangeAxis rangeAxis,
 			final V value) {
 		this.description = description;
 		this.name = name;
-		this.axis=axis;
+		this.rangeAxis=rangeAxis;
 		this.value=value;
 	}
 	
-	public AxisBin(
+	public RangeAxisBin(
 			final Name name, 
-			final Axis<QA> axis,
+			final RangeAxis rangeAxis,
 			final V value) {
-		this(name, new SimpleInternationalString(name.getLocalPart()), axis, value);
+		this(name, new SimpleInternationalString(name.getLocalPart()), rangeAxis, value);
 	}
 	
-	public AxisBin(
+	public RangeAxisBin(
 			final String name, 
 			final String description, 
-			final Axis<QA> axis,
+			final RangeAxis rangeAxis,
 			final V value) {
-		this(new NameImpl(name), new SimpleInternationalString(description), axis, value);
+		this(new NameImpl(name), new SimpleInternationalString(description), rangeAxis, value);
 	}
 	
-	public AxisBin(
+	public RangeAxisBin(
 			final String name, 
-			final Axis<QA> axis,
+			final RangeAxis rangeAxis,
 			final V value) {
-		this(new NameImpl(name), new SimpleInternationalString(name), axis, value);
+		this(new NameImpl(name), new SimpleInternationalString(name), rangeAxis, value);
 	}
 	
 	
@@ -168,23 +174,23 @@ public abstract class AxisBin<V, QA extends Quantity>{
 	}
 
 
-	public Unit<QA> getUnit() {
-		return axis.getUnitOfMeasure();
+	public Unit<?> getUnit() {
+		return rangeAxis.getUnitOfMeasure();
 	}
 
 	public V getValue() {
 		return value;
 	}
 	
-	public Axis<QA> getAxis(){
-		return axis;
+	public RangeAxis getAxis(){
+		return rangeAxis;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((axis == null) ? 0 : axis.hashCode());
+		result = prime * result + ((rangeAxis == null) ? 0 : rangeAxis.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
@@ -200,11 +206,11 @@ public abstract class AxisBin<V, QA extends Quantity>{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AxisBin other = (AxisBin) obj;
-		if (axis == null) {
-			if (other.axis != null)
+		RangeAxisBin other = (RangeAxisBin) obj;
+		if (rangeAxis == null) {
+			if (other.rangeAxis != null)
 				return false;
-		} else if (!axis.equals(other.axis))
+		} else if (!rangeAxis.equals(other.rangeAxis))
 			return false;
 		if (description == null) {
 			if (other.description != null)
@@ -228,23 +234,20 @@ public abstract class AxisBin<V, QA extends Quantity>{
 	@Override
 	public String toString() {
 		final StringBuilder builder= new StringBuilder();
-		builder.append("Axis  bin description").append("\n");
+		builder.append("RangeAxis  bin description").append("\n");
 		builder.append("Name:").append("\t\t\t\t\t").append(name.toString()).append("\n");
 		builder.append("Description:").append("\t\t\t\t").append(description.toString()).append("\n");
 		builder.append("Value:").append("\t\t\t\t\t").append(value.toString()).append("\n");
-		builder.append("Axis:").append("\n").append(axis.toString()).append("\n");
+		builder.append("RangeAxis:").append("\n").append(rangeAxis.toString()).append("\n");
 		return builder.toString();
 	}
 
-
-	@SuppressWarnings("unchecked")
-	public boolean belongsTo(final Axis axis){
-		return axis.equals(this.axis);
+	public boolean belongsTo(final RangeAxis rangeAxis){
+		return rangeAxis.equals(this.rangeAxis);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public boolean compatibleWith(final Axis axis){
-		return axis.compatibleWith(this.axis);
+	public boolean compatibleWith(final RangeAxis rangeAxis){
+		return rangeAxis.compatibleWith(this.rangeAxis);
 	}
 	
 }
