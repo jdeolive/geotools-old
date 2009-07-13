@@ -98,6 +98,27 @@ public class DefaultPeriod extends DefaultTemporalGeometricPrimitive implements 
         return false;
     }
 
+ //   /**
+ //     * Verify if this entry is identical to the specified object.
+ //     */
+ //    public int compareTo(Object object) {
+ //        if (object == this) {
+ //            return 0;
+ //        }
+ //        if (object instanceof DefaultPeriod) {
+ //            final DefaultPeriod that = (DefaultPeriod) object;
+ //
+ //            if (Utilities.equals(this.begining, that.begining) &&
+ //                    Utilities.equals(this.ending, that.ending))
+ //                return 0;
+ //            else {
+ //                // TODO
+ //            }
+ //        }
+ //        
+ //       throw new ClassCastException("Object of type " + object.getClass() + " cannot be compared to " + this.getClass());
+ //    }
+
     @Override
     public int hashCode() {
         int hash = 5;

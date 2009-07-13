@@ -105,6 +105,26 @@ public class DefaultInstant extends DefaultTemporalGeometricPrimitive implements
         return false;
     }
 
+ //   /**
+ //     * Verify if this entry is identical to the specified object.
+ //    */
+ //   public int compareTo(Object object) {
+ //      if (object == this) {
+ //           return 0;
+ //       }
+ //       if (object instanceof DefaultInstant) {
+ //           final DefaultInstant that = (DefaultInstant) object;
+ //
+ //           if (Utilities.equals(this.position, that.position) &&
+ //                   Utilities.equals(this.begunBy, that.begunBy) &&
+ //                   Utilities.equals(this.endBy, that.endBy))
+ //               return 0;
+ //           else 
+ //               return this.position.getDate().compareTo(that.getPosition().getDate());
+ //       }
+ //       
+ //       throw new ClassCastException("Object of type " + object.getClass() + " cannot be compared to " + this.getClass());
+ //   }
     @Override
     public int hashCode() {
         int hash = 5;
