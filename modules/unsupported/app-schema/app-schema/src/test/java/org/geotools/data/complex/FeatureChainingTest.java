@@ -155,21 +155,20 @@ public class FeatureChainingTest {
      */
     private static FeatureCollection<FeatureType, Feature> ccFeatures;
 
-    
     @BeforeClass
-    public static void setUpBeforeClass() throws Exception{
+    public static void setUpBeforeClass() throws Exception {
         Stopwatch sw = new Stopwatch();
         sw.start();
         loadDataAccesses();
         sw.stop();
         System.out.println("Set up time: " + sw.getTimeString());
     }
-    
+
     @AfterClass
-    public static void tearDownAfterClass() throws Exception{
+    public static void tearDownAfterClass() throws Exception {
         DataAccessRegistry.unregisterAll();
     }
-    
+
     /**
      * Test that chaining works
      * 
@@ -371,7 +370,8 @@ public class FeatureChainingTest {
 
                 Feature feature = (Feature) ((Collection) value).iterator().next();
                 for (Property nestedProperty : feature.getProperties("value")) {
-                    realValues.add(nestedProperty.getValue());
+                    realValues.add(((Property) ((Collection) nestedProperty.getValue()).iterator()
+                            .next()).getValue());
                 }
             }
 
@@ -394,7 +394,8 @@ public class FeatureChainingTest {
 
                 Feature feature = (Feature) ((Collection) value).iterator().next();
                 for (Property nestedProperty : feature.getProperties("value")) {
-                    realValues.add(nestedProperty.getValue());
+                    realValues.add(((Property) ((Collection) nestedProperty.getValue()).iterator()
+                            .next()).getValue());
                 }
             }
             // compare with values from property file
@@ -668,7 +669,8 @@ public class FeatureChainingTest {
          * Load mapped feature data access
          */
         Map dsParams = new HashMap();
-        URL url = FeatureChainingTest.class.getResource(schemaBase + "MappedFeaturePropertyfile.xml");
+        URL url = FeatureChainingTest.class.getResource(schemaBase
+                + "MappedFeaturePropertyfile.xml");
         assertNotNull(url);
 
         dsParams.put("dbtype", "app-schema");
