@@ -20,6 +20,7 @@ package org.geotools.arcsde.gce;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_S;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_U;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_1BIT;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_32BIT_REAL;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_32BIT_S;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_32BIT_U;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_4BIT;
@@ -374,17 +375,20 @@ class RasterUtils {
     private static ImageTypeSpecifier createOneBitColorMappedImageSpec(int sampleImageWidth,
             int sampleImageHeight, byte noDataValue) {
 
-        int mapSize = noDataValue > 2 ? noDataValue : 3;
-        int[] cmap = new int[mapSize];
-        cmap[0] = ColorUtilities.getIntFromColor(255, 255, 255, 255);
-        cmap[1] = ColorUtilities.getIntFromColor(0, 0, 0, 255);
+        assert noDataValue == 2;
 
-        for (int i = 2; i < mapSize; i++) {
-            cmap[i] = ColorUtilities.getIntFromColor(0, 0, 0, 0);
-        }
+        final int FALSE = ColorUtilities.getIntFromColor(255, 255, 255, 255);
+        final int TRUE = ColorUtilities.getIntFromColor(255, 0, 0, 255);
+        final int NODATA = ColorUtilities.getIntFromColor(0, 255, 0, 255);
+
+        final int mapSize = 3;
+        int[] cmap = new int[mapSize];
+        cmap[0] = FALSE;
+        cmap[1] = TRUE;
+        cmap[2] = NODATA;
 
         int transparentPixel = noDataValue;
-        IndexColorModel colorModel = new IndexColorModel(8, mapSize, cmap, 0, true,
+        IndexColorModel colorModel = new IndexColorModel(8, mapSize, cmap, 0, false,
                 transparentPixel, DataBuffer.TYPE_BYTE);
 
         SampleModel sampleModel = colorModel.createCompatibleSampleModel(sampleImageWidth,
@@ -839,23 +843,46 @@ class RasterUtils {
     }
 
     /**
-     * 
+     * @param numBands
+     *            number of bands in the raster dataset for the band whose nodata value is to be
+     *            determined. Might be useful to treat special cases where some assumptions are made
+     *            depending on the cell type and number of bands
      * @param statsMin
      *            the minimum sample value for the band as reported by the band's statistics, or
      *            {@code NaN}
      * @param statsMax
      *            the maximum sample value for the band as reported by the band's statistics, or
      *            {@code NaN}
-     * @param cellType
+     * @param nativeCellType
      *            the band's native cell type
      * @return
      */
-    public static Number determineNoDataValue(final double statsMin, final double statsMax,
-            final RasterCellType cellType) {
+    public static Number determineNoDataValue(final int numBands, final double statsMin,
+            final double statsMax, final RasterCellType nativeCellType) {
 
         final Number nodata;
 
-        final NumberRange<?> sampleValueRange = cellType.getSampleValueRange();
+        if (nativeCellType == TYPE_32BIT_REAL) {
+            LOGGER.fine("no data value is Float.NaN");
+            return Float.valueOf(Float.NaN);
+        } else if (nativeCellType == TYPE_64BIT_REAL) {
+            LOGGER.fine("no data value is Double.NaN");
+            return Double.valueOf(Double.NaN);
+        } else if (nativeCellType == TYPE_1BIT) {
+            LOGGER.fine("1BIT images no-data value is set to 2,"
+                    + " regardless of the raster statistics");
+            return Double.valueOf(2);
+        } else if (nativeCellType == TYPE_4BIT) {
+            LOGGER.fine("4BIT images no-data value is set to 16,"
+                    + " regardless of the raster statistics");
+            return Double.valueOf(16);
+        } else if (nativeCellType == TYPE_8BIT_U && (numBands == 3 || numBands == 4)) {
+            LOGGER.fine("3 or 4 band, 8 bit unsigned image, assumed to be "
+                    + "RGB or RGBA respectively and nodata value hardcoded to 255");
+            return Integer.valueOf(255);
+        }
+
+        final NumberRange<?> sampleValueRange = nativeCellType.getSampleValueRange();
 
         final double minimumSample = sampleValueRange.getMinimum(true);
         final double maximumSample = sampleValueRange.getMaximum(true);
@@ -863,13 +890,6 @@ class RasterUtils {
         double lower;
         double greater;
         if (Double.isNaN(statsMin) || Double.isNaN(statsMax)) {
-            // no way to know, there's no statistics generated, so we need to promote just to be
-            // safe
-            if (cellType.getBitsPerSample() == 64) {
-                // can't promote a double to a higher depth
-                nodata = Double.valueOf(Double.MAX_VALUE);
-                return nodata;
-            }
             lower = Math.ceil(minimumSample - 1);
             greater = Math.floor(maximumSample + 1);
         } else {
@@ -887,55 +907,48 @@ class RasterUtils {
             nodata = greater;
         } else if (isUnsigned) {
             // need to set no-data to the higher value, floor is zero
-            if (cellType == TYPE_1BIT || cellType == TYPE_4BIT) {
-                nodata = greater;
-            } else {
-                // best guess without promoting. We don't actually want to promote a raster that is
-                // non
-                // colormapped and either has no statistics or it's range is full to preserve the
-                // cases
-                // were it may affect badly the visualization (for example, a 3 band 8bit raster
-                // promoted to 3 band 16bit is gonna look almost black
-                nodata = maximumSample;
-            }
+            nodata = greater;
+            // if (cellType == TYPE_1BIT || cellType == TYPE_4BIT) {
+            // nodata = greater;
+            // } else {
+            // // best guess without promoting. We don't actually want to promote a raster that is
+            // // non
+            // // colormapped and either has no statistics or it's range is full to preserve the
+            // // cases
+            // // were it may affect badly the visualization (for example, a 3 band 8bit raster
+            // // promoted to 3 band 16bit is gonna look almost black
+            // nodata = maximumSample;
+            // }
         } else {
             // no-data as the lower value is ok, floor is non zero (the celltype is signed)
-            // nodata = lower;
-            nodata = minimumSample;
+            nodata = lower;
         }
 
         return nodata;
     }
 
-    public static RasterCellType determineTargetCellType(final RasterDatasetInfo info,
-            final int rasterIndex) {
+    public static RasterCellType determineTargetCellType(final RasterCellType nativeCellType,
+            final List<Number> noDataValues) {
 
-        if (info.isColorMapped()) {
-            final IndexColorModel targetColorMap = info.getColorMap(rasterIndex);
-            final int transferType = targetColorMap.getTransferType();
-            switch (transferType) {
-            case DataBuffer.TYPE_BYTE:
-                return RasterCellType.TYPE_8BIT_U;
-            case DataBuffer.TYPE_USHORT:
-                return RasterCellType.TYPE_16BIT_U;
-            default:
-                throw new IllegalArgumentException("DataBuffer transfer type in"
-                        + " IndexColorModel is not recognized: " + transferType);
+        if (TYPE_32BIT_REAL == nativeCellType || TYPE_64BIT_REAL == nativeCellType) {
+            // no data value is NaN, so no need to promote. For other types NaN is not available
+            for (Number nodata : noDataValues) {
+                if (!Double.isNaN(nodata.doubleValue())) {
+                    throw new IllegalArgumentException("no data values for float and "
+                            + "double cell types shall be NaN: " + nodata);
+                }
             }
+            return nativeCellType;
         }
 
         // find a cell type that's deep enough for all the bands in the given raster
         double noDataMin = Double.POSITIVE_INFINITY, noDataMax = Double.NEGATIVE_INFINITY;
         {
-            final int numBands = info.getNumBands();
-            double noDataValue;
-            for (int bandN = 0; bandN < numBands; bandN++) {
-                noDataValue = info.getNoDataValue(rasterIndex, bandN).doubleValue();
-                noDataMin = Math.min(noDataMin, noDataValue);
-                noDataMax = Math.max(noDataMax, noDataValue);
+            for (Number noData : noDataValues) {
+                noDataMin = Math.min(noDataMin, noData.doubleValue());
+                noDataMax = Math.max(noDataMax, noData.doubleValue());
             }
         }
-        final RasterCellType nativeCellType = info.getNativeCellType();
         final NumberRange<Double> sampleValueRange;
         sampleValueRange = nativeCellType.getSampleValueRange().castTo(Double.class);
 

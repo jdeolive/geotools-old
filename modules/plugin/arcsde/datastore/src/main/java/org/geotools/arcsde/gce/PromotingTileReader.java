@@ -1,10 +1,13 @@
 package org.geotools.arcsde.gce;
 
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_S;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_U;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_1BIT;
+import static org.geotools.arcsde.gce.RasterCellType.TYPE_32BIT_S;
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_U;
 
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.util.logging.Logging;
@@ -99,6 +102,10 @@ final class PromotingTileReader implements TileReader {
         return tileInfo;
     }
 
+    /**
+     * 
+     * @author Gabriel Roldan
+     */
     private static abstract class SampleDepthPromoter {
 
         public abstract void promote(int sampleN, byte[] nativeTileData, byte[] tileData);
@@ -110,10 +117,14 @@ final class PromotingTileReader implements TileReader {
                 return new OneBitToUchar();
             } else if (source == TYPE_8BIT_U && target == TYPE_16BIT_U) {
                 return new UcharToUshort();
+            } else if (source == TYPE_16BIT_S && target == TYPE_32BIT_S) {
+                return new ShortToInt();
             }
 
-            throw new UnsupportedOperationException("Promoting from " + source + " to " + target
-                    + " not yet implemented");
+            UnsupportedOperationException exception = new UnsupportedOperationException(
+                    "Promoting from " + source + " to " + target + " not yet implemented");
+            LOGGER.log(Level.WARNING, "Can't promote", exception);
+            throw exception;
         }
     }
 
@@ -139,4 +150,16 @@ final class PromotingTileReader implements TileReader {
         }
     }
 
+    private static class ShortToInt extends SampleDepthPromoter {
+
+        @Override
+        public void promote(int sampleN, byte[] nativeTileData, byte[] tileData) {
+            int pixArrayOffset = 4 * sampleN;
+
+            tileData[pixArrayOffset] = 0;
+            tileData[pixArrayOffset + 1] = 0;
+            tileData[pixArrayOffset + 1] = (byte) ((nativeTileData[sampleN] >>> 8) & 0xFF);
+            tileData[pixArrayOffset + 1] = (byte) ((nativeTileData[sampleN] >>> 0) & 0xFF);
+        }
+    }
 }

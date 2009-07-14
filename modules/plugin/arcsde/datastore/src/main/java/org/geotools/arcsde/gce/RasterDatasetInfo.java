@@ -134,46 +134,62 @@ final class RasterDatasetInfo {
         return gridSampleDimensions.toArray(new GridSampleDimension[getNumBands()]);
     }
 
+    @SuppressWarnings("unchecked")
     private List<GridSampleDimension> buildSampleDimensions() {
+
         final int numBands = getNumBands();
         List<GridSampleDimension> dimensions = new ArrayList<GridSampleDimension>(numBands);
 
-        final Color[] RGB = { Color.RED, Color.GREEN, Color.BLUE };
-        final String[] RGBCatNames = { "red", "green", "blue" };
+        final Color transparent = new Color(0, 0, 0, 0);
 
         List<RasterBandInfo> bands = subRasterInfo.get(0).getBands();
 
         for (RasterBandInfo band : bands) {
             final int bandNumber = band.getBandNumber();
-            final RasterCellType cellType = band.getCellType();
+            // use native cell type, in case no-data value has been computed to account for
+            // sample depth promotion, we want to category to keep being the native range for
+            // the values category
+            final RasterCellType targetCellType = getNativeCellType();
             String bandName = band.getBandName();
 
-            final NumberRange<?> sampleValueRange = cellType.getSampleValueRange();
+            final double statsMin = band.getStatsMin();
+            final double statsMax = band.getStatsMax();
 
-            final Color minColor = Color.BLACK;
-            String catName;
-            final Color maxColor;
-            switch (numBands) {
-            case 3:
-                maxColor = RGB[bandNumber - 1];
-                catName = RGBCatNames[bandNumber - 1];
-                break;
-            default:
-                maxColor = Color.WHITE;
-                catName = bandName;
+            NumberRange<?> sampleValueRange;
+            if (Double.isNaN(statsMin) || Double.isNaN(statsMax)) {
+                sampleValueRange = targetCellType.getSampleValueRange();
+            } else {
+                sampleValueRange = NumberRange.create(statsMin, statsMax);
+                Class elementClass = targetCellType.getSampleValueRange().getElementClass();
+                sampleValueRange = sampleValueRange.castTo(elementClass);
             }
-            final Color[] colorRange = { minColor, maxColor };
-            Category bandCat = new Category(catName, colorRange, sampleValueRange,
+
+            final Color[] colorRange = null;
+
+            Category valuesCat = new Category("values", colorRange, sampleValueRange,
                     LinearTransform1D.IDENTITY).geophysics(true);
-            Category[] categories = { bandCat };
-            // if (band.isHasStats()) {
-            // Category catMin = new Category("Min", null, band.getStatsMin()).geophysics(true);
-            // Category catMax = new Category("Max", null, band.getStatsMin()).geophysics(true);
-            // Category catMean = new Category("Mean", null, band.getStatsMin()).geophysics(true);
-            // Category catStdDev = new Category("StdDev", null, band.getStatsMin())
-            // .geophysics(true);
-            // categories = new Category[] { bandCat, catMin, catMax, catMean, catStdDev };
-            // }
+
+            double noDataValue = band.getNoDataValue().doubleValue();
+            Category nodataCat = new Category("no data", transparent, noDataValue);
+
+            Category[] categories;
+            if (valuesCat.getRange().intersects(nodataCat.getRange())) {
+                // do not build a nodata category. A nodata value that doesn't overlap the value
+                // range couldn't be determined
+                categories = new Category[] { valuesCat };
+            } else {
+                categories = new Category[] { valuesCat, nodataCat };
+            }
+            /*
+             * if (band.isHasStats()) { //can't do this, get an exception telling categories
+             * overlap.. so no real way to express the statistics, uh? Category catMin = new
+             * Category("Min", null, band.getStatsMin()).geophysics(true); Category catMax = new
+             * Category("Max", null, band.getStatsMin()).geophysics(true); Category catMean = new
+             * Category("Mean", null, band.getStatsMin()).geophysics(true); Category catStdDev = new
+             * Category("StdDev", null, band.getStatsMin()) .geophysics(true); categories = new
+             * Category[] { valuesCat, nodataCat, catMin, catMax, catMean, catStdDev }; } else {
+             * categories = new Category[] { valuesCat, nodataCat }; }
+             */
             GridSampleDimension sampleDim = new GridSampleDimension(bandName, categories, null)
                     .geophysics(true);
 
@@ -244,7 +260,7 @@ final class RasterDatasetInfo {
             int width = maxx - minx;
             int height = maxy - miny;
             Rectangle range = new Rectangle(0, 0, width, height);
-            originalGridRange = new GeneralGridEnvelope(range);
+            originalGridRange = new GeneralGridEnvelope(range, 2);
         }
         return originalGridRange;
     }
@@ -399,7 +415,15 @@ final class RasterDatasetInfo {
     }
 
     public RasterCellType getTargetCellType(final int rasterIndex) {
-        return RasterUtils.determineTargetCellType(this, rasterIndex);
+        if (isColorMapped()) {
+            // color map is already promoted if needed
+            return getNativeCellType();
+        }
+        List<Number> noDataValues = getNoDataValues(rasterIndex);
+        RasterCellType nativeCellType = getNativeCellType();
+        RasterCellType targetCellType = RasterUtils.determineTargetCellType(nativeCellType,
+                noDataValues);
+        return targetCellType;
     }
 
     public Long getRasterId(final int rasterIndex) {
@@ -448,5 +472,20 @@ final class RasterDatasetInfo {
         RasterBandInfo band = getBand(rasterIndex, bandIndex);
         Number noDataValue = band.getNoDataValue();
         return noDataValue;
+    }
+
+    /**
+     * @param rasterIndex
+     *            the raster for which bands to return the no data values
+     * @return the list of no data values, one per band for the raster at index {@code rasterIndex}
+     */
+    public List<Number> getNoDataValues(final int rasterIndex) {
+        final int numBands = getNumBands();
+        final List<Number> noDataValues = new ArrayList<Number>();
+        for (int bandN = 0; bandN < numBands; bandN++) {
+            Number noDataValue = getNoDataValue(rasterIndex, bandN);
+            noDataValues.add(noDataValue);
+        }
+        return noDataValues;
     }
 }

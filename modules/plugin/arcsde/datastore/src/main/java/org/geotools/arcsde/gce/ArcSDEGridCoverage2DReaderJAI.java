@@ -97,12 +97,16 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG_TO_DISK = Boolean
+            .getBoolean("org.geotools.arcsde.gce.debug");
 
     private static final File debugDir = new File(System.getProperty("user.home") + File.separator
             + "arcsde_test");
+
+    final LoggingHelper geomLog = new LoggingHelper();
+
     static {
-        if (DEBUG) {
+        if (DEBUG_TO_DISK) {
             debugDir.mkdir();
         }
     }
@@ -222,7 +226,6 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
         final GeneralEnvelope resultEnvelope = getResultEnvelope(queries);
 
-        final LoggingHelper geomLog = new LoggingHelper();
         geomLog.appendLoggingGeometries(LoggingHelper.REQ_ENV, requestedEnvelope);
         geomLog.appendLoggingGeometries(LoggingHelper.RES_ENV, resultEnvelope);
 
@@ -231,8 +234,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
          * overall resulting mosaic they fit. If the rasters does not share the spatial resolution,
          * the QueryInfo.resultDimension and QueryInfo.mosaicLocation width or height won't match
          */
-        final Rectangle mosaicDimension;
-        mosaicDimension = RasterUtils.setMosaicLocations(rasterInfo, resultEnvelope, queries);
+        RasterUtils.setMosaicLocations(rasterInfo, resultEnvelope, queries);
 
         /*
          * Gather the rendered images for each of the rasters that match the requested envelope
@@ -322,21 +324,20 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                 LOGGER.fine(coverageName + " was promoted from 1 to "
                         + coverageRaster.getSampleModel().getNumBands()
                         + " bands, returning an appropriate set of GridSampleDimension");
-            }
-            // stolen from super.createCoverage:
-            final ColorModel cm = coverageRaster.getColorModel();
-            bands = new GridSampleDimension[numBands];
+                // stolen from super.createCoverage:
+                final ColorModel cm = coverageRaster.getColorModel();
+                bands = new GridSampleDimension[numBands];
 
-            // setting bands names.
-            for (int i = 0; i < numBands; i++) {
-                final ColorInterpretation colorInterpretation;
-                colorInterpretation = TypeMap.getColorInterpretation(cm, i);
-                if (colorInterpretation == null) {
-                    throw new IOException("Unrecognized sample dimension type");
+                // setting bands names.
+                for (int i = 0; i < numBands; i++) {
+                    final ColorInterpretation colorInterpretation;
+                    colorInterpretation = TypeMap.getColorInterpretation(cm, i);
+                    if (colorInterpretation == null) {
+                        throw new IOException("Unrecognized sample dimension type");
+                    }
+                    bands[i] = new GridSampleDimension(colorInterpretation.name()).geophysics(true);
                 }
-                bands[i] = new GridSampleDimension(colorInterpretation.name()).geophysics(true);
             }
-
         }
 
         GridCoverage2D resultCoverage = coverageFactory.create(coverageName, coverageRaster,
@@ -409,11 +410,6 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
      * @throws IOException
      */
     private RenderedImage createMosaic(final List<RasterQueryInfo> queries) throws IOException {
-        // if (queries.size() == 1) {
-        // // no need to mosaic at all
-        // return queries.get(0).getResultImage();
-        // }
-
         List<RenderedImage> transformed = new ArrayList<RenderedImage>(queries.size());
 
         /*
@@ -487,55 +483,47 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                  */
                 image = FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE), null);
 
-                if (DEBUG) {
-                    _log(image, query.getRasterId(), "04_1_colorExpanded");
-                }
+                _log(image, query.getRasterId(), "04_1_colorExpanded");
             }
 
             transformed.add(image);
         }
 
-        ParameterBlock mosaicParams = new ParameterBlock();
+        final RenderedImage result;
+        if (queries.size() == 1) {
+            result = transformed.get(0);
+        } else {
+            ParameterBlock mosaicParams = new ParameterBlock();
 
-        final LoggingHelper geomLog = new LoggingHelper();
-        for (RenderedImage img : transformed) {
-            mosaicParams.addSource(img);
-            geomLog.appendLoggingGeometries(LoggingHelper.MOSAIC_RESULT, img);
+            for (RenderedImage img : transformed) {
+                mosaicParams.addSource(img);
+                geomLog.appendLoggingGeometries(LoggingHelper.MOSAIC_RESULT, img);
+            }
+            geomLog.log(LoggingHelper.MOSAIC_RESULT);
+
+            mosaicParams.add(MosaicDescriptor.MOSAIC_TYPE_OVERLAY); // mosaic type
+            mosaicParams.add(null); // alpha mask
+            mosaicParams.add(null); // source ROI mask
+            mosaicParams.add(null); // source threshold
+            mosaicParams.add(null); // destination background value
+
+            LOGGER.fine("Creating mosaic out of " + queries.size() + " raster tiles");
+            RenderedImage mosaic = JAI.create("Mosaic", mosaicParams);
+            _log(mosaic, 0L, "05_mosaic_result");
+
+            result = mosaic;
         }
-        geomLog.log(LoggingHelper.MOSAIC_RESULT);
-
-        mosaicParams.add(MosaicDescriptor.MOSAIC_TYPE_OVERLAY); // mosaic type
-        mosaicParams.add(null); // alpha mask
-        mosaicParams.add(null); // source ROI mask
-        mosaicParams.add(null); // source threshold
-        mosaicParams.add(null); // destination background value
-
-        LOGGER.fine("Creating mosaic out of " + queries.size() + " raster tiles");
-        RenderedImage mosaic = JAI.create("Mosaic", mosaicParams);
-        _log(mosaic, 0L, "05_mosaic_result");
-
-        // if (expandThenContractCM) {
-        // if (LOGGER.isLoggable(Level.FINE)) {
-        // LOGGER.fine("The original rasters are colormapped, "
-        // + "reducing the mosaic color space to an indexed one");
-        // }
-        // ImageWorker imageWorker = new ImageWorker(mosaic);
-        // imageWorker.forceIndexColorModel(true);
-        // mosaic = imageWorker.getRenderedImage();
-        // if (DEBUG) {
-        // ImageIO.write(mosaic, "TIFF", new File(debugDir, coverageName
-        // + "_05.1_colorReduced.tiff"));
-        // }
-        // }
-        return mosaic;
+        return result;
     }
 
     private void _log(RenderedImage image, Long rasterId, String fileName) throws IOException {
-        if (DEBUG) {
+        if (DEBUG_TO_DISK) {
             LOGGER.warning("BEWARE THE DEBUG FLAG IS TURNED ON! "
                     + "IF IN PRODUCTION THIS IS A SEVERE MISTAKE!!!");
-            ImageIO.write(FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE),
-                    null), "TIFF", new File(debugDir, rasterId.longValue() + fileName + ".tiff"));
+            // ImageIO.write(FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE),
+            // null), "TIFF", new File(debugDir, rasterId.longValue() + fileName + ".tiff"));
+            ImageIO.write(image, "TIFF", new File(debugDir, rasterId.longValue() + fileName
+                    + ".tiff"));
         }
 
     }

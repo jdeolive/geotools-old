@@ -659,7 +659,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             band = seBands[bandN];
             bandInfo = new RasterBandInfo();
             final int bitsPerSample = cellType.getBitsPerSample();
-            setBandInfo(bandInfo, band, scon, bitsPerSample, rastersColorMaps);
+            setBandInfo(numBands, bandInfo, band, scon, bitsPerSample, rastersColorMaps);
             detachedBandInfo.add(bandInfo);
         }
         return detachedBandInfo;
@@ -667,6 +667,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
 
     /**
      * 
+     * @param numBands
      * @param bandInfo
      * @param band
      * @param scon
@@ -674,8 +675,8 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      *            only used if the band is colormapped to create the IndexColorModel
      * @throws IOException
      */
-    private void setBandInfo(RasterBandInfo bandInfo, final SeRasterBand band,
-            final ArcSDEPooledConnection scon, int bitsPerSample,
+    private void setBandInfo(final int numBands, final RasterBandInfo bandInfo,
+            final SeRasterBand band, final ArcSDEPooledConnection scon, int bitsPerSample,
             final Map<Long, IndexColorModel> colorMaps) throws IOException {
 
         bandInfo.bandId = band.getId().longValue();
@@ -727,8 +728,11 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         if (bandInfo.getColorMap() != null) {
             bandInfo.noDataValue = RasterUtils.determineNoDataValue(bandInfo.getColorMap());
         } else {
-            bandInfo.noDataValue = RasterUtils.determineNoDataValue(bandInfo.getStatsMin(),
-                    bandInfo.getStatsMax(), bandInfo.getCellType());
+            double statsMin = bandInfo.getStatsMin();
+            double statsMax = bandInfo.getStatsMax();
+            RasterCellType nativeCellType = bandInfo.getCellType();
+            bandInfo.noDataValue = RasterUtils.determineNoDataValue(numBands, statsMin, statsMax,
+                    nativeCellType);
         }
         bandInfo.tileWidth = band.getTileWidth();
         bandInfo.tileHeight = band.getTileHeight();

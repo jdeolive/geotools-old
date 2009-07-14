@@ -52,7 +52,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * 
  */
 @SuppressWarnings( { "deprecation", "nls" })
-@Ignore
 public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
     private static final String RASTER_TEST_DEBUG_TO_DISK = "raster.test.debugToDisk";
@@ -95,13 +94,13 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
      */
     @After
     public void tearDown() throws Exception {
-        try {
-            LOGGER.info("tearDown: deleting " + tableName);
-            // wait I may delete an actual business table, comment out until this suite is fully
-            // based on fake data rasterTestData.deleteTable(tableName);
-        } catch (Exception e) {
-            LOGGER.log(Level.INFO, "Error deleting test table " + tableName, e);
-        }
+        // try {
+        // LOGGER.info("tearDown: deleting " + tableName);
+        // // wait I may delete an actual business table, comment out until this suite is fully
+        // // based on fake data rasterTestData.deleteTable(tableName);
+        // } catch (Exception e) {
+        // LOGGER.log(Level.INFO, "Error deleting test table " + tableName, e);
+        // }
     }
 
     /**
@@ -406,7 +405,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         requestParams[0] = new Parameter<GridGeometry2D>(AbstractGridFormat.READ_GRIDGEOMETRY2D,
                 gg2d);
         requestParams[1] = new Parameter<OverviewPolicy>(AbstractGridFormat.OVERVIEW_POLICY,
-                OverviewPolicy.SPEED);
+                OverviewPolicy.QUALITY);
 
         final GridCoverage2D coverage;
         coverage = (GridCoverage2D) reader.read(requestParams);
@@ -425,6 +424,44 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
         AbstractGridCoverage2DReader reader = format.getReader(rgbUrl);
         return reader;
+    }
+
+    @Test
+    public void testReadRUGGED_RD() throws Exception {
+        tableName = "SDE.RASTER.RUGGED_RD";
+
+        final AbstractGridCoverage2DReader reader = getReader();
+        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
+
+        final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
+        GridEnvelope originalGridRange = reader.getOriginalGridRange();
+
+        final int reqWidth = originalGridRange.getSpan(0) / 8;
+        final int reqHeight = originalGridRange.getSpan(1) / 8;
+
+        Envelope reqEnvelope = originalEnvelope;
+
+        final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
+        assertNotNull("read coverage returned null", coverage);
+
+        GridGeometry2D gg = coverage.getGridGeometry();
+        Envelope2D envelope2D = gg.getEnvelope2D();
+        GridEnvelope gridRange = gg.getGridRange();
+
+        System.out.println("requested size: " + reqWidth + "x" + reqHeight);
+        System.out.println("result size   : " + gridRange.getSpan(0) + "x" + gridRange.getSpan(1));
+
+        System.out.println("requested envelope: " + reqEnvelope);
+
+        System.out.println("result envelope   : " + envelope2D);
+
+        // RenderedImage image = coverage.getRenderedImage();
+        writeToDisk(coverage, "testRead_" + tableName);
+
+        RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
+        // writeToDisk(image, tableName);
+
+        // writeBand(image, new int[] { 0 }, "band1");
     }
 
 }
