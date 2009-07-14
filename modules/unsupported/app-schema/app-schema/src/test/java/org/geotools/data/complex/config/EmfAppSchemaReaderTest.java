@@ -20,6 +20,7 @@ package org.geotools.data.complex.config;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -221,7 +222,7 @@ public class EmfAppSchemaReaderTest extends TestCase {
         Name tcl = Types.typeName(NS_URI, "TypedCategoryListType");
         AttributeType typedCategoryListType = registry.getAttributeType(tcl);
         assertNotNull(typedCategoryListType);
-        assertTrue(typedCategoryListType instanceof ComplexType);
+        assertFalse(typedCategoryListType instanceof ComplexType);
 
         AttributeType superType = typedCategoryListType.getSuper();
         assertNotNull(superType);

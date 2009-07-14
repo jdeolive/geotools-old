@@ -91,7 +91,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  */
 public class DataAccessIntegrationTest {
 
-    protected static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
+    private static final String GSMLNS = "http://www.cgi-iugs.org/xml/GeoSciML/2";
 
     protected static final String GMLNS = "http://www.opengis.net/gml";
 
