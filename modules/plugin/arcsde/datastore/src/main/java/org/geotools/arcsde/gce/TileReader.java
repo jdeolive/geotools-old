@@ -1,7 +1,32 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2002-2009, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 package org.geotools.arcsde.gce;
 
 import java.io.IOException;
 
+/**
+ * Offers an iterator like interface to read ArcSDE raster tiles into a {@code byte[]}
+ * 
+ * @author Gabriel Roldan (OpenGeo)
+ * @since 2.5.4
+ * @version $Id$
+ * @source $URL$
+ */
 interface TileReader {
 
     public class TileInfo {

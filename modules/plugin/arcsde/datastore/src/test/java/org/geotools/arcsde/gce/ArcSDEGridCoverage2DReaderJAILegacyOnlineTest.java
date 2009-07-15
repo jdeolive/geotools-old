@@ -146,34 +146,27 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
 
     @Test
     public void testReadRasterCatalogOnline2() throws Exception {
-        tableName = "SDE.IMG_USGSQUAD_SGBASE";
+        tableName = "SDE.RASTER.COLOROQ_TEST";
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
         final GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
-        final int reqWidth = originalGridRange.getSpan(0) / 20;
-        final int reqHeight = originalGridRange.getSpan(1) / 20;
+        final int reqWidth = 225;
+        final int reqHeight = 512;
 
-        GeneralEnvelope reqEnvelope = new GeneralEnvelope(originalEnvelope
-                .getCoordinateReferenceSystem());
-        double deltaX = originalEnvelope.getSpan(0) / 20;
-        double deltaY = originalEnvelope.getSpan(1) / 20;
-
-        double minx = originalEnvelope.getMedian(0) - deltaX;
-        double miny = originalEnvelope.getMedian(1) - deltaY;
-        double maxx = minx + 2 * deltaX;
-        double maxy = miny + 2 * deltaY;
-        reqEnvelope.setEnvelope(minx, miny, maxx, maxy);
+        GeneralEnvelope reqEnvelope = originalEnvelope;
 
         assertTrue(originalEnvelope.intersects(reqEnvelope, true));
 
         final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
         assertNotNull("read coverage returned null", coverage);
 
-        RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(image, "testReadRasterCatalogOnline2");
+        writeToDisk(coverage, "testRead_" + tableName);
+
+        RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
+        writeToDisk(image, tableName);
     }
 
     @Test
@@ -459,7 +452,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         writeToDisk(coverage, "testRead_" + tableName);
 
         RenderedImage image = coverage.view(ViewType.RENDERED).getRenderedImage();
-        // writeToDisk(image, tableName);
+        writeToDisk(image, tableName);
 
         // writeBand(image, new int[] { 0 }, "band1");
     }

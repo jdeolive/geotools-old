@@ -1,3 +1,20 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2002-2009, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 package org.geotools.arcsde.gce;
 
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_16BIT_S;
@@ -12,6 +29,13 @@ import java.util.logging.Logger;
 
 import org.geotools.util.logging.Logging;
 
+/**
+ * A {@link TileReader} decorator
+ * 
+ * @author Gabriel Roldan
+ * @version $Id$
+ * @since 2.5.6
+ */
 final class PromotingTileReader implements TileReader {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");

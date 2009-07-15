@@ -17,8 +17,6 @@
  */
 package org.geotools.arcsde.gce;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -41,20 +39,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.stream.ImageInputStream;
-import javax.media.jai.ImageLayout;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
-import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 
-import org.geotools.arcsde.ArcSdeException;
-import org.geotools.arcsde.session.ArcSDEConnectionPool;
-import org.geotools.arcsde.session.ArcSDEPooledConnection;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.TypeMap;
@@ -74,17 +64,6 @@ import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.parameter.GeneralParameterValue;
 
-import com.esri.sde.sdk.client.SDEPoint;
-import com.esri.sde.sdk.client.SeException;
-import com.esri.sde.sdk.client.SeQuery;
-import com.esri.sde.sdk.client.SeRaster;
-import com.esri.sde.sdk.client.SeRasterAttr;
-import com.esri.sde.sdk.client.SeRasterConstraint;
-import com.esri.sde.sdk.client.SeRow;
-import com.esri.sde.sdk.client.SeSqlConstruct;
-import com.sun.media.imageio.stream.RawImageInputStream;
-import com.sun.media.imageioimpl.plugins.raw.RawImageReaderSpi;
-
 /**
  * 
  * @author Gabriel Roldan (OpenGeo)
@@ -97,30 +76,24 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
+    /**
+     * @see LoggingHelper#log(RenderedImage, Long, String)
+     */
     private static final boolean DEBUG_TO_DISK = Boolean
             .getBoolean("org.geotools.arcsde.gce.debug");
 
-    private static final File debugDir = new File(System.getProperty("user.home") + File.separator
-            + "arcsde_test");
-
-    final LoggingHelper geomLog = new LoggingHelper();
-
-    static {
-        if (DEBUG_TO_DISK) {
-            debugDir.mkdir();
-        }
-    }
+    private final LoggingHelper log = new LoggingHelper();
 
     private final ArcSDERasterFormat parent;
-
-    private final ArcSDEConnectionPool connectionPool;
 
     private final RasterDatasetInfo rasterInfo;
 
     private DefaultServiceInfo serviceInfo;
 
+    private RasterReaderFactory rasterReaderFactory;
+
     public ArcSDEGridCoverage2DReaderJAI(final ArcSDERasterFormat parent,
-            final ArcSDEConnectionPool connectionPool, final RasterDatasetInfo rasterInfo,
+            final RasterReaderFactory rasterReaderFactory, final RasterDatasetInfo rasterInfo,
             final Hints hints) throws IOException {
         // check it's a supported format
         {
@@ -131,7 +104,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             }
         }
         this.parent = parent;
-        this.connectionPool = connectionPool;
+        this.rasterReaderFactory = rasterReaderFactory;
         this.rasterInfo = rasterInfo;
 
         super.hints = hints;
@@ -226,8 +199,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
         final GeneralEnvelope resultEnvelope = getResultEnvelope(queries);
 
-        geomLog.appendLoggingGeometries(LoggingHelper.REQ_ENV, requestedEnvelope);
-        geomLog.appendLoggingGeometries(LoggingHelper.RES_ENV, resultEnvelope);
+        log.appendLoggingGeometries(LoggingHelper.REQ_ENV, requestedEnvelope);
+        log.appendLoggingGeometries(LoggingHelper.RES_ENV, resultEnvelope);
 
         /*
          * Once we collected the matching rasters and their image subsets, find out where in the
@@ -239,111 +212,115 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         /*
          * Gather the rendered images for each of the rasters that match the requested envelope
          */
-        final ArcSDEPooledConnection conn = connectionPool.getConnection();
-        final SeQuery preparedQuery = createSeQuery(conn);
-        try {
-            preparedQuery.execute();
-
-            final Map<Long, RasterQueryInfo> byRasterdIdQueries = new HashMap<Long, RasterQueryInfo>();
-            for (RasterQueryInfo q : queries) {
-                byRasterdIdQueries.put(q.getRasterId(), q);
-            }
-
-            SeRow row = preparedQuery.fetch();
-
-            while (row != null) {
-                final SeRasterAttr rAttr = row.getRaster(0);
-                final Long rasterId = Long.valueOf(rAttr.getRasterId().longValue());
-                final RenderedImage rasterImage;
-
-                if (byRasterdIdQueries.containsKey(rasterId)) {
-
-                    final RasterQueryInfo rasterQueryInfo = byRasterdIdQueries.get(rasterId);
-
-                    LOGGER.finer(rasterQueryInfo.toString());
-                    geomLog.appendLoggingGeometries(LoggingHelper.MOSAIC_EXPECTED, rasterQueryInfo
-                            .getMosaicLocation());
-                    geomLog.appendLoggingGeometries(LoggingHelper.MOSAIC_ENV, rasterQueryInfo
-                            .getResultEnvelope());
-
-                    final int pyramidLevelChoice = rasterQueryInfo.getPyramidLevel();
-
-                    rasterImage = getRasterMatchingTileRange(pyramidLevelChoice, preparedQuery,
-                            row, rAttr, rasterQueryInfo);
-
-                    {
-                        final Rectangle tiledImageSize = rasterQueryInfo.getTiledImageSize();
-                        int width = rasterImage.getWidth();
-                        int height = rasterImage.getHeight();
-                        if (tiledImageSize.width != width || tiledImageSize.height != height) {
-                            throw new IllegalStateException(
-                                    "Read image is not of the expected size. Image=" + width + "x"
-                                            + height + ", expected: " + tiledImageSize.width + "x"
-                                            + tiledImageSize.height);
-                        }
-                        if (tiledImageSize.x != rasterImage.getMinX()
-                                || tiledImageSize.y != rasterImage.getMinY()) {
-                            throw new IllegalStateException(
-                                    "Read image is not at the expected location "
-                                            + tiledImageSize.x + "," + tiledImageSize.y + ": "
-                                            + rasterImage.getMinX() + "," + rasterImage.getMinY());
-                        }
-                    }
-
-                    rasterQueryInfo.setResultImage(rasterImage);
-                }
-                // advance to the next raster in the dataset
-                row = preparedQuery.fetch();
-            }
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        } finally {
-            try {
-                preparedQuery.close();
-            } catch (SeException e) {
-                throw new ArcSdeException(e);
-            } finally {
-                conn.close();
-            }
+        final Map<Long, RasterQueryInfo> byRasterIdQueries = new HashMap<Long, RasterQueryInfo>();
+        for (RasterQueryInfo queryInfo : queries) {
+            byRasterIdQueries.put(queryInfo.getRasterId(), queryInfo);
         }
 
-        geomLog.log(LoggingHelper.REQ_ENV);
-        geomLog.log(LoggingHelper.RES_ENV);
-        geomLog.log(LoggingHelper.MOSAIC_ENV);
-        geomLog.log(LoggingHelper.MOSAIC_EXPECTED);
+        final TiledRasterReader rasterReader = rasterReaderFactory.create(rasterInfo);
+
+        try {
+            readAllTiledRasters(byRasterIdQueries, rasterReader);
+        } finally {
+            rasterReader.dispose();
+        }
+
+        log.log(LoggingHelper.REQ_ENV);
+        log.log(LoggingHelper.RES_ENV);
+        log.log(LoggingHelper.MOSAIC_ENV);
+        log.log(LoggingHelper.MOSAIC_EXPECTED);
 
         final RenderedImage coverageRaster = createMosaic(queries);
 
         /*
          * BUILDING COVERAGE
          */
-        GridSampleDimension[] bands = rasterInfo.getGridSampleDimensions();
-        {// may the image have been promoted? build the correct band info then
-            final int numBands = coverageRaster.getSampleModel().getNumBands();
-            if (bands.length == 1 && numBands > 1) {
-                LOGGER.fine(coverageName + " was promoted from 1 to "
-                        + coverageRaster.getSampleModel().getNumBands()
-                        + " bands, returning an appropriate set of GridSampleDimension");
-                // stolen from super.createCoverage:
-                final ColorModel cm = coverageRaster.getColorModel();
-                bands = new GridSampleDimension[numBands];
-
-                // setting bands names.
-                for (int i = 0; i < numBands; i++) {
-                    final ColorInterpretation colorInterpretation;
-                    colorInterpretation = TypeMap.getColorInterpretation(cm, i);
-                    if (colorInterpretation == null) {
-                        throw new IOException("Unrecognized sample dimension type");
-                    }
-                    bands[i] = new GridSampleDimension(colorInterpretation.name()).geophysics(true);
-                }
-            }
-        }
+        GridSampleDimension[] bands = getSampleDimensions(coverageRaster);
 
         GridCoverage2D resultCoverage = coverageFactory.create(coverageName, coverageRaster,
                 resultEnvelope, bands, null, null);
 
         return resultCoverage;
+    }
+
+    private GridSampleDimension[] getSampleDimensions(final RenderedImage coverageRaster)
+            throws IOException {
+
+        GridSampleDimension[] bands = rasterInfo.getGridSampleDimensions();
+
+        // may the image have been promoted? build the correct band info then
+        final int imageBands = coverageRaster.getSampleModel().getNumBands();
+        if (bands.length == 1 && imageBands > 1) {
+            LOGGER.fine(coverageName + " was promoted from 1 to "
+                    + coverageRaster.getSampleModel().getNumBands()
+                    + " bands, returning an appropriate set of GridSampleDimension");
+            // stolen from super.createCoverage:
+            final ColorModel cm = coverageRaster.getColorModel();
+            bands = new GridSampleDimension[imageBands];
+
+            // setting bands names.
+            for (int i = 0; i < imageBands; i++) {
+                final ColorInterpretation colorInterpretation;
+                colorInterpretation = TypeMap.getColorInterpretation(cm, i);
+                if (colorInterpretation == null) {
+                    throw new IOException("Unrecognized sample dimension type");
+                }
+                bands[i] = new GridSampleDimension(colorInterpretation.name()).geophysics(true);
+            }
+        }
+
+        return bands;
+    }
+
+    private void readAllTiledRasters(final Map<Long, RasterQueryInfo> byRasterIdQueries,
+            final TiledRasterReader rasterReader) throws IOException {
+
+        Long currentRasterId;
+
+        while ((currentRasterId = rasterReader.nextRaster()) != null) {
+            if (!byRasterIdQueries.containsKey(currentRasterId)) {
+                continue;
+            }
+            final RasterQueryInfo queryInfo = byRasterIdQueries.get(currentRasterId);
+            final RenderedImage rasterImage;
+
+            try {
+                final int pyramidLevel = queryInfo.getPyramidLevel();
+                final Rectangle matchingTiles = queryInfo.getMatchingTiles();
+                // final Point imageLocation = queryInfo.getTiledImageSize().getLocation();
+                rasterImage = rasterReader.read(pyramidLevel, matchingTiles);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Fetching data for " + queryInfo.toString(), e);
+                throw e;
+            }
+
+            queryInfo.setResultImage(rasterImage);
+
+            {
+                LOGGER.finer(queryInfo.toString());
+                log.appendLoggingGeometries(LoggingHelper.MOSAIC_EXPECTED, queryInfo
+                        .getMosaicLocation());
+                log
+                        .appendLoggingGeometries(LoggingHelper.MOSAIC_ENV, queryInfo
+                                .getResultEnvelope());
+
+                final Rectangle tiledImageSize = queryInfo.getTiledImageSize();
+                int width = rasterImage.getWidth();
+                int height = rasterImage.getHeight();
+                if (tiledImageSize.width != width || tiledImageSize.height != height) {
+                    throw new IllegalStateException(
+                            "Read image is not of the expected size. Image=" + width + "x" + height
+                                    + ", expected: " + tiledImageSize.width + "x"
+                                    + tiledImageSize.height);
+                }
+                if (tiledImageSize.x != rasterImage.getMinX()
+                        || tiledImageSize.y != rasterImage.getMinY()) {
+                    throw new IllegalStateException("Read image is not at the expected location "
+                            + tiledImageSize.x + "," + tiledImageSize.y + ": "
+                            + rasterImage.getMinX() + "," + rasterImage.getMinY());
+                }
+            }
+        }
     }
 
     /**
@@ -424,10 +401,10 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         }
         for (RasterQueryInfo query : queries) {
             RenderedImage image = query.getResultImage();
-            _log(image, query.getRasterId(), "01_original");
+            log.log(image, query.getRasterId(), "01_original");
 
             image = cropToRequiredDimension(image, query.getResultDimensionInsideTiledImage());
-            _log(image, query.getRasterId(), "02_crop");
+            log.log(image, query.getRasterId(), "02_crop");
 
             final Rectangle mosaicLocation = query.getMosaicLocation();
             // scale
@@ -445,7 +422,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             pb.add(new InterpolationNearest());
 
             image = JAI.create("scale", pb);
-            _log(image, query.getRasterId(), "03_scale");
+            log.log(image, query.getRasterId(), "03_scale");
 
             int width = image.getWidth();
             int height = image.getHeight();
@@ -461,7 +438,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             pb.add(null);
 
             image = JAI.create("translate", pb);
-            _log(image, query.getRasterId(), "04_translate");
+            log.log(image, query.getRasterId(), "04_translate");
 
             assert image.getMinX() == mosaicLocation.x : image.getMinX() + " != "
                     + mosaicLocation.x;
@@ -483,7 +460,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                  */
                 image = FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE), null);
 
-                _log(image, query.getRasterId(), "04_1_colorExpanded");
+                log.log(image, query.getRasterId(), "04_1_colorExpanded");
             }
 
             transformed.add(image);
@@ -497,9 +474,9 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
             for (RenderedImage img : transformed) {
                 mosaicParams.addSource(img);
-                geomLog.appendLoggingGeometries(LoggingHelper.MOSAIC_RESULT, img);
+                log.appendLoggingGeometries(LoggingHelper.MOSAIC_RESULT, img);
             }
-            geomLog.log(LoggingHelper.MOSAIC_RESULT);
+            log.log(LoggingHelper.MOSAIC_RESULT);
 
             mosaicParams.add(MosaicDescriptor.MOSAIC_TYPE_OVERLAY); // mosaic type
             mosaicParams.add(null); // alpha mask
@@ -509,58 +486,11 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
             LOGGER.fine("Creating mosaic out of " + queries.size() + " raster tiles");
             RenderedImage mosaic = JAI.create("Mosaic", mosaicParams);
-            _log(mosaic, 0L, "05_mosaic_result");
+            log.log(mosaic, 0L, "05_mosaic_result");
 
             result = mosaic;
         }
         return result;
-    }
-
-    private void _log(RenderedImage image, Long rasterId, String fileName) throws IOException {
-        if (DEBUG_TO_DISK) {
-            LOGGER.warning("BEWARE THE DEBUG FLAG IS TURNED ON! "
-                    + "IF IN PRODUCTION THIS IS A SEVERE MISTAKE!!!");
-            // ImageIO.write(FormatDescriptor.create(image, Integer.valueOf(DataBuffer.TYPE_BYTE),
-            // null), "TIFF", new File(debugDir, rasterId.longValue() + fileName + ".tiff"));
-            ImageIO.write(image, "TIFF", new File(debugDir, rasterId.longValue() + fileName
-                    + ".tiff"));
-        }
-
-    }
-
-    private RenderedImage getRasterMatchingTileRange(int pyramidLevelChoice,
-            final SeQuery preparedQuery, SeRow row, final SeRasterAttr rAttr,
-            final RasterQueryInfo rasterQueryInfo) throws IOException {
-
-        /*
-         * Create the prepared query (not executed) stream to fetch the tiles from
-         */
-        final Rectangle matchingTiles = rasterQueryInfo.getMatchingTiles();
-        final int rasterIndex = rasterQueryInfo.getRasterIndex();
-        final Point imageLocation = rasterQueryInfo.getTiledImageSize().getLocation();
-
-        // covers an area of full tiles
-        final RenderedImage fullTilesRaster;
-
-        /*
-         * Create the tiled raster covering the full area of the matching tiles
-         */
-
-        fullTilesRaster = createTiledRaster(preparedQuery, row, rAttr, matchingTiles,
-                pyramidLevelChoice, imageLocation, rasterIndex);
-
-        /*
-         * REVISIT: This is odd, we need to force the data to be loaded so we're free to release the
-         * stream, which gives away the streamed, tiled nature of this rasters, but I don't see the
-         * GCE api having a very clear usage workflow that ensures close() is always being called to
-         * the underlying ImageInputStream so we could let it close the SeQuery when done.
-         */
-        try {
-            fullTilesRaster.getData();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Fetching data for " + rasterQueryInfo.toString(), e);
-        }
-        return fullTilesRaster;
     }
 
     private RenderedImage cropToRequiredDimension(final RenderedImage fullTilesRaster,
@@ -611,153 +541,19 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
     }
 
     /**
-     * Creates a prepared query for the coverage's table, does not set any constraint nor executes
-     * it.
-     */
-    private SeQuery createSeQuery(final ArcSDEPooledConnection conn) throws IOException {
-        final SeQuery seQuery;
-        final String[] rasterColumns = rasterInfo.getRasterColumns();
-        final String tableName = rasterInfo.getRasterTable();
-        try {
-            seQuery = new SeQuery(conn, rasterColumns, new SeSqlConstruct(tableName));
-            seQuery.prepareQuery();
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-        return seQuery;
-    }
-
-    private RenderedOp createTiledRaster(final SeQuery preparedQuery, final SeRow row,
-            final SeRasterAttr rAttr, final Rectangle matchingTiles, final int pyramidLevel,
-            final Point imageLocation, final int rasterIndex) throws IOException {
-
-        final int tileWidth;
-        final int tileHeight;
-        final int numberOfBands;
-        try {
-            numberOfBands = rAttr.getNumBands();
-            tileWidth = rAttr.getTileWidth();
-            tileHeight = rAttr.getTileHeight();
-
-            int[] bandsToQuery = new int[numberOfBands];
-            for (int bandN = 1; bandN <= numberOfBands; bandN++) {
-                bandsToQuery[bandN - 1] = bandN;
-            }
-
-            int minTileX = matchingTiles.x;
-            int minTileY = matchingTiles.y;
-            int maxTileX = minTileX + matchingTiles.width - 1;
-            int maxTileY = minTileY + matchingTiles.height - 1;
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine("Requesting tiles [x=" + minTileX + "-" + maxTileX + ", y=" + minTileY
-                        + "-" + maxTileY + "] from tile range [x=0-"
-                        + (rAttr.getTilesPerRowByLevel(pyramidLevel) - 1) + ", y=0-"
-                        + (rAttr.getTilesPerColByLevel(pyramidLevel) - 1) + "]");
-            }
-            SDEPoint tileOrigin = rAttr.getTileOrigin();
-
-            if (LOGGER.isLoggable(Level.FINE)) {
-                Rectangle tiledImageSize = new Rectangle(0, 0, tileWidth * matchingTiles.width,
-                        tileHeight * matchingTiles.height);
-
-                LOGGER.fine("Tiled image size: " + tiledImageSize);
-            }
-
-            final int interleaveType = SeRaster.SE_RASTER_INTERLEAVE_BIP;
-
-            SeRasterConstraint rConstraint = new SeRasterConstraint();
-            rConstraint.setBands(bandsToQuery);
-            rConstraint.setLevel(pyramidLevel);
-            rConstraint.setEnvelope(minTileX, minTileY, maxTileX, maxTileY);
-            rConstraint.setInterleave(interleaveType);
-
-            preparedQuery.queryRasterTile(rConstraint);
-
-        } catch (SeException se) {
-            throw new ArcSdeException(se);
-        }
-
-        final TileReader tileReader;
-        {
-            final Dimension tileSize = new Dimension(tileWidth, tileHeight);
-            tileReader = TileReaderFactory.getInstance(row, rasterInfo, rasterIndex, matchingTiles,
-                    tileSize);
-        }
-
-        // Prepare temporary colorModel and sample model, needed to build the final
-        // ArcSDEPyramidLevel level;
-        final Dimension tiledImageSize;
-        final ColorModel colorModel;
-        final SampleModel sampleModel;
-        {
-            final int tiledImageWidth = tileReader.getTilesWide() * tileReader.getTileWidth();
-            final int tiledImageHeight = tileReader.getTilesHigh() * tileReader.getTileHeight();
-            tiledImageSize = new Dimension(tiledImageWidth, tiledImageHeight);
-
-            final ImageTypeSpecifier fullImageSpec = rasterInfo.getRenderedImageSpec(rasterIndex);
-            colorModel = fullImageSpec.getColorModel();
-            sampleModel = fullImageSpec.getSampleModel(tiledImageWidth, tiledImageHeight);
-        }
-
-        // Finally, build the image input stream
-        final RawImageInputStream raw;
-        {
-            final long[] imageOffsets = new long[] { 0 };
-            final Dimension[] imageDimensions = new Dimension[] { tiledImageSize };
-
-            final ImageTypeSpecifier its = new ImageTypeSpecifier(colorModel, sampleModel);
-
-            final ImageInputStream tiledImageInputStream;
-            tiledImageInputStream = new ArcSDETiledImageInputStream(tileReader);
-
-            raw = new RawImageInputStream(tiledImageInputStream, its, imageOffsets, imageDimensions);
-        }
-
-        // building the final image layout
-        final ImageLayout imageLayout;
-        {
-            int minX = imageLocation.x;
-            int minY = imageLocation.y;
-            int width = tiledImageSize.width;
-            int height = tiledImageSize.height;
-
-            int tileGridXOffset = imageLocation.x;
-            int tileGridYOffset = imageLocation.y;
-
-            imageLayout = new ImageLayout(minX, minY, width, height, tileGridXOffset,
-                    tileGridYOffset, tileWidth, tileHeight, sampleModel, colorModel);
-        }
-
-        // First operator: read the image
-        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-
-        ParameterBlock pb = new ParameterBlock();
-        pb.add(raw);// Input
-        /*
-         * image index, always 0 since we're already fetching the required pyramid level
-         */
-        pb.add(Integer.valueOf(0)); // Image index
-        pb.add(Boolean.TRUE); // Read metadata
-        pb.add(Boolean.TRUE);// Read thumbnails
-        pb.add(Boolean.TRUE);// Verify input
-        pb.add(null);// Listeners
-        pb.add(null);// Locale
-        final ImageReadParam rParam = new ImageReadParam();
-        pb.add(rParam);// ReadParam
-        RawImageReaderSpi imageIOSPI = new RawImageReaderSpi();
-        ImageReader readerInstance = imageIOSPI.createReaderInstance();
-        pb.add(readerInstance);// Reader
-
-        RenderedOp image = JAI.create("ImageRead", pb, hints);
-
-        return image;
-    }
-
-    /**
      * A simple helper class to guard and easy logging the mosaic geometries in both geographical
      * and pixel ranges
      */
     private static class LoggingHelper {
+
+        private static final File debugDir = new File(System.getProperty("user.home")
+                + File.separator + "arcsde_test");
+
+        static {
+            if (DEBUG_TO_DISK) {
+                debugDir.mkdir();
+            }
+        }
 
         public Level GEOM_LEVEL = Level.FINER;
 
@@ -820,6 +616,24 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
                 sb.append("\n)");
                 LOGGER.log(GEOM_LEVEL, geomName + ":\n" + sb.toString());
             }
+        }
+
+        public void log(RenderedImage image, Long rasterId, String fileName) {
+            if (DEBUG_TO_DISK) {
+                LOGGER.warning("BEWARE THE DEBUG FLAG IS TURNED ON! "
+                        + "IF IN PRODUCTION THIS IS A SEVERE MISTAKE!!!");
+                // ImageIO.write(FormatDescriptor.create(image,
+                // Integer.valueOf(DataBuffer.TYPE_BYTE),
+                // null), "TIFF", new File(debugDir, rasterId.longValue() + fileName + ".tiff"));
+
+                try {
+                    ImageIO.write(image, "TIFF", new File(debugDir, rasterId.longValue() + fileName
+                            + ".tiff"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
     }
 }

@@ -1,3 +1,20 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2002-2009, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 package org.geotools.arcsde.gce;
 
 import static org.geotools.arcsde.gce.RasterCellType.TYPE_8BIT_U;
@@ -10,6 +27,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A helper class to set nodata values directly onto the arcsde tile's returned {@code byte[]}
+ * 
+ * @author Gabriel Roldan
+ * @since 2.5.6
+ * @version $Id$
+ * 
+ */
 class BitmaskToNoDataConverter {
 
     public static final BitmaskToNoDataConverter NO_ACTION_CONVERTER = new BitmaskToNoDataConverter(
@@ -53,6 +78,14 @@ class BitmaskToNoDataConverter {
 
     }
 
+    /**
+     * Creates a "nodata setter" for the given raster determined by the raster dataset and the
+     * raster index inside the dataset
+     * 
+     * @param rasterInfo
+     * @param rasterIndex
+     * @return
+     */
     public static BitmaskToNoDataConverter getInstance(final RasterDatasetInfo rasterInfo,
             final int rasterIndex) {
 

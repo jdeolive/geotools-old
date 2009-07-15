@@ -105,9 +105,9 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      * {@link ArcSDERasterGridCoverage2DReader}'s externalized state, so it is not needed to gather
      * the raster properties each time.
      */
-    private static final Map<String, RasterDatasetInfo> rasterInfos = new WeakHashMap<String, RasterDatasetInfo>();
+    private final Map<String, RasterDatasetInfo> rasterInfos = new WeakHashMap<String, RasterDatasetInfo>();
 
-    private static final Map<String, ArcSDEDataStoreConfig> connectionConfigs = new WeakHashMap<String, ArcSDEDataStoreConfig>();
+    private final Map<String, ArcSDEDataStoreConfig> connectionConfigs = new WeakHashMap<String, ArcSDEDataStoreConfig>();
 
     private static final ArcSDERasterFormat instance = new ArcSDERasterFormat();
 
@@ -172,8 +172,9 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
 
             RasterDatasetInfo rasterInfo = getRasterInfo(coverageUrl, connectionPool);
 
-            // return new ArcSDERasterGridCoverage2DReader(connectionPool, rasterInfo, hints);
-            return new ArcSDEGridCoverage2DReaderJAI(this, connectionPool, rasterInfo, hints);
+            RasterReaderFactory rasterReaderFactory = new RasterReaderFactory(connectionPool);
+
+            return new ArcSDEGridCoverage2DReaderJAI(this, rasterReaderFactory, rasterInfo, hints);
         } catch (IOException dse) {
             LOGGER
                     .log(Level.SEVERE, "Unable to creata ArcSDERasterReader for " + source + ".",
@@ -461,7 +462,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             if (sdeUrl.indexOf(";") != -1) {
                 /*
                  * We're not using any extra param anymore. Yet, be cautious cause a client may
-                 * still be using urls with some old extra param, so jus strip it
+                 * still be using urls with some old extra param, so just strip it
                  */
                 sdeUrl = sdeUrl.substring(0, sdeUrl.indexOf(";"));
             }
@@ -860,7 +861,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
 
         final DataInputStream dataIn = new DataInputStream(colorMapIS);
         // discard unneeded data
-        int discardedData = dataIn.readInt();
+        dataIn.readInt();
 
         final int colorSpaceType = dataIn.readInt();
         final int numBanks;
