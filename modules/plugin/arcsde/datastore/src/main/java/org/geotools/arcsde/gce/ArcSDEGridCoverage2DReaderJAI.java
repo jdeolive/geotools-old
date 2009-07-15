@@ -805,7 +805,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         public void appendLoggingGeometries(String geomName, GeneralEnvelope env) {
             if (LOGGER.isLoggable(GEOM_LEVEL)) {
                 StringBuilder sb = getGeom(geomName);
-                sb.append("\n  ((" + env.getMinimum(0) + " " + env.getMinimum(1) + ", "
+                sb.append("  ((" + env.getMinimum(0) + " " + env.getMinimum(1) + ", "
                         + env.getMaximum(0) + " " + env.getMinimum(1) + ", " + env.getMaximum(0)
                         + " " + env.getMaximum(1) + ", " + env.getMinimum(0) + " "
                         + env.getMaximum(1) + ", " + env.getMinimum(0) + " " + env.getMinimum(1)

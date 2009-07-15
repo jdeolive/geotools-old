@@ -111,7 +111,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
 
     private static final ArcSDERasterFormat instance = new ArcSDERasterFormat();
 
-    private boolean statisticsMandatory;
+    private boolean statisticsMandatory = true;
 
     /**
      * Creates an instance and sets the metadata.
@@ -336,7 +336,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
     }
 
     /**
-     * Checks the input prvided to this {@link ArcSDERasterGridCoverage2DReader} and sets all the
+     * Checks the input provided to this {@link ArcSDERasterGridCoverage2DReader} and sets all the
      * other objects and flags accordingly.
      * 
      * @param sdeUrl
@@ -537,7 +537,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
                     }
                     if (this.statisticsMandatory && !rAtt.getBandInfo(1).hasStats()) {
                         throw new IllegalArgumentException(rasterTable
-                                + " has no statistics generated. "
+                                + " has no statistics generated (or not all it's rasters have). "
                                 + "Please use sderaster -o stats to create them before use");
                     }
 
