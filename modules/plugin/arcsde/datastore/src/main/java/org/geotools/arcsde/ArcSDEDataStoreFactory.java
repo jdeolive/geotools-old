@@ -89,50 +89,51 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
 
     private static int JSDE_CLIENT_VERSION;
 
-    static final Param NAMESPACE_PARAM = new Param(NAMESPACE_PARAM_NAME, String.class,
+    public static final Param NAMESPACE_PARAM = new Param(NAMESPACE_PARAM_NAME, String.class,
             "namespace associated to this data store", false);
 
-    static final Param DBTYPE_PARAM = new Param(DBTYPE_PARAM_NAME, String.class,
+    public static final Param DBTYPE_PARAM = new Param(DBTYPE_PARAM_NAME, String.class,
             "fixed value. Must be \"arcsde\"", true, "arcsde");
 
-    static final Param SERVER_PARAM = new Param(SERVER_NAME_PARAM_NAME, String.class,
+    public static final Param SERVER_PARAM = new Param(SERVER_NAME_PARAM_NAME, String.class,
             "sever name where the ArcSDE gateway is running", true);
 
-    static final Param PORT_PARAM = new Param(
+    public static final Param PORT_PARAM = new Param(
             PORT_NUMBER_PARAM_NAME,
             Integer.class,
             "port number in wich the ArcSDE server is listening for connections.Generally it's 5151",
             true, Integer.valueOf(5151));
 
-    static final Param INSTANCE_PARAM = new Param(INSTANCE_NAME_PARAM_NAME, String.class,
+    public static final Param INSTANCE_PARAM = new Param(INSTANCE_NAME_PARAM_NAME, String.class,
             "the specific database to connect to. Only applicable to "
                     + "certain databases. Value ignored if not applicable.", false);
 
-    static final Param USER_PARAM = new Param(USER_NAME_PARAM_NAME, String.class,
+    public static final Param USER_PARAM = new Param(USER_NAME_PARAM_NAME, String.class,
             "name of a valid database user account.", true);
 
-    static final Param PASSWORD_PARAM = new Param(PASSWORD_PARAM_NAME, String.class,
+    public static final Param PASSWORD_PARAM = new Param(PASSWORD_PARAM_NAME, String.class,
             new SimpleInternationalString("the database user's password."), false, null,
             Collections.singletonMap(Parameter.IS_PASSWORD, Boolean.TRUE));
 
-    static final Param MIN_CONNECTIONS_PARAM = new Param(MIN_CONNECTIONS_PARAM_NAME, Integer.class,
-            "Minimun number of open connections", false, Integer
+    public static final Param MIN_CONNECTIONS_PARAM = new Param(MIN_CONNECTIONS_PARAM_NAME,
+            Integer.class, "Minimun number of open connections", false, Integer
                     .valueOf(ArcSDEDataStoreConfig.DEFAULT_CONNECTIONS));
 
-    static final Param MAX_CONNECTIONS_PARAM = new Param(MAX_CONNECTIONS_PARAM_NAME, Integer.class,
-            "Maximun number of open connections (will not work if < 2)", false, Integer
-                    .valueOf(ArcSDEDataStoreConfig.DEFAULT_MAX_CONNECTIONS));
+    public static final Param MAX_CONNECTIONS_PARAM = new Param(MAX_CONNECTIONS_PARAM_NAME,
+            Integer.class, "Maximun number of open connections (will not work if < 2)", false,
+            Integer.valueOf(ArcSDEDataStoreConfig.DEFAULT_MAX_CONNECTIONS));
 
-    static final Param TIMEOUT_PARAM = new Param(CONNECTION_TIMEOUT_PARAM_NAME, Integer.class,
+    public static final Param TIMEOUT_PARAM = new Param(CONNECTION_TIMEOUT_PARAM_NAME,
+            Integer.class,
             "Milliseconds to wait for an available connection before failing to connect", false,
             Integer.valueOf(ArcSDEDataStoreConfig.DEFAULT_MAX_WAIT_TIME));
 
-    static final Param VERSION_PARAM = new Param(VERSION_PARAM_NAME, String.class,
+    public static final Param VERSION_PARAM = new Param(VERSION_PARAM_NAME, String.class,
             "The ArcSDE database version to use.", false);
 
-    static final Param ALLOW_NON_SPATIAL_PARAM = new Param(ALLOW_NON_SPATIAL_TABLES_PARAM_NAME,
-            Boolean.class, "If enabled, registered non-spatial tables are also published.", false,
-            Boolean.FALSE);
+    public static final Param ALLOW_NON_SPATIAL_PARAM = new Param(
+            ALLOW_NON_SPATIAL_TABLES_PARAM_NAME, Boolean.class,
+            "If enabled, registered non-spatial tables are also published.", false, Boolean.FALSE);
 
     static {
         paramMetadata.add(NAMESPACE_PARAM);
