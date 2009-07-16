@@ -36,6 +36,7 @@ import org.opengis.referencing.crs.*;
 import org.opengis.referencing.datum.*;
 import org.opengis.referencing.operation.*;
 import org.opengis.referencing.cs.EllipsoidalCS;
+import org.opengis.referencing.cs.CartesianCS;
 import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.operation.CoordinateOperation;
@@ -597,6 +598,10 @@ public final class CRS {
                 }
                 // No need to test for ProjectedCRS, since the code above unwrap it.
                 if (base instanceof GeographicCRS) {
+                    return (SingleCRS) crs; // Really returns 'crs', not 'base'.
+                }
+                // cartesian are certainly valid horizontal CRS
+                if (base.getCoordinateSystem() instanceof CartesianCS) {
                     return (SingleCRS) crs; // Really returns 'crs', not 'base'.
                 }
             } else if (dimension >= 3 && crs instanceof GeographicCRS) {

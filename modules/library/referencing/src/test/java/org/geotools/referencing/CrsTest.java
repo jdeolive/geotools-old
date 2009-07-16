@@ -29,6 +29,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.crs.DefaultEngineeringCRS;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -167,5 +168,10 @@ public final class CrsTest {
         expected = XRectangle2D.createFromExtremums(-180, -90, 180, -41.03163170198091);
         actual = CRS.transform(operation, envelope, actual);
         assertTrue(XRectangle2D.equalsEpsilon(expected, actual));
+    }
+
+    @Test
+    public void testGetHorizontalCrs() {
+        assertEquals( DefaultEngineeringCRS.GENERIC_2D, CRS.getHorizontalCRS(DefaultEngineeringCRS.GENERIC_2D));
     }
 }
