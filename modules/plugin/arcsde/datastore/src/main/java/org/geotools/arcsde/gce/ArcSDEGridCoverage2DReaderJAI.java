@@ -158,7 +158,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
     public ServiceInfo getInfo() {
         if (serviceInfo == null) {
             serviceInfo = new DefaultServiceInfo();
-            serviceInfo.setTitle(rasterInfo.getRasterTable() + " is an ArcSDE Raster");
+            serviceInfo.setTitle(rasterInfo.getRasterTable());
             serviceInfo.setDescription(rasterInfo.toString());
             Set<String> keywords = new HashSet<String>();
             keywords.add("ArcSDE");

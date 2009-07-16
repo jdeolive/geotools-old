@@ -21,8 +21,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.awt.image.IndexColorModel;
 
-import com.vividsolutions.jts.geom.Envelope;
-
 /**
  * 
  * @author Gabriel Roldan (OpenGeo)
@@ -34,15 +32,9 @@ final class RasterBandInfo {
 
     long bandId;
 
-    int bandHeight;
-
-    int bandWidth;
-
     String bandName;
 
     int bandNumber;
-
-    boolean hasColorMap;
 
     /**
      * the color map as it is on the database, except that we always create a color map with alpha
@@ -67,27 +59,13 @@ final class RasterBandInfo {
 
     CompressionType compressionType;
 
-    Envelope bandExtent;
-
     RasterCellType cellType;
-
-    long rasterColumnId;
 
     InterleaveType interleaveType;
 
     InterpolationType interpolationType;
 
-    int maxPyramidLevel;
-
-    boolean isSkipPyramidLevelOne;
-
-    long rasterId;
-
     boolean hasStats;
-
-    int tileWidth;
-
-    int tileHeight;
 
     Point2D.Double tileOrigin;
 
@@ -110,14 +88,6 @@ final class RasterBandInfo {
         return bandId;
     }
 
-    public int getBandHeight() {
-        return bandHeight;
-    }
-
-    public int getBandWidth() {
-        return bandWidth;
-    }
-
     public String getBandName() {
         return bandName;
     }
@@ -127,23 +97,15 @@ final class RasterBandInfo {
     }
 
     public boolean isColorMapped() {
-        return hasColorMap;
+        return nativeColorMap != null;
     }
 
     public CompressionType getCompressionType() {
         return compressionType;
     }
 
-    public Envelope getBandExtent() {
-        return bandExtent;
-    }
-
     public RasterCellType getCellType() {
         return cellType;
-    }
-
-    public long getRasterColumnId() {
-        return rasterColumnId;
     }
 
     public InterleaveType getInterleaveType() {
@@ -154,28 +116,8 @@ final class RasterBandInfo {
         return interpolationType;
     }
 
-    public int getMaxPyramidLevel() {
-        return maxPyramidLevel;
-    }
-
-    public boolean isSkipPyramidLevelOne() {
-        return isSkipPyramidLevelOne;
-    }
-
-    public long getRasterId() {
-        return rasterId;
-    }
-
     public boolean isHasStats() {
         return hasStats;
-    }
-
-    public int getTileWidth() {
-        return tileWidth;
-    }
-
-    public int getTileHeight() {
-        return tileHeight;
     }
 
     public Double getTileOrigin() {
@@ -215,21 +157,18 @@ final class RasterBandInfo {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getBandName());
-        sb.append(": ").append(getBandWidth()).append("x").append(getBandHeight()).append(" ");
-        sb.append(getCellType()).append(".");
-        sb.append(" Tiles: ").append(getTileWidth()).append("x").append(getTileHeight());
-        sb.append(", Tile origin: ").append((int) getTileOrigin().x).append(",").append(
-                (int) getTileOrigin().y);
-        sb.append(", ").append(getCompressionType());
-        sb.append(", ").append(getInterpolationType());
+        sb.append("[ id:").append(getBandId());
+        sb.append(", type:").append(getCellType());
+        sb.append(", samples: nodata=").append(getNoDataValue()).append(" min=").append(
+                getStatsMin()).append(" max=").append(getStatsMax()).append(" mean=").append(
+                getStatsMean()).append(" stddev=").append(getStatsStdDev());
+        /*
+         * sb.append(", tile origin: ").append((int) getTileOrigin().x).append(",").append( (int)
+         * getTileOrigin().y);
+         */
+        sb.append(", compression:").append(getCompressionType());
+        sb.append(", interpolation:").append(getInterpolationType());
         sb.append(", Color Map: ").append(isColorMapped() ? "YES" : "NO");
-        sb.append(", Max pyramid level: " + getMaxPyramidLevel()).append(
-                isSkipPyramidLevelOne() ? " (Skips level one)" : "");
-        if (hasStats) {
-            sb.append(", Statistics: min=").append(getStatsMin()).append(" max=").append(
-                    getStatsMax()).append(" mean=").append(getStatsMean()).append(" stddev=")
-                    .append(getStatsStdDev());
-        }
         return sb.toString();
     }
 

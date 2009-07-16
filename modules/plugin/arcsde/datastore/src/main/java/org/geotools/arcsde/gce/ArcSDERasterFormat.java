@@ -81,7 +81,6 @@ import com.esri.sde.sdk.client.SeRasterColumn;
 import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * An implementation of the ArcSDE Raster Format. Based on the ArcGrid module.
@@ -542,15 +541,19 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
                                 + "Please use sderaster -o stats to create them before use");
                     }
 
-                    RasterInfo pyramidInfo = new RasterInfo(rAtt, coverageCrs);
-                    rastersLayoutInfo.add(pyramidInfo);
+                    RasterInfo rasterInfo = new RasterInfo(rAtt, coverageCrs);
+                    rastersLayoutInfo.add(rasterInfo);
 
                     final GeneralEnvelope originalEnvelope;
                     originalEnvelope = calculateOriginalEnvelope(rAtt, coverageCrs);
-                    pyramidInfo.setOriginalEnvelope(originalEnvelope);
+                    rasterInfo.setOriginalEnvelope(originalEnvelope);
                     final List<RasterBandInfo> bands;
                     bands = setUpBandInfo(scon, rAtt, rastersColorMaps);
-                    pyramidInfo.setBands(bands);
+                    rasterInfo.setBands(bands);
+                    if (LOGGER.isLoggable(Level.FINER)) {
+                        LOGGER.finer("Gathered metadata for " + rasterTable + "#"
+                                + rAtt.getRasterId().longValue() + ":\n" + rasterInfo.toString());
+                    }
                 }
             } catch (SeException e) {
                 throw new ArcSdeException("Gathering raster dataset information", e);
@@ -684,13 +687,8 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         bandInfo.bandNumber = band.getBandNumber();
         bandInfo.bandName = "Band " + bandInfo.bandNumber;
 
-        bandInfo.rasterId = band.getRasterId().longValue();
-        bandInfo.rasterColumnId = band.getRasterColumnId().longValue();
-
-        bandInfo.bandHeight = band.getBandHeight();
-        bandInfo.bandWidth = band.getBandWidth();
-        bandInfo.hasColorMap = band.hasColorMap();
-        if (bandInfo.hasColorMap) {
+        final boolean hasColorMap = band.hasColorMap();
+        if (hasColorMap) {
             IndexColorModel colorMap = colorMaps.get(Long.valueOf(bandInfo.bandId));
             LOGGER.finest("Setting band's color map: " + colorMap);
             bandInfo.nativeColorMap = colorMap;
@@ -700,14 +698,9 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         }
 
         bandInfo.compressionType = CompressionType.valueOf(band.getCompressionType());
-        SeExtent extent = band.getExtent();
-        bandInfo.bandExtent = new Envelope(extent.getMinX(), extent.getMaxX(), extent.getMinY(),
-                extent.getMaxY());
         bandInfo.cellType = RasterCellType.valueOf(band.getPixelType());
         bandInfo.interleaveType = InterleaveType.valueOf(band.getInterleave());
         bandInfo.interpolationType = InterpolationType.valueOf(band.getInterpolation());
-        bandInfo.maxPyramidLevel = band.getMaxLevel();
-        bandInfo.isSkipPyramidLevelOne = band.skipLevelOne();
         bandInfo.hasStats = band.hasStats();
         if (bandInfo.hasStats) {
             try {
@@ -735,8 +728,6 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             bandInfo.noDataValue = RasterUtils.determineNoDataValue(numBands, statsMin, statsMax,
                     nativeCellType);
         }
-        bandInfo.tileWidth = band.getTileWidth();
-        bandInfo.tileHeight = band.getTileHeight();
         SDEPoint tOrigin;
         try {
             tOrigin = band.getTileOrigin();

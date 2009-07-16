@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.util.logging.Logging;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.esri.sde.sdk.client.SDEPoint;
@@ -49,8 +49,6 @@ import com.esri.sde.sdk.client.SeRasterAttr;
  * @author Gabriel Roldan
  */
 final class RasterInfo {
-
-    private static final Logger LOGGER = Logging.getLogger("org.geotools.arcsde.gce");
 
     /**
      * Orders pyramid levels by their level index
@@ -315,18 +313,6 @@ final class RasterInfo {
         Collections.sort(pyramidList, levelComparator);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder b = new StringBuilder("ArcSDEPyramid[");
-        b.append("Nº levels: ").append(getNumLevels()).append(", tile size: ").append(
-                getTileWidth()).append("x").append(getTileHeight()).append("\n\tLevels:");
-        for (int l = 0; l < getNumLevels(); l++) {
-            b.append("\n\t").append(getPyramidLevel(l));
-        }
-        b.append("\n]");
-        return b.toString();
-    }
-
     void setOriginalEnvelope(GeneralEnvelope originalEnvelope) {
         this.originalEnvelope = originalEnvelope;
     }
@@ -354,4 +340,66 @@ final class RasterInfo {
     public CoordinateReferenceSystem getCoordinateReferenceSystem() {
         return crs;
     }
+
+    public RasterCellType getTargetCellType() {
+        if (isColorMapped()) {
+            // color map is already promoted if needed
+            return getNativeCellType();
+        }
+        List<Number> noDataValues = getNoDataValues();
+        RasterCellType nativeCellType = getNativeCellType();
+        RasterCellType targetCellType = RasterUtils.determineTargetCellType(nativeCellType,
+                noDataValues);
+        return targetCellType;
+    }
+
+    public boolean isColorMapped() {
+        return getBand(0).isColorMapped();
+    }
+
+    public RasterCellType getNativeCellType() {
+        return getBand(0).getCellType();
+    }
+
+    public List<Number> getNoDataValues() {
+        final List<Number> noDataValues = new ArrayList<Number>();
+        for (RasterBandInfo band : getBands()) {
+            Number noDataValue = band.getNoDataValue();
+            noDataValues.add(noDataValue);
+        }
+        return noDataValues;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        sb.append("[Id: ").append(getRasterId());
+        String srs = null;
+        try {
+            srs = CRS.lookupIdentifier(getCoordinateReferenceSystem(), false);
+        } catch (FactoryException e) {
+            e.printStackTrace();
+        }
+        sb.append(", bands: ").append(getNumBands());
+        sb.append(", levels: ").append(getNumLevels());
+        sb.append(", tile size: ").append(getTileWidth()).append("x").append(getTileHeight());
+        sb.append(", crs: ").append(srs == null ? getCoordinateReferenceSystem().toWKT() : srs);
+        GeneralEnvelope env = getOriginalEnvelope();
+        sb.append(", Envelope: ").append(env.getMinimum(0)).append(",").append(env.getMinimum(1))
+                .append(" ").append(env.getMaximum(0)).append(",").append(env.getMaximum(1));
+
+        sb.append("]\n Bands[");
+        for (RasterBandInfo band : getBands()) {
+            sb.append("\n\t");
+            sb.append(band.toString());
+        }
+        sb.append("\n ]");
+        sb.append("\n Pyramid[");
+        for (int l = 0; l < getNumLevels(); l++) {
+            sb.append("\n\t").append(getPyramidLevel(l).toString());
+        }
+        sb.append("\n ]");
+        return sb.toString();
+    }
+
 }

@@ -171,7 +171,8 @@ final class PyramidLevelInfo {
     public String toString() {
         return "[level: " + pyramidLevel + " size: " + size.width + "x" + size.height + "  xRes: "
                 + xRes + "  yRes: " + yRes + "  xOffset: " + getXOffset() + "  yOffset: "
-                + getYOffset() + "  extent: " + envelope + "  tilesWide: " + xTiles
+                + getYOffset() + "  extent: " + envelope.getMinX() + "," + envelope.getMinY() + " "
+                + envelope.getMaxX() + "," + envelope.getMaxY() + "  tilesWide: " + xTiles
                 + "  tilesHigh: " + yTiles + "]";
     }
 }

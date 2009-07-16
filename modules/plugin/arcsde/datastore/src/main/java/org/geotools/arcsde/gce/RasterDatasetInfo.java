@@ -309,28 +309,9 @@ final class RasterDatasetInfo {
         sb.append(", Pixel type: ").append(getNativeCellType());
         sb.append(", Has Color Map: ").append(isColorMapped());
         for (int rasterIndex = 0; rasterIndex < getNumRasters(); rasterIndex++) {
-            RasterInfo pyramid = getRasterInfo(rasterIndex);
-            sb.append("\n\tRaster " + pyramid.getRasterId()).append(": ");
-            sb.append(pyramid.getNumLevels()).append(" levels");
-            Rectangle grid = getGridRange(rasterIndex, 0);
-            sb.append(", Grid range: ").append(grid.width).append("x").append(grid.height);
-            sb.append(", Tile size: ").append(pyramid.getTileWidth()).append("x").append(
-                    pyramid.getTileHeight());
-            GeneralEnvelope env = pyramid.getOriginalEnvelope();
-            sb.append(", Envelope: ").append(env.getMinimum(0)).append(",").append(
-                    env.getMinimum(1)).append(" ").append(env.getMaximum(0)).append(",").append(
-                    env.getMaximum(1));
-            for (RasterBandInfo band : pyramid.getBands()) {
-                sb.append("\n\t\t").append(band.getBandName()).append(": ");
-                if (band.isHasStats()) {
-                    sb.append("Min: ").append(band.getStatsMin());
-                    sb.append(", Max: ").append(band.getStatsMax());
-                    sb.append(", Mean: ").append(band.getStatsMean());
-                    sb.append(", Std. Dev: ").append(band.getStatsStdDev());
-                } else {
-                    sb.append(" NO STATISTICS GENERATED");
-                }
-            }
+            RasterInfo raster = getRasterInfo(rasterIndex);
+            sb.append("\n ");
+            sb.append(raster.toString());
         }
         return sb.toString();
     }
@@ -406,24 +387,15 @@ final class RasterDatasetInfo {
     }
 
     boolean isColorMapped() {
-        final RasterBandInfo bandOne = getBand(0, 0);
-        return bandOne.isColorMapped();
+        return getRasterInfo(0).isColorMapped();
     }
 
     public RasterCellType getNativeCellType() {
-        return getBand(0, 0).getCellType();
+        return getRasterInfo(0).getNativeCellType();
     }
 
     public RasterCellType getTargetCellType(final int rasterIndex) {
-        if (isColorMapped()) {
-            // color map is already promoted if needed
-            return getNativeCellType();
-        }
-        List<Number> noDataValues = getNoDataValues(rasterIndex);
-        RasterCellType nativeCellType = getNativeCellType();
-        RasterCellType targetCellType = RasterUtils.determineTargetCellType(nativeCellType,
-                noDataValues);
-        return targetCellType;
+        return getRasterInfo(rasterIndex).getTargetCellType();
     }
 
     public Long getRasterId(final int rasterIndex) {
@@ -480,12 +452,6 @@ final class RasterDatasetInfo {
      * @return the list of no data values, one per band for the raster at index {@code rasterIndex}
      */
     public List<Number> getNoDataValues(final int rasterIndex) {
-        final int numBands = getNumBands();
-        final List<Number> noDataValues = new ArrayList<Number>();
-        for (int bandN = 0; bandN < numBands; bandN++) {
-            Number noDataValue = getNoDataValue(rasterIndex, bandN);
-            noDataValues.add(noDataValue);
-        }
-        return noDataValues;
+        return getRasterInfo(rasterIndex).getNoDataValues();
     }
 }

@@ -150,6 +150,8 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
+        System.out.println(reader.getInfo().getDescription());
+        
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
         final GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
