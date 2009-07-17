@@ -879,7 +879,7 @@ class RasterUtils {
         } else if (!isGeoPhysics(numBands, nativeCellType)) {
             LOGGER.fine("3 or 4 band, 8 bit unsigned image, assumed to be "
                     + "RGB or RGBA respectively and nodata value hardcoded to 255");
-            return nativeCellType.getSampleValueRange().getMaxValue();
+            return (Number)nativeCellType.getSampleValueRange().getMaxValue();
         }
 
         final NumberRange<?> sampleValueRange = nativeCellType.getSampleValueRange();
