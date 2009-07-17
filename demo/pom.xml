@@ -101,7 +101,11 @@
   <modules>
     <module>mapwidget</module>
     <module>libraryJTS</module>
-    <module>example</module>
+
+    <!-- example out of the build until JMapPane -->
+    <!-- issues are sorted out                   -->
+    <!--module>example</module-->
+
     <module>svgsupport</module>
     <module>gmlparsing</module>
     <module>jdbc</module>
