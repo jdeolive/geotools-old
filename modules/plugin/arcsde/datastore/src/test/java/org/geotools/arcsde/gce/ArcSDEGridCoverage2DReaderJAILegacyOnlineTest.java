@@ -14,7 +14,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
@@ -113,7 +112,7 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
     }
 
     @Test
-    public void testReadRasterCatalogOnline() throws Exception {
+    public void testIMG_USGSQUAD_SGBASE() throws Exception {
         tableName = "SDE.IMG_USGSQUAD_SGBASE";
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
@@ -141,17 +140,17 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
         assertNotNull("read coverage returned null", coverage);
 
         RenderedImage image = coverage.getRenderedImage();
-        writeToDisk(image, "testReadRasterCatalogOnline");
+        writeToDisk(coverage, "testRead_" + tableName);
     }
 
     @Test
-    public void testReadRasterCatalogOnline2() throws Exception {
+    public void testCOLOROQ_TEST() throws Exception {
         tableName = "SDE.RASTER.COLOROQ_TEST";
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);
 
         System.out.println(reader.getInfo().getDescription());
-        
+
         final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
         final GridEnvelope originalGridRange = reader.getOriginalGridRange();
 
@@ -234,8 +233,41 @@ public class ArcSDEGridCoverage2DReaderJAILegacyOnlineTest {
     }
 
     @Test
+    public void testIMG_WIND_SPD30M_ADAMS() throws Exception {
+        tableName = "SDE.RASTER.IMG_WIND_SPD30M_ADAMS";
+
+        final AbstractGridCoverage2DReader reader = getReader();
+        assertNotNull("Couldn't obtain a reader for " + tableName, reader);
+
+        final GeneralEnvelope originalEnvelope = reader.getOriginalEnvelope();
+        GridEnvelope originalGridRange = reader.getOriginalGridRange();
+
+        final int reqWidth = originalGridRange.getSpan(0);
+        final int reqHeight = originalGridRange.getSpan(1);
+
+        GeneralEnvelope reqEnvelope = originalEnvelope;
+        reqEnvelope.setCoordinateReferenceSystem(originalEnvelope.getCoordinateReferenceSystem());
+
+        final GridCoverage2D coverage = readCoverage(reader, reqWidth, reqHeight, reqEnvelope);
+        assertNotNull("read coverage returned null", coverage);
+
+        GridGeometry2D gg = coverage.getGridGeometry();
+        Envelope2D envelope2D = gg.getEnvelope2D();
+        GridEnvelope gridRange = gg.getGridRange();
+
+        System.out.println("requested size: " + reqWidth + "x" + reqHeight);
+        System.out.println("result size   : " + gridRange.getSpan(0) + "x" + gridRange.getSpan(1));
+
+        System.out.println("requested envelope: " + reqEnvelope);
+
+        System.out.println("result envelope   : " + envelope2D);
+
+        writeToDisk(coverage, "testRead_" + tableName);
+    }
+
+    @Test
     public void testReadNOAA_13006_1() throws Exception {
-        tableName = "SDE.NOAA_13006_1";
+        tableName = "SDE.RASTER.NOAA_13006_1";
 
         final AbstractGridCoverage2DReader reader = getReader();
         assertNotNull("Couldn't obtain a reader for " + tableName, reader);

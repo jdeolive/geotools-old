@@ -876,10 +876,10 @@ class RasterUtils {
             LOGGER.fine("4BIT images no-data value is set to 16,"
                     + " regardless of the raster statistics");
             return Double.valueOf(16);
-        } else if (nativeCellType == TYPE_8BIT_U && (numBands == 3 || numBands == 4)) {
+        } else if (!isGeoPhysics(numBands, nativeCellType)) {
             LOGGER.fine("3 or 4 band, 8 bit unsigned image, assumed to be "
                     + "RGB or RGBA respectively and nodata value hardcoded to 255");
-            return Integer.valueOf(255);
+            return nativeCellType.getSampleValueRange().getMaxValue();
         }
 
         final NumberRange<?> sampleValueRange = nativeCellType.getSampleValueRange();
@@ -925,6 +925,14 @@ class RasterUtils {
         }
 
         return nodata;
+    }
+
+    public static boolean isGeoPhysics(final int numBands, final RasterCellType nativeCellType) {
+        boolean geophysics = true;
+        if (nativeCellType == TYPE_8BIT_U && (numBands == 3 || numBands == 4)) {
+            geophysics = false;
+        }
+        return geophysics;
     }
 
     public static RasterCellType determineTargetCellType(final RasterCellType nativeCellType,

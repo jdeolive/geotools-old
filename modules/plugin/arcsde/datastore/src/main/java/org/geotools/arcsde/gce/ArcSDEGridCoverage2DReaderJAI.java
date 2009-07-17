@@ -82,8 +82,6 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
     private static final boolean DEBUG_TO_DISK = Boolean
             .getBoolean("org.geotools.arcsde.gce.debug");
 
-    private final LoggingHelper log = new LoggingHelper();
-
     private final ArcSDERasterFormat parent;
 
     private final RasterDatasetInfo rasterInfo;
@@ -199,6 +197,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
 
         final GeneralEnvelope resultEnvelope = getResultEnvelope(queries);
 
+        final LoggingHelper log = new LoggingHelper();
         log.appendLoggingGeometries(LoggingHelper.REQ_ENV, requestedEnvelope);
         log.appendLoggingGeometries(LoggingHelper.RES_ENV, resultEnvelope);
 
@@ -207,7 +206,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
          * overall resulting mosaic they fit. If the rasters does not share the spatial resolution,
          * the QueryInfo.resultDimension and QueryInfo.mosaicLocation width or height won't match
          */
-        RasterUtils.setMosaicLocations(rasterInfo, resultEnvelope, queries);
+        final Rectangle mosaicGeometry;
+        mosaicGeometry = RasterUtils.setMosaicLocations(rasterInfo, resultEnvelope, queries);
 
         /*
          * Gather the rendered images for each of the rasters that match the requested envelope
@@ -220,7 +220,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         final TiledRasterReader rasterReader = rasterReaderFactory.create(rasterInfo);
 
         try {
-            readAllTiledRasters(byRasterIdQueries, rasterReader);
+            readAllTiledRasters(byRasterIdQueries, rasterReader, log);
         } finally {
             rasterReader.dispose();
         }
@@ -230,7 +230,9 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
         log.log(LoggingHelper.MOSAIC_ENV);
         log.log(LoggingHelper.MOSAIC_EXPECTED);
 
-        final RenderedImage coverageRaster = createMosaic(queries);
+        final RenderedImage coverageRaster = createMosaic(queries, log);
+        assert mosaicGeometry.getWidth() == coverageRaster.getWidth();
+        assert mosaicGeometry.getHeight() == coverageRaster.getHeight();
 
         /*
          * BUILDING COVERAGE
@@ -273,7 +275,7 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
     }
 
     private void readAllTiledRasters(final Map<Long, RasterQueryInfo> byRasterIdQueries,
-            final TiledRasterReader rasterReader) throws IOException {
+            final TiledRasterReader rasterReader, final LoggingHelper log) throws IOException {
 
         Long currentRasterId;
 
@@ -386,7 +388,8 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
      * @return
      * @throws IOException
      */
-    private RenderedImage createMosaic(final List<RasterQueryInfo> queries) throws IOException {
+    private RenderedImage createMosaic(final List<RasterQueryInfo> queries, final LoggingHelper log)
+            throws IOException {
         List<RenderedImage> transformed = new ArrayList<RenderedImage>(queries.size());
 
         /*
@@ -466,9 +469,15 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             transformed.add(image);
         }
 
-        final RenderedImage result;
+        final RenderedImage mosaic;
         if (queries.size() == 1) {
-            result = transformed.get(0);
+            /*
+             * This is besides a very slight perf improvement needed because the JAI mosaic
+             * operation truncates floating point raster values to 0 and 1. REVISIT: If there's no
+             * workaround for that we should prevent raster catalogs made of floating point rasters
+             * and throw an exception as we could not really support that.
+             */
+            mosaic = transformed.get(0);
         } else {
             ParameterBlock mosaicParams = new ParameterBlock();
 
@@ -485,12 +494,10 @@ final class ArcSDEGridCoverage2DReaderJAI extends AbstractGridCoverage2DReader {
             mosaicParams.add(null); // destination background value
 
             LOGGER.fine("Creating mosaic out of " + queries.size() + " raster tiles");
-            RenderedImage mosaic = JAI.create("Mosaic", mosaicParams);
+            mosaic = JAI.create("Mosaic", mosaicParams);
             log.log(mosaic, 0L, "05_mosaic_result");
-
-            result = mosaic;
         }
-        return result;
+        return mosaic;
     }
 
     private RenderedImage cropToRequiredDimension(final RenderedImage fullTilesRaster,

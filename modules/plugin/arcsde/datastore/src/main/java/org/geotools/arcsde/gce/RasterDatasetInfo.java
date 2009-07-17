@@ -166,19 +166,20 @@ final class RasterDatasetInfo {
 
             final Color[] colorRange = null;
 
-            Category valuesCat = new Category("values", colorRange, sampleValueRange,
-                    LinearTransform1D.IDENTITY).geophysics(true);
+            final boolean geophysics = isGeoPhysics();
 
-            double noDataValue = band.getNoDataValue().doubleValue();
-            Category nodataCat = new Category("no data", transparent, noDataValue);
+            Category valuesCat = new Category("values", colorRange, sampleValueRange,
+                    LinearTransform1D.IDENTITY).geophysics(geophysics);
 
             Category[] categories;
-            if (valuesCat.getRange().intersects(nodataCat.getRange())) {
+            if (geophysics) {
+                double noDataValue = band.getNoDataValue().doubleValue();
+                Category nodataCat = new Category("no data", transparent, noDataValue);
+                categories = new Category[] { valuesCat, nodataCat };
+            } else {
                 // do not build a nodata category. A nodata value that doesn't overlap the value
                 // range couldn't be determined
                 categories = new Category[] { valuesCat };
-            } else {
-                categories = new Category[] { valuesCat, nodataCat };
             }
             /*
              * if (band.isHasStats()) { //can't do this, get an exception telling categories
@@ -196,6 +197,13 @@ final class RasterDatasetInfo {
             dimensions.add(sampleDim);
         }
         return dimensions;
+    }
+
+    private boolean isGeoPhysics() {
+        if (isColorMapped()) {
+            return false;
+        }
+        return RasterUtils.isGeoPhysics(getNumBands(), getNativeCellType());
     }
 
     public int getNumBands() {
@@ -387,15 +395,18 @@ final class RasterDatasetInfo {
     }
 
     boolean isColorMapped() {
-        return getRasterInfo(0).isColorMapped();
+        RasterInfo rasterInfo = getRasterInfo(0);
+        return rasterInfo.isColorMapped();
     }
 
     public RasterCellType getNativeCellType() {
-        return getRasterInfo(0).getNativeCellType();
+        RasterInfo rasterInfo = getRasterInfo(0);
+        return rasterInfo.getNativeCellType();
     }
 
     public RasterCellType getTargetCellType(final int rasterIndex) {
-        return getRasterInfo(rasterIndex).getTargetCellType();
+        RasterInfo rasterInfo = getRasterInfo(rasterIndex);
+        return rasterInfo.getTargetCellType();
     }
 
     public Long getRasterId(final int rasterIndex) {

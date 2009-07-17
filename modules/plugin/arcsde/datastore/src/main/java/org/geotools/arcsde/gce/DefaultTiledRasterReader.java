@@ -198,6 +198,7 @@ class DefaultTiledRasterReader implements TiledRasterReader {
          * the underlying ImageInputStream so we could let it close the SeQuery when done.
          */
         try {
+            LOGGER.info("Forcing loading data for " + rasterInfo.getRasterTable() + "#" + rasterId);
             fullTilesRaster.getData();
         } catch (RuntimeException e) {
             throw new DataSourceException("Error fetching arcsde raster", e);

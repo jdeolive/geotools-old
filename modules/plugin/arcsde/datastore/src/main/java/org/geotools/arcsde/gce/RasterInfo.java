@@ -342,10 +342,10 @@ final class RasterInfo {
     }
 
     public RasterCellType getTargetCellType() {
-        if (isColorMapped()) {
-            // color map is already promoted if needed
-            return getNativeCellType();
-        }
+//        if (isColorMapped()) {
+//            // color map is already promoted if needed
+//            return getNativeCellType();
+//        }
         List<Number> noDataValues = getNoDataValues();
         RasterCellType nativeCellType = getNativeCellType();
         RasterCellType targetCellType = RasterUtils.determineTargetCellType(nativeCellType,
