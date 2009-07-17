@@ -220,12 +220,12 @@ public class ArcSDEConnectionPool {
      * 
      * @throws DataSourceException
      *             DOCUMENT ME!
-     * @throws UnavailableArcSDEConnectionException
+     * @throws UnavailableConnectionException
      * @throws IllegalStateException
      *             DOCUMENT ME!
      */
     public ArcSDEPooledConnection getConnection() throws DataSourceException,
-            UnavailableArcSDEConnectionException {
+            UnavailableConnectionException {
         if (pool == null) {
             throw new IllegalStateException("The ConnectionPool has been closed.");
         }
@@ -250,7 +250,7 @@ public class ArcSDEConnectionPool {
             return connection;
         } catch (NoSuchElementException e) {
             LOGGER.log(Level.WARNING, "Out of connections: " + e.getMessage(), e);
-            throw new UnavailableArcSDEConnectionException(this.pool.getNumActive(), this.config);
+            throw new UnavailableConnectionException(this.pool.getNumActive(), this.config);
         } catch (SeException se) {
             LOGGER.log(Level.WARNING, "ArcSDE error getting connection: "
                     + se.getSeError().getErrDesc(), se);
@@ -300,7 +300,7 @@ public class ArcSDEConnectionPool {
             throw new DataSourceException("Error querying the layers list"
                     + ex.getSeError().getSdeError() + " (" + ex.getSeError().getErrDesc() + ") ",
                     ex);
-        } catch (UnavailableArcSDEConnectionException ex) {
+        } catch (UnavailableConnectionException ex) {
             throw new DataSourceException("No free connection found to query the layers list", ex);
         } finally {
             if (conn != null)

@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -75,7 +75,7 @@ public class InProcessViewSupportTestData {
     public static final String typeName = "MasterChildTest";
 
     public static void setUp(ISession session, TestData td) throws IOException,
-            UnavailableArcSDEConnectionException {
+            UnavailableConnectionException {
 
         testCrs = DefaultGeographicCRS.WGS84;
 
@@ -100,7 +100,7 @@ public class InProcessViewSupportTestData {
     }
 
     private static void createMasterTable(final ISession session, final TestData td)
-            throws IOException, UnavailableArcSDEConnectionException {
+            throws IOException, UnavailableConnectionException {
 
         final SeTable table = session.createSeTable(MASTER);
 
@@ -147,7 +147,7 @@ public class InProcessViewSupportTestData {
     }
 
     private static void createChildTable(final ISession session, final TestData td)
-            throws IOException, UnavailableArcSDEConnectionException {
+            throws IOException, UnavailableConnectionException {
         final SeTable table = session.createSeTable(CHILD);
         Command<Void> createCmd = new Command<Void>() {
 

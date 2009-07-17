@@ -43,6 +43,7 @@ import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SdeRow;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.BatchFeatureEvent;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
@@ -955,7 +956,7 @@ public class ArcSDEFeatureStoreTest {
     }
 
     @Test
-    public void testCreateNillableShapeSchema() throws IOException, SchemaException, SeException {
+    public void testCreateNillableShapeSchema() throws IOException, SchemaException, SeException, UnavailableConnectionException {
         SimpleFeatureType type;
         final String typeName = "GT_TEST_CREATE";
 

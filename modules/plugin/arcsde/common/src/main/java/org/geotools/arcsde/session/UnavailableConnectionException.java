@@ -17,8 +17,6 @@
  */
 package org.geotools.arcsde.session;
 
-import java.io.IOException;
-
 /**
  * Exception thrown when a free SDE connection can't be obtained after the calling thread was
  * waiting an available connection for <code>SdeConnectionPool instance's getMaxWaitTime()</code> milliseconds
@@ -29,21 +27,17 @@ import java.io.IOException;
  *         /org/geotools/arcsde/pool/UnavailableArcSDEConnectionException.java $
  * @version $Id$
  */
-public class UnavailableArcSDEConnectionException extends IOException {
-    /**
-     * serial version id
-     */
+public class UnavailableConnectionException extends Exception {
+
     private static final long serialVersionUID = -7964603239735118491L;
 
     /**
      * Creates a new UnavailableArcSDEConnectionException object.
      * 
      * @param usedConnections
-     *            DOCUMENT ME!
      * @param config
-     *            DOCUMENT ME!
      */
-    public UnavailableArcSDEConnectionException(int usedConnections, ArcSDEConnectionConfig config) {
+    UnavailableConnectionException(final int usedConnections, final ArcSDEConnectionConfig config) {
         super("The maximun of " + usedConnections + " to " + config.toString()
                 + " has been reached");
     }

@@ -36,6 +36,7 @@ import org.geotools.arcsde.data.InProcessViewSupportTestData;
 import org.geotools.arcsde.data.TestData;
 import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ISession;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataAccessFactory;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataSourceException;
@@ -202,9 +203,10 @@ public class ArcSDEDataStoreFactoryTest {
      * 
      * @throws IOException
      * @throws SeException
+     * @throws UnavailableConnectionException
      */
     @Test
-    public void testCreateDataStoreWithInProcessViews() throws IOException, SeException {
+    public void testCreateDataStoreWithInProcessViews() throws IOException, SeException, UnavailableConnectionException {
         ISession session = testData.getConnectionPool().getSession();
         try {
             InProcessViewSupportTestData.setUp(session, testData);
@@ -225,7 +227,7 @@ public class ArcSDEDataStoreFactoryTest {
     }
 
     @Test
-    public void testVersionParamCheck() throws IOException {
+    public void testVersionParamCheck() throws IOException, UnavailableConnectionException {
         ISession session = testData.getConnectionPool().getSession();
         final String versionName = "testVersionParamCheck";
         try {
@@ -246,7 +248,7 @@ public class ArcSDEDataStoreFactoryTest {
     }
 
     @Test
-    public void testVersioned() throws IOException {
+    public void testVersioned() throws IOException, UnavailableConnectionException {
         ISession session = testData.getConnectionPool().getSession();
         final String versionName = "testVersioned";
         try {

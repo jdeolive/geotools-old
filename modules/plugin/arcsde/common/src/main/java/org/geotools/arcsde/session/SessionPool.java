@@ -259,7 +259,7 @@ class SessionPool implements ISessionPool {
      * 
      * @see org.geotools.arcsde.session.ISessionPool#getSession()
      */
-    public ISession getSession() throws IOException, UnavailableArcSDEConnectionException {
+    public ISession getSession() throws IOException, UnavailableConnectionException {
         checkOpen();
         try {
             Session connection = (Session) this.pool.borrowObject();
@@ -274,7 +274,7 @@ class SessionPool implements ISessionPool {
         } catch (NoSuchElementException e) {
             LOGGER.log(Level.WARNING, "Out of connections: " + e.getMessage() + ". Config: "
                     + this.config);
-            throw new UnavailableArcSDEConnectionException(this.pool.getNumActive(), this.config);
+            throw new UnavailableConnectionException(this.pool.getNumActive(), this.config);
         } catch (SeException se) {
             ArcSdeException sdee = new ArcSdeException(se);
             LOGGER.log(Level.WARNING, "ArcSDE error getting connection for " + config, sdee);

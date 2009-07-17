@@ -61,12 +61,12 @@ public interface ISessionPool {
      * @return A Session, when close() is called it will be recycled into the pool
      * @throws IOException
      *             If we could not get a connection
-     * @throws UnavailableArcSDEConnectionException
+     * @throws UnavailableConnectionException
      *             If we are out of connections
      * @throws IllegalStateException
      *             If pool has been closed.
      */
-    ISession getSession() throws IOException, UnavailableArcSDEConnectionException;
+    ISession getSession() throws IOException, UnavailableConnectionException;
 
     ArcSDEConnectionConfig getConfig();
 

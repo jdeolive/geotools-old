@@ -36,7 +36,7 @@ import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.ISessionPoolFactory;
 import org.geotools.arcsde.session.SessionPoolFactory;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.arcsde.session.Commands.GetVersionCommand;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.FeatureCollection;
@@ -221,7 +221,12 @@ public class TestData {
     }
 
     public String getTempTableName() throws IOException {
-        ISession session = getConnectionPool().getSession();
+        ISession session;
+        try {
+            session = getConnectionPool().getSession();
+        } catch (UnavailableConnectionException e) {
+            throw new RuntimeException(e);
+        }
         String tempTableName;
         try {
             tempTableName = getTempTableName(session);
@@ -269,12 +274,12 @@ public class TestData {
     }
 
     public void deleteTable(final String typeName) throws IOException,
-            UnavailableArcSDEConnectionException {
+            UnavailableConnectionException {
         deleteTable(typeName, true);
     }
 
     public void deleteTable(final String typeName, final boolean ignoreFailure) throws IOException,
-            UnavailableArcSDEConnectionException {
+            UnavailableConnectionException {
         ISessionPool connectionPool = getConnectionPool();
         deleteTable(connectionPool, typeName, ignoreFailure);
     }
@@ -284,13 +289,15 @@ public class TestData {
      * 
      * @param connPool
      *            to get the connection to use in deleting {@link #getTempTableName()}
+     * @throws UnavailableConnectionException
      */
-    public void deleteTempTable(ISessionPool connPool) throws IOException {
+    public void deleteTempTable(ISessionPool connPool) throws IOException,
+            UnavailableConnectionException {
         deleteTable(connPool, getTempTableName(), true);
     }
 
     private static void deleteTable(final ISessionPool connPool, final String tableName,
-            final boolean ignoreFailure) throws IOException, UnavailableArcSDEConnectionException {
+            final boolean ignoreFailure) throws IOException, UnavailableConnectionException {
 
         final ISession session = connPool.getSession();
 
@@ -393,14 +400,14 @@ public class TestData {
         }
     }
 
-    public void truncateTempTable() throws IOException {
+    public void truncateTempTable() throws IOException, UnavailableConnectionException {
         final String tempTableName = getTempTableName();
 
         truncateTestTable(tempTableName);
     }
 
     public void truncateTestTable(final String tempTableName) throws IOException,
-            DataSourceException, UnavailableArcSDEConnectionException {
+            DataSourceException, UnavailableConnectionException {
         final ISessionPool connPool = getConnectionPool();
         final ISession session = connPool.getSession();
 
@@ -917,7 +924,8 @@ public class TestData {
         }
     }
 
-    private void deleteSampleLayers(final int numLayersToCreate) throws IOException {
+    private void deleteSampleLayers(final int numLayersToCreate) throws IOException,
+            UnavailableConnectionException {
         final ISessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
         final NumberFormat formatter = NumberFormat.getInstance();
@@ -948,9 +956,11 @@ public class TestData {
     /**
      * This private method is used to create a lot of layers in the test database in order to fix
      * GEOT-1956
+     * 
+     * @throws UnavailableConnectionException
      */
     private void createSampleLayers(final int numLayersToCreate, final int startFrom)
-            throws IOException {
+            throws IOException, UnavailableConnectionException {
         final ISessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
 
@@ -999,7 +1009,7 @@ public class TestData {
         LOGGER.info(numLayersToCreate + " created successfully");
     }
 
-    public void createSimpleTestTables() throws IOException {
+    public void createSimpleTestTables() throws IOException, UnavailableConnectionException {
         final ISessionPool connectionPool = getConnectionPool();
         final ISession session = connectionPool.getSession();
 

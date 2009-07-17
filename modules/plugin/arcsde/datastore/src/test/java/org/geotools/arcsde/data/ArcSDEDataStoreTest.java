@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataStore;
@@ -286,13 +287,13 @@ public class ArcSDEDataStoreTest {
      * </p>
      * 
      * @throws IOException
-     *             DOCUMENT ME!
      * @throws SchemaException
-     *             DOCUMENT ME!
      * @throws SeException
+     * @throws UnavailableConnectionException
      */
     @Test
-    public void testCreateSchema() throws IOException, SchemaException, SeException {
+    public void testCreateSchema() throws IOException, SchemaException, SeException,
+            UnavailableConnectionException {
         final String typeName;
         {
             ISessionPool connectionPool = testData.getConnectionPool();

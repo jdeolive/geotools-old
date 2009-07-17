@@ -186,10 +186,10 @@ public class SessionPoolTest {
      * 
      * @throws IOException
      * 
-     * @throws UnavailableArcSDEConnectionException
+     * @throws UnavailableConnectionException
      */
     @Test
-    public void testInitialCount() throws IOException, UnavailableArcSDEConnectionException {
+    public void testInitialCount() throws IOException, UnavailableConnectionException {
         int MIN_CONNECTIONS = 2;
         int MAX_CONNECTIONS = 6;
 
@@ -214,10 +214,10 @@ public class SessionPoolTest {
      * maxConnections is lower than minConnections)
      * 
      * @throws IOException
-     * @throws UnavailableArcSDEConnectionException
+     * @throws UnavailableConnectionException
      */
     @Test
-    public void testChecksLimits() throws IOException, UnavailableArcSDEConnectionException {
+    public void testChecksLimits() throws IOException, UnavailableConnectionException {
         int MIN_CONNECTIONS = 2;
 
         // override pool.minConnections and pool.maxConnections from
@@ -268,7 +268,7 @@ public class SessionPoolTest {
         try {
             this.pool.getSession();
             fail("since the max number of connections was reached, the pool should have throwed an UnavailableArcSDEConnectionException");
-        } catch (UnavailableArcSDEConnectionException ex) {
+        } catch (UnavailableConnectionException ex) {
             LOGGER
                     .fine("maximun number of connections reached, got an UnavailableArcSDEConnectionException, it's OK");
         }

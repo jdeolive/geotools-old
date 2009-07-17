@@ -35,6 +35,7 @@ import net.sf.jsqlparser.statement.select.SelectBody;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.SdeRow;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
@@ -158,10 +159,11 @@ public class SDEJavaApiJoinTest {
      * @throws SeException
      * @throws FactoryException
      * @throws NoSuchAuthorityCodeException
+     * @throws UnavailableConnectionException 
      */
     @BeforeClass
     public static void oneTimeSetUp() throws IOException, SeException,
-            NoSuchAuthorityCodeException, FactoryException {
+            NoSuchAuthorityCodeException, FactoryException, UnavailableConnectionException {
         testData = new TestData();
         testData.setUp();
 

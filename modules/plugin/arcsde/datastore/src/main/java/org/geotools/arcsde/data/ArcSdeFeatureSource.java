@@ -220,7 +220,6 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      * </p>
      * 
      * @return
-     * @throws IOException
      */
     protected final ISession getSession() throws IOException {
         return dataStore.getSession(transaction);

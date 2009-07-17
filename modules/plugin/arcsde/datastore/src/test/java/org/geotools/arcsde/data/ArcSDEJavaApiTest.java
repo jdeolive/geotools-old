@@ -32,7 +32,7 @@ import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SdeRow;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataSourceException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -779,12 +779,12 @@ public class ArcSDEJavaApiTest {
      *             DOCUMENT ME!
      * @throws IOException
      *             DOCUMENT ME!
-     * @throws UnavailableArcSDEConnectionException
+     * @throws UnavailableConnectionException
      *             DOCUMENT ME!
      */
     @Test
     public void testCreateBaseTable() throws SeException, IOException,
-            UnavailableArcSDEConnectionException {
+            UnavailableConnectionException {
 
         final SeColumnDefinition[] colDefs = new SeColumnDefinition[7];
 
@@ -898,12 +898,12 @@ public class ArcSDEJavaApiTest {
      *             DOCUMENT ME!
      * @throws IOException
      *             DOCUMENT ME!
-     * @throws UnavailableArcSDEConnectionException
+     * @throws UnavailableConnectionException
      *             DOCUMENT ME!
      */
     @Test
     public void testCreateNonStandardSchema() throws SeException, IOException,
-            UnavailableArcSDEConnectionException {
+            UnavailableConnectionException {
 
         Command<Void> createCommand = new Command<Void>() {
             @Override
@@ -1034,7 +1034,7 @@ public class ArcSDEJavaApiTest {
     } // End method createBaseTable
 
     @Test
-    public void testDeleteById() throws IOException, UnavailableArcSDEConnectionException,
+    public void testDeleteById() throws IOException, UnavailableConnectionException,
             SeException {
 
         final String typeName = testData.getTempTableName();

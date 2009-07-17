@@ -50,7 +50,7 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ArcSDEConnectionPool;
 import org.geotools.arcsde.session.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.session.ArcSDEPooledConnection;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.arcsde.util.ArcSDEUtils;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -193,7 +193,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
                     ArcSDEPooledConnection scon;
                     try {
                         scon = connectionPool.getConnection();
-                    } catch (UnavailableArcSDEConnectionException e) {
+                    } catch (UnavailableConnectionException e) {
                         throw new DataSourceException(e);
                     }
                     try {

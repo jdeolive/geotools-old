@@ -45,7 +45,7 @@ import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.ISessionPoolFactory;
 import org.geotools.arcsde.session.SessionPoolFactory;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
@@ -266,9 +266,14 @@ public final class ArcSDEDataStoreFactory implements DataStoreFactorySpi {
     }
 
     final ArcSDEDataStore createDataStore(ArcSDEDataStoreConfig config, final ISessionPool connPool)
-            throws IOException, UnavailableArcSDEConnectionException {
+            throws IOException {
         ArcSDEDataStore sdeDStore;
-        final ISession session = connPool.getSession();
+        ISession session;
+        try {
+            session = connPool.getSession();
+        } catch (UnavailableConnectionException e) {
+            throw new RuntimeException(e);
+        }
         try {
             // check to see if our sdk is compatible with this arcsde instance
             SeRelease releaseInfo = session.getRelease();

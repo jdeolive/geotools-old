@@ -36,6 +36,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
@@ -220,7 +221,13 @@ final class FeatureTypeInfoCache {
             return typeInfo;
         }
 
-        ISession session = sessionPool.getSession();
+        ISession session;
+        try {
+            session = sessionPool.getSession();
+        } catch (UnavailableConnectionException e) {
+            throw new RuntimeException("Can't get type info for " + typeName
+                    + ". Connection pool exhausted", e);
+        }
         try {
             typeInfo = getFeatureTypeInfo(typeName, session);
         } finally {

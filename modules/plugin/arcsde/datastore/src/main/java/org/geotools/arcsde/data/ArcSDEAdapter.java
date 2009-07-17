@@ -261,10 +261,16 @@ public class ArcSDEAdapter {
      */
     public static FeatureTypeInfo fetchSchema(final String typeName, final String namespace,
             final ISession session) throws IOException {
-        final SeLayer layer = session.getLayer(typeName);
         final SeTable table = session.getTable(typeName);
+        SeLayer layer = null;
 
         final SeColumnDefinition[] seColumns = session.describe(typeName);
+        for (SeColumnDefinition col : seColumns) {
+            if (col.getType() == SeColumnDefinition.TYPE_SHAPE) {
+                layer = session.getLayer(typeName);
+                break;
+            }
+        }
 
         final List<AttributeDescriptor> properties = createAttributeDescriptors(layer, namespace,
                 seColumns);

@@ -829,7 +829,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
     }
 
     private SeLayer getLayer() throws IOException {
-        if (this.cachedLayer == null) {
+        if (this.cachedLayer == null && featureType.getGeometryDescriptor() != null) {
             final String typeName = this.featureType.getTypeName();
             final SeLayer layer = session.getLayer(typeName);
             this.cachedLayer = layer;

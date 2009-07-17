@@ -27,7 +27,7 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.ISessionPoolFactory;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 
 /**
  * A {@link ISessionPool session pool} that is not closable and hence can be shared between
@@ -122,7 +122,7 @@ final class SharedSessionPool implements ISessionPool {
     /**
      * @see ISessionPool#getSession()
      */
-    public ISession getSession() throws IOException, UnavailableArcSDEConnectionException {
+    public ISession getSession() throws IOException, UnavailableConnectionException {
         return delegate.getSession();
     }
 

@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import org.geotools.arcsde.session.ArcSDEConnectionPool;
 import org.geotools.arcsde.session.ArcSDEPooledConnection;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 
 /**
  * 
@@ -37,7 +38,12 @@ public class RasterReaderFactory {
 
     public TiledRasterReader create(final RasterDatasetInfo rasterInfo) throws IOException {
 
-        ArcSDEPooledConnection conn = connectionPool.getConnection();
+        ArcSDEPooledConnection conn;
+        try {
+            conn = connectionPool.getConnection();
+        } catch (UnavailableConnectionException e) {
+            throw new RuntimeException(e);
+        }
 
         TiledRasterReader rasterReader = new DefaultTiledRasterReader(conn, rasterInfo);
 

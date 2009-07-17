@@ -69,7 +69,7 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ArcSDEConnectionPool;
 import org.geotools.arcsde.session.ArcSDEConnectionPoolFactory;
 import org.geotools.arcsde.session.ArcSDEPooledConnection;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.util.logging.Logging;
 
@@ -990,7 +990,7 @@ public class RasterTestData {
     }
 
     public SeRasterAttr getRasterAttributes(final String rasterName, Rectangle tiles, int level,
-            int[] bands) throws IOException, UnavailableArcSDEConnectionException {
+            int[] bands) throws IOException, UnavailableConnectionException {
 
         ArcSDEPooledConnection conn = getConnectionPool().getConnection();
 

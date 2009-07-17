@@ -38,6 +38,7 @@ import org.geotools.arcsde.data.view.SelectQualifier;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SessionWrapper;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
@@ -165,7 +166,11 @@ public class ArcSDEDataStore implements DataStore {
         }
         final ISession session;
         if (Transaction.AUTO_COMMIT.equals(transaction)) {
-            session = connectionPool.getSession();
+            try {
+                session = connectionPool.getSession();
+            } catch (UnavailableConnectionException e) {
+                throw new RuntimeException("Session pool exhausted", e);
+            }
         } else {
             SessionTransactionState state;
             state = SessionTransactionState.getState(transaction, this.connectionPool);

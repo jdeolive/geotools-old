@@ -12,7 +12,7 @@ import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.ISessionPoolFactory;
 import org.geotools.arcsde.session.SessionPoolFactory;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
@@ -125,12 +125,12 @@ public class ClobTestData {
         }
     }
 
-    public SeTable getTempTable(ISession session) throws IOException {
+    public SeTable getTempTable(ISession session) throws IOException, UnavailableConnectionException {
         final String tempTableName = getTempTableName();
         return session.getTable(tempTableName);
     }
 
-    public SeLayer getTempLayer(ISession session) throws IOException {
+    public SeLayer getTempLayer(ISession session) throws IOException, UnavailableConnectionException {
         final String tempTableName = getTempTableName();
         return session.getLayer(tempTableName);
     }
@@ -168,7 +168,7 @@ public class ClobTestData {
         return this.conProps;
     }
 
-    public String getTempTableName() throws IOException {
+    public String getTempTableName() throws IOException, UnavailableConnectionException {
         ISession session = getConnectionPool().getSession();
         String tempTableName;
         try {
@@ -219,7 +219,7 @@ public class ClobTestData {
     }
 
     public void deleteTable(final String typeName) throws IOException,
-            UnavailableArcSDEConnectionException {
+            UnavailableConnectionException {
         ISessionPool connectionPool = getConnectionPool();
         deleteTable(connectionPool, typeName);
     }
@@ -240,7 +240,7 @@ public class ClobTestData {
     }
 
     private static void deleteTable(final ISessionPool connPool, final String tableName)
-            throws IOException, UnavailableArcSDEConnectionException {
+            throws IOException, UnavailableConnectionException {
 
         final ISession session = connPool.getSession();
 
@@ -341,7 +341,7 @@ public class ClobTestData {
         }
     }
 
-    public void truncateTempTable() throws IOException {
+    public void truncateTempTable() throws IOException, UnavailableConnectionException {
         final ISessionPool connPool = getConnectionPool();
         final ISession session = connPool.getSession();
         final String tempTableName = getTempTableName(session);

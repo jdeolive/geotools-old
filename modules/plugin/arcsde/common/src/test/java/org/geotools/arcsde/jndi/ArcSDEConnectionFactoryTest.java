@@ -37,7 +37,7 @@ import org.geotools.arcsde.session.ArcSDEConnectionConfig;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.ISessionPoolFactory;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -241,7 +241,7 @@ public class ArcSDEConnectionFactoryTest {
             return 0;
         }
 
-        public ISession getSession() throws IOException, UnavailableArcSDEConnectionException {
+        public ISession getSession() throws IOException, UnavailableConnectionException {
             // TODO Auto-generated method stub
             return null;
         }

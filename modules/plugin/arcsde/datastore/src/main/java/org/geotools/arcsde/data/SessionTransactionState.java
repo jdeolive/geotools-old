@@ -25,9 +25,10 @@ import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SessionWrapper;
-import org.geotools.arcsde.session.UnavailableArcSDEConnectionException;
+import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Transaction;
+import org.geotools.data.Transaction.State;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
@@ -138,7 +139,7 @@ final class SessionTransactionState implements Transaction.State {
     }
 
     /**
-     * 
+     * @see State#addAuthorization(String)
      */
     public void addAuthorization(String authId) {
         // intentionally blank we are not making use of ArcSDE locking
@@ -227,12 +228,9 @@ final class SessionTransactionState implements Transaction.State {
      * Used only within the package to provide access to a single connection on which this
      * transaction is being conducted.
      * 
-     * @return connection
-     * @throws UnavailableArcSDEConnectionException
-     * @throws DataSourceException
-     * @throws SeException
+     * @return the session tied to ths state's transaction
      */
-    ISession getConnection() throws DataSourceException, UnavailableArcSDEConnectionException {
+    ISession getConnection() {
         failIfClosed();
         return session;
     }
@@ -264,7 +262,13 @@ final class SessionTransactionState implements Transaction.State {
             state = (SessionTransactionState) transaction.getState(pool);
             if (state == null) {
                 // start a transaction
-                final ISession session = pool.getSession();
+                ISession session;
+                try {
+                    session = pool.getSession();
+                } catch (UnavailableConnectionException e) {
+                    throw new RuntimeException(
+                            "Can't create a transaction state, connection pool exhausted", e);
+                }
                 try {
                     session.startTransaction();
                 } catch (IOException e) {
