@@ -164,11 +164,10 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
         // but if records > 0 and shapeType is null there's probably
         // another problem.
         if ((records <= 0) && (shapeType == null)) {
-            GeometryDescriptor geometryAttributeType = featureType
+            GeometryDescriptor geometryDescriptor = featureType
                     .getGeometryDescriptor();
 
-            Class gat = geometryAttributeType.getType().getBinding();
-            shapeType = JTSUtilities.getShapeType(gat);
+            shapeType = JTSUtilities.getShapeType(geometryDescriptor);
         }
 
         shpWriter.writeHeaders(bounds, shapeType, records, shapefileLength);
@@ -353,10 +352,13 @@ public class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, 
 
         // if this is the first Geometry, find the shapeType and handler
         if (shapeType == null) {
-            int dims = JTSUtilities.guessCoorinateDims(g.getCoordinates());
-
             try {
-                shapeType = JTSUtilities.getShapeType(g, dims);
+                if(g != null) {
+                    int dims = JTSUtilities.guessCoorinateDims(g.getCoordinates());
+                    shapeType = JTSUtilities.getShapeType(g, dims);
+                } else {
+                    shapeType = JTSUtilities.getShapeType(currentFeature.getType().getGeometryDescriptor());
+                }
 
                 // we must go back and annotate this after writing
                 shpWriter.writeHeaders(new Envelope(), shapeType, 0, 0);

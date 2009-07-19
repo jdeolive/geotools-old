@@ -39,10 +39,11 @@ public class ShapefileNullHandlingTest extends TestCaseSupport {
 		
 		GeometryFactory gf = new GeometryFactory();
 		
-		features = new SimpleFeature[3];
-		features[0] =  SimpleFeatureBuilder.build(schema, new Object[] {gf.createPoint(new Coordinate(0, 10)), "one"} , "1");
-		features[1] =  SimpleFeatureBuilder.build(schema, new Object[] {null, "two"} , "2");
-		features[2] =  SimpleFeatureBuilder.build(schema, new Object[] {gf.createPoint(new Coordinate(10, 10)), null} , "3");
+		features = new SimpleFeature[4];
+		features[0] =  SimpleFeatureBuilder.build(schema, new Object[] {null, "zero"} , "1");
+		features[1] =  SimpleFeatureBuilder.build(schema, new Object[] {gf.createPoint(new Coordinate(0, 10)), "one"} , "2");
+		features[2] =  SimpleFeatureBuilder.build(schema, new Object[] {null, "two"} , "3");
+		features[3] =  SimpleFeatureBuilder.build(schema, new Object[] {gf.createPoint(new Coordinate(10, 10)), null} , "4");
 
 		collection = DataUtilities.collection(features);
 	}
@@ -59,17 +60,22 @@ public class ShapefileNullHandlingTest extends TestCaseSupport {
 
 		// read it back
 	    SimpleFeature[] readfc =  (SimpleFeature[]) fs.getFeatures().toArray(new SimpleFeature[3]);
-	    Geometry orig = (Geometry) features[0].getDefaultGeometry();
+	    
+	    // check the first geometry
 	    Geometry read = (Geometry) features[0].getDefaultGeometry();
+        assertNull(read);
+	    
+	    Geometry orig = (Geometry) features[1].getDefaultGeometry();
+	    read = (Geometry) features[1].getDefaultGeometry();
 		assertTrue(orig.equals(read));
 		
 		// check the null geometry
-		read = (Geometry) features[1].getDefaultGeometry();
+		read = (Geometry) features[2].getDefaultGeometry();
 		assertNull(read);
 		
 		// make sure the third is ok as well
-		orig = (Geometry) features[2].getDefaultGeometry();
-	    read = (Geometry) features[2].getDefaultGeometry();
+		orig = (Geometry) features[3].getDefaultGeometry();
+	    read = (Geometry) features[3].getDefaultGeometry();
 		assertTrue(orig.equals(read));
 	}
 	

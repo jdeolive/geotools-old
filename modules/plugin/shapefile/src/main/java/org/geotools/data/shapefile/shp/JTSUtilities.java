@@ -16,8 +16,10 @@
  */
 package org.geotools.data.shapefile.shp;
 
+import org.geotools.factory.Hints;
+import org.opengis.feature.type.GeometryDescriptor;
+
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.algorithm.RobustCGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
@@ -41,7 +43,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  */
 public class JTSUtilities {
 
-    static final CGAlgorithms cga = new RobustCGAlgorithms();
+    static final CGAlgorithms cga = new CGAlgorithms();
     static final GeometryFactory factory = new GeometryFactory();
 
     private JTSUtilities() {
@@ -423,6 +425,51 @@ public class JTSUtilities {
             throw new ShapefileException("Cannot handle geometry class : "
                     + (featureClass == null ? "null" : featureClass.getName()));
         }
+        return type;
+    }
+    
+    /**
+     * Determine the default ShapeType using the descriptor and eventually the
+     * geometry to guess the coordinate dimensions if not reported in the descriptor
+     * hints
+     * @param gd
+     * @param g
+     * @return
+     */
+    public static final ShapeType getShapeType(GeometryDescriptor gd) throws ShapefileException {
+        Class featureClass = gd.getType().getBinding();
+        Integer dimension = (Integer) gd.getUserData().get(Hints.COORDINATE_DIMENSION);
+        
+        ShapeType type = null;
+        if (Point.class.equals(featureClass)) {
+            if(dimension != null && dimension == 3)
+                type = ShapeType.POINTZ;
+            else
+                type = ShapeType.POINT;
+        } else if (MultiPoint.class.equals(featureClass)) {
+            if(dimension != null && dimension == 3)
+                type = ShapeType.MULTIPOINTZ;
+            else
+                type = ShapeType.MULTIPOINT;
+        } else if (Polygon.class.equals(featureClass)
+                || MultiPolygon.class.equals(featureClass)) {
+            if(dimension != null && dimension == 3)
+                type = ShapeType.POLYGON;
+            else
+                type = ShapeType.POLYGONZ;
+        } else if (LineString.class.equals(featureClass)
+                || MultiLineString.class.equals(featureClass)) {
+            if(dimension != null && dimension == 3)
+                type = ShapeType.ARC;
+            else
+                type = ShapeType.ARCZ;
+        }
+        
+        if (type == null) {
+            throw new ShapefileException("Cannot handle geometry class : "
+                    + (featureClass == null ? "null" : featureClass.getName()));
+        }
+        
         return type;
     }
 
