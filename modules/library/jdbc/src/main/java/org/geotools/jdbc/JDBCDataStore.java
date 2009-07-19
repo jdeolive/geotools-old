@@ -25,18 +25,17 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import javax.sql.DataSource;
@@ -45,12 +44,10 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.GmlObjectStore;
 import org.geotools.data.InProcessLockingManager;
-import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.data.jdbc.FilterToSQLException;
-import org.geotools.data.jdbc.SQLBuilder;
 import org.geotools.data.jdbc.datasource.ManageableDataSource;
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
 import org.geotools.data.store.ContentDataStore;
@@ -745,14 +742,18 @@ public final class JDBCDataStore extends ContentDataStore
                             if ( pkey == null ) {
                                 String msg = "No primary key found for " + tableName;
                                 LOGGER.info(msg);
-                                
-                                //no primary key, check for a unique index
-                                ResultSet uniqueIndex =  metaData.getIndexInfo(null, databaseSchema, tableName, true, false);
-                                try {
-                                    pkey = createPrimaryKey(uniqueIndex, metaData, tableName, cx);
-                                }
-                                finally {
-                                    closeSafe(uniqueIndex);
+
+                                // No known database supports unique indexes on views and this check
+                                // causes problems with Oracle, so we skip it
+                                if(!isView(metaData, databaseSchema, tableName)) {
+                                    //no primary key, check for a unique index
+                                    ResultSet uniqueIndex =  metaData.getIndexInfo(null, databaseSchema, tableName, true, false);
+                                    try {
+                                        pkey = createPrimaryKey(uniqueIndex, metaData, tableName, cx);
+                                    }
+                                    finally {
+                                        closeSafe(uniqueIndex);
+                                    }
                                 }
                             }
                             
@@ -778,6 +779,21 @@ public final class JDBCDataStore extends ContentDataStore
         }
 
         return state.getPrimaryKey();
+    }
+    
+    /**
+     * Checks whether the tableName corresponds to a view
+     */
+    boolean isView(DatabaseMetaData metaData, String databaseSchema, String tableName) 
+        throws SQLException  {
+        
+        ResultSet tables = null;
+        try {
+            tables = metaData.getTables(null, databaseSchema, tableName, new String[] {"VIEW"});
+            return tables.next();
+        } finally {
+            closeSafe(tables);
+        }
     }
 
     /*
