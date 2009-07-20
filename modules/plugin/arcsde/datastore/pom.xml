@@ -204,7 +204,7 @@
 				</dependency>
 				<dependency>
 					<groupId>com.esri</groupId>
-					<artifactId>jsde_jpe_sdk</artifactId>
+					<artifactId>jpe_sdk</artifactId>
 					<version>${sde.version}</version>
 				</dependency>
 				<dependency>
