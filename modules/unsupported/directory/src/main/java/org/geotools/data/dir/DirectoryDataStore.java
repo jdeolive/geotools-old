@@ -60,6 +60,7 @@ import org.opengis.filter.Filter;
  *
  * @author David Zwiers, Refractions Research, Inc.
  * @source $URL$
+ * @deprecated Use {@link org.geotools.data.directory.DirectoryDataStore} instead
  */
 public class DirectoryDataStore implements DataStore, LockingManager {
 

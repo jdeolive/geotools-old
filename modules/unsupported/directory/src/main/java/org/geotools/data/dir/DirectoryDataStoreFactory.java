@@ -33,6 +33,7 @@ import org.geotools.data.DataStoreFactorySpi;
  *
  * @see DataStoreFactorySpi
  * @source $URL$
+ * @deprecated Use {@link org.geotools.data.directory.DirectoryDataStoreFactory} instead
  */
 public class DirectoryDataStoreFactory implements DataStoreFactorySpi {
     /** The Directory parameter which should contain some files to read */
