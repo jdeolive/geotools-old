@@ -204,7 +204,7 @@ public abstract class AbstractDataStore implements DataStore {
      * @deprecated
      */
     protected FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(String typeName) throws IOException{
-        throw new UnsupportedOperationException("Schema creation not supported");    	
+        throw new UnsupportedOperationException("FeatureWriter not implemented - is this a Read-only DataStore?");    	
     }
 
     /**
@@ -486,7 +486,12 @@ public abstract class AbstractDataStore implements DataStore {
         		writer = createFeatureWriter(typeName, transaction);
         	}catch (UnsupportedOperationException e) {
 				// This is for backward compatibility.
-        		writer = getFeatureWriter(typeName);
+            	try {
+            		writer = getFeatureWriter(typeName);
+            	}
+            	catch( UnsupportedOperationException eek){
+            		throw e; // throw original - our fallback did not work
+            	}
 			}
         } else {
             TransactionStateDiff state = state(transaction);
