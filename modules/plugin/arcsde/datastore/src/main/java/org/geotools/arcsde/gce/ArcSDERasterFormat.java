@@ -19,7 +19,7 @@ package org.geotools.arcsde.gce;
 
 import static org.geotools.arcsde.data.ArcSDEDataStoreConfig.DBTYPE_PARAM_NAME;
 import static org.geotools.arcsde.data.ArcSDEDataStoreConfig.DBTYPE_PARAM_VALUE;
-import static org.geotools.arcsde.session.ArcSDEConnectionConfig.INSTANCE_NAME_PARAM_NAME;
+import static org.geotools.arcsde.session.ArcSDEConnectionConfig.*;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PASSWORD_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.PORT_NUMBER_PARAM_NAME;
 import static org.geotools.arcsde.session.ArcSDEConnectionConfig.SERVER_NAME_PARAM_NAME;
@@ -437,6 +437,9 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
         params.put(INSTANCE_NAME_PARAM_NAME, sdeDBName);
         params.put(USER_NAME_PARAM_NAME, sdeUser);
         params.put(PASSWORD_PARAM_NAME, sdePass);
+        params.put(MIN_CONNECTIONS_PARAM_NAME, String.valueOf(ArcSDEConnectionPool.DEFAULT_CONNECTIONS));
+        params.put(MAX_CONNECTIONS_PARAM_NAME, String.valueOf(ArcSDEConnectionPool.DEFAULT_MAX_CONNECTIONS));
+        params.put(CONNECTION_TIMEOUT_PARAM_NAME, String.valueOf(ArcSDEConnectionPool.DEFAULT_MAX_WAIT_TIME));
 
         return new ArcSDEDataStoreConfig(params);
     }

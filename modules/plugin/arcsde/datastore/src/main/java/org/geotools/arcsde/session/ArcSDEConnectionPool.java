@@ -85,9 +85,9 @@ public class ArcSDEConnectionPool {
     public static final int DEFAULT_CONNECTIONS = 2;
 
     /** default number of maximun allowable connections a pool can hold */
-    public static final int DEFAULT_MAX_CONNECTIONS = 6;
+    public static final int DEFAULT_MAX_CONNECTIONS = 10;
 
-    public static final int DEFAULT_MAX_WAIT_TIME = 500;
+    public static final int DEFAULT_MAX_WAIT_TIME = 2000;
 
     /** DOCUMENT ME! */
     private SeConnectionFactory seConnectionFactory;
