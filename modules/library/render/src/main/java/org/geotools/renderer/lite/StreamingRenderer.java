@@ -381,15 +381,23 @@ public final class StreamingRenderer implements GTRenderer {
         if( !(feature instanceof SimpleFeature)){
             return;
         }
-		for(RenderListener listener : renderListeners) {
-			listener.featureRenderer((SimpleFeature) feature);
-		}
+        if (renderListeners.size() > 0) {
+            RenderListener listener;
+            for (int i = 0; i < renderListeners.size(); i++) {
+                listener = renderListeners.get(i);
+                listener.featureRenderer((SimpleFeature) feature);
+            }
+        }
 	}
 
 	private void fireErrorEvent(Exception e) {
-	    for(RenderListener listener : renderListeners) {
-			listener.errorOccurred(e);
-		}
+        if (renderListeners.size() > 0) {
+            RenderListener listener;
+            for (int i = 0; i < renderListeners.size(); i++) {
+                listener = renderListeners.get(i);
+                listener.errorOccurred(e);
+            }
+        }
 	}
 
 	/**
