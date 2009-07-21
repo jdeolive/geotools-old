@@ -1089,17 +1089,26 @@ public class ShapefileRenderer implements GTRenderer {
     }
 
     private void fireFeatureRenderedEvent( SimpleFeature feature ) {
-        for(RenderListener listener : renderListeners)
-            listener.featureRenderer(feature);
+        if (renderListeners.size() > 0) {
+            RenderListener listener;
+            for (int i = 0; i < renderListeners.size(); i++) {
+                listener = renderListeners.get(i);
+                listener.featureRenderer((SimpleFeature) feature);
+            }
+        }
     }
 
-    private void fireErrorEvent( Exception e ) {
-        for(RenderListener listener : renderListeners) {
-            try {
-                listener.errorOccurred(e);
-            } catch (RuntimeException ignore){
-                LOGGER.fine("Provided RenderListener could not handle error message:"+ignore );
-                LOGGER.throwing( getClass().getName(), "fireErrorEvent", ignore );
+    private void fireErrorEvent(Exception e) {
+        if (renderListeners.size() > 0) {
+            RenderListener listener;
+            for (int i = 0; i < renderListeners.size(); i++) {
+                try {
+                    listener = renderListeners.get(i);
+                    listener.errorOccurred(e);
+                } catch (RuntimeException ignore) {
+                    LOGGER.fine("Provided RenderListener could not handle error message:" + ignore);
+                    LOGGER.throwing(getClass().getName(), "fireErrorEvent", ignore);
+                }
             }
         }
     }
