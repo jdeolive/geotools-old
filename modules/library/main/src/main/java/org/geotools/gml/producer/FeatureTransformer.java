@@ -841,7 +841,8 @@ public class FeatureTransformer extends TransformerBase {
 
                 contentHandler.startElement("", "", name, fidAtts);
 
-                if (featureBounding) {
+                // encode the bounds if requested and the bounds are not missing or empty
+                if (featureBounding && f.getBounds() != null && !f.getBounds().isEmpty()) {
                     //HACK pt.2 see line 511, if the cite stuff wanted to hack
                     //in a boundedBy geometry, we don't want to do it twice.
                     //So if 
