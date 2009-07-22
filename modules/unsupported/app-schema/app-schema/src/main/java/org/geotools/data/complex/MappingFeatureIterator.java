@@ -57,7 +57,6 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 import org.opengis.feature.type.Name;
-import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.xml.sax.Attributes;
@@ -182,11 +181,10 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         }
 
         Query unrolledQuery = getUnrolledQuery(query);
-        Filter filter = unrolledQuery.getFilter();
 
         mappedSource = mapping.getSource();
 
-        sourceFeatures = mappedSource.getFeatures(filter);
+        sourceFeatures = mappedSource.getFeatures(unrolledQuery);
 
         this.sourceFeatureIterator = sourceFeatures.iterator();
 

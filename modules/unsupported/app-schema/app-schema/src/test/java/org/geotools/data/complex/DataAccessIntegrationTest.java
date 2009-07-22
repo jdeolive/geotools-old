@@ -576,7 +576,7 @@ public class DataAccessIntegrationTest {
 
             public FeatureCollection<FeatureType, Feature> getFeatures(Query query)
                     throws IOException {
-                return fCollection;
+                return getFeatures(query.getFilter());
             }
 
             public FeatureCollection<FeatureType, Feature> getFeatures(Filter filter)
