@@ -26,10 +26,13 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -466,28 +469,41 @@ public class ArcSDEFeatureSourceTest {
 
     @Test
     public void testMoreThan1000FidFilters() throws Exception {
+        testFidFilters(1000);
+        testFidFilters(1001);
+        testFidFilters(2000);
+        testFidFilters(2001);
+    }
+
+    private void testFidFilters(final int numFids) throws Exception {
         final DataStore ds = testData.getDataStore();
         final String typeName = testData.getTempTableName();
 
         // grab some fids
         FeatureReader<SimpleFeatureType, SimpleFeature> reader = ds.getFeatureReader(
                 new DefaultQuery(typeName), Transaction.AUTO_COMMIT);
-        List fids = new ArrayList();
 
-        if (reader.hasNext()) {
-            fids.add(ff.featureId(reader.next().getID()));
+        final String idTemplate;
+        Set<FeatureId> fids = new TreeSet<FeatureId>(new Comparator<FeatureId>() {
+            public int compare(FeatureId o1, FeatureId o2) {
+                return o1.getID().compareTo(o2.getID());
+            }
+        });
+
+        try {
+            String id = reader.next().getID();
+            fids.add(ff.featureId(id));
+            idTemplate = id.substring(0, id.length() - 1);
+        } finally {
+            reader.close();
         }
 
-        reader.close();
-
-        String idTemplate = ((FeatureId) fids.get(0)).getID();
-        idTemplate = idTemplate.substring(0, idTemplate.length() - 1);
-
-        for (int x = 100; x < 2000; x++) {
-            fids.add(ff.featureId(idTemplate + x));
+        int x = 1000;
+        while (fids.size() < numFids) {
+            fids.add(ff.featureId(idTemplate + x++));
         }
 
-        Id filter = ff.id(new HashSet(fids));
+        Id filter = ff.id(fids);
 
         FeatureSource<SimpleFeatureType, SimpleFeature> source = ds.getFeatureSource(typeName);
         Query query = new DefaultQuery(typeName, filter);
