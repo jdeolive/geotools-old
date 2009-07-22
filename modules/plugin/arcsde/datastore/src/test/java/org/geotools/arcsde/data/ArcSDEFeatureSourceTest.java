@@ -22,6 +22,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.opengis.filter.sort.SortBy.NATURAL_ORDER;
+import static org.opengis.filter.sort.SortBy.REVERSE_ORDER;
+import static org.opengis.filter.sort.SortOrder.ASCENDING;
+import static org.opengis.filter.sort.SortOrder.DESCENDING;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,6 +48,7 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.geotools.data.QueryCapabilities;
 import org.geotools.data.Transaction;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
@@ -66,6 +71,7 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
 import org.opengis.filter.Not;
 import org.opengis.filter.identity.FeatureId;
+import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.spatial.BBOX;
 
 import com.esri.sde.sdk.client.SeException;
@@ -580,6 +586,101 @@ public class ArcSDEFeatureSourceTest {
         }
         assertTrue(expected > 0);
         testFilter(bboxFilter, fs, expected);
+    }
+
+    @Test
+    public void testQueryCapabilities() throws Exception {
+        final String typeName = testData.getTempTableName();
+        FeatureSource<SimpleFeatureType, SimpleFeature> fs = store.getFeatureSource(typeName);
+
+        QueryCapabilities queryCapabilities = fs.getQueryCapabilities();
+        assertFalse(queryCapabilities.isOffsetSupported());
+        assertTrue(queryCapabilities.isReliableFIDSupported());
+
+        assertFalse(queryCapabilities.supportsSorting(new SortBy[] { NATURAL_ORDER }));
+        assertFalse(queryCapabilities.supportsSorting(new SortBy[] { REVERSE_ORDER }));
+        assertFalse(queryCapabilities.supportsSorting(new SortBy[] { ff.sort("nonExistent",
+                ASCENDING) }));
+
+        assertFalse(queryCapabilities.supportsSorting(new SortBy[] { ff.sort("nonExistent",
+                ASCENDING) }));
+
+        // no sorting on geometry columns!
+        String geometryAttribute = fs.getSchema().getGeometryDescriptor().getLocalName();
+        assertFalse(queryCapabilities.supportsSorting(new SortBy[] { ff.sort(geometryAttribute,
+                ASCENDING) }));
+
+        SortBy[] supported = { ff.sort("INT32_COL", ASCENDING),//
+                ff.sort("INT32_COL", DESCENDING),//
+                ff.sort("INT16_COL", ASCENDING),//
+                ff.sort("INT16_COL", DESCENDING),//
+                ff.sort("FLOAT32_COL", ASCENDING),//
+                ff.sort("FLOAT32_COL", DESCENDING),//
+                ff.sort("FLOAT64_COL", ASCENDING),//
+                ff.sort("FLOAT64_COL", DESCENDING),//
+                ff.sort("STRING_COL", ASCENDING),//
+                ff.sort("STRING_COL", DESCENDING),//
+                ff.sort("NSTRING_COL", ASCENDING),//
+                ff.sort("NSTRING_COL", DESCENDING),//
+                ff.sort("DATE_COL", ASCENDING),//
+                ff.sort("DATE_COL", ASCENDING) };
+
+        assertTrue(queryCapabilities.supportsSorting(supported));
+
+    }
+
+    @Test
+    public void testSorting() throws Exception {
+        final String typeName = testData.getTempTableName();
+        FeatureSource<SimpleFeatureType, SimpleFeature> fs = store.getFeatureSource(typeName);
+
+        DefaultQuery query = new DefaultQuery(typeName);
+
+        final String sortAtt = "INT32_COL";
+        SortBy[] sortBy;
+        FeatureIterator<SimpleFeature> features;
+
+        sortBy = new SortBy[] { ff.sort(sortAtt, ASCENDING) };
+        query.setSortBy(sortBy);
+        features = fs.getFeatures(query).features();
+        try {
+            Integer previous = Integer.valueOf(Integer.MIN_VALUE);
+            while (features.hasNext()) {
+                Integer intVal = (Integer) features.next().getAttribute(sortAtt);
+                assertTrue(previous + " < " + intVal + "?", previous.intValue() < intVal.intValue());
+                previous = intVal;
+            }
+        } finally {
+            features.close();
+        }
+
+        sortBy = new SortBy[] { ff.sort(sortAtt, DESCENDING) };
+        query.setSortBy(sortBy);
+        features = fs.getFeatures(query).features();
+        try {
+            Integer previous = Integer.valueOf(Integer.MAX_VALUE);
+            while (features.hasNext()) {
+                Integer intVal = (Integer) features.next().getAttribute(sortAtt);
+                assertTrue(previous + " > " + intVal + "?", previous.intValue() > intVal.intValue());
+                previous = intVal;
+            }
+        } finally {
+            features.close();
+        }
+
+        sortBy = new SortBy[] { ff.sort(sortAtt, DESCENDING), ff.sort("FLOAT32_COL", ASCENDING) };
+        query.setSortBy(sortBy);
+        features = fs.getFeatures(query).features();
+        try {
+            Integer previous = Integer.valueOf(Integer.MAX_VALUE);
+            while (features.hasNext()) {
+                Integer intVal = (Integer) features.next().getAttribute(sortAtt);
+                assertTrue(previous + " > " + intVal + "?", previous.intValue() > intVal.intValue());
+                previous = intVal;
+            }
+        } finally {
+            features.close();
+        }
     }
 
     /**

@@ -17,6 +17,9 @@
  */
 package org.geotools.arcsde.data;
 
+import static org.opengis.filter.sort.SortBy.NATURAL_ORDER;
+import static org.opengis.filter.sort.SortBy.REVERSE_ORDER;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +32,8 @@ import java.util.logging.Logger;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.data.FIDReader.SdeManagedFidReader;
+import org.geotools.arcsde.data.FIDReader.UserManagedFidReader;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.filter.FilterToSQLSDE;
 import org.geotools.arcsde.filter.GeometryEncoderException;
@@ -51,6 +56,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
@@ -92,7 +100,7 @@ class ArcSDEQuery {
      * less attributes than the ones of the actual table schema, in which case only those attributes
      * will be requested.
      */
-    private SimpleFeatureType schema;
+    private final SimpleFeatureType schema;
 
     /**
      * The query built using the constraints given by the geotools Query. It must not be accessed
@@ -109,12 +117,13 @@ class ArcSDEQuery {
     /** The lazyly calculated result count */
     private int resultCount = -1;
 
-    /** DOCUMENT ME! */
-    private FIDReader fidReader;
+    private final FIDReader fidReader;
 
     private Object[] previousRowValues;
 
-    private ArcSdeVersionHandler versioningHandler;
+    private final ArcSdeVersionHandler versioningHandler;
+
+    private final String sortByClause;
 
     /**
      * Creates a new SDEQuery object.
@@ -133,13 +142,14 @@ class ArcSDEQuery {
      * @see prepareQuery
      */
     private ArcSDEQuery(final ISession session, final SimpleFeatureType schema,
-            final FilterSet filterSet, final FIDReader fidReader,
+            final FilterSet filterSet, final String sortByClause, final FIDReader fidReader,
             ArcSdeVersionHandler versioningHandler) throws DataSourceException {
         this.session = session;
         this.schema = schema;
         this.filters = filterSet;
         this.fidReader = fidReader;
         this.versioningHandler = versioningHandler;
+        this.sortByClause = sortByClause;
     }
 
     /**
@@ -178,8 +188,10 @@ class ArcSDEQuery {
         final ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(sdeTable, sdeLayer, filter,
                 querySchema, null, null, fidReader);
 
+        final String sortByClause = buildSortByClause(fullSchema, query.getSortBy(), fidReader);
         final ArcSDEQuery sdeQuery;
-        sdeQuery = new ArcSDEQuery(session, querySchema, filters, fidReader, versioningHandler);
+        sdeQuery = new ArcSDEQuery(session, querySchema, filters, sortByClause, fidReader,
+                versioningHandler);
         return sdeQuery;
     }
 
@@ -231,7 +243,7 @@ class ArcSDEQuery {
                 querySchema, definitionQuery, viewSelectStatement, fidReader);
 
         final ArcSDEQuery sdeQuery;
-        sdeQuery = new ArcSDEQuery(session, querySchema, filters, fidReader,
+        sdeQuery = new ArcSDEQuery(session, querySchema, filters, null, fidReader,
                 ArcSdeVersionHandler.NONVERSIONED_HANDLER);
         return sdeQuery;
     }
@@ -376,6 +388,10 @@ class ArcSDEQuery {
         }
 
         final SeQueryInfo qInfo = filters.getQueryInfo(propertyNames);
+        if (sortByClause != null) {
+            qInfo.setByClause(sortByClause);
+        }
+
         final SeFilter[] spatialConstraints = this.filters.getSpatialFilters();
         if (LOGGER.isLoggable(Level.FINER)) {
             String msg = "ArcSDE query is: " + toString(qInfo);
@@ -403,6 +419,49 @@ class ArcSDEQuery {
         });
 
         return seQuery;
+    }
+
+    private static String buildSortByClause(final SimpleFeatureType fullSchema,
+            final SortBy[] sortByAttributes, final FIDReader fidReader) {
+
+        if (sortByAttributes == null || sortByAttributes.length == 0) {
+            return null;
+        }
+
+        StringBuilder byClause = new StringBuilder("ORDER BY ");
+        for (int i = 0; i < sortByAttributes.length; i++) {
+            SortBy sortAtt = sortByAttributes[i];
+            if (sortAtt == NATURAL_ORDER || sortAtt == REVERSE_ORDER) {
+                if (fidReader instanceof SdeManagedFidReader
+                        || fidReader instanceof UserManagedFidReader) {
+                    byClause.append(fidReader.getFidColumn()).append(" ");
+                    byClause.append(sortAtt == NATURAL_ORDER ? "ASC" : "DESC");
+                } else {
+                    throw new IllegalArgumentException(sortAtt
+                            + " sorting is not supported for featureclasses"
+                            + " with no primary key");
+                }
+            } else {
+                final PropertyName propertyName = sortAtt.getPropertyName();
+                final String attName = propertyName.getPropertyName();
+                final AttributeDescriptor descriptor = fullSchema.getDescriptor(attName);
+                if (descriptor == null) {
+                    throw new IllegalArgumentException(attName
+                            + " does not exist. Can't sort by it");
+                }
+                if (descriptor instanceof GeometryDescriptor) {
+                    throw new IllegalArgumentException(attName
+                            + " is a geometry attribute. Can't sort by it");
+                }
+
+                byClause.append(attName).append(" ");
+                byClause.append(sortAtt.getSortOrder() == SortOrder.ASCENDING ? "ASC" : "DESC");
+            }
+            if (i < sortByAttributes.length - 1) {
+                byClause.append(", ");
+            }
+        }
+        return byClause.toString();
     }
 
     private String toString(SeQueryInfo qInfo) {

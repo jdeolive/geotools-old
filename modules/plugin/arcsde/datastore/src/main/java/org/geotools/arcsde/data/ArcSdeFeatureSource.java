@@ -38,6 +38,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -64,20 +65,24 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
         this.dataStore = dataStore;
         this.queryCapabilities = new QueryCapabilities() {
             @Override
-            public boolean supportsSorting(SortBy[] sortAttributes) {
+            public boolean supportsSorting(final SortBy[] sortAttributes) {
                 final SimpleFeatureType featureType = typeInfo.getFeatureType();
-                for (int i = 0; i < sortAttributes.length; i++) {
-                    SortBy sortBy = sortAttributes[i];
-                    if (SortBy.NATURAL_ORDER == sortBy) {
+                for (SortBy sortBy : sortAttributes) {
+                    if (SortBy.NATURAL_ORDER == sortBy || SortBy.REVERSE_ORDER == sortBy) {
                         // TODO: we should be able to support natural order
                         return false;
-                    }
-                    String attName = sortBy.getPropertyName().getPropertyName();
-                    if (featureType.getDescriptor(attName) == null) {
-                        return false;
+                    } else {
+                        String attName = sortBy.getPropertyName().getPropertyName();
+                        AttributeDescriptor descriptor = featureType.getDescriptor(attName);
+                        if (descriptor == null) {
+                            return false;
+                        }
+                        if (descriptor instanceof GeometryDescriptor) {
+                            return false;
+                        }
                     }
                 }
-                return false;
+                return true;
             }
         };
     }
