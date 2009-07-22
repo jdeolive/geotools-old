@@ -36,7 +36,6 @@ import org.eclipse.xsd.XSDAttributeUse;
 import org.eclipse.xsd.XSDAttributeUseCategory;
 import org.eclipse.xsd.XSDComplexTypeDefinition;
 import org.eclipse.xsd.XSDElementDeclaration;
-import org.eclipse.xsd.XSDSimpleTypeDefinition;
 import org.eclipse.xsd.XSDTypeDefinition;
 import org.geotools.feature.Types;
 import org.geotools.feature.type.ComplexFeatureTypeFactoryImpl;
@@ -384,16 +383,8 @@ public class FeatureTypeRegistry {
         } else {
             LOGGER.warning(assignedName + " has no super type");
         }
-
-        // if typeDefinition.getSimpleType() != null it means it is a complex
-        // xsd type
-        // with a simple content model, and has some xml attributes declared,
-        // hence the
-        // xsd complex type definition, as simple xsd types can't have
-        // attributes
-        XSDSimpleTypeDefinition simpleType = typeDefinition.getSimpleType();
-
-        if (simpleType == null && typeDefinition instanceof XSDComplexTypeDefinition) {
+        
+        if (typeDefinition instanceof XSDComplexTypeDefinition) {
             XSDComplexTypeDefinition complexTypeDef;
             complexTypeDef = (XSDComplexTypeDefinition) typeDefinition;
             boolean includeParents = true;

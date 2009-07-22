@@ -25,8 +25,8 @@ import org.geotools.gml3.bindings.AbstractFeatureCollectionTypeBinding;
 import org.geotools.gml3.bindings.AbstractFeatureTypeBinding;
 import org.geotools.gml3.bindings.AbstractGeometryTypeBinding;
 import org.geotools.gml3.bindings.AbstractRingPropertyTypeBinding;
+import org.geotools.gml3.bindings.AbstractSimpleContentComplexBinding;
 import org.geotools.gml3.bindings.BoundingShapeTypeBinding;
-import org.geotools.gml3.bindings.CodeTypeBinding;
 import org.geotools.gml3.bindings.CurveArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.CurvePropertyTypeBinding;
 import org.geotools.gml3.bindings.CurveSegmentArrayPropertyTypeBinding;
@@ -66,7 +66,6 @@ import org.geotools.gml3.bindings.PolygonPatchTypeBinding;
 import org.geotools.gml3.bindings.PolygonPropertyTypeBinding;
 import org.geotools.gml3.bindings.PolygonTypeBinding;
 import org.geotools.gml3.bindings.ReferenceTypeBinding;
-import org.geotools.gml3.bindings.StringOrRefTypeTypeBinding;
 import org.geotools.gml3.bindings.SurfaceArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfacePropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfaceTypeBinding;
@@ -75,6 +74,7 @@ import org.geotools.gml3.smil.SMIL20LANGConfiguration;
 import org.geotools.xlink.XLINKConfiguration;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Parser;
+import org.geotools.xs.XS;
 import org.picocontainer.MutablePicoContainer;
 
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
@@ -122,7 +122,6 @@ public class GMLConfiguration extends Configuration {
             AbstractRingPropertyTypeBinding.class);
         container.registerComponentImplementation(GML.BoundingShapeType,
             BoundingShapeTypeBinding.class);
-        container.registerComponentImplementation(GML.CodeType, CodeTypeBinding.class);
         //container.registerComponentImplementation(GML.COORDINATESTYPE,CoordinatesTypeBinding.class);
         container.registerComponentImplementation(GML.CoordinatesType,
             GMLCoordinatesTypeBinding.class);
@@ -193,12 +192,14 @@ public class GMLConfiguration extends Configuration {
             PolygonPropertyTypeBinding.class);
         container.registerComponentImplementation(GML.PolygonType, PolygonTypeBinding.class);
         container.registerComponentImplementation(GML.ReferenceType, ReferenceTypeBinding.class);
-        container.registerComponentImplementation(GML.StringOrRefType, StringOrRefTypeTypeBinding.class);
         container.registerComponentImplementation(GML.SurfaceArrayPropertyType,
             SurfaceArrayPropertyTypeBinding.class);
         container.registerComponentImplementation(GML.SurfacePropertyType,
             SurfacePropertyTypeBinding.class);
         container.registerComponentImplementation(GML.SurfaceType, SurfaceTypeBinding.class);
+        // all complex types with simple content should use this
+        container.registerComponentImplementation(XS.SIMPLECONTENTTYPE,
+                AbstractSimpleContentComplexBinding.class);
     }
 
     /**

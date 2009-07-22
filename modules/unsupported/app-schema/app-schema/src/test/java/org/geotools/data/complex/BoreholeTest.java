@@ -32,7 +32,6 @@ import java.util.logging.Logger;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
@@ -226,7 +225,7 @@ public class BoreholeTest {
         Name tcl = Types.typeName(SWENS, "TypedCategoryListType");
         AttributeType typedCategoryListType = (AttributeType) typeRegistry.getAttributeType(tcl);
         assertNotNull(typedCategoryListType);
-        assertFalse(typedCategoryListType instanceof ComplexType);
+        assertTrue(typedCategoryListType instanceof ComplexType);
     }
 
     private Name typeName(String ns, String localName) {

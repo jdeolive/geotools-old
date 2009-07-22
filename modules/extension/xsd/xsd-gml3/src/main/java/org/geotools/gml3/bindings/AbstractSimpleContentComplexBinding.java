@@ -17,14 +17,18 @@
 
 package org.geotools.gml3.bindings;
 
+import javax.xml.namespace.QName;
+
 import org.geotools.xml.AbstractComplexBinding;
+import org.geotools.xs.XS;
 import org.opengis.feature.ComplexAttribute;
+import org.opengis.feature.Property;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 /**
- * Abstract base class for bindings for XML complexType with simpleContent.
+ * Class for bindings for XML complexType with simpleContent.
  * 
  * <p>
  * 
@@ -33,8 +37,7 @@ import org.w3c.dom.Text;
  * 
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
  */
-public abstract class AbstractSimpleContentComplexBinding extends AbstractComplexBinding {
-
+public class AbstractSimpleContentComplexBinding extends AbstractComplexBinding {    
     /**
      * @see org.geotools.xml.AbstractComplexBinding#encode(java.lang.Object, org.w3c.dom.Document,
      *      org.w3c.dom.Element)
@@ -50,5 +53,19 @@ public abstract class AbstractSimpleContentComplexBinding extends AbstractComple
             value.appendChild(text);
         }
         return value;
+    }
+
+    /**
+     * @see org.geotools.xml.AbstractComplexBinding#getTarget()
+     */
+    public QName getTarget() {
+        return XS.SIMPLECONTENTTYPE;
+    }
+
+    /**
+     * @see org.geotools.xml.AbstractComplexBinding#getType()
+     */
+    public Class getType() {
+        return Object.class;
     }
 }

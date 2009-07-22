@@ -342,8 +342,7 @@ public abstract class AbstractGetFeatureParserTest {
         final String schemaLocation = CUBEWERX_GOVUNITCE.SCHEMA;
         final int expectedCount = 3;
 
-        final String[] properties = { "geometry", "instanceName", "instanceCode",
-                "governmentalUnitType" };
+        final String[] properties = { "geometry", "instanceName", "instanceCode" };
 
         final SimpleFeatureType featureType = getTypeView(featureName, schemaLocation,
                 CUBEWERX_GOVUNITCE.CRS, properties);

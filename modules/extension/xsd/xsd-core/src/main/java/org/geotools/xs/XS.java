@@ -16,15 +16,11 @@
  */
 package org.geotools.xs;
 
-import java.io.IOException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.xsd.XSDSchema;
-import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.xml.XSD;
 import org.opengis.feature.type.Schema;
 
@@ -172,6 +168,14 @@ public final class XS extends XSD {
             "unsignedShort");
     public static final QName WILDCARD = new QName("http://www.w3.org/2001/XMLSchema", "wildcard");
 
+    //manually added
+    
+    /**
+     * This is a psuedo type name which allows the handling of the special case of of complex types
+     * with simple content.
+     */
+    public static final QName SIMPLECONTENTTYPE = new QName("http://www.w3.org/2001/XMLSchema", "simpleContent");
+    
     /**
      * singleton instance.
      */

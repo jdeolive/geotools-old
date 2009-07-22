@@ -85,7 +85,9 @@ public class EmfAppSchemaParserTest {
         // and I can't find out why (would be happier if it were bound to Object.class)
         // 2008-06-05 update: governmentalUnitType no longer gets parsed by the gtxml parser 
         // at all, so reducing expectedAttributeCount from 10 to 9
-        final int expectedAttributeCount = 9;
+        // 2009-07-16 update: governmentalUnitType was treated as string type before, but now
+        // it's a complex type again (GEOT-2491) so reducing count from 9 to 8
+        final int expectedAttributeCount = 8;
 
         SimpleFeatureType ftype = testParseDescribeSimpleFeatureType(featureTypeName,
                 schemaLocation, expectedAttributeCount);
