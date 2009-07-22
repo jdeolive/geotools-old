@@ -182,10 +182,11 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         }
 
         Query unrolledQuery = getUnrolledQuery(query);
+        Filter filter = unrolledQuery.getFilter();
 
         mappedSource = mapping.getSource();
 
-        sourceFeatures = mappedSource.getFeatures(unrolledQuery);
+        sourceFeatures = mappedSource.getFeatures(filter);
 
         this.sourceFeatureIterator = sourceFeatures.iterator();
 
