@@ -127,6 +127,11 @@ public final class JDBCDataStore extends ContentDataStore
     public static final String JDBC_NATIVE_SRID = "nativeSRID";
     
     /**
+     * Boolean marker stating whether the feature type is to be considered read only
+     */
+    public static final String JDBC_READ_ONLY = "org.geotools.jdbc.readOnly";
+    
+    /**
      * The key for attribute descriptor user data which specifies the original database column data 
      * type.
      */
@@ -612,14 +617,21 @@ public final class JDBCDataStore extends ContentDataStore
      *
      * @see ContentDataStore#createFeatureSource(ContentEntry)
      */
-    protected ContentFeatureSource createFeatureSource(ContentEntry entry)
-        throws IOException {
-        //check primary key to figure out if we must return a read only (feature source)
-        PrimaryKey pkey = getPrimaryKey(entry);
-        if ( pkey == null || pkey instanceof NullPrimaryKey ) {
-            return new JDBCFeatureSource(entry,null);
+    protected ContentFeatureSource createFeatureSource(ContentEntry entry) throws IOException {
+        // grab the schema, it carries a flag telling us if the feature type is read only
+        SimpleFeatureType schema = entry.getState(Transaction.AUTO_COMMIT).getFeatureType();
+        if (schema == null) {
+            // if the schema still haven't been computed, force its computation so
+            // that we can decide if the feature type is read only
+            schema = new JDBCFeatureSource(entry, null).buildFeatureType();
+            entry.getState(Transaction.AUTO_COMMIT).setFeatureType(schema);
         }
-        return new JDBCFeatureStore(entry,null);
+
+        Object readOnlyMarker = schema.getUserData().get(JDBC_READ_ONLY);
+        if (Boolean.TRUE.equals(readOnlyMarker)) {
+            return new JDBCFeatureSource(entry, null);
+        }
+        return new JDBCFeatureStore(entry, null);
     }
 
 //    /**

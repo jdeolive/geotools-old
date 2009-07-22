@@ -138,6 +138,12 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         AttributeTypeBuilder ab = new AttributeTypeBuilder();
+        
+        // setup the read only marker if no pk or null pk
+        boolean readOnly = false;
+        if(pkey == null || pkey instanceof NullPrimaryKey) {
+        	readOnly = true;
+        }
 
         //set up the name
         String tableName = entry.getName().getLocalPart();
@@ -258,10 +264,12 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                         binding = getDataStore().getMapping(nativeTypeName);
                     }
 
-                    //if still not found, resort to Object
+                    // if still not found, ignore the column we don't know about
                     if (binding == null) {
-                        getDataStore().getLogger().warning("Could not find mapping for:" + name);
-                        binding = Object.class;
+                        getDataStore().getLogger().warning("Could not find mapping for '" + name 
+                                + "', ignoring the column and setting the feature type read only");
+                    	readOnly = true;
+                    	continue;
                     }
                     
                     //store the native database type in the attribute descriptor user data
@@ -311,6 +319,11 @@ public class JDBCFeatureSource extends ContentFeatureSource {
 
                 //build the final type
                 SimpleFeatureType ft = tb.buildFeatureType();
+                
+                // mark it as read only if necessary 
+                // (the builder userData method affects attributes, not the ft itself)
+                if(readOnly)
+                    ft.getUserData().put(JDBCDataStore.JDBC_READ_ONLY, Boolean.TRUE);
 
                 //call dialect callback
                 dialect.postCreateFeatureType(ft, metaData, databaseSchema, cx);
