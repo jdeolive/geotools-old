@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.geotools.data.complex.AppSchemaDataAccessRegistry;
@@ -181,7 +182,7 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      */
     private Collection<Object> evaluate(Collection<Feature> rootList, int stepIndex,
             FeatureTypeMapping mappings, String[] xPathSteps) {
-        Collection<Object> valueList = new ArrayList<Object>();
+        Collection<Object> valueList = new HashSet<Object>();
 
         if (stepIndex >= this.expressions.size() && stepIndex > xPathSteps.length) {
             return Collections.emptyList();
@@ -190,7 +191,7 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
         Expression expression = getExpression(stepIndex, xPathSteps);
 
         for (Feature root : rootList) {
-            ArrayList<Object> attributeValues = new ArrayList<Object>();
+            HashSet<Object> attributeValues = new HashSet<Object>();
 
             Object value = expression.evaluate(root);
 
@@ -291,13 +292,13 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      * @throws IOException
      */
     private ArrayList<Feature> getFeatures(NestedAttributeMapping mapping,
-            ArrayList<Object> foreignKeys) throws IOException {
+            Collection<Object> foreignKeys) throws IOException {
         ArrayList<Feature> featureList = new ArrayList<Feature>();
 
-        boolean isAppSchemaConfigured = AppSchemaDataAccessRegistry.hasName(mapping
+        boolean hasSimpleFeatures = AppSchemaDataAccessRegistry.hasName(mapping
                 .getNestedFeatureType());
 
-        if (isAppSchemaConfigured) {
+        if (hasSimpleFeatures) {
             for (Object val : foreignKeys) {
                 featureList.addAll(mapping.getInputFeatures(val));
             }
