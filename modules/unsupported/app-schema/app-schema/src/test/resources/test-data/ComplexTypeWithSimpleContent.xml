@@ -75,6 +75,9 @@
 			<attributeMappings>
 			    <AttributeMapping>
 					<targetAttribute>ex:SimpleContent</targetAttribute>
+					<idExpression>
+					    <OCQL>strConcat('nestedFeature:', getID())</OCQL>
+					</idExpression>
 				</AttributeMapping>
 				<AttributeMapping>
 					<targetAttribute>ex:someAttribute</targetAttribute>
