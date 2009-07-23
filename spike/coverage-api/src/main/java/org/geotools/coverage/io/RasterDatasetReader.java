@@ -21,7 +21,7 @@ public interface RasterDatasetReader {
 	/**
 	 * Names of the available Coverages.
 	 * <p>
-	 * Each Coverage named here represents a unqiue data product that
+	 * Each Coverage named here represents a unique data product that
 	 * may be accessed via the RasterDataset
 	 * 
 	 * @return Names of the available contents.

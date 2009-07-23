@@ -24,7 +24,6 @@ import org.geotools.coverage.io.metadata.MetadataNode;
 import org.geotools.coverage.io.range.BandDescriptor;
 import org.geotools.data.ResourceInfo;
 import org.geotools.util.Range;
-import org.omg.CORBA.DomainManager;
 import org.opengis.feature.type.Name;
 import org.opengis.temporal.TemporalGeometricPrimitive;
 import org.opengis.util.ProgressListener;
@@ -74,8 +73,8 @@ public interface RasterDataset {
 	 */
 	public BandDescriptor getBandDescriptor(final ProgressListener listener) throws IOException;
 	
-	public DomainManager getDomainManager(final ProgressListener listener) throws IOException;
-
+	public RasterDatasetDomainManager getDomainManager(final ProgressListener listener) throws IOException;
+	
 	/**
 	 * Closes this {@link RasterDataset} and releases any lock or cached information it holds.
 	 * 
@@ -94,9 +93,9 @@ public interface RasterDataset {
 	 */
 	public RasterSlice getRasterSlice(TemporalGeometricPrimitive temporalBin, Range<Double>  verticalBin,ProgressListener progress )throws IOException;
 	
-	public int getRasterSlicesNumber(ProgressListener progress )throws IOException;
-	
 	public RasterSlice getRasterSlice(int index,ProgressListener progress )throws IOException;
+	
+	public int getRasterSlicesNumber(ProgressListener progress )throws IOException;
 	
 	public RasterDatasetDomainManager getRasterSliceDomain(int index,ProgressListener progress )throws IOException;
 	

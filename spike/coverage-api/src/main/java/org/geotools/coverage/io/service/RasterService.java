@@ -50,7 +50,7 @@ import org.opengis.util.ProgressListener;
  * Notice that as part as the roll of a "factory" interface this class makes
  * available an {@link #isAvailable()} method which should check if all the
  * needed dependencies which can be jars as well as native libs or configuration
- * files.
+ * files are available.
  * 
  * 
  * @author Simone Giannecchini, GeoSolutions.

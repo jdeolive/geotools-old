@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.coverage.io.domain.RasterDatasetDomainManager;
 import org.geotools.coverage.io.range.Band;
 import org.geotools.coverage.io.request.CoverageReadRequest;
 import org.geotools.coverage.io.request.CoverageRequest;
 import org.geotools.coverage.io.request.CoverageResponse;
 import org.geotools.coverage.io.request.CoverageRequest.RequestType;
 import org.geotools.data.Parameter;
-import org.omg.CORBA.DomainManager;
 import org.opengis.util.ProgressListener;
 
 public interface RasterSlice {
@@ -28,7 +28,7 @@ public interface RasterSlice {
 	
 	public List<Band> getRangeSubset(final List<Band.BandKey>bands,final ProgressListener listener) throws IOException;
 
-	public DomainManager getDomainManager(final ProgressListener listener) throws IOException;
+	public RasterDatasetDomainManager getDomainManager(final ProgressListener listener) throws IOException;
 
 	public RasterDataset getRasterDataset();
 	

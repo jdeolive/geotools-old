@@ -56,7 +56,7 @@ public abstract class RasterDatasetDomainManager {
 		/**
 		 * Transformation between the 2D raster space and the 2D model space. In
 		 * case the underlying coverage is unrectified this transformation maybe a
-		 * georeferencing transformation of simply the identity in case we do not
+		 * georeferencing transformation or simply the identity in case we do not
 		 * have means to georeference the mentioned coverage.
 		 * 
 		 * @param brief
@@ -106,7 +106,7 @@ public abstract class RasterDatasetDomainManager {
 		 * @todo allow using an interval as well as a direct position
 		 * @todo allow transfinite sets!
 		 */
-		public abstract SortedSet<? extends Range<Double>> getVertialElements(final boolean overall,final ProgressListener listener) throws IOException;
+		public abstract SortedSet<? extends Range<Double>> getVerticalElements(final boolean overall,final ProgressListener listener) throws IOException;
 
 		public abstract CoordinateReferenceSystem getCoordinateReferenceSystem();
 		
