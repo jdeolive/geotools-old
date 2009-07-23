@@ -6,68 +6,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import org.geotools.coverage.io.domain.RasterDatasetDomainManager.HorizontalDomain;
+
 /**
- * A class describing the desired layout of an <code>OpImage</code>.
- *
- * <p> The <code>RasterLayout</code> class encapsulates three types of information about
- * an image:
- *
- * <ul>
- * <li> The image bounds, comprising the min X and Y coordinates,
- *      image width, and image height;
- * <li> The tile grid layout, comprising the tile grid X and Y offsets,
- *      the tile width, and the tile height; and
- * <li> The <code>SampleModel</code> and <code>ColorModel</code> of the image.
- * </ul>
- *
- * <p> Each of these parameters may be set individually, or left unset.
- * An unset parameter will cause the corresponding value of a given
- * <code>RenderedImage</code> to be used.  For example, the code:
- *
- * <pre>
- * RasterLayout layout;
- * RenderedImage im;
- *
- * int width = layout.getTileWidth(im);
- * </pre>
- *
- * will return the tile width of the <code>RasterLayout</code> if it is set,
- * or the tile width of the image <code>im</code> if it is not.
- *
- * <p> <code>RasterLayout</code> objects are primarily intended to be passed as part
- * of the <code>renderingHints</code> argument of the <code>create()</code> method of
- * <code>RenderedImageFactory</code>.  The <code>create()</code> method may remove parameter
- * settings that it cannot deal with, prior to passing the
- * <code>RasterLayout</code> to any <code>OpImage</code> constructors.  New <code>OpImage</code> subclasses
- * are not required to accept an <code>RasterLayout</code> parameter, but most will
- * at least need to synthesize one to be passed up the constructor
- * chain.
- *
- * <p> Methods that modify the state of an <code>RasterLayout</code> return a reference
- * to 'this' following the change.  This allows multiple modifications to
- * be made in a single expression.  This provides a way of modifying an
- * <code>RasterLayout</code> within a superclass constructor call.
- *
+ * A class describing the layout of a Raster element of the {@link HorizontalDomain}.
  */
 public class RasterLayout extends Object implements Cloneable, Serializable {
-    /** A bitmask to specify the validity of <code>minX</code>. */
-    public static final int MIN_X_MASK = 0x1;
-    /** A bitmask to specify the validity of <code>minY</code>. */
-    public static final int MIN_Y_MASK = 0x2;
-    /** A bitmask to specify the validity of <code>width</code>. */
-    public static final int WIDTH_MASK = 0x4;
-    /** A bitmask to specify the validity of <code>height</code>. */
-    public static final int HEIGHT_MASK = 0x8;
-
-    /** A bitmask to specify the validity of <code>tileGridXOffset</code>. */
-    public static final int TILE_GRID_X_OFFSET_MASK = 0x10;
-    /** A bitmask to specify the validity of <code>tileGridYOffset</code>. */
-    public static final int TILE_GRID_Y_OFFSET_MASK = 0x20;
-    /** A bitmask to specify the validity of <code>tileWidth</code>. */
-    public static final int TILE_WIDTH_MASK = 0x40;
-    /** A bitmask to specify the validity of <code>tileHeight</code>. */
-    public static final int TILE_HEIGHT_MASK = 0x80;
-
     /** The image's minimum X coordinate. */
     int minX = 0;
 
@@ -92,15 +36,11 @@ public class RasterLayout extends Object implements Cloneable, Serializable {
     /** The height of a tile. */
     int tileHeight = 0;
 
-    /** The 'or'-ed together valid bitmasks. */
-    protected int validMask = 0;
-
-    /** Constructs an <code>RasterLayout</code> with no parameters set. */
+    /** Constructs a <code>RasterLayout</code> with no parameters set. */
     public RasterLayout() {}
 
     /**
-     * Constructs an <code>RasterLayout</code> with all its parameters set.
-     * The <code>sampleModel</code> and <code>colorModel</code> parameters are ignored if null.
+     * Constructs a <code>RasterLayout</code> with all its parameters set.
      *
      * @param minX the image's minimum X coordinate.
      * @param minY the image's minimum Y coordinate.
@@ -110,8 +50,6 @@ public class RasterLayout extends Object implements Cloneable, Serializable {
      * @param tileGridYOffset the Y coordinate of tile (0, 0).
      * @param tileWidth the width of a tile.
      * @param tileHeight the height of a tile.
-     * @param sampleModel the image's <code>SampleModel</code>.
-     * @param colorModel the image's <code>ColorModel</code>.
      */
     public RasterLayout(int minX,
                        int minY,
@@ -133,7 +71,7 @@ public class RasterLayout extends Object implements Cloneable, Serializable {
 
 
     /**
-     * Constructs an <code>RasterLayout</code> with only the image dimension
+     * Constructs a <code>RasterLayout</code> with only the image dimension
      * parameters set.
      *
      * @param minX the image's minimum X coordinate.
@@ -151,10 +89,8 @@ public class RasterLayout extends Object implements Cloneable, Serializable {
         setHeight(height);
     }
 
-
-
     /**
-     * Constructs an <code>RasterLayout</code> with all its parameters set
+     * Constructs a <code>RasterLayout</code> with all its parameters set
      * to equal those of a given <code>RenderedImage</code>.
      *
      * @param im a <code>RenderedImage</code> whose layout will be copied.
@@ -171,432 +107,180 @@ public class RasterLayout extends Object implements Cloneable, Serializable {
     }
 
     /**
-     * Returns the 'or'-ed together bitmask indicating parameter validity.
-     * To determine the validity of a particular parameter, say tile width,
-     * test <code>getValidMask() & RasterLayout.TILE_WIDTH_MASK</code>
-     * against <code>0</code>.
-     *
-     * <p> To test a single mask value or set of mask values, the
-     * convenience method isValid() may be used.
-     *
-     * @return an int that is the logical 'or' of the valid mask values,
-     *         with a '1' bit representing the setting of a value.
+     * Returns the value of <code>minX</code>.
+     * @return the value of minX.
      */
-    public int getValidMask() {
-        return validMask;
-    }
-
-    /**
-     * Returns <code>true</code> if all the parameters specified by the argument are set.
-     *
-     * @param mask a bitmask.
-     * @return a boolean truth value.
-     */
-    public final boolean isValid(int mask) {
-        return (validMask & mask) == mask;
-    }
-
-    /**
-     * Sets selected bits of the valid bitmask.  The valid bitmask is
-     * set to the logical 'or' of its prior value and a new value.
-     *
-     * @param mask the new mask value to be 'or'-ed with the prior value.
-     * @return a reference to this <code>RasterLayout</code> following the change.
-     */
-    public RasterLayout setValid(int mask) {
-        validMask |= mask;
-        return this;
-    }
-
-    /**
-     * Clears selected bits of the valid bitmask.  The valid bitmask
-     * is set to the logical 'and' of its prior value and the negation
-     * of the new mask value.  This effectively subtracts from the set of
-     * valid parameters.
-     *
-     * @param mask the new mask value to be negated and 'and'-ed with
-     *        the prior value.
-     * @return a reference to this <code>RasterLayout</code> following the change.
-     */
-    public RasterLayout unsetValid(int mask) {
-        validMask &= ~mask;
-        return this;
-    }
-
-    /**
-     * Marks the parameters dealing with the image bounds
-     * (minX, minY, width, and height) as being invalid.
-     *
-     * @return a reference to this <code>RasterLayout</code> following the change.
-     */
-    public RasterLayout unsetImageBounds() {
-        unsetValid(MIN_X_MASK |
-                   MIN_Y_MASK |
-                   WIDTH_MASK |
-                   HEIGHT_MASK);
-        return this;
-    }
-
-    /**
-     * Marks the parameters dealing with the tile layout (tileGridXOffset,
-     * tileGridYOffset, tileWidth, and tileHeight) as being invalid.
-     *
-     * @return a reference to this <code>RasterLayout</code> following the change.
-     */
-    public RasterLayout unsetTileLayout() {
-        unsetValid(TILE_GRID_X_OFFSET_MASK |
-                   TILE_GRID_Y_OFFSET_MASK |
-                   TILE_WIDTH_MASK |
-                   TILE_HEIGHT_MASK);
-        return this;
-    }
-
-    /**
-     * Returns the value of <code>minX</code> if it is valid, and
-     * otherwise returns the value from the supplied <code>RenderedImage</code>.
-     * If <code>minX</code> is not valid and fallback is null, 0 is returned.
-     *
-     * @param fallback the <code>RenderedImage</code> fallback.
-     * @return the appropriate value of minX.
-     */
-    public int getMinX(RenderedImage fallback) {
-        if (isValid(MIN_X_MASK)) {
-            return minX;
-        } else {
-            if (fallback == null) {
-                return 0;
-            } else {
-                return fallback.getMinX();
-            }
-        }
+    public int getMinX() {
+        return minX;
     }
 
     /**
      * Sets <code>minX</code> to the supplied value and marks it as valid.
      *
      * @param minX the minimum X coordinate of the image, as an int.
-     * @return a reference to this <code>RasterLayout</code> following the change.
      */
-    public RasterLayout setMinX(int minX) {
+    public void setMinX(int minX) {
         this.minX = minX;
-        setValid(MIN_X_MASK);
-        return this;
     }
 
     /**
-     * Returns the value of <code>minY</code> if it is valid, and
-     * otherwise returns the value from the supplied <code>RenderedImage</code>.
-     * If <code>minY</code> is not valid and fallback is null, 0 is returned.
-     *
-     * @param fallback the <code>RenderedImage</code> fallback.
-     * @return the appropriate value of minY.
+     * Returns the value of <code>minY</code>.
+     * @return the value of minY.
      */
-    public int getMinY(RenderedImage fallback) {
-        if (isValid(MIN_Y_MASK)) {
-            return minY;
-        } else {
-            if (fallback == null) {
-                return 0;
-            } else {
-                return fallback.getMinY();
-            }
-        }
+    public int getMinY() {
+    	return minY;
     }
 
     /**
      * Sets <code>minY</code> to the supplied value and marks it as valid.
      *
      * @param minY the minimum Y coordinate of the image, as an int.
-     * @return a reference to this <code>RasterLayout</code> following the change.
      */
-    public RasterLayout setMinY(int minY) {
+    public void setMinY(int minY) {
         this.minY = minY;
-        setValid(MIN_Y_MASK);
-        return this;
     }
 
     /**
-     * Returns the value of <code>width</code> if it is valid, and
-     * otherwise returns the value from the supplied <code>RenderedImage</code>.
-     * If <code>width</code> is not valid and fallback is null, 0 is returned.
-     *
-     * @param fallback the <code>RenderedImage</code> fallback.
-     * @return the appropriate value of width.
+     * Returns the value of <code>width</code>.
+     * @return the value of width.
      */
-    public int getWidth(RenderedImage fallback) {
-        if (isValid(WIDTH_MASK)) {
-            return width;
-        } else {
-            if (fallback == null) {
-                return 0;
-            } else {
-                return fallback.getWidth();
-            }
-        }
+    public int getWidth() {
+    	return width;
     }
 
     /**
-     * Sets <code>width</code> to the supplied value and marks it as valid.
+     * Sets <code>width</code> to the supplied value.
      *
      * @param width the width of the image, as an int.
-     * @return a reference to this <code>RasterLayout</code> following the change.
      * @throws IllegalArgumentException if <code>width</code> is non-positive.
      */
-   public RasterLayout setWidth(int width) {
+   public void setWidth(int width) {
        if(width <= 0) {
-           throw new IllegalArgumentException("ImageLayout0");
+           throw new IllegalArgumentException("width shall be positive");
        }
        this.width = width;
-       setValid(WIDTH_MASK);
-       return this;
     }
 
     /**
-     * Returns the value of height if it is valid, and
-     * otherwise returns the value from the supplied <code>RenderedImage</code>.
-     * If height is not valid and fallback is null, 0 is returned.
+     * Returns the value of height.
      *
-     * @param fallback the <code>RenderedImage</code> fallback.
-     * @return the appropriate value of height.
+     * @return the value of height.
      */
-    public int getHeight(RenderedImage fallback) {
-        if (isValid(HEIGHT_MASK)) {
+    public int getHeight() {
             return height;
-        } else {
-            if (fallback == null) {
-                return 0;
-            } else {
-                return fallback.getHeight();
-            }
-        }
     }
 
     /**
-     * Sets height to the supplied value and marks it as valid.
+     * Sets height to the supplied value.
      *
      * @param height the height of the image, as an int.
-     * @return a reference to this <code>RasterLayout</code> following the change.
      * @throws IllegalArgumentException if <code>height</code> is non-positive.
      */
-    public RasterLayout setHeight(int height) {
+    public void setHeight(int height) {
        if(height <= 0) {
-           throw new IllegalArgumentException("ImageLayout0");
+           throw new IllegalArgumentException("height shall be positive");
        }
        this.height = height;
-       setValid(HEIGHT_MASK);
-       return this;
     }
 
     /**
-     * Returns the value of <code>tileGridXOffset</code> if it is valid, and
-     * otherwise returns the value from the supplied <code>RenderedImage</code>.
-     * If <code>tileGridXOffset</code> is not valid and fallback is null, 0 is returned.
-     *
-     * @param fallback the <code>RenderedImage</code> fallback.
-     * @return the appropriate value of tileGridXOffset.
+     * Returns the value of <code>tileGridXOffset</code>.
+     * @return the value of tileGridXOffset.
      */
-    public int getTileGridXOffset(RenderedImage fallback) {
-        if (isValid(TILE_GRID_X_OFFSET_MASK)) {
+    public int getTileGridXOffset() {
             return tileGridXOffset;
-        } else {
-            if (fallback == null) {
-                return 0;
-            } else {
-                return fallback.getTileGridXOffset();
-            }
-        }
     }
 
     /**
-     * Sets <code>tileGridXOffset</code> to the supplied value and marks it as valid.
+     * Sets <code>tileGridXOffset</code> to the supplied value.
      *
      * @param tileGridXOffset the X coordinate of tile (0, 0), as an int.
-     * @return a reference to this <code>RasterLayout</code> following the change.
      */
-    public RasterLayout setTileGridXOffset(int tileGridXOffset) {
+    public void setTileGridXOffset(int tileGridXOffset) {
         this.tileGridXOffset = tileGridXOffset;
-        setValid(TILE_GRID_X_OFFSET_MASK);
-        return this;
     }
 
     /**
-     * Returns the value of <code>tileGridYOffset</code> if it is valid, and
-     * otherwise returns the value from the supplied <code>RenderedImage</code>.
-     * If <code>tileGridYOffset</code> is not valid and fallback is null, 0 is returned.
-     *
-     * @param fallback the <code>RenderedImage</code> fallback.
-     * @return the appropriate value of tileGridYOffset.
+     * Returns the value of <code>tileGridYOffset</code>.
+     * @return the value of tileGridYOffset.
      */
-    public int getTileGridYOffset(RenderedImage fallback) {
-        if (isValid(TILE_GRID_Y_OFFSET_MASK)) {
-            return tileGridYOffset;
-        } else {
-            if (fallback == null) {
-                return 0;
-            } else {
-                return fallback.getTileGridYOffset();
-            }
-        }
+    public int getTileGridYOffset() {
+    	return tileGridYOffset;
     }
 
     /**
-     * Sets <code>tileGridYOffset</code> to the supplied value and marks it as valid.
+     * Sets <code>tileGridYOffset</code> to the supplied value.
      *
      * @param tileGridYOffset the Y coordinate of tile (0, 0), as an int.
-     * @return a reference to this <code>RasterLayout</code> following the change.
      */
-    public RasterLayout setTileGridYOffset(int tileGridYOffset) {
+    public void setTileGridYOffset(int tileGridYOffset) {
         this.tileGridYOffset = tileGridYOffset;
-        setValid(TILE_GRID_Y_OFFSET_MASK);
-        return this;
     }
 
     /**
-     * Returns the value of <code>tileWidth</code> if it is valid, and
-     * otherwise returns the value from the supplied <code>RenderedImage</code>.
-     * If <code>tileWidth</code> is not valid and fallback is null, 0 is returned.
-     *
-     * @param fallback the <code>RenderedImage</code> fallback.
-     * @return the appropriate value of tileWidth.
+     * Returns the value of <code>tileWidth</code>.
+     * @return the value of tileWidth.
      */
-    public int getTileWidth(RenderedImage fallback) {
-        if (isValid(TILE_WIDTH_MASK)) {
-            return tileWidth;
-        } else {
-            if (fallback == null) {
-                return 0;
-            } else {
-                return fallback.getTileWidth();
-            }
-        }
+    public int getTileWidth() {
+    	return tileWidth;
     }
 
     /**
-     * Sets <code>tileWidth</code> to the supplied value and marks it as valid.
+     * Sets <code>tileWidth</code> to the supplied value.
      *
      * @param tileWidth the width of a tile, as an int.
-     * @return a reference to this <code>RasterLayout</code> following the change.
      * @throws IllegalArgumentException if <code>tileWidth</code> is
      *                                  non-positive.
      */
-    public RasterLayout setTileWidth(int tileWidth) {
+    public void setTileWidth(int tileWidth) {
        if(tileWidth <= 0) {
-           throw new IllegalArgumentException("ImageLayout0");
+           throw new IllegalArgumentException("tile width shall be positive");
        }
        this.tileWidth = tileWidth;
-       setValid(TILE_WIDTH_MASK);
-       return this;
     }
 
     /**
-     * Returns the value of tileHeight if it is valid, and
-     * otherwise returns the value from the supplied <code>RenderedImage</code>.
-     * If tileHeight is not valid and fallback is null, 0 is returned.
-     *
-     * @param fallback the <code>RenderedImage</code> fallback.
+     * Returns the value of tileHeight.
      * @return the appropriate value of tileHeight.
      */
-    public int getTileHeight(RenderedImage fallback) {
-        if (isValid(TILE_HEIGHT_MASK)) {
-            return tileHeight;
-        } else {
-            if (fallback == null) {
-                return 0;
-            } else {
-                return fallback.getTileHeight();
-            }
-        }
+    public int getTileHeight() {
+       	return tileHeight;
     }
 
     /**
-     * Sets tileHeight to the supplied value and marks it as valid.
+     * Sets tileHeight to the supplied value.
      *
-     * @param tileHeight the height of a tile, as an int.
      * @return a reference to this <code>RasterLayout</code> following the change.
      * @throws IllegalArgumentException if <code>tileHeight</code> is
      *                                  non-positive.
      */
-    public RasterLayout setTileHeight(int tileHeight) {
+    public void setTileHeight(int tileHeight) {
        if(tileHeight <= 0) {
-           throw new IllegalArgumentException("ImageLayout0");
+           throw new IllegalArgumentException("tile height shall be positive");
        }
        this.tileHeight = tileHeight;
-       setValid(TILE_HEIGHT_MASK);
-       return this;
     }
-
-
-
 
     /** Returns a String containing the values of all valid fields. */
     public String toString() {
-        String s = "RasterLayout[";
-        boolean first = true;
-
-        if (isValid(MIN_X_MASK)) {
-            s += "MIN_X=" + minX;
-            first = false;
-        }
-
-        if (isValid(MIN_Y_MASK)) {
-            if (!first) {
-                s += ", ";
-            }
-            s += "MIN_Y=" + minY;
-            first = false;
-        }
-
-        if (isValid(WIDTH_MASK)) {
-            if (!first) {
-                s += ", ";
-            }
-            s += "WIDTH=" + width;
-            first = false;
-        }
-
-        if (isValid(HEIGHT_MASK)) {
-            if (!first) {
-                s += ", ";
-            }
-            s += "HEIGHT=" + height;
-            first = false;
-        }
-
-        if (isValid(TILE_GRID_X_OFFSET_MASK)) {
-            if (!first) {
-                s += ", ";
-            }
-            s += "TILE_GRID_X_OFFSET=" + tileGridXOffset;
-            first = false;
-        }
-
-        if (isValid(TILE_GRID_Y_OFFSET_MASK)) {
-            if (!first) {
-                s += ", ";
-            }
-            s += "TILE_GRID_Y_OFFSET=" + tileGridYOffset;
-            first = false;
-        }
-
-        if (isValid(TILE_WIDTH_MASK)) {
-            if (!first) {
-                s += ", ";
-            }
-            s += "TILE_WIDTH=" + tileWidth;
-            first = false;
-        }
-
-        if (isValid(TILE_HEIGHT_MASK)) {
-            if (!first) {
-                s += ", ";
-            }
-            s += "TILE_HEIGHT=" + tileHeight;
-            first = false;
-        }
-
-
-        s += "]";
-        return s;
+        StringBuilder sb = new StringBuilder("RasterLayout[").
+            append("MIN_X=").append(minX).
+            append(", ").
+            append("MIN_Y=").append(minY).
+            append(", ").
+            append("WIDTH=").append(width).
+            append(", ").
+            append("HEIGHT=").append(height).
+            append(", ").
+            append("TILE_GRID_X_OFFSET=").append(tileGridXOffset).
+            append(", ").
+            append("TILE_GRID_Y_OFFSET=").append(tileGridYOffset).
+            append(", ").
+            append("TILE_WIDTH=").append(tileWidth).
+            append(", ").
+            append("TILE_HEIGHT=").append(tileHeight).
+            append("]");
+        return sb.toString();
     }
 
     /**
@@ -617,7 +301,6 @@ public class RasterLayout extends Object implements Cloneable, Serializable {
     private void writeObject(ObjectOutputStream out) throws IOException {
         // Write the non-static and non-transient fields.
         out.defaultWriteObject();
-
     }
 
     /**
@@ -628,8 +311,6 @@ public class RasterLayout extends Object implements Cloneable, Serializable {
         throws IOException, ClassNotFoundException {
         // Read the non-static and non-transient fields.
         in.defaultReadObject();
-
-      
     }
 
     /**
@@ -641,28 +322,24 @@ public class RasterLayout extends Object implements Cloneable, Serializable {
      * @return <code>true</code> if the specified <code>Object</code>
      * is an instance of <code>RasterLayout</code> and equals this
      * <code>RasterLayout</code>; <code>false</code> otherwise.
-     *
-     * @since JAI 1.1
      */
     public boolean equals(Object obj) {
-
-	if (this == obj)
-	    return true;
-
-	if (!(obj instanceof RasterLayout))
-	    return false;
-
-	RasterLayout il = (RasterLayout)obj;
-
-	return (validMask       == il.validMask      ) &&
-	       (width           == il.width          ) &&
-	       (height          == il.height         ) &&
-	       (minX            == il.minX           ) &&
-	       (minY            == il.minY           ) &&
-	       (tileHeight      == il.tileHeight     ) &&
-	       (tileWidth       == il.tileWidth      ) &&
-	       (tileGridXOffset == il.tileGridXOffset) &&
-	       (tileGridYOffset == il.tileGridYOffset) ;
+		if (this == obj)
+		    return true;
+		
+		if (!(obj instanceof RasterLayout))
+		    return false;
+		
+		RasterLayout il = (RasterLayout)obj;
+		
+		return (width           == il.width          ) &&
+		       (height          == il.height         ) &&
+		       (minX            == il.minX           ) &&
+		       (minY            == il.minY           ) &&
+		       (tileHeight      == il.tileHeight     ) &&
+		       (tileWidth       == il.tileWidth      ) &&
+		       (tileGridXOffset == il.tileGridXOffset) &&
+		       (tileGridYOffset == il.tileGridYOffset) ;
     }
 
     /**
@@ -670,25 +347,22 @@ public class RasterLayout extends Object implements Cloneable, Serializable {
      *
      * @return a hash code for this <code>RasterLayout</code>.
      *
-     * @since JAI 1.1
      */
     public int hashCode() {
 
-	int code = 0, i = 1;
-
-	// This implementation is quite arbitrary.
-	// hashCode's NEED not be uniqe for two "different" objects
-	code += (width           * i++);
-	code += (height          * i++);
-	code += (minX            * i++);
-	code += (minY            * i++);
-	code += (tileHeight      * i++);
-	code += (tileWidth       * i++);
-	code += (tileGridXOffset * i++);
-	code += (tileGridYOffset * i++);
-
-	code ^= validMask;
-
-	return code;
+		int code = 0, i = 1;
+	
+		// This implementation is quite arbitrary.
+		// hashCode's NEED not be uniqe for two "different" objects
+		code += (width           * i++);
+		code += (height          * i++);
+		code += (minX            * i++);
+		code += (minY            * i++);
+		code += (tileHeight      * i++);
+		code += (tileWidth       * i++);
+		code += (tileGridXOffset * i++);
+		code += (tileGridYOffset * i++);
+	
+		return code;
     }
 }
