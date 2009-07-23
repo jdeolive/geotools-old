@@ -2,3 +2,5 @@
 
 Examples
 ========
+
+:ref:`shp2shp`
