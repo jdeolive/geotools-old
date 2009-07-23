@@ -7,6 +7,7 @@ This page covers how to write a shapefile out to disk. We are going to make use 
 
 Additional information:
  * `Shapefile Plugin <http://docs.codehaus.org/display/GEOTDOC/Shapefile+Plugin>`_
+ * :ref:`examples`
 
 Dependencies
 ============
