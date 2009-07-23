@@ -77,7 +77,7 @@ div.footer {
 div.header {
     position: relative;
     overflow: hidden;
-    height: 130px;
+    height: 150px;
     background: #97b7e1 url(img/header-bg2.png) 0 0 repeat-x;
 }
 div.header div.wrap {
@@ -85,6 +85,7 @@ div.header div.wrap {
 }
 #logo {
     padding: 0;
+    padding-top: 0.5em;
 }
 #logo a {
     float: left;
@@ -161,7 +162,7 @@ div.header div.wrap {
 #quicklinks a {
   float: left;
   text-align: center;
-  padding-top: 105px;
+  padding-top: 5em;
   min-width: 85px;
   background-position: center top;
   background-repeat: no-repeat;
@@ -175,12 +176,13 @@ div.header div.wrap {
 
 #open-source {
   float: left;
-  width: 400px;
+  width: 350px;
+  padding-right: 2em;
 }
 
 #open-development {
-  float: right;
-  width: 400px;
+  float: left;
+  width: 350px;
 }
 
 /* search box style */
