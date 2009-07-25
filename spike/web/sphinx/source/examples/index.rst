@@ -3,4 +3,8 @@
 Examples
 ========
 
-:ref:`shp2shp`
+.. toctree::
+   :maxdepth: 1
+
+   shp2shp
+   

@@ -10,7 +10,7 @@ Additional information:
  * :ref:`examples`
 
 Dependencies
-============
+------------
 
 This example uses the same dependencies as the quickstart; please ensure your pom.xml includes the following::
 
@@ -44,15 +44,15 @@ wish towork with.
 Refresh your IDE Project Files
 ------------------------------
 
-1. You will need to kick these dependencies into your IDE with another
-   ::
-     C:\\java\\example>mvn eclipse:eclipse
+1. You will need to kick these dependencies into your IDE with another::
+
+    C:\java\example>mvn eclipse:eclipse
 
 2. Hit refresh in Eclipse
 3. You can now see the new dependencies - and everything else they make use of!
 
 Example Code
-============
+------------
 
 The example code is available directly from::
  * Directly from svn: Shp2Shp.java_.
