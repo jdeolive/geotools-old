@@ -80,27 +80,25 @@ Your New Project
 
 1. In your IDE you can now now open up your *pom.xml* file and have a look::
 
-::
-
- <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <groupId>org.geotools.demo.example</groupId>
-   <artifactId>example</artifactId>
-   <packaging>jar</packaging>
-   <version>1.0-SNAPSHOT</version>
-   <name>example</name>
-   <url>http://maven.apache.org</url>
-   <dependencies>
-     <dependency>
-       <groupId>junit</groupId>
-       <artifactId>junit</artifactId>
-       <version>3.8.1</version>
-       <scope>test</scope>
-     </dependency>
-   </dependencies>
- </project>
+    <project xmlns="http://maven.apache.org/POM/4.0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+      <modelVersion>4.0.0</modelVersion>
+      <groupId>org.geotools.demo.example</groupId>
+      <artifactId>example</artifactId>
+      <packaging>jar</packaging>
+      <version>1.0-SNAPSHOT</version>
+      <name>example</name>
+      <url>http://maven.apache.org</url>
+      <dependencies>
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>3.8.1</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </project>
 
 2. This file describes your project for maven. Right now you have a single dependency on junit version 3.8.1.
 3. You should be able to see this dependency in your IDE as well.
@@ -112,9 +110,7 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
 * A new dependency (ie *gt-main* version 2.5.6)
 * A list of *repositories* where maven can find GeoTools and all the cool stuff it uses
 
-Here is what that looks like:
-
-::
+Here is what that looks like::
 
  <project xmlns="http://maven.apache.org/POM/4.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -173,7 +169,7 @@ Updating the IDE
 
 1. We can regenerate our .classpath and .project files so the IDE knows about this stuff::
 
- C:java\geotools-example>mvn eclipse:eclipse
+     C:java\geotools-example>mvn eclipse:eclipse
 
 2. Hit refresh in Eclipse
 3. GeoTools (and a bunch of other stuff) will now show up in your project!)
@@ -274,7 +270,7 @@ You can find some more sample data here:
 After you have found some sample data please please make sure to unzip the archive into the individual files shp, dbf, and shx files. The prj file is used to describe the projection of the data and is very useful if you want to draw or perform analysis.
 
 Adding the Shape and EPSG-HSQL Plugins to your Project
------------------------------------------------------
+------------------------------------------------------
 
 We are going to start by adding two plugins to GeoTools toolkit. Plugins are used to add functionality to the core library.
 
@@ -284,6 +280,7 @@ Here are the plugins we will be using to to read a shapefile.
 * gt2-epsg-hsql - Is used to read file.prj
 
 You can add these plugins by editing your pom.xml dependency section::
+
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
@@ -300,8 +297,8 @@ Although 2.5.6 is shown above please please use make use of the correct "version
 Refresh your IDE Project Files
 ------------------------------
 
-1. You will need to kick these dependencies into your IDE with another
-   ::
+1. You will need to kick these dependencies into your IDE with another ::
+
      C:\\java\\example>mvn eclipse:eclipse
 
 2. Hit refresh in Eclipse
@@ -316,8 +313,8 @@ GeoTools makes use of a lot of third party jars. We really do want to stick to w
 
 You can use maven to provide a tree of dependencies so you can check on what needs what:
 
-Type in the following command:
-::
+Type in the following command::
+
  C:\java\example> mvn dependency:tree 
  mvn dependency:tree
  [INFO] Scanning for projects...
@@ -376,29 +373,29 @@ Running your Application
 
 There are several ways to run this application easily:
 
-* You can run your application in your IDE - on my system it calculated the following for a sample shapefile:
-  ::
+* You can run your application in your IDE - on my system it calculated the following for a sample shapefile::
+
       Welcome to GeoTools:2.5.6
       You chose to open this file: bc_border.shp
       Reading content bc_border
       Total Length 383.8965970055014
 
-* Or from the command line:
-  ::
-   C:\java\example>mvn exec:java -Dexec.mainClass="org.geotools.demo.example.FirstProject"
-   [INFO] Scanning for projects...
-   [INFO] Searching repository for plugin with prefix: 'exec'.
-   [INFO] ------------------------------------------------------------------------
-   [INFO] Building geotools-example
-   [INFO]    task-segment: [exec:java]
-   [INFO] ------------------------------------------------------------------------
-   [INFO] Preparing exec:java
-   [INFO] No goals needed for project - skipping
-   [INFO] [exec:java]
-   Welcome to GeoTools:2.5.6
-   You chose to open this file: bc_border.shp
-   Reading content bc_border
-   Total Length 383.8965970055014
+* Or from the command line::
+
+     C:\java\example>mvn exec:java -Dexec.mainClass="org.geotools.demo.example.FirstProject"
+     [INFO] Scanning for projects...
+     [INFO] Searching repository for plugin with prefix: 'exec'.
+     [INFO] ------------------------------------------------------------------------
+     [INFO] Building geotools-example
+     [INFO]    task-segment: [exec:java]
+     [INFO] ------------------------------------------------------------------------
+     [INFO] Preparing exec:java
+     [INFO] No goals needed for project - skipping
+     [INFO] [exec:java]
+     Welcome to GeoTools:2.5.6
+     You chose to open this file: bc_border.shp
+     Reading content bc_border
+     Total Length 383.8965970055014
 
 Questions
 =========
