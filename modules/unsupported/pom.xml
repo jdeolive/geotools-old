@@ -158,7 +158,6 @@
          <module>app-schema</module>
          <module>epsg-oracle</module>
          <module>epsg-h2</module>
-         <module>gml</module>    
          <module>gpx</module>
          <module>jdbc-ng</module>
          <module>mysql</module>
