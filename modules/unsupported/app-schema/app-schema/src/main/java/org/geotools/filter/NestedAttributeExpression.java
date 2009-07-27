@@ -36,7 +36,6 @@ import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
-import org.xml.sax.helpers.NamespaceSupport;
 
 /**
  * This class represents a list of expressions broken up from a single XPath expression that is
@@ -63,11 +62,8 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      *            Attribute XPath
      * @param expressions
      *            List of broken up expressions
-     * @param namespaces
-     *            Name space support
      */
-    public NestedAttributeExpression(String xpath, List<Expression> expressions,
-            NamespaceSupport namespaces) {
+    public NestedAttributeExpression(String xpath, List<Expression> expressions) {
         super(xpath);
         if (expressions == null || expressions.size() <= 1 || expressions.size() % 2 != 0) {
             // this shouldn't happen if this was called by
@@ -76,7 +72,6 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
             throw new UnsupportedOperationException("Unmapping nested filter expressions fail!");
         }
         this.expressions = expressions;
-        this.namespaces = new Hints(FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, namespaces);
     }
 
     /**
@@ -85,13 +80,10 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      * 
      * @param xpath
      *            Attribute XPath
-     * @param namespaces
-     *            Name space support
      */
-    public NestedAttributeExpression(String xpath, NamespaceSupport namespaces) {
+    public NestedAttributeExpression(String xpath) {
         super(xpath);
         this.expressions = Collections.<Expression> emptyList();
-        this.namespaces = new Hints(FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, namespaces);
     }
 
     /**
@@ -121,6 +113,8 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
             assert value instanceof Name;
             try {
                 mappings = AppSchemaDataAccessRegistry.getMapping((Name) value);
+                this.namespaces = new Hints(FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT,
+                        mappings.getNamespaces());
             } catch (IOException e) {
                 throw new UnsupportedOperationException("Mapping not found for: '" + value
                         + "' type!");
@@ -150,17 +144,18 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
      *            Index of expression
      * @param xPathSteps
      *            Broken up attribute expression xpath
+     * @param namespaces
+     *            Namespace support
      * @return Next expression
      */
-    private AttributeExpressionImpl getExpression(int stepIndex, String[] xPathSteps) {
+    private Expression getExpression(int stepIndex, String[] xPathSteps) {
         // expressions are preceded with the root feature's type name, so the index
         // is always +1 ahead of the xPathSteps index
         // expression would be in the expressions list if we have access to simple features
         // ie. the nested type is configured in an app-schema data access.. otherwise make up one
         // from the xpath steps, as we
         // would have complex features to evaluate against
-        return ((stepIndex < expressions.size()) ? (AttributeExpressionImpl) expressions
-                .get(stepIndex)
+        return ((stepIndex < expressions.size()) ? expressions.get(stepIndex)
                 : new AttributeExpressionImpl(xPathSteps[stepIndex - 1], namespaces));
 
     }
@@ -215,7 +210,7 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
             } else {
                 attributeValues.add(value);
             }
-            if (mappings != null) {
+            if (stepIndex <= xPathSteps.length && mappings != null) {
                 // if this is not the last chain, get the next feature type
                 AttributeMapping mapping = mappings.getAttributeMapping(XPath.steps(mappings
                         .getTargetFeature(), xPathSteps[stepIndex - 1], mappings.getNamespaces()));
@@ -257,6 +252,9 @@ public class NestedAttributeExpression extends AttributeExpressionImpl {
                             assert value instanceof Name;
                             try {
                                 fMapping = AppSchemaDataAccessRegistry.getMapping((Name) value);
+                                this.namespaces = new Hints(
+                                        FeaturePropertyAccessorFactory.NAMESPACE_CONTEXT, fMapping
+                                                .getNamespaces());
                             } catch (IOException e) {
                                 throw new UnsupportedOperationException("Mapping not found for: '"
                                         + value + "' type!");

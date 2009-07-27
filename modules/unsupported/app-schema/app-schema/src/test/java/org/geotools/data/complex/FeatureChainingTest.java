@@ -488,7 +488,7 @@ public class FeatureChainingTest {
         FeatureCollection<FeatureType, Feature> filteredResults = mfSource.getFeatures(filter);
 
         assertEquals(getCount(filteredResults), 3);
-
+        
         /**
          * Test filtering on multi valued properties
          */
@@ -504,6 +504,15 @@ public class FeatureChainingTest {
         filter = ff.equals(function, ff.literal(1));
         filteredResults = guSource.getFeatures(filter);
         assertEquals(getCount(filteredResults), 3);
+
+        /**
+         * Test filtering client properties on chained features
+         */
+        property = ff.property("gsml:specification/gsml:GeologicUnit/gsml:occurence/@xlink:href");
+        string = ff.literal("urn:cgi:feature:MappedFeature:mf1");
+        filter = ff.equals(property, string);
+        filteredResults = mfSource.getFeatures(filter);
+        assertEquals(getCount(filteredResults), 1);       
 
     }
 

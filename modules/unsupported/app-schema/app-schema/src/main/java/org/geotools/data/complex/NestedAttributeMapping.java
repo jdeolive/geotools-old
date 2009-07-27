@@ -72,8 +72,6 @@ public class NestedAttributeMapping extends AttributeMapping {
      */
     private Expression nestedSourceExpression;
 
-    private NamespaceSupport namespaces;
-
     /**
      * Filter factory
      */
@@ -103,7 +101,6 @@ public class NestedAttributeMapping extends AttributeMapping {
         super(idExpression, parentExpression, targetXPath, null, isMultiValued, clientProperties);
         this.nestedTargetXPath = sourcePath;
         this.nestedFeatureType = sourceElement;
-        this.namespaces = namespaces;
         this.filterFac = new FilterFactoryImplNamespaceAware(namespaces);
     }
 
@@ -182,8 +179,7 @@ public class NestedAttributeMapping extends AttributeMapping {
         if (!(mappingSource instanceof MappingFeatureSource)) {
             // non app-schema source.. may not have simple feature source behind it
             // so we need to filter straight on the complex features
-            propertyName = new NestedAttributeExpression(this.nestedTargetXPath.toString(),
-                    namespaces);
+            propertyName = new NestedAttributeExpression(this.nestedTargetXPath.toString());
         } else {
             propertyName = filterFac.property(this.nestedTargetXPath.toString());
         }

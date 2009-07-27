@@ -397,7 +397,7 @@ public class XPath {
                     isXmlAttribute = true;
                     stepName = stepName.substring(1);
                 }
-                QName qName = deglose(stepName, root, namespaces);
+                QName qName = deglose(stepName, root, namespaces, isXmlAttribute);
                 steps.add(new Step(qName, index, isXmlAttribute, isIndexed));
             }
             //            
@@ -437,7 +437,7 @@ public class XPath {
     }
 
     private static QName deglose(final String prefixedName, final AttributeDescriptor root,
-            final NamespaceSupport namespaces) {
+            final NamespaceSupport namespaces, boolean isXmlAttribute) {
         if (prefixedName == null) {
             throw new NullPointerException("prefixedName");
         }
@@ -453,10 +453,11 @@ public class XPath {
         if (prefixIdx == -1) {
             localName = prefixedName;
             final Name rootName = root.getName();
-            final String defaultNamespace = (localName
-                    .equals(ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK_NAME.getLocalPart()) || rootName
-                    .getNamespaceURI() == null) ? XMLConstants.NULL_NS_URI : rootName
-                    .getNamespaceURI();
+            // don't use default namespace for client properties (xml attribute), and FEATURE_LINK
+            final String defaultNamespace = (isXmlAttribute
+                    || localName.equals(ComplexFeatureTypeImpl.FEATURE_CHAINING_LINK_NAME
+                            .getLocalPart()) || rootName.getNamespaceURI() == null) ? XMLConstants.NULL_NS_URI
+                    : rootName.getNamespaceURI();
             namespaceUri = defaultNamespace;
             if (XMLConstants.NULL_NS_URI.equals(defaultNamespace)) {
                 prefix = XMLConstants.DEFAULT_NS_PREFIX;

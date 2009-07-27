@@ -790,14 +790,18 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
             // means some attributes are probably mapped separately
 
             if (simplifiedSteps.size() % 2 == 0) {
-                // there should be at least 3 steps:
-                // - 1st one is the attribute of parent feature
-                // - 2nd one denotes the element type of the nested feature
-                // - 3rd one is the attribute of the nested feature
-                throw new UnsupportedOperationException(
-                        "Are you sure the filter property makes sense? "
-                                + "Please check the property path again. "
-                                + "Current invalid path: " + simplifiedSteps.toString());
+                // the last one could be a client property
+                Step lastStep = simplifiedSteps.get(simplifiedSteps.size() - 1);
+                if (!lastStep.isXmlAttribute()) {
+                    // there should be at least 3 steps:
+                    // - 1st one is the attribute of parent feature
+                    // - 2nd one denotes the element type of the nested feature
+                    // - 3rd one is the attribute of the nested feature
+                    throw new UnsupportedOperationException(
+                            "Are you sure the filter property makes sense? "
+                                    + "Please check the property path again. "
+                                    + "Current invalid path: " + simplifiedSteps.toString());
+                }
             }
             boolean hasNestedFeature = false;
 
@@ -836,6 +840,14 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                             try {
                                 Step nextRootStep = simplifiedSteps.get(firstIndex
                                         + processedSteps.size());
+                                Expression clientPropertyExpression = getClientPropertyExpression(
+                                        nextRootStep, fMapping, mapping, targetXPath);
+                                if (clientPropertyExpression != null) {
+                                    // if the step is a client property, it has to be the last
+                                    nestedMappings.add(ff.literal(featureTypeName));
+                                    nestedMappings.add(clientPropertyExpression);
+                                    break;
+                                }
                                 featureTypeName = new NameImpl(nextRootStep.getName()
                                         .getNamespaceURI(), nextRootStep.getName().getLocalPart());
                                 if (AppSchemaDataAccessRegistry.hasName(featureTypeName)) {
@@ -898,8 +910,7 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
                 // we should only go on if the path legitimately has a chained feature
                 // otherwise the mapping is invalid and continue to throw exception below as
                 // the mapping is not found
-                matchingMappings.add(new NestedAttributeExpression(targetXPath, nestedMappings,
-                        namespaces));
+                matchingMappings.add(new NestedAttributeExpression(targetXPath, nestedMappings));
             }
         }
 
@@ -908,6 +919,45 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
         }
 
         return matchingMappings;
+    }
+
+    /**
+     * Find the expression of a client property if the step is one.
+     * 
+     * @param nextRootStep
+     *            the step
+     * @param fMapping
+     *            feature type mapping to get namespaces from
+     * @param mapping
+     *            attribute mapping
+     * @param targetXPath
+     *            the full target xpath
+     * @return
+     */
+    private Expression getClientPropertyExpression(Step nextRootStep, FeatureTypeMapping fMapping,
+            AttributeMapping mapping, String targetXPath) {
+        if (nextRootStep.isXmlAttribute()) {
+            Map<Name, Expression> clientProperties = mapping.getClientProperties();
+            QName lastStepName = nextRootStep.getName();
+            Name lastStep;
+            if (lastStepName.getPrefix() != null
+                    && lastStepName.getPrefix().length() > 0
+                    && (lastStepName.getNamespaceURI() == null || lastStepName.getNamespaceURI()
+                            .length() == 0)) {
+                String prefix = lastStepName.getPrefix();
+                String uri = fMapping.getNamespaces().getURI(prefix);
+                lastStep = Types.typeName(uri, lastStepName.getLocalPart());
+            } else {
+                lastStep = Types.toTypeName(lastStepName);
+            }
+            if (clientProperties.containsKey(lastStep)) {
+                return (Expression) clientProperties.get(lastStep);
+            } else {
+                throw new IllegalArgumentException("Client property mapping is missing for: "
+                        + targetXPath);
+            }
+        }
+        return null;
     }
 
     /**
