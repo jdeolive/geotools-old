@@ -143,7 +143,7 @@ div.header div.wrap {
 /* index page links */
 #quicklinks {
   margin: 0 auto;
-  width: 700px;
+  padding-top: 2em;
 }
 
 /*#getting-started ul {*/
@@ -155,7 +155,7 @@ div.header div.wrap {
 #quicklinks li {
 	float: left; 
 	display: inline;
-	margin: 30px;
+	margin: 1.1em;
 }
 
 /*#getting-started a {*/
