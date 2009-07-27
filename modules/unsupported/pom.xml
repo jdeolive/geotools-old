@@ -69,7 +69,6 @@
      <profile>
        <id>archive</id>
        <modules>
-         <module>geomedia</module>
          <module>ogr</module>
        </modules>
      </profile>
