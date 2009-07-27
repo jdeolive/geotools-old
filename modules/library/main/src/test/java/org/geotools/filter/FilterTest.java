@@ -42,6 +42,7 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.And;
+import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
@@ -1195,5 +1196,16 @@ public class FilterTest extends TestCase {
         public Literal getFallbackValue() {
             return null;
         }
+    }
+    
+    public void testSafeConversions() {
+        Literal d = fac.literal( 1.1 );
+        Literal i = fac.literal( 1 );
+
+        Filter f1 = fac.greater( d, i );
+        assertTrue( f1.evaluate( null ) );
+
+        Filter f2 = fac.less( i, d );
+        assertTrue( f2.evaluate( null ) );
     }
 }

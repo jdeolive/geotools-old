@@ -17,6 +17,7 @@
 package org.geotools.util;
 
 import org.geotools.factory.Hints;
+import org.geotools.factory.Hints.Key;
 
 
 /**
@@ -28,6 +29,13 @@ import org.geotools.factory.Hints;
  *
  */
 public interface ConverterFactory {
+    
+    /**
+    * Hint which specifies if only safe conversions should be atttemped by 
+    * converter implementations.
+    */
+    static final Key SAFE_CONVERSION = new Key(Boolean.class);
+    
     /**
      * Creates a {@link Converter} instance for converting one type
      * of object to another.
