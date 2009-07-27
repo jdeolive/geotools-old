@@ -161,7 +161,6 @@
          <module>gml</module>    
          <module>gpx</module>
          <module>jdbc-ng</module>
-         <module>mif</module>
          <module>mysql</module>
          <module>oracle-spatial</module>
          <module>postgis-versioned</module>
