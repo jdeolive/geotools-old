@@ -71,7 +71,6 @@
        <modules>
          <module>geomedia</module>
          <module>ogr</module>
-         <module>gml3</module>
        </modules>
      </profile>
 
