@@ -44,6 +44,14 @@
     </license>
   </licenses>
   
+  <profiles>
+      <profile>
+          <id>webservice</id>
+          <modules>
+              <module>webservice</module>
+          </modules>
+      </profile>
+  </profiles>
   
   <!-- =========================================================== -->
   <!--     Modules included in the build                           -->
