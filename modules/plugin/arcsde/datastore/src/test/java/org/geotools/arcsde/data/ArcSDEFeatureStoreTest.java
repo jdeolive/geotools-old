@@ -956,28 +956,6 @@ public class ArcSDEFeatureStoreTest {
     }
 
     @Test
-    public void testCreateNillableShapeSchema() throws IOException, SchemaException, SeException, UnavailableConnectionException {
-        SimpleFeatureType type;
-        final String typeName = "GT_TEST_CREATE";
-
-        SimpleFeatureTypeBuilder b = new SimpleFeatureTypeBuilder();
-        b.setName(typeName);
-
-        b.add("OBJECTID", Integer.class);
-        b.add("SHAPE", MultiLineString.class);
-
-        type = b.buildFeatureType();
-
-        ArcSDEDataStore ds = testData.getDataStore();
-
-        testData.deleteTable(typeName);
-        Map hints = new HashMap();
-        hints.put("configuration.keyword", testData.getConfigKeyword());
-        ds.createSchema(type, hints);
-        testData.deleteTable(typeName);
-    }
-
-    @Test
     public void testWriteAndUpdateNullShapes() throws Exception {
         final String typeName = testData.getTempTableName();
         testData.truncateTempTable();
