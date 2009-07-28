@@ -155,7 +155,7 @@ public abstract class ArcSDEGeometryBuilder {
      * @throws ArcSDEGeometryBuildingException
      *             DOCUMENT ME!
      */
-    public SeShape constructShape(final Geometry geometry, SeCoordinateReference seSrs)
+    public final SeShape constructShape(final Geometry geometry, SeCoordinateReference seSrs)
             throws ArcSdeException {
         if (geometry == null) {
             return null;
@@ -173,6 +173,17 @@ public abstract class ArcSDEGeometryBuilder {
         if (geometry.isEmpty()) {
             return shape;
         }
+
+        // REVISIT: this may be worth considering. If not, at least shape.generateFromWKB
+        // final String wkt = geometry.toText();
+        // try {
+        // shape.generateFromText(wkt);
+        // } catch (SeException e) {
+        // ArcSdeException sdeEx = new ArcSdeException("Can't generate SeShape from " + geometry
+        // + "\n", e);
+        // LOGGER.log(Level.WARNING, sdeEx.getMessage());
+        // throw sdeEx;
+        // }
 
         int numParts;
         GeometryCollection gcol = null;

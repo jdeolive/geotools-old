@@ -32,7 +32,6 @@ import org.geotools.data.DataSourceException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.esri.sde.sdk.client.SDEPoint;
@@ -63,6 +62,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *         /org/geotools/arcsde/data/GeometryBuilderTest.java $
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class GeometryBuilderTest {
 
     static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GeometryBuilderTest.class
@@ -96,14 +96,11 @@ public class GeometryBuilderTest {
                         .read("LINESTRING (60 380, 60 20, 200 400, 280 20, 360 400, 420 20, 500 400, 580 20, 620 400)") };
 
         testPolygons = new Geometry[] {
-        // wktReader
-        // .read("POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0), (3 3, 3 6, 6 6, 6 3, 3 3), (7 7, 7 8, 8 8,
-        // 8 7, 7 7)), ((-1 -1, -1 -3, -3 -3, -3 -1, -1 -1))"),
-        // wktReader
-        // .read("POLYGON ((140 380, 140 390, 1290 380, 140 300, 40 300, 60 400, 140 380))"),
-        // wktReader.read("POLYGON ((280 380, 280 200, 60 200, 60 380, 180 220, 280 380))"),
-        wktReader
-                .read("POLYGON ((280 380, 280 200, 60 200, 60 380, 180 220, 280 380), (40 160, 260 160, 240 60, 20 80, 40 160))") };
+                wktReader
+                        .read("POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0), (3 3, 3 6, 6 6, 6 3, 3 3), (7 7, 7 8, 8 8, 8 7, 7 7))"),
+                wktReader
+                        .read("POLYGON ((140 380, 140 390, 1290 380, 140 300, 40 300, 60 400, 140 380))"),
+                wktReader.read("POLYGON ((280 380, 280 200, 60 200, 60 380, 180 220, 280 380))") };
 
         testMultiPoints = new Geometry[] {
                 wktReader.read("MULTIPOINT (180 90, -180 -90, 0 0, 180 -90)"),
@@ -137,11 +134,7 @@ public class GeometryBuilderTest {
         this.wktReader = null;
     }
 
-    /**
-     * TODO: resurrect testInsertGeometries
-     */
     @Test
-    @Ignore
     public void testInsertGeometries() throws Exception {
         TestData testData = new TestData();
         testData.setUp();
@@ -194,9 +187,6 @@ public class GeometryBuilderTest {
         for (int i = 0; i < fetched.length; i++) {
             final Geometry expected = original[i];
             final Geometry actual = fetched[i];
-            System.out.println(expected);
-            System.out.println(actual);
-            System.out.println("*****");
             assertEquals(expected, actual, 1E-6);
         }
     }
@@ -204,9 +194,12 @@ public class GeometryBuilderTest {
     private void assertEquals(Geometry g1, Geometry g2, double tolerance) {
         g1.normalize();
         g2.normalize();
-        Assert.assertEquals("geometry dimension", g1.getDimension(), g2.getDimension());
-        Assert.assertEquals("number of geometries", g1.getNumGeometries(), g2.getNumGeometries());
-        Assert.assertEquals("number of points", g1.getNumPoints(), g2.getNumPoints());
+        StringBuilder wkt = new StringBuilder();
+        wkt.append("expected: ").append(g1).append(", actual: ").append(g2);
+        Assert.assertEquals("geometry dimension " + wkt, g1.getDimension(), g2.getDimension());
+        Assert.assertEquals("number of geometries " + wkt, g1.getNumGeometries(), g2
+                .getNumGeometries());
+        Assert.assertEquals("number of points " + wkt, g1.getNumPoints(), g2.getNumPoints());
     }
 
     @Test
@@ -273,7 +266,6 @@ public class GeometryBuilderTest {
      * TODO: resurrect testConstructShapePolygon
      */
     @Test
-    @Ignore
     public void testConstructShapePolygon() throws Exception {
         testBuildSeShapes(testPolygons);
     }

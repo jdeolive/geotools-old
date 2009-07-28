@@ -72,6 +72,8 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.operation.valid.IsValidOp;
+import com.vividsolutions.jts.operation.valid.TopologyValidationError;
 
 /**
  * Provides access to the ArcSDEDataStore test data configuration.
@@ -589,11 +591,13 @@ public class TestData {
             throws Exception {
 
         SeColumnDefinition[] colDefs = tempTableColumns;
-        Geometry[] geoms = g;
-        if (geoms.length < 8) {
+        final Geometry[] geoms;
+        if (g.length < 8) {
             Geometry[] tmp = new Geometry[8];
-            System.arraycopy(geoms, 0, tmp, 0, geoms.length);
+            System.arraycopy(g, 0, tmp, 0, g.length);
             geoms = tmp;
+        } else {
+            geoms = g;
         }
 
         final SeCoordinateReference coordref = layer.getCoordRef();
@@ -604,6 +608,13 @@ public class TestData {
             if (geom == null) {
                 shape = null;
             } else {
+                IsValidOp validationOp = new IsValidOp(geom);
+                TopologyValidationError validationError = validationOp.getValidationError();
+                if (validationError != null) {
+                    throw new IllegalArgumentException("Provided geometry is invalid: "
+                            + validationError.getMessage());
+                }
+
                 ArcSDEGeometryBuilder builder = ArcSDEGeometryBuilder.builderFor(geom.getClass());
                 shape = builder.constructShape(geom, coordref);
             }
