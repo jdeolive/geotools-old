@@ -26,18 +26,18 @@
   <groupId>org.geotools</groupId>
   <artifactId>gt-webservice</artifactId>
   <packaging>jar</packaging>
-  <name>AppSchema Web Service DataStore</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/ws/</url>
+  <name>Web Service DataAccess</name>
+  <url>http://maven.geotools.fr/reports/modules/unsupported/app-schema/webservice</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/ws
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/webservice
     </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/ws</url>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/webservice</url>
   </scm>
 
   <description>
-    Add support for xml http datasources to app-schema
+    Data source backed by a web service.
   </description>
 
   <licenses>
