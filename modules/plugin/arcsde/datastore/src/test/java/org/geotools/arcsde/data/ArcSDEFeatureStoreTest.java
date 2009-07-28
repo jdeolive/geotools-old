@@ -27,10 +27,8 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -43,7 +41,6 @@ import org.geotools.arcsde.session.Command;
 import org.geotools.arcsde.session.ISession;
 import org.geotools.arcsde.session.ISessionPool;
 import org.geotools.arcsde.session.SdeRow;
-import org.geotools.arcsde.session.UnavailableConnectionException;
 import org.geotools.data.BatchFeatureEvent;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
@@ -61,9 +58,7 @@ import org.geotools.data.FeatureEvent.Type;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.junit.After;
@@ -559,7 +554,6 @@ public class ArcSDEFeatureStoreTest {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testInsertTransactionAndQueryByFid() throws Exception {
         // start with an empty table
@@ -592,6 +586,42 @@ public class ArcSDEFeatureStoreTest {
             throw e;
         } finally {
             transaction.close();
+        }
+    }
+
+    /**
+     * Make sure features are validated against it's schema before being added
+     */
+    @Test
+    public void testInsertNonNillableAttributeCheck() throws Exception {
+        // start with an empty table
+        testData.truncateTempTable();
+        final String typeName = testData.getTempTableName();
+        final int featureCount = 1;
+
+        SimpleFeature feature;
+        feature = testData.createTestFeatures(LineString.class, featureCount).features().next();
+
+        final DataStore ds = testData.getDataStore();
+
+        FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ds
+                .getFeatureSource(typeName);
+
+        SimpleFeatureType ftype = store.getSchema();
+
+        assertFalse(ftype.getDescriptor("INT32_COL").isNillable());
+
+        feature.setAttribute("INT32_COL", null);
+
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = DataUtilities
+                .collection(feature);
+        try {
+            store.addFeatures(collection);
+            fail("Expected IAE");
+        } catch (IllegalArgumentException e) {
+            // note this should really be org.opengis.feature.IllegalAttributeException but
+            // Types.validate throws IllegalArgumentException instead
+            assertTrue(true);
         }
     }
 
@@ -821,11 +851,17 @@ public class ArcSDEFeatureStoreTest {
             SimpleFeature feature;
             try {
                 feature = writer.next();
+                // set this attribute as its the only non nillable one
+                feature.setAttribute("INT32_COL", Integer.valueOf(0));
+                // now set the geometry
                 feature.setAttribute(defaultGeometry.getName(), p1);
                 writer.write();
                 fid1 = feature.getID();
 
                 feature = writer.next();
+                // set this attribute as its the only non nillable one
+                feature.setAttribute("INT32_COL", Integer.valueOf(0));
+                // now set the geometry
                 feature.setAttribute(defaultGeometry.getName(), p2);
                 writer.write();
                 fid2 = feature.getID();
