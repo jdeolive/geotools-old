@@ -14,10 +14,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.geotools.jdbc</groupId>
-    <artifactId>gt-jdbc</artifactId>
+    <groupId>org.geotools</groupId>
+    <artifactId>gt-jdbc-ng</artifactId>
     <version>2.6-SNAPSHOT</version>
-    <relativePath>../../plugin/jdbc/pom.xml</relativePath>
   </parent>
 
 
@@ -25,17 +24,21 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
-  <artifactId>gt-jdbc-ng</artifactId>
-  <packaging>pom</packaging>
-  <name>Next Generation JDBC DataStores</name>
-  
+  <artifactId>gt-jdbc-sqlserver</artifactId>
+  <packaging>jar</packaging>
+  <name>SQL Server DataStore</name>
+  <url>http://maven.geotools.fr/reports/modules/unsupported/jdbc-ng/jdbc-sqlserver/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/jdbc-ng/
+      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/jdbc-ng/jdbc-sqlserver
     </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/jdbc-ng/</url>
+    <url>http://svn.geotools.org/trunk/modules/unsupported/jdbc-ng/jdbc-sqlserver</url>
   </scm>
+
+  <description>
+	DataStore for SQL Server Database.
+  </description>
 
   <licenses>
     <license>
@@ -62,41 +65,16 @@
     </developer>
   </developers>
 
-  <!--dependencies>
-    <dependency>
-      <groupId>simple-jndi</groupId>
-      <artifactId>simple-jndi</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-surefire-plugin</artifactId>
-         <configuration>
-           <systemProperties>
-              <property>
-                 <name>java.naming.factory.initial</name>
-                 <value>org.osjava.sj.SimpleContextFactory</value>
-              </property>
-              <property>
-                 <name>org.osjava.sj.root</name>
-                 <value>file://${project.build.directory}/jndi</value>
-              </property>
-              <property>
-                 <name>org.osjava.jndi.delimiter</name>
-                 <value>/</value>
-              </property>
-          </systemProperties>
-         </configuration>
-       </plugin>
-     </plugins>
-  </build-->
-
-  <modules>
-    <module>jdbc-mysql</module>
-    <module>jdbc-sqlserver</module>
-  </modules>
+  <profiles>
+    <profile>
+      <id>sqlServerDriver</id>
+        <dependencies>
+          <dependency>
+           <groupId>com.microsoft</groupId>
+           <artifactId>sqljdbc</artifactId>
+           <version>1.2</version>
+          </dependency>
+        </dependencies>
+    </profile>
+  </profiles>
 </project>
