@@ -584,7 +584,8 @@ public class ShapefileRenderer implements GTRenderer {
                         fireErrorEvent(new IllegalStateException("Skipping invalid FID; shape and index are out of sync please regenerate index."));
                         // TODO: mark index as needing regeneration
                     }
-                    LOGGER.finer("trying to read geometry ...");                    
+                    if(LOGGER.isLoggable(Level.FINER))
+                        LOGGER.finer("trying to read geometry ...");                    
                     if (nextFid == null || modifiedFIDs.contains(nextFid)) {
                         // this one is modified we will get it when we processTransaction
                         shpreader.next();
@@ -601,7 +602,8 @@ public class ShapefileRenderer implements GTRenderer {
 
                     Object geom = record.shape();
                     if (geom == null) {
-                        LOGGER.finest("skipping geometry");
+                        if(LOGGER.isLoggable(Level.FINEST))
+                            LOGGER.finest("skipping geometry");
                         if( dbfreader != null && !dbfreader.IsRandomAccessEnabled() )
                             dbfreader.skip();
                         continue;
@@ -1431,7 +1433,8 @@ public class ShapefileRenderer implements GTRenderer {
         }
 
         labelCache.end(graphics, paintArea);
-        LOGGER.fine("Style cache hit ratio: " + styleFactory.getHitRatio() + " , hits "
+        if(LOGGER.isLoggable(Level.FINE))
+            LOGGER.fine("Style cache hit ratio: " + styleFactory.getHitRatio() + " , hits "
                 + styleFactory.getHits() + ", requests " + styleFactory.getRequests());
     }
     
