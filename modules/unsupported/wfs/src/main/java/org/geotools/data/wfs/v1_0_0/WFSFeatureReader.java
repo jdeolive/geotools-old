@@ -151,18 +151,18 @@ public class WFSFeatureReader extends FCBuffer {
     protected void initHints( XMLHandlerHints hints ) {
         super.initHints(hints);
 
-        Map<String,URI> schemas=new HashMap<String,URI>(1);
-        SimpleFeatureType wfsFT= ft;
-        
-        String namespace = ft.getName().getNamespaceURI();
-        URI uri;
-        try {
-            uri = new URI( namespace );
-            schemas.put(namespace,uri);
-            hints.put(XMLHandlerHints.NAMESPACE_MAPPING, schemas);
-            
-        } catch (URISyntaxException e) {            
-        }
+//        Map<String,URI> schemas=new HashMap<String,URI>(1);
+//        SimpleFeatureType wfsFT= ft;
+//        
+//        String namespace = ft.getName().getNamespaceURI();
+//        URI uri;
+//        try {
+//            uri = new URI( namespace );
+//            schemas.put(namespace,uri);
+//            hints.put(XMLHandlerHints.NAMESPACE_MAPPING, schemas);
+//            
+//        } catch (URISyntaxException e) {            
+//        }
     }
     
     /**

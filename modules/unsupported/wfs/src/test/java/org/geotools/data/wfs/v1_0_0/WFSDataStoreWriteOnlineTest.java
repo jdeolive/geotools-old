@@ -95,10 +95,8 @@ public class WFSDataStoreWriteOnlineTest extends TestCase {
     	assertEquals(count1+insert.size(), count2);
 
         FilterFactory fac=CommonFactoryFinder.getFilterFactory(null);
-        Set featureIds = new HashSet();
-        for(Iterator it = fids1.iterator();it.hasNext();){
-            String fid = (String) it.next();
-            FeatureId id = fac.featureId(fid);
+        Set<FeatureId> featureIds = new HashSet<FeatureId>();
+        for(FeatureId id : fids1){
             featureIds.add(id);
         }
         Id fidfilter = fac.id(featureIds);

@@ -251,13 +251,14 @@ public class WFSTransactionState implements State {
         while (i.hasNext()) {
             String target = (String) i.next();
             SimpleFeatureType schema = ds.getSchema(target);
-
-            String namespaceURI = schema.getName().getNamespaceURI();
-            ns.add(namespaceURI);
+            
             try {
+                String namespaceURI = schema.getName().getNamespaceURI();
+                ns.add(namespaceURI);
+                URI namespaceLocation = ds.getDescribeFeatureTypeURL(target).toURI();
                 // if this is not added then sometimes the schema for the describe feature type cannot be loaded and
                 // an exception will be thrown during the commit 
-                SchemaFactory.getInstance(new URI(namespaceURI), new URI(namespaceURI));
+                SchemaFactory.getInstance(new URI(namespaceURI), namespaceLocation);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
