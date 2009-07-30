@@ -18,6 +18,7 @@ package org.geotools.data.store;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -118,7 +119,7 @@ public class ContentState {
     /**
      * observers
      */
-    protected List<FeatureListener> listeners;
+    protected List<FeatureListener> listeners = Collections.synchronizedList(new ArrayList<FeatureListener>());
 
     /**
      * Callback used to issue batch feature events when commit/rollback issued
@@ -144,7 +145,6 @@ public class ContentState {
      */
     public ContentState(ContentEntry entry) {
         this.entry = entry;
-        this.listeners = new ArrayList<FeatureListener>(2);
     }
     
     /**
