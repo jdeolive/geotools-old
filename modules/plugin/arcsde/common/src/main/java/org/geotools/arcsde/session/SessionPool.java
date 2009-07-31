@@ -158,11 +158,7 @@ class SessionPool implements ISessionPool {
                 pool.returnObject(preload[i]);
             }
         } catch (Exception e) {
-            try {
-                pool.close();
-            } catch (Exception closeEx) {
-                // ignore
-            }
+            close();
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
