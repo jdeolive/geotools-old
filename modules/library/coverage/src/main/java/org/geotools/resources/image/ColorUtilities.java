@@ -23,6 +23,9 @@ import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 import java.util.Arrays;
 
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+
 
 /**
  * A set of static methods for handling of colors informations. Some of those methods
@@ -443,7 +446,7 @@ public final class ColorUtilities {
      */
 	public static double getMinimum(int dataType) {
 		switch (dataType) {
-		case DataBuffer.TYPE_BYTE:
+		case DataBuffer.TYPE_BYTE:case DataBuffer.TYPE_USHORT:
 			return 0;
 		case DataBuffer.TYPE_SHORT:
 			return Short.MIN_VALUE;
@@ -453,10 +456,8 @@ public final class ColorUtilities {
 			return Long.MIN_VALUE;
 		case DataBuffer.TYPE_FLOAT:
 			return -Float.MAX_VALUE;
-
 		default:
-			//@todo
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2,"DataType unknown:",dataType));
 
 		}
 	}
@@ -472,6 +473,8 @@ public final class ColorUtilities {
 			return 255;
 		case DataBuffer.TYPE_SHORT:
 			return Short.MAX_VALUE;
+		case DataBuffer.TYPE_USHORT:
+ 			return 65535;			
 		case DataBuffer.TYPE_INT:
 			return Integer.MAX_VALUE;
 		case DataBuffer.TYPE_DOUBLE:
@@ -480,8 +483,7 @@ public final class ColorUtilities {
 			return Float.MAX_VALUE;
 
 		default:
-			//@todo
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2,"DataType unknown:",dataType));
 
 		}
 	}
