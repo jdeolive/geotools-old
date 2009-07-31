@@ -362,7 +362,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
      *            'sde://user:pass@sdehost:[port]/[dbname]
      * @return a ConnectionConfig object representing these parameters
      */
-    static ArcSDEDataStoreConfig sdeURLToConnectionConfig(StringBuffer sdeUrl) {
+    public static ArcSDEDataStoreConfig sdeURLToConnectionConfig(StringBuffer sdeUrl) {
         // annoyingly, geoserver currently stores the user-entered SDE string as
         // a File, and passes us the
         // File object. The File object strips the 'sde://user...' into a
