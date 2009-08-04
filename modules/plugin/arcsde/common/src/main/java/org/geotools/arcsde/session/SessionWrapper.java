@@ -241,6 +241,13 @@ public class SessionWrapper implements ISession {
     }
 
     /**
+     * @see org.geotools.arcsde.session.ISession#getRasterColumns()
+     */
+    public List<String> getRasterColumns() throws IOException {
+        return wrapped.getRasterColumns();
+    }
+
+    /**
      * @see org.geotools.arcsde.session.ISession#getRelease()
      */
     public SeRelease getRelease() throws IOException {

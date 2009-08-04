@@ -18,7 +18,7 @@
 package org.geotools.arcsde.session;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -101,8 +101,6 @@ class Session implements ISession {
     private Map<String, SeTable> cachedTables = new WeakHashMap<String, SeTable>();
 
     private Map<String, SeLayer> cachedLayers = new WeakHashMap<String, SeLayer>();
-
-    private Map<String, SeRasterColumn> cachedRasters = new HashMap<String, SeRasterColumn>();
 
     /**
      * The SeConnection bound task executor, ensures all operations against a given connection are
@@ -360,7 +358,7 @@ class Session implements ISession {
                 }
             });
         }
-        
+
         SeLayer seLayer = cachedLayers.get(layerName);
         if (seLayer == null) {
             throw new NoSuchElementException("Layer '" + layerName + "' not found");
@@ -386,20 +384,30 @@ class Session implements ISession {
      * @see ISession#getRasterColumn(java.lang.String)
      */
     public synchronized SeRasterColumn getRasterColumn(final String rasterName) throws IOException {
+        throw new UnsupportedOperationException("Waiting for a proper implementation");
+    }
+
+    /**
+     * @see org.geotools.arcsde.session.ISession#getRasterColumns()
+     */
+    public List<String> getRasterColumns() throws IOException {
         checkActive();
-        if (!cachedRasters.containsKey(rasterName)) {
-            try {
-                cacheRasters();
-            } catch (SeException e) {
-                throw (IOException) new IOException("Can't obtain raster " + rasterName)
-                        .initCause(e);
+        List<String> rasterNames = issue(new Command<List<String>>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public List<String> execute(final ISession session, final SeConnection connection)
+                    throws SeException, IOException {
+
+                final Vector<SeRasterColumn> rasterColumns = connection.getRasterColumns();
+                List<String> names = new ArrayList<String>(rasterColumns.size());
+
+                for (SeRasterColumn col : rasterColumns) {
+                    names.add(col.getQualifiedTableName());
+                }
+                return names;
             }
-        }
-        SeRasterColumn raster = cachedRasters.get(rasterName);
-        if (raster == null) {
-            throw new NoSuchElementException("Raster '" + rasterName + "' not found");
-        }
-        return raster;
+        });
+        return rasterNames;
     }
 
     /**
@@ -434,15 +442,6 @@ class Session implements ISession {
             throw new NoSuchElementException("Table '" + tableName + "' not found");
         }
         return seTable;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void cacheRasters() throws SeException {
-        Vector<SeRasterColumn> rasters = this.connection.getRasterColumns();
-        cachedRasters.clear();
-        for (SeRasterColumn raster : rasters) {
-            cachedRasters.put(raster.getQualifiedTableName(), raster);
-        }
     }
 
     /**

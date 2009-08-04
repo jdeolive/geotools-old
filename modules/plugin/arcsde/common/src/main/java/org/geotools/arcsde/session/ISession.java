@@ -73,6 +73,8 @@ public interface ISession {
 
     public abstract SeRasterColumn getRasterColumn(final String rasterName) throws IOException;
 
+    public abstract List<String> getRasterColumns() throws IOException;
+
     public abstract SeTable getTable(final String tableName) throws IOException;
 
     /**
