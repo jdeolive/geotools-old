@@ -114,7 +114,9 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
 * A new dependency:: *gt-main* version |gtVersion|
 * A list of *repositories* where maven can find GeoTools and all the cool stuff it uses
 
-Here is what that looks like::
+Here is what that looks like
+
+.. _parsed-literal::
 
  <project xmlns="http://maven.apache.org/POM/4.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
