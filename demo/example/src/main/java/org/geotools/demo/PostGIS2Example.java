@@ -66,7 +66,7 @@ public class PostGIS2Example {
 		System.out.println("Header: "+DataUtilities.spec( simpleFeatureType ));
 		
 		JQuery dialog = new JQuery( dataStore );
-		dialog.show();
+		dialog.setVisible(true);
 		dialog.dispose();
 		System.exit(0);
 	}
@@ -88,7 +88,7 @@ public class PostGIS2Example {
 			
 			dialog = new PostGISDialog( config );
 		}		
-		dialog.show();
+		dialog.setVisible(true);
 		Map properties = dialog.getProperties();
 		dialog.dispose();
 

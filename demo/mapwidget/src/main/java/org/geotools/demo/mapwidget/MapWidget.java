@@ -44,7 +44,6 @@ import net.miginfocom.swing.MigLayout;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultRepository;
-import org.geotools.data.Repository;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.gui.swing.JMapPane;

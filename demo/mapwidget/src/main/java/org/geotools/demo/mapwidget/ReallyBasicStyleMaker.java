@@ -62,7 +62,7 @@ public class ReallyBasicStyleMaker {
         } else if (binding.isAssignableFrom(MultiPolygon.class)) {
             return createBasicPolygonStyle(typeName);
         } else {
-            throw new RuntimeException(java.util.ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("unrecognized_geometry_error") + binding.getSimpleName());
+            throw new RuntimeException(java.util.ResourceBundle.getBundle("org/geotools/demo/mapwidget/MapWidget").getString("unrecognized_geometry_error") + binding.getSimpleName());
         }
     }
 

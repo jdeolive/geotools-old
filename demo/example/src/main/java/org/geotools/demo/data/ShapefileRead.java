@@ -13,9 +13,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
@@ -73,7 +70,8 @@ public class ShapefileRead {
 				Geometry geometry = (Geometry) feature.getDefaultGeometryProperty().getValue();
 				length += geometry.getLength();
 			}
-		};
+		}
+
 		DistanceVisitor distance = new DistanceVisitor();
 		
 		collection.accepts( distance, new ProgressWindow(null));

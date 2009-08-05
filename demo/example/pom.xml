@@ -104,6 +104,11 @@
     <!--  GeoTools Plugins -->
     <dependency>
       <groupId>org.geotools</groupId>
+      <artifactId>gt-swing</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
       <artifactId>gt-postgis</artifactId>
       <version>${project.version}</version>
     </dependency>    
@@ -126,11 +131,6 @@
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-wms</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-widgets-swing</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
