@@ -90,7 +90,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public class MapWidget extends JFrame {
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/demo/mapwidget/MapWidget");
 
     private JMapPane mapPane;
     private MapLayerTable mapLayerTable;
