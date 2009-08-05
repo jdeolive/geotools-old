@@ -407,10 +407,15 @@ Example Code
 ~~~~~~~~~~~~
 
 The following example is available from:
-* http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/FirstProject.java
-* included in the demo directory when you download geotools
 
-The code has been cut & pasted into the document here; but please consider either of the above sources as they may have useful corrections or clarifications added since this document has been written.
+  http://svn.osgeo.org/geotools/trunk/demo/example/src/main/java/org/geotools/demo/FirstProject.java
+
+It is also included in the demo directory when you download geotools.
+
+.. NOTE: *********************************************************************
+         Removed the sentence about the code below possible being out of date
+         because it is live linked now (well, sort of)
+         *********************************************************************
 
 Application
 -----------
@@ -420,19 +425,7 @@ Application
    .. literalinclude:: ../../../../demo/example/src/main/java/org/geotools/demo/FirstProject.java
       :language: java
    
-Running your Application
-------------------------
-
-There are several ways to run this application easily:
-
-* You can run your application in your IDE - on my system it calculated the following for a sample shapefile::
-
-      Welcome to GeoTools:2.5.6
-      You chose to open this file: bc_border.shp
-      Reading content bc_border
-      Total Length 383.8965970055014
-
-* Or from the command line::
+3. Now build and run the application, either from within your IDE or from the command line (as shown here)::
 
      C:\java\example>mvn exec:java -Dexec.mainClass="org.geotools.demo.example.FirstProject"
      [INFO] Scanning for projects...
