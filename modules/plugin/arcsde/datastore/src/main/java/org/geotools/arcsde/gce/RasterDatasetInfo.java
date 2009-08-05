@@ -38,6 +38,8 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.transform.LinearTransform1D;
+import org.geotools.resources.i18n.Vocabulary;
+import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
@@ -174,7 +176,10 @@ final class RasterDatasetInfo {
             Category[] categories;
             if (geophysics) {
                 double noDataValue = band.getNoDataValue().doubleValue();
-                Category nodataCat = new Category("no data", transparent, noDataValue);
+                // same as Category.NODATA but for the actual nodata value instead of hardcoded to
+                // zero
+                Category nodataCat = new Category(Vocabulary
+                        .formatInternational(VocabularyKeys.NODATA), transparent, noDataValue);
                 categories = new Category[] { valuesCat, nodataCat };
             } else {
                 // do not build a nodata category. A nodata value that doesn't overlap the value
@@ -191,8 +196,12 @@ final class RasterDatasetInfo {
              * Category[] { valuesCat, nodataCat, catMin, catMax, catMean, catStdDev }; } else {
              * categories = new Category[] { valuesCat, nodataCat }; }
              */
+            
+            // .geophysics(false) because our sample model always corresponds to the packed view
+            // (whether it matches the underlying sample depth or we're promoting in order to make
+            // room for the nodata value).
             GridSampleDimension sampleDim = new GridSampleDimension(bandName, categories, null)
-                    .geophysics(true);
+                    .geophysics(false);
 
             dimensions.add(sampleDim);
         }
