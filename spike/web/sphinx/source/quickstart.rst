@@ -361,11 +361,11 @@ Where did all these other JARs come from?
 
 GeoTools is divided up into a series of modules, plugins and extensions. For the background information on how GeoTools slots together please read: http://docs.codehaus.org/display/GEOTDOC/02+Meet+the+GeoTools+Library
 
-GeoTools makes use of a lot of third party jars. We really do want to stick to working on spatial code. Following our *don't invent here (mostly)* policy we turn to the experts to handle things such as logging, working with java beans. and so on.
+As well as all of its own jars, GeoTools makes use of a **lot** of third party jars. Following our "don't invent here" (well, mostly) policy we turn to the experts to handle things such as geometry, image file operations, logging etc. etc. So, although you might only specify a small number of GeoTools dependencies in your pom.xml file, each of them will usually rely on a number of other GeoTools and third party jars. And each of these jars in turn... well, you get the idea.
 
-You can use maven to provide a tree of dependencies so you can check on what needs what:
+We want to stick to working on spatial code rather than worrying about all of these extra jars and this is where using Maven makes life a lot easier. It keeps track of the dependencies between jars for us and makes sure that, when we build our application, we have the correct version of each of the jars needed by our project.
 
-Type in the following command::
+To see this in action you can ask Maven to print out a tree of the dependencies for your project my typing ``mvn dependency:tree`` at the command line::
 
  C:\java\example> mvn dependency:tree 
  mvn dependency:tree
