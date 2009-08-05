@@ -245,21 +245,19 @@ class RasterUtils {
                     + bitsPerSample);
         }
 
-        final int transferType = colorMapData.getDataType();
         final int numBanks = colorMapData.getNumBanks();
         final int mapSize = colorMapData.getSize();
-        final int maxMapSize = DataBuffer.TYPE_USHORT == transferType ? 65536 : 256;
 
-        byte[] r = new byte[maxMapSize];
-        byte[] g = new byte[maxMapSize];
-        byte[] b = new byte[maxMapSize];
-        byte[] a = new byte[maxMapSize];
+        byte[] r = new byte[mapSize];
+        byte[] g = new byte[mapSize];
+        byte[] b = new byte[mapSize];
+        byte[] a = new byte[mapSize];
 
         for (int i = 0; i < mapSize; i++) {
             r[i] = (byte) (colorMapData.getElem(0, i) & 0xFF);
             g[i] = (byte) (colorMapData.getElem(1, i) & 0xFF);
             b[i] = (byte) (colorMapData.getElem(2, i) & 0xFF);
-            a[i] = (byte) (numBanks == 3 ? 255 : colorMapData.getElem(3, i));
+            a[i] = (byte) ((numBanks == 3 ? 255 : colorMapData.getElem(3, i)) & 0xFF);
         }
 
         IndexColorModel colorModel = new IndexColorModel(bitsPerSample, mapSize, r, g, b, a);
@@ -879,7 +877,7 @@ class RasterUtils {
         } else if (!isGeoPhysics(numBands, nativeCellType)) {
             LOGGER.fine("3 or 4 band, 8 bit unsigned image, assumed to be "
                     + "RGB or RGBA respectively and nodata value hardcoded to 255");
-            return (Number)nativeCellType.getSampleValueRange().getMaxValue();
+            return (Number) nativeCellType.getSampleValueRange().getMaxValue();
         }
 
         final NumberRange<?> sampleValueRange = nativeCellType.getSampleValueRange();

@@ -889,7 +889,7 @@ public final class ArcSDERasterFormat extends AbstractGridFormat implements Form
             buff = new DataBufferUShort(numElems, numBanks);
             for (int elem = 0; elem < numElems; elem++) {
                 for (int bank = 0; bank < numBanks; bank++) {
-                    int val = dataIn.readShort();
+                    int val = dataIn.readUnsignedShort();
                     buff.setElem(bank, elem, val);
                 }
             }

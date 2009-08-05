@@ -49,42 +49,47 @@ public class RasterUtilsTest {
     @Test
     public void testSdeColormapToJavaColorModel() {
 
-        testSdeColormapToJavaColorModel(256, 3, DataBuffer.TYPE_BYTE);
+        testSdeColormapToJavaColorModel(8, 256, 3, DataBuffer.TYPE_BYTE);
 
-        testSdeColormapToJavaColorModel(10, 3, DataBuffer.TYPE_BYTE);
+        testSdeColormapToJavaColorModel(8, 10, 3, DataBuffer.TYPE_BYTE);
 
-        testSdeColormapToJavaColorModel(256, 4, DataBuffer.TYPE_BYTE);
+        testSdeColormapToJavaColorModel(8, 256, 4, DataBuffer.TYPE_BYTE);
 
-        testSdeColormapToJavaColorModel(10, 4, DataBuffer.TYPE_BYTE);
+        testSdeColormapToJavaColorModel(8, 10, 4, DataBuffer.TYPE_BYTE);
 
-        testSdeColormapToJavaColorModel(65536, 3, DataBuffer.TYPE_USHORT);
+        testSdeColormapToJavaColorModel(16, 65536, 3, DataBuffer.TYPE_USHORT);
 
-        testSdeColormapToJavaColorModel(10, 3, DataBuffer.TYPE_USHORT);
+        testSdeColormapToJavaColorModel(16, 10, 3, DataBuffer.TYPE_USHORT);
 
-        testSdeColormapToJavaColorModel(65536, 4, DataBuffer.TYPE_USHORT);
+        testSdeColormapToJavaColorModel(16, 65536, 4, DataBuffer.TYPE_USHORT);
 
-        testSdeColormapToJavaColorModel(10, 4, DataBuffer.TYPE_USHORT);
+        testSdeColormapToJavaColorModel(16, 10, 4, DataBuffer.TYPE_USHORT);
+
+        // what about a 16bit sample model with a data buffer byte with more than 256 entries?
+        testSdeColormapToJavaColorModel(16, 530, 3, DataBuffer.TYPE_BYTE);
     }
 
-    private void testSdeColormapToJavaColorModel(final int size, final int numBanks,
-            final int transferType) {
+    private void testSdeColormapToJavaColorModel(final int bitsPerSample, final int size,
+            final int numBanks, final int transferType) {
 
         DataBuffer colorMapData;
         IndexColorModel colorModel;
         colorMapData = newColorMap(size, numBanks, transferType);
 
-        int bitsPerSample = DataBuffer.getDataTypeSize(transferType);
         colorModel = RasterUtils.sdeColorMapToJavaColorModel(colorMapData, bitsPerSample);
 
-        assertColorModel(colorMapData, colorModel);
+        assertColorModel(colorMapData, colorModel, bitsPerSample);
     }
 
-    private void assertColorModel(DataBuffer expected, IndexColorModel actual) {
-        int size = expected.getSize();
-        int numBanks = expected.getNumBanks();
-        int dataType = expected.getDataType();
+    private void assertColorModel(DataBuffer expected, IndexColorModel actual, int bitsPerSample) {
+        final int size = expected.getSize();
+        final int numBanks = expected.getNumBanks();
+        // final int dataType = expected.getDataType();
 
-        assertEquals(dataType, actual.getTransferType());
+        assertEquals(bitsPerSample, actual.getPixelSize());
+        assertEquals(bitsPerSample == 8 ? DataBuffer.TYPE_BYTE : DataBuffer.TYPE_USHORT, actual
+                .getTransferType());
+
         assertEquals(numBanks, actual.getNumComponents());
 
         if (numBanks == 3) {
