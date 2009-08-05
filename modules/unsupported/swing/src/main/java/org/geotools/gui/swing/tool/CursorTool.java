@@ -32,7 +32,7 @@ import org.geotools.gui.swing.event.MapMouseAdapter;
  */
 public abstract class CursorTool extends MapMouseAdapter {
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
     /**
      * Used with tool constructors to specify that the GUI control

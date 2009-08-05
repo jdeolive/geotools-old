@@ -32,8 +32,8 @@ import org.geotools.gui.swing.tool.CursorTool;
  */
 public class ResetAction extends MapAction {
     
-    public static final String TOOL_NAME = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("tool_name_reset");
-    public static final String TOOL_TIP = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("tool_tip_reset");
+    public static final String TOOL_NAME = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/widget").getString("tool_name_reset");
+    public static final String TOOL_TIP = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/widget").getString("tool_tip_reset");
     public static final String ICON_IMAGE_LARGE = "/org/geotools/gui/swing/images/reset_32.png";
     public static final String ICON_IMAGE_SMALL = "/org/geotools/gui/swing/images/reset_24.png";
     

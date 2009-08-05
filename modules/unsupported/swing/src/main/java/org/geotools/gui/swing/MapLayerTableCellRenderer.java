@@ -40,6 +40,8 @@ import org.geotools.map.MapLayer;
  */
 class MapLayerTableCellRenderer extends JPanel implements ListCellRenderer {
 
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
+
     /**
      * Constants for icons used to display layer states. Each constant has
      * an associated tool-tip string, and icons for 'on' and 'off' states.
@@ -50,7 +52,7 @@ class MapLayerTableCellRenderer extends JPanel implements ListCellRenderer {
          * when the map display is drawn
          */
         VISIBLE(
-            ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("show_layer"),
+            stringRes.getString("show_layer"),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
                 "/org/geotools/gui/swing/images/eye_open.png")),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
@@ -62,7 +64,7 @@ class MapLayerTableCellRenderer extends JPanel implements ListCellRenderer {
          * to include or exclude them in map queries etc.
          */
         SELECTED(
-            ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("select_layer"),
+            stringRes.getString("select_layer"),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
                 "/org/geotools/gui/swing/images/tick.png")),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(

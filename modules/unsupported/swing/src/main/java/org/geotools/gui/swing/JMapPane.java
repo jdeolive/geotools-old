@@ -37,6 +37,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -74,6 +75,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public class JMapPane extends JPanel implements MapLayerListListener {
     
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
+
     /**
      * Default width of the margin (pixels) between the edge of the 
      * map pane and the drawing area
@@ -241,7 +244,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      */
     public void addMouseListener(MapMouseListener listener) {
         if (listener == null) {
-            throw new IllegalArgumentException(java.util.ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("arg_null_error"));
+            throw new IllegalArgumentException(stringRes.getString("arg_null_error"));
         }
         
         toolManager.addMouseListener(listener);
@@ -254,7 +257,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      */
     public void removeMouseListener(MapMouseListener listener) {
         if (listener == null) {
-            throw new IllegalArgumentException(java.util.ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("arg_null_error"));
+            throw new IllegalArgumentException(stringRes.getString("arg_null_error"));
         }
 
         toolManager.removeMouseListener(listener);
@@ -262,7 +265,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
 
     public void addMapPaneListener(MapPaneListener listener) {
         if (listener == null) {
-            throw new IllegalArgumentException(java.util.ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("arg_null_error"));
+            throw new IllegalArgumentException(stringRes.getString("arg_null_error"));
         }
 
         listeners.add(listener);
@@ -279,7 +282,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      */
     public void setMapLayerTable(MapLayerTable layerTable) {
         if (layerTable == null) {
-            throw new IllegalArgumentException(java.util.ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("arg_null_error"));
+            throw new IllegalArgumentException(stringRes.getString("arg_null_error"));
         }
 
         this.layerTable = layerTable;

@@ -19,7 +19,7 @@ package org.geotools.gui.swing;
 
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -47,6 +47,8 @@ import org.geotools.map.event.MapBoundsListener;
  * @since 2.6
  */
 public class StatusBar extends JPanel implements MapPaneListener {
+
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
     /*
      * TODO: display additional info in the status bar
@@ -120,7 +122,7 @@ public class StatusBar extends JPanel implements MapPaneListener {
      */
     public void setMapPane(final JMapPane pane) {
         if (pane == null) {
-            throw new IllegalArgumentException(java.util.ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget").getString("arg_null_error"));
+            throw new IllegalArgumentException(stringRes.getString("arg_null_error"));
         }
 
         if (this.pane != pane) {

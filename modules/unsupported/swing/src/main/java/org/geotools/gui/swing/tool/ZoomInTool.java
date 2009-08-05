@@ -47,7 +47,7 @@ import org.geotools.gui.swing.event.MapMouseEvent;
  */
 public class ZoomInTool extends AbstractZoomTool {
     
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
     public static final String TOOL_NAME = stringRes.getString("tool_name_zoom_in");
     public static final String TOOL_TIP = stringRes.getString("tool_tip_zoom_in");

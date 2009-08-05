@@ -37,7 +37,7 @@ import org.geotools.gui.swing.event.MapMouseListener;
  */
 public class MapToolManager implements MouseInputListener, MouseWheelListener {
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
     private JMapPane pane;
     private Set<MapMouseListener> listeners = new HashSet<MapMouseListener>();

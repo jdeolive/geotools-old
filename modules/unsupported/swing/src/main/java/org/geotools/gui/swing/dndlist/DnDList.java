@@ -17,7 +17,6 @@
 
 package org.geotools.gui.swing.dndlist;
 
-import java.awt.Graphics;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
@@ -54,7 +53,7 @@ import javax.swing.JList;
  * @since 2.6
  */
 public class DnDList<T> extends JList implements DragGestureListener, DragSourceListener, DropTargetListener {
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
     private DragSource src;
     private DropTarget tgt;

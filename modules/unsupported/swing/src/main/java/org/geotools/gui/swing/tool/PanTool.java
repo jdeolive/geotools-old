@@ -35,7 +35,7 @@ import org.geotools.gui.swing.event.MapMouseEvent;
  */
 public class PanTool extends CursorTool {
     
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
     public static final String TOOL_NAME = stringRes.getString("tool_name_pan");
     public static final String TOOL_TIP = stringRes.getString("tool_tip_pan");

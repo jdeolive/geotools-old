@@ -50,7 +50,7 @@ import org.geotools.map.MapLayer;
  */
 public class MapLayerTable extends JPanel {
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/MapWidget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
     private static final int BORDER = 10;
 

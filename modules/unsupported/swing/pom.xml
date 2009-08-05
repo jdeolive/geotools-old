@@ -8,7 +8,7 @@
       <version>2.6-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.geotools.demo</groupId>
+    <groupId>org.geotools</groupId>
     <artifactId>gt-swing</artifactId>
     <packaging>jar</packaging>
     <version>2.6-SNAPSHOT</version>
