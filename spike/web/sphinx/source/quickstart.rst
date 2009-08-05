@@ -1,3 +1,4 @@
+.. |gtVersion| replace:: 2.6-M2
 .. _quickstart:
 
 Quickstart
@@ -9,12 +10,12 @@ Please note that GeoTools is large. Well actually quite HUGE. And it depends on 
 
 *  Maven - http://maven.apache.org/
 
-Maven is a build tool that is going to help sort all of this stuff out. You may be used to using ant, or sticking to the safe confines your your IDE. Bare with me for a moment as we set up a simple maven project, I think you will find this tool quite useful.
+Maven is a build tool that is going to help sort all of this stuff out. You may be used to using ant, or sticking to the safe confines of your IDE. If so, bear with me for a moment as we set up a simple maven project. I think you will find this tool makes things much easier.
 
 Ensure you have Java and Maven
 ------------------------------
 
-You can check to see if you have the command line Maven utility installed, and if so, the version as follows::
+You can check to see if you have the command line Maven utility installed and, if so, the version as follows::
 
  C:\java\geotools-example>mvn -version
  Maven version: 2.0.9
@@ -26,7 +27,7 @@ I am using Java 1.5 above; and Maven 2.0.9. You can use Java 6 if you like; curr
 Notes:
 
 * If you are using the Netbeans IDE for development then the command line Maven utility is optional because there is support for Maven within the IDE
-* Windows users can download and install maven from apache: http://maven.apache.org/download.html
+* Windows and OSX users can download and install maven from apache: http://maven.apache.org/download.html
 * Linux users can either download or use apt-get::  
  
     apt-get maven
@@ -34,7 +35,7 @@ Notes:
 Setting up your Project Folder
 ==============================
 
-First of all let's use maven to create our project::
+First of all let's use maven to create our project. You can do this from the command line::
 
  C:java>
  mvn archetype:create -DgroupId=org.geotools.demo.example -DartifactId=example
@@ -44,7 +45,7 @@ It will wirr and click, downloading a bunch of stuff before creating a *example*
 Eclipse IDE
 -----------
 
-Now let's set things up for your IDE (eclipse is used as an example)::
+Eclipse users now need to set things up for the IDE::
 
  C:java>cd example
  C:java\example>mvn eclipse:eclipse
@@ -71,14 +72,16 @@ You can now import your project into eclipse:
 Netbeans IDE
 ------------
 
-If you wish to use Netbeans as your editor then you must first set it up for Maven support. This is done by installing the Mevenide plugin as described on the Netbeans developers page. This plugin allows Netbeans to create new projects, and to open and process existing Maven projects.
+Netbeans users don't need to go through the steps outlined above for Eclipse. The only thing you need to check is that you set up the IDE to suppport Maven projects by installing the Mevenide plugin as described on the Netbeans developers page. This plugin allows Netbeans to create new projects, and to open existing Maven projects.
 
-Select the Maven Quickstart Archetype in the New Project dialog to create a basic pom.xml and directory structure, and then manually edit the POM to add the necessary repositories and dependencies as outlined below.
+You can create a new Maven project from within Netbeans rather than at the command line. To do this, select the Maven Quickstart Archetype in the New Project dialog to create a basic pom.xml and directory structure, and then manually edit the POM to add the necessary repositories and dependencies as outlined below. 
+
+If you have already created your project at the command line (see above) then all that you need to do is open the project within Netbeans as if it was a normal Java project.
 
 Your New Project
 ----------------
 
-1. In your IDE you can now now open up your *pom.xml* file and have a look::
+1. In your IDE you can now now open up your *pom.xml* file and have a look at it::
 
     <project xmlns="http://maven.apache.org/POM/4.0.0"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -107,7 +110,8 @@ Depending on GeoTools
 ---------------------
 
 To make use of GeoTools we are going to add two things to your pom.xml file:
-* A new dependency (ie *gt-main* version 2.5.6)
+
+* A new dependency:: *gt-main* version |gtVersion|
 * A list of *repositories* where maven can find GeoTools and all the cool stuff it uses
 
 Here is what that looks like::
@@ -132,7 +136,7 @@ Here is what that looks like::
      <dependency>
        <groupId>org.geotools</groupId>
        <artifactId>gt-main</artifactId>
-       <version>2.5.6</version>
+       <version>FIX ME - VERSION TEXT REPLACEMENT DOESN'T WORK IN LITERAL BLOCK</version>
      </dependency>
    </dependencies>
  
@@ -162,10 +166,10 @@ Here is what that looks like::
    </repositories>
  </project>
 
-Later tutorials will just show the dependency section of the pom.xml file. We will be adding dependencies over time as we try out more of the library.
+In later tutorials we will just show the dependency section of the pom.xml file since you won't need to make any further changes to the other sections. We will be adding dependencies over time as we try out more of the library.
 
-Updating the IDE
-----------------
+Updating the IDE (Eclipse only)
+-------------------------------
 
 1. We can regenerate our .classpath and .project files so the IDE knows about this stuff::
 
@@ -173,6 +177,8 @@ Updating the IDE
 
 2. Hit refresh in Eclipse
 3. GeoTools (and a bunch of other stuff) will now show up in your project!)
+
+If you are using Netbeans you don't need to worry about this step.
 
 Modifying Main
 --------------
