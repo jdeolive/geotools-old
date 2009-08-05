@@ -70,6 +70,21 @@
        <id>archive</id>
        <modules>
          <module>ogr</module>
+         <module>widgets-swing</module>
+         <module>widgets-swing-pending</module>
+       </modules>
+     </profile>
+
+     <!-- These modules have been removed from the build     -->
+     <!-- so as not to clash with the new swing module.      -->
+     <!-- Selected classes will be moved out of these to the -->
+     <!-- new module prior to discarding them                -->
+     <profile>
+       <id>swing-archive</id>
+       <modules>
+         <module>ogr</module>
+         <module>widgets-swing</module>
+         <module>widgets-swing-pending</module>
        </modules>
      </profile>
 
@@ -101,15 +116,6 @@
        <modules>
          <module>jts-wrapper</module>
          <module>geometry</module>
-       </modules>
-     </profile>
-     <profile>
-       <id>swing</id>
-       <activation>
-         <property><name>all</name></property>
-       </activation>
-       <modules>
-         <module>widgets-swing-pending</module>
        </modules>
      </profile>
      <profile>
@@ -164,8 +170,8 @@
          <module>tiger</module>
          <module>vpf</module>
          <module>xml-gpx</module>
-         <module>widgets-swing</module>
          <module>caching</module>
+         <module>swing</module>
        </modules>
      </profile>
   </profiles>
