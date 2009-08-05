@@ -24,7 +24,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
-import net.miginfocom.swing.MigLayout;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.gui.swing.event.MapMouseAdapter;
 import org.geotools.gui.swing.event.MapMouseEvent;
@@ -193,9 +192,6 @@ public class StatusBar extends JPanel implements MapPaneListener {
      * the first space for map coordinates.
      */
     private void init() {
-        MigLayout layout = new MigLayout("insets 0", "[][grow]");
-        setLayout(layout);
-
         spaces = new JLabel[NUM_SPACES];
         int fontH = getFontMetrics(this.getFont()).getHeight();
 

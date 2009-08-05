@@ -3,17 +3,52 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-      <groupId>org.geotools.demo</groupId>
-      <artifactId>demo</artifactId>
+      <groupId>org.geotools</groupId>
+      <artifactId>unsupported</artifactId>
       <version>2.6-SNAPSHOT</version>
     </parent>
 
     <groupId>org.geotools.demo</groupId>
-    <artifactId>gt-mapwidget</artifactId>
+    <artifactId>gt-swing</artifactId>
     <packaging>jar</packaging>
     <version>2.6-SNAPSHOT</version>
-    <name>Geotools Map Display Demo</name>
-    <developers>
+    <name>Swing widgets</name>
+  <scm>
+    <connection>
+      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/widgets-swing/
+    </connection>
+    <url>http://svn.osgeo.org/geotools/trunk/modules/extension/widgets-swing/</url>
+  </scm>
+
+  <description>
+    Provides widgets for map display and other GUI elements
+  </description>
+
+  <licenses>
+    <license>
+      <name>Lesser General Public License (LGPL)</name>
+      <url>http://www.gnu.org/copyleft/lesser.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+
+  <!-- =========================================================== -->
+  <!--     Developers and Contributors                             -->
+  <!-- =========================================================== -->
+  <developers>
+    <developer>
+      <name>Jody Garnett</name>
+      <id>jive</id>
+      <email>jody.garnett@lisasoft.com</email>
+      <organization>LISAsoft</organization>
+      <organizationUrl>http://lisasoft.com/</organizationUrl>
+      <timezone>+10</timezone>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
         <developer>
             <name>Michael Bedward</name>
             <id>mbedward</id>
@@ -23,48 +58,13 @@
             <timezone>+10</timezone>
         </developer>
     </developers>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-render</artifactId>
-            <version>2.6-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-shapefile</artifactId>
-            <version>2.6-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-epsg-hsql</artifactId>
-            <version>2.6-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.miglayout</groupId>
-            <artifactId>miglayout</artifactId>
-            <version>3.7</version>
-            <classifier>swing</classifier>
         </dependency>
     </dependencies>
 </project>
