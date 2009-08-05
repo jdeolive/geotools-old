@@ -81,7 +81,9 @@ If you have already created your project at the command line (see above) then al
 Your New Project
 ----------------
 
-1. In your IDE you can now now open up your *pom.xml* file and have a look at it::
+1. In your IDE you can now now open up your *pom.xml* file and have a look at it:
+
+.. sourcecode:: xml
 
     <project xmlns="http://maven.apache.org/POM/4.0.0"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -114,9 +116,15 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
 * A new dependency:: *gt-main* version |gtVersion|
 * A list of *repositories* where maven can find GeoTools and all the cool stuff it uses
 
-Here is what that looks like
+Here is what that looks like:
 
-.. _parsed-literal::
+.. NOTE: *********************************************************************
+         The gtVersion substitution isn't working in the code block below. 
+         It does work in a parsed-literal block but sphinx gets confused about
+         all the xml statements :(
+         *********************************************************************
+
+.. sourcecode:: xml
 
  <project xmlns="http://maven.apache.org/POM/4.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -138,7 +146,7 @@ Here is what that looks like
      <dependency>
        <groupId>org.geotools</groupId>
        <artifactId>gt-main</artifactId>
-       <version>FIX ME - VERSION TEXT REPLACEMENT DOESN'T WORK IN LITERAL BLOCK</version>
+       <version>|gtVersion|</version>
      </dependency>
    </dependencies>
  
@@ -185,45 +193,49 @@ If you are using Netbeans you don't need to worry about this step.
 Modifying Main
 --------------
 
-Let's open up your App::
+Let's open up your App:
 
- package org.geotools.demo.example;
+.. sourcecode:: java
 
- /**
-  * Hello world!
-  *
-  */
- public class App
- {
-     public static void main( String[] args )
-     {
-         System.out.println( "Hello World!" );
-     }
- }
+	 package org.geotools.demo.example;
 
-And add some GeoTools code to it::
+	 /**
+	  * Hello world!
+	  *
+	  */
+	 public class App
+	 {
+	     public static void main( String[] args )
+	     {
+		 System.out.println( "Hello World!" );
+	     }
+	 }
 
- package org.geotools.demo.example;
+And add some GeoTools code to it:
 
- import org.geotools.factory.GeoTools;
- /**
-  * Hello world!
-  *
-  */
- public class App
- {
-     public static void main( String[] args )
-     {
-         System.out.println( "Hello GeoTools:" + GeoTools.getVersion() );
-     }
- }
+.. sourcecode:: java
 
-You can run the application from your IDE::
- Hello GeoTools:2.5.SNAPSHOT
+	 package org.geotools.demo.example;
 
-Or from build from the command line::
+	 import org.geotools.factory.GeoTools;
+	 /**
+	  * Hello world!
+	  *
+	  */
+	 public class App
+	 {
+	     public static void main( String[] args )
+	     {
+		 System.out.println( "Hello GeoTools:" + GeoTools.getVersion() );
+	     }
+	 }
 
- C:\java\example>mvn compile
+You can build and run the application from within your IDE or from the command line.
+
+Compiling your application from the command line is as simple as typing ``mvn install``::
+
+ C:\java\example>mvn install
+
  [INFO] Scanning for projects...
  [INFO] ------------------------------------------------------------------------
  [INFO] Building example
@@ -241,9 +253,11 @@ Or from build from the command line::
  [INFO] Final Memory: 3M/8M
  [INFO] ------------------------------------------------------------------------
 
-And then run from the command line::
+
+Running your application from the command line is a bit more cumbersome, requiring this Maven incantation::
 
  C:\java\example>mvn exec:java -Dexec.mainClass="org.geotools.demo.example.App"
+ 
  [INFO] Scanning for projects...
  [INFO] Searching repository for plugin with prefix: 'exec'.
  [INFO] ----------------------------------------------------------------------------
@@ -262,48 +276,78 @@ And then run from the command line::
  [INFO] Final Memory: 3M/6M
  [INFO] ------------------------------------------------------------------------
 
-Fun Fun Fun.
+.. tip:: If you will be running your application from the command line frequently you can avoid the long
+         incantation above by specifying the main class in the pom.xml file. See the Maven documentation
+         for details.
+ 
+Fun Fun Fun !
 
 How to Read a Shapefile
 =======================
 
-Now that we have tried out maven, we can get down to working with some real spatial data. The shapefile format used by ESRI products is in very common use, if you do not already have a shapefile please download "world_borders.zip" and "world_borders.prj" from the following location:
+Now that we have tried out maven, we can get down to working with some real spatial data. The shapefile format used by ESRI products is in very common use. If you don't have a shapefile handy, you can download "world_borders.zip" and "world_borders.prj" from the following location:
 
 * http://www.mappinghacks.com/data/
 
-You can find some more sample data here:
+You can also find some more sample data here:
 
 * http://udig.refractions.net/docs/data.zip
 
-After you have found some sample data please please make sure to unzip the archive into the individual files shp, dbf, and shx files. The prj file is used to describe the projection of the data and is very useful if you want to draw or perform analysis.
+.. note:: Please make sure to unzip the archive into the individual shp, dbf, and shx files. The prj file is used to describe the projection of the data and is very useful if you want to draw or perform analysis.
 
 Adding the Shape and EPSG-HSQL Plugins to your Project
 ------------------------------------------------------
 
-We are going to start by adding two plugins to GeoTools toolkit. Plugins are used to add functionality to the core library.
+We are going to start by adding two plugins to our GeoTools application. Plugins are used to add functionality to the core library.
 
 Here are the plugins we will be using to to read a shapefile.
 
 * gt2-shape - Is used to reads file.shp, file.dbf, file.shx etc...
 * gt2-epsg-hsql - Is used to read file.prj
 
-You can add these plugins by editing your pom.xml dependency section::
+For both of these we want to use version |gtVersion|. In fact, since we will always be using the same version for all of the GeoTools dependencies that we add to our project we can make life easier for ourselves by specifying this in the top part of the pom.xml file like this:
 
+.. sourcecode:: xml
+
+  <project>
+    ...
+    <properties>
+      <geotools.version>2.6-M2</geotools.version>
+    </properties>
+
+Now, instead of explicitly specifying the version for each GeoTools module in our project (and having to edit them all when we upgrade) we can refer to our ``geotools.version`` property like this:
+
+.. sourcecode:: xml
+
+     <dependency>
+       <groupId>org.geotools</groupId>
+       <artifactId>gt-main</artifactId>
+       <version>${geotools.version}</version>
+     </dependency>
+
+OK, after that brief digression, let's add our plugins by editing the pom.xml file so that the dependencies section looks like this:
+
+.. sourcecode:: xml
+
+     <dependency>
+       <groupId>org.geotools</groupId>
+       <artifactId>gt-main</artifactId>
+       <version>${geotools.version}</version>
+     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
-      <version>2.5.6</version>
+       <version>${geotools.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-epsg-hsql</artifactId>
-      <version>2.5.6</version>
+       <version>${geotools.version}</version>
     </dependency>
 
-Although 2.5.6 is shown above please please use make use of the correct "version" for the GeoTools you wish to work with.
 
-Refresh your IDE Project Files
-------------------------------
+Refresh your IDE Project Files (Eclipse users only)
+---------------------------------------------------
 
 1. You will need to kick these dependencies into your IDE with another ::
 
@@ -315,9 +359,9 @@ Refresh your IDE Project Files
 Where did all these other JARs come from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-GeoTools is divided up into a series of modules, plugins and extentions. For the back ground information on how GeoTools slots together please read: http://docs.codehaus.org/display/GEOTDOC/02+Meet+the+GeoTools+Library
+GeoTools is divided up into a series of modules, plugins and extensions. For the background information on how GeoTools slots together please read: http://docs.codehaus.org/display/GEOTDOC/02+Meet+the+GeoTools+Library
 
-GeoTools makes use of a lot of third party jars. We really do want to stick to working on spatial code. Following our don't invent here policy we turn to the experts to handle things such as logging, working with java beans. and so on.
+GeoTools makes use of a lot of third party jars. We really do want to stick to working on spatial code. Following our *don't invent here (mostly)* policy we turn to the experts to handle things such as logging, working with java beans. and so on.
 
 You can use maven to provide a tree of dependencies so you can check on what needs what:
 
