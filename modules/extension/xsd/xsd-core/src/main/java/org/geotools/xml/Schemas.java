@@ -222,20 +222,17 @@ public class Schemas {
 
     public static final XSDSchema parse(String location, List locators, List resolvers)
         throws IOException {
+        
+        //url decode to take care of paths with spaces
+        location = URLDecoder.decode( location );
+        
         //check for case of file url, make sure it is an absolute reference
         if (new File(location).exists()) {
             location = new File(location).getCanonicalFile().toURI().toString();
 
             //location = new File(location).getCanonicalPath();
         }
-        else {
-            //if path has spaces in it they were probably encoded with %20, decode
-            String dlocation = URLDecoder.decode(location);
-            if (new File(dlocation).exists()) {
-                location = new File(dlocation).getCanonicalFile().toURI().toString();
-            }
-        }
-        
+
         URI uri = URI.createURI(location);
         final ResourceSet resourceSet = new ResourceSetImpl();
 
