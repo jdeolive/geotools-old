@@ -46,7 +46,7 @@ public class ReprojectedFiltersTest extends TestCase {
         assertTrue(TestData.copy(this, sibling(shapeName, "shx")).canRead());
         assertTrue(TestData.copy(this, sibling(shapeName, "prj")).canRead());
         
-        ds = new ShapefileDataStore(shape.toURL());
+        ds = new ShapefileDataStore(shape.toURI().toURL());
     }
 
     /**

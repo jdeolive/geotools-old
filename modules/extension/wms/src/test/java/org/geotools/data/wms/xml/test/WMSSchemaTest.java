@@ -46,7 +46,7 @@ public class WMSSchemaTest extends TestCase {
 	public void testGetCapabilities() throws Exception {
 		
 		File getCaps = TestData.file(this, "1.3.0Capabilities.xml");
-        URL getCapsURL = getCaps.toURL();
+        URL getCapsURL = getCaps.toURI().toURL();
 
 		Object object = DocumentFactory.getInstance(getCapsURL.openStream(), null, Level.WARNING);
 

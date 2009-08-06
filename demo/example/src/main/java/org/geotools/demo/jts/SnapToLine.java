@@ -79,7 +79,7 @@ public class SnapToLine {
             }
         }
         else {
-            params.put("url", file.toURL() );            
+            params.put("url", file.toURI().toURL() );            
         }        
         DataStore data = DataStoreFinder.getDataStore(params);        
         List<Name> names = data.getNames();

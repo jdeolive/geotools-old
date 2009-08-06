@@ -84,7 +84,7 @@ public class TestFixture {
         });
         for( int i=0; i<shapefiles.length;i++){
         	File shapefile = new File( directory, shapefiles[i] );
-        	ShapefileDataStore dataStore = new ShapefileDataStore( shapefile.toURL() );
+        	ShapefileDataStore dataStore = new ShapefileDataStore( shapefile.toURI().toURL() );
         	String dataStoreId = dataStore.getTypeNames()[0].toUpperCase();
         	String typeName = dataStore.getTypeNames()[0];
         	FeatureIterator<SimpleFeature> features = dataStore.getFeatureSource( typeName ).getFeatures().features();

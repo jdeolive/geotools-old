@@ -83,7 +83,7 @@ public class GeometryConformanceTestSuite extends TestSuite {
                 Properties excludes = findExclusions(testFile);
                 System.out.println("file: "+testFile.getName());
                 if (!isAllExcluded(excludes)) {
-                    InputStream inputStream = testFile.toURL().openStream();
+                    InputStream inputStream = testFile.toURI().toURL().openStream();
                     try {
                         InputSource inputSource = new InputSource(inputStream);
                         GeometryTestContainer container = parser
@@ -111,7 +111,7 @@ public class GeometryConformanceTestSuite extends TestSuite {
             File excludesFile = new File(excludesPath);
             if (excludesFile.exists()) {
                 Properties excludes = new Properties();
-                InputStream inputStream = excludesFile.toURL().openStream();
+                InputStream inputStream = excludesFile.toURI().toURL().openStream();
                 excludes.load(inputStream);
                 return excludes;
             }

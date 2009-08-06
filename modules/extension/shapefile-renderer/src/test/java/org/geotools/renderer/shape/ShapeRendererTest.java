@@ -88,14 +88,10 @@ public class ShapeRendererTest extends TestCase {
 
     protected void setUp() throws Exception {
         org.geotools.util.logging.Logging.getLogger("org.geotools").setLevel(Level.FINE);
-        File shp = new File(TestData.url(Rendering2DTest.class, "theme1.shp")
-                .getFile());
-        File shx = new File(TestData.url(Rendering2DTest.class, "theme1.shx")
-                .getFile());
-        File prj = new File(TestData.url(Rendering2DTest.class, "theme1.prj")
-                .getFile());
-        File dbf = new File(TestData.url(Rendering2DTest.class, "theme1.dbf")
-                .getFile());
+        File shp = DataUtilities.urlToFile(TestData.url(Rendering2DTest.class, "theme1.shp"));
+        File shx = DataUtilities.urlToFile(TestData.url(Rendering2DTest.class, "theme1.shx"));
+        File prj = DataUtilities.urlToFile(TestData.url(Rendering2DTest.class, "theme1.prj"));
+        File dbf = DataUtilities.urlToFile(TestData.url(Rendering2DTest.class, "theme1.dbf"));
 
         directory = TestData.file(Rendering2DTest.class, ".");
         

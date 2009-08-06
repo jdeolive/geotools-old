@@ -60,6 +60,7 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.PrjFileReader;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
@@ -283,8 +284,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			// URL that point to a file
 			final URL sourceURL = ((URL) input);
 			if (sourceURL.getProtocol().compareToIgnoreCase("file") == 0) {
-				this.source = input = new File(URLDecoder.decode(sourceURL
-						.getFile(), "UTF-8"));
+				this.source = input = DataUtilities.urlToFile(sourceURL);
 
 			}
 		}

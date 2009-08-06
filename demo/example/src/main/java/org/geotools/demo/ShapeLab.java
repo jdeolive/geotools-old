@@ -61,7 +61,7 @@ public class ShapeLab {
     public static void main(String[] args) throws Exception {
         File file = getShapeFile(args);
 
-        ShapefileDataStore shapefile = new ShapefileDataStore(file.toURL());
+        ShapefileDataStore shapefile = new ShapefileDataStore(file.toURI().toURL());
         String typeName = shapefile.getTypeNames()[0];
         FeatureSource featureSource = shapefile.getFeatureSource();
         FeatureType schema = featureSource.getSchema();
@@ -95,7 +95,7 @@ public class ShapeLab {
     private static Style createFromSLD(File sld) {
         SLDParser stylereader;
         try {
-            stylereader = new SLDParser(styleFactory, sld.toURL());
+            stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
             Style[] style = stylereader.readXML();
             return style[0];
         } catch (Exception e) {

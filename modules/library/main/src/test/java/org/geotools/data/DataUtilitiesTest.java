@@ -143,7 +143,7 @@ public class DataUtilitiesTest extends DataTestCase {
     public void handleFile( String path ) throws Exception {
         File file = new File( path );
         URI uri = file.toURI();
-        URL url = file.toURL();
+        URL url = file.toURI().toURL();
         URL url2 = file.toURI().toURL();
         
         assertEquals( "jdk contract", file.getAbsoluteFile(), new File( uri ));

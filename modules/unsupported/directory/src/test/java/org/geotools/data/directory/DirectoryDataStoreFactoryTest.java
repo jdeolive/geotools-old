@@ -35,7 +35,7 @@ public class DirectoryDataStoreFactoryTest extends TestSupport {
     @Test
     public void testSpacesPlainToURL() throws Exception {
         Map params = new HashMap();
-        params.put(DirectoryDataStoreFactory.URLP.key, tempDir.toURL());
+        params.put(DirectoryDataStoreFactory.URLP.key, tempDir.toURI().toURL());
         params.put(DirectoryDataStoreFactory.NAMESPACE.key, "http://www.geotools.org");
         DirectoryDataStoreFactory factory = new DirectoryDataStoreFactory();
         assertTrue(factory.canProcess(params));

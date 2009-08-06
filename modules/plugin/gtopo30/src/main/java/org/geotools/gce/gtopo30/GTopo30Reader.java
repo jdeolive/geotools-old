@@ -64,6 +64,7 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
@@ -199,14 +200,14 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 					"GTopo30Reader:No source set to read this coverage.");
 		}
 		if (source instanceof File) {
-			urlToUse = ((File) source).toURL();
+			urlToUse = ((File) source).toURI().toURL();
 		} else if (source instanceof URL) {
 			// we only allow files
 			urlToUse = (URL) source;
 		} else if (source instanceof String) {
 			try {
 				// is it a filename?
-				urlToUse = new File((String) source).toURL();
+				urlToUse = new File((String) source).toURI().toURL();
 			} catch (MalformedURLException e) {
 				// is it a URL
 				urlToUse = new URL((String) source);
@@ -223,16 +224,7 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 		// ///////////////////////////////////////////////////////////
 		final String filename;
 
-		try {
-			filename = URLDecoder.decode(urlToUse.getFile(), "UTF-8");
-		} catch (UnsupportedEncodingException use) {
-			MalformedURLException exception = new MalformedURLException(
-					new StringBuffer("Unable to decode ").append(urlToUse)
-							.append(" cause ").append(use.getMessage())
-							.toString());
-			exception.initCause(exception);
-			throw exception;
-		}
+		filename = DataUtilities.urlToFile(urlToUse).getName();
 
 		boolean recognized = false;
 		boolean extUpperCase = false;
@@ -459,10 +451,8 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 		//
 		// /////////////////////////////////////////////////////////////////////
 		// trying to create a channel to the file to read
-		final String filePath = URLDecoder.decode(this.demURL.getFile(),
-				"UTF-8");
-		final ImageInputStream iis = ImageIO.createImageOutputStream(new File(
-				filePath));
+		final File file = DataUtilities.urlToFile(demURL);
+		final ImageInputStream iis = ImageIO.createImageOutputStream(file);
 		if (header.getByteOrder().compareToIgnoreCase("M") == 0) {
 			iis.setByteOrder(ByteOrder.BIG_ENDIAN);
 		} else {
@@ -555,7 +545,7 @@ public final class GTopo30Reader extends AbstractGridCoverage2DReader implements
 		BufferedReader reader = null;
 		try {
 			// getting a reader
-			reader = new BufferedReader(new FileReader(prjURL.getFile()));
+			reader = new BufferedReader(new FileReader(DataUtilities.urlToFile(prjURL)));
 
 			// reading the first line to see if I need to read it all
 			final StringBuffer buffer = new StringBuffer(reader.readLine());

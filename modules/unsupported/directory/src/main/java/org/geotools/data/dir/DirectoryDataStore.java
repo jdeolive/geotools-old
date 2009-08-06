@@ -120,7 +120,7 @@ public class DirectoryDataStore implements DataStore, LockingManager {
         for (int i = 0; i < children.length; i++) {
             if (children[i].isFile()) {
                 AbstractFileDataStore afds = (AbstractFileDataStore) FileDataStoreFinder
-                    .getDataStore(children[i].toURL());
+                    .getDataStore(children[i].toURI().toURL());
 
                 if (afds != null) {
                     dataStores.put(afds.getTypeNames()[0], afds);
@@ -184,7 +184,7 @@ public class DirectoryDataStore implements DataStore, LockingManager {
 
             if (!f.exists()) {
                 AbstractFileDataStore afds = (AbstractFileDataStore) FileDataStoreFinder
-                    .getDataStore(f.toURL());
+                    .getDataStore(f.toURI().toURL());
 
                 if (afds != null) {
                     afds.createSchema(featureType);

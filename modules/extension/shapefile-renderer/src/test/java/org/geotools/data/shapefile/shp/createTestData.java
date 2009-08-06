@@ -54,7 +54,7 @@ public class createTestData {
         }
 
         IndexedShapefileDataStoreFactory factory = new IndexedShapefileDataStoreFactory();
-        DataStore datastore = factory.createDataStore(file.toURL());
+        DataStore datastore = factory.createDataStore(file.toURI().toURL());
         
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.setName( "test_lines" );
@@ -110,7 +110,7 @@ public class createTestData {
         });
         store.addFeatures(collection);
 
-        return file.toURL();
+        return file.toURI().toURL();
     }
 
     /**

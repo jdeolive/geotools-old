@@ -46,7 +46,7 @@ public class LineLazySearchCollectionTest extends TestCaseSupport {
     protected void setUp() throws Exception {
         super.setUp();
         file = copyShapefiles("shapes/streams.shp");
-        ds = new IndexedShapefileDataStore(file.toURL());
+        ds = new IndexedShapefileDataStore(file.toURI().toURL());
         ds.buildQuadTree(0);
         tree = openQuadTree(file);
         crs = ds.getSchema().getCoordinateReferenceSystem();

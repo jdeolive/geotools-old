@@ -24,6 +24,7 @@ import java.util.Locale;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.io.LineFormat;
 import org.geotools.image.io.StreamImageReader;
 import org.geotools.resources.i18n.Vocabulary;
@@ -260,7 +261,7 @@ public abstract class TextImageReader extends StreamImageReader {
         if (input instanceof File) {
             file = ((File) input).getName();
         } else if (input instanceof URL) {
-            file = ((URL) input).getFile();
+            file = DataUtilities.urlToFile((URL) input).getPath();
         } else {
             file = null;
         }

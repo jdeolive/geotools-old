@@ -101,7 +101,7 @@ public final class ArcGridVisualizationTest extends ArcGridTestCaseAdapter {
 		
 		LOGGER.info("Reading the gzipped coverage through a URL");
 		// Reading the coverage through a URL
-		reader = new ArcGridReader( f.toURL());
+		reader = new ArcGridReader( f.toURI().toURL());
 		final GridCoverage2D gc4 = (GridCoverage2D) reader.read(null);
 
 		// show the coverage or try to load the data

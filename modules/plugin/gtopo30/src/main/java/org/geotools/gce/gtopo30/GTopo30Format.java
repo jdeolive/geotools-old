@@ -141,7 +141,7 @@ public final class GTopo30Format extends AbstractGridFormat implements Format {
 
 		if (o instanceof File) {
 			try {
-				urlToUse = ((File) o).toURL();
+				urlToUse = ((File) o).toURI().toURL();
 			} catch (MalformedURLException e) {
 				if (LOGGER.isLoggable(Level.FINE))
 					LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
@@ -153,7 +153,7 @@ public final class GTopo30Format extends AbstractGridFormat implements Format {
 		} else if (o instanceof String) {
 			try {
 				// is it a filename?
-				urlToUse = new File((String) o).toURL();
+				urlToUse = new File((String) o).toURI().toURL();
 			} catch (MalformedURLException e) {
 				// is it a URL
 				try {

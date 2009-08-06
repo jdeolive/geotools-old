@@ -84,7 +84,7 @@ public class GeoTiffReaderTest extends TestCase {
 				o = files[i];
 			else
 				// testing url
-				o = files[i].toURL();
+				o = files[i].toURI().toURL();
 			if (format.accepts(o)) {
 				buffer.append("ACCEPTED").append("\n");
 

@@ -62,13 +62,7 @@ public class GridCoverageFinder {
 
         if (url != null) {
             String name = url.getFile().toLowerCase();
-            File file = null;
-
-            try {
-                file = new File(url.toURI());
-            } catch (URISyntaxException ex) {
-                ex.printStackTrace();
-            }
+            File file = DataUtilities.urlToFile(url);
 
             if (file != null) {
                 // try a geotiff gridcoverage

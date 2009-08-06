@@ -26,6 +26,8 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.StringTokenizer;
 
+import org.geotools.data.DataUtilities;
+
 
 /**
  * This class parses the STX GTopo30 statistics file and allows to retrieve its
@@ -57,8 +59,7 @@ final class GT30Stats {
      * @throws IOException if some problem occurs trying to read the file
      */
     public GT30Stats(final URL statsURL) throws IOException {
-        final String path = statsURL.getFile();
-        final File stats = new File(java.net.URLDecoder.decode(path, "UTF-8"));
+        final File stats = DataUtilities.urlToFile(statsURL);
 
 		BufferedReader reader = null;
 		try {

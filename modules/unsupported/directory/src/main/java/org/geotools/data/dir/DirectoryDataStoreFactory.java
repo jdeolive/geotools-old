@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
+import org.geotools.data.DataUtilities;
 
 
 /**
@@ -79,7 +80,7 @@ public class DirectoryDataStoreFactory implements DataStoreFactorySpi {
         }
 
         URL url = (URL) DIRECTORY.lookUp(params);
-        File f = new File( url.getFile() );
+        File f = DataUtilities.urlToFile(url);
         String[] strs = (String[]) CREATE_SUFFIX_ORDER.lookUp(params);
 
         if (strs == null) {
@@ -117,7 +118,7 @@ public class DirectoryDataStoreFactory implements DataStoreFactorySpi {
         }
 
         URL url = (URL) DIRECTORY.lookUp(params);
-        File f = new File( url.getFile() );
+        File f = DataUtilities.urlToFile(url);
 
         if (f.exists()) {
             throw new IOException("Invalid parameter " + DIRECTORY.key
@@ -171,7 +172,7 @@ public class DirectoryDataStoreFactory implements DataStoreFactorySpi {
     public boolean canProcess(Map params) {
         try {
             URL url = (URL) DIRECTORY.lookUp(params);
-        	File f = new File( url.getFile() );
+        	File f = DataUtilities.urlToFile(url);
             String[] str = (String[]) CREATE_SUFFIX_ORDER.lookUp(params);
 
             //return ((f != null) && (str != null) && f.isDirectory());

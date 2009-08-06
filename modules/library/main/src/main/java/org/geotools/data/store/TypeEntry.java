@@ -152,7 +152,7 @@ public interface TypeEntry {
      * the resource, not those that control opperation.
      * <ul>
      * <li>when representing a URL the hashcode must be: url.hashCode()
-     * <li>when representing a File the hashcode must be: file.toURL().hashcode()
+     * <li>when representing a File the hashcode must be: file.toURI().toURL().hashcode()
      * <li>when representing a database connection: hascode of jdbc url w/ out username, password
      * </ul> 
      * </p>

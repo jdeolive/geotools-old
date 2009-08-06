@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.data.shapefile.indexed.IndexType;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
@@ -375,7 +376,7 @@ public class ShapefileDataStoreFactory implements FileDataStoreFactorySpi {
         params.put(URLP.key, url);
 
         boolean isLocal = url.getProtocol().equalsIgnoreCase("file");
-        if (isLocal && !(new File(url.getFile()).exists())) {
+        if (isLocal && !DataUtilities.urlToFile(url).exists()) {
             return createNewDataStore(params);
         } else {
             return createDataStore(params);

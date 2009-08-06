@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.Hints;
@@ -166,13 +167,13 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
             //
             // /////////////////////////////////////////////////////////////////////
             if (source instanceof File)
-                sourceURL = ((File) source).toURL();
+                sourceURL = ((File) source).toURI().toURL();
             else if (source instanceof URL)
                 sourceURL = (URL) source;
             else if (source instanceof String) {
                 final File tempFile = new File((String) source);
                 if (tempFile.exists()) {
-                    sourceURL = tempFile.toURL();
+                    sourceURL = tempFile.toURI().toURL();
                 } else
                     try {
                         sourceURL = new URL(URLDecoder.decode((String) source, "UTF8"));
@@ -216,7 +217,7 @@ public final class ImageMosaicFormat extends AbstractGridFormat implements Forma
             // Now look for the properties file and try to parse relevant fields
             //
             // /////////////////////////////////////////////////////////////////////
-            String temp = URLDecoder.decode(sourceURL.getFile(), "UTF8");
+            String temp = DataUtilities.urlToFile(sourceURL).getPath();
             final int index = temp.lastIndexOf(".");
             if (index != -1)
                 temp = temp.substring(0, index);

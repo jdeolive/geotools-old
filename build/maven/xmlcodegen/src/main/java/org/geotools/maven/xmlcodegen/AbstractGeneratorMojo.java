@@ -210,7 +210,7 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
 				
 				for ( Iterator ra = resolvedArtifacts.iterator(); ra.hasNext(); ) {
 				    Artifact resolvedArtifact = (Artifact) ra.next();
-				    urls.add( resolvedArtifact.getFile().toURL() );    
+				    urls.add( resolvedArtifact.getFile().toURI().toURL() );    
 				}
 				
 			} 

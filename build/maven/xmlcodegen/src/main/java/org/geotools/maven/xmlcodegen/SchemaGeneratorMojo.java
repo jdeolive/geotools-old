@@ -78,7 +78,7 @@ public class SchemaGeneratorMojo extends AbstractGeneratorMojo {
                 );
 	            try {
 	                artifactResolver.resolve( artifact, remoteRepositories, localRepository );
-	                urls.add( artifact.getFile().toURL() );
+	                urls.add( artifact.getFile().toURI().toURL() );
 	            } 
 	            catch( Exception e ) {
 	                getLog().error( "Unable to resolve " + artifact.getId() );
@@ -87,7 +87,7 @@ public class SchemaGeneratorMojo extends AbstractGeneratorMojo {
 	        
 	        //add compiled classes to classloader
 	        try {
-	            urls.add( new File(project.getBuild().getOutputDirectory()).toURL() );    
+	            urls.add( new File(project.getBuild().getOutputDirectory()).toURI().toURL() );    
 	        }
 	        catch( MalformedURLException e ) {
 	            getLog().error("Bad url: " + project.getBuild().getOutputDirectory() );

@@ -106,7 +106,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         }
         
         File shpFile = copyShapefiles(resource);
-        URL url = shpFile.toURL();
+        URL url = shpFile.toURI().toURL();
         IndexedShapefileDataStore s = new IndexedShapefileDataStore(url);
         FeatureSource<SimpleFeatureType, SimpleFeature> fs = s.getFeatureSource(s.getTypeNames()[0]);
 
@@ -122,7 +122,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         if (q == null)
             q = new DefaultQuery();
         File shpFile = copyShapefiles(resource);
-        URL url = shpFile.toURL();
+        URL url = shpFile.toURI().toURL();
         ShapefileDataStore s = new IndexedShapefileDataStore(url, null, false,
                 true, IndexType.QIX, charset);
         FeatureSource<SimpleFeatureType, SimpleFeature> fs = s.getFeatureSource(s.getTypeNames()[0]);
@@ -171,7 +171,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
 
     public void testSpacesInPath() throws Exception {
         URL u = TestData.url(TestCaseSupport.class, "folder with spaces/pointtest.shp");
-        File f = new File(URLDecoder.decode(u.getFile(), "UTF-8"));
+        File f = DataUtilities.urlToFile(u);
         assertTrue(f.exists());
 
         IndexedShapefileDataStore s = new IndexedShapefileDataStore(u);
@@ -201,7 +201,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
 
     public void testCreateAndReadQIX() throws Exception {
         File shpFile = copyShapefiles(STATE_POP);
-        URL url = shpFile.toURL();
+        URL url = shpFile.toURI().toURL();
         String filename = url.getFile();
         filename = filename.substring(0, filename.lastIndexOf("."));
 
@@ -257,7 +257,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
 
     public void testFidFilter() throws Exception {
         File shpFile = copyShapefiles(STATE_POP);
-        URL url = shpFile.toURL();
+        URL url = shpFile.toURI().toURL();
         IndexedShapefileDataStore ds = new IndexedShapefileDataStore(url, null, true, true,
                 IndexType.NONE);
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ds.getFeatureSource();
@@ -390,7 +390,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = createFeatureCollection();
         f.createNewFile();
 
-        IndexedShapefileDataStore sds = new IndexedShapefileDataStore(f.toURL());
+        IndexedShapefileDataStore sds = new IndexedShapefileDataStore(f.toURI().toURL());
         writeFeatures(sds, fc);
 
         return sds;
@@ -616,7 +616,7 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
         tmpFile.createNewFile();
 
         IndexedShapefileDataStore s = new IndexedShapefileDataStore(tmpFile
-                .toURL());
+                .toURI().toURL());
         writeFeatures(s, features);
         s.dispose();
     }
@@ -689,14 +689,14 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
 
         // write features
         IndexedShapefileDataStore s = new IndexedShapefileDataStore(tmpFile
-                .toURL());
+                .toURI().toURL());
         s.createSchema(type);
         writeFeatures(s, features);
 
         s.dispose();
         
         // read features
-        s = new IndexedShapefileDataStore(tmpFile.toURL());
+        s = new IndexedShapefileDataStore(tmpFile.toURI().toURL());
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = loadFeatures(s);
         FeatureIterator<SimpleFeature> fci = fc.features();

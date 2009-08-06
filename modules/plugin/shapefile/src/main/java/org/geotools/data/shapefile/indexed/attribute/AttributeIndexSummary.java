@@ -28,6 +28,8 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 
+import org.geotools.data.DataUtilities;
+
 /**
  * <P>
  * Class to manage a summary for attribute indexes.
@@ -90,7 +92,7 @@ public class AttributeIndexSummary {
         }
         summaryURL = new URL(filename + SUMMARY_EXT);
         // create summary file (if it doesn't exist) empty
-        new File(summaryURL.getFile()).createNewFile();
+        DataUtilities.urlToFile(summaryURL).createNewFile();
         this.cacheSize = cacheSize;
     }
 
@@ -108,7 +110,7 @@ public class AttributeIndexSummary {
         }
         synchronized (this) {
             // now invokes AttributeIndexWriter to create the index
-            File f = new File(url.getFile());
+            File f = DataUtilities.urlToFile(url);
             if (f.exists()) {
                 if (!f.delete())
                     throw new IOException("File index cannot be deleted. Probably it's locked.");
@@ -131,10 +133,10 @@ public class AttributeIndexSummary {
         URL url = getIndexURL(attribute);
         if (url == null)
             return null;
-        File f = new File(url.getFile());
+        File f = DataUtilities.urlToFile(url);
         if (!f.exists())
             return null;
-        RandomAccessFile raf = new RandomAccessFile(new File(url.getFile()), "r");
+        RandomAccessFile raf = new RandomAccessFile(DataUtilities.urlToFile(url), "r");
         return new AttributeIndexReader(attribute, raf.getChannel());
     }
 
@@ -142,7 +144,7 @@ public class AttributeIndexSummary {
         URL url = getIndexURL(attribute);
         if (url == null)
             return false;
-        return (new File(url.getFile())).exists();
+        return DataUtilities.urlToFile(url).exists();
     }
 
     /**
@@ -155,7 +157,7 @@ public class AttributeIndexSummary {
         URL url = getIndexURL(attribute);
         if (url == null)
             return false;
-        File f = new File(url.getFile());
+        File f = DataUtilities.urlToFile(url);
         return f.exists();
     }
 
@@ -167,7 +169,7 @@ public class AttributeIndexSummary {
      * @return URL to index file or null if such attribute doesn't have an index
      */
     protected URL getIndexURL(String attribute) throws FileNotFoundException, IOException {
-        File f = new File(summaryURL.getFile());
+        File f = DataUtilities.urlToFile(summaryURL);
         BufferedReader in = new BufferedReader(new FileReader(f));
         int count = 0;
         while (in.ready()) {
@@ -183,7 +185,7 @@ public class AttributeIndexSummary {
     }
 
     protected synchronized void addIndex(String attribute) throws FileNotFoundException, IOException {
-        File f = new File(summaryURL.getFile());
+        File f = DataUtilities.urlToFile(summaryURL);
         PrintWriter out = new PrintWriter(new FileWriter(f,true));
         out.println(attribute);
         out.flush();
@@ -192,10 +194,10 @@ public class AttributeIndexSummary {
 
     protected FileChannel getDBFChannel() throws FileNotFoundException, MalformedURLException {
         URL url = new URL(filename+".dbf");
-        File f = new File(url.getFile());
+        File f = DataUtilities.urlToFile(url);
         if (!f.exists())
             url = new URL(filename+".DBF");
-        f = new File(url.getFile());
+        f = DataUtilities.urlToFile(url);
         if (!f.exists())
             throw new FileNotFoundException("DBF file not found");
         RandomAccessFile raf = new RandomAccessFile(f, "r");

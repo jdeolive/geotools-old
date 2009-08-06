@@ -51,7 +51,7 @@ public class ShapefileNullHandlingTest extends TestCaseSupport {
 	@Test
 	public void testWriteNulls() throws Exception {
 		File tempShape = getTempFile();
-		ShapefileDataStore store = new ShapefileDataStore(tempShape.toURL());
+		ShapefileDataStore store = new ShapefileDataStore(tempShape.toURI().toURL());
 		store.createSchema(schema);
 		
 		// write out the features

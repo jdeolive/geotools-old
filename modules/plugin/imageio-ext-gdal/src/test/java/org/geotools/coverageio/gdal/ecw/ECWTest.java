@@ -83,7 +83,7 @@ public final class ECWTest extends GDALTestCase {
 
 		// get a reader
 		final File file = TestData.file(this, fileName);
-		final URL url = file.toURL();
+		final URL url = file.toURI().toURL();
 		final Object source = url;
 		final BaseGDALGridCoverage2DReader reader = new ECWReader(source, hints);
 		// Testing the getSource method

@@ -259,7 +259,7 @@ public class MosaicIndexBuilder extends BaseArgumentsManager implements
 		GeometryFactory geomFactory = new GeometryFactory(precMod);
 		try {
 				index = new ShapefileDataStore(new File(locationPath + File.separator
-					+ indexName + ".shp").toURL());
+					+ indexName + ".shp").toURI().toURL());
 		} catch (MalformedURLException ex) {
 			if (LOGGER.isLoggable(Level.SEVERE))
 				LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);

@@ -73,6 +73,7 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.PrjFileReader;
 import org.geotools.data.WorldFileReader;
 import org.geotools.factory.Hints;
@@ -208,8 +209,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
 						new RuntimeException(e);
 					}
 				} else if (sourceURL.getProtocol().equalsIgnoreCase("file"))
-					source = new File(URLDecoder.decode(sourceURL.getFile(),
-							"UTF-8"));
+					source = DataUtilities.urlToFile(sourceURL);
 			}
 
 			closeMe = true;

@@ -1488,7 +1488,7 @@ public class ShapefileRenderer implements GTRenderer {
     		rendererHints2.put(LABEL_CACHE_KEY, new IntegratingLabelCache(labelCache));
     		delegate.setRendererHints(rendererHints2);
     		
-    		// cascade events
+    		// cascade events, provided there is anyone listening
     		listener = new RenderListener() {
             
                 public void featureRenderer(SimpleFeature feature) {

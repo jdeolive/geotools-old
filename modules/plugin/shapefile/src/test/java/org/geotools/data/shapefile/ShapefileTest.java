@@ -143,14 +143,14 @@ public class ShapefileTest extends TestCaseSupport {
 
         // write features
         ShapefileDataStoreFactory make = new ShapefileDataStoreFactory();
-        DataStore s = make.createDataStore(tmpFile.toURL());
+        DataStore s = make.createDataStore(tmpFile.toURI().toURL());
         s.createSchema(type);
         String typeName = type.getTypeName();
         FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) s.getFeatureSource(typeName);
 
         store.addFeatures(features);
 
-        s = new ShapefileDataStore(tmpFile.toURL());
+        s = new ShapefileDataStore(tmpFile.toURI().toURL());
         typeName = s.getTypeNames()[0];
         FeatureSource<SimpleFeatureType, SimpleFeature> source = s.getFeatureSource(typeName);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = source.getFeatures();
@@ -176,7 +176,7 @@ public class ShapefileTest extends TestCaseSupport {
 
     public void testDuplicateColumnNames() throws Exception {
         File file = TestData.file(TestCaseSupport.class, "bad/state.shp");
-        ShapefileDataStore dataStore = new ShapefileDataStore(file.toURL());
+        ShapefileDataStore dataStore = new ShapefileDataStore(file.toURI().toURL());
         FeatureSource<SimpleFeatureType, SimpleFeature> states = dataStore.getFeatureSource();
         SimpleFeatureType schema = states.getSchema();
         assertEquals(6, schema.getAttributeCount());

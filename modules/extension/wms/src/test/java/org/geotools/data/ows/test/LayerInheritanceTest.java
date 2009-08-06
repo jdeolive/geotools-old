@@ -39,7 +39,7 @@ public class LayerInheritanceTest extends TestCase {
 	public void testInheritCapabilities() throws Exception {
 		
 		File getCaps = TestData.file(this, "inheritCap.xml");
-      URL getCapsURL = getCaps.toURL();
+      URL getCapsURL = getCaps.toURI().toURL();
 
       Map hints = new HashMap();
       hints.put(DocumentHandler.DEFAULT_NAMESPACE_HINT_KEY, WMSSchema.getInstance());

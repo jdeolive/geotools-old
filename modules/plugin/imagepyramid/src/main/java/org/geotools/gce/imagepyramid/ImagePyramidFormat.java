@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.PrjFileReader;
 import org.geotools.factory.Hints;
 import org.geotools.parameter.DefaultParameterDescriptor;
@@ -148,10 +149,7 @@ public final class ImagePyramidFormat extends AbstractGridFormat implements
 				if (sourceURL.getProtocol() != "file")
 					return false;
 
-				final String temp = URLDecoder.decode(sourceURL.getFile(),
-						"UTF8");
-
-				sourceFile = new File(temp);
+				sourceFile = DataUtilities.urlToFile(sourceURL);
 			} else if (source instanceof String) {
 				sourceFile = new File((String) source);
 				if (!sourceFile.exists())

@@ -98,7 +98,7 @@ public final class EsriHdrTest extends GDALTestCase {
         hints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, l));
 
         // get a reader
-        final URL url = file.toURL();
+        final URL url = file.toURI().toURL();
         final Object source = url;
         final BaseGDALGridCoverage2DReader reader = new EsriHdrReader(source,
                 hints);

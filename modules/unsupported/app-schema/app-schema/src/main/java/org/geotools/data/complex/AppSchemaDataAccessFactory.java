@@ -82,7 +82,7 @@ public class AppSchemaDataAccessFactory implements DataAccessFactory {
                                 + includedConfig.getPath() + "' doesn't exist!");
             }
 
-            URL relatedConfigURL = includedConfig.toURL();
+            URL relatedConfigURL = includedConfig.toURI().toURL();
             params.put("url", relatedConfigURL);
             // this will register the related data access, to enable feature chaining
             createDataStore(params);

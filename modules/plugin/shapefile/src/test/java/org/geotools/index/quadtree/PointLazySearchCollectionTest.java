@@ -43,7 +43,7 @@ public class PointLazySearchCollectionTest extends TestCaseSupport {
     protected void setUp() throws Exception {
         super.setUp();
         file = copyShapefiles("shapes/archsites.shp");
-        ds = new IndexedShapefileDataStore(file.toURL());
+        ds = new IndexedShapefileDataStore(file.toURI().toURL());
         ds.buildQuadTree(0);
         tree = LineLazySearchCollectionTest.openQuadTree(file);
         crs = ds.getSchema().getCoordinateReferenceSystem();

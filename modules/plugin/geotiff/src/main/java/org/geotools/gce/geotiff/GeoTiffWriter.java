@@ -47,6 +47,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.adapters.CRS2GeoTiffMetadataAdapter;
 import org.geotools.gce.geotiff.adapters.GeoTiffConstants;
@@ -107,8 +108,7 @@ public final class GeoTiffWriter extends AbstractGridCoverageWriter implements
 		else if (destination instanceof URL) {
 			final URL dest = (URL) destination;
 			if (dest.getProtocol().equalsIgnoreCase("file")) {
-				final File destFile = new File(URLDecoder.decode(
-						dest.getFile(), "UTF-8"));
+				final File destFile = DataUtilities.urlToFile(dest);
 				this.outStream = ImageIO.createImageOutputStream(destFile);
 			}
 

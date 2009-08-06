@@ -45,6 +45,8 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
+import javax.management.RuntimeErrorException;
+
 import org.geotools.data.collection.CollectionDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.AttributeTypeBuilder;
@@ -253,7 +255,7 @@ public class DataUtilities {
         try {
             string = URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            // Shouldn't happen
+            throw new RuntimeException("Could not decode the URL to UTF-8 format", e);
         }
         
         String path3;

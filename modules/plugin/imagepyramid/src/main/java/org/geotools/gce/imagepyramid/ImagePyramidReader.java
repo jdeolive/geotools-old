@@ -41,6 +41,7 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.PrjFileReader;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.factory.Hints;
@@ -182,8 +183,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 		else if (source instanceof URL) {
 			final URL tempURL = (URL) source;
 			if (tempURL.getProtocol().equalsIgnoreCase("file"))
-				this.sourceFile = new File(URLDecoder.decode(tempURL.getFile(),
-						"UTF-8"));
+				this.sourceFile = DataUtilities.urlToFile(tempURL);
 			else
 				throw new IllegalArgumentException(
 						"This plugin accepts only File, URL and String pointing to a valid properties file");
@@ -531,7 +531,7 @@ public final class ImagePyramidReader extends AbstractGridCoverage2DReader
 				if (parentDir.exists() && parentDir.isDirectory()) {
 					final File shpFile = new File(parentDir, new StringBuffer(
 							coverageName).append(".shp").toString());
-					reader = new ImageMosaicReader(shpFile.toURL());
+					reader = new ImageMosaicReader(shpFile.toURI().toURL());
 					readers.put(imageChoice, reader);
 				} else
 					throw new DataSourceException(

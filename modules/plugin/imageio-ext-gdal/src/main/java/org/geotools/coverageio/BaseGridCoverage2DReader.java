@@ -42,6 +42,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultResourceInfo;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.PrjFileReader;
@@ -293,8 +294,7 @@ public abstract class BaseGridCoverage2DReader extends AbstractGridCoverage2DRea
             this.source = sourceURL;
 
             if (sourceURL.getProtocol().compareToIgnoreCase("file") == 0) {
-                this.inputFile = new File(URLDecoder.decode(
-                        sourceURL.getFile(), "UTF-8"));
+                this.inputFile = DataUtilities.urlToFile(sourceURL);
                 input = this.inputFile;
             } else {
                 throw new IllegalArgumentException("Unsupported input type");

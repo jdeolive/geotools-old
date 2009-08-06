@@ -224,9 +224,9 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
             // review open
             ShapefileDataStore review;
             if(charset == null) 
-                review = new ShapefileDataStore(tmp.toURL(), tmp.toURI(), memorymapped);
+                review = new ShapefileDataStore(tmp.toURI().toURL(), tmp.toURI(), memorymapped);
             else
-                review = new ShapefileDataStore(tmp.toURL(), tmp.toURI(), memorymapped, charset);
+                review = new ShapefileDataStore(tmp.toURI().toURL(), tmp.toURI(), memorymapped, charset);
             typeName = review.getTypeNames()[0];
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = review.getFeatureSource(typeName);
             FeatureCollection<SimpleFeatureType, SimpleFeature> again = featureSource.getFeatures();

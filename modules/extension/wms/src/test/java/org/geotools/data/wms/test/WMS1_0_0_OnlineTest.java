@@ -251,7 +251,7 @@ public class WMS1_0_0_OnlineTest extends ServerTestCase {
     protected WMSCapabilities createCapabilities( String capFile ) throws Exception {
         try{
             File getCaps = TestData.file(this, capFile);
-            URL getCapsURL = getCaps.toURL();
+            URL getCapsURL = getCaps.toURI().toURL();
             Map hints = new HashMap();
             hints.put(DocumentHandler.DEFAULT_NAMESPACE_HINT_KEY, WMSSchema.getInstance());
             Object object = DocumentFactory.getInstance(getCapsURL.openStream(), hints, Level.WARNING);

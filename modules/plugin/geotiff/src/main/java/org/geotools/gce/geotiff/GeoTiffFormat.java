@@ -53,6 +53,7 @@ import javax.imageio.stream.ImageInputStream;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.adapters.GeoTiffIIOMetadataDecoder;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
@@ -140,7 +141,7 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 				// /////////////////////////////////////////////////////////////
 				final URL url = (URL) o;
 				if (url.getProtocol().equalsIgnoreCase("file"))
-					o = new File(URLDecoder.decode(url.getFile(), "UTF-8"));
+					o = DataUtilities.urlToFile(url);
 				else {
 					if (url.getProtocol().equalsIgnoreCase("http")
 							|| url.getProtocol().equalsIgnoreCase("ftp")) {
@@ -243,14 +244,8 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 			URL url = (URL) source;
 
 			try {
-				final String pathname = URLDecoder.decode(url.getFile(),
-						"UTF-8");
-
-				return new GeoTiffReader(new File(pathname), hints);
-			} catch (UnsupportedEncodingException e) {
-				if (LOGGER.isLoggable(Level.WARNING))
-					LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-				return null;
+				final File file = DataUtilities.urlToFile(url); 
+				return new GeoTiffReader(file, hints);
 			} catch (DataSourceException e) {
 				if (LOGGER.isLoggable(Level.WARNING))
 					LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);

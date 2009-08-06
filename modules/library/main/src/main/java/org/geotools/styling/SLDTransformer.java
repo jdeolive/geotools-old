@@ -138,7 +138,7 @@ public class SLDTransformer extends TransformerBase {
      *             DOCUMENT ME!
      */
     public static final void main(String[] args) throws Exception {
-        java.net.URL url = new java.io.File(args[0]).toURL();
+        java.net.URL url = new java.io.File(args[0]).toURI().toURL();
         SLDParser s = new SLDParser( CommonFactoryFinder.getStyleFactory( null), url);
         SLDTransformer transformer = new SLDTransformer();
         transformer.setIndentation(4);

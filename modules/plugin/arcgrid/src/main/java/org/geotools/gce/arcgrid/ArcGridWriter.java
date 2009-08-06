@@ -53,6 +53,7 @@ import org.geotools.coverage.processing.DefaultProcessor;
 import org.geotools.coverage.processing.operation.Resample;
 import org.geotools.coverage.processing.operation.SelectSampleDimension;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.parameter.Parameter;
@@ -150,14 +151,7 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 			final URL dest = (URL) destination;
 			if (dest.getProtocol().equalsIgnoreCase("file")) {
 				File destFile;
-				try {
-					destFile = new File(URLDecoder.decode(dest.getFile(),
-							"UTF-8"));
-				} catch (UnsupportedEncodingException e) {
-					if (LOGGER.isLoggable(Level.SEVERE))
-						LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-					throw new DataSourceException(e);
-				}
+				destFile = DataUtilities.urlToFile(dest);
 				try {
 					super.outStream = ImageIO.createImageOutputStream(destFile);
 				} catch (IOException e) {
@@ -471,13 +465,13 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 		String name = null;
 
 		if (this.destination instanceof String) {
-			url = (new File((String) this.destination)).toURL();
+			url = (new File((String) this.destination)).toURI().toURL();
 			pathname = url.getPath().substring(0,
 					url.getPath().lastIndexOf("/") + 1);
 			name = url.getPath().substring(url.getPath().lastIndexOf("/") + 1,
 					url.getPath().length());
 		} else if (this.destination instanceof File) {
-			url = ((File) this.destination).toURL();
+			url = ((File) this.destination).toURI().toURL();
 			pathname = url.getPath().substring(0,
 					url.getPath().lastIndexOf("/") + 1);
 			name = url.getPath().substring(url.getPath().lastIndexOf("/") + 1,

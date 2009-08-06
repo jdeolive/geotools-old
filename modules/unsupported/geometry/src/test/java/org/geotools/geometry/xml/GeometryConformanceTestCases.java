@@ -198,7 +198,7 @@ public class GeometryConformanceTestCases extends TestCase {
 		
 		if( isAllExcluded(excludes) ) return;
 
-		InputStream inputStream = file.toURL().openStream();
+		InputStream inputStream = file.toURI().toURL().openStream();
 		InputSource inputSource = new InputSource(inputStream);
         GeometryTestContainer container = parser.parseTestDefinition(inputSource);
         container.checkTestOverrides(name, excludes);                      
@@ -224,7 +224,7 @@ public class GeometryConformanceTestCases extends TestCase {
             File excludesFile = new File(excludesPath);
             if (excludesFile.exists()) {
                 Properties excludes = new Properties();
-                InputStream inputStream = excludesFile.toURL().openStream();
+                InputStream inputStream = excludesFile.toURI().toURL().openStream();
                 excludes.load(inputStream);
                 return excludes;
             }

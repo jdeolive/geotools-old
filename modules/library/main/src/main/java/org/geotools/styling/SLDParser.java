@@ -211,7 +211,7 @@ public class SLDParser {
         File f = new File(filename);
         source = new InputSource(new java.io.FileInputStream(f));
         try {
-            sourceUrl = f.toURL();
+            sourceUrl = f.toURI().toURL();
         } catch (MalformedURLException e) {
             LOGGER.warning("Can't build URL for file " + f.getAbsolutePath());
         }
@@ -229,7 +229,7 @@ public class SLDParser {
     public void setInput(File f) throws java.io.FileNotFoundException {
         source = new InputSource(new java.io.FileInputStream(f));
         try {
-            sourceUrl = f.toURL();
+            sourceUrl = f.toURI().toURL();
         } catch (MalformedURLException e) {
             LOGGER.warning("Can't build URL for file " + f.getAbsolutePath());
         }

@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultRepository;
 import org.geotools.data.FeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -232,10 +233,8 @@ public class BatchValidator {
         File dsProp = null;
         File trProp = null;
 
-        dsProp = new File(ClassLoader.getSystemResource("org/geotools/demos/DataStore.properties")
-                .getFile());
-        trProp = new File(ClassLoader
-                .getSystemResource("org/geotools/demos/Transaction.properties").getFile());
+        dsProp = DataUtilities.urlToFile(ClassLoader.getSystemResource("org/geotools/demos/DataStore.properties"));
+        trProp = DataUtilities.urlToFile(ClassLoader.getSystemResource("org/geotools/demos/Transaction.properties"));
 
         if (args.length > 0) {
             int i = 0;
@@ -246,7 +245,7 @@ public class BatchValidator {
 
                 if ("-data".equals(param)) {
                     File tmp = null;
-                    tmp = new File(ClassLoader.getSystemResource(value).getFile());
+                    tmp = DataUtilities.urlToFile((ClassLoader.getSystemResource(value)));
 
                     if (tmp != null) {
                         dsProp = tmp;
@@ -258,7 +257,7 @@ public class BatchValidator {
                 } else {
                     if ("-trans".equals(param)) {
                         File tmp = null;
-                        tmp = new File(ClassLoader.getSystemResource(value).getFile());
+                        tmp =  DataUtilities.urlToFile(ClassLoader.getSystemResource(value));
 
                         if (tmp != null) {
                             trProp = tmp;

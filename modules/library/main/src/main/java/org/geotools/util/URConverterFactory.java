@@ -50,7 +50,7 @@ public class URConverterFactory implements ConverterFactory {
             catch( MalformedURLException e1 ) {
                 File f = new File( s );
                 try {
-                    return (T) f.toURL();
+                    return (T) f.toURI().toURL();
                 }
                 catch( MalformedURLException e2 ) {}
             }

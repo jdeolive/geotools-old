@@ -291,7 +291,7 @@ public class ArcGridReadWriteTest extends ArcGridBaseTestCase {
 		assertNotNull("Unable to get a writer for a file", af
 				.getWriter(TestData.temp(this, "temp")));
 		assertNotNull("Unable to get a writer for a url", af.getWriter(TestData
-				.temp(this, "temp").toURL()));
+				.temp(this, "temp").toURI().toURL()));
 		assertNotNull("We should be ablet to write on an http link", af
 				.getWriter(new URL("http://www.geo-solutions.it")));
 

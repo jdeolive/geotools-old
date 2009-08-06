@@ -63,6 +63,7 @@ import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.coverage.processing.operation.Resample;
 import org.geotools.coverage.processing.operation.SelectSampleDimension;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.parameter.Parameter;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
@@ -188,13 +189,7 @@ final public class GTopo30Writer extends AbstractGridCoverageWriter implements
 				destination = null;
 			}
 
-			try {
-				temp = new File(URLDecoder.decode(url.getFile(), "UTF-8)"));
-			} catch (UnsupportedEncodingException e) {
-				LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-				final DataSourceException ex = new DataSourceException(e);
-				throw ex;
-			}
+			temp = DataUtilities.urlToFile(url);
 
 			if (temp.exists() && !temp.isDirectory()) {
 				destination = null;

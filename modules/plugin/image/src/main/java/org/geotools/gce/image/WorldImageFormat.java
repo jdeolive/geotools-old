@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
@@ -206,7 +207,7 @@ public final class WorldImageFormat extends AbstractGridFormat implements
 			final URL url = (URL) input;
 			final String protocol = url.getProtocol();
 			if (protocol.equalsIgnoreCase("file"))
-				pathname = url.getFile();
+				pathname = DataUtilities.urlToFile(url).getPath();
 			else {
 				if (protocol.equalsIgnoreCase("http")) {
 					final String query;

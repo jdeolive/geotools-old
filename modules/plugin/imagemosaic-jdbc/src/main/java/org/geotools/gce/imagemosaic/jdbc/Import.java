@@ -49,6 +49,7 @@ import javax.media.jai.PlanarImage;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -907,10 +908,10 @@ public class Import extends AbstractCmd {
 				return true;
 			} else if (typ == ImportTyp.DIR) {
 				if (currentLocation == null) {
-					File dir = new File(directoryURL.getFile());
+					File dir = DataUtilities.urlToFile(directoryURL);
 					imageFiles = dir.listFiles(new ImageFilter(extension));
 					if (imageFiles == null) {
-						logInfo("No files found in: " + directoryURL.getFile()
+						logInfo("No files found in: " + dir.getPath()
 								+ " with extension " + extension);
 						System.exit(1);
 					}

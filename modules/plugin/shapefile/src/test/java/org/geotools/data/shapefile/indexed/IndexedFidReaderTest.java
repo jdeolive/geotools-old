@@ -46,7 +46,7 @@ public class IndexedFidReaderTest extends FIDTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        ShpFiles shpFiles = new ShpFiles(backshp.toURL());
+        ShpFiles shpFiles = new ShpFiles(backshp.toURI().toURL());
         FidIndexer.generate(shpFiles);
 
         indexFile = new IndexFile(shpFiles, false);
@@ -89,7 +89,7 @@ public class IndexedFidReaderTest extends FIDTestCase {
         int expectedCount = 0;
         Set<String> expectedFids = new LinkedHashSet<String>();
         {
-            IndexedShapefileDataStore ds = new IndexedShapefileDataStore(backshp.toURL(), null,
+            IndexedShapefileDataStore ds = new IndexedShapefileDataStore(backshp.toURI().toURL(), null,
                     true, true, IndexType.NONE);
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ds.getFeatureSource();
             FeatureIterator<SimpleFeature> features = featureSource.getFeatures().features();
@@ -113,7 +113,7 @@ public class IndexedFidReaderTest extends FIDTestCase {
         int expectedCount = 0;
         Set<String> expectedFids = new TreeSet<String>(Collections.reverseOrder());
         {
-            IndexedShapefileDataStore ds = new IndexedShapefileDataStore(backshp.toURL(), null,
+            IndexedShapefileDataStore ds = new IndexedShapefileDataStore(backshp.toURI().toURL(), null,
                     true, true, IndexType.NONE);
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ds.getFeatureSource();
             FeatureIterator<SimpleFeature> features = featureSource.getFeatures().features();

@@ -136,15 +136,15 @@ public class TransformData {
         
         if (args.length == 0) {
             inURL = TransformData.class.getClassLoader().getResource("org/geotools/test-data/shapes/statepop.shp");
-            outURL = new File(System.getProperty("user.home") + "/statepopTransform.shp").toURL();
+            outURL = new File(System.getProperty("user.home") + "/statepopTransform.shp").toURI().toURL();
             new TransformData(inURL, outURL, SOURCE_WKT, TARGET_WKT);
         } else if (args.length == 2) {
-            inURL = new File(args[0]).toURL();
-            outURL = new File(args[1]).toURL();
+            inURL = new File(args[0]).toURI().toURL();
+            outURL = new File(args[1]).toURI().toURL();
             new TransformData(inURL, outURL, SOURCE_WKT, TARGET_WKT);
         } else if (args.length == 4) {
-            inURL = new File(args[0]).toURL();
-            outURL = new File(args[1]).toURL();
+            inURL = new File(args[0]).toURI().toURL();
+            outURL = new File(args[1]).toURI().toURL();
             new TransformData(inURL, outURL, args[2], args[4]);
         } else {
             System.out.println("Usage: java TransformData <in file> <out file> <in WKT> <out WKT>");

@@ -66,6 +66,7 @@ import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
@@ -227,13 +228,13 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 		}
 		this.source = source;
 		if (source instanceof File)
-			this.sourceURL = ((File) source).toURL();
+			this.sourceURL = ((File) source).toURI().toURL();
 		else if (source instanceof URL)
 			this.sourceURL = (URL) source;
 		else if (source instanceof String) {
 			final File tempFile = new File((String) source);
 			if (tempFile.exists()) {
-				this.sourceURL = tempFile.toURL();
+				this.sourceURL = tempFile.toURI().toURL();
 			} else
 				try {
 					this.sourceURL = new URL(URLDecoder.decode((String) source,
@@ -358,7 +359,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 	private void loadProperties() throws UnsupportedEncodingException,
 			IOException, FileNotFoundException {
 
-		String temp = URLDecoder.decode(sourceURL.getFile(), "UTF8");
+		String temp = DataUtilities.urlToFile(sourceURL).getPath();
 		final int index = temp.lastIndexOf(".");
 		if (index != -1)
 			temp = temp.substring(0, index);
@@ -861,7 +862,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 			//
 			////////////////////////////////////////////////////////////////////
 
-			final File tempFile = new File(this.sourceURL.getFile());
+			final File tempFile = DataUtilities.urlToFile(sourceURL);
 			final String parentLocation = tempFile.getParent();
 			final ROI[] rois = new ROI[numImages];
 			final PlanarImage[] alphaChannels = new PlanarImage[numImages];
@@ -1322,7 +1323,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 				// need to see if the index is still valid and recreate it if necessary
 				//this is currently done by comparing the date the index was created to
 				//the date the shapefile was last modified
-				File f = new File(this.sourceURL.getFile());
+				File f = DataUtilities.urlToFile(sourceURL);
 				if (((MemorySpatialIndex) o).getCreatedDate().before(new Date(f.lastModified()))) {
 					createIndex();
 					o = index.get();
@@ -1931,8 +1932,7 @@ public final class ImageMosaicReader extends AbstractGridCoverage2DReader
 					SimpleFeature f = it.next();
 					String location = (String) f.getAttribute(this.locationAttributeName);
 	
-					final String parentLocation = (new File(this.sourceURL
-							.getFile())).getParent();
+					final String parentLocation = (DataUtilities.urlToFile(sourceURL)).getParent();
 					File imageFile = new File(absolutePath ? location
 							: new StringBuffer(parentLocation).append(
 									File.separatorChar).append(location).toString());

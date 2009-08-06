@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 
 /**
  * Class used to parse a GTOPO30 header (.HDR) file
@@ -102,8 +103,7 @@ final class GT30Header {
 	 *             for problems related to the file content
 	 */
 	public GT30Header(final URL headerURL) throws IOException {
-		final String path = headerURL.getFile();
-		final File header = new File(java.net.URLDecoder.decode(path, "UTF-8"));
+		final File header = DataUtilities.urlToFile(headerURL);
 
 		BufferedReader reader = null;
 		try {
