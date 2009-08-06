@@ -83,8 +83,8 @@ public abstract class JDBCGeometrylessTest extends JDBCTestSupport {
         FeatureWriter fw = dataStore.getFeatureWriterAppend(tname(PERSON),Transaction.AUTO_COMMIT);
         
         SimpleFeature f = (SimpleFeature) fw.next();
-        f.setAttribute("name", "Joe");
-        f.setAttribute("age", 27 );
+        f.setAttribute(aname("name"), "Joe");
+        f.setAttribute(aname("age"), 27 );
         fw.write();
         fw.close();
         
