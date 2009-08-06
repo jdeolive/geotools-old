@@ -262,9 +262,19 @@ public class DB2SQLDialect extends SQLDialect  {
     
     @Override
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, String name,
-        GeometryFactory factory, Connection cx ) throws IOException, SQLException {
-    	
+        GeometryFactory factory, Connection cx ) throws IOException, SQLException {    	
         byte[] bytes = rs.getBytes(name);
+        return decodeGeometryValueFromBytes(factory, bytes);
+    }
+
+    @Override
+    public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, int column,
+            GeometryFactory factory, Connection cx) throws IOException, SQLException {
+        byte[] bytes = rs.getBytes(column);
+        return decodeGeometryValueFromBytes(factory, bytes);        
+    }
+
+    private Geometry decodeGeometryValueFromBytes( GeometryFactory factory,byte[] bytes)  throws IOException{
         if (bytes==null) return null;
         
         try {
@@ -273,8 +283,9 @@ public class DB2SQLDialect extends SQLDialect  {
             String msg = "Error decoding wkb";
             throw (IOException) new IOException(msg).initCause(e);
         }
+        
     }
-
+    
     
     @Override
     public void registerClassToSqlMappings(Map<Class<?>, Integer> mappings) {
@@ -518,4 +529,5 @@ public class DB2SQLDialect extends SQLDialect  {
     protected void addSupportedHints(Set<Key> hints) {
     	hints.add(Hints.GEOMETRY_GENERALIZATION);
     }
+
 }

@@ -117,6 +117,12 @@ public class DB2SQLDialectBasic extends BasicSQLDialect {
     	return delegate.decodeGeometryValue(descriptor, rs, name, factory, cx);    	
     }
 
+    @Override
+    public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, int column,
+            GeometryFactory factory, Connection cx) throws IOException, SQLException {
+        return delegate.decodeGeometryValue(descriptor, rs, column, factory, cx);
+    }
+
     
     @Override
     public void registerClassToSqlMappings(Map<Class<?>, Integer> mappings) {
