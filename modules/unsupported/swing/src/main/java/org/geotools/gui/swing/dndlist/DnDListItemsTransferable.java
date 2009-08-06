@@ -30,9 +30,11 @@ import java.util.List;
  * during drag and drop actions. This class is used by DnDList.
  * Client code will not normally need to refer to it.
  *
+ * @see DnDList
  * @author Michael Bedward
  * @since 2.6
- * @see DnDList
+ * @source $URL$
+ * @version $Id$
  */
 public class DnDListItemsTransferable<T> implements Transferable {
 

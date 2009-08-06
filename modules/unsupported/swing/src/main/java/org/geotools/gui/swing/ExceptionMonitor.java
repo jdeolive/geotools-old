@@ -62,8 +62,8 @@ import org.geotools.resources.GraphicsUtilities;
  * <p>&nbsp;</p>
  *
  * @since 2.0
- * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/unsupported/widgets-swing/src/main/java/org/geotools/gui/swing/ExceptionMonitor.java $
- * @version $Id: ExceptionMonitor.java 30655 2008-06-12 20:24:25Z acuster $
+ * @source $URL$
+ * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
 public final class ExceptionMonitor {
@@ -138,7 +138,7 @@ public final class ExceptionMonitor {
      * parent. <strong>Note:</strong> All methods in this class must be called in the
      * same thread as the <cite>Swing</cite> thread.
      *
-     * @version $Id: ExceptionMonitor.java 30655 2008-06-12 20:24:25Z acuster $
+     * @version $Id$
      * @author Martin Desruisseaux (IRD)
      */
     @SuppressWarnings("serial")

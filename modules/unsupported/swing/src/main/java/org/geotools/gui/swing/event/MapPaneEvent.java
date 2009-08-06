@@ -25,6 +25,8 @@ import java.util.EventObject;
  * 
  * @author Michael Bedward
  * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public abstract class MapPaneEvent extends EventObject {
 

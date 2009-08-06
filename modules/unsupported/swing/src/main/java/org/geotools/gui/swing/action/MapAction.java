@@ -29,6 +29,8 @@ import org.geotools.gui.swing.JMapPane;
  * 
  * @author Michael Bedward
  * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public abstract class MapAction extends AbstractAction {
 

@@ -72,6 +72,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * 
  * @author Michael Bedward
  * @author Ian Turton
+ * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public class JMapPane extends JPanel implements MapLayerListListener {
     

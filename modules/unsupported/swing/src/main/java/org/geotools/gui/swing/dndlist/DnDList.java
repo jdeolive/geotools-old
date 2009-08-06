@@ -51,6 +51,8 @@ import javax.swing.JList;
  *
  * @author Michael Bedward
  * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public class DnDList<T> extends JList implements DragGestureListener, DragSourceListener, DropTargetListener {
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");

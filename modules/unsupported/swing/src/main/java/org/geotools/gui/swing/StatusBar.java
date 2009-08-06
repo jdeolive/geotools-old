@@ -19,11 +19,13 @@ package org.geotools.gui.swing;
 
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Dimension;
+import java.awt.LayoutManager;
 import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
+import net.miginfocom.swing.MigLayout;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.gui.swing.event.MapMouseAdapter;
 import org.geotools.gui.swing.event.MapMouseEvent;
@@ -45,6 +47,8 @@ import org.geotools.map.event.MapBoundsListener;
  *
  * @author Michael Bedward
  * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public class StatusBar extends JPanel implements MapPaneListener {
 
@@ -194,6 +198,9 @@ public class StatusBar extends JPanel implements MapPaneListener {
      * the first space for map coordinates.
      */
     private void init() {
+        LayoutManager lm = new MigLayout("insets 0", "[][grow]");
+        this.setLayout(lm);
+
         spaces = new JLabel[NUM_SPACES];
         int fontH = getFontMetrics(this.getFont()).getHeight();
 

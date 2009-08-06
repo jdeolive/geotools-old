@@ -60,11 +60,20 @@
     </developers>
 
     <dependencies>
+        <!--   GeoTools modules   -->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-render</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!--   Third-party dependencies   -->
+        <dependency>
+            <groupId>com.miglayout</groupId>
+            <artifactId>miglayout</artifactId>
+            <version>3.7</version>
+            <classifier>swing</classifier>
         </dependency>
     </dependencies>
 </project>

@@ -33,12 +33,13 @@ import org.geotools.map.MapLayer;
 /**
  * A custom list cell renderer for items in the JList used by {@linkplain MapLayerTable}
  * to show map layer names and states.
- * <p>
- * Note: this class is package-private
  *
  * @author Michael Bedward
+ * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
-class MapLayerTableCellRenderer extends JPanel implements ListCellRenderer {
+public class MapLayerTableCellRenderer extends JPanel implements ListCellRenderer {
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 

@@ -19,6 +19,11 @@ package org.geotools.gui.swing.event;
 
 /**
  * Interface for classes that listen to JMapPaneMouseEvents
+ *
+ * @author Michael Bedward
+ * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public interface MapMouseListener {
     

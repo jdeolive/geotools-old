@@ -29,6 +29,8 @@ import org.geotools.gui.swing.tool.CursorTool;
  * 
  * @author Michael Bedward
  * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public class ResetAction extends MapAction {
     

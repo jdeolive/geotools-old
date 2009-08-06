@@ -28,6 +28,8 @@ import org.geotools.gui.swing.tool.PanTool;
  * 
  * @author Michael Bedward
  * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public class PanAction extends MapAction {
     

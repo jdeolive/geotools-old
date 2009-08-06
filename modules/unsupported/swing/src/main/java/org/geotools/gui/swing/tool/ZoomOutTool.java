@@ -40,6 +40,8 @@ import org.geotools.gui.swing.event.MapMouseEvent;
  * 
  * @author Michael Bedward
  * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public class ZoomOutTool extends AbstractZoomTool {
 

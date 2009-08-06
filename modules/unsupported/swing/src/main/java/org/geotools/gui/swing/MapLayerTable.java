@@ -47,6 +47,9 @@ import org.geotools.map.MapLayer;
  * layers.
  *
  * @author Michael Bedward
+ * @since 2.6
+ * @source $URL$
+ * @version $Id$
  */
 public class MapLayerTable extends JPanel {
 
