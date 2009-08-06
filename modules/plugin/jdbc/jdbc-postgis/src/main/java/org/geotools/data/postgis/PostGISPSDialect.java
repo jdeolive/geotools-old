@@ -51,6 +51,12 @@ public class PostGISPSDialect extends PreparedStatementSQLDialect {
             Connection cx) throws SQLException, IOException {
         return delegate.decodeGeometryEnvelope(rs, column, cx);
     }
+    
+    @Override
+    public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, int column,
+            GeometryFactory factory, Connection cx) throws IOException, SQLException {
+        return delegate.decodeGeometryValue(descriptor, rs, column, factory, cx);
+    }
 
 
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor,

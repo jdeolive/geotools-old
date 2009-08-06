@@ -317,9 +317,18 @@ public class OracleDialect extends PreparedStatementSQLDialect {
             ResultSet rs, String column, GeometryFactory factory, Connection cx )
             throws IOException, SQLException {
         
-        //read the geometry
+        // read the geometry
         Geometry geom = readGeometry( rs, column, factory, cx );
-        
+        return convertGeometry(geom, descriptor, factory);
+    }
+    
+    public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, int column, GeometryFactory factory, Connection cx) throws IOException ,SQLException {
+        // read the geometry
+        Geometry geom = readGeometry( rs, column, factory, cx );
+        return convertGeometry(geom, descriptor, factory);
+    };
+    
+    Geometry convertGeometry(Geometry geom, GeometryDescriptor descriptor, GeometryFactory factory) {
         //grab the binding
         Class targetClazz = descriptor.getType().getBinding();
         
