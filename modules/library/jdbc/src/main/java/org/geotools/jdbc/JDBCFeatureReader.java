@@ -947,7 +947,7 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
 
         public Object getDefaultGeometry() {
             GeometryDescriptor defaultGeometry = featureType.getGeometryDescriptor();
-            return getAttribute( defaultGeometry.getName() );            
+            return defaultGeometry != null ? getAttribute( defaultGeometry.getName() ) : null;
         }
 
         public void setAttributes(Object[] object) {

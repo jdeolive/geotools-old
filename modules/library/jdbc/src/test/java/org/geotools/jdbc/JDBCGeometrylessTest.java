@@ -18,6 +18,8 @@ package org.geotools.jdbc;
 
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureWriter;
+import org.geotools.data.Transaction;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -75,5 +77,18 @@ public abstract class JDBCGeometrylessTest extends JDBCTestSupport {
     public void testCreate() throws Exception {
         dataStore.createSchema(zipCodeSchema);
         assertFeatureTypesEqual(zipCodeSchema, dataStore.getSchema(tname(ZIPCODE)));
+    }
+    
+    public void testWriteFeatures() throws Exception {
+        FeatureWriter fw = dataStore.getFeatureWriterAppend(tname(PERSON),Transaction.AUTO_COMMIT);
+        
+        SimpleFeature f = (SimpleFeature) fw.next();
+        f.setAttribute("name", "Joe");
+        f.setAttribute("age", 27 );
+        fw.write();
+        fw.close();
+        
+        FeatureCollection fc = dataStore.getFeatureSource(tname(PERSON)).getFeatures();
+        assertEquals(3, fc.size());
     }
 }
