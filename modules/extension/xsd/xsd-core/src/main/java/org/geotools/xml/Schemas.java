@@ -64,6 +64,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -227,7 +228,14 @@ public class Schemas {
 
             //location = new File(location).getCanonicalPath();
         }
-
+        else {
+            //if path has spaces in it they were probably encoded with %20, decode
+            String dlocation = URLDecoder.decode(location);
+            if (new File(dlocation).exists()) {
+                location = new File(dlocation).getCanonicalFile().toURI().toString();
+            }
+        }
+        
         URI uri = URI.createURI(location);
         final ResourceSet resourceSet = new ResourceSetImpl();
 
