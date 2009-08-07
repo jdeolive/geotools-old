@@ -162,14 +162,12 @@
          <module>app-schema</module>
          <module>epsg-oracle</module>
          <module>epsg-h2</module>
-         <module>gpx</module>
          <module>jdbc-ng</module>
          <module>mysql</module>
          <module>oracle-spatial</module>
          <module>postgis-versioned</module>
          <module>tiger</module>
          <module>vpf</module>
-         <module>xml-gpx</module>
          <module>caching</module>
          <module>swing</module>
        </modules>
