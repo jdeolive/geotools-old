@@ -124,7 +124,7 @@ public class JarCollector extends AbstractMojo {
         File collect = new File(collectDirectory);
         if (!collect.exists()) {
             if (!collect.mkdir()) {
-                throw new MojoExecutionException("Failed to create target directory.");
+                throw new MojoExecutionException("Failed to create target directory: " + collect.getAbsolutePath());
             }
         }
         if (collect.getCanonicalFile().equals(jarFile.getParentFile().getCanonicalFile())) {
