@@ -28,10 +28,10 @@
       <name>Markus Schneider</name>
       <id>markusschneider</id>
         <email>schneider@lat-lon.de</email>
-        <organization>l a t / l o n  GmbH</organization>
+        <organization>lat/lon GmbH</organization>
         <roles>
           <role>Java Developer</role>
-          <role>Deegree Project Steering Committee (PSC) Member</role>
+          <role>deegree Technical Management Committee (TMC) Member</role>
         </roles>
     </developer>
     <developer>
