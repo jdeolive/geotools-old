@@ -15,16 +15,16 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.curvesegments;
+package org.osgeo.geometry.primitive.segments;
 
 
 /**
  * A clothoid, or Cornu's spiral, is a plane {@link CurveSegment} whose curvature is a fixed function of its length.
  *
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
+ * @author last edited by: $Author$
  *
- * @version $Revision:$, $Date:$
+ * @version $Revision$, $Date$
  */
 public interface Clothoid extends CurveSegment {
 

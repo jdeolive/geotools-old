@@ -15,7 +15,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.surfacepatches;
+package org.osgeo.geometry.primitive.patches;
 
 /**
  * The <code>Sphere</code> class represents (according to GML-3.1 spec) a gridded surface given as a family of circles

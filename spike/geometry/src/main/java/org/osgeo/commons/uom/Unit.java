@@ -29,5 +29,5 @@ package org.osgeo.commons.uom;
  * @version. $Revision$, $Date$
  */
 public interface Unit {
-
+    // just a placeholder interface at the moment
 }

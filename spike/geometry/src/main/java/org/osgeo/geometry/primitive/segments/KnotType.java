@@ -15,45 +15,39 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.curvesegments;
-
-import org.osgeo.geometry.primitive.Point;
+package org.osgeo.geometry.primitive.segments;
 
 /**
- * An {@link ArcStringByBulge} that consists of a single arc only.
+ * Defines allowed values for the knots' type. Uniform knots implies that all knots are of multiplicity 1 and they
+ * differ by a positive constant from the preceding knot. Knots are quasi-uniform iff they are of multiplicity (degree +
+ * 1) at the ends, of multiplicity 1 elsewhere, and they differ by a positive constant from the preceding knot.
  *
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
+ * @author last edited by: $Author$
  *
- * @version $Revision:$, $Date:$
+ * @version $Revision$, $Date$
  */
-public interface ArcByBulge extends ArcStringByBulge {
+public enum KnotType {
 
     /**
-     * Returns the first control point.
      *
-     * @return the first control point
      */
-    public Point getPoint1();
+    UNSPECIFIED,
 
     /**
-     * Returns the second control point.
-     *
-     * @return the second control point
+     * All knots are of multiplicity 1 and they differ by a positive constant from the preceding knot.
      */
-    public Point getPoint2();
+    UNIFORM,
 
     /**
-     * Returns the single bulge value.
-     *
-     * @return the bulge value
+     * Multiplicity of the knots is (degree + 1) at the ends, 1 elsewhere, and knots differ by a positive constant from
+     * the preceding knot.
      */
-    public double getBulge();
+    QUASI_UNIFORM,
 
     /**
-     * Returns the single normal vector for the bulge.
-     *
-     * @return the bulge's normal vector
+     * ???
      */
-    public Point getNormal();
+    BEZIER
+
 }

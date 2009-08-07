@@ -15,30 +15,26 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.surfacepatches;
+package org.osgeo.geometry.primitive.patches;
 
 /**
- * The <code>Cone</code> class represents (according to GML-3.1 spec ) a gridded surface given as a family of
- * conic sections whose control points vary linearly.
- * A 5-point ellipse with all defining positions identical is a point. Thus, a truncated elliptical cone can be
- * given as a 2x5 set of control points <<P1, P1, P1, P1, P1>, <P2, P3, P4, P5, P6>>. P1 is the apex of the
- * cone. P2, P3, P4, P5 and P6 are any five distinct points around the base ellipse of the cone. If the horizontal
- * curves are circles as opposed to ellipses, the circular cone can be constructed using <<P1, P1, P1>, <P2, P3,
- * P4>>.
+ * The <code>Cylinder</code> class represents (according to the GML-3.1 spec) a gridded surface given as a
+ * family of circles whose positions vary along a set of parallel lines, keeping the cross sectional horizontal
+ * curves of a constant shape.
  *
  * @author <a href="mailto:ionita@lat-lon.de">Andrei Ionita</a>
  * @author last edited by: $Author$
  *
  * @version $Revision$, $Date$
  */
-public interface Cone extends GriddedSurfacePatch {
+public interface Cylinder extends GriddedSurfacePatch {
 
     // nothing new here, this interface is only necessary for a type-based differentiation
 
     /**
-     * Must always return {@link GriddedSurfacePatch.GriddedSurfaceType#CONE}.
+     * Must always return {@link GriddedSurfacePatch.GriddedSurfaceType#CYLINDER}.
      *
-     * @return {@link GriddedSurfacePatch.GriddedSurfaceType#CONE}
+     * @return {@link GriddedSurfacePatch.GriddedSurfaceType#CYLINDER}
      */
     public GriddedSurfaceType getGriddedSurfaceType();
 }

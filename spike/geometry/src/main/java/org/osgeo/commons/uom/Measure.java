@@ -29,5 +29,5 @@ package org.osgeo.commons.uom;
  * @version. $Revision$, $Date$
  */
 public interface Measure {
-
+    // just a placeholder interface at the moment
 }

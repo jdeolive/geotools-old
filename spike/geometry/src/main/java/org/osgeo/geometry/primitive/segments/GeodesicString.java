@@ -15,39 +15,25 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.curvesegments;
+package org.osgeo.geometry.primitive.segments;
+
+import org.osgeo.geometry.points.Points;
 
 /**
- * Used to define the basis functions of a {@link BSpline}.
- *
+ * A <code>GeodesicString</code> is computed from two or more positions and an interpolation using geodesics defined
+ * from the geoid (or ellipsoid) of the coordinate reference system being used.
+ * 
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
- *
- * @version $Revision:$, $Date:$
+ * @author last edited by: $Author$
+ * 
+ * @version $Revision$, $Date$
  */
-public class Knot {
+public interface GeodesicString extends CurveSegment {
 
-    private double value;
-
-    private int multiplicity;
-
-    private double weight;
-
-    public Knot (double value, int multiplicity, double weight) {
-        this.value = value;
-        this.multiplicity = multiplicity;
-        this.weight = weight;
-    }
-
-    public double getValue () {
-        return value;
-    }
-
-    public int getMultiplicity () {
-        return multiplicity;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
+    /**
+     * Returns the control points of the string.
+     * 
+     * @return the control points of the string
+     */
+    public Points getControlPoints();
 }

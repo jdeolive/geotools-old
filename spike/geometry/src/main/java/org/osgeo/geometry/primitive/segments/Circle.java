@@ -15,26 +15,35 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.surfacepatches;
+package org.osgeo.geometry.primitive.segments;
+
+import org.osgeo.commons.uom.Measure;
+import org.osgeo.commons.uom.Unit;
+import org.osgeo.geometry.primitive.Point;
 
 /**
- * The <code>Cylinder</code> class represents (according to the GML-3.1 spec) a gridded surface given as a
- * family of circles whose positions vary along a set of parallel lines, keeping the cross sectional horizontal
- * curves of a constant shape.
- *
- * @author <a href="mailto:ionita@lat-lon.de">Andrei Ionita</a>
+ * An {@link Arc} whose ends coincide to form a simple closed loop.
+ * 
+ * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
  * @author last edited by: $Author$
- *
+ * 
  * @version $Revision$, $Date$
  */
-public interface Cylinder extends GriddedSurfacePatch {
-
-    // nothing new here, this interface is only necessary for a type-based differentiation
+public interface Circle extends Arc {
 
     /**
-     * Must always return {@link GriddedSurfacePatch.GriddedSurfaceType#CYLINDER}.
-     *
-     * @return {@link GriddedSurfacePatch.GriddedSurfaceType#CYLINDER}
+     * Returns the mid-point of the circle.
+     * 
+     * @return the mid-point
      */
-    public GriddedSurfaceType getGriddedSurfaceType();
+    public Point getMidPoint();
+
+    /**
+     * Returns the radius of the circle.
+     * 
+     * @param requestedUnits
+     *            units that the radius should be expressed as
+     * @return the radius of the arc
+     */
+    public Measure getRadius( Unit requestedUnits );
 }

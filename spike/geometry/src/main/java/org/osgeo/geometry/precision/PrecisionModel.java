@@ -26,4 +26,5 @@ package org.osgeo.geometry.precision;
  * @version $Revision$, $Date$
  */
 public interface PrecisionModel {
+    // just a placeholder interface at the moment
 }

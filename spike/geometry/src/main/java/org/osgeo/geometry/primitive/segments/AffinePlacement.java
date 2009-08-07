@@ -15,7 +15,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.curvesegments;
+package org.osgeo.geometry.primitive.segments;
 
 import org.osgeo.geometry.points.Points;
 import org.osgeo.geometry.primitive.Point;
@@ -25,9 +25,9 @@ import org.osgeo.geometry.primitive.Point;
  * system being used.
  *
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
+ * @author last edited by: $Author$
  *
- * @version $Revision:$, $Date:$
+ * @version $Revision$, $Date$
  */
 public class AffinePlacement {
 

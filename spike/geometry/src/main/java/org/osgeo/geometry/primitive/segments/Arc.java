@@ -15,40 +15,38 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.curvesegments;
+package org.osgeo.geometry.primitive.segments;
 
-import org.osgeo.geometry.points.Points;
 import org.osgeo.geometry.primitive.Point;
 
 /**
- * A {@link CurveSegment} that uses the control points and a set of derivative parameters to define a piecewise 3rd
- * degree polynomial interpolation.
+ * An {@link ArcString} that consists of a single arc only.
  *
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
+ * @author last edited by: $Author$
  *
- * @version $Revision:$, $Date:$
+ * @version $Revision$, $Date$
  */
-public interface CubicSpline extends CurveSegment {
+public interface Arc extends ArcString {
 
     /**
-     * Returns the control points of the spline.
+     * Returns the first of the three control points.
      *
-     * @return the control points of the spline
+     * @return the first control point
      */
-    public Points getControlPoints();
+    public Point getPoint1();
 
     /**
-     * Returns the unit tangent vector at the start point of the spline.
+     * Returns the second of the three control points.
      *
-     * @return the unit tangent vector at the start point of the spline
+     * @return the second control point
      */
-    public Point getVectorAtStart();
+    public Point getPoint2();
 
     /**
-     * Returns the unit tangent vector at the end point of the spline.
+     * Returns the last of the three control points.
      *
-     * @return the unit tangent vector at the end point of the spline
+     * @return the third control point
      */
-    public Point getVectorAtEnd();
+    public Point getPoint3();
 }

@@ -28,5 +28,5 @@ package org.osgeo.commons.uom;
  * @version. $Revision$, $Date$
  */
 public interface Length extends Measure {
-
+    // just a placeholder interface at the moment
 }

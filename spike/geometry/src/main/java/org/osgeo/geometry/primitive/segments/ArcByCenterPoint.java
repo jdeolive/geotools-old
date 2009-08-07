@@ -15,7 +15,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.curvesegments;
+package org.osgeo.geometry.primitive.segments;
 
 import org.osgeo.commons.uom.Angle;
 import org.osgeo.commons.uom.Measure;
@@ -30,9 +30,9 @@ import org.osgeo.geometry.primitive.Point;
  * representation can be used only in 2D.
  * 
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
+ * @author last edited by: $Author$
  * 
- * @version $Revision:$, $Date:$
+ * @version $Revision$, $Date$
  */
 public interface ArcByCenterPoint extends CurveSegment {
 

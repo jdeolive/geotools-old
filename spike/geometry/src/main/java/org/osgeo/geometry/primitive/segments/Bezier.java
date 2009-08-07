@@ -15,16 +15,29 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.curvesegments;
+package org.osgeo.geometry.primitive.segments;
 
 /**
- * An {@link ArcByCenterPoint} with identical start and end angles to form a full circle.
- * 
+ * Special case of a {@link BSpline} curve segment with two knots.
+ *
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
- * 
- * @version $Revision:$, $Date:$
+ * @author last edited by: $Author$
+ *
+ * @version $Revision$, $Date$
  */
-public interface CircleByCenterPoint extends ArcByCenterPoint {
-    // nothing new here, this interface is only necessary for a type-based differentiation
+public interface Bezier extends BSpline {
+
+    /**
+     * Returns the first knot that defines the spline's basis functions.
+     *
+     * @return first knot
+     */
+    public Knot getKnot1();
+
+    /**
+     * Returns the second knot that defines the spline's basis functions.
+     *
+     * @return second knot
+     */
+    public Knot getKnot2();
 }

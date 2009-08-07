@@ -23,8 +23,8 @@ import org.osgeo.commons.uom.Measure;
 import org.osgeo.commons.uom.Unit;
 import org.osgeo.geometry.composite.CompositeCurve;
 import org.osgeo.geometry.points.Points;
-import org.osgeo.geometry.primitive.curvesegments.CurveSegment;
-import org.osgeo.geometry.primitive.curvesegments.LineStringSegment;
+import org.osgeo.geometry.primitive.segments.CurveSegment;
+import org.osgeo.geometry.primitive.segments.LineStringSegment;
 
 /**
  * <code>Curve</code> instances are 1D-geometries that consist of an arbitrary number of curve segments.

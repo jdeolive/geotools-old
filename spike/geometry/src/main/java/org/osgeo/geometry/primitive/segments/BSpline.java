@@ -15,7 +15,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.curvesegments;
+package org.osgeo.geometry.primitive.segments;
 
 import java.util.List;
 
@@ -33,9 +33,9 @@ import org.osgeo.geometry.points.Points;
  * </p>
  *
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
+ * @author last edited by: $Author$
  *
- * @version $Revision:$, $Date:$
+ * @version $Revision$, $Date$
  */
 public interface BSpline extends CurveSegment {
 
@@ -56,7 +56,7 @@ public interface BSpline extends CurveSegment {
     /**
      * Returns whether the interpolation is polynomial or rational.
      *
-     * @returns true, if the interpolation is polynomial, false if it's rational 
+     * @return true, if the interpolation is polynomial, false if it's rational 
      */
     public boolean isPolynomial();
 

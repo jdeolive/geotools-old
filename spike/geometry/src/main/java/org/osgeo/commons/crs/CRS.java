@@ -27,5 +27,5 @@ package org.osgeo.commons.crs;
  * @version. $Revision$, $Date$
  */
 public interface CRS {
-
+    // just a placeholder interface at the moment
 }

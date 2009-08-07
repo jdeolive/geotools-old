@@ -17,6 +17,8 @@
  */
 package org.osgeo.geometry.primitive;
 
+import org.osgeo.geometry.primitive.patches.PolygonPatch;
+
 
 /**
  * A {@link Surface} that consists only of {@link PolygonPatch} patches.
@@ -34,5 +36,4 @@ public interface PolyhedralSurface extends Surface {
      * @return {@link Surface.SurfaceType#PolyhedralSurface}
      */
     public SurfaceType getSurfaceType();
-
 }

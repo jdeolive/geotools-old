@@ -80,5 +80,5 @@ import org.osgeo.geometry.Geometry;
  * @version. $Revision$, $Date$
  */
 public interface ObjectProperties {
-
+    // just a placeholder interface at the moment
 }

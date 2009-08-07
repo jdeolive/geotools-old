@@ -15,50 +15,32 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.surfacepatches;
+package org.osgeo.geometry.primitive.segments;
 
-import java.util.List;
-
-import org.osgeo.geometry.primitive.LinearRing;
 import org.osgeo.geometry.primitive.Point;
 
 /**
- * A {@link Triangle} is a {@link SurfacePatch} defined by three planar points.
+ * A {@link GeodesicString} that consists of a single arc only.
  *
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
+ * @author last edited by: $Author$
  *
- * @version $Revision:$, $Date:$
+ * @version $Revision$, $Date$
  */
-public interface Triangle extends PolygonPatch {
+public interface Geodesic extends GeodesicString {
 
     /**
-     * Returns the first of the three control points.
+     * Returns the first control point.
      *
      * @return the first control point
      */
     public Point getPoint1();
 
     /**
-     * Returns the second of the three control points.
+     * Returns the second control point.
      *
      * @return the second control point
      */
     public Point getPoint2();
 
-    /**
-     * Returns the last of the three control points.
-     *
-     * @return the third control point
-     */
-    public Point getPoint3();
-
-    /**
-     * Returns the sequence of control points as a {@link LinearRing}.
-     *
-     * @return the exterior ring
-     */
-    public LinearRing getExteriorRing();
-
-    public List<LinearRing> getBoundaryRings();
 }

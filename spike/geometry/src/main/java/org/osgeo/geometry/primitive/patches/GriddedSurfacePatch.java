@@ -15,7 +15,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.surfacepatches;
+package org.osgeo.geometry.primitive.patches;
 
 import java.util.List;
 
@@ -27,9 +27,9 @@ import org.osgeo.geometry.points.Points;
  * are control points for vertical surface curves.
  *
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
+ * @author last edited by: $Author$
  *
- * @version $Revision:$, $Date:$
+ * @version $Revision$, $Date$
  */
 public interface GriddedSurfacePatch extends SurfacePatch {
 

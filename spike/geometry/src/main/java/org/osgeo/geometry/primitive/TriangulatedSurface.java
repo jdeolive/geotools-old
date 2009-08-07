@@ -19,7 +19,7 @@ package org.osgeo.geometry.primitive;
 
 import java.util.List;
 
-import org.osgeo.geometry.primitive.surfacepatches.Triangle;
+import org.osgeo.geometry.primitive.patches.Triangle;
 
 /**
  * A {@link Surface} that consists only of {@link Triangle} patches.

@@ -15,39 +15,26 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.osgeo.geometry.primitive.curvesegments;
+package org.osgeo.geometry.primitive.segments;
 
 import org.osgeo.geometry.points.Points;
+import org.osgeo.geometry.primitive.Point;
 
 /**
- * Circular {@link CurveSegment}.
- * <p>
- * From the GML 3.1.1 spec: This variant of the arc computes the mid points of the arcs instead of storing the
- * coordinates directly. The control point sequence consists of the start and end points of each arc plus the bulge.
- * </p>
- *
+ * A {@link CurveSegment} that is defined by two or more {@link Point}s, with linear interpolation between subsequent
+ * pairs of points.
+ * 
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider </a>
- * @author last edited by: $Author:$
- *
- * @version $Revision:$, $Date:$
+ * @author last edited by: $Author$
+ * 
+ * @version $Revision$, $Date$
  */
-public interface ArcStringByBulge extends CurveSegment {
+public interface LineStringSegment extends CurveSegment {
 
     /**
-     * Returns the number of arcs of the string.
-     *
-     * @return the number of arcs
-     */
-    public int getNumArcs();
-
-    public double [] getBulges();
-
-    public Points getNormals();
-
-    /**
-     * Returns the control points of the segment.
-     *
-     * @return the control points of the segment
+     * Returns the control points of the string.
+     * 
+     * @return the control points of the string
      */
     public Points getControlPoints();
 }
