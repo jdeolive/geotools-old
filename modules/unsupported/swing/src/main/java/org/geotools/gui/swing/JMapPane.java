@@ -85,7 +85,13 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      * map pane and the drawing area
      */
     public static final int DEFAULT_BORDER_WIDTH = 10;
+
+    /**
+     * Default delay (milliseconds) before the map will be redrawn when resizing
+     * the pane. This is to avoid flickering while drag-resizing.
+     */
     public static final int DEFAULT_RESIZING_PAINT_DELAY = 200;  // delay in milliseconds
+
     private int resizingPaintDelay;
     private boolean acceptRepaintRequests;
 
@@ -94,9 +100,20 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      */
     private class DragBox extends MouseInputAdapter {
         private Point startPos;
-        private Rectangle rect = new Rectangle();
-        private boolean dragged = false;
-        
+        private Rectangle rect;
+        private boolean dragged;
+        private boolean enabled;
+
+        DragBox() {
+            rect = new Rectangle();
+            dragged = false;
+            enabled = false;
+        }
+
+        void setEnabled(boolean state) {
+            enabled = state;
+        }
+
         @Override
         public void mousePressed(MouseEvent e) {
             startPos = new Point(e.getPoint());
@@ -104,17 +121,19 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         
         @Override
         public void mouseDragged(MouseEvent e) {
-            Graphics2D g2D = (Graphics2D) JMapPane.this.getGraphics();
-            g2D.setColor(Color.WHITE);
-            g2D.setXORMode(Color.RED);
-            if (dragged) {
-                g2D.drawRect(rect.x, rect.y, rect.width, rect.height);
-            }
-            
-            rect.setFrameFromDiagonal(startPos, e.getPoint());
-            g2D.drawRect(rect.x, rect.y, rect.width, rect.height);
+            if (enabled) {
+                Graphics2D g2D = (Graphics2D) JMapPane.this.getGraphics();
+                g2D.setColor(Color.WHITE);
+                g2D.setXORMode(Color.RED);
+                if (dragged) {
+                    g2D.drawRect(rect.x, rect.y, rect.width, rect.height);
+                }
 
-            dragged = true;
+                rect.setFrameFromDiagonal(startPos, e.getPoint());
+                g2D.drawRect(rect.x, rect.y, rect.width, rect.height);
+
+                dragged = true;
+            }
         }
         
         @Override
@@ -128,6 +147,8 @@ public class JMapPane extends JPanel implements MapLayerListListener {
             }
         }
     }
+
+    private DragBox dragBox;
 
     private MapContext context;
     private GTRenderer renderer;
@@ -195,7 +216,8 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         setContext(context);
 
         toolManager = new MapToolManager(this);
-        DragBox dragBox = new DragBox();
+
+        dragBox = new DragBox();
         this.addMouseListener(dragBox);
         this.addMouseMotionListener(dragBox);
         
@@ -232,10 +254,12 @@ public class JMapPane extends JPanel implements MapLayerListListener {
         if (tool == null) {
             toolManager.setNoCursorTool();
             this.setCursor(Cursor.getDefaultCursor());
+            dragBox.setEnabled(false);
+            
         } else {
-            //tool.setMapPane(this);
             this.setCursor(tool.getCursor());
             toolManager.setCursorTool(tool);
+            dragBox.setEnabled(tool.drawDragBox());
         }
     }
     

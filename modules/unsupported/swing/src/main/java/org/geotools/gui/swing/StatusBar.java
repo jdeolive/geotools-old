@@ -62,9 +62,6 @@ public class StatusBar extends JPanel implements MapPaneListener {
     public static final int COORDS_SPACE = 0;
     public static final int BOUNDS_SPACE = 1;
 
-    private static final int BORDER_WIDTH = 2;
-    private static final int SPACE_GAP = 5;
-
     private JMapPane pane;
     private MapMouseListener mouseListener;
     private MapBoundsListener mapBoundsListener;
@@ -73,7 +70,7 @@ public class StatusBar extends JPanel implements MapPaneListener {
 
     /**
      * Default constructor.
-     * {@linkplain #setMapPane(org.geotools.gui.swing.JMapPane)} must be
+     * {@linkplain #setMapPane} must be
      * called subsequently for the status bar to receive mouse events.
      */
     public StatusBar() {
@@ -93,28 +90,6 @@ public class StatusBar extends JPanel implements MapPaneListener {
         if (pane != null) {
             setMapPane(pane);
         }
-    }
-
-    private void createListeners() {
-        mouseListener = new MapMouseAdapter() {
-
-            @Override
-            public void onMouseMoved(MapMouseEvent ev) {
-                displayCoords(ev.getMapPosition());
-            }
-
-            @Override
-            public void onMouseExited(MapMouseEvent ev) {
-                clearCoords();
-            }
-        };
-
-        mapBoundsListener = new MapBoundsListener() {
-
-            public void mapBoundsChanged(MapBoundsEvent event) {
-                displayBounds(event.getNewAreaOfInterest());
-            }
-        };
     }
 
     /**
@@ -152,29 +127,34 @@ public class StatusBar extends JPanel implements MapPaneListener {
     }
 
     /**
-     * Format and display the world coordinates of the mouse cursor
-     * position in the first 'space'
+     * Clear the map coordinate display
+     */
+    public void clearCoords() {
+        spaces[COORDS_SPACE].setText("");
+    }
+
+    /**
+     * Clear the map bounds display
+     */
+    public void clearBounds() {
+        spaces[BOUNDS_SPACE].setText("");
+    }
+
+    /**
+     * Format and display the coordinates of the given position
      *
      * @param mapPos mouse cursor position (world coords)
      */
-    private void displayCoords(DirectPosition2D mapPos) {
+    public void displayCoords(DirectPosition2D mapPos) {
         if (spaces != null) {
             spaces[COORDS_SPACE].setText(String.format("%.4f %.4f", mapPos.x, mapPos.y));
         }
     }
 
     /**
-     * Clear the map coordinate display
+     * Display the bounding coordinates of the given envelope
      */
-    private void clearCoords() {
-        spaces[COORDS_SPACE].setText("");
-    }
-
-    /**
-     * Display the bounding coordinates, width and height of the current
-     * map area
-     */
-    private void displayBounds(Envelope env) {
+    public void displayBounds(Envelope env) {
         if (spaces != null) {
             spaces[BOUNDS_SPACE].setText(String.format("%.4f-%.4f (%.4f) %.4f-%.4f (%.4f)",
                     env.getMinX(),
@@ -186,13 +166,19 @@ public class StatusBar extends JPanel implements MapPaneListener {
         }
     }
 
-    /**
-     * Clear the map bounds display
-     */
-    private void clearBounds() {
-        spaces[BOUNDS_SPACE].setText("");
+    public void onNewContext(MapPaneNewContextEvent ev) {
+        if (ev.getOldContext() != null) {
+            ev.getOldContext().removeMapBoundsListener(mapBoundsListener);
+        }
+
+        if (ev.getNewContext() != null) {
+            ev.getNewContext().addMapBoundsListener(mapBoundsListener);
+        }
     }
 
+    public void onNewRenderer(MapPaneNewRendererEvent ev) {
+    }
+    
     /**
      * Helper for constructors. Sets basic layout and creates
      * the first space for map coordinates.
@@ -214,17 +200,29 @@ public class StatusBar extends JPanel implements MapPaneListener {
         }
     }
 
-    public void onNewContext(MapPaneNewContextEvent ev) {
-        if (ev.getOldContext() != null) {
-            ev.getOldContext().removeMapBoundsListener(mapBoundsListener);
-        }
+    /**
+     * Initialize the mouse and map bounds listeners
+     */
+    private void createListeners() {
+        mouseListener = new MapMouseAdapter() {
 
-        if (ev.getNewContext() != null) {
-            ev.getNewContext().addMapBoundsListener(mapBoundsListener);
-        }
+            @Override
+            public void onMouseMoved(MapMouseEvent ev) {
+                displayCoords(ev.getMapPosition());
+            }
+
+            @Override
+            public void onMouseExited(MapMouseEvent ev) {
+                clearCoords();
+            }
+        };
+
+        mapBoundsListener = new MapBoundsListener() {
+
+            public void mapBoundsChanged(MapBoundsEvent event) {
+                displayBounds(event.getNewAreaOfInterest());
+            }
+        };
     }
 
-    public void onNewRenderer(MapPaneNewRendererEvent ev) {
-    }
-    
 }

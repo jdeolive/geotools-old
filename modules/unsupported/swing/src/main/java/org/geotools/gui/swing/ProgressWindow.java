@@ -59,14 +59,10 @@ import org.opengis.util.ProgressListener;
  * thread), which make it easier to use it from some background thread. Such background thread
  * should have a low priority in order to avoid delaying Swing repaint events.
  *
- * <p>&nbsp;</p>
- * <p align="center"><img src="doc-files/ProgressWindow.png"></p>
- * <p>&nbsp;</p>
- *
- * @since 2.0
- * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/unsupported/widgets-swing/src/main/java/org/geotools/gui/swing/ProgressWindow.java $
- * @version $Id: ProgressWindow.java 30655 2008-06-12 20:24:25Z acuster $
  * @author Martin Desruisseaux (PMO, IRD)
+ * @since 2.0
+ * @source $URL$
+ * @version $Id$
  */
 public class ProgressWindow implements ProgressListener {
     /**
@@ -422,7 +418,6 @@ public class ProgressWindow implements ProgressListener {
      * by the {@link EventQueue#invokeAndWait} method. The {@code set} operations have
      * positive identifiers and are executed by the {@link EventQueue#invokeLater} method.
      *
-     * @version $Id: ProgressWindow.java 30655 2008-06-12 20:24:25Z acuster $
      * @author Martin Desruisseaux (PMO, IRD)
      */
     private class Caller implements Runnable {

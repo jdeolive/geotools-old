@@ -84,10 +84,14 @@ public abstract class CursorTool extends MapMouseAdapter {
      */
     public abstract Icon getIconSmall();
 
-
     /**
      * Get the cursor for this tool
      */
     public abstract Cursor getCursor();
-    
+
+    /**
+     * Query if the tool is one that draws a box on the map display
+     * when the mouse is being dragged (eg. to indicate a zoom area).
+     */
+    public abstract boolean drawDragBox();
 }

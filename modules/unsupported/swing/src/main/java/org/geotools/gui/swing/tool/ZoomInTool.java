@@ -172,4 +172,14 @@ public class ZoomInTool extends AbstractZoomTool {
     public Icon getIconSmall() {
         return iconSmall;
     }
+
+    /**
+     * Returns true to indicate that this tool draws a box
+     * on the map display when the mouse is being dragged to
+     * show the zoom-in area
+     */
+    @Override
+    public boolean drawDragBox() {
+        return true;
+    }
 }
