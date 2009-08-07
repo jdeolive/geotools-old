@@ -108,6 +108,13 @@ Your New Project
 2. This file describes your project for maven. Right now you have a single dependency on junit version 3.8.1.
 3. You should be able to see this dependency in your IDE as well.
 
+.. Tip:: Netbeans defaults to Java 1.3 format for new Maven projects. To
+         correct this:
+
+         * Go to the Project properties dialog
+         * Select "Sources"
+         * Set the "Source / binary format" to 1.5
+
 Depending on GeoTools
 ---------------------
 
@@ -232,48 +239,46 @@ And add some GeoTools code to it:
 
 You can build and run the application from within your IDE or from the command line.
 
-Compiling your application from the command line is as simple as typing ``mvn install``::
+Compiling your application from the command line is as simple as typing ``mvn compile``::
 
- C:\java\example>mvn install
-
+ C:\java\example>mvn compile
  [INFO] Scanning for projects...
  [INFO] ------------------------------------------------------------------------
  [INFO] Building example
  [INFO]    task-segment: [compile]
  [INFO] ------------------------------------------------------------------------
  [INFO] [resources:resources]
- [INFO] Using default encoding to copy filtered resources.
+ [INFO] Using encoding: 'UTF-8' to copy filtered resources.
  [INFO] [compiler:compile]
- [INFO] Nothing to compile - all classes are up to date
+ [INFO] Compiling 1 source file to C:\java\example\target\classes
  [INFO] ------------------------------------------------------------------------
  [INFO] BUILD SUCCESSFUL
  [INFO] ------------------------------------------------------------------------
  [INFO] Total time: 1 second
- [INFO] Finished at: Thu Jul 16 18:27:45 GMT+10:00 2009
- [INFO] Final Memory: 3M/8M
+ [INFO] Finished at: Fri Aug 07 20:51:48 EST 2009
+ [INFO] Final Memory: 5M/16M
  [INFO] ------------------------------------------------------------------------
 
 
 Running your application from the command line is a bit more cumbersome, requiring this Maven incantation::
 
  C:\java\example>mvn exec:java -Dexec.mainClass="org.geotools.demo.example.App"
- 
  [INFO] Scanning for projects...
  [INFO] Searching repository for plugin with prefix: 'exec'.
- [INFO] ----------------------------------------------------------------------------
- [INFO] Building geotools-example
+ [INFO] ------------------------------------------------------------------------
+ [INFO] Building example
  [INFO]    task-segment: [exec:java]
- [INFO] ----------------------------------------------------------------------------
+ [INFO] ------------------------------------------------------------------------
  [INFO] Preparing exec:java
  [INFO] No goals needed for project - skipping
  [INFO] [exec:java]
- Hello GeoTools:2.5.SNAPSHOT
+ Hello GeoTools:2.6.SNAPSHOT
  [INFO] ------------------------------------------------------------------------
  [INFO] BUILD SUCCESSFUL
  [INFO] ------------------------------------------------------------------------
- [INFO] Total time: 1 second
- [INFO] Finished at: Tue May 29 11:19:13 PDT 2007
- [INFO] Final Memory: 3M/6M
+ [INFO] Total time: 2 seconds
+ [INFO] Finished at: Fri Aug 07 21:09:19 EST 2009
+ [INFO] Final Memory: 7M/13M
  [INFO] ------------------------------------------------------------------------
 
 .. tip:: If you will be running your application from the command line frequently you can avoid the long
@@ -346,24 +351,33 @@ OK, after that brief digression, let's add our plugins by editing the pom.xml fi
     </dependency>
 
 
-Refresh your IDE Project Files (Eclipse users only)
----------------------------------------------------
+Refresh your IDE Project Files
+------------------------------
 
-1. You will need to kick these dependencies into your IDE with another ::
+Eclipse users
+~~~~~~~~~~~~~
+
+1. You will need to kick these dependencies into your IDE with another::
 
      C:\\java\\example>mvn eclipse:eclipse
 
 2. Hit refresh in Eclipse
-3. You can now see the new dependencies - and everything else they make use of!
+
+Netbeans users
+~~~~~~~~~~~~~~
+
+Make sure you save the edits to your pom.xml file, then rebuild your project to nudge Maven to download the required jars, store them on your local disk, and add them to your project.
 
 Where did all these other JARs come from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+You should now be able to see the two new dependencies. You'll also see a lot of extra jars that you didn't add ! 
+
 GeoTools is divided up into a series of modules, plugins and extensions. For the background information on how GeoTools slots together please read: http://docs.codehaus.org/display/GEOTDOC/02+Meet+the+GeoTools+Library
 
-As well as all of its own jars, GeoTools makes use of a **lot** of third party jars. Following our "don't invent here" (well, mostly) policy we turn to the experts to handle things such as geometry, image file operations, logging etc. etc. So, although you might only specify a small number of GeoTools dependencies in your pom.xml file, each of them will usually rely on a number of other GeoTools and third party jars. And each of these jars in turn... well, you get the idea.
+As well as all of its own jars, GeoTools makes use of a **lot** of third party jars. Following our "don't invent here" (well, mostly) policy we turn to the experts to handle things such as geometry, image file operations, logging etc. So, although you might only specify a small number of GeoTools dependencies in your pom.xml file, each of them will usually rely on a number of other GeoTools and third party jars. And each of these jars in turn... well, you get the idea.
 
-We want to stick to working on spatial code rather than worrying about all of these extra jars and this is where using Maven makes life a lot easier. It keeps track of the dependencies between jars for us and makes sure that, when we build our application, we have the correct version of each of the jars needed by our project.
+We want to stick to working on spatial code rather than worrying about all of these extra jars and this is where using Maven can make your life a lot easier. It keeps track of the dependencies between jars for you, downloading the necessary jars as required into a local cache (repository) on your system.
 
 To see this in action you can ask Maven to print out a tree of the dependencies for your project my typing ``mvn dependency:tree`` at the command line::
 
@@ -378,33 +392,32 @@ To see this in action you can ask Maven to print out a tree of the dependencies 
  [INFO] [dependency:tree]
  [INFO] org.geotools.demo.example:example:jar:1.0-SNAPSHOT
  [INFO] +- junit:junit:jar:3.8.1:test
- [INFO] +- org.geotools:gt-main:jar:2.5.6:compile
- [INFO] |  +- org.geotools:gt-api:jar:2.5.6:compile
+ [INFO] +- org.geotools:gt-main:jar:2.6-M2:compile
+ [INFO] |  +- org.geotools:gt-api:jar:2.6-M2:compile
  [INFO] |  +- com.vividsolutions:jts:jar:1.9:compile
  [INFO] |  +- jdom:jdom:jar:1.0:compile
  [INFO] |  \- commons-beanutils:commons-beanutils:jar:1.7.0:compile
  [INFO] |     \- commons-logging:commons-logging:jar:1.0.3:compile
- [INFO] +- org.geotools:gt-shapefile:jar:2.5.6:compile
- [INFO] |  +- org.geotools:gt-referencing:jar:2.5.6:compile
- [INFO] |  |  +- java3d:vecmath:jar:1.3.1:compile
- [INFO] |  |  +- commons-pool:commons-pool:jar:1.3:compile
- [INFO] |  |  \- org.geotools:gt-metadata:jar:2.5.6:compile
- [INFO] |  |     +- org.opengis:geoapi:jar:2.2.0:compile
- [INFO] |  |     \- net.java.dev.jsr-275:jsr-275:jar:1.0-beta-2:compile
- [INFO] |  \- velocity:velocity:jar:1.4:compile
- [INFO] |     \- velocity:velocity-dep:jar:1.4:runtime
- [INFO] \- org.geotools:gt-epsg-hsql:jar:2.5.6:compile
+ [INFO] +- org.geotools:gt-shapefile:jar:2.6-M2:compile
+ [INFO] |  \- org.geotools:gt-referencing:jar:2.6-M2:compile
+ [INFO] |     +- java3d:vecmath:jar:1.3.1:compile
+ [INFO] |     +- commons-pool:commons-pool:jar:1.3:compile
+ [INFO] |     \- org.geotools:gt-metadata:jar:2.6-M2:compile
+ [INFO] |        +- org.opengis:geoapi:jar:2.2-SNAPSHOT:compile
+ [INFO] |        \- net.java.dev.jsr-275:jsr-275:jar:1.0-beta-2:compile
+ [INFO] \- org.geotools:gt-epsg-hsql:jar:2.6-M2:compile
  [INFO]    \- hsqldb:hsqldb:jar:1.8.0.7:compile
  [INFO] ------------------------------------------------------------------------
  [INFO] BUILD SUCCESSFUL
  [INFO] ------------------------------------------------------------------------
- [INFO] Total time: 5 seconds
- [INFO] Finished at: Thu Jul 16 18:53:58 GMT+10:00 2009
- [INFO] Final Memory: 10M/22M
+ [INFO] Total time: 7 seconds
+ [INFO] Finished at: Fri Aug 07 20:44:02 EST 2009
+ [INFO] Final Memory: 12M/22M
  [INFO] ------------------------------------------------------------------------
 
+
 Example Code
-~~~~~~~~~~~~
+------------
 
 The following example is available from:
 
@@ -419,13 +432,20 @@ It is also included in the demo directory when you download geotools.
 
 Application
 -----------
-1. Please create the file **FirstProject.java**
-2. Copy and paste in the following code:
+We are going to create an application to open a shapefile and read the spatial data for the features in it to do a simple calculation: the total length of all features.
+
+The code for the application is shown below. It consists of a single class: 
+
+  **org.geotools.demo.FirstProject** 
+
+Copy and paste the code into your IDE as part of your Maven project:
 
    .. literalinclude:: ../../../../demo/example/src/main/java/org/geotools/demo/FirstProject.java
       :language: java
    
-3. Now build and run the application, either from within your IDE or from the command line (as shown here)::
+Now build the application, either from within your IDE or from the command line with ``mvn compile``.
+
+If the application compiled you can now run it. Once again, you can do this from within your IDE or from the command line. The program should display a dialog where you can specify the shapefile. It will then read the shapefile and calculate the total length of the lines or polygon boundaries::
 
      C:\java\example>mvn exec:java -Dexec.mainClass="org.geotools.demo.example.FirstProject"
      [INFO] Scanning for projects...
@@ -437,7 +457,7 @@ Application
      [INFO] Preparing exec:java
      [INFO] No goals needed for project - skipping
      [INFO] [exec:java]
-     Welcome to GeoTools:2.5.6
+     Welcome to GeoTools:2.6.SNAPSHOT
      You chose to open this file: bc_border.shp
      Reading content bc_border
      Total Length 383.8965970055014
