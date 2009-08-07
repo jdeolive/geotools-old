@@ -461,40 +461,26 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 		// get the destination path
 		// getting the path of this object and the name
 		URL url = null;
-		String pathname = null;
 		String name = null;
 
 		if (this.destination instanceof String) {
 			url = (new File((String) this.destination)).toURI().toURL();
-			pathname = url.getPath().substring(0,
-					url.getPath().lastIndexOf("/") + 1);
-			name = url.getPath().substring(url.getPath().lastIndexOf("/") + 1,
-					url.getPath().length());
 		} else if (this.destination instanceof File) {
 			url = ((File) this.destination).toURI().toURL();
-			pathname = url.getPath().substring(0,
-					url.getPath().lastIndexOf("/") + 1);
-			name = url.getPath().substring(url.getPath().lastIndexOf("/") + 1,
-					url.getPath().length());
 		} else if (this.destination instanceof URL) {
 			url = (URL) this.destination;
-			pathname = url.getPath().substring(0,
-					url.getPath().lastIndexOf("/") + 1);
-			name = url.getPath().substring(url.getPath().lastIndexOf("/") + 1,
-					url.getPath().length());
 		} else {
 			// do nothing for the moment
 			return;
 		}
 
 		// build up the name
-		name = new StringBuffer(pathname).append(
-				((name.indexOf(".") > 0) ? name.substring(0, name.indexOf("."))
-						: name)).append(".prj").toString();
+		File ascFile = DataUtilities.urlToFile(url);
+		String prjName = ascFile.getName().substring(0, ascFile.getName().lastIndexOf(".")) + ".prj";
+		File prjFile = new File (ascFile.getParent(), prjName);
 
 		// create the file
-		final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(
-				name));
+		final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(prjFile));
 
 		// write information on crs
 		fileWriter.write(crs.toWKT());
