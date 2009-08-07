@@ -166,7 +166,6 @@
          <module>mysql</module>
          <module>oracle-spatial</module>
          <module>postgis-versioned</module>
-         <module>tiger</module>
          <module>vpf</module>
          <module>caching</module>
          <module>swing</module>
