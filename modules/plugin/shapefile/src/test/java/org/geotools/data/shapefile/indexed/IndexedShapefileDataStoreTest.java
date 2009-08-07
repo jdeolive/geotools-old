@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
@@ -34,14 +33,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.transaction.TransactionRequiredException;
-
 import org.geotools.TestData;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FIDReader;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
@@ -202,10 +198,9 @@ public class IndexedShapefileDataStoreTest extends TestCaseSupport {
     public void testCreateAndReadQIX() throws Exception {
         File shpFile = copyShapefiles(STATE_POP);
         URL url = shpFile.toURI().toURL();
-        String filename = url.getFile();
-        filename = filename.substring(0, filename.lastIndexOf("."));
 
-        File file = new File(filename + ".qix");
+        String name = shpFile.getName();
+        File file = new File(shpFile.getParent(), name.substring(0, name.lastIndexOf('.')) + ".qix");
 
         if (file.exists()) {
             file.delete();
