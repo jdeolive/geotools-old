@@ -48,6 +48,7 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.geotools.data.DataUtilities;
 import org.geotools.factory.Hints;
 import org.geotools.gce.imagemosaic.jdbc.Import.ImportTyp;
 import org.geotools.geometry.GeneralEnvelope;
@@ -410,11 +411,11 @@ public abstract class AbstractTest extends TestCase {
 		assertTrue(importParamList.get(2).getSpatialTableName()
 				.equals("SPAT_2"));
 
-		assertTrue(isSameFile(importParamList.get(0).getSourceURL().getPath(),
+		assertTrue(isSameFile(importParamList.get(0).getSourceURL(),
 				OUTPUTDIR_RESOURCES));
-		assertTrue(isSameFile(importParamList.get(1).getSourceURL().getPath(),
+		assertTrue(isSameFile(importParamList.get(1).getSourceURL(),
 				OUTPUTDIR_RESOURCES + 1));
-		assertTrue(isSameFile(importParamList.get(2).getSourceURL().getPath(),
+		assertTrue(isSameFile(importParamList.get(2).getSourceURL(),
 				OUTPUTDIR_RESOURCES + 2));
 
 		importParamList = new ArrayList<ImportParam>();
@@ -422,11 +423,11 @@ public abstract class AbstractTest extends TestCase {
 				ImportTyp.CSV, importParamList);
 		assertTrue(importParamList.size() == 3);
 
-		assertTrue(isSameFile(importParamList.get(0).getSourceURL().getPath(),
+		assertTrue(isSameFile(importParamList.get(0).getSourceURL(),
 				OUTPUTDIR_RESOURCES + "index.csv"));
-		assertTrue(isSameFile(importParamList.get(1).getSourceURL().getPath(),
+		assertTrue(isSameFile(importParamList.get(1).getSourceURL(),
 				OUTPUTDIR_RESOURCES + "1/index.csv"));
-		assertTrue(isSameFile(importParamList.get(2).getSourceURL().getPath(),
+		assertTrue(isSameFile(importParamList.get(2).getSourceURL(),
 				OUTPUTDIR_RESOURCES + "2/index.csv"));
 
 		importParamList = new ArrayList<ImportParam>();
@@ -434,11 +435,11 @@ public abstract class AbstractTest extends TestCase {
 				ImportTyp.SHAPE, importParamList);
 		assertTrue(importParamList.size() == 3);
 
-		assertTrue(isSameFile(importParamList.get(0).getSourceURL().getPath(),
+		assertTrue(isSameFile(importParamList.get(0).getSourceURL(),
 				OUTPUTDIR_RESOURCES + "index.shp"));
-		assertTrue(isSameFile(importParamList.get(1).getSourceURL().getPath(),
+		assertTrue(isSameFile(importParamList.get(1).getSourceURL(),
 				OUTPUTDIR_RESOURCES + "1/index.shp"));
-		assertTrue(isSameFile(importParamList.get(2).getSourceURL().getPath(),
+		assertTrue(isSameFile(importParamList.get(2).getSourceURL(),
 				OUTPUTDIR_RESOURCES + "2/index.shp"));
 
 	}
@@ -454,6 +455,20 @@ public abstract class AbstractTest extends TestCase {
 	public static boolean isSameFile(String file1, String file2)
 			throws Exception {
 		return new File(file1).getCanonicalPath().equals(
+				new File(file2).getCanonicalPath());
+	}
+	
+	/**
+	 * Test if files are the same by comparing their canonical name.
+	 * 
+	 * @param file1
+	 * @param file2
+	 * @return true if files have the same canonical name
+	 * @throws Exception
+	 */
+	public static boolean isSameFile(URL file1, String file2)
+			throws Exception {
+		return DataUtilities.urlToFile(file1).getCanonicalPath().equals(
 				new File(file2).getCanonicalPath());
 	}
 
