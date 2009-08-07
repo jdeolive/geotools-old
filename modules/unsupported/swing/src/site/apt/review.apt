@@ -1,0 +1,40 @@
+SWING MODULE
+~~~~~~~~~~~~
+
+  Module Maintainers: Michael Bedward, Jody Garnett
+
+  IP Review:
+
+    * Michael Bedward, August 2009
+
+  STATUS: clean
+
+  The Swing Module is developed for Geotools and provides classes for
+  GUI elements including a map display pane with associated cursor
+  tools.
+
+* org.getools.gui.swing
+  ~~~~~~~~~~~~~~~~~~~~~
+Classes for map display, a progress window and exception reporting dialog
+
+* org.geotools.gui.swing.action
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Classes to link GUI control actions to the map pane.
+
+* org.geotools.gui.swing.dndlist
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Classes that implement a JList with drag and drop reordering of elements;
+used as a table of contents for map layers.
+
+* org.geotools.gui.swing.event
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mouse and map pane event and listener classes.
+
+* org.geotools.gui.swing.tool
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cursor tool classes for zooming, panning etc.
+
+* org.geotools.gui.swing.images (resources)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Control and cursor icons: all created for this module by mbedward.
+

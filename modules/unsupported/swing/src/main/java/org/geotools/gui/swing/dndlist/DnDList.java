@@ -39,13 +39,7 @@ import javax.swing.JList;
  * A sub-class of JList that supports drag and drop to reorder items within a single list
  * and to copy or move items between lists. It is used by the
  * {@linkplain org.geotools.gui.swing.MapLayerTable} widget but has been written
- * as a generic class.
- * <p>
- * This code is highly adapted from examples in the article:
- * <blockquote>
- * Steven Haines (2004) Re-Orderable Lists <br>
- * http://www.informit.com/guides/content.aspx?g=java&seqNum=58
- * </blockquote>
+ * in a general fashion so that it may be used for other pusposes.
  *
  * @see DnDListModel
  *
