@@ -33,6 +33,7 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.util.List;
 import java.util.ResourceBundle;
+
 import javax.swing.JList;
 
 /**
@@ -49,10 +50,15 @@ import javax.swing.JList;
  * @version $Id$
  */
 public class DnDList<T> extends JList implements DragGestureListener, DragSourceListener, DropTargetListener {
+    private static final long serialVersionUID = 3310751294076288683L;
+
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
     private DragSource src;
-    private DropTarget tgt;
+    
+    @SuppressWarnings("unused")
+    private DropTarget tgt; // this is not used? what is it for
+    
     private boolean movingItems;
     private int overIndex;
     private int[] dragIndices;
@@ -87,14 +93,19 @@ public class DnDList<T> extends JList implements DragGestureListener, DragSource
         overIndex = -1;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public DnDListModel<T> getModel() {
+        return (DnDListModel<T>) super.getModel();
+    }
     /**
      * Called by the system when a drag gesture starts
      */
     public void dragGestureRecognized(DragGestureEvent dge) {
         dragIndices = getSelectedIndices();
         if (dragIndices.length > 0) {
-            List items = ((DnDListModel) getModel()).getElementsAt(dragIndices);
-            Transferable stuff = new DnDListItemsTransferable(items);
+            List<T> items = getModel().getElementsAt(dragIndices);
+            Transferable stuff = new DnDListItemsTransferable<T>(items);
             movingItems = true;
             src.startDrag(dge, DragSource.DefaultMoveDrop, stuff, this);
         }
@@ -261,7 +272,7 @@ public class DnDList<T> extends JList implements DragGestureListener, DragSource
      * returns true. Otherwise, the behavior of the call is implementation-dependent.
      */
     public void drop(DropTargetDropEvent dtde) {
-        Transferable stuff = dtde.getTransferable();
+        //Transferable stuff = dtde.getTransferable();
         
         /*
          * @todo check DataFlavor of stuff
@@ -272,7 +283,7 @@ public class DnDList<T> extends JList implements DragGestureListener, DragSource
             /*
              * This is a local drag and drop to reorder items
              */
-            DnDListModel model = (DnDListModel) getModel();
+            DnDListModel<T> model = getModel();
             model.moveItems(overIndex, dragIndices);
 
         } else {

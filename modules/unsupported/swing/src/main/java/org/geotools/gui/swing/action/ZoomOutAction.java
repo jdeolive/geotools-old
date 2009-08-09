@@ -33,7 +33,8 @@ import org.geotools.gui.swing.tool.ZoomOutTool;
  * @version $Id$
  */
 public class ZoomOutAction extends MapAction {
-    
+    private static final long serialVersionUID = 95893142247739121L;
+
     /**
      * Constructor - when used with a JButton the button will
      * display a small icon only

@@ -33,6 +33,7 @@ import org.geotools.gui.swing.tool.CursorTool;
  * @version $Id$
  */
 public class ResetAction extends MapAction {
+    private static final long serialVersionUID = -4833407589496173672L;
     
     public static final String TOOL_NAME = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/widget").getString("tool_name_reset");
     public static final String TOOL_TIP = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/widget").getString("tool_tip_reset");

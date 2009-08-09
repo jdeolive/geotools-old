@@ -29,36 +29,28 @@ import java.util.EventObject;
  * @version $Id$
  */
 public abstract class MapPaneEvent extends EventObject {
-
+    private static final long serialVersionUID = 3379688994962024035L;
+    
     /**
-     * Event types
+     * Type of MapPane event
      */
     public static enum Type {
+        /**
+         * The map pane has set a new context.
+         */
+        NEW_CONTEXT,
 
         /**
-         * The map pane has set a new context
+         * The map pane has set a new renderer.
          */
-        NEW_CONTEXT(1, "new map context"),
-
-        /**
-         * The map pane has set a new renderer
-         */
-        NEW_RENDERER(2, "new renderer");
+        NEW_RENDERER;
         
-        private int value;
-        private String desc;
-
-        private Type(int value, String desc) {
-            this.value = value;
-            this.desc = desc;
-        }
-
         @Override
         public String toString() {
-            return "map pane: " + desc;
+            return "map pane: " + name();
         }
     }
-
+    /** Type of mappane event */
     private Type type;
 
     /**

@@ -32,7 +32,8 @@ import org.geotools.gui.swing.tool.PanTool;
  * @version $Id$
  */
 public class PanAction extends MapAction {
-    
+    private static final long serialVersionUID = -7861590592095577375L;
+
     /**
      * Constructor - when used with a JButton the button will
      * display a small icon only

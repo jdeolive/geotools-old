@@ -52,14 +52,15 @@ import org.geotools.map.MapLayer;
  * @version $Id$
  */
 public class MapLayerTable extends JPanel {
+    private static final long serialVersionUID = -8461593609237317561L;
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
-    private static final int BORDER = 10;
+    //rivate static final int BORDER = 10;
 
     private JMapPane pane;
     private DnDListModel<MapLayer> listModel;
-    private DnDList list;
+    private DnDList<MapLayer> list;
     private JScrollPane scrollPane;
 
     /**
@@ -119,7 +120,8 @@ public class MapLayerTable extends JPanel {
      */
     private void init() {
         listModel = new DnDListModel<MapLayer>();
-        list = new DnDList(listModel) {
+        list = new DnDList<MapLayer>(listModel) {
+            private static final long serialVersionUID = 1289744440656016412L;
             /*
              * We override setToolTipText to provide tool tips
              * for the control labels displayed for each list item

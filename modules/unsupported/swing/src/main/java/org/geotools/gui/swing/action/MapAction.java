@@ -33,7 +33,9 @@ import org.geotools.gui.swing.JMapPane;
  * @version $Id$
  */
 public abstract class MapAction extends AbstractAction {
+    private static final long serialVersionUID = 2400755645451641127L;
 
+    /** JMapPane we are operating on */
     protected JMapPane pane;
 
     protected void init(JMapPane pane, String toolName, String toolTip, String iconImagePath) {

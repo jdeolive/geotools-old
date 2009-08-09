@@ -30,7 +30,7 @@ import org.geotools.renderer.GTRenderer;
  * @version $Id$
  */
 public class MapPaneNewRendererEvent extends MapPaneEvent {
-
+    private static final long serialVersionUID = 7505833556498495078L;
     private GTRenderer oldRenderer;
     private GTRenderer newRenderer;
 

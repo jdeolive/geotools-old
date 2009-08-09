@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
+
 import javax.swing.AbstractListModel;
-import org.geotools.map.MapLayer;
 
 /**
  * A generic ListModel class to support {@linkplain DnDList}.
@@ -33,7 +33,7 @@ import org.geotools.map.MapLayer;
  * @version $Id$
  */
 public class DnDListModel<T> extends AbstractListModel {
-
+    private static final long serialVersionUID = -6110074993686576005L;
     List<T> items;
     private boolean notify;
 

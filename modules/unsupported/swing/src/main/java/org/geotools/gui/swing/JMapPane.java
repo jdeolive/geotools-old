@@ -77,7 +77,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @version $Id$
  */
 public class JMapPane extends JPanel implements MapLayerListListener {
-    
+    private static final long serialVersionUID = 6657390989310278122L;
+
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 
     /**
@@ -326,11 +327,11 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      * Set the renderer for this map pane
      */
     public void setRenderer(GTRenderer renderer) {
-        Map hints;
+        Map<Object,Object> hints;
         if (renderer instanceof StreamingRenderer) {
             hints = renderer.getRendererHints();
             if (hints == null) {
-                hints = new HashMap();
+                hints = new HashMap<Object,Object>();
             }
             if (hints.containsKey(StreamingRenderer.LABEL_CACHE_KEY)) {
                 labelCache = (LabelCache) hints.get(StreamingRenderer.LABEL_CACHE_KEY);

@@ -30,6 +30,7 @@ import org.geotools.map.MapContext;
  * @version $Id$
  */
 public class MapPaneNewContextEvent extends MapPaneEvent {
+    private static final long serialVersionUID = 2297127987697741229L;
     private MapContext oldContext;
     private MapContext newContext;
 

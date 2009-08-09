@@ -40,6 +40,7 @@ import org.geotools.map.MapLayer;
  * @version $Id$
  */
 public class MapLayerTableCellRenderer extends JPanel implements ListCellRenderer {
+    private static final long serialVersionUID = 7907189175227502588L;
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 

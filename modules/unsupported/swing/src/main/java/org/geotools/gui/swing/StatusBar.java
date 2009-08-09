@@ -51,6 +51,7 @@ import org.geotools.map.event.MapBoundsListener;
  * @version $Id$
  */
 public class StatusBar extends JPanel implements MapPaneListener {
+    private static final long serialVersionUID = 3871466161939637993L;
 
     private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
 

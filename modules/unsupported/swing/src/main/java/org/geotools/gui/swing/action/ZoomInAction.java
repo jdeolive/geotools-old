@@ -33,7 +33,8 @@ import org.geotools.gui.swing.tool.ZoomInTool;
  * @version $Id$
  */
 public class ZoomInAction extends MapAction {
-    
+    private static final long serialVersionUID = -5834707085326258997L;
+
     /**
      * Constructor - when used with a JButton the button will
      * display a small icon only
