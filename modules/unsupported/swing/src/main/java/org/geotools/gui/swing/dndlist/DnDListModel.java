@@ -26,7 +26,10 @@ import javax.swing.AbstractListModel;
 
 /**
  * A generic ListModel class to support {@linkplain DnDList}.
- *
+ * <p>
+ * The DnDListModel acts as a wrapper around an internal list of
+ * items; providing notification as the items are changed.
+ * </p>
  * @author Michael Bedward
  * @since 2.6
  * @source $URL$
@@ -286,4 +289,8 @@ public class DnDListModel<T> extends AbstractListModel {
         return items.indexOf(item);
     }
 
+    @Override
+    public String toString() {
+        return "DnD:"+items;
+    }
 }

@@ -77,11 +77,11 @@ public class DnDList<T> extends JList implements DragGestureListener, DragSource
      * @throws IllegalArgumentException if model is null
      */
     public DnDList(DnDListModel<T> model) {
+        super( model );
         if (model == null) {
             throw new IllegalArgumentException(stringRes.getString("arg_null_error"));
         }
-
-        this.setModel(model);
+        //this.setModel(model);
 
         src = new DragSource();
         src.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_MOVE, this);
