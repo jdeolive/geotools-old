@@ -1,94 +1,132 @@
 package org.geotools.styling.builder;
 
+import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.styling.Graphic;
+import org.geotools.filter.expression.ExpressionBuilder;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.StyleFactory;
 import org.opengis.filter.expression.Expression;
 
-public class StrokeBuilder {
-	StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
-	Expression color;
-	Expression width;
-	Expression opacity;
-	Expression lineCap;
-	Expression lineJoin;
-	float[] dashArray;
-	Expression dashOffset;
-	GraphicBuilder fillBuilder;
-	GraphicBuilder strokeBuilder;
-	
-	public StrokeBuilder() {
-		reset();
-	}
-	
-	public StrokeBuilder reset() {
-		color = Stroke.DEFAULT.getColor();
-		width = Stroke.DEFAULT.getWidth();
-		opacity = Stroke.DEFAULT.getOpacity();
-		lineCap = Stroke.DEFAULT.getLineCap();
-		lineJoin = Stroke.DEFAULT.getLineJoin();
-		dashArray = Stroke.DEFAULT.getDashArray();
-		dashOffset = Stroke.DEFAULT.getDashOffset();
-		fillBuilder = null;
-		strokeBuilder = null;
-		
-		return this;
-	}
+public class StrokeBuilder implements Builder<Stroke> {
+    StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
 
-	public StrokeBuilder color(Expression color) {
-		this.color = color;
-		return this;
-	}
+    ExpressionBuilder color =  new ExpressionBuilder();
 
-	public StrokeBuilder width(Expression width) {
-		this.width = width;
-		return this;
-	}
+    ExpressionBuilder width =  new ExpressionBuilder();
 
-	public StrokeBuilder opacity(Expression opacity) {
-		this.opacity = opacity;
-		return this;
-	}
+    ExpressionBuilder opacity =  new ExpressionBuilder();
 
-	public StrokeBuilder lineCap(Expression lineCap) {
-		this.lineCap = lineCap;
-		return this;
-	}
+    ExpressionBuilder lineCap =  new ExpressionBuilder();
 
-	public StrokeBuilder lineJoin(Expression lineJoin) {
-		this.lineJoin = lineJoin;
-		return this;
-	}
+    ExpressionBuilder lineJoin =  new ExpressionBuilder();
 
-	public StrokeBuilder dashArray(float[] dashArray) {
-		this.dashArray = dashArray;
-		return this;
-	}
+    float[] dashArray = null;
 
-	public StrokeBuilder dashOffet(Expression dashOffet) {
-		this.dashOffset = dashOffet;
-		return this;
-	}
-	
-	public GraphicBuilder graphicStroke() {
-		if(strokeBuilder == null)
-			strokeBuilder = new GraphicBuilder();
-		return strokeBuilder;
-	}
-	
-	public GraphicBuilder fillBuilder() {
-		if(fillBuilder == null)
-			fillBuilder = new GraphicBuilder();
-		return fillBuilder;
-	}
-	
-	Stroke build() {
-		Graphic graphicFill = fillBuilder != null ? fillBuilder.build() : null;
-		Graphic graphicStroke = strokeBuilder != null ? strokeBuilder.build() : null;
-		Stroke stroke = sf.createStroke(color, width, opacity, lineJoin, lineCap, dashArray, dashOffset, graphicFill, graphicStroke);
-		reset();
-		
-		return stroke;	
-	}
+    ExpressionBuilder dashOffset =  new ExpressionBuilder();
+
+    GraphicBuilder graphicFill = new GraphicBuilder();
+
+    GraphicBuilder graphicStroke = new GraphicBuilder();
+
+    private boolean unset;
+
+    public StrokeBuilder() {
+        reset();
+    }
+
+    public StrokeBuilder unset() {
+        reset();
+        unset = true;
+        return this;
+    }
+    public StrokeBuilder reset() {
+        color.reset( Stroke.DEFAULT.getColor() );
+        width.reset(Stroke.DEFAULT.getWidth() );
+        opacity.reset(Stroke.DEFAULT.getOpacity() );
+        lineCap.reset(Stroke.DEFAULT.getLineCap() );
+        lineJoin.reset(Stroke.DEFAULT.getLineJoin() );
+        dashArray = Stroke.DEFAULT.getDashArray();
+        dashOffset.reset( Stroke.DEFAULT.getDashOffset() );
+        graphicFill.unset();
+        graphicStroke.reset();
+        unset = false;
+        return this;
+    }
+    public StrokeBuilder reset( Stroke original ) {
+        color.reset( original.getColor() );
+        width.reset( original.getWidth() );
+        opacity.reset(original.getOpacity() );
+        lineCap.reset(original.getLineCap() );
+        lineJoin.reset(original.getLineJoin() );
+        dashArray = original.getDashArray();
+        dashOffset.reset( original.getDashOffset() );
+        graphicFill.reset( original.getGraphicFill() );
+        graphicStroke.reset( original.getGraphicStroke() );
+        unset = false;
+        return this;
+    }
+
+    public StrokeBuilder color(Expression color) {
+        this.color.reset( color );
+        unset = false;
+        return this;
+    }
+
+    public StrokeBuilder width(Expression width) {
+        this.width.reset( width );
+        unset = false;
+        return this;
+    }
+
+    public StrokeBuilder opacity(Expression opacity) {
+        this.opacity.reset( opacity );
+        unset = false;
+        return this;
+    }
+
+    public StrokeBuilder lineCap(Expression lineCap) {
+        this.lineCap.reset( lineCap );
+        unset = false;
+        return this;
+    }
+
+    public StrokeBuilder lineJoin(Expression lineJoin) {
+        this.lineJoin.reset( lineJoin );
+        unset = false;
+        return this;
+    }
+
+    public StrokeBuilder dashArray(float[] dashArray) {
+        this.dashArray = dashArray;
+        unset = false;
+        return this;
+    }
+
+    public StrokeBuilder dashOffet(Expression dashOffet) {
+        this.dashOffset.reset( dashOffet );
+        unset = false;
+        return this;
+    }
+
+    public GraphicBuilder graphicStroke() {
+        unset = false;
+        return graphicStroke;
+    }
+
+    public GraphicBuilder fillBuilder() {
+        unset = false;
+        return graphicFill;
+    }
+
+    public Stroke build() {
+        if( unset ){
+            return null;
+        }
+        Stroke stroke = sf.createStroke(
+                color.build(),
+                width.build(), opacity.build(), lineJoin.build(), lineCap.build(), dashArray,
+                dashOffset.build(), graphicFill.build(), this.graphicStroke.build());
+        reset();
+        return stroke;
+    }
 }
