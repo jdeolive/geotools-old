@@ -46,7 +46,7 @@ public interface Point extends GeometricPrimitive {
     /**
      * Returns the value of the second ordinate.
      * 
-     * @return value of the third ordinate, or <code>Double.NAN</code> if the point only has one dimension
+     * @return value of the second ordinate, or <code>Double.NAN</code> if the point only has one dimension
      */
     public double get1();
 
