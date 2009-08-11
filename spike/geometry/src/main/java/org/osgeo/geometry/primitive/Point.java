@@ -19,50 +19,57 @@ package org.osgeo.geometry.primitive;
 
 /**
  * 0-dimensional primitive.
- *
+ * 
+ * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider</a>
  * @author <a href="mailto:poth@lat-lon.de">Andreas Poth</a>
  * @author last edited by: $Author$
- *
+ * 
  * @version. $Revision$, $Date$
  */
 public interface Point extends GeometricPrimitive {
 
     /**
      * Must always return {@link GeometricPrimitive.PrimitiveType#Point}.
-     *
+     * 
      * @return {@link GeometricPrimitive.PrimitiveType#Point}
      */
     public PrimitiveType getPrimitiveType();
 
     /**
-     *
-     * @return x ordinate
+     * Returns the value of the first ordinate.
+     * 
+     * @return value of the first ordinate
      */
-    public double getX();
+    public double get0();
 
     /**
-     *
-     * @return y ordinate
+     * Returns the value of the second ordinate.
+     * 
+     * @return value of the third ordinate, or <code>Double.NAN</code> if the point only has one dimension
      */
-    public double getY();
+    public double get1();
 
     /**
-     *
-     * @return z ordinate
+     * Returns the value of the third ordinate.
+     * 
+     * @return value of the third ordinate, or <code>Double.NAN</code> if the point only has one or two dimensions
      */
-    public double getZ();
+    public double get2();
 
     /**
-     *
+     * Returns the value of the specified ordinate.
+     * 
      * @param dimension
-     * @return ordinate of passed dimension. If passed dimension is not supported by a point Double.NAN will be
-     *         returned
+     *            ordinate to be returned (first dimension=0)
+     * @return ordinate value of the passed dimension, or <code>Double.NAN</code> if <code>dimension</code> is greater
+     *         than the number of actual dimensions
      */
     public double get( int dimension );
 
     /**
-     *
-     * @return a points coordinates as an array
+     * Returns all ordinates.
+     * 
+     * @return all ordinates, the length of the array is equal to the number of dimensions
      */
     public double[] getAsArray();
 }
