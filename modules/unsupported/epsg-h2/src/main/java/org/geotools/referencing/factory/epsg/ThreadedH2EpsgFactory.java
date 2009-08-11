@@ -152,7 +152,32 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
         }
         return getTemporaryDirectory();
     }
-
+    /**
+     * Tests of the EPSG database is unpacked into the required directory.
+     * <p>
+     * This method exists to allow client applications to check if the EPSG
+     * database is unpacked and ready to go; or if more time shoudld be
+     * alloted to let the database be constructed.
+     * @return true if directory intended for h2 exists (assumed from a previous run)
+     */
+    public static boolean isUnpacked(){
+    	try {
+            final String property = System.getProperty(DIRECTORY_KEY);
+            if (property != null) {
+                final File directory = new File(property);
+                if (directory.exists() && directory.isDirectory()) {
+                    return true;
+                }
+            }
+        } catch (SecurityException e) {
+        }
+        File temp = new File(System.getProperty("java.io.tmpdir", "."), "Geotools");
+        File directory = new File( temp, "Databases/EPSG-H2-" + VERSION + "/" );
+        if (directory.exists() && directory.isDirectory()) {
+            return true;
+        }
+        return false;
+    }
     /**
      * Returns the directory to uses in the temporary directory folder.
      */
