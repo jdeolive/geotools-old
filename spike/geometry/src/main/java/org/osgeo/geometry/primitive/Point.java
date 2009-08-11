@@ -21,6 +21,7 @@ package org.osgeo.geometry.primitive;
  * 0-dimensional primitive.
  * 
  * @author <a href="mailto:schneider@lat-lon.de">Markus Schneider</a>
+ * @author <a href="mailto:jive@users.sourceforge.net">Jody Garnett</a>
  * @author <a href="mailto:poth@lat-lon.de">Andreas Poth</a>
  * @author last edited by: $Author$
  * 
