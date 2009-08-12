@@ -23,9 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.unit.UnitFormat;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.gml2.bindings.GML2EncodingUtils;
-import org.geotools.gml3.bindings.GML3EncodingUtils;
 import org.geotools.referencing.CRS;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.capability.FunctionName;
@@ -202,7 +203,7 @@ public class ToPointFunction implements Function {
             for (int i = 0; i < dimension; i++) {
                 CoordinateSystemAxis axis = coord.getAxis(i);
                 axisLabels.append(axis.getName().getCode()).append(" ");
-                uomLabels.append(GML3EncodingUtils.getUomLabel(axis.getUnit())).append(" ");
+                uomLabels.append(UnitFormat.getUCUMInstance().format(axis.getUnit())).append(" ");
             }
             userData.put("axisLabels", axisLabels.toString().trim());
             userData.put("uomLabels", uomLabels.toString().trim());
