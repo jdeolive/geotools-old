@@ -126,10 +126,10 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
     private int featureCounter;
 
     /**
-     * Map of processed features by mapped id, so multiple instances are regarded as the same
+     * List of processed features by mapped id, so multiple instances are regarded as the same
      * feature
      */
-    private HashMap<String, Feature> processedFeatures;
+    private ArrayList<String> processedFeatureIds;
 
     /**
      * Next feature that doesn't already exist in processedFeatures map
@@ -194,7 +194,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         namespaceAwareFilterFactory = new FilterFactoryImplNamespaceAware(namespaces);
         xpathAttributeBuilder.setFilterFactory(namespaceAwareFilterFactory);
         this.maxFeatures = query.getMaxFeatures();
-        this.processedFeatures = new HashMap<String, Feature>();
+        this.processedFeatureIds = new ArrayList<String>();
 
     }
 
@@ -214,7 +214,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
             sourceFeatureIterator = null;
             sourceFeatures = null;
         }
-        processedFeatures.clear();
+        processedFeatureIds.clear();
     }
 
     /**
@@ -473,7 +473,7 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
         // make sure features are unique by mapped id
         while (sourceFeatureIterator.hasNext()) {
             Feature next = sourceFeatureIterator.next();
-            if (!processedFeatures.containsKey(extractIdForFeature(next))) {
+            if (!processedFeatureIds.contains(extractIdForFeature(next))) {
                 nextSrcFeature = next;
                 return true;
             }
@@ -556,12 +556,12 @@ public class MappingFeatureIterator implements Iterator<Feature>, FeatureIterato
             }
         }
         // hasNext() should already ensure that this shouldn't happen
-        assert !processedFeatures.containsKey(id);
+        assert !processedFeatureIds.contains(id);
         featureCounter++;
         if (target.getDefaultGeometryProperty() == null) {
             setGeometry(target);
         }
-        processedFeatures.put(id, target);
+        processedFeatureIds.add(id);
         if (!sourceFeatureIterator.hasNext()) {
             close();
         }
