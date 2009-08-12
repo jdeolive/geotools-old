@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -222,6 +223,42 @@ public class DataUtilities {
         }
         
         return names;
+    }
+    
+    /**
+     * A replacement for File.toURI().toURL().
+     * <p>
+     * The handling of file.toURL() is broken; the handling of file.toURI().toURL() is known
+     * to be broken on a few platforms like mac. We have the urlToFile( URL ) method that
+     * is able to untangle both these problems and we use it in the geotools library.
+     * <p>
+     * However occasionally we need to pick up a file and hand it to a third party library
+     * like EMF; this method performs a couple of sanity checks which we can use to prepare
+     * a good URL reference to a file in these situtations.
+     * 
+     * @param file
+     * @return URL
+     */
+    public static URL fileToURL(File file) {
+        try {
+            URL url = file.toURI().toURL();
+            String string = url.toExternalForm();
+            if( string.contains("+")){
+                // this represents an invalid URL created using either
+                // file.toURL(); or
+                // file.toURI().toURL() on a specific version of Java 5 on Mac
+                string = string.replace("+","%2B");
+            }
+            if( string.contains(" ")){
+                // this represents an invalid URL created using either
+                // file.toURL(); or
+                // file.toURI().toURL() on a specific version of Java 5 on Mac
+                string = string.replace(" ","%20");
+            }
+            return new URL( string );
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
     
     /**
@@ -1776,24 +1813,27 @@ public class DataUtilities {
     }
 
     /**
-	 * Manually calculates the bounds of a feature collection.
-	 * @param collection
-	 * @return
-	 */
-	public static Envelope bounds( FeatureCollection<? extends FeatureType, ? extends Feature> collection ) {
-		FeatureIterator<? extends Feature> i = collection.features();
-		try {
-			ReferencedEnvelope bounds = new ReferencedEnvelope(collection.getSchema().getCoordinateReferenceSystem());
-			if ( !i.hasNext() ) {
-				bounds.setToNull();
-				return bounds;
-			}
-			
-			bounds.init( ( (SimpleFeature) i.next() ).getBounds() );
-			return bounds;
-		}
-		finally {
-		    i.close();
-		}
-	}
+     * Manually calculates the bounds of a feature collection.
+     * 
+     * @param collection
+     * @return
+     */
+    public static Envelope bounds(
+            FeatureCollection<? extends FeatureType, ? extends Feature> collection) {
+        FeatureIterator<? extends Feature> i = collection.features();
+        try {
+            ReferencedEnvelope bounds = new ReferencedEnvelope(collection.getSchema()
+                    .getCoordinateReferenceSystem());
+            if (!i.hasNext()) {
+                bounds.setToNull();
+                return bounds;
+            }
+
+            bounds.init(((SimpleFeature) i.next()).getBounds());
+            return bounds;
+        } finally {
+            i.close();
+        }
+    }
+
 }
