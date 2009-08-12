@@ -37,23 +37,23 @@ public interface Point extends GeometricPrimitive {
     public PrimitiveType getPrimitiveType();
 
     /**
-     * Returns the value of the first ordinate.
+     * Returns the value of the ordinate 0.
      * 
-     * @return value of the first ordinate
+     * @return value of the ordinate 0
      */
-    public double get0();
+    public double get0(); // ordainte 0; rather then first ordiante to avoid confusion
 
     /**
-     * Returns the value of the second ordinate.
+     * Returns the value of the ordinate 1.
      * 
-     * @return value of the second ordinate, or <code>Double.NAN</code> if the point only has one dimension
+     * @return value of the ordinate 1, or <code>Double.NAN</code> if the point only has one dimension
      */
     public double get1();
 
     /**
-     * Returns the value of the third ordinate.
+     * Returns the value of the ordinate 2.
      * 
-     * @return value of the third ordinate, or <code>Double.NAN</code> if the point only has one or two dimensions
+     * @return value of the ordinate 2, or <code>Double.NAN</code> if the point only has one or two dimensions
      */
     public double get2();
 
@@ -65,12 +65,18 @@ public interface Point extends GeometricPrimitive {
      * @return ordinate value of the passed dimension, or <code>Double.NAN</code> if <code>dimension</code> is greater
      *         than the number of actual dimensions
      */
-    public double get( int dimension );
+    public double get( int dimension ); 
 
     /**
      * Returns all ordinates.
      * 
      * @return all ordinates, the length of the array is equal to the number of dimensions
      */
-    public double[] getAsArray();
+    public double[] getAsArray(); // This is copy of the internal ordinates presented as an array; does not offer direct access
+    
+    /**
+     * All ordinates for the point.
+     * @param ordiantes All ordinates for the point
+     */
+    public void setAsArray( double ordinates[] ); // Bulk set of ordintes; some implementations may be able to use array copy for speed
 }
