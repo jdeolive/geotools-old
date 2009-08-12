@@ -76,7 +76,7 @@ public interface Point extends GeometricPrimitive {
     
     /**
      * All ordinates for the point.
-     * @param ordiantes All ordinates for the point
+     * @param ordinates All ordinates for the point
      */
     public void setAsArray( double ordinates[] ); // Bulk set of ordintes; some implementations may be able to use array copy for speed
 }
