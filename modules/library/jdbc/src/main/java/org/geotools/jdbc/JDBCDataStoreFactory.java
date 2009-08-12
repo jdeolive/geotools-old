@@ -118,7 +118,7 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
             return false;
         }
     }
-
+    
     public final JDBCDataStore createDataStore(Map params)
         throws IOException {
         JDBCDataStore dataStore = new JDBCDataStore();
@@ -307,11 +307,26 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
      * </p>
      */
     protected DataSource createDataSource(Map params, SQLDialect dialect) throws IOException {
-        //create a datasource
-        BasicDataSource dataSource = new BasicDataSource();
+        BasicDataSource dataSource = createDataSource(params);
 
         // some default data source behaviour
         dataSource.setPoolPreparedStatements(dialect instanceof PreparedStatementSQLDialect);
+
+        return new DBCPDataSource(dataSource);
+    }
+
+    /**
+     * DataSource access allowing SQL use: intended to allow client code to query available schemas.
+     * <p>
+     * This DataSource is the clients responsibility to close() when they are finished using it.
+     * </p> 
+     * @param params Map of connection parameter.
+     * @return DataSource for SQL use
+     * @throws IOException
+     */
+    public BasicDataSource createDataSource(Map params) throws IOException {
+        //create a datasource
+        BasicDataSource dataSource = new BasicDataSource();
 
         // driver
         dataSource.setDriverClassName(getDriverClassName());
@@ -354,8 +369,7 @@ public abstract class JDBCDataStoreFactory extends AbstractDataStoreFactory {
         
         // some datastores might need this
         dataSource.setAccessToUnderlyingConnectionAllowed(true);
-
-        return new DBCPDataSource(dataSource);
+        return dataSource;
     }
 
     /**
