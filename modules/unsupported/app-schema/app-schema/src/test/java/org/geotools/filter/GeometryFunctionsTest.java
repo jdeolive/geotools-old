@@ -46,6 +46,9 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.geometry.DirectPosition;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
@@ -142,7 +145,7 @@ public class GeometryFunctionsTest {
     /**
      * Test toPoint function
      */
-    public void testToPoint() {
+    public void testToPoint() throws NoSuchAuthorityCodeException, FactoryException {
         // 2 points with SRS name and gml:id
         Function function = ff.function("toPoint", ToDirectPositionFunction.SRS_NAME, ff
                 .literal("EPSG:4283"), pointOne, pointTwo, ff.literal("1"));
@@ -152,9 +155,9 @@ public class GeometryFunctionsTest {
         assertEquals(pt.getDimension(), 0);
         assertEquals(pt.getCoordinate().x, 5.0, 0);
         assertEquals(pt.getCoordinate().y, 2.5, 0);
-        Object userData = pt.getUserData();
-        assertEquals(((Map) userData).get("gml:id"), "1");
-        assertTrue(((Map) userData).get("srsName").toString().endsWith("EPSG:4283"));
+        Map<Object, Object> userData = (Map<Object, Object>) pt.getUserData();
+        assertEquals(userData.get("gml:id"), "1");
+        assertEquals(userData.get(CoordinateReferenceSystem.class), CRS.decode("EPSG:4283"));
 
         // 2 points with no SRS name
         function = ff.function("toPoint", pointOne, pointTwo);

@@ -23,10 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.measure.unit.UnitFormat;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.gml2.bindings.GML2EncodingUtils;
 import org.geotools.referencing.CRS;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.capability.FunctionName;
@@ -37,8 +35,6 @@ import org.opengis.filter.expression.Literal;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.cs.CoordinateSystem;
-import org.opengis.referencing.cs.CoordinateSystemAxis;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -152,7 +148,7 @@ public class ToPointFunction implements Function {
             if (parameters.size() == 5) {
                 gmlId = parameters.get(4).evaluate(object, String.class);
             }
-            setCRSAttributes(point, crs, gmlId);
+            setUserData(point, crs, gmlId);
         } else {
 
             if (parameters.size() > 3 || parameters.size() < 2) {
@@ -168,7 +164,7 @@ public class ToPointFunction implements Function {
 
             if (parameters.size() == 3) {
                 String gmlId = parameters.get(2).evaluate(object, String.class);
-                setCRSAttributes(point, null, gmlId);
+                setUserData(point, null, gmlId);
             }
         }
         return (T) point;
@@ -188,25 +184,13 @@ public class ToPointFunction implements Function {
      * @param gmlId
      *            gml:id value
      */
-    private void setCRSAttributes(Point geom, CoordinateReferenceSystem crs, String gmlId) {
-        Map<String, Object> userData = new HashMap<String, Object>();
+    private void setUserData(Point geom, CoordinateReferenceSystem crs, String gmlId) {
+        Map<Object, Object> userData = new HashMap<Object, Object>();
         if (gmlId != null) {
             userData.put("gml:id", gmlId);
         }
         if (crs != null) {
-            userData.put("srsName", GML2EncodingUtils.toURI(crs));
-            CoordinateSystem coord = crs.getCoordinateSystem();
-            int dimension = coord.getDimension();
-            userData.put("srsDimension", dimension);
-            StringBuffer axisLabels = new StringBuffer();
-            StringBuffer uomLabels = new StringBuffer();
-            for (int i = 0; i < dimension; i++) {
-                CoordinateSystemAxis axis = coord.getAxis(i);
-                axisLabels.append(axis.getName().getCode()).append(" ");
-                uomLabels.append(UnitFormat.getUCUMInstance().format(axis.getUnit())).append(" ");
-            }
-            userData.put("axisLabels", axisLabels.toString().trim());
-            userData.put("uomLabels", uomLabels.toString().trim());
+            userData.put(CoordinateReferenceSystem.class, crs);
         }
         geom.setUserData(userData);
     }
