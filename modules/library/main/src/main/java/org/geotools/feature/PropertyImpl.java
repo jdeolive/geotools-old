@@ -32,7 +32,7 @@ import org.opengis.feature.type.PropertyType;
  * @author Justin Deoliveira, The Open Planning Project
  *
  */
-public class PropertyImpl implements Property {
+public abstract class PropertyImpl implements Property {
     /**
      * content of the property
      */
