@@ -378,10 +378,10 @@ public class StyleGenerator {
         // create the rule
         Rule rule = sb.createRule(symb);
 
-        if (filters.size() > 1) {
-            rule.setFilter(filters.get(0));
-        } else {
-            rule.setFilter(ff.or(filters));
+        if (filters.size() == 1){
+        	rule.setFilter(filters.get(0));
+        }else if (filters.size() > 1){
+        	rule.setFilter(ff.or(filters));
         }
 
         rule.setTitle(title);
