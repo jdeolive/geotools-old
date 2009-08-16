@@ -186,6 +186,7 @@ public class ShpFilesTestStream extends TestCase implements
         
         assertEquals(0, files.numberOfLocks());
     }
+    
     private void doRead(ShpFileType shpFileType) throws IOException {
         ReadableByteChannel in = files.getReadChannel(shpFileType, this);
         assertEquals(1, files.numberOfLocks());
