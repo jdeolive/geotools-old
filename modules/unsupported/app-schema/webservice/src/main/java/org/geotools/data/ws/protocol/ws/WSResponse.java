@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.eclipse.emf.ecore.EObject;
 import org.geotools.util.logging.Logging;
 
 /**

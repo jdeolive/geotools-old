@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.ws.v1_1_0;
+package org.geotools.data.ws;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -28,10 +28,10 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.data.ws.WS_Protocol;
 import org.geotools.data.ws.protocol.http.DefaultHTTPProtocol;
 import org.geotools.data.ws.protocol.http.HTTPProtocol;
 import org.geotools.data.ws.protocol.http.HTTPResponse;
-import org.geotools.data.ws.v1_1_0.WS_Protocol;
 import org.geotools.test.TestData;
 
 @SuppressWarnings("nls")
@@ -176,8 +176,6 @@ public final class DataTestSupport {
 
     public static class TestWFS_1_1_0_Protocol extends WS_Protocol {
 
-        private URL describeFeatureTypeUrlOverride;
-
         public TestWFS_1_1_0_Protocol(InputStream capabilitiesReader, HTTPProtocol http)
                 throws IOException {
             super(null, null, null, http);
@@ -190,8 +188,7 @@ public final class DataTestSupport {
          * 
          * @param url
          */
-        public void setDescribeFeatureTypeURLOverride(URL url) {
-            this.describeFeatureTypeUrlOverride = url;
+        public void setDescribeFeatureTypeURLOverride(URL url) {            
         }
     }
 

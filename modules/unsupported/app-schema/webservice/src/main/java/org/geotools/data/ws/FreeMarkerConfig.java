@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.data.ws.v1_1_0;
+package org.geotools.data.ws;
 
 import java.io.File;
 import java.io.IOException;

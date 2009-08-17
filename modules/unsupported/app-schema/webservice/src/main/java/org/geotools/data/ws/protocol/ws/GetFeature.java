@@ -35,7 +35,5 @@ public interface GetFeature {
 
     Integer getMaxFeatures();
 
-    ResultType getResultType();
-
     SortBy[] getSortBy();
 }

@@ -14,54 +14,27 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.ws.v1_1_0;
-
-import static org.geotools.data.ws.protocol.http.HttpMethod.GET;
-import static org.geotools.data.ws.protocol.http.HttpMethod.POST;
+package org.geotools.data.ws;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.opengis.ows10.DCPType;
-import net.opengis.ows10.DomainType;
-import net.opengis.ows10.KeywordsType;
-import net.opengis.ows10.OnlineResourceType;
-import net.opengis.ows10.OperationType;
-import net.opengis.ows10.OperationsMetadataType;
-import net.opengis.ows10.Ows10Factory;
-import net.opengis.ows10.RequestMethodType;
-import net.opengis.ows10.ServiceIdentificationType;
-import net.opengis.ows10.ServiceProviderType;
-import net.opengis.ows10.WGS84BoundingBoxType;
-import net.opengis.wfs.DescribeFeatureTypeType;
 import net.opengis.wfs.FeatureTypeType;
 import net.opengis.wfs.GetCapabilitiesType;
 import net.opengis.wfs.GetFeatureType;
-import net.opengis.wfs.GetGmlObjectType;
-import net.opengis.wfs.LockFeatureType;
-import net.opengis.wfs.OutputFormatListType;
-import net.opengis.wfs.TransactionType;
 import net.opengis.wfs.WFSCapabilitiesType;
 
 import org.eclipse.emf.ecore.EObject;
@@ -70,18 +43,12 @@ import org.geotools.data.Query;
 
 import org.geotools.data.ws.protocol.http.HTTPProtocol;
 import org.geotools.data.ws.protocol.http.HTTPResponse;
-import org.geotools.data.ws.protocol.http.HttpMethod;
 import org.geotools.data.ws.protocol.http.HTTPProtocol.POSTCallBack;
 import org.geotools.data.ws.protocol.ws.GetFeature;
-import org.geotools.data.ws.protocol.ws.Version;
 import org.geotools.data.ws.protocol.ws.WSProtocol;
 import org.geotools.data.ws.protocol.ws.WSResponse;
-import org.geotools.data.ws.v1_1_0.WSStrategy.RequestComponents;
 import org.geotools.filter.Capabilities;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.util.logging.Logging;
-import org.geotools.wfs.WFS;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Encoder;
 import org.geotools.xml.Parser;
@@ -135,15 +102,7 @@ public class WS_Protocol implements WSProtocol {
         this.strategy = strategy;
     }
 
-    /**
-     * @return {@link Version#v1_1_0}
-     * @see WSProtocol#getServiceVersion()
-     */
-    public Version getServiceVersion() {
-        return Version.v1_0_0;
-    }
-
-    public URL getOperationURL(final boolean post) {
+    public URL getOperationURL() {
         return this.url;
     }
 
@@ -162,19 +121,12 @@ public class WS_Protocol implements WSProtocol {
     /**
      * @see WSProtocol#getFeaturePOST(Query, String)
      */
-    public WSResponse issueGetFeaturePOST(final GetFeature request) throws IOException {
+    public WSResponse issueGetFeature(final GetFeature request) throws IOException {
 
-        URL url = getOperationURL(true);
+        URL url = getOperationURL();
         Map reqParts = strategy.createDataModel(request);
         WSResponse response = issuePostRequest(reqParts, url);
         return response;
-    }
-
-    /**
-     * @see WSProtocol#dispose()
-     */
-    public void dispose() {
-        // do nothing
     }
 
     private WSResponse issuePostRequest(final Map request, final URL url) throws IOException {

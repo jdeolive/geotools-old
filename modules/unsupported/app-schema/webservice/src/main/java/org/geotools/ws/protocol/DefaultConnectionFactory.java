@@ -49,8 +49,6 @@ public class DefaultConnectionFactory implements ConnectionFactory {
 
     private static final Logger LOGGER = Logging.getLogger("org.geotools.data.wfs");
 
-    private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
-
     private final boolean tryGzip;
 
     private final Authenticator auth;
@@ -197,8 +195,6 @@ public class DefaultConnectionFactory implements ConnectionFactory {
             }
         }
         is = new BufferedInputStream(is);
-        // special logger for communication information only.
-        Logger logger = Logging.getLogger("org.geotools.data.communication");
         return is;
     }
 

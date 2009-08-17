@@ -14,17 +14,13 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.ws.v1_1_0;
+package org.geotools.data.ws;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.xml.namespace.QName;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.DefaultQuery;
@@ -33,20 +29,15 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
-import org.geotools.data.SchemaNotFoundException;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
 import org.geotools.data.complex.xml.XmlResponse;
 import org.geotools.data.complex.xml.XmlXpathFilterData;
 import org.geotools.data.view.DefaultView;
-import org.geotools.data.ws.XmlDataStore;
 import org.geotools.data.ws.protocol.ws.GetFeature;
 import org.geotools.data.ws.protocol.ws.WSProtocol;
 import org.geotools.data.ws.protocol.ws.WSResponse;
-import org.geotools.data.ws.protocol.ws.GetFeature.ResultType;
-import org.geotools.feature.NameImpl;
 import org.geotools.feature.SchemaException;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.XmlXpathUtilites;
 import org.geotools.util.logging.Logging;
 import org.jdom.JDOMException;
@@ -72,19 +63,12 @@ import org.jdom.Document;
 public final class WS_DataStore implements XmlDataStore {
     private static final Logger LOGGER = Logging.getLogger("org.geotools.data.ws");
 
-    /**
-     * Whether to use POST as default HTTP method is not explicitly set
-     */
-    private static final boolean DEFAULT_HTTP_METHOD = true;
-
     private static final XMLOutputter out = new XMLOutputter(Format.getPrettyFormat()); 
     private static final SAXBuilder sax = new SAXBuilder();
     
-    private final WSProtocol ws;
+    private final WSProtocol wsProtocol;
 
-    private Integer maxFeaturesHardLimit;
-
-    private boolean preferPostOverGet = false;
+    private int maxFeaturesHardLimit;
 
     private Name name;
     
@@ -96,41 +80,25 @@ public final class WS_DataStore implements XmlDataStore {
      * 
      * @param capabilities
      */
-    public WS_DataStore(final WSProtocol ws) {
-        if (ws == null) {
+    public WS_DataStore(final WSProtocol wsProtocol) {
+        if (wsProtocol == null) {
             throw new NullPointerException("ws protocol");
         }
-        this.ws = ws; 
-        maxFeaturesHardLimit = Integer.valueOf(0); // not set
+        this.wsProtocol = wsProtocol;
     }
 
     /**
      * @see XmlDataStore#setMaxFeatures(Integer)
      */
-    public void setMaxFeatures(Integer maxFeatures) {
-        this.maxFeaturesHardLimit = Integer.valueOf(maxFeatures.intValue());
+    public void setMaxFeatures(int maxFeatures) {
+        this.maxFeaturesHardLimit = maxFeatures;
     }
 
     /**
      * @see XmlDataStore#getMaxFeatures()
      */
-    public Integer getMaxFeatures() {
+    public int getMaxFeatures() {
         return this.maxFeaturesHardLimit;
-    }
-
-    /**
-     * @see XmlDataStore#isPreferPostOverGet()
-     */
-    public boolean isPreferPostOverGet() {
-        return preferPostOverGet;
-    }
-
-    /**
-     * @see XmlDataStore#setPreferPostOverGet(boolean)
-     */
-    public void setPreferPostOverGet(Boolean booleanValue) {
-        this.preferPostOverGet = booleanValue == null ? DEFAULT_HTTP_METHOD : booleanValue
-                .booleanValue();
     }
 
     /**
@@ -149,66 +117,37 @@ public final class WS_DataStore implements XmlDataStore {
      * @see #getSchema(String)
      */
     public SimpleFeatureType getSchema(Name name) throws IOException {
-        Set<QName> featureTypeNames = ws.getFeatureTypeNames();
-
-        String namespaceURI;
-        String localPart;
-        for (QName qname : featureTypeNames) {
-            namespaceURI = name.getNamespaceURI();
-            localPart = name.getLocalPart();
-            if (namespaceURI.equals(qname.getNamespaceURI())
-                    && localPart.equals(qname.getLocalPart())) {
-                String prefixedName = qname.getPrefix() + ":" + localPart;
-                return getSchema(prefixedName);
-            }
-        }
-        throw new SchemaNotFoundException(name.getURI());
+        throw new UnsupportedOperationException("DS not supported!");
     }
 
     /**
      * @see DataAccess#getNames()
      */
     public List<Name> getNames() throws IOException {
-        Set<QName> featureTypeNames = ws.getFeatureTypeNames();
-        List<Name> names = new ArrayList<Name>(featureTypeNames.size());
-        String namespaceURI;
-        String localPart;
-        for (QName name : featureTypeNames) {
-            namespaceURI = name.getNamespaceURI();
-            localPart = name.getLocalPart();
-            names.add(new NameImpl(namespaceURI, localPart));
-        }
-        return names;
+        throw new UnsupportedOperationException("DS not supported!");
     }
 
     /**
      * @see org.geotools.data.DataStore#getTypeNames()
      */
     public String[] getTypeNames() throws IOException {
-        Set<QName> featureTypeNames = ws.getFeatureTypeNames();
-        List<String> sorted = new ArrayList<String>(featureTypeNames.size());
-        for (QName name : featureTypeNames) {
-            sorted.add(name.getPrefix() + ":" + name.getLocalPart());
-        }
-        Collections.sort(sorted);
-        return sorted.toArray(new String[sorted.size()]);
+        throw new UnsupportedOperationException("DS not supported!");
     }
 
     /**
      * @see org.geotools.data.DataStore#dispose()
      */
     public void dispose() {
-        ws.dispose();
+        // do nothing
     }
 
-    private WSResponse executeGetFeatures(final Query query, final Transaction transaction,
-            final ResultType resultType) throws IOException {
+    private WSResponse executeGetFeatures(final Query query) throws IOException {
         
-        final String outputFormat = ws.getDefaultOutputFormat();
+        final String outputFormat = wsProtocol.getDefaultOutputFormat();
 
-        GetFeature request = new GetFeatureQueryAdapter(query, outputFormat, resultType);
+        GetFeature request = new GetFeatureQueryAdapter(query, outputFormat);
 
-        final WSResponse response = ws.issueGetFeaturePOST(request);
+        final WSResponse response = wsProtocol.issueGetFeature(request);
         return response;
     }
 
@@ -216,47 +155,67 @@ public final class WS_DataStore implements XmlDataStore {
      * @see org.geotools.data.DataStore#getFeatureReader(org.geotools.data.Query,
      *      org.geotools.data.Transaction)
      */
-    public XmlResponse getXmlReader(Query query,
-            final Transaction transaction) throws IOException {
+    public XmlResponse getXmlReader(Query query) throws IOException {
 
         if (Filter.EXCLUDE.equals(query.getFilter())) {
-            return null; //empty response--EmptyFeatureReader
+            return null; //empty response
         }
 
         query = new DefaultQuery(query);
 
-        Filter[] filters = ws.splitFilters(query.getFilter());
+        Filter[] filters = wsProtocol.splitFilters(query.getFilter());
         Filter supportedFilter = filters[0];
         Filter postFilter = filters[1];
-        System.out.println("Supported filter:  " + supportedFilter);
-        System.out.println("Unupported filter: " + postFilter);
+        LOGGER.fine("Supported filter:  " + supportedFilter);        
+        LOGGER.fine("Unupported filter: " + postFilter);
         ((DefaultQuery) query).setFilter(supportedFilter);
         if (Filter.INCLUDE.equals(postFilter)) {
             ((DefaultQuery) query).setMaxFeatures(getMaxFeatures(query));
         }        
 
-        WSResponse response = executeGetFeatures(query, transaction, ResultType.RESULTS);
+        WSResponse response = executeGetFeatures(query);
 
+        Document doc = getXmlResponse(response); 
+        
+        List<Integer> validFeatureIndex = determineValidFeatures(postFilter, doc);
+        return new XmlResponse(doc, validFeatureIndex);
+    }
+
+    private List<Integer> determineValidFeatures(Filter postFilter, Document doc) {
+        int nodeCount = XmlXpathUtilites.countXPathNodes(namespaces, itemXpath, doc);
+
+        List<Integer> validFeatureIndex = null;
+        
+        if(Filter.INCLUDE.equals(postFilter)) {
+            validFeatureIndex = new ArrayList<Integer>(nodeCount);        
+            for(int i = 1; i <= nodeCount; i++) { 
+                validFeatureIndex.add(i);
+            }
+        } else {
+            validFeatureIndex = new ArrayList<Integer>(); 
+    
+            for(int i = 1; i <= nodeCount; i++) {        
+                XmlXpathFilterData peek = new XmlXpathFilterData(namespaces, doc, i, itemXpath);
+                if (postFilter.evaluate(peek)) {
+                   validFeatureIndex.add(i);
+                }           
+            }
+        }
+        return validFeatureIndex;
+    }
+
+    private Document getXmlResponse(WSResponse response) throws IOException {
         Document doc = null;
         try {
-            doc = sax.build(response.getInputStream());           
-            out.output(doc, System.out);
-
+            doc = sax.build(response.getInputStream());             
         } catch (JDOMException e1) {
             throw new RuntimeException("error reading xml from http", e1);
         }     
         
-        int nodeCount = XmlXpathUtilites.countXPathNodes(namespaces, itemXpath, doc);
-        List<Integer> l = new ArrayList<Integer>(); 
-
-        for(int i = 1; i <= nodeCount; i++) {        
-            XmlXpathFilterData peek = new XmlXpathFilterData(namespaces, doc, i, itemXpath);
-            if (postFilter.evaluate(peek)) {
-               l.add(i);
-            }           
-        }                                
-
-        return new XmlResponse(doc, l);
+        if(LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.finer(out.outputString(doc));
+        }
+        return doc;
     }
 
     /**
@@ -368,87 +327,26 @@ public final class WS_DataStore implements XmlDataStore {
     }
 
     /**
-     * @see XmlDataStore#getFeatureTypeName
-     */
-    public QName getFeatureTypeName(String typeName) {
-        throw new UnsupportedOperationException("DS not supported!");
-    }
-
-    /**
-     * @see XmlDataStore#getFeatureTypeTitle(String)
-     */
-    public String getFeatureTypeTitle(String typeName) {
-        throw new UnsupportedOperationException("DS not supported!");
-    }
-
-    /**
-     * @see XmlDataStore#getFeatureTypeAbstract(String)
-     */
-    public String getFeatureTypeAbstract(String typeName) {
-        throw new UnsupportedOperationException("DS not supported!");
-    }
-
-    /**
-     * @see XmlDataStore#getFeatureTypeWGS84Bounds(String)
-     */
-    public ReferencedEnvelope getFeatureTypeWGS84Bounds(String typeName) {
-        throw new UnsupportedOperationException("DS not supported!");
-    }
-
-    /**
-     * @see XmlDataStore#getFeatureTypeKeywords(String)
-     */
-    public Set<String> getFeatureTypeKeywords(String typeName) {
-        throw new UnsupportedOperationException("DS not supported!");
-    }
-
-    /**
-     * @see XmlDataStore#getCapabilitiesURL()
-     */
-    public URL getCapabilitiesURL() {
-        URL capsUrl = ws.getOperationURL(false);
-        if (capsUrl == null) {
-            capsUrl = ws.getOperationURL(true);
-        }
-        return capsUrl;
-    }
-
-    /**
-     * @see XmlDataStore#getServiceVersion()
-     */
-    public String getServiceVersion() {
-        return ws.getServiceVersion().toString();
-    }
-
-    /**
-     * If the query is fully supported, makes a {@code GetFeature} request with {@code
-     * resultType=hits} and returns the counts returned by the server, otherwise returns {@code -1}
-     * as the result is too expensive to calculate.
-     * 
      * @param query
      * @return the number of features returned by a GetFeature?resultType=hits request, or {@code
      *         -1} if not supported
      */
-    public int getCount(final Query query) throws IOException {
+    public int getCount(final Query query) {
         return -1;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("WSDataStore[");
-        sb.append("version=").append(getServiceVersion());
-        URL capabilitiesUrl = getCapabilitiesURL();
-        sb.append(", URL=").append(capabilitiesUrl);
         sb.append(", max features=").append(
-                maxFeaturesHardLimit.intValue() == 0 ? "not set" : String
+                maxFeaturesHardLimit == 0 ? "not set" : String
                         .valueOf(maxFeaturesHardLimit));
-        sb.append(", prefer POST over GET=").append(preferPostOverGet);
         sb.append("]");
         return sb.toString();
     }
 
     protected int getMaxFeatures(Query query) {
-        int maxFeaturesDataStoreLimit = getMaxFeatures().intValue();
+        int maxFeaturesDataStoreLimit = getMaxFeatures();
         int queryMaxFeatures = query.getMaxFeatures();
         int maxFeatures = Query.DEFAULT_MAX;
         if (Query.DEFAULT_MAX != queryMaxFeatures) {

@@ -14,23 +14,18 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.ws.v1_1_0;
+package org.geotools.data.ws;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 
 import net.opengis.wfs.GetFeatureType;
 
-import org.geotools.data.Query;
-import org.geotools.data.ws.XmlDataStore;
-import org.geotools.data.ws.WSDataStoreFactory;
 import org.geotools.data.ws.protocol.ws.GetFeature;
 import org.geotools.data.ws.protocol.ws.WSProtocol;
 import org.geotools.filter.Capabilities;
 import org.geotools.wfs.WFSConfiguration;
 import org.geotools.xml.Configuration;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 
 import freemarker.template.Template;
@@ -100,7 +95,7 @@ public interface WSStrategy {
      * {@link Filter} that should be post processed at runtime once the server response is obtained,
      * in order to match the actual {@code query}.
      * 
-     * @param wfs
+     * @param ws
      *            the WFS protocol handler from which the strategy may need to grab some feature
      *            type metadata not available through the datastore interface, or even perform some
      *            test request.
@@ -129,7 +124,7 @@ public interface WSStrategy {
     public class RequestComponents {
 
         /**
-         * The GetFeature request to issue to the WFS
+         * The GetFeature request to issue to the WS
          */
         private GetFeatureType serverRequest;
 

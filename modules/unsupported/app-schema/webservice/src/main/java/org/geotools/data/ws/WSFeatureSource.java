@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.ws.v1_1_0;
+package org.geotools.data.ws;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -28,15 +28,14 @@ import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.complex.xml.XmlFeatureSource;
-import org.geotools.data.ws.XmlDataStore;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.xml.sax.helpers.NamespaceSupport;
 
 /**
- * Simple implementation of FeatureSource for a WFS 1.1 server.
+ * Simple implementation of XmlFeatureSource
  * <p>
  * This implementation is really simple in the sense that it delegates all the hard work to the
  * {@link XmlDataStore} provided.
@@ -44,7 +43,6 @@ import org.opengis.filter.Filter;
  * 
  * @author rpetty
  * @version $Id$
- * @since 2.5.x
  * @source $URL:
  *         http://svn.geotools.org/trunk/modules/unsupported/app-schema/webservice/src/main/java/org/geotools/wfs/v_1_1_0
  *         /data/XmlSimpleFeatureParser.java $
@@ -53,12 +51,8 @@ import org.opengis.filter.Filter;
 public class WSFeatureSource implements XmlFeatureSource {
 
     private String typeName;
-
-    private Name name;
     
-    private WS_DataStore dataStore;
-
-    private SimpleFeatureType featureType;
+    private XmlDataStore dataStore;
 
     private QueryCapabilities queryCapabilities;
 
@@ -68,7 +62,6 @@ public class WSFeatureSource implements XmlFeatureSource {
         this.typeName = typeName;
         this.dataStore = dataStore;
         this.queryCapabilities = new QueryCapabilities();
-        this.featureType = null; //dataStore.getSchema(typeName);
     }
 
     public Name getName() {
@@ -86,15 +79,15 @@ public class WSFeatureSource implements XmlFeatureSource {
      * @see FeatureSource#getSchema()
      */
     public SimpleFeatureType getSchema() {
-        return featureType;
+        throw new UnsupportedOperationException("getSchema not supported");
     }
 
-    public void setNamespaces(org.xml.sax.helpers.NamespaceSupport namespaces) {
+    public void setNamespaces(NamespaceSupport namespaces) {
         dataStore.setNamespaces(namespaces);
     }
     
-    public void setItemXpath(String inputAttributeXpathPrefix) {
-        dataStore.setItemXpath(inputAttributeXpathPrefix);
+    public void setItemXpath(String itemXpath) {
+        dataStore.setItemXpath(itemXpath);
     } 
     /**
      * Returns available metadata for this resource
@@ -102,14 +95,13 @@ public class WSFeatureSource implements XmlFeatureSource {
      * @return
      */
     public ResourceInfo getInfo() {
-        return new CapabilitiesResourceInfo(typeName, dataStore);
+        throw new UnsupportedOperationException("getInfo not supported");
     }
 
     /**
      * @see FeatureSource#addFeatureListener(FeatureListener)
      */
     public void addFeatureListener(FeatureListener listener) {
-
     }
 
     /**
@@ -122,14 +114,14 @@ public class WSFeatureSource implements XmlFeatureSource {
      * @see FeatureSource#getBounds()
      */
     public ReferencedEnvelope getBounds() throws IOException {
-        return getInfo().getBounds();
+        throw new UnsupportedOperationException("getBounds not supported");
     }
 
     /**
      * @see FeatureSource#getBounds(Query)
      */
     public ReferencedEnvelope getBounds(Query query) throws IOException {        
-        return null;
+        throw new UnsupportedOperationException("getBounds not supported");
     }
 
     /**

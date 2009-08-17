@@ -14,32 +14,21 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.ws.v1_1_0;
+package org.geotools.data.ws;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
-import org.geotools.data.Transaction;
 import org.geotools.data.complex.xml.XmlFeatureCollection;
 import org.geotools.data.complex.xml.XmlResponse;
 import org.geotools.data.store.DataFeatureCollection;
-import org.geotools.data.ws.XmlDataStore;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.logging.Logging;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.xpath.XPath;
-import org.opengis.feature.simple.SimpleFeature;
+
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.Name;
-import org.opengis.geometry.BoundingBox;
+
 
 /**
  * A {@link FeatureCollection} whose iterators are based on the FeatureReaders returned by a
@@ -59,7 +48,7 @@ public class WSFeatureCollection extends DataFeatureCollection implements XmlFea
 
     private Query query;
 
-    private WS_DataStore dataStore;    
+    private XmlDataStore dataStore;    
 
     private XmlResponse xmlResponse;
        
@@ -74,7 +63,7 @@ public class WSFeatureCollection extends DataFeatureCollection implements XmlFea
      *            properly named query
      * @throws IOException
      */
-    public WSFeatureCollection(WS_DataStore dataStore, Query query) throws IOException {
+    public WSFeatureCollection(XmlDataStore dataStore, Query query) throws IOException {
         this.dataStore = dataStore;
         this.query = query;
     }
@@ -123,7 +112,7 @@ public class WSFeatureCollection extends DataFeatureCollection implements XmlFea
     
     public XmlResponse xmlResponse() {
         try {
-            xmlResponse = dataStore.getXmlReader(query, null);
+            xmlResponse = dataStore.getXmlReader(query);
         } catch (IOException e) {           
             throw new RuntimeException(e);
         }

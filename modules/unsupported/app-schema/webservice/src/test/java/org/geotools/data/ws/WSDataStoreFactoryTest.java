@@ -22,28 +22,26 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.data.ws.XmlDataStore;
 import org.geotools.data.ws.WSDataStoreFactory;
 import org.geotools.data.ws.protocol.http.HTTPProtocol;
-import org.geotools.data.ws.v1_1_0.WSStrategy;
-import org.geotools.data.ws.v1_1_0.WS_DataStore;
-import org.geotools.test.TestData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Document;
 
 public class WSDataStoreFactoryTest {
+
+    private static final String BASE_DIRECTORY = "./src/test/resources/test-data/";
 
     private WSDataStoreFactory dsf;
 
@@ -66,25 +64,34 @@ public class WSDataStoreFactoryTest {
         // URL not set
         assertFalse(dsf.canProcess(params));
 
- //       params.put(WSDataStoreFactory.URL.key,
- //               "http://someserver.example.org/wfs?request=GetCapabilities");
- //       assertTrue(dsf.canProcess(params));
+        params.put(WSDataStoreFactory.GET_CONNECTION_URL.key,
+                "http://someserver.example.org/wfs?request=GetCapabilities");
+        assertFalse(dsf.canProcess(params));
 
-        params.put(WSDataStoreFactory.USERNAME.key, "groldan");
+        params.put(WSDataStoreFactory.TEMPLATE_NAME.key, "request.ftl");
+        assertFalse(dsf.canProcess(params));
+        
+        params.put(WSDataStoreFactory.TEMPLATE_DIRECTORY.key, "./src/test/resources/test-data");
+        assertFalse(dsf.canProcess(params));
+        
+        params.put(WSDataStoreFactory.CAPABILITIES_FILE_LOCATION.key, "./src/test/resources/test-data/ws_capabilities.xml");
+        assertTrue(dsf.canProcess(params));
+        
+        params.put(WSDataStoreFactory.USERNAME.key, "astroboy");
         assertFalse(dsf.canProcess(params));
 
         params.put(WSDataStoreFactory.PASSWORD.key, "secret");
- //       assertTrue(dsf.canProcess(params));
+        assertTrue(dsf.canProcess(params));
+        
+        params.put(WSDataStoreFactory.TIMEOUT.key, "30000");
+        assertTrue(dsf.canProcess(params));       
     }
 
     @Test
     public void testCreateDataStoreWS() throws IOException {
         String capabilitiesFile;
-        capabilitiesFile = "geoserver_capabilities_1_1_0.xml";
- //       testCreateDataStore_WS(capabilitiesFile);
-
- //       capabilitiesFile = "deegree_capabilities_1_1_0.xml";
-   //     testCreateDataStore_WS(capabilitiesFile);
+        capabilitiesFile = "ws_capabilities_equals_removed.xml";
+        testCreateDataStore_WS(capabilitiesFile);
     }
 
     private void testCreateDataStore_WS(final String capabilitiesFile) throws IOException {
@@ -103,11 +110,18 @@ public class WSDataStoreFactoryTest {
             }
         };
         Map<String, Serializable> params = new HashMap<String, Serializable>();
-        final URL capabilitiesUrl = TestData.getResource(this, capabilitiesFile);
-        if (capabilitiesUrl == null) {
+         
+            
+        File file = new File(BASE_DIRECTORY + capabilitiesFile);
+        if (!file.exists()) {
             throw new IllegalArgumentException(capabilitiesFile + " not found");
-        }
- //       params.put(WSDataStoreFactory.URL.key, capabilitiesUrl);
+        }    
+        URL url = file.toURL();
+       
+        params.put(WSDataStoreFactory.GET_CONNECTION_URL.key, url);
+        params.put(WSDataStoreFactory.TEMPLATE_DIRECTORY.key, BASE_DIRECTORY);
+        params.put(WSDataStoreFactory.TEMPLATE_NAME.key, "request.ftl");
+        params.put(WSDataStoreFactory.CAPABILITIES_FILE_LOCATION.key, BASE_DIRECTORY  + capabilitiesFile);
 
         XmlDataStore dataStore = dsf.createDataStore(params);
         assertTrue(dataStore instanceof WS_DataStore);
@@ -126,22 +140,5 @@ public class WSDataStoreFactoryTest {
 
         String query = url.getQuery();
         assertNotNull(query);
-
-        Map<String, String> kvpMap = new HashMap<String, String>();
-        String[] kvpPairs = query.split("&");
-        for (String kvp : kvpPairs) {
-            assertTrue(kvp.indexOf('=') > 0);
-            String[] split = kvp.split("=");
-            String param = split[0];
-            String value = split[1];
-            value = URLDecoder.decode(value, "UTF-8");
-            assertFalse(kvpMap.containsKey(param));
-            kvpMap.put(param.toUpperCase(), value);
-        }
-
-        assertEquals("/LocalApps/Mapsurfer/PYRWQMP.map", kvpMap.get("MAP"));
-        assertEquals("GetCapabilities", kvpMap.get("REQUEST"));
-        assertEquals("WS", kvpMap.get("SERVICE"));
-        assertEquals("1.0.0", kvpMap.get("VERSION"));
     }
 }

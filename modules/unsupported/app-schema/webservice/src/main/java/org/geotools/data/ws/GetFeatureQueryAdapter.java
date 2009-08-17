@@ -14,11 +14,10 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.ws.v1_1_0;
+package org.geotools.data.ws;
 
 import org.geotools.data.Query;
 import org.geotools.data.ws.protocol.ws.GetFeature;
-import org.geotools.data.ws.protocol.ws.GetFeature.ResultType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
@@ -28,13 +27,9 @@ public class GetFeatureQueryAdapter implements GetFeature {
 
     private String outputFormat;
 
-    private ResultType resultType;
-
-    public GetFeatureQueryAdapter(Query query, String outputFormat,
-            ResultType resultType) {
+    public GetFeatureQueryAdapter(Query query, String outputFormat) {
         this.query = query;
-        this.outputFormat = outputFormat;
-        this.resultType = resultType;
+        this.outputFormat = outputFormat;        
     }
 
     public Filter getFilter() {
@@ -56,10 +51,6 @@ public class GetFeatureQueryAdapter implements GetFeature {
 
     public String getTypeName() {
         return query.getTypeName();
-    }
-
-    public ResultType getResultType() {
-        return resultType;
     }
 
     public SortBy[] getSortBy() {

@@ -17,20 +17,12 @@
 package org.geotools.data.ws;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Set;
 
-import javax.xml.namespace.QName;
-
-import org.geotools.data.DataAccess;
 import org.geotools.data.DataStore;
 import org.geotools.data.Query;
-import org.geotools.data.Transaction;
 import org.geotools.data.complex.xml.XmlResponse;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.jdom.Document;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.feature.type.Name;
+import org.xml.sax.helpers.NamespaceSupport;
 
 /**
  * {@link DataStore} extension interface to provide WFS specific extra information.
@@ -39,38 +31,22 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @version $Id$
  * @since 2.5.x
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/app-schema/webservice/src/main/java/org/geotools
- *         /data/wfs/WFSDataStore.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/app-schema/webservice/
+ *         src/main/java/org/geotools /data/wfs/WFSDataStore.java $
  */
 public interface XmlDataStore extends DataStore {
 
-    public URL getCapabilitiesURL();
+    void setMaxFeatures(int maxFeatures);
 
-    public String getServiceVersion();
+    int getMaxFeatures();
 
-    public String getFeatureTypeTitle(String typeName);
+    int getCount(Query query);
 
-    public QName getFeatureTypeName(String typeName);
+    void setItemXpath(String inputAttributeXpathPrefix);
 
-    public String getFeatureTypeAbstract(String typeName);
+    void setNamespaces(NamespaceSupport namespaces);
 
-    public ReferencedEnvelope getFeatureTypeWGS84Bounds(String typeName);
+    Name getName();
 
-    public Set<String> getFeatureTypeKeywords(String typeName);
-
-    public void setMaxFeatures(Integer maxFeatures);
-
-    public Integer getMaxFeatures();
-
-    public XmlResponse getXmlReader(Query query,
-            final Transaction transaction) throws IOException;
-    /**
-     * 
-     * @param booleanValue
-     *            Boolean.TRUE to prefer POST over GET, Boolean.FALSE for the opposite, {@code null}
-     *            for auto (let the implementation decide)
-     */
-    public void setPreferPostOverGet(Boolean booleanValue);
-
-    public boolean isPreferPostOverGet();
+    XmlResponse getXmlReader(Query query) throws IOException;
 }
