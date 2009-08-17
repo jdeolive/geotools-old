@@ -161,7 +161,19 @@
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-transcoder</artifactId>
       <!-- The version number is specified in the parent POM. -->
+      <exclusions>
+        <!-- these are used by org.apache.xmlgraphics.fo to generate pdf -->
+        <exclusion>
+          <groupId>org.apache.avalon.framework</groupId>
+          <artifactId>avalon-framework-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.avalon.framework</groupId>
+          <artifactId>avalon-framework-impl</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+    
     <!--
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
