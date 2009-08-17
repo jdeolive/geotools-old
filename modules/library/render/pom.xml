@@ -162,69 +162,72 @@
       <artifactId>batik-transcoder</artifactId>
       <!-- The version number is specified in the parent POM. -->
     </dependency>
+    <!--
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-util</artifactId>
-    </dependency>
+    </dependency>-->
+    <!--
     <dependency>
        <groupId>xerces</groupId>
        <artifactId>xercesImpl</artifactId>
     </dependency>
-    <dependency>
+    -->
+    <!--dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis-xerces</artifactId>
-    </dependency>
+    </dependency-->
 
-    <dependency>
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-svg-dom</artifactId>
       <optional>true</optional>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-dom</artifactId>
       <optional>true</optional>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-css</artifactId>
       <optional>true</optional>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-bridge</artifactId>
       <optional>true</optional>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-gvt</artifactId>
       <optional>true</optional>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-ext</artifactId>
       <optional>true</optional>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-xml</artifactId>
       <optional>true</optional>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-script</artifactId>
       <optional>true</optional>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-awt-util</artifactId>
       <optional>true</optional>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-parser</artifactId>
       <optional>true</optional>
-    </dependency>
+    </dependency-->
   </dependencies>
   
 
