@@ -34,3 +34,11 @@ an open source project such as GeoTools. GeoTools uses a system known as
 features. If you have found a bug, or if there is a feature that you would like
 to see implemented in GeoToools, please report it in JIRA.
 
+Developers Guide
+----------------
+
+The `developers guide <http://docs.codehaus.org/display/GEOT/Home>`_ records the
+policies, procedures and build environment for the GeoTools project. If you would
+like to know how to get commit access, or build GeoTools from scratch this is the
+right place.
+
