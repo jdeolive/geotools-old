@@ -65,8 +65,7 @@ You can now import your project into eclipse:
 
 1. Select the File > Import menu
 2. Choose Existing Projects into Workspace from the list, and press Next
-3. Select the project you created above
- * Select root directory: C:\\java\\example
+3. Select the project you created: C:\\java\\example
 4. Finish
 
 Netbeans IDE

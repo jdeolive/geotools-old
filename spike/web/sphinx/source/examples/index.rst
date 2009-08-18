@@ -7,4 +7,5 @@ Examples
    :maxdepth: 1
 
    shp2shp
+   csv2shp
    
