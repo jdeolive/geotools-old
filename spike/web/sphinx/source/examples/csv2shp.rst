@@ -71,7 +71,7 @@ Main Application
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :lines: 1-60,117-118,201
+      :lines: 1-64,123-125,231
    
 Prompt for CSV File
 -------------------
@@ -85,7 +85,8 @@ was not provided on the command line.
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :lines: 148-177
+      :start-after: // start getNewShapeFile
+      :end-before: // end getNewShapeFile
 
 Prompt for Shape File
 ---------------------
@@ -96,7 +97,8 @@ shapefile name.
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :lines: 148-177
+      :start-after: // start getCSVFile
+      :end-before: // end getCSVFile
 
 Read into a FeatureCollection
 -----------------------------
@@ -109,7 +111,8 @@ We can now read the CSV File into a FeatureCollection; please note the following
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :lines: 60-85,117-118
+      :start-after: // read csv file into feature collection
+      :end-before: // create shapefile from feature collection
 
 Create a Shapefile From a FeatureCollection
 -------------------------------------------
@@ -125,7 +128,8 @@ Here is the remaining code:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :lines: 86-118
+      :start-after: // create shapefile from feature collection
+      :end-before: // we are actually exiting because we will use a Swing JFileChooser
 
 Running the Application
 -----------------------
@@ -156,6 +160,8 @@ Here is how to use SimpleFeatureTypeBuilder to accomplish the same result:
 
    .. literalinclude:: ../../../../../demo/example/src/main/java/org/geotools/demo/Csv2Shape.java
       :language: java
-      :lines: 178-200
+      :start-after: // start createFeatureType
+      :end-before: // end createFeatureType
+
 
 With this new improved SimpleFeatureType (that contains a CoordinateReferenceSystem) we will no longer need to call forceSchemaCRS to generate our ".prj" file.
