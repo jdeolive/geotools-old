@@ -66,7 +66,7 @@ You can now import your project into eclipse:
 1. Select the File > Import menu
 2. Choose Existing Projects into Workspace from the list, and press Next
 3. Select the project you created above
-   * Select root directory: C:\java\geotools-example
+ * Select root directory: C:\\java\\example
 4. Finish
 
 Netbeans IDE
@@ -501,5 +501,5 @@ How can I see a shapefile?
 --------------------------
 
 The following tutorial covers creating a style and drawing an image using a shapefile:
-* http://docs.codehaus.org/display/GEOTDOC/09+ShapeLab
+ * http://docs.codehaus.org/display/GEOTDOC/09+ShapeLab
 
