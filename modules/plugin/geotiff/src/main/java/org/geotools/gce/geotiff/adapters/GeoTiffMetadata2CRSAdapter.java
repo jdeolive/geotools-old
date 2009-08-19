@@ -1533,10 +1533,6 @@ public final class GeoTiffMetadata2CRSAdapter {
 				parameters = mtFactory
 						.getDefaultParameters("New_Zealand_Map_Grid");
 
-				parameters.parameter("semi_major").setValue(
-						getOriginLat(metadata));
-				parameters.parameter("semi_minor").setValue(
-						getOriginLong(metadata));
 				parameters.parameter("latitude_of_origin").setValue(
 						this.getOriginLat(metadata));
 				parameters.parameter("central_meridian").setValue(
