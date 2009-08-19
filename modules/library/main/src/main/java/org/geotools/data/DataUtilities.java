@@ -298,8 +298,13 @@ public class DataUtilities {
         String path3;
         String simplePrefix = "file:/";
         String standardPrefix = simplePrefix+"/";
+        String os = System.getProperty("os.name");
         
-        if( string.startsWith(standardPrefix) ){
+        if (os.toUpperCase().contains("WINDOWS") && string.startsWith(standardPrefix)) {
+        	// win32: host/share reference
+        	path3 = string.substring(standardPrefix.length()-2);
+        }
+        else if( string.startsWith(standardPrefix) ){
             path3 = string.substring(standardPrefix.length());
         } else if( string.startsWith(simplePrefix)){
             path3 = string.substring(simplePrefix.length()-1);            

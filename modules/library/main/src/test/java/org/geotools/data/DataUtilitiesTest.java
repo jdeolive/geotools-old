@@ -85,36 +85,26 @@ public class DataUtilitiesTest extends DataTestCase {
 
         String os = System.getProperty("os.name");
 
-        String c = "C:\\";
-        String cOne = "C:\\one";
-        String cOneTwo = "C:\\one\\two";
-        String cOneTwoThreeSpace = "C:\\one\\two\\and three";
-        String d = "D:\\";
-        String slashOne = "/one";
-        String one = "one";
-        String slashoneTwoThree = "/one/two/and three";
-
         if (os.toUpperCase().contains("WINDOWS")) {
-            handleFile(c);
-            handleFile(cOne);
-            handleFile(cOneTwo);
-            handleFile(cOneTwoThreeSpace);
-            handleFile(d);
+            handleFile("C:\\");
+            handleFile("C:\\one");
+            handleFile("C:\\one\\two");
+            handleFile("C:\\one\\two\\and three");
+            handleFile("D:\\");
             if (TestData.isExtensiveTest())
                 handleFile("\\\\host\\share\\file");
         } else {
-            handleFile(slashOne);
-            handleFile(one);
-            handleFile(slashoneTwoThree);
+            handleFile("/one");
+            handleFile("one");
+            handleFile("/one/two/and three");
             handleFile("/hello world/this++().file");
         }        
-        String prefix = "file://";
-        assertURL(one, prefix+one);
-        assertURL(slashOne, prefix+slashOne);
-        assertURL(replaceSlashes(c), prefix+replaceSlashes(c));
-        assertURL(replaceSlashes(cOne), prefix+replaceSlashes(cOne));
-        assertURL(replaceSlashes(cOneTwo), prefix+replaceSlashes(cOneTwo));
-        assertURL(replaceSlashes(cOneTwoThreeSpace), prefix+replaceSlashes(cOneTwoThreeSpace));
+        assertURL("one", "file:one");
+        assertURL("/one", "file:///one");
+        assertURL(replaceSlashes("C:\\"), "file://C:/");
+        assertURL(replaceSlashes("C:\\one"), "file://C:/one");
+        assertURL(replaceSlashes("C:\\one\\two"), "file://C:/one/two");
+        assertURL(replaceSlashes("C:\\one\\two\\and three"), "file://C:/one/two/and three");
         
         File file = File.createTempFile("hello","world");
         handleFile(file.getAbsolutePath() );
