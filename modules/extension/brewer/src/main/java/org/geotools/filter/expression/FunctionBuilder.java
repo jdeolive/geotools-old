@@ -16,6 +16,13 @@ public class FunctionBuilder implements Builder<Function> {
     private String name = null; // ie unset!
     List<Expression> args = new ArrayList<Expression>();
     
+    public FunctionBuilder(){
+        reset();
+    }
+    public FunctionBuilder(Function origional) {
+        reset( origional );
+    }
+    
     ExpressionBuilder param(){
         return param( args.size() );
     }

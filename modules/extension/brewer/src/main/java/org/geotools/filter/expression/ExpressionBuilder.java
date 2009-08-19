@@ -5,7 +5,9 @@ import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
 
 /**
  * ExpressionBuilder acting as a simple wrapper around an Expression.
@@ -82,6 +84,12 @@ public class ExpressionBuilder implements Builder<Expression> {
         this.unset = false;
         if( original instanceof Literal){
             delegate = new LiteralBuilder( (Literal) original );
+        }
+        else if( original instanceof PropertyName){
+            delegate = new PropertyNameBuilder( (PropertyName) original );
+        }
+        else if( original instanceof Function){
+            delegate = new FunctionBuilder( (Function) original );
         }
         else {
             this.delegate = new NilBuilder();
