@@ -511,7 +511,7 @@ public class StyleGenerator {
         // prepare the styleExpressions (fix out if they are ranged, and if so
         // their min and max values too
         boolean[] isRangedExpr = new boolean[styleExpression.length];
-        List min = new ArrayList();
+        List<String> min = new ArrayList<String>();
         String[] max = new String[styleExpression.length];
 
         for (int i = 0; i < styleExpression.length; i++) {

@@ -1,8 +1,5 @@
 package org.geotools.styling.builder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import org.geotools.filter.expression.ExpressionBuilder;
 import org.geotools.styling.FeatureTypeStyle;
@@ -10,8 +7,10 @@ import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.Style;
-import org.junit.Test;
 import org.opengis.filter.expression.Expression;
+
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class StyleBuilderTest {
     @Test
