@@ -19,6 +19,7 @@ package org.geotools.data.complex;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Iterator;
@@ -30,6 +31,7 @@ import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFactory;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.complex.config.AppSchemaDataAccessConfigurator;
 import org.geotools.data.complex.config.AppSchemaDataAccessDTO;
 import org.geotools.data.complex.config.XMLConfigDigester;
@@ -74,7 +76,8 @@ public class AppSchemaDataAccessFactory implements DataAccessFactory {
         // on getCapabilities, and getFeature also shouldn't return anything etc. 
         List<String> includes = config.getIncludes();
         for (Iterator<String> it = includes.iterator(); it.hasNext();) {
-            String parentLocation = new File(configFileUrl.getPath()).getParent();
+            String parentLocation;
+            parentLocation = DataUtilities.urlToFile(configFileUrl).getParent();
             File includedConfig = new File(parentLocation, it.next());
             if (!includedConfig.exists()) {
                 throw new RuntimeException(
@@ -82,7 +85,7 @@ public class AppSchemaDataAccessFactory implements DataAccessFactory {
                                 + includedConfig.getPath() + "' doesn't exist!");
             }
 
-            URL relatedConfigURL = includedConfig.toURI().toURL();
+            URL relatedConfigURL = DataUtilities.fileToURL(includedConfig);
             params.put("url", relatedConfigURL);
             // this will register the related data access, to enable feature chaining
             createDataStore(params);

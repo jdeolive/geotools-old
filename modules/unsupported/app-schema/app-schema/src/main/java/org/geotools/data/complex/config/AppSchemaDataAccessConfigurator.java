@@ -521,11 +521,9 @@ public class AppSchemaDataAccessConfigurator {
      * @return
      * @throws MalformedURLException
      */
-    private Map resolveRelativePaths(final Map datastoreParams) throws MalformedURLException {
+    private Map resolveRelativePaths(final Map datastoreParams) {
         Map resolvedParams = new HashMap();
-
-        for (Iterator it = datastoreParams.entrySet().iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry) it.next();
+        for (Map.Entry entry : (Set<Map.Entry>) datastoreParams.entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
             if (value != null && value.startsWith("file:")) {
@@ -534,20 +532,24 @@ public class AppSchemaDataAccessConfigurator {
                 if (!f.isAbsolute()) {
                     LOGGER.fine("resolving relative path " + value + " for dataURLstore parameter "
                             + key);
-                    URL baseSchemasUrl = new URL(config.getBaseSchemasUrl());
-                    URL resolvedUrl = new URL(baseSchemasUrl, value);
-                    value = resolvedUrl.toExternalForm();
-                    // HACK for shapefile: shapefile requires file:/...
-                    if (!"url".equals(key) && value.startsWith("file:")) {
-                        value = value.substring("file:".length());
+                    try {
+                    	URL baseSchemasUrl = new URL(config.getBaseSchemasUrl());
+                    	URL resolvedUrl = new URL(baseSchemasUrl, value);
+                    	if ("url".equals(key)) {
+                    		// HACK for shapefile: shapefile requires file:/...
+                    		value = resolvedUrl.toExternalForm();
+                    	} else {
+                    		// data stores seem to not expect file URIs
+                    		value = resolvedUrl.toURI().getPath();
+                    	}
+                    } catch (Exception e) {
+                    	throw new RuntimeException(e);
                     }
                     LOGGER.fine("new value for " + key + ": " + value);
                 }
             }
-
             resolvedParams.put(key, value);
         }
-
         return resolvedParams;
     }
 

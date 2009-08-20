@@ -64,7 +64,7 @@ public class PropertyInterpolationUtilsTest extends TestCase {
         super.setUp();
         System.setProperty(TEST_SYSTEM_PROPERTY, TEST_SYSTEM_PROPERTY_VALUE);
         System.setProperty(TEST_FILE_SYSTEM_PROPERTY, PropertyInterpolationUtilsTest.class
-                .getResource("/" + IDENTIFIER + ".file.properties").getFile());
+                .getResource("/" + IDENTIFIER + ".file.properties").toURI().getPath());
     }
 
     /**

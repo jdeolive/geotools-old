@@ -146,12 +146,12 @@ public class VocabFunctionsTest extends TestCase {
      * Test the VocabFunction making use of a sample mapping provided by Alastair.
      * @throws URISyntaxException 
      */
-    public void testVocabFunction() throws IOException, URISyntaxException {
+    public void testVocabFunction() throws URISyntaxException {
         URL file = getClass().getResource("/test-data/minoc_lithology_mapping.properties");
         assertNotNull(file);
         
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        Function function = ff.function("Vocab", ff.literal("1LIST"), ff.literal(file.getPath()));
+        Function function = ff.function("Vocab", ff.literal("1LIST"), ff.literal(file.toURI().getPath()));
 
         Object value = function.evaluate(null);
         assertEquals(
