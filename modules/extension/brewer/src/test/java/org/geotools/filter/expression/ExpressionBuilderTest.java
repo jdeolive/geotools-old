@@ -53,11 +53,12 @@ public class ExpressionBuilderTest {
 
         assertEquals(ff.property("x"), b.property("x").build());
         assertEquals(ff.property("x"), b.property().property("x").build());
+        assertEquals(ff.property("x"), b.property().name("x").build());
 
         assertEquals(ff.property(null), b.property(null).build());
     }
     @Test
-    public void tesFunction() {
+    public void testFunction() {
         FilterFactory ff = CommonFactoryFinder.getFilterFactory2(null);
         ExpressionBuilder b = new ExpressionBuilder();
         Expression e;
@@ -66,6 +67,18 @@ public class ExpressionBuilderTest {
         assertEquals(ff.function("pi"), b.function().name("pi").build());
         assertEquals(ff.function("abs", ff.literal(-2)), b.function().name("abs").param().literal(-2).build());        
         assertEquals(ff.function("abs", ff.literal(-2)), b.function("abs").param().literal(-2).build());
+
+        assertEquals(ff.function("min", ff.literal(1), ff.literal(2)),
+                b.function("min").param().literal(1).param().literal(2).build());
+        
+        assertEquals(ff.function("min", ff.literal(1), ff.literal(2)),
+                b.function("min").literal(1).literal(2).build());
+
+        assertEquals(ff.function("max", ff.literal(1), ff.property("x")),
+                b.function("max").literal(1).property("x").build());
+        
+        assertEquals(ff.function("max", ff.literal(1), ff.property("x")),
+                b.function("max").literal(1).param().property("x").build());
 
     }
     

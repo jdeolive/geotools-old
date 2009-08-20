@@ -17,22 +17,8 @@ public class FunctionBuilder implements Builder<Function> {
             this.index = index;
         }
         public Expression build() {
-            Expression expr = _build();
-            if( index < args.size() ){
-                args.set(index, expr);
-            }
-            else if( index == args.size() ){
-                args.add( expr );
-            }
-            else {
-                // fine we will just add to the end?
-                while( args.size()<index){
-                    args.add(null); // placeholders so we can add at the correct index
-                }
-                args.add( expr ); // add at the correct index
-            }
-            return expr;
-        }
+            return put( index, _build() );
+        }        
         public ParamBuilder param(){
             build();
             return new ParamBuilder( index+1 );
@@ -51,10 +37,35 @@ public class FunctionBuilder implements Builder<Function> {
         reset( origional );
     }
     
-    ParamBuilder param(){
+    Expression put(int index, Expression expr) {
+        if( index < args.size() ){
+            args.set(index, expr);
+        }
+        else if( index == args.size() ){
+            args.add( expr );
+        }
+        else {
+            // fine we will just add to the end?
+            while( args.size()<index){
+                args.add(null); // placeholders so we can add at the correct index
+            }
+            args.add( expr ); // add at the correct index
+        }
+        return expr;
+    }
+    
+    public ParamBuilder param(){
         return param( args.size() );
     }
-    ParamBuilder param(int index){
+    public FunctionBuilder literal( Object literal ){
+        put( args.size(), ff.literal( literal ));
+        return this;
+    }
+    public FunctionBuilder property( String xpath ){
+        put( args.size(), ff.property( xpath ));
+        return this;
+    }
+    public ParamBuilder param(int index){
         return new ParamBuilder( index );
     }
     public FunctionBuilder name( String function ){
