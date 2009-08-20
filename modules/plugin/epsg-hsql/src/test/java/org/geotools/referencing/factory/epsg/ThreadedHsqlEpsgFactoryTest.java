@@ -16,6 +16,7 @@
  */
 package org.geotools.referencing.factory.epsg;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -42,6 +43,7 @@ public class ThreadedHsqlEpsgFactoryTest extends TestCase {
     
     private static ThreadedHsqlEpsgFactory factory;
     private static IdentifiedObjectFinder finder;
+    static final double EPS = 1e-06;
     
     protected void setUp() throws Exception {
         super.setUp();
@@ -145,5 +147,53 @@ public class ThreadedHsqlEpsgFactoryTest extends TestCase {
         finder.setFullScanAllowed(false);
         String id = finder.findIdentifier(crs);
         assertEquals("The CRS should still be in the cache.","EPSG:2442", id);
+    }
+    
+    public void testGoogleProjection() throws Exception {
+        CoordinateReferenceSystem epsg4326 = CRS.decode("EPSG:4326");
+        CoordinateReferenceSystem epsg3785 = CRS.decode("EPSG:3857");
+        
+        String wkt900913 = "PROJCS[\"WGS84 / Google Mercator\", " +
+        		"GEOGCS[\"WGS 84\", " +
+        		"  DATUM[\"World Geodetic System 1984\", " +
+        		"    SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]], " +
+        		"    AUTHORITY[\"EPSG\",\"6326\"]], " +
+        		"  PRIMEM[\"Greenwich\", 0.0, " +
+        		"  AUTHORITY[\"EPSG\",\"8901\"]], " +
+        		"  UNIT[\"degree\", 0.017453292519943295], AUTHORITY[\"EPSG\",\"4326\"]], " +
+        		"PROJECTION[\"Mercator (1SP)\", " +
+        		"AUTHORITY[\"EPSG\",\"9804\"]], " +
+        		"PARAMETER[\"semi_major\", 6378137.0], " +
+        		"PARAMETER[\"semi_minor\", 6378137.0], " +
+        		"PARAMETER[\"latitude_of_origin\", 0.0], " +
+        		"PARAMETER[\"central_meridian\", 0.0], " +
+        		"PARAMETER[\"scale_factor\", 1.0], " +
+        		"PARAMETER[\"false_easting\", 0.0], " +
+        		"PARAMETER[\"false_northing\", 0.0], " +
+        		"UNIT[\"m\", 1.0],  " +
+        		"AUTHORITY[\"EPSG\",\"900913\"]]";
+        CoordinateReferenceSystem epsg900913 = CRS.parseWKT(wkt900913);
+        
+        MathTransform t1 = CRS.findMathTransform(epsg4326, epsg3785); 
+        MathTransform t2 = CRS.findMathTransform(epsg4326, epsg900913);
+
+        // check the two equate each other, we know the above 900913 definition works
+        double[][] points = new double[][] {{0,0}, {30.0, 30.0}, {-45.0, 45.0}, {-20, -20}, 
+                {80,-80}, {85, 180}, {-85, -180}};
+        double[][] points2 = new double[points.length][2];
+        double[] tp1 = new double[2];
+        double[] tp2= new double[2];
+        for (double[] point : points) {
+            t1.transform(point, 0, tp1, 0, 1);
+            t2.transform(point, 0, tp2, 0, 1);
+            assertEquals(tp1[0], tp2[0], EPS);
+            assertEquals(tp1[1], tp2[1], EPS);
+            // check inverse as well
+            t1.inverse().transform(tp1, 0, tp1, 0, 1);
+            t2.inverse().transform(tp2, 0, tp2, 0, 1);
+            assertEquals(point[0], tp2[0], EPS);
+            assertEquals(point[1], tp2[1], EPS);
+        }
+        
     }
 }
