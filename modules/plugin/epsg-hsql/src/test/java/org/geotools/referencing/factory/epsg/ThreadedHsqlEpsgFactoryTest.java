@@ -16,10 +16,10 @@
  */
 package org.geotools.referencing.factory.epsg;
 
-import java.sql.Connection;
 import java.util.Set;
 
-import org.geotools.factory.Hints;
+import junit.framework.TestCase;
+
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.CRS;
@@ -31,9 +31,6 @@ import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
-
-import javax.sql.DataSource;
-import junit.framework.TestCase;
 
 /**
  * This class makes sure we can find the ThreadedHsqlEpsgFactory
@@ -49,9 +46,6 @@ public class ThreadedHsqlEpsgFactoryTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         if( factory == null ){
-            DataSource datasource = HsqlEpsgDatabase.createDataSource();
-            
-            Hints hints = new Hints(Hints.CACHE_POLICY, "weak");
             factory = (ThreadedHsqlEpsgFactory) ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null );
         }
         if( finder == null ){

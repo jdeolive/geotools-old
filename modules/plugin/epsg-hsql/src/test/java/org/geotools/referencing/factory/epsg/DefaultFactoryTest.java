@@ -320,7 +320,7 @@ public class DefaultFactoryTest {
          * Tests fetching an object with name containing semi-colon.
          */
         final IdentifiedObject cs = factory.createCoordinateSystem(
-                "Ellipsoidal 2D CS. Axes: latitude, longitude. Orientations: north, east.  UoM: DMS");
+                "Ellipsoidal 2D CS. Axes: latitude, longitude. Orientations: north, east. UoM: DMS");
         assertEquals("6411", getIdentifier(cs));
         /*
          * Tests with a unknown name. The exception should be NoSuchAuthorityCodeException
