@@ -55,9 +55,33 @@ public class ExpressionBuilderTest {
         assertEquals(ff.property("x"), b.property().property("x").build());
 
         assertEquals(ff.property(null), b.property(null).build());
-
+    }
+    @Test
+    public void tesFunction() {
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory2(null);
+        ExpressionBuilder b = new ExpressionBuilder();
+        Expression e;
+    
         // function
         assertEquals(ff.function("pi"), b.function().name("pi").build());
+        assertEquals(ff.function("abs", ff.literal(-2)), b.function().name("abs").param().literal(-2).build());        
+        assertEquals(ff.function("abs", ff.literal(-2)), b.function("abs").param().literal(-2).build());
 
+    }
+    
+    @Test
+    public void testAdd() {
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory2(null);
+        ExpressionBuilder b = new ExpressionBuilder();
+        Expression e;
+        
+        assertEquals(
+                ff.add( ff.literal(1), ff.literal(2)),
+                b.add().expr1().literal(1).expr2().literal(2).build());
+        
+        assertEquals(
+                ff.add( ff.literal(1), ff.literal(2)),
+                b.add().expr1(1).expr2(2).build());
+        
     }
 }

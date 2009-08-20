@@ -4,10 +4,14 @@ package org.geotools.filter.expression;
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Add;
+import org.opengis.filter.expression.Divide;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.Multiply;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.expression.Subtract;
 
 /**
  * ExpressionBuilder acting as a simple wrapper around an Expression.
@@ -25,7 +29,7 @@ public class ExpressionBuilder implements Builder<Expression> {
     }
     
     /**
-     * Simple chaining to a known delegate.
+     * Define expression as a literal.
      * <p>
      * Example:<code>b.literal().value( 1 );</code>
      */
@@ -34,16 +38,32 @@ public class ExpressionBuilder implements Builder<Expression> {
         unset = false;
         return (LiteralBuilder) delegate;
     }
-    /**
-     * Short cut: chaining to a known LiteralBuilder delegate.
-     * <p>
-     * Example:<code>b.literal( 1 );</code>
-     * @param obj Object to use as the resulting literal
-     */
-    public LiteralBuilder literal( Object obj ){
-        delegate = new LiteralBuilder().value( obj );
+    public Builder<?> literal( Object literal ){
+        delegate = new LiteralBuilder().value( literal );
         unset = false;
-        return (LiteralBuilder) delegate;
+        return this;
+    }
+    
+    public AddBuilder add(){
+        delegate = new AddBuilder();
+        unset = false;
+        return (AddBuilder) delegate;
+    }
+    public MultiplyBuilder multiply(){
+        delegate = new MultiplyBuilder();
+        unset = false;
+        return (MultiplyBuilder) delegate;
+    }
+    public DivideBuilder divide(){
+        delegate = new DivideBuilder();
+        unset = false;
+        return (DivideBuilder) delegate;
+    }
+    
+    public SubtractBuilder subtract(){
+        delegate = new SubtractBuilder();
+        unset = false;
+        return (SubtractBuilder) delegate;
     }
     
     public PropertyNameBuilder property(){
@@ -52,8 +72,8 @@ public class ExpressionBuilder implements Builder<Expression> {
         return (PropertyNameBuilder) delegate;
     }
     
-    public ExpressionBuilder property( String xpath ){
-        delegate = new PropertyNameBuilder().property( xpath );
+    public Builder<?> property(String xpath){
+        delegate = new PropertyNameBuilder().property(xpath);
         unset = false;
         return this;
     }
@@ -63,7 +83,15 @@ public class ExpressionBuilder implements Builder<Expression> {
         unset = false;
         return (FunctionBuilder) delegate;        
     }
-            
+    public FunctionBuilder function(String name){
+        this.delegate = new FunctionBuilder().name(name);
+        unset = false;
+        return (FunctionBuilder) delegate;                
+    }
+    
+    /**
+     * Build the expression.
+     */
     public Expression build() {
         if( unset ) {
             return null;
@@ -76,7 +104,7 @@ public class ExpressionBuilder implements Builder<Expression> {
         this.unset = false;
         return this;
     }
-
+    
     public ExpressionBuilder reset(Expression original) {
         if( original == null ){
             return unset();
@@ -90,6 +118,18 @@ public class ExpressionBuilder implements Builder<Expression> {
         }
         else if( original instanceof Function){
             delegate = new FunctionBuilder( (Function) original );
+        }
+        else if( original instanceof Add){
+            delegate = new AddBuilder( (Add) original );
+        }
+        else if( original instanceof Divide){
+            delegate = new DivideBuilder( (Divide) original );
+        }
+        else if( original instanceof Multiply){
+            delegate = new MultiplyBuilder( (Multiply) original );
+        }
+        else if( original instanceof Subtract){
+            delegate = new SubtractBuilder( (Subtract) original );
         }
         else {
             this.delegate = new NilBuilder();

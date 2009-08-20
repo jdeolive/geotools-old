@@ -10,6 +10,34 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 
 public class FunctionBuilder implements Builder<Function> {
+    class ParamBuilder extends ChildExpressionBuilder<FunctionBuilder>{
+        int index;        
+        ParamBuilder( int index ){
+            super( FunctionBuilder.this, index < args.size()? args.get(index) : null );
+            this.index = index;
+        }
+        public Expression build() {
+            Expression expr = _build();
+            if( index < args.size() ){
+                args.set(index, expr);
+            }
+            else if( index == args.size() ){
+                args.add( expr );
+            }
+            else {
+                // fine we will just add to the end?
+                while( args.size()<index){
+                    args.add(null); // placeholders so we can add at the correct index
+                }
+                args.add( expr ); // add at the correct index
+            }
+            return expr;
+        }
+        public ParamBuilder param(){
+            build();
+            return new ParamBuilder( index+1 );
+        }
+    }
     protected FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);    
     LiteralBuilder literal = new LiteralBuilder();
     boolean unset = false;
@@ -23,11 +51,11 @@ public class FunctionBuilder implements Builder<Function> {
         reset( origional );
     }
     
-    ExpressionBuilder param(){
+    ParamBuilder param(){
         return param( args.size() );
     }
-    ExpressionBuilder param(int index){
-        return new ExpressionBuilder( args.get(index) );
+    ParamBuilder param(int index){
+        return new ParamBuilder( index );
     }
     public FunctionBuilder name( String function ){
         this.name = function;
