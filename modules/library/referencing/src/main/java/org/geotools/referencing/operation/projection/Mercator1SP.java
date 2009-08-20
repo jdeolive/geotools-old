@@ -72,7 +72,7 @@ public class Mercator1SP extends Mercator {
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
-    static final class Spherical extends Mercator.Spherical {
+    private static final class Spherical extends Mercator.Spherical {
         /**
          * For cross-version compatibility.
          */

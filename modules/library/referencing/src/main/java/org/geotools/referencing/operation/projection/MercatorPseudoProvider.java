@@ -1,3 +1,19 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.referencing.operation.projection;
 
 import org.geotools.metadata.iso.citation.Citations;
@@ -12,6 +28,10 @@ import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.operation.CylindricalProjection;
 import org.opengis.referencing.operation.MathTransform;
 
+/**
+ * Supports the popular visualisation projection used by Google, Microsoft, Yahoo, OSM and others
+ * @author Andrea Aime - OpenGeo
+ */
 public class MercatorPseudoProvider extends AbstractProvider {
     /**
      * For cross-version compatibility.
@@ -23,7 +43,9 @@ public class MercatorPseudoProvider extends AbstractProvider {
      */
     static final ParameterDescriptorGroup PARAMETERS = createDescriptorGroup(new NamedIdentifier[] {
             new NamedIdentifier(Citations.EPSG, "Popular Visualisation Pseudo Mercator"),  
-            new NamedIdentifier (Citations.EPSG, "1024") 
+            new NamedIdentifier (Citations.EPSG, "1024"),
+            new NamedIdentifier(Citations.GEOTOOLS, Vocabulary.formatInternational(
+                    VocabularyKeys.CYLINDRICAL_MERCATOR_PROJECTION))
         }, new ParameterDescriptor[] {
             SEMI_MAJOR, SEMI_MINOR,
             LATITUDE_OF_ORIGIN, CENTRAL_MERIDIAN, SCALE_FACTOR,
@@ -57,7 +79,37 @@ public class MercatorPseudoProvider extends AbstractProvider {
     {
      // make sure we assume a spherical reference
         parameters.parameter("semi_minor").setValue(parameters.parameter("semi_major").getValue());
-        return new Mercator1SP.Spherical(parameters);
+        return new Spherical(parameters);
+    }
+    
+    /**
+     * Just like the {@link Mercator1SP.Spherical} but returning the proper parameter for the 
+     * pseudo mercartor case 
+     */
+    private static final class Spherical extends Mercator.Spherical {
+        /**
+         * For cross-version compatibility.
+         */
+        private static final long serialVersionUID = -7583892502939355783L;
+
+        /**
+         * Constructs a new map projection from the suplied parameters.
+         *
+         * @param  parameters The parameter values in standard units.
+         * @throws ParameterNotFoundException if a mandatory parameter is missing.
+         */
+        protected Spherical(final ParameterValueGroup parameters)
+                throws ParameterNotFoundException
+        {
+            super(parameters);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public ParameterDescriptorGroup getParameterDescriptors() {
+            return MercatorPseudoProvider.PARAMETERS;
+        }
     }
 
 }
