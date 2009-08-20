@@ -15,6 +15,7 @@ org.geotools.referencing.operation.projection.EquidistantCylindrical$Provider
 org.geotools.referencing.operation.projection.PlateCarree$Provider
 org.geotools.referencing.operation.projection.Mercator1SP$Provider
 org.geotools.referencing.operation.projection.Mercator2SP$Provider
+org.geotools.referencing.operation.projection.MercatorPseudoProvider
 org.geotools.referencing.operation.projection.TransverseMercator$Provider
 org.geotools.referencing.operation.projection.TransverseMercator$Provider_SouthOrientated
 org.geotools.referencing.operation.projection.ObliqueMercator$Provider
