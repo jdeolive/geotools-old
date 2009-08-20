@@ -18,12 +18,17 @@ public class TextSymbolizerBuilder implements Builder<TextSymbolizer> {
     StyleFactory sf = CommonFactoryFinder.getStyleFactory(null);
 
     FillBuilder fill = new FillBuilder();
+
     HaloBuilder halo = new HaloBuilder().unset();
+
     ExpressionBuilder label = new ExpressionBuilder();
+
     String geometry;
+
     boolean unset = false;
+
     private LabelPlacement labelPlacement = null; // TODO: LabelPlacement builder
-    
+
     public TextSymbolizerBuilder geometry(String geometry) {
         this.geometry = geometry;
         return this;
@@ -34,12 +39,12 @@ public class TextSymbolizerBuilder implements Builder<TextSymbolizer> {
     }
 
     public TextSymbolizer build() {
-        if( unset ){
+        if (unset) {
             return null;
         }
         Font[] fonts = null;
-        TextSymbolizer ts = sf.createTextSymbolizer(fill.build(), fonts, halo.build(), label.build(), labelPlacement,
-                geometry);
+        TextSymbolizer ts = sf.createTextSymbolizer(fill.build(), fonts, halo.build(), label
+                .build(), labelPlacement, geometry);
         reset();
         return ts;
     }
@@ -49,7 +54,7 @@ public class TextSymbolizerBuilder implements Builder<TextSymbolizer> {
         unset = true;
         return this;
     }
-    
+
     public TextSymbolizerBuilder reset() {
         fill.reset(); // TODO: default fill for text?
         halo.unset(); // no default halo
@@ -59,13 +64,37 @@ public class TextSymbolizerBuilder implements Builder<TextSymbolizer> {
         unset = false;
         return this;
     }
-    public TextSymbolizerBuilder reset( TextSymbolizer symbolizer ) {
-        fill.reset( symbolizer.getFill() ); // TODO: default fill for text?
-        halo.reset( symbolizer.getHalo() ); // no default halo
-        label.reset( symbolizer.getLabel() );
+
+    public TextSymbolizerBuilder reset(TextSymbolizer symbolizer) {
+        fill.reset(symbolizer.getFill()); // TODO: default fill for text?
+        halo.reset(symbolizer.getHalo()); // no default halo
+        label.reset(symbolizer.getLabel());
         geometry = symbolizer.getGeometryPropertyName();
         labelPlacement = (LabelPlacement) symbolizer.getLabelPlacement();
         unset = false;
         return this;
+    }
+
+    public ExpressionBuilder label() {
+        unset = false;
+        return label;
+    }
+
+    /**
+     * Expression used to label features.
+     * <p>
+     * The label expression often refers to an existing property. <br/>
+     * <code>textBuilder.label().property("fullname")</code>
+     * <p>
+     * You may wish to concatenate several expressions together into a single label:<br/>
+     * <code>textBuilder.label().function("strConcat").param().property("city").param().literal("!")</code>
+     * 
+     * @param expr
+     * @return ExpressionBuilder for chaining
+     */
+    public ExpressionBuilder label(Expression expr) {
+        label.reset(expr);
+        unset = false;
+        return label;
     }
 }

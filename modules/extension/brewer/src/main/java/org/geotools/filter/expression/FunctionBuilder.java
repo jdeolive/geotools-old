@@ -17,8 +17,8 @@ public class FunctionBuilder implements Builder<Function> {
             this.index = index;
         }
         public Expression build() {
-            return put( index, _build() );
-        }        
+            return put( index, super.build() );
+        }
         public ParamBuilder param(){
             build();
             return new ParamBuilder( index+1 );

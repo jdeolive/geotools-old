@@ -4,7 +4,6 @@ import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Add;
-import org.opengis.filter.expression.Expression;
 
 public class AddBuilder implements Builder<Add> {
 
@@ -12,9 +11,9 @@ public class AddBuilder implements Builder<Add> {
 
     boolean unset = false;
 
-    Expression expr1;
+    ChildExpressionBuilder<AddBuilder> expr1;
 
-    Expression expr2;
+    ChildExpressionBuilder<AddBuilder> expr2;
 
     public AddBuilder() {
         reset();
@@ -26,54 +25,47 @@ public class AddBuilder implements Builder<Add> {
 
     public AddBuilder reset() {
         unset = false;
-        expr1 = Expression.NIL;
-        expr2 = Expression.NIL;
+        expr1 = new ChildExpressionBuilder<AddBuilder>(this);
+        expr2 = new ChildExpressionBuilder<AddBuilder>(this);
         return this;
     }
 
     public AddBuilder reset(Add original) {
         unset = false;
-        expr1 = original.getExpression1();
-        expr2 = original.getExpression2();
+        expr1 = new ChildExpressionBuilder<AddBuilder>(this, original.getExpression1());
+        expr2 = new ChildExpressionBuilder<AddBuilder>(this, original.getExpression2());
         return this;
     }
 
     public AddBuilder unset() {
         unset = true;
-        expr1 = null;
+        expr1 = new ChildExpressionBuilder<AddBuilder>(this).unset();
         expr2 = null;
         return this;
     }
-    
+
     public Add build() {
         if (unset) {
             return null;
         }
-        return ff.add(expr1, expr2);
+        return ff.add(expr1.build(), expr2.build());
     }
-    
-    public ChildExpressionBuilder<AddBuilder> expr1(){
-        return new ChildExpressionBuilder<AddBuilder>(this, expr1) {            
-            public Expression build() {
-                expr1 = _build();
-                return expr1;
-            }
-        };
+
+    public ChildExpressionBuilder<AddBuilder> expr1() {
+        return expr1;
     }
-    public AddBuilder expr1( Object literal ){
-        expr1 = ff.literal( literal );
+
+    public AddBuilder expr1(Object literal) {
+        expr1.literal(literal);
         return this;
     }
-    public ChildExpressionBuilder<AddBuilder> expr2(){
-        return new ChildExpressionBuilder<AddBuilder>(this, expr1) {            
-            public Expression build() {
-                expr2 = _build();
-                return expr1;
-            }
-        };
+
+    public ChildExpressionBuilder<AddBuilder> expr2() {
+        return expr2;
     }
-    public AddBuilder expr2( Object literal ){
-        expr2 = ff.literal( literal );
+
+    public AddBuilder expr2(Object literal) {
+        expr2.literal(literal);
         return this;
     }
 }
