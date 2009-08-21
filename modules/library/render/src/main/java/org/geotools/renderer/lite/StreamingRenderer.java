@@ -530,7 +530,8 @@ public final class StreamingRenderer implements GTRenderer {
 				worldToScreen);
 	}
 
-	private double computeScale(ReferencedEnvelope envelope, Rectangle paintArea, Map hints) {
+	private double computeScale(ReferencedEnvelope envelope, Rectangle paintArea, 
+	        AffineTransform worldToScreen, Map hints) {
         if(getScaleComputationMethod().equals(SCALE_ACCURATE)) {
             try {
                return RendererUtilities.calculateScale(envelope,
@@ -539,6 +540,10 @@ public final class StreamingRenderer implements GTRenderer {
             {
                 LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
             }
+        }
+        if (XAffineTransform.getRotation(worldToScreen) != 0.0) {
+            return RendererUtilities.calculateOGCScaleAffine(envelope.getCoordinateReferenceSystem(),
+                    worldToScreen, hints);
         } 
         return RendererUtilities.calculateOGCScale(envelope, paintArea.width, hints);
     }
@@ -619,8 +624,9 @@ public final class StreamingRenderer implements GTRenderer {
 		}
 
         // compute scale according to the user specified method
-        scaleDenominator = computeScale(mapArea, paintArea, rendererHints);
-        
+        scaleDenominator = computeScale(mapArea, paintArea,worldToScreenTransform, rendererHints);
+        if(LOGGER.isLoggable(Level.FINE))
+            LOGGER.fine("Computed scale denominator: " + scaleDenominator);
 		//////////////////////////////////////////////////////////////////////
         //
         // Consider expanding the map extent so that a few more geometries
@@ -1921,7 +1927,7 @@ public final class StreamingRenderer implements GTRenderer {
 			if (symbolizer instanceof RasterSymbolizer) {
 				renderRaster(graphics, drawMe.content,
 						(RasterSymbolizer) symbolizer, destinationCrs,
-						scaleRange);
+						scaleRange,at);
 
 			} else {
 
@@ -1960,12 +1966,13 @@ public final class StreamingRenderer implements GTRenderer {
 	 * @param symbolizer
 	 *            The raster symbolizer
 	 * @param scaleRange
+	 * @param worldToScreen the world to screen transform
 	 * @param world2Grid 
 	 * @task make it follow the symbolizer
 	 */
 	private void renderRaster(Graphics2D graphics, Object drawMe,
 			RasterSymbolizer symbolizer,
-			CoordinateReferenceSystem destinationCRS, Range scaleRange) {
+			CoordinateReferenceSystem destinationCRS, Range scaleRange, AffineTransform worldToScreen) {
 		final Object grid = gridPropertyName.evaluate( drawMe);
 		if (LOGGER.isLoggable(Level.FINE))
 			LOGGER.fine(new StringBuffer("rendering Raster for feature ")
@@ -1982,7 +1989,7 @@ public final class StreamingRenderer implements GTRenderer {
 			//
 			// /////////////////////////////////////////////////////////////////
 			final GridCoverageRenderer gcr = new GridCoverageRenderer(
-					destinationCRS, originalMapExtent, screenSize, java2dHints);
+					destinationCRS, originalMapExtent, screenSize, worldToScreen,java2dHints);
 
 			// //
 			// It is a grid coverage

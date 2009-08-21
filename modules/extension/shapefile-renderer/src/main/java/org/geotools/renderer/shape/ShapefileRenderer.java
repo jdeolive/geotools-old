@@ -79,12 +79,12 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
+import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.lite.LabelCacheDefault;
-import org.geotools.renderer.lite.ListenerList;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.renderer.style.SLDStyleFactory;
@@ -1324,6 +1324,7 @@ public class ShapefileRenderer implements GTRenderer {
                             envelope,
                             context.getCoordinateReferenceSystem(),
                             paintArea, 
+                            transform,
                             this.rendererHints));
         } catch (Exception e) // probably either (1) no CRS (2) error xforming
         {
@@ -1464,7 +1465,8 @@ public class ShapefileRenderer implements GTRenderer {
         return result;
     }
     
-    private double computeScale(ReferencedEnvelope envelope, CoordinateReferenceSystem crs, Rectangle paintArea, Map hints) {
+    private double computeScale(ReferencedEnvelope envelope, CoordinateReferenceSystem crs, Rectangle paintArea,
+            AffineTransform worldToScreen, Map hints) {
         if(getScaleComputationMethod().equals(SCALE_ACCURATE)) {
             try {
                return RendererUtilities.calculateScale(envelope, paintArea.width, paintArea.height, hints);
@@ -1472,6 +1474,10 @@ public class ShapefileRenderer implements GTRenderer {
             {
                 LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
             }
+        } 
+        if (XAffineTransform.getRotation(worldToScreen) != 0.0) {
+            return RendererUtilities.calculateOGCScaleAffine(envelope.getCoordinateReferenceSystem(),
+                    worldToScreen, hints);
         } 
         return RendererUtilities.calculateOGCScale(envelope, paintArea.width, hints);
     }
