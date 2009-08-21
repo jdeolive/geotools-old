@@ -243,8 +243,12 @@ public class ThreadedHsqlEpsgFactory extends ThreadedEpsgFactory {
      * if an empty EPSG database has been automatically created by HSQL and not yet populated.
      */
     private static boolean dataExists(File directory) throws SQLException {
-        // check if the marker file is there
-        return new File(directory, MARKER_FILE).exists();
+        // check if the marker file is there, and all the other database files as well
+        // (as some windows cleanup tools delete the .data file only)
+        return new File(directory, MARKER_FILE).exists() &&
+               new File(directory, DATABASE_NAME + ".data").exists() &&
+               new File(directory, DATABASE_NAME + ".properties").exists() &&
+               new File(directory, DATABASE_NAME + ".script").exists();
     }
 
     /**
