@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.geotools.Builder;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.FilterBuilder;
 import org.geotools.styling.Rule;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbolizer;
@@ -25,7 +26,7 @@ public class RuleBuilder implements Builder<Rule> {
 
     double maxScaleDenominator;
 
-    Filter filter;
+    FilterBuilder filter = new FilterBuilder();
 
     boolean elseFilter;
 
@@ -76,14 +77,14 @@ public class RuleBuilder implements Builder<Rule> {
     public RuleBuilder elseFilter() {
         unset = false;
         this.elseFilter = true;
-        this.filter = null;
+        this.filter.unset();
         return this;
     }
 
     public RuleBuilder filter(Filter filter) {
         unset = false;
         this.elseFilter = false;
-        this.filter = filter;
+        this.filter = new FilterBuilder( filter );
         return this;
     }
 
@@ -128,7 +129,7 @@ public class RuleBuilder implements Builder<Rule> {
         rule.setAbstract(ruleAbstract);
         rule.setMinScaleDenominator(minScaleDenominator);
         rule.setMaxScaleDenominator(maxScaleDenominator);
-        rule.setFilter(filter);
+        rule.setFilter(filter.build());
         rule.setElseFilter(elseFilter);
         rule.symbolizers().addAll(symbolizers);
 
@@ -147,7 +148,7 @@ public class RuleBuilder implements Builder<Rule> {
         ruleAbstract = null;
         minScaleDenominator = 0;
         maxScaleDenominator = Double.POSITIVE_INFINITY;
-        filter = null;
+        filter.reset( Filter.INCLUDE);
         elseFilter = false;
         symbolizers.clear();
         unset = false;
@@ -162,7 +163,7 @@ public class RuleBuilder implements Builder<Rule> {
         ruleAbstract = rule.getAbstract();
         minScaleDenominator = rule.getMinScaleDenominator();
         maxScaleDenominator = rule.getMaxScaleDenominator();
-        filter = rule.getFilter();
+        filter.reset( rule.getFilter() );
         elseFilter = rule.isElseFilter();
         symbolizers.clear();
         symbolizers.addAll( rule.symbolizers() ); // TODO: unpack into builders in order to "copy"
