@@ -305,6 +305,7 @@ public class ThreadedHsqlEpsgFactory extends ThreadedEpsgFactory {
                     try {
                         lock.release();
                         lock.channel().close();
+                        new File(directory, LOCK_FILE).delete();
                     } catch(IOException e) {
                         // does not matter, was just cleanup
                     }
@@ -325,7 +326,7 @@ public class ThreadedHsqlEpsgFactory extends ThreadedEpsgFactory {
      */
     FileLock acquireLock(File directory) throws IOException {
         // Get a file channel for the file
-        File file = new File(LOCK_FILE);
+        File file = new File(directory, LOCK_FILE);
         FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
     
         // Use the file channel to create a lock on the file.
