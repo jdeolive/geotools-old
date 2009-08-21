@@ -21,6 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.geotools.data.DataUtilities;
+
 import junit.framework.TestCase;
 
 /**
@@ -63,8 +65,9 @@ public class PropertyInterpolationUtilsTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         System.setProperty(TEST_SYSTEM_PROPERTY, TEST_SYSTEM_PROPERTY_VALUE);
-        System.setProperty(TEST_FILE_SYSTEM_PROPERTY, PropertyInterpolationUtilsTest.class
-                .getResource("/" + IDENTIFIER + ".file.properties").toURI().getPath());
+        System.setProperty(TEST_FILE_SYSTEM_PROPERTY, DataUtilities.urlToFile(
+                PropertyInterpolationUtilsTest.class.getResource("/" + IDENTIFIER
+                        + ".file.properties")).getPath());
     }
 
     /**

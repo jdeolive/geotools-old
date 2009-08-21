@@ -29,6 +29,7 @@ import junit.framework.TestCase;
 
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
@@ -146,12 +147,13 @@ public class VocabFunctionsTest extends TestCase {
      * Test the VocabFunction making use of a sample mapping provided by Alastair.
      * @throws URISyntaxException 
      */
-    public void testVocabFunction() throws URISyntaxException {
+    public void testVocabFunction() {
         URL file = getClass().getResource("/test-data/minoc_lithology_mapping.properties");
         assertNotNull(file);
         
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        Function function = ff.function("Vocab", ff.literal("1LIST"), ff.literal(file.toURI().getPath()));
+        Function function = ff.function("Vocab", ff.literal("1LIST"), ff.literal(DataUtilities
+                .urlToFile(file).getPath()));
 
         Object value = function.evaluate(null);
         assertEquals(

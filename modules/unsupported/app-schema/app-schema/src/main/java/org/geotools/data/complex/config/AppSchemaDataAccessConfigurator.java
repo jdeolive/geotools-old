@@ -42,6 +42,7 @@ import org.apache.xml.resolver.Catalog;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.complex.AttributeMapping;
 import org.geotools.data.complex.DataAccessRegistry;
@@ -533,17 +534,20 @@ public class AppSchemaDataAccessConfigurator {
                     LOGGER.fine("resolving relative path " + value + " for dataURLstore parameter "
                             + key);
                     try {
-                    	URL baseSchemasUrl = new URL(config.getBaseSchemasUrl());
-                    	URL resolvedUrl = new URL(baseSchemasUrl, value);
-                    	if ("url".equals(key)) {
-                    		// HACK for shapefile: shapefile requires file:/...
-                    		value = resolvedUrl.toExternalForm();
-                    	} else {
-                    		// data stores seem to not expect file URIs
-                    		value = resolvedUrl.toURI().getPath();
-                    	}
+                        // use of URL here should be safe as the base schema url should
+                        // not yet have undergone any conversion to file or
+                        // encoding/decoding
+                        URL baseSchemasUrl = new URL(config.getBaseSchemasUrl());
+                        URL resolvedUrl = new URL(baseSchemasUrl, value);
+                        if ("url".equals(key)) {
+                            // HACK for shapefile: shapefile requires file:/...
+                            value = resolvedUrl.toExternalForm();
+                        } else {
+                            // data stores seem to not expect file URIs
+                            value = DataUtilities.urlToFile(resolvedUrl).getPath();
+                        }
                     } catch (Exception e) {
-                    	throw new RuntimeException(e);
+                        throw new RuntimeException(e);
                     }
                     LOGGER.fine("new value for " + key + ": " + value);
                 }
