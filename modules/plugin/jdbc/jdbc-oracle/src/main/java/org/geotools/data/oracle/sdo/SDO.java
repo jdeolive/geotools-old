@@ -2293,8 +2293,31 @@ public final class SDO {
                     point);
             elemInfo = new int[] { 1, ETYPE.POINT, 1 };
         } else {
+            int element = 0;
+            int etype = ETYPE(elemInfo, element);
+            if (etype == 0) {
+               // complex type, search for encapsulated simpletype (with etype != 0)
+               int startpointCoordinates = 0;
+               
+               // look for a simple one
+               while (etype == 0) {
+                   element++;
+                   etype = ETYPE(elemInfo, element);
+                   startpointCoordinates = STARTING_OFFSET(elemInfo, element);
+               }
+               
+               // if we found the simple fallback, read it
+               if (etype != -1) {
+                   int ol = ordinates.length;
+                   int elemsToCopy = ol - (startpointCoordinates - 1);
+                   double[] newOrdinates = new double[elemsToCopy];
+                   System.arraycopy(ordinates, startpointCoordinates - 1, newOrdinates, 0, elemsToCopy);
+                   elemInfo = new int[] { 1, etype, INTERPRETATION(elemInfo, element) };
+                   ordinates = newOrdinates;
+               }
+            }
             coords = SDO.coordinates(gf.getCoordinateSequenceFactory(), GTYPE,
-                    ordinates);
+                     ordinates);
         }
 
         return create(gf, GTYPE, SRID, elemInfo, 0, coords, -1);

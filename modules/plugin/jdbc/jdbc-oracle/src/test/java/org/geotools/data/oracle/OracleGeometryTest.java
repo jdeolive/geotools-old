@@ -16,11 +16,15 @@
  */
 package org.geotools.data.oracle;
 
+import org.geotools.feature.FeatureIterator;
 import org.geotools.jdbc.JDBCGeometryTest;
 import org.geotools.jdbc.JDBCGeometryTestSetup;
+import org.opengis.feature.simple.SimpleFeature;
 
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.io.WKTReader;
 
 public class OracleGeometryTest extends JDBCGeometryTest {
 
@@ -31,5 +35,15 @@ public class OracleGeometryTest extends JDBCGeometryTest {
 
     public void testLinearRing() throws Exception {
         assertEquals(LineString.class, checkGeometryType(LinearRing.class));
+    }
+    
+    public void testComplexGeometryFallback() throws Exception {
+        FeatureIterator<SimpleFeature> fi = dataStore.getFeatureSource("COLA_MARKETS_CS").getFeatures().features();
+        assertTrue(fi.hasNext());
+        SimpleFeature sf = fi.next();
+        assertNotNull(sf.getDefaultGeometry());
+        Geometry expected = new WKTReader().read("POLYGON((6 4, 12 4, 12 12, 6 12, 6 4))");
+        assertTrue(expected.equals((Geometry) sf.getDefaultGeometry()));
+        fi.close();
     }
 }
