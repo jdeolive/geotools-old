@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
@@ -69,6 +70,10 @@ public class ImageGraphicFactory implements ExternalGraphicFactory {
         BufferedImage image;
         synchronized (imageLoader) {
             image = imageLoader.get(location, false);
+        }
+        if(image == null) {
+            LOGGER.log(Level.FINE, "Failed to load image {0}", location);
+            return null;
         }
         
         // if scaling is needed, perform it
