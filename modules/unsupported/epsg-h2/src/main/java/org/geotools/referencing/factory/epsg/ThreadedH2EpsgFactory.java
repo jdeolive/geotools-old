@@ -65,6 +65,7 @@ import org.h2.jdbcx.JdbcDataSource;
  * @version $Id: ThreadedH2EpsgFactory.java 32612 2009-03-09 16:32:57Z aaime $
  * @author Martin Desruisseaux
  * @author Didier Richard
+ * @author Andrea Aime
  */
 public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
     /**
@@ -327,10 +328,10 @@ public class ThreadedH2EpsgFactory extends ThreadedEpsgFactory {
     }
     
     void executeScript(String scriptName, Statement statement) throws IOException, SQLException {
-        SqlScripReader reader = null;
+        SqlScriptReader reader = null;
         try {
             // first read in the tables
-            reader = new SqlScripReader(new InputStreamReader(new GZIPInputStream(
+            reader = new SqlScriptReader(new InputStreamReader(new GZIPInputStream(
                     ThreadedH2EpsgFactory.class.getResourceAsStream(scriptName + ".gz")), "ISO-8859-15"));
             while(reader.hasNext()) {
                 statement.execute(reader.next());
