@@ -32,6 +32,9 @@ import java.util.zip.ZipOutputStream;
 
 import org.hsqldb.jdbc.jdbcDataSource;
 
+/**
+ * Utility used to create a HSQL zipped version of the official EPSG database 
+ */
 public class DatabaseCreationScript {
 
     public static void main(String[] args) throws Exception {
