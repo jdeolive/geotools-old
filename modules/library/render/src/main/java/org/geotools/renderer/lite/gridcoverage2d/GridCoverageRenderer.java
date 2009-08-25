@@ -164,6 +164,34 @@ public final class GridCoverageRenderer {
 
     /** Parameters used to control the {@link Scale} operation. */
     private static final Resample resampleFactory = new Resample();
+    
+    /**
+     * Creates a new {@link GridCoverageRenderer} object.
+     * 
+     * @param destinationCRS
+     *                the CRS of the {@link GridCoverage2D} to render.
+     * @param envelope
+     *                delineating the area to be rendered.
+     * @param screenSize
+     *                at which we want to rendere the source
+     *                {@link GridCoverage2D}.
+     * @param worldToScreen if not <code>null</code> and if it contains a rotation,
+     * this Affine Tranform is used directly to convert from world coordinates
+     * to screen coordinates. Otherwise, a standard {@link GridToEnvelopeMapper}
+     * is used to calculate the affine transform.
+     * 
+     * @throws TransformException
+     * @throws NoninvertibleTransformException
+     * @deprecated Use {@link GridCoverageRenderer#GridCoverageRenderer(CoordinateReferenceSystem, Envelope, Rectangle, AffineTransform, RenderingHints)}
+     *             instead
+     */
+    public GridCoverageRenderer(final CoordinateReferenceSystem destinationCRS,
+            final Envelope envelope, Rectangle screenSize)
+            throws TransformException, NoninvertibleTransformException {
+
+        this(destinationCRS, envelope, screenSize, null, null);
+
+    }
 
     /**
      * Creates a new {@link GridCoverageRenderer} object.
@@ -182,7 +210,6 @@ public final class GridCoverageRenderer {
      * 
      * @throws TransformException
      * @throws NoninvertibleTransformException
-     * 
      */
     public GridCoverageRenderer(final CoordinateReferenceSystem destinationCRS,
             final Envelope envelope, Rectangle screenSize, AffineTransform worldToScreen)
@@ -190,6 +217,29 @@ public final class GridCoverageRenderer {
 
         this(destinationCRS, envelope, screenSize, worldToScreen, null);
 
+    }
+    
+    /**
+     * Creates a new {@link GridCoverageRenderer} object.
+     * 
+     * @param destinationCRS
+     *                the CRS of the {@link GridCoverage2D} to render.
+     * @param envelope
+     *                delineating the area to be rendered.
+     * @param screenSize
+     *                at which we want to rendere the source
+     *                {@link GridCoverage2D}.
+     * @param java2dHints
+     *                to control this rendering process.
+     * @throws TransformException
+     * @throws NoninvertibleTransformException
+     * @deprecated Use {@link GridCoverageRenderer#GridCoverageRenderer(CoordinateReferenceSystem, Envelope, Rectangle, AffineTransform, RenderingHints)}
+     *             instead
+     */
+    public GridCoverageRenderer(final CoordinateReferenceSystem destinationCRS,
+            final Envelope envelope, Rectangle screenSize, RenderingHints java2dHints) throws TransformException,
+            NoninvertibleTransformException {
+        this(destinationCRS, envelope, screenSize, null,java2dHints);
     }
 
     /**
