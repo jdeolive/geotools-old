@@ -76,7 +76,7 @@ public class ArcSDEJNDIDataStoreFactory implements DataStoreFactorySpi {
     /**
      * JNDI context path name
      */
-    public static final Param JNDI_REFNAME = new Param("jndiReferenceName", String.class,
+    public static final Param JNDI_REFNAME = new Param("ArcSDE_jndiReferenceName", String.class,
             "JNDI context path", true, "java:comp/env/geotools/arcsde");
 
     private static final String J2EE_ROOT_CONTEXT = "java:comp/env/";
