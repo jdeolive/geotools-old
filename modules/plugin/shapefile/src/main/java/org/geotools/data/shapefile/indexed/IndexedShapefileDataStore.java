@@ -200,7 +200,7 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
         this.useIndex = treeType != IndexType.NONE;
         maxDepth = -1;
         try {
-            if (shpFiles.isLocal() && createIndex
+            if (shpFiles.isLocal() && createIndex && useIndex
                     && needsGeneration(treeType.shpFileType)) {
                 createSpatialIndex();
             }
@@ -524,6 +524,10 @@ public class IndexedShapefileDataStore extends ShapefileDataStore implements
     }
 
     boolean needsGeneration(ShpFileType indexType) {
+        // happens if the IndexType.NONE.shpFileType is used)
+        if(indexType == null)
+            return false;
+        
         if (!isLocal())
             throw new IllegalStateException(
                     "This method only applies if the files are local and the file can be created");

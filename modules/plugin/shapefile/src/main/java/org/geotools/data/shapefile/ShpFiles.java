@@ -43,6 +43,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
@@ -73,7 +74,7 @@ public class ShpFiles {
      * The urls for each type of file that is associated with the shapefile. The
      * key is the type of file
      */
-    private final Map<ShpFileType, URL> urls = new HashMap<ShpFileType, URL>();
+    private final Map<ShpFileType, URL> urls = new ConcurrentHashMap<ShpFileType, URL>();
 
     /**
      * A read/write lock, so that we can have concurrent readers 
@@ -84,7 +85,7 @@ public class ShpFiles {
      * The set of locker sources per thread. Used as a debugging aid and to upgrade/downgrade
      * the locks
      */
-    private final Map<Thread, Collection<ShpFilesLocker>> lockers = new HashMap<Thread, Collection<ShpFilesLocker>>();
+    private final Map<Thread, Collection<ShpFilesLocker>> lockers = new ConcurrentHashMap<Thread, Collection<ShpFilesLocker>>();
 
     /**
      * Searches for all the files and adds then to the map of files.
