@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.geotools.data.DataStore;
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
@@ -33,6 +34,11 @@ import org.geotools.jdbc.SQLDialect;
  *
  */
 public class MySQLDataStoreFactory extends JDBCDataStoreFactory {
+    /** parameter for database type */
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true,"mysql");
+    /** Default port number for MYSQL */
+    public static final Param PORT = new Param("port", Integer.class, "Port", true, 3306);
+    
     protected SQLDialect createSQLDialect(JDBCDataStore dataStore) {
         return new MySQLDialectPrepared(dataStore);
     }
@@ -46,7 +52,7 @@ public class MySQLDataStoreFactory extends JDBCDataStoreFactory {
     }
 
     protected String getDatabaseID() {
-        return "mysql";
+        return (String) DBTYPE.sample;
     }
 
     public String getDescription() {
@@ -56,5 +62,14 @@ public class MySQLDataStoreFactory extends JDBCDataStoreFactory {
     @Override
     protected String getValidationQuery() {
         return "select version()";
+    }
+    
+    @Override
+    protected void setupParameters(Map parameters) {
+        super.setupParameters(parameters);
+        parameters.put(DBTYPE.key, DBTYPE);
+        parameters.put(PORT.key, PORT);
+        
+        parameters.remove(SCHEMA.key);
     }
 }

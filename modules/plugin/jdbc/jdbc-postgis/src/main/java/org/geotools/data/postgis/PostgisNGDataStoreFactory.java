@@ -19,11 +19,16 @@ package org.geotools.data.postgis;
 import java.io.IOException;
 import java.util.Map;
 
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
 
 public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
+    
+    /** parameter for database type */
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "postgisng");
+    
     /** parameter for namespace of the datastore */
     public static final Param LOOSEBBOX = new Param("Loose bbox", Boolean.class, "Perform only primary filter on bbox", false, Boolean.TRUE);
     
@@ -45,7 +50,7 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
 
     @Override
     protected String getDatabaseID() {
-        return "postgisng";
+        return (String) DBTYPE.sample;
     }
     
     @Override
@@ -82,6 +87,7 @@ public class PostgisNGDataStoreFactory extends JDBCDataStoreFactory {
     @Override
     protected void setupParameters(Map parameters) {
         super.setupParameters(parameters);
+        parameters.put(DBTYPE.key, DBTYPE);
         parameters.put(SCHEMA.key, SCHEMA);
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
         parameters.put(PORT.key, PORT);

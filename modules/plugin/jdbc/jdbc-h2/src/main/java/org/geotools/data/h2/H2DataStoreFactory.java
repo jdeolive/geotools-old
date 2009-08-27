@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.geotools.data.DataStore;
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
@@ -37,6 +38,9 @@ import org.geotools.jdbc.SQLDialect;
  *
  */
 public class H2DataStoreFactory extends JDBCDataStoreFactory {
+    /** parameter for database type */
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "h2");
+    
     /** parameter for how to handle associations */
     public static final Param ASSOCIATIONS = new Param("Associations", Boolean.class,
             "Associations", false, Boolean.FALSE);
@@ -74,6 +78,7 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
 
         //add additional parameters
         parameters.put(ASSOCIATIONS.key, ASSOCIATIONS);
+        parameters.put(DBTYPE.key, DBTYPE);
     }
 
     public String getDisplayName() {
@@ -85,7 +90,7 @@ public class H2DataStoreFactory extends JDBCDataStoreFactory {
     }
 
     protected String getDatabaseID() {
-        return "h2";
+        return (String) DBTYPE.sample;
     }
 
     protected String getDriverClassName() {

@@ -32,6 +32,9 @@ import org.geotools.jdbc.SQLDialect;
 public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
     private static final String JDBC_PATH = "jdbc:oracle:thin:@";
     
+    /** parameter for database type */
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "Oracle");
+
     /** parameter for database port */
     public static final Param PORT = new Param("port", Integer.class, "Port", true, 1521);
     
@@ -45,7 +48,7 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
 
     @Override
     protected String getDatabaseID() {
-        return "Oracle";
+        return (String) DBTYPE.sample;
     }
     
     @Override
@@ -98,6 +101,7 @@ public class OracleNGDataStoreFactory extends JDBCDataStoreFactory {
         super.setupParameters(parameters);
         parameters.put(LOOSEBBOX.key, LOOSEBBOX);
         parameters.put(PORT.key, PORT);
+        parameters.put(DBTYPE.key, DBTYPE);
     }
     
     @Override

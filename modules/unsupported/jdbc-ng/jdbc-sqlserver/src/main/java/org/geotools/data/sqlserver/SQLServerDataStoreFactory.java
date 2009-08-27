@@ -16,6 +16,8 @@
  */
 package org.geotools.data.sqlserver;
 
+import java.util.Map;
+
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
@@ -27,7 +29,9 @@ import org.geotools.jdbc.SQLDialect;
  *
  */
 public class SQLServerDataStoreFactory extends JDBCDataStoreFactory {
-
+    /** parameter for database type */
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "sqlserver");
+    
     @Override
     protected SQLDialect createSQLDialect(JDBCDataStore dataStore) {
         return new SQLServerDialect(dataStore);
@@ -35,7 +39,7 @@ public class SQLServerDataStoreFactory extends JDBCDataStoreFactory {
 
     @Override
     protected String getDatabaseID() {
-        return "sqlserver";
+        return (String) DBTYPE.sample;
     }
 
     public String getDescription() {
@@ -51,5 +55,12 @@ public class SQLServerDataStoreFactory extends JDBCDataStoreFactory {
     protected String getValidationQuery() {
         // no known way to validate a connection, if you know any, please advise
         return null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void setupParameters(Map parameters) {
+        super.setupParameters(parameters);
+        parameters.put(DBTYPE.key, DBTYPE);
     }
 }

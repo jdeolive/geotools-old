@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.Driver;
 import java.util.Map;
 
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.SQLDialect;
@@ -33,7 +34,10 @@ import org.geotools.jdbc.SQLDialect;
  *
  */
 public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
-	
+
+    /** parameter for database type */
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "db2");
+    
 	public final static String DriverClassName = "com.ibm.db2.jcc.DB2Driver"; 
 	
     protected SQLDialect createSQLDialect(JDBCDataStore dataStore) {
@@ -49,7 +53,7 @@ public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
     }
 
     protected String getDatabaseID() {
-        return "db2";
+        return (String) DBTYPE.sample;
     }
 
     public String getDescription() {
@@ -81,5 +85,9 @@ public class DB2NGDataStoreFactory extends JDBCDataStoreFactory {
         return super.getJDBCUrl(params);
     }
     
+    protected void setupParameters(Map parameters) {
+        super.setupParameters(parameters);
+        parameters.put(DBTYPE.key, DBTYPE);
+    }
     
 }
