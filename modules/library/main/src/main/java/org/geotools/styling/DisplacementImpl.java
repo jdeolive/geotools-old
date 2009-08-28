@@ -81,7 +81,14 @@ public class DisplacementImpl implements Displacement, Cloneable {
     public void setDisplacementX(Expression displacementX) {
         this.displacementX = displacementX;
     }
-
+    /**
+     * Set displacement x to the provided literal.
+     *
+     * @param displacementX New value of property displacementX.
+     */
+    public void setDisplacementX(double displacementX ){
+        this.displacementX = filterFactory.literal( displacementX );
+    }
     /**
      * Setter for property displacementY.
      *
@@ -89,6 +96,14 @@ public class DisplacementImpl implements Displacement, Cloneable {
      */
     public void setDisplacementY(Expression displacementY) {
         this.displacementY = displacementY;
+    }
+    /**
+     * Set displacement y to the provided literal.
+     *
+     * @param displacementY New value of property displacementX.
+     */
+    public void setDisplacementY(double displacementY ){
+        this.displacementY = filterFactory.literal( displacementY );
     }
 
     /**
@@ -162,6 +177,20 @@ public class DisplacementImpl implements Displacement, Cloneable {
         }
 
         return result;
+    }
+
+    static DisplacementImpl cast(org.opengis.style.Displacement displacement) {
+        if (displacement == null) {
+            return null;
+        } else if (displacement instanceof DisplacementImpl) {
+            return (DisplacementImpl) displacement;
+        } else {
+            DisplacementImpl copy = new DisplacementImpl();
+            copy.setDisplacementX(displacement.getDisplacementX());
+            copy.setDisplacementY(displacement.getDisplacementY());
+
+            return copy;
+        }
     }
     
 }

@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import org.opengis.filter.expression.Expression;
 
 /**
  * A symbolizer describes how a polygon feature should appear on a map.
@@ -132,4 +133,16 @@ public interface PolygonSymbolizer extends org.opengis.style.PolygonSymbolizer,S
      *        geometry should be used.
      */
     void setGeometryPropertyName(String geometryPropertyName);
+    
+    /**
+     * PerpendicularOffset works as defined for LineSymbolizer, allowing to draw polygons
+     * smaller or larger than their actual geometry.
+     * 
+     * @param offset Offset from the edge polygon positive outside; negative to the inside with a default of 0.
+     */
+    public void setPerpendicularOffset(Expression offset);
+    
+    public Displacement getDisplacement();
+
+    public void setDisplacement(Displacement displacement);    
 }

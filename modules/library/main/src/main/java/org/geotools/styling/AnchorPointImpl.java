@@ -41,6 +41,22 @@ public class AnchorPointImpl implements AnchorPoint,Cloneable {
     private Expression anchorPointX = null;
     private Expression anchorPointY = null;
 
+    
+    static AnchorPointImpl cast( org.opengis.style.AnchorPoint anchor ){
+        if( anchor == null ){
+            return null;
+        }
+        else if (anchor instanceof AnchorPointImpl){
+            return (AnchorPointImpl) anchor;
+        }
+        else {
+            AnchorPointImpl copy = new AnchorPointImpl();
+            copy.setAnchorPointX( anchor.getAnchorPointX() );
+            copy.setAnchorPointY( anchor.getAnchorPointY() );
+            return copy;
+        }
+    }
+    
     public AnchorPointImpl() {
         this( CommonFactoryFinder.getFilterFactory( GeoTools.getDefaultHints() ) );
     }

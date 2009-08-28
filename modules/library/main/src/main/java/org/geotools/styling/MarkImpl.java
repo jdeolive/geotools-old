@@ -23,6 +23,7 @@ import org.geotools.factory.GeoTools;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.ExternalMark;
+import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
@@ -44,7 +45,7 @@ public class MarkImpl implements Mark, Cloneable {
     private Fill fill;
     private Stroke stroke;
 
-    private final ExternalMark external;
+    private ExternalMark external;
     private Expression wellKnownName = null;
     private Expression rotation = null;
     private Expression size = null;
@@ -347,6 +348,42 @@ public class MarkImpl implements Mark, Cloneable {
 
     public ExternalMark getExternalMark() {
         return external;
+    }
+
+    public void setExternalMark(ExternalMark external) {
+        this.external = external;
+    }
+    static MarkImpl cast(GraphicalSymbol item) {
+        if( item == null ){
+            return null;
+        }
+        else if ( item instanceof MarkImpl){
+            return (MarkImpl) item;
+        }
+        else if ( item instanceof TextMark){
+            TextMark text = (TextMark) item;
+            TextMarkImpl copy = new TextMarkImpl();
+            copy.setFill( text.getFill() );
+            copy.setRotation( text.getRotation() );
+            copy.setSize( text.getSize() );
+            copy.setStroke( text.getStroke() );
+            copy.setSymbol( text.getSymbol() );
+            copy.setWellKnownName( text.getWellKnownName() );
+
+            return copy;
+        }
+        else if (item instanceof Mark ){
+            Mark mark = (Mark) item;
+            MarkImpl copy = new TextMarkImpl();
+            copy.setFill( mark.getFill() );
+            copy.setRotation( mark.getRotation() );
+            copy.setSize( mark.getSize() );
+            copy.setStroke( mark.getStroke() );
+            copy.setWellKnownName( mark.getWellKnownName() );
+            copy.setExternalMark( mark.getExternalMark() );
+            return copy;            
+        }
+        return null;
     }
 
 }

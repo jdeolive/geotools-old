@@ -19,19 +19,17 @@ package org.geotools.styling;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.Iterator;
 import java.util.List;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.filter.ConstantExpression;
 import org.geotools.util.Utilities;
-
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.AnchorPoint;
+import org.opengis.style.GraphicFill;
 import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
@@ -50,9 +48,9 @@ public class GraphicImpl implements Graphic, Cloneable {
     //private static final java.util.logging.Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
     
     private final List<GraphicalSymbol> graphics = new ArrayList<GraphicalSymbol>();
-    private final AnchorPoint anchor;
-    private final Expression gap;
-    private final Expression initialGap;
+    private AnchorPoint anchor;
+    private Expression gap;
+    private Expression initialGap;
     
     private FilterFactory filterFactory;
     private String geometryPropertyName = "";
@@ -287,9 +285,8 @@ public class GraphicImpl implements Graphic, Cloneable {
         return gap;
     }
     
-    @Deprecated
-    public void setDisplacement(Displacement offset) {
-        this.displacement = offset;
+    public void setDisplacement(org.opengis.style.Displacement offset) {
+        this.displacement = DisplacementImpl.cast( offset );
     }
 
     /**
@@ -466,6 +463,35 @@ public class GraphicImpl implements Graphic, Cloneable {
         }
 
         return false;
+    }
+
+    static GraphicImpl cast(org.opengis.style.Graphic graphic) {
+        if( graphic == null){
+            return null;
+        }
+        else if ( graphic instanceof GraphicImpl){
+            return (GraphicImpl) graphic;
+        }
+        else {
+            GraphicImpl copy = new GraphicImpl();            
+            copy.setAnchor( graphic.getAnchorPoint() );
+            copy.setDisplacement( graphic.getDisplacement() );
+            if( graphic.graphicalSymbols() != null ){
+                for ( GraphicalSymbol item : graphic.graphicalSymbols()) {
+                    if( item instanceof org.opengis.style.ExternalGraphic){
+                        copy.graphicalSymbols().add( ExternalGraphicImpl.cast( item ));
+                    }
+                    else if( item instanceof org.opengis.style.Mark){
+                        copy.graphicalSymbols().add( MarkImpl.cast( item ));
+                    }
+                }
+            }
+            return copy;
+        }
+    }
+
+    private void setAnchor(AnchorPoint anchorPoint) {
+        this.anchor = AnchorPointImpl.cast( anchorPoint );
     }
 
 

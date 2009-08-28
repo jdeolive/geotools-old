@@ -187,5 +187,20 @@ public class PointPlacementImpl implements PointPlacement, Cloneable {
         return result;
     }
 
-
+    static PointPlacementImpl cast(org.opengis.style.LabelPlacement placement) {
+        if( placement == null ){
+            return null;
+        }
+        else if (placement instanceof PointPlacementImpl){
+            return (PointPlacementImpl) placement;
+        }
+        else if (placement instanceof org.opengis.style.PointPlacement){
+            org.opengis.style.PointPlacement pointPlacement = (org.opengis.style.PointPlacement) placement;
+            PointPlacementImpl copy = new PointPlacementImpl();
+            copy.setAnchorPoint( AnchorPointImpl.cast( pointPlacement.getAnchorPoint() ) );
+            copy.setDisplacement( DisplacementImpl.cast( pointPlacement.getDisplacement() ));
+            return copy;
+        }
+        return null;
+    }
 }

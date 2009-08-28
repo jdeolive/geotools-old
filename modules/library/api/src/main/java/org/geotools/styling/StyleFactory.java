@@ -27,7 +27,7 @@ import org.opengis.filter.expression.Expression;
  * Abstract base class for implementing style factories.
  * @source $URL$
  */
-public interface StyleFactory extends Factory {
+public interface StyleFactory extends Factory, org.opengis.style.StyleFactory {
     public TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts, Halo halo,
         Expression label, LabelPlacement labelPlacement, String geometryPropertyName);
 

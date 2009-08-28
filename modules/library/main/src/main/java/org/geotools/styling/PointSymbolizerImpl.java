@@ -24,7 +24,6 @@ import javax.measure.unit.Unit;
 import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.Utilities;
 
-import org.opengis.style.Description;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
@@ -40,8 +39,8 @@ import org.opengis.util.Cloneable;
  */
 public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
     
-    private final Description description;
-    private final String name;
+    private Description description;
+    private String name;
     private Unit<Length> uom;
     private String geometryPropertyName = null;
     private Graphic graphic = new GraphicImpl();
@@ -71,8 +70,16 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+    
     public Description getDescription() {
         return description;
+    }
+    
+    public void setDescription(org.geotools.styling.Description description) {
+        this.description = DescriptionImpl.cast(description);
     }
     
     /**

@@ -235,7 +235,7 @@ public class FontImpl implements Font, Cloneable {
      * Utility method to capture the default font in one place.
      * @return
      */
-    public static Font createDefault( FilterFactory filterFactory ) {
+    static Font createDefault( FilterFactory filterFactory ) {
         Font font = new FontImpl();
         try {
             font.setSize(filterFactory.literal(

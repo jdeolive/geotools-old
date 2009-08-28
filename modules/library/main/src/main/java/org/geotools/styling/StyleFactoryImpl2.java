@@ -34,6 +34,7 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.PropertyName;
 import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.ColorReplacement;
 import org.opengis.style.ContrastMethod;
@@ -278,27 +279,57 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return null;
     }
     
-    public org.opengis.style.Stroke stroke(GraphicFill fill, Expression color, Expression opacity,
+    public Stroke stroke(GraphicFill fill, Expression color, Expression opacity,
             Expression width, Expression join, Expression cap, float[] dashes, Expression offset) {
         return null;
     }
     
-    public org.opengis.style.Stroke stroke(GraphicStroke stroke, Expression color,
+    public Stroke stroke(GraphicStroke stroke, Expression color,
             Expression opacity, Expression width, Expression join, Expression cap, float[] dashes,
             Expression offset) {
-        return null;
+        Stroke s = new StrokeImpl();
+        s.setColor(color);
+        s.setWidth(width);
+        s.setOpacity(opacity);
+        s.setLineJoin(join);
+        s.setLineCap(cap);
+        s.setDashArray(dashes);
+        s.setDashOffset(offset);
+        
+        //s(graphicFill);
+        s.setGraphicStroke(GraphicImpl.cast(stroke));
+        
+        return s;
     }
     
-    public org.opengis.style.Style style(String name, Description description, boolean isDefault,
+    public Style style(String name, Description description, boolean isDefault,
             List<org.opengis.style.FeatureTypeStyle> featureTypeStyles,
             org.opengis.style.Symbolizer defaultSymbolizer) {
         return null;
     }
     
-    public org.opengis.style.TextSymbolizer textSymbolizer(String name, Expression geometry,
+    public TextSymbolizer textSymbolizer(String name, Expression geometry,
             Description description, Unit<?> unit, Expression label, org.opengis.style.Font font,
             org.opengis.style.LabelPlacement placement, org.opengis.style.Halo halo,
             org.opengis.style.Fill fill) {
-        return null;
+
+        TextSymbolizerImpl tSymb = new TextSymbolizerImpl();
+        tSymb.setFill(FillImpl.cast(fill));
+        
+        // TODO font handling
+
+        tSymb.setGeometryPropertyName(((PropertyName)geometry).getPropertyName());
+        tSymb.setHalo( HaloImpl.cast(halo));
+        tSymb.setLabel(label);
+        if( placement instanceof LinePlacement){
+            tSymb.setLabelPlacement( LinePlacementImpl.cast( placement));
+        }
+        else {
+            tSymb.setLabelPlacement( PointPlacementImpl.cast( placement));
+        }
+        //tSymb.setGraphic( GraphicImpl.cast(graphic));
+        tSymb.setDescription(DescriptionImpl.cast(description));
+        
+        return tSymb;
     }
 }

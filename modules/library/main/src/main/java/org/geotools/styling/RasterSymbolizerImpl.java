@@ -26,7 +26,6 @@ import org.geotools.factory.GeoTools;
 import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
-import org.opengis.style.Description;
 import org.opengis.style.OverlapBehavior;
 import org.opengis.style.StyleVisitor;
 
@@ -39,10 +38,10 @@ import org.opengis.style.StyleVisitor;
  */
 public class RasterSymbolizerImpl implements RasterSymbolizer {
     
-    private final Description description;
-    private final String name;
+    private DescriptionImpl description;
+    private String name;
     private Unit<Length> uom;
-    private final OverlapBehavior behavior;
+    private OverlapBehavior behavior;
     
     // TODO: make container ready
     private FilterFactory filterFactory;
@@ -67,7 +66,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
         this.filterFactory = factory;
         this.opacity = filterFactory.literal(1.0);
         this.overlap = filterFactory.literal(OverlapBehavior.RANDOM);
-        this.description = desc;
+        this.description = DescriptionImpl.cast(desc);
         this.name = name;
         this.uom = uom;
         this.behavior = behavior;
@@ -77,11 +76,18 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public String getName() {
         return name;
     }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public Description getDescription() {
+    public DescriptionImpl getDescription() {
         return description;
     }
     
+    public void setDescription(Description description) {
+        this.description = DescriptionImpl.cast(description);
+    }
     public Unit<Length> getUnitOfMeasure() {
         return uom;
     }
@@ -286,6 +292,10 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     
     public OverlapBehavior getOverlapBehavior() {
         return behavior;
+    }
+    
+    public void setOverlapBehavior(OverlapBehavior overlapBehavior) {
+        this.behavior = overlapBehavior;
     }
 
     /**

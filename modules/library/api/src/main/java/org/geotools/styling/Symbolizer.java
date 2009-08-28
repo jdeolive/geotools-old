@@ -77,8 +77,30 @@ public interface Symbolizer extends org.opengis.style.Symbolizer{
      *     <li>{@code pixel}</li>
      * </ul>
      * <p>
-     * 
+     * @since SymbologyEncoding 1.1
      * @param uom can be null, which indicates usage of the pixel unit. 
      */
     void setUnitOfMeasure(Unit<Length> uom);
+    
+    public Description getDescription();
+    
+    /**
+     * Tile and Abstract of Symbolzer.
+     * 
+     * @since SymbologyEncoding 1.1
+     * @param description
+     */
+    void setDescription(Description description);    
+    
+    /**
+     * Name of symbolizer; not always human readable.
+     * <p>
+     * Please consider getDescription().getTitle() as an alternative if
+     * presenting this symbolizer in a user interface.
+     * 
+     * @since SymbologyEncoding 1.1
+     * @param name
+     */
+    void setName( String name );    
+    
 }

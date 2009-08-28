@@ -264,4 +264,19 @@ public class FillImpl implements Fill, Cloneable {
 
         return false;
     }
+
+    static Fill cast(org.opengis.style.Fill fill) {
+        if (fill == null) {
+            return null;
+        } else if (fill instanceof FillImpl) {
+            return (FillImpl) fill;
+        } else {
+            FillImpl copy = new FillImpl();
+            copy.color = fill.getColor();
+            copy.graphicFill = GraphicImpl.cast(fill.getGraphicFill());
+            copy.opacity = fill.getOpacity();
+            copy.backgroundColor = null; // does not have an equivalent
+            return copy;
+        }
+    }
 }

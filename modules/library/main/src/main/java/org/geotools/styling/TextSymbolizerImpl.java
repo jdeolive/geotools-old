@@ -43,8 +43,8 @@ import org.opengis.util.Cloneable;
  */
 public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
     
-    private final Description desc;
-    private final String name;
+    private DescriptionImpl desc;
+    private String name;
     private Unit<Length> uom;
     private Font font;
     
@@ -74,7 +74,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
     
     protected TextSymbolizerImpl( FilterFactory factory, Description desc, String name, Unit<Length> uom ) {
         this.filterFactory = factory;
-        this.desc = desc;
+        this.desc = DescriptionImpl.cast(desc);
         this.uom = uom;
         this.name = name;
         fill = new FillImpl();
@@ -86,11 +86,18 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
     public String getName() {
         return name;
     }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public Description getDescription() {
+    public DescriptionImpl getDescription() {
         return desc;
     }
     
+    public void setDescription(org.geotools.styling.Description description) {
+        this.desc = DescriptionImpl.cast(description);
+    }
     public Unit<Length> getUnitOfMeasure() {
         return uom;
     }

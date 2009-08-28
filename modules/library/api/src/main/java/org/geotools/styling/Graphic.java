@@ -321,7 +321,7 @@ public interface Graphic extends org.opengis.style.Graphic,
     /**
      * @param offset Amount to offset graphic
      */
-    void setDisplacement(Displacement offset);
+    void setDisplacement(org.opengis.style.Displacement offset);
 
     /**
      * This parameter defines the rotation of a graphic in the clockwise
@@ -401,7 +401,7 @@ abstract class ConstantGraphic implements Graphic {
         cannotModifyConstant();
     }
 
-    public void setDisplacement(Displacement offset) {
+    public void setDisplacement(org.opengis.style.Displacement offset) {
         cannotModifyConstant();
     }
 

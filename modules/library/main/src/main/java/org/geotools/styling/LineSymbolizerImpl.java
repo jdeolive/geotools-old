@@ -23,7 +23,6 @@ import javax.measure.unit.Unit;
 import org.geotools.util.Utilities;
 
 import org.opengis.filter.expression.Expression;
-import org.opengis.style.Description;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
@@ -39,9 +38,9 @@ import org.opengis.util.Cloneable;
  */
 public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     
-    private final Description description;
-    private final String name;
-    private final Expression offset;
+    private Description description;
+    private String name;
+    private Expression offset;
     
     private Unit<Length> uom = null;
     private Stroke stroke = null;
@@ -66,11 +65,16 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     public String getName() {
         return name;
     }
-
+    public void setName(String name) {
+        this.name = name;
+    }
     public Description getDescription() {
         return description;
     }
     
+    public void setDescription(org.geotools.styling.Description description) {
+        this.description = DescriptionImpl.cast( description );
+    }
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
@@ -110,11 +114,15 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     }
 
     public void setUnitOfMeasure(Unit<Length> uom) {
-    	this.uom = uom;
-	}
+        this.uom = uom;
+    }
 
-	public Expression getPerpendicularOffset() {
+    public Expression getPerpendicularOffset() {
         return offset;
+    }
+    
+    public void setPerpendicularOffset(Expression offset) {
+        this.offset = offset;
     }
 
     /**

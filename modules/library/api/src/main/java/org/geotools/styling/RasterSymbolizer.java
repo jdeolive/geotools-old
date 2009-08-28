@@ -17,6 +17,7 @@
 package org.geotools.styling;
 
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.OverlapBehavior;
 
 
 /**
@@ -202,6 +203,13 @@ public interface RasterSymbolizer extends org.opengis.style.RasterSymbolizer,Sym
     Expression getOverlap();
 
     /**
+     * Set the overlap behavior.
+     * @param overlapBehavior
+     */
+    void setOverlapBehavior(OverlapBehavior overlapBehavior);
+
+
+    /**
      * The ColorMap element defines either the colors of a palette-type raster
      * source or the mapping of fixed-numeric pixel values to colors. For
      * example, a DEM raster giving elevations in meters above sea level can
@@ -362,4 +370,5 @@ public interface RasterSymbolizer extends org.opengis.style.RasterSymbolizer,Sym
      * @return The relevent symbolizer
      */
     Symbolizer getImageOutline();
+   
 }

@@ -17,6 +17,7 @@
 package org.geotools.styling;
 
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.Description;
 
 
 /**

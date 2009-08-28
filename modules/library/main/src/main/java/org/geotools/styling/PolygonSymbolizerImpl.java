@@ -23,8 +23,6 @@ import javax.measure.unit.Unit;
 import org.geotools.util.Utilities;
 
 import org.opengis.filter.expression.Expression;
-import org.opengis.style.Description;
-import org.opengis.style.Displacement;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
 
@@ -40,11 +38,11 @@ import org.opengis.util.Cloneable;
  */
 public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     
-    private final Description description;
-    private final String name;
-    private final Expression offset;
+    private DescriptionImpl description;
+    private String name;
+    private Expression offset;
     private Unit<Length> uom;
-    private final Displacement disp;
+    private DisplacementImpl disp;
     
     private Fill fill = new FillImpl();
     private Stroke stroke = new StrokeImpl();
@@ -67,20 +65,28 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
             Description desc){
         this.stroke = stroke;
         this.fill = fill;
-        this.disp = disp;
+        this.disp = DisplacementImpl.cast( disp );
         this.offset = offset;
         this.uom = uom;
         this.geometryName = geom;
         this.name = name;
-        this.description = desc;
+        this.description = DescriptionImpl.cast( desc );
     }
     
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+    
     public Description getDescription() {
         return description;
+    }
+    
+    public void setDescription(org.geotools.styling.Description description) {
+        this.description = DescriptionImpl.cast( description );
     }
     
     /**
@@ -120,17 +126,24 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     }
 
     public void setUnitOfMeasure(Unit<Length> uom) {
-    	this.uom = uom;
-	}
+        this.uom = uom;
+    }
 
     public Expression getPerpendicularOffset() {
         return offset;
+    }
+
+    public void setPerpendicularOffset(Expression offset ) {
+        this.offset = offset;
     }
     
     public Displacement getDisplacement() {
         return disp;
     }
 
+    public void setDisplacement(Displacement displacement) {
+        this.disp = DisplacementImpl.cast( displacement );
+    }
     /**
      * Provides the graphical-symbolization parameter to use to fill the area
      * of the geometry.

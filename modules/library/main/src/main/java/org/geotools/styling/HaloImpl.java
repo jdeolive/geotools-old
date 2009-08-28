@@ -41,10 +41,30 @@ public class HaloImpl implements Halo, Cloneable {
     private Fill fill = new FillImpl();
     private Expression radius = null;
 
+    /**
+     * Cast to HaloImpl (creating a copy if needed).
+     * @param halo
+     * @return HaloImpl equal to the provided halo
+     */
+    static HaloImpl cast( org.opengis.style.Halo halo ){
+        if( halo == null){
+            return null;
+        }
+        else if( halo instanceof HaloImpl){
+            return (HaloImpl) halo;
+        }
+        else {
+            HaloImpl copy = new HaloImpl();
+            copy.fill = FillImpl.cast( halo.getFill() );
+            copy.radius = halo.getRadius();
+            
+            return copy;
+        }
+    }
     public HaloImpl() {
         this( CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
     }
-
+    
     public HaloImpl(FilterFactory factory) {
         filterFactory = factory;
         init();

@@ -16,6 +16,8 @@
  */
 package org.geotools.styling;
 
+import org.opengis.filter.expression.Expression;
+
 
 /**
  * A symbolizer describes how a feature should appear on a map.
@@ -95,10 +97,17 @@ public interface LineSymbolizer extends org.opengis.style.LineSymbolizer, Symbol
      */
     void setStroke(Stroke stroke);
 
-    String getGeometryPropertyName();
-
     /**
      * @param geometry property name
      */
     void setGeometryPropertyName(String geometryPropertyName);
+
+    /**
+     * Define an offset to draw lines in parallel to the original geometry.
+     * 
+     * @param offset
+     *            Distance in UOMs to offset line; left-hand side is positive; right-hand side is
+     *            negative; the default value is 0
+     */
+    void setPerpendicularOffset(Expression offset);
 }
