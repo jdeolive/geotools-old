@@ -50,8 +50,8 @@ import org.xml.sax.SAXException;
  * 
  * @author rpetty
  * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/app-schema/webservice/src/main/java/org/geotools
- *         /data/wfs/WSDataStoreFactory.java $
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/app-schema/webservice/
+ *         src/main/java/org/geotools /data/wfs/WSDataStoreFactory.java $
  * @see XmlDataStore
  * @see WSProtocol
  * @see WSStrategy
@@ -133,21 +133,21 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
         description = "Positive integer used as a hard limit for the amount of Features to retrieve"
                 + " for each FeatureType. A value of zero or not providing this parameter means no limit.";
         parametersInfo[5] = new WSFactoryParam(name, clazz, description, Integer.valueOf(0));
-        
+
         name = "WSDataStoreFactory:TEMPLATE_NAME";
         clazz = String.class;
         description = "File name of the template used to create the XML request";
         parametersInfo[6] = new WSFactoryParam(name, clazz, description);
-        
+
         name = "WSDataStoreFactory:TEMPLATE_DIRECTORY";
         clazz = String.class;
         description = "Directory where the template used to create the XML request has been put";
         parametersInfo[7] = new WSFactoryParam(name, clazz, description);
-           
+
         name = "WSDataStoreFactory:CAPABILITIES_FILE_LOCATION";
         clazz = String.class;
         description = "The location of the capabilities file";
-        parametersInfo[8] = new WSFactoryParam(name, clazz, description);        
+        parametersInfo[8] = new WSFactoryParam(name, clazz, description);
     }
 
     /**
@@ -196,13 +196,13 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
      * for each FeatureType. A value of zero or not providing this parameter means no limit.
      */
     public static final WSFactoryParam<Integer> MAXFEATURES = parametersInfo[5];
-    
+
     public static final WSFactoryParam<String> TEMPLATE_NAME = parametersInfo[6];
-    
+
     public static final WSFactoryParam<String> TEMPLATE_DIRECTORY = parametersInfo[7];
-    
+
     public static final WSFactoryParam<String> CAPABILITIES_FILE_LOCATION = parametersInfo[8];
-        
+
     protected Map<Map, XmlDataStore> perParameterSetDataStoreCache = new HashMap();
 
     /**
@@ -219,47 +219,42 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
      * @see org.geotools.data.DataStoreFactorySpi#createDataStore(java.util.Map)
      */
     public XmlDataStore createDataStore(final Map params) throws IOException {
-        
+
         if (perParameterSetDataStoreCache.containsKey(params)) {
             return perParameterSetDataStoreCache.get(params);
         }
-        final URL getQueryRequest = (URL) GET_CONNECTION_URL.lookUp(params);        
+        final URL getQueryRequest = (URL) GET_CONNECTION_URL.lookUp(params);
         final String user = (String) USERNAME.lookUp(params);
         final String pass = (String) PASSWORD.lookUp(params);
-        final int timeoutMillis = (Integer) TIMEOUT.lookUp(params);        
-        final boolean tryGZIP = (Boolean) TRY_GZIP.lookUp(params);    
+        final int timeoutMillis = (Integer) TIMEOUT.lookUp(params);
+        final boolean tryGZIP = (Boolean) TRY_GZIP.lookUp(params);
         final Integer maxFeatures = (Integer) MAXFEATURES.lookUp(params);
         final String templateName = (String) TEMPLATE_NAME.lookUp(params);
         final String templateDirectory = (String) TEMPLATE_DIRECTORY.lookUp(params);
-        final String capabilitiesDirectory = (String) CAPABILITIES_FILE_LOCATION.lookUp(params);        
-                
+        final String capabilitiesDirectory = (String) CAPABILITIES_FILE_LOCATION.lookUp(params);
+
         if (((user == null) && (pass != null)) || ((pass == null) && (user != null))) {
             throw new IOException(
                     "Cannot define only one of USERNAME or PASSWORD, must define both or neither");
         }
 
-        
-
         final HTTPProtocol http = new SimpleHttpProtocol();
         http.setTryGzip(tryGZIP);
         http.setAuth(user, pass);
-        http.setTimeoutMillis(timeoutMillis);          
+        http.setTimeoutMillis(timeoutMillis);
 
-        InputStream capsIn = 
-            new FileInputStream(new File(capabilitiesDirectory));             
-        
-        WSStrategy strategy = determineCorrectStrategy(templateDirectory,
-                templateName);        
+        InputStream capsIn = new FileInputStream(new File(capabilitiesDirectory));
+
+        WSStrategy strategy = determineCorrectStrategy(templateDirectory, templateName);
         WS_Protocol ws = new WS_Protocol(capsIn, strategy, getQueryRequest, http);
         final XmlDataStore dataStore = new WS_DataStore(ws);
-        dataStore.setMaxFeatures(maxFeatures);        
-        
+        dataStore.setMaxFeatures(maxFeatures);
+
         perParameterSetDataStoreCache.put(new HashMap(params), dataStore);
         return dataStore;
     }
 
-    static WSStrategy determineCorrectStrategy(String templateDirectory,
-            String templateName) {
+    static WSStrategy determineCorrectStrategy(String templateDirectory, String templateName) {
         WSStrategy strategy = new DefaultWSStrategy(templateDirectory, templateName);
 
         logger.info("Using WS Strategy: " + strategy.getClass().getName());
@@ -327,7 +322,7 @@ public class WSDataStoreFactory extends AbstractDataStoreFactory {
         try {
             // manditory fields
             GET_CONNECTION_URL.lookUp(params);
-            TEMPLATE_NAME.lookUp(params);            
+            TEMPLATE_NAME.lookUp(params);
             TEMPLATE_DIRECTORY.lookUp(params);
             CAPABILITIES_FILE_LOCATION.lookUp(params);
         } catch (Exception e) {

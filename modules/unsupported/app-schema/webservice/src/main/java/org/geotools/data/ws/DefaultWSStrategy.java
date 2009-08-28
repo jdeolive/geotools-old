@@ -40,6 +40,7 @@ import org.geotools.data.ws.protocol.ws.GetFeature;
 import org.geotools.data.ws.protocol.ws.WSProtocol;
 import org.geotools.factory.GeoTools;
 import org.geotools.filter.Capabilities;
+import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
 import org.geotools.util.logging.Logging;
 
@@ -169,16 +170,24 @@ public class DefaultWSStrategy implements WSStrategy {
         getFeature.getQuery().add(wsQuery);
 
         Map root = new HashMap();
-        Filter f = query.getFilter();
+        Filter filter = query.getFilter();
         Integer maxfeatures = query.getMaxFeatures();
         if (maxfeatures == null) {
             maxfeatures = new Integer(0);
         }
-        String filterString = f.toString();
-        LOGGER.log(Level.WARNING, "Filter to search on: " + filterString);
+        //provide a variety of ways to express the data sent to a webservice
+        //more can be added, and referenced in the template via by the name added to root.
+        String filterString = filter.toString();
+        String cqlFilter = CQL.toCQL(filter);
+        
+        LOGGER.log(Level.WARNING, "Filter string: " + filterString);
+        LOGGER.log(Level.WARNING, "Filter CQL: " + filterString);
         LOGGER.log(Level.WARNING, "MaxFeatures: " + maxfeatures);
+        
         root.put("filterString", filterString);
+        root.put("filterCql", cqlFilter);
         root.put("maxfeatures", maxfeatures);
+        root.put("query", wsQuery);        
 
         return root;
     }

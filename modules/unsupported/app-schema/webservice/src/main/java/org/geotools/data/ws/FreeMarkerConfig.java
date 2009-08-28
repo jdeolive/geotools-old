@@ -29,17 +29,14 @@ public class FreeMarkerConfig {
     
     public static void createConfiguration(String directoryPath) {
         Configuration cfg = new Configuration();
-        // Specify the data source where the template files come from.
-        // Here I set a file directory for it:
+
         try {
            cfg.setDirectoryForTemplateLoading(
                     new File(directoryPath));
        } catch (IOException e) {
-           // TODO Auto-generated catch block
-           e.printStackTrace();
+           throw new RuntimeException(e);
        }
-        // Specify how templates will see the data-model. This is an advanced topic...
-        // but just use this:
+
         cfg.setObjectWrapper(new DefaultObjectWrapper()); 
     }
     
