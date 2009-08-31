@@ -53,10 +53,10 @@ public class ShpFilesLockingTest extends TestCase implements FileWriter {
         
 
         String path = "somefile.shp";
-        shpFiles = new ShpFiles("file://"+path);
+        shpFiles = new ShpFiles( new File( path ));
 
         File file = shpFiles.acquireReadFile(SHP, this);
-        assertEquals(path, file.getPath());
+        assertEquals( new File(path).getCanonicalPath(), file.getPath());
         assertEquals(1, shpFiles.numberOfLocks());
         
         shpFiles.unlockRead(file, this);
@@ -74,10 +74,10 @@ public class ShpFilesLockingTest extends TestCase implements FileWriter {
         
 
         String path = "somefile.shp";
-        shpFiles = new ShpFiles("file://"+path);
+        shpFiles = new ShpFiles( new File( path ));
 
         File file = shpFiles.acquireWriteFile(SHP, this);
-        assertEquals(path, file.getPath());
+        assertEquals(new File( path ).getCanonicalPath(), file.getPath());
         assertEquals(1, shpFiles.numberOfLocks());
         
         shpFiles.unlockWrite(file, this);

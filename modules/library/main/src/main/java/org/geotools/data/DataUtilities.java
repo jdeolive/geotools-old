@@ -41,12 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
-import java.util.Map.Entry;
-
-import javax.management.RuntimeErrorException;
 
 import org.geotools.data.collection.CollectionDataStore;
 import org.geotools.factory.CommonFactoryFinder;
@@ -66,7 +61,6 @@ import org.geotools.feature.type.AttributeTypeImpl;
 import org.geotools.feature.type.GeometryDescriptorImpl;
 import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.filter.FilterAttributeExtractor;
-import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.CRS;
@@ -75,7 +69,6 @@ import org.geotools.util.Converters;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
-import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -83,46 +76,9 @@ import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
-import org.opengis.filter.And;
-import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.FilterVisitor;
-import org.opengis.filter.Id;
-import org.opengis.filter.IncludeFilter;
-import org.opengis.filter.Not;
-import org.opengis.filter.Or;
-import org.opengis.filter.PropertyIsBetween;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsGreaterThan;
-import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
-import org.opengis.filter.PropertyIsLessThan;
-import org.opengis.filter.PropertyIsLessThanOrEqualTo;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.PropertyIsNotEqualTo;
-import org.opengis.filter.PropertyIsNull;
-import org.opengis.filter.expression.Add;
-import org.opengis.filter.expression.Divide;
 import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.ExpressionVisitor;
-import org.opengis.filter.expression.Function;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.Multiply;
-import org.opengis.filter.expression.NilExpression;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.expression.Subtract;
-import org.opengis.filter.spatial.BBOX;
-import org.opengis.filter.spatial.Beyond;
-import org.opengis.filter.spatial.Contains;
-import org.opengis.filter.spatial.Crosses;
-import org.opengis.filter.spatial.DWithin;
-import org.opengis.filter.spatial.Disjoint;
-import org.opengis.filter.spatial.Equals;
-import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.spatial.Overlaps;
-import org.opengis.filter.spatial.Touches;
-import org.opengis.filter.spatial.Within;
-import org.opengis.metadata.Identifier;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -282,13 +238,13 @@ public class DataUtilities {
         if( !"file".equals(url.getProtocol())){
             return null; // not a File URL
         }
-        String string = url.toExternalForm();        
+        String string = url.toExternalForm();
         if( string.contains("+")){
             // this represents an invalid URL created using either
             // file.toURL(); or
             // file.toURI().toURL() on a specific version of Java 5 on Mac
             string = string.replace("+","%2B");
-        }        
+        }
         try {
             string = URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -296,8 +252,9 @@ public class DataUtilities {
         }
         
         String path3;
+
         String simplePrefix = "file:/";
-        String standardPrefix = simplePrefix+"/";
+        String standardPrefix = "file://";
         String os = System.getProperty("os.name");
         
         if (os.toUpperCase().contains("WINDOWS") && string.startsWith(standardPrefix)) {
@@ -305,18 +262,18 @@ public class DataUtilities {
         	path3 = string.substring(standardPrefix.length()-2);
         }
         else if( string.startsWith(standardPrefix) ){
-            path3 = string.substring(standardPrefix.length());
+            path3 = string.substring( standardPrefix.length() );
         } else if( string.startsWith(simplePrefix)){
-            path3 = string.substring(simplePrefix.length()-1);            
+            path3 = string.substring( simplePrefix.length()-1 );            
         } else {
-        String auth = url.getAuthority();
-        String path2 = url.getPath().replace("%20", " ");
-        File f = null;
-        if (auth != null && !auth.equals("")) {
-            path3 = "//" + auth + path2;
-        } else {
-            path3 = path2;
-        }
+            String auth = url.getAuthority();
+            String path2 = url.getPath().replace("%20", " ");
+            File f = null;
+            if (auth != null && !auth.equals("")) {
+                path3 = "//" + auth + path2;
+            } else {
+                path3 = path2;
+            }
         }
         
         return new File(path3);
