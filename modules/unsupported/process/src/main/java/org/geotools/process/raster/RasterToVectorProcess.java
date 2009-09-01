@@ -22,6 +22,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 import java.awt.geom.Point2D;
@@ -38,6 +39,7 @@ import javax.media.jai.TiledImage;
 import javax.media.jai.iterator.RandomIter;
 import javax.media.jai.iterator.RandomIterFactory;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -102,6 +104,9 @@ public class RasterToVectorProcess extends AbstractProcess {
 
     private int minRasterCol, maxRasterCol;
 
+    /* Input coverage cell width in the X direction */
+    private double cellWidthX;
+
     // positions in curData matrix just to avoid confusion
     private static final int TL = 0;
     private static final int TR = 1;
@@ -132,6 +137,11 @@ public class RasterToVectorProcess extends AbstractProcess {
      */
     private List<LineString> lines;
     
+    /*
+     * Factory for construction of JTS Geometry objects
+     */
+    private GeometryFactory geomFactory;
+
     /*
      * list of corner touches between possibly separate polygons of
      * the same value. Each Coordinate has x:y = col:row and z set
@@ -270,7 +280,6 @@ public class RasterToVectorProcess extends AbstractProcess {
         FeatureCollection<SimpleFeatureType,SimpleFeature> features = FeatureCollections.newCollection();
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(type);
 
-        InteriorPointArea ipa;
         Point2D p = new Point2D.Double();
         double[] bandData = new double[grid.getNumSampleDimensions()];
 
@@ -289,8 +298,28 @@ public class RasterToVectorProcess extends AbstractProcess {
                 progress.progress(((float) index) / ((float) size));
 
                 Polygon poly = (Polygon) i.next();
-                ipa = new InteriorPointArea(poly);
+                InteriorPointArea ipa = new InteriorPointArea(poly);
                 Coordinate c = ipa.getInteriorPoint();
+                Point inside = geomFactory.createPoint(c);
+
+                if (!poly.contains(inside)) {
+                    // try another method to generate an interior point
+                    boolean found = false;
+                    for (Coordinate ringC : poly.getExteriorRing().getCoordinates()) {
+                        c.x = ringC.x + cellWidthX / 2;
+                        c.y = ringC.y;
+                        inside = geomFactory.createPoint(c);
+                        if (poly.contains(inside)) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        throw new IllegalStateException("Can't locate interior point for polygon");
+                    }
+                }
+
                 p.setLocation(c.x, c.y);
                 bandData = grid.evaluate(p, bandData);
 
@@ -316,9 +345,7 @@ public class RasterToVectorProcess extends AbstractProcess {
         try {
             progress.started();
             this.coverage = coverage;
-            // note we cannot call getData() since that would load
-            // the entire raster into memory
-            // this.raster = coverage.getRenderedImage().getData();
+            GridGeometry2D gridGeom = coverage.getGridGeometry();
 
             // image used to sample the grid coverage
             image = new TiledImage(coverage.getRenderedImage(), true);
@@ -332,7 +359,11 @@ public class RasterToVectorProcess extends AbstractProcess {
             minRasterCol = image.getMinX();
             maxRasterCol = minRasterCol + image.getWidth() - 1;
 
+            cellWidthX = gridGeom.getEnvelope2D().getSpan(gridGeom.axisDimensionX) /
+                         gridGeom.getGridRange2D().getSpan(gridGeom.gridDimensionX);
+
             lines = new ArrayList<LineString>();
+            geomFactory = new GeometryFactory();
             polygonizer = new Polygonizer();
 
             progress.progress(0.8f);
@@ -674,8 +705,7 @@ public class RasterToVectorProcess extends AbstractProcess {
         Coordinate[] coords = new Coordinate[] { new Coordinate(rwStart.getX(), rwStart.getY()),
                 new Coordinate(rwEnd.getX(), rwEnd.getY()) };
 
-        GeometryFactory gf = new GeometryFactory();
-        lines.add(gf.createLineString(coords));
+        lines.add(geomFactory.createLineString(coords));
     }
 
     /**
