@@ -16,10 +16,13 @@
  */
 package org.geotools.gml3;
 
-import org.eclipse.xsd.XSDSchema;
-import org.eclipse.xsd.util.XSDSchemaLocationResolver;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Set;
+
+import org.eclipse.xsd.XSDSchema;
+import org.geotools.data.DataUtilities;
 import org.geotools.xml.SchemaLocationResolver;
 import org.geotools.xml.XSD;
 
@@ -100,7 +103,13 @@ public class ApplicationSchemaXSD extends XSD {
                         }
 
                         if (schemaLocationFolder.startsWith("file:")) {
-                            schemaLocationFolder = schemaLocationFolder.substring(5);
+                            try {
+                                schemaLocationFolder = DataUtilities.urlToFile(
+                                        new URL(schemaLocationFolder)).getPath();
+                            } catch (MalformedURLException e) {
+                                // this can't be a good outcome, but try anyway
+                                schemaLocationFolder = schemaLocationFolder.substring("file:".length());
+                            }
                         }
 
                         File locationFile = new File(schemaLocationFolder, location);
