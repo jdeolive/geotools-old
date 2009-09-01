@@ -268,8 +268,7 @@ public final class MrSIDTest extends GDALTestCase {
         Assert.assertFalse(hasWriteParams);
 
         // Testing sections of code involving URLs
-        final StringBuilder sb = new StringBuilder("file:///").append(file.getAbsolutePath());
-        final URL url = new URL(sb.toString());
+        final URL url = new URL("file://"+file.getAbsolutePath());
         reader = (MrSIDReader) format.getReader(url);
         reader.getInfo();
         reader.dispose();
