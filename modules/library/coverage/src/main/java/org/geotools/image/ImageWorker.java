@@ -48,6 +48,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
+
 import com.sun.media.jai.util.ImageUtil;
 
 import org.geotools.factory.Hints;
@@ -1080,7 +1081,7 @@ public class ImageWorker {
      * @see FormatDescriptor
      */
     public final ImageWorker forceComponentColorModel(boolean checkTransparent) {
-    	final ColorModel cm = image.getColorModel();
+        final ColorModel cm = image.getColorModel();
         if (cm instanceof ComponentColorModel) {
             // Already an component color model - nothing to do.
             return this;
@@ -1746,13 +1747,12 @@ public class ImageWorker {
      *     "BandSelect" --> "Lookup" --> "BandCombine" --> "Extrema" --> "Binarize" -->
      *     "Format" --> "BandSelect" (one more time) --> "Multiply" --> "BandMerge".
      *
-     * I would expect more speed and memory efficiency by writting our own JAI operation (PointOp
-     * subclass) doing that in one step. It would also be more determinist (our "binarize" method
+     * I would expect more speed and memory efficiency by writing our own JAI operation (PointOp
+     * subclass) doing that in one step. It would also be more deterministic (our "binarize" method
      * depends on statistics on pixel values) and avoid unwanted side-effect like turning black
      * color (RGB = 0,0,0) to transparent one. It would also be easier to maintain I believe.
      */
     @Deprecated
-    @SuppressWarnings("fallthrough")
     public final ImageWorker maskComponentColorModelByte(final Color transparentColor) {
         assert image.getColorModel() instanceof ComponentColorModel;
         assert image.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE;
