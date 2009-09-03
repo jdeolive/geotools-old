@@ -122,7 +122,8 @@ public class RasterToVectorProcessTest {
         outsideValues.add(0d);
         
         ProgressListener progress = null;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = RasterToVectorProcess.process(grid, 0, outsideValues, progress);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc =
+                RasterToVectorProcess.process(grid, 0, null, outsideValues, progress);
         
         double perimeter = 0;
         double area = 0;

@@ -25,7 +25,9 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,21 +37,25 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.media.jai.TiledImage;
 import javax.media.jai.iterator.RandomIter;
 import javax.media.jai.iterator.RandomIterFactory;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.InvalidGridGeometryException;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.geometry.Envelope2D;
+import org.geotools.process.ProcessException;
 import org.geotools.process.ProcessFactory;
 import org.geotools.process.impl.AbstractProcess;
+import org.geotools.referencing.CRS;
 import org.geotools.util.NullProgressListener;
 import org.geotools.util.SubProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.ProgressListener;
@@ -99,13 +105,12 @@ public class RasterToVectorProcess extends AbstractProcess {
      */
     private MathTransform2D transformLR;
 
-    // raster row and col bounds
-    private int minRasterRow, maxRasterRow;
+    /* Image bounds for vectorizing */
+    private Rectangle imageBounds;
 
-    private int minRasterCol, maxRasterCol;
-
-    /* Input coverage cell width in the X direction */
+    /* Input coverage cell width in the X and Y directions */
     private double cellWidthX;
+    private double cellWidthY;
 
     // positions in curData matrix just to avoid confusion
     private static final int TL = 0;
@@ -153,7 +158,7 @@ public class RasterToVectorProcess extends AbstractProcess {
     /*
      * input image
      */
-    private TiledImage image;
+    private RenderedImage image;
     
     /**
      * Package-access constructor. Client code should use the public
@@ -181,17 +186,23 @@ public class RasterToVectorProcess extends AbstractProcess {
      * @param monitor
      * @return a Map containing result objects 
      */
-    public Map<String, Object> execute(Map<String, Object> input, ProgressListener monitor) {
-        GridCoverage2D raster = (GridCoverage2D) input.get(RasterToVectorFactory.RASTER.key);
+    public Map<String, Object> execute(Map<String, Object> input, ProgressListener monitor)
+            throws ProcessException {
+
+        GridCoverage2D cov = (GridCoverage2D) input.get(RasterToVectorFactory.RASTER.key);
+
         int band = (Integer) input.get(RasterToVectorFactory.BAND.key);
+
+        Envelope2D bounds = (Envelope2D) input.get(RasterToVectorFactory.BOUNDS.key);
+
         Collection<Double> outsideValues = (Collection<Double>)input.get(
                 RasterToVectorFactory.OUTSIDE.key);
 
-        FeatureCollection features = convert(raster, band, outsideValues, monitor);
+        FeatureCollection features = convert(cov, band, bounds, outsideValues, monitor);
 
         Map<String, Object> results = new HashMap<String, Object>();
         results.put(RasterToVectorFactory.RESULT_FEATURES.key, features);
-        return results;        
+        return results;
     }
     
     /**
@@ -199,65 +210,93 @@ public class RasterToVectorProcess extends AbstractProcess {
      * <p>
      * The process interface is useful for advertising functionality to
      * dynamic applications, but for 'hands on' coding this method is much more
-     * convenient than working via the {@linkplain org.geotools.process.Process#execute }.
-     * 
-     * @param gridCoverage
-     *            the input coverage
-     * @param band
-     *            the index of the band to be vectorized
+     * convenient than working via {@linkplain org.geotools.process.Process#execute }.
      *
-     * @param outsideValues
-     *            a collection of one or more values which represent 'outside' or no data
-     *
-     * @param progress
-     *            an optional ProgressListener (may be null)
+     * @param cov the input coverage
+     * @param band the index of the band to be vectorized
+     * @param bounds bounds of the area (in world coordinates) to vectorize; if {@code null}
+     *            the whole coverage
+     * @param outsideValues a collection of one or more values which represent 'outside' or no data
+     * @param progress an optional ProgressListener (may be null)
      *
      * @return a FeatureCollection containing simple polygon features
-     * 
+     *
      */
-    public static FeatureCollection<SimpleFeatureType,SimpleFeature> process(GridCoverage2D gridCoverage, int band, Collection<Double> outsideValues,
-            ProgressListener progress){
+    public static FeatureCollection<SimpleFeatureType,SimpleFeature> process(
+            GridCoverage2D cov,
+            int band,
+            Envelope2D bounds,
+            Collection<Double> outsideValues,
+            ProgressListener progress) throws ProcessException {
+
         RasterToVectorFactory factory = new RasterToVectorFactory();
         RasterToVectorProcess process =  factory.create();
-        
-        return process.convert(gridCoverage, band, outsideValues, progress);
+        return process.convert(cov, band, bounds, outsideValues, progress);
     }
 
     /**
      * Convert the input raster coverage to vector polygons. This is a package-access method.
-     * Client code should start the process via the 
+     * Client code should start the process via the
      * {@linkplain org.geotools.process.Process#execute } method.
-     * 
-     * @param cover
-     *            the input coverage
-     * @param band
-     *            the index of the band to be vectorized
-     * @param outside
-     *            a collection of one or more values which represent 'outside' or no data
+     *
+     * @param cov the input coverage
+     * @param band the index of the band to be vectorized
+     * @param bounds of the area to vectorize in world coords (null means whole coverage)
+     * @param outside a collection of one or more values which represent 'outside' or no data
+     * @param progress a progress listener (may be null)
      *
      * @return a FeatureCollection containing simple polygon features
-     * 
+     *
      */
-    private FeatureCollection<SimpleFeatureType,SimpleFeature> convert(GridCoverage2D grid, int band, Collection<Double> outsideValues,
-            ProgressListener progress) {
+    private FeatureCollection<SimpleFeatureType,SimpleFeature> convert(
+            GridCoverage2D cov,
+            int band,
+            Envelope2D bounds,
+            Collection<Double> outsideValues,
+            ProgressListener progress) throws ProcessException {
+
         if (progress == null) {
             progress = new NullProgressListener();
         }
+
+        if (bounds == null) {
+            bounds = cov.getEnvelope2D();
+
+        } else {
+            CoordinateReferenceSystem sourceCRS = bounds.getCoordinateReferenceSystem();
+            CoordinateReferenceSystem targetCRS = cov.getCoordinateReferenceSystem();
+            if (sourceCRS != null) {
+                if (!CRS.equalsIgnoreMetadata(sourceCRS, targetCRS)) {
+                    throw new ProcessException("CRS of bounds must match that of the coverage");
+                }
+            }
+
+            bounds = new Envelope2D(targetCRS, cov.getEnvelope2D().createIntersection(bounds));
+            if (bounds == null || bounds.isEmpty()) {
+                throw new ProcessException("Specified bounds lie wholly outside of coverage");
+            }
+        }
+
+
         try {
-            
-            initialize(grid, new SubProgressListener(progress, 0.3f));
+
+            initialize(cov, bounds, new SubProgressListener(progress, 0.3f));
             vectorizeAndCollectBoundaries(band, outsideValues, new SubProgressListener(progress, 0.3f));
-    
+
             /***********************************************************
              * Assemble the LineStringss into Polygons, and create the collection of features to return
-             * 
+             *
              ***********************************************************/
-            SimpleFeatureType schema = RasterToVectorFactory.getSchema(grid
+            SimpleFeatureType schema = RasterToVectorFactory.getSchema(cov
                     .getCoordinateReferenceSystem());
-            FeatureCollection<SimpleFeatureType,SimpleFeature> features = assembleFeatures(grid, band, schema, new SubProgressListener(
+            FeatureCollection<SimpleFeatureType,SimpleFeature> features = assembleFeatures(cov, band, schema, new SubProgressListener(
                     progress, 0.4f));
-    
+
             return features;
+
+        } catch (Exception ex) {
+            throw new ProcessException(ex);
+
         } finally {
             progress.complete();
         }
@@ -337,30 +376,34 @@ public class RasterToVectorProcess extends AbstractProcess {
     /**
      * Set convenience data fields and create the data objects
      * @param coverage the input grid coverage
+     * @param bounds bounds (world coords) of the area to be vectorized
      * @param progress a progress listener (may be null)
      */
-    private void initialize(GridCoverage2D coverage, ProgressListener progress) {
+    private void initialize(GridCoverage2D coverage, Envelope2D bounds, ProgressListener progress)
+            throws TransformException, InvalidGridGeometryException {
+
         if (progress == null)
             progress = new NullProgressListener();
+
         try {
             progress.started();
             this.coverage = coverage;
             GridGeometry2D gridGeom = coverage.getGridGeometry();
 
             // image used to sample the grid coverage
-            image = new TiledImage(coverage.getRenderedImage(), true);
+            image = coverage.getRenderedImage();
 
             this.transformLR = coverage.getGridGeometry().getGridToCRS2D(
                     PixelOrientation.LOWER_RIGHT);
             progress.progress(0.3f);
 
-            minRasterRow = image.getMinY();
-            maxRasterRow = minRasterRow + image.getHeight() - 1;
-            minRasterCol = image.getMinX();
-            maxRasterCol = minRasterCol + image.getWidth() - 1;
+            imageBounds = coverage.getGridGeometry().worldToGrid(bounds);
 
             cellWidthX = gridGeom.getEnvelope2D().getSpan(gridGeom.axisDimensionX) /
                          gridGeom.getGridRange2D().getSpan(gridGeom.gridDimensionX);
+
+            cellWidthY = gridGeom.getEnvelope2D().getSpan(gridGeom.axisDimensionY) /
+                         gridGeom.getGridRange2D().getSpan(gridGeom.gridDimensionY);
 
             lines = new ArrayList<LineString>();
             geomFactory = new GeometryFactory();
@@ -369,9 +412,9 @@ public class RasterToVectorProcess extends AbstractProcess {
             progress.progress(0.8f);
 
             vertLines = new HashMap<Integer, LineSegment>();
-            
+
             cornerTouches = new ArrayList<Coordinate>();
-            
+
         } finally {
             progress.complete();
         }
@@ -392,23 +435,25 @@ public class RasterToVectorProcess extends AbstractProcess {
             // a 2x2 matrix of double values used as a moving window
             double[] curData = new double[4];
             RandomIter imageIter = RandomIterFactory.create(image, null);
-            
+
             double defOutside = (Double) outsideValues.toArray()[0];
 
             // we add a virtual border, one cell wide, coded as 'outside'
             // around the raster
-            for (int row = minRasterRow - 1; row <= maxRasterRow; row++) {
+            for (int row = imageBounds.y - 1; row < imageBounds.y + imageBounds.height; row++) {
                 if (progress.isCanceled()) {
                     throw new CancellationException();
                 }
-                progress.progress(((float) row) / ((float) maxRasterRow));
+
+                progress.progress(((float) row) / ((float) (imageBounds.y + imageBounds.height - 1)));
                 curData[TR] = curData[BR] = defOutside;
-                for (int col = minRasterCol - 1; col <= maxRasterCol; col++) {
+
+                for (int col = imageBounds.x - 1; col < imageBounds.x + imageBounds.width; col++) {
                     boolean[] ok = inDataWindow(row, col);
 
                     curData[TL] = curData[TR];
                     curData[BL] = curData[BR];
-                    
+
                     curData[TR] = (ok[TR] ? imageIter.getSampleDouble(col + 1, row, band) : defOutside);
                     if (outsideValues.contains(curData[TR])) {
                         curData[TR] = defOutside;
@@ -440,8 +485,8 @@ public class RasterToVectorProcess extends AbstractProcess {
     private boolean[] inDataWindow(int row, int col) {
         boolean[] ok = new boolean[4];
 
-        int rowflag = (row < minRasterRow ? -1 : (row >= maxRasterRow ? 1 : 0));
-        int colflag = (col < minRasterCol ? -1 : (col >= maxRasterCol ? 1 : 0));
+        int rowflag = (row < imageBounds.y ? -1 : (row >= imageBounds.y + imageBounds.height - 1 ? 1 : 0));
+        int colflag = (col < imageBounds.x ? -1 : (col >= imageBounds.x + imageBounds.width - 1 ? 1 : 0));
 
         ok[TL] = rowflag >= 0 && colflag >= 0;
         ok[TR] = rowflag >= 0 && colflag < 1;

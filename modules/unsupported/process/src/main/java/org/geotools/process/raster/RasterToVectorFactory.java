@@ -32,6 +32,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import java.util.Collections;
 import java.util.TreeMap;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.geometry.Envelope2D;
 
 
 /**
@@ -58,6 +59,14 @@ public class RasterToVectorFactory implements ProcessFactory {
     public static final Parameter<Integer> BAND = new Parameter<Integer>(
         "band", Integer.class, Text.text("Band"), Text.text("Index of band to vectorize"));
     
+    /**
+     * Bounds (in world coordinates) ot the area to vectorize; if {@code null}
+     * or absent the bounds of the coverage are used
+     */
+    public static final Parameter<Envelope2D> BOUNDS = new Parameter<Envelope2D>(
+        "bounds", Envelope2D.class, Text.text("Bounds"),
+        Text.text("Bounds of the area to vectorize"));
+
     /** 
      * The code(s) representing NODATA or outside the regions to be vectorized,
      * which will be supplied as a {@linkplain java.util.Collection} of Double values to the
@@ -73,6 +82,7 @@ public class RasterToVectorFactory implements ProcessFactory {
     static {
         parameterInfo.put(RASTER.key, RASTER);
         parameterInfo.put(BAND.key, BAND);
+        parameterInfo.put(BOUNDS.key, BOUNDS);
         parameterInfo.put(OUTSIDE.key, OUTSIDE);
     }
     
