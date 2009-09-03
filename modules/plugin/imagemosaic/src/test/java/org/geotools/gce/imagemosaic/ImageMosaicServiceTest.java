@@ -18,37 +18,21 @@ package org.geotools.gce.imagemosaic;
 
 import java.util.Iterator;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import junit.framework.Assert;
 
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
 import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.junit.Test;
 
 /**
- * @author Simone Giannecchini
+ * @author Simone Giannecchini,GeoSolutions
  * 
  */
-public class ImageMosaicServiceTest extends TestCase {
-
-	/**
-	 * 
-	 */
-	public ImageMosaicServiceTest() {
-
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		TestRunner.run(ImageMosaicServiceTest.class);
-
-	}
-
-	public void testIsAvailable() {
-		Iterator list = GridFormatFinder.getAvailableFormats().iterator();
+public class ImageMosaicServiceTest  {
+	@Test
+	public void isAvailable() {
+		final Iterator<GridFormatFactorySpi> list = GridFormatFinder.getAvailableFormats().iterator();
 		boolean found = false;
-
 		while (list.hasNext()) {
 			final GridFormatFactorySpi fac = (GridFormatFactorySpi) list.next();
 
@@ -59,6 +43,6 @@ public class ImageMosaicServiceTest extends TestCase {
 			}
 		}
 
-		assertTrue("ImageMosaicFormatFactorySpi not registered", found);
+		Assert.assertTrue("ImageMosaicFormatFactorySpi not registered", found);
 	}
 }

@@ -27,12 +27,26 @@ import org.opengis.coverage.grid.Format;
  * Implementation of the GridCoverageFormat service provider interface for
  * mosaic of georeferenced images.
  * 
- * @author Simone Giannecchini (simboss), GeoSolutions
+ * @author Simone Giannecchini, GeoSolutions S.A.S.
  * @since 2.3
  */
 
 @SuppressWarnings("deprecation")
 public final class ImageMosaicFormatFactory implements GridFormatFactorySpi {
+//	private final static Logger LOGGER= Logging.getLogger(ImageMosaicFormatFactory.class);
+//	static{
+//		try{
+//			// register the index builder
+//			final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+//			final ObjectName name= new ObjectName("geotools:name=MosaicIndexBuilder");
+//			server.registerMBean(new JMXIndexBuilder(),name);
+//		}
+//		catch (Exception e) {
+//			if(LOGGER.isLoggable(Level.SEVERE))
+//				LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+//		}
+//		
+//	}
 	/**
 	 * Tells me if this plugin will work on not given the actual installation.
 	 * 
