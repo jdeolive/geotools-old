@@ -1045,6 +1045,11 @@ public final class ErrorKeys {
      * Unsupported file type: {0} or {1}
      */
     public static final int UNSUPPORTED_FILE_TYPE_$2 = 144;
+    
+    /**
+     * Operation "{0}" is unsupported.
+     */
+    public static final int UNSUPPORTED_OPERATION_$1 = 205;    
 
     /**
      * Value {0} is out of range [{1}..{2}].
