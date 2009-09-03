@@ -136,7 +136,8 @@ public class RasterSymbolizerHelper extends
 	 * @see org.geotools.renderer.lite.gridcoverage2d.StyleVisitorAdapter#visit(org.geotools.styling.RasterSymbolizer)
 	 */
 	public synchronized void visit(RasterSymbolizer rs) {
-	        ColorMapUtilities.ensureNonNull("RasterSymbolizer", rs);
+	        
+		ColorMapUtilities.ensureNonNull("RasterSymbolizer", rs);
 
 		// /////////////////////////////////////////////////////////////////////
 		//

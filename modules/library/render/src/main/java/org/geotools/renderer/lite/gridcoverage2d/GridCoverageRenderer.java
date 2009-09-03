@@ -58,6 +58,7 @@ import org.geotools.resources.image.ImageUtilities;
 import org.geotools.styling.RasterSymbolizer;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.filter.expression.Expression;
+import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -394,11 +395,23 @@ public final class GridCoverageRenderer {
      *                 if the transformation from grid to coordinate system in
      *                 the GridCoverage is not an AffineTransform
      */
-    public void paint(final Graphics2D graphics,
-            final GridCoverage2D gridCoverage, final RasterSymbolizer symbolizer)
+    public void paint(
+    		final Graphics2D graphics,
+            final GridCoverage2D gridCoverage, 
+            final RasterSymbolizer symbolizer)
             throws FactoryException, TransformException,
             NoninvertibleTransformException {
 
+        // ///////////////////////////////////////////////////////////////////
+        //
+        // Initial checks
+        //
+        // ///////////////////////////////////////////////////////////////////
+    	if(graphics==null)
+    		throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"graphics"));
+    	if(gridCoverage==null)
+    		throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1,"gridCoverage"));
+    	
         if (LOGGER.isLoggable(Level.FINE))
             LOGGER.fine(new StringBuilder("Drawing coverage ").append(gridCoverage.toString()).toString());
         // ///////////////////////////////////////////////////////////////////
@@ -601,10 +614,18 @@ public final class GridCoverageRenderer {
             LOGGER.fine(new StringBuilder("Raster Symbolizer ").toString());
         if (LOGGER.isLoggable(Level.FINE))
             LOGGER.fine(new StringBuffer("Raster Symbolizer ").toString());
-        final RasterSymbolizerHelper rsp = new RasterSymbolizerHelper (preSymbolizer,this.hints);
-        rsp.visit(symbolizer);
-        final GridCoverage2D recoloredGridCoverage = (GridCoverage2D) rsp.getOutput();
-        final RenderedImage finalImage = recoloredGridCoverage.geophysics(false).getRenderedImage();
+        final RenderedImage finalImage;
+        final GridCoverage2D finalGC;
+        if(symbolizer!=null){
+        	final RasterSymbolizerHelper rsp = new RasterSymbolizerHelper (preSymbolizer,this.hints);
+        	rsp.visit(symbolizer);
+        	finalGC = (GridCoverage2D) rsp.getOutput();
+        	finalImage = finalGC.geophysics(false).getRenderedImage();
+    	}
+        else{
+        	finalGC=preSymbolizer;
+        	finalImage=finalGC.geophysics(false).getRenderedImage();
+        }
 
         // ///////////////////////////////////////////////////////////////////
         //
@@ -613,22 +634,17 @@ public final class GridCoverageRenderer {
         // the display
         //
         // ///////////////////////////////////////////////////////////////////
-        final GridGeometry2D recoloredCoverageGridGeometry = ((GridGeometry2D) recoloredGridCoverage.getGridGeometry());
-        final MathTransform2D finalGCTransform=recoloredCoverageGridGeometry.getGridToCRS2D();
+        final GridGeometry2D recoloredCoverageGridGeometry = ((GridGeometry2D) finalGC.getGridGeometry());
+        // I need to translate half of a pixel since in wms the envelope
+        // map to the corners of the raster space not to the center of the
+        // pixels.
+        final MathTransform2D finalGCTransform=recoloredCoverageGridGeometry.getGridToCRS2D(PixelOrientation.UPPER_LEFT);
         if (!(finalGCTransform instanceof AffineTransform)) {
             throw new UnsupportedOperationException(
                     "Non-affine transformations not yet implemented"); // TODO
         }
         final AffineTransform finalGCgridToWorld = new AffineTransform((AffineTransform) finalGCTransform);
 
-        // //
-        //
-        // I need to translate half of a pixel since in wms 1.1.1 the envelope
-        // map to the corners of the raster space not to the center of the
-        // pixels.
-        //
-        // //
-        finalGCgridToWorld.translate(-0.5, -0.5); // Map to upper-left corner.
 
         // //
         //
