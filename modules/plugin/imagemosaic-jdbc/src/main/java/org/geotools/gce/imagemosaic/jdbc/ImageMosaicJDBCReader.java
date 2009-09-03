@@ -40,6 +40,7 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.coverage.processing.Operations;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.Hints;
@@ -448,7 +449,7 @@ public class ImageMosaicJDBCReader extends AbstractGridCoverage2DReader {
 
 		if (pixelDimension != null) {
 			try {
-				imageChoice = setReadParams(readP, requestEnvelopeTransformed,
+				imageChoice = setReadParams(OverviewPolicy.getDefaultPolicy(), readP, requestEnvelopeTransformed,
 						pixelDimension);
 				readP.setSourceSubsampling(1, 1, 0, 0);
 			} catch (TransformException e) {

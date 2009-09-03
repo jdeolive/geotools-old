@@ -333,7 +333,7 @@ public class DefaultMapContext implements MapContext {
 	 */
 	public void addLayer(AbstractGridCoverage2DReader reader, Style style) {
 		try {
-			this.addLayer(FeatureUtilities.wrapGridCoverageReader(reader), style);
+			this.addLayer(FeatureUtilities.wrapGridCoverageReader(reader,null), style);
 		} catch (TransformException e) {
 			DefaultMapContext.LOGGER.log(Level.WARNING, "Could not use gc", e);
 		} catch (FactoryRegistryException e) {

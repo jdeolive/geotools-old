@@ -18,23 +18,24 @@ package org.geotools.factory;
 
 import java.awt.RenderingHints;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeSet;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import javax.naming.Name;
 import javax.sql.DataSource;
 
-import org.opengis.util.InternationalString;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.geotools.util.Utilities;
 import org.geotools.util.logging.Logging;
-import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.i18n.ErrorKeys;
+import org.opengis.util.InternationalString;
 
 
 /**
@@ -631,17 +632,6 @@ public class Hints extends RenderingHints {
     // TODO new Key("org.opengis.coverage.processing.GridCoverageProcessor");
 
     /**
-     * Tells to the {@link org.opengis.coverage.grid.GridCoverageReader} instances to ignore
-     * the built-in overviews when creating a {@link org.opengis.coverage.grid.GridCoverage2D}
-     * object during a read. This hints also implied that no decimation on reading is performed.
-     *
-     * @since 2.3
-     *
-     * @deprecated use the correct {@link #OVERVIEW_POLICY} instead.
-     */
-    public static final Key IGNORE_COVERAGE_OVERVIEW = new Key(Boolean.class);
-
-    /**
      * Key to control the maximum allowed number of tiles that we will load.
      * If this number is exceeded, i.e. we request an area which is too large
      * instead of getting stuck with opening thousands of files we throw an error.
@@ -659,22 +649,6 @@ public class Hints extends RenderingHints {
     public static final Key MOSAIC_LOCATION_ATTRIBUTE = new Key(String.class);
 
     /**
-     * Key to control the name of the attribute that contains the red/green/blue channel
-     * selections of a particular mosaic tile index.
-     * 
-     * @since 2.6
-     */
-    public static final Key MOSAIC_BANDSELECTION_ATTRIBUTE = new Key(String.class);
-    
-    /**
-     * Key to control the name of the attribute that contains the red/green/blue channel
-     * color corrections of a particular mosaic tile index
-     * 
-     * @since 2.6
-     */
-    public static final Key MOSAIC_COLORCORRECTION_ATTRIBUTE = new Key(String.class);
-    
-    /**
      * Tells to the {@link org.opengis.coverage.grid.GridCoverageReader} instances to read
      * the image using the JAI ImageRead operation (leveraging on Deferred Execution Model,
      * Tile Caching,...) or the direct {@code ImageReader}'s read methods.
@@ -683,56 +657,6 @@ public class Hints extends RenderingHints {
      */
     public static final Key USE_JAI_IMAGEREAD = new Key(Boolean.class);
 
-    /**
-     * Overview policy, will choose the overview with the lower resolution among the ones
-     * with higher resolution than one used for rendering.
-     *
-     * @since 2.5
-     *
-     * @deprecated Moved to {@link org.geotools.coverage.grid.io.OverviewPolicy#QUALITY}.
-     */
-    public static Object VALUE_OVERVIEW_POLICY_QUALITY;
-
-    /**
-     * Overview policy, will ignore the overviews.
-     *
-     * @since 2.5
-     *
-     * @deprecated Moved to {@link org.geotools.coverage.grid.io.OverviewPolicy#IGNORE}.
-     */
-    public static Object VALUE_OVERVIEW_POLICY_IGNORE;
-
-    /**
-     * Overview policy, will choose the overview with with the resolution closest to the one used
-     * for rendering
-     *
-     * @since 2.5
-     *
-     * @deprecated Moved to {@link org.geotools.coverage.grid.io.OverviewPolicy#NEAREST}.
-     */
-    public static Object VALUE_OVERVIEW_POLICY_NEAREST;
-
-    /**
-     * Overview policy, will choose the overview with the higher resolution among the ones
-     * with lower resolution than one used for rendering.
-     *
-     * @since 2.5
-     *
-     * @deprecated Moved to {@link org.geotools.coverage.grid.io.OverviewPolicy#SPEED}.
-     */
-    public static Object VALUE_OVERVIEW_POLICY_SPEED;
-    static {
-        try {
-            final Class c = Class.forName("org.geotools.coverage.grid.io.OverviewPolicy");
-            VALUE_OVERVIEW_POLICY_QUALITY = c.getField("QUALITY").get(null);
-            VALUE_OVERVIEW_POLICY_IGNORE  = c.getField("IGNORE").get(null);
-            VALUE_OVERVIEW_POLICY_NEAREST = c.getField("NEAREST").get(null);
-            VALUE_OVERVIEW_POLICY_SPEED   = c.getField("SPEED").get(null);
-        } catch (Exception e) {
-            // Ignore since it is normal if the coverage module is not in the classpath.
-            // This is just a temporary patch, so hopefull we will remove this ugly hack soon.
-        }
-    }
 
     /**
      * Overview choosing policy. The value most be one of

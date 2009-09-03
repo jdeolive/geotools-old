@@ -211,7 +211,7 @@ public class DefaultMapLayer implements MapLayer {
 	public DefaultMapLayer(AbstractGridCoverage2DReader reader, Style style, String title)
 			throws TransformException, FactoryRegistryException, SchemaException, IllegalAttributeException {
 
-		this(FeatureUtilities.wrapGridCoverageReader(reader), style, title);
+		this(FeatureUtilities.wrapGridCoverageReader(reader,null), style, title);
 
 	}
 
@@ -234,7 +234,7 @@ public class DefaultMapLayer implements MapLayer {
 	         SchemaException, 
 	         IllegalAttributeException {
 
-		this(FeatureUtilities.wrapGridCoverageReader(reader), style, "");
+		this(FeatureUtilities.wrapGridCoverageReader(reader,null), style, "");
 
 	}
 

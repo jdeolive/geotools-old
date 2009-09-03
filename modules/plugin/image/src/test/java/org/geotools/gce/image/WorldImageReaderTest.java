@@ -32,6 +32,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.parameter.Parameter;
@@ -158,7 +159,7 @@ public class WorldImageReaderTest extends WorldImageBaseTestCase {
         wiReader = new WorldImageReader(file);
 		final ParameterValue policy = (ParameterValue) ((AbstractGridFormat) wiReader
 				.getFormat()).OVERVIEW_POLICY.createValue();	
-		policy.setValue(Hints.VALUE_OVERVIEW_POLICY_NEAREST);
+		policy.setValue(OverviewPolicy.NEAREST);
 
         // more than native resolution (250 pixel representation for 125 pixels image)
         assertEquals(0, getChosenOverview(250,wiReader,policy));
@@ -191,7 +192,7 @@ public class WorldImageReaderTest extends WorldImageBaseTestCase {
         //
         ///////////////////////////////////////////////////////////////////////
         Hints hints = new Hints();
-        hints.put(Hints.OVERVIEW_POLICY, Hints.VALUE_OVERVIEW_POLICY_QUALITY);
+        hints.put(Hints.OVERVIEW_POLICY, OverviewPolicy.QUALITY);
         WorldImageReader wiReader = new WorldImageReader(file,hints);
         
         // between 16 and 9, any value should report the match of 16
@@ -209,11 +210,11 @@ public class WorldImageReaderTest extends WorldImageBaseTestCase {
         //
         ///////////////////////////////////////////////////////////////////////
         //parameter ovverrides hints
-        hints.put(Hints.OVERVIEW_POLICY, Hints.VALUE_OVERVIEW_POLICY_NEAREST);
+        hints.put(Hints.OVERVIEW_POLICY, OverviewPolicy.NEAREST);
         wiReader = new WorldImageReader(file, hints);
 		final ParameterValue policy = (ParameterValue) ((AbstractGridFormat) wiReader
 				.getFormat()).OVERVIEW_POLICY.createValue();	
-		policy.setValue(Hints.VALUE_OVERVIEW_POLICY_QUALITY);
+		policy.setValue(OverviewPolicy.QUALITY);
 		
         // between 16 and 9, any value should report the match of 16
         assertEquals(4, getChosenOverview(16,wiReader,policy));
@@ -234,7 +235,7 @@ public class WorldImageReaderTest extends WorldImageBaseTestCase {
         //
         ///////////////////////////////////////////////////////////////////////
         Hints hints = new Hints();
-        hints.put(Hints.OVERVIEW_POLICY, Hints.VALUE_OVERVIEW_POLICY_SPEED);
+        hints.put(Hints.OVERVIEW_POLICY, OverviewPolicy.SPEED);
         WorldImageReader wiReader = new WorldImageReader(file, hints);
         // between 16 and 9, any value should report the match of 16
         assertEquals(1, getChosenOverview(15,wiReader));
@@ -251,11 +252,11 @@ public class WorldImageReaderTest extends WorldImageBaseTestCase {
         //
         ///////////////////////////////////////////////////////////////////////
         //parameter overrides hints
-        hints.put(Hints.OVERVIEW_POLICY, Hints.VALUE_OVERVIEW_POLICY_NEAREST);
+        hints.put(Hints.OVERVIEW_POLICY, OverviewPolicy.NEAREST);
         wiReader = new WorldImageReader(file, hints);
 		final ParameterValue policy = (ParameterValue) ((AbstractGridFormat) wiReader
 				.getFormat()).OVERVIEW_POLICY.createValue();	
-		policy.setValue(Hints.VALUE_OVERVIEW_POLICY_SPEED);
+		policy.setValue(OverviewPolicy.SPEED);
         // between 16 and 9, any value should report the match of 16
         assertEquals(1, getChosenOverview(15,wiReader,policy));
         assertEquals(1, getChosenOverview(14,wiReader,policy));

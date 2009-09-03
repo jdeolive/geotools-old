@@ -25,7 +25,6 @@ import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -94,8 +93,7 @@ public final class FeatureUtilities {
      *         grid coverage itself in the "grid" attribute.
      */
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> wrapGridCoverage(final GridCoverage2D coverage)
-            throws TransformException, SchemaException, IllegalAttributeException
-    {
+            throws TransformException, SchemaException {
         final Polygon bounds = getPolygon(coverage.getEnvelope2D());
         final CoordinateReferenceSystem sourceCRS = coverage.getCoordinateReferenceSystem2D();
 
@@ -121,61 +119,10 @@ public final class FeatureUtilities {
      * @param  reader the grid coverage reader.
      * @return a feature with the grid coverage envelope as the geometry and the
      *         grid coverage itself in the "grid" attribute.
-     *
-     * @deprecated Please use FeatureUtilities#wrapGridCoverageReader(final AbstractGridCoverage2DReader gridCoverageReader, GeneralParameterValue[] params)
-     */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> wrapGridCoverageReader(final AbstractGridCoverage2DReader gridCoverageReader)
-    	throws TransformException, FactoryRegistryException, SchemaException, IllegalAttributeException {
-				// create surrounding polygon
-				final PrecisionModel pm = new PrecisionModel();
-				final GeometryFactory gf = new GeometryFactory(pm, 0);
-				final Rectangle2D rect = gridCoverageReader.getOriginalEnvelope()
-						.toRectangle2D();
-				final CoordinateReferenceSystem sourceCrs = CRS
-					.getHorizontalCRS(gridCoverageReader.getCrs());
-				if(sourceCrs==null)
-					throw new UnsupportedOperationException(
-							Errors.format(
-				                    ErrorKeys.CANT_SEPARATE_CRS_$1,sourceCrs));
-
-				final Coordinate[] coord = new Coordinate[5];
-				coord[0] = new Coordinate(rect.getMinX(), rect.getMinY());
-				coord[1] = new Coordinate(rect.getMaxX(), rect.getMinY());
-				coord[2] = new Coordinate(rect.getMaxX(), rect.getMaxY());
-				coord[3] = new Coordinate(rect.getMinX(), rect.getMaxY());
-				coord[4] = new Coordinate(rect.getMinX(), rect.getMinY());
-
-				// }
-				final LinearRing ring = gf.createLinearRing(coord);
-				final Polygon bounds = new Polygon(ring, null, gf);
-
-				SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-		        ftb.setName("GridCoverage");
-		        ftb.add("geom", Polygon.class, sourceCrs);
-		        ftb.add("grid", AbstractGridCoverage2DReader.class);
-		        SimpleFeatureType schema = ftb.buildFeatureType();
-
-		        // create the feature
-		        SimpleFeature feature = SimpleFeatureBuilder.build(schema, new Object[] { bounds, gridCoverageReader }, null);
-
-				final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections.newCollection();
-				collection.add(feature);
-
-				return collection;
-		}
-
-    /**
-     * Wraps a grid coverage into a Feature. Code lifted from ArcGridDataSource
-     * (temporary).
-     *
-     * @param  reader the grid coverage reader.
-     * @return a feature with the grid coverage envelope as the geometry and the
-     *         grid coverage itself in the "grid" attribute.
      */
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> wrapGridCoverageReader(final AbstractGridCoverage2DReader gridCoverageReader,
 			GeneralParameterValue[] params) throws TransformException,
-			FactoryRegistryException, SchemaException,
-			IllegalAttributeException {
+			FactoryRegistryException, SchemaException {
 
 		// create surrounding polygon
 		final PrecisionModel pm = new PrecisionModel();

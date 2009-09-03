@@ -172,7 +172,8 @@ public final class CoverageUtilities {
      * @param coverage to use for guessing background values.
      * @return an array of double values to use as a background.
      */
-    public static double[] getBackgroundValues(GridCoverage2D coverage) {
+    @SuppressWarnings("unchecked")
+	public static double[] getBackgroundValues(GridCoverage2D coverage) {
         /*
          * Get the sample value to use for background. We will try to fetch this
          * value from one of "no data" categories. For geophysics images, it is
@@ -290,31 +291,6 @@ public final class CoverageUtilities {
             return ((Integer) candidate).intValue();
         }
         return 0;
-    }
-
-    /**
-     * @deprecated Use {@link #preferredViewForOperation} instead.
-     *
-     * @return 0 if nothing has to be done on the provided coverage, 1 if a color expansion has to
-     *         be provided, 2 if we need to employ the geophysics view of the provided coverage,
-     *         3 if we suggest to employ the non-geophysics view of the provided coverage.
-     *
-     * @since 2.3.1
-     */
-    @Deprecated
-    public static int prepareSourcesForGCOperation(final GridCoverage2D coverage,
-            final Interpolation interpolation, final boolean hasFilter, final RenderingHints hints)
-    {
-        final ViewType type = preferredViewForOperation(coverage, interpolation, hasFilter, hints);
-        switch (type) {
-            case SAME:         return 0;
-            case PHOTOGRAPHIC: return 1;
-            case GEOPHYSICS:   return 2;
-            case RENDERED:
-            case PACKED:
-            case NATIVE:       return 3;
-            default: throw new AssertionError(type);
-        }
     }
 
     /**

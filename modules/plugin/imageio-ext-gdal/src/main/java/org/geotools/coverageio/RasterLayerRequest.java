@@ -455,10 +455,7 @@ class RasterLayerRequest {
      * 
      * @param overviewPolicy
      *                it can be one of
-     *                {@link Hints#VALUE_OVERVIEW_POLICY_IGNORE},
-     *                {@link Hints#VALUE_OVERVIEW_POLICY_NEAREST},
-     *                {@link Hints#VALUE_OVERVIEW_POLICY_QUALITY} or
-     *                {@link Hints#VALUE_OVERVIEW_POLICY_SPEED}. It specifies
+     *                {@link OverviewPolicy}. It specifies
      *                the policy to compute the overviews level upon request.
      * @param readParam
      *                an instance of {@link ImageReadParam} for setting the
@@ -483,7 +480,7 @@ class RasterLayerRequest {
         //
         // //
         if (overviewPolicy == null) {
-            overviewPolicy = OverviewPolicy.NEAREST;
+            overviewPolicy = OverviewPolicy.getDefaultPolicy();
         }
 
         // //

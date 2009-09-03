@@ -285,63 +285,15 @@ public abstract class AbstractGridCoverage2DReader implements
 		if (this.hints != null)
 			if (this.hints.containsKey(Hints.OVERVIEW_POLICY))
 				overviewPolicy = (OverviewPolicy) this.hints.get(Hints.OVERVIEW_POLICY);
-			else if (this.hints.containsKey(Hints.IGNORE_COVERAGE_OVERVIEW))
-				overviewPolicy = ((Boolean) this.hints
-						.get(Hints.IGNORE_COVERAGE_OVERVIEW)).booleanValue() ? OverviewPolicy.IGNORE
-						: OverviewPolicy.QUALITY;
+
 
 		// use default if not provided. Default is nearest
 		if (overviewPolicy == null)
-			overviewPolicy = OverviewPolicy.NEAREST;
+			overviewPolicy = OverviewPolicy.getDefaultPolicy();
 		assert overviewPolicy != null;
 		return overviewPolicy;
 	}
 	
-	/**
-	 * This method is responsible for preparing the read param for doing an
-	 * {@link ImageReader#read(int, ImageReadParam)}.
-	 * 
-	 * 
-	 * <p>
-	 * This method is responsible for preparing the read param for doing an
-	 * {@link ImageReader#read(int, ImageReadParam)}. It sets the passed
-	 * {@link ImageReadParam} in terms of decimation on reading using the
-	 * provided requestedEnvelope and requestedDim to evaluate the needed
-	 * resolution. It also returns and {@link Integer} representing the index of
-	 * the raster to be read when dealing with multipage raster.
-	 * 
-	 * @param readP
-	 *            an instance of {@link ImageReadParam} for setting the
-	 *            subsampling factors.
-	 * @param requestedEnvelope
-	 *            the {@link GeneralEnvelope} we are requesting.
-	 * @param requestedDim
-	 *            the requested dimensions.
-	 * @return the index of the raster to read in the underlying data source.
-	 * @throws IOException
-	 * @throws TransformException
-	 * @deprecated use
-	 *             {@link #setReadParams(String, ImageReadParam, GeneralEnvelope, Rectangle)}
-	 *             instead and set the policy for overviews.
-	 */
-	protected Integer setReadParams(ImageReadParam readP,
-			GeneralEnvelope requestedEnvelope, Rectangle requestedDim)
-			throws IOException, TransformException {
-
-		// //
-		//
-		// Check Hint to ignore overviews
-		//
-		// //
-		Object o = hints.get(Hints.IGNORE_COVERAGE_OVERVIEW);
-		if (o != null && ((Boolean) o).booleanValue()) {
-			return setReadParams(OverviewPolicy.IGNORE, readP, requestedEnvelope, requestedDim);
-
-		}
-		return setReadParams(OverviewPolicy.QUALITY, readP, requestedEnvelope, requestedDim);
-		
-	}
-
 	private Integer getOverviewImage(OverviewPolicy policy, double[] requestedRes) {
 	    // setup policy
         if(policy == null)
@@ -412,9 +364,9 @@ public abstract class AbstractGridCoverage2DReader implements
             // different than the one of the overviews), and we would end up going out of the loop
             // since not even the lowest can "top" the request for one axis 
             if(curr.scaleFactor>requestedScaleFactor|| i == size - 1) {
-                if(policy == Hints.VALUE_OVERVIEW_POLICY_QUALITY)
+                if(policy == OverviewPolicy.QUALITY)
                     return prev.imageChoice;
-                else if(policy == Hints.VALUE_OVERVIEW_POLICY_SPEED)
+                else if(policy == OverviewPolicy.SPEED)
                     return curr.imageChoice;
                 else if(requestedScaleFactor - prev.scaleFactor < curr.scaleFactor - requestedScaleFactor)
                     return prev.imageChoice;
