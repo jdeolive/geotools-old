@@ -72,4 +72,5 @@ public final class GridCoverageTest extends GridCoverageTestBase {
         serial   = serial  .view(ViewType.GEOPHYSICS);
         assertRasterEquals(coverage, serial);
     }
+
 }

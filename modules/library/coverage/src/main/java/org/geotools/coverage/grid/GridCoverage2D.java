@@ -51,7 +51,6 @@ import org.geotools.coverage.AbstractCoverage;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
-import org.geotools.geometry.TransformedDirectPosition;
 import org.geotools.resources.Classes;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.ErrorKeys;
@@ -63,13 +62,10 @@ import org.opengis.coverage.PointOutsideCoverageException;
 import org.opengis.coverage.SampleDimension;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.coverage.grid.GridRange;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
-import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -152,13 +148,6 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
      * by {@link #getViewTypes} only when first needed.
      */
     private transient Set<ViewType> viewTypes;
-
-    /**
-     * Used for transforming a direct position from arbitrary to internal CRS.
-     * Will be created only when first needed. Note that the target CRS should
-     * be two-dimensional, not the {@link #crs} value.
-     */
-    private transient TransformedDirectPosition arbitraryToInternal;
 
     /**
      * The preferred encoding to use for serialization using the {@code writeObject} method,
@@ -249,9 +238,9 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
          * non-empty and its dimension must matches the coordinate reference system's dimension.
          */
         final int dimension = crs.getCoordinateSystem().getDimension();
-        if (!gridGeometry.isDefined(GridGeometry2D.GRID_RANGE)) {
+        if (!gridGeometry.isDefined(GridGeometry2D.GRID_RANGE_BITMASK)) {
             final GridEnvelope r = new GeneralGridEnvelope(image, dimension);
-            if (gridGeometry.isDefined(GridGeometry2D.GRID_TO_CRS)) {
+            if (gridGeometry.isDefined(GridGeometry2D.GRID_TO_CRS_BITMASK)) {
                 gridGeometry = new GridGeometry2D(r, PIXEL_IN_CELL,
                         gridGeometry.getGridToCRS(PIXEL_IN_CELL), crs, hints);
             } else {
@@ -270,10 +259,10 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
             gridGeometry.getGridToCRS();
         }
         this.gridGeometry = gridGeometry;
-        assert gridGeometry.isDefined(GridGeometry2D.CRS        |
-                                      GridGeometry2D.ENVELOPE   |
-                                      GridGeometry2D.GRID_RANGE |
-                                      GridGeometry2D.GRID_TO_CRS);
+        assert gridGeometry.isDefined(GridGeometry2D.CRS_BITMASK        |
+                                      GridGeometry2D.ENVELOPE_BITMASK   |
+                                      GridGeometry2D.GRID_RANGE_BITMASK |
+                                      GridGeometry2D.GRID_TO_CRS_BITMASK);
         /*
          * Last argument checks. The image size must be consistent with the grid range
          * and the envelope must be non-empty.
@@ -440,7 +429,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     public int[] evaluate(final DirectPosition coord, final int[] dest)
             throws CannotEvaluateException
     {
-        return evaluate(toPoint2D(coord), dest);
+        return evaluate(gridGeometry.toPoint2D(coord), dest);
     }
 
     /**
@@ -457,7 +446,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     public float[] evaluate(final DirectPosition coord, final float[] dest)
             throws CannotEvaluateException
     {
-        return evaluate(toPoint2D(coord), dest);
+        return evaluate(gridGeometry.toPoint2D(coord), dest);
     }
 
     /**
@@ -474,56 +463,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
     public double[] evaluate(final DirectPosition coord, final double[] dest)
             throws CannotEvaluateException
     {
-        return evaluate(toPoint2D(coord), dest);
-    }
-
-    /**
-     * Converts the specified point into a two-dimensional one.
-     *
-     * @param  point The point to transform into a {@link Point2D} object.
-     * @return The specified point as a {@link Point2D} object.
-     * @throws CannotEvaluateException if a reprojection was required and failed.
-     * @throws MismatchedDimensionException if the point doesn't have the expected dimension.
-     */
-    private Point2D toPoint2D(final DirectPosition point)
-            throws CannotEvaluateException, MismatchedDimensionException
-    {
-        /*
-         * If the point contains a CRS, transforms the point on the fly to this coverage CRS.
-         * Note that we transform directly to the 2D CRS, so we don't need to look at the grid
-         * geometry for interpreting the result.
-         */
-        final CoordinateReferenceSystem sourceCRS = point.getCoordinateReferenceSystem();
-        if (sourceCRS != null) {
-            synchronized (this) {
-                if (arbitraryToInternal == null) {
-                    final CoordinateReferenceSystem targetCRS = getCoordinateReferenceSystem2D();
-                    arbitraryToInternal = new TransformedDirectPosition(sourceCRS, targetCRS, null);
-                }
-                try {
-                    arbitraryToInternal.transform(point);
-                } catch (TransformException exception) {
-                    throw new CannotEvaluateException(formatEvaluateError(point, false), exception);
-                }
-                return arbitraryToInternal.toPoint2D();
-            }
-        }
-        /*
-         * If the point did not contains any CRS, take only the axis specified by the grid
-         * geometry and copy in a new Point2D instance.
-         */
-        final int actual   = point.getDimension();
-        final int expected = crs.getCoordinateSystem().getDimension();
-        if (actual != expected) {
-            throw new MismatchedDimensionException(Errors.format(
-                    ErrorKeys.MISMATCHED_DIMENSION_$2, actual, expected));
-        }
-        if (point instanceof Point2D) {
-            return (Point2D) point;
-        }
-        assert gridGeometry.axisDimensionX < gridGeometry.axisDimensionY;
-        return new Point2D.Double(point.getOrdinate(gridGeometry.axisDimensionX),
-                                  point.getOrdinate(gridGeometry.axisDimensionY));
+        return evaluate(gridGeometry.toPoint2D(coord), dest);
     }
 
     /**
@@ -616,7 +556,7 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
      *         or {@code null} if {@code coord} is outside coverage.
      */
     public synchronized String getDebugString(final DirectPosition coord) {
-        Point2D pixel = toPoint2D(coord);
+        Point2D pixel = gridGeometry.toPoint2D(coord);
         pixel         = gridGeometry.inverseTransform(pixel);
         final int   x = (int)Math.round(pixel.getX());
         final int   y = (int)Math.round(pixel.getY());
@@ -921,15 +861,15 @@ public class GridCoverage2D extends AbstractGridCoverage implements RenderedCove
      */
     public synchronized Set<ViewType> getViewTypes() {
         if (viewTypes == null) {
-            final Set<ViewType> viewTypes = EnumSet.allOf(ViewType.class);
-            viewTypes.remove(ViewType.SAME); // Removes trivial view.
-            for (final Iterator<ViewType> it=viewTypes.iterator(); it.hasNext();) {
+            final Set<ViewType> vtSet = EnumSet.allOf(ViewType.class);
+            vtSet.remove(ViewType.SAME); // Removes trivial view.
+            for (final Iterator<ViewType> it=vtSet.iterator(); it.hasNext();) {
                 if (view(it.next()) != this) {
                     it.remove();
                 }
             }
             // Assign only in successful.
-            this.viewTypes = Collections.unmodifiableSet(viewTypes);
+            this.viewTypes = Collections.unmodifiableSet(vtSet);
         }
         return viewTypes;
     }

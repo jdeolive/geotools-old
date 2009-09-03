@@ -91,7 +91,7 @@ public final class CoverageUtilities {
         if (coverage instanceof GridCoverage) {
             final GridGeometry2D geometry =
                     GridGeometry2D.wrap(((GridCoverage) coverage).getGridGeometry());
-            if (geometry.isDefined(GridGeometry2D.CRS)) {
+            if (geometry.isDefined(GridGeometry2D.CRS_BITMASK)) {
                 return geometry.getCoordinateReferenceSystem2D();
             } else try {
                 return geometry.reduce(coverage.getCoordinateReferenceSystem());
@@ -120,7 +120,7 @@ public final class CoverageUtilities {
         if (coverage instanceof GridCoverage) {
             final GridGeometry2D geometry =
                     GridGeometry2D.wrap(((GridCoverage) coverage).getGridGeometry());
-            if (geometry.isDefined(GridGeometry2D.CRS)) {
+            if (geometry.isDefined(GridGeometry2D.CRS_BITMASK)) {
             	returnedCRS= geometry.getCoordinateReferenceSystem2D();
             } else try {
             	returnedCRS= geometry.reduce(coverage.getCoordinateReferenceSystem());
@@ -155,7 +155,7 @@ public final class CoverageUtilities {
         if (coverage instanceof GridCoverage) {
             final GridGeometry2D geometry =
                     GridGeometry2D.wrap(((GridCoverage) coverage).getGridGeometry());
-            if (geometry.isDefined(GridGeometry2D.ENVELOPE)) {
+            if (geometry.isDefined(GridGeometry2D.ENVELOPE_BITMASK)) {
                 return geometry.getEnvelope2D();
             } else {
                 return geometry.reduce(coverage.getEnvelope());

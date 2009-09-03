@@ -83,7 +83,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @since 2.2
      */
-    public static final int CRS = 1;
+    public static final int CRS_BITMASK = 1;
 
     /**
      * A bitmask to specify the validity of the {@linkplain #getEnvelope envelope}.
@@ -91,7 +91,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @since 2.2
      */
-    public static final int ENVELOPE = 2;
+    public static final int ENVELOPE_BITMASK = 2;
 
     /**
      * A bitmask to specify the validity of the {@linkplain #getGridRange grid range}.
@@ -99,7 +99,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @since 2.2
      */
-    public static final int GRID_RANGE = 4;
+    public static final int GRID_RANGE_BITMASK = 4;
 
     /**
      * A bitmask to specify the validity of the {@linkplain #getGridToCoordinateSystem grid to CRS}
@@ -107,7 +107,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @since 2.2
      */
-    public static final int GRID_TO_CRS = 8;
+    public static final int GRID_TO_CRS_BITMASK = 8;
 
     /**
      * The valid coordinate range of a grid coverage, or {@code null} if none. The lowest valid
@@ -435,7 +435,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @return The coordinate reference system (never {@code null}).
      * @throws InvalidGridGeometryException if this grid geometry has no CRS (i.e.
-     *         <code>{@linkplain #isDefined isDefined}({@linkplain #CRS})</code>
+     *         <code>{@linkplain #isDefined isDefined}({@linkplain #CRS_BITMASK})</code>
      *         returned {@code false}).
      *
      * @see GridGeometry2D#getCoordinateReferenceSystem2D
@@ -448,11 +448,11 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
         if (envelope != null) {
             final CoordinateReferenceSystem crs = envelope.getCoordinateReferenceSystem();
             if (crs != null) {
-                assert isDefined(CRS);
+                assert isDefined(CRS_BITMASK);
                 return crs;
             }
         }
-        assert !isDefined(CRS);
+        assert !isDefined(CRS_BITMASK);
         throw new InvalidGridGeometryException(ErrorKeys.UNSPECIFIED_CRS);
     }
 
@@ -463,17 +463,17 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @return The bounding box in "real world" coordinates (never {@code null}).
      * @throws InvalidGridGeometryException if this grid geometry has no envelope (i.e.
-     *         <code>{@linkplain #isDefined isDefined}({@linkplain #ENVELOPE})</code>
+     *         <code>{@linkplain #isDefined isDefined}({@linkplain #ENVELOPE_BITMASK})</code>
      *         returned {@code false}).
      *
      * @see GridGeometry2D#getEnvelope2D
      */
     public Envelope getEnvelope() throws InvalidGridGeometryException {
         if (envelope!=null && !envelope.isNull()) {
-            assert isDefined(ENVELOPE);
+            assert isDefined(ENVELOPE_BITMASK);
             return envelope.clone();
         }
-        assert !isDefined(ENVELOPE);
+        assert !isDefined(ENVELOPE_BITMASK);
         throw new InvalidGridGeometryException(gridToCRS == null ?
                     ErrorKeys.UNSPECIFIED_TRANSFORM : ErrorKeys.UNSPECIFIED_IMAGE_SIZE);
     }
@@ -486,18 +486,18 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @return The grid range (never {@code null}).
      * @throws InvalidGridGeometryException if this grid geometry has no grid range (i.e.
-     *         <code>{@linkplain #isDefined isDefined}({@linkplain #GRID_RANGE})</code>
+     *         <code>{@linkplain #isDefined isDefined}({@linkplain #GRID_RANGE_BITMASK})</code>
      *         returned {@code false}).
      *
      * @see GridGeometry2D#getGridRange2D
      */
     public GridEnvelope getGridRange() throws InvalidGridGeometryException {
         if (gridRange != null) {
-            assert isDefined(GRID_RANGE);
+            assert isDefined(GRID_RANGE_BITMASK);
             return clone(gridRange);
            
         }
-        assert !isDefined(GRID_RANGE);
+        assert !isDefined(GRID_RANGE_BITMASK);
         throw new InvalidGridGeometryException(ErrorKeys.UNSPECIFIED_IMAGE_SIZE);
     }
 
@@ -513,7 +513,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      *
      * @return The transform (never {@code null}).
      * @throws InvalidGridGeometryException if this grid geometry has no transform (i.e.
-     *         <code>{@linkplain #isDefined isDefined}({@linkplain #GRID_TO_CRS})</code>
+     *         <code>{@linkplain #isDefined isDefined}({@linkplain #GRID_TO_CRS_BITMASK})</code>
      *         returned {@code false}).
      *
      * @see GridGeometry2D#getGridToCRS2D()
@@ -522,10 +522,10 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      */
     public MathTransform getGridToCRS() throws InvalidGridGeometryException {
         if (gridToCRS != null) {
-            assert isDefined(GRID_TO_CRS);
+            assert isDefined(GRID_TO_CRS_BITMASK);
             return gridToCRS;
         }
-        assert !isDefined(GRID_TO_CRS);
+        assert !isDefined(GRID_TO_CRS_BITMASK);
         throw new InvalidGridGeometryException(ErrorKeys.UNSPECIFIED_TRANSFORM);
     }
 
@@ -537,7 +537,7 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      * @param  anchor The pixel part to map.
      * @return The transform (never {@code null}).
      * @throws InvalidGridGeometryException if this grid geometry has no transform (i.e.
-     *         <code>{@linkplain #isDefined isDefined}({@linkplain #GRID_TO_CRS})</code>
+     *         <code>{@linkplain #isDefined isDefined}({@linkplain #GRID_TO_CRS_BITMASK})</code>
      *         returned {@code false}).
      *
      * @see GridGeometry2D#getGridToCRS(org.opengis.referencing.datum.PixelInCell)
@@ -566,8 +566,8 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
     /**
      * Returns {@code true} if all the parameters specified by the argument are set.
      *
-     * @param  bitmask Any combinaison of {@link #CRS}, {@link #ENVELOPE}, {@link #GRID_RANGE}
-     *         and {@link #GRID_TO_CRS}.
+     * @param  bitmask Any combinaison of {@link #CRS_BITMASK}, {@link #ENVELOPE_BITMASK}, {@link #GRID_RANGE_BITMASK}
+     *         and {@link #GRID_TO_CRS_BITMASK}.
      * @return {@code true} if all specified attributes are defined (i.e. invoking the
      *         corresponding method will not thrown an {@link InvalidGridGeometryException}).
      * @throws IllegalArgumentException if the specified bitmask is not a combinaison of known
@@ -578,14 +578,14 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
      * @see javax.media.jai.ImageLayout#isValid
      */
     public boolean isDefined(final int bitmask) throws IllegalArgumentException {
-        if ((bitmask & ~(CRS | ENVELOPE | GRID_RANGE | GRID_TO_CRS)) != 0) {
+        if ((bitmask & ~(CRS_BITMASK | ENVELOPE_BITMASK | GRID_RANGE_BITMASK | GRID_TO_CRS_BITMASK)) != 0) {
             throw new IllegalArgumentException(Errors.format(
                     ErrorKeys.ILLEGAL_ARGUMENT_$2, "bitmask", bitmask));
         }
-        return ((bitmask & CRS)         == 0 || (envelope  != null && envelope.getCoordinateReferenceSystem() != null))
-            && ((bitmask & ENVELOPE)    == 0 || (envelope  != null && !envelope.isNull()))
-            && ((bitmask & GRID_RANGE)  == 0 || (gridRange != null))
-            && ((bitmask & GRID_TO_CRS) == 0 || (gridToCRS != null));
+        return ((bitmask & CRS_BITMASK)         == 0 || (envelope  != null && envelope.getCoordinateReferenceSystem() != null))
+            && ((bitmask & ENVELOPE_BITMASK)    == 0 || (envelope  != null && !envelope.isNull()))
+            && ((bitmask & GRID_RANGE_BITMASK)  == 0 || (gridRange != null))
+            && ((bitmask & GRID_TO_CRS_BITMASK) == 0 || (gridToCRS != null));
     }
 
     /**

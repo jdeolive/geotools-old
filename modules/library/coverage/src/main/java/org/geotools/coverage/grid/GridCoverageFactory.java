@@ -590,7 +590,7 @@ public class GridCoverageFactory extends AbstractFactory {
          * Makes sure that the specified grid geometry has a CRS.
          * If no CRS were specified, a default one is used.
          */
-        if (!gridGeometry.isDefined(GridGeometry2D.CRS)) {
+        if (!gridGeometry.isDefined(GridGeometry2D.CRS_BITMASK)) {
             final int dimension = gridGeometry.getDimension();
             gridGeometry = new GridGeometry2D(gridGeometry, getDefaultCRS(dimension));
         }
