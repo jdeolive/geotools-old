@@ -19,12 +19,14 @@ package org.geotools.process.feature;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.FilterFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -36,11 +38,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class BufferFeatureCollectionProcessTest {
+    
+    FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
     /**
      * FIXME: test fails at line 79
      */
-    @Ignore
     @Test
     public void test() throws Exception {
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
@@ -67,22 +70,16 @@ public class BufferFeatureCollectionProcessTest {
         Map<String,Object> output = process.execute( input, null );
         
         FeatureCollection buffered = (FeatureCollection) output.get( BufferFeatureCollectionFactory.RESULT.key );
-        FeatureIterator fi = buffered.features();
-        try {
-            int i = 0;
-            while( fi.hasNext() ) {
-                SimpleFeature f = (SimpleFeature) fi.next(); 
-                Geometry a = (Geometry)f.getDefaultGeometry();
-                Geometry e = gf.createPoint( new Coordinate( i, i ) ).buffer( 10d );
-                
-                assertTrue( a.equals( e ) );
-                assertEquals( i, f.getAttribute( "integer") );
-                i++;
-            }
-        }
-        finally {
-            buffered.close( fi );
-        }
         
+        assertEquals(2, buffered.size());
+        for (int i = 0; i < 2; i++) {
+            Geometry expected = gf.createPoint( new Coordinate( i, i ) ).buffer( 10d );
+            FeatureCollection sub = buffered.subCollection(ff.equals(ff.property("integer"), ff.literal(i)));
+            assertEquals(1, sub.size());
+            FeatureIterator iterator = sub.features();
+            SimpleFeature sf = (SimpleFeature) iterator.next();
+            assertTrue(expected.equals((Geometry) sf.getDefaultGeometry()));
+            iterator.close();
+        }
     }
 }

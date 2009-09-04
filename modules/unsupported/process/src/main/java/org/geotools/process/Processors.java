@@ -28,6 +28,7 @@ import org.geotools.factory.FactoryFinder;
 import org.geotools.factory.FactoryRegistry;
 import org.geotools.resources.LazySet;
 import org.geotools.util.NullProgressListener;
+import org.opengis.feature.type.Name;
 
 
 /**
@@ -79,9 +80,9 @@ public class Processors extends FactoryFinder {
      * @param name Name of Factory
      * @return ProcessFactory with matching name
      */
-    public static synchronized ProcessFactory createProcessFactory( String name){
-        for( ProcessFactory factory : getProcessFactories() ){
-            if( name.equals( factory.getName() )){
+    public static synchronized ProcessFactory createProcessFactory(Name name){
+        for( ProcessFactory factory : getProcessFactories() ) {
+            if(factory.getNames().contains(name)) {
                 return factory;
             }
         }
@@ -91,11 +92,11 @@ public class Processors extends FactoryFinder {
     /**
      * Look up an implementation of the named process on the classpath.
      */
-    public static synchronized Process createProcess(String name){
+    public static synchronized Process createProcess(Name name){
         ProcessFactory factory = createProcessFactory( name );
         if( factory == null ) return null;
         
-        return factory.create();
+        return factory.create(name);
     }
     
     /**

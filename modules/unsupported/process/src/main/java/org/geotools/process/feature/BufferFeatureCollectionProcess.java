@@ -18,9 +18,14 @@ package org.geotools.process.feature;
 
 import java.util.Map;
 
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Process which buffers an entire feature collection.
@@ -47,6 +52,20 @@ public class BufferFeatureCollectionProcess extends FeatureToFeatureProcess {
        g = g.buffer( buffer );
        
        feature.setDefaultGeometry( g );
-   }
+    }
 
+    @Override
+    SimpleFeatureType getTargetSchema(SimpleFeatureType sourceSchema, Map<String, Object> input) {
+        SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
+        for (AttributeDescriptor ad : sourceSchema.getAttributeDescriptors()) {
+            GeometryDescriptor defaultGeometry = sourceSchema.getGeometryDescriptor();
+            if(ad == defaultGeometry) {
+                tb.add(ad.getName().getLocalPart(), Polygon.class, defaultGeometry.getCoordinateReferenceSystem());
+            } else {
+                tb.add(ad);
+            }
+        }
+        tb.setName(sourceSchema.getName());
+        return tb.buildFeatureType();
+    }
 }

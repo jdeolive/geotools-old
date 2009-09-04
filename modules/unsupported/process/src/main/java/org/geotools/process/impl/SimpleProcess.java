@@ -18,7 +18,6 @@ package org.geotools.process.impl;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import org.geotools.process.ProcessFactory;
 import org.geotools.util.NullProgressListener;

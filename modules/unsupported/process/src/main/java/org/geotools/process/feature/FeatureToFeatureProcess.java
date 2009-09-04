@@ -26,6 +26,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.util.NullProgressListener;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.util.ProgressListener;
 
 /**
@@ -67,15 +68,18 @@ public abstract class FeatureToFeatureProcess extends AbstractFeatureCollectionP
         monitor.started();
         
         //create the result feature collection
-        FeatureCollection result = 
-            new DefaultFeatureCollection(null, (SimpleFeatureType) features.getSchema() );
+        SimpleFeatureType targetSchema = getTargetSchema((SimpleFeatureType) features.getSchema(), input);
+        FeatureCollection result = new DefaultFeatureCollection(null, targetSchema);
 
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder((SimpleFeatureType) result.getSchema());
         FeatureIterator fi = features.features();
         try {
             int counter = 0;
             while( fi.hasNext() ) {
                 //copy the feature
-                SimpleFeature feature = SimpleFeatureBuilder.copy( (SimpleFeature) fi.next() );
+                fb.init((SimpleFeature) fi.next());
+                SimpleFeature feature = fb.buildFeature(null);
+                
                 //buffer the geometry
                 try {
                     processFeature( feature, input );
@@ -97,6 +101,18 @@ public abstract class FeatureToFeatureProcess extends AbstractFeatureCollectionP
         Map<String,Object> output = new HashMap<String, Object>();
         output.put( FeatureToFeatureProcessFactory.RESULT.key, result );
         return output;
+    }
+    
+    /**
+     * Subclasses should override if the target schema is different that then original schema
+     * (mind, if the number of attributes changes it's better to roll your own class instead
+     * of using this one)
+     * @param sourceSchema
+     * @param input
+     * @return
+     */
+    SimpleFeatureType getTargetSchema(SimpleFeatureType sourceSchema, Map<String, Object> input) {
+        return sourceSchema;
     }
     
 }

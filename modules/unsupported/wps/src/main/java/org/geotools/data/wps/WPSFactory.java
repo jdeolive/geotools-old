@@ -25,7 +25,7 @@ import net.opengis.wps10.ProcessDescriptionType;
 
 import org.geotools.data.Parameter;
 import org.geotools.process.Process;
-import org.geotools.process.impl.AbstractProcessFactory;
+import org.geotools.process.impl.SingleProcessFactory;
 import org.geotools.text.Text;
 import org.opengis.util.InternationalString;
 
@@ -40,7 +40,7 @@ import org.opengis.util.InternationalString;
  * @author GDavis
  *
  */
-public class WPSFactory extends AbstractProcessFactory {
+public class WPSFactory extends SingleProcessFactory {
 	
 	private ProcessDescriptionType pdt;
 	private URL serverUrl;

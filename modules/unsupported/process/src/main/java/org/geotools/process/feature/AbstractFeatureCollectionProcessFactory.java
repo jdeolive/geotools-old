@@ -22,7 +22,7 @@ import java.util.Map;
 import org.geotools.data.Parameter;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.process.ProcessFactory;
-import org.geotools.process.impl.AbstractProcessFactory;
+import org.geotools.process.impl.SingleProcessFactory;
 import org.geotools.text.Text;
 
 /**
@@ -41,7 +41,7 @@ import org.geotools.text.Text;
  * @author Justin Deoliveira, OpenGEO
  * @since 2.6
  */
-public abstract class AbstractFeatureCollectionProcessFactory extends AbstractProcessFactory {
+public abstract class AbstractFeatureCollectionProcessFactory extends SingleProcessFactory {
     /** Features for operation */
     public static final Parameter<FeatureCollection> FEATURES = new Parameter<FeatureCollection>(
         "features", FeatureCollection.class, Text.text("Features"), Text.text("Features to process"));

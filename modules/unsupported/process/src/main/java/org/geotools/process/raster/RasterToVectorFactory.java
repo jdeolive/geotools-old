@@ -16,22 +16,23 @@
  */
 package org.geotools.process.raster;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
+import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.Parameter;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.process.ProcessFactory;
+import org.geotools.process.impl.SingleProcessFactory;
 import org.geotools.text.Text;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 
 import com.vividsolutions.jts.geom.Polygon;
-import java.util.Collections;
-import java.util.TreeMap;
-import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.geometry.Envelope2D;
 
 
@@ -46,7 +47,7 @@ import org.geotools.geometry.Envelope2D;
  * @author Michael Bedward, Jody Garnett
  * @since 2.6
  */
-public class RasterToVectorFactory implements ProcessFactory {
+public class RasterToVectorFactory extends SingleProcessFactory {
 
     private static final String VERSION_STRING = "0.0.3";
     
@@ -107,6 +108,10 @@ public class RasterToVectorFactory implements ProcessFactory {
 
         resultInfo.put(RESULT_FEATURES.key, RESULT_FEATURES);
     }
+    
+    public RasterToVectorFactory() {
+        super(new NameImpl(GT_NAMESPACE, "RasterToVectorProcess"));
+    }
 
     /**
      * Return a new instance of a RasterToVectorProcess
@@ -121,14 +126,6 @@ public class RasterToVectorFactory implements ProcessFactory {
      */
     public InternationalString getDescription() {
         return Text.text("Raster region to vector polygon conversion");
-    }
-
-    /**
-     * Get the name of this process
-     * @return the string: RasterToVectorProcess
-     */
-    public String getName() {
-        return "RasterToVectorProcess";
     }
 
     /**

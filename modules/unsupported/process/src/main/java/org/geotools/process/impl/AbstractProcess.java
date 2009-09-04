@@ -29,6 +29,7 @@ import org.geotools.process.ProcessFactory;
  */
 public abstract class AbstractProcess implements Process {   
     protected ProcessFactory factory;
+    
     protected AbstractProcess( ProcessFactory factory ){
         this.factory = factory;
     }    

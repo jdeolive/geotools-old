@@ -20,7 +20,6 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +29,12 @@ import org.geotools.process.Process;
 import org.geotools.process.ProcessFactory;
 import org.geotools.text.Text;
 import org.opengis.util.InternationalString;
-import org.opengis.util.ProgressListener;
 
+/**
+ * Reflective implementation of a {@link SingleProcessFactory} that will embed in the
+ * same entity both the process and the factory.
+ * The process is supposed to take a bean as a parameter and return a bean as a result. 
+ */
 public abstract class BeanProcessFactory implements ProcessFactory {
     
     public Process create() {
@@ -152,7 +155,5 @@ public abstract class BeanProcessFactory implements ProcessFactory {
      */
     protected abstract Class<?> getInputBean();
     protected abstract Class<?> getResultBean();
-    protected Object process( Object input ) {
-        return null; // please implement your process here
-    }
+    protected abstract Object process( Object input );
 }
