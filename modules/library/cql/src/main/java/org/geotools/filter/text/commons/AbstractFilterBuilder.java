@@ -366,7 +366,7 @@ public abstract class AbstractFilterBuilder {
 
     public Literal buildLiteralInteger(final String image) {
         
-        return filterFactory.literal(Integer.parseInt(image));
+        return filterFactory.literal(Long.parseLong(image));
     }
     public Literal buildLiteralDouble(final String tokenImage) {
         

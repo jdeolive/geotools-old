@@ -187,6 +187,23 @@ public class CQLComparisonPredicateTest {
     }
 
     @Test
+    public void LongLiteral() throws Exception {
+       
+        Filter filter;
+        PropertyIsEqualTo eqFilter;
+        
+        //test true value
+        final String expectedValue = Long.toString(Long.MAX_VALUE);
+        filter = CompilerUtil.parseFilter(this.language, "attr = " + expectedValue );
+        Assert.assertNotNull(filter);
+        Assert.assertTrue(filter instanceof PropertyIsEqualTo);
+
+        eqFilter = (PropertyIsEqualTo) filter;
+        Assert.assertEquals("attr", ((PropertyName) eqFilter.getExpression1()).getPropertyName());
+        Assert.assertEquals(Long.parseLong(expectedValue), ((Literal) eqFilter.getExpression2()).getValue());
+    }
+
+    @Test
     public void parenRoundtripExpression() throws Exception {
         // ATTR1 > ((1 + 2) / 3)
         testEqualsExpressions(FilterCQLSample.FILTER_WITH_PAREN_ROUNDTRIP_EXPR);

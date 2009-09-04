@@ -207,6 +207,18 @@ public class CQLLiteralTest {
         Expression actual = eqFilter.getExpression2();
         Assert.assertEquals(expected.replaceAll("''", "'"), actual.toString());
 
+        // special characters
+        final String otherChars = "üä";
+
+        filter = (PropertyIsEqualTo) CQL.toFilter("NAME = '" + otherChars
+                + "'");
+
+        Assert.assertNotNull(filter);
+        Assert.assertTrue(filter instanceof PropertyIsEqualTo);
+
+        eqFilter = (PropertyIsEqualTo) filter;
+        actual = eqFilter.getExpression2();
+        Assert.assertEquals(otherChars, actual.toString());
     }
 
     @Test(expected = CQLException.class)
@@ -228,4 +240,33 @@ public class CQLLiteralTest {
      
         Assert.assertEquals(Double.parseDouble(expected), actual.doubleValue(), 8);
     }
+
+    @Test
+    public void longLiteral() throws Exception{
+
+        {
+            final String expected = "123456789012345";
+
+            Expression expr = CompilerUtil.parseExpression(language, expected);
+
+            Literal intLiteral = (Literal) expr;
+            Long actual = (Long) intLiteral.getValue();
+
+            Assert.assertEquals(Long.parseLong(expected), actual.longValue());
+
+        }
+        
+        {
+            final String maxLongValue = "9223372036854775807";
+
+            Expression expr = CompilerUtil.parseExpression(language, maxLongValue);
+
+            Literal intLiteral = (Literal) expr;
+            Long actual = (Long) intLiteral.getValue();
+
+            Assert.assertEquals(Long.parseLong(maxLongValue), actual.longValue());
+        }
+    
+    }
+
 }
