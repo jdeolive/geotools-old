@@ -45,7 +45,7 @@ public class RuleImpl implements org.geotools.styling.Rule, Cloneable {
     private List<org.geotools.styling.Graphic> legends = new ArrayList<org.geotools.styling.Graphic>();
     
     private String name;
-    private Description description = new DescriptionImpl();
+    private DescriptionImpl description = new DescriptionImpl();
     private Filter filter = null;
     private boolean hasElseFilter = false;
     private double maxScaleDenominator = Double.POSITIVE_INFINITY;
@@ -174,8 +174,12 @@ public class RuleImpl implements org.geotools.styling.Rule, Cloneable {
         return ret;
     }
     
-    public Description getDescription() {
+    public DescriptionImpl getDescription() {
         return description;
+    }
+    
+    public void setDescription(org.opengis.style.Description description) {
+        this.description = DescriptionImpl.cast(description);
     }
     
     public String getName() {
@@ -444,6 +448,19 @@ public class RuleImpl implements org.geotools.styling.Rule, Cloneable {
 
     public void setOnlineResource(OnLineResource online) {
         this.online = online;
+    }
+
+    static RuleImpl cast(Rule rule) {
+        if( rule == null ){
+            return null;
+        }
+        else if (rule instanceof RuleImpl){
+            return (RuleImpl) rule;
+        }
+        else {
+            RuleImpl copy = new RuleImpl( rule ); // replace with casting ...
+            return copy;
+        }
     }
 
 }

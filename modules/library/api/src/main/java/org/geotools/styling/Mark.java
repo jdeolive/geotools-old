@@ -105,7 +105,7 @@ public interface Mark extends org.opengis.style.Mark, Symbol {
      *
      * @param stroke The Stroke definition to use when rendering the Mark.
      */
-    void setStroke(Stroke stroke);
+    void setStroke(org.opengis.style.Stroke stroke);
 
     /**
      * This parameter defines which fill style to use when rendering the Mark.
@@ -119,7 +119,7 @@ public interface Mark extends org.opengis.style.Mark, Symbol {
      *
      * @param fill the Fill definition to use when rendering the Mark.
      */
-    void setFill(Fill fill);
+    void setFill(org.opengis.style.Fill fill);
 
     /**
      * @return size of mark

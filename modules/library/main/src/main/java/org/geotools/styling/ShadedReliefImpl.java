@@ -90,7 +90,7 @@ public class ShadedReliefImpl implements ShadedRelief {
     }
     
     public void accept(org.geotools.styling.StyleVisitor visitor) {
-        visitor.visit(this);
+        visitor.visit( this );
     }
     
     @Override
@@ -121,5 +121,21 @@ public class ShadedReliefImpl implements ShadedRelief {
         }
 
         return false;
+    }
+
+    static ShadedReliefImpl cast(org.opengis.style.ShadedRelief shadedRelief) {
+        if( shadedRelief == null ){
+            return null;
+        }
+        else if ( shadedRelief instanceof ShadedReliefImpl){
+            return (ShadedReliefImpl) shadedRelief;
+        }
+        else {
+            ShadedReliefImpl copy = new ShadedReliefImpl();
+            copy.setBrightnessOnly( shadedRelief.isBrightnessOnly() );
+            copy.setReliefFactor( shadedRelief.getReliefFactor() );
+            
+            return copy;
+        }
     }
 }

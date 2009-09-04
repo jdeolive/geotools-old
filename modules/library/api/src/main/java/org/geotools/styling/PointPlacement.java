@@ -68,7 +68,7 @@ public interface PointPlacement extends org.opengis.style.PointPlacement,LabelPl
      * use as an "anchor" for positioning it relative to a point geometry.
      * @param anchorPoint relative to the origional geometry
      */
-    void setAnchorPoint(AnchorPoint anchorPoint);
+    void setAnchorPoint(org.opengis.style.AnchorPoint anchorPoint);
 
     /**
      * Returns the Displacement which gives X and Y offset displacements to use
@@ -82,7 +82,7 @@ public interface PointPlacement extends org.opengis.style.PointPlacement,LabelPl
      * sets the Displacement which gives X and Y offset displacements to use
      * for rendering a text label near a point.
      */
-    void setDisplacement(Displacement displacement);
+    void setDisplacement(org.opengis.style.Displacement displacement);
 
     /**
      * Returns the rotation of the label.

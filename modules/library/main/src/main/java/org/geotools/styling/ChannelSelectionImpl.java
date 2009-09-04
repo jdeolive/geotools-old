@@ -160,4 +160,24 @@ public class ChannelSelectionImpl
         return false;
     }
 
+    static ChannelSelectionImpl cast(org.opengis.style.ChannelSelection channel) {
+        if( channel == null ){
+            return null;
+        }
+        else if( channel instanceof ChannelSelectionImpl){
+            return (ChannelSelectionImpl) channel;
+        }
+        else {
+            ChannelSelectionImpl copy = new ChannelSelectionImpl();
+            if( channel.getGrayChannel() != null ){
+                copy.setGrayChannel( channel.getGrayChannel());
+            }
+            else {
+                org.opengis.style.SelectedChannelType[] rgb = channel.getRGBChannels();
+                copy.setRGBChannels( rgb[0], rgb[1], rgb[2]);
+            }
+            return copy;
+        }
+    }
+
 }

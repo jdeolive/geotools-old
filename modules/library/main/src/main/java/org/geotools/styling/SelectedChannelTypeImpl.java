@@ -67,8 +67,8 @@ public class SelectedChannelTypeImpl implements SelectedChannelType {
         this.name = name;
     }
 
-    public void setContrastEnhancement(ContrastEnhancement enhancement) {
-        this.contrastEnhancement = enhancement;
+    public void setContrastEnhancement(org.opengis.style.ContrastEnhancement enhancement) {
+        this.contrastEnhancement = ContrastEnhancementImpl.cast( enhancement );
     }
 
     public void setContrastEnhancement(Expression gammaValue) {

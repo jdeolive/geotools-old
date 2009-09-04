@@ -1740,15 +1740,30 @@ public class SLDParser {
                     stroke.setLineJoin(parseCssParameter(child));
                 } else if (res.equalsIgnoreCase("dasharray")
                         || res.equalsIgnoreCase("stroke-dasharray")) {
-                    String dashString = child.getFirstChild().getNodeValue();
-                    StringTokenizer stok = new StringTokenizer(dashString, " ");
-                    float[] dashes = new float[stok.countTokens()];
-
-                    for (int l = 0; l < dashes.length; l++) {
-                        dashes[l] = Float.parseFloat(stok.nextToken());
+                    String dashString = null;
+                    if( child.getFirstChild().getNodeType() == Node.TEXT_NODE ){
+                        dashString = child.getFirstChild().getNodeValue();                        
                     }
-
-                    stroke.setDashArray(dashes);
+                    else {
+                        Expression definition = parseCssParameter(child);
+                        if( definition instanceof Literal){
+                            dashString = ((Literal)definition).getValue().toString();
+                        }
+                        else {
+                            LOGGER.warning("Only literal stroke-dasharray supported at this time:"+definition);
+                        }                        
+                    }
+                    if( dashString != null){
+                        StringTokenizer stok = new StringTokenizer(dashString, " ");
+                        float[] dashes = new float[stok.countTokens()];
+                        for (int l = 0; l < dashes.length; l++) {
+                            dashes[l] = Float.parseFloat(stok.nextToken());
+                        }                    
+                        stroke.setDashArray(dashes);
+                    }
+                    else {
+                        LOGGER.fine("Unable to parse stroke-dasharray");
+                    }                
                 } else if (res.equalsIgnoreCase("dashoffset")
                         || res.equalsIgnoreCase("stroke-dashoffset")) {
                     stroke.setDashOffset(parseCssParameter(child));
@@ -1880,7 +1895,7 @@ public class SLDParser {
 
         NodeList children = root.getChildNodes();
         final int length = children.getLength();
-        List<Expression> expressions = new ArrayList();
+        List<Expression> expressions = new ArrayList<Expression>();
         for (int i = 0; i < length; i++) {
             Node child = children.item(i);
 

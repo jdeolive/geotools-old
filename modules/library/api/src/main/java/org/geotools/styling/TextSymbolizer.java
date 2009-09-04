@@ -116,6 +116,12 @@ public interface TextSymbolizer extends org.opengis.style.TextSymbolizer,Symboli
     Font getFont();
     
     /**
+     * Font used when rendering this symbolizer.
+     * @param font
+     */
+    public void setFont( org.opengis.style.Font font );
+    
+    /**
      * sets a list of device independent Font objects to be used to render the
      * label.
      *
@@ -133,7 +139,7 @@ public interface TextSymbolizer extends org.opengis.style.TextSymbolizer,Symboli
      * A LabelPlacement specifies how a text element should be rendered
      * relative to its geometric point or line.
      */
-    void setLabelPlacement(LabelPlacement labelPlacement);
+    void setLabelPlacement(org.opengis.style.LabelPlacement labelPlacement);
 
     /**
      * A LabelPlacement specifies how a text element should be rendered
@@ -161,7 +167,7 @@ public interface TextSymbolizer extends org.opengis.style.TextSymbolizer,Symboli
      * A halo fills an extended area outside the glyphs of a rendered text
      * label to make the label easier to read over a background.
      */
-    void setHalo(Halo halo);
+    void setHalo(org.opengis.style.Halo halo);
 
     /**
      * Returns the object that indicates how the text will be filled.
@@ -173,7 +179,7 @@ public interface TextSymbolizer extends org.opengis.style.TextSymbolizer,Symboli
      * Sets the object that indicates how the text will be filled. See {@link
      * #getFill} for details.
      */
-    void setFill(Fill fill);
+    void setFill(org.opengis.style.Fill fill);
 
     /**
      * This property defines the geometry to be used for styling.<br>

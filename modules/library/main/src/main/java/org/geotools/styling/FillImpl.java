@@ -186,9 +186,9 @@ public class FillImpl implements Fill, Cloneable {
      * Setter for property graphic.
      * @param graphicFill New value of property graphic.
      */
-    public void setGraphicFill(org.geotools.styling.Graphic graphicFill) {
+    public void setGraphicFill(org.opengis.style.Graphic graphicFill) {
     	if( this.graphicFill == graphicFill ) return;
-    	this.graphicFill = graphicFill;    	
+    	this.graphicFill = GraphicImpl.cast( graphicFill );
     }
     
     public Object accept(StyleVisitor visitor,Object data) {
@@ -265,7 +265,7 @@ public class FillImpl implements Fill, Cloneable {
         return false;
     }
 
-    static Fill cast(org.opengis.style.Fill fill) {
+    static FillImpl cast(org.opengis.style.Fill fill) {
         if (fill == null) {
             return null;
         } else if (fill instanceof FillImpl) {

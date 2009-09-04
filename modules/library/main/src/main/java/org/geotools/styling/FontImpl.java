@@ -68,7 +68,7 @@ public class FontImpl implements Font, Cloneable {
     }
 
     public List<Expression> getFamily() {
-        return Collections.unmodifiableList(fontFamily);
+        return fontFamily;
     }
 
     /**
@@ -251,6 +251,23 @@ public class FontImpl implements Font, Cloneable {
 
     public Object accept(StyleVisitor visitor,Object data) {
         return visitor.visit(this,data);
+    }
+    
+    static FontImpl cast( org.opengis.style.Font font ){
+        if( font == null ) {
+            return null;
+        }
+        else if (font instanceof FontImpl ){
+            return (FontImpl) font;            
+        }
+        else {
+            FontImpl copy = new FontImpl();
+            copy.getFamily().addAll( font.getFamily() );
+            copy.setSize(font.getSize());
+            copy.setStyle(font.getStyle());
+            copy.setWeight(font.getWeight());
+            return copy;
+        }
     }
     
 }

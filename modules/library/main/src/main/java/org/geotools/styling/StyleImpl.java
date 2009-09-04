@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import org.geotools.util.Utilities;
 import org.geotools.util.SimpleInternationalString;
+import org.opengis.style.Description;
 import org.opengis.util.Cloneable;
 
 /**
@@ -39,7 +40,7 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
             "org.geotools.styling");
     
     private List<FeatureTypeStyle> featureTypeStyles = new ArrayList<FeatureTypeStyle>();
-    private Description description = new DescriptionImpl();
+    private DescriptionImpl description = new DescriptionImpl();
     private String name = "Default Styler";
     private boolean defaultB = false;
 
@@ -51,10 +52,10 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
     protected StyleImpl() {
     }
     
-    public Description getDescription() {
+    public DescriptionImpl getDescription() {
         return description;
     }
-    
+    @Deprecated
     public String getAbstract() {
         if( description == null || description.getAbstract() == null ){
                 return null;
@@ -105,7 +106,7 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
     public String getName() {
         return name;
     }
-
+    @Deprecated
     public String getTitle() {
         if( description == null || description.getTitle() == null ){
                 return null;
@@ -117,6 +118,7 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
         return defaultB;
     }
 
+    @Deprecated
     public void setAbstract(String abstractStr) {
         if( description == null ){
              description = new DescriptionImpl();
@@ -131,7 +133,7 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
     public void setName(String name) {
         this.name = name;
     }
-
+    @Deprecated
     public void setTitle(String title) {
         if( description == null ){
                 description = new DescriptionImpl();
@@ -251,5 +253,9 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
 
     public Object accept(org.opengis.style.StyleVisitor visitor, Object extraData) {
         return visitor.visit( this, extraData );
+    }
+
+    public void setDescription(Description description) {
+        this.description = DescriptionImpl.cast(description);
     }
 }

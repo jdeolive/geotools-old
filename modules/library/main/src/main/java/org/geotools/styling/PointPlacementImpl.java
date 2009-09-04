@@ -40,8 +40,8 @@ public class PointPlacementImpl implements PointPlacement, Cloneable {
 
     // TODO: make container ready
     private final FilterFactory filterFactory;
-    private AnchorPoint anchorPoint = new AnchorPointImpl();
-    private Displacement displacement = new DisplacementImpl();
+    private AnchorPointImpl anchorPoint = new AnchorPointImpl();
+    private DisplacementImpl displacement = new DisplacementImpl();
     private Expression rotation = null;
 
     public PointPlacementImpl(){
@@ -64,7 +64,7 @@ public class PointPlacementImpl implements PointPlacement, Cloneable {
      *
      * @return Label's AnchorPoint.
      */
-    public org.geotools.styling.AnchorPoint getAnchorPoint() {
+    public AnchorPointImpl getAnchorPoint() {
         return anchorPoint;
     }
 
@@ -73,12 +73,11 @@ public class PointPlacementImpl implements PointPlacement, Cloneable {
      *
      * @param anchorPoint New value of property anchorPoint.
      */
-    public void setAnchorPoint(org.geotools.styling.AnchorPoint anchorPoint) {
-        if (anchorPoint == null) {
-            this.anchorPoint = new AnchorPointImpl();
-        } else {
-            this.anchorPoint = anchorPoint;
+    public void setAnchorPoint(org.opengis.style.AnchorPoint anchorPoint) {
+        if( this.anchorPoint == anchorPoint ){
+            return;
         }
+        this.anchorPoint = AnchorPointImpl.cast( anchorPoint );
     }
 
     /**
@@ -96,12 +95,11 @@ public class PointPlacementImpl implements PointPlacement, Cloneable {
      *
      * @param displacement New value of property displacement.
      */
-    public void setDisplacement(Displacement displacement) {
-        if (displacement == null) {
-            this.displacement = new DisplacementImpl();
-        } else {
-            this.displacement = displacement;
+    public void setDisplacement(org.opengis.style.Displacement displacement) {
+        if (this.displacement == displacement) {
+            return;
         }
+        this.displacement = DisplacementImpl.cast( displacement );
     }
 
     /**
@@ -136,8 +134,8 @@ public class PointPlacementImpl implements PointPlacement, Cloneable {
     public Object clone() {
         try {
             PointPlacementImpl clone = (PointPlacementImpl) super.clone();
-            clone.anchorPoint = (AnchorPoint) ((Cloneable) anchorPoint).clone();
-            clone.displacement = (Displacement) ((Cloneable) displacement)
+            clone.anchorPoint = (AnchorPointImpl) ((Cloneable) anchorPoint).clone();
+            clone.displacement = (DisplacementImpl) ((Cloneable) displacement)
                 .clone();
 
             return clone;

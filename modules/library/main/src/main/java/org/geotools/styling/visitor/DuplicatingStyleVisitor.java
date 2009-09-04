@@ -751,12 +751,12 @@ public class DuplicatingStyleVisitor implements StyleVisitor {
     public void visit(TextSymbolizer text) {
         TextSymbolizer copy = sf.createTextSymbolizer();
         copy.setFill( copy( text.getFill()));
-        copy.setFonts( copy( text.getFonts()));
+        copy.setFont( copy( text.getFont()));
         copy.setGeometryPropertyName( text.getGeometryPropertyName() );
         copy.setUnitOfMeasure(text.getUnitOfMeasure());
         copy.setHalo( copy( text.getHalo() ));
         copy.setLabel( copy( text.getLabel()));
-        copy.setPlacement( copy( text.getPlacement()));
+        copy.setLabelPlacement( copy( text.getLabelPlacement()));
         copy.setPriority( copy( text.getPriority()));
         
         if( STRICT && !copy.equals( text )){

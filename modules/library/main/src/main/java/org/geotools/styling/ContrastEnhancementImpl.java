@@ -213,4 +213,19 @@ public class ContrastEnhancementImpl implements ContrastEnhancement {
 
         return false;
     }
+
+    static ContrastEnhancementImpl cast(org.opengis.style.ContrastEnhancement enhancement) {
+        if( enhancement == null ){
+            return null;
+        }
+        else if (enhancement instanceof ContrastEnhancementImpl){
+            return (ContrastEnhancementImpl) enhancement;
+        }
+        else {
+            ContrastEnhancementImpl copy = new ContrastEnhancementImpl();
+            copy.setGammaValue( enhancement.getGammaValue() );
+            copy.setMethod( enhancement.getMethod() );
+            return copy;
+        }
+    }
 }

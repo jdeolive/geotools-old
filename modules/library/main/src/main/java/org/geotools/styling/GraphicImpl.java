@@ -19,7 +19,6 @@ package org.geotools.styling;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.geotools.factory.CommonFactoryFinder;
@@ -29,7 +28,6 @@ import org.geotools.util.Utilities;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.AnchorPoint;
-import org.opengis.style.GraphicFill;
 import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
@@ -48,7 +46,7 @@ public class GraphicImpl implements Graphic, Cloneable {
     //private static final java.util.logging.Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
     
     private final List<GraphicalSymbol> graphics = new ArrayList<GraphicalSymbol>();
-    private AnchorPoint anchor;
+    private AnchorPointImpl anchor;
     private Expression gap;
     private Expression initialGap;
     
@@ -72,7 +70,7 @@ public class GraphicImpl implements Graphic, Cloneable {
     
     public GraphicImpl(FilterFactory factory, AnchorPoint anchor,Expression gap, Expression initialGap) {
         filterFactory = factory;
-        this.anchor = anchor;
+        this.anchor = AnchorPointImpl.cast(anchor);
         
         if(gap == null) this.gap = ConstantExpression.constant(0);
         else this.gap = gap;
@@ -221,8 +219,13 @@ public class GraphicImpl implements Graphic, Cloneable {
         graphics.add(symbol);
     }
     
-    public AnchorPoint getAnchorPoint() {
+    public AnchorPointImpl getAnchorPoint() {
         return anchor;
+    }
+
+
+    public void setAnchorPoint(org.opengis.style.AnchorPoint anchorPoint) {
+        this.anchor = AnchorPointImpl.cast( anchorPoint );
     }
 
     /**
@@ -280,9 +283,17 @@ public class GraphicImpl implements Graphic, Cloneable {
     public Expression getInitialGap() {
         return initialGap;
     }
+    
+    public void setInitialGap( Expression initialGap ){
+        this.initialGap = initialGap;
+    }
 
     public Expression getGap() {
         return gap;
+    }
+    
+    public void setGap(Expression gap) {
+        this.gap = gap;
     }
     
     public void setDisplacement(org.opengis.style.Displacement offset) {
@@ -290,11 +301,10 @@ public class GraphicImpl implements Graphic, Cloneable {
     }
 
     /**
-     * Setter for property opacity.
-     *
+     * Graphic opacity.
+     * 
      * @param opacity New value of property opacity.
      */
-    @Deprecated
     public void setOpacity(Expression opacity) {
         this.opacity = opacity;
     }
@@ -309,7 +319,6 @@ public class GraphicImpl implements Graphic, Cloneable {
      *
      * @param rotation New value of property rotation.
      */
-    @Deprecated
     public void setRotation(Expression rotation) {
         this.rotation = rotation;
     }
@@ -324,7 +333,6 @@ public class GraphicImpl implements Graphic, Cloneable {
      *
      * @param size New value of property size.
      */
-    @Deprecated
     public void setSize(Expression size) {
         this.size = size;
     }
@@ -474,7 +482,7 @@ public class GraphicImpl implements Graphic, Cloneable {
         }
         else {
             GraphicImpl copy = new GraphicImpl();            
-            copy.setAnchor( graphic.getAnchorPoint() );
+            copy.setAnchorPoint( graphic.getAnchorPoint() );
             copy.setDisplacement( graphic.getDisplacement() );
             if( graphic.graphicalSymbols() != null ){
                 for ( GraphicalSymbol item : graphic.graphicalSymbols()) {
@@ -489,11 +497,5 @@ public class GraphicImpl implements Graphic, Cloneable {
             return copy;
         }
     }
-
-    private void setAnchor(AnchorPoint anchorPoint) {
-        this.anchor = AnchorPointImpl.cast( anchorPoint );
-    }
-
-
 
 }

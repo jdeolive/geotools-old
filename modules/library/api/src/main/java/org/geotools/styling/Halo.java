@@ -89,7 +89,7 @@ public interface Halo extends org.opengis.style.Halo{
      *
      * @param fill
      */
-    void setFill(Fill fill);
+    void setFill(org.opengis.style.Fill fill);
 
     void accept(org.geotools.styling.StyleVisitor visitor);
 }

@@ -90,7 +90,7 @@ public interface Symbolizer extends org.opengis.style.Symbolizer{
      * @since SymbologyEncoding 1.1
      * @param description
      */
-    void setDescription(Description description);    
+    void setDescription(org.opengis.style.Description description);    
     
     /**
      * Name of symbolizer; not always human readable.

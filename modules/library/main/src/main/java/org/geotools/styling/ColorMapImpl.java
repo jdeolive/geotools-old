@@ -131,4 +131,16 @@ public class ColorMapImpl implements ColorMap {
 
         return false;
     }
+
+    static ColorMapImpl cast(org.opengis.style.ColorMap colorMap) {
+        if( colorMap == null ){
+            return null;            
+        }
+        else if ( colorMap instanceof ColorMapImpl){
+            return (ColorMapImpl) colorMap;
+        }
+        else {
+            return null; // unable to handle the translation at this time
+        }
+    }
 }

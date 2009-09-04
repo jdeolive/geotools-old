@@ -98,7 +98,7 @@ public interface PolygonSymbolizer extends org.opengis.style.PolygonSymbolizer,S
      *
      * @param fill The Fill style to use when rendering the area.
      */
-    void setFill(Fill fill);
+    void setFill(org.opengis.style.Fill fill);
 
     /**
      * Provides the graphical-symbolization parameter to use for the outline of
@@ -114,7 +114,7 @@ public interface PolygonSymbolizer extends org.opengis.style.PolygonSymbolizer,S
      *
      * @param stroke The Stroke style to use when rendering lines.
      */
-    void setStroke(Stroke stroke);
+    void setStroke(org.opengis.style.Stroke stroke);
 
     /**
      * This property defines the geometry to be used for styling.<br>
@@ -142,7 +142,16 @@ public interface PolygonSymbolizer extends org.opengis.style.PolygonSymbolizer,S
      */
     public void setPerpendicularOffset(Expression offset);
     
+    /**
+     * Displacement from the original geometry in pixels.
+     *
+     * @return Displacement above and to the right of the indicated point; default x=0, y=0
+     */
     public Displacement getDisplacement();
 
-    public void setDisplacement(Displacement displacement);    
+    /**
+     * Provide x / y offset in pixels used to crate shadows.
+     * @param displacement
+     */
+    public void setDisplacement(org.opengis.style.Displacement displacement);    
 }

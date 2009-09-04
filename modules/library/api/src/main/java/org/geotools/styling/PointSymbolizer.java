@@ -92,7 +92,7 @@ public interface PointSymbolizer extends org.opengis.style.PointSymbolizer, Symb
      * Provides the graphical-symbolization parameter to use for the  point
      * geometry.
      */
-    void setGraphic(Graphic graphic);
+    void setGraphic(org.opengis.style.Graphic graphic);
 
     /**
      * This property defines the geometry to be used for styling.<br>

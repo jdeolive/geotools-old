@@ -49,8 +49,8 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
     private Font font;
     
     private final FilterFactory filterFactory;
-    private Fill fill;
-    private Halo halo;
+    private FillImpl fill;
+    private HaloImpl halo;
     private LabelPlacement placement;
     private String geometryPropertyName = null;
     private Expression label = null;
@@ -95,7 +95,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
         return desc;
     }
     
-    public void setDescription(org.geotools.styling.Description description) {
+    public void setDescription(org.opengis.style.Description description) {
         this.desc = DescriptionImpl.cast(description);
     }
     public Unit<Length> getUnitOfMeasure() {
@@ -130,7 +130,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @return The fill to be used.
      */
-    public Fill getFill() {
+    public FillImpl getFill() {
         return fill;
     }
 
@@ -139,18 +139,23 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param fill New value of property fill.
      */
-    @Deprecated
-    public void setFill(Fill fill) {
+    public void setFill(org.opengis.style.Fill fill) {
         if (this.fill == fill) {
             return;
         }
-        this.fill = fill;
+        this.fill = FillImpl.cast( fill );
     }
 
     public Font getFont() {
         return font;
     }
     
+    public void setFont( org.opengis.style.Font font ){
+        if( this.font == font ){
+            return;
+        }
+        this.font = FontImpl.cast( font );
+    }
     /**
      * Returns a device independent Font object that is to be used to render
      * the label.
@@ -198,7 +203,7 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      * label to make the label easier to read over a background.
      *
      */
-    public Halo getHalo() {
+    public HaloImpl getHalo() {
         return halo;
     }
 
@@ -207,12 +212,11 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param halo New value of property halo.
      */
-    @Deprecated
-    public void setHalo(Halo halo) {
+    public void setHalo(org.opengis.style.Halo halo) {
         if (this.halo == halo) {
             return;
         }
-        this.halo = halo;
+        this.halo = HaloImpl.cast(halo);
     }
 
     /**
@@ -229,7 +233,6 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param label New value of property label.
      */
-    @Deprecated
     public void setLabel(Expression label) {
         this.label = label;
     }
@@ -240,21 +243,19 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @return Value of property labelPlacement.
      */
+    @Deprecated
     public LabelPlacement getPlacement() {
-        return placement;
+        return getLabelPlacement();
     }
 
     /**
      * Setter for property labelPlacement.
      *
      * @param labelPlacement New value of property labelPlacement.
+     * @deprecated Use setLabelPlacement
      */
-    @Deprecated
     public void setPlacement(LabelPlacement labelPlacement) {
-        if (this.placement == labelPlacement) {
-            return;
-        }
-        this.placement = labelPlacement;
+        setLabelPlacement( placement );
     }
 
     /**
@@ -265,19 +266,25 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      */
     public LabelPlacement getLabelPlacement() {
-        return getPlacement();
+        return placement;
     }
 
     /**
      * Setter for property labelPlacement.
      *
      * @param labelPlacement New value of property labelPlacement.
-     *
-     * @deprecated use setPlacement(LabelPlacement)
      */
-    @Deprecated
-    public void setLabelPlacement( org.geotools.styling.LabelPlacement labelPlacement) {
-        setPlacement(labelPlacement);
+
+    public void setLabelPlacement( org.opengis.style.LabelPlacement labelPlacement) {
+        if (this.placement == labelPlacement) {
+            return;
+        }
+        if( labelPlacement instanceof LinePlacement){
+            this.placement = LinePlacementImpl.cast( labelPlacement );
+        }
+        else {
+            this.placement = PointPlacementImpl.cast( labelPlacement );
+        }
     }
 
     /**
@@ -294,7 +301,6 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
      *
      * @param geometryPropertyName New value of property geometryPropertyName.
      */
-    @Deprecated
     public void setGeometryPropertyName(java.lang.String geometryPropertyName) {
         this.geometryPropertyName = geometryPropertyName;
     }
@@ -473,6 +479,30 @@ public class TextSymbolizerImpl implements TextSymbolizer2, Cloneable {
     
     public void setOtherText(OtherText otherText) {
         this.otherText = otherText;
+    }
+
+    static TextSymbolizerImpl cast(org.opengis.style.Symbolizer symbolizer) {
+        if( symbolizer == null ){
+            return null;
+        }
+        else if (symbolizer instanceof TextSymbolizerImpl){
+            return (TextSymbolizerImpl) symbolizer;
+        }
+        else {
+            org.opengis.style.TextSymbolizer textSymbolizer = (org.opengis.style.TextSymbolizer) symbolizer;
+            TextSymbolizerImpl copy = new TextSymbolizerImpl();
+            copy.setDescription( textSymbolizer.getDescription());
+            copy.setFill( textSymbolizer.getFill() );
+            copy.setFont( textSymbolizer.getFont() );
+            copy.setGeometryPropertyName( textSymbolizer.getGeometryPropertyName() );
+            copy.setHalo(textSymbolizer.getHalo() );
+            copy.setLabel(textSymbolizer.getLabel() );
+            copy.setLabelPlacement(textSymbolizer.getLabelPlacement() );
+            copy.setName(textSymbolizer.getName() );
+            copy.setUnitOfMeasure( textSymbolizer.getUnitOfMeasure() );
+            
+            return copy;
+        }
     }
 
 }

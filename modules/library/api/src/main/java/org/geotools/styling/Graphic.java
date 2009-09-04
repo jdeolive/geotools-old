@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.geotools.filter.ConstantExpression;
 import org.opengis.filter.expression.Expression;
-import org.opengis.style.AnchorPoint;
 import org.opengis.style.GraphicalSymbol;
 
 
@@ -273,6 +272,28 @@ public interface Graphic extends org.opengis.style.Graphic,
     void addSymbol(Symbol symbol);
 
     /**
+     * Location inside of the Graphic (or Label) to position the main-geometry point.
+     * <p>
+     * The coordinates are provided as 0.0 to 1.0 range amounting to a percentage
+     * of the graphic width/height. So the default of 0.5/0.5 indicates that the
+     * graphic would be centered.
+     * <p>
+     * Please keep in mind that a system may shuffel things around a bit in order
+     * to prevent graphics from overlapping (so this AnchorPoint is only a hint
+     * about how things should be if there is enough room).
+     *
+     * @return AnchorPoint , if null should use a default point X=0.5 Y=0.5
+     */
+    public AnchorPoint getAnchorPoint();
+    
+    /**
+     * Anchor point (expressed as an x/y percentage of the graphic size).
+     * 
+     * @param anchorPoint
+     */
+    public void setAnchorPoint(org.opengis.style.AnchorPoint anchorPoint);
+    
+    /**
      * This specifies the level of translucency to use when rendering the  graphic.<br>
      * The value is encoded as a floating-point value between 0.0 and 1.0 with
      * 0.0 representing totally transparent and 1.0 representing totally
@@ -354,6 +375,14 @@ public interface Graphic extends org.opengis.style.Graphic,
      */
     void setGeometryPropertyName(String geometryPropertyName);
 
+    Expression getGap();
+    
+    void setGap(Expression gap );
+    
+    Expression getInitialGap();
+    
+    void setInitialGap( Expression initialGap );
+    
     /**
      * accepts a StyleVisitor - used by xmlencoder and other packages which
      * need to walk the style tree
@@ -382,6 +411,14 @@ abstract class ConstantGraphic implements Graphic {
     }
 
     public void addMark(Mark mark) {
+        cannotModifyConstant();
+    }
+
+    public void setGap(Expression gap) {
+        cannotModifyConstant();
+    }
+
+    public void setInitialGap(Expression initialGap) {
         cannotModifyConstant();
     }
 
@@ -427,6 +464,10 @@ abstract class ConstantGraphic implements Graphic {
 
     public AnchorPoint getAnchorPoint() {
         return org.geotools.styling.AnchorPoint.DEFAULT;
+    }
+    
+    public void setAnchorPoint(org.opengis.style.AnchorPoint anchorPoint) {
+        cannotModifyConstant();
     }
     
     public Expression getGap(){

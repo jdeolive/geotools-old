@@ -18,7 +18,6 @@ package org.geotools.styling;
 
 
 import javax.measure.quantity.Length;
-import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
 import org.geotools.util.SimpleInternationalString;
@@ -43,7 +42,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
     private String name;
     private Unit<Length> uom;
     private String geometryPropertyName = null;
-    private Graphic graphic = new GraphicImpl();
+    private GraphicImpl graphic = new GraphicImpl();
 
     /**
      * Creates a new instance of DefaultPointSymbolizer
@@ -59,7 +58,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
     }
 
     protected PointSymbolizerImpl(Graphic graphic, Unit<Length> uom, String geom, String name, Description desc){
-        this.graphic = graphic;
+        this.graphic = GraphicImpl.cast(graphic);
         this.uom = uom;
         this.geometryPropertyName = geom;
         this.name = name;
@@ -78,7 +77,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         return description;
     }
     
-    public void setDescription(org.geotools.styling.Description description) {
+    public void setDescription(org.opengis.style.Description description) {
         this.description = DescriptionImpl.cast(description);
     }
     
@@ -104,7 +103,6 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         return geometryPropertyName;
     }
 
-    @Deprecated
     public void setGeometryPropertyName(String name) {
         geometryPropertyName = name;
     }
@@ -123,7 +121,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
      *
      * @return The Graphic to be used when drawing a point
      */
-    public Graphic getGraphic() {
+    public GraphicImpl getGraphic() {
         return graphic;
     }
 
@@ -132,12 +130,11 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
      *
      * @param graphic New value of property graphic.
      */
-    @Deprecated
-    public void setGraphic(Graphic graphic) {
+    public void setGraphic(org.opengis.style.Graphic graphic) {
         if (this.graphic == graphic) {
             return;
         }
-        this.graphic = graphic;
+        this.graphic = GraphicImpl.cast( graphic );
     }
 
     /**
@@ -165,7 +162,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
 
         try {
             clone = (PointSymbolizerImpl) super.clone();
-            if(graphic != null) clone.graphic = (Graphic) ((Cloneable) graphic).clone();
+            if(graphic != null) clone.graphic = (GraphicImpl) ((Cloneable) graphic).clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
@@ -240,6 +237,22 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         return false;
     }
 
-
+    static PointSymbolizerImpl cast(org.opengis.style.Symbolizer symbolizer) {
+        if (symbolizer == null) {
+            return null;
+        } else if (symbolizer instanceof PointSymbolizerImpl) {
+            return (PointSymbolizerImpl) symbolizer;
+        } else if (symbolizer instanceof org.opengis.style.PointSymbolizer) {
+            org.opengis.style.PointSymbolizer pointSymbolizer = (org.opengis.style.PointSymbolizer) symbolizer;
+            PointSymbolizerImpl copy = new PointSymbolizerImpl();
+            copy.setDescription( pointSymbolizer.getDescription() );
+            copy.setGeometryPropertyName( pointSymbolizer.getGeometryPropertyName() );
+            copy.setGraphic( pointSymbolizer.getGraphic());
+            copy.setName(pointSymbolizer.getName());
+            copy.setUnitOfMeasure(pointSymbolizer.getUnitOfMeasure());
+            return copy;
+        }
+        return null; // not a PointSymbolizer
+    }
 
 }

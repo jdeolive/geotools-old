@@ -59,6 +59,8 @@ public interface Font extends org.opengis.style.Font{
 
     /**
      * The "font-style" SVG parameter should be "normal", "italic", or "oblique".
+     * <p>
+     * If null is returned the default value should be considered "normal".
      * @return Expression or null
      */
     Expression getStyle();
@@ -71,6 +73,8 @@ public interface Font extends org.opengis.style.Font{
 
     /**
      * The "font-weight" SVG parameter should be "normal" or "bold".
+     * <p>
+     * If null the default should be considered as "normal"
      * @return font-weight SVG parameter
      */
     Expression getWeight();
@@ -81,18 +85,22 @@ public interface Font extends org.opengis.style.Font{
     void setWeight(Expression weight);
     
     /**
-     * Font size.
+     * Font size in pixels with a default of 10 pixels.
+     * <p>
+     * Please note this is specified in pixels so you may need to take the
+     * resolution of your output into account when providing a size.
+     * 
      * @return font size
      */
     Expression getSize();
     
     /**
-     * @param size the font size
+     * @param size the font size in pixels
      */
     void setSize(Expression size);
     
     //
-    // Deprecated names used from GeoTools 2.0-2.5
+    // Depreciated names used from GeoTools 2.0-2.5
     //
     /**
      * @deprecated Please use getStyle in 2.6.x

@@ -42,8 +42,8 @@ public class MarkImpl implements Mark, Cloneable {
     private static final java.util.logging.Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.styling");
 
     private final FilterFactory filterFactory;
-    private Fill fill;
-    private Stroke stroke;
+    private FillImpl fill;
+    private StrokeImpl stroke;
 
     private ExternalMark external;
     private Expression wellKnownName = null;
@@ -69,8 +69,8 @@ public class MarkImpl implements Mark, Cloneable {
 
         try {
             StyleFactory sfac = new StyleFactoryImpl();
-            fill = sfac.getDefaultFill();
-            stroke = sfac.getDefaultStroke();
+            fill = FillImpl.cast( sfac.getDefaultFill() );
+            stroke = StrokeImpl.cast( sfac.getDefaultStroke() );
 
             wellKnownName = filterFactory.literal("square");
             size = filterFactory.literal(new Integer(6));
@@ -102,7 +102,7 @@ public class MarkImpl implements Mark, Cloneable {
      *
      * @return the Fill definition to use when rendering the Mark.
      */
-    public Fill getFill() {
+    public FillImpl getFill() {
         return fill;
     }
 
@@ -112,7 +112,7 @@ public class MarkImpl implements Mark, Cloneable {
      *
      * @return The Stroke definition to use when rendering the Mark.
      */
-    public Stroke getStroke() {
+    public StrokeImpl getStroke() {
         return stroke;
     }
 
@@ -133,8 +133,8 @@ public class MarkImpl implements Mark, Cloneable {
      *
      * @param fill New value of property fill.
      */
-    public void setFill(org.geotools.styling.Fill fill) {
-        this.fill = fill;
+    public void setFill(org.opengis.style.Fill fill) {
+        this.fill = FillImpl.cast(fill);
     }
 
     /**
@@ -142,8 +142,8 @@ public class MarkImpl implements Mark, Cloneable {
      *
      * @param stroke New value of property stroke.
      */
-    public void setStroke(Stroke stroke) {
-        this.stroke = stroke;
+    public void setStroke(org.opengis.style.Stroke stroke) {
+        this.stroke = StrokeImpl.cast( stroke );
     }
 
     public void setSize(Expression size) {
@@ -220,10 +220,10 @@ public class MarkImpl implements Mark, Cloneable {
         try {
             MarkImpl clone = (MarkImpl) super.clone();
             if (fill != null) {
-            	clone.fill = (Fill) ((Cloneable) fill).clone();
+            	clone.fill = (FillImpl) ((Cloneable) fill).clone();
             }
             if (stroke != null && stroke instanceof Cloneable) {
-            	clone.stroke = (Stroke) ((Cloneable)stroke).clone();
+            	clone.stroke = (StrokeImpl) ((Cloneable)stroke).clone();
             }
 
             return clone;
@@ -353,6 +353,7 @@ public class MarkImpl implements Mark, Cloneable {
     public void setExternalMark(ExternalMark external) {
         this.external = external;
     }
+    @SuppressWarnings("deprecation")
     static MarkImpl cast(GraphicalSymbol item) {
         if( item == null ){
             return null;

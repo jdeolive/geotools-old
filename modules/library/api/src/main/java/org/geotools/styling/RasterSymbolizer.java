@@ -151,7 +151,7 @@ public interface RasterSymbolizer extends org.opengis.style.RasterSymbolizer,Sym
      *
      * @param channel the channel selected
      */
-    void setChannelSelection(ChannelSelection channel);
+    void setChannelSelection(org.opengis.style.ChannelSelection channel);
 
     /**
      * The ChannelSelection element specifies the false-color channel selection
@@ -225,7 +225,7 @@ public interface RasterSymbolizer extends org.opengis.style.RasterSymbolizer,Sym
      *
      * @param colorMap the ColorMap for the raster
      */
-    void setColorMap(ColorMap colorMap);
+    void setColorMap(org.opengis.style.ColorMap colorMap);
 
     /**
      * The ColorMap element defines either the colors of a palette-type raster
@@ -263,7 +263,7 @@ public interface RasterSymbolizer extends org.opengis.style.RasterSymbolizer,Sym
      *
      * @param ce the contrastEnhancement
      */
-    void setContrastEnhancement(ContrastEnhancement ce);
+    void setContrastEnhancement(org.opengis.style.ContrastEnhancement ce);
 
     /**
      * The ContrastEnhancement element defines contrast enhancement for a
@@ -301,7 +301,7 @@ public interface RasterSymbolizer extends org.opengis.style.RasterSymbolizer,Sym
      *
      * @param relief the shadedrelief object
      */
-    void setShadedRelief(ShadedRelief relief);
+    void setShadedRelief(org.opengis.style.ShadedRelief relief);
 
     /**
      * The ShadedRelief element selects the application of relief shading (or
@@ -345,7 +345,7 @@ public interface RasterSymbolizer extends org.opengis.style.RasterSymbolizer,Sym
      *        polygon or a line symbolizer an unexpected argument exception
      *        may be thrown by an implementing class.
      */
-    void setImageOutline(Symbolizer symbolizer);
+    void setImageOutline(org.opengis.style.Symbolizer symbolizer);
 
     /**
      * The ImageOutline element specifies that individual source rasters in a

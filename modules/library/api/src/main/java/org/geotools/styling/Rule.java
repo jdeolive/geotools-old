@@ -90,11 +90,17 @@ public interface Rule extends org.opengis.style.Rule {
     void setName(String name);
 
     /**
-     * Description for this style.
+     * Description for this rule.
      * @return Human readable description for use in user interfaces
      * @since 2.5.x
      */
     Description getDescription();
+    
+    /**
+     * Description for this rule.
+     * @param description Human readable title and abstract.
+     */
+    void setDescription(org.opengis.style.Description description);
     
     /**
      * Gets the title.

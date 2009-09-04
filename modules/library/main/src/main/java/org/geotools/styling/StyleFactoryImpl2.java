@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 import javax.swing.Icon;
 
@@ -47,6 +48,7 @@ import org.opengis.style.GraphicStroke;
 import org.opengis.style.GraphicalSymbol;
 import org.opengis.style.OverlapBehavior;
 import org.opengis.style.SemanticType;
+import org.opengis.style.Symbolizer;
 import org.opengis.util.InternationalString;
 
 
@@ -123,7 +125,7 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return new DescriptionImpl( title, description );
     }
 
-    public org.opengis.style.Displacement displacement(Expression dx, Expression dy) {
+    public DisplacementImpl displacement(Expression dx, Expression dy) {
         return new DisplacementImpl( dx, dy );
     }
 
@@ -175,119 +177,327 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         return featureTypeStyle;
     }
 
-    public org.opengis.style.Fill fill(GraphicFill fill, Expression color, Expression opacity) {
-        return null;
+    public org.opengis.style.Fill fill(GraphicFill graphicFill, Expression color, Expression opacity) {
+        FillImpl fill = new FillImpl( filterFactory);
+        fill.setGraphicFill(graphicFill);
+        fill.setColor(color);
+        fill.setOpacity(opacity);
+        return fill;
     }
 
-    public org.opengis.style.Font font(List<Expression> family, Expression style,
+    public Font font(List<Expression> family, Expression style,
             Expression weight, Expression size) {
-        return null;
+        Font font = new FontImpl();
+        font.getFamily().addAll( family );
+        font.setStyle(style);
+        font.setWeight(weight);
+        font.setSize(size);
+        
+        return font;
     }
 
-    public org.opengis.style.Graphic graphic(List<GraphicalSymbol> symbols, Expression opacity,
+    public GraphicImpl graphic(List<GraphicalSymbol> symbols, Expression opacity,
             Expression size, Expression rotation, org.opengis.style.AnchorPoint anchor,
             org.opengis.style.Displacement disp) {
-        return null;
+        
+        GraphicImpl graphic = new GraphicImpl( filterFactory );
+        if( symbols != null ){
+            for (GraphicalSymbol graphicalSymbol : symbols) {
+                if( graphicalSymbol instanceof ExternalGraphic){
+                    graphic.graphicalSymbols().add( ExternalGraphicImpl.cast( graphicalSymbol ) );                  
+                }
+                else if ( graphicalSymbol instanceof Mark ){
+                    graphic.graphicalSymbols().add( MarkImpl.cast(graphicalSymbol));
+                }
+            }
+        }
+        graphic.setOpacity(opacity);
+        graphic.setSize(size);
+        graphic.setRotation(rotation);
+        graphic.setAnchorPoint(anchor);
+        graphic.setDisplacement(disp);
+        return graphic;
     }
-    public GraphicFill graphicFill(List<GraphicalSymbol> symbols, Expression opacity,
+    public GraphicImpl graphicFill(List<GraphicalSymbol> symbols, Expression opacity,
             Expression size, Expression rotation, org.opengis.style.AnchorPoint anchorPoint,
             org.opengis.style.Displacement displacement) {
-        return null;
+        
+        GraphicImpl graphicFill = new GraphicImpl( filterFactory );
+        if( symbols != null ){
+            for (GraphicalSymbol graphicalSymbol : symbols) {
+                if( graphicalSymbol instanceof ExternalGraphic){
+                    graphicFill.graphicalSymbols().add( ExternalGraphicImpl.cast( graphicalSymbol ) );                  
+                }
+                else if ( graphicalSymbol instanceof Mark ){
+                    graphicFill.graphicalSymbols().add( MarkImpl.cast(graphicalSymbol));
+                }
+            }
+        }
+        graphicFill.setOpacity(opacity);
+        graphicFill.setSize(size);
+        graphicFill.setRotation(rotation);
+        graphicFill.setAnchorPoint(anchorPoint);
+        graphicFill.setDisplacement(displacement);
+        
+        return graphicFill;
     }
-    public GraphicLegend graphicLegend(List<GraphicalSymbol> symbols, Expression opacity,
+    public GraphicImpl graphicLegend(List<GraphicalSymbol> symbols, Expression opacity,
             Expression size, Expression rotation, org.opengis.style.AnchorPoint anchorPoint,
             org.opengis.style.Displacement displacement) {
-        return null;
+        GraphicImpl graphicLegend = new GraphicImpl( filterFactory );
+        if( symbols != null ){
+            for (GraphicalSymbol graphicalSymbol : symbols) {
+                if( graphicalSymbol instanceof ExternalGraphic){
+                    graphicLegend.graphicalSymbols().add( ExternalGraphicImpl.cast( graphicalSymbol ) );                  
+                }
+                else if ( graphicalSymbol instanceof Mark ){
+                    graphicLegend.graphicalSymbols().add( MarkImpl.cast(graphicalSymbol));
+                }
+            }
+        }
+        graphicLegend.setOpacity(opacity);
+        graphicLegend.setSize(size);
+        graphicLegend.setRotation(rotation);
+        graphicLegend.setAnchorPoint(anchorPoint);
+        graphicLegend.setDisplacement(displacement);
+        
+        return graphicLegend;
     }
     public GraphicStroke graphicStroke(List<GraphicalSymbol> symbols, Expression opacity,
             Expression size, Expression rotation, org.opengis.style.AnchorPoint anchorPoint,
             org.opengis.style.Displacement displacement, Expression initialGap, Expression gap) {
-        return null;
+        GraphicImpl graphicStroke = new GraphicImpl( filterFactory );
+        if( symbols != null ){
+            for (GraphicalSymbol graphicalSymbol : symbols) {
+                if( graphicalSymbol instanceof ExternalGraphic){
+                    graphicStroke.graphicalSymbols().add( ExternalGraphicImpl.cast( graphicalSymbol ) );                  
+                }
+                else if ( graphicalSymbol instanceof Mark ){
+                    graphicStroke.graphicalSymbols().add( MarkImpl.cast(graphicalSymbol));
+                }
+            }
+        }
+        graphicStroke.setOpacity(opacity);
+        graphicStroke.setSize(size);
+        graphicStroke.setRotation(rotation);
+        graphicStroke.setAnchorPoint(anchorPoint);
+        graphicStroke.setDisplacement(displacement);
+        graphicStroke.setInitialGap(initialGap);
+        graphicStroke.setGap(gap);
+        
+        return graphicStroke;
     }
-    public org.opengis.style.Halo halo(org.opengis.style.Fill fill, Expression radius) {
-        return null;
+    public HaloImpl halo(org.opengis.style.Fill fill, Expression radius) {
+        HaloImpl halo = new HaloImpl();
+        halo.setFill( fill );
+        halo.setRadius( radius );
+        
+        return halo;
     }
 
-    public org.opengis.style.LinePlacement linePlacement(Expression offset, Expression initialGap,
+    public LinePlacementImpl linePlacement(Expression offset, Expression initialGap,
             Expression gap, boolean repeated, boolean aligned, boolean generalizedLine) {
-        return null;
+        LinePlacementImpl placement = new LinePlacementImpl( filterFactory );
+        placement.setPerpendicularOffset( offset );
+        placement.setInitialGap(initialGap);
+        placement.setGap(gap);
+        placement.setRepeated( repeated );
+        placement.setAligned(aligned);
+        placement.setGeneralized(generalizedLine);
+        
+        return placement;
     }
 
-    public org.opengis.style.LineSymbolizer lineSymbolizer(String name, Expression geometry,
+    @SuppressWarnings("unchecked")
+    public LineSymbolizerImpl lineSymbolizer(String name, Expression geometry,
             Description description, Unit<?> unit, org.opengis.style.Stroke stroke,
             Expression offset) {
-        return null;
+        LineSymbolizerImpl copy = new LineSymbolizerImpl();
+        copy.setDescription( description );
+        copy.setGeometryPropertyName(((PropertyName)geometry).getPropertyName() );
+        copy.setName( name );
+        copy.setPerpendicularOffset( offset );
+        copy.setStroke( stroke );
+        copy.setUnitOfMeasure( (Unit<Length>) unit );
+        return copy;
     }
-    public org.opengis.style.Mark mark(Expression wellKnownName, org.opengis.style.Fill fill,
+    public MarkImpl mark(Expression wellKnownName, org.opengis.style.Fill fill,
             org.opengis.style.Stroke stroke) {
-        return null;
+        
+        MarkImpl mark = new MarkImpl();
+        mark.setWellKnownName(wellKnownName);
+        mark.setFill(fill);
+        mark.setStroke(stroke);
+        
+        return mark;
     }
 
-    public org.opengis.style.Mark mark(ExternalMark externalMark, org.opengis.style.Fill fill,
+    public MarkImpl mark(ExternalMark externalMark, org.opengis.style.Fill fill,
             org.opengis.style.Stroke stroke) {
-        return null;
+        MarkImpl mark = new MarkImpl();
+        mark.setExternalMark(externalMark);
+        mark.setFill(fill);
+        mark.setStroke(stroke);
+        
+        return mark;
     }
 
-    public org.opengis.style.PointPlacement pointPlacement(org.opengis.style.AnchorPoint anchor,
+    public PointPlacementImpl pointPlacement(org.opengis.style.AnchorPoint anchor,
             org.opengis.style.Displacement displacement, Expression rotation) {
-        return null;
+        PointPlacementImpl pointPlacment = new PointPlacementImpl( filterFactory );
+        pointPlacment.setAnchorPoint(anchor);
+        pointPlacment.setDisplacement(displacement);
+        pointPlacment.setRotation(rotation);
+        return pointPlacment;
     }
 
-    public org.opengis.style.PointSymbolizer pointSymbolizer(String name, Expression geometry,
+    @SuppressWarnings("unchecked")
+    public PointSymbolizerImpl pointSymbolizer(String name, Expression geometry,
             Description description, Unit<?> unit, org.opengis.style.Graphic graphic) {
-        return null;
+        PointSymbolizerImpl copy = new PointSymbolizerImpl();
+        copy.setDescription( description );
+        copy.setGeometryPropertyName( ((PropertyName)geometry).getPropertyName() );
+        copy.setGraphic( graphic );
+        copy.setName( name );
+        copy.setUnitOfMeasure( (Unit<Length>) unit);
+        return copy;
     }
-    public org.opengis.style.PolygonSymbolizer polygonSymbolizer(String name, Expression geometry,
+    @SuppressWarnings("unchecked")
+    public PolygonSymbolizerImpl polygonSymbolizer(String name, Expression geometry,
             Description description, Unit<?> unit, org.opengis.style.Stroke stroke,
             org.opengis.style.Fill fill, org.opengis.style.Displacement displacement,
             Expression offset) {
-        return null;
+        PolygonSymbolizerImpl polygonSymbolizer = new PolygonSymbolizerImpl();
+        polygonSymbolizer.setStroke( stroke );
+        polygonSymbolizer.setDescription( description );
+        polygonSymbolizer.setDisplacement(displacement );
+        polygonSymbolizer.setFill(fill);
+        polygonSymbolizer.setGeometryPropertyName( ((PropertyName)geometry).getPropertyName());
+        polygonSymbolizer.setName( name );
+        polygonSymbolizer.setPerpendicularOffset( offset);
+        polygonSymbolizer.setUnitOfMeasure( (Unit<Length>) unit);
+        return polygonSymbolizer;
     }
     
-    public org.opengis.style.RasterSymbolizer rasterSymbolizer(String name, Expression geometry,
+    @SuppressWarnings("unchecked")
+    public RasterSymbolizerImpl rasterSymbolizer(String name, Expression geometry,
             Description description, Unit<?> unit, Expression opacity,
             org.opengis.style.ChannelSelection channelSelection, OverlapBehavior overlapsBehaviour,
             org.opengis.style.ColorMap colorMap, org.opengis.style.ContrastEnhancement contrast,
             org.opengis.style.ShadedRelief shaded, org.opengis.style.Symbolizer outline) {
-        return null;
+        RasterSymbolizerImpl rasterSymbolizer = new RasterSymbolizerImpl( filterFactory );
+        rasterSymbolizer.setChannelSelection(channelSelection);
+        rasterSymbolizer.setColorMap( colorMap );
+        rasterSymbolizer.setContrastEnhancement( contrast );
+        rasterSymbolizer.setDescription(  description );
+        rasterSymbolizer.setGeometryPropertyName( ((PropertyName)geometry).getPropertyName() );
+        rasterSymbolizer.setImageOutline( outline );
+        rasterSymbolizer.setName( name );
+        rasterSymbolizer.setOpacity( opacity );
+        rasterSymbolizer.setOverlapBehavior( overlapsBehaviour );
+        rasterSymbolizer.setShadedRelief( shaded );
+        rasterSymbolizer.setUnitOfMeasure((Unit<Length>) unit);
+        return rasterSymbolizer;        
     }
     
     public ExtensionSymbolizer extensionSymbolizer(String name, String propertyName,
             Description description, Unit<?> unit, String extensionName,
             Map<String, Expression> parameters) {
+        // We need a factory extension mechanism here to register additional
+        // symbolizer implementations
         return null;
     }    
   
+    static org.geotools.styling.Symbolizer cast( org.opengis.style.Symbolizer symbolizer ){
+        if( symbolizer instanceof org.opengis.style.PolygonSymbolizer){
+            return PolygonSymbolizerImpl.cast( symbolizer );
+        }
+        else if( symbolizer instanceof org.opengis.style.LineSymbolizer){
+            return LineSymbolizerImpl.cast( symbolizer );                    
+        }
+        else if( symbolizer instanceof org.opengis.style.PointSymbolizer){
+            return PointSymbolizerImpl.cast( symbolizer );
+        }
+        else if( symbolizer instanceof org.opengis.style.RasterSymbolizer){
+            return RasterSymbolizerImpl.cast( symbolizer );                    
+        }
+        else if( symbolizer instanceof org.opengis.style.TextSymbolizer){
+            return TextSymbolizerImpl.cast( symbolizer );                    
+        }
+        else if( symbolizer instanceof org.opengis.style.ExtensionSymbolizer){
+            // here is where we can hook up experimental symbolizers
+            ExtensionSymbolizer extensionSymbolizer = (ExtensionSymbolizer) symbolizer;
+            String name = extensionSymbolizer.getExtensionName();
+            // use name to look up implementation
+            
+            return null;
+        }
+        return null; // must be some new extension?   
+    }
     public org.opengis.style.Rule rule(String name, Description description, GraphicLegend legend,
             double min, double max, List<org.opengis.style.Symbolizer> symbolizers, Filter filter) {
-        return null;
+        RuleImpl rule = new RuleImpl();
+        rule.setName(name);
+        rule.setDescription(description);
+        rule.setLegend(legend);
+        rule.setMinScaleDenominator(min);
+        rule.setMaxScaleDenominator(max);
+        if( symbolizers != null ){
+            for (org.opengis.style.Symbolizer symbolizer : symbolizers) {
+                rule.symbolizers().add( cast( symbolizer ) );
+            }
+        }
+        return rule;
     }
     
-    public org.opengis.style.SelectedChannelType selectedChannelType(String channelName,
+    public SelectedChannelTypeImpl selectedChannelType(String channelName,
             org.opengis.style.ContrastEnhancement contrastEnhancement)
     {
-        return null;
+        SelectedChannelTypeImpl selectedChannelType = new SelectedChannelTypeImpl( filterFactory );
+        selectedChannelType.setChannelName(channelName);
+        selectedChannelType.setContrastEnhancement( contrastEnhancement );
+        return selectedChannelType;
     }
     
-    public org.opengis.style.ShadedRelief shadedRelief(Expression reliefFactor,
+    public ShadedReliefImpl shadedRelief(Expression reliefFactor,
             boolean brightnessOnly) {
-        return null;
+        ShadedReliefImpl shadedRelief = new ShadedReliefImpl( filterFactory );
+        shadedRelief.setReliefFactor(reliefFactor);
+        shadedRelief.setBrightnessOnly(brightnessOnly);
+        return shadedRelief;
     }
 
-    public org.opengis.style.Stroke stroke(Expression color, Expression opacity, Expression width,
+    public StrokeImpl stroke(Expression color, Expression opacity, Expression width,
             Expression join, Expression cap, float[] dashes, Expression offset) {
-        return null;
+        StrokeImpl stroke = new StrokeImpl( filterFactory );
+        stroke.setColor(color);
+        stroke.setOpacity(opacity);
+        stroke.setWidth(width);
+        stroke.setLineJoin(join);
+        stroke.setLineCap(cap);
+        stroke.setDashArray(dashes);
+        stroke.setDashOffset(offset);
+        return stroke;
     }
     
-    public Stroke stroke(GraphicFill fill, Expression color, Expression opacity,
+    public StrokeImpl stroke(GraphicFill fill, Expression color, Expression opacity,
             Expression width, Expression join, Expression cap, float[] dashes, Expression offset) {
-        return null;
+        StrokeImpl stroke = new StrokeImpl( filterFactory );
+        stroke.setGraphicFill( fill );
+        stroke.setColor(color);
+        stroke.setOpacity(opacity);
+        stroke.setWidth(width);
+        stroke.setLineJoin(join);
+        stroke.setLineCap(cap);
+        stroke.setDashArray(dashes);
+        stroke.setDashOffset(offset);
+        return stroke;
     }
     
-    public Stroke stroke(GraphicStroke stroke, Expression color,
+    public StrokeImpl stroke(GraphicStroke stroke, Expression color,
             Expression opacity, Expression width, Expression join, Expression cap, float[] dashes,
             Expression offset) {
-        Stroke s = new StrokeImpl();
+        StrokeImpl s = new StrokeImpl();
         s.setColor(color);
         s.setWidth(width);
         s.setOpacity(opacity);
@@ -295,8 +505,6 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
         s.setLineCap(cap);
         s.setDashArray(dashes);
         s.setDashOffset(offset);
-        
-        //s(graphicFill);
         s.setGraphicStroke(GraphicImpl.cast(stroke));
         
         return s;
@@ -305,31 +513,36 @@ public class StyleFactoryImpl2 implements org.opengis.style.StyleFactory {
     public Style style(String name, Description description, boolean isDefault,
             List<org.opengis.style.FeatureTypeStyle> featureTypeStyles,
             org.opengis.style.Symbolizer defaultSymbolizer) {
-        return null;
+        StyleImpl style = new StyleImpl();
+        style.setName(name);
+        style.setDescription( description );
+        style.setDefault( isDefault );
+        if( featureTypeStyles != null ){
+            for (org.opengis.style.FeatureTypeStyle featureTypeStyle : featureTypeStyles) {
+                style.featureTypeStyles().add( FeatureTypeStyleImpl.cast( featureTypeStyle));                
+            }
+        }
+        style.setDefaultSpecification( cast( defaultSymbolizer ));
+        return style;
     }
     
+    @SuppressWarnings("unchecked")
     public TextSymbolizer textSymbolizer(String name, Expression geometry,
             Description description, Unit<?> unit, Expression label, org.opengis.style.Font font,
             org.opengis.style.LabelPlacement placement, org.opengis.style.Halo halo,
             org.opengis.style.Fill fill) {
 
         TextSymbolizerImpl tSymb = new TextSymbolizerImpl();
-        tSymb.setFill(FillImpl.cast(fill));
-        
-        // TODO font handling
-
+        tSymb.setName(name);
+        tSymb.setFill(fill);
+        tSymb.setUnitOfMeasure( (Unit<Length>) unit );
+        tSymb.setFont( font );
         tSymb.setGeometryPropertyName(((PropertyName)geometry).getPropertyName());
-        tSymb.setHalo( HaloImpl.cast(halo));
+        tSymb.setHalo(halo);
         tSymb.setLabel(label);
-        if( placement instanceof LinePlacement){
-            tSymb.setLabelPlacement( LinePlacementImpl.cast( placement));
-        }
-        else {
-            tSymb.setLabelPlacement( PointPlacementImpl.cast( placement));
-        }
+        tSymb.setLabelPlacement(placement);
         //tSymb.setGraphic( GraphicImpl.cast(graphic));
-        tSymb.setDescription(DescriptionImpl.cast(description));
-        
+        tSymb.setDescription(description);        
         return tSymb;
     }
 }

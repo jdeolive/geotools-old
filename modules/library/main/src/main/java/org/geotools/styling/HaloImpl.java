@@ -38,7 +38,7 @@ public class HaloImpl implements Halo, Cloneable {
     /** The logger for the default core module. */
     private static final java.util.logging.Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
     private FilterFactory filterFactory;
-    private Fill fill = new FillImpl();
+    private FillImpl fill = new FillImpl();
     private Expression radius = null;
 
     /**
@@ -55,8 +55,8 @@ public class HaloImpl implements Halo, Cloneable {
         }
         else {
             HaloImpl copy = new HaloImpl();
-            copy.fill = FillImpl.cast( halo.getFill() );
-            copy.radius = halo.getRadius();
+            copy.setFill( halo.getFill() );
+            copy.setRadius( halo.getRadius() );
             
             return copy;
         }
@@ -90,7 +90,7 @@ public class HaloImpl implements Halo, Cloneable {
      *
      * @return Value of property fill.
      */
-    public org.geotools.styling.Fill getFill() {
+    public FillImpl getFill() {
         return fill;
     }
 
@@ -99,8 +99,8 @@ public class HaloImpl implements Halo, Cloneable {
      *
      * @param fill New value of property fill.
      */
-    public void setFill(org.geotools.styling.Fill fill) {
-        this.fill = fill;
+    public void setFill(org.opengis.style.Fill fill) {
+        this.fill = FillImpl.cast( fill );
     }
 
     /**
@@ -139,7 +139,7 @@ public class HaloImpl implements Halo, Cloneable {
     public Object clone() {
         try {
             HaloImpl clone = (HaloImpl) super.clone();
-            clone.fill = (Fill) ((Cloneable) fill).clone();
+            clone.fill = (FillImpl) ((Cloneable) fill).clone();
 
             return clone;
         } catch (CloneNotSupportedException e) {

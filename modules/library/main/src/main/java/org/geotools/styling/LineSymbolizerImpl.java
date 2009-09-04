@@ -43,7 +43,7 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     private Expression offset;
     
     private Unit<Length> uom = null;
-    private Stroke stroke = null;
+    private StrokeImpl stroke = null;
     private String geometryName = null;
 
     /**
@@ -54,7 +54,7 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     }
     
     protected LineSymbolizerImpl(Stroke stroke, Expression offset, Unit<Length> uom, String geom, String name, Description desc){
-        this.stroke = stroke;
+        this.stroke = StrokeImpl.cast( stroke );
         this.offset = offset;
         this.uom = uom;
         this.geometryName = geom;
@@ -72,7 +72,7 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         return description;
     }
     
-    public void setDescription(org.geotools.styling.Description description) {
+    public void setDescription(org.opengis.style.Description description) {
         this.description = DescriptionImpl.cast( description );
     }
     /**
@@ -104,7 +104,6 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
      *
      * @see #LineSymbolizerImpl.geometryPropertyName()
      */
-    @Deprecated
     public void setGeometryPropertyName(String name) {
         geometryName = name;
     }
@@ -131,7 +130,7 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
      *
      * @return The Stroke style to use when rendering lines.
      */
-    public Stroke getStroke() {
+    public StrokeImpl getStroke() {
         return stroke;
     }
 
@@ -141,12 +140,11 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
      *
      * @param stroke The Stroke style to use when rendering lines.
      */
-    @Deprecated
-    public void setStroke(Stroke stroke) {
+    public void setStroke(org.opengis.style.Stroke stroke) {
         if (this.stroke == stroke) {
             return;
         }
-        this.stroke = stroke;
+        this.stroke = StrokeImpl.cast( stroke );
     }
 
     /**
@@ -176,7 +174,7 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
             clone = (LineSymbolizerImpl) super.clone();
 
             if (stroke != null && stroke instanceof Cloneable) {
-                clone.stroke = (Stroke) ((Cloneable)stroke).clone();
+                clone.stroke = (StrokeImpl) ((Cloneable)stroke).clone();
             }
                         
         } catch (CloneNotSupportedException e) {
@@ -290,6 +288,24 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         return buf.toString();
     }
 
- 
+    static LineSymbolizerImpl cast(org.opengis.style.Symbolizer symbolizer) {
+        if (symbolizer == null) {
+            return null;
+        }
+        if (symbolizer instanceof LineSymbolizerImpl) {
+            return (LineSymbolizerImpl) symbolizer;
+        } else if (symbolizer instanceof org.opengis.style.LineSymbolizer) {
+            org.opengis.style.LineSymbolizer lineSymbolizer = (org.opengis.style.LineSymbolizer) symbolizer;
+            LineSymbolizerImpl copy = new LineSymbolizerImpl();
+            copy.setDescription(lineSymbolizer.getDescription());
+            copy.setGeometryPropertyName(lineSymbolizer.getGeometryPropertyName());
+            copy.setName(lineSymbolizer.getName());
+            copy.setPerpendicularOffset(lineSymbolizer.getPerpendicularOffset());
+            copy.setStroke(lineSymbolizer.getStroke());
+            copy.setUnitOfMeasure(lineSymbolizer.getUnitOfMeasure());
+            return copy;
+        }
+        return null; // not a line symbolizer
+    }
 
 }

@@ -23,6 +23,14 @@ public class DescriptionImpl implements Description {
         this.description = description;
     }
 
+    /**
+     * Copy constructor.
+     * @param description
+     */
+    public DescriptionImpl(org.opengis.style.Description description) {
+        this( description.getTitle(), description.getAbstract() );
+    }
+
     public InternationalString getTitle() {
         return title;
     }

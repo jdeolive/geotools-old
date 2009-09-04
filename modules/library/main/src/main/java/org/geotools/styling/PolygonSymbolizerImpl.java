@@ -45,7 +45,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     private DisplacementImpl disp;
     
     private Fill fill = new FillImpl();
-    private Stroke stroke = new StrokeImpl();
+    private StrokeImpl stroke = new StrokeImpl();
     private String geometryName = null;
 
     /**
@@ -63,7 +63,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
             String geom, 
             String name, 
             Description desc){
-        this.stroke = stroke;
+        this.stroke = StrokeImpl.cast( stroke );
         this.fill = fill;
         this.disp = DisplacementImpl.cast( disp );
         this.offset = offset;
@@ -85,7 +85,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         return description;
     }
     
-    public void setDescription(org.geotools.styling.Description description) {
+    public void setDescription(org.opengis.style.Description description) {
         this.description = DescriptionImpl.cast( description );
     }
     
@@ -116,7 +116,6 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      *
      * @see #PolygonSymbolizerImpl.geometryPropertyName()
      */
-    @Deprecated
     public void setGeometryPropertyName(String name) {
         geometryName = name;
     }
@@ -141,7 +140,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         return disp;
     }
 
-    public void setDisplacement(Displacement displacement) {
+    public void setDisplacement(org.opengis.style.Displacement displacement) {
         this.disp = DisplacementImpl.cast( displacement );
     }
     /**
@@ -160,12 +159,11 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      *
      * @param fill The Fill style to use when rendering the area.
      */
-    @Deprecated
-    public void setFill(Fill fill) {
+    public void setFill(org.opengis.style.Fill fill) {
         if (this.fill == fill) {
             return;
         }
-        this.fill = fill;
+        this.fill = FillImpl.cast(fill);
     }
 
     /**
@@ -174,7 +172,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      *
      * @return The Stroke style to use when rendering lines.
      */
-    public Stroke getStroke() {
+    public StrokeImpl getStroke() {
         return stroke;
     }
 
@@ -184,12 +182,11 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      *
      * @param stroke The Stroke style to use when rendering lines.
      */
-    @Deprecated
-    public void setStroke(Stroke stroke) {
+    public void setStroke(org.opengis.style.Stroke stroke) {
         if (this.stroke == stroke) {
             return;
         }
-        this.stroke = stroke;
+        this.stroke = StrokeImpl.cast( stroke );
     }
 
     /**
@@ -224,7 +221,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
             }
 
             if (stroke != null) {
-                clone.stroke = (Stroke) ((Cloneable) stroke).clone();
+                clone.stroke = (StrokeImpl) ((Cloneable) stroke).clone();
             }
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
@@ -304,6 +301,31 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         }
 
         return false;
+    }
+
+    static PolygonSymbolizerImpl cast(org.opengis.style.Symbolizer symbolizer) {
+        if( symbolizer == null ){
+            return null;
+        }
+        else if (symbolizer instanceof PolygonSymbolizerImpl){
+            return (PolygonSymbolizerImpl) symbolizer;
+        }
+        else if( symbolizer instanceof org.opengis.style.PolygonSymbolizer ){
+            org.opengis.style.PolygonSymbolizer polygonSymbolizer = (org.opengis.style.PolygonSymbolizer) symbolizer;
+            PolygonSymbolizerImpl copy = new PolygonSymbolizerImpl();
+            copy.setStroke( StrokeImpl.cast(polygonSymbolizer.getStroke()));
+            copy.setDescription( polygonSymbolizer.getDescription() );
+            copy.setDisplacement( polygonSymbolizer.getDisplacement());
+            copy.setFill(polygonSymbolizer.getFill());
+            copy.setGeometryPropertyName( polygonSymbolizer.getGeometryPropertyName());
+            copy.setName(polygonSymbolizer.getName());
+            copy.setPerpendicularOffset(polygonSymbolizer.getPerpendicularOffset());
+            copy.setUnitOfMeasure( polygonSymbolizer.getUnitOfMeasure());
+            return copy;
+        }
+        else {
+            return null; // not possible
+        }
     }
 
 

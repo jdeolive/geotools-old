@@ -227,7 +227,7 @@ public interface Fill extends org.opengis.style.Fill{
      * This parameter indicates that a stipple-fill repeated graphic will be
      * used and specifies the fill graphic to use.
      */
-    void setGraphicFill(Graphic graphicFill);
+    void setGraphicFill(org.opengis.style.Graphic graphicFill);
 
     void accept(org.geotools.styling.StyleVisitor visitor);
 
@@ -250,7 +250,7 @@ abstract class ConstantFill implements Fill {
         cannotModifyConstant();
     }
 
-    public void setGraphicFill(Graphic graphicFill) {
+    public void setGraphicFill(org.opengis.style.Graphic graphicFill) {
         cannotModifyConstant();
     }
     

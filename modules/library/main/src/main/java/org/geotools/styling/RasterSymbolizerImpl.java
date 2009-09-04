@@ -46,9 +46,9 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     // TODO: make container ready
     private FilterFactory filterFactory;
     private ChannelSelection channelSelection = new ChannelSelectionImpl();
-    private ColorMap colorMap = new ColorMapImpl();
-    private ContrastEnhancement contrastEnhancement = new ContrastEnhancementImpl();
-    private ShadedRelief shadedRelief = new ShadedReliefImpl();
+    private ColorMapImpl colorMap = new ColorMapImpl();
+    private ContrastEnhancementImpl contrastEnhancement = new ContrastEnhancementImpl();
+    private ShadedReliefImpl shadedRelief = new ShadedReliefImpl();
     private String geometryName = "raster";
     private Symbolizer symbolizer;
     private Expression opacity;
@@ -85,7 +85,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
         return description;
     }
     
-    public void setDescription(Description description) {
+    public void setDescription(org.opengis.style.Description description) {
         this.description = DescriptionImpl.cast(description);
     }
     public Unit<Length> getUnitOfMeasure() {
@@ -196,7 +196,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @return the ColorMap for the raster
      */
-    public ColorMap getColorMap() {
+    public ColorMapImpl getColorMap() {
         return colorMap;
     }
 
@@ -218,7 +218,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @return the ContrastEnhancement
      */
-    public ContrastEnhancement getContrastEnhancement() {
+    public ContrastEnhancementImpl getContrastEnhancement() {
         return contrastEnhancement;
     }
 
@@ -314,7 +314,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @return the shadedrelief object
      */
-    public ShadedRelief getShadedRelief() {
+    public ShadedReliefImpl getShadedRelief() {
         return shadedRelief;
     }
 
@@ -331,12 +331,11 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param channel the channel selected
      */
-    @Deprecated
-    public void setChannelSelection(ChannelSelection channel) {
+    public void setChannelSelection(org.opengis.style.ChannelSelection channel) {
         if (this.channelSelection == channel) {
             return;
         }
-        this.channelSelection = channel;
+        this.channelSelection = ChannelSelectionImpl.cast( channel );
     }
 
     /**
@@ -355,12 +354,11 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param colorMap the ColorMap for the raster
      */
-    @Deprecated
-    public void setColorMap(ColorMap colorMap) {
+    public void setColorMap(org.opengis.style.ColorMap colorMap) {
         if (this.colorMap == colorMap) {
             return;
         }
-        this.colorMap = colorMap;
+        this.colorMap = ColorMapImpl.cast( colorMap );
     }
 
     /**
@@ -381,12 +379,11 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param contrastEnhancement the contrastEnhancement
      */
-    @Deprecated
-    public void setContrastEnhancement(ContrastEnhancement contrastEnhancement) {
+    public void setContrastEnhancement(org.opengis.style.ContrastEnhancement contrastEnhancement) {
         if (this.contrastEnhancement == contrastEnhancement) {
             return;
         }
-        this.contrastEnhancement = contrastEnhancement;
+        this.contrastEnhancement = ContrastEnhancementImpl.cast( contrastEnhancement );
     }
 
     /**
@@ -398,7 +395,6 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param geometryName the name of the Geometry
      */
-    @Deprecated
     public void setGeometryPropertyName(String geometryName) {
         if (this.geometryName == geometryName) {
             return;
@@ -432,8 +428,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    @Deprecated
-    public void setImageOutline(Symbolizer symbolizer) {
+    public void setImageOutline(org.opengis.style.Symbolizer symbolizer) {
         if( symbolizer == null ){
             this.symbolizer = null;
         }
@@ -442,7 +437,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
             if (this.symbolizer == symbolizer) {
                 return;
             }
-            this.symbolizer = symbolizer;
+            this.symbolizer = StyleFactoryImpl2.cast( symbolizer );
         } else {
             throw new IllegalArgumentException(
                 "Only a line or polygon symbolizer may be used to outline a raster");
@@ -454,7 +449,6 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param opacity An expression which evaluates to the the opacity (0-1)
      */
-    @Deprecated
     public void setOpacity(Expression opacity) {
         if (this.opacity == opacity) {
             return;
@@ -501,12 +495,11 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      * @param shadedRelief the shadedrelief object
      */
-    @Deprecated
-    public void setShadedRelief(ShadedRelief shadedRelief) {
+    public void setShadedRelief(org.opengis.style.ShadedRelief shadedRelief) {
         if (this.shadedRelief == shadedRelief) {
             return;
         }
-        this.shadedRelief = shadedRelief;
+        this.shadedRelief = ShadedReliefImpl.cast( shadedRelief );
     }
 
     public Object accept(StyleVisitor visitor,Object data) {
@@ -538,6 +531,31 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
         return clone;
     }
 
-
+    static RasterSymbolizerImpl cast(org.opengis.style.Symbolizer symbolizer) {
+        if( symbolizer == null ){
+            return null;
+        }
+        if( symbolizer instanceof RasterSymbolizerImpl ){
+            return (RasterSymbolizerImpl) symbolizer;
+        }
+        else if (symbolizer instanceof org.opengis.style.RasterSymbolizer ){
+            org.opengis.style.RasterSymbolizer rasterSymbolizer = (org.opengis.style.RasterSymbolizer) symbolizer;
+            RasterSymbolizerImpl copy = new RasterSymbolizerImpl();
+            copy.setChannelSelection( rasterSymbolizer.getChannelSelection());
+            copy.setColorMap( rasterSymbolizer.getColorMap() );
+            copy.setContrastEnhancement( rasterSymbolizer.getContrastEnhancement() );
+            copy.setDescription( rasterSymbolizer.getDescription());
+            copy.setGeometryPropertyName( rasterSymbolizer.getGeometryPropertyName() );
+            copy.setImageOutline( rasterSymbolizer.getImageOutline() );
+            copy.setName( rasterSymbolizer.getName());
+            copy.setOpacity( rasterSymbolizer.getOpacity());
+            copy.setOverlapBehavior( rasterSymbolizer.getOverlapBehavior() );
+            copy.setShadedRelief( rasterSymbolizer.getShadedRelief());
+            copy.setUnitOfMeasure( rasterSymbolizer.getUnitOfMeasure());
+            
+            return copy;
+        }
+        return null; // must not be a raster symbolizer
+    }
 
 }

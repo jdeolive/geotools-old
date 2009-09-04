@@ -95,7 +95,7 @@ public interface LineSymbolizer extends org.opengis.style.LineSymbolizer, Symbol
      *
      * @param stroke The Stroke style to use when rendering lines.
      */
-    void setStroke(Stroke stroke);
+    void setStroke(org.opengis.style.Stroke stroke);
 
     /**
      * @param geometry property name
