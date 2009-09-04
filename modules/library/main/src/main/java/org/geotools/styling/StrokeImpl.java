@@ -569,7 +569,10 @@ public class StrokeImpl implements Stroke, Cloneable {
             StrokeImpl copy = new StrokeImpl();
             copy.setColor( stroke.getColor());
             if( stroke.getDashArray() != null ){
-                copy.setDashArray( Arrays.copyOf( stroke.getDashArray(),stroke.getDashArray().length));
+                float dashArray[] = stroke.getDashArray();
+                float ret[] = new float[ dashArray.length ];
+                System.arraycopy(dashArray, 0, ret, 0, dashArray.length );                
+                copy.setDashArray( ret );
             }
             copy.setDashOffset(stroke.getDashOffset());
             copy.setGraphicFill( GraphicImpl.cast(stroke.getGraphicFill()));
