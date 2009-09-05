@@ -1,15 +1,19 @@
 package org.geotools.geometry.jts;
 
-import org.geotools.referencing.CRS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.*;
+import org.junit.Test;
 import org.opengis.geometry.MismatchedReferenceSystemException;
-import org.opengis.referencing.crs.EngineeringCRS;
 
 import com.vividsolutions.jts.geom.Coordinate;
-
-import static org.junit.Assert.*;
 
 public class ReferencedEnvelopeTest {
 

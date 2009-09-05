@@ -16,6 +16,8 @@
  */
 package org.geotools.feature;
 
+import java.io.Serializable;
+
 import org.geotools.util.Utilities;
 import org.opengis.feature.type.Name;
 
@@ -42,7 +44,9 @@ import org.opengis.feature.type.Name;
  * </p>
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
  */
-public class NameImpl implements org.opengis.feature.type.Name {
+public class NameImpl implements org.opengis.feature.type.Name, Serializable, Comparable<NameImpl> {
+    private static final long serialVersionUID = 4564070184645559899L;
+
     /** namespace / scope */
     protected String namespace;
 
@@ -143,5 +147,12 @@ public class NameImpl implements org.opengis.feature.type.Name {
     /** name or namespace:name */
     public String toString() {
         return getURI();
+    }
+
+    public int compareTo(NameImpl other) {
+        if( other == null ){
+            return 1; // we are greater than null!
+        }
+        return getURI().compareTo(other.getURI());
     }
 }
