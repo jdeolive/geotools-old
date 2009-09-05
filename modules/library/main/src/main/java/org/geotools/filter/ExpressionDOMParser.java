@@ -215,6 +215,8 @@ public final class ExpressionDOMParser {
                     return null;
                 }
             }
+            // creates an empty literal expression if there is nothing inside the literal
+            return ff.literal("");
         }
 
         if (childName.equalsIgnoreCase("add")) {
