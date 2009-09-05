@@ -28,12 +28,12 @@ import org.opengis.util.InternationalString;
  * @author gdavis
  */
 public class Parameter<T> {
-	/**
-	 * This is the key (ie machine readable text) used to represent
-	 * this parameter in a java.util.Map.
-	 * 
-	 * @param key (or machine readable name) for this parameter.
-	 */
+    /**
+     * This is the key (ie machine readable text) used to represent this parameter in a
+     * java.util.Map.
+     * 
+     * @param key (or machine readable name) for this parameter.
+     */
     public final String key;
     
     /**
@@ -103,6 +103,9 @@ public class Parameter<T> {
      * "min" and "max" may be useful for restrictions for things like int sizes, etc.
      */
     public static final String MIN = "min";
+    /**
+     * "min" and "max" may be useful for restrictions for things like int sizes, etc.
+     */
     public static final String MAX = "max";
     
     /**
@@ -118,6 +121,14 @@ public class Parameter<T> {
      * parameter description. This metadata is only used to help restrict what
      * the user enters; not all client application will understand and respect
      * these keys - please communicate with your end-user.
+     * 
+     * @see CRS
+     * @see ELEMENT
+     * @see FEATURE_TYPE
+     * @see IS_PASSWORD
+     * @see LENGTH
+     * @see MAX
+     * @see MIN
      */
     public final Map<String, Object> metadata;
 
@@ -125,10 +136,10 @@ public class Parameter<T> {
      * Mandatory parameter - quickly constructed with out a properly internationalized
      * title and description.
      * 
-     * @param key
-     * @param type
-     * @param title
-     * @param description
+     * @param key machine readable key for use in a java.util.Map
+     * @param type Java class for the expected value
+     * @param title Human readable title used for use in a user interface
+     * @param description Human readable description
      * @deprecated Please translate title and description into an InternationalString  
      */
      public Parameter(String key, Class<T> type, String title,
@@ -138,39 +149,55 @@ public class Parameter<T> {
 
    /**
     * Mandatory parameter
-    * @param key
-    * @param type
-    * @param title
-    * @param description
+    * @param key machine readable key for use in a java.util.Map
+    * @param type Java class for the expected value
+    * @param title Human readable title used for use in a user interface
+    * @param description Human readable description
     */
     public Parameter(String key, Class<T> type, InternationalString title,
     		InternationalString description ) {
-        this( key, type, title, description, false, 1, 1, null, null );
+        this( key, type, title, description, true, 1, 1, null, null );
     }
     
     /**
-     * Mandiatory parameter with metadata.
-     * @param key
-     * @param type
-     * @param title
-     * @param description
-     * @param metadata
+     * Mandatory parameter with metadata.
+     * @param key machine readable key for use in a java.util.Map
+     * @param type Java class for the expected value
+     * @param title Human readable title used for use in a user interface
+     * @param description Human readable description
+     * @param metadata Hints to the user interface (read the javadocs for each metadata key)
+     * 
+     * @see CRS
+     * @see ELEMENT
+     * @see FEATURE_TYPE
+     * @see IS_PASSWORD
+     * @see LENGTH
+     * @see MAX
+     * @see MIN
      */
      public Parameter(String key, Class<T> type, InternationalString title,
      		InternationalString description, Map<String,Object> metadata ) {
-         this( key, type, title, description, false, 1, 1, null, metadata );
+         this( key, type, title, description, true, 1, 1, null, metadata );
      }
     /**
      * Addition of optional parameters
-     * @param key
-     * @param type
-     * @param title
-     * @param description
-     * @param required
-     * @param min
-     * @param max
-     * @param sample
-     * @param metadata
+     * @param key machine readable key for use in a java.util.Map
+     * @param type Java class for the expected value
+     * @param title Human readable title used for use in a user interface
+     * @param description Human readable description
+     * @param required true if the value is required
+     * @param min Minimum value; or null if not needed
+     * @param max Maximum value; or null if not needed
+     * @param sample Sample value; may be used as a default in a user interface
+     * @param metadata Hints to the user interface (read the javadocs for each metadata key)
+     * 
+     * @see CRS
+     * @see ELEMENT
+     * @see FEATURE_TYPE
+     * @see IS_PASSWORD
+     * @see LENGTH
+     * @see MAX
+     * @see MIN
      */
     public Parameter(String key, Class<T> type, InternationalString title,
     				 InternationalString description,
