@@ -305,7 +305,7 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
             }
         }
     }
-
+    
     /**
      * Returns the coordinate reference system associated with this envelope.
      */
@@ -490,7 +490,17 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
 
         return super.intersects(getJTSEnvelope(bbox));
     }
-
+    /**
+     * Check if this bounding box intersects the provided bounds.
+     */    
+    @Override
+    public Envelope intersection(Envelope env) {
+        if( env instanceof BoundingBox ){
+            BoundingBox bbox = (BoundingBox) env;
+            ensureCompatibleReferenceSystem( bbox );
+        }
+        return super.intersection(env);
+    }    
     /**
      * Include the provided bounding box, expanding as necessary.
      *
@@ -501,6 +511,18 @@ public class ReferencedEnvelope extends Envelope implements org.opengis.geometry
         super.expandToInclude(getJTSEnvelope(bbox));
     }
 
+    /**
+     * Include the provided envelope, expanding as necessary.
+     */
+    @Override
+    public void expandToInclude(Envelope other) {
+        if( other instanceof BoundingBox ){
+            BoundingBox bbox = (BoundingBox) other;
+            ensureCompatibleReferenceSystem( bbox );
+        }
+        super.expandToInclude(other);
+    }
+    
     /**
      * Include the provided coordinates, expanding as necessary.
      *
