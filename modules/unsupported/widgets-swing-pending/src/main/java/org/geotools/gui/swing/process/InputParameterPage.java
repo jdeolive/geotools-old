@@ -27,6 +27,7 @@ import javax.swing.SpringLayout;
 
 import org.geotools.data.Parameter;
 import org.geotools.process.ProcessFactory;
+import org.opengis.feature.type.Name;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -39,13 +40,15 @@ public class InputParameterPage extends JPage {
     ProcessFactory factory;
     Map<String, Object> input;
     Map<String, ParamWidget> fields = new HashMap<String, ParamWidget>();
+    private Name name;
 
-    public InputParameterPage( ProcessFactory factory ) {
-        this(factory, null);
+    public InputParameterPage( ProcessFactory factory, Name name ) {
+        this(factory, name, null);
     }
-    public InputParameterPage( ProcessFactory factory, Map<String, Object> input ) {
+    public InputParameterPage( ProcessFactory factory, Name name, Map<String, Object> input ) {
         super("input");
         this.factory = factory;
+        this.name = name;
     }
 
     public String getBackPageIdentifier() {
@@ -58,11 +61,11 @@ public class InputParameterPage extends JPage {
         page.removeAll();
         page.setLayout(new GridLayout(0, 2));
 
-        JLabel title = new JLabel(factory.getTitle().toString());
+        JLabel title = new JLabel(factory.getTitle(name).toString());
         page.add(title);
-        JLabel description = new JLabel(factory.getDescription().toString());
+        JLabel description = new JLabel(factory.getDescription(name).toString());
         page.add(description);
-        for( Entry<String, Parameter< ? >> entry : factory.getParameterInfo().entrySet() ) {
+        for( Entry<String, Parameter< ? >> entry : factory.getParameterInfo(name).entrySet() ) {
             Parameter< ? > parameter = entry.getValue();
             JLabel label = new JLabel(parameter.key);
             page.add(label);

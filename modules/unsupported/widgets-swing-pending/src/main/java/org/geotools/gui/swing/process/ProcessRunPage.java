@@ -28,6 +28,7 @@ import org.geotools.gui.swing.ProgressWindow;
 import org.geotools.process.Process;
 import org.geotools.process.ProcessFactory;
 import org.geotools.text.Text;
+import org.opengis.feature.type.Name;
 import org.opengis.util.ProgressListener;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -44,14 +45,16 @@ import org.geotools.process.ProcessException;
  */
 public class ProcessRunPage extends JPage {
     ProcessFactory factory;
+    Name name;
     Map<String, Object> paramMap;
 
-	public ProcessRunPage(ProcessFactory factory) {
-        this(factory, null);
+    public ProcessRunPage(ProcessFactory factory, Name name) {
+        this(factory, name, null);
     }
-    public ProcessRunPage( ProcessFactory factory, Map<String, Object> params ) {
+    public ProcessRunPage( ProcessFactory factory, Name name, Map<String, Object> params ) {
         super("Run Process");
         this.factory = factory;
+        this.name = name;
         this.paramMap = params;
     }
     
@@ -76,7 +79,7 @@ public class ProcessRunPage extends JPage {
 		page.removeAll();
 		page.setLayout(new GridLayout(0, 2));
 		
-		Process process = this.factory.create();
+		Process process = this.factory.create(name);
 		
 		final ProgressListener progress = new ProgressWindow(this.getJProcessWizard());	
         Map<String, Object> resultMap;
@@ -88,7 +91,7 @@ public class ProcessRunPage extends JPage {
         }
 
 		// when we get here, the processing is over so show the result
-        JLabel title = new JLabel(factory.getTitle().toString());
+        JLabel title = new JLabel(factory.getTitle(name).toString());
         page.add(title);
         JLabel description = new JLabel("Your process results are below:");
         page.add(description);
