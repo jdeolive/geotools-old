@@ -1,32 +1,18 @@
 package org.geotools.demo;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.geometry.Envelope2D;
-import org.geotools.gui.swing.JMapPane;
-import org.geotools.gui.swing.tool.PanTool;
-import org.geotools.gui.swing.tool.ZoomInTool;
-import org.geotools.gui.swing.tool.ZoomOutTool;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
-import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.LineSymbolizer;
@@ -46,6 +32,7 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import org.geotools.gui.swing.JMapFrame;
 
 public class ShapeLab {
 
@@ -72,7 +59,7 @@ public class ShapeLab {
         Style style = createStyle(file, schema);
         map.addLayer(featureSource, style);
 
-        showMap(map);
+        JMapFrame.showMap(map);
     }
 
     private static Style createStyle(File file, FeatureType schema) {
@@ -135,60 +122,20 @@ public class ShapeLab {
         return style;
     }
 
-    private static Style createPolygonStyle(){
-    Style style;
-    PolygonSymbolizer symbolizer = styleFactory.createPolygonSymbolizer();
-    Fill fill = styleFactory.createFill(
-            filterFactory.literal("#FFAA00"),
-            filterFactory.literal(0.5)
-    );
-    symbolizer.setFill(fill);
-    Rule rule = styleFactory.createRule();        
-    rule.setSymbolizers(new Symbolizer[] { symbolizer });
-    FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-    fts.setRules(new Rule[] { rule });
-    style = styleFactory.createStyle();
-    style.addFeatureTypeStyle(fts);
-    return style;
-}
-
-    private static void showMap(MapContext map) throws IOException {
-        final JMapPane mapPane = new JMapPane(new StreamingRenderer(), map);
-        mapPane.setMapArea( new Envelope2D( map.getLayerBounds() ));
-        JFrame frame = new JFrame("ImageLab2");
-
-        frame.setLayout(new BorderLayout());
-        frame.add(mapPane, BorderLayout.CENTER);
-        JPanel buttons = new JPanel();
-        JButton zoomInButton = new JButton("Zoom In");
-        zoomInButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                mapPane.setCursorTool(new ZoomInTool(mapPane));
-            }
-        });
-        buttons.add(zoomInButton);
-
-        JButton zoomOutButton = new JButton("Zoom Out");
-        zoomOutButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                mapPane.setCursorTool( new ZoomOutTool(mapPane) );
-            }
-        });
-        buttons.add(zoomOutButton);
-
-        JButton pamButton = new JButton("Move");
-        pamButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                mapPane.setCursorTool(new PanTool(mapPane));
-            }
-        });
-        buttons.add(pamButton);
-
-        frame.add(buttons, BorderLayout.NORTH);
-
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(600, 400);
-        frame.setVisible(true);
+    private static Style createPolygonStyle() {
+        Style style;
+        PolygonSymbolizer symbolizer = styleFactory.createPolygonSymbolizer();
+        Fill fill = styleFactory.createFill(
+                filterFactory.literal("#FFAA00"),
+                filterFactory.literal(0.5));
+        symbolizer.setFill(fill);
+        Rule rule = styleFactory.createRule();
+        rule.setSymbolizers(new Symbolizer[]{symbolizer});
+        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
+        fts.setRules(new Rule[]{rule});
+        style = styleFactory.createStyle();
+        style.addFeatureTypeStyle(fts);
+        return style;
     }
 
     private static File getShapeFile(String[] args)
