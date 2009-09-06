@@ -277,7 +277,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
         final Integer idx = index.get(name);
         if(idx == null){
             return null;
-        }else{
+        } else {
             int index = idx.intValue();
             AttributeDescriptor descriptor = featureType.getDescriptor(index);
             if(descriptor instanceof GeometryDescriptor){
@@ -426,18 +426,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
     
     public String toString() {
         StringBuffer sb = new StringBuffer("SimpleFeatureImpl:");
-        sb.append(getDescriptor().getName().getLocalPart());
-        if (!getDescriptor().getName().getLocalPart().equals(
-                getDescriptor().getType().getName().getLocalPart())
-                || id != null) {
-            sb.append("<");
-            sb.append(getDescriptor().getType().getName().getLocalPart());
-            if (id != null) {
-                sb.append(" id=");
-                sb.append(id);
-            }
-            sb.append(">");
-        }
+        sb.append( getType().getName().getLocalPart());
         sb.append("=");
         sb.append( getValue() );
         return sb.toString();
