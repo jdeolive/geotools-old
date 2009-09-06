@@ -58,12 +58,21 @@ public class HaloBuilder implements Builder<org.opengis.style.Halo> {
         return this;
     }
 
-    public HaloBuilder radius(Expression radius) {
-        this.radius.reset( radius );
+    public HaloBuilder radius(Object radius) {
+        this.radius.literal( radius );
         return this;
     }
+    
+    public ExpressionBuilder radius(){
+        return radius;
+    }
 
-    public FillBuilder fillBuilder() {
+    public HaloBuilder fill( Object color ) {
+        this.fill.color().literal(color);
+        return this;
+    }
+    
+    public FillBuilder fill() {
         return fill;
     }
 

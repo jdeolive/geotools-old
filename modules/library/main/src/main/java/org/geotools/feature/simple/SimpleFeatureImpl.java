@@ -72,7 +72,7 @@ public class SimpleFeatureImpl implements SimpleFeature {
     protected Map<Object, Object>[] attributeUserData;
     
     /**
-     * Wheter this feature is self validating or not
+     * Whether this feature is self validating or not
      */
     protected  boolean validating;
     
@@ -423,12 +423,31 @@ public class SimpleFeatureImpl implements SimpleFeature {
             return values.length;
         }
     }
+    
+    public String toString() {
+        StringBuffer sb = new StringBuffer("SimpleFeatureImpl:");
+        sb.append(getDescriptor().getName().getLocalPart());
+        if (!getDescriptor().getName().getLocalPart().equals(
+                getDescriptor().getType().getName().getLocalPart())
+                || id != null) {
+            sb.append("<");
+            sb.append(getDescriptor().getType().getName().getLocalPart());
+            if (id != null) {
+                sb.append(" id=");
+                sb.append(id);
+            }
+            sb.append(">");
+        }
+        sb.append("=");
+        sb.append( getValue() );
+        return sb.toString();
+    }
+    
 
     /**
      * Attribute that delegates directly to the value array
      */
     class Attribute implements org.opengis.feature.Attribute {
-
         int index;
         
         Attribute( int index ) {
@@ -476,7 +495,25 @@ public class SimpleFeatureImpl implements SimpleFeature {
         public void validate() {
             Types.validate(getDescriptor(), values[index]);
         }
-        
+
+        public String toString() {
+            StringBuffer sb = new StringBuffer("SimpleFeatureImpl.Attribute: ");
+            sb.append(getDescriptor().getName().getLocalPart());
+            if (!getDescriptor().getName().getLocalPart().equals(
+                    getDescriptor().getType().getName().getLocalPart())
+                    || id != null) {
+                sb.append("<");
+                sb.append(getDescriptor().getType().getName().getLocalPart());
+                if (id != null) {
+                    sb.append(" id=");
+                    sb.append(id);
+                }
+                sb.append(">");
+            }
+            sb.append("=");
+            sb.append( values[index] );
+            return sb.toString();
+        }
     }
     
     

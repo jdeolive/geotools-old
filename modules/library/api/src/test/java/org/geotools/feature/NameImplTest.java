@@ -48,6 +48,6 @@ public class NameImplTest {
         assertTrue( scoped1.compareTo(scoped2) > 0 );
         assertTrue( scoped2.compareTo(scoped1) < 0 );
         
-        
+        assertTrue( scoped2.compareTo(scoped1) < 0 );        
     }
 }

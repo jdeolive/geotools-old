@@ -18,11 +18,11 @@ Ensure you have Java and Maven
 You can check to see if you have the command line Maven utility installed and, if so, the version as follows::
 
  C:\java\geotools-example>mvn -version
- Maven version: 2.0.9
+ Maven version: 2.1.0
  Java version: 1.5.0_18
  OS name: "windows vista" version: "6.0" arch: "x86" Family: "windows"
 
-I am using Java 1.5 above; and Maven 2.0.9. You can use Java 6 if you like; currently GeoTools is developed against Java 1.5 (for all the Java EE applications out there).
+I am using Java 1.5 above; and Maven 2.1.0. You can use Java 6 if you like; currently GeoTools is developed against Java 1.5 (for all the Java EE applications out there).
 
 Notes:
 
@@ -38,7 +38,7 @@ Setting up your Project Folder
 First of all let's use maven to create our project. You can do this from the command line::
 
  C:java>
- mvn archetype:create -DgroupId=org.geotools.demo.example -DartifactId=example
+ mvn archetype:create -DgroupId=org.geotools.demo -DartifactId=example
 
 It will wirr and click, downloading a bunch of stuff before creating a *example* directory for you.
 
@@ -88,7 +88,7 @@ Your New Project
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
       <modelVersion>4.0.0</modelVersion>
-      <groupId>org.geotools.demo.example</groupId>
+      <groupId>org.geotools.demo</groupId>
       <artifactId>example</artifactId>
       <packaging>jar</packaging>
       <version>1.0-SNAPSHOT</version>
@@ -122,68 +122,12 @@ To make use of GeoTools we are going to add two things to your pom.xml file:
 * A new dependency:: *gt-main* version |gtVersion|
 * A list of *repositories* where maven can find GeoTools and all the cool stuff it uses
 
-Here is what that looks like:
-
-.. NOTE: *********************************************************************
-         The gtVersion substitution isn't working in the code block below. 
-         It does work in a parsed-literal block but sphinx gets confused about
-         all the xml statements :(
-         *********************************************************************
-
-.. sourcecode:: xml
-
- <project xmlns="http://maven.apache.org/POM/4.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <groupId>org.geotools.demo.example</groupId>
-   <artifactId>example</artifactId>
-   <packaging>jar</packaging>
-   <version>1.0-SNAPSHOT</version>
-   <name>example</name>
-   <url>http://maven.apache.org</url>
-   <dependencies>
-     <dependency>
-       <groupId>junit</groupId>
-       <artifactId>junit</artifactId>
-       <version>3.8.1</version>
-       <scope>test</scope>
-     </dependency>
-     <dependency>
-       <groupId>org.geotools</groupId>
-       <artifactId>gt-main</artifactId>
-       <version>|gtVersion|</version>
-     </dependency>
-   </dependencies>
- 
-   <!-- ================================================================== -->
-   <!--     Repositories. This is where Maven looks for dependencies. The  -->
-   <!--     Maven repository is implicit and doesn't need to be specified. -->
-   <!-- ================================================================== -->
-   <repositories>
-     <repository>
-       <id>maven2-repository.dev.java.net</id>
-       <name>Java.net repository</name>
-       <url>http://download.java.net/maven/2</url>
-     </repository> 
-     <repository>
-       <id>osgeo</id>
-       <name>Open Source Geospatial Foundation Repository</name>
-       <url>http://download.osgeo.org/webdav/geotools/</url>
-     </repository>
-     <repository>
-       <snapshots>
-         <enabled>true</enabled>
-       </snapshots>
-       <id>opengeo</id>
-       <name>OpenGeo Maven Repository</name>
-       <url>http://repo.opengeo.org</url>
-     </repository>
-   </repositories>
- </project>
+   .. literalinclude:: ../../../../demo/example/pom.xml
+      :language: xml
+      :lines: 1,10-15,25-28,30,82-92,141-169,202-
 
 In later tutorials we will just show the dependency section of the pom.xml file since you won't need to make any further changes to the other sections. We will be adding dependencies over time as we try out more of the library.
-
+      
 Updating the IDE (Eclipse only)
 -------------------------------
 

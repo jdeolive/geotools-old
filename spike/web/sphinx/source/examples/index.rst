@@ -8,4 +8,6 @@ Examples
 
    shp2shp
    csv2shp
+   postgislab
+   imagelab
    

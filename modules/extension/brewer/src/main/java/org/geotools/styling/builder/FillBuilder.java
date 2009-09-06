@@ -24,14 +24,14 @@ public class FillBuilder implements Builder<org.opengis.style.Fill>{
     public FillBuilder( org.opengis.style.Fill fill ){
         reset( fill );
     }
-    public FillBuilder color(Expression color) {
-        this.color.reset( color );
+    public FillBuilder color(Object color) {
+        this.color.literal( color );
         unset = false;
         return this;
     }
 
-    public FillBuilder opacity(Expression opacity) {
-        this.opacity.reset( opacity );
+    public FillBuilder opacity( Object opacity) {
+        this.opacity.literal( opacity );
         unset = false;
         return this;
     }

@@ -76,6 +76,7 @@ import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
+import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
@@ -543,7 +544,7 @@ public class DataUtilities {
         // I don't expect Features to contain these often
         // (eveything is still nice and recursive)
         //
-        Class type = src.getClass();
+        Class<? extends Object> type = src.getClass();
 
         if (type.isArray() && type.getComponentType().isPrimitive()) {
             int length = Array.getLength(src);
@@ -566,7 +567,7 @@ public class DataUtilities {
 
         if (src instanceof List) {
             List list = (List) src;
-            List copy = new ArrayList(list.size());
+            List<Object> copy = new ArrayList<Object>(list.size());
 
             for (Iterator i = list.iterator(); i.hasNext();) {
                 copy.add(duplicate(i.next()));
@@ -966,7 +967,7 @@ public class DataUtilities {
      */
     public static  FeatureReader<SimpleFeatureType, SimpleFeature> reader(Collection<SimpleFeature> collection)
         throws IOException {
-        return reader((SimpleFeature[]) collection.toArray(
+        return reader(collection.toArray(
                 new SimpleFeature[collection.size()]));
     }
     /**
@@ -979,7 +980,7 @@ public class DataUtilities {
      */   
     public static FeatureReader<SimpleFeatureType, SimpleFeature> reader(
             FeatureCollection<SimpleFeatureType,SimpleFeature> collection) throws IOException {
-        return reader((SimpleFeature[]) collection
+        return reader(collection
                 .toArray(new SimpleFeature[collection.size()]));
     }
 
@@ -1437,21 +1438,19 @@ public class DataUtilities {
      *
      * @return The string "specification" for the featureType
      */
-    public static String spec(SimpleFeatureType featureType) {
-        List types = featureType.getAttributeDescriptors();
-
+    public static String spec(FeatureType featureType) {
+        Collection<PropertyDescriptor> types = featureType.getDescriptors();
         StringBuffer buf = new StringBuffer();
-
-        for (int i = 0; i < types.size(); i++) {
-            AttributeDescriptor type = (AttributeDescriptor) types.get( i ); 
-            buf.append(type.getLocalName());
+        
+        for( PropertyDescriptor type : types ){
+            buf.append(type.getName().getLocalPart());
             buf.append(":");
             buf.append(typeMap(type.getType().getBinding()));
             if(type instanceof GeometryDescriptor) {
                 GeometryDescriptor gd = (GeometryDescriptor) type;
                 if(gd.getCoordinateReferenceSystem() != null && gd.getCoordinateReferenceSystem().getIdentifiers() != null) {                    
                     for (Iterator<ReferenceIdentifier> it = gd.getCoordinateReferenceSystem().getIdentifiers().iterator(); it.hasNext();) {
-                        ReferenceIdentifier id = (ReferenceIdentifier) it.next();
+                        ReferenceIdentifier id = it.next();
 
                         if ((id.getAuthority() != null)
                                 && id.getAuthority().getTitle().equals(Citations.EPSG.getTitle())) {
@@ -1462,18 +1461,16 @@ public class DataUtilities {
                     }
                 }
             }
-
-            if (i < (types.size() - 1)) {
-                buf.append(",");
-            }
+            buf.append(",");            
         }
+        buf.delete(buf.length()-1,buf.length()); // remove last ","
 
         return buf.toString();
     }
 
     static Class type(String typeName) throws ClassNotFoundException {
         if (typeMap.containsKey(typeName)) {
-            return (Class) typeMap.get(typeName);
+            return typeMap.get(typeName);
         }
 
         return Class.forName(typeName);
@@ -1643,7 +1640,7 @@ public class DataUtilities {
         	return null;
         }
         
-        List atts = new LinkedList();
+        List<String> atts = new LinkedList<String>();
 
         if (atts1 != null) {
             atts.addAll(Arrays.asList(atts1));
