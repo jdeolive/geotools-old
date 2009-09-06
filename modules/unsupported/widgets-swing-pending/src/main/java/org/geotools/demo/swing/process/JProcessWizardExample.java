@@ -10,7 +10,6 @@
 package org.geotools.demo.swing.process;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.geotools.gui.swing.process.JPage;
 import org.geotools.gui.swing.process.JWizard;

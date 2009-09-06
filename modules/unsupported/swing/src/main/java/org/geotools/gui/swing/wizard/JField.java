@@ -24,6 +24,8 @@ import java.awt.event.KeyEvent;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.text.JTextComponent;
 
 import org.geotools.data.Parameter;
 import org.geotools.util.Converters;
@@ -33,25 +35,39 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * Field that uses the converter API to hack away at a text representation of the provided value.
  */
 public class JField extends ParamField {
-    private JTextArea text;
+    private JTextComponent text;
+    private boolean single;
 
     public JField( Parameter< ? > parameter ) {
         super(parameter);
     }
 
+    public void setSingleLine( boolean single ){
+        this.single = single;
+    }
     public JComponent doLayout() {
-        text = new JTextArea(40, 2);
+        if( single ){
+            text = new JTextField(32);
+
+        }
+        else {
+            text = new JTextArea(40, 2);
+            ((JTextArea)text).setWrapStyleWord(true);
+        }
         text.addKeyListener(new KeyAdapter(){
             public void keyReleased( KeyEvent e ) {
                 validate();
             }
         });
-        text.setWrapStyleWord(true);
-
-        JScrollPane scroll = new JScrollPane(text, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scroll.setPreferredSize(new Dimension(400, 80));
-        return scroll;
+        if( single ){
+            return text;            
+        }
+        else {
+            JScrollPane scroll = new JScrollPane(text, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scroll.setPreferredSize(new Dimension(400, 80));
+            return scroll;
+        }
     }
 
     public Object getValue() {

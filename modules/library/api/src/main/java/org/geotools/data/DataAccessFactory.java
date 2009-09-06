@@ -335,7 +335,7 @@ public interface DataAccessFactory extends Factory {
                      InternationalString description,
                      boolean required,
                      Object sample) {
-            super(key, type, description, null, required, 1, 1, sample, null);
+            super(key, type, new SimpleInternationalString(key), description, required, 1, 1, sample, null);
         }
 
         /**
@@ -356,7 +356,7 @@ public interface DataAccessFactory extends Factory {
                      boolean required,
                      Object sample,
                      Map<String, ?> metadata) {
-            super(key, type, description, null, required, 1, 1, sample, metadata);
+            super(key, type, new SimpleInternationalString(key), description, required, 1, 1, sample, metadata);
         }
 
         /**

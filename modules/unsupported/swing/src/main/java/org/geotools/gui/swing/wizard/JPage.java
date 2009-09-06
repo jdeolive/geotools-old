@@ -44,11 +44,16 @@ public abstract class JPage {
     /**
      * The page contents; created as needed.
      */
-    protected final JPanel page;
+    protected JPanel panel;
+    
     /**
-     * Identifier used to track this page in a workflow.
+     * Identifier used to track this page in a work flow.
      */
-    protected final String identifier;
+    protected String pageIdentifier;
+    
+    protected String backPageIdentifier =  null;
+    
+    protected String nextPageIdentifier = FINISH;
     
     /**
      * Wizard hosting this process page; we will access wizard.model directly to look up our friends
@@ -64,36 +69,37 @@ public abstract class JPage {
     }
 
     /**
-     * Create a default page.
+     * Create a page with the provided id.
      */
     public JPage(String id ) {
-        this( id, new JPanel() );
+        pageIdentifier = id;
+    }
+
+    /**
+     * Access the JPanel - init will be used to create the
+     * panel the first time this method is called.
+     * @return JPanel used for this wizard page
+     */
+    public final JPanel getPanel() {
+        if( panel == null){
+            panel = createPanel();
+        }
+        return panel;        
+    }
+
+    public String getPageIdentifier() {
+        return pageIdentifier;
     }
     
-    /**
-     * Create a page.
-     * 
-     * @param id identifier
-     * @param panel JPanel to use as wizard page
-     */
-    public JPage( String id, JPanel page ) {
-        identifier = id;
-        this.page = page;
+    public void setPageIdentifier(String pageIdentifier) {
+        this.pageIdentifier = pageIdentifier;
     }
-
-    public final JPanel getPage() {
-        return page;
-    }
-
-    public final String getIdentifier() {
-        return identifier;
-    }
-
-    final void setJProcessWizard( JWizard w ) {
+    
+    final void setJWizard( JWizard w ) {
         wizard = w;
     }
 
-    public final JWizard getJProcessWizard() {
+    public final JWizard getJWizard() {
         return wizard;
     }
     public Map<String, JPage> getModel() {
@@ -106,33 +112,85 @@ public abstract class JPage {
      * @return Return id of the next JProcessPage or null if next should be disabled. You can use
      *         FINISH to indicate the wizard is complete and may be closed.
      */
-    public abstract String getNextPageIdentifier();
-
+    public String getNextPageIdentifier() {
+        return nextPageIdentifier;
+    }
+    
+    public void setNextPageIdentifier(String nextPageIdentifier) {
+        this.nextPageIdentifier = nextPageIdentifier;
+    }
+    
     /**
      * Identifier of the panel to use Back.
      * 
      * @return Return id of the next JProcessPage or null if next should be disabled.
      */
-    public abstract String getBackPageIdentifier();
+    public String getBackPageIdentifier() {
+        return backPageIdentifier;
+    }
+    
+    public void setBackPageIdentifier(String backPageIdentifier) {
+        this.backPageIdentifier = backPageIdentifier;
+    }    
 
+    /**
+     * Called to initialize the page for the first time.
+     * <p>
+     * Please note this method will only be called once; even if the
+     * user clicks forwards and backwards to return to your page. It
+     * is only called if getPannel() returns null.
+     */
+    public JPanel createPanel(){
+        // by default an empty JPanel is returned        
+        return new JPanel();
+    }
     /**
      * Called just before the panel is to be displayed.
+     * <p>
+     * This is a good time to populate your fields
+     * with values; hook up any listeners and
+     * gernally muck about.
      */
-    public void aboutToDisplayPanel() {
+    public void preDisplayPanel() {
+        // the default implementation does nothing
     }
 
     /**
-     * Override this method to perform functionality when the panel itself is displayed.
+     * Called just after the panel is displayed.
+     * <p>
+     * This is a good time to perform any animations or set the focus
+     * into one of the fields etc.
+     * </p>
      */
-    public void displayingPanel() {
-
+    public void postDisplayPanel() {
+        // the default implementation does nothing
     }
 
+    /**
+     * Validation of page state; if the page isValid then the next or
+     * finish button will be enabled.
+     * <p>
+     * If you need to call setNextPageIdentifier based on input
+     * this is the time to do it.
+     * </p>
+     * @return true if the page contents are valid
+     */
+    public boolean isValid(){
+        return true;
+    }
+    
     /**
      * Override this method to perform functionality just before the panel is to be hidden.
      */
-    public void aboutToHidePanel() {
+    public void preClosePanel() {
+    }
 
+    /**
+     * Called when the workflow is completed (either in Finish, Canel or Error)
+     * giving the page a chance to clean up any resources it is using such
+     * as a database connection.
+     */
+    public void dispose(){
     }
 
 }

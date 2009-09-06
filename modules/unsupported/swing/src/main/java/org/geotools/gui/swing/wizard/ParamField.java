@@ -20,6 +20,8 @@ import javax.swing.JComponent;
 
 import org.geotools.data.Parameter;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 /**
  * Super class that provides additional helper methods useful when implementing your own
  * ParamWidget.
@@ -69,4 +71,28 @@ public abstract class ParamField {
      */
     abstract public Object getValue();
 
+    /**
+     * Factory method creating the appropriate ParamField for the
+     * supplied Param.
+     * 
+     * @param param
+     * @return
+     */
+    public static ParamField create( Parameter<?> parameter ){
+        if (Double.class.isAssignableFrom( parameter.type )) {
+            return new JDoubleField(parameter);
+        }
+        else if (Boolean.class.isAssignableFrom( parameter.type )) {
+            JField field = new JField(parameter);
+            field.setSingleLine(true);
+            return field;
+        } else if (Geometry.class.isAssignableFrom( parameter.type)){
+            return new JGeometryField(parameter);
+        }
+        else {
+            // We got nothing special hope the converter api can deal
+            return new JField( parameter );
+        }
+    }
+    
 }

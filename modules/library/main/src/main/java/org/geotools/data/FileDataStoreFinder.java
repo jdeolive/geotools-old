@@ -70,10 +70,48 @@ public class FileDataStoreFinder {
 
         while (ps.hasNext()) {
             FileDataStoreFactorySpi fac = ps.next();
-
+            if( !fac.isAvailable() ){
+                continue;
+            }
             try {
                 if (fac.canProcess(url)) {
                     return fac.createDataStore(url);
+                }
+            } catch (Throwable t) {
+                /**
+                 * The logger for the filter module.
+                 */
+                LOGGER.log(Level.WARNING,
+                    "Could not aquire " + fac.getDescription() + ":" + t, t);
+
+                // Protect against DataStores that don't carefully
+                // code canProcess
+                continue;
+            }
+        }
+
+        return null;
+    }
+    
+    public static FileDataStoreFactorySpi getDataStoreFactory(String extension) {
+        String extension2 = null;
+        if( !extension.startsWith(".")){
+            extension2 = "."+extension;
+        }
+        Iterator<FileDataStoreFactorySpi> ps = getAvailableDataStores();
+        while (ps.hasNext()) {
+            FileDataStoreFactorySpi fac = ps.next();
+            if( !fac.isAvailable() ){
+                continue;
+            }
+            try {
+                for( String ext : fac.getFileExtensions() ){
+                    if( extension.equalsIgnoreCase(ext) ){
+                        return fac;
+                    }
+                    if( extension2 != null && extension2.equalsIgnoreCase(ext)){
+                        return fac;
+                    }
                 }
             } catch (Throwable t) {
                 /**
