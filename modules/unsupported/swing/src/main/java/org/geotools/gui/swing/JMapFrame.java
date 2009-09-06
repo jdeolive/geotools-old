@@ -85,6 +85,8 @@ public class JMapFrame extends JFrame {
 
         frame.setMapContext(context);
 
+        frame.setSize(500, 500);
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 frame.setVisible(true);
