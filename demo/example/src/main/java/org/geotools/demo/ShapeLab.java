@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import org.geotools.gui.swing.JMapFrame;
+import org.geotools.swing.JMapFrame;
 
 public class ShapeLab {
 

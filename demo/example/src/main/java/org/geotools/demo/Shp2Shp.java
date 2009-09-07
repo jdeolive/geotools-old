@@ -12,8 +12,11 @@ package org.geotools.demo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import javax.swing.JFileChooser;
@@ -33,8 +36,11 @@ import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.ReferencingFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 public class Shp2Shp {
@@ -131,14 +137,24 @@ public class Shp2Shp {
 
     private static CoordinateReferenceSystem getCoordinateReferenceSystem(
             String message) throws Exception {
-        Set<String> codes = CRS.getSupportedCodes("EPSG");
+
+        CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
+        Set<String> codes = authorityFactory.getAuthorityCodes(CoordinateReferenceSystem.class);
+        List<String> desc = new ArrayList<String>();
+        
+        for (String code : codes) {
+            desc.add(code + ": " + authorityFactory.getDescriptionText("EPSG:" + code).toString());
+        }
         String selected = (String) JOptionPane.showInputDialog(null, message,
                 "Choose a Projection", JOptionPane.QUESTION_MESSAGE, null,
-                codes.toArray(), "4326");
+                desc.toArray(), "4326");
+
         if (selected == null) {
             System.exit(0);
         }
-        return CRS.decode("EPSG:" + selected);
+
+        String selectedCode = selected.substring(0, selected.indexOf(':'));
+        return CRS.decode("EPSG:" + selectedCode);
     }
 
     private static File promptShapeFile(String[] args)

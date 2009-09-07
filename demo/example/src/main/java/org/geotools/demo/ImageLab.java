@@ -16,7 +16,7 @@ import javax.swing.filechooser.FileFilter;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.DataSourceException;
 import org.geotools.gce.geotiff.GeoTiffReader;
-import org.geotools.gui.swing.JMapFrame;
+import org.geotools.swing.JMapFrame;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
 import org.geotools.map.MapContext;

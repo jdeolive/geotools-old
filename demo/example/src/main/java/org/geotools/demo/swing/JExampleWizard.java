@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Tookit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This file is hereby placed into the Public Domain. This means anyone is
@@ -15,8 +15,8 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.geotools.gui.swing.wizard.JPage;
-import org.geotools.gui.swing.wizard.JWizard;
+import org.geotools.swing.wizard.JPage;
+import org.geotools.swing.wizard.JWizard;
 
 /**
  * This is a quick example to show how JWizard works.
@@ -42,13 +42,18 @@ public class JExampleWizard extends JWizard {
             setBackPageIdentifier(null);
             setNextPageIdentifier("page2");                   
         }
+        
         JTextField field;
+
+        @Override
         public JPanel createPanel() {
             JPanel page = new JPanel( new MigLayout() );
             page.add(new JLabel("X:"), "skip");
             page.add( field = new JTextField(15), "span, growx");
             return page;
         }
+
+        @Override
         public void preDisplayPanel() {
             if( x == null ){
                 field.setText("");
@@ -58,9 +63,13 @@ public class JExampleWizard extends JWizard {
             }
             field.addKeyListener( getJWizard().getController() );
         };
+
+        @Override
         public void preClosePanel() {
             field.removeKeyListener( getJWizard().getController() );
         };
+
+        @Override
         public boolean isValid() {
             try {
                 String txt = field.getText();
@@ -78,13 +87,18 @@ public class JExampleWizard extends JWizard {
             setBackPageIdentifier("page1");
             setNextPageIdentifier(JPage.FINISH);
         }
+
         JTextField field;
+
+        @Override
         public JPanel createPanel() {
             JPanel page = new JPanel( new MigLayout() );
             page.add(new JLabel("Y:"), "skip");
             page.add( field = new JTextField(15), "span, growx");
             return page;
         }
+
+        @Override
         public void preDisplayPanel() {
             if( y == null ){
                 field.setText("");
@@ -94,9 +108,13 @@ public class JExampleWizard extends JWizard {
             }
             field.addKeyListener( getJWizard().getController() );
         };
+
+        @Override
         public void preClosePanel() {
             field.removeKeyListener( getJWizard().getController() );
         };
+
+        @Override
         public boolean isValid() {
             try {
                 String txt = field.getText();
