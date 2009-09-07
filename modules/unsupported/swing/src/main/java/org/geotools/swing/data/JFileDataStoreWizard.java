@@ -47,7 +47,7 @@ public class JFileDataStoreWizard extends JWizard {
     }
     
     public JFileDataStoreWizard( File file, FileDataStoreFactorySpi format ){
-        super( format.getDisplayName() );
+        super( format == null ? "" : format.getDisplayName() );
         if( format == null){
             // GeoTools detects FileDataStoreFactorSpi's on the classpath
             // if you are getting this error for "shp" perhaps you do not have the
@@ -72,7 +72,7 @@ public class JFileDataStoreWizard extends JWizard {
         System.out.print("Wizard completed with:");
         switch (result) {
         case JWizard.CANCEL:
-            System.out.println("CANEL");
+            System.out.println("CANCEL");
             break;
         case JWizard.FINISH:
             System.out.println("FINISH "+wizard.getFile());
