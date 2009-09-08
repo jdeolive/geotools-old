@@ -5,7 +5,7 @@ SWING MODULE
 
   IP Review:
 
-    * Michael Bedward, August 2009
+    * Michael Bedward, September 2009
 
   STATUS: clean
 
@@ -13,28 +13,59 @@ SWING MODULE
   GUI elements including a map display pane with associated cursor
   tools.
 
-* org.getools.gui.swing
-  ~~~~~~~~~~~~~~~~~~~~~
+* org.getools.swing
+  ~~~~~~~~~~~~~~~~~
 Classes for map display, a progress window and exception reporting dialog
 
-* org.geotools.gui.swing.action
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* org.geotools.swing.action
+  ~~~~~~~~~~~~~~~~~~~~~~~~~
 Classes to link GUI control actions to the map pane.
 
-* org.geotools.gui.swing.dndlist
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* org.geotools.swing.dndlist
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~
 Classes that implement a JList with drag and drop reordering of elements;
 used as a table of contents for map layers.
 
-* org.geotools.gui.swing.event
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* org.geotools.swing.data
+  ~~~~~~~~~~~~~~~~~~~~~~~
+Dialog and wizard classes to get user input for data store choices.
+
+* org.geotools.swing.event
+  ~~~~~~~~~~~~~~~~~~~~~~~~
 Mouse and map pane event and listener classes.
 
-* org.geotools.gui.swing.tool
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* org.geotools.swing.tool
+  ~~~~~~~~~~~~~~~~~~~~~~~
 Cursor tool classes for zooming, panning etc.
 
-* org.geotools.gui.swing.images (resources)
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Control and cursor icons: all created for this module by mbedward.
+* org.geotools.swing.wizard
+  ~~~~~~~~~~~~~~~~~~~~~~~~~
+Classes to consturct wizards to get user input.
+
+* org.geotools.swing.icons (resources)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Control and cursor icons. Some created specifically for this module by
+mbedward. Those named with prefix mAction were produced by
+Robert Szczepane and are distributed under the licence that appears below.
+As requested in the licence, Robert has been informed of the icons use
+here.
+
+LICENSE
+
+Original GIS icons theme was created by Robert Szczepanek [1] and is licensed
+under a Creative Commons Attribution-Share Alike 3.0 Unported License [2].
+Fill free to use it for GIS software or for any other purposes. I only ask
+you to let me know about that and to include licence.txt file in your work.
+
+[1] http://robert.szczepanek.pl/
+[2] http://creativecommons.org/licenses/by-sa/3.0/
+
+TITLE:			gis-0.1
+DESCRIPTION:	GIS icon theme
+AUTHOR:			Robert Szczepanek
+CONTACT:		robert at szczepanek pl
+SITE:			http://robert.szczepanek.pl/
+
+Cracow 2008,
+Poland
 
