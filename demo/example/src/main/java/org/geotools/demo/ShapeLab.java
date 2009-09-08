@@ -1,6 +1,5 @@
 package org.geotools.demo;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -15,15 +14,13 @@ import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
-import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Rule;
-import org.geotools.styling.SLD;
 import org.geotools.styling.SLDParser;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
-import org.geotools.styling.Symbolizer;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -32,6 +29,10 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import java.awt.Color;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.Stroke;
 import org.geotools.swing.JMapFrame;
 
 public class ShapeLab {
@@ -67,12 +68,13 @@ public class ShapeLab {
         if (sld.exists()) {
             return createFromSLD(sld);
         }
-        Class type = schema.getGeometryDescriptor().getType().getBinding();
-        if (type.isAssignableFrom(Polygon.class)
-                || type.isAssignableFrom(MultiPolygon.class)) {
+        Class geomType = schema.getGeometryDescriptor().getType().getBinding();
+
+        if (geomType.isAssignableFrom(Polygon.class)
+                || geomType.isAssignableFrom(MultiPolygon.class)) {
             return createPolygonStyle();
-        } else if (type.isAssignableFrom(LineString.class)
-                || type.isAssignableFrom(MultiLineString.class)) {
+        } else if (geomType.isAssignableFrom(LineString.class)
+                || geomType.isAssignableFrom(MultiLineString.class)) {
             return createLineStyle();
         } else {
             return createPointStyle();
@@ -92,49 +94,92 @@ public class ShapeLab {
         return null;
     }
 
+    /**
+     * Create a Style to draw point features as circles with blue outlines
+     * and cyan fill
+     */
     private static Style createPointStyle() {
-        Style style;
-        PointSymbolizer symbolizer = styleFactory.createPointSymbolizer();
-        symbolizer.getGraphic().setSize(filterFactory.literal(1));
+        Graphic gr = styleFactory.createDefaultGraphic();
+
+        Mark mark = styleFactory.getCircleMark();
+
+        mark.setStroke(styleFactory.createStroke(
+                filterFactory.literal(Color.BLUE), filterFactory.literal(1)));
+        
+        mark.setFill(styleFactory.createFill(filterFactory.literal(Color.CYAN)));
+
+        mark.setSize(filterFactory.literal(3));
+
+        gr.graphicalSymbols().clear();
+        gr.graphicalSymbols().add(mark);
+
+        /*
+         * Setting the geometryPropertyName arg to null signals that we want to
+         * draw the default geomettry of features
+         */
+        PointSymbolizer sym = styleFactory.createPointSymbolizer(gr, null);
+
         Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[] { symbolizer });
-        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[] { rule });
-        style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
+        rule.symbolizers().add(sym);
+        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle(new Rule[]{rule});
+        Style style = styleFactory.createStyle();
+        style.featureTypeStyles().add(fts);
+
         return style;
     }
 
+    /**
+     * Create a Style to draw line features as thin blue lines
+     */
     private static Style createLineStyle() {
-        Style style;
+        Stroke stroke = styleFactory.createStroke(
+                filterFactory.literal(Color.BLUE),
+                filterFactory.literal(1));
 
-        LineSymbolizer symbolizer = styleFactory.createLineSymbolizer();
-        SLD.setLineColour(symbolizer, Color.BLUE);
-        symbolizer.getStroke().setWidth(filterFactory.literal(1));
-        symbolizer.getStroke().setColor(filterFactory.literal(Color.BLUE));
+        /*
+         * Setting the geometryPropertyName arg to null signals that we want to
+         * draw the default geomettry of features
+         */
+        LineSymbolizer sym = styleFactory.createLineSymbolizer(stroke, null);
 
         Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[] { symbolizer });
-        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[] { rule });
-        style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
+        rule.symbolizers().add(sym);
+        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle(new Rule[]{rule});
+        Style style = styleFactory.createStyle();
+        style.featureTypeStyles().add(fts);
+
         return style;
     }
 
+    /**
+     * Create a Style to draw polygon features with a thin blue outline and
+     * a cyan fill
+     */
     private static Style createPolygonStyle() {
-        Style style;
-        PolygonSymbolizer symbolizer = styleFactory.createPolygonSymbolizer();
-        Fill fill = styleFactory.createFill(
-                filterFactory.literal("#FFAA00"),
+
+        // create a partially opaque outline stroke
+        Stroke stroke = styleFactory.createStroke(
+                filterFactory.literal(Color.BLUE),
+                filterFactory.literal(1),
                 filterFactory.literal(0.5));
-        symbolizer.setFill(fill);
+
+        // create a partial opaque fill
+        Fill fill = styleFactory.createFill(
+                filterFactory.literal(Color.CYAN),
+                filterFactory.literal(0.5));
+
+        /*
+         * Setting the geometryPropertyName arg to null signals that we want to
+         * draw the default geomettry of features
+         */
+        PolygonSymbolizer sym = styleFactory.createPolygonSymbolizer(stroke, fill, null);
+
         Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
-        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
-        style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
+        rule.symbolizers().add(sym);
+        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle(new Rule[]{rule});
+        Style style = styleFactory.createStyle();
+        style.featureTypeStyles().add(fts);
+
         return style;
     }
 
