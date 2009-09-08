@@ -66,11 +66,13 @@ import org.geotools.resources.NIOUtilities;
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/shapefile/src/main/java/org/geotools/data/shapefile/dbf/DbaseFileReader.java $
  */
 public class DbaseFileReader implements FileReader {
+    
+    private static Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+    private static Charset ASCII = Charset.forName("ASCII");
 
     public final class Row {
         public Object read(int column) throws IOException {
-            int offset = getOffset(column);
-            return readObject(offset, column);
+            return readObject(fieldOffsets[column], column);
         }
 
         public String toString() {
@@ -103,6 +105,7 @@ public class DbaseFileReader implements FileReader {
     char[] fieldTypes;
 
     int[] fieldLengths;
+    int[] fieldOffsets;
 
     int cnt = 1;
 
@@ -113,9 +116,12 @@ public class DbaseFileReader implements FileReader {
     protected boolean randomAccessEnabled;
 
     protected int currentOffset = 0;
+    
     private StreamLogging streamLogger = new StreamLogging("Dbase File Reader");
 
     private Charset stringCharset;
+    
+    private boolean oneBytePerChar;
 
     /**
      * Creates a new instance of DBaseFileReader
@@ -139,7 +145,7 @@ public class DbaseFileReader implements FileReader {
             Charset charset) throws IOException {
         this.channel = dbfChannel;
         this.stringCharset = charset;
-        this.charset = Charset.forName("ISO-8859-1"); // charset;
+        this.charset = ISO_8859_1; // charset;
 
         this.useMemoryMappedBuffer = useMemoryMappedBuffer;
         this.randomAccessEnabled = (channel instanceof FileChannel);
@@ -176,13 +182,17 @@ public class DbaseFileReader implements FileReader {
         // Set up some buffers and lookups for efficiency
         fieldTypes = new char[header.getNumFields()];
         fieldLengths = new int[header.getNumFields()];
+        fieldOffsets = new int[header.getNumFields()];
         for (int i = 0, ii = header.getNumFields(); i < ii; i++) {
             fieldTypes[i] = header.getFieldType(i);
             fieldLengths[i] = header.getFieldLength(i);
+            if(i > 0)
+            fieldOffsets[i] = fieldOffsets[i -1] + header.getFieldLength(i - 1);
         }
         
         charBuffer = CharBuffer.allocate(header.getRecordLength() - 1);
         decoder = charset.newDecoder();
+        oneBytePerChar = decoder.maxCharsPerByte() == 1.0f && decoder.averageCharsPerByte() == 1.0f;
         
         row = new Row();
     }
@@ -213,14 +223,6 @@ public class DbaseFileReader implements FileReader {
             fill(buffer, channel);
             buffer.position(0);
         }
-    }
-
-    private int getOffset(int column) {
-        int offset = 0;
-        for (int i = 0, ii = column; i < ii; i++) {
-            offset += fieldLengths[i];
-        }
-        return offset;
     }
 
     /**
@@ -335,10 +337,8 @@ public class DbaseFileReader implements FileReader {
         // retrieve the record length
         final int numFields = header.getNumFields();
 
-        int fieldOffset = 0;
         for (int j = 0; j < numFields; j++) {
-            entry[j + offset] = readObject(fieldOffset, j);
-            fieldOffset += fieldLengths[j];
+            entry[j + offset] = readObject(fieldOffsets[j], j);
         }
 
         return entry;
@@ -354,12 +354,7 @@ public class DbaseFileReader implements FileReader {
      */
     public Object readField(int fieldNum)
             throws IOException {
-        // retrieve the record length
-        int fieldOffset = 0;
-        for (int j = 0; j < fieldNum; j++) {
-            fieldOffset += fieldLengths[j];
-        }
-        return readObject(fieldOffset, fieldNum);
+        return readObject(fieldOffsets[fieldNum], fieldNum);
     }
 
     /**
@@ -393,7 +388,17 @@ public class DbaseFileReader implements FileReader {
 
             charBuffer.position(0);
             buffer.limit(buffer.position() + header.getRecordLength() - 1);
-            decoder.decode(buffer, charBuffer, true);
+            if(oneBytePerChar) {
+                // faster reading path, the decoder is for some reason slower,
+                // probably because it has to make extra checks to support multibyte chars
+                final int count = buffer.limit() - buffer.position();
+                for (int i = 0; i < count; i++) {
+                    // force the byte to a positive integer interpretation before casting to char
+                    charBuffer.put((char) (0x00FF & buffer.get()));
+                }
+            } else {
+                decoder.decode(buffer, charBuffer, true);
+            }
             buffer.limit(buffer.capacity());
             charBuffer.flip();
 
