@@ -59,7 +59,7 @@ import org.opengis.util.ProgressListener;
  * thread), which make it easier to use it from some background thread. Such background thread
  * should have a low priority in order to avoid delaying Swing repaint events.
  *
- * @author Martin Desruisseaux (PMO, IRD)
+ * @author Martin Desruisseaux
  * @since 2.0
  * @source $URL$
  * @version $Id$
@@ -279,6 +279,7 @@ public class ProgressWindow implements ProgressListener {
         if (p>100) p=100;
         set(Caller.PROGRESS, new Integer(p));
     }
+
     public float getProgress() {
         BoundedRangeModel model = progressBar.getModel();
         float progress = (float) (model.getValue() - model.getMinimum());

@@ -30,7 +30,7 @@ import org.geotools.swing.JMapPane;
  * @since 2.6
  * @source $URL:
  *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/swing/src/main/java/org/geotools
- *         /gui/swing/event/MapMouseEvent.java $
+ *         /swing/event/MapMouseEvent.java $
  * @version $Id$
  */
 public final class MapMouseEvent extends MouseEvent {

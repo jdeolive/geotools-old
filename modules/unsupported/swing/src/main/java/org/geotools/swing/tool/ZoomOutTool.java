@@ -45,19 +45,17 @@ import org.geotools.swing.event.MapMouseEvent;
  */
 public class ZoomOutTool extends AbstractZoomTool {
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
     
     public static final String TOOL_NAME = stringRes.getString("tool_name_zoom_out");
     public static final String TOOL_TIP = stringRes.getString("tool_tip_zoom_out");
-    public static final String CURSOR_IMAGE = "/org/geotools/gui/swing/images/zoom_out_cursor_32.gif";
+    public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/zoom_out_cursor_32.gif";
     public static final Point CURSOR_HOTSPOT = new Point(13, 11);
     
-    public static final String ICON_IMAGE_LARGE = "/org/geotools/gui/swing/images/zoom_out_32.png";
-    public static final String ICON_IMAGE_SMALL = "/org/geotools/gui/swing/images/zoom_out_24.png";
+    public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomOut.png";
     
     private Cursor cursor;
-    private Icon iconLarge;
-    private Icon iconSmall;
+    private Icon icon;
     
     /**
      * Constructor
@@ -66,8 +64,7 @@ public class ZoomOutTool extends AbstractZoomTool {
      */
     public ZoomOutTool(JMapPane pane) {
         super(pane);
-        iconLarge = new ImageIcon(getClass().getResource(ICON_IMAGE_LARGE));
-        iconSmall = new ImageIcon(getClass().getResource(ICON_IMAGE_SMALL));
+        icon = new ImageIcon(getClass().getResource(ICON_IMAGE));
 
         Toolkit tk = Toolkit.getDefaultToolkit();
         ImageIcon imgIcon = new ImageIcon(getClass().getResource(CURSOR_IMAGE));
@@ -113,17 +110,10 @@ public class ZoomOutTool extends AbstractZoomTool {
     }
     
     /**
-     * Get the 32x32 pixel icon for this tool
+     * Get the icon for this tool
      */
-    public Icon getIconLarge() {
-        return iconLarge;
-    }
-    
-    /**
-     * Get the 24x24 pixel icon for this tool
-     */
-    public Icon getIconSmall() {
-        return iconSmall;
+    public Icon getIcon() {
+        return icon;
     }
 
     /**

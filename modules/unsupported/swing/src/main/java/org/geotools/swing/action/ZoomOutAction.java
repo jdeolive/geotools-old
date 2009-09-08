@@ -19,7 +19,6 @@ package org.geotools.swing.action;
 
 import java.awt.event.ActionEvent;
 import org.geotools.swing.JMapPane;
-import org.geotools.swing.tool.CursorTool;
 import org.geotools.swing.tool.ZoomOutTool;
 
 /**
@@ -33,7 +32,6 @@ import org.geotools.swing.tool.ZoomOutTool;
  * @version $Id$
  */
 public class ZoomOutAction extends MapAction {
-    private static final long serialVersionUID = 95893142247739121L;
 
     /**
      * Constructor - when used with a JButton the button will
@@ -42,33 +40,18 @@ public class ZoomOutAction extends MapAction {
      * @param pane the map pane being serviced by this action
      */
     public ZoomOutAction(JMapPane pane) {
-        this(pane, CursorTool.SMALL_ICON, false);
+        this(pane, false);
     }
 
     /**
      * Constructor
      * 
      * @param pane the map pane being serviced by this action
-     * @param toolIcon specifies which, if any, icon the control (e.g. JButton)
-     * will display; one of CursorTool.NO_ICON, CursorTool.SMALL_ICON or
-     * CursorTool.LARGE_ICON.
      * @param showToolName set to true for the control to display the tool name
      */
-    public ZoomOutAction(JMapPane pane, int toolIcon, boolean showToolName) {
+    public ZoomOutAction(JMapPane pane, boolean showToolName) {
         String toolName = showToolName ? ZoomOutTool.TOOL_NAME : null;
-        
-        String iconImagePath = null;
-        switch (toolIcon) {
-            case CursorTool.LARGE_ICON:
-                iconImagePath = ZoomOutTool.ICON_IMAGE_LARGE;
-                break;
-                
-            case CursorTool.SMALL_ICON:
-                iconImagePath = ZoomOutTool.ICON_IMAGE_SMALL;
-                break;
-        }
-        
-        super.init(pane, toolName, ZoomOutTool.TOOL_TIP, iconImagePath);
+        super.init(pane, toolName, ZoomOutTool.TOOL_TIP, ZoomOutTool.ICON_IMAGE);
     }
     
     /**

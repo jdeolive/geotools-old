@@ -19,7 +19,6 @@ package org.geotools.swing.action;
 
 import java.awt.event.ActionEvent;
 import org.geotools.swing.JMapPane;
-import org.geotools.swing.tool.CursorTool;
 
 
 /**
@@ -33,12 +32,9 @@ import org.geotools.swing.tool.CursorTool;
  * @version $Id$
  */
 public class ResetAction extends MapAction {
-    private static final long serialVersionUID = -4833407589496173672L;
-    
-    public static final String TOOL_NAME = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/widget").getString("tool_name_reset");
-    public static final String TOOL_TIP = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/widget").getString("tool_tip_reset");
-    public static final String ICON_IMAGE_LARGE = "/org/geotools/gui/swing/images/reset_32.png";
-    public static final String ICON_IMAGE_SMALL = "/org/geotools/gui/swing/images/reset_24.png";
+    public static final String TOOL_NAME = java.util.ResourceBundle.getBundle("org/geotools/swing/widget").getString("tool_name_reset");
+    public static final String TOOL_TIP = java.util.ResourceBundle.getBundle("org/geotools/swing/widget").getString("tool_tip_reset");
+    public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomFullExtent.png";
     
     /**
      * Constructor - when used with a JButton the button will
@@ -47,33 +43,20 @@ public class ResetAction extends MapAction {
      * @param pane the map pane being serviced by this action
      */
     public ResetAction(JMapPane pane) {
-        this(pane, CursorTool.SMALL_ICON, false);
+        this(pane, false);
     }
 
     /**
      * Constructor
      * 
      * @param pane the map pane being serviced by this action
-     * @param toolIcon specifies which, if any, icon the control (e.g. JButton)
-     * will display; one of CursorTool.NO_ICON, CursorTool.SMALL_ICON or
-     * CursorTool.LARGE_ICON.
      * @param showToolName set to true for the control to display the tool name
      */
-    public ResetAction(JMapPane pane, int toolIcon, boolean showToolName) {
+    public ResetAction(JMapPane pane, boolean showToolName) {
         String toolName = showToolName ? TOOL_NAME : null;
         
         String iconImagePath = null;
-        switch (toolIcon) {
-            case CursorTool.LARGE_ICON:
-                iconImagePath = ICON_IMAGE_LARGE;
-                break;
-                
-            case CursorTool.SMALL_ICON:
-                iconImagePath = ICON_IMAGE_SMALL;
-                break;
-        }
-        
-        super.init(pane, toolName, TOOL_TIP, iconImagePath);
+        super.init(pane, toolName, TOOL_TIP, ICON_IMAGE);
     }
     
     /**

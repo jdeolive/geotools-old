@@ -53,7 +53,7 @@ import org.geotools.map.event.MapBoundsListener;
 public class StatusBar extends JPanel implements MapPaneListener {
     private static final long serialVersionUID = 3871466161939637993L;
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
 
     /*
      * TODO: display additional info in the status bar

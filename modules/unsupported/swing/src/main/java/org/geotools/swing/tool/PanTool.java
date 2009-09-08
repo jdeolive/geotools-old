@@ -37,19 +37,17 @@ import org.geotools.swing.event.MapMouseEvent;
  */
 public class PanTool extends CursorTool {
     
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
 
     public static final String TOOL_NAME = stringRes.getString("tool_name_pan");
     public static final String TOOL_TIP = stringRes.getString("tool_tip_pan");
-    public static final String CURSOR_IMAGE = "/org/geotools/gui/swing/images/pan_cursor_32.gif";
+    public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/pan_cursor_32.gif";
     public static final Point CURSOR_HOTSPOT = new Point(15, 15);
 
-    public static final String ICON_IMAGE_LARGE = "/org/geotools/gui/swing/images/pan_32.png";
-    public static final String ICON_IMAGE_SMALL = "/org/geotools/gui/swing/images/pan_24.png";
+    public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionPan.png";
     
     private Cursor cursor;
-    private Icon iconLarge;
-    private Icon iconSmall;
+    private Icon icon;
 
     private Point panePos;
     boolean panning;
@@ -61,8 +59,7 @@ public class PanTool extends CursorTool {
      */
     public PanTool(JMapPane pane) {
         setMapPane(pane);
-        iconLarge = new ImageIcon(getClass().getResource(ICON_IMAGE_LARGE));
-        iconSmall = new ImageIcon(getClass().getResource(ICON_IMAGE_SMALL));
+        icon = new ImageIcon(getClass().getResource(ICON_IMAGE));
 
         Toolkit tk = Toolkit.getDefaultToolkit();
         ImageIcon imgIcon = new ImageIcon(getClass().getResource(CURSOR_IMAGE));
@@ -122,17 +119,10 @@ public class PanTool extends CursorTool {
     }
     
     /**
-     * Get the 32x32 pixel icon for this tool
-     */
-    public Icon getIconLarge() {
-        return iconLarge;
-    }
-    
-    /**
      * Get the 24x24 pixel icon for this tool
      */
-    public Icon getIconSmall() {
-        return iconSmall;
+    public Icon getIcon() {
+        return icon;
     }
 
     /**

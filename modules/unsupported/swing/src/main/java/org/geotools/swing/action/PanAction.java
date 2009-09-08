@@ -19,7 +19,6 @@ package org.geotools.swing.action;
 
 import java.awt.event.ActionEvent;
 import org.geotools.swing.JMapPane;
-import org.geotools.swing.tool.CursorTool;
 import org.geotools.swing.tool.PanTool;
 
 /**
@@ -32,7 +31,6 @@ import org.geotools.swing.tool.PanTool;
  * @version $Id$
  */
 public class PanAction extends MapAction {
-    private static final long serialVersionUID = -7861590592095577375L;
 
     /**
      * Constructor - when used with a JButton the button will
@@ -41,33 +39,18 @@ public class PanAction extends MapAction {
      * @param pane the map pane being serviced by this action
      */
     public PanAction(JMapPane pane) {
-        this(pane, CursorTool.SMALL_ICON, false);
+        this(pane, false);
     }
 
     /**
      * Constructor
      * 
      * @param pane the map pane being serviced by this action
-     * @param toolIcon specifies which, if any, icon the control (e.g. JButton)
-     * will display; one of CursorTool.NO_ICON, CursorTool.SMALL_ICON or
-     * CursorTool.LARGE_ICON.
      * @param showToolName set to true for the control to display the tool name
      */
-    public PanAction(JMapPane pane, int toolIcon, boolean showToolName) {
+    public PanAction(JMapPane pane, boolean showToolName) {
         String toolName = showToolName ? PanTool.TOOL_NAME : null;
-        
-        String iconImagePath = null;
-        switch (toolIcon) {
-            case CursorTool.LARGE_ICON:
-                iconImagePath = PanTool.ICON_IMAGE_LARGE;
-                break;
-                
-            case CursorTool.SMALL_ICON:
-                iconImagePath = PanTool.ICON_IMAGE_SMALL;
-                break;
-        }
-        
-        super.init(pane, toolName, PanTool.TOOL_TIP, iconImagePath);
+        super.init(pane, toolName, PanTool.TOOL_TIP, PanTool.ICON_IMAGE);
     }
     
     /**

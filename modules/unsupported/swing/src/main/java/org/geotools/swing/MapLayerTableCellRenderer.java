@@ -42,7 +42,7 @@ import org.geotools.map.MapLayer;
 public class MapLayerTableCellRenderer extends JPanel implements ListCellRenderer {
     private static final long serialVersionUID = 7907189175227502588L;
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
 
     /**
      * Constants for icons used to display layer states. Each constant has
@@ -56,9 +56,9 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
         VISIBLE(
             stringRes.getString("show_layer"),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
-                "/org/geotools/gui/swing/images/eye_open.png")),
+                "/org/geotools/swing/icons/eye_open.png")),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
-                "/org/geotools/gui/swing/images/eye_closed.png"))
+                "/org/geotools/swing/icons/eye_closed.png"))
         ),
 
         /**
@@ -68,9 +68,9 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
         SELECTED(
             stringRes.getString("select_layer"),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
-                "/org/geotools/gui/swing/images/tick.png")),
+                "/org/geotools/swing/icons/tick.png")),
             new ImageIcon(MapLayerTableCellRenderer.class.getResource(
-                "/org/geotools/gui/swing/images/cross.png"))
+                "/org/geotools/swing/icons/cross.png"))
         );
     
         private String desc;
@@ -113,7 +113,7 @@ public class MapLayerTableCellRenderer extends JPanel implements ListCellRendere
     }
 
     private static Icon REMOVE_LAYER_ICON = new ImageIcon(
-            MapLayerTableCellRenderer.class.getResource("/org/geotools/gui/swing/images/remove_layer.png"));
+            MapLayerTableCellRenderer.class.getResource("/org/geotools/swing/icons/remove_layer.png"));
 
     private final static int CELL_PADDING = 5;
     private final static int CELL_HEIGHT;

@@ -79,7 +79,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 public class JMapPane extends JPanel implements MapLayerListListener {
     private static final long serialVersionUID = 6657390989310278122L;
 
-    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/gui/swing/widget");
+    private static final ResourceBundle stringRes = ResourceBundle.getBundle("org/geotools/swing/widget");
 
     /**
      * Default width of the margin (pixels) between the edge of the 
