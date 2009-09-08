@@ -79,7 +79,6 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-render</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>

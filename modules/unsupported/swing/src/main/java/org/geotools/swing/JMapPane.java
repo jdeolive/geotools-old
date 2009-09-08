@@ -480,8 +480,10 @@ public class JMapPane extends JPanel implements MapLayerListListener {
     
     /**
      * Set the width of the margin between the edge of the 
-     * map pane and the drawing area. Causes the display to
-     * be redrawn.
+     * map pane and the drawing area. It's helpful to have a
+     * margin when drawing vector features.
+     * <p>
+     * This method will invoke {@linkplain #repaint()}.
      * 
      * @param w border width in pixels (values < 0 are ignored)
      * @see #DEFAULT_BORDER_WIDTH

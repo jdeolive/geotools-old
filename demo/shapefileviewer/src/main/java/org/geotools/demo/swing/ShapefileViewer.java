@@ -91,7 +91,7 @@ public class ShapefileViewer extends JMapFrame {
         //enableMenuBar(true);
         enableStatusBar(true);
         enableToolBar(true);
-        setupUI();
+        initComponents();
 
         
         JMenuBar menuBar = new JMenuBar();

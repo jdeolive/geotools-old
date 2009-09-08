@@ -36,20 +36,18 @@ import org.geotools.map.MapContext;
 import org.geotools.renderer.lite.StreamingRenderer;
 
 /**
- * A simple Swing widget with a menu bar, tool bar, map display pane
- * ({@linkplain org.geotools.swing.JMapPane}), table of displayed
- * layers ({@linkplain org.geotools.swing.MapLayerTable}) and
- * and status bar ({@linkplain org.geotools.swing.StatusBar}).
+ * A Swing frame containing a map display pane and (optionally) a toolbar,
+ * status bar and map layer table.
  * <p>
- * This widget is capable enough for simple applications, and has
- * been designed to allow its methods to be easily overridden to customize
- * it further. Alternatively, use this code as a starting point for your
- * own display classes.
- * <p>
- * The UI is constructed using the MiGLayout layout manager
- * to avoid clutterring the sources with GUI-builder generated code.
+ * Simplest use is with the static {@linkplain #showMap(MapContext)} method:
+ * <pre>{@code \u0000
+ * MapContext context = new DefaultMapContext();
+ * context.setTitle("Maps R Us");
  *
- * @todo simple code example(s) here
+ * // add some layers to the MapContext...
+ *
+ * JMapFrame.showMap(context);
+ * }</pre>
  *
  * @see MapLayerTable
  * @see StatusBar
@@ -59,7 +57,7 @@ import org.geotools.renderer.lite.StreamingRenderer;
  */
 public class JMapFrame extends JFrame {
 
-    /**
+    /*
      * UI elements
      */
     private JMapPane mapPane;
@@ -75,13 +73,14 @@ public class JMapFrame extends JFrame {
     /**
      * Creates a new {@code JMapFrame} object with a toolbar, map pane and status
      * bar; sets the supplied {@code MapContext}; and displays the frame on the
-     * AWT event dispatching thread.
+     * AWT event dispatching thread. The context's title is used as the frame's
+     * title.
      */
     public static void showMap(MapContext context) {
         final JMapFrame frame = new JMapFrame(context);
         frame.enableStatusBar(true);
         frame.enableToolBar(true);
-        frame.setupUI();
+        frame.initComponents();
 
         frame.setMapContext(context);
 
@@ -116,6 +115,7 @@ public class JMapFrame extends JFrame {
      * Constructs a new {@code JMapFrame} object with specified context and renderer
      *
      * @param context the map context with layers to be displayed
+     * @param renderer the renderer to be used
      */
     public JMapFrame(MapContext context, GTRenderer renderer) {
         super(context == null ? "" : context.getTitle());
@@ -135,41 +135,55 @@ public class JMapFrame extends JFrame {
      * Set whether a toolbar, with a basic set of map tools, will be displayed
      * (default is false);
      * 
-     * @param state
+     * @param state whether the toolbar is required
      */
     public void enableToolBar(boolean state) {
         showToolBar = state;
     }
 
     /**
-     * Set whether a status bar will be displayed.
+     * Set whether a status bar will be displayed to display cursor position
+     * and map bounds.
+     *
+     * @param state whether the status bar is required.
      */
     public void enableStatusBar(boolean state) {
         showStatusBar = state;
     }
 
     /**
-     * Set whether a map layer table will be displayed.
+     * Set whether a map layer table will be displayed to show the list
+     * of layers in the map context and set their order, visibility and
+     * selected status.
+     *
+     * @param state whether the map layer table is required.
      */
     public void enableLayerTable(boolean state) {
         showLayerTable = state;
     }
 
+    /**
+     * Calls {@linkplain #initComponents()} if it has not already been called explicitly
+     * to construct the frame's components before showing the frame.
+     *
+     * @param state true to show the frame; false to hide.
+     */
     @Override
     public void setVisible(boolean state) {
         if (state && !uiSet) {
-            setupUI();
+            initComponents();
         }
 
         super.setVisible(state);
     }
 
     /**
-     * Creates and lays out the UI elements
-     *
-     * @todo Needs a better name !
+     * Creates and lays out the frame's components that have been
+     * specified with the enable methods (e.g. {@linkplain #enableToolBar(boolean)} ).
+     * If not called explicitly by the client this method will be invoked by
+     * {@linkplain #setVisible(boolean) } when the frame is first shown.
      */
-    public void setupUI() {
+    public void initComponents() {
         if (uiSet) {
             // @todo log a warning ?
             return;
