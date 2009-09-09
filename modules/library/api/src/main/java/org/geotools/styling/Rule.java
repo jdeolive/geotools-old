@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.opengis.filter.Filter;
 import org.opengis.metadata.citation.OnLineResource;
-import org.opengis.style.Description;
+
 import org.opengis.style.GraphicLegend;
 
 /**

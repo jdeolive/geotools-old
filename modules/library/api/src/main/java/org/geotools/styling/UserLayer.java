@@ -16,6 +16,8 @@
  */
 package org.geotools.styling;
 
+import java.util.List;
+
 import org.geotools.data.DataStore;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -61,12 +63,12 @@ public interface UserLayer extends StyledLayer {
 
     public void setRemoteOWS(RemoteOWS service);
 
+    public List<FeatureTypeConstraint> layerFeatureConstraints();
     public FeatureTypeConstraint[] getLayerFeatureConstraints();
-
     public void setLayerFeatureConstraints(FeatureTypeConstraint[] constraints);
 
+    public List<Style> userStyles();  
     public Style[] getUserStyles();
-
     public void setUserStyles(Style[] styles);
 
     public void addUserStyle(Style style);

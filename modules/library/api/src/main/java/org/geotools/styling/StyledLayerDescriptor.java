@@ -16,6 +16,8 @@
  */
 package org.geotools.styling;
 
+import java.util.List;
+
 
 
 /**
@@ -83,6 +85,12 @@ public interface StyledLayerDescriptor {
     public void setStyledLayers(StyledLayer[] layers);
 
     public void addStyledLayer(StyledLayer layer);
+    
+    /**
+     * Direct access to layers list.
+     * @return Direct access to layers list.
+     */
+	public List<StyledLayer> layers();
 
     /**
      * Getter for property name.

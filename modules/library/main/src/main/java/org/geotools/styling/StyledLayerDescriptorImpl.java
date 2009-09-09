@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -127,9 +127,13 @@ public class StyledLayerDescriptorImpl implements StyledLayerDescriptor {
         LOGGER.fine("StyleLayerDescriptorImpl added " + this.layers.size()
             + " styled layers");
     }
+    
+    public List<StyledLayer> layers() {
+        return layers;
+    }
 
     public void addStyledLayer(StyledLayer layer) {
-        layers.add(layer);
+        layers.add( (StyledLayerImpl) layer);
     }
 
     /**
