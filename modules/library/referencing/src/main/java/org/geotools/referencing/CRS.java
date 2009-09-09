@@ -1511,7 +1511,7 @@ search:             if (DefaultCoordinateSystemAxis.isCompassDirection(axis.getD
         final CoordinateReferenceSystem sourceCRS = operation.getSourceCRS();
         if (sourceCRS != null) {
             final CoordinateSystem cs = sourceCRS.getCoordinateSystem();
-            if (cs != null || cs.getDimension() != 2) { // Paranoiac check.
+            if (cs != null && cs.getDimension() == 2) { // Paranoiac check.
                 CoordinateSystemAxis axis = cs.getAxis(0);
                 double min = envelope.getMinX();
                 double max = envelope.getMaxX();
