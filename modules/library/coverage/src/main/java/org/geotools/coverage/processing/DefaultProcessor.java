@@ -17,6 +17,7 @@
 package org.geotools.coverage.processing;
 
 import java.awt.RenderingHints;
+import java.awt.image.RenderedImage;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -30,21 +31,20 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
 
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.Interpolator2D;
+import org.geotools.factory.FactoryRegistry;
+import org.geotools.factory.Hints;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.LoggingKeys;
+import org.geotools.resources.i18n.Loggings;
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.processing.Operation;
 import org.opengis.coverage.processing.OperationNotFoundException;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
-
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.Interpolator2D;
-import org.geotools.factory.FactoryRegistry;
-import org.geotools.factory.Hints;
-import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Loggings;
-import org.geotools.resources.i18n.LoggingKeys;
 
 
 /**

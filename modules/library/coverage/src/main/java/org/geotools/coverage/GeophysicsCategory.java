@@ -88,10 +88,10 @@ final class GeophysicsCategory extends Category {
      *       a general algorithm would be usefull in the super-class constructor as well.
      */
     @Override
-    public NumberRange getRange() throws IllegalStateException {
+    public NumberRange<? extends Number> getRange() throws IllegalStateException {
         if (range == null) try {
             final MathTransform1D tr = inverse.transform;
-            final NumberRange r = inverse.range;
+            final NumberRange<? extends Number> r = inverse.range;
             boolean minIncluded = r.isMinIncluded();
             boolean maxIncluded = r.isMaxIncluded();
             double min  = tr.transform(r.getMinimum());
@@ -185,7 +185,7 @@ final class GeophysicsCategory extends Category {
      *
      * @see GeophysicsCategory#getRange
      */
-    private static final class Range extends NumberRange {
+    private static final class Range extends NumberRange<Double> {
         /**
          * Serial number for interoperability with different versions.
          */
@@ -210,7 +210,7 @@ final class GeophysicsCategory extends Category {
                      final double maximum,  final boolean isMaxIncluded,
                      final double minimum2, final double  maximum2)
         {
-            super(minimum, isMinIncluded, maximum, isMaxIncluded);
+            super(NumberRange.create(minimum, isMinIncluded, maximum, isMaxIncluded));
             this.minimum2 = minimum2;
             this.maximum2 = maximum2;
         }

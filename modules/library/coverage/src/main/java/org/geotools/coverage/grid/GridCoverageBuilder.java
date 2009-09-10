@@ -97,12 +97,12 @@ public class GridCoverageBuilder {
     /**
      * The range of sample values.
      */
-    private NumberRange range;
+    private NumberRange<? extends Number> range;
 
     /**
      * The default {@linkplain #range}.
      */
-    private static final NumberRange DEFAULT_RANGE = new NumberRange(0, true, 256, false);
+    private static final NumberRange<Integer> DEFAULT_RANGE = NumberRange.create(0, true, 256, false);
 
     /**
      * The list of variables created. Each variable will be mapped to a
@@ -273,14 +273,14 @@ public class GridCoverageBuilder {
      * Returns the range of sample values. If no range has been {@linkplain #setSampleRange
      * explicitly defined}, then the default is a range from 0 inclusive to 256 exclusive.
      */
-    public NumberRange getSampleRange() {
+    public NumberRange<? extends Number> getSampleRange() {
         return (range != null) ? range : DEFAULT_RANGE;
     }
 
     /**
      * Sets the range of sample values.
      */
-    public void setSampleRange(final NumberRange range) {
+    public void setSampleRange(final NumberRange<? extends Number> range) {
         this.range = range;
         coverage = null;
     }
@@ -292,7 +292,7 @@ public class GridCoverageBuilder {
      * @param  upper The upper sample value (exclusive), typically 256.
      */
     public void setSampleRange(final int lower, final int upper) {
-        setSampleRange(new NumberRange(lower, true, upper, false));
+        setSampleRange(NumberRange.create(lower, true, upper, false));
     }
 
     /**
@@ -546,7 +546,7 @@ public class GridCoverageBuilder {
          */
         public GridSampleDimension getSampleDimension() {
             if (sampleDimension == null) {
-                NumberRange range = getSampleRange();
+                NumberRange<? extends Number> range = getSampleRange();
                 int lower = (int) Math.floor(range.getMinimum(true));
                 int upper = (int) Math.ceil(range.getMaximum(false));
                 final Category[] categories = new Category[nodata.size() + 1];
@@ -562,7 +562,7 @@ public class GridCoverageBuilder {
                     }
                     categories[i++] = new Category(entry.getValue(), null, sample);
                 }
-                range = new NumberRange(lower, true, upper, false);
+                range = NumberRange.create(lower, true, upper, false);
                 categories[i] = new Category(name, null, range, (transform != null) ?
                                              transform : LinearTransform1D.IDENTITY);
                 sampleDimension = new GridSampleDimension(name, categories, units);

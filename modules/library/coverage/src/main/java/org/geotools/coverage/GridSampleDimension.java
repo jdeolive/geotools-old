@@ -310,7 +310,8 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      * @throws IllegalArgumentException
      *             if the range {@code [minimum..maximum]} is not valid.
      */
-    public GridSampleDimension(final CharSequence  description,
+    @SuppressWarnings("deprecation")
+	public GridSampleDimension(final CharSequence  description,
                                final SampleDimensionType  type,
                                final ColorInterpretation color,
                                final Color[]           palette,
@@ -329,7 +330,8 @@ public class GridSampleDimension implements SampleDimension, Serializable {
     }
 
     /** Constructs a list of categories. Used by constructors only. */
-    private static CategoryList list(CharSequence  description,
+    @SuppressWarnings("deprecation")
+	private static CategoryList list(CharSequence  description,
                                      SampleDimensionType  type,
                                      ColorInterpretation color,
                                final Color[]           palette,
@@ -694,7 +696,8 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      *
      * @return A code value indicating grid value data type.
      */
-    public SampleDimensionType getSampleDimensionType() {
+    @SuppressWarnings("unchecked")
+	public SampleDimensionType getSampleDimensionType() {
         final NumberRange range = getRange();
         if (range == null) {
             return SampleDimensionType.REAL_32BITS;
@@ -939,7 +942,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      * @todo We should do a better job in {@code CategoryList.getRange()} when selecting the
      *       appropriate data type. {@link TypeMap#getSampleDimensionType} may be of some help.
      */
-    public NumberRange getRange() {
+    public NumberRange<? extends Number> getRange() {
         return (categories != null) ? categories.getRange() : null;
     }
 

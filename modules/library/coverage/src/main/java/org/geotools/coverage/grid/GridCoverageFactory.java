@@ -188,7 +188,7 @@ public class GridCoverageFactory extends AbstractFactory {
                                  final ImageFunction         function,
                                  final GridGeometry2D        gridGeometry,
                                  final GridSampleDimension[] bands,
-                                 final Map                   properties)
+                                 final Map<?,?>              properties)
     {
         final MathTransform transform = gridGeometry.getGridToCRS2D();
         if (!(transform instanceof AffineTransform)) {
@@ -506,7 +506,7 @@ public class GridCoverageFactory extends AbstractFactory {
                                        Envelope              envelope,
                                  final GridSampleDimension[] bands,
                                  final GridCoverage[]        sources,
-                                 final Map                   properties)
+                                 final Map<?,?>              properties)
     {
         /*
          * Makes sure that the specified envelope has a CRS.
@@ -546,7 +546,7 @@ public class GridCoverageFactory extends AbstractFactory {
                                  final MathTransform             gridToCRS,
                                  final GridSampleDimension[]     bands,
                                  final GridCoverage[]            sources,
-                                 final Map                       properties)
+                                 final Map<?,?>                  properties)
     {
         final GridGeometry2D gm = new GridGeometry2D(new GeneralGridEnvelope(image,
                 crs.getCoordinateSystem().getDimension()), gridToCRS, crs);

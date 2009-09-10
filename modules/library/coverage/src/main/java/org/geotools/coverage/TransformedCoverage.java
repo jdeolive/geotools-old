@@ -19,23 +19,21 @@ package org.geotools.coverage;
 // J2SE and JAI dependencies
 import javax.media.jai.PropertySource;
 
-// OpenGIS dependencies
-import org.opengis.coverage.Coverage;
-import org.opengis.coverage.SampleDimension;
+import org.geotools.factory.Hints;
+import org.geotools.geometry.GeneralDirectPosition;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.ReferencingFactoryFinder;
 import org.opengis.coverage.CannotEvaluateException;
-import org.opengis.geometry.Envelope;
+import org.opengis.coverage.Coverage;
+import org.opengis.coverage.PointOutsideCoverageException;
+import org.opengis.coverage.SampleDimension;
 import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-
-// Geotools dependencies
-import org.geotools.factory.Hints;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.geometry.GeneralEnvelope;
 
 
 /**

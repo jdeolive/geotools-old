@@ -463,31 +463,6 @@ public abstract class AbstractGridCoverage extends AbstractCoverage implements G
                 toString(point, locale));
     }
 
-    /**
-     * Constructs an error message for a point outside the coverage.
-     * This is used for formatting error messages.
-     *
-     * @param  point The coordinate point to format.
-     * @return An error message.
-     *
-     * @deprecated Replaced by {@link #formatEvaluateError}.
-     */
-    protected String pointOutsideCoverage(final Point2D point) {
-        return formatEvaluateError(point, true);
-    }
-
-    /**
-     * Constructs an error message for a point outside the coverage.
-     * This is used for formatting error messages.
-     *
-     * @param  point The coordinate point to format.
-     * @return An error message.
-     *
-     * @deprecated Replaced by {@link #formatEvaluateError}.
-     */
-    protected String pointOutsideCoverage(final DirectPosition point) {
-        return formatEvaluateError(point, true);
-    }
 
     /**
      * Constructs a string for the specified point.

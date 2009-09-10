@@ -18,7 +18,6 @@ package org.geotools.coverage.processing;
 
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.util.Map;
 
@@ -31,7 +30,6 @@ import javax.media.jai.OperationDescriptor;
 
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.ViewType;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.operation.LinearTransform;

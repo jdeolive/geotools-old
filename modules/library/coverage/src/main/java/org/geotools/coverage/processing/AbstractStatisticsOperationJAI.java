@@ -68,13 +68,18 @@ import com.vividsolutions.jts.geom.Polygon;
 public abstract class AbstractStatisticsOperationJAI extends
 		OperationJAI {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6830028735162290160L;
+
 	/** {@link Logger} for this class. */
 	public final static Logger LOGGER = Logging.getLogger("org.geotools.coverage.processing");
 
 	/**
 	 * The parameter descriptor for the SPATIAL_SUBSAMPLING_X
 	 */
-	public static final ParameterDescriptor SPATIAL_SUBSAMPLING_X = new DefaultParameterDescriptor(
+	public static final ParameterDescriptor<Double> SPATIAL_SUBSAMPLING_X = new DefaultParameterDescriptor<Double>(
 			Citations.JAI, "xPeriod", Double.class, // Value class (mandatory)
 			null, // Array of valid values
 			null, // Default value
@@ -86,7 +91,7 @@ public abstract class AbstractStatisticsOperationJAI extends
 	/**
 	 * The parameter descriptor for the SPATIAL_SUBSAMPLING_Y
 	 */
-	public static final ParameterDescriptor SPATIAL_SUBSAMPLING_Y = new DefaultParameterDescriptor(
+	public static final ParameterDescriptor<Double> SPATIAL_SUBSAMPLING_Y = new DefaultParameterDescriptor<Double>(
 			Citations.JAI, "yPeriod", Double.class, // Value class (mandatory)
 			null, // Array of valid values
 			null, // Default value
@@ -98,7 +103,7 @@ public abstract class AbstractStatisticsOperationJAI extends
 	/**
 	 * The parameter descriptor for the Region Of Interest.
 	 */
-	public static final ParameterDescriptor ROI = new DefaultParameterDescriptor(
+	public static final ParameterDescriptor<Polygon> ROI = new DefaultParameterDescriptor<Polygon>(
 			Citations.JAI, "roi", Polygon.class, // Value class (mandatory)
 			null, // Array of valid values
 			null, // Default value
@@ -107,10 +112,10 @@ public abstract class AbstractStatisticsOperationJAI extends
 			null, // Unit of measure
 			true);
 
-	private static Set REPLACED_DESCRIPTORS;
+	private static Set<ParameterDescriptor> REPLACED_DESCRIPTORS;
 
 	static {
-		final Set replacedDescriptors = new HashSet(3,1.0f);
+		final Set<ParameterDescriptor> replacedDescriptors = new HashSet<ParameterDescriptor>();
 		replacedDescriptors.add( SPATIAL_SUBSAMPLING_X);
 		replacedDescriptors.add( SPATIAL_SUBSAMPLING_Y);
 		replacedDescriptors.add( ROI);
@@ -154,7 +159,7 @@ public abstract class AbstractStatisticsOperationJAI extends
 	public AbstractStatisticsOperationJAI(String name) {
 		super(getOperationDescriptor(name),new ImagingParameterDescriptors(
 				getOperationDescriptor(name),
-				new HashSet(REPLACED_DESCRIPTORS)));
+				new HashSet<ParameterDescriptor>(REPLACED_DESCRIPTORS)));
 	}
 
 	/**
