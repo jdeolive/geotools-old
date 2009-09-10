@@ -125,7 +125,7 @@ public class StyleSnippets {
             // create a rule and set the condition (value range) for which features
             // it will apply to
             Rule rule = styleBuilder.createRule(symbolizer);
-            Filter filter = ff.lessOrEqual(ff.property("PERCENT"), ff.literal(breaks[i]));
+            Filter filter = ff.lessOrEqual(ff.property(attrName), ff.literal(breaks[i]));
             rule.setFilter(filter);
 
             // if this is not the first rule it is an 'else' rule

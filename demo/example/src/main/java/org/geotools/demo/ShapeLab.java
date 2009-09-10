@@ -1,11 +1,8 @@
 package org.geotools.demo;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -34,6 +31,7 @@ import org.geotools.styling.Graphic;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Stroke;
 import org.geotools.swing.JMapFrame;
+import org.geotools.swing.data.JFileDataStoreChooser;
 
 public class ShapeLab {
 
@@ -41,13 +39,19 @@ public class ShapeLab {
     static FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
 
     /**
-     * Prompt the user for a file and open up ImageLab.
+     * Prompts the user for a shapefile (unless a filename is provided
+     * on the command line; then creates an appropriate simple {@code Style}
+     * and displays the shapefile using a {@code JMapFrame}.
      * 
-     * @param args
-     *                filename of image
+     * @param args shapefile name; if not provided the user will be prompted
+     *        for a file
      */
     public static void main(String[] args) throws Exception {
         File file = getShapeFile(args);
+
+        if (file == null) {
+            return;
+        }
 
         ShapefileDataStore shapefile = new ShapefileDataStore(file.toURI().toURL());
         String typeName = shapefile.getTypeNames()[0];
@@ -61,6 +65,29 @@ public class ShapeLab {
         map.addLayer(featureSource, style);
 
         JMapFrame.showMap(map);
+    }
+
+    private static File getShapeFile(String[] args) {
+        File file = null;
+
+        // check if the filename was provided on the command line
+        if (args.length > 0) {
+            file = new File(args[0]);
+            if (file.exists()) {
+                return file;
+            }
+
+            // file didn't exist - see if the user wants to continue
+            int rtnVal = JOptionPane.showConfirmDialog(null,
+                    "Can't find " + file.getName() + ". Choose another ?",
+                    "Input shapefile", JOptionPane.YES_NO_OPTION);
+            if (rtnVal != JOptionPane.YES_OPTION) {
+                return null;
+            }
+        }
+
+        // display a data store file chooser dialog for shapefiles
+        return JFileDataStoreChooser.showOpenFile("shp", null);
     }
 
     private static Style createStyle(File file, FeatureType schema) {
@@ -181,40 +208,6 @@ public class ShapeLab {
         style.featureTypeStyles().add(fts);
 
         return style;
-    }
-
-    private static File getShapeFile(String[] args)
-            throws FileNotFoundException {
-        File file;
-        if (args.length == 0) {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setDialogTitle("Open shapefile");
-            chooser.setFileFilter(new FileFilter() {
-                public boolean accept(File f) {
-                    return f.isDirectory() || f.getPath().endsWith("shp")
-                            || f.getPath().endsWith("SHP");
-                }
-
-                public String getDescription() {
-                    return "Shapefiles";
-                }
-            });
-            int returnVal = chooser.showOpenDialog(null);
-
-            if (returnVal != JFileChooser.APPROVE_OPTION) {
-                System.exit(0);
-            }
-            file = chooser.getSelectedFile();
-
-            System.out
-                    .println("You chose to open this file: " + file.getName());
-        } else {
-            file = new File(args[0]);
-        }
-        if (!file.exists()) {
-            throw new FileNotFoundException(file.getAbsolutePath());
-        }
-        return file;
     }
 
     /** Figure out the URL for the "sld" file */
