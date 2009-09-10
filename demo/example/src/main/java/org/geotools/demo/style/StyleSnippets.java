@@ -6,18 +6,14 @@ import org.geotools.styling.FeatureTypeConstraint;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.Rule;
-import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.StyledLayerDescriptor;
-import org.geotools.styling.Symbolizer;
 import org.geotools.styling.UserLayer;
 import org.opengis.filter.Filter;
 import org.opengis.style.Graphic;
-import org.opengis.style.GraphicalSymbol;
 
-import com.vividsolutions.jts.geom.Point;
 
 /**
  * The following style snippets are used to keep the wiki honest.

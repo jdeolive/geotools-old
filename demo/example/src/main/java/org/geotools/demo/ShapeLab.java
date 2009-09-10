@@ -188,7 +188,7 @@ public class ShapeLab {
         File file;
         if (args.length == 0) {
             JFileChooser chooser = new JFileChooser();
-            chooser.setDialogTitle("Open Shapefile for Reprojection");
+            chooser.setDialogTitle("Open shapefile");
             chooser.setFileFilter(new FileFilter() {
                 public boolean accept(File f) {
                     return f.isDirectory() || f.getPath().endsWith("shp")
