@@ -77,7 +77,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class MemoryDataStore extends AbstractDataStore {
     /** Memory holds Map of Feature by fid by typeName. */
-    protected Map<String,Map<String,SimpleFeature>> memory = new HashMap<String,Map<String,SimpleFeature>>();
+    protected Map<String,Map<String,SimpleFeature>> memory = new LinkedHashMap<String,Map<String,SimpleFeature>>();
 
     /** Schema holds FeatureType by typeName */
     protected Map<String,SimpleFeatureType> schema = new HashMap<String,SimpleFeatureType>();
@@ -166,7 +166,7 @@ public class MemoryDataStore extends AbstractDataStore {
     public void addFeatures(FeatureIterator<SimpleFeature> reader) throws IOException {
         try {
             SimpleFeatureType featureType;
-            Map<String,SimpleFeature> featureMap = new HashMap<String,SimpleFeature>();
+            Map<String,SimpleFeature> featureMap = new LinkedHashMap<String,SimpleFeature>();
             String typeName;
             SimpleFeature feature;
 
