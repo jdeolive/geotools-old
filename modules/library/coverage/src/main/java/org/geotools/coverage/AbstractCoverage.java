@@ -405,7 +405,7 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      * @since 2.3
      */
     public GeometryValuePair find(final DirectPosition p) {
-        final List pairs = find(p, 1);
+        final List<? extends GeometryValuePair> pairs = find(p, 1);
         return pairs.isEmpty() ? null : (GeometryValuePair) pairs.get(0);
     }
 

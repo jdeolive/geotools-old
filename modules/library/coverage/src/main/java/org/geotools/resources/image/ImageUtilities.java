@@ -16,23 +16,34 @@
  */
 package org.geotools.resources.image;
 
-import java.awt.image.*;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferDouble;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferShort;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.IndexColorModel;
+import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
+import java.awt.image.WritableRenderedImage;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageReader;
 import javax.imageio.spi.IIORegistry;
-import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.spi.ImageReaderWriterSpi;
-import javax.imageio.spi.ImageWriterSpi;
 import javax.media.jai.BorderExtender;
+import javax.media.jai.BorderExtenderCopy;
+import javax.media.jai.BorderExtenderReflect;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
+import javax.media.jai.OpImage;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
 

@@ -18,25 +18,26 @@ package org.geotools.coverage.processing;
 
 import java.awt.RenderingHints;
 import java.util.Map;
+
 import javax.media.jai.BorderExtender;
 import javax.media.jai.Interpolation;
 import javax.media.jai.KernelJAI;
 
+import org.geotools.coverage.processing.operation.Resample;
+import org.geotools.factory.Hints;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.coverage.processing.Operation;
 import org.opengis.coverage.processing.OperationNotFoundException;
+import org.opengis.geometry.Envelope;
 import org.opengis.parameter.InvalidParameterNameException;
 import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.operation.TransformException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.geometry.Envelope;
-
-import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.coverage.processing.operation.Resample;
+import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -76,7 +77,7 @@ public class Operations {
      */
     public Operations(final RenderingHints hints) {
         if (hints != null && !hints.isEmpty()) {
-            processor = new BufferedProcessor(hints);
+            processor = new DefaultProcessor(hints);
         }
         // Otherwise, will creates the processor only when first needed.
     }
