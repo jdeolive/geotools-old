@@ -39,7 +39,7 @@ import org.geotools.swing.event.MapMouseEvent;
  * <pre>   {@code len = len.old / z} </pre>
  * where {@code z} is the linear zoom increment (>= 1.0)
  * <p>
- * The tool also responds to the user drawing a box on the map pane with 
+ * The tool also responds to the user drawing a box on the map mapPane with
  * mouse click-and-drag to define the zoomed-in area.
  * 
  * @author Michael Bedward
@@ -53,9 +53,8 @@ public class ZoomInTool extends AbstractZoomTool {
 
     public static final String TOOL_NAME = stringRes.getString("tool_name_zoom_in");
     public static final String TOOL_TIP = stringRes.getString("tool_tip_zoom_in");
-    public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/zoom_in_cursor_32.gif";
-    public static final Point CURSOR_HOTSPOT = new Point(13, 11);
-
+    public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/mActionZoomIn.png";
+    public static final Point CURSOR_HOTSPOT = new Point(14, 9);
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomIn.png";
     
     private Cursor cursor;
@@ -67,7 +66,7 @@ public class ZoomInTool extends AbstractZoomTool {
     /**
      * Constructor
      *
-     * @param pane the map pane that this tool is to work with
+     * @param mapPane the map mapPane that this tool is to work with
      */
     public ZoomInTool(JMapPane pane) {
         super(pane);
@@ -87,14 +86,14 @@ public class ZoomInTool extends AbstractZoomTool {
      * centred at the location (in world coords) of the mouse
      * click
      * 
-     * @param e map pane mouse event
+     * @param e map mapPane mouse event
      */
     @Override
     public void onMouseClicked(MapMouseEvent e) {
-        Rectangle paneArea = pane.getVisibleRect();
+        Rectangle paneArea = mapPane.getVisibleRect();
         DirectPosition2D mapPos = e.getMapPosition();
 
-        double scale = pane.getWorldToScreenTransform().getScaleX();
+        double scale = mapPane.getWorldToScreenTransform().getScaleX();
         double newScale = scale * zoom;
 
         DirectPosition2D corner = new DirectPosition2D(
@@ -103,7 +102,7 @@ public class ZoomInTool extends AbstractZoomTool {
         
         Envelope2D newMapArea = new Envelope2D();
         newMapArea.setFrameFromCenter(mapPos, corner);
-        pane.setEnvelope(newMapArea);
+        mapPane.setEnvelope(newMapArea);
     }
     
     /**
@@ -126,7 +125,7 @@ public class ZoomInTool extends AbstractZoomTool {
 
     /**
      * If the mouse was dragged, determines the bounds of the
-     * box that the user defined and passes this to the pane's
+     * box that the user defined and passes this to the mapPane's
      * {@link org.geotools.swing.JMapPane#setEnvelope(org.opengis.geometry.Envelope) }
      * method
      */
@@ -136,7 +135,7 @@ public class ZoomInTool extends AbstractZoomTool {
             Envelope2D env = new Envelope2D();
             env.setFrameFromDiagonal(startDragPos, e.getMapPosition());
             dragged = false;
-            pane.setEnvelope(env);
+            mapPane.setEnvelope(env);
         }
     }
 

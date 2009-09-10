@@ -34,6 +34,7 @@ import org.geotools.swing.action.ZoomInAction;
 import org.geotools.swing.action.ZoomOutAction;
 import org.geotools.map.MapContext;
 import org.geotools.renderer.lite.StreamingRenderer;
+import org.geotools.swing.action.InfoAction;
 
 /**
  * A Swing frame containing a map display pane and (optionally) a toolbar,
@@ -238,6 +239,11 @@ public class JMapFrame extends JFrame {
             JButton panBtn = new JButton(new PanAction(mapPane));
             toolBar.add(panBtn);
             cursorToolGrp.add(panBtn);
+
+            toolBar.addSeparator();
+
+            JButton infoBtn = new JButton(new InfoAction(mapPane));
+            toolBar.add(infoBtn);
 
             toolBar.addSeparator();
 

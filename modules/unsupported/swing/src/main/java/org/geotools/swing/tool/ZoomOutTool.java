@@ -49,9 +49,8 @@ public class ZoomOutTool extends AbstractZoomTool {
     
     public static final String TOOL_NAME = stringRes.getString("tool_name_zoom_out");
     public static final String TOOL_TIP = stringRes.getString("tool_tip_zoom_out");
-    public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/zoom_out_cursor_32.gif";
-    public static final Point CURSOR_HOTSPOT = new Point(13, 11);
-    
+    public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/mActionZoomOut.png";
+    public static final Point CURSOR_HOTSPOT = new Point(14, 9);
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionZoomOut.png";
     
     private Cursor cursor;
@@ -60,7 +59,7 @@ public class ZoomOutTool extends AbstractZoomTool {
     /**
      * Constructor
      *
-     * @param pane the map pane that this tool is to work with
+     * @param mapPane the map mapPane that this tool is to work with
      */
     public ZoomOutTool(JMapPane pane) {
         super(pane);
@@ -78,10 +77,10 @@ public class ZoomOutTool extends AbstractZoomTool {
      */
     @Override
     public void onMouseClicked(MapMouseEvent pme) {
-        Rectangle paneArea = pane.getVisibleRect();
+        Rectangle paneArea = mapPane.getVisibleRect();
         DirectPosition2D mapPos = pme.getMapPosition();
 
-        double scale = pane.getWorldToScreenTransform().getScaleX();
+        double scale = mapPane.getWorldToScreenTransform().getScaleX();
         double newScale = scale / zoom;
 
         DirectPosition2D corner = new DirectPosition2D(
@@ -90,7 +89,7 @@ public class ZoomOutTool extends AbstractZoomTool {
         
         Envelope2D newMapArea = new Envelope2D();
         newMapArea.setFrameFromCenter(mapPos, corner);
-        pane.setEnvelope(newMapArea);
+        mapPane.setEnvelope(newMapArea);
     }
 
     /**

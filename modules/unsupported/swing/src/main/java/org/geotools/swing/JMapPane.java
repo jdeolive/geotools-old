@@ -52,6 +52,7 @@ import org.geotools.swing.event.MapPaneNewRendererEvent;
 import org.geotools.swing.tool.CursorTool;
 import org.geotools.swing.tool.MapToolManager;
 import org.geotools.map.MapContext;
+import org.geotools.map.MapLayer;
 import org.geotools.map.event.MapLayerEvent;
 import org.geotools.map.event.MapLayerListEvent;
 import org.geotools.map.event.MapLayerListListener;
@@ -233,7 +234,9 @@ public class JMapPane extends JPanel implements MapLayerListListener {
                 resizeTimer.restart();
             }
         });
+
     }
+
 
     /**
      * Repaint the map when resizing has finished. This method will
@@ -371,6 +374,11 @@ public class JMapPane extends JPanel implements MapLayerListListener {
 
             if (context != null) {
                 this.context.addMapLayerListListener(this);
+                
+                // set all layers as selected by default for the info tool
+                for (MapLayer layer : context.getLayers()) {
+                    layer.setSelected(true);
+                }
             }
 
             if (renderer != null) {
@@ -606,12 +614,16 @@ public class JMapPane extends JPanel implements MapLayerListListener {
     }
 
     /**
-     * Called when a new map layer has been added
+     * Called when a new map layer has been added. Sets the layer
+     * as selected (for queries) and, if the layer table is being
+     * used, adds the new layer to the table.
      */
     public void layerAdded(MapLayerListEvent event) {
         if (layerTable != null) {
             layerTable.addLayer(event.getLayer());
         }
+
+        event.getLayer().setSelected(true);
 
         if (context.getLayerCount() == 1) {
             /*
