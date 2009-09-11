@@ -17,7 +17,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JFileChooser;
 
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
@@ -134,12 +133,12 @@ public class Csv2Shape {
     private static File getCSVFile(String[] args) throws FileNotFoundException {
         File file;
         if (args.length == 0) {
-            JFileDataStoreChooser chooser = new JFileDataStoreChooser(new String[]{"csv"});
+            JFileDataStoreChooser chooser = new JFileDataStoreChooser("csv");
             chooser.setDialogTitle("Open CSV file");
 
             int returnVal = chooser.showOpenDialog(null);
 
-            if (returnVal != JFileChooser.APPROVE_OPTION) {
+            if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
                 System.exit(0);
             }
             file = chooser.getSelectedFile();
@@ -166,13 +165,13 @@ public class Csv2Shape {
         String path = file.getAbsolutePath();
         String newPath = path.substring(0, path.length() - 4) + ".shp";
 
-        JFileDataStoreChooser chooser = new JFileDataStoreChooser(new String[]{"shp"});
+        JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
         chooser.setDialogTitle("Save shapefile");
         chooser.setSelectedFile(new File(newPath));
 
         int returnVal = chooser.showSaveDialog(null);
 
-        if (returnVal != JFileChooser.APPROVE_OPTION) {
+        if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
             System.exit(0);
         }
         File newFile = chooser.getSelectedFile();

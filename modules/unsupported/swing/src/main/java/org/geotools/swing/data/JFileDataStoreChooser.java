@@ -50,10 +50,17 @@ public class JFileDataStoreChooser extends JFileChooser {
 
     /**
      * Create a dialog that filters for files with the specified extension.
-     * Normally client code will not need to call this
-     * directly but will use the static method:
-     * {@linkplain #showOpenFile(java.lang.String, java.awt.Component) }
+     *
      * @param extension the file extension, with or without the leading '.'
+     */
+    public JFileDataStoreChooser(final String extension) {
+        this(new String[]{extension});
+    }
+
+    /**
+     * Create a dialog that filters for files with the specified extensions.
+     *
+     * @param extensions the file extensions, with or without the leading '.'
      */
     public JFileDataStoreChooser(final String[] extensions) {
         final String[] lowerExt = new String[extensions.length];
@@ -105,9 +112,7 @@ public class JFileDataStoreChooser extends JFileChooser {
 
     /**
      * Creates a dialog that filters for files matching the specified
-     * data format. Normally client code will not need to call this
-     * directly but will use the static method:
-     * {@linkplain #showOpenFile(org.geotools.data.FileDataStoreFactorySpi, java.awt.Component)}
+     * data format. 
      *
      * @param format data file format
      */

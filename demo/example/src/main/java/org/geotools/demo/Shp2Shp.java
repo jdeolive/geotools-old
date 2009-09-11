@@ -16,12 +16,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
@@ -37,9 +34,9 @@ import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -109,22 +106,13 @@ public class Shp2Shp {
         String path = file.getAbsolutePath();
         String newPath = path.substring(0, path.length() - 4) + "2.shp";
 
-        JFileChooser chooser = new JFileChooser();
+        JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
         chooser.setDialogTitle("Save reprojected shapefile");
         chooser.setSelectedFile(new File(newPath));
-        chooser.setFileFilter(new FileFilter() {
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getPath().endsWith("shp")
-                        || f.getPath().endsWith("SHP");
-            }
 
-            public String getDescription() {
-                return "Shapefiles";
-            }
-        });
         int returnVal = chooser.showSaveDialog(null);
 
-        if (returnVal != JFileChooser.APPROVE_OPTION) {
+        if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
             System.exit(0);
         }
         File newFile = chooser.getSelectedFile();
@@ -147,7 +135,7 @@ public class Shp2Shp {
         }
         String selected = (String) JOptionPane.showInputDialog(null, message,
                 "Choose a Projection", JOptionPane.QUESTION_MESSAGE, null,
-                desc.toArray(), "4326");
+                desc.toArray(), "EPSG:4326");
 
         if (selected == null) {
             System.exit(0);
@@ -161,27 +149,17 @@ public class Shp2Shp {
             throws FileNotFoundException {
         File file;
         if (args.length == 0) {
-            JFileChooser chooser = new JFileChooser();
+            JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
             chooser.setDialogTitle("Open Shapefile for Reprojection");
-            chooser.setFileFilter(new FileFilter() {
-                public boolean accept(File f) {
-                    return f.isDirectory() || f.getPath().endsWith("shp")
-                            || f.getPath().endsWith("SHP");
-                }
 
-                public String getDescription() {
-                    return "Shapefiles";
-                }
-            });
             int returnVal = chooser.showOpenDialog(null);
 
-            if (returnVal != JFileChooser.APPROVE_OPTION) {
+            if (returnVal != JFileDataStoreChooser.APPROVE_OPTION) {
                 System.exit(0);
             }
             file = chooser.getSelectedFile();
 
-            System.out
-                    .println("You chose to open this file: " + file.getName());
+            System.out.println("You chose to open this file: " + file.getName());
         } else {
             file = new File(args[0]);
         }
