@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,6 +89,7 @@ import com.vividsolutions.jts.io.InStream;
  * @author Simone Giannecchini, GeoSolutions
  * @since 2.3.x
  */
+@SuppressWarnings("deprecation")
 public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 		GridCoverageReader {
 	/** Logger. */
@@ -97,9 +97,6 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 
 	/** Caches and ImageReaderSpi for an AsciiGridsImageReader. */
 	private final static ImageReaderSpi readerSPI = new AsciiGridsImageReaderSpi();
-
-	/** Absolute path to the parent dir for this coverage. */
-	private String parentPath;
 
 	/** No data value for this dataset. */
 	private double inNoData = Double.NaN;
@@ -298,9 +295,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			final File sourceFile = (File) input;
 			if (!sourceFile.exists() || sourceFile.isDirectory()
 					|| !sourceFile.canRead())
-				throw new DataSourceException(
-						"Provided file does not exist or is a directory or is not readable!");
-			this.parentPath = sourceFile.getParent();
+				throw new DataSourceException("Provided file does not exist or is a directory or is not readable!");
 			this.coverageName = sourceFile.getName();
 			final int dotIndex = coverageName.indexOf(".");
 			gzipped = coverageName.toLowerCase().endsWith("gz");
@@ -418,6 +413,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 	 * @see ArcGridFormat
 	 * @see org.opengis.coverage.grid.GridCoverageReader#read(org.opengis.parameter.GeneralParameterValue[])
 	 */
+	@SuppressWarnings("unchecked")
 	public GridCoverage read(GeneralParameterValue[] params)
 			throws IllegalArgumentException, IOException {
 		GeneralEnvelope readEnvelope = null;
@@ -428,16 +424,13 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			for (int i = 0; i < length; i++) {
 				final ParameterValue param = (ParameterValue) params[i];
 				final String name = param.getDescriptor().getName().getCode();
-				if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D
-						.getName().toString())) {
+				if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName().toString())) {
 					final GridGeometry2D gg = (GridGeometry2D) param.getValue();
-					readEnvelope = new GeneralEnvelope((Envelope) gg
-							.getEnvelope2D());
+					readEnvelope = new GeneralEnvelope((Envelope) gg.getEnvelope2D());
 					requestedDim = gg.getGridRange2D().getBounds();
 					continue;
 				}
-				if (name.equals(AbstractGridFormat.OVERVIEW_POLICY
-						.getName().toString())) {
+				if (name.equals(AbstractGridFormat.OVERVIEW_POLICY.getName().toString())) {
 					overviewPolicy=(OverviewPolicy) param.getValue();
 				}
 			}
@@ -544,24 +537,28 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			//
 			//
 			// ///////////////////////////////////////////////////////////////////
-			Unit uom = null;
+			Unit<?> uom = null;
 			final Category nan;
 			final Category values;
 			if (Double.isNaN(inNoData)) {
 				nan = new Category(Vocabulary
 						.formatInternational(VocabularyKeys.NODATA), new Color(
 						0, 0, 0, 0), 0);
-				values = new Category("values", demColors, new NumberRange(1,
-						255), new NumberRange(0, 9000));
+				values = new Category("values", demColors,NumberRange.create(1,255), NumberRange.create(0, 9000));
 
 			} else {
 				nan = new Category(Vocabulary
 						.formatInternational(VocabularyKeys.NODATA),
-						new Color[] { new Color(0, 0, 0, 0) }, new NumberRange(
-								0, 0), new NumberRange(inNoData, inNoData));
-				values = new Category("values", demColors, new NumberRange(1,
-						255), new NumberRange(inNoData + Math.abs(inNoData)
-						* 0.1, inNoData + Math.abs(inNoData) * 10));
+						new Color[] { new Color(0, 0, 0, 0) }, 
+						NumberRange.create(0, 0),
+						NumberRange.create(inNoData, inNoData));
+				values = new Category(
+						"values", 
+						demColors, 
+						NumberRange.create(1,255), 
+						NumberRange.create(inNoData + Math.abs(inNoData)
+						* 0.1, inNoData + Math.abs(inNoData) * 10)
+				);
 
 			}
 
@@ -575,7 +572,7 @@ public final class ArcGridReader extends AbstractGridCoverage2DReader implements
 			final GridSampleDimension band = new GridSampleDimension(
 					coverageName, new Category[] { nan, values }, uom)
 					.geophysics(true);
-			final Map properties = new HashMap();
+			final Map<String, Double> properties = new HashMap<String, Double>();
 			properties.put("GC_NODATA", new Double(inNoData));
 
 			// /////////////////////////////////////////////////////////////////////

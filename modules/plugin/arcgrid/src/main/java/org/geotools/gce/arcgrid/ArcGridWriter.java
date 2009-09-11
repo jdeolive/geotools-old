@@ -28,9 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -79,8 +77,8 @@ import org.opengis.referencing.cs.AxisDirection;
  * @author Daniele Romagnoli
  * @author Simone Giannecchini (simboss)
  */
-public final class ArcGridWriter extends AbstractGridCoverageWriter implements
-		GridCoverageWriter {
+@SuppressWarnings("deprecation")
+public final class ArcGridWriter extends AbstractGridCoverageWriter implements GridCoverageWriter {
 	/** Logger. */
 	private final static Logger LOGGER = org.geotools.util.logging.Logging
 			.getLogger("org.geotools.gce.arcgrid");
@@ -215,6 +213,7 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 	 * @throws DataSourceException
 	 *             indicates an unexpected exception
 	 */
+	@SuppressWarnings("unchecked")
 	private void writeGridCoverage(GridCoverage2D gc,
 			GeneralParameterValue[] parameters) throws DataSourceException {
 		try {
@@ -374,8 +373,7 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 		// so much that we need to reshape in order to have square pixels
 		//
 		// /////////////////////////////////////////////////////////////////////
-		final AffineTransform gridToWorld = (AffineTransform) ((GridGeometry2D) gc
-				.getGridGeometry()).getGridToCRS2D();
+		final AffineTransform gridToWorld = (AffineTransform) ((GridGeometry2D) gc.getGridGeometry()).getGridToCRS2D();
 		final double dx = XAffineTransform.getScaleX0(gridToWorld);
 		final double dy = XAffineTransform.getScaleY0(gridToWorld);
 		if (AsciiGridsImageWriter.resolutionCheck(dx, dy, AsciiGridsImageWriter.EPS)) {
@@ -401,8 +399,8 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 		//
 		// /////////////////////////////////////////////////////////////////////
 		final Envelope oldEnv = gc.getEnvelope2D();
-		final double W = oldEnv.getLength(0);
-		final double H = oldEnv.getLength(1);
+		final double W = oldEnv.getSpan(0);
+		final double H = oldEnv.getSpan(1);
 		if ((dx - dy) > ArcGridWriter.ROTATION_EPS) {
 			/**
 			 * we have higher resolution on the Y axis we have to increase it on
@@ -455,13 +453,12 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 	private void writeCRSInfo(CoordinateReferenceSystem crs) throws IOException {
 		// is it null?
 		if (crs == null) {
-			throw new IllegalArgumentException("CRS cannot be null!");
+			throw new NullPointerException("CRS cannot be null!");
 		}
 
 		// get the destination path
 		// getting the path of this object and the name
 		URL url = null;
-		String name = null;
 
 		if (this.destination instanceof String) {
 			url = (new File((String) this.destination)).toURI().toURL();
@@ -481,10 +478,19 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 
 		// create the file
 		final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(prjFile));
-
-		// write information on crs
-		fileWriter.write(crs.toWKT());
-		fileWriter.close();
+		try {
+			// write information on crs
+			fileWriter.write(crs.toWKT());
+		}
+		finally{
+			try{
+				fileWriter.close();
+			}
+			catch (Throwable e) {
+				if(LOGGER.isLoggable(Level.FINE))
+					LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+			}
+		}
 	}
 
 	/**
@@ -597,8 +603,8 @@ public final class ArcGridWriter extends AbstractGridCoverageWriter implements
 		// no data management
 		final GridSampleDimension sd = (GridSampleDimension) gc
 				.getSampleDimension(0);
-		final List categories = sd.getCategories();
-		final Iterator it = categories.iterator();
+		final List<Category> categories = sd.getCategories();
+		final Iterator<Category> it = categories.iterator();
 		Category candidate;
 		double inNoData = Double.NaN;
 		final String noDataName = Vocabulary.format(VocabularyKeys.NODATA);
