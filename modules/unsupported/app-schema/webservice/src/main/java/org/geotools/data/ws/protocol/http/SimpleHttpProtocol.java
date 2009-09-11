@@ -23,7 +23,11 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
+
+import org.geotools.util.logging.Logging;
 
 /**
  * An {@link HTTPProtocol} implementation that relies on plain {@link HttpURLConnection}
@@ -35,6 +39,8 @@ import java.util.zip.GZIPInputStream;
  */
 @SuppressWarnings("nls")
 public class SimpleHttpProtocol extends AbstractHttpProtocol {
+
+    private static final Logger LOGGER = Logging.getLogger("org.geotools.data.ws.protocol.http");
 
     private static class SimpleHttpResponse implements HTTPResponse {
 
@@ -95,11 +101,15 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
         String bodyContentType = callback.getContentType();
         conn.setRequestProperty("Content-Type", bodyContentType);
         
-        conn.setRequestProperty("SOAPAction", "http://www.dpi.vic.gov.au/minpet/GeoDataVicWebService/getGeologicalFeature");
+        conn.setRequestProperty("SOAPAction", targetUrl.toString());
             
         OutputStream bodyOut = conn.getOutputStream();
         callback.writeBody(bodyOut);
-
+        
+        if(LOGGER.isLoggable(Level.WARNING)) {
+            LOGGER.log(Level.WARNING, "Request to webservice backend is:\n" + bodyOut);
+        }
+        
         HTTPResponse response = new SimpleHttpResponse(conn);
         return response;
     }

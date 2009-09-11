@@ -34,7 +34,6 @@ import org.geotools.data.Transaction;
 import org.geotools.data.complex.xml.XmlResponse;
 import org.geotools.data.complex.xml.XmlXpathFilterData;
 import org.geotools.data.view.DefaultView;
-import org.geotools.data.ws.protocol.ws.GetFeature;
 import org.geotools.data.ws.protocol.ws.WSProtocol;
 import org.geotools.data.ws.protocol.ws.WSResponse;
 import org.geotools.feature.SchemaException;
@@ -67,7 +66,9 @@ public final class WS_DataStore implements XmlDataStore {
     private static final SAXBuilder sax = new SAXBuilder();
     
     private final WSProtocol wsProtocol;
-
+    
+    //The hard limit is the maximum number of features we are allowed to call. 
+    //If not set it has the value of zero, which means unlimited.
     private int maxFeaturesHardLimit;
 
     private Name name;
@@ -141,16 +142,6 @@ public final class WS_DataStore implements XmlDataStore {
         // do nothing
     }
 
-    private WSResponse executeGetFeatures(final Query query) throws IOException {
-        
-        final String outputFormat = wsProtocol.getDefaultOutputFormat();
-
-        GetFeature request = new GetFeatureQueryAdapter(query, outputFormat);
-
-        final WSResponse response = wsProtocol.issueGetFeature(request);
-        return response;
-    }
-
     /**
      * @see org.geotools.data.DataStore#getFeatureReader(org.geotools.data.Query,
      *      org.geotools.data.Transaction)
@@ -161,44 +152,53 @@ public final class WS_DataStore implements XmlDataStore {
             return null; //empty response
         }
 
-        query = new DefaultQuery(query);
+        Query callQuery = new DefaultQuery(query);
 
         Filter[] filters = wsProtocol.splitFilters(query.getFilter());
         Filter supportedFilter = filters[0];
         Filter postFilter = filters[1];
         LOGGER.fine("Supported filter:  " + supportedFilter);        
         LOGGER.fine("Unupported filter: " + postFilter);
-        ((DefaultQuery) query).setFilter(supportedFilter);
+        ((DefaultQuery) callQuery).setFilter(supportedFilter);
+        int maxFeatures = getMaxFeatures(query);
+        
+        //Only set maxFeatures if the back end can handle the filter.
+        //If it cannot, we don't want to limit the number of responses 
+        //before filtering on the server. However a hard limit may have been specified.        
         if (Filter.INCLUDE.equals(postFilter)) {
-            ((DefaultQuery) query).setMaxFeatures(getMaxFeatures(query));
-        }        
+            ((DefaultQuery) callQuery).setMaxFeatures(maxFeatures);
+        } else {
+            ((DefaultQuery) callQuery).setMaxFeatures(maxFeaturesHardLimit);
+        }
 
-        WSResponse response = executeGetFeatures(query);
-
+        WSResponse response = wsProtocol.issueGetFeature(callQuery);
         Document doc = getXmlResponse(response); 
         
-        List<Integer> validFeatureIndex = determineValidFeatures(postFilter, doc);
+        List<Integer> validFeatureIndex = determineValidFeatures(postFilter, doc, maxFeatures);
         return new XmlResponse(doc, validFeatureIndex);
     }
 
-    private List<Integer> determineValidFeatures(Filter postFilter, Document doc) {
-        int nodeCount = XmlXpathUtilites.countXPathNodes(namespaces, itemXpath, doc);
-
+    private List<Integer> determineValidFeatures(Filter postFilter, Document doc, int maxFeatures) {
+        int nodeCount = XmlXpathUtilites.countXPathNodes(namespaces, itemXpath, doc);       
+        
         List<Integer> validFeatureIndex = null;
         
         if(Filter.INCLUDE.equals(postFilter)) {
-            validFeatureIndex = new ArrayList<Integer>(nodeCount);        
-            for(int i = 1; i <= nodeCount; i++) { 
+            validFeatureIndex = new ArrayList<Integer>(nodeCount);            
+            //add all features to index--but no more than specified by maxFeatures.
+            int maxNode = nodeCount < maxFeatures ? nodeCount : maxFeatures;
+            for(int i = 1; i <= maxNode; i++) { 
                 validFeatureIndex.add(i);
             }
         } else {
             validFeatureIndex = new ArrayList<Integer>(); 
-    
-            for(int i = 1; i <= nodeCount; i++) {        
-                XmlXpathFilterData peek = new XmlXpathFilterData(namespaces, doc, i, itemXpath);
+            int nodeIndex = 1;
+            while (nodeIndex <= nodeCount && validFeatureIndex.size() <= maxFeatures) {       
+                XmlXpathFilterData peek = new XmlXpathFilterData(namespaces, doc, nodeIndex, itemXpath);
                 if (postFilter.evaluate(peek)) {
-                   validFeatureIndex.add(i);
-                }           
+                   validFeatureIndex.add(nodeIndex);
+                } 
+                nodeIndex++;
             }
         }
         return validFeatureIndex;

@@ -22,6 +22,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.data.Query;
 import org.geotools.data.ws.protocol.http.HttpMethod;
 import org.opengis.filter.Filter;
 import org.opengis.filter.capability.FilterCapabilities;
@@ -36,11 +37,6 @@ import org.opengis.filter.capability.FilterCapabilities;
  *         /wfs/protocol/wfs/WFSProtocol.java $
  */
 public interface WSProtocol {
-
-    /**
-     * @return the WS service version
-     */
-//    public Version getServiceVersion();
 
     /**
      * Returns the set of type names as extracted from the capabilities document, including the
@@ -66,10 +62,8 @@ public interface WSProtocol {
      * Issues a GetFeature request for the given request, using POST HTTP method
      * <p>
      */
-    public WSResponse issueGetFeature(GetFeature request) throws IOException,
+    public WSResponse issueGetFeature(Query request) throws IOException,
             UnsupportedOperationException;
 
-    public String getDefaultOutputFormat();
-    
-    public Filter[] splitFilters(Filter filter);
+   public Filter[] splitFilters(Filter filter);
 }

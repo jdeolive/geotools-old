@@ -16,29 +16,19 @@
  */
 package org.geotools.data.ws;
 
-import static net.opengis.wfs.ResultTypeType.RESULTS_LITERAL;
-
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Collections;
 import java.util.HashMap;
 
-import java.util.List;
 import java.util.Map;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.opengis.wfs.GetFeatureType;
-import net.opengis.wfs.QueryType;
-import net.opengis.wfs.WfsFactory;
 
 import org.geotools.data.Query;
 
-import org.geotools.data.ws.protocol.ws.GetFeature;
-import org.geotools.data.ws.protocol.ws.WSProtocol;
-import org.geotools.factory.GeoTools;
 import org.geotools.filter.Capabilities;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
@@ -46,15 +36,12 @@ import org.geotools.util.logging.Logging;
 
 import org.geotools.wfs.v1_1.WFSConfiguration;
 import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 
 /**
- * A default strategy for a WFS 1.1.0 implementation that assumes the server sticks to the standard.
- * 
  * @author rpetty
  * @version $Id$
  * @since 2.6
@@ -65,9 +52,7 @@ import freemarker.template.Template;
 @SuppressWarnings("nls")
 public class DefaultWSStrategy implements WSStrategy {
 
-    private static final Logger LOGGER = Logging.getLogger("org.geotools.data.wfs");
-
-    protected static final String DEFAULT_OUTPUT_FORMAT = "text/xml; subtype=gml/3.1.1";
+    private static final Logger LOGGER = Logging.getLogger("org.geotools.data.ws");
 
     private static Configuration cfg;
 
@@ -100,74 +85,13 @@ public class DefaultWSStrategy implements WSStrategy {
     }
 
     /**
-     * @see WSStrategy#supportsGet()
-     */
-    public boolean supportsGet() {
-        return false;
-    }
-
-    /**
-     * @see WSStrategy#supportsPost()
-     */
-    public boolean supportsPost() {
-        return true;
-    }
-
-    /**
-     * @return {@code "text/xml; subtype=gml/3.1.1"}
-     * @see WSProtocol#getDefaultOutputFormat()
-     */
-    public String getDefaultOutputFormat(WSProtocol wfs) {
-        return DEFAULT_OUTPUT_FORMAT;
-    }
-
-    /**
      * Creates the mapping {@link GetFeatureType GetFeature} request for the given {@link Query} and
      * {@code outputFormat}, and post-processing filter based on the server's stated filter
      * capabilities.
      * 
-     * @see WSStrategy#createGetFeatureRequest(WS_DataStore, WSProtocol, Query, String)
-     */
-    @SuppressWarnings("unchecked")
-    public Map createDataModel(GetFeature query) throws IOException {
-        final WfsFactory factory = WfsFactory.eINSTANCE;
-
-        GetFeatureType getFeature = factory.createGetFeatureType();
-        getFeature.setService("WS");
-        getFeature.setOutputFormat(query.getOutputFormat());
-
-        getFeature.setHandle("GeoTools " + GeoTools.getVersion() + " WS DataStore");
-        Integer maxFeatures = query.getMaxFeatures();
-        if (maxFeatures != null) {
-            getFeature.setMaxFeatures(BigInteger.valueOf(maxFeatures.intValue()));
-        }
-
-        getFeature.setResultType(RESULTS_LITERAL);
-
-        QueryType wsQuery = factory.createQueryType();
-        wsQuery.setTypeName(Collections.singletonList(query.getTypeName()));
-
-        Filter serverFilter = query.getFilter();
-        if (!Filter.INCLUDE.equals(serverFilter)) {
-            wsQuery.setFilter(serverFilter);
-        }
-
-        String[] propertyNames = query.getPropertyNames();
-        boolean retrieveAllProperties = propertyNames == null;
-        if (!retrieveAllProperties) {
-            List propertyName = wsQuery.getPropertyName();
-            for (String propName : propertyNames) {
-                propertyName.add(propName);
-            }
-        }
-        SortBy[] sortByList = query.getSortBy();
-        if (sortByList != null) {
-            for (SortBy sortBy : sortByList) {
-                wsQuery.getSortBy().add(sortBy);
-            }
-        }
-
-        getFeature.getQuery().add(wsQuery);
+     * @see WSStrategy#createGetFeatureRequest(Query)
+     */   
+    public Map getRequestData(Query query) throws IOException {
 
         Map root = new HashMap();
         Filter filter = query.getFilter();
@@ -179,16 +103,17 @@ public class DefaultWSStrategy implements WSStrategy {
         //more can be added, and referenced in the template via by the name added to root.
         String filterString = filter.toString();
         String cqlFilter = CQL.toCQL(filter);
-        
+       
         LOGGER.log(Level.WARNING, "Filter string: " + filterString);
-        LOGGER.log(Level.WARNING, "Filter CQL: " + filterString);
+        LOGGER.log(Level.WARNING, "Filter CQL: " + cqlFilter);
         LOGGER.log(Level.WARNING, "MaxFeatures: " + maxfeatures);
         
         root.put("filterString", filterString);
         root.put("filterCql", cqlFilter);
-        root.put("maxfeatures", maxfeatures);
-        root.put("query", wsQuery);        
-
+        // maxFeatures.toString removes commas that would otherwise appear in the result, and cause a crash.
+        root.put("maxFeatures", maxfeatures.toString());
+        root.put("query", query);        
+        
         return root;
     }
 

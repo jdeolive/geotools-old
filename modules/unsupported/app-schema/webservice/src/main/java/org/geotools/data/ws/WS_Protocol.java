@@ -44,7 +44,6 @@ import org.geotools.data.Query;
 import org.geotools.data.ws.protocol.http.HTTPProtocol;
 import org.geotools.data.ws.protocol.http.HTTPResponse;
 import org.geotools.data.ws.protocol.http.HTTPProtocol.POSTCallBack;
-import org.geotools.data.ws.protocol.ws.GetFeature;
 import org.geotools.data.ws.protocol.ws.WSProtocol;
 import org.geotools.data.ws.protocol.ws.WSResponse;
 import org.geotools.filter.Capabilities;
@@ -121,12 +120,10 @@ public class WS_Protocol implements WSProtocol {
     /**
      * @see WSProtocol#getFeaturePOST(Query, String)
      */
-    public WSResponse issueGetFeature(final GetFeature request) throws IOException {
-
-        URL url = getOperationURL();
-        Map reqParts = strategy.createDataModel(request);
-        WSResponse response = issuePostRequest(reqParts, url);
-        return response;
+    public WSResponse issueGetFeature(final Query query) throws IOException {
+        
+        Map dataValues = strategy.getRequestData(query);
+        return issuePostRequest(dataValues, url);
     }
 
     private WSResponse issuePostRequest(final Map request, final URL url) throws IOException {
@@ -147,14 +144,9 @@ public class WS_Protocol implements WSProtocol {
         };
 
         HTTPResponse httpResponse = http.issuePost(url, requestBodyCallback);
-
-        String responseCharset = httpResponse.getResponseCharset();
-        Charset charset = responseCharset == null ? null : Charset.forName(responseCharset);
-        String contentType = httpResponse.getContentType();
         InputStream responseStream = httpResponse.getResponseStream();
-        String target = httpResponse.getTargetUrl();
-        WSResponse response = new WSResponse(target, request, charset, contentType, responseStream);
-        return response;
+                
+        return new WSResponse(responseStream);
     }
 
     /**
@@ -176,19 +168,15 @@ public class WS_Protocol implements WSProtocol {
         encoder.setEncoding(charset);        
     }
 
-    private static void encode(Map request, WSStrategy strategy, OutputStream out)
+    private static void encode(Map data, WSStrategy strategy, OutputStream out)
             throws IOException {
         Template template = strategy.getTemplate();
         Writer wr = new OutputStreamWriter(out);
         try {
-            template.process(request, wr);
+            template.process(data, wr);
         } catch (TemplateException e) {
             throw new RuntimeException("error creating request template", e);
         }
-    }
-
-    public String getDefaultOutputFormat() {
-        return strategy.getDefaultOutputFormat(this);
     }
 
     private WFSCapabilitiesType parseCapabilities(InputStream capabilitiesReader)

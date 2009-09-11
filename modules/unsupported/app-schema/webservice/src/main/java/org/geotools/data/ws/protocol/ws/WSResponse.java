@@ -36,17 +36,7 @@ import org.geotools.util.logging.Logging;
 @SuppressWarnings("nls")
 public class WSResponse {
 
-    private static final Logger LOGGER = Logging.getLogger("org.geotools.data.wfs.protocol.wfs");
-
-    private Charset charset;
-
-    private String contentType;
-
     private InputStream inputStream;
-
-    private Map request;
-
-    private String targetUrl;
 
     /**
      * @param charset
@@ -56,39 +46,8 @@ public class WSResponse {
      * @param in
      *            the response input stream ready to be consumed
      */
-    public WSResponse(String targetUrl, Map originatingRequest, Charset charset,
-            String contentType, InputStream in) {
-        this.targetUrl = targetUrl;
-        this.request = originatingRequest;
-        if (charset == null) {
-            this.charset = Charset.forName("UTF-8");
-        } else {
-            this.charset = charset;
-        }
-        this.contentType = contentType;
+    public WSResponse(InputStream in) {
         this.inputStream = in;
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("WFS response: charset=" + charset + ", contentType=" + contentType);
-        }
-    }
-
-    /**
-     * Returns the character encoding if set by the server as an http header, if unknown assumes
-     * {@code UTF-8}
-     * 
-     * @return the character set for the response if set, or {@code null}
-     */
-    public Charset getCharacterEncoding() {
-        return charset;
-    }
-
-    /**
-     * Returns the WFS response declared content type
-     * 
-     * @return the content type of the response
-     */
-    public String getContentType() {
-        return contentType;
     }
 
     /**
@@ -98,28 +57,5 @@ public class WSResponse {
      */
     public InputStream getInputStream() {
         return inputStream;
-    }
-
-    /**
-     * Allows to replace the input stream
-     * 
-     * @param in
-     */
-    public void setInputStream(InputStream in) {
-        this.inputStream = in;
-    }
-
-    public Map getOriginatingRequest() {
-        return request;
-    }
-
-    public String getTargetUrl() {
-        return targetUrl;
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuilder("WFSResponse[charset=").append(charset).append(", contentType=")
-                .append(contentType).append("]").toString();
     }
 }
