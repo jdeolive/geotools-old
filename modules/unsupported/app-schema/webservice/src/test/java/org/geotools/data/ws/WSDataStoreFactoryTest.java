@@ -98,7 +98,6 @@ public class WSDataStoreFactoryTest {
         // override caps loading not to set up an http connection at all but to
         // load the test file
         final WSDataStoreFactory dsf = new WSDataStoreFactory() {
-            @Override
             byte[] loadCapabilities(final URL capabilitiesUrl, HTTPProtocol htp) throws IOException {
                 InputStream in = capabilitiesUrl.openStream();
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -125,20 +124,5 @@ public class WSDataStoreFactoryTest {
 
         XmlDataStore dataStore = dsf.createDataStore(params);
         assertTrue(dataStore instanceof WS_DataStore);
-    }
-
-    @SuppressWarnings("nls")
-    @Test
-    public void testCreateCapabilities() throws MalformedURLException, UnsupportedEncodingException {
-        final String parametrizedUrl = "https://excise.pyr.ec.gc.ca:8081/cgi-bin/mapserv.exe?map=/LocalApps/Mapsurfer/PYRWQMP.map&service=WS&version=1.0.0&request=GetCapabilities";
-        URL url = WSDataStoreFactory.createGetCapabilitiesRequest(new URL(parametrizedUrl));
-        assertNotNull(url);
-        assertEquals("https", url.getProtocol());
-        assertEquals("excise.pyr.ec.gc.ca", url.getHost());
-        assertEquals(8081, url.getPort());
-        assertEquals("/cgi-bin/mapserv.exe", url.getPath());
-
-        String query = url.getQuery();
-        assertNotNull(query);
     }
 }

@@ -85,13 +85,6 @@ public class SimpleHttpProtocol extends AbstractHttpProtocol {
 
     }
 
-    public HTTPResponse issueGet(URL baseUrl, Map<String, String> kvp) throws IOException {
-        URL targetUrl = createUrl(baseUrl, kvp);
-        HttpURLConnection conn = openConnection(targetUrl, HttpMethod.GET);
-        HTTPResponse response = new SimpleHttpResponse(conn);
-        return response;
-    }
-
     public HTTPResponse issuePost(URL targetUrl, POSTCallBack callback) throws IOException {
         HttpURLConnection conn = openConnection(targetUrl, HttpMethod.POST);
 

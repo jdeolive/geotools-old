@@ -16,15 +16,11 @@
  */
 package org.geotools.data.ws.protocol.http;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
+
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.geotools.util.logging.Logging;
 
 /**
@@ -88,79 +84,4 @@ public abstract class AbstractHttpProtocol implements HTTPProtocol {
     public void setTimeoutMillis(int milliseconds) {
         this.timeoutMillis = milliseconds;
     }
-
-    /**
-     * @see HTTPProtocol#createUrl(URL, Map)
-     */
-    public URL createUrl(final URL baseUrl, final Map<String, String> queryStringKvp)
-            throws MalformedURLException {
-        final String finalUrlString = createUri(baseUrl, queryStringKvp);
-        URL queryUrl = new URL(finalUrlString);
-        return queryUrl;
-    }
-
-    protected String createUri(final URL baseUrl, final Map<String, String> queryStringKvp) {
-        final String query = baseUrl.getQuery();
-        Map<String, String> finalKvpMap = new HashMap<String, String>(queryStringKvp);
-        if (query != null) {
-            Map<String, String> userParams = new CaseInsensitiveMap(queryStringKvp);
-            String[] rawUrlKvpSet = query.split("&");
-            for (String rawUrlKvp : rawUrlKvpSet) {
-                int eqIdx = rawUrlKvp.indexOf('=');
-                String key, value;
-                if (eqIdx > 0) {
-                    key = rawUrlKvp.substring(0, eqIdx);
-                    value = rawUrlKvp.substring(eqIdx + 1);
-                } else {
-                    key = rawUrlKvp;
-                    value = null;
-                }
-                if (userParams.containsKey(key)) {
-                    LOGGER.fine("user supplied value for query string argument " + key
-                            + " overrides the one in the base url");
-                } else {
-                    finalKvpMap.put(key, value);
-                }
-            }
-        }
-
-        String protocol = baseUrl.getProtocol();
-        String host = baseUrl.getHost();
-        int port = baseUrl.getPort();
-        String path = baseUrl.getPath();
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(protocol).append("://").append(host);
-        if (port != -1 && port != baseUrl.getDefaultPort()) {
-            sb.append(':');
-            sb.append(port);
-        }
-        if (!"".equals(path) && !path.startsWith("/")) {
-            sb.append('/');
-        }
-        sb.append(path).append('?');
-
-        String key, value;
-        try {
-            for (Map.Entry<String, String> kvp : finalKvpMap.entrySet()) {
-                key = kvp.getKey();
-                value = kvp.getValue();
-                if (value == null) {
-                    value = "";
-                } else {
-                    value = URLEncoder.encode(value, "UTF-8");
-                }
-                sb.append(key);
-                sb.append('=');
-                sb.append(value);
-                sb.append('&');
-            }
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-
-        final String finalUrlString = sb.toString();
-        return finalUrlString;
-    }
-
 }
