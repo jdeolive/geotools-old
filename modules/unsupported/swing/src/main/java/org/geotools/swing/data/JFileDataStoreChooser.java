@@ -55,29 +55,49 @@ public class JFileDataStoreChooser extends JFileChooser {
      * {@linkplain #showOpenFile(java.lang.String, java.awt.Component) }
      * @param extension the file extension, with or without the leading '.'
      */
-    public JFileDataStoreChooser(final String extension) {
-        final String lowerExt;
+    public JFileDataStoreChooser(final String[] extensions) {
+        final String[] lowerExt = new String[extensions.length];
 
-        if (extension.startsWith(".")) {
-            lowerExt = extension.toLowerCase();
-        } else {
-            lowerExt = "." + extension.toLowerCase();
+        for (int i = 0; i < extensions.length; i++) {
+            if (extensions[i].startsWith(".")) {
+                lowerExt[i] = extensions[i].toLowerCase();
+            } else {
+                lowerExt[i] = "." + extensions[i].toLowerCase();
+            }
         }
 
         setFileFilter(new FileFilter() {
 
             public boolean accept(File f) {
-                return f.isDirectory() ||
-                        f.getPath().endsWith(lowerExt) ||
-                        f.getPath().endsWith(lowerExt.toUpperCase());
+                if (f.isDirectory()) {
+                    return true;
+                }
+                
+                for (String ext : lowerExt) {
+                    if (f.getPath().endsWith(ext) ||
+                        f.getPath().endsWith(ext.toUpperCase())) {
+                        return true;
+                    }
+                }
+
+                return false;
             }
 
             public String getDescription() {
-                if (".shp".equals(lowerExt)) {
+                if (".shp".equals(lowerExt[0])) {
                     return "Shapefiles";
 
                 } else {
-                    return lowerExt + " files";
+                    // @todo some was of discovering formats from extensions ?
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("Files (");
+
+                    for (int k = 0; k < lowerExt.length; k++) {
+                        sb.append(lowerExt[k]);
+                        sb.append((k < lowerExt.length - 1 ? "; " : ")"));
+                    }
+
+                    return sb.toString();
                 }
             }
         });
@@ -127,12 +147,31 @@ public class JFileDataStoreChooser extends JFileChooser {
      * @throws java.awt.HeadlessException if run in an unsupported environment
      */
     public static File showOpenFile(String extension, Component parent) throws HeadlessException {
-        JFileDataStoreChooser dialog = new JFileDataStoreChooser(extension);
+        JFileDataStoreChooser dialog = new JFileDataStoreChooser(new String[] {extension});
         
         if (dialog.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             return dialog.getSelectedFile();
         }
         
+        return null;
+    }
+
+    /**
+     * Show a file open dialog that filters for files with the given extensions.
+     *
+     * @param extension array of file extension, with or without leading '.'
+     * @param parent parent GUI component (may be null)
+     *
+     * @return the selected file or null if the user cancelled the selection
+     * @throws java.awt.HeadlessException if run in an unsupported environment
+     */
+    public static File showOpenFile(String[] extensions, Component parent) throws HeadlessException {
+        JFileDataStoreChooser dialog = new JFileDataStoreChooser(extensions);
+
+        if (dialog.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
+            return dialog.getSelectedFile();
+        }
+
         return null;
     }
 

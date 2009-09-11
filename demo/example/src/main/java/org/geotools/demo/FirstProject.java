@@ -10,14 +10,11 @@
 package org.geotools.demo;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-
+import javax.measure.unit.Unit;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
@@ -30,6 +27,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import com.vividsolutions.jts.geom.Geometry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import org.geotools.swing.data.JFileDataStoreChooser;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * The example code for the "FirstProject" in the GeoTools wiki.
@@ -101,19 +101,17 @@ public class FirstProject {
             String[] typeNames = dataStore.getTypeNames();
             String typeName = typeNames[0];
 
-            System.out.println("Reading content " + typeName);
-
             /*
              * Iterate through the features, collecting some spatial data (line or boundary length)
              * on each one
              */
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
-            FeatureIterator<SimpleFeature> iterator;
+            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource =
+                    dataStore.getFeatureSource(typeName);
 
-            featureSource = dataStore.getFeatureSource(typeName);
-            collection = featureSource.getFeatures();
-            iterator = collection.features();
+            FeatureCollection<SimpleFeatureType, SimpleFeature> collection =
+                    featureSource.getFeatures();
+
+            FeatureIterator<SimpleFeature> iterator = collection.features();
 
             double totalLength = 0.0;
             try {
@@ -136,7 +134,18 @@ public class FirstProject {
                 }
             }
 
-            System.out.println("Total Length " + totalLength);
+            /*
+             * Find out what units the features are measured in so that
+             * we can display the results with this info
+             */
+            String units = "";
+            CoordinateReferenceSystem crs = featureSource.getSchema().getCoordinateReferenceSystem();
+            if (crs != null) {
+                Unit<?> distanceUnit = crs.getCoordinateSystem().getAxis(0).getUnit();
+                units = distanceUnit.toString();
+            }
+            JOptionPane.showMessageDialog(null,
+                    String.format("Total length is %.4f %s", totalLength, units));
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -153,60 +162,27 @@ public class FirstProject {
      * <p>
      * 
      * @return The shapefile as a new {@code File} object
-     * @throws FileNotFoundException
-     *             if the specified file does not exist
      */
-    private static File promptShapeFile(String[] args) throws FileNotFoundException {
-
+    private static File promptShapeFile(String[] args) {
         File file = null;
 
-        if (args.length == 0) {
-            /*
-             * The shapefile was not specified on the command line. Display a Swing dialog to prompt
-             * the user for the file.
-             */
-            JFileChooser chooser = new JFileChooser();
-            chooser.setDialogTitle("Open Shapefile for Reprojection");
-            chooser.setFileFilter(new FileFilter() {
-
-                /*
-                 * Note: we check for lower or upper case shp extension
-                 */
-                public boolean accept(File f) {
-                    return f.isDirectory() || f.getPath().endsWith("shp")
-                            || f.getPath().endsWith("SHP");
-                }
-
-                public String getDescription() {
-                    return "Shapefiles";
-                }
-            });
-            int returnVal = chooser.showOpenDialog(null);
-
-            if (returnVal != JFileChooser.APPROVE_OPTION) {
-                /*
-                 * If the user cancels just exit the program
-                 */
-                System.exit(0);
+        // check if the filename was provided on the command line
+        if (args.length > 0) {
+            file = new File(args[0]);
+            if (file.exists()) {
+                return file;
             }
 
-            file = chooser.getSelectedFile();
-            System.out.println("You chose to open this file: " + file.getName());
-
-        } else {
-            /*
-             * The shapefile's path/name was provided on the command line
-             */
-            file = new File(args[0]);
+            // file didn't exist - see if the user wants to continue
+            int rtnVal = JOptionPane.showConfirmDialog(null,
+                    "Can't find " + file.getName() + ". Choose another ?",
+                    "Input shapefile", JOptionPane.YES_NO_OPTION);
+            if (rtnVal != JOptionPane.YES_OPTION) {
+                return null;
+            }
         }
 
-        /*
-         * Check that the file actually exists
-         */
-        if (!file.exists()) {
-            throw new FileNotFoundException(file.getAbsolutePath());
-        }
-
-        return file;
+        // display a data store file chooser dialog for shapefiles
+        return JFileDataStoreChooser.showOpenFile("shp", null);
     }
 }

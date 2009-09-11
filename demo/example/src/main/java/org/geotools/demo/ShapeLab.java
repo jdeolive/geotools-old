@@ -47,7 +47,7 @@ public class ShapeLab {
      *        for a file
      */
     public static void main(String[] args) throws Exception {
-        File file = getShapeFile(args);
+        File file = promptShapeFile(args);
 
         if (file == null) {
             return;
@@ -67,7 +67,7 @@ public class ShapeLab {
         JMapFrame.showMap(map);
     }
 
-    private static File getShapeFile(String[] args) {
+    private static File promptShapeFile(String[] args) {
         File file = null;
 
         // check if the filename was provided on the command line

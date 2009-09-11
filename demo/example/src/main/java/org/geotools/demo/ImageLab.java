@@ -25,13 +25,19 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.RasterSymbolizer;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
+import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 public class ImageLab {
 
     public static void main(String[] args) {
 
-        File file = promptForFile();
+        /*
+         * We want to prompt the user for a GeoTIFF file which may
+         * have a tif or tiff extension. We can use GeoTools data
+         * format system to help us out
+         */
+        File file = JFileDataStoreChooser.showOpenFile(new String[] {"tiff", "tif"}, null);
         if (file == null) {
             return;
         }
