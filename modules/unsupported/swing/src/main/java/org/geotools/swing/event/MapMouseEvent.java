@@ -59,7 +59,8 @@ public final class MapMouseEvent extends MouseEvent {
         wheelAmount = 0;
 
         AffineTransform tr = pane.getScreenToWorldTransform();
-        geoCoords = new DirectPosition2D(event.getX(), event.getY());
+        int margin = pane.getMargin();
+        geoCoords = new DirectPosition2D(event.getX() - margin, event.getY() - margin);
         tr.transform(geoCoords, geoCoords);
     }
 

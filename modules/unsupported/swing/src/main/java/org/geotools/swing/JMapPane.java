@@ -86,7 +86,7 @@ public class JMapPane extends JPanel implements MapLayerListListener {
      * Default width of the margin (pixels) between the edge of the 
      * map pane and the drawing area
      */
-    public static final int DEFAULT_BORDER_WIDTH = 10;
+    public static final int DEFAULT_BORDER_WIDTH = 5;
 
     /**
      * Default delay (milliseconds) before the map will be redrawn when resizing

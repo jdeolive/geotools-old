@@ -20,7 +20,10 @@ package org.geotools.swing.tool;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
@@ -65,7 +68,6 @@ public class InfoTool extends CursorTool implements TextReporterListener {
     public static final String TOOL_TIP = stringRes.getString("tool_tip_info");
     public static final String CURSOR_IMAGE = "/org/geotools/swing/icons/mActionIdentify.png";
     public static final Point CURSOR_HOTSPOT = new Point(0, 0);
-
     public static final String ICON_IMAGE = "/org/geotools/swing/icons/mActionIdentify.png";
 
     /**
@@ -76,11 +78,12 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      */
     public static final double DEFAULT_DISTANCE_FRACTION = 0.04d;
 
-    private Cursor cursor;
-    private Icon icon;
+    private static boolean staticVarsInitialized;
 
-    private FilterFactory2 filterFactory;
-    private GeometryFactory geomFactory;
+    private static Cursor cursor;
+    private static Icon icon;
+    private static FilterFactory2 filterFactory;
+    private static GeometryFactory geomFactory;
 
     private JTextReporter reporter;
 
@@ -91,14 +94,23 @@ public class InfoTool extends CursorTool implements TextReporterListener {
      */
     public InfoTool(JMapPane pane) {
         setMapPane(pane);
-        icon = new ImageIcon(getClass().getResource(ICON_IMAGE));
+        if (!staticVarsInitialized) {
+            icon = new ImageIcon(getClass().getResource(ICON_IMAGE));
 
-        Toolkit tk = Toolkit.getDefaultToolkit();
-        ImageIcon imgIcon = new ImageIcon(getClass().getResource(CURSOR_IMAGE));
-        cursor = tk.createCustomCursor(imgIcon.getImage(), CURSOR_HOTSPOT, TOOL_NAME);
+            Toolkit tk = Toolkit.getDefaultToolkit();
+            ImageIcon cursorIcon = new ImageIcon(getClass().getResource(CURSOR_IMAGE));
 
-        filterFactory = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
-        geomFactory = new GeometryFactory();
+            int iconWidth = cursorIcon.getIconWidth();
+            int iconHeight = cursorIcon.getIconHeight();
+
+            Dimension bestCursorSize = tk.getBestCursorSize(cursorIcon.getIconWidth(), cursorIcon.getIconHeight());
+
+            cursor = tk.createCustomCursor(cursorIcon.getImage(), CURSOR_HOTSPOT, TOOL_TIP);
+            filterFactory = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
+            geomFactory = new GeometryFactory();
+
+            staticVarsInitialized = true;
+        }
     }
 
     @Override
@@ -120,13 +132,14 @@ public class InfoTool extends CursorTool implements TextReporterListener {
                 try {
                     GeometryDescriptor geomDesc = layer.getFeatureSource().getSchema().getGeometryDescriptor();
                     String attrName = geomDesc.getLocalName();
+                    Class<?> geomClass = geomDesc.getType().getBinding();
 
-                    if (attrName.equalsIgnoreCase("polygon") ||
-                            attrName.equalsIgnoreCase("multipolygon")) {
+                    if (Polygon.class.isAssignableFrom(geomClass) ||
+                            MultiPolygon.class.isAssignableFrom(geomClass)) {
                         /*
                          * For polygons we test if they contain mouse location
                          */
-                        filter = filterFactory.contains(
+                        filter = filterFactory.intersects(
                                 filterFactory.property(attrName),
                                 filterFactory.literal(posGeom));
                     } else {
@@ -143,11 +156,9 @@ public class InfoTool extends CursorTool implements TextReporterListener {
                     FeatureCollection<? extends FeatureType, ? extends Feature> selectedFeatures =
                             layer.getFeatureSource().getFeatures(filter);
 
-                    if (selectedFeatures != null && !selectedFeatures.isEmpty()) {
-                        iter = selectedFeatures.features();
-                        while (iter.hasNext()) {
-                            report(iter.next());
-                        }
+                    iter = selectedFeatures.features();
+                    while (iter.hasNext()) {
+                        report(iter.next());
                     }
 
                 } catch (IOException ioEx) {
