@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
@@ -33,6 +32,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.swing.data.JFileDataStoreChooser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -134,18 +134,9 @@ public class Csv2Shape {
     private static File getCSVFile(String[] args) throws FileNotFoundException {
         File file;
         if (args.length == 0) {
-            JFileChooser chooser = new JFileChooser();
+            JFileDataStoreChooser chooser = new JFileDataStoreChooser(new String[]{"csv"});
             chooser.setDialogTitle("Open CSV file");
-            chooser.setFileFilter(new FileFilter() {
-                public boolean accept(File f) {
-                    return f.isDirectory() || f.getPath().endsWith("csv")
-                            || f.getPath().endsWith("CSV");
-                }
 
-                public String getDescription() {
-                    return "Comma Seperated Value";
-                }
-            });
             int returnVal = chooser.showOpenDialog(null);
 
             if (returnVal != JFileChooser.APPROVE_OPTION) {
@@ -175,19 +166,10 @@ public class Csv2Shape {
         String path = file.getAbsolutePath();
         String newPath = path.substring(0, path.length() - 4) + ".shp";
 
-        JFileChooser chooser = new JFileChooser();
+        JFileDataStoreChooser chooser = new JFileDataStoreChooser(new String[]{"shp"});
         chooser.setDialogTitle("Save shapefile");
         chooser.setSelectedFile(new File(newPath));
-        chooser.setFileFilter(new FileFilter() {
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getPath().endsWith("shp")
-                        || f.getPath().endsWith("SHP");
-            }
 
-            public String getDescription() {
-                return "Shapefiles";
-            }
-        });
         int returnVal = chooser.showSaveDialog(null);
 
         if (returnVal != JFileChooser.APPROVE_OPTION) {
@@ -204,7 +186,7 @@ public class Csv2Shape {
 
     // start createFeatureType
     /**
-     * Here is how you can use a SimpleFeatureType build to create the schema for your shapefile
+     * Here is how you can use a SimpleFeatureType builder to create the schema for your shapefile
      * dynamically.
      * <p>
      * This method is an improvement on the origional example as we are specifying
