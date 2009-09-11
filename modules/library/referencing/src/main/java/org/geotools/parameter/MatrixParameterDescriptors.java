@@ -127,8 +127,8 @@ public class MatrixParameterDescriptors extends DefaultParameterDescriptorGroup 
          *       elements.
          */
         this(properties, new ParameterDescriptor[] {
-            new DefaultParameterDescriptor("num_row", DEFAULT_MATRIX_SIZE, 2, 50),
-            new DefaultParameterDescriptor("num_col", DEFAULT_MATRIX_SIZE, 2, 50)
+        		DefaultParameterDescriptor.create("num_row", DEFAULT_MATRIX_SIZE, 2, 50),
+        		DefaultParameterDescriptor.create("num_col", DEFAULT_MATRIX_SIZE, 2, 50)
         }, "elt_", '_');
     }
 

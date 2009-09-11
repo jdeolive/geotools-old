@@ -536,7 +536,6 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
      * This trick is used for avoiding the creation of thousands of temporary objects
      * when transforming an array of points using {@link Warp#mapDestPoint}.
      */
-    @SuppressWarnings("serial")
     private static final class PointFloat extends Point2D.Float {
         @Override
         public PointFloat clone() {
@@ -578,7 +577,7 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
         private static final long serialVersionUID = -7949539694656719923L;
 
         /** Descriptor for the "{@link WarpPolynomial#getDegree degree}" parameter value. */
-        public static final ParameterDescriptor DEGREE = new DefaultParameterDescriptor(
+        public static final ParameterDescriptor<Integer> DEGREE = DefaultParameterDescriptor.create(
                 "degree", 2, 1, MAX_DEGREE);
 
         /** Descriptor for the "{@link WarpPolynomial#getXCoeffs xCoeffs}" parameter value. */
@@ -599,13 +598,13 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
         public static final ParameterDescriptor POST_SCALE_X;
 
         /** Descriptor for the "{@link WarpPolynomial#getPostScaleY postScaleY}" parameter value. */
-        public static final ParameterDescriptor POST_SCALE_Y;
+        public static final ParameterDescriptor<Float> POST_SCALE_Y;
         static {
             final Float ONE = 1f;
-             PRE_SCALE_X = new DefaultParameterDescriptor( "preScaleX", null, ONE, false);
-             PRE_SCALE_Y = new DefaultParameterDescriptor( "preScaleY", null, ONE, false);
-            POST_SCALE_X = new DefaultParameterDescriptor("postScaleX", null, ONE, false);
-            POST_SCALE_Y = new DefaultParameterDescriptor("postScaleY", null, ONE, false);
+             PRE_SCALE_X = DefaultParameterDescriptor.create( "preScaleX",null, Float.class, ONE, false);
+             PRE_SCALE_Y = DefaultParameterDescriptor.create( "preScaleY", null, Float.class, ONE, false);
+            POST_SCALE_X = DefaultParameterDescriptor.create("postScaleX", null, Float.class, ONE, false);
+            POST_SCALE_Y = DefaultParameterDescriptor.create("postScaleY", null, Float.class, ONE, false);
         }
 
         /**

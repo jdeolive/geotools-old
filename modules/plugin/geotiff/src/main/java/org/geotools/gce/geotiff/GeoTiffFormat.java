@@ -38,9 +38,7 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,6 +72,7 @@ import org.opengis.referencing.operation.MathTransform;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/geotiff/src/org/geotools/gce/geotiff/GeoTiffFormat.java $
  */
+@SuppressWarnings("deprecation")
 public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	private final static TIFFImageReaderSpi spi = new TIFFImageReaderSpi();
 
@@ -85,15 +84,12 @@ public final class GeoTiffFormat extends AbstractGridFormat implements Format {
 	 */
 	public GeoTiffFormat() {
 		writeParameters = null;
-		mInfo = new HashMap();
+		mInfo = new HashMap<String, String>();
 		mInfo.put("name", "GeoTIFF");
-		mInfo.put("description",
-				"Tagged Image File Format with Geographic information");
+		mInfo.put("description","Tagged Image File Format with Geographic information");
 		mInfo.put("vendor", "Geotools");
 		mInfo.put("version", "1.1");
-		mInfo
-				.put("docURL",
-						"http://www.remotesensing.org:16080/websites/geotiff/geotiff.html");
+		mInfo.put("docURL",	"http://www.remotesensing.org/geotiff/spec/geotiffhome.html");
 
 		// reading parameters
 		readParameters = new ParameterGroup(

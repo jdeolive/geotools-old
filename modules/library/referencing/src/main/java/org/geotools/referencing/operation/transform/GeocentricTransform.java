@@ -582,7 +582,7 @@ public class GeocentricTransform extends AbstractMathTransform implements Serial
          * The operation parameter descriptor for the "semi_major" parameter value.
          * Valid values range from 0 to infinity.
          */
-        public static final ParameterDescriptor SEMI_MAJOR = createDescriptor(
+        public static final ParameterDescriptor<Double> SEMI_MAJOR = createDescriptor(
                 new NamedIdentifier[] {
                     new NamedIdentifier(Citations.OGC,  "semi_major"),
                     new NamedIdentifier(Citations.EPSG, "semi-major axis")   //epsg does not specifically define this parameter
@@ -593,7 +593,7 @@ public class GeocentricTransform extends AbstractMathTransform implements Serial
          * The operation parameter descriptor for the "semi_minor" parameter value.
          * Valid values range from 0 to infinity.
          */
-        public static final ParameterDescriptor SEMI_MINOR = createDescriptor(
+        public static final ParameterDescriptor<Double> SEMI_MINOR = createDescriptor(
                 new NamedIdentifier[] {
                     new NamedIdentifier(Citations.OGC,  "semi_minor"),
                     new NamedIdentifier(Citations.EPSG, "semi-minor axis")   //epsg does not specifically define this parameter
@@ -604,9 +604,8 @@ public class GeocentricTransform extends AbstractMathTransform implements Serial
          * The number of geographic dimension (2 or 3). This is a Geotools-specific argument.
          * The default value is 3, which is the value implied in OGC's WKT.
          */
-        static final ParameterDescriptor DIM = new DefaultParameterDescriptor(
-                    Collections.singletonMap(NAME_KEY,
-                        new NamedIdentifier(Citations.GEOTOOLS, "dim")),
+        static final ParameterDescriptor<Integer> DIM = DefaultParameterDescriptor.create(
+                    Collections.singletonMap(NAME_KEY, new NamedIdentifier(Citations.GEOTOOLS, "dim")),
                     3, 2, 3, false);
 
         /**

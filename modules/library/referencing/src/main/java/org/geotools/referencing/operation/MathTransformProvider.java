@@ -187,8 +187,7 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
             final ReferenceIdentifier[] identifiers, final double defaultValue,
             final double minimum, final double maximum, final Unit<?> unit)
     {
-        return new DefaultParameterDescriptor(toMap(identifiers), defaultValue,
-                                              minimum, maximum, unit, true);
+        return DefaultParameterDescriptor.create(toMap(identifiers), defaultValue,minimum, maximum, unit, true);
     }
 
     /**
@@ -205,7 +204,7 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
             final ReferenceIdentifier[] identifiers,
             final double minimum, final double maximum, final Unit<?> unit)
     {
-        return new DefaultParameterDescriptor(toMap(identifiers), Double.NaN,
+        return DefaultParameterDescriptor.create(toMap(identifiers), Double.NaN,
                                               minimum, maximum, unit, false);
     }
 

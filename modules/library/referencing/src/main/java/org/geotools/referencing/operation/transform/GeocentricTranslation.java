@@ -208,7 +208,7 @@ public class GeocentricTranslation extends ProjectiveTransform {
          * This is a Geotools-specific argument. If presents, an {@code "Ellipsoid_To_Geocentric"}
          * transform will be concatenated before the geocentric translation.
          */
-        public static final ParameterDescriptor<Integer> SRC_DIM = new DefaultParameterDescriptor(
+        public static final ParameterDescriptor<Integer> SRC_DIM = DefaultParameterDescriptor.create(
                     Collections.singletonMap(NAME_KEY,
                         new NamedIdentifier(Citations.GEOTOOLS, "src_dim")),
                     DEFAULT_DIMENSION, 2, 3, false);
@@ -218,7 +218,7 @@ public class GeocentricTranslation extends ProjectiveTransform {
          * This is a Geotools-specific argument. If presents, a {@code "Geocentric_To_Ellipsoid"}
          * transform will be concatenated after the geocentric translation.
          */
-        public static final ParameterDescriptor<Integer> TGT_DIM = new DefaultParameterDescriptor(
+        public static final ParameterDescriptor<Integer> TGT_DIM = DefaultParameterDescriptor.create(
                     Collections.singletonMap(NAME_KEY,
                         new NamedIdentifier(Citations.GEOTOOLS, "tgt_dim")),
                     DEFAULT_DIMENSION, 2, 3, false);

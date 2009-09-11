@@ -568,7 +568,7 @@ public class MolodenskiTransform extends AbstractMathTransform implements Serial
          * The number of geographic dimension (2 or 3). This argument applies on
          * both the source and the target dimension. The default value is 2.
          */
-        public static final ParameterDescriptor<Integer> DIM = new DefaultParameterDescriptor(
+        public static final ParameterDescriptor<Integer> DIM =DefaultParameterDescriptor.create(
                     Collections.singletonMap(NAME_KEY,
                         new NamedIdentifier(Citations.OGC, "dim")),
                     DEFAULT_DIMENSION, 2, 3, false);

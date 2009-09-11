@@ -179,7 +179,7 @@ class ParamDescriptor extends DefaultParameterDescriptor {
     private static final long serialVersionUID = 1L;
     Param param;
     public ParamDescriptor(Param param) {
-        super( param.key, param.description, param.sample, param.required );
+        super( DefaultParameterDescriptor.create(param.key, param.description, param.type,  param.sample, param.required ));
         this.param = param;
     }
     public ParameterValue createValue() {

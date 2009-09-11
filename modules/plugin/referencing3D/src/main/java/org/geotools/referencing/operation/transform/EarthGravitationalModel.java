@@ -380,7 +380,7 @@ public final class EarthGravitationalModel extends VerticalTransform {
          * The operation parameter descriptor for the maximum degree and order.
          * The default value is 180.
          */
-        public static final ParameterDescriptor ORDER = new DefaultParameterDescriptor(
+        public static final ParameterDescriptor<Integer> ORDER = DefaultParameterDescriptor.create(
                     Collections.singletonMap(NAME_KEY,
                         new NamedIdentifier(Citations.GEOTOOLS, Vocabulary.formatInternational(
                                                                 VocabularyKeys.ORDER))),

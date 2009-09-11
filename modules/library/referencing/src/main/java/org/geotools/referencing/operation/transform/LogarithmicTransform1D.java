@@ -383,14 +383,14 @@ public class LogarithmicTransform1D extends AbstractMathTransform
          * The operation parameter descriptor for the {@link #base base} parameter value.
          * Valid values range from 0 to infinity. The default value is 10.
          */
-        public static final ParameterDescriptor BASE = new DefaultParameterDescriptor(
+        public static final ParameterDescriptor<Double> BASE = DefaultParameterDescriptor.create(
                 "base", 10, 0, Double.POSITIVE_INFINITY, Unit.ONE);
 
         /**
          * The operation parameter descriptor for the {@link #offset offset} parameter value.
          * Valid values range is unrestricted. The default value is 0.
          */
-        public static final ParameterDescriptor OFFSET = new DefaultParameterDescriptor(
+        public static final ParameterDescriptor<Double> OFFSET =DefaultParameterDescriptor.create(
                 "offset", 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Unit.ONE);
 
         /**

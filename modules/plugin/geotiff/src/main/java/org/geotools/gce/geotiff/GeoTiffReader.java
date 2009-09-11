@@ -49,7 +49,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -111,18 +110,8 @@ import org.opengis.referencing.operation.TransformException;
  * @source $URL:
  *         http://svn.geotools.org/geotools/branches/coverages_branch/trunk/gt/plugin/geotiff/src/org/geotools/gce/geotiff/GeoTiffReader.java $
  */
-public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
-		GridCoverageReader {
-
-	/**
-	 * Number of coverages for this reader is 1
-	 * 
-	 * @return the number of coverages for this reader.
-	 */
-	@Override
-	public int getGridCoverageCount() {
-		return 1;
-	}
+@SuppressWarnings("deprecation")
+public final class GeoTiffReader extends AbstractGridCoverage2DReader implements GridCoverageReader {
 
 	/** Logger for the {@link GeoTiffReader} class. */
 	private Logger LOGGER = org.geotools.util.logging.Logging.getLogger(GeoTiffReader.class.toString());
@@ -549,8 +538,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
          * @return a {@link GridCoverage}
          * @throws IOException
          */
-        protected final GridCoverage createCoverage(PlanarImage image,
-                        MathTransform raster2Model) throws IOException {
+        protected final GridCoverage createCoverage(PlanarImage image, MathTransform raster2Model) throws IOException {
 
                 // creating bands
         final SampleModel sm = image.getSampleModel();
@@ -578,11 +566,9 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
                 }
                 // creating coverage
                 if (raster2Model != null) {
-                        return coverageFactory.create(coverageName, image, crs,
-                                        raster2Model, bands, null, null);
+                        return coverageFactory.create(coverageName, image, crs,raster2Model, bands, null, null);
                 }
-                return coverageFactory.create(coverageName, image, new GeneralEnvelope(
-                                originalEnvelope), bands, null, null);
+                return coverageFactory.create(coverageName, image, new GeneralEnvelope(originalEnvelope), bands, null, null);
 
         }
 	
@@ -640,8 +626,7 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
                             // warn about the error but proceed, it is not fatal
                             // we have at least the default crs to use
                             LOGGER
-                                    .log(Level.SEVERE, e.getLocalizedMessage(),
-                                            e);
+                                    .log(Level.SEVERE, e.getLocalizedMessage(),e);
                         }
                 }
 
@@ -693,5 +678,15 @@ public final class GeoTiffReader extends AbstractGridCoverage2DReader implements
         }
         return raster2Model;
     }
+
+	/**
+	 * Number of coverages for this reader is 1
+	 * 
+	 * @return the number of coverages for this reader.
+	 */
+	@Override
+	public int getGridCoverageCount() {
+		return 1;
+	}
 
 }

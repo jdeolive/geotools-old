@@ -35,6 +35,7 @@
 package org.geotools.gce.geotiff;
 
 // Geotools dependencies
+import java.awt.RenderingHints;
 import java.util.Collections;
 import java.util.Map;
 
@@ -60,6 +61,7 @@ import org.opengis.coverage.grid.Format;
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/plugin/geotiff/src/org/geotools/gce/geotiff/GeoTiffFormatFactorySpi.java $
  */
+@SuppressWarnings("deprecation")
 public final class GeoTiffFormatFactorySpi implements GridFormatFactorySpi {
 	/**
 	 * Creates a new instance of GeoTiffFormatFactorySpi
@@ -108,12 +110,12 @@ public final class GeoTiffFormatFactorySpi implements GridFormatFactorySpi {
 	}
 
 	/**
-	 * Returns the implementation hints. The default implementation returns en
+	 * Returns the implementation hints. The default implementation returns an
 	 * empty map.
 	 * 
 	 * @return Empty Map.
 	 */
-	public Map getImplementationHints() {
-		return Collections.EMPTY_MAP;
+	public Map<RenderingHints.Key, ?>  getImplementationHints() {
+		return Collections.emptyMap();
 	}
 }
