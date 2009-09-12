@@ -494,7 +494,7 @@ public abstract class SQLDialect {
             return CRS.decode("EPSG:" + srid);
         } catch(Exception e) {
             if(LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.log(Level.FINE, "Could not decode " + srid + " using the built-in EPSG database", e);
+                LOGGER.log(Level.FINE, "Could not decode " + srid + " using the built-in EPSG database");
             }
             return null;
         }
